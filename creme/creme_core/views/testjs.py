@@ -30,7 +30,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
-from django.utils.safestring import mark_safe
+# from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 
 from mediagenerator.utils import media_url
@@ -38,11 +38,10 @@ from mediagenerator.utils import media_url
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..gui.bricks import PaginatedBrick, brick_registry
-from ..gui.field_printers import (  # print_foreignkey_html
+from ..gui.field_printers import (  # print_foreignkey_html print_image_html
     print_date_html,
     print_datetime_html,
     print_duration,
-    print_image_html,
     print_url_html,
 )
 from ..http import is_ajax
@@ -64,22 +63,24 @@ TEST_IMAGE_URLS = (
 TEST_IMAGES_SIZES = (16, 22, 32, 48, 64)
 
 
-class MockImage:
-    def __init__(self, url, width, height=None):
-        self.url = url
-        self.width = width
-        self.height = height or width
-        self.name = url
-
-    def html(self, entity):
-        return mark_safe(
-            print_image_html(
-                entity=entity,
-                fval=self,
-                user=entity.user,
-                field=self
-            )
-        )
+# TODO: uncomment if useful
+#       (html needs to be fixed => print_image_html has changed + mark safe useless)
+# class MockImage:
+#     def __init__(self, url, width, height=None):
+#         self.url = url
+#         self.width = width
+#         self.height = height or width
+#         self.name = url
+#
+#     def html(self, entity):
+#         return mark_safe(
+#             print_image_html(
+#                 entity=entity,
+#                 fval=self,
+#                 user=entity.user,
+#                 field=self
+#             )
+#         )
 
 
 class MockManyToMany:
@@ -100,13 +101,15 @@ class Dummy:
         # self.url = mark_safe(print_url_html(self, image_url, self.user, None))
         self.url = print_url_html(value=image_url)
         # self.datetime = mark_safe(print_datetime_html(self, now(), user, None))
-        self.datetime = mark_safe(print_datetime_html(value=now()))
+        self.datetime = print_datetime_html(value=now())
         # self.date = mark_safe(print_date_html(self, date.today(), user, None))
-        self.date = mark_safe(print_date_html(value=date.today()))
-        self.duration = mark_safe(print_duration(
-            # self, f'{randint(0, 23)}:{randint(0, 59)}:{randint(0, 59)}', user, None
+        self.date = print_date_html(value=date.today())
+        # self.duration = mark_safe(print_duration(
+        #     self, f'{randint(0, 23)}:{randint(0, 59)}:{randint(0, 59)}', user, None
+        # ))
+        self.duration = print_duration(
             value=f'{randint(0, 23)}:{randint(0, 59)}:{randint(0, 59)}',
-        ))
+        )
         # self.foreignkey = mark_safe(print_foreignkey_html(self, user, user, None))
         self.foreignkey = widget_entity_hyperlink(
             CremeEntity.objects.first().get_real_entity(), user,
