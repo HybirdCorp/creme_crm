@@ -18,6 +18,9 @@
     # The description of filter conditions on fields with a "choices" attribute has been fixed
       (the label is displayed now, not the internal value anymore).
     # Apps :
+        * Creme_config :
+            - An issue with re-ordering of instances (when moving after the last line) has been fixed.
+
         * Activities :
             - The 'color' field was missing in the Calendar block of "My settings".
 
