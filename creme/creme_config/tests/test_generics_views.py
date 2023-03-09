@@ -3,12 +3,12 @@
 from functools import partial
 
 from django.apps import apps
-from django.db.models import Max
 from django.db.models.deletion import PROTECT, SET_NULL
 from django.forms import CharField
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
+from parameterized import parameterized
 
 from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.forms.widgets import Label
@@ -1656,24 +1656,43 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(brick_id, result[0])
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
-    def test_reorder(self):
-        max_order = FakeSector.objects.aggregate(Max('order'))['order__max']
+    @parameterized.expand([
+        (2, 2, [
+            (1, 'Music'), (2, 'Movie'), (3, 'Book'), (4, 'Web'),
+        ]),
+        (1, 4, [
+            (1, 'Movie'), (2, 'Book'), (3, 'Web'), (4, 'Music'),
+        ]),
+        (4, 1, [
+            (1, 'Web'), (2, 'Music'), (3, 'Movie'), (4, 'Book'),
+        ]),
+        (2, 3, [
+            (1, 'Music'), (2, 'Book'), (3, 'Movie'), (4, 'Web'),
+        ]),
+    ])
+    def test_reorder(self, target_order, next_order, expected):
+        FakeSector.objects.all().delete()
 
         create_sector = FakeSector.objects.create
-        sector1 = create_sector(title='Music', order=max_order + 1)
-        sector2 = create_sector(title='Movie', order=max_order + 2)
-        sector3 = create_sector(title='Book',  order=max_order + 3)
-        sector4 = create_sector(title='Web',   order=max_order + 4)
+        create_sector(title='Music', order=1)
+        create_sector(title='Movie', order=2)
+        create_sector(title='Book',  order=3)
+        create_sector(title='Web',   order=4)
+
+        target = FakeSector.objects.get(order=target_order)
 
         url = reverse(
             'creme_config__reorder_instance',
-            args=('creme_core', 'fake_sector', sector1.id),
+            args=('creme_core', 'fake_sector', target.id),
         )
-        data = {'target': max_order + 3}
+        data = {'target': next_order}
+
         self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data)
-        self.assertEqual(max_order + 3, self.refresh(sector1).order)
-        self.assertEqual(max_order + 1, self.refresh(sector2).order)
-        self.assertEqual(max_order + 2, self.refresh(sector3).order)
-        self.assertEqual(max_order + 4, self.refresh(sector4).order)
+        self.assertListEqual(
+            expected,
+            list(FakeSector.objects.order_by('order').values_list(
+                'order', 'title'
+            ))
+        )

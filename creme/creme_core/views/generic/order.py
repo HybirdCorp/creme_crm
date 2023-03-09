@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2021  Hybird
+#    Copyright (C) 2018-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -100,7 +100,7 @@ class ReorderInstances(View):
         return order
 
     def post(self, request, *args, **kwargs):
-        new_order = self.get_target_order()
+        new_order = self.get_target_order()  # order 1..N
         order_fname = self.order_field_name
 
         with atomic():
@@ -115,14 +115,14 @@ class ReorderInstances(View):
 
             moved_instance = instances.pop(target_index)
 
-            new_order = min(new_order, len(instances))  # Resists to a race deletion
-            instances.insert(new_order - 1, moved_instance)
+            new_index = min(new_order - 1, len(instances))  # Resists to a race deletion
+            instances.insert(new_index, moved_instance)     # index 0..N-1
 
-            for index, instance in enumerate(instances, start=1):
+            for order, instance in enumerate(instances, start=1):
                 old_order = getattr(instance, order_fname)
 
-                if old_order != index:
-                    setattr(instance, order_fname, index)
+                if old_order != order:
+                    setattr(instance, order_fname, order)
                     instance.save(force_update=True, update_fields=(order_fname,))
 
         return HttpResponse()

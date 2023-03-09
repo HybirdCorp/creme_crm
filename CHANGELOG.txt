@@ -20,6 +20,8 @@
     # Apps :
         * Activities :
             - The 'color' field was missing in the Calendar block of "My settings".
+        * Creme_config :
+            - Fix ordering issue when moving after the last line
 
   Developers side :
   -----------------
@@ -29,6 +31,7 @@
         # The creation of small models (status etc...) during a mass-import is now disabled
           for models with disabled creation (or with a customised view) in 'creme_config'.
         # The field 'forms.fields.ColorField' behaves now correctly with empty value.
+        # Fix an issue when moving after the last line in generic ReorderInstances view.
 
     Breaking changes :
     ------------------
