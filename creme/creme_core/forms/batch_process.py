@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,7 +50,10 @@ class BatchActionsWidget(SelectorList):
         sub_attrs = {'auto': False}
 
         # TODO: improve SelectorList.add_* to avoid attribute 'auto'
-        chained_input.add_dselect('name', attrs=sub_attrs, options=self.fields)
+        chained_input.add_dselect(
+            'name', attrs=sub_attrs, options=self.fields,
+            avoid_empty=True,
+        )
         chained_input.add_dselect(
             'operator', attrs=sub_attrs,
             # TODO: use a GET arg instead of using a TemplateURLBuilder ?
@@ -60,6 +63,7 @@ class BatchActionsWidget(SelectorList):
                 'creme_core__batch_process_ops',
                 kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id},
             ),
+            avoid_empty=True,
         )
 
         pinput = PolymorphicInput(key='${operator}', attrs=sub_attrs)

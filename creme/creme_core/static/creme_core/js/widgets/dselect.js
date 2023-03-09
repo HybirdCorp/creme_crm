@@ -30,22 +30,23 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         dependencies: '',
         multiple: false,
         sortable: false,
-        autocomplete: false,
-        cache: undefined
+        autocomplete: false
     },
 
     _create: function(element, options, cb, sync) {
         this._context = {};
+
         this._backend = options.backend || creme.ajax.defaultCacheBackend();
         this._enabled = creme.object.isFalse(options.disabled) && !element.prop('disabled');
         this._readonly = creme.object.isTrue(options.readonly) || element.is('.is-readonly');
         this._multiple = creme.object.isTrue(options.multiple) && element.is('[multiple]');
-        this._autocomplete = creme.object.isTrue(options.autocomplete) && element.is('[autocomplete]');
+        this._autocomplete = creme.object.isTrue(options.autocomplete) || element.is('[autocomplete]');
         this._url = new creme.utils.Template(options.url);
         this._filter = new creme.utils.Template(options.filter);
         this._dependencies = Array.isArray(options.dependencies) ? options.dependencies : (options.dependencies ? options.dependencies.split(' ') : []);
 
         this.cacheMode(element, options.cache || element.data("cache") || 'full');
+        this.noEmpty(element, options.noEmpty || element.data('noEmpty'));
 
         this._initModel(element, options);
         this._initAutocomplete(element, options);
@@ -90,7 +91,8 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
                 sortable: element.is('[data-sortable]'),
                 noResultsMsg: element.data('noResults'),
                 placeholder: element.data('placeholder'),
-                placeholderMultiple: element.data('placeholderMultiple')
+                placeholderMultiple: element.data('placeholderMultiple'),
+                noEmpty: this.noEmpty(element)
             });
         }
     },
@@ -282,6 +284,20 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         return this;
     },
 
+    noEmpty: function(element, value) {
+        if (value === undefined) {
+            return this._noEmpty;
+        }
+
+        this._noEmpty = creme.object.isTrue(value);
+
+        if (this._select2) {
+            this._select2.noEmpty(this._noEmpty);
+        }
+
+        return this;
+    },
+
     _onSelectionChange: function(element, previous) {
         // Chrome behaviour (bug ?) : select value is not updated if disabled.
         // so enable it before change value !
@@ -292,54 +308,85 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         // this._updateAutocomplete();
     },
 
-    // TODO : find a more generic way for this !
-    _valMultiple: function(element, value) {
-        if (value === undefined) {
-            return element.val();
+    _select: function(element, value) {
+        var selected = [];
+        var isMultiple = this.options.multiple;
+        var isJSON = this.options.datatype === 'json';
+        var previous = element.val();
+
+        if (isMultiple) {
+            if (Object.isString(value)) {
+                /*
+                 * A string value. can be :
+                 *   - JSON array
+                 *   - JSON object
+                 *   - comma separated string
+                 */
+                var values = value.split(',');
+                selected = isJSON ? creme.utils.JSON.clean(value, values) : values;
+            } else {
+                /* Can be an Object or an Array -> convert to Array */
+                selected = Array.isArray(value) ? value : [value];
+            }
+        } else {
+            selected = [value];
         }
 
-        if (value !== null) {
-            var selections = [];
+        /* Convert all non-string data into JSON or regular strings */
+        if (isJSON) {
+            selected = _.reject(selected, Object.isNone).map(function(item) {
+                return !Object.isString(item) ? JSON.stringify(item) : item;
+            });
+        } else {
+            selected = _.reject(selected, Object.isNone).map(function(item) {
+                return String(item);
+            });
+        }
 
-            if (Object.isString(value)) {
-                selections = creme.utils.JSON.clean(value, value.split(','));
-            } else {
-                selections = value;
+        /*
+         * Select2 have it own way to deal with selection because paged enums
+         * can add missing options available on other pages.
+         */
+        if (this._select2) {
+            this._select2.select(selected);
+            this._onSelectionChange(element, previous);
+        } else {
+            /*
+             * Specific behavior designed for the chained select.
+             * In single value mode, fallback on first option if the selected one is invalid or empty.
+             */
+            if (!isMultiple && this.noEmpty(element)) {
+                // Filter all the existing values
+                if (selected.length > 0) {
+                    var available = new Set(
+                        element.find('option:not(:disabled)').map(function() {
+                            return $(this).attr('value');
+                        })
+                    );
+
+                    selected = selected.filter(function(value) {
+                        return available.has(value);
+                    });
+                }
+
+                // If empty and not multiple select the first option.
+                if (selected.length === 0) {
+                    var first = $('option:not(:disabled)', element).first().attr('value');
+                    selected = Object.isNone(first) ? [] : [first];
+                }
             }
 
-            selections = Array.isArray(selections) ? selections : [selections];
-            selections = selections.map(function(item) {
-                return Object.isString(item) === false ? JSON.stringify(item) : item;
-            });
-
-            element.val(selections);
-            this._onSelectionChange(element);
+            element.val(isMultiple ? selected : (selected[0] || null));
+            this._onSelectionChange(element, previous);
         }
     },
 
     val: function(element, value) {
-        if (this.options.multiple) {
-            return this._valMultiple(element, value);
-        }
-
         if (value === undefined) {
             return element.val();
         }
 
-        value = value !== null ? value : '';
-
-        if (Object.isString(value) === false) {
-            value = JSON.stringify(value);
-        }
-
-        var choice = this.choice(element, value);
-
-        if (choice === undefined) {
-            this.selectfirst(element);
-        } else {
-            element.val(value);
-            this._onSelectionChange(element);
-        }
+        this._select(element, value);
     },
 
     cleanedval: function(element) {
@@ -362,8 +409,8 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
     selectfirst: function(element) {
 //        element.val($('option:not(:disabled):first', element).attr('value'));
-        element.val($('option:not(:disabled)', element).first().attr('value'));
-        this._onSelectionChange(element);
+        var value = $('option:not(:disabled)', element).first().attr('value');
+        this._select(element, value);
     },
 
     firstchoice: function(element) {

@@ -47,7 +47,7 @@ from ..utils.unicode_collation import collator
 from . import generic
 from .decorators import jsonify
 from .entity import EntityDeletionMixin
-from .enumerable import ChoicesView
+from .enumerable import FieldChoicesView
 from .generic import base
 
 logger = logging.getLogger(__name__)
@@ -319,7 +319,8 @@ class EntityFilterUserEnumerator(UserEnumerator):
         return choices[:limit] if limit else choices
 
 
-class UserChoicesView(ChoicesView):
+# class UserChoicesView(ChoicesView):
+class UserChoicesView(FieldChoicesView):
     filter_type_arg = 'filter_type'
 
     def get_enumerator(self):

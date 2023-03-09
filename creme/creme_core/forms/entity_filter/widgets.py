@@ -17,6 +17,7 @@
 ################################################################################
 
 from collections import OrderedDict, defaultdict
+from functools import partial
 from json import dumps as json_dump
 
 from django.contrib.auth import get_user_model
@@ -36,11 +37,12 @@ from creme.creme_core.core.entity_filter import (
     operators,
 )
 from creme.creme_core.core.field_tags import FieldTag
+from creme.creme_core.enumerators import CustomFieldEnumerator
 from creme.creme_core.models import CremeEntity, CustomField
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.utils.url import TemplateURLBuilder
+from creme.creme_core.views.entity_filter import EntityFilterUserEnumerator
 
-from ...views.entity_filter import EntityFilterUserEnumerator
 from ..enumerable import (
     EnumerableChoiceSet,
     EnumerableSelect,
@@ -107,6 +109,22 @@ class FieldEnumerableSelect(EnumerableSelectMultiple):
             enumerable=FieldEnumerableChoiceSet(
                 field=field,
                 empty_label=None,
+            ),
+            attrs=attrs,
+        )
+
+
+class CustomFieldEnumerableSelect(EnumerableSelectMultiple):
+    is_required = True
+
+    def __init__(self, custom_field, attrs=None):
+        custom_choices_url = reverse('creme_core__cfield_enums', args=(custom_field.id,))
+
+        super().__init__(
+            enumerable=EnumerableChoiceSet(
+                empty_label=None,
+                enumerator=CustomFieldEnumerator(custom_field=custom_field),
+                url=custom_choices_url,
             ),
             attrs=attrs,
         )
@@ -298,6 +316,7 @@ class FieldConditionSelector(ChainedInput):
             'field',
             options=self._build_fieldchoices(self.fields),
             attrs=field_attrs,
+            avoid_empty=True,
         )
         add_dselect(
             'operator',
@@ -309,6 +328,7 @@ class FieldConditionSelector(ChainedInput):
                           'true',
                 'dependencies': 'field',
             },
+            avoid_empty=True,
         )
         self.add_input('value', self._build_valueinput(field_attrs), attrs=attrs)
 
@@ -440,18 +460,27 @@ class CustomFieldConditionSelector(FieldConditionSelector):
         return '', (json_dump(choice_value), choice_label)
 
     def _build_valueinput(self, field_attrs):
-        pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
-        pinput.add_input(
-            f'^enum(__null)?.({operators.EQUALS}|{operators.EQUALS_NOT})$',
-            widget=DynamicSelectMultiple,
-            # TODO: use a GET arg instead of using a TemplateURLBuilder ?
-            url=TemplateURLBuilder(
-                cf_id=(TemplateURLBuilder.Int, '${field.id}'),
-            ).resolve('creme_core__cfield_enums'),
-            attrs=field_attrs,
+        pinput = PolymorphicInput(
+            key='${field.type}.${operator.id}.${field.id}',
+            attrs={'auto': False}
         )
+
+        def is_enumerable_custom_field(field):
+            return field.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM)
+
+        for field_info in self.fields:
+            field_id, field = field_info
+
+            if is_enumerable_custom_field(field):
+                pinput.add_input(
+                    f'^enum(__null)?.({operators.EQUALS}|{operators.EQUALS_NOT}).{field_id}$',
+                    widget=CustomFieldEnumerableSelect,
+                    custom_field=field,
+                    attrs=field_attrs,
+                )
+
         pinput.add_input(
-            f'^date(__null)?.{operators.RANGE}$',
+            f'^date(__null)?.{operators.RANGE}.*$',
             NullableDateRangeSelect, attrs={'auto': False},
         )
         pinput.add_input(
@@ -459,7 +488,7 @@ class CustomFieldConditionSelector(FieldConditionSelector):
             DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
         )
         pinput.add_input(
-            f'(string|.*__null)?.({operators.ISEMPTY})$',
+            f'(string|.*__null)?.({operators.ISEMPTY}).*$',
             DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
         )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
@@ -534,7 +563,7 @@ class DateCustomFieldsConditionsWidget(ConditionListWidget):
         chained_input = ChainedInput()
         sub_attrs = {'auto': False}
 
-        chained_input.add_dselect('field', options=options, attrs=sub_attrs)
+        chained_input.add_dselect('field', options=options, attrs=sub_attrs, avoid_empty=True)
         chained_input.add_input('range', NullableDateRangeSelect, attrs=sub_attrs)
 
         return chained_input
@@ -573,7 +602,10 @@ class RelationsConditionsWidget(ConditionListWidget):
             rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name),
         ).resolve('creme_core__ctypes_compatible_with_rtype_as_choices')
 
-        add_dselect = chained_input.add_dselect
+        add_dselect = partial(
+            chained_input.add_dselect,
+            avoid_empty=True,
+        )
         add_dselect('has', options=_HAS_RELATION_OPTIONS.items(), attrs=attrs_json)
         add_dselect(rtype_name, options=rtypes, attrs={'auto': False, 'autocomplete': True})
         add_dselect('ctype', options=ctype_url, attrs={**attrs_json, 'autocomplete': True})
@@ -605,7 +637,7 @@ class RelationSubfiltersConditionsWidget(ConditionListWidget):
         rtype_name = 'rtype'
         ctype_name = 'ctype'
 
-        add_dselect = chained_input.add_dselect
+        add_dselect = partial(chained_input.add_dselect, avoid_empty=True)
         add_dselect('has', options=_HAS_RELATION_OPTIONS.items(), attrs=attrs_json)
         add_dselect(rtype_name, options=rtypes, attrs={'auto': False, 'autocomplete': True})
         add_dselect(
@@ -646,7 +678,12 @@ class PropertiesConditionsWidget(ConditionListWidget):
             'has',
             options=_HAS_PROPERTY_OPTIONS.items(),
             attrs={'auto': False, 'datatype': 'json'},
+            avoid_empty=True,
         )
-        add_dselect('ptype', options=ptypes, attrs={'auto': False})
+        add_dselect(
+            'ptype',
+            options=ptypes, attrs={'auto': False},
+            avoid_empty=True,
+        )
 
         return chained_input
