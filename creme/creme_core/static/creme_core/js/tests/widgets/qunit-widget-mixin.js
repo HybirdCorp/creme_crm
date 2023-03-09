@@ -28,29 +28,35 @@
                 autocomplete: false
             }, options || {});
 
-            return (
+            var html = (
                 '<select widget="ui-creme-dselect"' +
-                       ' class="ui-creme-dselect ui-creme-widget ${auto} ${readonly}' +
-                       ' ${disabled} ${multiple} ${sortable} ${autocomplete} ${filter}>' +
+                       ' class="ui-creme-dselect ui-creme-widget${auto}${readonly}"' +
+                       '${url}${datatype}${disabled}${multiple}${sortable}${autocomplete}${filter}${cache}${noEmpty}>' +
                     '${options}' +
                 '</select>'
             ).template({
-                auto: options.auto ? 'widget-auto' : '',
-                readonly: options.readonly ? 'is-readonly' : '',
-                disabled: options.disabled ? 'disabled' : '',
-                multiple: options.multiple ? 'multiple' : '',
-                sortable: options.sortable ? 'sortable' : '',
-                autocomplete: options.autocomplete ? 'autocomplete' : '',
-                filter: options.filter ? 'filter="' + options.filter + '"' : '',
+                auto: options.auto ? ' widget-auto' : '',
+                readonly: options.readonly ? ' is-readonly' : '',
+                disabled: options.disabled ? ' disabled' : '',
+                multiple: options.multiple ? ' multiple' : '',
+                sortable: options.sortable ? ' sortable' : '',
+                datatype: options.datatype ? ' datatype="' + options.datatype + '"' : '',
+                url: options.url ? ' url="' + options.url + '"' : '',
+                autocomplete: options.autocomplete ? ' autocomplete' : '',
+                filter: options.filter ? ' filter="' + options.filter + '"' : '',
+                cache: options.cache ? ' data-cache="' + options.cache + '"' : '',
+                noEmpty: options.noEmpty ? ' data-no-empty="true"' : '',
                 options: options.choices.map(function(item) {
-                    return '<option value="${value}" ${readonly} ${disabled}>${label}</option>'.template({
-                        value: item.id || item.value,
+                    return '<option value="${value}"${readonly}${disabled}>${label}</option>'.template({
+                        value: String(item.id || item.value).replace(/\"/g, '&quot;'),
                         label: String(item.text || item.label).replace(/\"/g, '&quot;'),
-                        readonly: item.readonly ? 'readonly' : '',
-                        disabled: item.disabled ? 'disabled' : ''
+                        readonly: item.readonly ? ' readonly' : '',
+                        disabled: item.disabled ? ' disabled' : ''
                     });
                 }).join('\n')
             });
+
+            return html;
         },
 
         createDynamicSelectTag: function(url, noauto) {

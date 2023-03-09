@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -180,6 +180,7 @@ class AbscissaWidget(ChainedInput):
                 **field_attrs,
                 'autocomplete': True,
             },
+            avoid_empty=True,
         )
         self.add_dselect(
             self.gtype_data_name,
@@ -194,6 +195,7 @@ class AbscissaWidget(ChainedInput):
                 ),
                 'dependencies': cell_data_name,
             },
+            avoid_empty=True,
         )
         self.add_input(
             self.parameter_data_name,
@@ -481,6 +483,7 @@ class OrdinateWidget(ChainedInput):
             aggr_data_name,
             options=self.build_aggr_choices(cells_per_aggr_category),
             attrs=field_attrs,
+            avoid_empty=True,
         )
         self.add_dselect(
             self.cell_data_name,

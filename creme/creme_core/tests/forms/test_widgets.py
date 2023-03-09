@@ -282,10 +282,10 @@ class DynamicSelectTestCase(CremeTestCase):
         )
 
     def test_render(self):
-        select = DynamicSelect(options=[(1, 'A'), (2, 'B')])
+        select = DynamicSelect(options=[(1, 'A'), (2, 'B')], avoid_empty=True)
         self.assertHTMLEqual(
             '<select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" '
-            ' name="test" url="" widget="ui-creme-dselect">'
+            ' name="test" url="" widget="ui-creme-dselect" data-no-empty="1">'
             '  <option value="1">A</option>'
             '  <option value="2" selected>B</option>'
             '</select>',

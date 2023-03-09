@@ -29,12 +29,14 @@ QUnit.module("creme.form.Select2", new QUnitMixin(QUnitAjaxMixin,
             'mock/create': backend.response(200, (
                 '<form action="mock/create">' +
                     '<input type="text" name="title"></input>' +
+                    '<input type="text" name="id" value="99"></input>' +
                     '<input type="submit" class="ui-creme-dialog-action"></input>' +
                 '</form>'
             )),
             'mock/create/group': backend.response(200, (
                 '<form action="mock/create/group">' +
                     '<input type="text" name="title"></input>' +
+                    '<input type="text" name="id" value="99"></input>' +
                     '<input type="text" name="group"></input>' +
                     '<input type="submit" class="ui-creme-dialog-action"></input>' +
                 '</form>'
@@ -46,17 +48,17 @@ QUnit.module("creme.form.Select2", new QUnitMixin(QUnitAjaxMixin,
         this.setMockBackendPOST({
             'mock/create': function(url, data, options) {
                 return backend.responseJSON(200, {
-                    value: 99,
+                    value: data.id[0],
                     added: [
-                        [99, data.title[0]]
+                        [data.id[0], data.title[0]]
                     ]
                 });
             },
             'mock/create/group': function(url, data, options) {
                 return backend.responseJSON(200, {
-                    value: 99,
+                    value: data.id[0],
                     added: [
-                        {value: 99, label: data.title[0], group: data.group[0]}
+                        {value: data.id[0], label: data.title[0], group: data.group[0]}
                     ]
                 });
             }
@@ -127,7 +129,8 @@ QUnit.parametrize('creme.form.Select2.localisation', [
         errorLoading: gettext('The results could not be loaded.'),
         removeAllItems: gettext('Remove all items'),
         removeItem: gettext('Remove item'),
-        search: gettext('Search')
+        search: gettext('Search'),
+        labelPlaceholder: gettext('Loading…')
     }],
     [{
         noResultsMsg: 'Rien',
@@ -135,17 +138,19 @@ QUnit.parametrize('creme.form.Select2.localisation', [
         errorLoadingMsg: 'Ca marche pas',
         removeAllItemsMsg: 'Enleve tout',
         removeItemMsg: 'Enleve',
-        searchMsg: 'On cherche'
+        searchMsg: 'On cherche',
+        labelPlaceholderMsg: 'Etiquette'
     }, {
         noResults: 'Rien',
         loadingMore: 'Ca vient...',
         errorLoading: 'Ca marche pas',
         removeAllItems: 'Enleve tout',
         removeItem: 'Enleve',
-        search: 'On cherche'
+        search: 'On cherche',
+        labelPlaceholder: 'Etiquette'
     }]
 ], function(options, expected, assert) {
-    var select2 = new creme.form.Select2($('select'));
+    var select2 = new creme.form.Select2($('<select>'));
     var locale = select2.localisation(options);
 
     equal(locale.noResults(), expected.noResults);
@@ -154,6 +159,7 @@ QUnit.parametrize('creme.form.Select2.localisation', [
     equal(locale.removeAllItems(), expected.removeAllItems);
     equal(locale.removeItem(), expected.removeItem);
     equal(locale.search(), expected.search);
+    equal(locale.labelPlaceholder(), expected.labelPlaceholder);
 });
 
 QUnit.parametrize('creme.form.Select2.localisation (inputTooLong)', [
@@ -161,7 +167,7 @@ QUnit.parametrize('creme.form.Select2.localisation (inputTooLong)', [
     [{}, {input: 'abcde', maximum: 3}, ngettext('Please delete %d character', 'Please delete %d characters', 2).format(2)],
     [{inputTooLongMsg: function() { return 'Trop long !'; }}, {input: 'abcde', maximum: 3}, 'Trop long !']
 ], function(options, args, expected, assert) {
-    var select2 = new creme.form.Select2($('select'));
+    var select2 = new creme.form.Select2($('<select>'));
     var locale = select2.localisation(options);
     equal(locale.inputTooLong(args), expected);
 });
@@ -171,7 +177,7 @@ QUnit.parametrize('creme.form.Select2.localisation (inputTooShort)', [
     [{}, {input: 'a', minimum: 3}, ngettext('Please enter %d or more character', 'Please enter %d or more characters', 2).format(2)],
     [{inputTooShortMsg: function() { return 'Trop court !'; }}, {input: 'a', minimum: 3}, 'Trop court !']
 ], function(options, args, expected, assert) {
-    var select2 = new creme.form.Select2($('select'));
+    var select2 = new creme.form.Select2($('<select>'));
     var locale = select2.localisation(options);
     equal(locale.inputTooShort(args), expected);
 });
@@ -181,7 +187,7 @@ QUnit.parametrize('creme.form.Select2.localisation (maximumSelectedMsg)', [
     [{}, {maximum: 3}, ngettext('You can only select %d item', 'You can only select %d items', 3).format(3)],
     [{maximumSelectedMsg: function() { return 'Trop de selections !'; }}, {maximum: 3}, 'Trop de selections !']
 ], function(options, args, expected, assert) {
-    var select2 = new creme.form.Select2($('select'));
+    var select2 = new creme.form.Select2($('<select>'));
     var locale = select2.localisation(options);
     equal(locale.maximumSelected(args), expected);
 });
@@ -211,6 +217,64 @@ QUnit.test('creme.form.Select2 (single)', function(assert) {
     }, select2.options());
 
     equal('E', select.next('.select2').find('.select2-selection__rendered').text());
+});
+
+QUnit.parameterize('creme.form.Select2 (single, allowClear)', [
+    [
+        {
+            allowClear: false,
+            placeholder: 'Empty',
+            choices: [{value: 1, label: 'A'}]
+        },
+        [
+            {value: '1', label: 'A'}
+        ]
+    ],
+    [
+        {
+            allowClear: true,
+            placeholder: 'Empty',
+            choices: [{value: 1, label: 'A'}]
+        },
+        [
+            {value: '1', label: 'A'},
+            {value: '', label: 'Empty'}  // Added after.
+        ]
+    ],
+    [
+        {
+            allowClear: true,
+            placeholder: 'Empty',
+            choices: [
+                {value: '', label: '...'},
+                {value: 1, label: 'A'}
+            ]
+        },
+        [
+            {value: '', label: '...'},
+            {value: '1', label: 'A'}
+        ]
+    ]
+], function(params, expected, assert) {
+    var select = this.createSelect(params.choices);
+    var select2 = new creme.form.Select2(select, {
+        allowClear: params.allowClear,
+        placeholder: params.placeholder
+    });
+
+    deepEqual({
+        multiple: false,
+        sortable: false,
+        placeholder: params.placeholder,
+        allowClear: params.allowClear
+    }, select2.options());
+
+    deepEqual(expected, select.find('option').map(function() {
+        return {
+            value: $(this).attr('value'),
+            label: $(this).text()
+        };
+    }).get());
 });
 
 QUnit.parametrize('creme.form.Select2 (single, group)', [
@@ -369,7 +433,7 @@ QUnit.test('creme.form.Select2 (create popup, submit)', function(assert) {
 
     deepEqual([
         ['GET', {}],
-        ['POST', {title: [term]}]
+        ['POST', {id: ['99'], title: [term]}]
     ], this.mockBackendUrlCalls('mock/create'));
 
     this.assertClosedDialog();
@@ -478,7 +542,7 @@ QUnit.parametrize('creme.form.Select2 (create popup, submit, group)', [
 
     deepEqual([
         ['GET', {}],
-        ['POST', {title: [term], group: [formData.group || '']}]
+        ['POST', {id: ['99'], title: [term], group: [formData.group || '']}]
     ], this.mockBackendUrlCalls('mock/create/group'));
 
     this.assertClosedDialog();
@@ -556,6 +620,56 @@ QUnit.test('creme.form.Select2 (create popup, cancel)', function(assert) {
     }).get());
 });
 
+QUnit.test('creme.form.Select2 (create popup, submit, merge existing)', function(assert) {
+    var select = this.createSelect([
+        {value: 5, label: 'Item E'},
+        {value: 1, label: 'Item A'}
+    ]);
+
+    var select2 = new creme.form.Select2(select, {
+        createURL: 'mock/create'
+    });
+
+    deepEqual({
+        createURL: 'mock/create',
+        multiple: false,
+        sortable: false
+    }, select2.options());
+
+    select.select2('open');
+
+    var term = 'Item C';
+
+    $('.select2-search__field').val(term).trigger('input');
+    $('.select2-results__create').trigger('click');
+
+    var dialog = this.assertOpenedDialog();
+    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create'));
+
+    equal(term, dialog.find('[name="title"]').val());
+    dialog.find('[name="id"]').val('5');
+
+    // Submit the new item
+    this.findDialogButtonsByLabel(gettext('Save'), dialog).trigger('click');
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {id: ['5'], title: [term]}]
+    ], this.mockBackendUrlCalls('mock/create'));
+
+    this.assertClosedDialog();
+
+    // New item is added
+    deepEqual([
+        {value: '1', label: 'Item A'},
+        {value: '5', label: 'Item C'}
+    ], select.find('option').map(function() {
+        return {
+            value: $(this).attr('value'),
+            label: $(this).text()
+        };
+    }).get());
+});
 
 QUnit.test('creme.form.Select2 (enum)', function(assert) {
     var select = this.createSelect([
@@ -1142,6 +1256,232 @@ QUnit.parametrize('creme.Select2EnumerableAdapter (query + groups)', [
 
     equal(1, callback.calls().length);
     deepEqual(expected, callback.calls()[0][0]);
+});
+
+QUnit.parametrize('creme.Select2EnumerableAdapter (enumFetchOptions)', [
+    [
+        {
+            select: [],
+            url: 'mock/enum/only'
+        },
+        {
+            triggerCalls: [],
+            queries: []
+        }
+    ],
+    [
+        {
+            select: ['1', '2'],
+            url: 'mock/enum/only'
+        }, {
+            triggerCalls: [],
+            queries: []
+        }
+    ],
+    [
+        {
+            select: ['1', '2', '4', '6'],
+            url: 'mock/enum/only'
+        }, {
+            triggerCalls: [
+                [
+                    'enum:selection:render',
+                    [
+                        {id: '4', text: 'd', disabled: false, selected: true, enumLabelStatus: undefined},
+                        {id: '6', text: 'f', disabled: false, selected: true, enumLabelStatus: undefined}
+                    ]
+                ]
+            ],
+            queries: [
+                ['GET', {only: '4,6'}]
+            ]
+        }
+    ],
+    [
+        {
+            select: ['1', '2', '4', 'unknown'],
+            url: 'mock/enum/only'
+        }, {
+            triggerCalls: [
+                [
+                    'enum:selection:render',
+                    [
+                        {id: '4', text: 'd', disabled: false, selected: true, enumLabelStatus: undefined},
+                        {id: 'unknown', text: '!!!', disabled: false, selected: true, enumLabelStatus: {invalid: true}}
+                    ]
+                ]
+            ],
+            queries: [
+                ['GET', {only: '4,unknown'}]
+            ]
+        }
+    ],
+    [
+        {
+            select: ['1', '2', '4', '6'],
+            url: 'mock/error'
+        }, {
+            triggerCalls: [
+                [
+                    'enum:selection:render',
+                    [
+                        {id: '4', text: '!!!', disabled: false, selected: true, enumLabelStatus: {invalid: true}},
+                        {id: '6', text: '!!!', disabled: false, selected: true, enumLabelStatus: {invalid: true}}
+                    ]
+                ]
+            ],
+            queries: [
+                ['GET', {only: '4,6'}]
+            ]
+        }
+    ]
+], function(params, expected, assert) {
+    var enumItems = [
+        {value: '1', label: 'a', selected: false},
+        {value: '2', label: 'b', selected: false},
+        {value: '3', label: 'c', selected: false},
+        {value: '4', label: 'd', selected: false},
+        {value: '5', label: 'e', selected: false},
+        {value: '6', label: 'f', selected: false}
+    ];
+
+    var select = this.createSelect([
+        {value: '1', label: 'a', selected: false},
+        {value: '2', label: 'b', selected: false}
+    ]).appendTo(this.qunitFixture('field'));
+
+    var adapter = new S2.EnumerableAdapter(select, new S2.Options({
+        'enum': {
+            url: params.url,
+            debounce: 0,
+            limit: 2
+        },
+        language: {
+            labelPlaceholder: function() { return '...'; },
+            enumInvalidLabel: function() { return '!!!'; }
+        }
+    }));
+
+    deepEqual([], this.mockBackendUrlCalls(params.url));
+
+    this.setMockBackendGET({
+        'mock/enum/only': function(url, data, options) {
+            data = data || {};
+            var only = data.only ? data.only.split(',') : null;
+
+            var items = enumItems.filter(function(item) {
+                return only ? data.only.indexOf(item.value) !== -1 : true;
+            });
+
+            return this.backend.responseJSON(200, items);
+        }.bind(this)
+    });
+
+    // ignore events triggered by the adapter
+    var faker = this.withFakeMethod({instance: adapter, method: 'trigger'}, function(faker) {
+        adapter.enumFetchOptions(params.select);
+    });
+
+    setTimeout(function() {
+        deepEqual(expected.queries, this.mockBackendUrlCalls(params.url));
+        deepEqual(expected.triggerCalls, faker.calls().map(function(call) {
+            var event = call[0], params = call[1];
+
+            return [
+                event, params.data.map(function(item) {
+                    return {
+                        id: item.id,
+                        text: item.text,
+                        disabled: item.disabled,
+                        selected: item.selected,
+                        enumLabelStatus: item.enumLabelStatus
+                    };
+                })
+            ];
+        }));
+
+        start();
+    }.bind(this), 50);
+
+    stop();
+});
+
+QUnit.parametrize('creme.form.Select2 (select, noEmpty)', [
+    [{noEmpty: true,  multiple: false, append: false, select: []}, '1'],
+    [{noEmpty: true,  multiple: false, append: true, select: []}, '1'],
+
+    [{noEmpty: true,  multiple: true,  append: false, select: []}, []],
+    [{noEmpty: true,  multiple: true,  append: true, select: []}, ['2']],
+
+    [{noEmpty: true,  multiple: false, append: false, select: ['unknown']}, 'unknown'],
+    [{noEmpty: true,  multiple: false, append: true,  select: ['unknown']}, 'unknown'],
+
+    [{noEmpty: true,  multiple: true,  append: false, select: ['unknown']}, ['unknown']],
+    [{noEmpty: true,  multiple: true,  append: true,  select: ['unknown']}, ['2', 'unknown']],
+
+    [{noEmpty: false, multiple: false, append: false, select: []}, null],
+    [{noEmpty: false, multiple: false, append: true,  select: []}, null],
+
+    [{noEmpty: false, multiple: true,  append: false, select: []}, []],
+    [{noEmpty: false, multiple: true,  append: true,  select: []}, ['2']],
+
+    [{noEmpty: false, multiple: false, append: false, select: ['unknown']}, 'unknown'],
+    [{noEmpty: false, multiple: false, append: true,  select: ['unknown']}, 'unknown'],
+
+    [{noEmpty: false, multiple: true,  append: false, select: ['unknown']}, ['unknown']],
+    [{noEmpty: false, multiple: true,  append: true,  select: ['unknown']}, ['2', 'unknown']]
+], function(params, expected, assert) {
+    var enumItems = [
+        {value: '1', label: 'a', selected: false},
+        {value: '2', label: 'b', selected: false},
+        {value: '3', label: 'c', selected: false}
+    ];
+
+    var select = this.createSelect([
+        {value: '1', label: 'a', selected: false},
+        {value: '2', label: 'b', selected: false}
+    ]).appendTo(this.qunitFixture('field'));
+
+    select.toggleAttr('multiple', params.multiple);
+    select.val('2');
+
+    var select2 = new creme.form.Select2(select, {  // eslint-disable-line no-unused-vars
+        enumURL: 'mock/enum/only',
+        enumDebounce: 0,
+        enumLimit: 2,
+        noEmpty: params.noEmpty,
+        labelPlaceholderMsg: '...',
+        enumInvalidLabelMsg: '!!!'
+    });
+
+    var adapter = select2._instance.dataAdapter;
+
+    deepEqual([], this.mockBackendUrlCalls('mock/enum/only'));
+
+    this.setMockBackendGET({
+        'mock/enum/only': function(url, data, options) {
+            data = data || {};
+            var only = data.only ? data.only.split(',') : null;
+
+            var items = enumItems.filter(function(item) {
+                return only ? data.only.indexOf(item.value) !== -1 : true;
+            });
+
+            return this.backend.responseJSON(200, items);
+        }.bind(this)
+    });
+
+    // ignore events triggered by the adapter
+    this.withFakeMethod({instance: adapter, method: 'trigger'}, function(faker) {
+        select2.select(params.select, {append: params.append});
+    });
+
+    setTimeout(function() {
+        deepEqual(expected, select.val());
+        start();
+    }, 50);
+
+    stop();
 });
 
 }(jQuery));

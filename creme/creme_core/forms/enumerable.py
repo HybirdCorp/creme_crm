@@ -95,6 +95,15 @@ class EnumerableChoiceSet:
     #             "(ignore this if it's at startup)", field
     #         )
     #         self.enumerator = enumerable.EmptyEnumerator(field)
+    """
+        Build choices for the EnumerableSelect widget.
+
+        @param enumerator: Enumerator instance.
+        @param user: CremeUser instance. Used to check visibility permissions.
+        @param limit: Max available choices for initial the widget (no limit: -1)
+            Do not limit the selected values.
+        @param url: Url used by the client-side widget to get the next choices
+    """
     def __init__(self, enumerator: enumerable.Enumerator, *,
                  user=None, empty_label=None,
                  limit: int | None = None,

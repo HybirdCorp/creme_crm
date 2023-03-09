@@ -44,10 +44,14 @@ QUnit.test('creme.widgets.chainedselect.create (empty, no selector)', function(a
 
 QUnit.test('creme.widgets.chainedselect.create (empty, single selector, static)', function(assert) {
     var element = this.createChainedSelectTag();
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
 
@@ -66,10 +70,14 @@ QUnit.test('creme.widgets.chainedselect.create (empty, single selector, static)'
 
 QUnit.test('creme.widgets.chainedselect.create (empty, single selector, static, <div>)', function(assert) {
     var element = this.createChainedSelectTag();
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype, 'div');
 
@@ -88,7 +96,10 @@ QUnit.test('creme.widgets.chainedselect.create (empty, single selector, static, 
 
 QUnit.test('creme.widgets.chainedselect.create (empty, single selector, url)', function(assert) {
     var element = this.createChainedSelectTag();
-    var ctype = this.createDynamicSelectTag('mock/options');
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/options'
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
 
@@ -108,14 +119,22 @@ QUnit.test('creme.widgets.chainedselect.create (empty, single selector, url)', f
 QUnit.test('creme.widgets.chainedselect.create (empty, multi selector)', function(assert) {
     var element = this.createChainedSelectTag();
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag();
-    this.appendOptionTag(rtype, 'd', 1);
-    this.appendOptionTag(rtype, 'e', 6);
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'd'},
+            {value: 6, label: 'e'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -132,12 +151,19 @@ QUnit.test('creme.widgets.chainedselect.create (empty, multi selector)', functio
 QUnit.test('creme.widgets.chainedselect.create (empty, multi selector, single dependency)', function(assert) {
     var element = this.createChainedSelectTag();
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag('mock/rtype/${ctype}/options');
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/rtype/${ctype}/options'
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -154,13 +180,24 @@ QUnit.test('creme.widgets.chainedselect.create (empty, multi selector, single de
 QUnit.test('creme.widgets.chainedselect.create (empty, multi selector, multiple dependency)', function(assert) {
     var element = this.createChainedSelectTag();
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag('mock/rtype/${ctype}/options');
-    var entity = this.createDynamicSelectTag('mock/entity/${rtype}/${ctype}/options');
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/rtype/${ctype}/options'
+    }));
+
+    var entity = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/entity/${rtype}/${ctype}/options'
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -180,18 +217,30 @@ QUnit.test('creme.widgets.chainedselect.create (empty, multi selector, multiple 
 QUnit.test('creme.widgets.chainedselect.create (empty, multi selector, duplicates)', function(assert) {
     var element = this.createChainedSelectTag();
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag();
-    this.appendOptionTag(rtype, 'd', 1);
-    this.appendOptionTag(rtype, 'e', 6);
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'd'},
+            {value: 6, label: 'e'}
+        ]
+    }));
 
-    var rtype2 = this.createDynamicSelectTag();
-    this.appendOptionTag(rtype2, 'f', 12.5);
-    this.appendOptionTag(rtype2, 'g', 14.78);
+    var rtype2 = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 12.5, label: 'd'},
+            {value: 14.78, label: 'g'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -233,10 +282,14 @@ QUnit.test('creme.widgets.chainedselect.create (valid, no selector)', function(a
 
 QUnit.test('creme.widgets.chainedselect.create (valid, single selector, static)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '5'}));
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
 
@@ -251,10 +304,14 @@ QUnit.test('creme.widgets.chainedselect.create (valid, single selector, static)'
 
 QUnit.test('creme.widgets.chainedselect.create (unknown choice, single selector, static)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '54'}));
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
 
@@ -269,7 +326,10 @@ QUnit.test('creme.widgets.chainedselect.create (unknown choice, single selector,
 
 QUnit.test('creme.widgets.chainedselect.create (valid, single selector, url)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '14'}));
-    var ctype = this.createDynamicSelectTag('mock/options');
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/options'
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
 
@@ -285,14 +345,22 @@ QUnit.test('creme.widgets.chainedselect.create (valid, single selector, url)', f
 QUnit.test('creme.widgets.chainedselect.create (valid, multi selector, static)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '3', rtype: '6'}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag();
-    this.appendOptionTag(rtype, 'd', 1);
-    this.appendOptionTag(rtype, 'e', 6);
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'd'},
+            {value: 6, label: 'e'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -309,14 +377,22 @@ QUnit.test('creme.widgets.chainedselect.create (valid, multi selector, static)',
 QUnit.test('creme.widgets.chainedselect.create (unknown choice, multi selector, static)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '3', rtype: '46'}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag();
-    this.appendOptionTag(rtype, 'd', 1);
-    this.appendOptionTag(rtype, 'e', 6);
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'd'},
+            {value: 6, label: 'e'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -333,13 +409,20 @@ QUnit.test('creme.widgets.chainedselect.create (unknown choice, multi selector, 
 QUnit.test('creme.widgets.chainedselect.create (valid, multi selector, single dependency)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '1', rtype: 'rtype.3'}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
-    this.appendOptionTag(ctype, 'd', 1);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'},
+            {value: 1, label: 'd'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag('mock/rtype/${ctype}/options');
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/rtype/${ctype}/options'
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -357,13 +440,24 @@ QUnit.test('creme.widgets.chainedselect.create (valid, multi selector, single de
 QUnit.test('creme.widgets.chainedselect.create (valid, multi selector, multi dependencies)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '5', rtype: 'rtype.22', entity: '789'}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag('mock/rtype/${ctype}/options');
-    var entity = this.createDynamicSelectTag('mock/entity/${rtype}/${ctype}/options');
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/rtype/${ctype}/options'
+    }));
+
+    var entity = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/entity/${rtype}/${ctype}/options'
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -383,10 +477,14 @@ QUnit.test('creme.widgets.chainedselect.create (valid, multi selector, multi dep
 
 QUnit.test('creme.widgets.chainedselect.val (single selector)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '5'}));
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
 
@@ -407,15 +505,23 @@ QUnit.test('creme.widgets.chainedselect.val (single selector)', function(assert)
 QUnit.test('creme.widgets.chainedselect.val (multi selector, static)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '5', rtype: '6'}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag();
-    this.appendOptionTag(rtype, 'd', 1);
-    this.appendOptionTag(rtype, 'e', 6);
-    this.appendOptionTag(rtype, 'f', 42);
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'd'},
+            {value: 6, label: 'e'},
+            {value: 42, label: 'f'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -440,13 +546,20 @@ QUnit.test('creme.widgets.chainedselect.val (multi selector, static)', function(
 QUnit.test('creme.widgets.chainedselect.val (multi selector, single dependency)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '1', rtype: 'rtype.3'}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
-    this.appendOptionTag(ctype, 'd', 1);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'},
+            {value: 1, label: 'd'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag('mock/rtype/${ctype}/options');
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/rtype/${ctype}/options'
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -476,14 +589,25 @@ QUnit.test('creme.widgets.chainedselect.val (multi selector, single dependency)'
 QUnit.test('creme.widgets.chainedselect.val (multi selector, multiple dependencies)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '1', rtype: 'rtype.3', entity: null}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
-    this.appendOptionTag(ctype, 'd', 1);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'},
+            {value: 1, label: 'd'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag('mock/rtype/${ctype}/options');
-    var entity = this.createDynamicSelectTag('mock/entity/${rtype}/${ctype}/options');
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/rtype/${ctype}/options'
+    }));
+
+    var entity = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/entity/${rtype}/${ctype}/options'
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -524,13 +648,21 @@ QUnit.test('creme.widgets.chainedselect.val (multi selector, multiple dependenci
 QUnit.test('creme.widgets.chainedselect.val (multi selector, multiple dependencies, entity selector)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '1', rtype: 'rtype.3', entity: null}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
-    this.appendOptionTag(ctype, 'd', 1);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'},
+            {value: 1, label: 'd'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag('mock/rtype/${ctype}/options');
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/rtype/${ctype}/options'
+    }));
+
     var entity = this.createEntitySelectorTag({labelURL: 'mock/label',
                                                popupURL: 'mock/entity/${rtype}/${ctype}/popup'});
 
@@ -572,10 +704,14 @@ QUnit.test('creme.widgets.chainedselect.val (multi selector, multiple dependenci
 
 QUnit.test('creme.widgets.chainedselect.change (single selector)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '5'}));
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
 
@@ -596,15 +732,23 @@ QUnit.test('creme.widgets.chainedselect.change (single selector)', function(asse
 QUnit.test('creme.widgets.chainedselect.change (multi selector, static)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '5', rtype: '6'}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag();
-    this.appendOptionTag(rtype, 'd', 1);
-    this.appendOptionTag(rtype, 'e', 6);
-    this.appendOptionTag(rtype, 'f', 42);
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'd'},
+            {value: 6, label: 'e'},
+            {value: 42, label: 'f'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -635,13 +779,20 @@ QUnit.test('creme.widgets.chainedselect.change (multi selector, static)', functi
 QUnit.test('creme.widgets.chainedselect.change (multi selector, single dependency)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '1', rtype: 'rtype.3'}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
-    this.appendOptionTag(ctype, 'd', 1);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'},
+            {value: 1, label: 'd'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag('mock/rtype/${ctype}/options');
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/rtype/${ctype}/options'
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -667,14 +818,25 @@ QUnit.test('creme.widgets.chainedselect.change (multi selector, single dependenc
 QUnit.test('creme.widgets.chainedselect.change (multi selector, multiple dependencies)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '1', rtype: 'rtype.3', entity: null}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
-    this.appendOptionTag(ctype, 'd', 1);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'},
+            {value: 1, label: 'd'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag('mock/rtype/${ctype}/options');
-    var entity = this.createDynamicSelectTag('mock/entity/${rtype}/${ctype}/options');
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/rtype/${ctype}/options'
+    }));
+
+    var entity = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/entity/${rtype}/${ctype}/options'
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -709,10 +871,14 @@ QUnit.test('creme.widgets.chainedselect.change (multi selector, multiple depende
 
 QUnit.test('creme.widgets.chainedselect.multiple-change (single selector)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '5'}));
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
 
@@ -736,12 +902,19 @@ QUnit.test('creme.widgets.chainedselect.multiple-change (single selector)', func
 
 QUnit.test('creme.widgets.chainedselect.multiple-change (multiple selector)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '5'}));
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag('mock/rtype/${ctype}/options');
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/rtype/${ctype}/options'
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -760,10 +933,14 @@ QUnit.test('creme.widgets.chainedselect.multiple-change (multiple selector)', fu
 
 QUnit.test('creme.widgets.chainedselect.reset (single selector)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '5'}));
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
 
@@ -781,15 +958,23 @@ QUnit.test('creme.widgets.chainedselect.reset (single selector)', function(asser
 QUnit.test('creme.widgets.chainedselect.reset (multi selector, static)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '3', rtype: '42'}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag();
-    this.appendOptionTag(rtype, 'd', 1);
-    this.appendOptionTag(rtype, 'e', 6);
-    this.appendOptionTag(rtype, 'f', 42);
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'd'},
+            {value: 6, label: 'e'},
+            {value: 42, label: 'f'}
+        ]
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -810,13 +995,20 @@ QUnit.test('creme.widgets.chainedselect.reset (multi selector, static)', functio
 QUnit.test('creme.widgets.chainedselect.reset (multi selector, single dependency)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '5', rtype: 'rtype.22'}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
-    this.appendOptionTag(ctype, 'd', 1);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'},
+            {value: 1, label: 'd'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag('mock/rtype/${ctype}/options');
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/rtype/${ctype}/options'
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -837,14 +1029,25 @@ QUnit.test('creme.widgets.chainedselect.reset (multi selector, single dependency
 QUnit.test('creme.widgets.chainedselect.reset (multi selector, multiple dependencies)', function(assert) {
     var element = this.createChainedSelectTag(JSON.stringify({ctype: '5', rtype: 'rtype.22', entity: '789'}));
 
-    var ctype = this.createDynamicSelectTag();
-    this.appendOptionTag(ctype, 'a', 15);
-    this.appendOptionTag(ctype, 'b', 5);
-    this.appendOptionTag(ctype, 'c', 3);
-    this.appendOptionTag(ctype, 'd', 1);
+    var ctype = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 15, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'},
+            {value: 1, label: 'd'}
+        ]
+    }));
 
-    var rtype = this.createDynamicSelectTag('mock/rtype/${ctype}/options');
-    var entity = this.createDynamicSelectTag('mock/entity/${rtype}/${ctype}/options');
+    var rtype = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/rtype/${ctype}/options'
+    }));
+
+    var entity = $(this.createSelectHtml({
+        noEmpty: true,
+        url: 'mock/entity/${rtype}/${ctype}/options'
+    }));
 
     this.appendChainedSelectorTag(element, 'ctype', ctype);
     this.appendChainedSelectorTag(element, 'rtype', rtype);
@@ -864,4 +1067,5 @@ QUnit.test('creme.widgets.chainedselect.reset (multi selector, multiple dependen
     this.assertDSelectAt(widget, 'rtype', 'rtype.12', ['ctype'], 'mock/rtype/15/options', [['rtype.12', 'b'], ['rtype.2', 'e']]);
     this.assertDSelectAt(widget, 'entity', '123', ['rtype', 'ctype'], 'mock/entity/rtype.12/15/options', [['123', 'John Doe'], ['456', 'Bean Bandit']]);
 });
+
 }(jQuery));
