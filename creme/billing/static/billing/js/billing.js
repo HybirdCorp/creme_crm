@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -345,6 +345,8 @@ creme.billing.initLinesBrick = function(brick) {
     $('select[name*="vat_value"]', brick_element).each(function(index) {
         $(this).addClass('bound line-vat');
     });
+
+    setupLineSort(brick);
 };
 
 creme.billing.serializeForm = function(form) {
@@ -381,5 +383,30 @@ creme.billing.updateBrickTotals = function(currency) {
     total_no_vat_element.text(total_no_vat.toFixed(2).replace('.', ',') + ' ' + currency);
     total_vat_element.text(total_vat.toFixed(2).replace('.', ',') + ' ' + currency);
 };
+
+function setupLineSort(brick) {
+    var lines = brick.element().find('.bline-form');
+
+    lines.sortable({
+        items:   '.bline-sortable',
+        placeholder: 'bline-ghost',
+        handle: '.bline-reorder-anchor',
+        opacity: 0.8,
+        revert:  200,
+        delay:   200,
+        stop:  function(event, ui) {
+            var item = ui.item;
+            var next = item.index('.bline-sortable') + 1;
+            var prev = parseInt(item.data('bline-order'));
+            var url = item.data('bline-reorder-url');
+
+            if (next !== prev) {
+                brick.action('update', url, {}, {target: next})
+                     .on('fail', function() { brick.refresh(); })
+                     .start();
+            }
+        }
+    });
+}
 
 }(jQuery));

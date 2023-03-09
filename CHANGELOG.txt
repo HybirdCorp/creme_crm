@@ -18,6 +18,7 @@
             - A color field has been added to Status.
         * Billing :
             - A color field has been added to Statuses.
+            - Billing lines can be reordered if the document have the right permissions.
         * Opportunities :
             - A color field has been added to SalesPhase.
         * Tickets :

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from creme import billing
+from creme.creme_config.views.generics_views import ReorderInstances
 from creme.creme_core.auth.decorators import (
     login_required,
     permission_required,
@@ -34,6 +35,7 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.content_type import get_ctype_or_404
 from creme.creme_core.views import generic
+from creme.creme_core.views.generic.base import EntityRelatedMixin
 from creme.creme_core.views.generic.listview import SelectionMode
 
 from .. import constants
@@ -115,6 +117,37 @@ class AddingToCatalog(generic.RelatedToEntityFormPopup):
         self.request.user.has_perm_to_create_or_die(cls)
 
         return cls
+
+
+class ReorderLines(EntityRelatedMixin, ReorderInstances):
+    entity_id_url_kwarg: str = 'document_id'
+    entity_classes = BILLING_MODELS
+
+    target_order_post_argument: str = 'target'
+    order_field_name: str = 'order'
+    use_raw_update = True
+
+    pk_url_kwarg: str = 'line_id'
+
+    def get_line_model(self):
+        get_for_ct = ContentType.objects.get_for_model
+        entity_id = self.kwargs[self.pk_url_kwarg]
+
+        try:
+            entity_type_id = CremeEntity.objects.filter(
+                id=entity_id,
+                entity_type__in=[get_for_ct(c) for c in lines_registry],
+            ).values_list('entity_type', flat=True)[0]
+        except IndexError:
+            raise Http404("No CremeEntity matches the given query.")
+
+        return ContentType.objects.get_for_id(entity_type_id).model_class()
+
+    def get_queryset(self):
+        document = self.get_related_entity()
+        line_model = self.get_line_model()
+
+        return document.get_lines(line_model)
 
 
 LINE_FORMSET_PREFIX = {

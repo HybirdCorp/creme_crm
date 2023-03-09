@@ -18,13 +18,14 @@ data-type-global-discount="{{object.discount}}"
 
 {% block brick_content %}
 {% has_perm_to change object as change_perm %}
+{% widget_icon name='reorder' as reorder_icon %}
 {% translate 'Reset' context 'billing-lines' as reset_label %}
-    <div class="bline-form" ct_id="{{ct_id}}" id="form_id_{{ct_id}}" >
+    <div class="bline-form" ct_id="{{ct_id}}" id="form_id_{{ct_id}}">
         {% csrf_token %}
         {{formset.management_form}}
 
         {% for form in formset %}
-            <div class="bline-container">
+            <div class="bline-container bline-sortable" data-bline-order="{{form.instance.order}}" data-bline-reorder-url="{% url 'billing__reorder_line' object.id form.instance.id %}">
                 <div class="bline-buttons" id="line_content_{{form.instance.id}}">
                     <span class="bline-counter">{{forloop.counter}}</span>
                     <a class="bline-button bline-button-delete" onclick="creme.billing.markDelete('{{form.prefix}}', '{{form.instance.id}}');">
@@ -35,15 +36,21 @@ data-type-global-discount="{{object.discount}}"
                     </a>
                 </div>
 
-                <div class="bline-hidden-fields" style="display: none">{{form.user}} {{form.DELETE}} {{form.cremeentity_ptr}}</div>
+                <div class="bline-hidden-fields" style="display: none">
+                    {{form.user}} {{form.DELETE}} {{form.cremeentity_ptr}}
+                </div>
 
                 <div class="bline-fields restorable_{{form.instance.id}}">
                     {% include line_edit_form_template %}
                 </div>
+
+                <div class="bline-reorder-anchor">{{reorder_icon.render}}</div>
             </div>
+            {% comment %}
             {% if not forloop.last %}
             <div class="bline-container-separator"></div>
             {% endif %}
+            {% endcomment %}
         {% empty %}
             <div class="bline-empty empty_msg_{{ct_id}}">{% block empty_msg %}EMPTY{% endblock %}</div>
         {% endfor %}
