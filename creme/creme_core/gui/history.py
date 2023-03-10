@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2022  Hybird
+#    Copyright (C) 2021-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -88,7 +88,8 @@ class FieldChangeExplainer:
 
     def decorate_field(self, field: Union[Field, CustomField]) -> str:
         return self.field_decorator.format(
-            field=field if isinstance(field, CustomField) else field.verbose_name,
+            # field=field if isinstance(field, CustomField) else field.verbose_name,
+            field=self.render_field(field=field),
         )
 
     def decorate_new_value(self, value: str) -> str:
@@ -106,6 +107,9 @@ class FieldChangeExplainer:
         #       => would a linear search be faster ?
         return dict(self._field.flatchoices).get(value, value)
 
+    def render_field(self, field: Union[Field, CustomField]) -> str:
+        return field if isinstance(field, CustomField) else field.verbose_name
+
     def render_value(self, *, user, value) -> str:
         return str(value)
 
@@ -122,10 +126,15 @@ class FieldChangeExplainer:
         if length == 0:
             sentence = self.no_value_sentence.format(field=decorated_field)
         elif length == 1:
+            render_value = (
+                self.render_choice
+                if isinstance(field, Field) and field.choices else
+                self.render_value
+            )  # TODO: factorise
             sentence = self.new_value_sentence.format(
                 field=decorated_field,
                 value=self.decorate_new_value(
-                    self.render_value(user=user, value=values[0])
+                    render_value(user=user, value=values[0])
                 ),
             )
         else:  # length == 2
@@ -166,6 +175,14 @@ class HTMLFieldChangeExplainer(FieldChangeExplainer):
 
     def render(self, user):
         return mark_safe(super().render(user=user))
+
+    def render_field(self, field: Union[Field, CustomField]) -> str:
+        return (
+            escape(field) if isinstance(field, CustomField) else field.verbose_name
+        )
+
+    def render_value(self, *, user, value) -> str:
+        return escape(value)
 
 
 class HTMLBooleanFieldChangeExplainer(HTMLFieldChangeExplainer):
@@ -294,8 +311,8 @@ class HTMLForeignKeyFieldChangeExplainer(ForeignKeyExplainerMixin,
     def render_value(self, *, user, value):
         return self.render_fk(user=user, value=value)
 
-    def render(self, user):
-        return mark_safe(super().render(user=user))
+    # def render(self, user):
+    #     return mark_safe(super().render(user=user))
 
 
 # TODO: prefetcher.order(model=model, pks=values)
