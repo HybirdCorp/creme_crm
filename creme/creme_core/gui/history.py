@@ -90,7 +90,8 @@ class FieldChangeExplainer:
 
     def decorate_field(self, field: Field | CustomField) -> str:
         return self.field_decorator.format(
-            field=field if isinstance(field, CustomField) else field.verbose_name,
+            # field=field if isinstance(field, CustomField) else field.verbose_name,
+            field=self.render_field(field=field),
         )
 
     def decorate_new_value(self, value: str) -> str:
@@ -111,6 +112,9 @@ class FieldChangeExplainer:
             dict(make_hashable(self._field.flatchoices)).get(make_hashable(value), value),
             strings_only=True,
         )
+
+    def render_field(self, field: Field | CustomField) -> str:
+        return field if isinstance(field, CustomField) else field.verbose_name
 
     def render_value(self, *, user, value) -> str:
         return str(value)
@@ -177,6 +181,11 @@ class HTMLFieldChangeExplainer(FieldChangeExplainer):
 
     def render(self, user):
         return mark_safe(super().render(user=user))
+
+    def render_field(self, field: Field | CustomField) -> str:
+        return (
+            escape(field) if isinstance(field, CustomField) else field.verbose_name
+        )
 
     def render_value(self, *, user, value) -> str:
         return escape(value)
