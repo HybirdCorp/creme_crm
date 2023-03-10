@@ -88,7 +88,8 @@ class FieldChangeExplainer:
 
     def decorate_field(self, field: Union[Field, CustomField]) -> str:
         return self.field_decorator.format(
-            field=field if isinstance(field, CustomField) else field.verbose_name,
+            # field=field if isinstance(field, CustomField) else field.verbose_name,
+            field=self.render_field(field=field),
         )
 
     def decorate_new_value(self, value: str) -> str:
@@ -105,6 +106,9 @@ class FieldChangeExplainer:
         # NB: django way for '_get_FIELD_display()' methods
         #       => would a linear search be faster ?
         return dict(self._field.flatchoices).get(value, value)
+
+    def render_field(self, field: Union[Field, CustomField]) -> str:
+        return field if isinstance(field, CustomField) else field.verbose_name
 
     def render_value(self, *, user, value) -> str:
         return str(value)
@@ -171,6 +175,11 @@ class HTMLFieldChangeExplainer(FieldChangeExplainer):
 
     def render(self, user):
         return mark_safe(super().render(user=user))
+
+    def render_field(self, field: Union[Field, CustomField]) -> str:
+        return (
+            escape(field) if isinstance(field, CustomField) else field.verbose_name
+        )
 
     def render_value(self, *, user, value) -> str:
         return escape(value)
