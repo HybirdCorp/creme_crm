@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -386,11 +386,12 @@ class RegularFieldExtractorField(forms.Field):
             app_name = model._meta.app_label
 
             try:
-                config_registry.get_app_registry(app_name).get_model_conf(model=model)
+                model_conf = config_registry.get_app_registry(app_name).get_model_conf(model=model)
             except (KeyError, NotRegisteredInConfig):
-                pass
+                creator = None
             else:
                 creation_perm = user.has_perm_to_admin(app_name)
+                creator = model_conf.creator
 
             # TODO: we should improve this (use the Form from creme_config ?)
             # NB: we exclude BooleanField because it is certainly useless to search on it
@@ -407,7 +408,11 @@ class RegularFieldExtractorField(forms.Field):
             widget = self.widget
             self._subfield_choices = widget.subfield_select = sf_choices
             widget.propose_creation = self._can_create = (
-                creation_perm and (len(sf_choices) == 1)
+                creation_perm
+                and creator
+                and creator.enable_func(user=user)
+                and not creator.url_name
+                and (len(sf_choices) == 1)
             )
 
     def clean(self, value):

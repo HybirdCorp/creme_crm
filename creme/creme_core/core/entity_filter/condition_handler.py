@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,7 @@ from django.db.models import (
     Q,
 )
 from django.utils.formats import date_format
+from django.utils.hashable import make_hashable
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
@@ -512,8 +513,15 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
                         instance
                         for instance in instances
                     )
+            elif last_field.choices:
+                # See Model._get_FIELD_display()
+                get_choice = dict(make_hashable(last_field.flatchoices)).get
+                values = [
+                    get_choice(make_hashable(value), value) for value in self._values
+                ]
             else:
                 # TODO: operand too...
+                # TODO: copy to be consistent with other cases?
                 values = self._values
 
             self._verbose_values = values
