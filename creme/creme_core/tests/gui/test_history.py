@@ -742,7 +742,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
         cfield1 = create_cfield(name='Punch line',   field_type=CustomField.STR)
         cfield2 = create_cfield(name='First attack', field_type=CustomField.DATE)
-        cfield3 = create_cfield(name='Power',        field_type=CustomField.INT)
+        cfield3 = create_cfield(name='<i>Power</i>', field_type=CustomField.INT)
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
@@ -777,7 +777,7 @@ class HistoryRenderTestCase(CremeTestCase):
                           f'</span>',
                 ),
                 mod3=self.FMT_2_VALUES(
-                    field=f'<span class="field-change-field_name">{cfield3.name}</span>',
+                    field=f'<span class="field-change-field_name">{escape(cfield3.name)}</span>',
                     value=f'<span class="field-change-new_value">'
                           # f'{number_format(value_int, use_l10n=True, force_grouping=True)}'
                           f'{number_format(value_int, force_grouping=True)}'
@@ -953,8 +953,7 @@ class HistoryRenderTestCase(CremeTestCase):
         user = self.create_user()
         ghibli = FakeOrganisation.objects.create(user=user, name='Ghibli')
 
-        last_name = 'Miyazaki'
-        hayao = FakeContact.objects.create(user=user, last_name=last_name)
+        hayao = FakeContact.objects.create(user=user, last_name='<i>Miyazaki</i>')
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_employed', 'is employed'),
@@ -971,6 +970,7 @@ class HistoryRenderTestCase(CremeTestCase):
         hayao.first_name = 'Hayao'
         hayao.save()
 
+        self.maxDiff = None
         hline = self.get_hline()
         self.assertEqual(history.TYPE_RELATED, hline.type)
         self.assertHTMLEqual(
@@ -992,7 +992,7 @@ class HistoryRenderTestCase(CremeTestCase):
             '<div>'.format(
                 title=_('%(entity_link)s edited') % {
                     'entity_link':
-                        f'<a href="{hayao.get_absolute_url()}">{hayao}</a>',
+                        f'<a href="{hayao.get_absolute_url()}">{escape(hayao)}</a>',
                 },
                 expand_title=_('Expand'),
                 collapse_title=_('Close'),
@@ -1005,7 +1005,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
         # Deleted entity ---
-        hayao_repr = str(hayao)
+        hayao_repr = escape(hayao)
         hayao.delete()
         self.maxDiff = None
         self.assertHTMLEqual(
@@ -1040,7 +1040,7 @@ class HistoryRenderTestCase(CremeTestCase):
         user = self.create_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
 
-        text = 'Make anime series'
+        text = 'Make <i>anime</i> series'
         ptype_id = 'test-prop_make_anime'
         ptype = CremePropertyType.objects.smart_update_or_create(str_pk=ptype_id, text=text)
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
@@ -1050,7 +1050,7 @@ class HistoryRenderTestCase(CremeTestCase):
         html_format_str = '<div class="history-line history-line-property_addition">{}<div>'
         self.assertHTMLEqual(
             html_format_str.format(_('%(property_text)s added') % {
-                'property_text': f'<span class="property-text">{text}</span>',
+                'property_text': f'<span class="property-text">{escape(text)}</span>',
             }),
             self.render_line(hline, user),
         )
@@ -1069,7 +1069,7 @@ class HistoryRenderTestCase(CremeTestCase):
         user = self.create_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
 
-        text = 'Make anime series'
+        text = 'Make <i>anime</i> series'
         ptype_id = 'test-prop_make_anime'
         ptype = CremePropertyType.objects.smart_update_or_create(str_pk=ptype_id, text=text)
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
@@ -1082,7 +1082,7 @@ class HistoryRenderTestCase(CremeTestCase):
         html_format_str = '<div class="history-line history-line-property_deletion">{}<div>'
         self.assertHTMLEqual(
             html_format_str.format(_('%(property_text)s removed') % {
-                'property_text': f'<span class="property-text">{text}</span>',
+                'property_text': f'<span class="property-text">{escape(text)}</span>',
             }),
             self.render_line(hline, user),
         )
@@ -1128,7 +1128,7 @@ class HistoryRenderTestCase(CremeTestCase):
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_works', 'is employed'),
+            ('test-subject_works', 'is <i>employed</i>'),
             ('test-object_works',  'employs'),
         )
         relation = Relation.objects.create(
@@ -1144,7 +1144,7 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertHTMLEqual(
             html_format_str.format(_('%(predicate)s added to %(entity_link)s') % {
                 'predicate': f'<span class="relationship-predicate">'
-                             f'{rtype.predicate}'
+                             f'{escape(rtype.predicate)}'
                              f'</span>',  # <==
                 'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
             }),
@@ -1196,7 +1196,7 @@ class HistoryRenderTestCase(CremeTestCase):
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         rtype, srtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_works', 'is employed'),
+            ('test-subject_works', 'is <i>employed</i>'),
             ('test-object_works',  'employs'),
         )
         relation = Relation.objects.create(
@@ -1213,7 +1213,7 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertHTMLEqual(
             html_format_str.format(_('%(predicate)s to %(entity_link)s removed') % {
                 'predicate': f'<span class="relationship-predicate">'
-                             f'{rtype.predicate}'
+                             f'{escape(rtype.predicate)}'
                              f'</span>',  # <==
                 'entity_link':
                     f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
@@ -1311,7 +1311,7 @@ class HistoryRenderTestCase(CremeTestCase):
         user = self.create_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
         address = FakeAddress.objects.create(
-            entity=gainax, country='Japan', city='Mitaka',
+            entity=gainax, country='Japan', city='<b>Mitaka</b>',
         )
 
         hline = self.get_hline()
@@ -1322,7 +1322,7 @@ class HistoryRenderTestCase(CremeTestCase):
             '<div>'.format(
                 title=_('“%(auxiliary_ctype)s“ added: %(auxiliary_value)s') % {
                     'auxiliary_ctype': 'Test address',
-                    'auxiliary_value': address,
+                    'auxiliary_value': escape(address),
                 },
             ),
             self.render_line(hline, user),
@@ -1460,7 +1460,7 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_auxiliary_edition_m2m(self):
         user = self.create_user()
-        cat = FakeTodoCategory.objects.first()
+        cat = FakeTodoCategory.objects.create(name='Very <b>Important</b>')
 
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
         todo = FakeTodo.objects.create(title='New logo', creme_entity=gainax)
@@ -1500,7 +1500,7 @@ class HistoryRenderTestCase(CremeTestCase):
                         f'</span>'
                     ),
                     changes=ngettext('{} was added', '{} were added', 1).format(
-                        f'<span class="field-change-m2m_added">{cat}</span>'
+                        f'<span class="field-change-m2m_added">{escape(cat)}</span>'
                     ),
                 ),
             ),
@@ -1511,7 +1511,7 @@ class HistoryRenderTestCase(CremeTestCase):
         user = self.create_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
         address = FakeAddress.objects.create(
-            entity=gainax, country='Japan', city='Mitaka',
+            entity=gainax, country='Japan', city='<b>Mitaka</b>',
         )
 
         address.delete()
