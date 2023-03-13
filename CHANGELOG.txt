@@ -82,16 +82,16 @@
                 field_printers_registry.register_model_field(
                     model=Contact, field_name='last_name', printer=my_lastname_printer,
                 )
+        # In 'creme_core.forms.enumerable' :
+            - In the class 'EnumerableChoiceSet', the property 'url' can override the
+              URL "creme_core__enumerable_choices" provided by the new property 'default_url'. FIXME
+            - A class 'FieldEnumerableChoiceSet' has been added;
+              it inherits 'EnumerableChoiceSet' (which is now a base class) and has all its previous features (see the section <Breaking changes>).
+            - A new widget class 'EnumerableSelectMultiple' has been added; it supports multiple selection.
+        # In 'creme_core.models', some database indexes were added to improve general performance with large volumes of data on:
+            - HistoryLine
         # In 'creme_core.templatetags' :
             - In 'creme_widgets', the templatetag '{% widget_entity_hyperlink %}' has a new optional argument "target".
-        # Database indexes were added to improve general performance with large volumes of data on:
-            - creme_core.HistoryLine
-        # In 'creme_core.forms.EnumerableChoiceSet' :
-            - The 'url' property can override 'creme_core__enumerable_choices' path provided by the new 'default_url' property.
-        # In 'creme_core.forms':
-            - 'EnumerableChoiceSet' is now a base class that requires an Enumerator instead of a model Field and an EnumerableRegistry.
-            - A new 'FieldEnumerableChoiceSet' inherits from 'EnumerableChoiceSet' and have all its previous features.
-            - New 'EnumerableSelectMultiple' that supports multiple selection.
 
     Breaking changes :
     ------------------
@@ -138,8 +138,10 @@
                 - The class attribute '_EXTRA_RENDERERS' has been reworked.
                 - The method '_get_renderer()' has been removed.
         # In 'creme_core.forms' :
-            - In 'entity_filter', he widget class 'creme_core.forms.enumerable.EnumerableSelectMultiple'
+            - In 'entity_filter', the widget class 'creme_core.forms.enumerable.EnumerableSelectMultiple'
               is now used for regular-field conditions of EntityFilter instead of 'DynamicSelectMultiple'.
+            - In 'enumerable', the constructor of class 'EnumerableChoiceSet' has changed;
+              it requires now an 'Enumerator' instead of a model 'Field' and an 'EnumerableRegistry'.
             - In 'mass_import' :
                 - In the class 'RegularFieldExtractorField', the attribute '_can_create' has been removed.
                 - In the method 'RegularFieldExtractor.set_subfield_search()', the argument 'create_if_unfound'
