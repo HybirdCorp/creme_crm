@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,19 +16,33 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
+import json
 import logging
 from collections import defaultdict
 from itertools import islice
+from typing import Iterable, Sequence
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist, PermissionDenied
+from django.core.exceptions import (
+    BadRequest,
+    FieldDoesNotExist,
+    PermissionDenied,
+)
 from django.db import IntegrityError
 from django.db.models import ProtectedError, Q
 from django.db.transaction import atomic
 from django.forms.fields import ChoiceField
 from django.forms.models import modelform_factory
-from django.http import Http404, HttpResponse, HttpResponseBadRequest
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseRedirect,
+)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -43,8 +57,10 @@ from .. import constants
 from ..auth import SUPERUSER_PERM
 from ..auth.decorators import login_required
 from ..auth.entity_credentials import EntityCredentials
+from ..core import sorter
 from ..core.entity_cell import (
     CELLS_MAP,
+    EntityCell,
     EntityCellCustomField,
     EntityCellRegularField,
 )
@@ -53,18 +69,23 @@ from ..core.exceptions import (
     ConflictError,
     SpecificProtectedError,
 )
+from ..core.paginator import FlowPaginator
 from ..creme_jobs import trash_cleaner_type
 from ..forms import CremeEntityForm
+from ..forms.listview import ListViewSearchForm
 from ..forms.merge import MergeEntitiesBaseForm
 from ..forms.merge import form_factory as merge_form_factory
 # NB: do no import <bulk_update_registry> to facilitate unit testing
 from ..gui import bulk_update
+from ..gui.listview import search
 from ..gui.merge import merge_form_registry
 from ..http import CremeJsonResponse, is_ajax
 from ..models import (
     CremeEntity,
+    EntityFilter,
     EntityJobResult,
     FieldsConfig,
+    HeaderFilter,
     Job,
     Relation,
     Sandbox,
@@ -78,13 +99,14 @@ from ..utils import (
 )
 from ..utils.collections import LimitedList
 from ..utils.html import sanitize_html
-from ..utils.meta import ModelFieldEnumerator
+from ..utils.meta import ModelFieldEnumerator, Order
+from ..utils.queries import QSerializer
 from ..utils.serializers import json_encode
 from ..utils.translation import get_model_verbose_name
 from ..utils.unicode_collation import collator
 from . import generic
 from .decorators import jsonify
-from .generic import base, listview
+from .generic import base, detailview, listview
 
 logger = logging.getLogger(__name__)
 
@@ -209,6 +231,296 @@ class Clone(base.EntityRelatedMixin, base.CheckedView):
         return redirect(new_entity)
 
 
+# TODO: factorise with MassExport
+class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
+    """View which allows to visit all the detail-views of the entities
+     contained by a list-view (including ordering, filtering...).
+
+    To start the visit (see <..gui.listview.buttons.VisitorModeButton>), pass
+    the ordering & filtering data in GET arguments (only "sort" & "hfilter" are
+    mandatory) but not "index" & "page_info".
+    The view will redirect to the next detail-view, with the visit data
+    (see <..gui.visit.EntityVisitor>) serialized in a GET argument, so the
+    detail-view can build an EntityVisitor instance & link again the visit view
+    to continue the visit (see <generic.detailview.EntityDetail>).
+
+    Design notes:
+     * no information is stored in the current session (or in a specific Model)
+         - you cannot get a UI which list all the current visits.
+         - ...even after a crash (but browser are globally reliable to restore
+           you tabs).
+         + you can pass the current detail-view's URI to another computer (or
+           even another user) in order the visit is resumed on another computer.
+     * the next detail-view's URL is calculated at the last moment (i.e. the
+       current detail-view does not know the URL of the next detail-view), so we
+       limit the risk to get a 403/404 during the visit (if entities are deleted
+       or modified by another user for example).
+    """
+    # ct_id_arg = 'ct_id' in mass-export
+    headerfilter_id_arg = 'hfilter'
+    entityfilter_id_arg = 'efilter'
+    # NB: in mass-export
+    #   sort_cellkey_arg = 'sort_key'
+    #   sort_order_arg = 'sort_order'
+    sort_arg = 'sort'
+    extra_q_arg = 'extra_q'
+
+    page_arg = 'page'
+    index_arg = 'index'
+
+    cell_sorter_registry = sorter.cell_sorter_registry
+    query_sorter_class   = sorter.QuerySorter
+
+    search_field_registry = search.search_field_registry
+    search_form_class     = ListViewSearchForm
+
+    end_template_name = 'creme_core/visit-end.html'
+    detail_view = detailview.EntityDetail
+
+    def get_cells(self, header_filter) -> list[EntityCell]:
+        return header_filter.filtered_cells
+
+    # NB: in mass-export
+    # def get_ctype_id(self):
+    #     return get_from_GET_or_404(self.request.GET, self.ct_id_arg, cast=int)
+
+    def get_cell_sorter_registry(self) -> sorter.CellSorterRegistry:
+        return self.cell_sorter_registry
+
+    def get_query_sorter_class(self) -> type[sorter.QuerySorter]:
+        return self.query_sorter_class
+
+    def get_query_sorter(self) -> sorter.QuerySorter:
+        cls = self.get_query_sorter_class()
+        return cls(self.get_cell_sorter_registry())
+
+    def get_entity_filter_id(self) -> str | None:
+        return self.request.GET.get(self.entityfilter_id_arg)
+
+    def get_entity_filter(self) -> EntityFilter | None:
+        efilter_id = self.get_entity_filter_id()
+
+        return get_object_or_404(
+            EntityFilter.objects
+                        .filter_by_user(self.request.user)
+                        .filter(entity_type=self.get_ctype()),
+            id=efilter_id,
+        ) if efilter_id else None
+
+    def get_header_filter_id(self) -> str:
+        return get_from_GET_or_404(self.request.GET, self.headerfilter_id_arg)
+
+    def get_header_filter(self) -> HeaderFilter:
+        return get_object_or_404(
+            HeaderFilter.objects
+                        .filter_by_user(self.request.user)
+                        .filter(entity_type=self.get_ctype()),
+            id=self.get_header_filter_id(),
+        )
+
+    def get_paginator(self, *, queryset, ordering: Sequence[str]) -> FlowPaginator:
+        # NB: we use the smartness of FlowPaginator to retrieve only 3 entities
+        #  (page size + 1), instead of juste using an index + whole queryset.
+        #  it retrieves the value of the key field, & it takes cares about
+        #  duplicates (like Organisation with the same name) by adding an OFFSET
+        #  but only when it's need.
+        #  Maybe, we could recode this to retrieve only 2 entities, but it does
+        #  not seem very useful.
+        return FlowPaginator(
+            queryset=queryset.order_by(*ordering),
+            key=ordering[0],
+            per_page=2,  # NB: cannot
+        )
+
+    def get_index_n_page_info(self) -> tuple[int, dict | None]:
+        GET = self.request.GET
+
+        try:
+            index_str = GET[self.index_arg]
+            page_str = GET[self.page_arg]
+        except KeyError as e:
+            logger.info(
+                'NextEntityVisiting: incomplete page information'
+                ' => we start a new visit [%s]', e,
+            )
+            index = 0
+            page_info = None  # NB: means "first page" in FlowPaginator
+        else:
+            try:
+                previous_index = int(index_str)
+                page_info = json.loads(page_str)
+            except (ValueError, json.JSONDecodeError) as e:
+                raise BadRequest(str(e)) from e
+
+            if not 0 <= previous_index < 2:
+                raise BadRequest(
+                    f'Index must be in [0, 1]: {previous_index}'
+                )
+
+            if not isinstance(page_info, dict):
+                raise BadRequest(f'Page_info must be a dict: {page_info}')
+
+            # IT'S HERE: we visit the next entity
+            index = previous_index + 1
+
+        return index, page_info
+
+    def get_search_field_registry(self) -> search.ListViewSearchFieldRegistry:
+        return self.search_field_registry
+
+    def get_search_form_class(self) -> type[ListViewSearchForm]:
+        return self.search_form_class
+
+    def get_search_form(self, cells: Sequence[EntityCell]) -> ListViewSearchForm:
+        form_cls = self.get_search_form_class()
+        request = self.request
+        form = form_cls(
+            field_registry=self.get_search_field_registry(),
+            cells=cells,
+            user=request.user,
+            data=request.GET,
+        )
+
+        form.full_clean()
+
+        return form
+
+    # NB: def get_ordering(self, *, model, cells): in mass export
+    def get_sort_info(self, *,
+                      model: type[CremeEntity],
+                      cells: Iterable[EntityCell],
+                      ) -> sorter.QuerySortInfo:
+        sort = get_from_GET_or_404(self.request.GET, self.sort_arg)
+        sort_asc, sort_cell_key = (False, sort[1:]) if sort.startswith('-') else (True, sort)
+
+        return self.get_query_sorter().get(
+            model=model,
+            cells=cells,
+            cell_key=sort_cell_key,
+            order=Order(asc=sort_asc),
+            # TODO: only if needed? (to always keep the same ordering than list-view)
+            fast_mode=True,
+        )
+
+    def get_end_response(self, model: type[CremeEntity]) -> HttpResponse:
+        return render(
+            self.request,
+            template_name=self.end_template_name,
+            context={
+                'title': _('The exploration is over'),
+                'model': model,
+            },
+        )
+
+    def get(self, request, *args, **kwargs):
+        ct = self.get_ctype()
+        model = ct.model_class()
+        index, page_info = self.get_index_n_page_info()
+        hf = self.get_header_filter()
+        cells = self.get_cells(header_filter=hf)
+        entities_qs = model.objects.filter(is_deleted=False)
+        # use_distinct = False
+
+        # ----
+        efilter = self.get_entity_filter()
+
+        if efilter is not None:
+            entities_qs = efilter.filter(entities_qs)
+
+        # ----
+        extra_q = None
+        serialized_extra_q = request.GET.get(self.extra_q_arg)
+        if serialized_extra_q is not None:
+            try:
+                extra_q = QSerializer().loads(serialized_extra_q)
+            except Exception as e:
+                raise BadRequest(f'Invalid extra Q: {e}')
+
+            entities_qs = entities_qs.filter(extra_q)
+            # use_distinct = True  # todo: test + only if needed
+
+        # ----
+        # Currently errors are silently ignored
+        # TODO: ValidationError => "the header filter may have been modified"?
+        search_form = self.get_search_form(cells=cells)
+        search_q = search_form.search_q
+        if search_q:
+            try:
+                entities_qs = entities_qs.filter(search_q)
+            except Exception as e:
+                # TODO: test
+                logger.exception(
+                    'Error when building the search queryset with Q=%s (%s).',
+                    search_q, e,
+                )
+            # else:
+            #     use_distinct = True  # todo: test + only if needed
+
+        # ----
+        entities_qs = EntityCredentials.filter(self.request.user, entities_qs)
+
+        # TODO: <if use_distinct:>
+        entities_qs = entities_qs.distinct()
+
+        # ----
+        sort_info = self.get_sort_info(model=model, cells=cells)
+        ordering = sort_info.field_names
+
+        # ----
+        paginator = self.get_paginator(queryset=entities_qs, ordering=ordering)
+        current_page = paginator.get_page(page_info)
+
+        if index < paginator.per_page:
+            page = current_page
+            fixed_index = index  # No need to fix the index (see below)
+        else:
+            # The entity from which the view has been called was the last of the
+            # page; so the next entity is the first of the next page (if it exists).
+
+            # No next page
+            if not current_page.has_next():
+                return self.get_end_response(model=model)
+
+            # There's a next page; we reset the index to get the first entity
+            # & take the next page.
+            index = 0
+            page = paginator.get_page(current_page.next_page_info())
+
+            # BEWARE, the behaviour of FlowPaginator can cause a subtile issue:
+            #  * If there is an even number of entities, entities are grouped
+            #    in the same way whatever the type of page-info ('first', 'forward', 'last').
+            #  * If there is an odd number of entities, when we retrieve the last
+            #    entity, the page content is retrieved from the "forward" info of
+            #    the previous entity (so the entity corresponds to <index == 0>
+            #    in this new page). BUT the page type is now "last", and in the
+            #    last page, there are the 2 (i.e. page-size) last entities, so
+            #    the correct index should be 1.
+            #    If we do not fix the index, the last entity will be visited twice.
+            fixed_index = 1 if len(page.object_list) < paginator.per_page else 0
+
+        try:
+            entity = page.object_list[index]
+        except IndexError:
+            return self.get_end_response(model=model)
+
+        # TODO: check length of the URI? (4096 limit in HTTP)
+        uri_param = {
+            self.detail_view.visitor_mode_arg: self.detail_view.visitor_cls(
+                model=model,
+                hfilter_id=hf.pk,
+                sort=f'{sort_info.main_order.prefix}{sort_info.main_cell_key}',
+                efilter_id=efilter.pk if efilter else None,
+                extra_q=extra_q or '',
+                search_dict=search_form.filtered_data if search_q else None,
+                page_info=page.info(),
+                index=fixed_index,
+            ).to_json(),
+        }
+        return HttpResponseRedirect(
+            f'{entity.get_absolute_url()}?{urlencode(uri_param)}'
+        )
+
+
 class SearchAndView(base.CheckedView):
     allowed_classes = CremeEntity
     value_arg = 'value'
@@ -287,6 +599,7 @@ class SearchAndView(base.CheckedView):
             )
 
             if query:  # Avoid useless query
+                # TODO: what about entities with <is_deleted=True>?
                 found = EntityCredentials.filter(user, model.objects.filter(query)).first()
 
                 if found:

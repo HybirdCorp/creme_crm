@@ -1,0 +1,11 @@
+{% extends 'creme_core/info.html' %}
+{% load i18n creme_widgets %}
+
+{% block main_content %}
+<div class="buttons-list">
+    <a class="menu_button menu-button-icon" href="{{model.get_lv_absolute_url}}">
+        {% widget_icon name='previous' size='instance-button' label=_('Back') %}
+        {% translate 'Back to the list' %}
+    </a>
+</div>
+{% endblock %}

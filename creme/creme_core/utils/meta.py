@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2022 Hybird
+# Copyright (c) 2009-2023 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -341,6 +341,9 @@ class Order:
 
     def __str__(self):
         return 'ASC' if self.asc else 'DESC'
+
+    def __repr__(self):
+        return f'<Order(asc={self.asc})>'
 
     @property
     def desc(self) -> bool:

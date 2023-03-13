@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from collections import defaultdict
 from itertools import chain
@@ -28,6 +30,7 @@ from creme.creme_core.core import imprint
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.view_tag import ViewTag
+from creme.creme_core.gui.visit import EntityVisitor
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CremeEntity,
@@ -131,6 +134,7 @@ class CremeModelDetail(base.PermissionsMixin, base.BricksMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # TODO: add a tag HTML_VISIT to open links in another tab?
         context['view_tag'] = ViewTag.HTML_DETAIL
 
         context['bricks'] = self.get_bricks()
@@ -161,11 +165,15 @@ class EntityDetail(CremeModelDetail):
       - The correct template context to have the Bricks corresponding to the model.
       - The Insertion of the entity in the last-viewed items.
       - The creation of an Imprint instance (if needed).
+      - The visitor mode.
     """
     model = CremeEntity
     template_name = 'creme_core/generics/view_entity.html'
     pk_url_kwarg = 'entity_id'
     bricks_reload_url_name = 'creme_core__reload_detailview_bricks'
+
+    visitor_mode_arg = 'visitor'
+    visitor_cls = EntityVisitor
 
     imprint_manager = imprint.imprint_manager
 
@@ -180,6 +188,32 @@ class EntityDetail(CremeModelDetail):
         return detailview_bricks(
             self.request.user, self.object, registry=self.brick_registry,
         )
+
+    def get_visitor(self) -> EntityVisitor | None:
+        """Deserialize the visitor in the URL
+        None is returned if we are not in visit mode.
+        """
+        visitor = None
+
+        # We can be in visit mode (see entity.NextEntityVisiting)
+        # we inject the found visitor in the template to build a button to
+        # continue the visit
+        visitor_raw = self.request.GET.get(self.visitor_mode_arg)
+        if visitor_raw:
+            try:
+                # TODO: "[visit]" in page title (to find easily in the browser's history)?
+                visitor = self.visitor_cls.from_json(model=self.model, json_data=visitor_raw)
+            except self.visitor_cls.Error:
+                logger.exception('while retrieving the visitor in the URI')
+
+        return visitor
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # NB: see creme/creme_core/templates/creme_core/header/menu-base.html
+        context['visitor'] = self.get_visitor()
+
+        return context
 
     def get_object(self, *args, **kwargs):
         entity = super().get_object(*args, **kwargs)

@@ -6,6 +6,8 @@
   Users side :
   ------------
     # The version of Django has been upgraded to "4.1".
+    # A visitor mode has been added; from any list-view, you can visit all the related detail-views the one after the other.
+      (button "Enter the exploration mode" in list-views).
     # The link in the list-views selectors are now opened in other tabs automatically.
     # In entity filter form:
         - The regular fields with foreign keys are now using the Select2 combobox with lazy loading & search.

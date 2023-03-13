@@ -35,6 +35,7 @@
 .header-menu a {
     transition: none;
 }
+
 .accessories-box {
     position: absolute;
     top: 0;
@@ -43,6 +44,49 @@
     height: 100%;
 
     padding-right: 5px;
+}
+
+.visitor-box {
+    display: inline-block;
+    margin-top: 8px;
+    margin-right: 5px;
+}
+.visitor-box a {
+    padding-top: 4px;
+    padding-right: 10px;
+    padding-bottom: 4px;
+    padding-left: 30px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0 white;
+
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 600;
+    color: #9149d1;
+}
+.visitor-box a:hover {
+    background: linear-gradient(#fff, #f3f3f3);
+}
+.visitor-box a:active {
+    background: linear-gradient(#f9f9f9, #ededed);
+
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+
+    border-bottom-color: #d7d7d7;
+    border-top-color: #bdbdbd;
+}
+.visitor-box a img {
+    position: absolute;
+    top: calc(50% - 9px);
+    left: 10px;
 }
 
 .search-box {
@@ -55,7 +99,6 @@
     margin-top: 8px;
     margin-right: 15px;
 }
-
 div.search-box input[type="text"] {
     height: auto;
     padding-left: 5px;
@@ -68,7 +111,6 @@ div.search-box input[type="text"] {
     border-radius: 0;
     border-bottom: 1px solid #ddd;
 }
-
 .search-box input:focus {
     outline: none;
 }

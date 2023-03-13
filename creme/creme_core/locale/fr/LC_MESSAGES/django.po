@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-14 17:47+0100\n"
+"POT-Creation-Date: 2023-04-03 11:25+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3224,6 +3224,15 @@ msgstr "Enregistrer les modifications"
 msgid "Link"
 msgstr "Lier"
 
+msgid "Go to the next entity"
+msgstr "Accéder à la fiche suivante"
+
+msgid "Explore"
+msgstr "Explorer"
+
+msgid "Continue the exploration"
+msgstr "Continuer l'exploration"
+
 msgid "Loading…"
 msgstr "Chargement…"
 
@@ -3329,6 +3338,12 @@ msgstr "Importer des fiches depuis un fichier (.csv, .xls)"
 
 msgid "Import"
 msgstr "Importer"
+
+msgid "In exploration mode you visit the detailed views of the listed entities"
+msgstr ""
+
+msgid "Enter the exploration mode"
+msgstr "Entrer en mode exploration"
 
 msgctxt "creme_core-verb"
 msgid "Search"
@@ -3450,6 +3465,9 @@ msgstr "Type de propriété"
 
 msgid "Disabled"
 msgstr "Désactivé"
+
+msgid "Back"
+msgstr "Retour"
 
 msgid "Click to display the block's menu"
 msgstr "Cliquez pour afficher le menu du bloc"
@@ -3645,6 +3663,9 @@ msgstr "Le champ \"{model}.{field}\" est caché."
 
 msgid "This model does not use the generic clone view."
 msgstr "Ce modèle n'utilise pas la vue de clonage générique."
+
+msgid "The exploration is over"
+msgstr "L'exploration est finie"
 
 msgid "This field is hidden."
 msgstr "Ce champ est caché."
@@ -4141,9 +4162,6 @@ msgstr "Recherche vide…"
 #~ msgid "Error reading document, unsupported file type: %s."
 #~ msgstr ""
 #~ "Erreur lors de la lecture du document, type de fichier non supporté: %s."
-
-#~ msgid "Back"
-#~ msgstr "Retour"
 
 #~ msgid "Open"
 #~ msgstr "Ouvrir"

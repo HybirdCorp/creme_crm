@@ -137,6 +137,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         lv_gui.MassExportHeaderButton,
         lv_gui.MassImportButton,
         lv_gui.BatchProcessButton,
+        lv_gui.VisitorModeButton,
     ]
 
     internal_q = Q()
