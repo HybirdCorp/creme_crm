@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2022 Hybird
+# Copyright (c) 2016-2023 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 
 from __future__ import annotations
 
+import logging
 import sys
 from collections.abc import Sequence
 from datetime import date, datetime
@@ -39,6 +40,7 @@ from creme.creme_core.utils.dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
 from creme.creme_core.utils.db import populate_related
 from creme.creme_core.utils.meta import FieldInfo
 
+logger = logging.getLogger(__name__)
 _FORWARD = 'forward'
 _BACKWARD = 'backward'
 
@@ -227,6 +229,7 @@ class FlowPaginator:
             except LastPage:
                 page_obj = self.last_page()
             except InvalidPage:
+                logger.exception('FlowPagination.get_page(): invalid page')
                 page_obj = self.page()
 
         return page_obj

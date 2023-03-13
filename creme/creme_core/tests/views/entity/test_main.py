@@ -356,7 +356,7 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertPOST409(self.RESTRICT_URL, data={'id': contact.id, 'set': 'false'})
 
     def test_restrict_entity_2_superusers04(self):
-        "Not super-user"
+        "Not super-user."
         user = self.login(is_superuser=False)
         contact = FakeContact.objects.create(
             user=user, first_name='Eikichi', last_name='Onizuka',

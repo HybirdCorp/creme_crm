@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from functools import partial
 from json import dumps as json_dump
 from random import shuffle
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 from xml.etree.ElementTree import tostring as html_tostring
 
 from django.conf import settings
@@ -3544,5 +3544,43 @@ class ListViewTestCase(ViewsTestCase):
                 break
         else:
             self.fail('No mass-import button found.')
+
+    def test_visitor_button(self):
+        user = self.login()
+
+        lv_url = FakeContact.get_lv_absolute_url()
+        hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_CONTACT
+        data = {'hfilter': hfilter_id}
+        label = _('Enter the exploration mode')
+
+        # ---
+        self.assertFalse(FakeContact.objects.all())
+        response1 = self.assertPOST200(lv_url, data=data)
+        lv_node1 = self._get_lv_node(response1)
+        for button_info in self._get_lv_header_buttons(lv_node1):
+            if button_info['label'] == label:
+                self.fail('Exploration button found in empty list.')
+
+        # ---
+        FakeContact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
+        response2 = self.assertPOST200(lv_url, data=data)
+        lv_node2 = self._get_lv_node(response2)
+        for button_info in self._get_lv_header_buttons(lv_node2):
+            if button_info['label'] == label:
+                parameters = {
+                    'hfilter': hfilter_id,
+                    'sort': 'regular_field-last_name',
+                }
+                url = reverse(
+                    'creme_core__visit_next_entity',
+                    args=(ContentType.objects.get_for_model(FakeContact).id,),
+                )
+                self.assertURLEqual(
+                    f'{url}?{urlencode(parameters)}',
+                    button_info['url'],
+                )
+                break
+        else:
+            self.fail('No exploration button found.')
 
     # TODO: test other buttons

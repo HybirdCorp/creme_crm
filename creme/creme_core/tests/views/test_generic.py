@@ -1,4 +1,5 @@
 from functools import partial
+from urllib.parse import urlencode
 
 from django.contrib.sessions.models import Session
 from django.http import Http404
@@ -66,7 +67,7 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
             assert 1 == len(sessions)
             self.session = sessions[0]
 
-    def test_entity_detail(self):
+    def test_basic(self):
         user = self.login()
         self.assertFalse(LastViewedItem.get_all(self.FakeRequest(user)))
         self.assertFalse(Imprint.objects.all())
@@ -78,6 +79,8 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/view_entity.html')
         self.assertEqual(ViewTag.HTML_DETAIL, response.context.get('view_tag'))
+        # NB: creme_core.tests.views.entity.test_visit.VisitTestCase for complete tests
+        self.assertIsNone(response.context['visitor'])
 
         # -----
         last_items = LastViewedItem.get_all(self.FakeRequest(user))
@@ -99,7 +102,7 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.get_brick_node(tree, brick=PropertiesBrick)
         self.get_brick_node(tree, brick=MODELBRICK_ID)
 
-    def test_entity_detail_no_object(self):
+    def test_no_object(self):
         self.login()
 
         response = self.assertGET404(
@@ -107,14 +110,14 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
         self.assertTemplateUsed(response, '404.html')
 
-    def test_entity_detail_not_super_user(self):
+    def test_not_super_user(self):
         user = self.login(is_superuser=False)
         fox = FakeContact.objects.create(
             user=user, first_name='Fox', last_name='McCloud',
         )
         self.assertGET200(fox.get_absolute_url())
 
-    def test_entity_detail_not_logged(self):
+    def test_not_logged(self):
         user = self.login()
         fox = FakeContact.objects.create(
             user=user, first_name='Fox', last_name='McCloud',
@@ -127,7 +130,7 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
             response, '{}?next={}'.format(reverse('creme_login'), url),
         )
 
-    def test_entity_detail_permission01(self):
+    def test_permission01(self):
         "Viewing is not allowed (model credentials)."
         self.login(is_superuser=False)
         fox = FakeContact.objects.create(
@@ -145,7 +148,7 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
             html=True,
         )
 
-    def test_entity_detail_permission02(self):
+    def test_permission02(self):
         "Viewing is not allowed (app credentials)."
         # NB: not need to create an instance, the "app" permission must be
         #     checked before the SQL query.
@@ -161,6 +164,13 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
             status_code=403,
             html=True,
         )
+
+    def test_visitor_invalid(self):
+        user = self.login()
+        fox = FakeContact.objects.create(user=user, first_name='Fox', last_name='McCloud')
+        param = {'visitor': '['}
+        response = self.assertGET200(f'{fox.get_absolute_url()}?{urlencode(param)}')
+        self.assertIsNone(response.context['visitor'])
 
 
 class CreationTestCase(ViewsTestCase):

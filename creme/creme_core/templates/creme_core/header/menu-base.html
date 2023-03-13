@@ -16,7 +16,17 @@
 
     {% block accessories %}
     <div class="accessories-box">
-        {% block search %}
+      {% block visitor %}
+       {% if visitor %}
+        <div class="visitor-box">
+            <a class="with-icon" href="{{visitor.uri}}" title="{% translate 'Go to the next entity' %}">
+                {% widget_icon name='next' label=_('Explore') size='header-menu' %}{% translate 'Continue the exploration' %}
+            </a>
+        </div>
+       {% endif %}
+      {% endblock %}
+
+      {% block search %}
         <div class="search-box">{% translate 'Search' context 'creme_core-noun' as search_label %}
             <input type="text" placeholder="{{search_label}}">
             <span class="search-box-icon default">
@@ -33,7 +43,7 @@
                 </div>
             </div>
         </div>
-        {% endblock %}
+      {% endblock %}
     </div>
     {% endblock %}
 

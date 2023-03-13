@@ -1,0 +1,6 @@
+{% load i18n creme_widgets %}
+{% if button.visitor %}
+<a class="with-icon" href="{{button.visitor.uri}}" title="{% translate 'In exploration mode you visit the detailed views of the listed entities' %}">
+    {% widget_icon name='next' label=_('Explore') size='listview-button' %}{% translate 'Enter the exploration mode' %}
+</a>
+{% endif %}

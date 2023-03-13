@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,6 +58,15 @@ class QuerySortInfo:
         self.main_cell_key = cell_key
         self.main_order = order
         self.field_names = field_names
+
+    def __repr__(self):
+        return (
+            f'<QuerySortInfo('
+            f'cell_key="{self.main_cell_key}", '
+            f'order={self.main_order!r}, '
+            f'field_names={self.field_names}'
+            f')>'
+        )
 
 
 class AbstractCellSorter:
@@ -310,7 +319,7 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
 class FunctionFieldSorterRegistry(AbstractCellSorter):
     """Class of sorter for all types of EntityCellFunctionField.
 
-    By default it performs no sort, but sub-sorters can be registered to
+    By default, it performs no sort, but sub-sorters can be registered to
     customise the behaviour for specific FunctionFields.
     """
     def __init__(self,

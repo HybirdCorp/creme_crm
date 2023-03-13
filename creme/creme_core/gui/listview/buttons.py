@@ -24,8 +24,19 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core import backends
 from creme.creme_core.gui.mass_import import import_form_registry
+from creme.creme_core.gui.visit import EntityVisitor
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.collections import FluentList
+from creme.creme_core.utils.meta import Order
+
+__all__ = (
+    'ListViewButton',
+    'BatchProcessButton',
+    'CreationButton',
+    'MassExportButton', 'MassExportHeaderButton', 'MassImportButton',
+    'VisitorModeButton',
+    'ListViewButtonList',
+)
 
 
 class ListViewButton:
@@ -126,6 +137,30 @@ class MassImportButton(ListViewButton):
 # class BatchProcessButton(MassExportButton):
 class BatchProcessButton(ListViewButton):
     template_name = 'creme_core/listview/buttons/batch-process.html'
+
+
+class VisitorModeButton(ListViewButton):
+    template_name = 'creme_core/listview/buttons/visitor-mode.html'
+
+    def get_context(self, request, lv_context):
+        context = super().get_context(request=request, lv_context=lv_context)
+        visitor = None
+
+        if lv_context['paginator'].count:
+            state = lv_context['list_view_state']
+            sort_order = Order.from_string(state.sort_order)  # TODO: <Order> in ListViewState?
+            visitor = EntityVisitor(
+                model=lv_context['model'],
+                sort=f'{sort_order.prefix}{state.sort_cell_key}',
+                hfilter_id=state.header_filter_id,
+                efilter_id=state.entity_filter_id,
+                extra_q=state.extra_q if state.extra_q else '',
+                search_dict=state.search,
+            )
+
+        context['visitor'] = visitor
+
+        return context
 
 
 class ListViewButtonList(FluentList):

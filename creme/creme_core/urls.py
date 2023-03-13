@@ -108,6 +108,11 @@ entity_patterns = [
         name='creme_core__sanitized_html_field',
     ),
     re_path(
+        r'^visit/(?P<ct_id>\d+)[/]?$',
+        entity.NextEntityVisiting.as_view(),
+        name='creme_core__visit_next_entity',
+    ),
+    re_path(
         r'^search_n_view[/]?$',
         entity.SearchAndView.as_view(),
         name='creme_core__search_n_view_entities',
