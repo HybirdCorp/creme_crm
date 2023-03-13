@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,9 +58,13 @@ class CremeJSONEncoder(DjangoJSONEncoder):
         self.use_utc = use_utc
         super().__init__(**kwargs)
 
+    def _today(self):
+        return datetime.today()
+
     def _encode_time(self, value):
         if self.use_utc:
-            dt_value = datetime.combine(datetime.today(), value)
+            # dt_value = datetime.combine(datetime.today(), value)
+            dt_value = datetime.combine(self._today(), value)
 
             if is_aware(dt_value):
                 dt_value = make_aware(to_utc(dt_value), timezone.utc)
@@ -69,7 +73,8 @@ class CremeJSONEncoder(DjangoJSONEncoder):
         else:
             # HACK : utcoffset is None for an AWARE datetime.time
             if value.tzinfo is not None:
-                r = datetime.combine(datetime.today(), value).isoformat(
+                # r = datetime.combine(datetime.today(), value).isoformat(
+                r = datetime.combine(self._today(), value).isoformat(
                     timespec='milliseconds',
                 )[11:]
             else:

@@ -6,7 +6,7 @@ from decimal import Decimal
 from django.utils.timezone import timezone, zoneinfo
 from django.utils.translation import gettext, gettext_lazy
 
-from creme.creme_core.utils.serializers import json_encode
+from creme.creme_core.utils.serializers import CremeJSONEncoder, json_encode
 
 from ..base import CremeTestCase
 
@@ -22,6 +22,10 @@ class SerializerTestCase(CremeTestCase):
         )
 
     def test_encode_time__use_utc(self):
+        class TestEncoder(CremeJSONEncoder):
+            def _today(this):
+                return datetime(year=2022, month=1, day=1)
+
         self.assertEqual(
             '"08:12:25.012"', json_encode(time(8, 12, 25, 12345))
         )
@@ -39,7 +43,10 @@ class SerializerTestCase(CremeTestCase):
         self.assertEqual(
             '"13:12:25.012Z"',
             # json_encode(time(8, 12, 25, 12345, tzinfo=tzinfo))
-            json_encode(time(8, 12, 25, 12345, tzinfo=zoneinfo.ZoneInfo('US/Eastern')))
+            json_encode(
+                time(8, 12, 25, 12345, tzinfo=zoneinfo.ZoneInfo('US/Eastern')),
+                cls=TestEncoder,
+            )
         )
 
         # # "normalize" pytz timezone information to get "08:00" and not "08:06"
@@ -54,6 +61,10 @@ class SerializerTestCase(CremeTestCase):
         )
 
     def test_encode_time(self):
+        class TestEncoder(CremeJSONEncoder):
+            def _today(this):
+                return datetime(year=2022, month=1, day=1)
+
         self.assertEqual(
             '"08:12:25.012"',
             json_encode(time(8, 12, 25, 12345), use_utc=False)
@@ -74,6 +85,7 @@ class SerializerTestCase(CremeTestCase):
             # json_encode(time(8, 12, 25, 12345, tzinfo=tzinfo), use_utc=False)
             json_encode(
                 time(8, 12, 25, 12345, tzinfo=zoneinfo.ZoneInfo('US/Eastern')),
+                cls=TestEncoder,
                 use_utc=False,
             ),
         )
