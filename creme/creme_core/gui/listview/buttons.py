@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2022  Hybird
+#    Copyright (C) 2019-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -123,7 +123,8 @@ class MassImportButton(ListViewButton):
         return context
 
 
-class BatchProcessButton(MassExportButton):
+# class BatchProcessButton(MassExportButton):
+class BatchProcessButton(ListViewButton):
     template_name = 'creme_core/listview/buttons/batch-process.html'
 
 
