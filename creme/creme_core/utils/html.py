@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,7 @@ ALLOWED_ATTRIBUTES: AllowedAttributesDict = {
     'a': ['href', 'rel'],
     'img': ['src', *IMG_SAFE_ATTRIBUTES],  # NB: 'filter_img_src' can be used here
 }
-ALLOWED_TAGS = [
+ALLOWED_TAGS = {
     'a', 'abbr', 'acronym', 'address', 'area',
     'article', 'aside',  # 'audio',
     'b', 'big', 'blockquote', 'br', 'button',
@@ -57,10 +57,10 @@ ALLOWED_TAGS = [
     'th', 'thead', 'tr', 'tt', 'u', 'ul', 'var',  # 'video',
     'html', 'head', 'title', 'body',
     # 'style'  # TODO: if we allow <style>, we have to sanitize the inline CSS (it's hard)
-]
+}
 # TODO: see html5lib: mathml_elements, svg_elements ??
 
-ALLOWED_STYLES = [
+ALLOWED_STYLES = {
     # 'azimuth',
     'background-color',
     'border-bottom-color', 'border-collapse', 'border-color',
@@ -78,7 +78,7 @@ ALLOWED_STYLES = [
     'unicode-bidi', 'vertical-align',
     # 'voice-family', 'volume',
     'white-space', 'width',
-]
+}
 
 
 def filter_img_src(tag, attr, value):
