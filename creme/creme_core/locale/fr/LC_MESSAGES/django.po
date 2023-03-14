@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-07 11:41+0100\n"
+"POT-Creation-Date: 2023-03-14 17:47+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3300,14 +3300,32 @@ msgstr ""
 msgid "Finish"
 msgstr "Terminer"
 
+msgid ""
+"Apply some treatments (like making the name uppercase) on many entities at "
+"once"
+msgstr ""
+"Appliquer des traitements (comme mettre le nom en majuscule) sur de "
+"nombreuse fiches en une fois"
+
 msgid "Forbidden"
 msgstr "Interdit"
+
+msgid "Download the titles of the columns of the list as a file (.csv, .xls)"
+msgstr ""
+"Télécharger les titres des colonnes de la liste en tant que fichier (.csv, ."
+"xls)"
 
 msgid "Download header"
 msgstr "Télécharger l'en-tête"
 
+msgid "Download the content of the list as a file (.csv, .xls)"
+msgstr "Télécharger le contenu de la liste en tant que fichier (.csv, .xls)"
+
 msgid "Download"
 msgstr "Télécharger"
+
+msgid "Import entities from a file (.csv, .xls)"
+msgstr "Importer des fiches depuis un fichier (.csv, .xls)"
 
 msgid "Import"
 msgstr "Importer"
@@ -3376,8 +3394,9 @@ msgstr ""
 msgid "Display the available actions for «&nbsp;%(entity)s&nbsp;»"
 msgstr "Afficher les actions disponibles pour «&nbsp;%(entity)s&nbsp;»"
 
-msgid "Filter the lines of the table"
-msgstr "Filtrer les lignes de la table"
+msgid "Filter the lines of the table with conditions on fields, relationships…"
+msgstr ""
+"Filtrer les lignes de la table avec des conditions sur les champs, relations…"
 
 msgid "Information on the current filter"
 msgstr "Informations sur le filtre courant"
@@ -4186,9 +4205,6 @@ msgstr "Recherche vide…"
 
 #~ msgid "Functions"
 #~ msgstr "Fonctions"
-
-#~ msgid "Importing from a file"
-#~ msgstr "Import depuis un fichier"
 
 #~ msgid "Generic information"
 #~ msgstr "Infos génériques"
