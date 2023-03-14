@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2021 Hybird
+# Copyright (c) 2021-2023 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -85,7 +85,7 @@ class Command(BaseCommand):
 
         # NB: we could avoid to use 'polib' just to read some meta-data in file header...
         for language, path in self._iter_po_paths(
-            {*languages}.__contains__ if languages else lambda l: True
+            {*languages}.__contains__ if languages else lambda language: True
         ):
             plural_forms[language][pofile(path).metadata.get('Plural-Forms')].append(path)
 

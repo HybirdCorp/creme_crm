@@ -38,6 +38,12 @@
             - The method 'assertFormError()' should now take a form instance.
             - The logout view should be used with a POST request.
             - A reverse FK now raises ValueError when calling related managers for unsaved objects.
+    - New versions of libraries :
+        - bleach 5.0 -> 6.0
+        - Pillow 9.2+ -> 9.4+
+        - redis: 4.1 -> 4.5
+        - flake8: 5.0 -> 6.0
+        - polib: 1.1 -> 1.2
 
     Non breaking changes :
     ----------------------
@@ -186,6 +192,7 @@
               like the default enumerable choices URL.
         # In 'creme_core.utils' :
             - The only argument of the function 'content_type.as_ctype()' is now positional only.
+            - In 'html', the global variables 'ALLOWED_TAGS' & 'ALLOWED_STYLES' are now sets (they were lists) (see bleach 6.0).
             - In 'test' :
                 - The function 'http_port()' has been removed.
                 - The class 'CremeDiscoverRunner' does not spawn an HTTP server (for static files) anymore.
