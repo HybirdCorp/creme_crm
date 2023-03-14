@@ -457,6 +457,7 @@ class RegularFieldExtractorField(forms.Field):
                     creator = model_conf.creator
                     if creator.enable_func(user=user) and not creator.url_name:
                         form_cls = creator.form_class
+                        # TODO: manage the case where there is no mandatory field?
                         mandatory_fields = [
                             field_name
                             for field_name, field in form_cls(user=user).fields.items()
