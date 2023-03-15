@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,8 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.gui.button_menu import Button
+# from creme.creme_core.utils.media import get_current_theme_from_context
 from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
-from creme.creme_core.utils.media import get_current_theme_from_context
 
 from . import constants, get_activity_model
 
@@ -42,9 +42,9 @@ class AddRelatedActivityButton(Button):
     )
     activity_type: str | None = None  # None means type is not fixed
 
-    def render(self, context):
+    def get_context(self, *, entity, request):
+        context = super().get_context(entity=entity, request=request)
         context['activity_type'] = self.activity_type
-        context['verbose_name'] = self.verbose_name
 
         icon_info = constants.ICONS.get(self.activity_type)
         if icon_info:
@@ -53,13 +53,32 @@ class AddRelatedActivityButton(Button):
             name = 'calendar'
             label = Activity._meta.verbose_name
 
-        theme = get_current_theme_from_context(context)
+        theme = request.user.theme_info[0]
         context['icon'] = get_icon_by_name(
             name=name, label=label, theme=theme,
             size_px=get_icon_size_px(theme=theme, size='instance-button'),
         )
 
-        return super().render(context)
+        return context
+
+    # def render(self, context):
+    #     context['activity_type'] = self.activity_type
+    #     context['verbose_name'] = self.verbose_name
+    #
+    #     icon_info = constants.ICONS.get(self.activity_type)
+    #     if icon_info:
+    #         name, label = icon_info
+    #     else:
+    #         name = 'calendar'
+    #         label = Activity._meta.verbose_name
+    #
+    #     theme = get_current_theme_from_context(context)
+    #     context['icon'] = get_icon_by_name(
+    #         name=name, label=label, theme=theme,
+    #         size_px=get_icon_size_px(theme=theme, size='instance-button'),
+    #     )
+    #
+    #     return super().render(context)
 
 
 class AddMeetingButton(AddRelatedActivityButton):

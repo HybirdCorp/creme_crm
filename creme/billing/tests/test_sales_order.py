@@ -97,7 +97,8 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(order.get_absolute_url())
         self.assertConvertButtons(
             response,
-            [{'title': _('Convert to Invoice'), 'type': 'invoice', 'disabled': True}],
+            # [{'title': _('Convert to Invoice'), 'type': 'invoice', 'disabled': True}],
+            [{'title': _('Convert to Invoice'), 'disabled': True}],
         )
 
     def test_createview01(self):

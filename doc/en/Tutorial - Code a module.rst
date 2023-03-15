@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 07-03-2023 for Creme 2.5
+:Version: 17-03-2023 for Creme 2.5
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1556,10 +1556,10 @@ it's a convention): ::
         def ok_4_display(self, entity):
             return (entity.status_id == STATUS_SICK)
 
-        # def render(self, context):
+        # def get_context(self, *, entity, request):
+        #     context = super().get_context(entity=entity, request=request)
         #     context['variable_name'] = 'VALUE'
-        #     return super(CreateTicketButton, self).render(context)
-
+        #     return context
 
 Some explanations :
 
@@ -1573,15 +1573,14 @@ Some explanations :
   display the button with some conditions (the button is display if the method
   returns ``True``). In our example we display the button only for beavers with
   status "Sick".
-- The mrthod ``render()`` allows you to customise the render, by adding data
-  in the template context notably ; an example of code has been kept in
-  comments.
+- The method ``get_context()`` allows you to customise the render, by adding data
+  in the template context; an example of code has been kept in comments.
 
 Now we write the related template,
 ``beavers/templates/beavers/buttons/ticket.html``: ::
 
     {% load i18n creme_widgets %}
-    {% if has_perm %}
+    {% if button.is_allowed %}
         <a class="menu_button menu-button-icon" href="{% url 'beavers__create_ticket' object.id %}">
             {% widget_icon name='ticket' size='instance-button' label=_('Linked ticket') %}
             {% trans 'Notify a veterinary' %}
@@ -1593,8 +1592,8 @@ Now we write the related template,
         </span>
     {% endif %}
 
-The variable ``has_perm`` is filled thanks to the attribute ``permission`` of
-our button ; we display an inactive button if the user is not allowed to use
+The variable ``button.is_allowed`` is filled thanks to the attribute ``permission``
+of our button ; we display an inactive button if the user is not allowed to use
 the view. Notice that the tag ``<a>`` references a URL which is not associated
 to a view (yet).
 

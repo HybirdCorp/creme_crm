@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from collections import OrderedDict
 
 from django.db.models import Q
@@ -26,6 +27,7 @@ from ..gui import button_menu
 from ..gui.menu import menu_registry
 from ..models import ButtonMenuItem, MenuConfigItem
 
+logger = logging.getLogger(__name__)
 register = Library()
 
 
@@ -47,9 +49,9 @@ def menu_display(context):
     return context
 
 
-# TODO: rename template file (menu-buttons.html ? detailview-buttons.html ? menu/buttons.html ?)
 @register.inclusion_tag(
-    'creme_core/templatetags/menu_buttons.html', takes_context=True,
+    # 'creme_core/templatetags/menu_buttons.html', takes_context=True,
+    'creme_core/templatetags/detailview-buttons.html', takes_context=True,
 )
 def menu_buttons_display(context):
     entity = context['object']
@@ -64,14 +66,14 @@ def menu_buttons_display(context):
         'button_id', flat=True,
     )
 
-    button_ctxt = context.flatten()
-    # TODO: pass the registry in the context ?
     buttons = OrderedDict()
+    # button_ctxt = context.flatten()
+    request = context['request']
 
+    # TODO: pass the registry in the context ?
     for button in button_menu.button_registry.get_buttons(bmi, entity):
-        # NB: the context is copied is order to a 'fresh' one for each button,
-        #     & so avoid annoying side-effects.
-        buttons[button.id] = button.render({**button_ctxt})
+        # buttons[button.id] = button.render({**button_ctxt})
+        buttons[button.id] = button.get_context(entity=entity, request=request)
 
     context['buttons'] = [*buttons.values()]
 

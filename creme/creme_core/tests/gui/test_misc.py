@@ -3,6 +3,7 @@ from time import sleep
 
 from django.apps import apps
 from django.contrib.sessions.models import Session
+from django.test import RequestFactory
 from django.test.utils import override_settings
 
 from creme.creme_core.forms import CremeEntityQuickForm, CremeModelForm
@@ -20,6 +21,7 @@ from creme.creme_core.models import (
     FakeImage,
     FakeInvoice,
     FakeOrganisation,
+    UserRole,
 )
 
 from ..base import CremeTestCase, skipIfNotInstalled
@@ -283,6 +285,81 @@ class GuiTestCase(CremeTestCase):
         self.assertIn('icecream/images/organisation_22', icon3.url)
         self.assertEqual('Test Organisation', icon3.label)
 
+    def test_button01(self):
+        user = self.create_user()
+
+        class TestButton(Button):
+            id = Button.generate_id('creme_core', 'test_button')
+
+        class FakeRequest:
+            def __init__(this, user):
+                this.user = user
+
+        c = FakeContact(first_name='Casca', last_name='Mylove')
+        request = FakeRequest(user=user)
+
+        button = TestButton()
+        self.assertIs(button.is_allowed(entity=c, request=request), True)
+        self.assertIs(button.ok_4_display(entity=c), True)
+        self.assertDictEqual(
+            {
+                'description': '',
+                'is_allowed': True,
+                'template_name': 'creme_core/buttons/place-holder.html',
+                'verbose_name': 'BUTTON',
+            },
+            button.get_context(entity=c, request=request),
+        )
+
+    def test_button02(self):
+        role = UserRole(name='Role#1')
+        role.allowed_apps = ['documents', 'persons']
+        role.save()
+
+        user = self.create_user(role=role)
+
+        class TestButton01(Button):
+            id = Button.generate_id('creme_core', 'test_button_1')
+            verbose_name = 'My test button'
+            description = 'Very useful button'
+            template_name = 'creme_core/tests/unit/buttons/test_ttag_creme_menu.html'
+            permissions = 'creme_core'
+
+        class TestButton02(TestButton01):
+            id = Button.generate_id('creme_core', 'test_button_2')
+            permissions = 'documents'
+
+        class TestButton03(TestButton01):
+            id = Button.generate_id('creme_core', 'test_button_3')
+            permissions = ['creme_core', 'documents']
+
+        class TestButton04(TestButton01):
+            id = Button.generate_id('creme_core', 'test_button_4')
+            permissions = ['persons', 'documents']
+
+        class FakeRequest:
+            def __init__(this, user):
+                this.user = user
+
+        c = FakeContact(first_name='Casca', last_name='Mylove')
+
+        request = FakeRequest(user=user)
+        button1 = TestButton01()
+        self.assertIs(button1.is_allowed(entity=c, request=request), False)
+        self.assertDictEqual(
+            {
+                'description': TestButton01.description,
+                'is_allowed': False,
+                'template_name': TestButton01.template_name,
+                'verbose_name': TestButton01.verbose_name,
+            },
+            button1.get_context(entity=c, request=request),
+        )
+
+        self.assertIs(TestButton02().is_allowed(entity=c, request=request), True)
+        self.assertIs(TestButton03().is_allowed(entity=c, request=request), False)
+        self.assertIs(TestButton04().is_allowed(entity=c, request=request), True)
+
     def test_button_registry01(self):
         class TestButton1(Button):
             id = Button.generate_id('creme_core', 'test_button_registry_1')
@@ -378,25 +455,46 @@ class GuiTestCase(CremeTestCase):
             allowed_apps=['creme_core', 'persons'],
             creatable_models=[FakeContact],
         )
-        basic_ctxt = {'user': basic_user}
-        super_ctxt = {'user': self.other_user}
+        # basic_ctxt = {'user': basic_user}
+        # super_ctxt = {'user': self.other_user}
 
         class TestButton01(Button):
             id = Button.generate_id('creme_core', 'test_button_registry04_01')
             permissions = 'creme_core'
 
-        has_perm1 = TestButton01().has_perm
-        self.assertIs(has_perm1(super_ctxt),  True)
-        self.assertIs(has_perm1(basic_ctxt), True)
+        entity = FakeContact.objects.create(
+            user=basic_user, first_name='Musubi', last_name='Susono',
+        )
+
+        factory = RequestFactory()
+        url = entity.get_absolute_url()
+
+        def create_request(user):
+            request = factory.get(url)
+            request.user = user
+            return request
+
+        basic_ctxt = {'request': create_request(basic_user),      'entity': entity}
+        super_ctxt = {'request': create_request(self.other_user), 'entity': entity}
+
+        # has_perm1 = TestButton01().has_perm
+        # self.assertIs(has_perm1(super_ctxt), True)
+        # self.assertIs(has_perm1(basic_ctxt), True)
+        is_allowed1 = TestButton01().is_allowed
+        self.assertIs(is_allowed1(**super_ctxt), True)
+        self.assertIs(is_allowed1(**basic_ctxt), True)
 
         # Other app ---
         class TestButton02(Button):
             id = Button.generate_id('creme_core', 'test_button_registry04_02')
             permissions = 'documents'
 
-        has_perm2 = TestButton02().has_perm
-        self.assertIs(has_perm2(super_ctxt),  True)
-        self.assertIs(has_perm2(basic_ctxt), False)
+        # has_perm2 = TestButton02().has_perm
+        # self.assertIs(has_perm2(super_ctxt), True)
+        # self.assertIs(has_perm2(basic_ctxt), False)
+        is_allowed2 = TestButton02().is_allowed
+        self.assertIs(is_allowed2(**super_ctxt), True)
+        self.assertIs(is_allowed2(**basic_ctxt), False)
 
         # Creation permission ---
         class TestButton03(Button):
@@ -407,8 +505,10 @@ class GuiTestCase(CremeTestCase):
             id = Button.generate_id('creme_core', 'test_button_registry04_04')
             permissions = 'creme_core.add_fakeorganisation'
 
-        self.assertTrue(TestButton03().has_perm(basic_ctxt))
-        self.assertFalse(TestButton04().has_perm(basic_ctxt))
+        # self.assertTrue(TestButton03().has_perm(basic_ctxt))
+        # self.assertFalse(TestButton04().has_perm(basic_ctxt))
+        self.assertTrue(TestButton03().is_allowed(**basic_ctxt))
+        self.assertFalse(TestButton04().is_allowed(**basic_ctxt))
 
         # Several permissions ---
         class TestButton05(Button):
@@ -419,8 +519,10 @@ class GuiTestCase(CremeTestCase):
             id = Button.generate_id('creme_core', 'test_button_registry04_06')
             permissions = ['persons', 'creme_core.add_fakeorganisation']
 
-        self.assertTrue(TestButton05().has_perm(basic_ctxt))
-        self.assertFalse(TestButton06().has_perm(basic_ctxt))
+        # self.assertTrue(TestButton05().has_perm(basic_ctxt))
+        # self.assertFalse(TestButton06().has_perm(basic_ctxt))
+        self.assertTrue(TestButton05().is_allowed(**basic_ctxt))
+        self.assertFalse(TestButton06().is_allowed(**basic_ctxt))
 
     def test_quickforms_registry01(self):
         "Registration."

@@ -683,26 +683,57 @@ class _BillingTestCase(_BillingTestCaseMixin,
 
         for button_node in self.iter_instance_button_nodes(
             self.get_instance_buttons_node(self.get_html_tree(response.content)),
-            data_action='billing-hatmenubar-convert',
+            # data_action='billing-hatmenubar-convert',
         ):
-            title, json_data = filter(None, (txt.strip() for txt in button_node.itertext()))
-            found.append(
-                (
-                    title,
-                    json_data,
-                    ('is-disabled' in button_node.attrib.get('class').split()),
-                )
-            )
+            # title, json_data = filter(None, (txt.strip() for txt in button_node.itertext()))
+            # found.append(
+            #     (
+            #         title,
+            #         json_data,
+            #         ('is-disabled' in button_node.attrib.get('class').split()),
+            #     )
+            # )
+            if button_node.tag == 'a':
+                label, json_data = filter(None, (txt.strip() for txt in button_node.itertext()))
+                found.append({
+                    'label': label,
+                    'json_data': json_data,
+                    'disabled': ('is-disabled' in button_node.attrib.get('class').split()),
+                })
+            else:
+                self.assertEqual('span', button_node.tag)
+                self.assertIn('forbidden', button_node.attrib.get('class').split())
+                labels = [*filter(None, (txt.strip() for txt in button_node.itertext()))]
+                self.assertEqual(1, len(labels))
+                found.append({
+                    'label': labels[0],
+                    # 'json_data': json_data,
+                    'disabled': True,
+                })
 
+        # for item in expected:
+        #     title = item['title']
+        #     btype = item['type']
+        #     disabled = item['disabled']
+        #
+        #     for f in found:
+        #         if f[0] == title:
+        #             self.assertIn(f'"type": "{btype}"', f[1])
+        #             self.assertEqual(disabled, f[2])
+        #             break
+        #     else:
+        #         self.fail(f'The conversion button with title="{title}" has not been found.')
         for item in expected:
-            title = item['title']
-            btype = item['type']
-            disabled = item['disabled']
+            label = item['title']
 
             for f in found:
-                if f[0] == title:
-                    self.assertIn(f'"type": "{btype}"', f[1])
-                    self.assertEqual(disabled, f[2])
+                if f['label'] == label:
+                    self.assertEqual(item['disabled'], f['disabled'])
+
+                    if 'type' in item:
+                        btype = item['type']
+                        self.assertIn(f'"type": "{btype}"', f['json_data'])
+
                     break
             else:
-                self.fail(f'The conversion button with title="{title}" has not been found.')
+                self.fail(f'The conversion button with title="{label}" has not been found.')

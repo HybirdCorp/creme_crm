@@ -2,8 +2,9 @@ from copy import deepcopy
 
 from django.conf import settings
 from django.template import Context, Template
+from django.test import RequestFactory
+# from django.utils.safestring import mark_safe
 from django.test.utils import override_settings
-from django.utils.safestring import mark_safe
 
 from creme.creme_core.gui import button_menu
 from creme.creme_core.gui.button_menu import Button
@@ -200,12 +201,18 @@ class MenuDisplayTestCase(CremeTestCase):
 
 
 class _TestButton(Button):
-    action_id = 'creme_core-tests-dosomethingawesome1'
+    action_id = 'creme_core-tests-??'
+    template_name = 'creme_core/tests/unit/buttons/test_ttag_creme_menu.html'
 
-    def render(self, context):
-        return mark_safe(
-            f' <a class="menu_button" data-action="{self.action_id}" href="#"></a>'
-        )
+    # def render(self, context):
+    #     return mark_safe(
+    #         f' <a class="menu_button" data-action="{self.action_id}" href="#"></a>'
+    #     )
+    def get_context(self, *, entity, request):
+        context = super().get_context(entity=entity, request=request)
+        context['action_id'] = self.action_id
+
+        return context
 
 
 class TestButton01(_TestButton):
@@ -275,12 +282,18 @@ class MenuButtonsDisplayTestCase(CremeTestCase):
         create_button(button=TestButton03, order=101, model=FakeOrganisation)
         create_button(button=TestButton04, order=102, model=FakeContact)
 
+        request = RequestFactory().get(orga.get_absolute_url())
+        request.user = user
+
         with self.assertNoException():
             template = Template(
                 r'{% load creme_menu %}'
                 r'{% menu_buttons_display %}'
             )
-            render = template.render(Context({'user': user, 'object': orga}))
+            # render = template.render(Context({'user': user, 'object': orga}))
+            render = template.render(
+                Context({'request': request, 'user': user, 'object': orga})
+            )
 
         # print(render)
         data_actions = {
@@ -314,12 +327,18 @@ class MenuButtonsDisplayTestCase(CremeTestCase):
         create_button(button=TestButton02, order=101, model=FakeOrganisation)
         create_button(button=TestButton01, order=102, model=FakeOrganisation)
 
+        request = RequestFactory().get(orga.get_absolute_url())
+        request.user = user
+
         with self.assertNoException():
             template = Template(
                 r'{% load creme_menu %}'
                 r'{% menu_buttons_display %}'
             )
-            render = template.render(Context({'user': user, 'object': orga}))
+            # render = template.render(Context({'user': user, 'object': orga}))
+            render = template.render(
+                Context({'request': request, 'user': user, 'object': orga})
+            )
 
         # print(render)
         actions_ids = []
