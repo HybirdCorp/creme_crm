@@ -367,7 +367,7 @@ class GuiTestCase(CremeTestCase):
             registry.register(TestButton)
 
         self.assertEqual(
-            f'Button class with empty id: {TestButton}',
+            f'Button class with empty ID: {TestButton}',
             str(cm.exception),
         )
 

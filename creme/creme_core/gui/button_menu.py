@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -53,7 +53,6 @@ class Button:
     permissions: str | Sequence[str] = ''
 
     def __eq__(self, other):
-        # return other.id_ == self.id_
         return other.id == self.id
 
     @staticmethod
@@ -107,31 +106,16 @@ class ButtonsRegistry:
         setdefault = self._button_classes.setdefault
 
         for button_cls in button_classes:
-            # button_id = button_cls.id_
             button_id = button_cls.id
 
             if not button_id:
-                # TODO: in creme 2.5 only
-                #   raise self.RegistrationError(
-                #       f'Button class with empty id: {button_cls}'
-                #   )
-                try:
-                    button_cls.id_  # NOQA
-                except AttributeError:
-                    raise self.RegistrationError(
-                        f'Button class with empty id: {button_cls}'
-                    )
-                else:
-                    logger.critical(
-                        'The button class %s uses the old "id_" attribute ; '
-                        'use an attribute "id" instead (button is ignored).',
-                        button_cls,
-                    )
-                    continue
+                raise self.RegistrationError(
+                    f'Button class with empty ID: {button_cls}'
+                )
 
             if setdefault(button_id, button_cls) is not button_cls:
                 raise self.RegistrationError(
-                    f"Duplicated button's ID (or button registered twice) : {button_id}"
+                    f"Duplicated button's ID (or button registered twice): {button_id}"
                 )
 
         return self
