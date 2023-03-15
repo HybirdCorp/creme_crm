@@ -120,7 +120,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         with self.assertNoException():
             c_recipients = context['form'].fields['c_recipients']
 
-        self.assertEqual([contact.id], c_recipients.initial)
+        self.assertListEqual([contact.id], c_recipients.initial)
 
         # ---
         sender = user.linked_contact.email
@@ -146,6 +146,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(body,             email.body)
         self.assertEqual(body_html,        email.body_html)
         self.assertEqual(EntityEmail.Status.SENT, email.status)
+        self.assertIs(email.synchronised, False)
 
         self.get_object_or_fail(
             Relation,

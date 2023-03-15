@@ -1018,6 +1018,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(recipient12.email,               email1.recipient)
         self.assertIsNone(email1.sending_date)
         self.assertIsNone(email1.reception_date)
+        self.assertIs(email1.synchronised, True)
 
         self.assertRelationCount(1, email1, REL_SUB_MAIL_SENT,     sender_contact)
         self.assertRelationCount(0, email1, REL_SUB_MAIL_RECEIVED, sender_contact)
