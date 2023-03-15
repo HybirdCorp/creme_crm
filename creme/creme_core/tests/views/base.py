@@ -209,6 +209,11 @@ class ButtonTestCaseMixin:
             ):
                 yield a_node
 
+        for span_node in instances_button_node.findall('.//span'):
+            classes_attr = span_node.attrib.get('class')
+            if classes_attr and 'menu_button' in classes_attr.split():
+                yield span_node
+
 
 class MassImportBaseTestCaseMixin:
     def _assertNoResultError(self, results):

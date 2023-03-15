@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,13 +16,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import RelationType
 
-from . import get_act_model
+# from . import get_act_model
 from .constants import REL_SUB_COMPLETE_GOAL
 
 
@@ -37,9 +37,14 @@ class CompleteGoalButton(Button):
     template_name = 'commercial/buttons/complete-goal.html'
     permissions = 'commercial'
 
-    def render(self, context):
+    def get_context(self, **kwargs):
+        context = super().get_context(**kwargs)
         context['rtype'] = RelationType.objects.get(id=REL_SUB_COMPLETE_GOAL)
-        # TODO: templatetag instead?
-        context['act_ct'] = ContentType.objects.get_for_model(get_act_model())
 
-        return super().render(context)
+        return context
+
+    # def render(self, context):
+    #     context['rtype'] = RelationType.objects.get(id=REL_SUB_COMPLETE_GOAL)
+    #     context['act_ct'] = ContentType.objects.get_for_model(get_act_model())
+    #
+    #     return super().render(context)

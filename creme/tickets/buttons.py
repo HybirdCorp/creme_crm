@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from .constants import REL_SUB_LINKED_2_TICKET
 
 class Linked2TicketButton(Button):
     id = Button.generate_id('tickets', 'linked2ticket')
-    verbose_name = _('Is linked to a ticket')
+    verbose_name = _('Link to a ticket')
     description = _(
         'This button links the current entity to a selected ticket, '
         'using the relationship type «is linked to the ticket».\n'
@@ -35,7 +35,13 @@ class Linked2TicketButton(Button):
     template_name = 'tickets/buttons/linked.html'
     permissions = 'tickets'
 
-    def render(self, context):
+    def get_context(self, **kwargs):
+        context = super().get_context(**kwargs)
         context['rtype'] = RelationType.objects.get(id=REL_SUB_LINKED_2_TICKET)
 
-        return super().render(context)
+        return context
+
+    # def render(self, context):
+    #     context['rtype'] = RelationType.objects.get(id=REL_SUB_LINKED_2_TICKET)
+    #
+    #     return super().render(context)

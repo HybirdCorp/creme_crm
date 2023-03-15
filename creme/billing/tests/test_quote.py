@@ -92,7 +92,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertConvertButtons(
             response,
             [
-                {'title': _('Convert to Salesorder'), 'type': 'sales_order', 'disabled': True},
+                # {'title': _('Convert to Salesorder'), 'type': 'sales_order', 'disabled': True},
+                {'title': _('Convert to Salesorder'), 'disabled': True},
                 {'title': _('Convert to Invoice'),    'type': 'invoice',     'disabled': False},
             ],
         )
@@ -117,7 +118,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             response,
             [
                 {'title': _('Convert to Salesorder'), 'type': 'sales_order', 'disabled': False},
-                {'title': _('Convert to Invoice'),    'type': 'invoice',     'disabled': True},
+                # {'title': _('Convert to Invoice'),    'type': 'invoice',     'disabled': True},
+                {'title': _('Convert to Invoice'), 'disabled': True},
             ],
         )
 

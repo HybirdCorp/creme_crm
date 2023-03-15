@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,6 +34,13 @@ class CrmButton(Button):
     relation_type_id = 'OVERRIDE'
     template_name = 'persons/buttons/become.html'
 
+    def get_context(self, **kwargs):
+        context = super().get_context(**kwargs)
+        context['managed_orga'] = self.__managed_orga
+        context['rtype'] = RelationType.objects.get(id=self.relation_type_id)
+
+        return context
+
     def ok_4_display(self, entity):
         # TODO: only one query ??
         already_linked_pk = Relation.objects.filter(
@@ -52,12 +59,12 @@ class CrmButton(Button):
     def get_ctypes(self):
         return Contact, Organisation
 
-    def render(self, context):
-        context['managed_orga'] = self.__managed_orga
-        context['verbose_name'] = self.verbose_name
-        context['rtype'] = RelationType.objects.get(id=self.relation_type_id)
-
-        return super().render(context)
+    # def render(self, context):
+    #     context['managed_orga'] = self.__managed_orga
+    #     context['verbose_name'] = self.verbose_name
+    #     context['rtype'] = RelationType.objects.get(id=self.relation_type_id)
+    #
+    #     return super().render(context)
 
 
 class BecomeCustomerButton(CrmButton):
@@ -117,7 +124,7 @@ class BecomeSupplierButton(CrmButton):
 
 class AddLinkedContactButton(Button):
     id = Button.generate_id('persons', 'add_linked_contact')
-    verbose_name = _('Create a related contact')
+    verbose_name = _('Create a linked contact')
     description = _(
         'This button displays the creation form for contacts. '
         'The current organisation is pre-selected to be linked to the created contact.\n'
@@ -128,10 +135,16 @@ class AddLinkedContactButton(Button):
     template_name = 'persons/buttons/add-linked-contact.html'
     permissions = cperm(Contact)  # TODO: 'persons.addrelated_contact' ??
 
+    def get_context(self, *, entity, request):
+        context = super().get_context(entity=entity, request=request)
+        context['contact_link_perm'] = request.user.has_perm_to_link(Contact)
+
+        return context
+
     def get_ctypes(self):
         return (Organisation,)
 
-    def render(self, context):
-        context['contact_link_perm'] = context['user'].has_perm_to_link(Contact)
-
-        return super().render(context)
+    # def render(self, context):
+    #     context['contact_link_perm'] = context['user'].has_perm_to_link(Contact)
+    #
+    #     return super().render(context)

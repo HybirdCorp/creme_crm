@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 07-03-2023 pour la version 2.5 de Creme
+:Version: 17-03-2023 pour la version 2.5 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1598,9 +1598,10 @@ une convention) : ::
         def ok_4_display(self, entity):
             return (entity.status_id == STATUS_SICK)
 
-        # def render(self, context):
+        # def get_context(self, *, entity, request):
+        #     context = super().get_context(entity=entity, request=request)
         #     context['variable_name'] = 'VALUE'
-        #     return super(CreateTicketButton, self).render(context)
+        #     return context
 
 
 Quelques explications :
@@ -1615,15 +1616,15 @@ Quelques explications :
   n'afficher le bouton qu'à certaines conditions (le bouton est affiché si la
   méthode renvoie ``True``). Ici on le l'affiche que pour les Castors avec le
   statut "Sick".
-- La méthode ``render()`` vous permet de personnaliser le rendu du bouton, en
-  enrichissant le contexte du *template* notamment ; un exemple de code a été
-  laissé en commentaire.
+- La méthode ``get_context()`` vous permet de personnaliser le rendu du bouton,
+  en enrichissant le contexte du *template* ; un exemple de code a été laissé en
+  commentaire.
 
 Maintenant au tour du fichier *template* associé,
 ``beavers/templates/beavers/buttons/ticket.html``: ::
 
     {% load i18n creme_widgets %}
-    {% if has_perm %}
+    {% if button.is_allowed %}
         <a class="menu_button menu-button-icon" href="{% url 'beavers__create_ticket' object.id %}">
             {% widget_icon name='ticket' size='instance-button' label=_('Linked ticket') %}
             {% trans 'Notify a veterinary' %}
@@ -1635,8 +1636,8 @@ Maintenant au tour du fichier *template* associé,
         </span>
     {% endif %}
 
-La variable ``has_perm`` est renseignée grâce à l'attribut ``permission`` de
-notre bouton ; nous en faisons usage pour n'afficher qu'un bouton inactif si
+La variable ``button.is_allowed`` est renseignée grâce à l'attribut ``permission``
+de notre bouton ; nous en faisons usage pour n'afficher qu'un bouton inactif si
 l'utilisateur n'a pas les droits suffisants. Notez que la balise ``<a>`` fait
 référence à une URL à laquelle nous n'avons pas (encore) associé de vue.
 

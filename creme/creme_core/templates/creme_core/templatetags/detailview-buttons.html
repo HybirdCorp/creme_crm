@@ -1,0 +1,3 @@
+{% for button_ctxt in buttons %}
+    <li>{% include button_ctxt.template_name with button=button_ctxt %}</li>
+{% endfor %}

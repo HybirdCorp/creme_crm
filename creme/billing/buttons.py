@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,8 +46,12 @@ class GenerateInvoiceNumberButton(Button):
     def get_ctypes(self):
         return (Invoice,)
 
-    def has_perm(self, context):
-        return context['user'].has_perm_to_change(context['object'])
+    # def has_perm(self, context):
+    #     return context['user'].has_perm_to_change(context['object'])
+    def is_allowed(self, *, entity, request):
+        return super().is_allowed(
+            entity=entity, request=request,
+        ) and request.user.has_perm_to_change(entity)
 
     def ok_4_display(self, entity):
         return not bool(entity.number)
@@ -59,18 +63,13 @@ class _AddBillingDocumentButton(Button):
 
     url_name = 'OVERRIDE_ME'
 
-    def get_ctypes(self):
-        return persons.get_organisation_model(), persons.get_contact_model()
-
-    def has_perm(self, context):
-        return context['user'].has_perm_to_create(self.model_to_create)
-
-    def render(self, context):
-        context['verbose_name'] = self.verbose_name
+    def get_context(self, *, entity, request):
+        context = super().get_context(entity=entity, request=request)
         context['url_name'] = self.url_name
 
+        # TODO: pass only "_meta" to the template?
         meta = self.model_to_create._meta
-        context['model_vname'] = meta.verbose_name
+        context['model_vname'] = str(meta.verbose_name)
         context['model_id'] = f'{meta.app_label}.{meta.model_name}'
 
         context['rtype_id'] = REL_OBJ_BILL_RECEIVED
@@ -80,7 +79,35 @@ class _AddBillingDocumentButton(Button):
             default=True,
         ).value
 
-        return super().render(context)
+        return context
+
+    def get_ctypes(self):
+        return persons.get_organisation_model(), persons.get_contact_model()
+
+    # def has_perm(self, context):
+    #     return context['user'].has_perm_to_create(self.model_to_create)
+    def is_allowed(self, *, entity, request):
+        return (
+            super().is_allowed(entity=entity, request=request)
+            and request.user.has_perm_to_create(self.model_to_create)
+        )
+
+    # def render(self, context):
+    #     context['verbose_name'] = self.verbose_name
+    #     context['url_name'] = self.url_name
+    #
+    #     meta = self.model_to_create._meta
+    #     context['model_vname'] = meta.verbose_name
+    #     context['model_id'] = f'{meta.app_label}.{meta.model_name}'
+    #
+    #     context['rtype_id'] = REL_OBJ_BILL_RECEIVED
+    #
+    #     context['redirect'] = SettingValue.objects.get_4_key(
+    #         button_redirection_key,
+    #         default=True,
+    #     ).value
+    #
+    #     return super().render(context)
 
 
 class AddInvoiceButton(_AddBillingDocumentButton):
@@ -127,23 +154,40 @@ class _ConvertToButton(Button):
     target_model = Base  # Override
     target_modelname = ''  # Override
 
+    def get_context(self, *, entity, request):
+        context = super().get_context(entity=entity, request=request)
+        context['convert_to'] = self.target_modelname
+
+        target_model = self.target_model
+        context['model_vname'] = target_model._meta.verbose_name
+        context['creation_perm'] = request.user.has_perm_to_create(target_model)
+
+        return context
+
     def get_ctypes(self):
         return tuple(get_models_for_conversion(self.target_modelname))
 
-    def has_perm(self, context):
-        user = context['user']
+    # def has_perm(self, context):
+    #     user = context['user']
+    #     return (
+    #         user.has_perm_to_create(self.target_model)
+    #         and not user.is_staff
+    #         and not context['object'].is_deleted
+    #     )
+    def is_allowed(self, *, entity, request):
+        user = request.user
         return (
-            user.has_perm_to_create(self.target_model)
+            super().is_allowed(entity=entity, request=request)
             and not user.is_staff
-            and not context['object'].is_deleted
+            and not entity.is_deleted
         )
 
-    def render(self, context):
-        context['verbose_name'] = self.verbose_name
-        context['convert_to'] = self.target_modelname
-        context['model_vname'] = self.target_model._meta.verbose_name
-
-        return super().render(context)
+    # def render(self, context):
+    #     context['verbose_name'] = self.verbose_name
+    #     context['convert_to'] = self.target_modelname
+    #     context['model_vname'] = self.target_model._meta.verbose_name
+    #
+    #     return super().render(context)
 
 
 class ConvertToInvoiceButton(_ConvertToButton):

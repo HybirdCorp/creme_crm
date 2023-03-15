@@ -21,8 +21,6 @@ from __future__ import annotations
 import logging
 from typing import Iterable, Iterator, Sequence
 
-from django.template.loader import get_template
-
 from ..models import CremeEntity
 
 logger = logging.getLogger(__name__)
@@ -48,8 +46,8 @@ class Button:
     # permission: Optional[str] = None
     # Permission string(s) ; an empty value means no permission is needed.
     # Example: <'myapp.add_mymodel'>
-    # BEWARE: you have to use the template context variable "has_perm"
-    #         (computed from 'permissions' -- see 'has_perm()' ) yourself !!
+    # BEWARE: you have to use the template context variable "button.is_allowed"
+    #         (computed from 'permissions' -- see 'is_allowed()' ) yourself !!
     permissions: str | Sequence[str] = ''
 
     def __eq__(self, other):
@@ -57,8 +55,25 @@ class Button:
 
     @staticmethod
     def generate_id(app_name: str, name: str) -> str:
+        """Helper used to create the value of the class attribute 'id'."""
         return f'button_{app_name}-{name}'
 
+    # def render(self, context) -> str:
+    #     context['has_perm'] = self.has_perm(context)
+    #     context['description'] = self.description
+    #
+    #     return get_template(self.template_name).render(context)
+    def get_context(self, *, entity: CremeEntity, request) -> dict:
+        """Context used by the template system to render the button."""
+        return {
+            # 'id': self.id, # TODO: for reload system like bricks' one
+            'verbose_name': self.verbose_name,
+            'description': self.description,
+            'is_allowed': self.is_allowed(entity=entity, request=request),
+            'template_name': self.template_name,
+        }
+
+    # TODO: replace with an attribute (like Brick.target_ctypes) -> "compatible_models"?
     def get_ctypes(self) -> Sequence[type[CremeEntity]]:
         """
         @return A sequence of CremeEntity classes that can have this type of button.
@@ -67,29 +82,37 @@ class Button:
         """
         return ()
 
-    def has_perm(self, context) -> bool:
+    # def has_perm(self, context) -> bool:
+    #     permissions = self.permissions
+    #     if not permissions:
+    #         return False
+    #
+    #     return (
+    #         context['user'].has_perm(permissions)
+    #         if isinstance(permissions, str) else
+    #         context['user'].has_perms(permissions)
+    #     )
+    def is_allowed(self, *, entity, request) -> bool:
+        """Indicate if the button has to be disabled.
+        The value is injected in the context (see get_context()).
+        """
         permissions = self.permissions
         if not permissions:
-            return False
+            return True
 
         return (
-            context['user'].has_perm(permissions)
+            request.user.has_perm(permissions)
             if isinstance(permissions, str) else
-            context['user'].has_perms(permissions)
+            request.user.has_perms(permissions)
         )
 
+    # TODO: pass 'request' too ? (see Restrict2SuperusersButton)
     def ok_4_display(self, entity: CremeEntity) -> bool:
-        """Can this button be displayed on this entity's detail-view ?
+        """Can this button be displayed on this entity's detail-view?
         @param entity: CremeEntity which detail-view is displayed.
         @return True if the button can be displayed for 'entity'.
         """
         return True
-
-    def render(self, context) -> str:
-        context['has_perm'] = self.has_perm(context)
-        context['description'] = self.description
-
-        return get_template(self.template_name).render(context)
 
 
 class ButtonsRegistry:
@@ -117,6 +140,15 @@ class ButtonsRegistry:
                 raise self.RegistrationError(
                     f"Duplicated button's ID (or button registered twice): {button_id}"
                 )
+
+            if hasattr(button_cls, 'render'):
+                logger.critical(
+                    'The button class %s seems to still use the method "render()"; '
+                    'use the new method "get_context()" instead, and update the '
+                    'related template too (button is ignored).',
+                    button_cls,
+                )
+                continue
 
         return self
 

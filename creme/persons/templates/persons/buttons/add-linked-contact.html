@@ -1,6 +1,22 @@
 {% load i18n creme_widgets %}{% load has_perm_to from creme_core_tags %}
 {% has_perm_to link object as obj_link_perm %}{% translate 'Linked contact' as img_title %}
-{% if has_perm and obj_link_perm and contact_link_perm %}
+{% if button.is_allowed and obj_link_perm and button.contact_link_perm %}
+<a class="menu_button menu-button-icon" title="{{button.description}}" href="{% url 'persons__create_related_contact' object.id %}?callback_url={{request.path}}">
+    {% widget_icon name='contact' size='instance-button' label=img_title %}
+    {{button.verbose_name}}
+</a>
+{% else %}
+<span class="menu_button menu-button-icon forbidden"
+      title="{% if not link_perm %}{% translate 'You are not allowed to link this entity' %}{% elif not button.contact_link_perm %}{% translate 'You are not allowed to link with a Contact' %}{% else %}{{button.description}}{% endif %}">
+    {% widget_icon name='contact' size='instance-button' label=img_title %}
+    {{button.verbose_name}}
+</span>
+{% endif %}
+
+{% comment %}
+{% load i18n creme_widgets %}{% load has_perm_to from creme_core_tags %}
+{% has_perm_to link object as obj_link_perm %}{% translate 'Linked contact' as img_title %}
+{% if has_perm and obj_link_perm and button.contact_link_perm %}
     <a class="menu_button menu-button-icon" title="{{description}}" href="{% url 'persons__create_related_contact' object.id %}?callback_url={{request.path}}">
         {% widget_icon name='contact' size='instance-button' label=img_title %}
         {% translate 'Create a linked contact' %}
@@ -11,3 +27,5 @@
         {% translate 'Create a linked contact' %}
     </span>
 {% endif %}
+{% endcomment %}
+

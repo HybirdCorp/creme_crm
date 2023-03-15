@@ -94,6 +94,9 @@
             - A class 'FieldEnumerableChoiceSet' has been added;
               it inherits 'EnumerableChoiceSet' (which is now a base class) and has all its previous features (see the section <Breaking changes>).
             - A new widget class 'EnumerableSelectMultiple' has been added; it supports multiple selection.
+
+        # In 'creme_core.gui.button_menu', the rendering of Button has been reworked (see the section <Breaking changes>!) ;
+          the verbose name of the button (often use for the button's label) is now always injected in the context ("{{button.verbose_name}}" to get it).
         # In 'creme_core.models':
             - Some database indexes were added to improve general performance with large volumes of data on:
                 - HistoryLine
@@ -158,6 +161,14 @@
                   has been replaced by 'creation_form_class'.
         # In 'creme_core.gui' :
             - The only argument of 'bricks._BrickRegistry.get_brick_4_object()' is now positional only.
+            - In 'button_menu', the rendering of Button has been reworked:
+                - The method 'render()' has been removed; use 'get_context()' instead.
+                - The method 'has_perm()' has been removed; use 'is_allowed()' instead.
+                - In the related template, the way to get data in the context has changed;
+                  for all variables returned by the method 'get_context()' of your buttons (like
+                  "verbose_name", "description" and the ones you added of course), use the inner-context "button":
+                  Example: "{{description}}" becomes "{{button.description}}".
+                  Beware: "{{has_perm}}" has been renamed "{{button.is_allowed}}".
             - In 'field_printers' :
                 - These global objects have been removed :
                     - print_foreignkey_html, print_foreignkey_csv
@@ -199,6 +210,8 @@
                 - The class 'CremeDiscoverRunner' does not spawn an HTTP server (for static files) anymore.
                   You should use mocking if you want to test code which retrieves files with HTTP (see in 'vcfs' or 'geolocation)'.
                   The attribute '_http_server' & the method '_clean_http_server()' have been removed.
+        # In templates :
+            - The template "creme_core/templatetags/menu_buttons.html" has been removed.
         # Apps :
             * Creme_config :
                 - 'creme.creme_config.MenuContainersController' has been renamed 'creme.MenuContainersController'
