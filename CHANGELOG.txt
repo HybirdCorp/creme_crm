@@ -113,6 +113,7 @@
                     - The attribute '_dependencies_map' has been removed.
                     - The method '_build_dependencies_map()' has been removed.
                     - The property 'used_relationtypes_ids' has been removed.
+                - In the class 'button_menu.Button', the attribute "id" must be filled & used instead of "id_".
                 - In 'field_printers', 'print_date()' & print_datetime() have been removed.
             - In 'creme_core.models' :
                 - The method 'bricks.RelationBrickItemManager.create_if_needed()' has been removed.
