@@ -351,7 +351,7 @@ class GuiTestCase(CremeTestCase):
             registry.register(TestButton1, TestButton2)
 
         self.assertEqual(
-            f"Duplicated button's ID (or button registered twice) : {TestButton1.id}",
+            f"Duplicated button's ID (or button registered twice): {TestButton1.id}",
             str(cm.exception)
         )
 

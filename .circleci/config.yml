@@ -299,6 +299,22 @@ jobs:
       - run-creme-unit-tests
 
 
+  python311-tests-sqlite3:
+    docker:
+      - image: cimg/python:3.11
+    resource_class: large
+    steps:
+      - checkout-creme
+      - setup-locale:
+          language: fr_FR
+          encoding: UTF-8
+      - install-creme-system-packages
+      - install-py-dev-env
+      - create-creme-project
+      - setup-creme-unit-tests
+      - run-creme-unit-tests
+
+
   javascript-lint:
     docker:
      - image: cimg/python:3.8-node
@@ -475,6 +491,10 @@ workflows:
             - python38-lint-isort
             - python38-lint-flake8
       - python310-tests-sqlite3:
+          requires:
+            - python38-lint-isort
+            - python38-lint-flake8
+      - python311-tests-sqlite3:
           requires:
             - python38-lint-isort
             - python38-lint-flake8
