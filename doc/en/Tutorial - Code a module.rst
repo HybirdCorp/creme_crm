@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 03-02-2023 for Creme 2.4
+:Version: 16-03-2023 for Creme 2.4
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1573,7 +1573,7 @@ Some explanations :
   display the button with some conditions (the button is display if the method
   returns ``True``). In our example we display the button only for beavers with
   status "Sick".
-- The mrthod ``render()`` allows you to customise the render, by adding data
+- The method ``render()`` allows you to customise the render, by adding data
   in the template context notably ; an example of code has been kept in
   comments.
 
