@@ -17,7 +17,8 @@ class ChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertGET200(
             reverse('creme_core__reload_detailview_bricks', args=(entity.id,)),
-            data={'brick_id': brick_class.id_},
+            # data={'brick_id': brick_class.id_},
+            data={'brick_id': brick_class.id},
         )
 
         return response.json()[0][1]

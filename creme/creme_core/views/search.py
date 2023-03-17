@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,8 @@ class FoundEntitiesBrick(QuerysetBrick):
         self.research = research
         self.user = user
         ctype = ContentType.objects.get_for_model(model)
-        self.id_ = id or self.generate_id(
+        # self.id_ = id or self.generate_id(
+        self.id = id or self.generate_id(
             'creme_core',
             # We generate a unique ID for each research, in order
             # to avoid sharing state (e.g. page number) between researches.

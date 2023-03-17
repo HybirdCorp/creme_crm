@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import TYPE_CHECKING, Iterable, Iterator
 
@@ -35,6 +36,8 @@ from .bricks import GenericModelBrick
 
 if TYPE_CHECKING:
     from .forms.generics import DeletionForm
+
+logger = logging.getLogger(__name__)
 
 
 class NotRegisteredInConfig(Exception):
@@ -490,7 +493,21 @@ class _ConfigRegistry:
         return iter(self._apps.values())
 
     def _get_brick_id(self, brick_cls: type[Brick]) -> str:
-        brick_id = brick_cls.id_
+        # brick_id = brick_cls.id_
+        brick_id = brick_cls.id
+
+        # TODO: remove in creme 2.6
+        if not brick_id:
+            try:
+                brick_id = brick_cls.id_
+            except AttributeError:
+                pass
+            else:
+                logger.critical(
+                    'The brick class %s uses the old "id_" attribute; '
+                    'use an attribute "id" instead (brick is ignored).',
+                    brick_cls,
+                )
 
         if not hasattr(brick_cls, 'detailview_display'):
             raise ValueError(

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,8 @@ class ActivityBarHatBrick(SimpleBrick):
 
 
 class ParticipantsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('activities', 'participants')
+    # id_ = QuerysetBrick.generate_id('activities', 'participants')
+    id = QuerysetBrick.generate_id('activities', 'participants')
     verbose_name = _('Participants')
 
     # NB: Organisation is a hack in order to reload the SubjectsBlock when
@@ -84,7 +85,8 @@ class ParticipantsBrick(QuerysetBrick):
 
 
 class SubjectsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('activities', 'subjects')
+    # id_ = QuerysetBrick.generate_id('activities', 'subjects')
+    id = QuerysetBrick.generate_id('activities', 'subjects')
     verbose_name = _('Subjects')
 
     dependencies = (Relation, Organisation)  # See ParticipantsBlock.dependencies
@@ -166,7 +168,8 @@ class _RelatedActivitiesBrick(QuerysetBrick):
 
 
 class FutureActivitiesBrick(_RelatedActivitiesBrick):
-    id_ = QuerysetBrick.generate_id('activities', 'future_activities')
+    # id_ = QuerysetBrick.generate_id('activities', 'future_activities')
+    id = QuerysetBrick.generate_id('activities', 'future_activities')
     verbose_name = _('Future activities')
     description = _(
         'Displays activities which:\n'
@@ -188,7 +191,8 @@ class FutureActivitiesBrick(_RelatedActivitiesBrick):
 
 
 class PastActivitiesBrick(_RelatedActivitiesBrick):
-    id_ = QuerysetBrick.generate_id('activities', 'past_activities')
+    # id_ = QuerysetBrick.generate_id('activities', 'past_activities')
+    id = QuerysetBrick.generate_id('activities', 'past_activities')
     verbose_name = _('Past activities')
     description = _(
         'Displays activities which:\n'
@@ -209,7 +213,8 @@ class PastActivitiesBrick(_RelatedActivitiesBrick):
 
 
 class UserCalendarsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('activities', 'user_calendars')
+    # id_ = QuerysetBrick.generate_id('activities', 'user_calendars')
+    id = QuerysetBrick.generate_id('activities', 'user_calendars')
     verbose_name = 'My calendars'
     dependencies = (Calendar, )
     template_name = 'activities/bricks/user-calendars.html'
@@ -228,7 +233,8 @@ class UserCalendarsBrick(QuerysetBrick):
 
 
 class RelatedCalendarBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('activities', 'related_calendar')
+    # id_ = QuerysetBrick.generate_id('activities', 'related_calendar')
+    id = QuerysetBrick.generate_id('activities', 'related_calendar')
     verbose_name = _('On my calendars')
     dependencies = (Calendar, )
     template_name = 'activities/bricks/related-calendars.html'

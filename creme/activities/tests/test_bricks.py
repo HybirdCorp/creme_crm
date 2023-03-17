@@ -376,10 +376,12 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_rel(object_entity=past[2], type_id=REL_SUB_LINKED_2_ACTIVITY)
 
         BrickHomeLocation.objects.get_or_create(
-            brick_id=FutureActivitiesBrick.id_, defaults={'order': 10},
+            # brick_id=FutureActivitiesBrick.id_, defaults={'order': 10},
+            brick_id=FutureActivitiesBrick.id, defaults={'order': 10},
         )
         BrickHomeLocation.objects.get_or_create(
-            brick_id=PastActivitiesBrick.id_, defaults={'order': 11},
+            # brick_id=PastActivitiesBrick.id_, defaults={'order': 11},
+            brick_id=PastActivitiesBrick.id, defaults={'order': 11},
         )
 
         response1 = self.assertGET200(reverse('creme_core__home'))

@@ -780,7 +780,8 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         fname = 'invalid'
         ibci = InstanceBrickConfigItem.objects.create(
             entity=rgraph,
-            brick_class_id=ReportGraphChartInstanceBrick.id_,
+            # brick_class_id=ReportGraphChartInstanceBrick.id_,
+            brick_class_id=ReportGraphChartInstanceBrick.id,
         )
         ibci.set_extra_data(key='type',  value=RGF_FK)
         ibci.set_extra_data(key='value', value=fname)
@@ -806,7 +807,8 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         fname = 'description'
         ibci = InstanceBrickConfigItem(
             entity=rgraph,
-            brick_class_id=ReportGraphChartInstanceBrick.id_,
+            # brick_class_id=ReportGraphChartInstanceBrick.id_,
+            brick_class_id=ReportGraphChartInstanceBrick.id,
         )
         ibci.set_extra_data(key='type',  value=RGF_FK)
         ibci.set_extra_data(key='value', value=fname)
@@ -937,7 +939,8 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         rtype_id = 'invalid'
         ibci = InstanceBrickConfigItem.objects.create(
             entity=rgraph,
-            brick_class_id=ReportGraphChartInstanceBrick.id_,
+            # brick_class_id=ReportGraphChartInstanceBrick.id_,
+            brick_class_id=ReportGraphChartInstanceBrick.id,
         )
         ibci.set_extra_data(key='type',  value=RGF_RELATION)
         ibci.set_extra_data(key='value', value=rtype_id)
@@ -955,7 +958,9 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         rgraph = self._create_documents_rgraph()
 
         ibci = InstanceBrickConfigItem.objects.create(
-            brick_class_id=ReportGraphChartInstanceBrick.id_, entity=rgraph,
+            # brick_class_id=ReportGraphChartInstanceBrick.id_,
+            brick_class_id=ReportGraphChartInstanceBrick.id,
+            entity=rgraph,
         )
 
         # No extra data

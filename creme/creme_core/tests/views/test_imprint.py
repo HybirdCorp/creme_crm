@@ -23,7 +23,8 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         BrickDetailviewLocation.objects.create_if_needed(
             brick=ImprintsBrick, order=1, zone=BrickDetailviewLocation.LEFT,
         )
-        BrickHomeLocation.objects.create(brick_id=ImprintsBrick.id_, order=1)
+        # BrickHomeLocation.objects.create(brick_id=ImprintsBrick.id_, order=1)
+        BrickHomeLocation.objects.create(brick_id=ImprintsBrick.id, order=1)
 
     def test_detailview(self):
         user = self.login()

@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 17-03-2023 pour la version 2.5 de Creme
+:Version: 20-03-2023 pour la version 2.5 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1393,7 +1393,7 @@ Créez le fichier ``my_project/beavers/bricks.py`` : ::
         #  - par la configuration pour stocker la position du bloc.
         #  - par le système de rechargement, pour savoir quel bloc doit être recalculé & renvoyé.
         # Encore une fois, on utilise le nom de l'app pour garantir l'unicité.
-        id_ = Brick.generate_id('beavers', 'beaver_age')
+        id = Brick.generate_id('beavers', 'beaver_age')
 
         # Comme ce bloc affiche des données venant d'un castor, si les données du castor
         # sont modifiées par un autre bloc (notamment si sa date d'anniversaire est modifiée)

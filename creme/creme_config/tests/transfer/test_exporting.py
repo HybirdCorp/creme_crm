@@ -72,14 +72,16 @@ from creme.creme_core.tests.fake_menu import FakeContactsEntry
 
 
 class ExportingInstanceBrick(InstanceBrick):
-    id_ = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_exporting')
+    # id_ = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_exporting')
+    id = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_exporting')
 
     # NB: would be in __init__() in classical cases...
     verbose_name = 'Instance brick for exporter'
 
     def detailview_display(self, context):
         return (
-            f'<table id="{self.id_}">'
+            # f'<table id="{self.id_}">'
+            f'<table id="{self.id}">'
             f'<thead><tr>{self.config_item.entity}</tr></thead>'
             f'</table>'
         )
@@ -602,7 +604,8 @@ class ExportingTestCase(CremeTestCase):
         self.assertListEqual(
             [
                 {
-                    'id': bricks.HistoryBrick.id_, 'order': 10, 'zone': RIGHT,
+                    # 'id': bricks.HistoryBrick.id_, 'order': 10, 'zone': RIGHT,
+                    'id': bricks.HistoryBrick.id, 'order': 10, 'zone': RIGHT,
                     'ctype': 'creme_core.fakecontact',
                 },
             ],
@@ -614,10 +617,12 @@ class ExportingTestCase(CremeTestCase):
                     'id': constants.MODELBRICK_ID,    'order': 5,  'zone': LEFT,
                     'ctype': 'creme_core.fakecontact',
                 }, {
-                    'id': bricks.PropertiesBrick.id_, 'order': 10, 'zone': LEFT,
+                    # 'id': bricks.PropertiesBrick.id_, 'order': 10, 'zone': LEFT,
+                    'id': bricks.PropertiesBrick.id, 'order': 10, 'zone': LEFT,
                     'ctype': 'creme_core.fakecontact',
                 }, {
-                    'id': bricks.RelationsBrick.id_,  'order': 20, 'zone': LEFT,
+                    # 'id': bricks.RelationsBrick.id_,  'order': 20, 'zone': LEFT,
+                    'id': bricks.RelationsBrick.id,  'order': 20, 'zone': LEFT,
                     'ctype': 'creme_core.fakecontact',
                 },
             ],
@@ -679,7 +684,8 @@ class ExportingTestCase(CremeTestCase):
         self.assertListEqual(
             [
                 {
-                    'id': bricks.HistoryBrick.id_, 'order': 10, 'zone': RIGHT,
+                    # 'id': bricks.HistoryBrick.id_, 'order': 10, 'zone': RIGHT,
+                    'id': bricks.HistoryBrick.id, 'order': 10, 'zone': RIGHT,
                     'ctype': 'creme_core.fakecontact', 'role': role.name,
                 },
             ],
@@ -739,8 +745,10 @@ class ExportingTestCase(CremeTestCase):
 
         role = self.role
         create_bhl = partial(BrickHomeLocation.objects.create, role=role)
-        create_bhl(brick_id=bricks.HistoryBrick.id_,    order=1)
-        create_bhl(brick_id=bricks.StatisticsBrick.id_, order=2)
+        # create_bhl(brick_id=bricks.HistoryBrick.id_,    order=1)
+        create_bhl(brick_id=bricks.HistoryBrick.id,    order=1)
+        # create_bhl(brick_id=bricks.StatisticsBrick.id_, order=2)
+        create_bhl(brick_id=bricks.StatisticsBrick.id, order=2)
 
         response = self.assertGET200(self.URL)
         content = response.json()
@@ -761,7 +769,8 @@ class ExportingTestCase(CremeTestCase):
 
         self.assertFalse(norole_brick_ids)
         self.assertListEqual(
-            [bricks.HistoryBrick.id_, bricks.StatisticsBrick.id_],
+            # [bricks.HistoryBrick.id_, bricks.StatisticsBrick.id_],
+            [bricks.HistoryBrick.id, bricks.StatisticsBrick.id],
             role_brick_ids,
         )
 
@@ -771,8 +780,10 @@ class ExportingTestCase(CremeTestCase):
         nosuper_brick_ids = {*BrickHomeLocation.objects.values_list('brick_id', flat=True)}
 
         create_bhl = partial(BrickHomeLocation.objects.create, superuser=True)
-        create_bhl(brick_id=bricks.HistoryBrick.id_,    order=1)
-        create_bhl(brick_id=bricks.StatisticsBrick.id_, order=2)
+        # create_bhl(brick_id=bricks.HistoryBrick.id_,    order=1)
+        create_bhl(brick_id=bricks.HistoryBrick.id,    order=1)
+        # create_bhl(brick_id=bricks.StatisticsBrick.id_, order=2)
+        create_bhl(brick_id=bricks.StatisticsBrick.id, order=2)
 
         response = self.assertGET200(self.URL)
         content = response.json()
@@ -793,7 +804,8 @@ class ExportingTestCase(CremeTestCase):
 
         self.assertFalse(nosuper_brick_ids)
         self.assertListEqual(
-            [bricks.HistoryBrick.id_, bricks.StatisticsBrick.id_],
+            # [bricks.HistoryBrick.id_, bricks.StatisticsBrick.id_],
+            [bricks.HistoryBrick.id, bricks.StatisticsBrick.id],
             super_brick_ids,
         )
 
@@ -820,7 +832,8 @@ class ExportingTestCase(CremeTestCase):
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=ExportingInstanceBrick.id_,
+            # brick_class_id=ExportingInstanceBrick.id_,
+            brick_class_id=ExportingInstanceBrick.id,
             entity=naru,
         )
 
@@ -871,7 +884,8 @@ class ExportingTestCase(CremeTestCase):
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=ExportingInstanceBrick.id_,
+            # brick_class_id=ExportingInstanceBrick.id_,
+            brick_class_id=ExportingInstanceBrick.id,
             entity=naru,
         )
 
@@ -898,7 +912,8 @@ class ExportingTestCase(CremeTestCase):
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            brick_class_id=ExportingInstanceBrick.id_,
+            # brick_class_id=ExportingInstanceBrick.id_,
+            brick_class_id=ExportingInstanceBrick.id,
             entity=naru,
         )
 

@@ -838,20 +838,25 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
         job = self.get_object_or_fail(Job, type_id=reminder_type.id)
 
-        self._aux_test_reload(job, JobBrick.id_)
-        self._aux_test_reload(job, JobErrorsBrick.id_)
+        # self._aux_test_reload(job, JobBrick.id_)
+        # self._aux_test_reload(job, JobErrorsBrick.id_)
+        self._aux_test_reload(job, JobBrick.id)
+        self._aux_test_reload(job, JobErrorsBrick.id)
 
     def test_reload02(self):
         self.login()
         job = self._create_batchprocess_job()
 
-        self._aux_test_reload(job, JobBrick.id_)
-        self._aux_test_reload(job, EntityJobErrorsBrick.id_)
+        # self._aux_test_reload(job, JobBrick.id_)
+        # self._aux_test_reload(job, EntityJobErrorsBrick.id_)
+        self._aux_test_reload(job, JobBrick.id)
+        self._aux_test_reload(job, EntityJobErrorsBrick.id)
 
     def test_reload03(self):
         self.login(is_superuser=False)
         job = self._create_batchprocess_job(user=self.other_user)
         self.assertGET403(
             reverse('creme_core__reload_job_bricks', args=(job.id,)),
-            data={'brick_id': JobBrick.id_},
+            # data={'brick_id': JobBrick.id_},
+            data={'brick_id': JobBrick.id},
         )

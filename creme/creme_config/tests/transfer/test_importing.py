@@ -3056,45 +3056,58 @@ class ImportingTestCase(CremeTestCase):
 
         bricks_data = [
             # Default
-            {'id': bricks.HistoryBrick.id_,      'order': 1,  'zone': TOP},
+            # {'id': bricks.HistoryBrick.id_,      'order': 1,  'zone': TOP},
+            {'id': bricks.HistoryBrick.id,      'order': 1,  'zone': TOP},
             {'id': constants.MODELBRICK_ID,      'order': 1,  'zone': LEFT},
-            {'id': bricks.CustomFieldsBrick.id_, 'order': 10, 'zone': LEFT},
-            {'id': bricks.RelationsBrick.id_,    'order': 5,  'zone': RIGHT},
-            {'id': bricks.PropertiesBrick.id_,   'order': 15, 'zone': BOTTOM},
+            # {'id': bricks.CustomFieldsBrick.id_, 'order': 10, 'zone': LEFT},
+            {'id': bricks.CustomFieldsBrick.id, 'order': 10, 'zone': LEFT},
+            # {'id': bricks.RelationsBrick.id_,    'order': 5,  'zone': RIGHT},
+            {'id': bricks.RelationsBrick.id,    'order': 5,  'zone': RIGHT},
+            # {'id': bricks.PropertiesBrick.id_,   'order': 15, 'zone': BOTTOM},
+            {'id': bricks.PropertiesBrick.id,   'order': 15, 'zone': BOTTOM},
 
             # FakeContact
             {'id': constants.MODELBRICK_ID,    'order': 1, 'zone': TOP,    'ctype': ct_str},
-            {'id': bricks.HistoryBrick.id_,    'order': 1, 'zone': LEFT,   'ctype': ct_str},
-            {'id': bricks.RelationsBrick.id_,  'order': 5, 'zone': RIGHT,  'ctype': ct_str},
-            {'id': bricks.PropertiesBrick.id_, 'order': 5, 'zone': BOTTOM, 'ctype': ct_str},
+            # {'id': bricks.HistoryBrick.id_,    'order': 1, 'zone': LEFT,   'ctype': ct_str},
+            # {'id': bricks.RelationsBrick.id_,  'order': 5, 'zone': RIGHT,  'ctype': ct_str},
+            # {'id': bricks.PropertiesBrick.id_, 'order': 5, 'zone': BOTTOM, 'ctype': ct_str},
+            {'id': bricks.HistoryBrick.id,    'order': 1, 'zone': LEFT,   'ctype': ct_str},
+            {'id': bricks.RelationsBrick.id,  'order': 5, 'zone': RIGHT,  'ctype': ct_str},
+            {'id': bricks.PropertiesBrick.id, 'order': 5, 'zone': BOTTOM, 'ctype': ct_str},
 
             # FakeContact for existing role
             {
-                'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
+                # 'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
+                'id': bricks.RelationsBrick.id,    'order': 2, 'zone': TOP,
                 'ctype': ct_str, 'role': role.name,
             }, {
-                'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
+                # 'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
+                'id': bricks.CustomFieldsBrick.id, 'order': 2, 'zone': LEFT,
                 'ctype': ct_str, 'role': role.name,
             }, {
                 'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
                 'ctype': ct_str, 'role': role.name,
             }, {
-                'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
+                # 'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
+                'id': bricks.HistoryBrick.id,      'order': 2, 'zone': BOTTOM,
                 'ctype': ct_str, 'role': role.name,
             },
 
             # FakeContact for superuser
             {
-                'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
+                # 'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
+                'id': bricks.RelationsBrick.id,    'order': 2, 'zone': TOP,
                 'ctype': ct_str, 'superuser': True,
             }, {
-                'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
+                # 'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
+                'id': bricks.CustomFieldsBrick.id, 'order': 2, 'zone': LEFT,
                 'ctype': ct_str, 'superuser': True,
             }, {
                 'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
                 'ctype': ct_str, 'superuser': True,
             }, {
-                'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
+                # 'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
+                'id': bricks.HistoryBrick.id,      'order': 2, 'zone': BOTTOM,
                 'ctype': ct_str, 'superuser': True,
             },
         ]
@@ -3189,24 +3202,31 @@ class ImportingTestCase(CremeTestCase):
         role_name = 'Super-hero'
         bricks_data = [
             # Default
-            {'id': bricks.HistoryBrick.id_,      'order': 1,  'zone': TOP},
-            {'id': constants.MODELBRICK_ID,      'order': 1,  'zone': LEFT},
-            {'id': bricks.CustomFieldsBrick.id_, 'order': 10, 'zone': LEFT},
-            {'id': bricks.RelationsBrick.id_,    'order': 5,  'zone': RIGHT},
-            {'id': bricks.PropertiesBrick.id_,   'order': 15, 'zone': BOTTOM},
+            # {'id': bricks.HistoryBrick.id_,      'order': 1,  'zone': TOP},
+            {'id': bricks.HistoryBrick.id,      'order': 1,  'zone': TOP},
+            {'id': constants.MODELBRICK_ID,     'order': 1,  'zone': LEFT},
+            # {'id': bricks.CustomFieldsBrick.id_, 'order': 10, 'zone': LEFT},
+            # {'id': bricks.RelationsBrick.id_,    'order': 5,  'zone': RIGHT},
+            # {'id': bricks.PropertiesBrick.id_,   'order': 15, 'zone': BOTTOM},
+            {'id': bricks.CustomFieldsBrick.id, 'order': 10, 'zone': LEFT},
+            {'id': bricks.RelationsBrick.id,    'order': 5,  'zone': RIGHT},
+            {'id': bricks.PropertiesBrick.id,   'order': 15, 'zone': BOTTOM},
 
             # FakeContact for our role
             {
-                'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
+                # 'id': bricks.RelationsBrick.id_,    'order': 2, 'zone': TOP,
+                'id': bricks.RelationsBrick.id,    'order': 2, 'zone': TOP,
                 'ctype': ct_str, 'role': role_name,
             }, {
-                'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
+                # 'id': bricks.CustomFieldsBrick.id_, 'order': 2, 'zone': LEFT,
+                'id': bricks.CustomFieldsBrick.id, 'order': 2, 'zone': LEFT,
                 'ctype': ct_str, 'role': role_name,
             }, {
                 'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
                 'ctype': ct_str, 'role': role_name,
             }, {
-                'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
+                # 'id': bricks.HistoryBrick.id_,      'order': 2, 'zone': BOTTOM,
+                'id': bricks.HistoryBrick.id,      'order': 2, 'zone': BOTTOM,
                 'ctype': ct_str, 'role': role_name,
             },
         ]
@@ -3263,8 +3283,10 @@ class ImportingTestCase(CremeTestCase):
         self.login(is_staff=True)
 
         bricks_data = [
-            {'id': bricks.HistoryBrick.id_,    'order': 5},
-            {'id': bricks.StatisticsBrick.id_, 'order': 15},
+            # {'id': bricks.HistoryBrick.id_,    'order': 5},
+            # {'id': bricks.StatisticsBrick.id_, 'order': 15},
+            {'id': bricks.HistoryBrick.id,    'order': 5},
+            {'id': bricks.StatisticsBrick.id, 'order': 15},
         ]
 
         json_file = StringIO(json_dump({'version': self.VERSION, 'home_bricks': bricks_data}))
@@ -3286,8 +3308,10 @@ class ImportingTestCase(CremeTestCase):
         role = self.role
 
         bricks_data = [
-            {'id': bricks.HistoryBrick.id_,    'order': 5,  'role': role.name},
-            {'id': bricks.StatisticsBrick.id_, 'order': 15, 'role': role.name},
+            # {'id': bricks.HistoryBrick.id_,    'order': 5,  'role': role.name},
+            # {'id': bricks.StatisticsBrick.id_, 'order': 15, 'role': role.name},
+            {'id': bricks.HistoryBrick.id,    'order': 5,  'role': role.name},
+            {'id': bricks.StatisticsBrick.id, 'order': 15, 'role': role.name},
         ]
 
         json_file = StringIO(json_dump({'version': self.VERSION, 'home_bricks': bricks_data}))
@@ -3309,8 +3333,10 @@ class ImportingTestCase(CremeTestCase):
 
         role_name = 'Super-hero'
         bricks_data = [
-            {'id': bricks.HistoryBrick.id_,    'order': 5,  'role': role_name},
-            {'id': bricks.StatisticsBrick.id_, 'order': 15, 'role': role_name},
+            # {'id': bricks.HistoryBrick.id_,    'order': 5,  'role': role_name},
+            # {'id': bricks.StatisticsBrick.id_, 'order': 15, 'role': role_name},
+            {'id': bricks.HistoryBrick.id,    'order': 5,  'role': role_name},
+            {'id': bricks.StatisticsBrick.id, 'order': 15, 'role': role_name},
         ]
 
         data = {
@@ -3356,8 +3382,10 @@ class ImportingTestCase(CremeTestCase):
         self.login(is_staff=True)
 
         bricks_data = [
-            {'id': bricks.HistoryBrick.id_,    'order': 5,  'superuser': True},
-            {'id': bricks.StatisticsBrick.id_, 'order': 15, 'superuser': True},
+            # {'id': bricks.HistoryBrick.id_,    'order': 5,  'superuser': True},
+            # {'id': bricks.StatisticsBrick.id_, 'order': 15, 'superuser': True},
+            {'id': bricks.HistoryBrick.id,    'order': 5,  'superuser': True},
+            {'id': bricks.StatisticsBrick.id, 'order': 15, 'superuser': True},
         ]
 
         json_file = StringIO(json_dump({'version': self.VERSION, 'home_bricks': bricks_data}))
@@ -3376,12 +3404,15 @@ class ImportingTestCase(CremeTestCase):
     def test_mypage_bricks(self):
         user = self.login(is_staff=True)
         user_loc = BrickMypageLocation.objects.create(
-            brick_id=bricks.HistoryBrick.id_, order=1, user=user,
+            # brick_id=bricks.HistoryBrick.id_, order=1, user=user,
+            brick_id=bricks.HistoryBrick.id, order=1, user=user,
         )
 
         bricks_data = [
-            {'id': bricks.HistoryBrick.id_,    'order': 5},
-            {'id': bricks.StatisticsBrick.id_, 'order': 15},
+            # {'id': bricks.HistoryBrick.id_,    'order': 5},
+            # {'id': bricks.StatisticsBrick.id_, 'order': 15},
+            {'id': bricks.HistoryBrick.id,    'order': 5},
+            {'id': bricks.StatisticsBrick.id, 'order': 15},
         ]
 
         json_file = StringIO(json_dump({'version': self.VERSION, 'mypage_bricks': bricks_data}))

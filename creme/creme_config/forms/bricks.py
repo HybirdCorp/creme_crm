@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -71,7 +71,8 @@ class _BrickLocationsForm(base.CremeForm):
         bricks = self.fields[field_name]
         choices = [
             {
-                'value': brick.id_,
+                # 'value': brick.id_,
+                'value': brick.id,
                 'label': str(brick.verbose_name),
                 'help': str(brick.description),
             } for brick in gui_bricks.brick_registry.get_compatible_home_bricks()
@@ -148,7 +149,8 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
         model = ctype.model_class() if ctype else None
 
         self.choices = choices = [
-            (brick.id_, brick)
+            # (brick.id_, brick)
+            (brick.id, brick)
             for brick in gui_bricks.brick_registry.get_compatible_bricks(model=model)
         ]
         sort_key = collator.sort_key
@@ -162,7 +164,8 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
 
         if len(hat_bricks) > 1:
             hat_f = self.fields['hat']
-            hat_f.choices = [(brick.id_, brick.verbose_name) for brick in hat_bricks]
+            # hat_f.choices = [(brick.id_, brick.verbose_name) for brick in hat_bricks]
+            hat_f.choices = [(brick.id, brick.verbose_name) for brick in hat_bricks]
         else:
             del self.fields['hat']
 

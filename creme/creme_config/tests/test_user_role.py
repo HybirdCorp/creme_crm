@@ -2406,10 +2406,11 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(BrickDetailviewLocation.LEFT, location1.zone)
 
         location2 = locations[1]
-        self.assertEqual(40,                                location2.order)
-        self.assertEqual(ct,                                location2.content_type)
-        self.assertEqual(core_bricks.CustomFieldsBrick.id_, location2.brick_id)
-        self.assertEqual(BrickDetailviewLocation.LEFT,      location2.zone)
+        self.assertEqual(40,                               location2.order)
+        self.assertEqual(ct,                               location2.content_type)
+        # self.assertEqual(core_bricks.CustomFieldsBrick.id_, location2.brick_id)
+        self.assertEqual(core_bricks.CustomFieldsBrick.id, location2.brick_id)
+        self.assertEqual(BrickDetailviewLocation.LEFT,     location2.zone)
 
         self.assertEqual(BrickDetailviewLocation.RIGHT, locations[2].zone)
 
@@ -2419,8 +2420,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         role1 = self.role
 
         create_loc = partial(BrickHomeLocation.objects.create, role=role1)
-        create_loc(brick_id=core_bricks.HistoryBrick.id_,    order=15)
-        create_loc(brick_id=core_bricks.StatisticsBrick.id_, order=45)
+        # create_loc(brick_id=core_bricks.HistoryBrick.id_,    order=15)
+        create_loc(brick_id=core_bricks.HistoryBrick.id,    order=15)
+        # create_loc(brick_id=core_bricks.StatisticsBrick.id_, order=45)
+        create_loc(brick_id=core_bricks.StatisticsBrick.id, order=45)
 
         old_count = BrickHomeLocation.objects.count()
 
@@ -2445,8 +2448,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         role1 = self.role
 
         create_loc = partial(BrickHomeLocation.objects.create, role=role1)
-        create_loc(brick_id=core_bricks.HistoryBrick.id_,    order=15)
-        create_loc(brick_id=core_bricks.StatisticsBrick.id_, order=45)
+        # create_loc(brick_id=core_bricks.HistoryBrick.id_,    order=15)
+        create_loc(brick_id=core_bricks.HistoryBrick.id,    order=15)
+        # create_loc(brick_id=core_bricks.StatisticsBrick.id_, order=45)
+        create_loc(brick_id=core_bricks.StatisticsBrick.id, order=45)
 
         old_count = BrickHomeLocation.objects.count()
 
@@ -2462,12 +2467,14 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(2, len(locations))
 
         location1 = locations[0]
-        self.assertEqual(15,                           location1.order)
-        self.assertEqual(core_bricks.HistoryBrick.id_, location1.brick_id)
+        self.assertEqual(15,                          location1.order)
+        # self.assertEqual(core_bricks.HistoryBrick.id_, location1.brick_id)
+        self.assertEqual(core_bricks.HistoryBrick.id, location1.brick_id)
 
         location2 = locations[1]
-        self.assertEqual(45,                              location2.order)
-        self.assertEqual(core_bricks.StatisticsBrick.id_, location2.brick_id)
+        self.assertEqual(45,                             location2.order)
+        # self.assertEqual(core_bricks.StatisticsBrick.id_, location2.brick_id)
+        self.assertEqual(core_bricks.StatisticsBrick.id, location2.brick_id)
 
     def test_clone_search_config01(self):
         "No copy."

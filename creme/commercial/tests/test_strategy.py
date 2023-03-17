@@ -1047,7 +1047,8 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         strategy.evaluated_orgas.add(orga)
         self._set_asset_score(strategy, orga, asset, segment_desc, 1)
 
-        brick_id = bricks.AssetsMatrixBrick.id_
+        # brick_id = bricks.AssetsMatrixBrick.id_
+        brick_id = bricks.AssetsMatrixBrick.id
         response = self.assertGET200(
             reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
             data={'brick_id': brick_id},
@@ -1072,7 +1073,8 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         strategy.evaluated_orgas.add(orga)
         self._set_charm_score(strategy, orga, charm, segment_desc, 1)
 
-        brick_id = bricks.CharmsMatrixBrick.id_
+        # brick_id = bricks.CharmsMatrixBrick.id_
+        brick_id = bricks.CharmsMatrixBrick.id
         response = self.assertGET200(
             reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
             data={'brick_id': brick_id},
@@ -1096,7 +1098,8 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self._set_asset_score(strategy, orga, asset, segment_desc, 1)
         self._set_charm_score(strategy, orga, charm, segment_desc, 1)
 
-        brick_id = bricks.AssetsCharmsMatrixBrick.id_
+        # brick_id = bricks.AssetsCharmsMatrixBrick.id_
+        brick_id = bricks.AssetsCharmsMatrixBrick.id
         response = self.assertGET200(
             reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
             data={'brick_id': brick_id},

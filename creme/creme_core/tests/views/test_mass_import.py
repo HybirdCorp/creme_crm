@@ -231,7 +231,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         # Reload brick -----------
         reload_url = reverse('creme_core__reload_job_bricks', args=(job.id,))
-        brick_id = MassImportJobErrorsBrick.id_
+        # brick_id = MassImportJobErrorsBrick.id_
+        brick_id = MassImportJobErrorsBrick.id
         response = self.assertGET200(reload_url, data={'brick_id': brick_id})
 
         with self.assertNoException():
@@ -246,7 +247,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         tree = self.get_html_tree(result[1])
         self.get_brick_node(tree, brick_id)
 
-        self.assertGET404(reload_url, data={'brick_id': JobErrorsBrick.id_})
+        # self.assertGET404(reload_url, data={'brick_id': JobErrorsBrick.id_})
+        self.assertGET404(reload_url, data={'brick_id': JobErrorsBrick.id})
 
     def _test_import02(self, builder):
         """Use header, default value, model search and create, properties,

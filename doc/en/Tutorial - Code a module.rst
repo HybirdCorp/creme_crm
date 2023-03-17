@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 17-03-2023 for Creme 2.5
+:Version: 20-03-2023 for Creme 2.5
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1351,7 +1351,7 @@ Create the file ``my_project/beavers/bricks.py``: ::
         #  - by the configuration to store the position of the brick.
         #  - by the reloading system, to know which brick have to be re-rendered & sent.
         # Once again, we use the app name to guaranty uniqueness.
-        id_ = Brick.generate_id('beavers', 'beaver_age')
+        id = Brick.generate_id('beavers', 'beaver_age')
 
         # This brick displays data from beavers, so if the data of a beaver are modified by
         # another brick (notably if the birthday is edited) so we want to reload this brick

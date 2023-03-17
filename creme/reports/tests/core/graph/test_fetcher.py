@@ -47,7 +47,8 @@ class GraphFetcherTestCase(CremeTestCase):
         ibci = fetcher1.create_brick_config_item()
         self.assertIsInstance(ibci, InstanceBrickConfigItem)
         self.assertEqual(graph.id, ibci.entity_id)
-        self.assertEqual(ReportGraphChartInstanceBrick.id_, ibci.brick_class_id)
+        # self.assertEqual(ReportGraphChartInstanceBrick.id_, ibci.brick_class_id)
+        self.assertEqual(ReportGraphChartInstanceBrick.id, ibci.brick_class_id)
         self.assertEqual(RGF_NOLINK, ibci.get_extra_data('type'))
         self.assertIsNone(ibci.get_extra_data('value'))
 
@@ -220,7 +221,8 @@ class GraphFetcherTestCase(CremeTestCase):
     def test_create_brick_config_item(self):
         "Other brick class."
         class OtherReportGraphBrick(ReportGraphChartInstanceBrick):
-            id_ = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
+            # id_ = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
+            id = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
 
         user = self.create_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
@@ -233,4 +235,5 @@ class GraphFetcherTestCase(CremeTestCase):
         ibci = SimpleGraphFetcher(graph=graph).create_brick_config_item(
             brick_class=OtherReportGraphBrick,
         )
-        self.assertEqual(OtherReportGraphBrick.id_, ibci.brick_class_id)
+        # self.assertEqual(OtherReportGraphBrick.id_, ibci.brick_class_id)
+        self.assertEqual(OtherReportGraphBrick.id, ibci.brick_class_id)

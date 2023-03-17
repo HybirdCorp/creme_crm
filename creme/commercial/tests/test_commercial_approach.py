@@ -370,11 +370,12 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(
             BrickDetailviewLocation.objects
                                    .filter_for_model(Organisation)
-                                   .filter(brick_id=ApproachesBrick.id_)
+                                   .filter(brick_id=ApproachesBrick.id)
         )
         BrickDetailviewLocation.objects.create(
             content_type=ContentType.objects.get_for_model(Organisation),
-            brick_id=ApproachesBrick.id_,
+            # brick_id=ApproachesBrick.id_,
+            brick_id=ApproachesBrick.id,
             order=10,
             zone=BrickDetailviewLocation.RIGHT,
         )
@@ -425,7 +426,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_brick02(self):
         "Home."
-        BrickHomeLocation.objects.create(brick_id=ApproachesBrick.id_, order=100)
+        # BrickHomeLocation.objects.create(brick_id=ApproachesBrick.id_, order=100)
+        BrickHomeLocation.objects.create(brick_id=ApproachesBrick.id, order=100)
 
         response = self.assertGET200(reverse('creme_core__home'))
         self._get_commap_brick_node(response)

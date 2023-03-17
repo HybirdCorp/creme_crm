@@ -296,7 +296,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         # Home + do no hide ---
         BrickHomeLocation.objects.get_or_create(
-            brick_id=TodosBrick.id_, defaults={'order': 50},
+            # brick_id=TodosBrick.id_, defaults={'order': 50},
+            brick_id=TodosBrick.id, defaults={'order': 50},
         )
 
         response2 = self.assertGET200(reverse('creme_core__home'))
@@ -312,7 +313,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertInstanceLink(home_brick_node, entity2)
 
         # Detail + hide validated ---
-        state = BrickState.objects.get_for_brick_id(user=user, brick_id=TodosBrick.id_)
+        # state = BrickState.objects.get_for_brick_id(user=user, brick_id=TodosBrick.id_)
+        state = BrickState.objects.get_for_brick_id(user=user, brick_id=TodosBrick.id)
         state.set_extra_data(key=BRICK_STATE_HIDE_VALIDATED_TODOS, value=True)
         state.save()
 
@@ -349,14 +351,16 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         response = self.assertGET200(
             reverse('creme_core__reload_detailview_bricks', args=(self.entity.id,)),
-            data={'brick_id': TodosBrick.id_},
+            # data={'brick_id': TodosBrick.id_},
+            data={'brick_id': TodosBrick.id},
         )
         self.assertEqual('application/json', response['Content-Type'])
 
         content = response.json()
         self.assertEqual(1, len(content))
         self.assertEqual(2, len(content[0]))
-        self.assertEqual(TodosBrick.id_, content[0][0])
+        # self.assertEqual(TodosBrick.id_, content[0][0])
+        self.assertEqual(TodosBrick.id, content[0][0])
 
         with self.assertNoException():
             page = response.context['page']
@@ -375,14 +379,16 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         response = self.assertGET200(
             reverse('creme_core__reload_home_bricks'),
-            data={'brick_id': TodosBrick.id_},
+            # data={'brick_id': TodosBrick.id_},
+            data={'brick_id': TodosBrick.id},
         )
         self.assertEqual('application/json', response['Content-Type'])
 
         content = response.json()
         self.assertEqual(1, len(content))
         self.assertEqual(2, len(content[0]))
-        self.assertEqual(TodosBrick.id_, content[0][0])
+        # self.assertEqual(TodosBrick.id_, content[0][0])
+        self.assertEqual(TodosBrick.id, content[0][0])
 
         with self.assertNoException():
             page = response.context['page']
@@ -870,7 +876,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         user = self.user
 
         def get_state():
-            return BrickState.objects.get_for_brick_id(user=user, brick_id=TodosBrick.id_)
+            # return BrickState.objects.get_for_brick_id(user=user, brick_id=TodosBrick.id_)
+            return BrickState.objects.get_for_brick_id(user=user, brick_id=TodosBrick.id)
 
         self.assertIsNone(get_state().pk)
 

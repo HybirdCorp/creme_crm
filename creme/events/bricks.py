@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,8 @@ class EventBarHatBrick(SimpleBrick):
 
 
 class ResultsBrick(SimpleBrick):
-    id_ = SimpleBrick.generate_id('events', 'results')
+    # id_ = SimpleBrick.generate_id('events', 'results')
+    id = SimpleBrick.generate_id('events', 'results')
     # dependencies  = (Relation,) ??
     verbose_name = _('Results of an event')
     template_name = 'events/bricks/results.html'

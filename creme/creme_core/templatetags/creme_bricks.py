@@ -852,7 +852,7 @@ def brick_import(context, app=None, name=None, object=None):
 
             class MyBrick(Brick):
                 # Beware to the ID: app-label + name
-                id_ = Brick.generate_id('my_app', 'my_brick')
+                id = Brick.generate_id('my_app', 'my_brick')
 
                 [...]
 
@@ -899,7 +899,8 @@ def brick_import(context, app=None, name=None, object=None):
 
         brick = bricks.brick_registry[Brick.generate_id(app, name)]()
 
-    BricksManager.get(context).add_group(brick.id_, brick)
+    # BricksManager.get(context).add_group(brick.id_, brick)
+    BricksManager.get(context).add_group(brick.id, brick)
 
     return brick
 
@@ -948,9 +949,11 @@ def brick_declare(context, *bricks):
 
         if hasattr(brick_or_seq, '__iter__'):
             for brick in brick_or_seq:
-                add_group(brick.id_, brick)
+                # add_group(brick.id_, brick)
+                add_group(brick.id, brick)
         else:
-            add_group(brick_or_seq.id_, brick_or_seq)
+            # add_group(brick_or_seq.id_, brick_or_seq)
+            add_group(brick_or_seq.id, brick_or_seq)
 
     return ''
 
@@ -1024,7 +1027,8 @@ def brick_display(context, *bricks, **kwargs):
 
         logger.warning(
             'Brick without %s(): %s (id=%s)',
-            brick_render_method, brick.__class__, brick.id_,
+            # brick_render_method, brick.__class__, brick.id_,
+            brick_render_method, brick.__class__, brick.id,
         )
 
     bricks_to_render = []
@@ -1047,10 +1051,12 @@ def brick_display(context, *bricks, **kwargs):
         # We avoid generator, because we need to iterate twice (import & display)
         if isinstance(brick_or_seq, (list, tuple)):
             for brick in brick_or_seq:
-                pop_group(brick.id_)
+                # pop_group(brick.id_)
+                pop_group(brick.id)
                 bricks_to_render.append(brick)
         else:
-            pop_group(brick_or_seq.id_)
+            # pop_group(brick_or_seq.id_)
+            pop_group(brick_or_seq.id)
             bricks_to_render.append(brick_or_seq)
 
     return mark_safe(''.join(filter(

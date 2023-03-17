@@ -2304,7 +2304,8 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
         graph = self._create_documents_rgraph(user)
 
         class OtherReportGraphBrick(ReportGraphChartInstanceBrick):
-            id_ = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
+            # id_ = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
+            id = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
 
         fk_name = 'linked_folder'
         RegularFieldLinkedGraphFetcher(

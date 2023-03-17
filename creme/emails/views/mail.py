@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -130,7 +130,8 @@ class EntityEmailPopup(generic.EntityDetailPopup):
 
     def get_brick_ids(self):
         return (
-            bricks.MailPopupBrick.id_,
+            # bricks.MailPopupBrick.id_,
+            bricks.MailPopupBrick.id,
         )
 
 
@@ -209,7 +210,8 @@ class LightWeightEmailPopup(generic.RelatedToEntityDetailPopup):
 
     def get_brick_ids(self):
         return (
-            bricks.LwMailPopupBrick.id_,
+            # bricks.LwMailPopupBrick.id_,
+            bricks.LwMailPopupBrick.id,
         )
 
 

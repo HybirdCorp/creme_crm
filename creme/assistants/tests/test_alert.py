@@ -1077,7 +1077,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         user = self.user
         entity1 = self.entity
 
-        state = BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id_)
+        # state = BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id_)
+        state = BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id)
         state.set_extra_data(key=BRICK_STATE_HIDE_VALIDATED_ALERTS, value=False)
         state.save()
 
@@ -1124,7 +1125,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         # Home + do not hide ---
         BrickHomeLocation.objects.get_or_create(
-            brick_id=AlertsBrick.id_, defaults={'order': 50},
+            # brick_id=AlertsBrick.id_, defaults={'order': 50},
+            brick_id=AlertsBrick.id, defaults={'order': 50},
         )
 
         response2 = self.assertGET200(reverse('creme_core__home'))
@@ -1167,7 +1169,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         user = self.user
 
         def get_state():
-            return BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id_)
+            # return BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id_)
+            return BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id)
 
         self.assertIsNone(get_state().pk)
 

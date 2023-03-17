@@ -310,7 +310,8 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(orga.get_absolute_url())
         self.assertNoBrick(
             self.get_html_tree(response.content),
-            brick_id=PaymentInformationBrick.id_,
+            # brick_id=PaymentInformationBrick.id_,
+            brick_id=PaymentInformationBrick.id,
         )
 
     def test_orga_brick03(self):

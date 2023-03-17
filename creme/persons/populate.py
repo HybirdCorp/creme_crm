@@ -639,5 +639,6 @@ class Populator(BasePopulator):
 
             if apps.is_installed('creme.activities'):
                 BrickHomeLocation.objects.create(
-                    brick_id=bricks.NeglectedOrganisationsBrick.id_, order=15,
+                    # brick_id=bricks.NeglectedOrganisationsBrick.id_, order=15,
+                    brick_id=bricks.NeglectedOrganisationsBrick.id, order=15,
                 )

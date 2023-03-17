@@ -119,11 +119,12 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertIsList(bricks, length=1)
 
-        block = bricks[0]
-        self.assertIsInstance(block, QuerysetBrick)
-        self.assertIn(self.CONTACT_BRICKID, block.id_)
+        brick = bricks[0]
+        self.assertIsInstance(brick, QuerysetBrick)
+        # self.assertIn(self.CONTACT_BRICKID, brick.id_)
+        self.assertIn(self.CONTACT_BRICKID, brick.id)
         self.assertEqual(
-            'creme_core/bricks/found-entities.html', block.template_name
+            'creme_core/bricks/found-entities.html', brick.template_name
         )
 
         self.assertNotContains(response, self.linus.get_absolute_url())

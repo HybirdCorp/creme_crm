@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -206,12 +206,16 @@ class Populator(BasePopulator):
             )
 
             create_bhl = BrickHomeLocation.objects.create
-            create_bhl(brick_id=bricks.StatisticsBrick.id_, order=8)
-            create_bhl(brick_id=bricks.HistoryBrick.id_,    order=10)
+            # create_bhl(brick_id=bricks.StatisticsBrick.id_, order=8)
+            create_bhl(brick_id=bricks.StatisticsBrick.id, order=8)
+            # create_bhl(brick_id=bricks.HistoryBrick.id_,    order=10)
+            create_bhl(brick_id=bricks.HistoryBrick.id,    order=10)
 
             create_bml = BrickMypageLocation.objects.create
-            create_bml(brick_id=bricks.HistoryBrick.id_, order=8, user=None)
-            create_bml(brick_id=bricks.HistoryBrick.id_, order=8, user=root)
+            # create_bml(brick_id=bricks.HistoryBrick.id_, order=8, user=None)
+            create_bml(brick_id=bricks.HistoryBrick.id, order=8, user=None)
+            # create_bml(brick_id=bricks.HistoryBrick.id_, order=8, user=root)
+            create_bml(brick_id=bricks.HistoryBrick.id, order=8, user=root)
 
             # ---------------------------
             if not ButtonMenuItem.objects.filter(content_type=None).exists():

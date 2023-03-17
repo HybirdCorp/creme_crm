@@ -90,7 +90,8 @@ class BricksReloading(generic.CheckedView):
                     user.has_perms(permissions)
                 ):
                     raise PermissionDenied(
-                        f'Error: you are not allowed to view this brick: {brick.id_}'
+                        # f'Error: you are not allowed to view this brick: {brick.id_}'
+                        f'Error: you are not allowed to view this brick: {brick.id}'
                     )
 
         all_reloading_info = {}
@@ -108,11 +109,13 @@ class BricksReloading(generic.CheckedView):
 
         # TODO: only one group (add_group should not take *bricks, because the length is limited)
         for brick in bricks:
-            bricks_manager.add_group(brick.id_, brick)
+            # bricks_manager.add_group(brick.id_, brick)
+            bricks_manager.add_group(brick.id, brick)
 
         render_method = self.brick_render_method
         for brick in bricks:
-            reloading_info = all_reloading_info.get(brick.id_)
+            # reloading_info = all_reloading_info.get(brick.id_)
+            reloading_info = all_reloading_info.get(brick.id)
             if reloading_info is not None:
                 brick.reloading_info = reloading_info
 
@@ -121,14 +124,16 @@ class BricksReloading(generic.CheckedView):
             if render_func is None:
                 logger.warning(
                     'Brick without %s(): %s (id=%s)',
-                    render_method, brick.__class__, brick.id_,
+                    # render_method, brick.__class__, brick.id_,
+                    render_method, brick.__class__, brick.id,
                 )
             else:
                 # NB: the context is copied is order to a 'fresh' one for each
                 # brick, & so avoid annoying side effects.
                 # Notice that build_context() creates a shared dictionary with
                 # the "shared" key in order to explicitly share data between 2+ bricks.
-                brick_renders.append((brick.id_, render_func({**context})))
+                # brick_renders.append((brick.id_, render_func({**context})))
+                brick_renders.append((brick.id, render_func({**context})))
 
         return brick_renders
 
@@ -258,7 +263,8 @@ class BrickStateExtraDataSetting(generic.CheckedView):
         #     so it would not be a real world problem.
         for _i in range(10):
             state = BrickState.objects.get_for_brick_id(
-                brick_id=self.brick_cls.id_, user=request.user,
+                # brick_id=self.brick_cls.id_, user=request.user,
+                brick_id=self.brick_cls.id, user=request.user,
             )
 
             try:

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,7 @@ class CrudityQuerysetBrick(QuerysetBrick):
             raise PermissionDenied(
                 gettext(
                     'Error: you are not allowed to view this block: {}'
-                ).format(self.id_)
+                ).format(self.id)
             )
 
 
@@ -54,7 +54,8 @@ class WaitingActionsBrick(BaseWaitingActionsBrick):
 
     def __init__(self, backend):
         super().__init__(backend=backend)
-        self.id_ = self.generate_id()
+        # self.id_ = self.generate_id()
+        self.id = self.generate_id()
 
     def generate_id(self):
         return CrudityQuerysetBrick.generate_id(
@@ -101,7 +102,8 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
     def __init__(self, ct):
         super().__init__()
         self.ct = ct
-        self.id_ = self.generate_id()
+        # self.id_ = self.generate_id()
+        self.id = self.generate_id()
 
     def generate_id(self):
         return f'block_crudity-{self.ct.id}'

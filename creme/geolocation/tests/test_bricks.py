@@ -264,7 +264,8 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
 
     def test_google_filtered(self):
         BrickHomeLocation.objects.get_or_create(
-            brick_id=GoogleFilteredMapBrick.id_,
+            # brick_id=GoogleFilteredMapBrick.id_,
+            brick_id=GoogleFilteredMapBrick.id,
             defaults={'order': 50},
         )
 
@@ -285,7 +286,8 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
 
     def test_osm_filtered(self):
         BrickHomeLocation.objects.get_or_create(
-            brick_id=OpenStreetMapFilteredMapBrick.id_,
+            # brick_id=OpenStreetMapFilteredMapBrick.id_,
+            brick_id=OpenStreetMapFilteredMapBrick.id,
             defaults={'order': 50},
         )
 
