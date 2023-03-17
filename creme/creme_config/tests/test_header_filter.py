@@ -22,7 +22,8 @@ class HeaderFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def _ctype_labels_from_brick(self, response):
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            HeaderFiltersBrick.id_,
+            # HeaderFiltersBrick.id_,
+            HeaderFiltersBrick.id,
         )
 
         return [

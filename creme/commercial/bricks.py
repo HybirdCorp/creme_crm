@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,8 @@ Strategy = commercial.get_strategy_model()
 
 
 class ApproachesBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('commercial', 'approaches')
+    # id_ = QuerysetBrick.generate_id('commercial', 'approaches')
+    id = QuerysetBrick.generate_id('commercial', 'approaches')
     verbose_name = _('Commercial approaches')
     # description = TODO
     dependencies = (CommercialApproach,)
@@ -83,7 +84,8 @@ class ApproachesBrick(QuerysetBrick):
 
 
 class SegmentsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('commercial', 'segments')
+    # id_ = QuerysetBrick.generate_id('commercial', 'segments')
+    id = QuerysetBrick.generate_id('commercial', 'segments')
     verbose_name = _('Market segments')
     dependencies = (MarketSegment,)
     order_by = 'name'
@@ -99,7 +101,8 @@ class SegmentsBrick(QuerysetBrick):
 
 
 class SegmentDescriptionsBrick(PaginatedBrick):
-    id_ = QuerysetBrick.generate_id('commercial', 'segment_info')
+    # id_ = QuerysetBrick.generate_id('commercial', 'segment_info')
+    id = PaginatedBrick.generate_id('commercial', 'segment_info')
     verbose_name = _('Market segment descriptions')
     dependencies = (MarketSegment,)  # MarketSegmentDescription ??
     template_name = 'commercial/bricks/segments-info.html'
@@ -113,7 +116,8 @@ class SegmentDescriptionsBrick(PaginatedBrick):
 
 
 class AssetsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('commercial', 'assets')
+    # id_ = QuerysetBrick.generate_id('commercial', 'assets')
+    id = QuerysetBrick.generate_id('commercial', 'assets')
     verbose_name = _('Commercial assets')
     dependencies = (CommercialAsset,)
     order_by = 'name'
@@ -128,7 +132,8 @@ class AssetsBrick(QuerysetBrick):
 
 
 class CharmsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('commercial', 'charms')
+    # id_ = QuerysetBrick.generate_id('commercial', 'charms')
+    id = QuerysetBrick.generate_id('commercial', 'charms')
     verbose_name = _('Segment charms')
     dependencies = (MarketSegmentCharm,)
     order_by = 'name'
@@ -143,7 +148,8 @@ class CharmsBrick(QuerysetBrick):
 
 
 class EvaluatedOrgasBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('commercial', 'evaluated_orgas')
+    # id_ = QuerysetBrick.generate_id('commercial', 'evaluated_orgas')
+    id = QuerysetBrick.generate_id('commercial', 'evaluated_orgas')
     verbose_name = _('Evaluated organisations')
     dependencies = (MarketSegmentCharm,)
     order_by = 'name'
@@ -159,7 +165,8 @@ class EvaluatedOrgasBrick(QuerysetBrick):
 
 
 class AssetsMatrixBrick(Brick):
-    id_ = Brick.generate_id('commercial', 'assets_matrix')
+    # id_ = Brick.generate_id('commercial', 'assets_matrix')
+    id = Brick.generate_id('commercial', 'assets_matrix')
     verbose_name = _('Assets / Segments matrix')
     # dependencies  = (CommercialAsset,) #useless (custom reload view....)
     template_name = 'commercial/bricks/assets-matrix.html'
@@ -179,7 +186,8 @@ class AssetsMatrixBrick(Brick):
 
 
 class CharmsMatrixBrick(Brick):
-    id_ = Brick.generate_id('commercial', 'charms_matrix')
+    # id_ = Brick.generate_id('commercial', 'charms_matrix')
+    id = Brick.generate_id('commercial', 'charms_matrix')
     verbose_name = _('Charms / Segments matrix')
     # dependencies = (MarketSegmentCharm,) #useless (custom reload view....)
     template_name = 'commercial/bricks/charms-matrix.html'
@@ -199,7 +207,8 @@ class CharmsMatrixBrick(Brick):
 
 
 class AssetsCharmsMatrixBrick(Brick):
-    id_ = Brick.generate_id('commercial', 'assets_charms_matrix')
+    # id_ = Brick.generate_id('commercial', 'assets_charms_matrix')
+    id = Brick.generate_id('commercial', 'assets_charms_matrix')
     verbose_name = _('Assets / Charms matrix')
     # dependencies = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
     template_name = 'commercial/bricks/assets-charms-matrix.html'
@@ -216,7 +225,8 @@ class AssetsCharmsMatrixBrick(Brick):
 
 
 class ActObjectivesBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('commercial', 'objectives')
+    # id_ = QuerysetBrick.generate_id('commercial', 'objectives')
+    id = QuerysetBrick.generate_id('commercial', 'objectives')
     verbose_name = _('Objectives of a Commercial Action')
     # NB: would be cool to add the Relation dependency only if needed
     #     (i.e. one of the listed objectives uses relationships), but
@@ -238,7 +248,8 @@ class ActObjectivesBrick(QuerysetBrick):
 
 
 class RelatedOpportunitiesBrick(PaginatedBrick):
-    id_ = PaginatedBrick.generate_id('commercial', 'opportunities')
+    # id_ = PaginatedBrick.generate_id('commercial', 'opportunities')
+    id = PaginatedBrick.generate_id('commercial', 'opportunities')
     verbose_name = _('Opportunities related to a Commercial Action')
     dependencies = (Relation, Opportunity)
     relation_type_deps = (REL_OBJ_COMPLETE_GOAL,)
@@ -255,7 +266,8 @@ class RelatedOpportunitiesBrick(PaginatedBrick):
 
 
 class PatternComponentsBrick(Brick):
-    id_ = Brick.generate_id('commercial', 'pattern_components')
+    # id_ = Brick.generate_id('commercial', 'pattern_components')
+    id = Brick.generate_id('commercial', 'pattern_components')
     verbose_name = _('Components of an Objective Pattern')
     dependencies = (ActObjectivePatternComponent,)
     template_name = 'commercial/bricks/components.html'

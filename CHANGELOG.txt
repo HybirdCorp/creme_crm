@@ -160,7 +160,9 @@
                 - In the method 'RegularFieldExtractor.set_subfield_search()', the argument 'create_if_unfound'
                   has been replaced by 'creation_form_class'.
         # In 'creme_core.gui' :
-            - The only argument of 'bricks._BrickRegistry.get_brick_4_object()' is now positional only.
+            - In 'bricks' :
+                - In the class 'Brick' (& so, all the child classes you defined), the attribute "id" must be filled & used instead of "id_".
+                - The only argument of '_BrickRegistry.get_brick_4_object()' is now positional only.
             - In 'button_menu', the rendering of Button has been reworked:
                 - The method 'render()' has been removed; use 'get_context()' instead.
                 - The method 'has_perm()' has been removed; use 'is_allowed()' instead.

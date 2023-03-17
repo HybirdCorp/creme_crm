@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,7 +50,8 @@ class DocumentBrick(EntityBrick):
 
 
 class FolderDocsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('documents', 'folder_docs')
+    # id_ = QuerysetBrick.generate_id('documents', 'folder_docs')
+    id = QuerysetBrick.generate_id('documents', 'folder_docs')
     verbose_name = _('Contained documents')
     description = _(
         'Displays the documents contained by the current Folder.\n'
@@ -74,7 +75,8 @@ class FolderDocsBrick(QuerysetBrick):
 
 
 class ChildFoldersBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('documents', 'child_folders')
+    # id_ = QuerysetBrick.generate_id('documents', 'child_folders')
+    id = QuerysetBrick.generate_id('documents', 'child_folders')
     verbose_name = _('Child Folders')
     dependencies = (Folder,)
     order_by = 'title'
@@ -92,7 +94,8 @@ class ChildFoldersBrick(QuerysetBrick):
 
 
 class LinkedDocsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('documents', 'linked_docs')
+    # id_ = QuerysetBrick.generate_id('documents', 'linked_docs')
+    id = QuerysetBrick.generate_id('documents', 'linked_docs')
     verbose_name = _('Linked documents')
     description = _(
         'Allows to add Documents, linked with relationships '

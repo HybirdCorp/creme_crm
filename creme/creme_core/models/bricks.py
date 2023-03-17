@@ -101,7 +101,8 @@ class BrickDetailviewLocationManager(models.Manager):
                 if model is None or isinstance(model, ContentType) else
                 ContentType.objects.get_for_model(model)
             ),
-            brick_id=brick if isinstance(brick, str) else brick.id_,
+            # brick_id=brick if isinstance(brick, str) else brick.id_,
+            brick_id=brick if isinstance(brick, str) else brick.id,
             defaults={'order': order, 'zone': zone},
             **kwargs
         )[0]
@@ -466,12 +467,10 @@ class RelationBrickItemManager(models.Manager):
 
 
 class RelationBrickItem(StoredBrickClassMixin, CremeModel):
-    # brick_id = models.CharField(_('Block ID'), max_length=100, editable=False)
     relation_type = models.OneToOneField(
         RelationType, on_delete=models.CASCADE,
         verbose_name=_('Related type of relationship'),
     )
-    # json_cells_map = models.TextField(editable=False, default='{}')
     json_cells_map = models.JSONField(editable=False, default=dict)
 
     objects = RelationBrickItemManager()

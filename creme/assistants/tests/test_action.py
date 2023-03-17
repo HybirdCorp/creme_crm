@@ -226,8 +226,10 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         # ---
         create_home = BrickHomeLocation.objects.get_or_create
-        create_home(brick_id=ActionsOnTimeBrick.id_,    defaults={'order': 50})
-        create_home(brick_id=ActionsNotOnTimeBrick.id_, defaults={'order': 51})
+        # create_home(brick_id=ActionsOnTimeBrick.id_,    defaults={'order': 50})
+        create_home(brick_id=ActionsOnTimeBrick.id,    defaults={'order': 50})
+        # create_home(brick_id=ActionsNotOnTimeBrick.id_, defaults={'order': 51})
+        create_home(brick_id=ActionsNotOnTimeBrick.id, defaults={'order': 51})
 
         response2 = self.assertGET200(reverse('creme_core__home'))
 

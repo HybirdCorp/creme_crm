@@ -858,7 +858,8 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         url = reverse('emails__reload_sending_bricks', args=(sending.id,))
         self.assertGET404(url)  # No brick ID
 
-        response = self.assertGET200(url, data={'brick_id': MailsBrick.id_})
+        # response = self.assertGET200(url, data={'brick_id': MailsBrick.id_})
+        response = self.assertGET200(url, data={'brick_id': MailsBrick.id})
         self.assertEqual('application/json', response['Content-Type'])
 
         content = response.json()
@@ -866,8 +867,10 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         brick_data = content[0]
         self.assertEqual(2, len(brick_data))
-        self.assertEqual(MailsBrick.id_, brick_data[0])
-        self.assertIn(f' id="{MailsBrick.id_}"', brick_data[1])
+        # self.assertEqual(MailsBrick.id_, brick_data[0])
+        self.assertEqual(MailsBrick.id, brick_data[0])
+        # self.assertIn(f' id="{MailsBrick.id_}"', brick_data[1])
+        self.assertIn(f' id="{MailsBrick.id}"', brick_data[1])
 
         # TODO: test other bricks
 
@@ -891,7 +894,8 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         self.assertGET403(
             reverse('emails__reload_sending_bricks', args=(sending.id,)),
-            data={'brick_id': MailsBrick.id_}
+            # data={'brick_id': MailsBrick.id_}
+            data={'brick_id': MailsBrick.id},
         )
 
     # TODO?

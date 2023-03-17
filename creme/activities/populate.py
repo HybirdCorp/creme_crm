@@ -534,8 +534,10 @@ class Populator(BasePopulator):
                     brick=LinkedDocsBrick, order=600, zone=RIGHT, model=Activity,
                 )
 
-            future_id = bricks.FutureActivitiesBrick.id_
-            past_id   = bricks.PastActivitiesBrick.id_
+            # future_id = bricks.FutureActivitiesBrick.id_
+            future_id = bricks.FutureActivitiesBrick.id
+            # past_id   = bricks.PastActivitiesBrick.id_
+            past_id   = bricks.PastActivitiesBrick.id
 
             BrickDetailviewLocation.objects.multi_create(
                 defaults={'zone': RIGHT},

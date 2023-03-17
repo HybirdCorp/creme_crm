@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,8 @@ class ReportBarHatBrick(core_bricks.SimpleBrick):
 
 
 class ReportFieldsBrick(core_bricks.Brick):
-    id_ = core_bricks.Brick.generate_id('reports', 'fields')
+    # id_ = core_bricks.Brick.generate_id('reports', 'fields')
+    id = core_bricks.Brick.generate_id('reports', 'fields')
     verbose_name = _('Columns of the report')
     description = _(
         'Displays & edits the columns of a report.\n'
@@ -63,7 +64,8 @@ class ReportFieldsBrick(core_bricks.Brick):
 
 if settings.USE_JQPLOT:
     class ReportGraphChartListBrick(core_bricks.QuerysetBrick):
-        id_ = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
+        # id_ = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
+        id = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
         verbose_name = _("Report's graphs")
         description = _(
             'Adds & edits some graphs related to a report.\n'
@@ -85,10 +87,11 @@ if settings.USE_JQPLOT:
             )
             graphs = btc['page'].object_list
             counter = Counter(
-                InstanceBrickConfigItem.objects
-                                       .filter(entity__in=[g.id for g in graphs],
-                                               brick_class_id=ReportGraphChartInstanceBrick.id_)
-                                       .values_list('entity', flat=True)
+                InstanceBrickConfigItem.objects.filter(
+                    entity__in=[g.id for g in graphs],
+                    # brick_class_id=ReportGraphChartInstanceBrick.id_,
+                    brick_class_id=ReportGraphChartInstanceBrick.id,
+                ).values_list('entity', flat=True)
             )
 
             for graph in graphs:
@@ -97,7 +100,8 @@ if settings.USE_JQPLOT:
             return self._render(btc)
 
     class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
-        id_ = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
+        # id_ = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
+        id = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
         dependencies = (ReportGraph,)
         verbose_name = "Report's graph"  # Overloaded by __init__()
         template_name = 'reports/bricks/graph.html'
@@ -168,7 +172,8 @@ if settings.USE_JQPLOT:
             return self.fetcher.linked_models
 else:
     class ReportGraphChartListBrick(core_bricks.QuerysetBrick):
-        id_ = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
+        # id_ = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
+        id = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
         verbose_name = _("Report's graphs")
         description = _(
             'Adds & edits some graphs related to a report.\n'
@@ -192,10 +197,11 @@ else:
             graphs = context['page'].object_list
 
             counter = Counter(
-                InstanceBrickConfigItem.objects
-                                       .filter(entity__in=[g.id for g in graphs],
-                                               brick_class_id=ReportGraphChartInstanceBrick.id_)
-                                       .values_list('entity', flat=True)
+                InstanceBrickConfigItem.objects.filter(
+                    entity__in=[g.id for g in graphs],
+                    # brick_class_id=ReportGraphChartInstanceBrick.id_,
+                    brick_class_id=ReportGraphChartInstanceBrick.id,
+                ).values_list('entity', flat=True)
             )
 
             context['rows'] = []
@@ -225,7 +231,8 @@ else:
             return self._render(context)
 
     class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
-        id_ = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
+        # id_ = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
+        id = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
         dependencies = (ReportGraph,)
         verbose_name = "Report's graph"
         template_name = 'reports/bricks/report-chart.html'
@@ -320,7 +327,8 @@ else:
 
 
 class ReportGraphChartBrick(core_bricks.Brick):
-    id_ = core_bricks.Brick.generate_id('reports', 'graph-chart')
+    # id_ = core_bricks.Brick.generate_id('reports', 'graph-chart')
+    id = core_bricks.Brick.generate_id('reports', 'graph-chart')
     dependencies = (ReportGraph,)
     verbose_name = _("Report's graph")
     template_name = 'reports/bricks/report-chart.html'
@@ -355,7 +363,8 @@ class ReportGraphChartBrick(core_bricks.Brick):
 
 
 class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
-    id_ = core_bricks.QuerysetBrick.generate_id('reports', 'instance_bricks_info')
+    # id_ = core_bricks.QuerysetBrick.generate_id('reports', 'instance_bricks_info')
+    id = core_bricks.QuerysetBrick.generate_id('reports', 'instance_bricks_info')
     verbose_name = _('Blocks')
     dependencies = (InstanceBrickConfigItem,)
     template_name = 'reports/bricks/instance-bricks-info.html'
@@ -365,7 +374,8 @@ class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             InstanceBrickConfigItem.objects.filter(
-                brick_class_id=ReportGraphChartInstanceBrick.id_,
+                # brick_class_id=ReportGraphChartInstanceBrick.id_,
+                brick_class_id=ReportGraphChartInstanceBrick.id,
                 entity=context['object'].id,
             ),
         ))

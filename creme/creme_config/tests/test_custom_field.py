@@ -82,7 +82,8 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_portal02(self):
         "Hide deleted fields."
         user = self.login()
-        brick_id = bricks.CustomFieldsBrick.id_
+        # brick_id = bricks.CustomFieldsBrick.id_
+        brick_id = bricks.CustomFieldsBrick.id
 
         state = BrickState(user=user, brick_id=brick_id)
         state.set_extra_data(BRICK_STATE_HIDE_DELETED_CFIELDS, True)
@@ -1249,7 +1250,8 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         result = results[0]
         self.assertIsList(result, length=2)
 
-        brick_id = bricks.CustomEnumsBrick.id_
+        # brick_id = bricks.CustomEnumsBrick.id_
+        brick_id = bricks.CustomEnumsBrick.id
         self.assertEqual(brick_id, result[0])
         brick_node = self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
@@ -1284,7 +1286,8 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         def get_state():
             return BrickState.objects.get_for_brick_id(
                 user=user,
-                brick_id=bricks.CustomFieldsBrick.id_,
+                # brick_id=bricks.CustomFieldsBrick.id_,
+                brick_id=bricks.CustomFieldsBrick.id,
             )
 
         self.assertIsNone(get_state().pk)

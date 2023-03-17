@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2022  Hybird
+#    Copyright (C) 2016-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -221,14 +221,16 @@ class JobBricksReloading(bricks_views.BricksReloading):
         results_bricks = None
 
         for brick_id in self.get_brick_ids():
-            if brick_id == JobBrick.id_:
+            # if brick_id == JobBrick.id_:
+            if brick_id == JobBrick.id:
                 bricks.append(JobBrick())
             else:
                 if results_bricks is None:
                     results_bricks = job.type.results_bricks
 
                 for err_brick in results_bricks:
-                    if brick_id == err_brick.id_:
+                    # if brick_id == err_brick.id_:
+                    if brick_id == err_brick.id:
                         bricks.append(err_brick)
                         break
                 else:

@@ -156,7 +156,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
             get('bricks_reload_url')
         )
 
-        brick_id = CallersBrick.id_
+        # brick_id = CallersBrick.id_
+        brick_id = CallersBrick.id
         brick_node = self.get_brick_node(self.get_html_tree(response.content), brick_id)
         self.assertInstanceLink(brick_node, contact)
         self.assertNoInstanceLink(brick_node, user.linked_contact)

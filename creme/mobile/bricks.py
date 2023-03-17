@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2021  Hybird
+#    Copyright (C) 2014-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,8 @@ Organisation = persons.get_organisation_model()
 
 
 class FavoritePersonsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('mobile', 'favorite_persons')
+    # id_ = QuerysetBrick.generate_id('mobile', 'favorite_persons')
+    id = QuerysetBrick.generate_id('mobile', 'favorite_persons')
     verbose_name = _('Favorite Contacts & Organisations (for mobile)')
     description = _(
         'Displays the users who marked the current entity as favorite in mobile views.\n'

@@ -1984,7 +1984,8 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def get_brick_state(self):
         state = BrickState.objects.get_for_brick_id(
-            user=self.user, brick_id=CustomFormsBrick.id_,
+            # user=self.user, brick_id=CustomFormsBrick.id_,
+            user=self.user, brick_id=CustomFormsBrick.id,
         )
         self.assertIsNotNone(state.pk)
 
@@ -1998,7 +1999,8 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login()
 
         self.assertIsNone(
-            BrickState.objects.get_for_brick_id(user=user, brick_id=CustomFormsBrick.id_).pk
+            # BrickState.objects.get_for_brick_id(user=user, brick_id=CustomFormsBrick.id_).pk
+            BrickState.objects.get_for_brick_id(user=user, brick_id=CustomFormsBrick.id).pk
         )
 
         url = self.DETAILS_URL
@@ -2142,7 +2144,8 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST200(url, data={action_key: 'hide', 'item_id': item.id})
         self.assertIsNone(
             BrickState.objects.get_for_brick_id(
-                user=user, brick_id=CustomFormsBrick.id_,
+                # user=user, brick_id=CustomFormsBrick.id_,
+                user=user, brick_id=CustomFormsBrick.id,
             ).pk
         )
 

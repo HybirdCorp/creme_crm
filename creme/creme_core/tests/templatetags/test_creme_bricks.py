@@ -24,7 +24,8 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         name = 'CremeBricksTagsTestCase__test_brick_import_n_display01'
 
         class FooBrick(Brick):
-            id_ = Brick.generate_id('creme_core', name)
+            # id_ = Brick.generate_id('creme_core', name)
+            id = Brick.generate_id('creme_core', name)
             verbose_name = 'Testing purpose'
 
             def detailview_display(this, context):
@@ -81,15 +82,18 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         prefix = 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display01'
 
         class FooBrick1(_FooBrick):
-            id_ = _FooBrick.generate_id('creme_core', f'{prefix}_01')
+            # id_ = _FooBrick.generate_id('creme_core', f'{prefix}_01')
+            id = _FooBrick.generate_id('creme_core', f'{prefix}_01')
             brick_str = '<div>FOOBARBAZ #1</div>'
 
         class FooBrick2(_FooBrick):
-            id_ = _FooBrick.generate_id('creme_core', f'{prefix}_02')
+            # id_ = _FooBrick.generate_id('creme_core', f'{prefix}_02')
+            id = _FooBrick.generate_id('creme_core', f'{prefix}_02')
             brick_str = '<div>FOOBARBAZ #2</div>'
 
         class FooBrick3(_FooBrick):
-            id_ = _FooBrick.generate_id('creme_core', f'{prefix}_03')
+            # id_ = _FooBrick.generate_id('creme_core', f'{prefix}_03')
+            id = _FooBrick.generate_id('creme_core', f'{prefix}_03')
             verbose_name = 'Testing purpose'
             brick_str = '<div>FOOBARBAZ #3</div>'
 
@@ -147,7 +151,8 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
 
         class FooBrick(Brick):
-            id_ = Brick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_end')
+            # id_ = Brick.generate_id('creme_core', 'CremeBricksTagsTestCase__test_brick_end')
+            id = Brick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_end')
             verbose_name = 'Testing purpose'
             brick_str = '<div>FOO</div>'
 
@@ -206,7 +211,8 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             ).render(RequestContext(
                 self.build_request(),
                 {
-                    'brick_id1': HistoryBrick.id_,
+                    # 'brick_id1': HistoryBrick.id_,
+                    'brick_id1': HistoryBrick.id,
                     'brick_id2': rbi.brick_id,
                 },
             ))
@@ -231,7 +237,8 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             ).render(RequestContext(
                 self.build_request(),
                 {
-                    'brick_id1': HistoryBrick.id_,
+                    # 'brick_id1': HistoryBrick.id_,
+                    'brick_id1': HistoryBrick.id,
                     'brick_id2': MODELBRICK_ID,
                     'motoko': motoko,
                 },

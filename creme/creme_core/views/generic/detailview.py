@@ -79,17 +79,21 @@ def detailview_bricks(user, entity, registry=brick_registry):
             logger.warning(
                 'This brick cannot be displayed on this content type '
                 '(you have a config problem): %s',
-                brick.id_,
+                # brick.id_,
+                brick.id,
             )
         else:
-            bricks[brick.id_] = brick
+            # bricks[brick.id_] = brick
+            bricks[brick.id] = brick
 
     hat_bricks = loc_map[BrickDetailviewLocation.HAT]
     if not hat_bricks:
         hat_brick = registry.get_generic_hat_brick(model)
 
-        hat_bricks.append(hat_brick.id_)
-        bricks[hat_brick.id_] = hat_brick
+        # hat_bricks.append(hat_brick.id_)
+        hat_bricks.append(hat_brick.id)
+        # bricks[hat_brick.id_] = hat_brick
+        bricks[hat_brick.id] = hat_brick
 
     return {
         zone_name: [

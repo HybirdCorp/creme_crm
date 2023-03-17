@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -292,9 +292,12 @@ class MatrixBricksReloading(bricks_views.BricksReloading):
     strategy_id_url_kwarg = 'strategy_id'
     orga_id_url_kwarg     = 'orga_id'
     allowed_bricks = {
-        com_bricks.AssetsMatrixBrick.id_:       com_bricks.AssetsMatrixBrick,
-        com_bricks.CharmsMatrixBrick.id_:       com_bricks.CharmsMatrixBrick,
-        com_bricks.AssetsCharmsMatrixBrick.id_: com_bricks.AssetsCharmsMatrixBrick,
+        # com_bricks.AssetsMatrixBrick.id_:       com_bricks.AssetsMatrixBrick,
+        # com_bricks.CharmsMatrixBrick.id_:       com_bricks.CharmsMatrixBrick,
+        # com_bricks.AssetsCharmsMatrixBrick.id_: com_bricks.AssetsCharmsMatrixBrick,
+        com_bricks.AssetsMatrixBrick.id:       com_bricks.AssetsMatrixBrick,
+        com_bricks.CharmsMatrixBrick.id:       com_bricks.CharmsMatrixBrick,
+        com_bricks.AssetsCharmsMatrixBrick.id: com_bricks.AssetsCharmsMatrixBrick,
     }
 
     def __init__(self, **kwargs):

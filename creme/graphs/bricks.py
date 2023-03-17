@@ -58,7 +58,8 @@ logger = logging.getLogger(__name__)
 
 
 class RelationChartBrick(ChartBrick):
-    id_ = ChartBrick.generate_id('graphs', 'relation_chart')
+    # id_ = ChartBrick.generate_id('graphs', 'relation_chart')
+    id = ChartBrick.generate_id('graphs', 'relation_chart')
     verbose_name = _('Relationship graph')
     dependencies = (RootNode,)
     template_name = 'graphs/bricks/relation-chart.html'
@@ -149,7 +150,8 @@ class RelationChartBrick(ChartBrick):
 
 
 class RootNodesBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('graphs', 'root_nodes')
+    # id_ = QuerysetBrick.generate_id('graphs', 'root_nodes')
+    id = QuerysetBrick.generate_id('graphs', 'root_nodes')
     verbose_name = _('Root nodes')
     description = _(
         'The Root nodes are the entities in the center of the Graph, associated '
@@ -180,7 +182,8 @@ class RootNodesBrick(QuerysetBrick):
 
 
 class OrbitalRelationTypesBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('graphs', 'orbital_rtypes')
+    # id_ = QuerysetBrick.generate_id('graphs', 'orbital_rtypes')
+    id = QuerysetBrick.generate_id('graphs', 'orbital_rtypes')
     verbose_name = _('Peripheral types of relationship')
     description = _(
         'These types of relationship are displayed in the Graph between entities '

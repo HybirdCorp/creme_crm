@@ -61,9 +61,12 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertIsList(bricks, min_length=2)
         self.assertIsInstance(bricks[0], Brick)
 
-        brick_ids = [b.id_ for b in bricks]
-        i1 = self.assertIndex(StatisticsBrick.id_, brick_ids)
-        i2 = self.assertIndex(HistoryBrick.id_,    brick_ids)
+        # brick_ids = [b.id_ for b in bricks]
+        brick_ids = [b.id for b in bricks]
+        # i1 = self.assertIndex(StatisticsBrick.id_, brick_ids)
+        i1 = self.assertIndex(StatisticsBrick.id, brick_ids)
+        # i2 = self.assertIndex(HistoryBrick.id_,    brick_ids)
+        i2 = self.assertIndex(HistoryBrick.id,    brick_ids)
         self.assertLess(i1, i2)
 
         self.assertContains(response, _('Home') + ' - Creme', html=True)
@@ -73,11 +76,13 @@ class MiscViewsTestCase(ViewsTestCase):
         "Superuser bricks configuration."
         self.login()
 
-        brick_id = StatisticsBrick.id_
+        # brick_id = StatisticsBrick.id_
+        brick_id = StatisticsBrick.id
         BrickHomeLocation.objects.create(brick_id=brick_id, superuser=True, order=1)
 
         # Should not be used
-        BrickHomeLocation.objects.create(brick_id=HistoryBrick.id_, role=self.role, order=1)
+        # BrickHomeLocation.objects.create(brick_id=HistoryBrick.id_, role=self.role, order=1)
+        BrickHomeLocation.objects.create(brick_id=HistoryBrick.id, role=self.role, order=1)
 
         response = self.assertGET200(reverse('creme_core__home'))
         bricks = response.context.get('bricks')
@@ -85,7 +90,8 @@ class MiscViewsTestCase(ViewsTestCase):
 
         brick = bricks[0]
         self.assertIsInstance(brick, StatisticsBrick)
-        self.assertEqual(brick_id, brick.id_)
+        # self.assertEqual(brick_id, brick.id_)
+        self.assertEqual(brick_id, brick.id)
 
         self.assertContains(response, _('Home') + ' - My CRM', html=True)
 
@@ -94,13 +100,16 @@ class MiscViewsTestCase(ViewsTestCase):
         self.login(is_superuser=False)
         role2 = UserRole.objects.create(name='Viewer')
 
-        brick_id = StatisticsBrick.id_
+        # brick_id = StatisticsBrick.id_
+        brick_id = StatisticsBrick.id
         create_hbl = BrickHomeLocation.objects.create
         create_hbl(brick_id=brick_id, role=self.role, order=1)
 
         # Should not be used
-        create_hbl(brick_id=HistoryBrick.id_, superuser=True, order=1)
-        create_hbl(brick_id=HistoryBrick.id_, role=role2,     order=1)
+        # create_hbl(brick_id=HistoryBrick.id_, superuser=True, order=1)
+        create_hbl(brick_id=HistoryBrick.id, superuser=True, order=1)
+        # create_hbl(brick_id=HistoryBrick.id_, role=role2,     order=1)
+        create_hbl(brick_id=HistoryBrick.id, role=role2,     order=1)
 
         response = self.assertGET200(reverse('creme_core__home'))
         bricks = response.context.get('bricks')
@@ -108,7 +117,8 @@ class MiscViewsTestCase(ViewsTestCase):
 
         brick = bricks[0]
         self.assertIsInstance(brick, StatisticsBrick)
-        self.assertEqual(brick_id, brick.id_)
+        # self.assertEqual(brick_id, brick.id_)
+        self.assertEqual(brick_id, brick.id)
 
     def test_my_page(self):
         self.login()

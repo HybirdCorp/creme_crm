@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022  Hybird
+#    Copyright (C) 2022-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -196,7 +196,8 @@ class DemoGroupBarChartBrick(GroupBarChartBrick):
     """
     Brick that draws a GroupBarChart from random data. Can be used as demo.
     """
-    id_ = GroupBarChartBrick.generate_id("sketch", "demo_groupbar_chart")
+    # id_ = GroupBarChartBrick.generate_id("sketch", "demo_groupbar_chart")
+    id = GroupBarChartBrick.generate_id('sketch', 'demo_groupbar_chart')
     verbose_name = "Demo Grouped Bar Chart"
 
     def get_chart_data(self, context):
@@ -225,7 +226,8 @@ class DemoStackBarChartBrick(StackBarChartBrick):
     """
     Brick that draws a StackBarChart from random data. Can be used as demo.
     """
-    id_ = StackBarChartBrick.generate_id("sketch", "demo_stackbar_chart")
+    # id_ = StackBarChartBrick.generate_id("sketch", "demo_stackbar_chart")
+    id = StackBarChartBrick.generate_id('sketch', 'demo_stackbar_chart')
     verbose_name = "Demo Stacked Bar Chart"
 
     def get_chart_data(self, context):
@@ -254,7 +256,8 @@ class DemoBarChartBrick(BarChartBrick):
     """
     Brick that draws a BarChart from random data. Can be used as demo.
     """
-    id_ = BarChartBrick.generate_id("sketch", "demo_bar_chart")
+    # id_ = BarChartBrick.generate_id("sketch", "demo_bar_chart")
+    id = BarChartBrick.generate_id('sketch', 'demo_bar_chart')
     verbose_name = "Demo Bar Chart"
     abscissa_title = "Axis of Abscissas"
     ordinate_title = "Axis of Ordinates"
@@ -273,7 +276,8 @@ class DemoDonutChartBrick(DonutChartBrick):
     """
     Brick that draws a DonutChart from random data. Can be used as demo.
     """
-    id_ = DonutChartBrick.generate_id("sketch", "demo_donut_chart")
+    # id_ = DonutChartBrick.generate_id("sketch", "demo_donut_chart")
+    id = DonutChartBrick.generate_id('sketch', 'demo_donut_chart')
     verbose_name = "Demo Donut Chart"
 
     def get_chart_data(self, context):

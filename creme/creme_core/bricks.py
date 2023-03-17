@@ -47,7 +47,8 @@ logger = logging.getLogger(__name__)
 
 
 class PropertiesBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('creme_core', 'properties')
+    # id_ = QuerysetBrick.generate_id('creme_core', 'properties')
+    id = QuerysetBrick.generate_id('creme_core', 'properties')
     dependencies = (CremeProperty,)
     verbose_name = _('Properties')
     description = _(
@@ -66,7 +67,8 @@ class PropertiesBrick(QuerysetBrick):
 
 
 class RelationsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('creme_core', 'relations')
+    # id_ = QuerysetBrick.generate_id('creme_core', 'relations')
+    id = QuerysetBrick.generate_id('creme_core', 'relations')
     verbose_name = _('Relationships')
     description = _(
         'Displays the entities which are linked to the current entity with a Relationship. '
@@ -168,7 +170,8 @@ class RelationsBrick(QuerysetBrick):
 
 
 class CustomFieldsBrick(Brick):
-    id_ = Brick.generate_id('creme_core', 'customfields')
+    # id_ = Brick.generate_id('creme_core', 'customfields')
+    id = Brick.generate_id('creme_core', 'customfields')
     verbose_name = _('Custom fields')
     description = _(
         'Displays the values of the Custom Fields for the current entity. '
@@ -196,7 +199,8 @@ class CustomFieldsBrick(Brick):
 
 
 class HistoryBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('creme_core', 'history')
+    # id_ = QuerysetBrick.generate_id('creme_core', 'history')
+    id = QuerysetBrick.generate_id('creme_core', 'history')
     verbose_name = _('History')
     description = _(
         'Displays the history of modifications on the current entity. '
@@ -290,7 +294,8 @@ class HistoryBrick(QuerysetBrick):
 
 
 class ImprintsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('creme_core', 'imprints')
+    # id_ = QuerysetBrick.generate_id('creme_core', 'imprints')
+    id = QuerysetBrick.generate_id('creme_core', 'imprints')
     verbose_name = _('History of consultation')
     description = _(
         'Displays who has consulted the current entity, and the date of the consultations.\n'
@@ -322,7 +327,8 @@ class ImprintsBrick(QuerysetBrick):
 
 
 class TrashBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('creme_core', 'trash')
+    # id_ = QuerysetBrick.generate_id('creme_core', 'trash')
+    id = QuerysetBrick.generate_id('creme_core', 'trash')
     verbose_name = _('Trash')
     dependencies = (CremeEntity,)
     order_by = '-modified'
@@ -342,7 +348,8 @@ class TrashBrick(QuerysetBrick):
 
 
 class StatisticsBrick(Brick):
-    id_ = Brick.generate_id('creme_core', 'statistics')
+    # id_ = Brick.generate_id('creme_core', 'statistics')
+    id = Brick.generate_id('creme_core', 'statistics')
     verbose_name = _('Statistics')
     description = _(
         'Displays many statistics (e.g. the numbers of customers), depending '
@@ -367,7 +374,8 @@ class StatisticsBrick(Brick):
 
 
 class JobBrick(Brick):
-    id_ = Brick.generate_id('creme_core', 'job')
+    # id_ = Brick.generate_id('creme_core', 'job')
+    id = Brick.generate_id('creme_core', 'job')
     dependencies = (Job,)
     verbose_name = _('Job')
     template_name = 'creme_core/bricks/job.html'
@@ -410,7 +418,8 @@ class JobBrick(Brick):
 
 
 class JobResultsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('creme_core', 'job_results')
+    # id_ = QuerysetBrick.generate_id('creme_core', 'job_results')
+    id = QuerysetBrick.generate_id('creme_core', 'job_results')
     verbose_name = _('Results')
     dependencies = (JobResult,)
     order_by = 'id'
@@ -434,7 +443,8 @@ class JobResultsBrick(QuerysetBrick):
 
 
 class JobErrorsBrick(JobResultsBrick):
-    id_ = QuerysetBrick.generate_id('creme_core', 'job_errors')
+    # id_ = QuerysetBrick.generate_id('creme_core', 'job_errors')
+    id = QuerysetBrick.generate_id('creme_core', 'job_errors')
     verbose_name = _('Errors')
     template_name = 'creme_core/bricks/job-errors.html'
 
@@ -446,7 +456,8 @@ class JobErrorsBrick(JobResultsBrick):
 
 
 class EntityJobErrorsBrick(JobErrorsBrick):
-    id_ = QuerysetBrick.generate_id('creme_core', 'entity_job_errors')
+    # id_ = QuerysetBrick.generate_id('creme_core', 'entity_job_errors')
+    id = QuerysetBrick.generate_id('creme_core', 'entity_job_errors')
     # verbose_name = 'Entity job errors'
     dependencies = (EntityJobResult,)
     template_name = 'creme_core/bricks/entity-job-errors.html'
@@ -456,7 +467,8 @@ class EntityJobErrorsBrick(JobErrorsBrick):
 
 
 class MassImportJobErrorsBrick(JobErrorsBrick):
-    id_ = QuerysetBrick.generate_id('creme_core', 'mass_import_job_errors')
+    # id_ = QuerysetBrick.generate_id('creme_core', 'mass_import_job_errors')
+    id = QuerysetBrick.generate_id('creme_core', 'mass_import_job_errors')
     # verbose_name  = 'Mass import job errors'
     dependencies = (MassImportJobResult,)
     template_name = 'creme_core/bricks/massimport-errors.html'
@@ -466,7 +478,8 @@ class MassImportJobErrorsBrick(JobErrorsBrick):
 
 
 class JobsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('creme_core', 'jobs')
+    # id_ = QuerysetBrick.generate_id('creme_core', 'jobs')
+    id = QuerysetBrick.generate_id('creme_core', 'jobs')
     verbose_name = _('Jobs')
     dependencies = (Job,)
     # order_by = '-created'
@@ -489,7 +502,8 @@ class JobsBrick(QuerysetBrick):
 
 
 class MyJobsBrick(JobsBrick):
-    id_ = QuerysetBrick.generate_id('creme_core', 'my_jobs')
+    # id_ = QuerysetBrick.generate_id('creme_core', 'my_jobs')
+    id = QuerysetBrick.generate_id('creme_core', 'my_jobs')
     verbose_name = _('My jobs')
     template_name = 'creme_core/bricks/jobs-mine.html'
 

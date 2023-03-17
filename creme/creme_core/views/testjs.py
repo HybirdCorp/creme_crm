@@ -126,7 +126,8 @@ class Dummy:
 
 
 class DummyListBrick(PaginatedBrick):
-    id_ = PaginatedBrick.generate_id('creme_core', 'test_dummy_list')
+    # id_ = PaginatedBrick.generate_id('creme_core', 'test_dummy_list')
+    id = PaginatedBrick.generate_id('creme_core', 'test_dummy_list')
     verbose_name = 'Dummies'
     dependencies = ()
     permissions = 'creme_config.can_admin'
@@ -170,9 +171,11 @@ def js_testview_or_404(message, error):
 
 def js_testview_context(request, viewname):
     try:
-        brick_registry[DummyListBrick.id_]
+        # brick_registry[DummyListBrick.id_]
+        brick_registry[DummyListBrick.id]
     except KeyError:
-        logger.info('Register dummy object list block %s', DummyListBrick.id_)
+        # logger.info('Register dummy object list block %s', DummyListBrick.id_)
+        logger.info('Register dummy object list brick %s', DummyListBrick.id)
         brick_registry.register(DummyListBrick)
 
     test_view_pattern = re_compile(r'^test_(?P<name>[\d\w]+)\.html$')

@@ -125,7 +125,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         other_user.is_active = False
         other_user.save()
 
-        brick_id = UsersBrick.id_
+        # brick_id = UsersBrick.id_
+        brick_id = UsersBrick.id
 
         state = BrickState(user=user, brick_id=brick_id)
         state.set_extra_data(constants.BRICK_STATE_HIDE_INACTIVE_USERS, True)
@@ -196,8 +197,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(
             reverse('creme_core__reload_bricks'),
             data={
-                'brick_id': [UsersBrick.id_],
-                'extra_data': json_dump({UsersBrick.id_: {'search': field_value[1:4]}}),
+                # 'brick_id': [UsersBrick.id_],
+                'brick_id': [UsersBrick.id],
+                # 'extra_data': json_dump({UsersBrick.id_: {'search': field_value[1:4]}}),
+                'extra_data': json_dump({UsersBrick.id: {'search': field_value[1:4]}}),
             },
         )
         bricks_info = response.json()
@@ -205,11 +208,13 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         brick_info = bricks_info[0]
         self.assertIsList(brick_info, length=2)
-        self.assertEqual(UsersBrick.id_, brick_info[0])
+        # self.assertEqual(UsersBrick.id_, brick_info[0])
+        self.assertEqual(UsersBrick.id, brick_info[0])
 
         brick_node = self.get_brick_node(
             self.get_html_tree(brick_info[1]),
-            UsersBrick.id_,
+            # UsersBrick.id_,
+            UsersBrick.id,
         )
         self.assertCountEqual(
             [field_value],
@@ -232,9 +237,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(
             reverse('creme_core__reload_bricks'),
             data={
-                'brick_id': [UsersBrick.id_],
+                # 'brick_id': [UsersBrick.id_],
+                'brick_id': [UsersBrick.id],
                 'extra_data': json_dump({
-                    UsersBrick.id_: {
+                    # UsersBrick.id_: {
+                    UsersBrick.id: {
                         'search': f'{user.username[1:4]} {other_user.last_name[1:4]}',
                     },
                 }),
@@ -247,7 +254,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsList(brick_info, length=2)
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(brick_info[1]), UsersBrick.id_,
+            # self.get_html_tree(brick_info[1]), UsersBrick.id_,
+            self.get_html_tree(brick_info[1]), UsersBrick.id,
         )
 
         build_url = self._build_edit_url
@@ -273,9 +281,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(
             reverse('creme_core__reload_bricks'),
             data={
-                'brick_id': [UsersBrick.id_],
+                # 'brick_id': [UsersBrick.id_],
+                'brick_id': [UsersBrick.id],
                 'extra_data': json_dump({
-                    UsersBrick.id_: {
+                    # UsersBrick.id_: {
+                    UsersBrick.id: {
                         'search': '"Sainte Grena"',
                     },
                 }),
@@ -288,7 +298,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsList(brick_info, length=2)
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(brick_info[1]), UsersBrick.id_,
+            # self.get_html_tree(brick_info[1]), UsersBrick.id_,
+            self.get_html_tree(brick_info[1]), UsersBrick.id,
         )
 
         build_url = self._build_edit_url
@@ -1427,7 +1438,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
 
         def get_state():
-            return BrickState.objects.get_for_brick_id(user=user, brick_id=UsersBrick.id_)
+            # return BrickState.objects.get_for_brick_id(user=user, brick_id=UsersBrick.id_)
+            return BrickState.objects.get_for_brick_id(user=user, brick_id=UsersBrick.id)
 
         self.assertIsNone(get_state().pk)
 

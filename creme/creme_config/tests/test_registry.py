@@ -374,7 +374,8 @@ class RegistryTestCase(CremeTestCase):
         registry = _ConfigRegistry()
 
         class SectorBrick(GenericModelBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_register_model08')
+            # id_ = SimpleBrick.generate_id('creme_config', 'test_register_model08')
+            id = SimpleBrick.generate_id('creme_config', 'test_register_model08')
 
         registry.register_model(FakeSector) \
                 .brick_class(SectorBrick) \
@@ -389,7 +390,8 @@ class RegistryTestCase(CremeTestCase):
 
         # Change class
         class SectorBrick_V2(GenericModelBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_register_model08_V2')
+            # id_ = SimpleBrick.generate_id('creme_config', 'test_register_model08_V2')
+            id = SimpleBrick.generate_id('creme_config', 'test_register_model08_V2')
 
         model_config.brick_cls = SectorBrick_V2
         self.assertIsInstance(model_config.get_brick(), SectorBrick_V2)
@@ -427,13 +429,16 @@ class RegistryTestCase(CremeTestCase):
             pass
 
         class TestBrick1(TestBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks1')
+            # id_ = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks1')
+            id = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks1')
 
         class TestBrick2(TestBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks2')
+            # id_ = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks2')
+            id = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks2')
 
         class TestBrick3(TestBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks3')
+            # id_ = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks3')
+            id = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks3')
 
         brick_registry = _BrickRegistry()
         brick_registry.register(TestBrick1, TestBrick2, TestBrick3)
@@ -449,28 +454,34 @@ class RegistryTestCase(CremeTestCase):
             b_ids = set()
             for brick in app_conf_registry.bricks:
                 self.assertIsInstance(brick, SimpleBrick)
-                b_ids.add(brick.id_)
+                # b_ids.add(brick.id_)
+                b_ids.add(brick.id)
             return b_ids
 
         brick_ids = get_brick_ids(app_reg1)
-        self.assertIn(TestBrick1.id_, brick_ids)
-        self.assertIn(TestBrick2.id_, brick_ids)
-        self.assertNotIn(TestBrick3, brick_ids)
+        # self.assertIn(TestBrick1.id_, brick_ids)
+        self.assertIn(TestBrick1.id, brick_ids)
+        # self.assertIn(TestBrick2.id_, brick_ids)
+        self.assertIn(TestBrick2.id, brick_ids)
+        self.assertNotIn(TestBrick3.id, brick_ids)
 
         with self.assertNoException():
             app_reg2 = registry.get_app_registry('documents')
 
         brick_ids = get_brick_ids(app_reg2)
-        self.assertIn(TestBrick3.id_, brick_ids)
-        self.assertNotIn(TestBrick1, brick_ids)
-        self.assertNotIn(TestBrick2, brick_ids)
+        # self.assertIn(TestBrick3.id_, brick_ids)
+        self.assertIn(TestBrick3.id, brick_ids)
+        self.assertNotIn(TestBrick1.id, brick_ids)
+        self.assertNotIn(TestBrick2.id, brick_ids)
 
     def test_register_userbricks(self):
         class TestUserBrick1(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_register_userbricks1')
+            # id_ = SimpleBrick.generate_id('creme_config', 'test_register_userbricks1')
+            id = SimpleBrick.generate_id('creme_config', 'test_register_userbricks1')
 
         class TestUserBrick2(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_register_userbricks2')
+            # id_ = SimpleBrick.generate_id('creme_config', 'test_register_userbricks2')
+            id = SimpleBrick.generate_id('creme_config', 'test_register_userbricks2')
 
         brick_registry = _BrickRegistry()
         brick_registry.register(TestUserBrick1, TestUserBrick2)
@@ -488,10 +499,12 @@ class RegistryTestCase(CremeTestCase):
             pass
 
         class TestPortalBrick1(TestPortalBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks1')
+            # id_ = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks1')
+            id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks1')
 
         class TestPortalBrick2(TestPortalBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks2')
+            # id_ = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks2')
+            id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks2')
 
         brick_registry = _BrickRegistry()
         brick_registry.register(TestPortalBrick1, TestPortalBrick2)
@@ -502,10 +515,13 @@ class RegistryTestCase(CremeTestCase):
         brick_ids = set()
         for brick in registry.portal_bricks:
             self.assertIsInstance(brick, TestPortalBrick)
-            brick_ids.add(brick.id_)
+            # brick_ids.add(brick.id_)
+            brick_ids.add(brick.id)
 
-        self.assertIn(TestPortalBrick1.id_, brick_ids)
-        self.assertIn(TestPortalBrick2.id_, brick_ids)
+        # self.assertIn(TestPortalBrick1.id_, brick_ids)
+        self.assertIn(TestPortalBrick1.id, brick_ids)
+        # self.assertIn(TestPortalBrick2.id_, brick_ids)
+        self.assertIn(TestPortalBrick2.id, brick_ids)
 
     def test_app_registry_is_empty01(self):
         "use models."
@@ -522,7 +538,8 @@ class RegistryTestCase(CremeTestCase):
     def test_app_registry_is_empty02(self):
         "use bricks."
         class TestBrick(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_config', 'test_app_registry_is_empty02')
+            # id_ = SimpleBrick.generate_id('creme_config', 'test_app_registry_is_empty02')
+            id = SimpleBrick.generate_id('creme_config', 'test_app_registry_is_empty02')
 
         brick_registry = _BrickRegistry()
         registry = _ConfigRegistry(

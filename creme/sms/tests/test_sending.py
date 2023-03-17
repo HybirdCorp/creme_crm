@@ -193,8 +193,10 @@ class SendingsTestCase(CremeTestCase):
 
         brick_data = content[0]
         self.assertEqual(2, len(brick_data))
-        self.assertEqual(MessagesBrick.id_, brick_data[0])
-        self.assertIn(f' id="{MessagesBrick.id_}"', brick_data[1])
+        # self.assertEqual(MessagesBrick.id_, brick_data[0])
+        self.assertEqual(MessagesBrick.id, brick_data[0])
+        # self.assertIn(f' id="{MessagesBrick.id_}"', brick_data[1])
+        self.assertIn(f' id="{MessagesBrick.id}"', brick_data[1])
 
     def test_reload_sending_bricks02(self):
         "Can not see the campaign"

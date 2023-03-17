@@ -337,7 +337,8 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='NERV')
-        brick_id = bricks.PersonsStatisticsBrick.id_
+        # brick_id = bricks.PersonsStatisticsBrick.id_
+        brick_id = bricks.PersonsStatisticsBrick.id
 
         BrickDetailviewLocation.objects.create_if_needed(
             brick=brick_id, order=1000,

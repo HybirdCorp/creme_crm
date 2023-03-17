@@ -279,7 +279,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         # ---
         BrickHomeLocation.objects.get_or_create(
-            brick_id=UserMessagesBrick.id_, defaults={'order': 50},
+            # brick_id=UserMessagesBrick.id_, defaults={'order': 50},
+            brick_id=UserMessagesBrick.id, defaults={'order': 50},
         )
 
         response2 = self.assertGET200(reverse('creme_core__home'))

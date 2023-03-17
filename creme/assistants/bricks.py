@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -53,7 +53,8 @@ class _AssistantsBrick(QuerysetBrick):
 
 
 class TodosBrick(_AssistantsBrick):
-    id_ = QuerysetBrick.generate_id('assistants', 'todos')
+    # id_ = QuerysetBrick.generate_id('assistants', 'todos')
+    id = QuerysetBrick.generate_id('assistants', 'todos')
     verbose_name = _('Todos')
     description = _(
         'Allows to add Todos to the current entity, which help you to remind '
@@ -73,7 +74,8 @@ class TodosBrick(_AssistantsBrick):
     # TODO: factorise (is_ok renamed 'is_validated'?)
     def _improve_queryset(self, qs, context):
         hide_validated = BricksManager.get(context).get_state(
-            brick_id=self.id_,
+            # brick_id=self.id_,
+            brick_id=self.id,
             user=context['user'],
         ).get_extra_data(
             constants.BRICK_STATE_HIDE_VALIDATED_TODOS,
@@ -102,7 +104,8 @@ class TodosBrick(_AssistantsBrick):
 
 
 class MemosBrick(_AssistantsBrick):
-    id_ = QuerysetBrick.generate_id('assistants', 'memos')
+    # id_ = QuerysetBrick.generate_id('assistants', 'memos')
+    id = QuerysetBrick.generate_id('assistants', 'memos')
     verbose_name = _('Memos')
     description = _(
         'Allows to add Memos to the current entity, which help you to note '
@@ -128,7 +131,8 @@ class MemosBrick(_AssistantsBrick):
 
 
 class AlertsBrick(_AssistantsBrick):
-    id_ = QuerysetBrick.generate_id('assistants', 'alerts')
+    # id_ = QuerysetBrick.generate_id('assistants', 'alerts')
+    id = QuerysetBrick.generate_id('assistants', 'alerts')
     verbose_name = _('Alerts')
     description = _(
         'Allows to add Alerts to the current entity, which help you to remind '
@@ -146,7 +150,8 @@ class AlertsBrick(_AssistantsBrick):
 
     def _improve_queryset(self, qs, context):
         hide_validated = BricksManager.get(context).get_state(
-            brick_id=self.id_,
+            # brick_id=self.id_,
+            brick_id=self.id,
             user=context['user'],
         ).get_extra_data(
             constants.BRICK_STATE_HIDE_VALIDATED_ALERTS,
@@ -193,7 +198,8 @@ class _ActionsBrick(_AssistantsBrick):
 
 
 class ActionsOnTimeBrick(_ActionsBrick):
-    id_ = QuerysetBrick.generate_id('assistants', 'actions_it')
+    # id_ = QuerysetBrick.generate_id('assistants', 'actions_it')
+    id = QuerysetBrick.generate_id('assistants', 'actions_it')
     verbose_name = _('Actions on time')
     description = _(
         'Allows to add Actions to the current entity ; Actions expect a re-action '
@@ -216,7 +222,8 @@ class ActionsOnTimeBrick(_ActionsBrick):
 
 
 class ActionsNotOnTimeBrick(_ActionsBrick):
-    id_ = QuerysetBrick.generate_id('assistants', 'actions_nit')
+    # id_ = QuerysetBrick.generate_id('assistants', 'actions_nit')
+    id = QuerysetBrick.generate_id('assistants', 'actions_nit')
     verbose_name = _('Reactions not on time')
     description = _(
         'Allows to add Actions to the current entity ; Actions expect a re-action '
@@ -239,7 +246,8 @@ class ActionsNotOnTimeBrick(_ActionsBrick):
 
 
 class UserMessagesBrick(_AssistantsBrick):
-    id_ = QuerysetBrick.generate_id('assistants', 'messages')
+    # id_ = QuerysetBrick.generate_id('assistants', 'messages')
+    id = QuerysetBrick.generate_id('assistants', 'messages')
     verbose_name = _('User messages')
     description = _(
         'Allows to send internal messages to other users, and see the messages '

@@ -114,7 +114,8 @@ class Brick:
     #   - some bricks are reloaded.
     # For regular brick classes, you just have to override this attribute by using
     # the method generate_id().
-    id_: str = ''
+    # id_: str = ''
+    id: str = ''
 
     # Human-readable name used as default title, or in the configuration GUI.
     # Tips: use gettext_lazy()
@@ -228,7 +229,8 @@ class Brick:
         context['brick_id'] = brick_id
         context['verbose_name'] = self.verbose_name
         context['description'] = self.description
-        context['state'] = BricksManager.get(context).get_state(self.id_, context['user'])
+        # context['state'] = BricksManager.get(context).get_state(self.id_, context['user'])
+        context['state'] = BricksManager.get(context).get_state(self.id, context['user'])
         context['dependencies'] = [*self._iter_dependencies_info()]
         context['reloading_info'] = self._reloading_info
         context['read_only'] = self.read_only
@@ -241,7 +243,8 @@ class Brick:
         """ Build the brick template context.
         @param context: Template context (contains 'request' etc...).
         """
-        brick_id = self.id_
+        # brick_id = self.id_
+        brick_id = self.id
         request = context['request']
         base_url = request.GET.get('base_url', request.path)
         session = request.session
@@ -262,7 +265,8 @@ class Brick:
 
         # NB:  not 'assert' (it causes problems with bricks in inner popups)
         if not BricksManager.get(context).brick_is_registered(self):
-            logger.debug('Not registered brick: %s', self.id_)
+            # logger.debug('Not registered brick: %s', self.id_)
+            logger.debug('Not registered brick: %s', self.id)
 
         if brick_context.update(template_context):
             session.setdefault(
@@ -447,7 +451,8 @@ class QuerysetBrick(PaginatedBrick):
 
 
 class EntityBrick(Brick):
-    id_ = MODELBRICK_ID
+    # id_ = MODELBRICK_ID
+    id = MODELBRICK_ID
     verbose_name = _('Information on the entity (generic)')
     description = _(
         'Displays the values for the fields of the current entity.\n'
@@ -506,7 +511,8 @@ class SpecificRelationsBrick(QuerysetBrick):
 
     def __init__(self, relationbrick_item: RelationBrickItem):
         super().__init__()
-        self.id_ = relationbrick_item.brick_id
+        # self.id_ = relationbrick_item.brick_id
+        self.id = relationbrick_item.brick_id
         self.config_item = relationbrick_item
 
         rtype = relationbrick_item.relation_type
@@ -587,7 +593,8 @@ class InstanceBrick(Brick):
     def __init__(self, instance_brick_config_item: InstanceBrickConfigItem):
         super().__init__()
         self.config_item = instance_brick_config_item
-        self.id_ = instance_brick_config_item.brick_id
+        # self.id_ = instance_brick_config_item.brick_id
+        self.id = instance_brick_config_item.brick_id
 
 
 class CustomBrick(Brick):
@@ -606,9 +613,11 @@ class CustomBrick(Brick):
     )  # TODO: properties to insert dynamically the cells ?
     template_name = 'creme_core/bricks/custom.html'
 
+    # TODO: remove "id_" argument?
     def __init__(self, id_: str, custombrick_conf_item: CustomBrickConfigItem):
         super().__init__()
-        self.id_ = id_
+        # self.id_ = id_
+        self.id = id_
         # TODO: related models (by FK/M2M/...) ?
         self.dependencies = deps = [custombrick_conf_item.content_type.model_class()]
 
@@ -674,8 +683,10 @@ class BricksManager:
         group.extend(bricks)
 
     def brick_is_registered(self, brick: Brick) -> bool:
-        brick_id = brick.id_
-        return any(b.id_ == brick_id for b in self._bricks)
+        # brick_id = brick.id_
+        # return any(b.id_ == brick_id for b in self._bricks)
+        brick_id = brick.id
+        return any(b.id == brick_id for b in self._bricks)
 
     @property
     def bricks(self):
@@ -721,7 +732,8 @@ class BricksManager:
         _state_cache = self._state_cache
         if not _state_cache:
             _state_cache = self._state_cache = BrickState.objects.get_for_brick_ids(
-                brick_ids=[brick.id_ for brick in self._bricks],
+                # brick_ids=[brick.id_ for brick in self._bricks],
+                brick_ids=[brick.id for brick in self._bricks],
                 user=user,
             )
 
@@ -783,13 +795,28 @@ class _BrickRegistry:
         setdefault = self._brick_classes.setdefault
 
         for brick_cls in brick_classes:
-            brick_id = brick_cls.id_
+            # brick_id = brick_cls.id_
+            brick_id = brick_cls.id
 
             if not brick_id:
-                raise self.RegistrationError(f"Brick class with empty id_: {brick_cls}")
+                # TODO: in creme 2.6 only
+                #  raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
+                try:
+                    brick_cls.id_  # NOQA
+                except AttributeError:
+                    raise self.RegistrationError(
+                        f'Brick class with empty ID: {brick_cls}'
+                    )
+                else:
+                    logger.critical(
+                        'The brick class %s uses the old "id_" attribute; '
+                        'use an attribute "id" instead (brick is ignored).',
+                        brick_cls,
+                    )
+                    continue
 
             if setdefault(brick_id, brick_cls) is not brick_cls:
-                raise self.RegistrationError(f"Duplicated brick's id: {brick_id}")
+                raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
 
         return self
 
@@ -803,13 +830,28 @@ class _BrickRegistry:
                     f'Brick class does not inherit InstanceBrick: {brick_cls}'
                 )
 
-            brick_id = brick_cls.id_
+            # brick_id = brick_cls.id_
+            brick_id = brick_cls.id
 
             if not brick_id:
-                raise self.RegistrationError(f'Brick class with empty id_: {brick_cls}')
+                # TODO: in creme 2.6 only
+                #  raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
+                try:
+                    brick_cls.id_  # NOQA
+                except AttributeError:
+                    raise self.RegistrationError(
+                        f'Brick class with empty ID: {brick_cls}'
+                    )
+                else:
+                    logger.critical(
+                        'The brick class %s uses the old "id_" attribute; '
+                        'use an attribute "id" instead (brick is ignored).',
+                        brick_cls,
+                    )
+                    continue
 
             if setdefault(brick_id, brick_cls) is not brick_cls:
-                raise self.RegistrationError(f"Duplicated brick's id: {brick_id}")
+                raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
 
         return self
 
@@ -831,7 +873,8 @@ class _BrickRegistry:
                          model: type[CremeEntity],
                          brick_cls: type[Brick],
                          ) -> _BrickRegistry:
-        assert brick_cls.id_ == MODELBRICK_ID
+        # assert brick_cls.id_ == MODELBRICK_ID
+        assert brick_cls.id == MODELBRICK_ID
 
         # NB: the key is the class, not the ContentType.id because it can cause
         # some inconsistencies in DB problem in unit tests (contenttypes cache bug with tests ??)
@@ -848,10 +891,12 @@ class _BrickRegistry:
         if main_brick_cls is not None:
             assert issubclass(main_brick_cls, Brick)
 
-            if main_brick_cls.id_:
+            # if main_brick_cls.id_:
+            if main_brick_cls.id:
                 raise self.RegistrationError(
                     f'Main hat brick for {model=} must be empty '
-                    f'(currently: {main_brick_cls.id_})'
+                    # f'(currently: {main_brick_cls.id_})'
+                    f'(currently: {main_brick_cls.id})'
                 )
 
             brick_classes[''] = main_brick_cls
@@ -859,16 +904,31 @@ class _BrickRegistry:
         for brick_cls in secondary_brick_classes:
             assert issubclass(brick_cls, Brick)
 
-            brick_id = brick_cls.id_
+            # brick_id = brick_cls.id_
+            brick_id = brick_cls.id
+
+            # TODO: remove in creme 2.6
+            if not brick_id:
+                try:
+                    brick_id = brick_cls.id_
+                except AttributeError:
+                    pass
+                else:
+                    logger.critical(
+                        'The brick class %s uses the old "id_" attribute; '
+                        'use an attribute "id" instead (brick is ignored).',
+                        brick_cls,
+                    )
+                    continue
 
             if not brick_id or not brick_id.startswith(Brick.GENERIC_HAT_BRICK_ID + '-'):
                 raise self.RegistrationError(
-                    f'Secondary hat brick for {model=} must have an id_ '
+                    f'Secondary hat brick for {model=} must have an ID '
                     f'generated by Brick._generate_hat_id() ({brick_cls})'
                 )
 
             if brick_id in brick_classes:
-                raise self.RegistrationError(f"Duplicated hat brick's id_: {brick_id}")
+                raise self.RegistrationError(f"Duplicated hat brick's ID: {brick_id}")
 
             brick_classes[brick_id] = brick_cls
 
@@ -1047,7 +1107,8 @@ class _BrickRegistry:
             if not brick.dependencies:
                 brick.dependencies = (model,)  # TODO: what about FK, M2M ?
 
-        brick.id_ = Brick.GENERIC_HAT_BRICK_ID
+        # brick.id_ = Brick.GENERIC_HAT_BRICK_ID
+        brick.id = Brick.GENERIC_HAT_BRICK_ID
         brick.verbose_name = _('Title bar')
 
         return brick

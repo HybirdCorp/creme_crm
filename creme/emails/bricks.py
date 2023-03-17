@@ -70,19 +70,22 @@ class _HTMLBodyBrick(Brick):
 
 
 class EmailHTMLBodyBrick(_HTMLBodyBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'email_html_body')
+    # id_ = QuerysetBrick.generate_id('emails', 'email_html_body')
+    id = _HTMLBodyBrick.generate_id('emails', 'email_html_body')
     dependencies = (EntityEmail,)
     target_ctypes = (EntityEmail,)
 
 
 class TemplateHTMLBodyBrick(_HTMLBodyBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'template_html_body')
+    # id_ = QuerysetBrick.generate_id('emails', 'template_html_body')
+    id = _HTMLBodyBrick.generate_id('emails', 'template_html_body')
     dependencies = (EmailTemplate,)
     target_ctypes = (EmailTemplate,)
 
 
 class SendingHTMLBodyBrick(_HTMLBodyBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'sending_html_body')
+    # id_ = QuerysetBrick.generate_id('emails', 'sending_html_body')
+    id = _HTMLBodyBrick.generate_id('emails', 'sending_html_body')
     dependencies = (EmailSending,)
     configurable = False
 
@@ -92,7 +95,7 @@ class SendingHTMLBodyBrick(_HTMLBodyBrick):
 
 # class _RelatedEntitesBrick(QuerysetBrick):
 class _RelatedEntitiesBrick(QuerysetBrick):
-    # id_           = 'SET ME'
+    # id            = 'SET ME'
     # dependencies  = 'SET ME'
     # verbose_name  = 'SET ME'
     # template_name = 'SET ME'
@@ -111,7 +114,8 @@ class _RelatedEntitiesBrick(QuerysetBrick):
 
 
 class MailingListsBrick(_RelatedEntitiesBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'mailing_lists')
+    # id_ = QuerysetBrick.generate_id('emails', 'mailing_lists')
+    id = QuerysetBrick.generate_id('emails', 'mailing_lists')
     verbose_name = _('Mailing lists')
     dependencies = (MailingList,)
     template_name = 'emails/bricks/mailing-lists.html'
@@ -123,7 +127,8 @@ class MailingListsBrick(_RelatedEntitiesBrick):
 
 
 class EmailRecipientsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'recipients')
+    # id_ = QuerysetBrick.generate_id('emails', 'recipients')
+    id = QuerysetBrick.generate_id('emails', 'recipients')
     verbose_name = _('Not linked recipients')
     description = _(
         'Allows to add simple email addresses to the current Mailing list. '
@@ -145,7 +150,8 @@ class EmailRecipientsBrick(QuerysetBrick):
 
 
 class ContactsBrick(_RelatedEntitiesBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'contacts')
+    # id_ = QuerysetBrick.generate_id('emails', 'contacts')
+    id = _RelatedEntitiesBrick.generate_id('emails', 'contacts')
     verbose_name = _('Contact-recipients')
     dependencies = (Contact,)
     template_name = 'emails/bricks/contacts.html'
@@ -162,7 +168,8 @@ class ContactsBrick(_RelatedEntitiesBrick):
 
 
 class OrganisationsBrick(_RelatedEntitiesBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'organisations')
+    # id_ = QuerysetBrick.generate_id('emails', 'organisations')
+    id = _RelatedEntitiesBrick.generate_id('emails', 'organisations')
     verbose_name = _('Organisations recipients')
     dependencies = (Organisation,)
     template_name = 'emails/bricks/organisations.html'
@@ -178,7 +185,8 @@ class OrganisationsBrick(_RelatedEntitiesBrick):
 
 
 class ChildListsBrick(_RelatedEntitiesBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'child_lists')
+    # id_ = QuerysetBrick.generate_id('emails', 'child_lists')
+    id = _RelatedEntitiesBrick.generate_id('emails', 'child_lists')
     verbose_name = _('Child mailing lists')
     dependencies = (MailingList,)
     template_name = 'emails/bricks/child-lists.html'
@@ -190,7 +198,8 @@ class ChildListsBrick(_RelatedEntitiesBrick):
 
 
 class ParentListsBrick(_RelatedEntitiesBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'parent_lists')
+    # id_ = QuerysetBrick.generate_id('emails', 'parent_lists')
+    id = _RelatedEntitiesBrick.generate_id('emails', 'parent_lists')
     verbose_name = _('Parent mailing lists')
     dependencies = (MailingList,)
     template_name = 'emails/bricks/parent-lists.html'
@@ -202,7 +211,8 @@ class ParentListsBrick(_RelatedEntitiesBrick):
 
 
 class AttachmentsBrick(_RelatedEntitiesBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'attachments')
+    # id_ = QuerysetBrick.generate_id('emails', 'attachments')
+    id = _RelatedEntitiesBrick.generate_id('emails', 'attachments')
     verbose_name = _('Attachments')
     dependencies = (Document,)
     template_name = 'emails/bricks/attachments.html'
@@ -214,7 +224,8 @@ class AttachmentsBrick(_RelatedEntitiesBrick):
 
 
 class SendingsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'sendings')
+    # id_ = QuerysetBrick.generate_id('emails', 'sendings')
+    id = QuerysetBrick.generate_id('emails', 'sendings')
     verbose_name = _('Sendings')
     dependencies = (EmailSending,)
     order_by = '-sending_date'
@@ -231,7 +242,8 @@ class SendingsBrick(QuerysetBrick):
 
 
 class SendingBrick(SimpleBrick):
-    id_ = SimpleBrick.generate_id('emails', 'sending')
+    # id_ = SimpleBrick.generate_id('emails', 'sending')
+    id = SimpleBrick.generate_id('emails', 'sending')
     verbose_name = _('Information')
     dependencies = (EmailSending,)
     template_name = 'emails/bricks/sending.html'
@@ -239,7 +251,8 @@ class SendingBrick(SimpleBrick):
 
 
 class MailsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'mails')
+    # id_ = QuerysetBrick.generate_id('emails', 'mails')
+    id = QuerysetBrick.generate_id('emails', 'mails')
     verbose_name = 'Emails of a sending'
     dependencies = (LightWeightEmail,)
     order_by = 'id'
@@ -256,7 +269,8 @@ class MailsBrick(QuerysetBrick):
 
 
 class MailsHistoryBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'mails_history')
+    # id_ = QuerysetBrick.generate_id('emails', 'mails_history')
+    id = QuerysetBrick.generate_id('emails', 'mails_history')
     verbose_name = _('Emails history')
     description = _(
         'Displays the Emails linked to the current entity with a relationship '
@@ -294,7 +308,8 @@ class MailsHistoryBrick(QuerysetBrick):
 
 
 class MailPopupBrick(SimpleBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'mail_popup')
+    # id_ = QuerysetBrick.generate_id('emails', 'mail_popup')
+    id = QuerysetBrick.generate_id('emails', 'mail_popup')
     verbose_name = 'Detail popup of email'
     dependencies = (EntityEmail,)
     template_name = 'emails/bricks/mail-popup.html'
@@ -302,7 +317,8 @@ class MailPopupBrick(SimpleBrick):
 
 
 class LwMailPopupBrick(SimpleBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'lw_mail_popup')
+    # id_ = QuerysetBrick.generate_id('emails', 'lw_mail_popup')
+    id = QuerysetBrick.generate_id('emails', 'lw_mail_popup')
     verbose_name = 'Detail popup of LightWeight email'
     dependencies = (LightWeightEmail,)
     template_name = 'emails/bricks/lw-mail-popup.html'
@@ -310,7 +326,8 @@ class LwMailPopupBrick(SimpleBrick):
 
 
 class LwMailsHistoryBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'lw_mails_history')
+    # id_ = QuerysetBrick.generate_id('emails', 'lw_mails_history')
+    id = QuerysetBrick.generate_id('emails', 'lw_mails_history')
     verbose_name = _('Campaigns emails history')
     description = _(
         'Displays the emails (sent from Campaigns) received by the current entity.\n'
@@ -329,7 +346,8 @@ class LwMailsHistoryBrick(QuerysetBrick):
 
 
 class MySignaturesBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'my_signatures')
+    # id_ = QuerysetBrick.generate_id('emails', 'my_signatures')
+    id = QuerysetBrick.generate_id('emails', 'my_signatures')
     verbose_name = _('My signatures')
     dependencies = (EmailSignature,)
     order_by = 'name'
@@ -350,7 +368,8 @@ class MySignaturesBrick(QuerysetBrick):
 
 
 class EmailSyncConfigItemsBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'sync_config_items')
+    # id_ = QuerysetBrick.generate_id('emails', 'sync_config_items')
+    id = QuerysetBrick.generate_id('emails', 'sync_config_items')
     dependencies = (EmailSyncConfigItem,)
     order_by = 'id'
     template_name = 'emails/bricks/sync-config-items.html'
@@ -363,7 +382,8 @@ class EmailSyncConfigItemsBrick(QuerysetBrick):
 
 
 class EmailsToSyncBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('emails', 'emails_to_sync')
+    # id_ = QuerysetBrick.generate_id('emails', 'emails_to_sync')
+    id = QuerysetBrick.generate_id('emails', 'emails_to_sync')
     dependencies = (EmailToSync,)
     order_by = 'id'
     template_name = 'emails/bricks/emails-to-sync.html'

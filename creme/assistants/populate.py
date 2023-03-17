@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -70,6 +70,9 @@ class Populator(BasePopulator):
             create_bdl(brick=UserMessagesBrick, order=400)
 
             create_bhl = BrickHomeLocation.objects.create
-            create_bhl(brick_id=MemosBrick.id_,        order=100)
-            create_bhl(brick_id=AlertsBrick.id_,       order=200)
-            create_bhl(brick_id=UserMessagesBrick.id_, order=300)
+            # create_bhl(brick_id=MemosBrick.id_,        order=100)
+            # create_bhl(brick_id=AlertsBrick.id_,       order=200)
+            # create_bhl(brick_id=UserMessagesBrick.id_, order=300)
+            create_bhl(brick_id=MemosBrick.id,        order=100)
+            create_bhl(brick_id=AlertsBrick.id,       order=200)
+            create_bhl(brick_id=UserMessagesBrick.id, order=300)

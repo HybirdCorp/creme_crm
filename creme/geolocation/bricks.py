@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2022  Hybird
+#    Copyright (C) 2014-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -110,7 +110,8 @@ class _DetailMapBrick(_MapBrick):
 
 
 class GoogleDetailMapBrick(_DetailMapBrick):
-    id_ = Brick.generate_id('geolocation', 'detail_google_maps')
+    # id_ = Brick.generate_id('geolocation', 'detail_google_maps')
+    id = Brick.generate_id('geolocation', 'detail_google_maps')
     verbose_name = _('Addresses on Google Maps ®')
     description = _(
         'Display the addresses of the Contact/Organisation on Google Maps ®.\n'
@@ -123,7 +124,8 @@ class GoogleDetailMapBrick(_DetailMapBrick):
 
 
 class OpenStreetMapDetailMapBrick(_DetailMapBrick):
-    id_ = Brick.generate_id('geolocation', 'detail_openstreetmap')
+    # id_ = Brick.generate_id('geolocation', 'detail_openstreetmap')
+    id = Brick.generate_id('geolocation', 'detail_openstreetmap')
     verbose_name = _('Addresses on OpenStreetMap ®')
     description = _(
         'Display the addresses of the Contact/Organisation on OpenStreetMap ®.\n'
@@ -146,7 +148,8 @@ class _FilteredMapBrick(_MapBrick):
 
 
 class GoogleFilteredMapBrick(_FilteredMapBrick):
-    id_ = Brick.generate_id('geolocation', 'filtered_google_maps')
+    # id_ = Brick.generate_id('geolocation', 'filtered_google_maps')
+    id = Brick.generate_id('geolocation', 'filtered_google_maps')
     verbose_name = _('Filtered addresses on Google Maps ®')
     description = _(
         'Display on Google Maps ® the addresses of the Contacts/Organisations '
@@ -160,7 +163,8 @@ class GoogleFilteredMapBrick(_FilteredMapBrick):
 
 
 class OpenStreetMapFilteredMapBrick(_FilteredMapBrick):
-    id_ = Brick.generate_id('geolocation', 'filtered_openstreetmap')
+    # id_ = Brick.generate_id('geolocation', 'filtered_openstreetmap')
+    id = Brick.generate_id('geolocation', 'filtered_openstreetmap')
     verbose_name = _('Filtered addresses on OpenStreetMap ®')
     description = _(
         'Display on OpenStreetMap ® the addresses of the Contacts/Organisations '
@@ -194,12 +198,14 @@ class _NeighboursMapBrick(_MapBrick):
                 context['user'], Contact, Organisation,
             ),
             radius=get_radius(),
-            maps_blockid=self.detail_map.id_,
+            # maps_blockid=self.detail_map.id_,
+            maps_blockid=self.detail_map.id,
         ))
 
 
 class GoogleNeighboursMapBrick(_NeighboursMapBrick):
-    id_ = Brick.generate_id('geolocation', 'google_whoisaround')
+    # id_ = Brick.generate_id('geolocation', 'google_whoisaround')
+    id = Brick.generate_id('geolocation', 'google_whoisaround')
     verbose_name = _('Neighbours on Google Maps ®')
     description = _(
         'Display on Google Maps ® the addresses of the neighbours of the Contact/Organisation. '
@@ -214,7 +220,8 @@ class GoogleNeighboursMapBrick(_NeighboursMapBrick):
 
 
 class OpenStreetMapNeighboursMapBrick(_NeighboursMapBrick):
-    id_ = Brick.generate_id('geolocation', 'openstreetmap_whoisaround')
+    # id_ = Brick.generate_id('geolocation', 'openstreetmap_whoisaround')
+    id = Brick.generate_id('geolocation', 'openstreetmap_whoisaround')
     verbose_name = _('Neighbours on OpenStreetMap ©')
     description = _(
         'Display on OpenStreetMap ® the addresses of the neighbours of the Contact/Organisation. '
