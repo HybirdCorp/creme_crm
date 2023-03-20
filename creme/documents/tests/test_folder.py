@@ -79,7 +79,8 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertFalse(Folder.objects.filter(title=title).exists())
 
         description = 'Test description'
-        other_cat = FolderCategory.objects.exclude(id=category.id)[0]
+        # other_cat = FolderCategory.objects.exclude(id=category.id)[0]
+        other_cat = FolderCategory.objects.create(name='Other')
         response = self.client.post(
             url,
             follow=True,
@@ -388,7 +389,9 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             descriptions=[('description', {FieldsConfig.REQUIRED: True})],
         )  # Should not be used
 
-        cat1, cat2 = FolderCategory.objects.all()[:2]
+        # cat1, cat2 = FolderCategory.objects.all()[:2]
+        cat1 = FolderCategory.objects.all()[0]
+        cat2 = FolderCategory.objects.create(name='Other')
 
         create_folder = partial(
             Folder.objects.create, user=user, description='Test description',
