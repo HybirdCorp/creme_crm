@@ -7,13 +7,13 @@
     {{block.super}}
     <script type='text/javascript'>
         $(document).ready(function() {
-            new creme.activities.CalendarController({
+            return new creme.ActivityCalendar($('.calendar-main'), {
                 owner: "{{user_username}}",
                 eventSelectUrl: '{% url "activities__select_calendars" %}',
                 eventUpdateUrl: '{% url "activities__set_activity_dates" %}',
                 eventCreateUrl: '{% url "activities__create_activity_popup" %}',
                 eventFetchUrl: '{% url "activities__calendars_activities" %}'
-            }).bind($('.calendar-main'));
+            });
         });
     </script>
 {% endblock %}
@@ -31,7 +31,13 @@
                 {% endif %}
                 <div class="floating-activities menu-sublist toggle-target">
                     {% for floating_activity in floating_activities %}
-                        <div class='floating-event' data-id="{{floating_activity.id}}" data-calendar="{{floating_activity.calendar.id}}" data-type="{{floating_activity.type.name}}" data-popup_url="{% url 'activities__view_activity_popup' floating_activity.id %}" data-color="#{{floating_activity.calendar.color}}">
+                        <div class='floating-event'
+                             data-id="{{floating_activity.id}}"
+                             {% if floating_activity.busy %}data-busy="1"{% endif %}
+                             data-calendar="{{floating_activity.calendar.id}}"
+                             data-type="{{floating_activity.type.name}}"
+                             data-popup_url="{% url 'activities__view_activity_popup' floating_activity.id %}"
+                             data-color="#{{floating_activity.calendar.color}}">
                             <div class="colored-square" style="background-color:#{{floating_activity.calendar.color}};"></div>
                             <span class="floating-event-label">{{floating_activity.title}}</span>
                         </div>
@@ -46,8 +52,12 @@
                 <div class="my-calendars menu-sublist toggle-target">
                     {% for calendar in my_calendars %}
                         <div class="calendar-menu-item">
+                            {% comment %}
                             <div class="colored-square" style="background-color:#{{calendar.color}};"></div>
                             <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="calendar_id"{% if calendar.id in my_selected_calendar_ids %} checked{% endif %}/>
+                            <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
+                            {% endcomment %}
+                            <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" style="color:#{{calendar.color}};" name="calendar_id"{% if calendar.id in my_selected_calendar_ids %} checked{% endif %}/>
                             <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
                         </div>
                     {% empty%}
@@ -69,8 +79,12 @@
                             <h5 class="calendar-menu-usergroup-label">{{user}}</h5>
                             {% for calendar in calendars %}
                             <div class="calendar-menu-item" data-user="{{user_key}}" data-calendar="{{calendar.id}}">
+                                {% comment %}
                                 <div class="colored-square" style="background-color:#{{calendar.color}};"></div>
                                 <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="calendar_id"{% if calendar.id in others_selected_calendar_ids %} checked{% endif %}/>
+                                <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
+                                {% endcomment %}
+                                <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" style="color:#{{calendar.color}};" name="calendar_id"{% if calendar.id in others_selected_calendar_ids %} checked{% endif %}/>
                                 <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
                             </div>
                             {% endfor %}
