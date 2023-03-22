@@ -219,7 +219,21 @@ class _CremeTestCase:
 
     def assertGET(self, expected_status, *args, **kwargs):
         response = self.client.get(*args, **kwargs)
-        self.assertEqual(expected_status, response.status_code)
+        # self.assertEqual(expected_status, response.status_code)
+        code = response.status_code
+        if expected_status != code:
+            error_msg = response.context.get('exception') if response.context else None
+            if error_msg:
+                self.fail(
+                    f'Expected status was <{expected_status}>. '
+                    f'Got status <{code}>. '
+                    f'Content is <{error_msg}>'
+                )
+            else:
+                self.fail(
+                    f'Expected status was <{expected_status}>. '
+                    f'Got status <{code}>.'
+                )
 
         return response
 
