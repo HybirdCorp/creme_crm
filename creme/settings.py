@@ -750,7 +750,11 @@ CREME_OPT_CSS = [  # APPS
     ('creme.persons',          'persons/css/persons.css'),
 
     ('creme.activities',       'activities/css/activities.css'),
-    ('creme.activities',       'activities/css/fullcalendar-3.10.2.css'),
+    # DEPRECATED: to be removed in creme 2.7
+    # ('creme.activities',       'activities/css/fullcalendar-3.10.2.css'),
+    # ('creme.activities',       'activities/css/fc3-creme.css'),
+    ('creme.activities', 'activities/css/fullcalendar-5.11.4.css'),
+    ('creme.activities', 'activities/css/fc5-creme.css'),
 
     ('creme.billing',          'billing/css/billing.css'),
     ('creme.opportunities',    'opportunities/css/opportunities.css'),
@@ -915,7 +919,9 @@ CREME_CORE_JS = [
 ]
 
 CREME_OPTLIB_JS = [
-    ('creme.activities', 'activities/js/jquery/extensions/fullcalendar-3.10.2.js'),
+    # DEPRECATED: to be removed in creme 2.7
+    # ('creme.activities', 'activities/js/lib/fullcalendar-3.10.2.js'),
+    ('creme.activities', 'activities/js/lib/fullcalendar-5.11.4.js'),
     ('creme.geolocation', 'geolocation/js/lib/leaflet-1.7.1.js'),
     ('creme.sketch', 'sketch/js/lib/d3-6.7.0.js'),
     ('creme.sketch', 'sketch/js/lib/filesaver-2.0.4.js'),
@@ -949,6 +955,8 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.persons',       'persons/js/persons.js'),
 
     ('creme.activities',    'activities/js/activities.js'),
+    # DEPRECATED: to be removed in creme 2.7
+    # ('creme.activities',    'activities/js/activities-calendar-v3.js'),
     ('creme.activities',    'activities/js/activities-calendar.js'),
 
     ('creme.billing',       'billing/js/billing.js'),

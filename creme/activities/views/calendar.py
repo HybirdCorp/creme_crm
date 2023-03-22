@@ -30,12 +30,7 @@ from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
-from django.utils.timezone import (
-    get_current_timezone,
-    make_aware,
-    make_naive,
-    now,
-)
+from django.utils.timezone import get_current_timezone, make_naive, now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -55,9 +50,28 @@ logger = logging.getLogger(__name__)
 Activity = get_activity_model()
 
 
-def _js_timestamp_to_datetime(timestamp):
+def fromRFC3339(timestamp: str) -> datetime:
+    # "@raise ValueError."
     # JS gives us milliseconds
-    return make_aware(datetime.fromtimestamp(float(timestamp) / 1000))
+    # return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000))
+    if timestamp is None:
+        return None
+
+    res = datetime.fromisoformat(timestamp[:-2] if timestamp[-1] == 'Z' else timestamp)
+    return res.replace(tzinfo=get_current_timezone())
+    # return make_aware(datetime.fromtimestamp(float(timestamp) / 1000))
+
+
+def toRFC3339(value: datetime) -> str:
+    if value is None:
+        return None
+
+    value = make_naive(value).replace(tzinfo=get_current_timezone())
+
+    return '%4d-%02d-%02dT%02d:%02d:%02d' % (
+        value.year, value.month, value.day,
+        value.hour, value.minute, value.second
+    )
 
 
 class CalendarView(generic.CheckedTemplateView):
@@ -220,12 +234,11 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
 
     def _activity_2_dict(self, activity, user):
         "Returns a 'jsonifiable' dictionary."
-        tz = get_current_timezone()
-        start = make_naive(activity.start, tz)
-        end = make_naive(activity.end, tz)
+        start = activity.start
+        end = activity.end
 
         if activity.is_all_day:
-            end = datetime(year=end.year, month=end.month, day=end.day) + timedelta(days=1)
+            end += timedelta(minutes=1)
 
         # NB: _get_one_activity_per_calendar() adds this 'attribute'
         calendar = activity.calendar
@@ -234,8 +247,8 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
             'id':    activity.id,
             'title': self.get_activity_label(activity),
 
-            'start':  start.isoformat(),
-            'end':    end.isoformat(),
+            'start':  toRFC3339(start),
+            'end':    toRFC3339(end),
             'allDay': activity.is_all_day,
 
             'url': reverse('activities__view_activity_popup', args=(activity.id,)),
@@ -244,6 +257,7 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
             'editable': user.has_perm_to_change(activity),
             'calendar': calendar.id,
             'type':     activity.type.name,
+            'busy':     activity.busy,
         }
 
     @staticmethod
@@ -252,7 +266,7 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
 
         if timestamp is not None:
             try:
-                return make_aware(datetime.fromtimestamp(float(timestamp)))
+                return fromRFC3339(timestamp)
             except Exception:
                 logger.exception('ActivitiesData._get_datetime(key=%s)', key)
 
@@ -370,10 +384,10 @@ class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView)
     def post(self, request, *args, **kwargs):
         POST = request.POST
         start = get_from_POST_or_404(
-            POST, key=self.start_arg, cast=_js_timestamp_to_datetime,
+            POST, key=self.start_arg, cast=fromRFC3339,
         )
         end = get_from_POST_or_404(
-            POST, key=self.end_arg, cast=_js_timestamp_to_datetime
+            POST, key=self.end_arg, cast=fromRFC3339
         )
         is_all_day = get_from_POST_or_404(
             POST, key=self.all_day_arg,

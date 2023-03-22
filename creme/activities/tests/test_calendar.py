@@ -9,7 +9,8 @@ from django.core.management import call_command
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape
-from django.utils.timezone import get_current_timezone, make_naive
+from django.utils.timezone import override as override_tz
+from django.utils.timezone import zoneinfo
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
@@ -244,7 +245,8 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @staticmethod
     def _build_ts(dt):
-        return float(int(dt.timestamp())) * 1000  # Simulates JS that sends milliseconds
+        return dt.isoformat()
+        # return float(int(dt.timestamp())) * 1000  # Simulates JS that sends milliseconds
 
     @staticmethod
     def build_link_url(activity_id):
@@ -859,72 +861,93 @@ class CalendarTestCase(_ActivitiesTestCase):
     @skipIfCustomActivity
     @parameterized.expand([
         (
-            CremeTestCase.create_datetime(2013, 3, 1),
-            CremeTestCase.create_datetime(2013, 3, 1),
+            "Europe/Paris",
+            (2013, 3, 1),
+            (2013, 3, 1),
             False,
             '2013-03-01T00:00:00',
             '2013-03-01T00:00:00',
         ), (
-            CremeTestCase.create_datetime(2013, 3, 1),
-            CremeTestCase.create_datetime(2013, 3, 5, 11),
+            "America/New_York",
+            (2013, 3, 1),
+            (2013, 3, 5, 11),
             False,
             '2013-03-01T00:00:00',
             '2013-03-05T11:00:00',
         ), (
             # All day => ends on 00:00 of the next day
-            CremeTestCase.create_datetime(2013, 3, 1),
-            CremeTestCase.create_datetime(2013, 3, 1),
+            "Europe/Paris",
+            (2013, 3, 1),
+            (2013, 3, 1),
             True,
             '2013-03-01T00:00:00',
             '2013-03-02T00:00:00',
         ), (
             # All day => ends on 00:00 of the next day
-            CremeTestCase.create_datetime(2013, 3, 1),
-            CremeTestCase.create_datetime(2013, 3, 5, 11),
+            "America/New_York",
+            (2013, 3, 1),
+            (2013, 3, 1),
+            True,
+            '2013-03-01T00:00:00',
+            '2013-03-02T00:00:00',
+        ), (
+            # All day => ends on 00:00 of the next day
+            "Europe/Paris",
+            (2013, 3, 1),
+            (2013, 3, 5, 11),
             True,
             '2013-03-01T00:00:00',
             '2013-03-06T00:00:00',
         ),
     ])
     def test_activities_data_one_user_one_event(
-            self, start, end, is_all_day, data_start, data_end):
+        self, tzname, start, end, is_all_day, data_start, data_end
+    ):
         user = self.login_as_root_and_get()
-        calendar = Calendar.objects.get_default_calendar(user)
-        activity = Activity.objects.create(
-            title='Act#1',
-            user=user,
-            type_id=constants.ACTIVITYTYPE_PHONECALL,
-            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-            start=start,
-            end=end,
-            is_all_day=is_all_day,
-        )
-        activity.calendars.set([calendar])
 
-        response = self.assertGET200(
-            reverse('activities__calendars_activities'),
-            data={
-                'calendar_id': calendar.pk,
-                'start': int(start.timestamp()),
-                'end': int(end.timestamp()),
-            },
-        )
+        with override_tz(zoneinfo.ZoneInfo(tzname)):
+            start = CremeTestCase.create_datetime(*start)
+            end = CremeTestCase.create_datetime(*end)
 
-        self.assertListEqual(
-            [{
-                'id':       activity.id,
-                'title':    'Act#1',
-                'start':    data_start,
-                'end':      data_end,
-                'allDay':   is_all_day,
-                'calendar': calendar.pk,
-                'color':    f'#{calendar.color}',
-                'url':      reverse('activities__view_activity_popup', args=(activity.id,)),
-                'editable': True,
-                'type':     _('Phone call'),
-            }],
-            response.json()
-        )
+            calendar = Calendar.objects.get_default_calendar(user)
+            activity = Activity.objects.create(
+                title='Act#1',
+                user=user,
+                type_id=constants.ACTIVITYTYPE_PHONECALL,
+                sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+                start=start,
+                end=end,
+                is_all_day=is_all_day,
+            )
+            activity.calendars.set([calendar])
+            activity.handle_all_day()
+            activity.save()
+
+            response = self.assertGET200(
+                reverse('activities__calendars_activities'),
+                data={
+                    'calendar_id': calendar.pk,
+                    'start': start.isoformat(),
+                    'end': end.isoformat(),
+                },
+            )
+
+            self.assertListEqual(
+                [{
+                    'id':       activity.id,
+                    'title':    'Act#1',
+                    'start':    data_start,
+                    'end':      data_end,
+                    'allDay':   is_all_day,
+                    'calendar': calendar.pk,
+                    'color':    f'#{calendar.color}',
+                    'url':      reverse('activities__view_activity_popup', args=(activity.id,)),
+                    'editable': True,
+                    'busy':     False,
+                    'type':     _('Phone call'),
+                }],
+                response.json()
+            )
 
     @skipIfCustomActivity
     def test_activities_data_one_user(self):
@@ -983,14 +1006,11 @@ class CalendarTestCase(_ActivitiesTestCase):
         create_rel(subject_entity=self.create_user().linked_contact, object_entity=act3)
 
         response = self._get_cal_activities(
-            [cal], start=int(start.timestamp()), end=int(end.timestamp()),
+            [cal], start=start.isoformat(), end=end.isoformat(),
         )
 
         data = response.json()
         self.assertEqual(4, len(data))
-
-        def formatted_dt(dt):
-            return make_naive(dt, get_current_timezone()).isoformat()
 
         def build_popup_url(act):
             return reverse('activities__view_activity_popup', args=(act.id,))
@@ -999,14 +1019,15 @@ class CalendarTestCase(_ActivitiesTestCase):
             {
                 'id':         act3.id,
                 'title':      'Act#3',
-                'start':      formatted_dt(act3.start),
+                'start':      '2013-03-03T00:00:00',
                 # On fullcalendar side a full day ends on the next day at 00:00:00
-                'end':        formatted_dt(create_dt(year=2013, month=4, day=2)),
+                'end':        '2013-04-02T00:00:00',
                 'allDay':     True,
                 'calendar':   cal.id,
                 'color':      f'#{cal.color}',
                 'url':        build_popup_url(act3),
                 'editable':   True,
+                'busy':       False,
                 'type':       _('Meeting'),
             },
             data[0],
@@ -1015,13 +1036,14 @@ class CalendarTestCase(_ActivitiesTestCase):
             {
                 'id':         act1.id,
                 'title':      'Act#1',
-                'start':      formatted_dt(act1.start),
-                'end':        formatted_dt(act1.end),
+                'start':      '2013-03-02T00:00:00',
+                'end':        '2013-03-03T00:00:00',
                 'allDay':     False,
                 'calendar':   cal.id,
                 'color':      f'#{cal.color}',
                 'url':        build_popup_url(act1),
                 'editable':   True,
+                'busy':       False,
                 'type':       _('Phone call'),
             },
             data[1],
@@ -1030,13 +1052,14 @@ class CalendarTestCase(_ActivitiesTestCase):
             {
                 'id':         act0.id,
                 'title':      'Act#0',
-                'start':      formatted_dt(act0.start),
-                'end':        formatted_dt(act0.end),
+                'start':      '2013-03-01T00:00:00',
+                'end':        '2013-03-01T00:00:00',
                 'allDay':     False,
                 'calendar':   cal.id,
                 'color':      f'#{cal.color}',
                 'url':        build_popup_url(act0),
                 'editable':   True,
+                'busy':       False,
                 'type':       _('Phone call'),
             },
             data[2],
@@ -1111,7 +1134,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         create_rel(subject_entity=user.linked_contact,       object_entity=act8)
 
         # cal2 should not be used, it does not belong to user (so, no 'act2')
-        response = self._get_cal_activities([cal1, cal2], start=int(start.timestamp()))
+        response = self._get_cal_activities([cal1, cal2], start=start.isoformat())
 
         data = response.json()
 
@@ -1154,7 +1177,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         act1.calendars.set([cal1, cal2])  # <== Act1 must be returned twice
         act2.calendars.set([cal2])
 
-        response = self._get_cal_activities([cal1, cal2], start=int(start.timestamp()))
+        response = self._get_cal_activities([cal1, cal2], start=start.isoformat())
         self.assertCountEqual(
             [
                 (act1.id, cal1.id),
@@ -1186,7 +1209,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         self._get_cal_activities(
             [cal1, cal2, cal3],
-            start=int(self.create_datetime(year=2019, month=5, day=1).timestamp()),
+            start=self.create_datetime(year=2019, month=5, day=1).isoformat(),
         )
 
         # Getting the view again => use Calendars in session
@@ -1270,8 +1293,8 @@ class CalendarTestCase(_ActivitiesTestCase):
             url,
             data={
                 'id':    act.id,
-                'start': self._build_ts(new_start),
-                'end':   self._build_ts(new_end),
+                'start': new_start.isoformat(),
+                'end':   new_end.isoformat(),
             },
         )
 
@@ -1314,8 +1337,8 @@ class CalendarTestCase(_ActivitiesTestCase):
             409, self.UPDATE_URL,
             data={
                 'id':    act1.id,
-                'start': self._build_ts(act2.start),
-                'end':   self._build_ts(act2.end),
+                'start': act2.start.isoformat(),
+                'end':   act2.end.isoformat(),
             },
         )
 
@@ -1338,8 +1361,8 @@ class CalendarTestCase(_ActivitiesTestCase):
             url,
             data={
                 'id':     act.id,
-                'start':  self._build_ts(start),
-                'end':    self._build_ts(end),
+                'start':  start.isoformat(),
+                'end':    end.isoformat(),
                 'allDay': '1',
             },
         )

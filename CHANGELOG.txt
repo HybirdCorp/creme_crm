@@ -3,6 +3,11 @@
   Users side :
   ------------
     # Apps :
+        * Activities :
+            - Upgrade to FullCalendar "5.11.4":
+                - New calendar look-n-feel.
+                - Week/month view change are now in browsing history and refresh will stay on the same view.
+                - Forbid collisions between events from the same creme calendar.
         * Reports :
             - The date fields of referenced models can be used for temporal filtering in the Reports
               (e.g. in a report on Contacts, Photograph's fields are available).
@@ -10,6 +15,8 @@
 
   Developers side :
   -----------------
+    - Javascript :
+        - The version of 'FullCalendar' is now "5.11.4".
 
     Non breaking changes :
     ----------------------
@@ -18,6 +25,13 @@
               Use these new methods of 'CremeTestCase' instead: assertFormfieldError() & assertValidationError().
               Then stop using the base class 'FieldTestCase' & 'FieldTestCaseMixin'.
         # You can now pass a custom form-field class to 'core.setting_key.SettingKey'.
+        # Apps :
+            * Activities:
+                - Upgrade FullCalendar :
+                    - Use ISO8601 format WITH timezone (e.g 2023-04-14T10:38:30+01:00) for the views:
+                         - activities__calendars_activities
+                         - activities__set_activity_dates
+                    - Display "busy" events (no collision) with a stripped background.
 
     Breaking changes :
     ------------------
@@ -68,6 +82,11 @@
             * Creme_config :
                 - The global dictionary 'forms.setting._FIELDS' has been removed;
                   see the new class attribute 'creme_core.core.setting_key._SettingKey.FORM_FIELDS' instead.
+            * Activities :
+                - Upgrade FullCalendar : Refactor of 'creme.activities.CalendarController' renamed as 'creme.ActivityCalendar'
+                    - Calendar view changes are stored in url hash (e.g: #week & #month)
+                    - Use ISO8601 format WITH timezone for queries on backend views (e.g 2023-04-14T10:38:30+01:00)
+                - In 'views.calendar' the method '_js_timestamp_to_datetime' has been removed and replaced by 'fromRFC3339' & 'toRFC3339'
 
 
 == Version 2.5 ==

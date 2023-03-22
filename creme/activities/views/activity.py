@@ -21,13 +21,13 @@ from __future__ import annotations
 from datetime import time
 from functools import partial
 
-from dateutil.parser import isoparse
+# from dateutil.parser import isoparse
 from django.db.models import Q
 from django.forms.forms import BaseForm
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from django.utils.timezone import get_current_timezone, is_naive, make_naive
+# from django.utils.timezone import get_current_timezone, is_naive, make_naive
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import EntityCredentials
@@ -43,6 +43,7 @@ from .. import constants, custom_forms, get_activity_model
 from ..forms import activity as act_forms
 from ..models import ActivitySubType, ActivityType
 from ..utils import ICalEncoder
+from .calendar import fromRFC3339
 
 Activity = get_activity_model()
 _CREATION_PERM_STR = cperm(Activity)
@@ -114,23 +115,23 @@ class ActivityCreationPopup(generic.EntityCreationPopup):
         request = self.request
 
         if request.method == 'GET':
-            tz = get_current_timezone()
+            # tz = get_current_timezone()
             get = partial(get_from_GET_or_404, GET=request.GET)
             initial['is_all_day'] = get(
                 key='allDay', default='0', cast=bool_from_str_extended,
             )
 
-            def isoparse_naive(value):
-                if value is not None:
-                    value = isoparse(value)
+            # def isoparse_naive(value):
+            #     if value is not None:
+            #        value = isoparse(value)
 
-                    if not is_naive(value):
-                        value = make_naive(value, tz)
+            #     if not is_naive(value):
+            #        value = make_naive(value, tz)
 
-                return value
+            #    return value
 
             def _set_datefield(request_key, field_name, **kwargs):
-                value = get(key=request_key, cast=isoparse_naive, **kwargs)
+                value = get(key=request_key, cast=fromRFC3339, **kwargs)
 
                 if value:
                     initial[field_name] = (
