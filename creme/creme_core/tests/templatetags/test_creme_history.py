@@ -21,8 +21,7 @@ class CremeHistoryTagsTestCase(CremeTestCase):
         self.assertTrue(HistoryLine.objects.filter(entity=togame.id))
 
         summary = creme_history.history_summary(entity=togame, user=user)
-        self.assertIsInstance(summary, dict)
-        self.assertEqual(2, len(summary))
+        self.assertIsDict(summary, length=2)
 
         creation = summary.get('creation')
         self.assertIsInstance(creation, HistoryLine)
@@ -48,8 +47,7 @@ class CremeHistoryTagsTestCase(CremeTestCase):
         self.assertEqual(2, HistoryLine.objects.filter(entity=togame.id).count())
 
         summary = creme_history.history_summary(entity=togame, user=user)
-        self.assertIsInstance(summary, dict)
-        self.assertEqual(2, len(summary))
+        self.assertIsDict(summary, length=2)
 
         creation = summary.get('creation')
         self.assertEqual(TYPE_CREATION, creation.type)
@@ -75,8 +73,7 @@ class CremeHistoryTagsTestCase(CremeTestCase):
         self.assertFalse(HistoryLine.objects.filter(entity=togame.id))
 
         summary = creme_history.history_summary(entity=togame, user=user)
-        self.assertIsInstance(summary, dict)
-        self.assertEqual(2, len(summary))
+        self.assertIsDict(summary, length=2)
 
         creation = summary.get('creation')
         self.assertIsInstance(creation, HistoryLine)

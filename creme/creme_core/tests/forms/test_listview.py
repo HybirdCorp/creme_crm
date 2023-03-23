@@ -1240,8 +1240,7 @@ class SearchFormTestCase(CremeTestCase):
         )
 
         fields = form.fields
-        self.assertIsInstance(fields, dict)
-        self.assertEqual(2, len(fields))
+        self.assertIsDict(fields, length=2)
         self.assertIsInstance(fields.get(fname_cell.key), lv_forms.RegularCharField)
         self.assertIsInstance(fields.get(birth_cell.key), lv_forms.RegularDateField)
 

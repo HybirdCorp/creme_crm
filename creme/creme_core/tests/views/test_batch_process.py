@@ -152,7 +152,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                 _('{field} ➔ {operator}').format(
                     field=_('Name'),
                     operator=_('To upper case'),
-                )
+                ),
             ],
             job.description,
         )

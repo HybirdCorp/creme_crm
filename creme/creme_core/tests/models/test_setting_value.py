@@ -308,8 +308,7 @@ class SettingValueTestCase(CremeTestCase):
                 {'key': sk2},     # <= Key instance
             )
 
-        self.assertIsInstance(svalues, dict)
-        self.assertEqual(2, len(svalues))
+        self.assertIsDict(svalues, length=2)
 
         sv1 = svalues.get(sk1.id)
         self.assertIsInstance(sv1, SettingValue)

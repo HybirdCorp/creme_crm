@@ -1191,8 +1191,7 @@ class BrickTestCase(CremeTestCase):
                 brick_ids=[TestBrick1.id, TestBrick2.id],
             )
 
-        self.assertIsInstance(states, dict)
-        self.assertEqual(2, len(states))
+        self.assertIsDict(states, length=2)
 
         # state1 = states.get(TestBrick1.id_)
         state1 = states.get(TestBrick1.id)
@@ -1243,8 +1242,7 @@ class BrickTestCase(CremeTestCase):
             # brick_ids=[TestBrick1.id_, TestBrick2.id_],
             brick_ids=[TestBrick1.id, TestBrick2.id],
         )
-        self.assertIsInstance(states, dict)
-        self.assertEqual(2, len(states))
+        self.assertIsDict(states, length=2)
         # self.assertEqual(stored_state1, states.get(TestBrick1.id_))
         self.assertEqual(stored_state1, states.get(TestBrick1.id))
 

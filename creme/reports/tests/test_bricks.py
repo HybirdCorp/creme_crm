@@ -643,10 +643,7 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         url_fetch_asc = self._build_fetchfrombrick_url(item, invoice, 'ASC')
         with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
             result_asc = self.assertGET200(url_fetch_asc).json()
-
-            self.assertIsInstance(result_asc, dict)
-            self.assertEqual(2, len(result_asc))
-
+            self.assertIsDict(result_asc, length=2)
             self.assertListEqual(['10/2014', '11/2014'], result_asc.get('x'))
 
             y_asc = result_asc.get('y')

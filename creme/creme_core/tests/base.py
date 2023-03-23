@@ -301,6 +301,23 @@ class _CremeTestCase:
 
             self.fail(msg)
 
+    def assertIsDict(self, o, **kwargs):
+        self.assertIsInstance(o, dict)
+
+        length = len(o)
+        for k, v in kwargs.items():
+            if k == 'length':
+                if length != v:
+                    self.fail(f'This dict has not the expected length of {v}: {o}')
+            elif k == 'min_length':
+                if length < v:
+                    self.fail(f'This dict is not longer than {v}: {o}')
+            elif k == 'max_length':
+                if length > v:
+                    self.fail(f'This dict is not shorter than {v}: {o}')
+            else:
+                raise ValueError(f'assertIsDict: unknown argument "{k}"')
+
     def assertIsList(self, o, **kwargs):
         self.assertIsInstance(o, list)
 

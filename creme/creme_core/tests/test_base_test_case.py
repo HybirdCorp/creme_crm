@@ -305,6 +305,62 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm5.exception),
         )
 
+    def test_assertIsDict(self):
+        empty_dict = {}
+        self.assertIsDict(empty_dict)
+
+        with self.assertRaises(self.failureException) as cm1:
+            self.assertIsDict(())
+        self.assertEqual(
+            "() is not an instance of <class 'dict'>",
+            str(cm1.exception),
+        )
+
+        # ---
+        self.assertIsDict(empty_dict, length=0)
+
+        self.assertIsDict(empty_dict, max_length=0)
+        self.assertIsDict(empty_dict, max_length=1)
+
+        self.assertIsDict(empty_dict, min_length=0)
+
+        with self.assertRaises(ValueError) as cm2:
+            self.assertIsDict(empty_dict, invalid=12)
+        self.assertEqual(
+            'assertIsDict: unknown argument "invalid"',
+            str(cm2.exception),
+        )
+
+        # ---
+        dict1 = {1: 'a'}
+        self.assertIsDict(dict1, length=1)
+        self.assertIsDict(dict1, max_length=1)
+
+        self.assertIsDict(dict1, min_length=0)
+        self.assertIsDict(dict1, min_length=1)
+
+        # ---
+        with self.assertRaises(self.failureException) as cm3:
+            self.assertIsDict(empty_dict, length=1)
+        self.assertEqual(
+            'This dict has not the expected length of 1: {}',
+            str(cm3.exception),
+        )
+
+        with self.assertRaises(self.failureException) as cm4:
+            self.assertIsDict(dict1, max_length=0)
+        self.assertEqual(
+            "This dict is not shorter than 0: {1: 'a'}",
+            str(cm4.exception),
+        )
+
+        with self.assertRaises(self.failureException) as cm5:
+            self.assertIsDict(empty_dict, min_length=1)
+        self.assertEqual(
+            'This dict is not longer than 1: {}',
+            str(cm5.exception),
+        )
+
     def test_assertIsTuple(self):
         self.assertIsTuple((),     length=0)
         self.assertIsTuple((1,),   length=1)

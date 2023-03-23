@@ -191,21 +191,19 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual('regular_field-sector', abs_info.cell.key)
 
         # ------------------------------------------------------------
-        response = self.assertGET200(rgraph.get_absolute_url())
-        self.assertTemplateUsed(response, 'reports/view_graph.html')
+        response3 = self.assertGET200(rgraph.get_absolute_url())
+        self.assertTemplateUsed(response3, 'reports/view_graph.html')
 
         with self.assertNoException():
-            chart_registry = response.context['report_charts']
+            chart_registry = response3.context['report_charts']
 
         from ..report_chart_registry import report_chart_registry
         self.assertIs(chart_registry, report_chart_registry)
 
         # ------------------------------------------------------------
-        response = self.assertGET200(self._build_fetch_url(rgraph, 'ASC'))
-        data = response.json()
-
-        self.assertIsInstance(data, dict)
-        self.assertEqual(2, len(data))
+        response4 = self.assertGET200(self._build_fetch_url(rgraph, 'ASC'))
+        data = response4.json()
+        self.assertIsDict(data, length=2)
 
         sectors = FakeSector.objects.all()
         x_asc = data.get('x')
@@ -216,9 +214,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListEqual(
             [
                 0,
-                '/tests/organisations?q_filter={}'.format(
-                    self._serialize_qfilter(sector=sectors[0].id),
-                ),
+                f'/tests/organisations?q_filter={self._serialize_qfilter(sector=sectors[0].id)}',
             ],
             y_asc[0],
         )
