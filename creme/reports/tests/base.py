@@ -137,8 +137,7 @@ class BaseReportsTestCase(CremeTestCase):
                 qfilter = json_load(qfilters[0])
 
             expected_qfilter = json_load(q_serializer.dumps(expected_q))
-            self.assertIsInstance(qfilter, dict)
-            self.assertEqual(2, len(qfilter))
+            self.assertIsDict(qfilter, length=2)
             self.assertEqual(expected_qfilter['op'], qfilter['op'])
             # TODO: improve for nested Q...
             self.assertCountEqual(expected_qfilter['val'], qfilter['val'])

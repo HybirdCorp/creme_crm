@@ -657,8 +657,7 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         with self.assertNoException():
             jdata = job.data
 
-        self.assertIsInstance(jdata, dict)
-        self.assertEqual(1, len(jdata))
+        self.assertIsDict(jdata, length=1)
 
         user_id = jdata.get('user')
         self.assertIsNotNone(user_id)

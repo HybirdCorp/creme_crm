@@ -373,8 +373,7 @@ class FieldsConfigTestCase(CremeTestCase):
         with self.assertNumQueries(1):
             fconfigs = FieldsConfig.objects.get_for_models([model1, model2])
 
-        self.assertIsInstance(fconfigs, dict)
-        self.assertEqual(2, len(fconfigs))
+        self.assertIsDict(fconfigs, length=2)
 
         fc1 = fconfigs.get(model1)
         self.assertIsInstance(fc1, FieldsConfig)
