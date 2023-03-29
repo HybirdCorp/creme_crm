@@ -503,6 +503,9 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(2, len(result))
         self.assertEqual('"","Wong","Edward","","is a girl"', result[1])
 
+        # Error
+        self.assertGET(400, self._build_contact_dl_url(extra_q='[123]'))
+
     def test_list_view_export_with_filter01(self):
         user = self.login()
         hf = self._build_hf_n_contacts()
