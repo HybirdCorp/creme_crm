@@ -1,5 +1,11 @@
 == Version 2.3.12 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # In mass-export, private EntityFilters belonging to other users could be used (by forging manually the URL).
+      Notice that it's not a security issue, but more a fix to get a more consistent behaviour.
+
+
 == Version 2.3.11 ==
 
   UPGRADE NOTE :
@@ -8,23 +14,18 @@
 
   Users side :
   ------------
-    # The render of history lines on fields with "choices" attribute & <null=True> has been fixed
-      (this case does not exist in vanilla).
-    # Apps :
-        * Assistants :
-            - The deadline of validated Alerts & ToDos is now displayed in blue.
-
-  Users side :
-  ------------
     # Some escaping issues have been fixed.
     # The description of filter conditions on fields with a "choices" attribute has been fixed
       (the label is displayed now, not the internal value anymore).
+    # The render of history lines on fields with "choices" attribute & <null=True> has been fixed
+      (this case does not exist in vanilla).
     # Apps :
         * Creme_config :
             - An issue with re-ordering of instances (when moving after the last line) has been fixed.
-
         * Activities :
             - The 'color' field was missing in the Calendar block of "My settings".
+        * Assistants :
+            - The deadline of validated Alerts & ToDos is now displayed in blue.
 
   Developers side :
   -----------------
