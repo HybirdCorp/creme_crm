@@ -1,5 +1,10 @@
 == Version 2.4.3 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # In mass-export, private EntityFilters belonging to other users could be used (by forging manually the URL).
+      Notice that it's not a security issue, but more a fix to get a more consistent behaviour.
+
 == Version 2.4.2 ==
 
   Users side :
