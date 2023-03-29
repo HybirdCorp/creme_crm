@@ -2,8 +2,11 @@
 
   Users side :
   ------------
-    # In mass-export, private EntityFilters belonging to other users could be used (by forging manually the URL).
-      Notice that it's not a security issue, but more a fix to get a more consistent behaviour.
+    # In mass-export :
+        - Private EntityFilters belonging to other users could be used (by forging manually the URL).
+          Notice that it's not a security issue, but more a fix to get a more consistent behaviour.
+        - The management of badly serialized Q has been improved (error 400 instead of error 500).
+
 
 == Version 2.4.2 ==
 
