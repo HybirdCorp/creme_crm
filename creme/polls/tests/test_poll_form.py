@@ -1,6 +1,7 @@
 from functools import partial
 from json import dumps as json_dump
 from json import loads as json_load
+from urllib.parse import urlencode
 
 from django.contrib.contenttypes.models import ContentType
 from django.test.utils import override_settings
@@ -152,10 +153,12 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
         hat_node = self.get_brick_node(tree, brick=Brick.GENERIC_HAT_BRICK_ID)
+        edition_params = {'callback_url': pform.get_absolute_url()}
         self.assertListEqual(
             [
                 reverse('polls__form_stats', args=(pform.id,)),
-                pform.get_edit_absolute_url(),
+                # pform.get_edit_absolute_url(),
+                f'{pform.get_edit_absolute_url()}?{urlencode(edition_params)}',
                 pform.get_delete_absolute_url(),
                 pform.get_clone_absolute_url(),
             ],

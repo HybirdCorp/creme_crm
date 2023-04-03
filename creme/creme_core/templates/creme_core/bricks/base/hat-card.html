@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/base.html' %}
 {% load i18n creme_bricks creme_ctype creme_widgets %}
-{% load has_perm_to url from creme_core_tags%}
+{% load has_perm_to url url_join from creme_core_tags%}
 
 {% block brick_extra_class %}brick-hat brick-hat-card{% endblock %}
 
@@ -93,11 +93,12 @@
                     {% with edit_url=object.get_edit_absolute_url %}
                     {% if edit_url %}
                     <div class='card-action'>
-                        {% if edit_perm %}
-                        <a class="card-button card-button-icon" href="{{edit_url}}" >
-                        {% else %}
+                      {% if edit_perm %}
+{#                        <a class="card-button card-button-icon" href="{{edit_url}}" > #}
+                        <a class="card-button card-button-icon" href="{% url_join edit_url callback_url=request.get_full_path %}" >
+                      {% else %}
                         <a class="card-button card-button-icon forbidden is-disabled">
-                        {% endif %}
+                      {% endif %}
                             {% translate 'Edit' as label %}{% widget_icon name='edit' size='brick-hat-card-button' label=label %}{{label}}
                         </a>
                     </div>

@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/base.html' %}
 {% load i18n creme_bricks creme_ctype creme_widgets %}
-{% load get_meta_value has_perm_to url from creme_core_tags %}
+{% load get_meta_value has_perm_to url url_join from creme_core_tags %}
 
 {% block brick_extra_class %}brick-hat brick-hat-bar{% endblock %}
 
@@ -12,14 +12,12 @@
         <div class="bar-icon">{% block icon %}{% widget_icon instance=object size='brick-hat-bar' %}{% endblock %}</div>
         <div class="bar-title">
             <h1>
-                {% block title %}
-                    {{object|get_meta_value:'verbose_name'|capfirst}} : {{object|capfirst}}
-                {% endblock %}
-                {% if object.is_deleted %}
+              {% block title %}{{object|get_meta_value:'verbose_name'|capfirst}} : {{object|capfirst}}{% endblock %}
+              {% if object.is_deleted %}
                 <span class="bar-deleted-indicator">[{% translate 'Entity in the trash' %}]</span>
-                {% elif object.sandbox %}
+              {% elif object.sandbox %}
                 <span class="bar-sandboxed-indicator">[{{object.sandbox.type.verbose_name}}]</span>
-                {% endif %}
+              {% endif %}
             </h1>
         </div>
         <div class="bar-actions">
@@ -29,11 +27,12 @@
                     {% with edit_url=object.get_edit_absolute_url %}
                     {% if edit_url %}
                        <div class='bar-action'>
-                           {% if edit_perm %}
-                           <a class="bar-button" href="{{edit_url}}" >
-                           {% else %}
+                         {% if edit_perm %}
+{#                           <a class="bar-button" href="{{edit_url}}" > #}
+                           <a class="bar-button" href="{% url_join edit_url callback_url=request.get_full_path %}" >
+                         {% else %}
                            <a class="bar-button forbidden is-disabled">
-                           {% endif %}
+                         {% endif %}
                                {% widget_icon name='edit' size='brick-hat-bar-button' label=_('Edit') %}
                            </a>
                        </div>
