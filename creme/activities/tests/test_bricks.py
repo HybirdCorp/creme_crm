@@ -702,6 +702,39 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         ))
         self.assertRelationCount(1, dojo, REL_SUB_ACTIVITY_SUBJECT, activity)
 
+    def test_add_participants08(self):
+        "I already participate + the selected team includes me."
+        user = self.login()
+        other_user = self.other_user
+
+        team = get_user_model().objects.create(username='A-team', is_team=True)
+        team.teammates = [user, other_user]
+
+        activity = self._create_meeting()
+        Relation.objects.create(
+            user=user,
+            subject_entity=user.linked_contact,
+            type_id=REL_SUB_PART_2_ACTIVITY,
+            object_entity=activity,
+        )
+        cal1 = Calendar.objects.get_default_calendar(user)
+        activity.calendars.add(cal1)
+
+        self.assertNoFormError(self.client.post(
+            self._build_add_participants_url(activity),
+            data={'participating_users': [team.id]},
+        ))
+        self.assertRelationCount(
+            1, user.linked_contact, REL_SUB_PART_2_ACTIVITY, activity,
+        )
+        self.assertRelationCount(
+            1, other_user.linked_contact, REL_SUB_PART_2_ACTIVITY, activity,
+        )
+        self.assertCountEqual(
+            [cal1, Calendar.objects.get_default_calendar(other_user)],
+            activity.calendars.all(),
+        )
+
     @skipIfCustomContact
     def test_remove_participants01(self):
         user = self.login(is_superuser=False)
