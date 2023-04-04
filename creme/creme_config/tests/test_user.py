@@ -957,12 +957,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             first_name='Yukiji', last_name='Setoguchi', email='yukiji@century.jp',
         )
 
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             follow=True,
             data={'username': 'Team-A', 'teammates': [user01.id, user02.id]},
-        )
-        self.assertNoFormError(response)
+        ))
 
         teams = User.objects.filter(is_team=True)
         self.assertEqual(1, len(teams))
@@ -979,6 +978,13 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn(user02.id, teammates)
 
         self.assertFalse(Contact.objects.filter(is_user=team))
+
+        # Beware of email uniqueness not check (BUG)
+        self.assertNoFormError(self.client.post(
+            url,
+            follow=True,
+            data={'username': 'Team-B', 'teammates': [user02.id]},
+        ))
 
     @skipIfNotCremeUser
     def test_create_team02(self):
