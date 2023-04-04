@@ -971,20 +971,21 @@ class CremeUser(AbstractBaseUser):
         return self.get_full_name()
 
     def clean(self):
-        # TODO: team + role= None etc... (+ split in sub methods)
-        email = self.email
-        qs = type(self)._default_manager.filter(is_active=True, email=email)
+        # TODO: split in sub methods?
+        if not self.is_team:
+            email = self.email
+            qs = type(self)._default_manager.filter(is_active=True, email=email)
 
-        if self.id:
-            qs = qs.exclude(id=self.id)
+            if self.id:
+                qs = qs.exclude(id=self.id)
 
-        if qs.exists():
-            raise ValidationError({
-                'email': ValidationError(
-                    self.error_messages['used_email'],
-                    code='used_email',
-                ),
-            })
+            if qs.exists():
+                raise ValidationError({
+                    'email': ValidationError(
+                        self.error_messages['used_email'],
+                        code='used_email',
+                    ),
+                })
 
     def get_full_name(self) -> str:
         if self.is_team:
