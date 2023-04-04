@@ -131,6 +131,23 @@ class CredentialsTestCase(CremeTestCase):
         with self.assertNoException():
             user.clean()
 
+    def test_clean_team(self):
+        "Do not check email uniqueness with teams."
+        team1 = CremeUser.objects.create(username='teamA', is_team=True)
+        self.assertFalse(team1.email)
+
+        with self.assertNoException():
+            team1.clean()
+
+        team1.save()
+
+        # ---
+        team2 = CremeUser.objects.create(username='teamB', is_team=True)
+        self.assertFalse(team2.email)
+
+        with self.assertNoException():
+            team2.clean()
+
     def test_manager_create_user(self):
         username = 'kanna'
         first_name = 'Kanna'
