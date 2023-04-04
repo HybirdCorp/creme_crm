@@ -1,19 +1,7 @@
-# from creme.settings import INSTALLED_CREME_APPS, INSTALLED_DJANGO_APPS
-#
-# SECRET_KEY = "CircleCi-Secret-Key"
-#
-# INSTALLED_DJANGO_APPS.extend([
-#     'django_extensions',
-# ])
-#
-# INSTALLED_CREME_APPS.extend([
-#     'creme.sms',  # Work In Progress
-#     'creme.cti',
-#     'creme.polls',  # Need 'commercial'
-#     'creme.mobile',
-# ])
+# import warnings
 from pathlib import Path
 
+# from django.utils import deprecation
 from creme.settings import *  # NOQA
 from creme.settings import CREME_ROOT, INSTALLED_APPS
 
@@ -48,6 +36,11 @@ GEOLOCATION_TOWNS = [
         {'country': 'France'}
     ),
 ]
+
+# TODO? (many USE_i18N use are annoying)
+# # Transform some warnings into errors
+# warnings.filterwarnings(action='error', category=deprecation.RemovedInNextVersionWarning)
+# warnings.filterwarnings(action='error', category=deprecation.RemovedAfterNextVersionWarning)
 
 try:
     from .local_settings import *  # NOQA
