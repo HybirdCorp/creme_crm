@@ -2118,7 +2118,7 @@ class CredentialsTestCase(CremeTestCase):
 
         role.delete()
         self.assertFalse(UserRole.objects.filter(pk=role.id))
-        self.assertFalse(SetCredentials.objects.filter(role=role))
+        self.assertFalse(SetCredentials.objects.filter(role=role.id))
 
     def test_delete02(self):
         "Can not delete a role linked to a user."
