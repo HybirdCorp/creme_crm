@@ -9,6 +9,8 @@
     # Apps :
         * Creme_config :
             - A crash in the view to create new teams has been fixed.
+        * Activities :
+            - A crash when adding a team as participant has been fixed.
 
   Developers side :
   -----------------
