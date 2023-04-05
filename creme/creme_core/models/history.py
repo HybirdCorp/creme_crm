@@ -1017,13 +1017,23 @@ class HistoryLine(Model):
 
         return cls.objects.create(**kwargs)
 
-    def save(self, *args, **kwargs):
+    # def save(self, *args, **kwargs):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if update_fields is not None:
+            raise ValueError('Argument "update_fields" not managed.')
+
         if self.ENABLED:
             # if self.pk is None: TODO ?
             user = get_global_info('user')
             self.username = user.username if user else ''
 
-            super().save(*args, **kwargs)
+            # super().save(*args, **kwargs)
+            super().save(
+                force_insert=force_insert,
+                force_update=force_update,
+                using=using,
+                update_fields=update_fields,
+            )
 
     @property
     def user(self):

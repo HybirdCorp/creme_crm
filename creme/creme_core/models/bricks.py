@@ -704,6 +704,8 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
         return f'{cls._brick_id_prefix}_{app_name}-{name}'
 
     def save(self, **kwargs):
+        # Should we manage argument 'update_fields'? (if you set explicitly the
+        # extra data you probably save() the field explicitly...)
         self.json_extra_data = self._extra_data
         super().save(**kwargs)
 
@@ -888,5 +890,7 @@ class BrickState(CremeModel):
         return old_value != value
 
     def save(self, **kwargs):
+        # Should we manage argument 'update_fields'? (if you set explicitly the
+        # extra data you probably save() the field explicitly...)
         self.json_extra_data = self._extra_data
         super().save(**kwargs)

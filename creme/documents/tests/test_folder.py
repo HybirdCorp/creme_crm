@@ -37,6 +37,29 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         cls.ADD_URL  = reverse('documents__create_folder')
         cls.LIST_URL = reverse('documents__list_folders')
 
+    def test_save(self):
+        user = self.create_user()
+        title = 'Test folder'
+        create_folder = partial(Folder.objects.create, user=user)
+        folder = create_folder(title=title)
+        self.assertEqual(user,  folder.user)
+        self.assertEqual(title, folder.title)
+        self.assertFalse(folder.description)
+        self.assertIsNone(folder.parent_folder)
+        self.assertIsNone(folder.category)
+
+        category = FolderCategory.objects.first()
+        self.assertIsNotNone(category)
+
+        parent_folder = create_folder(title='Parent', category=category)
+        self.assertEqual(category, parent_folder.category)
+
+        folder.parent_folder = parent_folder
+        folder.save(update_fields=['parent_folder'])
+        folder.refresh_from_db()
+        self.assertEqual(parent_folder, folder.parent_folder)
+        self.assertEqual(category,      folder.category)
+
     def test_createview01(self):
         "No parent folder."
         user = self.login()
@@ -65,7 +88,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertIsNone(folder.category)
 
     def test_createview02(self):
-        "Parent folder"
+        "Parent folder."
         user = self.login()
         url = self.ADD_URL
 

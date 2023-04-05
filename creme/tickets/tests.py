@@ -107,6 +107,65 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             template.render(Context({**ctxt, 'tag': ViewTag.HTML_DETAIL})),
         )
 
+    def test_save(self):
+        user = self.create_user()
+        title = 'Test ticket'
+        description = 'Test description'
+        status1 = Status.objects.get(pk=OPEN_PK)
+        priority = Priority.objects.all()[0]
+        criticity = Criticity.objects.all()[0]
+        ticket = Ticket.objects.create(
+            user=user,
+            title=title,
+            description=description,
+            status=status1,
+            priority=priority,
+            criticity=criticity,
+        )
+        self.assertIsInstance(ticket, Ticket)
+        self.assertEqual(status1,     ticket.status)
+        self.assertEqual(priority,    ticket.priority)
+        self.assertEqual(criticity,   ticket.criticity)
+        self.assertEqual(title,       ticket.title)
+        self.assertEqual(description, ticket.description)
+        self.assertIsNone(ticket.closing_date)
+
+        # ---
+        status2 = Status.objects.get(pk=INVALID_PK)
+        ticket.status = status2
+        ticket.save()
+        ticket.refresh_from_db()
+        self.assertEqual(status2, ticket.status)
+        self.assertIsNone(ticket.closing_date)
+
+        # ---
+        status3 = Status.objects.create(name='Very closed', is_closed=True)
+        ticket.status = status3
+        ticket.save()
+        ticket.refresh_from_db()
+        self.assertEqual(status3, ticket.status)
+        self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
+
+    def test_save_update_fields(self):
+        user = self.create_user()
+        ticket = Ticket.objects.create(
+            user=user,
+            title='Test ticket',
+            status=Status.objects.get(pk=OPEN_PK),
+            priority=Priority.objects.all()[0],
+            criticity=Criticity.objects.all()[0],
+        )
+
+        status2 = Status.objects.create(name='Very closed', is_closed=True)
+        ticket.status = status2
+        ticket.save(update_fields=['status'])
+        ticket.refresh_from_db()
+        self.assertEqual(status2, ticket.status)
+
+        closing_date = ticket.closing_date
+        self.assertIsNotNone(closing_date)
+        self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
+
     def test_detailview01(self):
         user = self.login()
 

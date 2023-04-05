@@ -1,3 +1,4 @@
+from datetime import timedelta
 from decimal import Decimal
 from functools import partial
 
@@ -54,8 +55,41 @@ class EntityTestCase(CremeTestCase):
         self.assertDatetimesAlmostEqual(now_value, entity.created)
         self.assertDatetimesAlmostEqual(now_value, entity.modified)
 
+    def test_entity_save01(self):
+        "No update_fields."
+        orga = FakeOrganisation.objects.create(user=self.user, name='Nerv')
+        FakeOrganisation.objects.filter(id=orga.id).update(
+            modified=orga.modified - timedelta(days=10),
+        )
+
+        orga.description = description = 'whatever'
+        orga.name += ' inc.'
+        orga.save()  # Should update 'modified' & 'header_filter_search_field'
+
+        orga.refresh_from_db()
+        self.assertDatetimesAlmostEqual(now(), orga.modified)
+        self.assertEqual('Nerv inc.', orga.header_filter_search_field)
+        self.assertEqual(description, orga.description)
+
+    def test_entity_save02(self):
+        "With update_fields."
+        orga = FakeOrganisation.objects.create(user=self.user, name='Nerv')
+        FakeOrganisation.objects.filter(id=orga.id).update(
+            modified=orga.modified - timedelta(days=10),
+        )
+
+        orga.description = 'whatever'
+        orga.name += ' inc.'
+        # Should update 'modified' & 'header_filter_search_field'
+        orga.save(update_fields=['name'])
+
+        orga.refresh_from_db()
+        self.assertDatetimesAlmostEqual(now(), orga.modified)
+        self.assertEqual('Nerv inc.', orga.header_filter_search_field)
+        self.assertFalse(orga.description)
+
     def test_manager01(self):
-        "Ordering NULL values as 'low'"
+        "Ordering NULL values as 'low'."
         # NB: we should not use NULL & '' values at the same time, because they are
         # separated by the ordering, but they are equal for the users.
         create_contact = partial(FakeContact.objects.create, user=self.user)
@@ -84,7 +118,7 @@ class EntityTestCase(CremeTestCase):
         )
 
     def test_manager02(self):
-        "Ordering NULL values as 'low' (FK)"
+        "Ordering NULL values as 'low' (FK)."
         create_sector = FakeSector.objects.create
         s1 = create_sector(title='Hatake')
         s2 = create_sector(title='Uzumaki')

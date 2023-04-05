@@ -313,6 +313,29 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.create_user(is_active=False)
         self.assertFalse(Calendar.objects.filter(user=user))
 
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
+    def test_save(self):
+        "Save() + update_fields."
+        user = self.create_user()
+
+        calendar1 = self.get_object_or_fail(Calendar, user=user)
+        self.assertTrue(calendar1.is_default)
+
+        calendar2 = Calendar.objects.create(user=user, name='Calendar 2')
+        self.assertFalse(calendar2.is_default)
+
+        # You should not do this, because there is a moment with no default calendar
+        Calendar.objects.filter(id=calendar1.id).update(is_default=False)
+
+        calendar2.name = name2 = 'Other calendar'
+        calendar2.save(update_fields=['name'])
+
+        calendar2.refresh_from_db()
+        self.assertEqual(name2, calendar2.name)
+        self.assertTrue(calendar2.is_default)
+
+        self.assertFalse(self.refresh(calendar1).is_default)
+
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
     def test_calendar_view01(self):
         "No calendars selected ; default calendar exists."

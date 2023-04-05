@@ -205,7 +205,8 @@ class Calendar(CremeModel):
                 def_cal._enable_default_checking = False
                 def_cal.save()
 
-    def save(self, *args, **kwargs):
+    # def save(self, *args, **kwargs):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         mngr = type(self).objects
 
         # if not self.color:
@@ -219,8 +220,16 @@ class Calendar(CremeModel):
             and not mngr.filter(user=self.user, is_default=True).exists()
         ):
             self.is_default = True
+            if update_fields is not None:
+                update_fields = {'is_default', *update_fields}
 
-        super().save(*args, **kwargs)
+        # super().save(*args, **kwargs)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
 
         if check and self.is_default:
             mngr.filter(user=self.user, is_default=True) \

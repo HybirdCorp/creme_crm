@@ -29,18 +29,22 @@
 
   Developers side :
   -----------------
-    - The version of 'Django' is now "4.1".
+    - The version of 'Django' is now "4.2".
       You should probably read the following releases notes for Django versions :
-        - https://docs.djangoproject.com/en/4.1/releases/4.0/
+        - https://docs.djangoproject.com/en/4.2/releases/4.0/
           Some important items :
             - The 'settings.py' value 'USE_L10N' is now deprecated.
             - The 'settings.py' value ALLOWED_HOSTS must be a list.
             - In classes inheriting 'django.template.Node', the method 'render()' must return a string.
-        - https://docs.djangoproject.com/en/4.1/releases/4.1/
+        - https://docs.djangoproject.com/en/4.2/releases/4.1/
           Some important items :
             - The method 'assertFormError()' should now take a form instance.
             - The logout view should be used with a POST request.
             - A reverse FK now raises ValueError when calling related managers for unsaved objects.
+        - https://docs.djangoproject.com/en/4.2/releases/4.2/
+          Some important items :
+             - Attributes 'index_together' of your Meta classes should be replaces by 'indexes'.
+             - Beware to the argument 'update_fields' in your custom methods 'save()' for models.
     - New versions of libraries :
         - bleach 5.0 -> 6.0
         - Pillow 9.2+ -> 9.4+

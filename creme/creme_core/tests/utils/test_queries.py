@@ -41,7 +41,8 @@ class QSerializerTestCase(CremeTestCase):
 
     def _assertQIsOK(self, q, entities, model=None):
         model = model or entities[0].__class__
-        self.assertQuerysetEqual(
+        # self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             model.objects.filter(q), entities, transform=lambda e: e,
         )
 
