@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -105,6 +105,7 @@ class AbstractDocument(CremeEntity):
                 self.mime_type = other_models.MimeType.objects.get_or_create(name=mime_name)[0]
 
         if not self.title:
+            # TODO: manage argument "update_fields"? (title set as creation anyway)
             # TODO: truncate but keep extension if possible ?
             assign_2_charfield(self, 'title', basename(self.filedata.path))
 

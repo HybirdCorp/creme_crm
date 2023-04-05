@@ -99,8 +99,15 @@ class CremeEntity(CremeModel):
         verbose_name = 'Entity'
         verbose_name_plural = 'Entities'
         ordering = ('header_filter_search_field',)  # NB: order by id on a FK can cause a crashes
-        index_together = [
-            ['entity_type', 'is_deleted'],  # Optimise the basic COUNT in list-views
+        # index_together = [
+        #     ['entity_type', 'is_deleted'],  # Optimise the basic COUNT in list-views
+        # ]
+        indexes = [
+            # Optimise the basic COUNT in list-views
+            models.Index(
+                fields=['entity_type', 'is_deleted'],
+                name='core__entity__basic_count',
+            ),
         ]
 
     def __init__(self, *args, **kwargs):
@@ -371,14 +378,29 @@ class CremeEntity(CremeModel):
             logger.debug('Fill properties cache entity_id=%s', entity_id)
             entity._properties = properties_map[entity_id]
 
-    def save(self, *args, **kwargs):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.header_filter_search_field = self._search_field_value()[:_SEARCH_FIELD_MAX_LENGTH]
 
-        super().save(*args, **kwargs)
-        logger.debug('CremeEntity.save(%s, %s)', args, kwargs)
+        if update_fields is not None:
+            update_fields = {
+                'modified',
+                'header_filter_search_field',  # TODO: only if modified
+                *update_fields,
+            }
+
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
+        logger.debug(
+            'CremeEntity.save(force_insert=%, force_update=%s, using=%s, update_fields=%s)',
+            force_insert, force_update, using, update_fields,
+        )
 
     def _search_field_value(self):
-        """Overload this method if you want to customise the value to search
+        """Override this method if you want to customise the value to search
         on your CremeEntity type.
         """
         return str(self)

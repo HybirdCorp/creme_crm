@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -465,6 +465,10 @@ class Base(CremeEntity):
         else:  # Edition
             self.invalidate_cache()
 
+            # Its seems it's not useful to extend update_fields because Line.save(),
+            # which garanties the totals are updated, does not use <update_fields> :
+            #    if update_fields is not None:
+            #        update_fields = { 'total_vat', 'total_no_vat', *update_fields}
             self.total_vat    = self._get_total_with_tax()
             self.total_no_vat = self._get_total()
 

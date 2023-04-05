@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -112,10 +112,13 @@ class AbstractTicket(TicketMixin):
         return attrs
 
     @atomic
-    def save(self, *args, **kwargs):
+    # def save(self, *args, **kwargs):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.pk:
             if self.status.is_closed and self.closing_date is None:
                 self.closing_date = now()
+                if update_fields is not None:
+                    update_fields = {'closing_date', *update_fields}
         else:  # Creation
             self.status_id = self.status_id or OPEN_PK
 
@@ -124,7 +127,13 @@ class AbstractTicket(TicketMixin):
             self.number = number_id
             TicketNumber.objects.filter(id__lt=number_id).delete()
 
-        super().save(*args, **kwargs)
+        # super().save(*args, **kwargs)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
 
 
 class Ticket(AbstractTicket):

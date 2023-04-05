@@ -131,11 +131,15 @@ class DBTestCase(CremeTestCase):
 
     def test_indexed_ordering01(self):
         "FakeOrganisation."
-        self.assertEqual(
-            (
-                ('name', 'cremeentity_ptr'),
-            ),
-            FakeOrganisation._meta.index_together,
+        # self.assertEqual(
+        #     (
+        #         ('name', 'cremeentity_ptr'),
+        #     ),
+        #     FakeOrganisation._meta.index_together,
+        # )
+        self.assertIn(
+            ['name', 'cremeentity_ptr'],
+            [index.fields for index in FakeOrganisation._meta.indexes],
         )
 
         self.assertIsNone(get_indexed_ordering(FakeOrganisation, ['phone']))
@@ -168,11 +172,15 @@ class DBTestCase(CremeTestCase):
 
     def test_indexed_ordering02(self):
         "FakeContact."
-        self.assertEqual(
-            (
-                ('last_name', 'first_name', 'cremeentity_ptr'),
-            ),
-            FakeContact._meta.index_together,
+        # self.assertEqual(
+        #     (
+        #         ('last_name', 'first_name', 'cremeentity_ptr'),
+        #     ),
+        #     FakeContact._meta.index_together,
+        # )
+        self.assertIn(
+            ['last_name', 'first_name', 'cremeentity_ptr'],
+            [index.fields for index in FakeContact._meta.indexes],
         )
 
         self.assertIsNone(get_indexed_ordering(FakeContact, ['phone']))

@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/list.html' %}
 {% load i18n creme_bricks creme_ctype polls_tags %}
-{% load and_op has_perm_to print_field mult url from creme_core_tags %}
+{% load and_op bool has_perm_to print_field mult not_op url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} polls-list-brick polls-form-lines-brick{% endblock %}
 
@@ -37,7 +37,8 @@
             {% brick_action id='add' url='polls__create_child_form_section'|url:node.id   label=_('New sub-section') class='poll-action' enabled=has_perm %}
         </div>
         {% elif node.disabled %}
-        {% with no_deps=node.get_reversed_conditions|length_is:"0" %}
+{#        {% with no_deps=node.get_reversed_conditions|length_is:"0" %} #}
+        {% with no_deps=node.get_reversed_conditions|length|bool|not_op %}
         <div class="poll-group poll-forbidden">
             <div class="poll-title">
                 <div class="poll-title-number">{% if node.number %}<div>{% poll_node_number style node %}</div>{% endif %}</div>
@@ -50,7 +51,8 @@
         </div>
         {% endwith %}
         {% else %}
-        {% with number=node.number conditions=node.get_conditions no_deps=node.get_reversed_conditions|length_is:"0" %}
+{#        {% with number=node.number conditions=node.get_conditions no_deps=node.get_reversed_conditions|length_is:"0" %} #}
+        {% with number=node.number conditions=node.get_conditions no_deps=node.get_reversed_conditions|length|bool|not_op %}
         <div class="poll-group">
             <div class="poll-title">
                 <div class="poll-title-number">{% if number %}<div style="{% poll_node_css style node %}">{% poll_node_number style node %}</div>{% endif %}</div>

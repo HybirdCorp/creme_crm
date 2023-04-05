@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2022  Hybird
+#    Copyright (C) 2013-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,13 +49,20 @@ class Vat(MinionModel):
         ordering = ('value',)
 
     @atomic
-    def save(self, *args, **kwargs):
+    # def save(self, *args, **kwargs):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.is_default:
             type(self).objects.update(is_default=False)
         elif not type(self).objects.filter(is_default=True).exclude(pk=self.id).exists():
             self.is_default = True
 
-        super().save(*args, **kwargs)
+        # super().save(*args, **kwargs)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
 
     @atomic
     def delete(self, *args, **kwargs):
