@@ -336,7 +336,7 @@ class CremeEntity(CremeModel):
         if only_required:
             cfields = cfields.filter(is_required=True)
 
-        CremeEntity.populate_custom_values([self], cfields)
+        self.populate_custom_values([self], cfields)
 
         return [(cfield, self.get_custom_value(cfield)) for cfield in cfields]
 
