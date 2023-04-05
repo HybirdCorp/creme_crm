@@ -119,17 +119,21 @@ td p {
 
 .menu_button:not(.forbidden):not(.is-disabled):hover,
 .card-button:not(.forbidden):not(.is-disabled):hover {
-    background: linear-gradient(#ffffff, #f3f3f3);
-    color: #4d4d4d;
+    background: linear-gradient(#fbfcfd, #f3f9fb);
+    color: #0089c3;
 }
 
 .menu_button:not(.forbidden):not(.is-disabled):active,
 .card-button:not(.forbidden):not(.is-disabled):active {
-    background: linear-gradient(#f9f9f9, #ededed);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
-    border-bottom-color: #d7d7d7;
-    border-top-color: #bdbdbd;
-    color: #1a1a1a;
+    background: linear-gradient(#d4f1fb, #e7f4fb);
+    box-shadow: inset 0 2px 2px #19668033;
+
+    border-top-color: #94b6c5;
+    border-left-color: #94b6c5;
+    border-bottom-color: #fff;
+    border-right-color: #fff;
+
+    color: #1c3b48;
 }
 
 .menu_button:first-child {
