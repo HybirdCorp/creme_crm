@@ -60,7 +60,8 @@
         {% blocktranslate with types=models|join:', ' asvar help_msg %}Your search: {{research}}
 
 Concerned types: {{types}}{% endblocktranslate %}
-        {% widget_help_sign message=help_msg|safe %}
+{#        {% widget_help_sign message=help_msg|safe %} #}
+        {% widget_help_sign message=help_msg %}
     {% endif %}
 
     {% if error_message %}
