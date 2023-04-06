@@ -15,7 +15,8 @@
 {% block content %}
     {% with icon_name='edit' icon_label=_('Edit') submit_label=submit_label|default:_('Save the modifications') %}
         {% if not title %}{% blocktranslate asvar form_title %}Edit «{{object}}»{% endblocktranslate %}
-            {% include 'creme_core/generics/blockform/base.html' with title=form_title|safe %}
+{#            {% include 'creme_core/generics/blockform/base.html' with title=form_title|safe %} #}
+            {% include 'creme_core/generics/blockform/base.html' with title=form_title %}
         {% else %}
             {% include 'creme_core/generics/blockform/base-wizard.html' %}
         {% endif %}
