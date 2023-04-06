@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2022  Hybird
+#    Copyright (C) 2019-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 class ReplacingHandler:
     """Manages how to replace a deleted instance used by a ForeignKey by another
     instance.
-    The handler provides a form-field to allow the user to chose which
+    The handler provides a form-field to allow the user to choose which
     replacement to perform, & can build the corresponding instance of
     <creme_core.core.deletion.Replacer>.
 

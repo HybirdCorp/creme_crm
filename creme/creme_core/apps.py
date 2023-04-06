@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -634,6 +634,7 @@ class CremeCoreConfig(CremeAppConfig):
             setting_keys.currency_symbol_key,
         )
 
+    # TODO: set Meta.formfield_callback for Creme(Model)Form instead?
     # TODO: better API + move some code to creme_config ??
     @staticmethod
     def hook_fk_formfield():
