@@ -591,7 +591,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
-    def test_create_user_unique_username(self):
+    def test_create_user_unique_username01(self):
         "Unique username."
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -601,6 +601,32 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             self.ADD_URL,
             data={
                 'username':     user.username,
+                'password_1':   password,
+                'password_2':   password,
+                'first_name':   user.first_name,
+                'last_name':    user.last_name,
+                'email':        'd.knut@eswat.ol',
+                'organisation': orga.id,
+                'relation':     REL_SUB_EMPLOYED_BY,
+            },
+        )
+        self.assertFormError(
+            response.context['form'],
+            field='username',
+            errors=_('A user with that username already exists.'),
+        )
+
+    @skipIfNotCremeUser
+    def test_create_user_unique_username02(self):
+        "Unique username (different case)."
+        user = self.login()
+        orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
+
+        password = 'password'
+        response = self.assertPOST200(
+            self.ADD_URL,
+            data={
+                'username':     user.username.upper(),
                 'password_1':   password,
                 'password_2':   password,
                 'first_name':   user.first_name,

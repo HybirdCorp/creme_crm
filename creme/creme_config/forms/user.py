@@ -33,8 +33,8 @@ from creme.creme_core.models.fields import CremeUserForeignKey
 CremeUser = get_user_model()
 
 
-# TODO: inherit from django.contrib.auth.forms.UserCreationForm
-#       => we need a Mixin to initialize the user in fields  (like HookableForm)
+# TODO: inherit from django.contrib.auth.forms.(Base)UserCreationForm
+#       => we need a Mixin to initialize the user in fields (like HookableForm)
 class UserAddForm(CremeModelForm):
     error_messages = {
         'password_mismatch': auth_forms.UserCreationForm.error_messages['password_mismatch'],
@@ -67,6 +67,20 @@ class UserAddForm(CremeModelForm):
 
         # NB: browser can ignore <em> tag in <option>...
         self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
+
+    # Derived from django.contrib.auth.forms.UserCreationForm
+    def clean_username(self):
+        """Reject usernames that differ only in case."""
+        username = self.cleaned_data.get('username')
+        if (
+            username
+            and self._meta.model.objects.filter(username__iexact=username).exists()
+        ):
+            raise ValidationError(self.instance.unique_error_message(
+                model_class=self._meta.model, unique_check=['username'],
+            ))
+
+        return username
 
     # Copied from django.contrib.auth.forms.UserCreationForm
     def clean_password_2(self):
