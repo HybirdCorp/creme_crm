@@ -591,7 +591,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job = self._create_batchprocess_job(status=Job.STATUS_ERROR)
 
         self.assertPOST200(
-            self._build_delete_url(job), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            # self._build_delete_url(job), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            self._build_delete_url(job), headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertDoesNotExist(job)
 

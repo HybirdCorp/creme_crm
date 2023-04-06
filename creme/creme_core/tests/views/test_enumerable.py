@@ -228,7 +228,8 @@ class EnumerableViewsTestCase(ViewsTestCase):
         self.assertContains(
             self.client.get(
                 self._build_choices_url(models.FakeContact, 'civility'),
-                HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+                # HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+                headers={'X-Requested-With': 'XMLHttpRequest'},
             ),
             _('You are not allowed to access to the app: {}').format(_('Core')),
             status_code=403,

@@ -405,14 +405,16 @@ class ListViewTestCase(ViewsTestCase):
         response = self.assertPOST200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/entities.html')
 
-        response = self.assertPOST200(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        # response = self.assertPOST200(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.assertPOST200(url, headers={'X-Requested-With': 'XMLHttpRequest'})
         self.assertTemplateUsed(response, 'creme_core/generics/entities.html')
 
         response = self.assertPOST200(url, data={'content': 1})
         self.assertTemplateUsed(response, 'creme_core/listview/content.html')
 
         response = self.assertPOST200(
-            url, data={'content': 1}, HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            # url, data={'content': 1}, HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            url, data={'content': 1}, headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertTemplateUsed(response, 'creme_core/listview/content.html')
 
@@ -429,7 +431,8 @@ class ListViewTestCase(ViewsTestCase):
         response2 = self.assertPOST200(
             reverse('creme_core__listview_popup'),
             data={'ct_id': ct_id},
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            # HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertTemplateUsed(response2, 'creme_core/generics/entities-popup.html')
 
@@ -442,7 +445,8 @@ class ListViewTestCase(ViewsTestCase):
         response4 = self.assertPOST200(
             reverse('creme_core__listview_popup'),
             data={'ct_id': ct_id, 'content': 1},
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            # HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertTemplateUsed(response4, 'creme_core/listview/content.html')
 
@@ -556,8 +560,10 @@ class ListViewTestCase(ViewsTestCase):
         post(bebop, swordfish, sort_key='unknown')  # Invalid value
 
         # ajax POST request
-        post(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        post(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        # post(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        post(bebop, swordfish, headers={'X-Requested-With': 'XMLHttpRequest'})
+        # post(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        post(swordfish, bebop, 'DESC', headers={'X-Requested-With': 'XMLHttpRequest'})
 
         state = ListViewState.get_state(self.client, url=self.url)
         self.assertIsNotNone(state)
@@ -610,8 +616,10 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIsNone(state)
 
         # ajax GET request
-        get(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        get(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        # get(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        get(bebop, swordfish, headers={'X-Requested-With': 'XMLHttpRequest'})
+        # get(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        get(swordfish, bebop, 'DESC', headers={'X-Requested-With': 'XMLHttpRequest'})
 
         # state is not saved or update by GET requests.
         state = ListViewState.get_state(self.client, url=self.url)
@@ -651,8 +659,10 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIsNone(state)
 
         # ajax GET request
-        post(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-        post(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        # post(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        post(bebop, swordfish, headers={'X-Requested-With': 'XMLHttpRequest'})
+        # post(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        post(swordfish, bebop, 'DESC', headers={'X-Requested-With': 'XMLHttpRequest'})
 
         # state is not saved or update by GET requests.
         state = ListViewState.get_state(self.client, url=self.url)

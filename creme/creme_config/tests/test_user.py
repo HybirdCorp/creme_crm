@@ -1619,7 +1619,8 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         post('', False)
 
         for language in ('en', 'fr'):
-            response = self.assertGET200(content_url, HTTP_ACCEPT_LANGUAGE=language)
+            # response = self.assertGET200(content_url, HTTP_ACCEPT_LANGUAGE=language)
+            response = self.assertGET200(content_url, headers={'accept-language': language})
             self.assertEqual(language, response['Content-Language'])
 
     @staticmethod
