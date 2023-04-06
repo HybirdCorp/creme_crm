@@ -301,7 +301,8 @@ class EntityViewsTestCase(ViewsTestCase):
         response = self.assertPOST200(
             self.CLONE_URL,
             data={'id': mario.id}, follow=True,
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            # HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertEqual(count + 1, FakeContact.objects.count())
 

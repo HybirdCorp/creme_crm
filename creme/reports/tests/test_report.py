@@ -966,7 +966,11 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertStillExists(report)
 
         # AJAX version
-        self.assertPOST(409, url, data=data, follow=True, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertPOST(
+            409, url, data=data, follow=True,
+            # HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+            headers={'X-Requested-With': 'XMLHttpRequest'},
+        )
         self.assertStillExists(efilter)
         self.assertStillExists(report)
 

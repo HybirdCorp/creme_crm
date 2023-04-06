@@ -340,7 +340,8 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
         response = self.assertPOST200(
             self._build_delete_url(entity),
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            # HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            headers={'X-Requested-With': 'XMLHttpRequest'},
         )
 
         with self.assertNoException():
@@ -364,7 +365,8 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
         response = self.assertPOST200(
             self._build_delete_url(entity),
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            # HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertDoesNotExist(entity)
 
@@ -624,7 +626,8 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
         entity = FakeOrganisation.objects.create(user=user, name='Nerv', is_deleted=True)
         self.assertPOST200(
-            self._build_restore_url(entity), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            # self._build_restore_url(entity), HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            self._build_restore_url(entity), headers={'X-Requested-With': 'XMLHttpRequest'},
         )
 
         entity = self.get_object_or_fail(FakeOrganisation, pk=entity.pk)
@@ -916,5 +919,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertStillExists(job)
 
         # AJAX version
-        response2 = self.assertPOST200(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        # response2 = self.assertPOST200(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response2 = self.assertPOST200(url, headers={'X-Requested-With': 'XMLHttpRequest'})
         self.assertEqual(redir_url, response2.content.decode())

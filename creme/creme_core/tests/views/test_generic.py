@@ -214,10 +214,12 @@ class CreationTestCase(ViewsTestCase):
 
         url = reverse('creme_core__create_fake_contact')
         lv_url = FakeContact.get_lv_absolute_url()
-        response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
-        self.assertEqual(lv_url, response.context.get('cancel_url'))
+        # response1 = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
+        response1 = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
+        self.assertEqual(lv_url, response1.context.get('cancel_url'))
 
-        response = self.client.post(
+        # ---
+        response2 = self.client.post(
             url, follow=True,
             data={
                 'user': user.id,
@@ -226,10 +228,10 @@ class CreationTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response.context['form'],
+            response2.context['form'],
             field='last_name', errors=_('This field is required.'),
         )
-        self.assertEqual(lv_url, response.context.get('cancel_url'))
+        self.assertEqual(lv_url, response2.context.get('cancel_url'))
 
     def test_entity_creation_permission01(self):
         "Not app credentials."
@@ -722,7 +724,8 @@ class EditionTestCase(ViewsTestCase):
         url = contact.get_edit_absolute_url()
 
         lv_url = FakeContact.get_lv_absolute_url()
-        response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
+        # response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
+        response = self.assertGET200(url, headers={'REFERER': f'http://testserver{lv_url}'})
         self.assertEqual(lv_url, response.context.get('cancel_url'))
 
         response = self.client.post(

@@ -127,25 +127,27 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         url = self.ADD_TYPE_URL
         referer_url = reverse('creme_core__my_page')
-        response = self.assertGET200(url, HTTP_REFERER='http://testserver' + referer_url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add.html')
+        # response1 = self.assertGET200(url, HTTP_REFERER='http://testserver' + referer_url)
+        response1 = self.assertGET200(url, headers={'referer': f'http://testserver{referer_url}'})
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add.html')
 
-        context = response.context
-        self.assertEqual(CremePropertyType.creation_label, context.get('title'))
-        self.assertEqual(_('Save the type of property'),   context.get('submit_label'))
-        self.assertEqual(referer_url,                      context.get('cancel_url'))
+        get_ctxt = response1.context.get
+        self.assertEqual(CremePropertyType.creation_label, get_ctxt('title'))
+        self.assertEqual(_('Save the type of property'),   get_ctxt('submit_label'))
+        self.assertEqual(referer_url,                      get_ctxt('cancel_url'))
 
         text = 'is beautiful'
         self.assertFalse(CremePropertyType.objects.filter(text=text))
 
-        response = self.client.post(url, follow=True, data={'text': text})
-        self.assertNoFormError(response)
+        # ---
+        response2 = self.client.post(url, follow=True, data={'text': text})
+        self.assertNoFormError(response2)
 
         ptype = self.get_object_or_fail(CremePropertyType, text=text)
         self.assertFalse(ptype.subject_ctypes.all())
         self.assertFalse(ptype.is_copiable)
 
-        self.assertRedirects(response, ptype.get_absolute_url())
+        self.assertRedirects(response2, ptype.get_absolute_url())
 
     def test_add_type02(self):
         "Constraints on ContentTypes, 'is_copiable'"
@@ -200,17 +202,19 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         url = ptype.get_edit_absolute_url()
         referer_url = reverse('creme_core__my_page')
-        response = self.assertGET200(url, HTTP_REFERER='http://testserver' + referer_url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit.html')
+        # response1 = self.assertGET200(url, HTTP_REFERER='http://testserver' + referer_url)
+        response1 = self.assertGET200(url, headers={'referer': f'http://testserver{referer_url}'})
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit.html')
 
-        get_ctxt = response.context.get
+        get_ctxt = response1.context.get
         self.assertEqual(_('Edit «{object}»').format(object=ptype), get_ctxt('title'))
         self.assertEqual(_('Save the modifications'),               get_ctxt('submit_label'))
         self.assertEqual(referer_url,                               get_ctxt('cancel_url'))
 
+        # ---
         model = FakeOrganisation
         text = 'is very beautiful'
-        response = self.client.post(
+        response2 = self.client.post(
             url,
             follow=True,
             data={
@@ -218,8 +222,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                 'subject_ctypes': [ContentType.objects.get_for_model(model).id],
             },
         )
-        self.assertNoFormError(response)
-        self.assertRedirects(response, ptype.get_absolute_url())
+        self.assertNoFormError(response2)
+        self.assertRedirects(response2, ptype.get_absolute_url())
 
         ptype = self.refresh(ptype)
         self.assertEqual(text, ptype.text)
@@ -698,7 +702,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.get_brick_node(doc2, info_brick_id)
 
     def test_reload_ptype_bricks03(self):
-        "Empty block"
+        "Empty block."
         self.login()
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_murica', text='is american',
@@ -708,7 +712,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(
             reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
             data={'brick_id': brick_id},
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            # HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            headers={'X-Requested-With': 'XMLHttpRequest'},
         )
 
         with self.assertNoException():

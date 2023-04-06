@@ -264,7 +264,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         # GET ---
         url = self.ACTIVITY_CREATION_URL
         lv_url = Activity.get_lv_absolute_url()
-        response1 = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
+        # response1 = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
+        response1 = self.assertGET200(url, headers={'referer': f'http://testserver{lv_url}'})
 
         context = response1.context
         self.assertEqual(_('Create an activity'), context.get('title'))
