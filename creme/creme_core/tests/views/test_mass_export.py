@@ -173,7 +173,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         # HeaderFilter with wrong content type
         hf = HeaderFilter.objects.create_if_needed(
-            pk='test-hf_contact_test_invalid_hfilter',
+            pk='test-hf_contact_test_invalid_hfilter01',
             name='Contact view', model=FakeContact,
             cells_desc=[
                 (EntityCellRegularField, {'name': 'last_name'}),
@@ -182,8 +182,20 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
         self.assertGET404(build_url(ct_or_model=FakeEmailCampaign, hfilter_id=hf.id))
 
+        # HeaderFilter is not allowed
+        private_hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_contact_test_invalid_hfilter02',
+            name='Private contact view', model=FakeContact,
+            is_custom=True, user=self.other_user, is_private=True,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'last_name'}),
+                (EntityCellRegularField, {'name': 'first_name'}),
+            ],
+        )
+        self.assertGET404(build_url(hfilter_id=private_hf.id))
+
     def test_export_error_invalid_efilter(self):
-        self.login()
+        user = self.login()
         build_cell = EntityCellRegularField.build
         HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact', name='Contact view',
@@ -193,7 +205,39 @@ class MassExportViewsTestCase(ViewsTestCase):
                 build_cell(model=FakeContact, name='first_name'),
             ],
         )
+
+        # EntityFilter does not exist
         self.assertGET404(self._build_contact_dl_url(efilter_id='test-unknown'))
+
+        # EntityFilter with wrong content type
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-hf_orga_test_invalid_efilter',
+            name='Cowboys',
+            model=FakeOrganisation,  # <===
+            user=user, is_custom=False,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation, field_name='name',
+                    operator=ISTARTSWITH, values=['Cowboy'],
+                )
+            ],
+        )
+        self.assertGET404(self._build_contact_dl_url(efilter_id=efilter.id,))
+
+        # EntityFilter is not allowed
+        private_efilter = EntityFilter.objects.smart_update_or_create(
+            'test-hf_contact_test_invalid_efilter',
+            name='With Contact mail',
+            model=FakeContact,
+            is_custom=True, user=self.other_user, is_private=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='email',
+                    operator=ISTARTSWITH, values=['contact'],
+                )
+            ],
+        )
+        self.assertGET404(self._build_contact_dl_url(efilter_id=private_efilter.id,))
 
     def test_list_view_export_header(self):
         self.login()
@@ -470,6 +514,9 @@ class MassExportViewsTestCase(ViewsTestCase):
         result = [force_str(line) for line in response.content.splitlines()]
         self.assertEqual(2, len(result))
         self.assertEqual('"","Wong","Edward","","is a girl"', result[1])
+
+        # Error
+        self.assertGET(400, self._build_contact_dl_url(extra_q='[123]'))
 
     def test_list_view_export_with_filter01(self):
         user = self.login()

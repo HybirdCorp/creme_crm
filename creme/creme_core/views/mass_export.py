@@ -18,6 +18,7 @@
 
 import logging
 
+from django.core.exceptions import BadRequest
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_str
@@ -83,7 +84,12 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
     def get_entity_filter(self):
         efilter_id = self.get_entity_filter_id()
 
-        return get_object_or_404(EntityFilter, id=efilter_id) if efilter_id else None
+        return get_object_or_404(
+            EntityFilter.objects
+                        .filter_by_user(self.request.user)
+                        .filter(entity_type=self.get_ctype()),
+            id=efilter_id,
+        ) if efilter_id else None
 
     def get_header_filter_id(self):
         return get_from_GET_or_404(self.request.GET, self.headerfilter_id_arg)
@@ -181,9 +187,14 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
                 entities_qs = efilter.filter(entities_qs)
 
             # ----
-            extra_q = request.GET.get(self.extra_q_arg)
-            if extra_q is not None:
-                entities_qs = entities_qs.filter(QSerializer().loads(extra_q))
+            serialized_extra_q = request.GET.get(self.extra_q_arg)
+            if serialized_extra_q is not None:
+                try:
+                    extra_q = QSerializer().loads(serialized_extra_q)
+                except Exception as e:
+                    raise BadRequest(f'Invalid extra Q: {e}')
+
+                entities_qs = entities_qs.filter(extra_q)
                 use_distinct = True  # TODO: test + only if needed
 
             # ----

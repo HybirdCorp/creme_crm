@@ -1,3 +1,28 @@
+== Version 2.4.3 ==
+
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+    # In mass-export :
+        - Private EntityFilters belonging to other users could be used (by forging manually the URL).
+          Notice that it's not a security issue, but more a fix to get a more consistent behaviour.
+        - The management of badly serialized Q has been improved (error 400 instead of error 500).
+    # Apps :
+        * Creme_config :
+            - A crash in the view to create new teams has been fixed.
+        * Activities :
+            - A crash when adding a team as participant has been fixed.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The method 'creme_core.models.CremeUser.clean()' does not check email uniqueness when it's a team.
+
+
 == Version 2.4.2 ==
 
   Users side :
