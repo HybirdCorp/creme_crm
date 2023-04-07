@@ -124,7 +124,7 @@ class _CremeTestCase:
     ]
 
     @classmethod
-    def create_user(cls, index=0, **kwargs):
+    def build_user(cls, index=0, **kwargs):
         user_data = {
             **cls.USERS_DATA[index],
             **kwargs,
@@ -135,6 +135,12 @@ class _CremeTestCase:
 
         user = CremeUser(**user_data)
         user.set_password(cls.USER_PASSWORD)
+
+        return user
+
+    @classmethod
+    def create_user(cls, index=0, **kwargs):
+        user = cls.build_user(index=index, **kwargs)
         user.save()
 
         return user

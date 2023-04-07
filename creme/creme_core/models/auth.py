@@ -972,7 +972,18 @@ class CremeUser(AbstractBaseUser):
 
     def clean(self):
         # TODO: split in sub methods?
-        if not self.is_team:
+        # TODO: check is_staff too?
+        if self.is_team:
+            if self.role_id:
+                raise ValidationError('A team cannot have a role.')
+
+            if self.is_superuser:
+                raise ValidationError('A team cannot be marked as superuser.')
+        else:
+            if self.is_superuser and self.role_id:
+                raise ValidationError('A superuser cannot have a role.')
+
+            # ---
             email = self.email
             qs = type(self)._default_manager.filter(is_active=True, email=email)
 
