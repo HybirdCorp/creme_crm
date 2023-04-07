@@ -14,8 +14,8 @@
 
     {% menu_display %}
 
-    {% block accessories %}
     <div class="accessories-box">
+     {% block accessories %}
       {% block visitor %}
        {% if visitor %}
         <div class="visitor-box">
@@ -44,8 +44,8 @@
             </div>
         </div>
       {% endblock %}
+     {% endblock %}
     </div>
-    {% endblock %}
 
     <script type="text/javascript">
     {% block script %}
