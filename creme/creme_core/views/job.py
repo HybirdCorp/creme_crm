@@ -20,7 +20,7 @@ from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils.http import url_has_allowed_host_and_scheme
+# from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -43,10 +43,11 @@ class MyJobs(generic.BricksView):
     template_name = 'creme_core/job/list-mine.html'
 
 
-class JobDetail(generic.CremeModelDetail):
+class JobDetail(generic.base.CallbackMixin, generic.CremeModelDetail):
     model = Job
     template_name = 'creme_core/job/detail.html'
     pk_url_kwarg = 'job_id'
+    callback_url_argument = 'list_url'
 
     def check_instance_permissions(self, instance, user):
         jtype = instance.type
@@ -61,15 +62,16 @@ class JobDetail(generic.CremeModelDetail):
         instance.check_owner_or_die(user)
 
     def get_list_url(self):
-        request = self.request
-        list_url = request.GET.get('list_url')
-        list_url_is_safe = list_url and url_has_allowed_host_and_scheme(
-            url=list_url,
-            allowed_hosts={request.get_host()},
-            require_https=request.is_secure(),
-        )
-
-        return list_url if list_url_is_safe else reverse('creme_core__my_jobs')
+        # request = self.request
+        # list_url = request.GET.get('list_url')
+        # list_url_is_safe = list_url and url_has_allowed_host_and_scheme(
+        #     url=list_url,
+        #     allowed_hosts={request.get_host()},
+        #     require_https=request.is_secure(),
+        # )
+        #
+        # return list_url if list_url_is_safe else reverse('creme_core__my_jobs')
+        return self.get_callback_url() or reverse('creme_core__my_jobs')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
