@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2021  Hybird
+#    Copyright (C) 2012-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,8 +61,7 @@ class ParticipantCreateForm(CremeForm):
         self.activity = entity
         self.participants = set()
 
-        user = self.user
-        user_pk = user.pk
+        user_pk = self.user.pk
         fields = self.fields
 
         existing = Contact.objects.filter(
@@ -139,7 +138,11 @@ class ParticipantCreateForm(CremeForm):
             user = participant.is_user
             if user:
                 if user == me:
-                    calendars.append(self.cleaned_data['my_participation'][1])
+                    my_participation = self.cleaned_data.get('my_participation')
+                    if my_participation:
+                        calendars.append(my_participation[1])
+                    else:
+                        continue  # Avoid an error message about relation uniqueness
                 else:
                     other_users.append(user)
 
