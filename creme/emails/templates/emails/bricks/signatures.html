@@ -16,8 +16,11 @@
 
 {% block brick_table_columns %}
     {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary nowrap' %}
+{% comment %}
     {% brick_table_column_for_field ctype=objects_ctype field='body' %}
     {% brick_table_column title=_('Images') %}
+{% endcomment %}
+    {% brick_table_column title=_('Content preview') %}
     {% brick_table_column title=_('Actions') status='action' colspan=2 %}
 {% endblock %}
 
@@ -27,8 +30,13 @@
     {% for signature in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{{signature.name}}</td>
+{% comment %}
         <td>{{signature.body}}</td>
         <td>{{signature.images.count}}</td>
+{% endcomment %}
+        <td>
+            {{signature.renderer.render_html_preview}}
+        </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url=signature.get_edit_absolute_url label=edit_label %}
         </td>

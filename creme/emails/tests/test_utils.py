@@ -1,11 +1,12 @@
 from email.mime.image import MIMEImage
 
 from django.core import mail as django_mail
+from django.utils.html import escape
 
 from creme.documents.tests.base import _DocumentsTestCase
 
 from ..models import EmailSignature
-from ..utils import EMailSender, get_mime_image
+from ..utils import EMailSender, SignatureRenderer, get_mime_image
 from .base import EntityEmail, _EmailsTestCase
 
 
@@ -16,8 +17,8 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
         def get_subject(self, mail):
             return self.subject
 
-    def test_get_mime_image02(self):
-        "PNG"
+    def test_get_mime_image(self):
+        "PNG."
         self.login()
         img = self._create_image()
 
@@ -36,6 +37,48 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
             content_disp = imime['Content-Disposition']
 
         self.assertRegex(content_disp, r'inline; filename="creme_22(.*).png"')
+
+    def test_signature_renderer(self):
+        "With images."
+        user = self.login()
+
+        create_img = self._create_image
+        img1 = create_img(title='My image#1', ident=1)
+        img2 = create_img(title='My image#2', ident=2)
+
+        signature = EmailSignature.objects.create(
+            user=user, name='Funny signature', body='I love you... <b>not</b>',
+        )
+        signature.images.set([img1, img2])
+
+        renderer = SignatureRenderer(signature=signature)
+        self.assertEqual(f'\n--\n{signature.body}', renderer.render_text())
+        self.assertHTMLEqual(
+            f'<div class="creme-emails-signature" id="signature-{signature.id}">'
+            f'<p><br>--<br>{escape(signature.body)}</p>'
+            f'<br/><img src="cid:img_{img1.id}" /><br/><img src="cid:img_{img2.id}" />'
+            f'</div>',
+            renderer.render_html(),
+        )
+        self.assertHTMLEqual(
+            f'<div class="creme-emails-signature" id="signature-{signature.id}">'
+            f'<p><br>--<br>{escape(signature.body)}</p>'
+            f'<br/>'
+            f'<img src="{img1.get_download_absolute_url()}" '
+            f'title="{img1.title}" alt="{img1.title}" />'
+            f'<br/>'
+            f'<img src="{img2.get_download_absolute_url()}" '
+            f'title="{img2.title}" alt="{img2.title}" />'
+            f'</div>',
+            renderer.render_html_preview(),
+        )
+
+        rend_images = [*renderer.images]
+        self.assertEqual(2, len(rend_images))
+
+        rend_image1 = rend_images[0]
+        self.assertIsInstance(rend_image1.mime, MIMEImage)
+        self.assertEqual(img1, rend_image1.entity)
 
     def test_sender01(self):
         user = self.login()
@@ -81,7 +124,7 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
         img2 = create_img(title='My image#2', ident=2)
 
         signature = EmailSignature.objects.create(
-            user=user, name='Funny signature', body='I love you... not',
+            user=user, name='Funny signature', body='I love you... <b>not</b>',
         )
         signature.images.set([img1, img2])
 
@@ -109,12 +152,21 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
         alternative = alternatives[0]
         self.assertEqual('text/html', alternative[1])
-        self.assertEqual(
-            body_html
-            + '\n--\n'
-            + signature.body
-            + f'<img src="cid:img_{img1.id}" /><br/><img src="cid:img_{img2.id}" /><br/>',
-            alternative[0]
+        self.maxDiff = None
+        # self.assertEqual(
+        #     body_html
+        #     + '\n--\n'
+        #     + signature.body
+        #     + f'<img src="cid:img_{img1.id}" /><br/><img src="cid:img_{img2.id}" /><br/>',
+        #     alternative[0]
+        # )
+        self.assertHTMLEqual(
+            f'{body_html}'
+            f'<div class="creme-emails-signature" id="signature-{signature.id}">'
+            f'<p><br>--<br>{escape(signature.body)}</p>'
+            f'<br/><img src="cid:img_{img1.id}" /><br/><img src="cid:img_{img2.id}" />'
+            f'</div>',
+            alternative[0],
         )
 
         attachments = message.attachments

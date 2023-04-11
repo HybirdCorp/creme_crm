@@ -36,6 +36,7 @@ from .models import (
     EmailToSyncPerson,
     LightWeightEmail,
 )
+from .utils import SignatureRenderer
 
 Document = documents.get_document_model()
 
@@ -357,14 +358,24 @@ class MySignaturesBrick(QuerysetBrick):
     #     render to disabled only forbidden things.
     # permissions = ''
 
-    def detailview_display(self, context):
-        user = context['user']
+    signature_render_cls = SignatureRenderer
 
-        return self._render(self.get_template_context(
+    def detailview_display(self, context):
+        # user = context['user']
+        # return self._render(self.get_template_context(
+        #     context,
+        #     EmailSignature.objects.filter(user=user),
+        #     # has_app_perm=user.has_perm('emails'),
+        # ))
+        btc = self.get_template_context(
             context,
-            EmailSignature.objects.filter(user=user),
-            # has_app_perm=user.has_perm('emails'),
-        ))
+            EmailSignature.objects.filter(user=context['user']).prefetch_related('images')
+        )
+
+        for signature in btc['page'].object_list:
+            signature.renderer = self.signature_render_cls(signature)
+
+        return self._render(btc)
 
 
 class EmailSyncConfigItemsBrick(QuerysetBrick):

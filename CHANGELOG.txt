@@ -30,6 +30,8 @@
             - A color field has been added to SalesPhase.
         * Tickets :
             - A color field has been added to Status.
+        * Emails :
+            - The blocks for signatures (in "My settings") displays now a preview.
 
   Developers side :
   -----------------
@@ -256,6 +258,8 @@
                 - The template "graphs/graph_error.html" has been removed.
             * Tickets :
                 - In 'models.status.BASE_STATUS', the tuples contain an additional column for colors.
+            * Emails :
+                - The attribute 'utils.EMailSender._mime_images' has been removed.
             * Polls :
                 - In the template "polls/bricks/preplies.html", the block '{% block poll_replies_extra_rows %}'
                   has been removed ; use '{{block.super}}' instead.
@@ -269,6 +273,9 @@
         # In the class 'creme_core.gui.field_printers._FieldPrintersRegistry', the following attributes have been removed/replaced :
           _html_printers, _csv_printers, _printers_maps, _choice_printers.
         # In the class 'creme_core.templatetags.creme_cells.CellRenderNode', the class attribute 'RENDER_METHODS' has been removed.
+        # Apps :
+            * Emails :
+                - The constant 'utils._MIME_IMG_CACHE' has been removed.
 
 
 == Version 2.4 ==

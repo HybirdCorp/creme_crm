@@ -1,0 +1,4 @@
+<div class="creme-emails-signature" id="signature-{{signature.id}}">
+    <p><br>--<br>{{signature.body}}</p>
+    {% for image in images %}<br/><img src="{{image.entity.get_download_absolute_url}}" alt="{{image.entity.title}}" title="{{image.entity.title}}"/>{% endfor %}
+</div>

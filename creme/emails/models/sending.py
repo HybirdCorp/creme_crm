@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from json import loads as json_load
 from time import sleep
@@ -40,6 +42,31 @@ from .mail import ID_LENGTH, _Email
 from .signature import EmailSignature
 
 logger = logging.getLogger(__name__)
+
+
+class LightWeightEmailSender(EMailSender):
+    def __init__(self, sending: EmailSending):
+        super().__init__(
+            body=sending.body,
+            body_html=sending.body_html,
+            signature=sending.signature,
+            attachments=sending.attachments.all(),
+        )
+        self._sending = sending
+        self._body_template = Template(self._body)
+        self._body_html_template = Template(self._body_html)
+
+    def get_subject(self, mail):
+        return self._sending.subject
+
+    def _process_bodies(self, mail):
+        body = mail.body
+        context = Context(json_load(body) if body else {})
+
+        return (
+            self._body_template.render(context),
+            self._body_html_template.render(context),
+        )
 
 
 class EmailSending(CremeModel):
@@ -86,6 +113,8 @@ class EmailSending(CremeModel):
     creation_label = pgettext_lazy('emails', 'Create a sending')
     save_label     = pgettext_lazy('emails', 'Save the sending')
 
+    email_sender_cls = LightWeightEmailSender
+
     class Meta:
         app_label = 'emails'
         verbose_name = _('Email campaign sending')
@@ -105,7 +134,7 @@ class EmailSending(CremeModel):
 
     def send_mails(self):
         try:
-            sender = LightWeightEmailSender(sending=self)
+            sender = self.email_sender_cls(sending=self)
         except ImageFromHTMLError as e:
             send_mail(
                 gettext('[{software}] Campaign email sending error.').format(
@@ -217,30 +246,8 @@ class LightWeightEmail(_Email):
             try:
                 with atomic():
                     self.save(force_insert=True)
-            except IntegrityError:  # A mail with this id already exists
-                logger.debug('Mail id already exists: %s', self.id)
+            except IntegrityError:
+                logger.debug('Mail ID already exists: %s', self.id)
                 self.pk = None
             else:
                 return
-
-
-class LightWeightEmailSender(EMailSender):
-    def __init__(self, sending):
-        super().__init__(
-            body=sending.body,
-            body_html=sending.body_html,
-            signature=sending.signature,
-            attachments=sending.attachments.all(),
-        )
-        self._sending = sending
-        self._body_template = Template(self._body)
-        self._body_html_template = Template(self._body_html)
-
-    def get_subject(self, mail):
-        return self._sending.subject
-
-    def _process_bodies(self, mail):
-        body = mail.body
-        context = Context(json_load(body) if body else {})
-
-        return self._body_template.render(context), self._body_html_template.render(context)
