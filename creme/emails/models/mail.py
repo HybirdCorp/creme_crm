@@ -93,6 +93,11 @@ class _Email(CremeModel):
         return self.status == self.Status.SYNCHRONIZED
 
 
+class EntityEmailSender(utils.EMailSender):
+    def get_subject(self, mail):
+        return mail.subject
+
+
 class AbstractEntityEmail(_Email, CremeEntity):
     identifier = models.CharField(
         _('Email ID'), unique=True, max_length=ID_LENGTH, editable=False,
@@ -110,6 +115,8 @@ class AbstractEntityEmail(_Email, CremeEntity):
     creation_label = _('Create an email')
     save_label     = _('Save the email')
     sending_label  = _('Send the email')
+
+    email_sender_cls = EntityEmailSender
 
     class Meta:
         abstract = True
@@ -186,7 +193,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
             entity_emails_send_type.refresh_job()
 
     def send(self):
-        sender = EntityEmailSender(
+        sender = self.email_sender_cls(
             body=self.body,
             body_html=self.body_html,
             signature=self.signature,
@@ -200,8 +207,3 @@ class AbstractEntityEmail(_Email, CremeEntity):
 class EntityEmail(AbstractEntityEmail):
     class Meta(AbstractEntityEmail.Meta):
         swappable = 'EMAILS_EMAIL_MODEL'
-
-
-class EntityEmailSender(utils.EMailSender):
-    def get_subject(self, mail):
-        return mail.subject

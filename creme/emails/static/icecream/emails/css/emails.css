@@ -4,6 +4,10 @@
     top: -1.3em;
 }
 
+.emails-signatures-brick .creme-emails-signature img {
+    max-width: 200px;
+}
+
 /* Email synchronization */
 
 .emails-sync_config_items-brick .emails-sync-default {
