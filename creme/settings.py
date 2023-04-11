@@ -440,6 +440,9 @@ INSTALLED_CREME_APPS = [
     # display maps (Google Maps, Open Street Map) using the address information.
     # I can be useful to plan a business itinerary.
     'creme.geolocation',
+
+    # TODO: description
+    'creme.gdpr',
 ]
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
 

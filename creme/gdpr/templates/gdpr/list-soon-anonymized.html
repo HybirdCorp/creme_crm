@@ -1,0 +1,10 @@
+{% extends BASE_HTML %}
+{% load i18n creme_bricks %}
+
+{% block page_title %}{% translate 'Entities soon anonymized' %} - {% endblock %}
+
+{% block content %}
+    {% brick_import app='gdpr' name='soon_anonymized' as anonymized_brick %}
+    {% brick_display anonymized_brick %}
+    {% brick_end %}
+{% endblock %}

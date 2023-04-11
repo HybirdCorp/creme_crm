@@ -1,0 +1,24 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} gdpr-soon_anonymized-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Entity soon anonymized') plural=_('{count} Entities soon anonymized') empty=verbose_name %}
+{% endblock %}
+
+{% block brick_table_rows %}
+  {% for soon in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>
+{#            {% widget_icon ctype=soon.entity_content_type size='brick-table' %} #}
+{#            {% widget_entity_hyperlink soon.real_entity user %} #}
+            {% widget_entity_hyperlink soon.contact user %}
+        </td>
+    </tr>
+  {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No entity which will soon be anonymized' %}
+{% endblock %}
