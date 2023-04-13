@@ -426,11 +426,13 @@ ul.bline-error-list > li {
 
 /* Forms */
 
-.billing-exporter-select > li {
+/* .billing-exporter-select > li { */
+.billing-exporter-select > div {
     margin-bottom: 5px;
 }
 
-.billing-exporter-select > li > label {
+/* .billing-exporter-select > li > label { */
+div.billing-exporter-select > div > label {
     display: flex;
 }
 
