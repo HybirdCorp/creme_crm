@@ -43,6 +43,17 @@ class Populator(BasePopulator):
     def populate(self):
         RecurrentGenerator = get_rgenerator_model()
 
+        _job, job_created = Job.objects.get_or_create(
+            type_id=recurrents_gendocs_type.id,
+            defaults={
+                'language': settings.LANGUAGE_CODE,
+                'status':   Job.STATUS_OK,
+            },
+        )
+
+        already_populated = not job_created
+
+        # ---------------------------
         HeaderFilter.objects.create_if_needed(
             pk=constants.DEFAULT_HFILTER_RGENERATOR,
             model=RecurrentGenerator,
@@ -129,23 +140,12 @@ class Populator(BasePopulator):
         SearchConfigItem.objects.create_if_needed(RecurrentGenerator, ['name', 'description'])
 
         # ---------------------------
-        Job.objects.get_or_create(
-            type_id=recurrents_gendocs_type.id,
-            defaults={
-                'language': settings.LANGUAGE_CODE,
-                'status':   Job.STATUS_OK,
-            },
-        )
-
-        # ---------------------------
-        # TODO: move to a "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='recurrents-').exists():
+        if not already_populated:
             container = MenuConfigItem.objects.get_or_create(
                 entry_id=ContainerEntry.id,
                 entry_data={'label': _('Management')},
                 defaults={'order': 50},
             )[0]
-
             MenuConfigItem.objects.create(
                 entry_id=RecurrentGeneratorsEntry.id, parent=container,  order=100,
             )

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,7 @@ class Populator(BasePopulator):
         SettingValue.objects.get_or_create(key_id=sandbox_key.id, defaults={'value': False})
 
         user = get_user_model().objects.get_admin()
-        Job.objects.get_or_create(
+        _job, job_created = Job.objects.get_or_create(
             type_id=crudity_synchronize_type.id,
             defaults={
                 'language':    settings.LANGUAGE_CODE,
@@ -49,15 +49,15 @@ class Populator(BasePopulator):
             },
         )
 
+        already_populated = not job_created
+
         # ---------------------------
-        # TODO: move to a "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='crudity-').exists():
+        if not already_populated:
             container = MenuConfigItem.objects.get_or_create(
                 entry_id=ContainerEntry.id,
                 entry_data={'label': _('Tools')},
                 defaults={'order': 100},
             )[0]
-
             create_mitem = partial(MenuConfigItem.objects.create, parent=container)
             create_mitem(
                 entry_id=Separator1Entry.id,
