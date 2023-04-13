@@ -5,7 +5,6 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import (
-    CremeProperty,
     CremePropertyType,
     Relation,
     RelationType,
@@ -666,7 +665,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         self._execute_job(response)
         act = self.get_object_or_fail(Activity, title=title)
-        self.get_object_or_fail(CremeProperty, type=ptype, creme_entity=act.id)
+        self.assertHasProperty(entity=act, ptype=ptype)
 
     @skipIfCustomContact
     def test_import_errors(self):

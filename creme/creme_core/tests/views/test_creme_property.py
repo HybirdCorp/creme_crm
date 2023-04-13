@@ -507,11 +507,11 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
 
         self._set_all_creds_except_one(excluded=EntityCredentials.CHANGE)
-        entity01 = CremeEntity.objects.create(user=self.user)
+        entity = CremeEntity.objects.create(user=self.user)
         uneditable = CremeEntity.objects.create(user=self.other_user)
 
         self.assertGET200(
-            self._build_bulk_url(self.centity_ct, entity01, uneditable, GET=True)
+            self._build_bulk_url(self.centity_ct, entity, uneditable, GET=True)
         )
 
         response = self.client.post(
@@ -519,18 +519,18 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             data={
                 'entities_lbl': 'd:p',
                 'types': [ptype01.id, ptype02.id],
-                'ids': [entity01.id, uneditable.id],
+                'ids': [entity.id, uneditable.id],
             },
         )
         self.assertNoFormError(response)
 
-        def tagged_enties(ptype):
+        def tagged_entities(ptype):
             return [
                 p.creme_entity for p in CremeProperty.objects.filter(type=ptype)
             ]
 
-        self.assertEqual([entity01], tagged_enties(ptype01))
-        self.assertEqual([entity01], tagged_enties(ptype02))
+        self.assertListEqual([entity], tagged_entities(ptype01))
+        self.assertListEqual([entity], tagged_entities(ptype02))
 
     def test_not_copiable_properties(self):
         self.login()
