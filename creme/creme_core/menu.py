@@ -110,7 +110,7 @@ class PasswordChangeEntry(menu.FixedURLEntry):
         #     feature is disabled.
         return (
             super()._has_perm(context)
-            and get_world_settings_model().objects.get().password_change_enabled
+            and get_world_settings_model().objects.instance().password_change_enabled
         )
 
 
