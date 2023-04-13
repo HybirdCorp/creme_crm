@@ -397,7 +397,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             self.assertEqual(default_descr, contact.description)
             self.assertIsNone(contact.position)
             self.assertEqual(sector,      contact.sector)
-            self.get_object_or_fail(CremeProperty, type=ptype1, creme_entity=contact.id)
+            self.assertHasProperty(entity=contact, ptype=ptype1)
             self.assertRelationCount(1, contact, loves.id, shinji)
 
         self.assertRelationCount(1, created_contacts['Rei'],   employed.id, nerv)
@@ -1873,8 +1873,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(rei_email,         rei.email)   # Value not erased (empty cell)
         self.assertRelationCount(1, rei, loves.id, gendo)
         self.assertRelationCount(1, rei, loves.id, shinji)  # <== not 2 !
-        self.get_object_or_fail(CremeProperty, type=ptype2, creme_entity=rei.id)
-        self.get_object_or_fail(CremeProperty, type=ptype1, creme_entity=rei.id)  # <= not 2 !
+        self.assertHasProperty(entity=rei, ptype=ptype2)
+        self.assertHasProperty(entity=rei, ptype=ptype1)  # <= no IntegrityError (2 prop) !
 
         self.assertIsNone(self.refresh(rei2).phone)
 

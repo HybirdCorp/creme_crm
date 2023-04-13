@@ -166,7 +166,7 @@ class CremePropertyTestCase(CremeTestCase):
         entity = CremeEntity.objects.create(user=self.user)
 
         CremeProperty.objects.safe_create(type=ptype, creme_entity=entity)
-        self.get_object_or_fail(CremeProperty, type=ptype.id, creme_entity=entity.id)
+        self.assertHasProperty(entity=entity, ptype=ptype)
 
         with self.assertNoException():
             CremeProperty.objects.safe_create(type=ptype, creme_entity=entity)
@@ -209,9 +209,9 @@ class CremePropertyTestCase(CremeTestCase):
 
         self.assertEqual(3, count)
 
-        self.get_object_or_fail(CremeProperty, type=ptype1.id, creme_entity=entity1.id)
-        self.get_object_or_fail(CremeProperty, type=ptype2.id, creme_entity=entity1.id)
-        self.get_object_or_fail(CremeProperty, type=ptype2.id, creme_entity=entity2.id)
+        self.assertHasProperty(entity=entity1, ptype=ptype1)
+        self.assertHasProperty(entity=entity1, ptype=ptype2)
+        self.assertHasProperty(entity=entity2, ptype=ptype2)
 
     def test_manager_safe_multi_save02(self):
         "De-duplicates arguments."
@@ -229,8 +229,8 @@ class CremePropertyTestCase(CremeTestCase):
 
         self.assertEqual(2, count)
 
-        self.get_object_or_fail(CremeProperty, type=ptype1.id, creme_entity=entity.id)
-        self.get_object_or_fail(CremeProperty, type=ptype2.id, creme_entity=entity.id)
+        self.assertHasProperty(entity=entity, ptype=ptype1)
+        self.assertHasProperty(entity=entity, ptype=ptype2)
 
     def test_manager_safe_multi_save03(self):
         "Avoid creating existing properties."
@@ -254,7 +254,7 @@ class CremePropertyTestCase(CremeTestCase):
         self.assertEqual(1, count)
 
         self.assertStillExists(prop1)
-        self.get_object_or_fail(CremeProperty, type=ptype2.id, creme_entity=entity.id)
+        self.assertHasProperty(entity=entity, ptype=ptype2)
 
     def test_manager_safe_multi_save04(self):
         "No query if no properties"
@@ -283,7 +283,7 @@ class CremePropertyTestCase(CremeTestCase):
                 check_existing=False,
             )
 
-        self.get_object_or_fail(CremeProperty, type=ptype1.id, creme_entity=entity.id)
-        self.get_object_or_fail(CremeProperty, type=ptype2.id, creme_entity=entity.id)
+        self.assertHasProperty(entity=entity, ptype=ptype1)
+        self.assertHasProperty(entity=entity, ptype=ptype2)
 
         self.assertEqual(len(ctxt1), len(ctxt2) + 1)

@@ -29,6 +29,7 @@ from ..gui.icons import get_icon_by_name, get_icon_size_px
 from ..management.commands.creme_populate import Command as PopulateCommand
 from ..models import (
     CremeEntity,
+    CremeProperty,
     CremePropertyType,
     CremeUser,
     DeletionCommand,
@@ -541,6 +542,20 @@ class _CremeTestCase:
         self.assertIsInstance(q1, Q)
         self.assertIsInstance(q2, Q)
         self.assertEqual(str(q1), str(q2))
+
+    def assertHasProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | str):
+        if not CremeProperty.objects.filter(
+            type_id=ptype.id if isinstance(ptype, CremePropertyType) else ptype,
+            creme_entity_id=entity.id if isinstance(entity, CremeEntity) else entity,
+        ).exists():
+            self.fail(f'<{entity}> has no property with type <{ptype}>')
+
+    def assertHasNoProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | str):
+        if CremeProperty.objects.filter(
+            type_id=ptype.id if isinstance(ptype, CremePropertyType) else ptype,
+            creme_entity_id=entity.id if isinstance(entity, CremeEntity) else entity,
+        ).exists():
+            self.fail(f'<{entity}> has property with type <{ptype}>')
 
     def assertRelationCount(self, count, subject_entity, type_id, object_entity):
         self.assertEqual(
