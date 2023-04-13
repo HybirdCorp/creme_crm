@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2022 Hybird
+# Copyright (c) 2009-2023 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -72,7 +72,7 @@ def get_per_request_cache() -> dict:
 
 def cached_per_request(cache_key: Hashable):
     """Decorator which caches the result in the per-request cache.
-    (see get_per_request_cache().
+    See get_per_request_cache().
 
     @param cache_key: The key used to identify the result.
     """
