@@ -42,6 +42,42 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm2.exception),
         )
 
+    def test_assertHasAttr(self):
+        self.assertHasAttr(1, 'bit_length')
+        self.assertHasAttr([], 'append')
+
+        with self.assertRaises(self.failureException) as cm1:
+            self.assertHasAttr(1, 'invalid')
+        self.assertEqual(
+            '<1> has no attribute named "invalid".',
+            str(cm1.exception),
+        )
+
+        with self.assertRaises(self.failureException) as cm2:
+            self.assertHasAttr([], 'unknown')
+        self.assertEqual(
+            '<[]> has no attribute named "unknown".',
+            str(cm2.exception),
+        )
+
+    def test_assertHasNoAttr(self):
+        self.assertHasNoAttr(1, 'invalid')
+        self.assertHasNoAttr([], 'unknown')
+
+        with self.assertRaises(self.failureException) as cm1:
+            self.assertHasNoAttr(1, 'bit_length')
+        self.assertEqual(
+            '<1> has unexpectedly an attribute named "bit_length".',
+            str(cm1.exception),
+        )
+
+        with self.assertRaises(self.failureException) as cm2:
+            self.assertHasNoAttr([], 'append')
+        self.assertEqual(
+            '<[]> has unexpectedly an attribute named "append".',
+            str(cm2.exception),
+        )
+
     def test_assertCountOccurrences(self):
         self.assertCountOccurrences('foo', 'foobarbaz', 1)
         self.assertCountOccurrences('bar', 'foobarbazbar', 2)
@@ -50,14 +86,14 @@ class BaseTestCaseTestCase(CremeTestCase):
             self.assertCountOccurrences('foo', 'foobarbaz', 2)
         self.assertEqual(
             "'foo' found 1 time(s) in 'foobarbaz' (2 expected)",
-            str(cm.exception)
+            str(cm.exception),
         )
 
         with self.assertRaises(self.failureException) as cm:
             self.assertCountOccurrences('bar', 'whatever', 1, msg='bad data')
         self.assertEqual(
             "'bar' found 0 time(s) in 'whatever' (1 expected) : bad data",
-            str(cm.exception)
+            str(cm.exception),
         )
 
     def test_assertDatetimesAlmostEqual(self):

@@ -1707,7 +1707,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         it = paginator.pages()
 
         page1 = next(it)
-        self.assertTrue(hasattr(page1, 'next_page_info'))
+        self.assertHasAttr(page1, 'next_page_info')
         self.assertListEqual(contacts[:3], [*page1.object_list])
 
         page2 = next(it)

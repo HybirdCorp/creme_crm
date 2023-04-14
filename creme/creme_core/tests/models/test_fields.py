@@ -375,9 +375,9 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
             meta.get_field('entity')
         self.assertListEqual(['creme_entity'], [f.name for f in meta.private_fields])
 
-        self.assertTrue(hasattr(FakeTodo, 'entity'))
-        # self.assertTrue(hasattr(FakeTodo, 'entity_content_type')) TODO?
-        self.assertTrue(hasattr(FakeTodo, 'creme_entity'))
+        self.assertHasAttr(FakeTodo, 'entity')
+        # self.assertHasAttr(FakeTodo, 'entity_content_type') TODO?
+        self.assertHasAttr(FakeTodo, 'creme_entity')
 
         create_todo = FakeTodo.objects.create
         create_todo(creme_entity=akane, title='Todo#1'),

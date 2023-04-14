@@ -2957,9 +2957,9 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(10, len(entities_page1))
         self.assertTrue(entities_page1.has_next())
         self.assertFalse(entities_page1.has_previous())
-        self.assertFalse(hasattr(entities_page1, 'next_page_number'))
-        self.assertTrue(hasattr(entities_page1, 'next_page_info'))
-        self.assertFalse(hasattr(entities_page1, 'start_index'))
+        self.assertHasNoAttr(entities_page1, 'next_page_number')
+        self.assertHasAttr(entities_page1, 'next_page_info')
+        self.assertHasNoAttr(entities_page1, 'start_index')
 
         paginator = entities_page1.paginator
         self.assertEqual(10, paginator.per_page)
@@ -3030,7 +3030,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(rows, len(entities_page1))
         self.assertTrue(entities_page1.has_next())
         self.assertFalse(entities_page1.has_previous())
-        self.assertFalse(hasattr(entities_page1, 'next_page_number'))
+        self.assertHasNoAttr(entities_page1, 'next_page_number')
 
         paginator = entities_page1.paginator
         self.assertEqual(rows, paginator.per_page)
@@ -3323,11 +3323,11 @@ class ListViewTestCase(ViewsTestCase):
             return response.context['page_obj']
 
         page1_slow = post()
-        self.assertTrue(hasattr(page1_slow, 'number'))  # Means slow mode
+        self.assertHasAttr(page1_slow, 'number')  # Means slow mode
 
         FakeOrganisation.objects.create(user=user, name='Zalem')  # We exceed the threshold
         page1_fast = post()
-        self.assertTrue(hasattr(page1_fast, 'next_page_info'))  # Means fast mode
+        self.assertHasAttr(page1_fast, 'next_page_info')  # Means fast mode
 
     def test_listview_popup_GET(self):
         user = self.login()

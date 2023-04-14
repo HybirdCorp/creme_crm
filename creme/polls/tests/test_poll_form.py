@@ -737,7 +737,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertCountEqual(plt.get_choices(), [(0, _('No')), (1, _('Yes'))])
         self.assertIsNone(plt.get_editable_choices())
 
-        self.assertFalse(hasattr(plt, 'get_deleted_choices'))
+        self.assertHasNoAttr(plt, 'get_deleted_choices')
 
     def test_add_line_date01(self):
         "Date type."
