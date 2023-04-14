@@ -894,6 +894,15 @@ class CremeUser(AbstractBaseUser):
     ).set_tags(viewable=False)  # NB: blank=True for teams
     email = models.EmailField(_('Email address'), blank=True)
 
+    displayed_name = models.CharField(
+        _('Displayed name'),
+        max_length=50, blank=True,
+        help_text=_(
+            'If you do not fill this field, an automatic name will be used '
+            '(«John Doe» will be displayed as «John D.»).'
+        ),
+    ).set_tags(viewable=False)
+
     date_joined = models.DateTimeField(
         _('Date joined'), default=now,
     ).set_tags(viewable=False)
@@ -985,6 +994,9 @@ class CremeUser(AbstractBaseUser):
 
             if self.first_name:
                 raise ValidationError('A team cannot have a first name.')
+
+            if self.displayed_name:
+                raise ValidationError('A team cannot have a displayed name.')
         else:
             if self.is_superuser and self.role_id:
                 raise ValidationError('A superuser cannot have a role.')
@@ -1007,6 +1019,10 @@ class CremeUser(AbstractBaseUser):
     def get_full_name(self) -> str:
         if self.is_team:
             return gettext('{user} (team)').format(user=self.username)
+
+        displayed_name = self.displayed_name
+        if displayed_name:
+            return displayed_name
 
         # TODO: we could also check related contact to find first_name, last_name
         first_name = self.first_name

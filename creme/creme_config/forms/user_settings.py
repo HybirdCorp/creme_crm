@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,7 @@ class UserThemeForm(CremeModelForm):
         model = User
         fields = ('theme',)
         widgets = {
-            'theme': MenuSetting(url='creme_config__set_user_theme')
+            'theme': MenuSetting(url='creme_config__set_user_theme'),
         }
         labels = {'theme': _('Your theme')}
 
@@ -52,7 +52,7 @@ class UserTimeZoneForm(CremeModelForm):
         model = User
         fields = ('time_zone',)
         widgets = {
-            'time_zone': MenuSetting(url='creme_config__set_user_timezone')
+            'time_zone': MenuSetting(url='creme_config__set_user_timezone'),
         }
         labels = {'time_zone': _('Your time zone')}
 
@@ -62,6 +62,13 @@ class UserLanguageForm(CremeModelForm):
         model = User
         fields = ('language',)
         widgets = {
-            'language': MenuSetting(url='creme_config__set_user_language')
+            'language': MenuSetting(url='creme_config__set_user_language'),
         }
         labels = {'language': _('Your language')}
+
+
+class UserDisplayedNameForm(CremeModelForm):
+    class Meta:
+        model = User
+        fields = ('displayed_name',)
+        labels = {'displayed_name': _('How to display your name')}

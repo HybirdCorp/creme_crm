@@ -19,21 +19,78 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .theme_picker,
 .tz_picker,
-.language_picker {
+.language_picker,
+.displayed_name_form {
     display: inline-block;
     margin-bottom: 15px;
     margin-top: 5px;
 }
 
 .tz_picker,
-.language_picker {
+.language_picker,
+.displayed_name_form {
     margin-left: 20px;
 }
 
 .theme_picker label,
 .tz_picker label,
-.language_picker label {
+.language_picker label,
+.displayed_name_form label {
     font-weight: bolder;
+}
+
+.displayed_name_form .helptext {
+    margin-bottom: 1px;
+
+    color: #666;
+
+    font-style: italic;
+    font-size: 11.5px;
+}
+
+.displayed_name_form > div {
+    height: 28px;
+}
+
+.displayed_name_form input[type="submit"] {
+    position: relative;
+    top: 5px;
+    left: 160px;
+
+    padding-top: 2px;
+    padding-bottom: 2px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+
+    font-size: 12px;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    text-transform: uppercase;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.displayed_name_form input[type="submit"]:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
+}
+
+.displayed_name_form input[type="submit"]:active {
+    background: linear-gradient(#f9f9f9, #ededed);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+
+    border-bottom-color: #d7d7d7;
+    border-top-color: #bdbdbd;
+
+    color: #1a1a1a;
 }
 
 /* My configuration - end */

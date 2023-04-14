@@ -41,7 +41,7 @@ from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 from ..base import CremeTestCase, skipIfNotInstalled
 
 
-class CredentialsTestCase(CremeTestCase):
+class AuthTestCase(CremeTestCase):
     password = 'password'
 
     def _create_users(self):
@@ -98,6 +98,18 @@ class CredentialsTestCase(CremeTestCase):
         self.assertIsNone(sandbox.user)
         self.assertEqual(OnlySuperusersType.id, sandbox.type_id)
         self.assertIsInstance(sandbox.type, OnlySuperusersType)
+
+    def test_str(self):
+        user = CremeUser(
+            username='kirika',
+            first_name='Kirika',
+            last_name='Yumura',
+        )
+        self.assertEqual('', user.displayed_name)
+        self.assertEqual('Kirika Y.', str(user))
+
+        user.displayed_name = dname = 'Kirika-chan'
+        self.assertEqual(dname, str(user))
 
     def test_clean(self):
         user, other_user = self._create_users()
@@ -203,6 +215,15 @@ class CredentialsTestCase(CremeTestCase):
         self.assertListEqual(
             ['A team cannot have a first name.'],
             cm2.exception.messages,
+        )
+
+        # ---
+        team3 = CremeUser(username='teamA', is_team=True, displayed_name='The famous A team')
+        with self.assertRaises(ValidationError) as cm3:
+            team3.clean()
+        self.assertListEqual(
+            ['A team cannot have a displayed name.'],
+            cm3.exception.messages,
         )
 
     def test_manager_create_user(self):

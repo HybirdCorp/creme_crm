@@ -147,7 +147,8 @@ class PersonsConfig(CremeAppConfig):
                     return format_html(
                         html_fmt,
                         url=contact.get_absolute_url(),
-                        label=contact,
+                        # label=contact,
+                        label=value,
                     )
 
             return str(value)

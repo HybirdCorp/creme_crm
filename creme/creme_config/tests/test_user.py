@@ -10,6 +10,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from parameterized import parameterized
 
+from creme.creme_core import get_world_settings_model
 from creme.creme_core.core.setting_key import (
     SettingKey,
     UserSettingKey,
@@ -383,6 +384,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(first_name, user.first_name)
         self.assertEqual(last_name,  user.last_name)
         self.assertEqual(email,      user.email)
+        self.assertEqual('',         user.displayed_name)
         self.assertTrue(user.check_password(password))
 
         contact = self.get_object_or_fail(
@@ -394,7 +396,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfNotCremeUser
     @skipIfCustomContact
     def test_create_user02(self):
-        "Not superuser ; special chars in username."
+        "Not superuser; special chars in username; displayed_name."
         self.login()
 
         role = UserRole(name='Mangaka')
@@ -411,17 +413,23 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         password = 'password'
         first_name = 'Deunan'
         last_name = 'Knut'
+        displayed_name = 'D3un4n'
         response = self.client.post(
             self.ADD_URL,
             follow=True,
             data={
-                'username':     username,
-                'password_1':   password,
-                'password_2':   password,
-                'first_name':   first_name,
-                'last_name':    last_name,
-                'email':        username,
-                'role':         role.id,
+                'username': username,
+
+                'password_1': password,
+                'password_2': password,
+
+                'first_name':     first_name,
+                'last_name':      last_name,
+                'email':          username,
+                'displayed_name': displayed_name,
+
+                'role': role.id,
+
                 'organisation': orga.id,
                 'relation':     REL_SUB_MANAGES,
             },
@@ -429,6 +437,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         user = self.get_object_or_fail(User, username=username)
+        self.assertEqual(displayed_name, user.displayed_name)
         self.assertEqual(role, user.role)
         self.assertFalse(user.is_superuser)
 
@@ -755,7 +764,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_edit_user(self):
+    def test_edit_user01(self):
         user = self.login()
 
         role1 = UserRole(name='Master')
@@ -802,6 +811,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(first_name, other_user.first_name)
         self.assertEqual(last_name,  other_user.last_name)
         self.assertEqual(email,      other_user.email)
+        self.assertEqual('',         other_user.displayed_name)
         self.assertEqual(role2,      other_user.role)
         self.assertFalse(other_user.is_superuser)
 
@@ -813,6 +823,36 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(first_name,  deunan.first_name)
         self.assertEqual(last_name,   deunan.last_name)
         self.assertEqual(email,       deunan.email)
+
+    @skipIfNotCremeUser
+    def test_edit_user02(self):
+        "Other values."
+        self.login()
+
+        other_user = self.other_user
+
+        first_name = 'Briareos'
+        last_name = 'Hecatonchires'
+        email = 'briareos@eswat.ol'
+        displayed = 'Briareos H11s'
+        self.assertNoFormError(self.client.post(
+            self._build_edit_url(other_user.id),
+            follow=True,
+            data={
+                'first_name':     first_name,
+                'last_name':      last_name,
+                'email':          email,
+                'displayed_name': displayed,
+            },
+        ))
+
+        other_user = self.refresh(other_user)
+        self.assertEqual(first_name, other_user.first_name)
+        self.assertEqual(last_name,  other_user.last_name)
+        self.assertEqual(email,      other_user.email)
+        self.assertEqual(displayed,  other_user.displayed_name)
+        self.assertTrue(other_user.is_superuser)
+        self.assertIsNone(other_user.role)
 
     @skipIfNotCremeUser
     def test_edit_user_not_team(self):
@@ -1126,6 +1166,16 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(_('New team'),      context.get('title'))
         self.assertEqual(_('Save the team'), context.get('submit_label'))
 
+        with self.assertNoException():
+            fields = context['form'].fields
+
+        self.assertIn('username', fields)
+        self.assertNotIn('first_name',     fields)
+        self.assertNotIn('last_name',      fields)
+        self.assertNotIn('email',          fields)
+        self.assertNotIn('displayed_name', fields)
+
+        # ---
         create_user = partial(User.objects.create_user, password='uselesspw')
         user01 = create_user(
             username='Shogun',
@@ -1509,7 +1559,7 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         user_setting_key_registry.register(*skeys)
         self._registered_skey.extend(skeys)
 
-    def test_user_settings(self):
+    def test_user_settings01(self):
         response = self.assertGET200(reverse('creme_config__user_settings'))
         self.assertTemplateUsed(response, 'creme_config/user_settings.html')
 
@@ -1528,10 +1578,24 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertStartsWith(tz_form, '<div>')
         self.assertIn('<label for="id_time_zone">', tz_form)
 
+        self.assertTrue(get_world_settings_model().objects.get().user_name_change_enabled)
+        dname_form = get('displayed_name_form')
+        self.assertIsInstance(dname_form, str)
+        self.assertStartsWith(dname_form, '<div>')
+        self.assertIn('<label for="id_displayed_name">', dname_form)
+
         self.assertIsList(get('apps_usersettings_bricks'))  # TODO: improve
 
         doc = self.get_html_tree(response.content)
         self.get_brick_node(doc, brick=BrickMypageLocationsBrick)
+
+    def test_user_settings02(self):
+        world_settings = get_world_settings_model().objects.get()
+        world_settings.user_name_change_enabled = False
+        world_settings.save()
+
+        response = self.assertGET200(reverse('creme_config__user_settings'))
+        self.assertIsNone(response.context.get('displayed_name_form'))
 
     @override_settings(THEMES=[
         ('icecream',  'Ice cream'),
@@ -1648,6 +1712,31 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
             # response = self.assertGET200(content_url, HTTP_ACCEPT_LANGUAGE=language)
             response = self.assertGET200(content_url, headers={'accept-language': language})
             self.assertEqual(language, response['Content-Language'])
+
+    def test_change_displayed_name(self):
+        user = self.user
+        self.assertEqual('', user.displayed_name)
+
+        world_settings = get_world_settings_model().objects.get()
+        self.assertTrue(world_settings.user_name_change_enabled)
+
+        post_url = reverse('creme_config__set_user_name')
+
+        def post(dname):
+            response = self.assertPOST200(
+                post_url, data={'displayed_name': dname}, follow=True,
+            )
+            self.assertRedirects(response, reverse('creme_config__user_settings'))
+
+            self.assertEqual(dname, self.refresh(user).displayed_name)
+
+        post('foobar')
+        post('')
+
+        # ----
+        world_settings.user_name_change_enabled = False
+        world_settings.save()
+        self.assertPOST403(post_url, data={'displayed_name': 'foobar'})
 
     @staticmethod
     def _build_edit_user_svalue_url(setting_key):
