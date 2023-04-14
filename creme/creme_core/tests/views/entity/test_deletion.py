@@ -149,7 +149,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         user = self.login()
 
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
-        self.assertTrue(hasattr(entity, 'is_deleted'))
+        self.assertHasAttr(entity, 'is_deleted')
         self.assertIs(entity.is_deleted, False)
         self.assertGET200(entity.get_edit_absolute_url())
 

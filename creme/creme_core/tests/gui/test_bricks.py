@@ -1014,7 +1014,7 @@ class BricksManagerTestCase(CremeTestCase):
 
         mngr = BricksManager()
         self.assertFalse(mngr.brick_is_registered(brick1))
-        self.assertTrue(hasattr(BricksManager, 'Error'))
+        self.assertHasAttr(BricksManager, 'Error')
 
         name1 = 'gname1'
         mngr.add_group(name1, brick1, brick2, brick3)

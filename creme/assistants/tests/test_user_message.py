@@ -161,7 +161,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             message.body,
         )
         self.assertEqual(settings.EMAIL_SENDER, message.from_email)
-        self.assertFalse(hasattr(message, 'alternatives'))
+        self.assertHasNoAttr(message, 'alternatives')
         self.assertFalse(message.attachments)
 
         for user_msg in UserMessage.objects.all():

@@ -280,6 +280,14 @@ class _CremeTestCase:
     def assertPOST409(self, *args, **kwargs):
         return self.assertPOST(409, *args, **kwargs)
 
+    def assertHasAttr(self, o, attr_name):
+        if not hasattr(o, attr_name):
+            self.fail(f'<{o}> has no attribute named "{attr_name}".')
+
+    def assertHasNoAttr(self, o, attr_name):
+        if hasattr(o, attr_name):
+            self.fail(f'<{o}> has unexpectedly an attribute named "{attr_name}".')
+
     def assertFound(self, x, string, msg=None):
         idx = string.find(x)
 

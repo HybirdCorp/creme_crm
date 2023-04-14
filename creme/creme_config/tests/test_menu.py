@@ -266,7 +266,7 @@ class MenuEntriesTestCase(CremeTestCase):
         user = self.login()
 
         view = CalendarView()
-        self.assertFalse(hasattr(view, 'model'))
+        self.assertHasNoAttr(view, 'model')
         self.assertHTMLEqual(
             '<a href="{url}">{label}</a>'.format(
                 url=reverse('creme_config__app_portal', args=('activities',)),

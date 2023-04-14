@@ -219,12 +219,12 @@ class CreatorModelChoiceFieldTestCase(FieldTestCase):
         "No action."
         field = CreatorModelChoiceField(queryset=FakeSector.objects.none())
 
-        self.assertFalse(hasattr(field.widget, 'actions'))
+        self.assertHasNoAttr(field.widget, 'actions')
         self.assertListEqual([('', '---------')], [*field.widget.choices])
 
         field.queryset = FakeSector.objects.all()
 
-        self.assertFalse(hasattr(field.widget, 'actions'))
+        self.assertHasNoAttr(field.widget, 'actions')
         self.assertListEqual(
             [
                 ('', '---------'),
@@ -510,7 +510,7 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         "No action."
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.none())
 
-        self.assertFalse(hasattr(field.widget, 'actions'))
+        self.assertHasNoAttr(field.widget, 'actions')
         self.assertListEqual([], [*field.widget.choices])
 
         render_str = field.widget.render('sector', None)

@@ -136,7 +136,7 @@ class ClassKeyedMapTestCase(CremeTestCase):
 
         self.assertIsNone(ckm.default)
 
-        self.assertTrue(hasattr(ckm, '__contains__'))
+        self.assertHasAttr(ckm, '__contains__')
         self.assertIn(Klass1, ckm)
 
         empty = ClassKeyedMap()

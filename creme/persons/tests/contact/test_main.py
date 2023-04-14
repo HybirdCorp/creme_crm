@@ -581,7 +581,7 @@ class ContactTestCase(_BaseTestCase):
         with self.assertNumQueries(0):
             user.linked_contact  # NOQA
 
-        self.assertTrue(hasattr(user, 'get_absolute_url'))
+        self.assertHasAttr(user, 'get_absolute_url')
         self.assertEqual(contact.get_absolute_url(), user.get_absolute_url())
 
     def test_is_user02(self):
