@@ -979,6 +979,12 @@ class CremeUser(AbstractBaseUser):
 
             if self.is_superuser:
                 raise ValidationError('A team cannot be marked as superuser.')
+
+            if self.last_name:
+                raise ValidationError('A team cannot have a last name.')
+
+            if self.first_name:
+                raise ValidationError('A team cannot have a first name.')
         else:
             if self.is_superuser and self.role_id:
                 raise ValidationError('A superuser cannot have a role.')

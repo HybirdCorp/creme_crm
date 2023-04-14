@@ -186,6 +186,25 @@ class CredentialsTestCase(CremeTestCase):
             cm.exception.messages,
         )
 
+    def test_clean_team04(self):
+        "No names."
+        team1 = CremeUser(username='teamA', is_team=True, last_name='A')
+        with self.assertRaises(ValidationError) as cm1:
+            team1.clean()
+        self.assertListEqual(
+            ['A team cannot have a last name.'],
+            cm1.exception.messages,
+        )
+
+        # ---
+        team2 = CremeUser(username='teamA', is_team=True, first_name='team')
+        with self.assertRaises(ValidationError) as cm2:
+            team2.clean()
+        self.assertListEqual(
+            ['A team cannot have a first name.'],
+            cm2.exception.messages,
+        )
+
     def test_manager_create_user(self):
         existing_user = self.create_user()
 
