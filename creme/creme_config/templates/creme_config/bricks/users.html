@@ -64,6 +64,7 @@
     {% brick_table_column_for_field ctype=objects_ctype field='first_name' %}
     {% brick_table_column_for_field ctype=objects_ctype field='role__name' title=_('Role') %}
     {% brick_table_column_for_field ctype=objects_ctype field='email' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='displayed_name' %}
     {% brick_table_column_for_field ctype=objects_ctype field='is_active' %}
     {% brick_table_column_for_field ctype=objects_ctype field='last_login' %}
     {% brick_table_column_for_field ctype=objects_ctype field='date_joined' %}
@@ -84,6 +85,7 @@
         <td class="user-firstname" >{{user.first_name}}</td>
         <td class="user-role" >{% if user.role %}{{user.role}}{% else %}<em>{% if user.is_staff %}{% translate 'Staff' %}{% else %}{{superuser_label}}{% endif %}</em>{% endif %}</td>
         <td class="user-email" >{{user.email}}</td>
+        <td class="user-displayed" >{{user.displayed_name|default:'—'}}</td>
         <td class="user-active" >{{user.is_active|yesno:_('Yes,No')}}</td>
         <td class="user-last-login" data-type='datetime'>{{user.last_login|default:'—'}}</td>
         <td class="user-joined" data-type='datetime'>{{user.date_joined}}</td>

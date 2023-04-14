@@ -40,4 +40,13 @@
             {% brick_table_action id='edit' url='creme_config__edit_world_setting'|url:'password' label=_('Edit this configuration') enabled=user.is_superuser %}
         </td>
     </tr>
+    <tr>
+        <td {% brick_table_data_status primary %}>{% translate 'Displayed name change' %}</td>
+        <td>
+            {% if world_settings.user_name_change_enabled %}{% translate 'Users can change their own displayed name' %}{% else %}{% translate 'Users cannot change their own displayed name' %}{% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='creme_config__edit_world_setting'|url:'displayed_name' label=_('Edit this configuration') enabled=user.is_superuser %}
+        </td>
+    </tr>
 {% endblock %}

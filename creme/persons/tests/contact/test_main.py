@@ -1421,11 +1421,13 @@ class ContactTestCase(_BaseTestCase):
 
         render_field = partial(field_printers_registry.get_field_value, instance=deunan)
         self.assertEqual(
-            f'<a href="{kirika.get_absolute_url()}">{kirika}</a>',
+            # f'<a href="{kirika.get_absolute_url()}">{kirika}</a>',
+            f'<a href="{kirika.get_absolute_url()}">Kirika Y.</a>',
             render_field(field_name='user', user=user, tag=ViewTag.HTML_DETAIL),
         )
         self.assertEqual(
-            f'<a href="{kirika.get_absolute_url()}" target="_blank">{kirika}</a>',
+            # f'<a href="{kirika.get_absolute_url()}" target="_blank">{kirika}</a>',
+            f'<a href="{kirika.get_absolute_url()}" target="_blank">Kirika Y.</a>',
             render_field(field_name='user', user=user, tag=ViewTag.HTML_FORM),
         )
         self.assertEqual(
@@ -1475,7 +1477,8 @@ class ContactTestCase(_BaseTestCase):
         )
         self.assertHTMLEqual(
             f'<a href="{mireille.get_absolute_url()}">'
-            f'{mireille.first_name} {mireille.last_name}'
+            # f'{mireille.first_name} {mireille.last_name}'
+            f'Mireille B.'
             f'</a>',
             render_field(instance=mireille),
         )

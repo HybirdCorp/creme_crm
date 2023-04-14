@@ -16,10 +16,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import Http404, HttpResponse
+from django.core.exceptions import PermissionDenied
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core import get_world_settings_model
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.core.setting_key import user_setting_key_registry
 from creme.creme_core.http import CremeJsonResponse
@@ -50,6 +54,12 @@ class UserSettings(generic.BricksView):
         context['language_form'] = settings_forms.UserLanguageForm(
             user=user, instance=user,
         ).as_div()  # ).as_span()
+
+        if get_world_settings_model().objects.instance().user_name_change_enabled:
+            context['displayed_name_form'] = settings_forms.UserDisplayedNameForm(
+                user=user, instance=user,
+            ).as_div()
+
         context['apps_usersettings_bricks'] = [*self.config_registry.user_bricks]
 
         return context
@@ -101,6 +111,22 @@ class TimeZoneSetting(_UserFieldSetting):
 
 class LanguageSetting(_UserFieldSetting):
     form_class = settings_forms.UserLanguageForm
+
+
+class DisplayedNameSetting(_UserFieldSetting):
+    form_class = settings_forms.UserDisplayedNameForm
+
+    def dispatch(self, request, *args, **kwargs):
+        if not get_world_settings_model().objects.instance().user_name_change_enabled:
+            raise PermissionDenied(gettext(
+                'Your are not allowed to change your displayed name'
+            ))
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponseRedirect(reverse('creme_config__user_settings'))
 
 
 class UserSettingValueEdition(generic.CremeEditionPopup):

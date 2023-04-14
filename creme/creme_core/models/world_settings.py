@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022  Hybird
+#    Copyright (C) 2022-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -53,6 +53,10 @@ class AbstractActivityWorldSettings(CremeModel):
             'it. The login page proposes to receive an email to start the '
             'reset process.'
         ),
+    )
+    user_name_change_enabled = models.BooleanField(
+        verbose_name=_('Can users change their own displayed name?'),
+        default=True,
     )
 
     objects = WorldSettingsManager()

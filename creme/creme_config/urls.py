@@ -115,6 +115,11 @@ user_settings_patterns = [
         name='creme_config__set_user_language',
     ),
     re_path(
+        r'^set_name[/]?$',
+        user_settings.DisplayedNameSetting.as_view(),
+        name='creme_config__set_user_name',
+    ),
+    re_path(
         r'^edit_value/(?P<skey_id>[\w-]+)[/]?$',
         user_settings.UserSettingValueEdition.as_view(),
         name='creme_config__edit_user_setting',

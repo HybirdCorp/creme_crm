@@ -261,3 +261,28 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         w_settings = self.refresh(w_settings)
         self.assertFalse(w_settings.password_reset_enabled)
         self.assertTrue(w_settings.password_change_enabled)
+
+    def test_edit_displayed_name(self):
+        self.login()
+        self.assertTrue(WorldSettings.objects.get().user_name_change_enabled)
+
+        url = reverse('creme_config__edit_world_setting', args=('displayed_name',))
+        response1 = self.assertGET200(url)
+        self.assertEqual(
+            _("Edit the instance's settings"), response1.context.get('title'),
+        )
+        self.assertEqual(
+            _('Save the modifications'), response1.context.get('submit_label'),
+        )
+
+        # POST
+        response2 = self.client.post(
+            url,
+            data={
+                'user_name_change_enabled': '',
+            },
+        )
+        self.assertNoFormError(response2)
+
+        w_settings = WorldSettings.objects.get()
+        self.assertFalse(w_settings.user_name_change_enabled)

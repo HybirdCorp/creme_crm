@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-06 13:44+0100\n"
+"POT-Creation-Date: 2023-04-17 14:53+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -908,6 +908,9 @@ msgstr "Votre fuseau horaire"
 msgid "Your language"
 msgstr "Votre langue"
 
+msgid "How to display your name"
+msgstr "Comment afficher votre nom"
+
 msgid "Create"
 msgstr "Créer"
 
@@ -1183,7 +1186,9 @@ msgid "Reset this form"
 msgstr "Réinitialiser ce formulaire"
 
 msgid "Set the configuration the form gets after a fresh installation"
-msgstr "Remettre la configuration que le formaulaire a après une nouvelle installation"
+msgstr ""
+"Remettre la configuration que le formulaire a après une nouvelle "
+"installation"
 
 msgid "Delete this form"
 msgstr "Supprimer ce formulaire"
@@ -1867,6 +1872,15 @@ msgstr "Les utilisateurs peuvent réinitialiser leur mot de passe perdu"
 msgid "Users cannot reset their lost password"
 msgstr "Les utilisateurs ne peuvent pas réinitialiser leur mot de passe perdu"
 
+msgid "Displayed name change"
+msgstr "Changement de nom affiché"
+
+msgid "Users can change their own displayed name"
+msgstr "Les utilisateurs peuvent modifier leur propre nom affiché"
+
+msgid "Users cannot change their own displayed name"
+msgstr "Les utilisateurs ne peuvent pas modifier leur propre nom affiché"
+
 #, python-format
 msgid "Configuration of «%(object)s»"
 msgstr "Configuration de «%(object)s»"
@@ -2208,6 +2222,10 @@ msgstr "Voir vos réglages"
 msgid "View and edit your Creme settings"
 msgstr "Voir et modifier vos réglages Creme"
 
+# Already in creme_core
+msgid "Save"
+msgstr ""
+
 msgid "Hide inactive users"
 msgstr "Cacher les utilisateurs désactivés"
 
@@ -2352,10 +2370,6 @@ msgstr "Enregistrer le filtre"
 msgid "Create a fields configuration for «{model}»"
 msgstr "Créer une configuration de champs pour «{model}»"
 
-# Already in creme_core
-msgid "Save"
-msgstr ""
-
 #, python-brace-format
 msgid "New value: {model}"
 msgstr "Nouvelle valeur : {model}"
@@ -2472,6 +2486,9 @@ msgstr "Supprimer le rôle"
 
 msgid "A deletion process for a role already exists."
 msgstr "Il y a déjà un processus de suppression pour un rôle."
+
+msgid "Your are not allowed to change your displayed name"
+msgstr "Vous n'avez pas la permission de modifier votre nom affiché"
 
 msgid "Edit the instance's settings"
 msgstr "Modifier la configuration de l'instance"

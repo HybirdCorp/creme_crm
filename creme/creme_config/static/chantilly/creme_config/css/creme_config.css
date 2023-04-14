@@ -20,21 +20,62 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .theme_picker,
 .tz_picker,
-.language_picker {
+.language_picker,
+.displayed_name_form {
     display: inline-block;
     margin-bottom: 15px;
     margin-top: 5px;
 }
 
 .tz_picker,
-.language_picker {
+.language_picker,
+.displayed_name_form {
     margin-left: 20px;
 }
 
 .theme_picker label,
 .tz_picker label,
-.language_picker label {
+.language_picker label,
+.displayed_name_form label {
     font-weight: bolder;
+}
+
+.displayed_name_form .helptext {
+    margin-bottom: 1px;
+
+    color: hsla(197, 15%, 45%, 1);
+
+    font-style: italic;
+    font-size: 11px;
+}
+
+.displayed_name_form > div {
+    height: 28px;
+}
+
+.displayed_name_form input[type="submit"] {
+    position: relative;
+    top: 1px;
+    left: 172px;
+
+    border: 1px solid #6eaac4;
+    border-radius: 6px;
+
+    background: linear-gradient(to bottom, #acd1e2 0%,#acd1e2 50%,#89bfd7 51%, #bedbe9 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+
+    font-size: 1em;
+    font-weight: bold;
+    color: #284b5a;
+
+    cursor: pointer;
+}
+
+.displayed_name_form input[type="submit"]:hover {
+    border: 1px solid #ff968d;
+
+    background: linear-gradient(to bottom, #f9e2df 0%, #f9e2df 50%, #f7d6d2 51%, #fae8e6 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+
+    color: #653b38;
 }
 
 /* My configuration - end */

@@ -59,7 +59,11 @@ class UserAddForm(CremeModelForm):
 
     class Meta:
         model = CremeUser
-        fields = ('username', 'last_name', 'first_name', 'email', 'role')  # 'is_superuser'
+        fields = (
+            'username',
+            'last_name', 'first_name', 'email', 'displayed_name',
+            'role',
+        )
         field_classes = {'username': auth_forms.UsernameField}
 
     def __init__(self, *args, **kwargs):
@@ -125,7 +129,7 @@ class UserEditForm(CremeModelForm):
 
     class Meta:
         model = CremeUser
-        fields = ('first_name', 'last_name', 'email', 'role')  # 'is_superuser'
+        fields = ('first_name', 'last_name', 'email', 'displayed_name', 'role')  # 'is_superuser'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

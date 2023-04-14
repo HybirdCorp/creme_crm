@@ -15,6 +15,13 @@
     <div class="theme_picker">{{theme_form}}</div>
     <div class="tz_picker">{{tz_form}}</div>
     <div class="language_picker">{{language_form}}</div>
+    {% if displayed_name_form %}
+    <form class="displayed_name_form" action="{% url 'creme_config__set_user_name' %}" method="POST">
+        {% csrf_token %}
+        {{displayed_name_form}}
+        <input type="submit" value="{% translate 'Save' %}">
+    </form>
+    {% endif %}
 
     <script type="text/javascript">
     $(document).ready(function() {
