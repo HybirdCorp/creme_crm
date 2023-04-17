@@ -20,7 +20,7 @@
                 - The displayed name of Users can now be customised (per user);
                   each used can change its own displayed name by default (& you can disable this feature).
                 - When creating a new user, usernames which differ only in case are rejected.
-                - Displayed Users can be filtered (by user-name, first name & last name).
+                - Displayed Users can be filtered (by user-name, first name, last name & new field displayed-name).
         * Activities :
             - A color field has been added to Status.
         * Billing :
