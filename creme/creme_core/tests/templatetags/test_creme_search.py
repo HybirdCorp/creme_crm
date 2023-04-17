@@ -1,9 +1,14 @@
 from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template
 
-from creme.creme_core.models import FakeContact, SearchConfigItem
+from creme.creme_core.models import (
+    FakeContact,
+    FakeDocument,
+    FakeOrganisation,
+    FakeSector,
+    SearchConfigItem,
+)
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.fake_models import FakeOrganisation, FakeSector
 
 
 class CremeSearchTagsTestCase(CremeTestCase):
@@ -11,6 +16,10 @@ class CremeSearchTagsTestCase(CremeTestCase):
         user = self.create_user()
         get_ct = ContentType.objects.get_for_model
         contact_ct_id = get_ct(FakeContact).id
+
+        create_sci = SearchConfigItem.objects.create_if_needed
+        create_sci(model=FakeContact,      fields=['last_name', 'first_name'])
+        create_sci(model=FakeOrganisation, fields=['name'])
 
         with self.assertNoException():
             render = Template(
@@ -44,6 +53,10 @@ class CremeSearchTagsTestCase(CremeTestCase):
             choices=choices,
         )
         self.assertNotInChoices(
+            value=str(get_ct(FakeDocument).id),
+            choices=choices,
+        )
+        self.assertNotInChoices(
             value=str(get_ct(FakeSector).id),
             choices=choices,
         )
@@ -64,6 +77,12 @@ class CremeSearchTagsTestCase(CremeTestCase):
             fields=(),
             role='superuser',
             disabled=True,
+        )
+        SearchConfigItem.objects.create_if_needed(
+            model=FakeOrganisation,
+            fields=(),
+            role='superuser',
+            disabled=False,
         )
 
         get_ct = ContentType.objects.get_for_model

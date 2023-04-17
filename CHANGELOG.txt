@@ -136,7 +136,9 @@
                 - In 'field_printers', 'print_date()' & print_datetime() have been removed.
             - In 'creme_core.models' :
                 - The method 'bricks.RelationBrickItemManager.create_if_needed()' has been removed.
-                - The method 'Relation.populate_real_object_entities()'' has been removed.
+                - The method 'relation.Relation.populate_real_object_entities()'' has been removed.
+                - The method 'search.SearchConfigItemManager.iter_for_models()' does not return unsaved
+                  instances for models without configuration (these models are just ignored).
             - In 'creme_core.utils' :
                 - The function 'find_first()' & 'split_filter()' have been removed.
                 - The function 'imports.import_object()' has been removed.

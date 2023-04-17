@@ -260,16 +260,19 @@ class SearchConfigTestCase(CremeTestCase):
         "One model, no config in BD."
         user = self.create_user()
 
-        configs = [*SearchConfigItem.objects.iter_for_models([FakeContact], user)]
-        self.assertEqual(1, len(configs))
-
-        sc_item = configs[0]
-        self.assertIsInstance(sc_item, SearchConfigItem)
-        self.assertEqual(FakeContact, sc_item.content_type.model_class())
-        self.assertIsNone(sc_item.role)
-        self.assertFalse(sc_item.superuser)
-        self.assertTrue(sc_item.all_fields)
-        self.assertIsNone(sc_item.pk)
+        # configs = [*SearchConfigItem.objects.iter_for_models([FakeContact], user)]
+        # self.assertEqual(1, len(configs))
+        #
+        # sc_item = configs[0]
+        # self.assertIsInstance(sc_item, SearchConfigItem)
+        # self.assertEqual(FakeContact, sc_item.content_type.model_class())
+        # self.assertIsNone(sc_item.role)
+        # self.assertFalse(sc_item.superuser)
+        # self.assertTrue(sc_item.all_fields)
+        # self.assertIsNone(sc_item.pk)
+        self.assertFalse(
+            [*SearchConfigItem.objects.iter_for_models([FakeContact], user)],
+        )
 
     def test_manager_get_for_models03(self):
         "One model, 1 config in DB."
@@ -351,6 +354,10 @@ class SearchConfigTestCase(CremeTestCase):
     def test_manager_get_for_models08(self):
         "2 models."
         user = self.create_user()
+
+        create = SearchConfigItem.objects.create_if_needed
+        create(FakeContact, ['last_name'])
+        create(FakeOrganisation, ['name'])
 
         configs = [
             *SearchConfigItem.objects
