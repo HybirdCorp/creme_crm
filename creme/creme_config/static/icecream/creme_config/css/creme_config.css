@@ -17,6 +17,16 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 /* My configuration */
 
+.user-settings-inline-forms {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    margin-bottom: 15px;
+    margin-top: 5px;
+}
+
+/*
 .theme_picker,
 .tz_picker,
 .language_picker,
@@ -31,6 +41,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 .displayed_name_form {
     margin-left: 20px;
 }
+*/
 
 .theme_picker label,
 .tz_picker label,
