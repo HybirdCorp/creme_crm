@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -122,8 +122,8 @@ class SearchConfigItemManager(models.Manager):
 
             if sc_items:
                 yield next((item for item in sc_items if filter_func(item)), sc_items[0])
-            else:
-                yield self.model(content_type=ctype)
+            # else:
+            #     yield self.model(content_type=ctype)
 
 
 class SearchConfigItem(CremeModel):
