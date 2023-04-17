@@ -558,7 +558,7 @@ class UsersBrick(_ConfigAdminBrick):
     dependencies = (User,)
     order_by = 'username'
     template_name = 'creme_config/bricks/users.html'
-    search_fields = ['username', 'last_name', 'first_name']
+    search_fields = ['username', 'last_name', 'first_name', 'displayed_name']
 
     def detailview_display(self, context):
         users = User.objects.filter(is_team=False)
