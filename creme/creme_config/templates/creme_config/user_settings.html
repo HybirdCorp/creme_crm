@@ -12,22 +12,24 @@
         </div>
     </div>
 
-    <div class="theme_picker">{{theme_form}}</div>
-    <div class="tz_picker">{{tz_form}}</div>
-    <div class="language_picker">{{language_form}}</div>
-    {% if displayed_name_form %}
-    <form class="displayed_name_form" action="{% url 'creme_config__set_user_name' %}" method="POST">
-        {% csrf_token %}
-        {{displayed_name_form}}
-        <input type="submit" value="{% translate 'Save' %}">
-    </form>
-    {% endif %}
+    <div class="user-settings-inline-forms">
+        <div class="user-settings-inline-form theme_picker">{{theme_form}}</div>
+        <div class="user-settings-inline-form tz_picker">{{tz_form}}</div>
+        <div class="user-settings-inline-form language_picker">{{language_form}}</div>
+        {% if displayed_name_form %}
+        <form class="user-settings-inline-form displayed_name_form" action="{% url 'creme_config__set_user_name' %}" method="POST">
+            {% csrf_token %}
+            {{displayed_name_form}}
+            <input type="submit" value="{% translate 'Save' %}">
+        </form>
+        {% endif %}
 
-    <script type="text/javascript">
-    $(document).ready(function() {
-        return new creme.UserSettingController($(this));
-    });
-    </script>
+        <script type="text/javascript">
+        $(document).ready(function() {
+            return new creme.UserSettingController($(this));
+        });
+        </script>
+    </div>
 
     {% brick_import app='creme_config' name='blocks_mypage_locations' as blocks_mypage_locations_brick %}
     {% brick_import app='creme_config' name='user_setting_values' as user_setting_values_brick %}
