@@ -1035,7 +1035,14 @@ class SearchConfigBrick(PaginatedBrick):
             )
 
             if not sc_items or not sc_items[0].is_default:  # No default config -> we build it
-                SearchConfigItem.objects.create(content_type=ctype)
+                # SearchConfigItem.objects.create(content_type=ctype)
+                logger.warning(
+                    'No search config for model <%s>; we create a disabled one.',
+                    ctype,
+                )
+                ctw.sc_items = [
+                    SearchConfigItem.objects.create(content_type=ctype, disabled=True),
+                ]
 
         return self._render(btc)
 
