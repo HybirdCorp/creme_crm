@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2022 Hybird
+# Copyright (c) 2009-2023 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ import logging
 import sys
 import traceback
 # import warnings
-from typing import Iterable, TypeVar  # Callable
+from typing import Iterable  # TypeVar Callable
 
 from django.http import Http404
 from django.utils.safestring import mark_safe
@@ -37,7 +37,7 @@ from django.utils.translation import gettext as _
 from ..signals import pre_replace_related
 
 logger = logging.getLogger(__name__)
-T = TypeVar('T')
+# T = TypeVar('T')
 
 
 def create_if_needed(model, get_dict, **attrs):
