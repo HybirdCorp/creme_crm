@@ -29,7 +29,9 @@ from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models.signals import pre_save
 
 from creme.creme_core.apps import creme_app_configs
+from creme.creme_core.models import HeaderFilter, SearchConfigItem
 from creme.creme_core.utils.collections import OrderedSet
+from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.dependence_sort import dependence_sort
 
 
@@ -80,12 +82,49 @@ class BasePopulator:
         return self.dependencies
 
 
+def check_hfilters():
+    ctypes = {ctype.id: ctype for ctype in entity_ctypes()}
+    missing_ct_ids = {*ctypes.keys()} - {
+        *HeaderFilter.objects.filter(
+            user=None, is_custom=False,
+        ).values_list('entity_type', flat=True),
+    }
+
+    if missing_ct_ids:
+        yield (
+            'BEWARE, these types of entity do not have default configuration '
+            'for views of list (i.e. HeaderFilter): '
+            + ', '.join(str(ctypes[ct_id]) for ct_id in missing_ct_ids)
+        )
+
+
+def check_search():
+    ctypes = {ctype.id: ctype for ctype in entity_ctypes()}
+    missing_ct_ids = {*ctypes.keys()} - {
+        *SearchConfigItem.objects.filter(
+            role=None, superuser=False,
+        ).values_list('content_type', flat=True),
+    }
+
+    if missing_ct_ids:
+        yield (
+            'BEWARE, these types of entity do not have default configuration '
+            'for global search (i.e. SearchConfigItem): '
+            + ', '.join(str(ctypes[ct_id]) for ct_id in missing_ct_ids)
+        )
+
+
 class Command(BaseCommand):
     help = ('Populates the database for the specified applications, or the '
             'entire site if no apps are specified.')
     # args = '[appname ...]'
     leave_locale_alone = True
     requires_migrations_checks = True
+
+    end_checks = [
+        check_hfilters,
+        check_search,
+    ]
 
     def _signal_handler(self, sender, instance, **kwargs):
         if instance.pk and not isinstance(instance.pk, str):
@@ -208,6 +247,13 @@ class Command(BaseCommand):
         elif verbosity >= 1:
             self.stdout.write('No sequence to update.')
 
+        # ----------------------------------------------------------------------
+        if verbosity:
+            for end_check in self.end_checks:
+                for message in end_check():
+                    self.stdout.write(message)
+
+        # ----------------------------------------------------------------------
         if verbosity >= 1:
             self.stdout.write(self.style.SUCCESS('Populate is OK.'))
 
