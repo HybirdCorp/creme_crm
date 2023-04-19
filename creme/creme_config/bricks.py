@@ -67,7 +67,7 @@ logger = logging.getLogger(__name__)
 
 class ExportButtonBrick(Brick):
     id = Brick.generate_id('creme_config', 'transfer_buttons')
-    verbose_name = _('Export & import configuration')
+    verbose_name = _('Export & import configuration (reserved to staff users) - EXPERIMENTAL')
     template_name = 'creme_config/bricks/transfer-buttons.html'
     configurable = False
 
