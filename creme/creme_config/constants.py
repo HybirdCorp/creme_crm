@@ -2,7 +2,14 @@ BRICK_STATE_HIDE_INACTIVE_USERS  = 'creme_config-hide_inactive_users'
 BRICK_STATE_HIDE_DELETED_CFIELDS = 'creme_config-hide_deleted_customfields'
 BRICK_STATE_SHOW_CFORMS_DETAILS  = 'creme_config-show_customforms_details'
 
-# Transfer IDs
+# Transfer ---------------------------------------------------------------------
+# 2.2: 1.0
+# 2.3: 1.1/1.2 the models for search & custom-forms have changed.
+# 2.4: 1.3 RelationBrickItem.brick_id has been removed (use 'id' now).
+# 2.5: 1.4 InstanceBrickConfigItems are exported and imported if possible.
+# 2.6: 1.5 Use UUID for CremePropertyType instead of ID.  TODO: complete
+FILE_VERSION = '1.5'
+
 ID_VERSION = 'version'
 
 ID_ROLES           = 'roles'
@@ -22,3 +29,4 @@ ID_CUSTOM_BRICKS   = 'custom_bricks'
 ID_DETAIL_BRICKS   = 'detail_bricks'
 ID_HOME_BRICKS     = 'home_bricks'
 ID_MYPAGE_BRICKS   = 'mypage_bricks'
+# ------------------------------------------------------------------------------

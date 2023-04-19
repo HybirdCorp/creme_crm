@@ -1,11 +1,18 @@
+import json
 from collections import defaultdict
 from datetime import date
 from functools import partial
+from io import StringIO
 
 from django.contrib.contenttypes.models import ContentType
+# from django.utils.translation import gettext as _
+from django.core.management import call_command
 from django.urls import reverse
 
 from creme.creme_config.core.exporters import Exporter, ExportersRegistry
+from creme.creme_config.management.commands.creme_config_export import (
+    Command as ExportCommand,
+)
 from creme.creme_core import bricks, constants
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import (
@@ -1884,3 +1891,23 @@ class ExportingTestCase(TransferBaseTestCase):
             ],
             loaded_cforms.get(descriptor_id),
         )
+
+    def test_command(self):
+        existing_locs = [*BrickHomeLocation.objects.all()]
+        self.assertTrue(existing_locs)
+
+        stdout = StringIO()
+        stderr = StringIO()
+
+        with self.assertNoException():
+            call_command(ExportCommand(stdout=stdout, stderr=stderr), verbosity=0)
+
+        with self.assertNoException():
+            data = json.loads(stdout.getvalue())
+
+        self.assertListEqual(
+            [{'id': loc.brick_id, 'order': loc.order} for loc in existing_locs],
+            data.get('home_bricks'),
+        )
+
+        self.assertFalse(stderr.getvalue())

@@ -27,6 +27,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeForm, FieldBlockManager
 
+from ..constants import FILE_VERSION
 from ..core.importers import IMPORTERS
 
 logger = logging.getLogger(__name__)
@@ -75,7 +76,7 @@ class ImportForm(CremeForm):
                 )
 
             # see ..views.transfer.ConfigExport
-            if deserialized_data.get('version') != '1.5':
+            if deserialized_data.get('version') != FILE_VERSION:
                 raise ValidationError(
                     self.error_messages['invalid_version'], code='invalid_version',
                 )
