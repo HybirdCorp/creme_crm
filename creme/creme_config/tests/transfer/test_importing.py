@@ -2,13 +2,19 @@ from collections import defaultdict
 from functools import partial
 from io import StringIO
 from json import dumps as json_dump
+from tempfile import NamedTemporaryFile
 from uuid import uuid4
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.management import CommandError, call_command
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_config.core.importers import Importer, ImportersRegistry
+from creme.creme_config.management.commands.creme_config_import import (
+    Command as ImportCommand,
+)
 from creme.creme_core import bricks, constants
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import (
@@ -3722,7 +3728,7 @@ class ImportingTestCase(TransferBaseTestCase):
             [
                 {'id': loc.brick_id, 'order': loc.order}
                 for loc in BrickMypageLocation.objects.filter(user=None)
-            ]
+            ],
         )
 
         self.assertStillExists(user_loc)
@@ -3798,3 +3804,92 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(description2, channel2.description)
         self.assertFalse(channel2.required)
         self.assertListEqual(['web'], channel2.default_outputs)
+
+    def test_command01(self):
+        bricks_data = [
+            {'id': bricks.HistoryBrick.id,    'order': 5},
+            {'id': bricks.StatisticsBrick.id, 'order': 15},
+        ]
+
+        # No need to delete, directory MEDIA_ROOT is temporary in the tests
+        tmp_file = NamedTemporaryFile(
+            suffix='.json', delete=False, dir=settings.MEDIA_ROOT,
+        )
+        tmp_file.write(
+            json_dump({
+                'version': self.VERSION, 'home_bricks': bricks_data,
+            }).encode()
+        )
+        tmp_file.close()
+
+        stdout = StringIO()
+        stderr = StringIO()
+
+        with self.assertNoException():
+            call_command(
+                ImportCommand(stdout=stdout, stderr=stderr),
+                tmp_file.name,
+                verbosity=0,
+            )
+
+        self.assertListEqual(
+            bricks_data,
+            [
+                {'id': loc.brick_id, 'order': loc.order}
+                for loc in BrickHomeLocation.objects.all()
+            ],
+        )
+        self.assertFalse(stdout.getvalue())
+        self.assertFalse(stderr.getvalue())
+
+    def test_command02(self):
+        "Not a dictionary => error."
+        tmp_file = NamedTemporaryFile(
+            suffix='.json', delete=False, dir=settings.MEDIA_ROOT,
+        )
+        tmp_file.write(json_dump([]).encode())
+        tmp_file.close()
+
+        stdout = StringIO()
+        stderr = StringIO()
+
+        with self.assertRaises(CommandError) as cm:
+            call_command(
+                ImportCommand(stdout=stdout, stderr=stderr),
+                tmp_file.name,
+                verbosity=0,
+            )
+
+        self.assertEqual(
+            _('main content must be a dictionary'),
+            str(cm.exception),
+        )
+
+        self.assertFalse(stdout.getvalue())
+        self.assertFalse(stderr.getvalue())
+
+    def test_command03(self):
+        "Bad version."
+        tmp_file = NamedTemporaryFile(
+            suffix='.json', delete=False, dir=settings.MEDIA_ROOT,
+        )
+        tmp_file.write(json_dump({'version': '0.3'}).encode())
+        tmp_file.close()
+
+        stdout = StringIO()
+        stderr = StringIO()
+
+        with self.assertRaises(CommandError) as cm:
+            call_command(
+                ImportCommand(stdout=stdout, stderr=stderr),
+                tmp_file.name,
+                verbosity=0,
+            )
+
+        self.assertEqual(
+            _('The file has an unsupported version.'),
+            str(cm.exception),
+        )
+
+        self.assertFalse(stdout.getvalue())
+        self.assertFalse(stderr.getvalue())

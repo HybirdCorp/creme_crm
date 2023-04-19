@@ -122,6 +122,38 @@ msgstr "Valeurs de réglage"
 msgid "Temporary files"
 msgstr "Fichiers temporaires"
 
+msgid "Default configuration"
+msgstr "Configuration par défaut"
+
+#, python-brace-format
+msgid ""
+"The configuration of blocks for detailed-views cannot be exported because it "
+"contains references to some instance-blocks ({blocks}), which are not "
+"managed, for the following cases: {models}."
+msgstr ""
+"La configuration des blocs pour les vues détaillées ne peut pas être "
+"exportée car elle contient des références à des blocs d'instance ({blocks}), "
+"qui ne sont pas gérés, pour les cas suivants : {models}."
+
+#, python-brace-format
+msgid ""
+"The configuration of blocks for Home cannot be exported because it contains "
+"references to some instance-blocks ({blocks}), which are not managed."
+msgstr ""
+"La configuration des blocs pour l'Accueil ne peut pas être exportée car elle "
+"contient des références à des blocs d'instance ({blocks}), qui ne sont pas "
+"gérés."
+
+#, python-brace-format
+msgid ""
+"The configuration of blocks for «My page» cannot be exported because it "
+"contains references to some instance-blocks ({blocks}), which are not "
+"managed."
+msgstr ""
+"La configuration des blocs pour «Ma page» ne peut pas être exportée car elle "
+"contient des références à des blocs d'instance ({blocks}), qui ne sont pas "
+"gérés."
+
 #, python-brace-format
 msgid "The column with type=\"{type}\" is invalid in «{container}»."
 msgstr "La colonne avec le type=\"{type}\" est invalide dans «{container}»."

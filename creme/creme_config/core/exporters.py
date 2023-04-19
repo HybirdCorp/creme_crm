@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2024  Hybird
+#    Copyright (C) 2017-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import OrderedDict
-from typing import Callable, Iterator
+from typing import Any, Callable, Iterator
 
 # from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, QuerySet
@@ -99,6 +99,12 @@ class ExportersRegistry:
     def __iter__(self) -> Iterator[tuple[str, Exporter]]:
         for data_id, (__, exporter_cls) in self._registered.items():
             yield data_id, exporter_cls()
+
+    def export(self) -> dict[str, Any]:
+        info = {constants.ID_VERSION: constants.FILE_VERSION}
+        info.update((e_id, exporter()) for e_id, exporter in self)
+
+        return info
 
     def register(self, data_id: str, priority: int = 1):
         """Register an export function.
