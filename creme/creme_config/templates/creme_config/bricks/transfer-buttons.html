@@ -3,7 +3,8 @@
 {% load url from creme_core_tags %}
 
 {% block brick_extra_class %}
-{{block.super}} creme_config_export-buttons-brick{% if not user.is_staff %} is-empty{% endif %}
+{# {{block.super}} creme_config_export-buttons-brick{% if not user.is_staff %} is-empty{% endif %} #}
+{{block.super}} creme_config_export-buttons-brick
 {% endblock %}
 
 {% block brick_header_title %}
@@ -28,9 +29,13 @@
 {% endblock %}
 
 {% block brick_content %}
-    <a href="{% url 'creme_config__transfer_export' %}" {# class="bar-button" #} >
-        {% widget_icon name='download' size='brick-action' label=_('Export') %}
+  {% if user.is_staff %}
+    <a href="{% url 'creme_config__transfer_export' %}" class="brick-action">
+  {% else %}
+    <a href="#" class="brick-action is-disabled" onclick="event.preventDefault();">
+  {% endif %}
+        {% widget_icon name='download' size='brick-action' class='brick-action-icon' label=_('Export') %}
         {% translate 'Export the configuration' %}
     </a>
-    {% brick_action id='add' url='creme_config__transfer_import'|url label=_('Import a configuration') display='both' %}
+    {% brick_action id='add' url='creme_config__transfer_import'|url label=_('Import a configuration') display='both' enabled=user.is_staff %}
 {% endblock %}
