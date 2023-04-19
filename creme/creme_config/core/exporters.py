@@ -19,6 +19,7 @@
 import logging
 from collections import OrderedDict
 from collections.abc import Callable, Iterator
+from typing import Any
 
 from django.db.models import Model, QuerySet
 
@@ -73,6 +74,12 @@ class ExportersRegistry:
     def __iter__(self) -> Iterator[tuple[str, Exporter]]:
         for data_id, (__, exporter_cls) in self._registered.items():
             yield data_id, exporter_cls()
+
+    def export(self) -> dict[str, Any]:
+        info = {constants.ID_VERSION: constants.FILE_VERSION}
+        info.update((e_id, exporter()) for e_id, exporter in self)
+
+        return info
 
     def register(self, data_id: str, priority: int = 1):
         """Register an export function.
