@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,8 +31,9 @@ class _CampaignEmailsSendType(JobType):
     periodic = JobType.PSEUDO_PERIODIC
 
     def _execute(self, job):
+        # TODO: exclude config_item=None ?
         for sending in EmailSending.objects.exclude(
-                campaign__is_deleted=True,
+            campaign__is_deleted=True,
         ).exclude(
             state=EmailSending.State.DONE,
         ).filter(
@@ -48,7 +49,6 @@ class _CampaignEmailsSendType(JobType):
             status = sending.send_mails()
 
             # TODO: move in send_mails() ???
-            # sending.state = status or SENDING_STATE_DONE
             sending.state = status or EmailSending.State.DONE
             sending.save()
 

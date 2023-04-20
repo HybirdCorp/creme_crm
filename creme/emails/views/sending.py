@@ -19,24 +19,78 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from django.utils.formats import date_format
+from django.utils.timezone import localtime
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 import creme.creme_core.views.bricks as bricks_views
+from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.html import sanitize_html
 from creme.creme_core.views import generic
 
 from .. import bricks, get_emailcampaign_model
-from ..forms.sending import SendingCreateForm
-from ..models import EmailSending
+from ..forms import sending as sending_forms
+from ..models import EmailSending, EmailSendingConfigItem
+
+
+class SendingConfigItemCreation(generic.CremeModelCreationPopup):
+    model = EmailSendingConfigItem
+    form_class = sending_forms.SendingConfigItemCreationForm
+    permissions = 'emails.can_admin'
+
+
+class SendingConfigItemEdition(generic.CremeModelEditionPopup):
+    model = EmailSendingConfigItem
+    form_class = sending_forms.SendingConfigItemEditionForm
+    pk_url_kwarg = 'item_id'
+    title = pgettext_lazy('emails', 'Edit the server configuration')
+    submit_label = EmailSendingConfigItem.save_label
+    permissions = 'emails.can_admin'
+
+
+class SendingConfigItemDeletion(generic.CheckedView):
+    id_arg = 'id'
+    permissions = 'emails.can_admin'
+
+    def post(self, request, **kwargs):
+        get_object_or_404(
+            EmailSendingConfigItem,
+            pk=get_from_POST_or_404(request.POST, self.id_arg),
+        ).delete()
+
+        return HttpResponse()
 
 
 class SendingCreation(generic.AddingInstanceToEntityPopup):
     model = EmailSending
-    form_class = SendingCreateForm
+    form_class = sending_forms.SendingCreationForm
     entity_id_url_kwarg = 'campaign_id'
     entity_classes = get_emailcampaign_model()
     title = _('New sending for «{entity}»')
+
+
+class SendingEdition(generic.RelatedToEntityEditionPopup):
+    model = EmailSending
+    form_class = sending_forms.SendingEditionForm
+    pk_url_kwarg = 'sending_id'
+    title = _('Edit the sending on {date}')
+
+    def check_instance_permissions(self, instance, user):
+        if instance.state == EmailSending.State.DONE:
+            raise ConflictError(gettext('This sending is done.'))
+
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['date'] = date_format(
+            value=localtime(self.object.sending_date),
+            format='DATETIME_FORMAT',
+        )
+
+        return data
 
 
 class SendingDetail(generic.RelatedToEntityDetail):

@@ -1,0 +1,15 @@
+{% load i18n %}<ul {% include 'django/forms/widgets/attrs.html' %}>
+    {% with widget=widget.subwidgets.0 %}<li class="emails-sending_config-server">{% translate 'SMTP server: ' %}{% include widget.template_name %}</li>{% endwith %}
+    {% with widget=widget.subwidgets.1 %}<li class="emails-sending_config-email">{% translate 'Email address: ' %}{% include widget.template_name %}</li>{% endwith %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var widget = $('#{{widget.attrs.id}}');
+            var source = widget.find('[data-emails-sending_config-source]');
+            var target = widget.find('[data-emails-sending_config-target]');
+
+            source.on('change', function(e) {
+                target.val(source.find('option:selected').attr('data-default_sender'));
+            });
+        });
+    </script>
+</ul>

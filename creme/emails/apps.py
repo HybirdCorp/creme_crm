@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -69,6 +69,7 @@ class EmailsConfig(CremeAppConfig):
             bricks.ChildListsBrick,
             bricks.ParentListsBrick,
             bricks.AttachmentsBrick,
+            bricks.SendingConfigItemsBrick,
             bricks.SendingsBrick,
             bricks.SendingBrick,
             bricks.MailsBrick,
@@ -143,6 +144,7 @@ class EmailsConfig(CremeAppConfig):
         config_registry.register_user_bricks(bricks.MySignaturesBrick)
         config_registry.register_app_bricks(
             'emails',
+            bricks.SendingConfigItemsBrick,
             bricks.EmailSyncConfigItemsBrick,
         )
 
@@ -190,7 +192,7 @@ class EmailsConfig(CremeAppConfig):
             'emails-create_template', self.EmailTemplate, priority=20,
         )
 
-    def register_setting_keys(self, setting_key_registry):
-        from . import setting_keys
-
-        setting_key_registry.register(setting_keys.emailcampaign_sender)
+    # def register_setting_keys(self, setting_key_registry):
+    #     from . import setting_keys
+    #
+    #     setting_key_registry.register(setting_keys.emailcampaign_sender)

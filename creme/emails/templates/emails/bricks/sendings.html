@@ -9,16 +9,31 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as edit_perm %}
+  {% if config_available %}{% has_perm_to change object as edit_perm %}
     {% brick_header_action id='add' url='emails__create_sending'|url:object.id label=_('New sending') enabled=edit_perm %}
+  {% endif %}
+{% endblock %}
+
+{% block brick_before_content %}
+  {% if not config_available %}
+    <div class="help-box">{% has_perm_to admin 'emails' as admin_perm %}
+        {% translate 'No configuration for SMTP is available; so creation & edition of sending are forbidden.' %}<br>
+        {% if admin_perm %}
+          {% blocktranslate with url='creme_config__app_portal'|url:'emails' %}You can create a configuration <a href="{{url}}">here</a>.{% endblocktranslate %}
+        {% else %}
+          {% translate 'Contact your administrator to create a configuration.' %}
+        {% endif %}
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_columns %}
     {% brick_table_column_for_field ctype=objects_ctype field='sending_date' status='primary' %}
+    {% brick_table_column title=_('SMTP & sender') %}
     {% brick_table_column title=_('Type') %}
     {% brick_table_column title=_('State') %}
     {% brick_table_column title=_('Number of email(s)') %}
-    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+    {% brick_table_column title=_('Actions') status='action' colspan=3 %}
 {% endblock %}
 
 {% block brick_table_rows %}
@@ -26,9 +41,21 @@
     {% for sending in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %} data-type='date'>{{sending.sending_date}}</td>
+        <td>
+          {% if sending.config_item is None %}
+            <span class="emails-sending-config_item emails-sending-config_item-empty">{% translate 'No server' %}</span>
+          {% else %}
+            <span class="emails-sending-config_item">{{sending.config_item}}</span>/ <span class="emails-sending-sender">{{sending.sender}}</span>
+          {% endif %}
+        </td>
         <td>{{sending.get_type_display}}</td>
         <td>{{sending.get_state_display}}</td>
         <td>{{sending.mails_set.count}}{% with unsent_count=sending.unsent_mails.count %}{% if unsent_count %} / <span class="errorlist">{% blocktranslate count count=unsent_count %}{{count}} not sent{% plural %}{{count}} not sent{% endblocktranslate %}</span>{% endif %}{% endwith %}</td>
+        <td {% brick_table_data_status action %}>
+          {% if config_available and sending.state != 1 %}{# 1 is DONE  #}
+            {% brick_table_action id='edit' url=sending.get_edit_absolute_url enabled=edit_perm %}
+          {% endif %}
+        </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='redirect' url=sending.get_absolute_url icon='view' label=_('Details') %}
         </td>

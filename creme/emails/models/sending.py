@@ -23,6 +23,7 @@ from json import loads as json_load
 from time import sleep
 
 from django.conf import settings
+from django.core import signing
 from django.core.mail import get_connection, send_mail
 from django.db import IntegrityError, models
 from django.db.transaction import atomic
@@ -69,6 +70,87 @@ class LightWeightEmailSender(EMailSender):
         )
 
 
+# TODO: factorise with EmailSyncConfigItem
+class EmailSendingConfigItem(CremeModel):
+    name = models.CharField(
+        _('Name'),
+        max_length=100,
+        help_text=_('Name displayed to users when selecting a configuration'),
+        unique=True,
+    )
+    host = models.CharField(_('Server URL'), max_length=100, help_text=_('Eg: smtp.mydomain.org'))
+    username = models.CharField(
+        # max_length=254 to be compliant with RFCs 3696 and 5321
+        _('Username'), max_length=254, blank=True, help_text=_('Eg: me@mydomain.org'),
+    )
+    encoded_password = models.CharField(
+        ('Password'), max_length=128, editable=False,
+    )
+    port = models.PositiveIntegerField(
+        _('Port'),
+        null=True, blank=True,
+        help_text=_('Leave empty to use the default port'),
+    )
+    use_tls = models.BooleanField(_('Use TLS'), default=True)
+    default_sender = models.EmailField(
+        _('Default sender'),
+        blank=True,
+        help_text=_(
+            'If you fill this field with an email address, this address will be '
+            'used as the default value in the form for the field «Sender» when '
+            'sending a campaign.'
+        ),
+    )
+
+    creation_label = pgettext_lazy('emails', 'Create a server configuration')
+    save_label = _('Save the configuration')
+
+    class Meta:
+        app_label = 'emails'
+        verbose_name = _('SMTP configuration')  # Used for uniqueness errors
+        # verbose_name_plural = _('...')
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def get_edit_absolute_url(self):
+        return reverse('emails__edit_sending_config_item', args=(self.id,))
+
+    @property
+    def password(self):
+        encoded_password = self.encoded_password
+
+        if encoded_password:
+            try:
+                return signing.loads(
+                    encoded_password,
+                    salt=self.password_salt,
+                    # serializer=self.serializer
+                )
+            except signing.BadSignature:
+                logger.critical(
+                    'bad signature for password of %s with id=%s',
+                    type(self).__name__, self.id,
+                )
+
+        return ''
+
+    @password.setter
+    def password(self, password):
+        self.encoded_password = signing.dumps(
+            password,
+            salt=self.password_salt,
+            # serializer=self.serializer,
+            # compress=True,
+        ) if password else ''
+
+    @property
+    def password_salt(self):
+        cls = self.__class__
+        return f'{cls.__module__}.{cls.__name__}'
+
+
 class EmailSending(CremeModel):
     class Type(models.IntegerChoices):
         IMMEDIATE = 1, _('Immediate'),
@@ -80,6 +162,7 @@ class EmailSending(CremeModel):
         PLANNED     = 3, pgettext_lazy('emails-sending', 'Planned'),
         ERROR       = 4, _('Error during sending'),
 
+    config_item = models.ForeignKey(EmailSendingConfigItem, null=True, on_delete=models.SET_NULL)
     sender = models.EmailField(_('Sender address'), max_length=100)
     campaign = models.ForeignKey(
         settings.EMAILS_CAMPAIGN_MODEL,
@@ -129,10 +212,18 @@ class EmailSending(CremeModel):
     def get_absolute_url(self):
         return reverse('emails__view_sending', args=(self.id,))
 
+    def get_edit_absolute_url(self):
+        return reverse('emails__edit_sending', args=(self.id,))
+
     def get_related_entity(self):  # For generic views
         return self.campaign
 
     def send_mails(self):
+        config_item = self.config_item
+        if config_item is None:
+            logger.warning('It seems the config of an active EmailSending has been removed.')
+            return self.State.ERROR
+
         try:
             sender = self.email_sender_cls(sending=self)
         except ImageFromHTMLError as e:
@@ -155,12 +246,19 @@ class EmailSending(CremeModel):
 
             return self.State.ERROR
 
+        # connection = get_connection(
+        #     host=settings.EMAILCAMPAIGN_HOST,
+        #     port=settings.EMAILCAMPAIGN_PORT,
+        #     username=settings.EMAILCAMPAIGN_HOST_USER,
+        #     password=settings.EMAILCAMPAIGN_PASSWORD,
+        #     use_tls=settings.EMAILCAMPAIGN_USE_TLS,
+        # )
         connection = get_connection(
-            host=settings.EMAILCAMPAIGN_HOST,
-            port=settings.EMAILCAMPAIGN_PORT,
-            username=settings.EMAILCAMPAIGN_HOST_USER,
-            password=settings.EMAILCAMPAIGN_PASSWORD,
-            use_tls=settings.EMAILCAMPAIGN_USE_TLS,
+            host=config_item.host,
+            port=config_item.port,
+            username=config_item.username,
+            password=config_item.password,
+            use_tls=config_item.use_tls,
         )
 
         mails_count = 0

@@ -24,6 +24,7 @@ from tempfile import mkdtemp
 
 from django.apps import apps
 from django.conf import settings
+from django.core.mail.backends import locmem
 from django.core.management import call_command
 from django.test.runner import DiscoverRunner, ParallelTestSuite, _init_worker
 
@@ -127,6 +128,13 @@ class CremeTestLoader(unittest.TestLoader):
         return match
 
 
+class EmailBackend(locmem.EmailBackend):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.args = args
+        self.kwargs = kwargs
+
+
 class CremeDiscoverRunner(DiscoverRunner):
     """This test runner:
     - overrides settings.MEDIA_ROOT with a temporary directory ;
@@ -136,6 +144,9 @@ class CremeDiscoverRunner(DiscoverRunner):
     #   which retrieve HTTP resources.
 
     parallel_test_suite = CremeParallelTestSuite
+
+    # Not "django.core.mail.backends.locmem.EmailBackend"
+    EMAIL_BACKEND = 'creme.creme_core.utils.test.EmailBackend'
 
     def __init__(self, *args, **kwargs):
         # Create the instance here to prevent issues if django.setup() was not called
@@ -170,6 +181,7 @@ class CremeDiscoverRunner(DiscoverRunner):
         # )
         #
         # self._http_server = python_subprocess(script)
+        settings.EMAIL_BACKEND = self.EMAIL_BACKEND
 
     def setup_databases(self, **kwargs):
         ret = super().setup_databases(**kwargs)

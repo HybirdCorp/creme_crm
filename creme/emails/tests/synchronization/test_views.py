@@ -75,8 +75,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertBrickTitleEqual(
             brick_node,
             count=1,
-            title='{count} Configured server',
-            plural_title='{count} Configured servers',
+            title='{count} Configured server for synchronization',
+            plural_title='{count} Configured servers for synchronization',
         )
 
     def test_server_config_creation01(self):
