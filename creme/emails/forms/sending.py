@@ -19,40 +19,336 @@
 from datetime import datetime, time
 from json import dumps as json_dump
 
-from django.forms import (
-    DateTimeField,
-    EmailField,
-    IntegerField,
-    ValidationError,
-)
+from django import forms
+# from django.core.exceptions import ValidationError
+from django.forms.fields import CallableChoiceIterator
 from django.template.base import Template, VariableNode
 from django.utils.timezone import make_aware, now
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core import forms as core_forms
 from creme.creme_core.auth import EntityCredentials
-from creme.creme_core.forms import CreatorEntityField, CremeModelForm
 from creme.creme_core.forms.widgets import CalendarWidget
 # from creme.creme_core.utils.dates import make_aware_dt
-from creme.creme_core.models import HistoryLine, SettingValue
+# from creme.creme_core.models import SettingValue
+from creme.creme_core.models import HistoryLine
 
+# from ..setting_keys import emailcampaign_sender
 from .. import get_emailtemplate_model
-from ..models.sending import EmailSending, LightWeightEmail
-from ..setting_keys import emailcampaign_sender
+from ..models import EmailSending, EmailSendingConfigItem, LightWeightEmail
 
 
-class SendingCreateForm(CremeModelForm):
-    sender = EmailField(label=_('Sender address'))
-    template = CreatorEntityField(
+# Widgets ----------------------------------------------------------------------
+# TODO: move to creme_core?
+class _SendingConfigSelect(forms.Select):
+    def create_option(self, *args, extra_data, **kwargs):
+        option = super().create_option(*args, **kwargs)
+        if extra_data:
+            attrs = option['attrs']
+            for k, v in extra_data.items():
+                attrs[f'data-{k}'] = v
+
+        return option
+
+    def optgroups(self, name, value, attrs=None):
+        selected_value = value[0] if value else None
+        sub_group = [
+            self.create_option(
+                name,
+                value=opt_value,
+                label=opt_label,
+                selected=str(opt_value) == selected_value,
+                index=0,
+                extra_data=opt_extra_data,
+            ) for opt_value, opt_label, opt_extra_data in self.choices
+        ]
+
+        return [(
+            None,  # group name
+            sub_group,
+            0,  # index
+        )]
+
+
+class SendingConfigWidget(forms.MultiWidget):
+    template_name = 'emails/forms/widgets/sending-config.html'
+
+    def __init__(self, choices=(), attrs=None):
+        super().__init__(
+            widgets=(
+                _SendingConfigSelect(
+                    choices=choices,
+                    attrs={'data-emails-sending_config-source': True},
+                ),
+                forms.EmailInput(
+                    attrs={'data-emails-sending_config-target': True},
+                ),
+            ),
+            attrs={'class': 'emails-sending_config', **(attrs or {})},
+        )
+
+    @property
+    def choices(self):
+        return self.widgets[0].choices
+
+    @choices.setter
+    def choices(self, choices):
+        self.widgets[0].choices = choices
+
+    def decompress(self, value):
+        return (value[0], value[1]) if value else (None, None)
+
+
+# Fields -----------------------------------------------------------------------
+class SendingConfigField(forms.MultiValueField):
+    widget = SendingConfigWidget
+
+    def __init__(self, **kwargs):
+        queryset = EmailSendingConfigItem.objects.all()
+        items = forms.ModelChoiceField(
+            queryset=queryset,
+            empty_label=None,
+        )
+        super().__init__((items, forms.EmailField()), **kwargs)
+
+        self.widget.choices = CallableChoiceIterator(
+            lambda: (
+                (
+                    str(item.id),
+                    item.name,
+                    {'default_sender': item.default_sender}
+                ) for item in queryset
+            )
+        )
+
+    def compress(self, data_list):
+        return (data_list[0], data_list[1]) if data_list else ()
+
+    def clean(self, value):
+        cleaned = super().clean(value)
+        return cleaned if (cleaned and all(cleaned)) else ()
+
+
+# Forms ------------------------------------------------------------------------
+class _SendingConfigItemForm(core_forms.CremeModelForm):
+    password = forms.CharField(
+        label=_('Password'),
+        required=False,
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+    )
+
+    class Meta:
+        model = EmailSendingConfigItem
+        fields = (
+            'name', 'host', 'username', 'password', 'port', 'use_tls', 'default_sender',
+        )
+
+    def save(self, *args, **kwargs):
+        password = self.cleaned_data['password']
+        if password:
+            self.instance.password = password
+        return super().save(*args, **kwargs)
+
+
+class SendingConfigItemCreationForm(_SendingConfigItemForm):
+    pass
+
+
+class SendingConfigItemEditionForm(_SendingConfigItemForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        password_f = self.fields['password']
+        password_f.required = False
+        password_f.help_text = _('Leave empty to keep the recorded password')
+
+
+# class SendingCreateForm(CremeModelForm):
+#     sender = EmailField(label=_('Sender address'))
+#     template = CreatorEntityField(
+#         label=_('Email template'), model=get_emailtemplate_model(),
+#         credentials=EntityCredentials.VIEW,
+#     )
+#
+#     sending_date = DateTimeField(
+#         label=_('Sending date'), required=False, widget=CalendarWidget,
+#         help_text=_('Required only of the sending is deferred.'),
+#     )
+#     hour = IntegerField(label=_('Sending hour'), required=False, min_value=0, max_value=23)
+#     minute = IntegerField(label=_('Sending minute'), required=False, min_value=0, max_value=59)
+#
+#     error_messages = {
+#         'forbidden': _(
+#             'You are not allowed to modify the sender address, '
+#             'please contact your administrator.'
+#         ),
+#     }
+#
+#     blocks = CremeModelForm.blocks.new({
+#         'id': 'sending_date',
+#         'label': _('Sending date'),
+#         'fields': ['type', 'sending_date', 'hour', 'minute'],
+#     })
+#
+#     class Meta:
+#         model = EmailSending
+#         exclude = ()
+#
+#     def __init__(self, entity, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.campaign = entity
+#         self.can_admin_emails = can_admin_emails = self.user.has_perm_to_admin("emails")
+#
+#         sender_setting = SettingValue.objects.get_4_key(emailcampaign_sender)
+#
+#         sender_field = self.fields['sender']
+#         self.can_edit_sender_value = can_edit_sender_value = (
+#             not sender_setting.value and can_admin_emails
+#         )
+#         if not can_edit_sender_value:
+#             sender_field.widget.attrs['readonly'] = True
+#
+#         if not sender_setting.value:
+#             if not can_admin_emails:
+#                 sender_field.initial = _(
+#                     'No sender email address has been configured, '
+#                     'please contact your administrator.'
+#                 )
+#         else:
+#             sender_field.help_text = _(
+#                 'Only an administrator can modify the sender address.'
+#             )
+#             sender_field.initial = sender_setting.value
+#
+#         self.sender_setting = sender_setting
+#
+#     def clean_sender(self):
+#         sender_value = self.cleaned_data.get('sender')
+#
+#         if not self.can_edit_sender_value and sender_value != self.sender_setting.value:
+#             raise ValidationError(
+#                 self.error_messages['forbidden'], code='forbidden',
+#             )
+#
+#         return sender_value
+#
+#     def clean(self):
+#         cleaned_data = super().clean()
+#
+#         if cleaned_data['type'] == EmailSending.Type.DEFERRED:
+#             sending_date = cleaned_data['sending_date']
+#
+#             if sending_date is None:
+#                 self.add_error(
+#                     'sending_date',
+#                     _('Sending date required for a deferred sending'),
+#                 )
+#             else:
+#                 get_data = cleaned_data.get
+#                 sending_date = make_aware_dt(datetime.combine(
+#                     sending_date,
+#                     time(
+#                         hour=int(get_data('hour') or 0),
+#                         minute=int(get_data('minute') or 0),
+#                     ),
+#                 ))
+#
+#                 if sending_date < now():
+#                     self.add_error(
+#                         'sending_date',
+#                         _('Sending date must be is the future'),
+#                     )
+#                 else:
+#                     cleaned_data['sending_date'] = sending_date
+#         else:
+#             cleaned_data['sending_date'] = now()
+#
+#         return cleaned_data
+#
+#     def _get_variables(self, body):
+#         return (
+#             varnode.filter_expression.var.var
+#             for varnode in Template(body).nodelist.get_nodes_by_type(VariableNode)
+#         )
+#
+#     def save(self):
+#         instance = self.instance
+#         cleaned_data = self.cleaned_data
+#         sender_setting = self.sender_setting
+#
+#         instance.campaign = self.campaign
+#
+#         template = cleaned_data['template']
+#         instance.subject   = template.subject
+#         instance.body      = template.body
+#         instance.body_html = template.body_html
+#         instance.signature = template.signature
+#
+#         super().save()
+#
+#         sender_address = cleaned_data['sender']
+#         if self.can_edit_sender_value:
+#             sender_setting.value = sender_address
+#             sender_setting.save()
+#
+#         # M2M need a pk -> after save
+#         attachments = instance.attachments
+#         for attachment in template.attachments.all():
+#             attachments.add(attachment)
+#
+#         varlist = [
+#             *self._get_variables(template.body),
+#             *self._get_variables(template.body_html),
+#         ]
+#
+#         disable_history = HistoryLine.disable
+#
+#         for address, recipient_entity in instance.campaign.all_recipients():
+#             mail = LightWeightEmail(
+#                 sending=instance,
+#                 sender=instance.sender,
+#                 recipient=address,
+#                 sending_date=instance.sending_date,
+#                 real_recipient=recipient_entity,
+#             )
+#
+#             if recipient_entity:
+#                 context = {}
+#
+#                 for varname in varlist:
+#                     val = getattr(recipient_entity, varname, None)
+#                     if val:
+#                         context[varname] = str(val)
+#
+#                 if context:
+#                     mail.body = json_dump(context, separators=(',', ':'))
+#
+#             disable_history(mail)
+#             mail.genid_n_save()
+#
+#         return instance
+class SendingCreationForm(core_forms.CremeModelForm):
+    config = SendingConfigField(
+        label=_('Sender'),
+        help_text=_(
+            'Beware to use an email address compatible with the chosen SMTP server'
+        ),
+    )
+    template = core_forms.CreatorEntityField(
         label=_('Email template'), model=get_emailtemplate_model(),
         credentials=EntityCredentials.VIEW,
     )
 
-    sending_date = DateTimeField(
+    sending_date = forms.DateTimeField(
         label=_('Sending date'), required=False, widget=CalendarWidget,
         help_text=_('Required only of the sending is deferred.'),
     )
-    hour = IntegerField(label=_('Sending hour'), required=False, min_value=0, max_value=23)
-    minute = IntegerField(label=_('Sending minute'), required=False, min_value=0, max_value=59)
+    hour = forms.IntegerField(
+        label=_('Sending hour'), required=False, min_value=0, max_value=23,
+    )
+    minute = forms.IntegerField(
+        label=_('Sending minute'), required=False, min_value=0, max_value=59,
+    )
 
     error_messages = {
         'forbidden': _(
@@ -61,7 +357,7 @@ class SendingCreateForm(CremeModelForm):
         ),
     }
 
-    blocks = CremeModelForm.blocks.new({
+    blocks = core_forms.CremeModelForm.blocks.new({
         'id': 'sending_date',
         'label': _('Sending date'),
         'fields': ['type', 'sending_date', 'hour', 'minute'],
@@ -69,45 +365,17 @@ class SendingCreateForm(CremeModelForm):
 
     class Meta:
         model = EmailSending
-        exclude = ()
+        exclude = ('sender', 'config_item')
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.campaign = entity
-        self.can_admin_emails = can_admin_emails = self.user.has_perm_to_admin("emails")
 
-        sender_setting = SettingValue.objects.get_4_key(emailcampaign_sender)
-
-        sender_field = self.fields['sender']
-        self.can_edit_sender_value = can_edit_sender_value = (
-            not sender_setting.value and can_admin_emails
-        )
-        if not can_edit_sender_value:
-            sender_field.widget.attrs['readonly'] = True
-
-        if not sender_setting.value:
-            if not can_admin_emails:
-                sender_field.initial = _(
-                    'No sender email address has been configured, '
-                    'please contact your administrator.'
-                )
-        else:
-            sender_field.help_text = _(
-                'Only an administrator can modify the sender address.'
-            )
-            sender_field.initial = sender_setting.value
-
-        self.sender_setting = sender_setting
-
-    def clean_sender(self):
-        sender_value = self.cleaned_data.get('sender')
-
-        if not self.can_edit_sender_value and sender_value != self.sender_setting.value:
-            raise ValidationError(
-                self.error_messages['forbidden'], code='forbidden',
-            )
-
-        return sender_value
+        # TODO: pass from the view?
+        assert self.instance.pk is None
+        item = EmailSendingConfigItem.objects.first()
+        if item is not None:
+            self.fields['config'].initial = [item.id, item.default_sender]
 
     def clean(self):
         cleaned_data = super().clean()
@@ -122,7 +390,6 @@ class SendingCreateForm(CremeModelForm):
                 )
             else:
                 get_data = cleaned_data.get
-                # sending_date = make_aware_dt(datetime.combine(
                 sending_date = make_aware(datetime.combine(
                     sending_date,
                     time(
@@ -152,9 +419,9 @@ class SendingCreateForm(CremeModelForm):
     def save(self):
         instance = self.instance
         cleaned_data = self.cleaned_data
-        sender_setting = self.sender_setting
 
         instance.campaign = self.campaign
+        instance.config_item, instance.sender = cleaned_data['config']
 
         template = cleaned_data['template']
         instance.subject   = template.subject
@@ -164,17 +431,12 @@ class SendingCreateForm(CremeModelForm):
 
         super().save()
 
-        sender_address = cleaned_data['sender']
-        if self.can_edit_sender_value:
-            sender_setting.value = sender_address
-            sender_setting.save()
-
         # M2M need a pk -> after save
         attachments = instance.attachments
         for attachment in template.attachments.all():
             attachments.add(attachment)
 
-        varlist = [
+        var_names = [
             *self._get_variables(template.body),
             *self._get_variables(template.body_html),
         ]
@@ -193,10 +455,10 @@ class SendingCreateForm(CremeModelForm):
             if recipient_entity:
                 context = {}
 
-                for varname in varlist:
-                    val = getattr(recipient_entity, varname, None)
+                for var_name in var_names:
+                    val = getattr(recipient_entity, var_name, None)
                     if val:
-                        context[varname] = str(val)
+                        context[var_name] = str(val)
 
                 if context:
                     mail.body = json_dump(context, separators=(',', ':'))
@@ -205,3 +467,30 @@ class SendingCreateForm(CremeModelForm):
             mail.genid_n_save()
 
         return instance
+
+
+# TODO: we probably want to edit the type/sending_date, with some constraints
+class SendingEditionForm(core_forms.CremeModelForm):
+    config = SendingConfigField(
+        label=_('Sender'),
+        help_text=_(
+            'Beware to use an email address compatible with the chosen SMTP server'
+        ),
+    )
+
+    class Meta(core_forms.CremeModelForm.Meta):
+        model = EmailSending
+        fields = ()
+
+    def __init__(self, entity, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = self.instance
+        item = instance.config_item
+        if item is not None:
+            self.fields['config'].initial = [item.id, instance.sender]
+
+    def save(self):
+        instance = self.instance
+        instance.config_item, instance.sender = self.cleaned_data['config']
+
+        return super().save()

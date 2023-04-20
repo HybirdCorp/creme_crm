@@ -27,12 +27,20 @@
             - The Product/Service lines can be reordered by drag'n drop.
             - The mass-import can now import entities with their totals (a Product line is created).
             - A color field has been added to Statuses.
+        * Emails :
+            - The SMTP server used to send campaign is now configured through the GUI;
+              indeed you can configure several ones.
+              These variables are not used anymore (excepted during the migrations from Creme 2.4):
+                - EMAILCAMPAIGN_HOST
+                - EMAILCAMPAIGN_HOST_USER
+                - EMAILCAMPAIGN_PASSWORD
+                - EMAILCAMPAIGN_PORT
+                - EMAILCAMPAIGN_USE_TLS
+            - The blocks for signatures (in "My settings") displays now a preview.
         * Opportunities :
             - A color field has been added to SalesPhase.
         * Tickets :
             - A color field has been added to Status.
-        * Emails :
-            - The blocks for signatures (in "My settings") displays now a preview.
 
   Developers side :
   -----------------
@@ -120,6 +128,9 @@
               (see '_clone_m2m()').
         # In 'creme_core.templatetags' :
             - In 'creme_widgets', the templatetag '{% widget_entity_hyperlink %}' has a new optional argument "target".
+        # In 'creme_core.tests' :
+            - Several assertions are now available: 'assertHasAttr()', 'assertHasProperty()', 'assertHasNoProperty()'.
+            - An dummy email backend which stores 'args' & 'kwargs' is now used.
         # In Javascript :
             - 'creme.form.Select2' now supports the lazy loading of selections :
                Useful in entity filter polymorphic inputs that do not know the selected options beforehand.
@@ -253,14 +264,17 @@
                 - A 'ValueError' is raised when you try to create a not custom 'ActivitySubType' related to a custom 'ActivityType'
                   (in <Creme 2.4> it was just a log).
                 - The class 'utils.PytzToVtimezone' has been removed.
+            * Emails :
+                - The constant 'SETTING_EMAILCAMPAIGN_SENDER' & the object 'setting_keys.emailcampaign_sender' have been removed.
+                  The related instance of 'SettingValue' is removed from DB by a migration.
+                - The form 'forms.sending.SendingCreateForm' has been replaced by a new one, 'SendingCreationForm'.
+                - The attribute 'utils.EMailSender._mime_images' has been removed.
             * Billing :
                 - The function 'utils.print_discount()' has been fixed with the new printers signature.
             * Graphs :
                 - The template "graphs/graph_error.html" has been removed.
             * Tickets :
                 - In 'models.status.BASE_STATUS', the tuples contain an additional column for colors.
-            * Emails :
-                - The attribute 'utils.EMailSender._mime_images' has been removed.
             * Polls :
                 - In the template "polls/bricks/preplies.html", the block '{% block poll_replies_extra_rows %}'
                   has been removed ; use '{{block.super}}' instead.

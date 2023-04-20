@@ -27,11 +27,33 @@ urlpatterns = [
         name='emails__remove_mlist_from_campaign'
     ),
 
+    # Campaign: sending configuration
+    re_path(
+        r'^sending/config/add[/]?$',
+        sending.SendingConfigItemCreation.as_view(),
+        name='emails__create_sending_config_item',
+    ),
+    re_path(
+        r'^sending/config/edit/(?P<item_id>\d+)[/]?$',
+        sending.SendingConfigItemEdition.as_view(),
+        name='emails__edit_sending_config_item',
+    ),
+    re_path(
+        r'^sending/config/delete[/]?$',
+        sending.SendingConfigItemDeletion.as_view(),
+        name='emails__delete_sending_config_item',
+    ),
+
     # Campaign: sending brick
     re_path(
         r'^campaign/(?P<campaign_id>\d+)/sending/add[/]?$',
         sending.SendingCreation.as_view(),
         name='emails__create_sending',
+    ),
+    re_path(
+        r'^sending/(?P<sending_id>\d+)/edit[/]?$',
+        sending.SendingEdition.as_view(),
+        name='emails__edit_sending',
     ),
 
     # Campaign: sending details brick

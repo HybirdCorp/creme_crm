@@ -29,6 +29,7 @@ from creme.creme_core.core.entity_cell import EntityCellRegularField
 # from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+# from creme.creme_core.models import SettingValue
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
@@ -39,13 +40,12 @@ from creme.creme_core.models import (
     MenuConfigItem,
     RelationType,
     SearchConfigItem,
-    SettingValue,
 )
 from creme.creme_core.utils.date_period import date_period_registry
 from creme.documents.models import FolderCategory
 
+# from .setting_keys import emailcampaign_sender
 from . import bricks, buttons, constants, creme_jobs, custom_forms, menu
-from .setting_keys import emailcampaign_sender
 
 logger = logging.getLogger(__name__)
 
@@ -67,9 +67,9 @@ class Populator(BasePopulator):
         Organisation = persons.get_organisation_model()
 
         # ---------------------------
-        SettingValue.objects.get_or_create(
-            key_id=emailcampaign_sender.id, defaults={'value': ''},
-        )
+        # SettingValue.objects.get_or_create(
+        #     key_id=emailcampaign_sender.id, defaults={'value': ''},
+        # )
 
         # ---------------------------
         create_rtype = RelationType.objects.smart_update_or_create

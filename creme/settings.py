@@ -1310,6 +1310,8 @@ EMAILS_EMAIL_FORCE_NOT_CUSTOM    = False
 EMAILS_MLIST_FORCE_NOT_CUSTOM    = False
 
 # Emails campaigns sent to the customers
+# NOT USED ANYMORE (SMTP servers are now configured with the GUI);
+# will be removed with Creme 2.6
 EMAILCAMPAIGN_HOST      = 'localhost'
 EMAILCAMPAIGN_HOST_USER = ''
 EMAILCAMPAIGN_PASSWORD  = ''

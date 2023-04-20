@@ -8,8 +8,24 @@
     max-width: 200px;
 }
 
+/* Sendings brick */
+
+.emails-sendings-brick .emails-sending-config_item-empty {
+    font-style: italic;
+    color: #f08080;
+}
+
+ul.emails-sending_config {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Sendings brick [end] */
+
 /* Email synchronization */
 
+.emails-sending_config_items-brick .emails-campaign-default,
 .emails-sync_config_items-brick .emails-sync-default {
     color: #bdbdbd;
     font-style: italic;

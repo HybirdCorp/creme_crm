@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-18 23:28+0200\n"
+"POT-Creation-Date: 2023-05-04 17:48+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -192,7 +192,7 @@ msgid "Lists"
 msgstr "Listes"
 
 msgid "Sender"
-msgstr "Émetteur"
+msgstr "Expéditeur"
 
 msgid "Contacts"
 msgstr "Contacts"
@@ -297,8 +297,14 @@ msgstr ""
 msgid "CSV file"
 msgstr "Fichier CSV"
 
-msgid "Sender address"
-msgstr "Adresse e-mail de l'expéditeur"
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Leave empty to keep the recorded password"
+msgstr "Laissez vide pour garder mot de passe enregistré"
+
+msgid "Beware to use an email address compatible with the chosen SMTP server"
+msgstr "Attention de bien donner une adresse e-mail compatible avec le serveur SMTP choisi"
 
 msgid "Email template"
 msgstr "Patron d'e-mail"
@@ -322,30 +328,14 @@ msgstr ""
 "Vous n'avez pas la permission de modifier l'adresse de l'expéditeur, "
 "veuillez contacter votre administrateur."
 
-msgid ""
-"No sender email address has been configured, please contact your "
-"administrator."
-msgstr ""
-"Aucune adresse e-mail d'expéditeur n'a été configurée, veuillez contacter "
-"votre administrateur."
-
-msgid "Only an administrator can modify the sender address."
-msgstr "Seul un administrateur peut modifier l'adresse de l'expéditeur."
-
 msgid "Sending date required for a deferred sending"
 msgstr "Date d'envoi obligatoire pour un envoi différé"
 
 msgid "Sending date must be is the future"
 msgstr "La date d'envoi doit être dans le futur"
 
-msgid "Password"
-msgstr "Mot de passe"
-
 msgid "*No default user*"
 msgstr "*Pas d'utilisateur par défaut*"
-
-msgid "Leave empty to keep the recorded password"
-msgstr "Laissez vide pour garder mot de passe enregistré"
 
 msgid "Contact or Organisation"
 msgstr "Contact ou Société"
@@ -487,6 +477,55 @@ msgctxt "emails"
 msgid "Recipients"
 msgstr "Destinataires"
 
+msgid "Name"
+msgstr "Nom"
+
+msgid "Name displayed to users when selecting a configuration"
+msgstr "Nom affiché aux utilisateurs lorsqu'ils choisissent une configuration"
+
+msgid "Server URL"
+msgstr "URL du serveur"
+
+msgid "Eg: smtp.mydomain.org"
+msgstr "Ex: smtp.mon_domaine.org"
+
+# Already in creme_core
+msgid "Username"
+msgstr ""
+
+msgid "Eg: me@mydomain.org"
+msgstr "Ex: moi@mon_domaine.org"
+
+msgid "Port"
+msgstr "Port"
+
+msgid "Leave empty to use the default port"
+msgstr "Laissez vide pour utiliser le port par défaut"
+
+msgid "Use TLS"
+msgstr "Utiliser TLS"
+
+msgid "Default sender"
+msgstr "Expéditeur par défaut"
+
+msgid ""
+"If you fill this field with an email address, this address will be used as "
+"the default value in the form for the field «Sender» when sending a campaign."
+msgstr ""
+"Si vous remplissez ce champ avec une adresse e-mail, celle-ci sera utilisée comme "
+"valeur par défaut dans le formulaire pour le champ «Expéditeur» lorsque vous "
+"envoyez une campagne."
+
+msgctxt "emails"
+msgid "Create a server configuration"
+msgstr "Créer une configuration serveur"
+
+msgid "Save the configuration"
+msgstr "Enregistrer la configuration"
+
+msgid "SMTP configuration"
+msgstr "Configuration SMTP"
+
 msgid "Immediate"
 msgstr "Immédiat"
 
@@ -507,6 +546,9 @@ msgstr "Prévu"
 
 msgid "Error during sending"
 msgstr "Erreur pendant l'envoi."
+
+msgid "Sender address"
+msgstr "Adresse e-mail de l'expéditeur"
 
 msgctxt "emails"
 msgid "Related campaign"
@@ -559,9 +601,6 @@ msgstr "E-mail de campagne"
 msgid "Emails of campaign"
 msgstr "E-mails  de campagne"
 
-msgid "Name"
-msgstr "Nom"
-
 msgid ""
 "The name is only used to select the signature you want to use (in an email "
 "or an email template), it is not display in the email's body."
@@ -609,24 +648,8 @@ msgstr ""
 "Attention : si *Aucun utilisateur par défaut* est sélectionné, les e-mails "
 "sans adresse relative à un utilisateur seront juste jetés."
 
-msgid "Server URL"
-msgstr "URL du serveur"
-
 msgid "Eg: pop.mydomain.org"
 msgstr "Ex: pop.mon_domaine.org"
-
-# Already in creme_core
-msgid "Username"
-msgstr ""
-
-msgid "Eg: me@mydomain.org"
-msgstr "Ex: moi@mon_domaine.org"
-
-msgid "Port"
-msgstr "Port"
-
-msgid "Leave empty to use the default port"
-msgstr "Laissez vide pour utiliser le port par défaut"
 
 msgid "Use SSL"
 msgstr "Utiliser SSL"
@@ -639,21 +662,14 @@ msgstr ""
 "Les fichiers joints sont convertis en vrai Documents quand l'e-mail est "
 "accepté."
 
-msgctxt "emails"
-msgid "Create a server configuration"
-msgstr "Créer une configuration serveur"
-
-msgid "Save the configuration"
-msgstr "Enregistrer la configuration"
-
 msgid "Owner"
 msgstr "Propriétaire"
 
 msgid "Sender/recipient to synchronize"
-msgstr "Émetteur/destinataire à synchroniser"
+msgstr "Expéditeur/destinataire à synchroniser"
 
 msgid "Senders/recipients to synchronize"
-msgstr "Émetteurs/destinataires à synchroniser"
+msgstr "Expéditeurs/destinataires à synchroniser"
 
 msgid "Create an email template"
 msgstr "Créer un patron d'e-mail"
@@ -702,9 +718,6 @@ msgstr "Informations sur l'e-mail"
 
 msgid "Email template information"
 msgstr "Informations sur le patron d'e-mail"
-
-msgid "Allowed email campaign sender."
-msgstr "Expéditeur autorisé de campagne d'e-mails"
 
 #, python-brace-format
 msgid "{count} Attachment"
@@ -830,7 +843,7 @@ msgid ""
 "setting the true sender & recipient."
 msgstr ""
 "Cet e-mail a seulement été envoyé à l'adresse de synchronisation ; réparez "
-"le en indiquant les vrais émetteur & destinataires."
+"le en indiquant les vrais expéditeur & destinataires."
 
 msgid "View the body"
 msgstr "Voir le corps"
@@ -998,6 +1011,36 @@ msgid "No recipient for the moment"
 msgstr "Aucun destinataire pour le moment"
 
 #, python-brace-format
+msgid "{count} Configured server for campaigns"
+msgstr "{count} Serveur configuré pour les campagnes"
+
+#, python-brace-format
+msgid "{count} Configured servers for campaigns"
+msgstr "{count} Serveurs configurés pour les campagnes"
+
+msgid "Configured servers for campaigns"
+msgstr "Serveurs configurés pour les campagnes"
+
+msgctxt "emails"
+msgid "New server configuration"
+msgstr "Nouvelle configuration de serveur"
+
+msgctxt "emails"
+msgid "Edit this configuration"
+msgstr "Modifier cette configuration"
+
+msgctxt "emails"
+msgid "Delete this configuration"
+msgstr "Supprimer cette configuration"
+
+msgid "Default port"
+msgstr "Port par défaut"
+
+msgctxt "emails"
+msgid "No server for the moment"
+msgstr "Aucun serveur pour le moment"
+
+#, python-brace-format
 msgid "{count} Sending"
 msgstr "{count} Envoi"
 
@@ -1008,6 +1051,23 @@ msgstr "{count} Envois"
 msgid "New sending"
 msgstr "Nouvel envoi"
 
+msgid ""
+"No configuration for SMTP is available; so creation & edition of sending are "
+"forbidden."
+msgstr ""
+"Aucune configuration pour SMTP n'est disponible ; donc la création & la modification "
+"des envois est interdite."
+
+#, python-format
+msgid "You can create a configuration <a href=\"%(url)s\">here</a>."
+msgstr "Vous pouvez créer une configuration <a href=\"%(url)s\">ici</a>."
+
+msgid "Contact your administrator to create a configuration."
+msgstr "Contactez votre administrateur pour créer une configuration."
+
+msgid "SMTP & sender"
+msgstr "SMTP & expéditeur"
+
 msgid "Type"
 msgstr "Type"
 
@@ -1016,6 +1076,9 @@ msgstr "État"
 
 msgid "Number of email(s)"
 msgstr "Nombre d'e-mail(s)"
+
+msgid "No server"
+msgstr "Pas de serveur"
 
 #, python-format
 msgid "%(count)s not sent"
@@ -1056,19 +1119,15 @@ msgid "No signature for the moment"
 msgstr "Aucune signature pour le moment"
 
 #, python-brace-format
-msgid "{count} Configured server"
-msgstr "{count} Serveur configuré"
+msgid "{count} Configured server for synchronization"
+msgstr "{count} Serveur configuré pour la synchronisation"
 
 #, python-brace-format
-msgid "{count} Configured servers"
-msgstr "{count} Serveurs configurés"
+msgid "{count} Configured servers for synchronization"
+msgstr "{count} Serveurs configurés pour la synchronisation"
 
-msgid "Configured servers"
-msgstr "Serveurs configurés"
-
-msgctxt "emails"
-msgid "New server configuration"
-msgstr "Nouvelle configuration de serveur"
+msgid "Configured servers for synchronization"
+msgstr "Serveurs configurés pour la synchronisation"
 
 #, python-format
 msgid ""
@@ -1091,23 +1150,14 @@ msgstr ""
 "synchronisation, car les e-mails sont supprimés une fois récupérés "
 "(l'adresse de synchronisation est généralement utilisée comme Copie Carbone)."
 
-msgctxt "emails"
-msgid "Edit this configuration"
-msgstr "Modifier cette configuration"
-
-msgctxt "emails"
-msgid "Delete this configuration"
-msgstr "Supprimer cette configuration"
-
-msgid "Default port"
-msgstr "Port par défaut"
-
-msgctxt "emails"
-msgid "No server for the moment"
-msgstr "Aucun serveur pour le moment"
-
 msgid "Link to"
 msgstr "Relier à"
+
+msgid "SMTP server: "
+msgstr "Serveur SMTP : "
+
+msgid "Email address: "
+msgstr "Adresse e-mail : "
 
 msgid "Synchronization of incoming emails with Creme"
 msgstr "Synchronisation des e-mails externes dans Creme"
@@ -1121,7 +1171,7 @@ msgid ""
 msgstr ""
 "Si un e-mail est envoyé à une des <a href=\"%(config_url)s\">adresses "
 "configurées</a> (les Copies Carbone & Copies Cachées fonctionne aussi), et "
-"que votre adresse e-mail \"%(email)s\" est trouvée (comme émetteur ou "
+"que votre adresse e-mail \"%(email)s\" est trouvée (comme expéditeur ou "
 "destinataire), l'e-mail peut être synchronisés (c-à-d : transformé en une "
 "fiche E-mail Creme)."
 
@@ -1189,9 +1239,20 @@ msgstr "Lier la liste de diffusion"
 msgid "New recipients for «{entity}»"
 msgstr "Nouveaux destinataires pour «{entity}»"
 
+msgctxt "emails"
+msgid "Edit the server configuration"
+msgstr "Modifier la configuration serveur"
+
 #, python-brace-format
 msgid "New sending for «{entity}»"
 msgstr "Nouvel envoi pour «{entity}»"
+
+#, python-brace-format
+msgid "Edit the sending on {date}"
+msgstr "Modifier l'envoi du {date}"
+
+msgid "This sending is done."
+msgstr "Cette envoi est effectué."
 
 msgid "You can not edit this signature (not yours)"
 msgstr ""
@@ -1200,10 +1261,6 @@ msgstr ""
 msgid "You can not delete this signature (not yours)"
 msgstr ""
 "Vous n'avez pas la permission de supprimer cette signature (pas la vôtre)"
-
-msgctxt "emails"
-msgid "Edit the server configuration"
-msgstr "Modifier la configuration serveur"
 
 msgid "You cannot edit or delete this email (not yours)"
 msgstr ""
@@ -1220,7 +1277,7 @@ msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
 
 msgid "The sender is not associated to a Contact/Organisation"
-msgstr "L'émetteur n'est pas associé à un un Contact ou une Société"
+msgstr "L'expéditeur n'est pas associé à un un Contact ou une Société"
 
 msgid "There is no recipient marked as main"
 msgstr "Il n'y a pas de destinataire marqué comme principal"
@@ -1244,6 +1301,22 @@ msgstr "Nouveaux fichiers joints pour «{entity}»"
 msgid "Add the attachments"
 msgstr "Ajouter les fichiers joints"
 
+#~ msgid ""
+#~ "No sender email address has been configured, please contact your "
+#~ "administrator."
+#~ msgstr ""
+#~ "Aucune adresse e-mail d'expéditeur n'a été configurée, veuillez contacter "
+#~ "votre administrateur."
+
+#~ msgid "Only an administrator can modify the sender address."
+#~ msgstr "Seul un administrateur peut modifier l'adresse de l'expéditeur."
+
+#~ msgid "Allowed email campaign sender."
+#~ msgstr "Expéditeur autorisé de campagne d'e-mails"
+
+#~ msgid "{count} Configured server"
+#~ msgstr "{count} Serveur configuré"
+
 #~ msgid "Synchronized - Marked as SPAM (deprecated)"
 #~ msgstr "Synchronisé - Marqué comme SPAM (obsolète)"
 
@@ -1263,7 +1336,7 @@ msgstr "Ajouter les fichiers joints"
 #~ msgstr "Création de {entity}"
 
 #~ msgid "Sender(s)"
-#~ msgstr "Émetteur(s)"
+#~ msgstr "Expéditeur(s)"
 
 #~ msgid "Recipient(s)"
 #~ msgstr "Destinataire(s)"

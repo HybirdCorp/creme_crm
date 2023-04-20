@@ -30,6 +30,7 @@ from . import constants
 from .models import (
     EmailRecipient,
     EmailSending,
+    EmailSendingConfigItem,
     EmailSignature,
     EmailSyncConfigItem,
     EmailToSync,
@@ -224,6 +225,19 @@ class AttachmentsBrick(_RelatedEntitiesBrick):
         return entity.attachments.all()
 
 
+class SendingConfigItemsBrick(QuerysetBrick):
+    id = QuerysetBrick.generate_id('emails', 'sending_config_items')
+    dependencies = (EmailSendingConfigItem,)
+    order_by = 'id'
+    template_name = 'emails/bricks/sending-config-items.html'
+    configurable = False
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context, EmailSendingConfigItem.objects.all(),
+        ))
+
+
 class SendingsBrick(QuerysetBrick):
     # id_ = QuerysetBrick.generate_id('emails', 'sendings')
     id = QuerysetBrick.generate_id('emails', 'sendings')
@@ -239,6 +253,7 @@ class SendingsBrick(QuerysetBrick):
             context,
             # TODO: use related_name i.e:campaign.sendings_set.all()
             EmailSending.objects.filter(campaign=campaign.id),
+            config_available=EmailSendingConfigItem.objects.exists(),
         ))
 
 

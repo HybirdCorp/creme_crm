@@ -1,27 +1,38 @@
 from datetime import timedelta
 from functools import partial
 
+from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail as django_mail
+from django.core.exceptions import ValidationError
+from django.core.validators import EmailValidator
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils.formats import date_format
 from django.utils.html import format_html
-from django.utils.timezone import get_current_timezone, make_naive, now
+from django.utils.timezone import (
+    get_current_timezone,
+    localtime,
+    make_naive,
+    now,
+)
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.gui.history import html_history_registry
+# from creme.creme_core.models import SettingValue
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     FakeOrganisation,
     HistoryLine,
     Job,
     SetCredentials,
-    SettingValue,
 )
 from creme.creme_core.models.history import TYPE_AUX_CREATION
+from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.models import Civility
 from creme.persons.tests.base import (
@@ -34,12 +45,19 @@ from ..bricks import (
     LwMailsHistoryBrick,
     MailsBrick,
     SendingBrick,
+    SendingConfigItemsBrick,
     SendingHTMLBodyBrick,
     SendingsBrick,
 )
-from ..constants import SETTING_EMAILCAMPAIGN_SENDER
+# from ..constants import SETTING_EMAILCAMPAIGN_SENDER
 from ..creme_jobs import campaign_emails_send_type
-from ..models import EmailRecipient, EmailSending, LightWeightEmail
+from ..forms.sending import SendingConfigField
+from ..models import (
+    EmailRecipient,
+    EmailSending,
+    EmailSendingConfigItem,
+    LightWeightEmail,
+)
 from .base import (
     Contact,
     EmailCampaign,
@@ -51,6 +69,399 @@ from .base import (
     skipIfCustomEmailTemplate,
     skipIfCustomMailingList,
 )
+
+
+class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
+    DEL_CONF_URL = reverse('emails__delete_sending_config_item')
+
+    def test_model(self):
+        name = 'Config #1'
+        password = 'c0w|3OY B3b0P'
+        item = EmailSendingConfigItem.objects.create(
+            name=name,
+            host='pop.mydomain.org',
+            username='spike',
+            password=password,
+            port=25,
+            use_tls=False,
+        )
+        self.assertEqual(name, item.name)
+        self.assertEqual(name, str(item))
+
+        with self.assertNoException():
+            _ = EmailSendingConfigItem._meta.get_field('encoded_password')
+
+        self.assertNotIn(
+            'password',
+            {f.name for f in EmailSendingConfigItem._meta.concrete_fields},
+        )
+
+        item = self.refresh(item)
+        self.assertNotEqual(password, item.encoded_password)
+        self.assertEqual(password, item.password)
+
+        # Bad signature ---
+        item.encoded_password = 'invalid'
+
+        with self.assertLogs(level='CRITICAL') as logs_manager:
+            password = item.password
+
+        self.assertEqual('', password)
+        self.assertListEqual(
+            logs_manager.output,
+            [
+                f'CRITICAL:'
+                f'creme.emails.models.sending:'
+                f'bad signature for password of EmailSendingConfigItem with id={item.id}'
+            ],
+        )
+
+    def test_creme_config_portal(self):
+        self.login()
+
+        EmailSendingConfigItem.objects.create(
+            name='My config',
+            host='smtp.mydomain.org',
+            username='spike@mydomain.org',
+            password='c0w|3OY B3b0P',
+        )
+        response = self.assertGET200(reverse('creme_config__app_portal', args=('emails',)))
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=SendingConfigItemsBrick,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Configured server for campaigns',
+            plural_title='{count} Configured servers for campaigns',
+        )
+
+    def test_creation01(self):
+        self.login(allowed_apps=['emails'])
+
+        url = reverse('emails__create_sending_config_item')
+        context1 = self.assertGET200(url).context
+
+        with self.assertNoException():
+            password_f = context1['form'].fields['password']
+
+        self.assertFalse(password_f.required)
+        self.assertFalse(password_f.help_text)
+        self.assertEqual(
+            pgettext('emails', 'Create a server configuration'),
+            context1.get('title'),
+        )
+        self.assertEqual(
+            _('Save the configuration'),
+            context1.get('submit_label'),
+        )
+
+        # ---
+        name = 'Config #1'
+        host = 'smtp.mydomain.org'
+        username = 'spike@mydomain.org'
+        password = 'c0w|3OY B3b0P'
+        port = 1024
+        response2 = self.client.post(
+            url,
+            data={
+                'name': name,
+                'host': host,
+                'username': username,
+                'password': password,
+                'port': port,
+                'use_tls': 'on',
+            },
+        )
+        self.assertNoFormError(response2)
+
+        item = self.get_object_or_fail(EmailSendingConfigItem, name=name)
+        self.assertEqual(host, item.host)
+        self.assertEqual(username, item.username)
+        self.assertEqual(password, item.password)
+        self.assertEqual(port,     item.port)
+        self.assertEqual('',       item.default_sender)
+        self.assertIs(item.use_tls, True)
+
+        # Name uniqueness ---
+        response3 = self.assertPOST200(
+            url,
+            data={
+                'name': name,
+                'host': 'other.mydomain.org',
+                'username': 'spike@otherdomain.org',
+                'password': password,
+                'port': port,
+                'use_tls': 'on',
+            },
+        )
+        self.assertFormError(
+            response3.context['form'],
+            field='name',
+            errors=_("%(model_name)s with this %(field_label)s already exists.") % {
+                'model_name': _('SMTP configuration'),
+                'field_label': _('Name'),
+            },
+        )
+
+    def test_creation02(self):
+        "No TLS, empty username, sender."
+        self.login(allowed_apps=['emails'])
+
+        name = 'Config #1'
+        host = 'localhost'
+        username = ''
+        password = ''
+        port = 25
+        sender = 'jet@mydomain.org'
+        response2 = self.client.post(
+            reverse('emails__create_sending_config_item'),
+            data={
+                'name': name,
+                'host': host,
+                'username': username,
+                'password': password,
+                'port': port,
+                'use_tls': '',
+                'default_sender': sender,
+            },
+        )
+        self.assertNoFormError(response2)
+
+        item = self.get_object_or_fail(EmailSendingConfigItem, name=name)
+        self.assertEqual(host, item.host)
+        self.assertEqual(username, item.username)
+        self.assertEqual(password, item.password)
+        self.assertEqual(port,     item.port)
+        self.assertEqual(sender,   item.default_sender)
+        self.assertIs(item.use_tls, False)
+
+    def test_creation03(self):
+        "No admin credentials."
+        self.login(is_superuser=False)
+        self.assertGET403(reverse('emails__create_sending_config_item'))
+
+    def test_edition01(self):
+        "No TLS, default port."
+        self.login(allowed_apps=['emails'])
+
+        item = EmailSendingConfigItem.objects.create(
+            name='My config',
+            host='smail.mydomain.org',
+            username='jet@mydomain.org',
+            password='c0w|3OY B3b0P',
+            port=25,
+            use_tls=False,
+        )
+
+        url = item.get_edit_absolute_url()
+        context1 = self.assertGET200(url).context
+
+        with self.assertNoException():
+            password_f = context1['form'].fields['password']
+
+        self.assertFalse(password_f.required)
+        self.assertEqual(
+            _('Leave empty to keep the recorded password'),
+            password_f.help_text,
+        )
+
+        self.assertEqual(
+            pgettext('emails', 'Edit the server configuration'),
+            context1.get('title'),
+        )
+        self.assertEqual(
+            _('Save the configuration'),
+            context1.get('submit_label'),
+        )
+
+        # ---
+        name = 'My config #1'
+        host = 'smtp.mydomain.org'
+        username = 'campaigns'
+        password = 's33 y4 $p4c3 c0xBoY'
+        # port = 1024
+        response2 = self.client.post(
+            url,
+            data={
+                'name': name,
+                'host': host,
+                'username': username,
+                'password': password,
+                # 'port': port,
+                'use_tls': '',
+            },
+        )
+        self.assertNoFormError(response2)
+
+        item = self.refresh(item)
+        self.assertEqual(name,      item.name)
+        self.assertEqual(host,      item.host)
+        self.assertEqual(username,  item.username)
+        self.assertEqual(password,  item.password)
+        # self.assertEqual(port,     item.port)
+        self.assertIsNone(item.port)
+        self.assertFalse(item.use_tls)
+
+    def test_edition02(self):
+        "Port is set, password is kept."
+        self.login(allowed_apps=['emails'])
+
+        password = 'c0w|3OY B3b0P'
+        item = EmailSendingConfigItem.objects.create(
+            name='Config #1',
+            host='smtp.bebop.mrs',
+            username='spiegel@bebop.mrs',
+            password=password,
+            # port=...,
+            use_tls=False,
+        )
+
+        host = 'smail.bebop.mrs'
+        username = 'spike.spiegel@bebop.mrs'
+        port = 1024
+        response = self.client.post(
+            item.get_edit_absolute_url(),
+            data={
+                'name': item.name,
+                'host': host,
+                'username': username,
+                'password': '',  # <== empty
+                'port': port,
+                'use_tls': '',
+            },
+        )
+        self.assertNoFormError(response)
+
+        item = self.refresh(item)
+        self.assertEqual(host, item.host)
+        self.assertEqual(username,  item.username)
+        self.assertEqual(password,  item.password)
+        self.assertEqual(port,      item.port)
+        self.assertFalse(item.use_tls)
+
+    def test_edition03(self):
+        "No admin credentials."
+        self.login(is_superuser=False)
+
+        item = EmailSendingConfigItem.objects.create(
+            host='smtp.host.mrs',
+            username='spike@host.mrs',
+            password='c0w|3OY B3b0P',
+        )
+        self.assertGET403(item.get_edit_absolute_url())
+
+    def test_deletion01(self):
+        self.login(allowed_apps=['emails'])
+
+        item = EmailSendingConfigItem.objects.create(
+            host='smtp.host.mrs',
+            username='spike@host.mrs',
+            password='c0w|3OY B3b0P',
+        )
+
+        url = self.DEL_CONF_URL
+        data = {'id': item.id}
+        self.assertGET405(url, data=data)
+
+        self.assertPOST200(url, data=data)
+        self.assertDoesNotExist(item)
+
+    def test_deletion02(self):
+        "No admin credentials."
+        self.login(is_superuser=False)
+
+        item = EmailSendingConfigItem.objects.create(
+            host='smtp.host.mrs',
+            username='spike@host.mrs',
+            password='c0w|3OY B3b0P',
+        )
+        self.assertPOST403(self.DEL_CONF_URL, data={'id': item.id})
+        self.assertStillExists(item)
+
+
+class SendingConfigFieldTestCase(FieldTestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        create_config = EmailSendingConfigItem.objects.create
+        cls.item1 = create_config(
+            name='Config #1',
+            host='smail.mydomain.org',
+            username='jet',
+            password='c0w|3OY B3b0P',
+            default_sender='jet@mydomain.org',
+        )
+        cls.item2 = create_config(
+            name='Config #2',
+            host='smtp.mydomain.org',
+            username='spike',
+            password='sp4c3 c0w|3OY',
+        )
+
+    def test_ok01(self):
+        item1 = self.item1
+        item2 = self.item2
+        field = SendingConfigField()
+
+        self.assertListEqual(
+            [
+                (str(item1.id), item1.name, {'default_sender': item1.default_sender}),
+                (str(item2.id), item2.name, {'default_sender': ''}),
+            ],
+            [*field.widget.choices],
+        )
+
+        sender = 'jet@mydomain.org'
+        self.assertTupleEqual(
+            (item1, sender), field.clean([item1.id, sender]),
+        )
+
+    def test_ok02(self):
+        sender = 'spike@mydomain.org'
+        item = self.item2
+        config = SendingConfigField().clean([item.id, sender])
+        self.assertTupleEqual((item, sender), config)
+
+    def test_required(self):
+        cls = SendingConfigField
+        field = cls()
+        clean = field.clean
+        self.assertFieldValidationError(cls, 'required', clean, ['', ''])
+        self.assertFieldValidationError(cls, 'required', clean, None)
+        self.assertFieldValidationError(cls, 'required', clean, [self.item1.id, ''])
+        self.assertFieldValidationError(cls, 'required', clean, ['', 'spike@mydomain.org'])
+
+    def test_not_required(self):
+        clean = SendingConfigField(required=False).clean
+        self.assertTupleEqual((), clean(['', '']))
+        self.assertTupleEqual((), clean(['']))
+        self.assertTupleEqual((), clean([]))
+        self.assertTupleEqual((), clean(None))
+        self.assertTupleEqual((), clean([self.item1.id, '']))
+        self.assertTupleEqual((), clean(['', 'spike@mydomain.org']))
+
+    def test_invalid_pk(self):
+        field = SendingConfigField()
+
+        with self.assertRaises(ValidationError) as cm:
+            field.clean([self.UNUSED_PK, 'spike@mydomain.org'])
+
+        self.assertListEqual(
+            [forms.ModelChoiceField.default_error_messages['invalid_choice']],
+            cm.exception.messages,
+        )
+        self.assertEqual('invalid_choice', cm.exception.error_list[0].code)
+
+    def test_invalid_email(self):
+        field = SendingConfigField()
+
+        with self.assertRaises(ValidationError) as cm:
+            field.clean([self.item1.id, 'not an email'])
+
+        self.assertListEqual([EmailValidator.message], cm.exception.messages)
 
 
 @skipIfCustomEmailCampaign
@@ -67,146 +478,155 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def _send_mails(self, job=None):
         campaign_emails_send_type.execute(job or self._get_job())
 
-    def test_sender_setting01(self):
-        user = self.login()
-        camp = EmailCampaign.objects.create(user=user, name='camp01')
-        template = EmailTemplate.objects.create(
-            user=user, name='name', subject='SUBJECT', body='BODY',
-        )
-
-        url = self._build_add_url(camp)
-        response1 = self.assertGET200(url)
-        context1 = response1.context
-        self.assertEqual(
-            _('New sending for «{entity}»').format(entity=camp),
-            context1.get('title'),
-        )
-        self.assertEqual(EmailSending.save_label, context1.get('submit_label'))
-
-        with self.assertNoException():
-            sender = context1['form'].fields['sender']
-        self.assertIsNone(sender.initial)
-
-        # ---
-        sender_email = 'vicious@reddragons.mrs'
-        self.assertNoFormError(self.client.post(
-            url,
-            data={
-                'sender':   sender_email,
-                'type':     EmailSending.Type.IMMEDIATE,
-                'template': template.id,
-            },
-        ))
-
-        # --
-        response3 = self.assertGET200(url)
-
-        with self.assertNoException():
-            sender = response3.context['form'].fields['sender']
-
-        self.assertEqual(sender_email, sender.initial)
-
-        # ---
-        response4 = self.assertPOST200(
-            url,
-            data={
-                'sender':   'another_email@address.com',
-                'type':     EmailSending.Type.IMMEDIATE,
-                'template': template.id,
-            },
-        )
-        self.assertFormError(
-            response4.context['form'],
-            field='sender',
-            errors=_(
-                'You are not allowed to modify the sender address, '
-                'please contact your administrator.'
-            ),
-        )
-
-    def test_sender_setting02(self):
-        user = self.login(is_superuser=False)
-        SetCredentials.objects.create(
-            role=self.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-                | EntityCredentials.CHANGE
-            ),
-            set_type=SetCredentials.ESET_ALL
-        )
-
-        camp = EmailCampaign.objects.create(user=user, name='camp01')
-        template = EmailTemplate.objects.create(
-            user=user, name='name', subject='SUBJECT', body='BODY',
-        )
-
-        url = self._build_add_url(camp)
-        response1 = self.assertGET200(url)
-
-        with self.assertNoException():
-            sender_f1 = response1.context['form'].fields['sender']
-
-        self.assertEqual(
-            _(
-                'No sender email address has been configured, '
-                'please contact your administrator.'
-            ),
-            sender_f1.initial,
-        )
-
-        # ---
-        sender_email = 'vicious@reddragons.mrs'
-        response2 = self.client.post(
-            url,
-            data={
-                'sender': sender_email,
-                'type': EmailSending.Type.IMMEDIATE,
-                'template': template.id,
-            },
-        )
-        form2 = response2.context['form']
-        self.assertFormError(
-            form2,
-            field='sender',
-            errors=_(
-                'You are not allowed to modify the sender address, '
-                'please contact your administrator.'
-            ),
-        )
-
-        # ---
-        sender_setting = SettingValue.objects.get(key_id=SETTING_EMAILCAMPAIGN_SENDER)
-        sender_setting.value = sender_email
-        sender_setting.save()
-
-        response3 = self.assertGET200(url)
-
-        with self.assertNoException():
-            sender_f3 = response3.context['form'].fields['sender']
-
-        self.assertEqual(sender_email, sender_f3.initial)
-
-        self.assertNoFormError(self.client.post(
-            url,
-            data={
-                'sender':   sender_email,
-                'type':     EmailSending.Type.IMMEDIATE,
-                'template': template.id,
-            },
-        ))
+    # def test_sender_setting01(self):
+    #     user = self.login()
+    #     camp = EmailCampaign.objects.create(user=user, name='camp01')
+    #     template = EmailTemplate.objects.create(
+    #         user=user, name='name', subject='SUBJECT', body='BODY',
+    #     )
+    #
+    #     url = self._build_add_url(camp)
+    #     response1 = self.assertGET200(url)
+    #     context1 = response1.context
+    #     self.assertEqual(
+    #         _('New sending for «{entity}»').format(entity=camp),
+    #         context1.get('title'),
+    #     )
+    #     self.assertEqual(EmailSending.save_label, context1.get('submit_label'))
+    #
+    #     with self.assertNoException():
+    #         sender = context1['form'].fields['sender']
+    #     self.assertIsNone(sender.initial)
+    #
+    #     # ---
+    #     sender_email = 'vicious@reddragons.mrs'
+    #     self.assertNoFormError(self.client.post(
+    #         url,
+    #         data={
+    #             'sender':   sender_email,
+    #             'type':     EmailSending.Type.IMMEDIATE,
+    #             'template': template.id,
+    #         },
+    #     ))
+    #
+    #     # --
+    #     response3 = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         sender = response3.context['form'].fields['sender']
+    #
+    #     self.assertEqual(sender_email, sender.initial)
+    #
+    #     # ---
+    #     response4 = self.assertPOST200(
+    #         url,
+    #         data={
+    #             'sender':   'another_email@address.com',
+    #             'type':     EmailSending.Type.IMMEDIATE,
+    #             'template': template.id,
+    #         },
+    #     )
+    #     self.assertFormError(
+    #         response4.context['form'],
+    #         field='sender',
+    #         errors=_(
+    #             'You are not allowed to modify the sender address, '
+    #             'please contact your administrator.'
+    #         ),
+    #     )
+    #
+    # def test_sender_setting02(self):
+    #     user = self.login(is_superuser=False)
+    #     SetCredentials.objects.create(
+    #         role=self.role,
+    #         value=(
+    #             EntityCredentials.VIEW
+    #             | EntityCredentials.DELETE
+    #             | EntityCredentials.LINK
+    #             | EntityCredentials.UNLINK
+    #             | EntityCredentials.CHANGE
+    #         ),
+    #         set_type=SetCredentials.ESET_ALL
+    #     )
+    #
+    #     camp = EmailCampaign.objects.create(user=user, name='camp01')
+    #     template = EmailTemplate.objects.create(
+    #         user=user, name='name', subject='SUBJECT', body='BODY',
+    #     )
+    #
+    #     url = self._build_add_url(camp)
+    #     response1 = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         sender_f1 = response1.context['form'].fields['sender']
+    #
+    #     self.assertEqual(
+    #         _(
+    #             'No sender email address has been configured, '
+    #             'please contact your administrator.'
+    #         ),
+    #         sender_f1.initial,
+    #     )
+    #
+    #     # ---
+    #     sender_email = 'vicious@reddragons.mrs'
+    #     response2 = self.client.post(
+    #         url,
+    #         data={
+    #             'sender': sender_email,
+    #             'type': EmailSending.Type.IMMEDIATE,
+    #             'template': template.id,
+    #         },
+    #     )
+    #     form2 = response2.context['form']
+    #     self.assertFormError(
+    #         form2,
+    #         field='sender',
+    #         errors=_(
+    #             'You are not allowed to modify the sender address, '
+    #             'please contact your administrator.'
+    #         ),
+    #     )
+    #
+    #     # ---
+    #     sender_setting = SettingValue.objects.get(key_id=SETTING_EMAILCAMPAIGN_SENDER)
+    #     sender_setting.value = sender_email
+    #     sender_setting.save()
+    #
+    #     response3 = self.assertGET200(url)
+    #
+    #     with self.assertNoException():
+    #         sender_f3 = response3.context['form'].fields['sender']
+    #
+    #     self.assertEqual(sender_email, sender_f3.initial)
+    #
+    #     self.assertNoFormError(self.client.post(
+    #         url,
+    #         data={
+    #             'sender':   sender_email,
+    #             'type':     EmailSending.Type.IMMEDIATE,
+    #             'template': template.id,
+    #         },
+    #     ))
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_create01(self):
+        """We create voluntarily duplicates (recipients that have same addresses
+        than Contact/Organisation, MailingList that contain the same addresses)
+        EmailSending should not contain duplicates.
+        """
         user = self.login()
-        # We create voluntarily duplicates (recipients that have same addresses
-        # than Contact/Organisation, MailingList that contain the same addresses)
-        # EmailSending should not contain duplicates.
-        camp = EmailCampaign.objects.create(user=user, name='camp01')
 
+        item = EmailSendingConfigItem.objects.create(
+            name='Config #1',
+            host='smail.mydomain.org',
+            username='jet',
+            password='c0w|3OY B3b0P',
+            default_sender='jet@mydomain.org',
+        )
+
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
         self.assertFalse(camp.sendings_set.exists())
 
         create_ml = partial(MailingList.objects.create, user=user)
@@ -275,12 +695,28 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         old_hlines_count = HistoryLine.objects.count()
 
         url = self._build_add_url(camp)
-        self.assertGET200(url)
+        context1 = self.assertGET200(url).context
+        self.assertEqual(
+            _('New sending for «{entity}»').format(entity=camp),
+            context1.get('title'),
+        )
+        self.assertEqual(
+            pgettext('emails', 'Save the sending'), context1.get('submit_label'),
+        )
 
+        with self.assertNoException():
+            config_f = context1['form'].fields['config']
+        self.assertListEqual([item.id, item.default_sender], config_f.initial)
+
+        # ---
+        sender = 'vicious@reddragons.mrs'
         self.assertNoFormError(self.client.post(
             url,
             data={
-                'sender':   'vicious@reddragons.mrs',
+                # 'sender': 'vicious@reddragons.mrs',
+                'config_0': item.id,
+                'config_1': sender,
+
                 'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
@@ -289,6 +725,9 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         sending = self.get_alone_element(
             self.refresh(camp).sendings_set.all()  # refresh is probably be useless...
         )
+
+        self.assertEqual(item,                        sending.config_item)
+        self.assertEqual(sender,                      sending.sender)
         self.assertEqual(EmailSending.Type.IMMEDIATE, sending.type)
         self.assertEqual(EmailSending.State.PLANNED,  sending.state)
         self.assertEqual(subject,                     sending.subject)
@@ -409,6 +848,13 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_create02(self):
         "Test template."
         user = self.login()
+        item = EmailSendingConfigItem.objects.create(
+            name='Config #1',
+            host='smail.mydomain.org',
+            username='jet@mydomain.org',
+            password='c0w|3OY B3b0P',
+        )
+
         first_name1 = 'Spike'
         last_name1 = 'Spiegel'
 
@@ -448,7 +894,10 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         response1 = self.client.post(
             self._build_add_url(camp),
             data={
-                'sender':   'vicious@reddragons.mrs',
+                # 'sender':   'vicious@reddragons.mrs',
+                'config_0': item.id,
+                'config_1': 'vicious@reddragons.mrs',
+
                 'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
@@ -529,6 +978,13 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @override_settings(EMAILCAMPAIGN_SLEEP_TIME=0.1)
     def test_create03(self):
         "Job + outbox."
+        item = EmailSendingConfigItem.objects.create(
+            name='Config #1',
+            host='smail.mydomain.org',
+            username='jet@mydomain.org',
+            password='c0w|3OY B3b0P',
+        )
+
         queue = get_queue()
         queue.clear()
 
@@ -560,7 +1016,10 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertNoFormError(self.client.post(
             self._build_add_url(camp),
             data={
-                'sender':   sender,
+                # 'sender':   sender,
+                'config_0': item.id,
+                'config_1': sender,
+
                 'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
@@ -590,6 +1049,23 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertListEqual([('', 'text/html')], message.alternatives)
         self.assertFalse(message.attachments)
 
+        # See 'creme.creme_core.utils.test.EmailBackend'
+        connection = message.connection
+        self.assertHasAttr(connection, 'kwargs')
+        self.assertFalse(connection.args)
+        self.assertDictEqual(
+            {
+                'host':     item.host,
+                'port':     item.port,
+                'username': item.username,
+                'password': item.password,
+                'use_tls':  item.use_tls,
+
+                'fail_silently': False,
+            },
+            connection.kwargs,
+        )
+
         self.assertSetEqual(
             {contact.email, orga1.email, orga2.email},
             {
@@ -606,6 +1082,12 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_create04(self):
         "Test deferred"
         user = self.login()
+        item = EmailSendingConfigItem.objects.create(
+            name='Config #1',
+            host='smail.mydomain.org',
+            username='jet@mydomain.org',
+            password='c0w|3OY B3b0P',
+        )
         camp = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(
             user=user, name='name', subject='subject', body='body',
@@ -615,7 +1097,9 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         sending_date = now_value + timedelta(weeks=1)
         naive_sending_date = make_naive(sending_date, get_current_timezone())
         data = {
-            'sender':   'vicious@reddragons.mrs',
+            # 'sender':   'vicious@reddragons.mrs',
+            'config_0': item.id,
+            'config_1': 'vicious@reddragons.mrs',
             'type':     EmailSending.Type.DEFERRED,
             'template': template.id,
         }
@@ -667,6 +1151,12 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_create05(self):
         "Test deferred (today)."
         user = self.login()
+        item = EmailSendingConfigItem.objects.create(
+            name='Config #1',
+            host='smail.mydomain.org',
+            username='jet@mydomain.org',
+            password='c0w|3OY B3b0P',
+        )
         camp = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(
             user=user, name='name', subject='subject', body='body',
@@ -677,7 +1167,9 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         naive_sending_date = make_naive(sending_date, get_current_timezone())
         data = {
-            'sender':   'vicious@reddragons.mrs',
+            # 'sender':   'vicious@reddragons.mrs',
+            'config_0': item.id,
+            'config_1': 'vicious@reddragons.mrs',
             'type':     EmailSending.Type.DEFERRED,
             'template': template.id,
         }
@@ -700,7 +1192,12 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_create06(self):
         "Body with variables."
         user = self.login()
-
+        item = EmailSendingConfigItem.objects.create(
+            name='Config #1',
+            host='smail.mydomain.org',
+            username='jet@mydomain.org',
+            password='c0w|3OY B3b0P',
+        )
         camp = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(
             user=user, name='name', subject='subject',
@@ -719,7 +1216,9 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertNoFormError(self.client.post(
             self._build_add_url(camp),
             data={
-                'sender':   'vicious@reddragons.mrs',
+                # 'sender':   'vicious@reddragons.mrs',
+                'config_0': item.id,
+                'config_1': 'vicious@reddragons.mrs',
                 'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
@@ -737,11 +1236,79 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
     def test_create07(self):
-        "No related to a campaign => error"
+        "No related to a campaign => error."
         user = self.login()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         self.assertGET404(self._build_add_url(nerv))
+
+    def test_edit01(self):
+        user = self.login()
+
+        item = EmailSendingConfigItem.objects.create(
+            name='Config #1',
+            host='smail.mydomain.org',
+            username='jet@mydomain.org',
+            password='c0w|3OY B3b0P',
+        )
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
+        sending = EmailSending.objects.create(
+            # config_item=None,
+            sender='invalid@domain.org',
+            campaign=camp,
+            sending_date=now() + timedelta(days=2),
+        )
+
+        url = sending.get_edit_absolute_url()
+        context1 = self.assertGET200(url).context
+        self.assertEqual(
+            _('Edit the sending on {date}').format(
+                date=date_format(localtime(sending.sending_date), 'DATETIME_FORMAT'),
+            ),
+            context1.get('title'),
+        )
+
+        with self.assertNoException():
+            fields1 = context1['form'].fields
+            config_f1 = fields1['config']
+
+        self.assertEqual(1, len(fields1), fields1)
+        self.assertIsNone(config_f1.initial)
+
+        # ---
+        sender = 'vicious@reddragons.mrs'
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'config_0': item.id,
+                'config_1': sender,
+            },
+        ))
+
+        sending.refresh_from_db()
+        self.assertEqual(item,   sending.config_item)
+        self.assertEqual(sender, sending.sender)
+
+        # ---
+        context3 = self.assertGET200(url).context
+
+        with self.assertNoException():
+            config_f3 = context3['form'].fields['config']
+        self.assertListEqual([item.id, sender], config_f3.initial)
+
+    def test_edit02(self):
+        "State is DONE => error."
+        user = self.login()
+
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
+        sending = EmailSending.objects.create(
+            # config_item=None,
+            sender='invalid@domain.org',
+            campaign=camp,
+            sending_date=now() - timedelta(days=2),
+            state=EmailSending.State.DONE,
+        )
+        self.assertGET409(sending.get_edit_absolute_url())
 
     def test_view_lw_email01(self):
         "Not super-user"
@@ -953,10 +1520,16 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertLess(job.type.next_wakeup(job, now_value), now_value)
 
     @skipIfCustomContact
-    def test_job(self):
+    def test_job01(self):
         "Deleted campaign."
         user = self.login()
         job = self._get_job()
+        item = EmailSendingConfigItem.objects.create(
+            name='Config #1',
+            host='smail.mydomain.org',
+            username='jet@mydomain.org',
+            password='c0w|3OY B3b0P',
+        )
         camp = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(
             user=user, name='name', subject='subject', body='body',
@@ -970,11 +1543,13 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         camp.mailing_lists.add(mlist)
         mlist.contacts.add(contact)
 
-        sender = 'vicious@reddragons.mrs'
         response = self.client.post(
             self._build_add_url(camp),
             data={
-                'sender':   sender,
+                # 'sender': 'vicious@reddragons.mrs',
+                'config_0': item.id,
+                'config_1': 'vicious@reddragons.mrs',
+
                 'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
@@ -987,6 +1562,54 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         self._send_mails(job)
         self.assertFalse(django_mail.outbox)
+
+    @skipIfCustomContact
+    def test_job02(self):
+        "Deleted config."
+        user = self.login()
+        job = self._get_job()
+        item = EmailSendingConfigItem.objects.create(
+            name='Config #1',
+            host='smail.mydomain.org',
+            username='jet@mydomain.org',
+            password='c0w|3OY B3b0P',
+        )
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
+        template = EmailTemplate.objects.create(
+            user=user, name='name', subject='subject', body='body',
+        )
+        mlist = MailingList.objects.create(user=user, name='ml01')
+        contact = Contact.objects.create(
+            user=user, email='spike.spiegel@bebop.com',
+            first_name='Spike', last_name='Spiegel',
+        )
+
+        camp.mailing_lists.add(mlist)
+        mlist.contacts.add(contact)
+
+        self.assertNoFormError(self.client.post(
+            self._build_add_url(camp),
+            data={
+                # 'sender': 'vicious@reddragons.mrs',
+                'config_0': item.id,
+                'config_1': 'vicious@reddragons.mrs',
+
+                'type':     EmailSending.Type.IMMEDIATE,
+                'template': template.id,
+            },
+        ))
+
+        item.delete()
+        self.assertStillExists(camp)
+
+        sending = self.get_alone_element(camp.sendings_set.all())
+        self.assertEqual(EmailSending.State.PLANNED, sending.state)
+        self.assertIsNone(sending.config_item)
+
+        self._send_mails(job)
+        self.assertFalse(django_mail.outbox)
+        self.assertEqual(EmailSending.State.ERROR, self.refresh(sending).state)
+        # TODO: error in job results
 
     def test_refresh_job01(self):
         "Restore campaign with sending which has to be sent."
