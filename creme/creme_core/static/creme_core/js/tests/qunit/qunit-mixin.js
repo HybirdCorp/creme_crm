@@ -236,6 +236,40 @@
 
         withFrozenTime: function(date, block) {
             return new DateFaker(date).with(block.bind(this));
+        },
+
+        awaits: function(target, func) {
+            if (isNaN(target)) {
+                return this.awaitsPromise(target, func);
+            } else {
+                setTimeout(function() {
+                    try {
+                        func.apply(this, arguments);
+                    } finally {
+                        start();
+                    }
+                }, target);
+
+                stop(1);
+            }
+        },
+
+        awaitsPromise: function(promise, func) {
+            promise.then(function() {
+                       try {
+                           func.apply(this, arguments);
+                       } catch (e) {
+                           console.error(e);
+                           ok(false, 'Unexpected promise callback error');
+                       }
+                   }.bind(this))
+                   .catch(function(e) {
+                       console.error(e);
+                   }).finally(function() {
+                       start();
+                   });
+
+            stop(1);
         }
     };
 
