@@ -16,13 +16,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
+import logging
 from os.path import basename, join
 from random import randint
 
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.core.files.base import File
+from django.db import transaction
+from django.forms import forms
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
+from django.urls.base import reverse
+
+from creme.creme_core import http
+from creme.creme_core.http import CremeJsonResponse
+from creme.creme_core.models.file_ref import FileRef
 
 from ..core.download import (
     DownLoadableFileField,
@@ -31,6 +42,8 @@ from ..core.download import (
 )
 from ..utils.file_handling import FileCreator
 from .generic import base
+
+logger = logging.getLogger(__name__)
 
 MAXINT = 100000
 
@@ -140,3 +153,77 @@ class RegisteredFileFieldDownloadView(base.ContentTypeRelatedMixin,
         # response['Last-Modified'] = http_date(statobj.st_mtime)
 
         return response
+
+
+class DropFileForm(forms.Form):
+    upload = forms.FileField(required=True)
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+
+class DropFileView(base.CremeFormView):
+    response_class = http.CremeJsonResponse
+    max_path_length = 500
+    form_class = DropFileForm
+    fileref_url_kwarg = 'fileref_id'
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            return super().dispatch(request, *args, **kwargs)
+        except PermissionDenied as exc:
+            logger.exception(str(exc))
+            return self.response_class({"error": {"message": str(exc)}}, status=403)
+        except Exception as exc:
+            logger.exception(str(exc))
+            return self.response_class({"error": {"message": str(exc)}}, status=500)
+
+    def handle_not_logged(self):
+        return self.response_class({"error": "Not Logged In"}, status=403)
+
+    def get(self, request, *args, **kwargs):
+        instance = get_object_or_404(
+            FileRef, pk=kwargs[self.fileref_url_kwarg],
+        )
+
+        return FileResponse(
+            instance.filedata.open(),
+            as_attachment=True,  # The downloaded file is named
+            filename=instance.basename,
+        )
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests: instantiate a form instance with the passed
+        POST variables and then check if it's valid.
+        """
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    @transaction.atomic
+    def form_valid(self, form):
+        filedata = form.cleaned_data["upload"]
+        path = handle_uploaded_file(
+            filedata,
+            path=['uploads'],
+            max_length=self.max_path_length,
+        )
+
+        file_ref = FileRef.objects.create(
+            user=self.request.user,
+            filedata=path,
+            temporary=True,
+        )
+
+        return CremeJsonResponse({
+            "url": reverse('creme_core__dropfile', args=(file_ref.pk,))
+        })
+
+    def form_invalid(self, form):
+        return CremeJsonResponse({"error": {
+            "message": '\n'.join(form.errors),
+        }})
