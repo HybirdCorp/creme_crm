@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -188,19 +188,24 @@ $(document).on('brick-setup-actions', '.brick.emails-emails_to_sync-brick', func
 
 var emailActions = {
     'email-toggle-images': function(url, options, data, e) {
-        var iframe = this._brick.element().find('iframe[data-html-field]');
-        var link = document.createElement('a'); link.href = iframe.attr('src');
-        var visible = link.search.indexOf('external_img=on') !== -1;
-        var nexturl = link.pathname + (visible ? '' : '?external_img=on');
-        var title = $(e.target).find('.brick-action-title');
+        var self = this;
 
-        if (title.length) {
-            title.text(visible ? data.inlabel : data.outlabel);
-        } else {
-            $(e.target).text(visible ? data.inlabel : data.outlabel);
-        }
+        return new creme.component.Action(function() {
+            var iframe = self._brick.element().find('iframe[data-html-field]');
+            var link = document.createElement('a'); link.href = iframe.attr('src');
+            var visible = link.search.indexOf('external_img=on') !== -1;
+            var nexturl = link.pathname + (visible ? '' : '?external_img=on');
+            var title = $(e.target).find('.brick-action-title');
 
-        iframe.attr('src', nexturl);
+            if (title.length) {
+                title.text(visible ? data.inlabel : data.outlabel);
+            } else {
+                $(e.target).text(visible ? data.inlabel : data.outlabel);
+            }
+
+            iframe.attr('src', nexturl);
+            this.done();
+        });
     }
 };
 
