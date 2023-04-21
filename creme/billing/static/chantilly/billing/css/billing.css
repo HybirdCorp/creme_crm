@@ -460,4 +460,25 @@ div.billing-exporter-select > div > label {
     font-style: italic;
 }
 
+/* Mass-import forms */
+
+.billing-mass_import-totals {
+    display: flex;
+}
+
+.billing-mass_import-totals .billing-mass_import-totals-columns {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    margin-left: 20px;
+    padding-left: 20px;
+
+    border-left: solid 1px #d9d9d9;
+}
+
+.billing-mass_import-totals .billing-mass_import-totals-columns li.is-disabled {
+    color: #c4d1d7;
+}
+
 /* Forms - end */

@@ -1355,9 +1355,13 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertIsNone(invoice.additional_info)
 
     @skipIfCustomAddress
-    def test_mass_import(self):
+    def test_mass_import_no_total(self):
         self.login()
-        self._aux_test_csv_import(Invoice, InvoiceStatus, number_help_text=False)
+        self._aux_test_csv_import_no_total(Invoice, InvoiceStatus, number_help_text=False)
+
+    def test_mass_import_total_no_vat_n_vat(self):
+        self.login()
+        self._aux_test_csv_import_total_no_vat_n_vat(Invoice, InvoiceStatus)
 
     @skipIfCustomAddress
     def test_mass_import_update01(self):
@@ -1387,10 +1391,68 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomAddress
-    def test_mass_import_update04(self):
+    def test_mass_import_update_total01(self):
         self.login()
-        self._aux_test_csv_import(
+        self._aux_test_csv_import_no_total(
             Invoice, InvoiceStatus, update=True, number_help_text=False,
+        )
+
+    def test_mass_import_update_total02(self):
+        user = self.login()
+        doc = self._build_csv_doc([('Bill #1', 'Nerv', 'Acme', '300', '15')])
+        response = self.assertPOST200(
+            self._build_import_url(Invoice),
+            follow=True,
+            data={
+                'step':     1,
+                'document': doc.id,
+                # has_header
+
+                'user': user.id,
+                'key_fields': ['name'],
+
+                'name_colselect':   1,
+                'number_colselect': 0,
+
+                'issuing_date_colselect':    0,
+                'expiration_date_colselect': 0,
+
+                'status_colselect': 0,
+                'status_defval':    InvoiceStatus.objects.all()[0].pk,
+
+                'discount_colselect': 0,
+                'discount_defval':    '0',
+
+                'currency_colselect': 0,
+                'currency_defval':    Currency.objects.all()[0].pk,
+
+                'acceptation_date_colselect': 0,
+
+                'comment_colselect':         0,
+                'additional_info_colselect': 0,
+                'payment_terms_colselect':   0,
+                'payment_type_colselect':    0,
+
+                'description_colselect':         0,
+                'buyers_order_number_colselect': 0,  # Invoice only...
+
+                'source_persons_organisation_colselect': 2,
+                'target_persons_organisation_colselect': 3,
+                'target_persons_contact_colselect': 0,
+
+                'totals_mode': '2',  # Compute total with VAT
+                'totals_total_no_vat_colselect': 4,
+                'totals_vat_colselect': 5,
+
+                # 'property_types',
+                # 'fixed_relations',
+                # 'dyn_relations',
+            },
+        )
+        self.assertFormError(
+            response.context['form'],
+            field='totals',
+            errors=_('You cannot compute totals in update mode.'),
         )
 
     def test_brick01(self):

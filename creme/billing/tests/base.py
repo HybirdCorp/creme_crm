@@ -5,10 +5,11 @@ from unittest import skipIf
 
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils.formats import number_format
 from django.utils.translation import gettext as _
 
 from creme import billing
-from creme.creme_core.models import Currency
+from creme.creme_core.models import Currency, Vat
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views import base
 from creme.persons import (
@@ -312,7 +313,8 @@ class _BillingTestCase(_BillingTestCaseMixin,
                        base.MassImportBaseTestCaseMixin,
                        CremeTestCase):
     @override_settings(SOFTWARE_LABEL='My CRM')
-    def _aux_test_csv_import(self, model, status_model, update=False, number_help_text=True):
+    def _aux_test_csv_import_no_total(self, model, status_model,
+                                      update=False, number_help_text=True):
         count = model.objects.count()
         create_orga = partial(Organisation.objects.create, user=self.user)
         create_contact = partial(Contact.objects.create, user=self.user)
@@ -446,6 +448,8 @@ class _BillingTestCase(_BillingTestCaseMixin,
             'description_colselect':         0,
             'buyers_order_number_colselect': 0,  # Invoice only...
 
+            'totals_mode': '1',  # No totals
+
             # 'property_types',
             # 'fixed_relations',
             # 'dyn_relations',
@@ -512,6 +516,10 @@ class _BillingTestCase(_BillingTestCaseMixin,
             self.assertIsNone(billing_doc.payment_terms)
             # self.assertIsNone(billing_doc.payment_type) #only in invoice... TODO lambda ??
 
+            self.assertEqual(Decimal('0.0'), billing_doc.total_vat)
+            self.assertEqual(Decimal('0.0'), billing_doc.total_no_vat)
+            self.assertFalse([*billing_doc.iter_all_lines()])
+
         # Billing_doc1
         billing_doc1 = billing_docs[0]
         imp_source1 = billing_doc1.source
@@ -552,6 +560,121 @@ class _BillingTestCase(_BillingTestCaseMixin,
         self.assertIsNotNone(imp_target4)
         target4 = self.get_object_or_fail(Contact, last_name=target4_last_name)
         self.assertEqual(imp_target4.get_real_entity(), target4)
+
+    def _aux_test_csv_import_total_no_vat_n_vat(self, model, status_model):
+        count = model.objects.count()
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        src = create_orga(name='Nerv')
+        tgt = create_orga(name='Acme')
+
+        vat1 = 15
+        vat_obj1 = Vat.objects.get_or_create(value=vat1)[0]
+        vat2 = '12.5'
+        self.assertFalse(Vat.objects.filter(value=vat2).exists())
+        vat_count = Vat.objects.count()
+
+        total_no_vat1 = 100
+        total_no_vat2 = '200.5'
+
+        lines = [
+            ('Bill #1', src.name, tgt.name, number_format(total_no_vat1), number_format(vat1)),
+            ('Bill #2', src.name, tgt.name, number_format(total_no_vat2), number_format(vat2)),
+            ('Bill #3', src.name, tgt.name, '300',                        'nan'),
+        ]
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(
+            self._build_import_url(model),
+            follow=True,
+            data={
+                'step':     1,
+                'document': doc.id,
+                # has_header
+
+                'user': self.user.id,
+                # 'key_fields': ['name'] if update else [],
+
+                'name_colselect':   1,
+                'number_colselect': 0,
+
+                'issuing_date_colselect':    0,
+                'expiration_date_colselect': 0,
+
+                'status_colselect': 0,
+                'status_defval':    status_model.objects.all()[0].pk,
+
+                'discount_colselect': 0,
+                'discount_defval':    '0',
+
+                'currency_colselect': 0,
+                'currency_defval':    Currency.objects.all()[0].pk,
+
+                'acceptation_date_colselect': 0,
+
+                'comment_colselect':         0,
+                'additional_info_colselect': 0,
+                'payment_terms_colselect':   0,
+                'payment_type_colselect':    0,
+
+                'description_colselect':         0,
+                'buyers_order_number_colselect': 0,  # Invoice only...
+
+                'source_persons_organisation_colselect': 2,
+                'target_persons_organisation_colselect': 3,
+                'target_persons_contact_colselect': 0,
+
+                'totals_mode': '2',  # Compute total with VAT
+                'totals_total_no_vat_colselect': 4,
+                'totals_vat_colselect': 5,
+
+                # 'property_types',
+                # 'fixed_relations',
+                # 'dyn_relations',
+            },
+        )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        self.assertEqual(count + len(lines), model.objects.count())
+
+        billing_doc1 = self.get_object_or_fail(model, name=lines[0][0])
+        self.assertEqual(Decimal('0.0'),         billing_doc1.discount)
+        self.assertEqual(Decimal(total_no_vat1), billing_doc1.total_no_vat)
+        self.assertEqual(Decimal('115.00'),      billing_doc1.total_vat)
+
+        line1 = self.get_alone_element(billing_doc1.iter_all_lines())
+        self.assertIsInstance(line1, ProductLine)
+        self.assertEqual(_('N/A (import)'), line1.on_the_fly_item)
+        self.assertFalse(line1.comment)
+        self.assertEqual(1, line1.quantity)
+        self.assertEqual(total_no_vat1, line1.unit_price)
+        self.assertFalse(line1.unit)
+        self.assertEqual(0, line1.discount)
+        self.assertEqual(ProductLine.Discount.PERCENT, line1.discount_unit)
+        self.assertEqual(vat_obj1, line1.vat_value)
+
+        billing_doc2 = self.get_object_or_fail(model, name=lines[1][0])
+        self.assertEqual(Decimal(total_no_vat2), billing_doc2.total_no_vat)
+        self.assertEqual(Decimal('225.56'),      billing_doc2.total_vat)
+
+        self.assertEqual(vat_count + 1, Vat.objects.count())
+        line2 = self.get_alone_element(billing_doc2.iter_all_lines())
+        self.assertEqual(Decimal(total_no_vat2), line2.unit_price)
+        self.assertEqual(Decimal(vat2),          line2.vat_value.value)
+
+        billing_doc3 = self.get_object_or_fail(model, name=lines[2][0])
+        self.assertEqual(Decimal('0'), billing_doc3.total_no_vat)
+        self.assertEqual(Decimal('0'), billing_doc3.total_vat)
+        self.assertFalse([*billing_doc3.iter_all_lines()])
+
+        results = self._get_job_results(job)
+        self.assertEqual(len(lines), len(results))
+
+        jr_error3 = self.get_alone_element(r for r in results if r.entity_id == billing_doc3.id)
+        self.assertListEqual(
+            [_('The VAT value is invalid: {}').format(_('Enter a number.'))],
+            jr_error3.messages,
+        )
 
     def _aux_test_csv_import_update(self, model, status_model,
                                     target_billing_address=True,

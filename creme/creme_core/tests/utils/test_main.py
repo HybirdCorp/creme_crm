@@ -21,6 +21,7 @@ from creme.creme_core.global_info import clear_global_info
 from creme.creme_core.models import FakeOrganisation, SetCredentials
 # from creme.creme_core.utils import find_first, split_filter
 from creme.creme_core.utils import (
+    as_int,
     create_if_needed,
     ellipsis,
     ellipsis_multi,
@@ -207,6 +208,15 @@ class MiscTestCase(CremeTestCase):
     def test_date_2_dict(self):
         d = {'year': 2012, 'month': 6, 'day': 6}
         self.assertEqual(d, date_2_dict(date(**d)))
+
+    def test_as_int(self):
+        self.assertEqual(1, as_int('1'))
+        self.assertEqual(42, as_int('42'))
+        self.assertEqual(-12, as_int('-12'))
+
+        self.assertEqual(0, as_int('foo'))
+        self.assertEqual(0, as_int([]))
+        self.assertEqual(-1, as_int('foo', default=-1))
 
     def test_int_2_roman(self):
         self.assertListEqual(
