@@ -1,0 +1,8 @@
+<textarea class="ui-creme-widget ui-creme-ckeditor{% if creme_widget_auto %} widget-auto{% endif %}"
+          widget="ui-creme-ckeditor"
+          {% if ckeditor_upload_url %}data-ckeditor-upload="{{ ckeditor_upload_url }}"{% endif %}
+          data-ckeditor-toolbar="{{ ckeditor_toolbar }}"
+          name="{{ widget.name }}"
+          {% include "django/forms/widgets/attrs.html" %}>
+{% if widget.value %}{{ widget.value }}{% endif %}
+</textarea>
