@@ -5,7 +5,7 @@
 
   Users side :
   ------------
-    # The version of Django has been upgraded to "4.1".
+    # The version of Django has been upgraded to "4.2".
     # A visitor mode has been added; from any list-view, you can visit all the related detail-views the one after the other.
       (button "Enter the exploration mode" in list-views).
     # The link in the list-views selectors are now opened in other tabs automatically.
@@ -24,8 +24,9 @@
         * Activities :
             - A color field has been added to Status.
         * Billing :
+            - The Product/Service lines can be reordered by drag'n drop.
+            - The mass-import can now import entities with their totals (a Product line is created).
             - A color field has been added to Statuses.
-            - Billing lines can be reordered if the document have the right permissions.
         * Opportunities :
             - A color field has been added to SalesPhase.
         * Tickets :

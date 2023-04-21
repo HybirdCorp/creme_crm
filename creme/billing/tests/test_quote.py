@@ -577,11 +577,11 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @skipIfCustomAddress
-    def test_mass_import01(self):
+    def test_mass_import_no_total01(self):
         self.login()
-        self._aux_test_csv_import(Quote, QuoteStatus)
+        self._aux_test_csv_import_no_total(Quote, QuoteStatus)
 
-    def test_mass_import02(self):
+    def test_mass_import_no_total02(self):
         "Source is managed."
         user = self.login()
 
@@ -677,6 +677,10 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertStartsWith(number2, settings.QUOTE_NUMBER_PREFIX)
 
         self.assertNotEqual(number1, number2)
+
+    def test_mass_import_total_no_vat_n_vat(self):
+        self.login()
+        self._aux_test_csv_import_total_no_vat_n_vat(Quote, QuoteStatus)
 
     @skipIfCustomAddress
     @skipIfCustomServiceLine

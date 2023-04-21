@@ -341,7 +341,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomAddress
     def test_mass_import(self):
         self.login()
-        self._aux_test_csv_import(SalesOrder, SalesOrderStatus)
+        self._aux_test_csv_import_no_total(SalesOrder, SalesOrderStatus)
 
     @skipIfCustomAddress
     def test_mass_import_update(self):

@@ -231,6 +231,13 @@ def bool_as_html(b: bool) -> str:
     return f'<input type="checkbox" {checked}disabled/>{label}'
 
 
+def as_int(value, default=0):
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return default
+
+
 _I2R_NUMERAL_MAP = [
     (1000, 'M'),  (900, 'CM'), (500, 'D'),  (400, 'CD'), (100, 'C'),
     (90,   'XC'), (50,  'L'),  (40,  'XL'), (10,  'X'),  (9,   'IX'),

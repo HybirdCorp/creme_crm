@@ -36,6 +36,7 @@ from creme.creme_core.forms.mass_import import (
     ImportForm4CremeEntity,
 )
 from creme.creme_core.models import Relation, RelationType
+from creme.creme_core.utils import as_int
 # from creme.creme_core.utils.dates import make_aware_dt
 from creme.persons.models import Civility
 
@@ -56,12 +57,11 @@ MODE_SPLITTEDCOLUMN = 2
 MAX_RELATIONSHIPS = 5
 
 
-# TODO: in creme_core ?
-def as_int(value, default=0):
-    try:
-        return int(value)
-    except (ValueError, TypeError):
-        return default
+# def as_int(value, default=0):
+#     try:
+#         return int(value)
+#     except (ValueError, TypeError):
+#         return default
 
 
 class RelatedExtractor:

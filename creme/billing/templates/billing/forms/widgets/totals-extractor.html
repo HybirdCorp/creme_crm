@@ -1,0 +1,79 @@
+{% load i18n %}
+{% with name=widget.name id=widget.attrs.id mode=widget.mode %}
+<div class="billing-mass_import-totals" {% include 'django/forms/widgets/attrs.html' %}>
+    <ul class="multi-select billing-mass_import-totals-modes">
+        <li class="billing-mass_import-totals-mode">
+            <label for="{{name}}_mode1">
+                <input id="{{name}}_mode1" type="radio" name="{{name}}_mode" value="{{widget.MODE_NO_TOTAL}}"
+                       {% if mode == widget.MODE_NO_TOTAL %} checked{% endif %}>
+                {% translate 'The totals are just set to 0' %}
+            </label>
+        </li>
+        <li class="billing-mass_import-totals-mode">
+            <label for="{{id}}_mode2">
+                <input id="{{id}}_mode2" type="radio" name="{{name}}_mode" value="{{widget.MODE_COMPUTE_TOTAL_VAT}}"
+                       {% if mode == widget.MODE_COMPUTE_TOTAL_VAT %} checked{% endif %}
+                       data-column-selects="{{widget.totalnovat_column_select.attrs.id}},{{widget.vat_column_select.attrs.id}}">
+                    {% translate 'Total with VAT is computed from total without VAT & VAT (one product line is created to get the right totals)' %}
+            </label>
+        </li>
+        <li class="billing-mass_import-totals-mode">
+            <label for="{{name}}_mode3">
+                <input id="{{name}}_mode3" type="radio" name="{{name}}_mode" value="{{widget.MODE_COMPUTE_TOTAL_NO_VAT}}"
+                       {% if mode == widget.MODE_COMPUTE_TOTAL_NO_VAT %} checked{% endif %}
+                       data-column-selects="{{widget.totalvat_column_select.attrs.id}},{{widget.vat_column_select.attrs.id}}">
+                    {% translate 'Total without VAT is computed from total with VAT & VAT (one product line is created to get the right totals)' %}
+            </label>
+        </li>
+        <li class="billing-mass_import-totals-mode">
+            <label for="{{name}}_mode3">
+                <input id="{{name}}_mode4" type="radio" name="{{name}}_mode" value="{{widget.MODE_COMPUTE_VAT}}"
+                       {% if mode == widget.MODE_COMPUTE_VAT %} checked{% endif %}
+                       data-column-selects="{{widget.totalnovat_column_select.attrs.id}},{{widget.totalvat_column_select.attrs.id}}">
+                    {% translate 'VAT is computed from totals (one product line is created to get the right totals)' %}
+            </label>
+        </li>
+    </ul>
+    <ul class="multi-select billing-mass_import-totals-columns">
+        <li>
+          {% with widget=widget.totalnovat_column_select %}
+            <label for="{{widget.attrs.id}}">{% translate 'Total without VAT: ' %}{% include widget.template_name %}</label>
+          {% endwith %}
+        </li>
+        <li>
+          {% with widget=widget.totalvat_column_select %}
+            <label for="{{widget.attrs.id}}">{% translate 'Total with VAT: ' %}{% include widget.template_name %}</label>
+          {% endwith %}
+        </li>
+        <li>
+          {% with widget=widget.vat_column_select %}
+            <label for="{{widget.attrs.id}}">{% translate 'VAT: ' %}{% include widget.template_name %}</label>
+          {% endwith %}
+        </li>
+    </ul>
+    <script type="text/javascript">{# TODO: move to a .js file; true widget? unit tests #}
+        $(document).ready(function() {
+            var widgetDiv = $('#{{id}}');
+
+            widgetDiv.find('.billing-mass_import-totals-modes input').each(function() {
+                var input = $(this);
+
+                input.on('change', function(e) {
+                    var select_ids_str = input.attr('data-column-selects');
+                    var select_ids = (select_ids_str === undefined) ? [] : select_ids_str.split(',');
+
+                    widgetDiv.find('.billing-mass_import-totals-columns select').each(function() {
+                        var select = $(this);
+                        var disabled = (select_ids.indexOf(select.attr('id')) === -1);
+
+                        select.prop('disabled', disabled);
+                        select.parents('li').first().toggleClass('is-disabled', disabled);
+                    });
+                });
+            });
+
+            widgetDiv.find('.billing-mass_import-totals-modes input:checked').trigger('change');
+        });
+    </script>
+</div>
+{% endwith %}

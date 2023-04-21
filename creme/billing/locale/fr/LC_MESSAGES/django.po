@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-07 14:25+0100\n"
+"POT-Creation-Date: 2023-04-26 15:24+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -389,6 +389,37 @@ msgstr ""
 "Vous n'avez pas la permission d'à ajouter cet élément au catalogue car il ne "
 "s'agit pas d'une ligne à la volée"
 
+msgid "The total without VAT is invalid: {}"
+msgstr "Le total HT est invalide : {}"
+
+msgid "The total with VAT is invalid: {}"
+msgstr "Le total TTC est invalide : {}"
+
+msgid "The VAT value is invalid: {}"
+msgstr "La valeur de TVA est invalide : {}"
+
+msgid "The VAT with value «{}» does not exist and cannot be created"
+msgstr "La TVA avec la valeur «{}» n'existe pas et ne peut pas être créée"
+
+msgid "N/A (import)"
+msgstr "NC (import)"
+
+#, python-format
+msgid "You have to select a column for «%(field)s»."
+msgstr "Vous devez sélectionner une colonne pour «%(field)s»."
+
+msgid "Total without VAT"
+msgstr "Total HT"
+
+msgid "Total with VAT"
+msgstr "Total TTC"
+
+msgid "VAT"
+msgstr "TVA"
+
+msgid "Beware: you are not allowed to create new VAT values"
+msgstr "Vous n'avez pas la permission de créer de nouvelles valeurs de TVA"
+
 msgid "Update the billing address"
 msgstr "Mettre à jour l'adresse de facturation"
 
@@ -403,6 +434,9 @@ msgid "In update mode, update the shipping address from the target."
 msgstr ""
 "En mode mise-à-jour, mettre à jour l'adresse de livraison depuis la cible."
 
+msgid "Totals & VAT"
+msgstr "Totaux & TVA"
+
 #, python-brace-format
 msgid ""
 "If you chose an organisation managed by {software} as source organisation, a "
@@ -410,6 +444,9 @@ msgid ""
 msgstr ""
 "Si vous choisissez une société gérée par {software} en tant qu'émettrice, un "
 "nombre sera automatiquement généré pour les «{models}» créé(e)s."
+
+msgid "You cannot compute totals in update mode."
+msgstr "Vous ne pouvez pas calculer les totaux en mode mise-à-jour."
 
 msgid "Billing address"
 msgstr "Adresse de facturation"
@@ -471,12 +508,6 @@ msgstr "Devise"
 
 msgid "Comment"
 msgstr "Remarques"
-
-msgid "Total with VAT"
-msgstr "Total avec TVA"
-
-msgid "Total without VAT"
-msgstr "Total HT"
 
 msgid "Additional Information"
 msgstr "Informations supplémentaires"
@@ -555,9 +586,6 @@ msgstr "Unité"
 
 msgid "Discount Unit"
 msgstr "Unité de remise"
-
-msgid "VAT"
-msgstr "TVA"
 
 msgid "Create a line"
 msgstr "Créer une ligne"
@@ -1185,6 +1213,39 @@ msgstr "Vous n'avez pas la permission de relier cette fiche"
 
 msgid "You are not allowed to change this entity"
 msgstr "Vous n'avez pas la permission de modifier cette fiche"
+
+msgid "The totals are just set to 0"
+msgstr "Les totaux sont jste mis à 0"
+
+msgid ""
+"Total with VAT is computed from total without VAT & VAT (one product line is "
+"created to get the right totals)"
+msgstr ""
+"Le total TTC est calculé depuis le total HT & la TVA (une line produit est "
+"créée pour obtenir les bons totaux)"
+
+msgid ""
+"Total without VAT is computed from total with VAT & VAT (one product line is "
+"created to get the right totals)"
+msgstr ""
+"Le total HT est calculé depuis le total TTC & la TVA (une line produit est "
+"créée pour obtenir les bons totaux)"
+
+msgid ""
+"VAT is computed from totals (one product line is created to get the right "
+"totals)"
+msgstr ""
+"La TVA est calculée depuis les totaux (une line produit est "
+"créée pour obtenir les bons totaux)"
+
+msgid "Total without VAT: "
+msgstr "Total HT : "
+
+msgid "Total with VAT: "
+msgstr "Total TTC : "
+
+msgid "VAT: "
+msgstr "TVA : "
 
 #, python-format
 msgid "Errors on the line <strong>«%(item)s»:</strong>"
