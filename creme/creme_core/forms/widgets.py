@@ -1145,6 +1145,26 @@ class TinyMCEEditor(widgets.Textarea):
         return context
 
 
+class CKEditor(widgets.Textarea):
+    template_name = 'creme_core/forms/widgets/ckeditor.html'
+    TOOLBARS = {'full', 'simple'}
+
+    def __init__(self, attrs=None, toolbar='full', upload_url=None):
+        super().__init__(attrs=attrs)
+        self.toolbar = toolbar
+        self.upload_url = upload_url
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        is_auto = context['widget']['attrs'].pop('auto', True)
+
+        context['creme_widget_auto'] = is_auto
+        context['ckeditor_toolbar'] = self.toolbar
+        context['ckeditor_upload_url'] = self.upload_url or ''
+
+        return context
+
+
 class ColorInput(widgets.Input):
     input_type = 'color'
     template_name = 'creme_core/forms/widgets/color.html'

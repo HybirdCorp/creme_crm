@@ -728,6 +728,7 @@ CREME_CORE_CSS = [
     'creme_core/css/jquery-css/creme-theme/jquery-ui-1.13.1.custom.css',
     'creme_core/css/select2/select2-4.0.13.css',
     'creme_core/css/select2/select2-creme.css',
+    'creme_core/css/ckeditor/ck5-creme.css',
 
     'creme_core/css/creme.css',
     'creme_core/css/creme-ui.css',
@@ -796,6 +797,7 @@ CREME_LIB_JS = [
     'creme_core/js/lib/momentjs/locale/en-us.js',
     'creme_core/js/lib/momentjs/locale/fr-fr.js',
     'creme_core/js/lib/editor/tinymce.3.4.9.js',
+    'creme_core/js/lib/editor/ckeditor5-37.1.0.js',
     'creme_core/js/lib/Sortable/Sortable-1.15.0.js',
     'creme_core/js/lib/select2/select2-4.0.13.full.js',
     'creme_core/js/lib/select2/select2-jquery-3.6.0.js',
@@ -874,6 +876,7 @@ CREME_CORE_JS = [
     # 'creme_core/js/widgets/form/chosen.js',
     'creme_core/js/widgets/form/select2.js',
     'creme_core/js/widgets/form/dropdown.js',
+    'creme_core/js/widgets/form/ckeditor.js',
 
     'creme_core/js/widgets/frame.js',
     'creme_core/js/widgets/toggle.js',

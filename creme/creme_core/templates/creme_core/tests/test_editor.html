@@ -2,11 +2,35 @@
 
 {% block test_title %}Rich text editor{% endblock %}
 
+{% block test_header %}
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function() {
+        $('[data-ckeditor-upload]').each(function() {
+            return new creme.form.CKEditor($(this), {
+                uploadURL: $(this).data('ckeditor-upload'),
+                updateSourceDelay: 100,
+                toolbar: $(this).data('ckeditor-toolbar')
+            });
+        });
+    });
+}(jQuery));
+</script>
+{% endblock %}
+
 {% block test_content %}
     <ul>
         <li>
             <h4>Tiny MCE</h4>
             <textarea widget="ui-creme-editor" class="ui-creme-editor ui-creme-widget widget-auto" basepath="tiny_mce"></textarea>
+        </li>
+        <li style="max-width: 50%;">
+            <h4>CKEditor</h4>
+            <textarea data-ckeditor-upload="{% url 'creme_core__dropfile' %}">Classic</textarea>
+        </li>
+        <li style="max-width: 50%;">
+            <h4>CKEditor</h4>
+            <textarea data-ckeditor-toolbar="simple" data-ckeditor-upload="{% url 'creme_core__dropfile' %}">Classic</textarea>
         </li>
     </ul>
 {% endblock %}
