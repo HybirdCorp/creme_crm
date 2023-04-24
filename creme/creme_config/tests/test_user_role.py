@@ -263,10 +263,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertCountEqual([ct_contact, ct_doc], role.creatable_ctypes.all())
         self.assertCountEqual([ct_contact],         role.exportable_ctypes.all())
 
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-
-        creds = setcreds[0]
+        creds = self.get_alone_element(role.credentials.all())
         self.assertEqual(EntityCredentials.VIEW | EntityCredentials.CHANGE, creds.value)
         self.assertEqual(set_type, creds.set_type)
         self.assertEqual(ct_contact, creds.ctype)
@@ -376,10 +373,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(role.creatable_ctypes.all())
         self.assertFalse(role.exportable_ctypes.all())
 
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-
-        creds = setcreds[0]
+        creds = self.get_alone_element(role.credentials.all())
         self.assertEqual(set_type, creds.set_type)
         self.assertEqual(ct_contact, creds.ctype)
         self.assertTrue(creds.forbidden)
@@ -393,10 +387,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(filter_name, efilter.name)
         self.assertTrue(efilter.use_or)
 
-        conditions = efilter.get_conditions()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.get_conditions())
         self.assertEqual(
             condition_handler.RegularFieldConditionHandler.type_id,
             condition.type,
@@ -488,20 +479,15 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         role = self.get_object_or_fail(UserRole, name=name)
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
 
-        creds = setcreds[0]
+        creds = self.get_alone_element(role.credentials.all())
         self.assertIsNone(creds.ctype)  # CremeEntity
 
         efilter = creds.efilter
         self.assertIsNotNone(efilter)
         self.assertEqual(CremeEntity, efilter.entity_type.model_class())
 
-        conditions = efilter.get_conditions()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.get_conditions())
         self.assertEqual(
             condition_handler.RegularFieldConditionHandler.type_id,
             condition.type,
@@ -597,10 +583,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         ))
 
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-
-        creds = setcreds[0]
+        creds = self.get_alone_element(role.credentials.all())
         self.assertEqual(EntityCredentials.VIEW, creds.value)
         self.assertEqual(set_type, creds.set_type)
         self.assertIsNone(creds.ctype)
@@ -665,10 +648,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-
-        creds = setcreds[0]
+        creds = self.get_alone_element(role.credentials.all())
         self.assertEqual(EntityCredentials.VIEW | EntityCredentials.CHANGE, creds.value)
         self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
         self.assertEqual(ct_contact.id,           creds.ctype_id)
@@ -742,10 +722,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-
-        creds = setcreds[0]
+        creds = self.get_alone_element(role.credentials.all())
         self.assertEqual(EntityCredentials.VIEW | EntityCredentials.CHANGE, creds.value)
         self.assertEqual(set_type,      creds.set_type)
         self.assertEqual(ct_contact.id, creds.ctype_id)
@@ -864,10 +841,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-
-        creds = setcreds[0]
+        creds = self.get_alone_element(role.credentials.all())
         self.assertEqual(EntityCredentials.VIEW | EntityCredentials.CHANGE, creds.value)
         self.assertEqual(set_type, creds.set_type)
         self.assertEqual(ctype.id, creds.ctype_id)
@@ -880,10 +854,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(f'creme_core-credentials_{role.id}-1', efilter.id)
         self.assertEqual(EF_CREDENTIALS, efilter.filter_type)
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(
             condition_handler.RegularFieldConditionHandler.type_id,
             condition.type,
@@ -962,10 +933,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-
-        creds = setcreds[0]
+        creds = self.get_alone_element(role.credentials.all())
         self.assertEqual(EntityCredentials.DELETE, creds.value)
         self.assertEqual(set_type, creds.set_type)
         self.assertEqual(ctype.id, creds.ctype_id)
@@ -1070,10 +1038,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-
-        creds = setcreds[0]
+        creds = self.get_alone_element(role.credentials.all())
         self.assertEqual(
             EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
             creds.value,
@@ -1084,10 +1049,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         efilter = creds.efilter
         self.assertIsInstance(efilter, EntityFilter)
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(
             condition_handler.RegularFieldConditionHandler.type_id,
             condition.type,
@@ -1315,10 +1277,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-
-        efilter = setcreds[0].efilter
+        efilter = self.get_alone_element(role.credentials.all()).efilter
         self.assertIsInstance(efilter, EntityFilter)
         self.assertEqual(name, efilter.name)
         self.assertTrue(efilter.use_or)
@@ -1328,10 +1287,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertEqual(EF_CREDENTIALS, efilter.filter_type)
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(
             condition_handler.RegularFieldConditionHandler.type_id,
             condition.type,
@@ -1451,10 +1407,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-
-        set_cred2 = setcreds[0]
+        set_cred2 = self.get_alone_element(role.credentials.all())
         self.assertEqual(set_cred1.ctype, set_cred2.ctype)
 
         efilter2 = set_cred2.efilter
@@ -1584,10 +1537,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-
-        setcred = setcreds[0]
+        setcred = self.get_alone_element(role.credentials.all())
         self.assertEqual(ctype, setcred.ctype)
 
         efilter2 = setcred.efilter
@@ -1598,10 +1548,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(EF_CREDENTIALS, efilter2.filter_type)
         self.assertEqual(efilter1.id, efilter2.id)
 
-        conditions = efilter2.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter2.conditions.all())
         self.assertEqual(
             condition_handler.PropertyConditionHandler.type_id,
             condition.type,
@@ -1758,11 +1705,10 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         ))
 
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-        self.assertIsNone(setcreds[0].ctype)
+        setcreds = self.get_alone_element(role.credentials.all())
+        self.assertIsNone(setcreds.ctype)
 
-        efilter2 = setcreds[0].efilter
+        efilter2 = setcreds.efilter
         self.assertIsNotNone(efilter2)
         self.assertEqual(
             ContentType.objects.get_for_model(CremeEntity),
@@ -1771,10 +1717,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(name, efilter2.name)
         self.assertTrue(efilter2.use_or)
 
-        conditions = efilter2.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter2.conditions.all())
         self.assertEqual(
             condition_handler.PropertyConditionHandler.type_id,
             condition.type,
@@ -1833,20 +1776,14 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        setcreds = role.credentials.all()
-        self.assertEqual(1, len(setcreds))
-
-        efilter = setcreds[0].efilter
+        efilter = self.get_alone_element(role.credentials.all()).efilter
         self.assertEqual(name, efilter.name)
         self.assertEqual(
             ContentType.objects.get_for_model(CremeEntity),
             efilter.entity_type,
         )
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(
             condition_handler.RegularFieldConditionHandler.type_id,
             condition.type,

@@ -84,10 +84,7 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         self.assertIsNone(field.initial)
         self.assertIsNone(field.user)
 
-        choices = [*field.choices]
-        self.assertEqual(1, len(choices))
-
-        active_group = choices[0]
+        active_group = self.get_alone_element(field.choices)
         self.assertEqual('', active_group[0])
 
         active_choices = active_group[1]
@@ -133,10 +130,7 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
 
         field = CremeUserChoiceField(queryset=CremeUser.objects.exclude(is_staff=True))
 
-        choices = [*field.choices]
-        self.assertEqual(1, len(choices))
-
-        active_group = choices[0]
+        active_group = self.get_alone_element(field.choices)
         self.assertEqual('', active_group[0])
 
         active_choices = active_group[1]

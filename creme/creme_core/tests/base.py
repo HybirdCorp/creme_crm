@@ -693,6 +693,15 @@ class _CremeTestCase:
 
         return obj
 
+    def get_alone_element(self, iterable):
+        """Check that an iterable has only one element, which is returned."""
+        listified = [*iterable]
+        length = len(listified)
+        if length != 1:
+            self.fail(f'The iterable has {length} elements, not 1')
+
+        return listified[0]
+
     def get_choices_group_or_fail(self, label, choices):
         for choice in choices:
             if choice[0] == label:

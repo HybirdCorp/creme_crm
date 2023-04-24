@@ -82,9 +82,8 @@ s556"""
         self.assertEqual(data, ''.join(chunks))
 
     def test_iter_as_chunks01(self):
-        chunks = [*chunktools.iter_as_chunk(self.DATA_UNIX, 1000)]
-        self.assertEqual(1, len(chunks))
-        self.assertEqual(self.DATA_UNIX, ''.join(chunks[0]))
+        chunk = self.get_alone_element(chunktools.iter_as_chunk(self.DATA_UNIX, 1000))
+        self.assertEqual(self.DATA_UNIX, ''.join(chunk))
 
     def test_iter_as_chunks02(self):
         assert len(self.DATA_UNIX) % 5 == 0

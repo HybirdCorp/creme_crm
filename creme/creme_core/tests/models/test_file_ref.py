@@ -137,10 +137,7 @@ class FileRefTestCase(base.CremeTestCase):
         doc.delete()
         self.assertDoesNotExist(doc)
 
-        file_refs = FileRef.objects.exclude(id__in=existing_ids)
-        self.assertEqual(1, len(file_refs))
-
-        file_ref = file_refs[0]
+        file_ref = self.get_alone_element(FileRef.objects.exclude(id__in=existing_ids))
         self.assertTrue(file_ref.temporary)
         self.assertIsNone(file_ref.user)
         self.assertEqual(full_path, file_ref.filedata.path)
@@ -176,10 +173,7 @@ class FileRefTestDeleteCase(base.CremeTransactionTestCase):
 
         self.assertDoesNotExist(doc)
 
-        file_refs = FileRef.objects.exclude(id__in=existing_ids)
-        self.assertEqual(1, len(file_refs))
-
-        file_ref = file_refs[0]
+        file_ref = self.get_alone_element(FileRef.objects.exclude(id__in=existing_ids))
         self.assertTrue(file_ref.temporary)
         self.assertIsNone(file_ref.user)
         self.assertEqual(full_path, file_ref.filedata.path)

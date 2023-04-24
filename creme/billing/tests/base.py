@@ -703,10 +703,10 @@ class _BillingTestCase(_BillingTestCaseMixin,
             else:
                 self.assertEqual('span', button_node.tag)
                 self.assertIn('forbidden', button_node.attrib.get('class').split())
-                labels = [*filter(None, (txt.strip() for txt in button_node.itertext()))]
-                self.assertEqual(1, len(labels))
                 found.append({
-                    'label': labels[0],
+                    'label': self.get_alone_element(
+                        filter(None, (txt.strip() for txt in button_node.itertext()))
+                    ),
                     # 'json_data': json_data,
                     'disabled': True,
                 })

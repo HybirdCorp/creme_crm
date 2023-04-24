@@ -1853,10 +1853,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         orga_wrapper = get_ct_wrapper(FakeOrganisation)
         self.assertTrue(orga_wrapper.collapsed)
 
-        orga_descriptors = orga_wrapper.descriptors
-        self.assertEqual(1, len(orga_descriptors))
-
-        orga_creation_descriptor = orga_descriptors[0]
+        orga_creation_descriptor = self.get_alone_element(orga_wrapper.descriptors)
         self.assertIsList(orga_creation_descriptor.items, length=1)
 
         orga_item = orga_creation_descriptor.items[0]

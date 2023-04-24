@@ -122,10 +122,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
             orga, name, address_value, po_box, city, state, zipcode, country, department,
         )
 
-        addresses = Address.objects.filter(object_id=orga.id)
-        self.assertEqual(1, len(addresses))
-
-        address = addresses[0]
+        address = self.get_alone_element(Address.objects.filter(object_id=orga.id))
         self.assertEqual(name,       address.name)
         self.assertEqual(address_value, address.address)
         self.assertEqual(po_box,     address.po_box)
@@ -178,10 +175,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         ))
 
-        addresses = Address.objects.filter(object_id=orga.id)
-        self.assertEqual(1, len(addresses))
-
-        address = addresses[0]
+        address = self.get_alone_element(Address.objects.filter(object_id=orga.id))
         self.assertEqual(city,       address.city)
         self.assertEqual(addr_value, address.address)
         self.assertEqual('',         address.po_box)
@@ -222,10 +216,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         ))
 
-        addresses = Address.objects.filter(object_id=orga.id)
-        self.assertEqual(1, len(addresses))
-
-        address = addresses[0]
+        address = self.get_alone_element(Address.objects.filter(object_id=orga.id))
         self.assertEqual(country,    address.country)
         self.assertEqual(addr_value, address.address)
         self.assertEqual('',         address.zipcode)

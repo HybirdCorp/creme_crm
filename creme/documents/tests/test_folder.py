@@ -654,15 +654,12 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         user = self.login()
         folder = Folder.objects.create(user=user, title='My folder')
 
-        explore_actions = [
+        explore_action = self.get_alone_element(
             action
             for action in actions.actions_registry
                                  .instance_actions(user=user, instance=folder)
             if isinstance(action, ExploreFolderAction)
-        ]
-        self.assertEqual(1, len(explore_actions))
-
-        explore_action = explore_actions[0]
+        )
         self.assertEqual('redirect', explore_action.type)
         self.assertEqual(
             f'{folder.get_lv_absolute_url()}?parent_id={folder.id}',
@@ -671,7 +668,8 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertTrue(explore_action.is_enabled)
         self.assertTrue(explore_action.is_visible)
         self.assertEqual(
-            _('List sub-folders of «{}»').format(folder), explore_action.help_text
+            _('List sub-folders of «{}»').format(folder),
+            explore_action.help_text,
         )
 
     def test_folder_clone01(self):

@@ -41,10 +41,7 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         self.assertGET405(url,  data={**data1, 'id': address.id})
         self.assertPOST200(url, data={**data1, 'id': address.id})
 
-        geoaddresses = GeoAddress.objects.all()
-        self.assertEqual(1, len(geoaddresses))
-
-        geoaddress = geoaddresses[0]
+        geoaddress = self.get_alone_element(GeoAddress.objects.all())
         self.assertGeoAddress(geoaddress, address=address, draggable=True, **data1)
         self.assertEqual(self.refresh(address).geoaddress, geoaddress)
 
@@ -56,9 +53,8 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         }
         self.assertPOST200(url, data={**data2, 'id': address.id})
 
-        geoaddresses = GeoAddress.objects.all()
-        self.assertEqual(1, len(geoaddresses))
-        self.assertGeoAddress(geoaddresses[0], address=address, draggable=True, **data2)
+        geoaddress = self.get_alone_element(GeoAddress.objects.all())
+        self.assertGeoAddress(geoaddress, address=address, draggable=True, **data2)
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
@@ -95,10 +91,9 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         }
         self.assertPOST200(url, data={**data2, 'id': address.id})
 
-        geoaddresses = GeoAddress.objects.all()
-        self.assertEqual(1, len(geoaddresses))
+        geoaddress = self.get_alone_element(GeoAddress.objects.all())
         self.assertGeoAddress(
-            geoaddresses[0], address=address, draggable=True, **data2
+            geoaddress, address=address, draggable=True, **data2
         )
 
     def test_set_address_info_missing_address(self):
@@ -132,10 +127,7 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         }
         self.assertPOST200(self.SET_ADDRESS_URL, data={**data, 'id': address.id})
 
-        geoaddresses = GeoAddress.objects.all()
-        self.assertEqual(1, len(geoaddresses))
-
-        geoaddress = geoaddresses[0]
+        geoaddress = self.get_alone_element(GeoAddress.objects.all())
         self.assertGeoAddress(geoaddress, address=address, draggable=True, **data)
         self.assertEqual(self.refresh(address).geoaddress, geoaddress)
 
@@ -148,9 +140,8 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
             },
         )
 
-        geoaddresses = GeoAddress.objects.all()
-        self.assertEqual(1, len(geoaddresses))
-        self.assertGeoAddress(geoaddresses[0], address=address, draggable=True, **data)
+        geoaddress = self.get_alone_element(GeoAddress.objects.all())
+        self.assertGeoAddress(geoaddress, address=address, draggable=True, **data)
 
     @skipIfCustomOrganisation
     @skipIfCustomAddress
@@ -158,7 +149,7 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         self.login(is_superuser=False, allowed_apps=('creme_core', 'geolocation', 'persons'))
 
         SetCredentials.objects.create(
-            role=self.user.role,
+            role=self.role,
             ctype=Organisation,
             value=EntityCredentials._ALL_CREDS,
             set_type=SetCredentials.ESET_OWN,

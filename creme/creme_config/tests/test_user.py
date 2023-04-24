@@ -375,10 +375,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        users = User.objects.filter(username=username)
-        self.assertEqual(1, len(users))
-
-        user = users[0]
+        user = self.get_alone_element(User.objects.filter(username=username))
         self.assertTrue(user.is_superuser)
         self.assertIsNone(user.role)
         self.assertEqual(first_name, user.first_name)
@@ -1192,10 +1189,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             data={'username': 'Team-A', 'teammates': [user01.id, user02.id]},
         ))
 
-        teams = User.objects.filter(is_team=True)
-        self.assertEqual(1, len(teams))
-
-        team = teams[0]
+        team = self.get_alone_element(User.objects.filter(is_team=True))
         self.assertFalse(team.is_superuser)
         self.assertEqual('', team.first_name)
         self.assertEqual('', team.last_name)
@@ -1436,10 +1430,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Delete view can not delete the last superuser."
         self.client.login(username='root', password='root')
 
-        superusers = User.objects.filter(is_superuser=True)
-        self.assertEqual(1, len(superusers))
-
-        user = superusers[0]
+        user = self.get_alone_element(User.objects.filter(is_superuser=True))
 
         url = self._build_delete_url(user)
         self.assertGET409(url)

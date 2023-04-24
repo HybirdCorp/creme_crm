@@ -186,10 +186,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
         # ---
-        messages = mail.outbox
-        self.assertEqual(1, len(messages))
-
-        message = messages[0]
+        message = self.get_alone_element(mail.outbox)
         self.assertEqual(subject,                    message.subject)
         self.assertEqual(body,                       message.body)
         self.assertEqual([recipient],                message.recipients())
@@ -1173,15 +1170,12 @@ better &amp; lighter than the previous one.
         user = self.login()
         email = self._create_email()
 
-        resend_actions = [
+        resend_action = self.get_alone_element(
             action
             for action in actions.actions_registry
                                  .instance_actions(user=user, instance=email)
             if isinstance(action, EntityEmailResendAction)
-        ]
-        self.assertEqual(1, len(resend_actions))
-
-        resend_action = resend_actions[0]
+        )
         self.assertEqual('email-resend', resend_action.type)
         self.assertEqual(reverse('emails__resend_emails'), resend_action.url)
         self.assertDictEqual(
@@ -1196,15 +1190,12 @@ better &amp; lighter than the previous one.
 
     def test_listview_bulk_actions(self):
         user = self.login()
-        resend_actions = [
+        resend_action = self.get_alone_element(
             action
             for action in actions.actions_registry
                                  .bulk_actions(user=user, model=EntityEmail)
             if isinstance(action, BulkEntityEmailResendAction)
-        ]
-        self.assertEqual(1, len(resend_actions))
-
-        resend_action = resend_actions[0]
+        )
         self.assertEqual('email-resend-selection', resend_action.type)
         self.assertEqual(reverse('emails__resend_emails'), resend_action.url)
         self.assertIsNone(resend_action.action_data)
@@ -1293,10 +1284,7 @@ better &amp; lighter than the previous one.
 
         self._send_mails(job)
 
-        messages = mail.outbox
-        self.assertEqual(1, len(messages))
-
-        message = messages[0]
+        message = self.get_alone_element(mail.outbox)
         self.assertEqual(email.subject, message.subject)
         self.assertEqual(email.body,    message.body)
 
@@ -1317,10 +1305,7 @@ better &amp; lighter than the previous one.
 
         self._send_mails(job)
 
-        messages = mail.outbox
-        self.assertEqual(1, len(messages))
-
-        message = messages[0]
+        message = self.get_alone_element(mail.outbox)
         self.assertEqual(email.subject, message.subject)
         self.assertEqual(email.body,    message.body)
 

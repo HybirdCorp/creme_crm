@@ -100,10 +100,7 @@ class SendingsTestCase(CremeTestCase):
             data={'template': template.id},
         ))
 
-        sendings = self.refresh(camp).sendings.all()
-        self.assertEqual(1, len(sendings))
-
-        sending = sendings[0]
+        sending = self.get_alone_element(self.refresh(camp).sendings.all())
         self.assertEqual(date.today(), sending.date)
         self.assertEqual(template, sending.template)
         self.assertEqual('SUBJECT : BODYYYYYYYYYYY', sending.content)

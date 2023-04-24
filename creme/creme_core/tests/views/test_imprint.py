@@ -33,10 +33,7 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertGET200(orga.get_absolute_url())
 
-        imprints = Imprint.objects.all()
-        self.assertEqual(1, len(imprints))
-
-        imprint = imprints[0]
+        imprint = self.get_alone_element(Imprint.objects.all())
         self.assertDatetimesAlmostEqual(now(), imprint.date)
         self.assertEqual(imprint.entity.get_real_entity(), orga)
         self.assertEqual(imprint.user, user)
@@ -51,10 +48,7 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET200(orga.get_absolute_url())
         self.assertGET200(orga.get_absolute_url())
 
-        imprints = Imprint.objects.all()
-        self.assertEqual(1, len(imprints))  # not 2
-
-        imprint = imprints[0]
+        imprint = self.get_alone_element(Imprint.objects.all())  # not 2
         self.assertDatetimesAlmostEqual(now(), imprint.date)
         self.assertEqual(imprint.entity.get_real_entity(), orga)
         self.assertEqual(imprint.user, user)

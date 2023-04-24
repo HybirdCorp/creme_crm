@@ -141,9 +141,8 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
         self.assertEqual(criticity, tpl.criticity)
         self.assertFalse(tpl.solution)
 
-        jobs = queue.refreshed_jobs
-        self.assertEqual(1, len(jobs))
-        self.assertEqual(self._get_job(), jobs[0][0])
+        job, _data = self.get_alone_element(queue.refreshed_jobs)
+        self.assertEqual(self._get_job(), job)
 
     def test_editview01(self):
         user = self.user
@@ -282,10 +281,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
 
         self._generate_docs(job)
 
-        new_tickets = Ticket.objects.all()
-        self.assertEqual(1, len(new_tickets))
-
-        ticket = new_tickets[0]
+        ticket = self.get_alone_element(Ticket.objects.all())
         self.assertEqual(
             '{} {}'.format(tpl.title, date_format(now_value.date(), 'DATE_FORMAT')),
             ticket.title,

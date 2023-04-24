@@ -346,33 +346,27 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         def filter_locs(zone):
             return [bl for bl in b_locs if bl.zone == zone]
 
-        locations = filter_locs(BrickDetailviewLocation.TOP)
-        self.assertEqual(2, len(locations))
-        # self.assertEqual(1, self._find_location(brick_top1.id_, locations).order)
-        # self.assertEqual(2, self._find_location(brick_top2.id_, locations).order)
-        self.assertEqual(1, self._find_location(brick_top1.id, locations).order)
-        self.assertEqual(2, self._find_location(brick_top2.id, locations).order)
+        top_locations = filter_locs(BrickDetailviewLocation.TOP)
+        self.assertEqual(2, len(top_locations))
+        self.assertEqual(1, self._find_location(brick_top1.id, top_locations).order)
+        self.assertEqual(2, self._find_location(brick_top2.id, top_locations).order)
 
-        locations = filter_locs(BrickDetailviewLocation.LEFT)
-        self.assertEqual(2, len(locations))
-        # self.assertEqual(1, self._find_location(brick_left1.id_, locations).order)
-        # self.assertEqual(2, self._find_location(brick_left2.id_, locations).order)
-        self.assertEqual(1, self._find_location(brick_left1.id, locations).order)
-        self.assertEqual(2, self._find_location(brick_left2.id, locations).order)
+        left_locations = filter_locs(BrickDetailviewLocation.LEFT)
+        self.assertEqual(2, len(left_locations))
+        self.assertEqual(1, self._find_location(brick_left1.id, left_locations).order)
+        self.assertEqual(2, self._find_location(brick_left2.id, left_locations).order)
 
-        locations = filter_locs(BrickDetailviewLocation.RIGHT)
-        self.assertEqual(1, len(locations))
-        # self.assertEqual(1, self._find_location(brick_right.id_, locations).order)
-        self.assertEqual(1, self._find_location(brick_right.id, locations).order)
+        right_locations = filter_locs(BrickDetailviewLocation.RIGHT)
+        self.assertEqual(1, len(right_locations))
+        self.assertEqual(1, self._find_location(brick_right.id, right_locations).order)
 
-        locations = filter_locs(BrickDetailviewLocation.BOTTOM)
-        self.assertEqual(1, len(locations))
-        # self.assertEqual(1, self._find_location(brick_bottom.id_, locations).order)
-        self.assertEqual(1, self._find_location(brick_bottom.id, locations).order)
+        bottom_locations = filter_locs(BrickDetailviewLocation.BOTTOM)
+        self.assertEqual(1, len(bottom_locations))
+        self.assertEqual(1, self._find_location(brick_bottom.id, bottom_locations).order)
 
         self.assertListEqual(
             [''],
-            [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.HAT)]
+            [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.HAT)],
         )
 
     def test_add_detailview_ignore_used_roles(self):
@@ -583,27 +577,27 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         def filter_locs(zone):
             return [bl for bl in b_locs if bl.zone == zone]
 
-        locations = filter_locs(BrickDetailviewLocation.TOP)
-        self.assertEqual(2, len(locations))
-        self.assertEqual(1, self._find_location(brick_top1.id, locations).order)
-        self.assertEqual(2, self._find_location(brick_top2.id, locations).order)
+        top_locations = filter_locs(BrickDetailviewLocation.TOP)
+        self.assertEqual(2, len(top_locations))
+        self.assertEqual(1, self._find_location(brick_top1.id, top_locations).order)
+        self.assertEqual(2, self._find_location(brick_top2.id, top_locations).order)
 
-        locations = filter_locs(BrickDetailviewLocation.LEFT)
-        self.assertEqual(2, len(locations))
-        self.assertEqual(1, self._find_location(brick_left1.id, locations).order)
-        self.assertEqual(2, self._find_location(brick_left2.id, locations).order)
+        left_locations = filter_locs(BrickDetailviewLocation.LEFT)
+        self.assertEqual(2, len(left_locations))
+        self.assertEqual(1, self._find_location(brick_left1.id, left_locations).order)
+        self.assertEqual(2, self._find_location(brick_left2.id, left_locations).order)
 
-        locations = filter_locs(BrickDetailviewLocation.RIGHT)
-        self.assertEqual(1, len(locations))
-        self.assertEqual(1, self._find_location(brick_right.id, locations).order)
+        right_locations = filter_locs(BrickDetailviewLocation.RIGHT)
+        self.assertEqual(1, len(right_locations))
+        self.assertEqual(1, self._find_location(brick_right.id, right_locations).order)
 
-        locations = filter_locs(BrickDetailviewLocation.BOTTOM)
-        self.assertEqual(1, len(locations))
-        self.assertEqual(1, self._find_location(brick_bottom.id, locations).order)
+        bottom_locations = filter_locs(BrickDetailviewLocation.BOTTOM)
+        self.assertEqual(1, len(bottom_locations))
+        self.assertEqual(1, self._find_location(brick_bottom.id, bottom_locations).order)
 
         self.assertListEqual(
             [''],
-            [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.HAT)]
+            [loc.brick_id for loc in filter_locs(BrickDetailviewLocation.HAT)],
         )
 
     def test_edit_detailview01(self):
@@ -1657,10 +1651,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         # ---
         self.assertNoFormError(self.client.post(url, data={'relation_type': rt.id}))
 
-        rb_items = RelationBrickItem.objects.all()
-        self.assertEqual(1, len(rb_items))
-
-        rb_item = rb_items[0]
+        rb_item = self.get_alone_element(RelationBrickItem.objects.all())
         self.assertEqual(rt.id, rb_item.relation_type.id)
         self.assertIsNone(rb_item.get_cells(ContentType.objects.get_for_model(FakeContact)))
 

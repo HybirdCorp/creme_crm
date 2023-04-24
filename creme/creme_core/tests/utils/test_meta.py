@@ -54,7 +54,7 @@ class MiscTestCase(CremeTestCase):
 
 class FieldInfoTestCase(CremeTestCase):
     def test_field_info01(self):
-        "Simple field"
+        "Simple field."
         fi = meta.FieldInfo(FakeContact, 'first_name')
 
         self.assertEqual(FakeContact, fi.model)
@@ -150,8 +150,8 @@ class FieldInfoTestCase(CremeTestCase):
 
         User = get_user_model()
         self.assertEqual(User, sub_fi.model)
-        self.assertEqual(1, len(sub_fi))
-        self.assertEqual(User._meta.get_field('username'), sub_fi[0])
+        sub_field = self.get_alone_element(sub_fi)
+        self.assertEqual(User._meta.get_field('username'), sub_field)
 
     def test_field_info_slice04(self):
         "'very' negative start."

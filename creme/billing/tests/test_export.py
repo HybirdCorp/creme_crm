@@ -871,10 +871,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(self._build_export_url(invoice), follow=True)
         self.assertEqual('application/pdf', response['Content-Type'])
 
-        filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
-        self.assertEqual(1, len(filerefs))
-
-        fileref = filerefs[0]
+        fileref = self.get_alone_element(FileRef.objects.exclude(id__in=existing_fileref_ids))
         self.assertTrue(fileref.temporary)
         self.assertEqual(f"{_('Invoice')}_{invoice.id}.pdf", fileref.basename)
         self.assertEqual(user, fileref.user)
@@ -919,10 +916,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(self._build_export_url(invoice), follow=True)
         self.assertEqual('application/pdf', response['Content-Type'])
 
-        filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
-        self.assertEqual(1, len(filerefs))
-
-        fileref = filerefs[0]
+        fileref = self.get_alone_element(FileRef.objects.exclude(id__in=existing_fileref_ids))
         self.assertTrue(fileref.temporary)
         self.assertEqual('{}_{}.pdf'.format(_('Invoice'), invoice.id), fileref.basename)
         self.assertEqual(user, fileref.user)
@@ -1094,10 +1088,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(self._build_export_url(invoice), follow=True)
         self.assertEqual('application/vnd.ms-excel', response['Content-Type'])
 
-        filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
-        self.assertEqual(1, len(filerefs))
-
-        fileref = filerefs[0]
+        fileref = self.get_alone_element(FileRef.objects.exclude(id__in=existing_fileref_ids))
         self.assertTrue(fileref.temporary)
         self.assertEqual(f"{_('Invoice')}_{invoice.id}.xls", fileref.basename)
         self.assertEqual(user, fileref.user)
@@ -1353,9 +1344,8 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(self._build_export_url(quote), follow=True)
         self.assertEqual('application/vnd.ms-excel', response['Content-Type'])
 
-        filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
-        self.assertEqual(1, len(filerefs))
-        self.assertEqual(f"{_('Quote')}_{quote.id}.xls", filerefs[0].basename)
+        fileref = self.get_alone_element(FileRef.objects.exclude(id__in=existing_fileref_ids))
+        self.assertEqual(f"{_('Quote')}_{quote.id}.xls", fileref.basename)
 
         lines = iter(XlrdReader(None, file_contents=b''.join(response.streaming_content)))
 

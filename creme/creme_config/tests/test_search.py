@@ -134,10 +134,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         ))
 
-        sc_items = SearchConfigItem.objects.filter(content_type=ct)
-        self.assertEqual(1, len(sc_items))
-
-        sc_item = sc_items[0]
+        sc_item = self.get_alone_element(SearchConfigItem.objects.filter(content_type=ct))
         self.assertEqual(role, sc_item.role)
         self.assertFalse(sc_item.superuser)
         self.assertFalse(sc_item.disabled)
@@ -267,14 +264,13 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         ))
 
-        sc_items = SearchConfigItem.objects.filter(content_type=ct)
-        self.assertEqual(1, len(sc_items))
+        sc_item = self.get_alone_element(SearchConfigItem.objects.filter(content_type=ct))
         self.assertListEqual(
             [
                 EntityCellCustomField(cf)
                 for cf in (cfield1, cfield2, cfield3, cfield4)
             ],
-            [*sc_items[0].cells],
+            [*sc_item.cells],
         )
 
     def test_add_custom_fields_errors(self):
@@ -284,7 +280,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         def post(cfield):
             response = self.assertPOST200(
                 self._build_add_url(ct),
-                data={'cells': f'custom_field-{cfield.id}'}
+                data={'cells': f'custom_field-{cfield.id}'},
             )
             self.assertFormError(
                 response.context['form'],

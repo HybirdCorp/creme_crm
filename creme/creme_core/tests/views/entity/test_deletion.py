@@ -662,10 +662,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         response = self.assertPOST200(url)
         self.assertTemplateUsed(response, 'creme_core/job/trash-cleaning-popup.html')
 
-        jobs = Job.objects.filter(type_id=trash_cleaner_type.id)
-        self.assertEqual(1, len(jobs))
-
-        job = jobs[0]
+        job = self.get_alone_element(Job.objects.filter(type_id=trash_cleaner_type.id))
         self.assertEqual(self.user, job.user)
         self.assertEqual(Job.STATUS_WAIT, job.status)
         self.assertIsNone(job.error)
@@ -761,9 +758,8 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
         self.assertIn(entity02.id, jresults)
 
-        result_bricks = trash_cleaner_type.results_bricks
-        self.assertEqual(1, len(result_bricks))
-        self.assertIsInstance(result_bricks[0], EntityJobErrorsBrick)
+        result_brick = self.get_alone_element(trash_cleaner_type.results_bricks)
+        self.assertIsInstance(result_brick, EntityJobErrorsBrick)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_empty_trash03(self):

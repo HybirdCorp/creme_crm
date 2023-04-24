@@ -103,9 +103,6 @@ Praesent blandit pharetra nulla, id ultrices diam molestie sed.
         with self.assertNoException():
             wt.save(file.name)
 
-        read_content = [*XlrdReader(filedata=file.name)]
-        self.assertEqual(1, len(read_content))
-
-        elt = read_content[0]
-        self.assertEqual(1, len(elt))
-        self.assertEqual(32767, len(elt[0]))
+        row = self.get_alone_element(XlrdReader(filedata=file.name))
+        elt = self.get_alone_element(row)
+        self.assertEqual(32767, len(elt))

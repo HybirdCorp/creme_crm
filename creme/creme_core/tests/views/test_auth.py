@@ -38,10 +38,7 @@ class AuthViewsTestCase(ViewsTestCase):
         self.assertTemplateUsed(response2, 'creme_core/auth/password_reset/done.html')
         self.assertEqual(_('Reset your password (Step 2/4)'), response2.context.get('title'))
 
-        messages = mail.outbox
-        self.assertEqual(1, len(messages))
-
-        message = messages[0]
+        message = self.get_alone_element(mail.outbox)
         self.assertListEqual([user.email], message.recipients())
         self.assertEqual('admin@mycompagny.org', message.from_email)
         self.assertListEqual([], message.alternatives)

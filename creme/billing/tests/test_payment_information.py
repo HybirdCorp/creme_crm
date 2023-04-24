@@ -51,10 +51,7 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
             },
         ))
 
-        all_pi = PaymentInformation.objects.all()
-        self.assertEqual(1, len(all_pi))
-
-        pi = all_pi[0]
+        pi = self.get_alone_element(PaymentInformation.objects.all())
         self.assertIs(True, pi.is_default)
         self.assertEqual(organisation, pi.organisation)
         self.assertEqual('', pi.bank_code)
@@ -161,10 +158,7 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
             },
         ))
 
-        all_pi = PaymentInformation.objects.filter(organisation=source.id)
-        self.assertEqual(1, len(all_pi))
-
-        pi = all_pi[0]
+        pi = self.get_alone_element(PaymentInformation.objects.filter(organisation=source.id))
         self.assertIs(True, pi.is_default)
         self.assertEqual(pi, self.refresh(invoice).payment_info)
 

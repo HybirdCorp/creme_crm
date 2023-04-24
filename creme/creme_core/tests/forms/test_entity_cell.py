@@ -574,10 +574,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         "One regular field."
         field = EntityCellsField(model=FakeContact)
         fname = 'first_name'
-        cells = field.clean(f'regular_field-{fname}')
-        self.assertEqual(1, len(cells))
-
-        cell = cells[0]
+        cell = self.get_alone_element(field.clean(f'regular_field-{fname}'))
         self.assertEqual(EntityCellRegularField.build(FakeContact, fname), cell)
         self.assertIs(cell.is_hidden, False)
 

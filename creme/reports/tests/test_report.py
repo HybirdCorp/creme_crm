@@ -894,15 +894,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         user = self.login()
         report = self._create_simple_contacts_report('Report#1')
 
-        export_actions = [
+        export_action = self.get_alone_element(
             action
             for action in actions.actions_registry
                                  .instance_actions(user=user, instance=report)
             if isinstance(action, ExportReportAction)
-        ]
-        self.assertEqual(1, len(export_actions))
-
-        export_action = export_actions[0]
+        )
         self.assertEqual('reports-export', export_action.id)
         self.assertEqual('reports-export', export_action.type)
         self.assertEqual(

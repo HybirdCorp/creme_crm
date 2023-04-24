@@ -833,10 +833,7 @@ class OrganisationTestCase(_BaseTestCase):
         "Cannot delete the last managed organisation."
         self.login()
 
-        managed_orgas = Organisation.objects.filter(is_managed=True)
-        self.assertEqual(1, len(managed_orgas))
-
-        managed_orga = managed_orgas[0]
+        managed_orga = self.get_alone_element(Organisation.objects.filter(is_managed=True))
         self.assertPOST409(managed_orga.get_delete_absolute_url())  # follow=True
         self.assertStillExists(managed_orga)
 
@@ -1041,10 +1038,7 @@ class OrganisationTestCase(_BaseTestCase):
     def test_set_orga_as_not_managed(self):
         self.login()
 
-        mngd_orgas = Organisation.objects.filter(is_managed=True)
-        self.assertEqual(1, len(mngd_orgas))
-
-        orga1 = mngd_orgas[0]
+        orga1 = self.get_alone_element(Organisation.objects.filter(is_managed=True))
         orga2 = self._build_managed_orga()
 
         url = reverse('persons__orga_unset_managed')

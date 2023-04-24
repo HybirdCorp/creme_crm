@@ -36,13 +36,11 @@ class GuiTestCase(CremeTestCase):
         class FakeRequest:
             def __init__(this):
                 user_id = str(user.id)
-                sessions = [
+                this.session = self.get_alone_element(
                     d
                     for d in (s.get_decoded() for s in Session.objects.all())
                     if d.get('_auth_user_id') == user_id
-                ]
-                self.assertEqual(1, len(sessions))
-                this.session = sessions[0]
+                )
 
         def get_items():
             return LastViewedItem.get_all(FakeRequest())
@@ -60,6 +58,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(1, len(items))
         self.assertEqual(contact01.pk, items[0].pk)
 
+        # ---
         self.assertGET200(contact02.get_absolute_url())
         self.assertGET200(contact03.get_absolute_url())
         self.assertGET200(contact04.get_absolute_url())
@@ -67,23 +66,26 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(4, len(items))
         self.assertListEqual(
             [contact04.pk, contact03.pk, contact02.pk, contact01.pk],
-            [i.pk for i in items]
+            [i.pk for i in items],
         )
 
+        # ---
         sleep(1)
         contact01.last_name = 'ILoveYou'
         contact01.save()
         self.assertGET200(FakeContact.get_lv_absolute_url())
         old_item = get_items()[-1]
-        self.assertEqual(contact01.pk,       old_item.pk)
+        self.assertEqual(contact01.pk,   old_item.pk)
         self.assertEqual(str(contact01), old_item.name)
 
+        # ---
         self.assertGET200(contact02.get_absolute_url())
         self.assertListEqual(
             [contact02.pk, contact04.pk, contact03.pk, contact01.pk],
             [i.pk for i in get_items()],
         )
 
+        # ---
         contact03.delete()
         self.assertFalse(CremeEntity.objects.filter(pk=contact03.id))
         self.assertGET200(FakeContact.get_lv_absolute_url())
@@ -93,6 +95,7 @@ class GuiTestCase(CremeTestCase):
             [i.pk for i in items],
         )
 
+        # ---
         contact04.trash()
         self.assertGET200(FakeContact.get_lv_absolute_url())
         self.assertListEqual(
@@ -116,10 +119,7 @@ class GuiTestCase(CremeTestCase):
         fmt = 'There are {} Contacts'.format
         registry.register(s_id, label, lambda: [fmt(FakeContact.objects.count())])
 
-        stats = [*registry]
-        self.assertEqual(1, len(stats))
-
-        stat = stats[0]
+        stat = self.get_alone_element(registry)
         self.assertEqual(s_id,  stat.id)
         self.assertEqual(label, stat.label)
         self.assertListEqual([fmt(FakeContact.objects.count())], stat.retrieve())

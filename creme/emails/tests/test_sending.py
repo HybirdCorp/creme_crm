@@ -286,10 +286,9 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             },
         ))
 
-        sendings = self.refresh(camp).sendings_set.all()  # refresh is probably be useless...
-        self.assertEqual(1, len(sendings))
-
-        sending = sendings[0]
+        sending = self.get_alone_element(
+            self.refresh(camp).sendings_set.all()  # refresh is probably be useless...
+        )
         self.assertEqual(EmailSending.Type.IMMEDIATE, sending.type)
         self.assertEqual(EmailSending.State.PLANNED,  sending.state)
         self.assertEqual(subject,                     sending.subject)

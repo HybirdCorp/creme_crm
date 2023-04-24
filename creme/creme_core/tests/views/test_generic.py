@@ -83,19 +83,15 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertIsNone(response.context['visitor'])
 
         # -----
-        last_items = LastViewedItem.get_all(self.FakeRequest(user))
-        self.assertEqual(1, len(last_items))
-
-        last_item = last_items[0]
+        last_item = self.get_alone_element(LastViewedItem.get_all(self.FakeRequest(user)))
         self.assertEqual(fox.id,             last_item.pk)
         self.assertEqual(fox.entity_type_id, last_item.ctype_id)
         self.assertEqual(url,                last_item.url)
         self.assertEqual(str(fox),           last_item.name)
 
         # -----
-        imprints = Imprint.objects.all()
-        self.assertEqual(1, len(imprints))
-        self.assertEqual(imprints[0].entity.get_real_entity(), fox)
+        imprint = self.get_alone_element(Imprint.objects.all())
+        self.assertEqual(imprint.entity.get_real_entity(), fox)
 
         # -----
         tree = self.get_html_tree(response.content)

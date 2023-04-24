@@ -990,10 +990,8 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             },
         )
         self.assertNoFormError(response)
-        product_lines = ProductLine.objects.all()
-        self.assertEqual(1, len(product_lines))
 
-        product_line = product_lines[0]
+        product_line = self.get_alone_element(ProductLine.objects.all())
         self.assertEqual(name,                product_line.on_the_fly_item)
         self.assertEqual(Decimal(unit_price), product_line.unit_price)
         self.assertEqual(Decimal(quantity),   product_line.quantity)

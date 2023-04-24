@@ -128,10 +128,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         "Source is not managed + no number given."
         self.login()
 
-        managed_orgas = [*Organisation.objects.filter_managed_by_creme()]
-        self.assertEqual(1, len(managed_orgas))
-
-        managed_orga = managed_orgas[0]
+        managed_orga = self.get_alone_element(Organisation.objects.filter_managed_by_creme())
         response1 = self.assertGET200(reverse('billing__create_quote'))
 
         with self.assertNoException():
@@ -552,15 +549,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         user = self.login()
         quote = self.create_quote_n_orgas('Quote #1')[0]
 
-        export_actions = [
+        export_action = self.get_alone_element(
             action
             for action in actions.actions_registry
                                  .instance_actions(user=user, instance=quote)
             if isinstance(action, ExportQuoteAction)
-        ]
-        self.assertEqual(1, len(export_actions))
-
-        export_action = export_actions[0]
+        )
         self.assertEqual('billing-export_quote', export_action.id)
         self.assertEqual('redirect', export_action.type)
         self.assertEqual(reverse('billing__export', args=(quote.id,)), export_action.url)
@@ -812,9 +806,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.get_brick_table_column_titles(brick_node2),
         )
         rows = self.get_brick_table_rows(brick_node2)
-        self.assertEqual(1, len(rows))
-
-        table_cells = rows[0].findall('.//td')
+        table_cells = self.get_alone_element(rows).findall('.//td')
         self.assertEqual(4, len(table_cells))
         self.assertInstanceLink(table_cells[0], entity=quote)
         self.assertEqual(
@@ -853,8 +845,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.get_brick_table_column_titles(brick_node),
         )
         rows = self.get_brick_table_rows(brick_node)
-        self.assertEqual(1, len(rows))
-        self.assertEqual(3, len(rows[0].findall('.//td')))
+        row = self.get_alone_element(rows)
+        self.assertEqual(3, len(row.findall('.//td')))
 
     @override_settings(HIDDEN_VALUE='?')
     def test_brick03(self):
@@ -887,9 +879,9 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             brick=ReceivedQuotesBrick,
         )
         rows = self.get_brick_table_rows(brick_node)
-        self.assertEqual(1, len(rows))
+        row = self.get_alone_element(rows)
 
-        table_cells = rows[0].findall('.//td')
+        table_cells = row.findall('.//td')
         self.assertEqual(4, len(table_cells))
         self.assertEqual('?', table_cells[0].text)
         self.assertEqual('?', table_cells[1].text)

@@ -19,10 +19,9 @@ class ButtonsTestCase(CremeTestCase):
     def test_become(self, button_class):
         user = self.create_user()
 
-        managed_orgas = [*Organisation.objects.filter_managed_by_creme().all()]
-        self.assertEqual(1, len(managed_orgas))
-
-        managed_orga = managed_orgas[0]
+        managed_orga = self.get_alone_element(
+            Organisation.objects.filter_managed_by_creme().all()
+        )
         orga = Organisation.objects.create(user=user, name='Acme')
 
         button = button_class()
@@ -41,10 +40,8 @@ class ButtonsTestCase(CremeTestCase):
         "Cannot link a managed organisation with itself."
         self.create_user()
 
-        managed_orgas = [*Organisation.objects.filter_managed_by_creme().all()]
-        self.assertEqual(1, len(managed_orgas))
-
-        managed_orga = managed_orgas[0]
-
+        managed_orga = self.get_alone_element(
+            Organisation.objects.filter_managed_by_creme().all()
+        )
         button = buttons.BecomeCustomerButton()
         self.assertFalse(button.ok_4_display(managed_orga))

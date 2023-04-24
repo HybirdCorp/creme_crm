@@ -858,10 +858,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         dcom = self.get_deletion_command_or_fail(FakeTicketPriority)
-        replacers = dcom.replacers
-        self.assertEqual(1, len(replacers))
-
-        replacer = replacers[0]
+        replacer = self.get_alone_element(dcom.replacers)
         self.assertEqual('SET', replacer.type_id)
         self.assertEqual(FakeTicket, replacer.model_field.model)
         self.assertEqual('priority', replacer.model_field.name)

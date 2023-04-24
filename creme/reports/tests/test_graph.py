@@ -3120,10 +3120,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         cloned_report = report.clone()
 
-        rgrahes = ReportGraph.objects.filter(linked_report=cloned_report)
-        self.assertEqual(1, len(rgrahes))
-
-        cloned_rgraph = rgrahes[0]
+        cloned_rgraph = self.get_alone_element(
+            ReportGraph.objects.filter(linked_report=cloned_report)
+        )
         self.assertNotEqual(rgraph.id, cloned_rgraph.id)
         self.assertEqual(rgraph.name,  cloned_rgraph.name)
 

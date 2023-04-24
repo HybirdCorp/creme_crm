@@ -190,9 +190,8 @@ class EntityCellTestCase(CremeTestCase):
             ],
         )
         self.assertIs(errors, True)
-        self.assertEqual(1, len(cells))
 
-        cell = cells[0]
+        cell = self.get_alone_element(cells)
         self.assertIsInstance(cell, EntityCellFunctionField)
         self.assertEqual(FakeDocument,            cell.model)
         self.assertEqual('get_pretty_properties', cell.value)
@@ -246,9 +245,8 @@ class EntityCellTestCase(CremeTestCase):
             ],
         )
         self.assertIs(errors, True)
-        self.assertEqual(1, len(cells))
 
-        cell = cells[0]
+        cell = self.get_alone_element(cells)
         self.assertIsInstance(cell, EntityCellFunctionField)
         self.assertEqual(FakeDocument,            cell.model)
         self.assertEqual('get_pretty_properties', cell.value)

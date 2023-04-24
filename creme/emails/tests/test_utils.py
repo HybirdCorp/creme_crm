@@ -147,10 +147,7 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
         self.assertEqual(f'{body}\n--\n{signature.body}', message.body)
         self.assertEqual(mail.sender, message.from_email)
 
-        alternatives = message.alternatives
-        self.assertEqual(1, len(alternatives))
-
-        alternative = alternatives[0]
+        alternative = self.get_alone_element(message.alternatives)
         self.assertEqual('text/html', alternative[1])
         self.maxDiff = None
         # self.assertEqual(

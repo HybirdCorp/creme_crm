@@ -139,9 +139,8 @@ class ImportingTestCase(CremeTestCase):
             class TestImporter02(Importer):
                 pass
 
-        importers = registry.build_importers()
-        self.assertEqual(1, len(importers))
-        self.assertIsInstance(importers[0], TestImporter02)
+        importer = self.get_alone_element(registry.build_importers())
+        self.assertIsInstance(importer, TestImporter02)
 
     def test_register04(self):
         "Priority (stronger before)."
@@ -157,9 +156,8 @@ class ImportingTestCase(CremeTestCase):
             class TestImporter02(Importer):
                 pass
 
-        importers = registry.build_importers()
-        self.assertEqual(1, len(importers))
-        self.assertIsInstance(importers[0], TestImporter01)
+        importer = self.get_alone_element(registry.build_importers())
+        self.assertIsInstance(importer, TestImporter01)
 
     def test_unregister01(self):
         registry = ImportersRegistry()
@@ -176,9 +174,8 @@ class ImportingTestCase(CremeTestCase):
 
         registry.unregister(data_id1)
 
-        importers = registry.build_importers()
-        self.assertEqual(1, len(importers))
-        self.assertIsInstance(importers[0], TestImporter02)
+        importer = self.get_alone_element(registry.build_importers())
+        self.assertIsInstance(importer, TestImporter02)
 
     def test_unregister02(self):
         "Un-register before."
@@ -196,9 +193,8 @@ class ImportingTestCase(CremeTestCase):
         class TestImporter02(Importer):
             pass
 
-        importers = registry.build_importers()
-        self.assertEqual(1, len(importers))
-        self.assertIsInstance(importers[0], TestImporter02)
+        importer = self.get_alone_element(registry.build_importers())
+        self.assertIsInstance(importer, TestImporter02)
 
     def test_dependencies(self):
         registry = ImportersRegistry()
@@ -340,37 +336,33 @@ class ImportingTestCase(CremeTestCase):
         self.assertEqual(3, len(credentials))
 
         # --
-        own_creds = [
+        own_creds = self.get_alone_element(
             sc
             for sc in credentials
             if sc.set_type == SetCredentials.ESET_OWN and not sc.forbidden
-        ]
-        self.assertEqual(1, len(own_creds))
+        )
         self.assertEqual(
             EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-            own_creds[0].value
+            own_creds.value,
         )
-        self.assertFalse(own_creds[0].ctype)
+        self.assertFalse(own_creds.ctype)
 
         # --
-        all_creds = [sc for sc in credentials if sc.set_type == SetCredentials.ESET_ALL]
-        self.assertEqual(1, len(all_creds))
-        creds2 = all_creds[0]
+        all_creds = self.get_alone_element(
+            sc for sc in credentials if sc.set_type == SetCredentials.ESET_ALL
+        )
         self.assertEqual(
             EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-            creds2.value
+            all_creds.value
         )
-        self.assertEqual(contact_ct, creds2.ctype)
-        self.assertFalse(creds2.forbidden)
+        self.assertEqual(contact_ct, all_creds.ctype)
+        self.assertFalse(all_creds.forbidden)
 
         # --
-        forbidden_creds = [sc for sc in credentials if sc.forbidden]
-        self.assertEqual(1, len(own_creds))
-
-        creds3 = forbidden_creds[0]
-        self.assertEqual(SetCredentials.ESET_OWN, creds3.set_type)
-        self.assertEqual(EntityCredentials.CHANGE, creds3.value)
-        self.assertEqual(orga_ct, creds3.ctype)
+        forbidden_creds = self.get_alone_element(sc for sc in credentials if sc.forbidden)
+        self.assertEqual(SetCredentials.ESET_OWN,  forbidden_creds.set_type)
+        self.assertEqual(EntityCredentials.CHANGE, forbidden_creds.value)
+        self.assertEqual(orga_ct,                  forbidden_creds.ctype)
 
     def test_roles02(self):
         "Role with same name already exists => override it."
@@ -431,10 +423,7 @@ class ImportingTestCase(CremeTestCase):
         self.assertCountEqual([contact_ct, orga_ct], role.creatable_ctypes.all())
         self.assertCountEqual([orga_ct],             role.exportable_ctypes.all())
 
-        all_credentials = [*role.credentials.all()]
-        self.assertEqual(1, len(all_credentials))
-
-        credentials = all_credentials[0]
+        credentials = self.get_alone_element(role.credentials.all())
         self.assertEqual(
             EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
             credentials.value,
@@ -516,20 +505,14 @@ class ImportingTestCase(CremeTestCase):
         self.assertIsNone(efilter.user)
         self.assertFalse(efilter.is_private)
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition1 = conditions[0]
-        self.assertEqual(RelationConditionHandler.type_id, condition1.type)
-        self.assertEqual(rtype_id, condition1.name)
+        condition = self.get_alone_element(efilter.conditions.all())
+        self.assertEqual(RelationConditionHandler.type_id, condition.type)
+        self.assertEqual(rtype_id, condition.name)
 
         # ---
         role = self.get_object_or_fail(UserRole, name=role_name)
 
-        all_credentials = [*role.credentials.all()]
-        self.assertEqual(1, len(all_credentials))
-
-        credentials = all_credentials[0]
+        credentials = self.get_alone_element(role.credentials.all())
         self.assertEqual(
             EntityCredentials.VIEW | EntityCredentials.CHANGE,
             credentials.value,
@@ -713,10 +696,7 @@ class ImportingTestCase(CremeTestCase):
         self.assertEqual(2,                 super_item2.order)
         self.assertDictEqual({'label': container_label2}, super_item2.entry_data)
 
-        super_children = super_item2.children.all()
-        self.assertEqual(1, len(super_children))
-
-        super_child1 = super_children[0]
+        super_child1 = self.get_alone_element(super_item2.children.all())
         self.assertEqual(FakeContactsEntry.id, super_child1.entry_id)
         self.assertEqual(1,                    super_child1.order)
         self.assertTrue(super_child1.superuser)
@@ -732,10 +712,7 @@ class ImportingTestCase(CremeTestCase):
         role1_item2 = role1_items[1]
         self.assertEqual(ContainerEntry.id, role1_item2.entry_id)
 
-        role1_children = role1_item2.children.all()
-        self.assertEqual(1, len(role1_children))
-
-        role1_child1 = role1_children[0]
+        role1_child1 = self.get_alone_element(role1_item2.children.all())
         self.assertEqual(FakeContactsEntry.id, role1_child1.entry_id)
         self.assertFalse(role1_child1.superuser)
         self.assertEqual(role1, role1_child1.role)
@@ -751,10 +728,7 @@ class ImportingTestCase(CremeTestCase):
         role2_item2 = role2_items[1]
         self.assertEqual(ContainerEntry.id, role2_item2.entry_id)
 
-        role2_children = role2_item2.children.all()
-        self.assertEqual(1, len(role2_children))
-
-        role2_child1 = role2_children[0]
+        role2_child1 = self.get_alone_element(role2_item2.children.all())
         self.assertEqual(FakeOrganisationsEntry.id, role2_child1.entry_id)
         self.assertFalse(role2_child1.superuser)
         self.assertEqual(role2, role2_child1.role)
@@ -2252,10 +2226,7 @@ class ImportingTestCase(CremeTestCase):
         ef2 = self.get_object_or_fail(EntityFilter, id=efilters_data[0]['id'])
         ef3 = self.get_object_or_fail(EntityFilter, id=efilters_data[1]['id'])
 
-        conditions2 = ef2.conditions.all()
-        self.assertEqual(1, len(conditions2))
-
-        condition2_1 = conditions2[0]
+        condition2_1 = self.get_alone_element(ef2.conditions.all())
         self.assertEqual(SubFilterConditionHandler.type_id, condition2_1.type)
         self.assertEqual(ef3.id, condition2_1.name)
 
@@ -2340,10 +2311,7 @@ class ImportingTestCase(CremeTestCase):
         ef2 = self.get_object_or_fail(EntityFilter, id=efilters_data[0]['id'])
         ef3 = self.get_object_or_fail(EntityFilter, id=efilters_data[1]['id'])
 
-        conditions2 = ef2.conditions.all()
-        self.assertEqual(1, len(conditions2))
-
-        condition2_1 = conditions2[0]
+        condition2_1 = self.get_alone_element(ef2.conditions.all())
         self.assertEqual(RelationSubFilterConditionHandler.type_id, condition2_1.type)
         self.assertEqual(rtype.id, condition2_1.name)
         self.assertDictEqual({'has': False, 'filter_id': ef3.id}, condition2_1.value)
@@ -2351,10 +2319,7 @@ class ImportingTestCase(CremeTestCase):
         # --
         ef4 = self.get_object_or_fail(EntityFilter, id=efilters_data[2]['id'])
 
-        conditions4 = ef4.conditions.all()
-        self.assertEqual(1, len(conditions4))
-
-        condition4_1 = conditions4[0]
+        condition4_1 = self.get_alone_element(ef4.conditions.all())
         self.assertEqual(RelationSubFilterConditionHandler.type_id, condition4_1.type)
         self.assertEqual(rtype.id, condition4_1.name)
         self.assertDictEqual({'has': True, 'filter_id': ef1.id}, condition4_1.value)
@@ -2831,10 +2796,7 @@ class ImportingTestCase(CremeTestCase):
             descriptor_id=desc.id, role=None, superuser=True,
         )
 
-        groups2 = desc.groups(cfci02)
-        self.assertEqual(1, len(groups2))
-
-        group21 = groups2[0]
+        group21 = self.get_alone_element(desc.groups(cfci02))
         self.assertEqual(gname2,         group21.name)
         self.assertEqual(LAYOUT_REGULAR, group21.layout)
         self.assertListEqual(

@@ -425,11 +425,10 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
 
         self.command.populate_addresses()
 
-        geo_addresses = GeoAddress.objects.all()
-        self.assertEqual(1, len(geo_addresses))
+        geo_address = self.get_alone_element(GeoAddress.objects.all())
 
         address = self.refresh(address)
-        self.assertEqual(address.geoaddress, geo_addresses[0])
+        self.assertEqual(address.geoaddress, geo_address)
         self.assertGeoAddress(
             address.geoaddress,
             address=address,
@@ -466,11 +465,10 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
 
         self.command.populate_addresses()
 
-        geo_addresses = GeoAddress.objects.all()
-        self.assertEqual(1, len(geo_addresses))
+        geo_address = self.get_alone_element(GeoAddress.objects.all())
 
         address = self.refresh(address)
-        self.assertEqual(address.geoaddress, geo_addresses[0])
+        self.assertEqual(address.geoaddress, geo_address)
         self.assertGeoAddress(
             address.geoaddress,
             address=address,

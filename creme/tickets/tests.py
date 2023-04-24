@@ -274,15 +274,13 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             criticity=Criticity.objects.all()[0],
         )
         ticket1 = create_ticket(title='Test ticket #1')
-        numbers1 = TicketNumber.objects.all()
-        self.assertEqual(1, len(numbers1))
-        self.assertEqual(numbers1[0].id, ticket1.number)
+        number1 = self.get_alone_element(TicketNumber.objects.all())
+        self.assertEqual(number1.id, ticket1.number)
 
         ticket2 = create_ticket(title='Test ticket #2')
         self.assertNotEqual(ticket1.number, ticket2.number)
 
-        numbers2 = TicketNumber.objects.all()
-        self.assertEqual(1, len(numbers2))
+        self.get_alone_element(TicketNumber.objects.all())
 
     def test_get_resolving_duration01(self):
         "Resolving duration with CLOSED_PK + closing_date=None (e.g. CSV import)."

@@ -358,10 +358,7 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        semi_fixed_relations = SemiFixedRelationType.objects.all()
-        self.assertEqual(1, len(semi_fixed_relations))
-
-        smr = semi_fixed_relations[0]
+        smr = self.get_alone_element(SemiFixedRelationType.objects.all())
         self.assertEqual(predicate,  smr.predicate)
         self.assertEqual(self.loves, smr.relation_type)
         self.assertEqual(iori.entity_type, smr.object_ctype)

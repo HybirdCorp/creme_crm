@@ -148,13 +148,12 @@ class BrickTestCase(CremeTestCase):
         create_bdl(order=order, zone=zone)
         create_bdl(order=4, zone=BrickDetailviewLocation.LEFT)
 
-        locs = BrickDetailviewLocation.objects.filter(
-            brick_id=brick_id,
-            content_type=ContentType.objects.get_for_model(FakeContact),
+        loc = self.get_alone_element(
+            BrickDetailviewLocation.objects.filter(
+                brick_id=brick_id,
+                content_type=ContentType.objects.get_for_model(FakeContact),
+            )
         )
-        self.assertEqual(1, len(locs))
-
-        loc = locs[0]
         self.assertEqual(order, loc.order)
         self.assertEqual(zone,  loc.zone)
 
@@ -175,14 +174,13 @@ class BrickTestCase(CremeTestCase):
         create_bdl(order=order, zone=zone)
         create_bdl(order=4,     zone=BrickDetailviewLocation.LEFT)
 
-        locs = BrickDetailviewLocation.objects.filter(
-            brick_id=brick_id,
-            content_type=ctype,
-            role=role, superuser=False,
+        loc = self.get_alone_element(
+            BrickDetailviewLocation.objects.filter(
+                brick_id=brick_id,
+                content_type=ctype,
+                role=role, superuser=False,
+            )
         )
-        self.assertEqual(1, len(locs))
-
-        loc = locs[0]
         self.assertEqual(order, loc.order)
         self.assertEqual(zone,  loc.zone)
 
@@ -208,15 +206,14 @@ class BrickTestCase(CremeTestCase):
         create_bdl(order=order, zone=zone)
         create_bdl(order=4, zone=BrickDetailviewLocation.LEFT)
 
-        locs = BrickDetailviewLocation.objects.filter(
-            # brick_id=MyBrick.id_,
-            brick_id=MyBrick.id,
-            content_type=ContentType.objects.get_for_model(FakeContact),
-            role=None, superuser=True,
+        loc = self.get_alone_element(
+            BrickDetailviewLocation.objects.filter(
+                # brick_id=MyBrick.id_,
+                brick_id=MyBrick.id,
+                content_type=ContentType.objects.get_for_model(FakeContact),
+                role=None, superuser=True,
+            )
         )
-        self.assertEqual(1, len(locs))
-
-        loc = locs[0]
         self.assertEqual(order, loc.order)
         self.assertEqual(zone,  loc.zone)
 
@@ -632,9 +629,8 @@ class BrickTestCase(CremeTestCase):
         rbi.save()
 
         rbi = self.refresh(rbi)
-        cells_contact = rbi.get_cells(ct_contact)
-        self.assertEqual(1, len(cells_contact))
-        self.assertEqual('last_name', cells_contact[0].value)
+        cell_contact = self.get_alone_element(rbi.get_cells(ct_contact))
+        self.assertEqual('last_name', cell_contact.value)
 
         with self.assertNoException():
             deserialized = rbi.json_cells_map
@@ -734,10 +730,7 @@ class BrickTestCase(CremeTestCase):
         )
         self.assertEqual(f'customblock-{cbci.id}', cbci.brick_id)
 
-        cells = self.refresh(cbci).cells
-        self.assertEqual(1, len(cells))
-
-        cell = cells[0]
+        cell = self.get_alone_element(self.refresh(cbci).cells)
         self.assertIsInstance(cell, EntityCellRegularField)
         self.assertEqual('name', cell.value)
 

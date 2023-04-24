@@ -190,10 +190,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         )
         self.assertNoFormError(response3)
 
-        products = Product.objects.all()
-        self.assertEqual(1, len(products))
-
-        product = products[0]
+        product = self.get_alone_element(Product.objects.all())
         self.assertEqual(name,                product.name)
         self.assertEqual(code,                product.code)
         self.assertEqual(description,         product.description)

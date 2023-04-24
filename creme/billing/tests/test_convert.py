@@ -137,10 +137,7 @@ class ConvertTestCase(_BillingTestCase):
         self.assertFalse(Invoice.objects.count())
         self._convert(200, quote, 'invoice')
 
-        invoices = Invoice.objects.all()
-        self.assertEqual(1, len(invoices))
-
-        invoice = invoices[0]
+        invoice = self.get_alone_element(Invoice.objects.all())
         self.assertEqual(
             _('{src} (converted into {dest._meta.verbose_name})').format(
                 src=quote.name, dest=Invoice,
@@ -206,9 +203,8 @@ class ConvertTestCase(_BillingTestCase):
             rtype.enabled = True
             rtype.save()
 
-        invoices = Invoice.objects.all()
-        self.assertEqual(1, len(invoices))
-        self.assertRelationCount(0, invoices[0], REL_SUB_INVOICE_FROM_QUOTE, quote)
+        invoice = self.get_alone_element(Invoice.objects.all())
+        self.assertRelationCount(0, invoice, REL_SUB_INVOICE_FROM_QUOTE, quote)
 
     @skipIfCustomQuote
     @skipIfCustomSalesOrder
@@ -239,10 +235,7 @@ class ConvertTestCase(_BillingTestCase):
         self._convert(200, quote, 'sales_order')
         self.assertEqual(0, Invoice.objects.count())
 
-        orders = SalesOrder.objects.all()
-        self.assertEqual(1, len(orders))
-
-        order = orders[0]
+        order = self.get_alone_element(SalesOrder.objects.all())
         self.assertEqual('ORD1', order.number)
         self.assertRelationCount(0, order, REL_SUB_INVOICE_FROM_QUOTE, quote)
 
@@ -381,10 +374,7 @@ class ConvertTestCase(_BillingTestCase):
 
         self._convert(200, quote, 'invoice')
 
-        invoices = Invoice.objects.all()
-        self.assertEqual(1, len(invoices))
-
-        invoice = invoices[0]
+        invoice = self.get_alone_element(Invoice.objects.all())
         self.assertEqual(2, invoice.get_lines(ServiceLine).count())
         self.assertEqual(2, invoice.get_lines(ProductLine).count())
 
@@ -433,9 +423,8 @@ class ConvertTestCase(_BillingTestCase):
 
         self._convert(200, quote, 'sales_order')
 
-        orders = SalesOrder.objects.all()
-        self.assertEqual(1, len(orders))
-        self.assertEqual(1, orders[0].status_id)
+        order = self.get_alone_element(SalesOrder.objects.all())
+        self.assertEqual(1, order.status_id)
 
     @skipIfCustomQuote
     @skipIfCustomInvoice
@@ -455,9 +444,8 @@ class ConvertTestCase(_BillingTestCase):
 
         self._convert(200, quote, 'invoice')
 
-        invoices = Invoice.objects.all()
-        self.assertEqual(1, len(invoices))
-        self.assertEqual(1, invoices[0].status_id)
+        invoice = self.get_alone_element(Invoice.objects.all())
+        self.assertEqual(1, invoice.status_id)
 
     @skipIfCustomQuote
     def test_not_copiable_relations(self):

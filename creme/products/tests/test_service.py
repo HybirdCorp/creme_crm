@@ -74,10 +74,7 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
         )
         self.assertNoFormError(response)
 
-        services = Service.objects.all()
-        self.assertEqual(1, len(services))
-
-        service = services[0]
+        service = self.get_alone_element(Service.objects.all())
         self.assertEqual(name,                service.name)
         self.assertEqual(reference,           service.reference)
         self.assertEqual(description,         service.description)

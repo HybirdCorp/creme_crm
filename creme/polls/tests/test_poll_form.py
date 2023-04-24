@@ -289,10 +289,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         body = 'balabla'
         self.assertNoFormError(self.client.post(url, data={'name': name, 'body': body}))
 
-        sections = pform.sections.all()
-        self.assertEqual(1, len(sections))
-
-        section = sections[0]
+        section = self.get_alone_element(pform.sections.all())
         self.assertIsInstance(section, PollFormSection)
         self.assertEqual(name, section.name)
         self.assertEqual(body, section.body)
@@ -530,10 +527,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
             url, data={'question': question, 'type': qtype},
         ))
 
-        lines = pform.lines.all()
-        self.assertEqual(1, len(lines))
-
-        line = lines[0]
+        line = self.get_alone_element(pform.lines.all())
         self.assertIsInstance(line, PollFormLine)
         self.assertEqual(question, line.question)
         self.assertEqual(1,        line.order)
@@ -569,10 +563,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
             data={'question': question, 'type': qtype},
         ))
 
-        lines = pform.lines.all()
-        self.assertEqual(1, len(lines))
-
-        line = lines[0]
+        line = self.get_alone_element(pform.lines.all())
         self.assertIsInstance(line, PollFormLine)
         self.assertEqual(question, line.question)
         self.assertEqual(1,        line.order)
@@ -1632,10 +1623,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertIs(line2.conds_use_or, True)
         # self.assertEqual(ttype, line2.conds_type)  # TODO
 
-        conditions = line2.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(line2.conditions.all())
         self.assertEqual(line1, condition.source)
         self.assertEqual('1',   condition.raw_answer)
 
@@ -1757,10 +1745,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         else:
             self.assertNoFormError(response)
 
-            conditions = self.refresh(line2).conditions.all()
-            self.assertEqual(1, len(conditions))
-
-            condition = conditions[0]
+            condition = self.get_alone_element(self.refresh(line2).conditions.all())
             self.assertEqual(line1,      condition.source)
             self.assertEqual(raw_answer, condition.raw_answer)
 
@@ -1896,10 +1881,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
         self.assertNoFormError(response)
 
-        conditions = line3.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(line3.conditions.all())
         self.assertEqual(line1, condition.source)
         self.assertEqual('2',   condition.raw_answer)
 

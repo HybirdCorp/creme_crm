@@ -130,10 +130,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         )
         self.assertNoFormError(response)
 
-        jobs = Job.objects.filter(type_id=batch_process_type.id)
-        self.assertEqual(1, len(jobs))
-
-        job = jobs[0]
+        job = self.get_alone_element(Job.objects.filter(type_id=batch_process_type.id))
         self.assertEqual(self.user, job.user)
         self.assertDatetimesAlmostEqual(now(), job.reference_run, 1)
         self.assertIsInstance(job.data, dict)

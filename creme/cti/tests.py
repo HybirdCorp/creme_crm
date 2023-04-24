@@ -95,10 +95,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
         self.assertPOST200(self.ADD_PCALL_URL, data={'entity_id': contact.id})
 
-        pcalls = Activity.objects.filter(type=atype)
-        self.assertEqual(1, len(pcalls))
-
-        pcall = pcalls[0]
+        pcall = self.get_alone_element(Activity.objects.filter(type=atype))
         self.assertEqual(user, pcall.user)
         self.assertIn(str(contact), pcall.title)
         self.assertTrue(pcall.description)
@@ -129,10 +126,9 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         orga = Organisation.objects.create(user=user, name='Gunsmith Cats')
         self.assertPOST200(self.ADD_PCALL_URL, data={'entity_id': orga.id})
 
-        pcalls = Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL)
-        self.assertEqual(1, len(pcalls))
-
-        pcall = pcalls[0]
+        pcall = self.get_alone_element(
+            Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL)
+        )
         self.assertRelationCount(0, orga, a_constants.REL_SUB_PART_2_ACTIVITY,   pcall)
         self.assertRelationCount(1, orga, a_constants.REL_SUB_LINKED_2_ACTIVITY, pcall)
 
@@ -302,10 +298,9 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
         self.assertPOST(302, self._build_add_pcall_url(contact))
 
-        pcalls = Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL)
-        self.assertEqual(1, len(pcalls))
-
-        pcall = pcalls[0]
+        pcall = self.get_alone_element(
+            Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL)
+        )
         self.assertEqual(user, pcall.user)
         self.assertIn(str(contact), pcall.title)
         self.assertTrue(pcall.description)
@@ -326,10 +321,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
         self.assertPOST(302, self._build_add_pcall_url(self.contact))
 
-        activities = Activity.objects.all()
-        self.assertEqual(1, len(activities))
-
-        phone_call = activities[0]
+        phone_call = self.get_alone_element(Activity.objects.all())
         self.assertRelationCount(1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call)
 
         calendar = Calendar.objects.get_default_calendar(user)

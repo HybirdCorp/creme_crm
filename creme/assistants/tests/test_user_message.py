@@ -92,10 +92,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
         self._create_usermessage(title, body, priority, [user01], entity)
 
-        messages = UserMessage.objects.all()
-        self.assertEqual(1, len(messages))
-
-        message = messages[0]
+        message = self.get_alone_element(UserMessage.objects.all())
         self.assertEqual(title,    message.title)
         self.assertEqual(body,     message.body)
         self.assertEqual(priority, message.priority)
@@ -112,9 +109,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.assertEqual(title, str(message))
 
-        jobs = queue.refreshed_jobs
-        self.assertEqual(1, len(jobs))
-        self.assertEqual(self._get_usermessages_job(), jobs[0][0])
+        job, _data = self.get_alone_element(queue.refreshed_jobs)
+        self.assertEqual(self._get_usermessages_job(), job)
 
     @override_settings(SOFTWARE_LABEL='My CRM')
     def test_create02(self):
@@ -183,10 +179,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self._create_usermessage('TITLE', 'BODY', priority, [user01], None)
 
-        messages = UserMessage.objects.all()
-        self.assertEqual(1, len(messages))
-
-        message = messages[0]
+        message = self.get_alone_element(UserMessage.objects.all())
         self.assertIsNone(message.entity_id)
         self.assertIsNone(message.entity_content_type_id)
         # self.assertIsNone(message.creme_entity)
@@ -372,9 +365,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_delete_priority02(self):
         priority = UserMessagePriority.objects.create(title='Important')
         self._create_usermessage('TITLE', 'BODY', priority, [self.user], None)
-
-        messages = UserMessage.objects.all()
-        self.assertEqual(1, len(messages))
+        self.get_alone_element(UserMessage.objects.all())
 
         response = self.assertPOST200(reverse(
             'creme_config__delete_instance',
@@ -410,14 +401,10 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.assertTrue(self.send_messages_called)
 
-        messages = UserMessage.objects.all()
-        self.assertEqual(1, len(messages))
-        self.assertTrue(messages[0].email_sent)
+        message = self.get_alone_element(UserMessage.objects.all())
+        self.assertTrue(message.email_sent)
 
-        jresults = JobResult.objects.filter(job=job)
-        self.assertEqual(1, len(jresults))
-
-        jresult = jresults[0]
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 _('An error occurred while sending emails'),

@@ -383,15 +383,12 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login()
         project = self.create_project('Eva00')[0]
 
-        project_actions = [
+        close_action = self.get_alone_element(
             action
             for action in actions.actions_registry
                                  .instance_actions(user=user, instance=project)
             if isinstance(action, ProjectCloseAction)
-        ]
-        self.assertEqual(1, len(project_actions))
-
-        close_action = project_actions[0]
+        )
         self.assertEqual('projects-close', close_action.type)
         self.assertEqual(
             reverse('projects__close_project', args=(project.id,)),
@@ -410,15 +407,12 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertTrue(project.is_closed)
 
-        project_actions = [
+        close_action = self.get_alone_element(
             action
             for action in actions.actions_registry
                                  .instance_actions(user=user, instance=project)
             if isinstance(action, ProjectCloseAction)
-        ]
-        self.assertEqual(1, len(project_actions))
-
-        close_action = project_actions[0]
+        )
         self.assertEqual('projects-close', close_action.type)
         self.assertEqual(
             reverse('projects__close_project', args=(project.id,)),
@@ -548,10 +542,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         tasks = ProjectTask.objects.filter(linked_project=project)
         self.assertEqual(2, tasks.count())
 
-        tasks2 = [t for t in tasks if t.id != task1.id]
-        self.assertEqual(1, len(tasks2))
-
-        task2 = tasks2[0]
+        task2 = self.get_alone_element(t for t in tasks if t.id != task1.id)
         self.assertListEqual([task1.id], [t.id for t in task2.parent_tasks.all()])
 
         self.assertCountEqual(tasks, project.get_tasks())
@@ -835,9 +826,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         worker = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
         self.create_resource(task, worker, hourly_cost=100)
 
-        resources = [*task.resources_set.all()]
-        self.assertEqual(1, len(resources))
-        resource = resources[0]
+        resource = self.get_alone_element(task.resources_set.all())
 
         context = self.assertGET200(self._build_add_activity_url(task)).context
         self.assertEqual(
@@ -928,10 +917,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         resource = self.refresh(resource)
         self.assertEqual(200, resource.hourly_cost)
 
-        activities = task.related_activities
-        self.assertEqual(1, len(activities))
-
-        activity = activities[0]
+        activity = self.get_alone_element(task.related_activities)
         self.assertListEqual(
             [Calendar.objects.get_default_calendar(self.other_user)],
             [*activity.calendars.all()],
@@ -1042,10 +1028,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
         }
         self.client.post(self._build_add_activity_url(task), follow=True, data=data)
-        activities = task.related_activities
-        self.assertEqual(1, len(activities))
 
-        activity = activities[0]
+        activity = self.get_alone_element(task.related_activities)
         self.assertListEqual(
             [Calendar.objects.get_default_calendar(self.other_user)],
             [*activity.calendars.all()],
@@ -1090,10 +1074,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
         }
         self.client.post(self._build_add_activity_url(task), follow=True, data=data)
-        activities = task.related_activities
-        self.assertEqual(1, len(activities))
+        activity = self.get_alone_element(task.related_activities)
 
-        activity = activities[0]
         response = self.client.post(
             self._build_edit_activity_url(activity),
             follow=True,
@@ -1301,9 +1283,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(worker2, resource1.linked_contact)
 
         # activity of the resource => changes
-        activities1 = task1.related_activities
-        self.assertEqual(1, len(activities1))
-        activity1 = activities1[0]
+        activity1 = self.get_alone_element(task1.related_activities)
 
         self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity1)
         self.assertRelationCount(1, worker2, REL_SUB_PART_AS_RESOURCE, activity1)
@@ -1317,9 +1297,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         # activity of the other resource => no change
-        activities2 = task2.related_activities
-        self.assertEqual(1, len(activities2))
-        activity2 = activities2[0]
+        activity2 = self.get_alone_element(task2.related_activities)
 
         self.assertRelationCount(1, worker1, REL_SUB_PART_2_ACTIVITY, activity2)
         self.assertRelationCount(1, worker1, REL_SUB_PART_AS_RESOURCE, activity2)
@@ -1355,10 +1333,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         resource1 = self.refresh(resource1)
         self.assertEqual(worker2, resource1.linked_contact)
 
-        activities = task.related_activities
-        self.assertEqual(1, len(activities))
-        activity = activities[0]
-
+        activity = self.get_alone_element(task.related_activities)
         self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
         self.assertRelationCount(1, worker2, REL_SUB_PART_AS_RESOURCE, activity)
 

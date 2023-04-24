@@ -1385,10 +1385,9 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertEqual(2, Relation.objects.count())
 
-        relations = Relation.objects.filter(type=constants.REL_SUB_PART_2_ACTIVITY)
-        self.assertEqual(1, len(relations))
-
-        relation = relations[0]
+        relation = self.get_alone_element(
+            Relation.objects.filter(type=constants.REL_SUB_PART_2_ACTIVITY)
+        )
         self.assertEqual(contact02.id, relation.subject_entity_id)
         self.assertEqual(meeting.id,   relation.object_entity_id)
 
@@ -1586,9 +1585,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(type_id,     activity.type.id)
         self.assertEqual(sub_type_id, activity.sub_type.id)
 
-        relations = Relation.objects.filter(type=constants.REL_SUB_PART_2_ACTIVITY)
-        self.assertEqual(1, len(relations))
-        self.assertEqual(rel, relations[0])
+        part_rel = self.get_alone_element(
+            Relation.objects.filter(type=constants.REL_SUB_PART_2_ACTIVITY)
+        )
+        self.assertEqual(rel, part_rel)
 
     def test_editview02(self):
         "Change type."
@@ -2195,14 +2195,11 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_listview_bulk_actions(self):
         user = self.login()
-        export_actions = [
+        export_action = self.get_alone_element(
             action
             for action in actions.actions_registry.bulk_actions(user=user, model=Activity)
             if isinstance(action, BulkExportICalAction)
-        ]
-        self.assertEqual(1, len(export_actions))
-
-        export_action = export_actions[0]
+        )
         self.assertEqual('activities-export-ical', export_action.type)
         self.assertEqual(reverse('activities__dl_ical'), export_action.url)
         self.assertIsNone(export_action.action_data)

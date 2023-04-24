@@ -107,11 +107,10 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
             subject='create_ce',
         ))
 
-        wactions = WaitingAction.objects.all()
-        self.assertEqual(1, len(wactions))
+        waction = self.get_alone_element(WaitingAction.objects.all())
         self.assertDictEqual(
             {'user_id': str(user.id), 'created': '01/02/2003'},
-            wactions[0].data
+            waction.data,
         )
 
     @skipIfCustomContact
@@ -309,8 +308,7 @@ entity
         email_input.create(self._get_pop_email(
             body=body, senders=('creme@crm.org',), subject='create_ce',
         ))
-        wactions = WaitingAction.objects.all()
-        self.assertEqual(1, len(wactions))
+        waction = self.get_alone_element(WaitingAction.objects.all())
         self.assertDictEqual(
             {
                 'user_id':     str(user.id),
@@ -320,7 +318,7 @@ entity
                     '                a\ncreme\nentity\n\n        '
                 ),
             },
-            wactions[0].data,
+            waction.data,
         )
 
     def test_create_email_input09(self):
@@ -369,15 +367,14 @@ entity
         email_input.create(self._get_pop_email(
             body=body, senders=('creme@crm.org',), subject='create_ce',
         ))
-        wactions = WaitingAction.objects.all()
-        self.assertEqual(1, len(wactions))
+        waction = self.get_alone_element(WaitingAction.objects.all())
         self.assertDictEqual(
             {
                 'user_id':     str(user.id),
                 'created':     '01/02/2003',
                 'description': 'I',
             },
-            wactions[0].data,
+            waction.data,
         )
 
     def test_create_email_input10(self):
@@ -414,15 +411,14 @@ entity
             body_html=body_html, senders=('creme@crm.org',), subject='create_ce',
         ))
 
-        wactions = WaitingAction.objects.all()
-        self.assertEqual(1, len(wactions))
+        waction = self.get_alone_element(WaitingAction.objects.all())
         self.assertDictEqual(
             {
                 'user_id':     user.id,
                 'created':     '01-02-2003',
                 'description': 'I\n want to\n create a    \ncreme entity\n',
             },
-            wactions[0].data,
+            waction.data,
         )
 
     def test_create_email_input11(self):
@@ -464,15 +460,14 @@ description3=[[<br>]]
             body_html=body_html, senders=('creme@crm.org',), subject='create_ce',
         ))
 
-        wactions = WaitingAction.objects.all()
-        self.assertEqual(1, len(wactions))
+        waction = self.get_alone_element(WaitingAction.objects.all())
         self.assertDictEqual(
             {
                 'user_id':     user.id,
                 'created':     '01-02-2003',
                 'description': 'I\n want to\n create a    \ncreme entity\n',
             },
-            wactions[0].data,
+            waction.data,
         )
 
     def test_create_email_input12(self):
@@ -507,20 +502,19 @@ description3=[[<br>]]
                           </body>
                         </html>"""
 
-        self.assertEqual(0, WaitingAction.objects.count())
+        self.assertFalse(WaitingAction.objects.count())
         email_input.create(self._get_pop_email(
             body_html=body_html, senders=('creme@crm.org',), subject='create_ce',
         ))
 
-        wactions = WaitingAction.objects.all()
-        self.assertEqual(1, len(wactions))
+        waction = self.get_alone_element(WaitingAction.objects.all())
         self.assertDictEqual(
             {
                 'user_id': user.id,
                 'created': '01-02-2003',
                 'description': 'I',
             },
-            wactions[0].data,
+            waction.data,
         )
 
     def test_create_email_input13(self):
@@ -545,10 +539,11 @@ description3=[[<br>]]
         ))
         self.assertFalse(WaitingAction.objects.filter(user=None))
 
-        wactions = WaitingAction.objects.filter(user=get_user_model().objects.get_admin())
-        self.assertEqual(1, len(wactions))
+        waction = self.get_alone_element(
+            WaitingAction.objects.filter(user=get_user_model().objects.get_admin())
+        )
         self.assertDictEqual(
-            {'user_id': str(user.id), 'created': '01/02/2003'}, wactions[0].data,
+            {'user_id': str(user.id), 'created': '01/02/2003'}, waction.data,
         )
 
     @skipIfCustomContact
@@ -750,10 +745,7 @@ description3=[[<br>]]
             subject='create_contact',
         ))
 
-        wactions = WaitingAction.objects.all()
-        self.assertEqual(1, len(wactions))
-
-        wa = wactions[0]
+        waction = self.get_alone_element(WaitingAction.objects.all())
         self.assertDictEqual(
             {
                 'user_id':     str(user.id),
@@ -765,10 +757,12 @@ description3=[[<br>]]
                 'birthday':    '02/08/1987',
                 'description': 'A plumber',
             },
-            wa.data,
+            waction.data,
         )
 
-        email_input.get_backend(CrudityBackend.normalize_subject('create_contact')).create(wa)
+        email_input.get_backend(
+            CrudityBackend.normalize_subject('create_contact')
+        ).create(waction)
 
         contact = self.get_object_or_fail(Contact, first_name='Mario', last_name='Bros')
         self.assertEqual(user, contact.user)
@@ -824,12 +818,11 @@ description3=[[<br>]]
             subject=subject,
         ))
 
-        wactions = WaitingAction.objects.all()
-        self.assertEqual(1, len(wactions))
+        waction = self.get_alone_element(WaitingAction.objects.all())
 
         is_created, activity = email_input.get_backend(
             CrudityBackend.normalize_subject(subject)
-        ).create(wactions[0])
+        ).create(waction)
         self.assertTrue(is_created)
         self.assertIsInstance(activity, Activity)
 
@@ -985,10 +978,7 @@ class FileSystemInputTestCase(CrudityTestCase):
 
         self.assertIsInstance(ok, CrudityBackend)
 
-        wactions = WaitingAction.objects.all()
-        self.assertEqual(1, len(wactions))
-
-        waction = wactions[0]
+        waction = self.get_alone_element(WaitingAction.objects.all())
         self.assertDictEqual(
             {
                 'user_id':     '1',
@@ -996,7 +986,7 @@ class FileSystemInputTestCase(CrudityTestCase):
                 'last_name':   'Baggins',
                 'description': 'this hobbit will\nsave the world',
             },
-            waction.data
+            waction.data,
         )
 
         owner = waction.user
@@ -1029,8 +1019,7 @@ class FileSystemInputTestCase(CrudityTestCase):
 
         self.assertIsNotNone(ok)
 
-        wactions = WaitingAction.objects.all()
-        self.assertEqual(1, len(wactions))
+        waction = self.get_alone_element(WaitingAction.objects.all())
         self.assertDictEqual(
             {
                 'user_id':     '1',
@@ -1038,7 +1027,7 @@ class FileSystemInputTestCase(CrudityTestCase):
                 'last_name':   'Baggins',
                 # 'description': 'this hobbit will\nsave the world',
             },
-            wactions[0].data
+            waction.data,
         )
 
     def test_sandbox_by_user01(self):
@@ -1063,17 +1052,14 @@ class FileSystemInputTestCase(CrudityTestCase):
 
         self.assertIsNotNone(ok)
 
-        wactions = WaitingAction.objects.all()
-        self.assertEqual(1, len(wactions))
-
-        waction = wactions[0]
+        waction = self.get_alone_element(WaitingAction.objects.all())
         self.assertDictEqual(
             {
                 'user_id':    '1',
                 'first_name': 'Bilbo',
                 'last_name':  'Baggins',
             },
-            waction.data
+            waction.data,
         )
         self.assertEqual(self.other_user, waction.user)
 
@@ -1109,18 +1095,16 @@ class FileSystemInputTestCase(CrudityTestCase):
             ],
         )
 
-        wactions = WaitingAction.objects.all()
-        self.assertEqual(1, len(wactions))
-
-        waction = wactions[0]
+        waction = self.get_alone_element(WaitingAction.objects.all())
         self.assertDictEqual(
             {
                 'user_id':    '1',
                 'first_name': 'Samwise',
                 'last_name':  'Gamgee',
             },
-            waction.data
+            waction.data,
         )
+
         owner = waction.user
         self.assertIsNotNone(owner)
         self.assertNotEqual(self.other_user, owner)

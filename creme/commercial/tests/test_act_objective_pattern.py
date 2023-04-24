@@ -49,10 +49,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
         self.assertNoFormError(response)
 
-        patterns = ActObjectivePattern.objects.all()
-        self.assertEqual(1, len(patterns))
-
-        pattern = patterns[0]
+        pattern = self.get_alone_element(ActObjectivePattern.objects.all())
         self.assertEqual(name,          pattern.name)
         self.assertEqual(average_sales, pattern.average_sales)
         self.assertEqual(segment,       pattern.segment)
@@ -137,10 +134,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             },
         ))
 
-        components = pattern.components.all()
-        self.assertEqual(1, len(components))
-
-        component = components[0]
+        component = self.get_alone_element(pattern.components.all())
         self.assertEqual(name, component.name)
         self.assertIsNone(component.parent)
         self.assertIsNone(component.ctype)
@@ -170,10 +164,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
         self.assertNoFormError(response)
 
-        components = pattern.components.all()
-        self.assertEqual(1, len(components))
-
-        component = components[0]
+        component = self.get_alone_element(pattern.components.all())
         self.assertEqual(name, component.name)
         self.assertEqual(ct,   component.ctype)
         self.assertIsNone(component.filter)
@@ -233,10 +224,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             },
         ))
 
-        children = comp01.children.all()
-        self.assertEqual(1, len(children))
-
-        comp02 = children[0]
+        comp02 = self.get_alone_element(comp01.children.all())
         self.assertEqual(name,   comp02.name)
         self.assertEqual(comp01, comp02.parent)
         self.assertIsNone(comp02.ctype)

@@ -257,20 +257,15 @@ class MergeViewsTestCase(ViewsTestCase):
         for hline in HistoryLine.objects.filter(id__gt=last_hline_id):
             new_hlines[hline.type].append(hline)
 
-        edition_lines = new_hlines[history.TYPE_EDITION]
-        self.assertEqual(1, len(edition_lines))
-        self.assertEqual(orga01, edition_lines[0].entity.get_real_entity())
+        edition_line = self.get_alone_element(new_hlines[history.TYPE_EDITION])
+        self.assertEqual(orga01, edition_line.entity.get_real_entity())
         # TODO: complete
 
-        deletion_lines = new_hlines[history.TYPE_DELETION]
-        self.assertEqual(1, len(deletion_lines))
-        deletion_line = deletion_lines[0]
+        deletion_line = self.get_alone_element(new_hlines[history.TYPE_DELETION])
         self.assertEqual(orga02.entity_type, deletion_line.entity_ctype)
         self.assertEqual(str(orga02),    deletion_line.entity_repr)
 
-        prop_lines = new_hlines[history.TYPE_PROP_ADD]
-        self.assertEqual(1, len(prop_lines))
-        prop_line = prop_lines[0]
+        prop_line = self.get_alone_element(new_hlines[history.TYPE_PROP_ADD])
         self.assertEqual(orga01,       prop_line.entity.get_real_entity())
         self.assertEqual([ptype02.id], prop_line.modifications)
 
@@ -594,21 +589,19 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(contact01.first_name, new_contact01.first_name)
         self.assertEqual(contact01.last_name,  new_contact01.last_name)
 
-        cf_01_values = cf_01.value_class.objects.filter(
-            id__in=(cf_01_value01.id, cf_01_value02.id),
+        cf_01_value = self.get_alone_element(
+            cf_01.value_class.objects.filter(
+                id__in=(cf_01_value01.id, cf_01_value02.id),
+            )
         )
-        self.assertEqual(1, len(cf_01_values))
-
-        cf_01_value = cf_01_values[0]
         self.assertEqual(contact01.id, cf_01_value.entity_id)
         self.assertEqual(510, cf_01_value.value)
 
         self.assertDoesNotExist(cf_02_value01)
 
-        cf_03_values = cf_03.value_class.objects.filter(custom_field=cf_03)
-        self.assertEqual(1, len(cf_03_values))
-
-        cf_03_value = cf_03_values[0]
+        cf_03_value = self.get_alone_element(
+            cf_03.value_class.objects.filter(custom_field=cf_03)
+        )
         self.assertEqual(contact01.id, cf_03_value.entity_id)
         self.assertEqual(enum_val1_1, cf_03_value.value)
 

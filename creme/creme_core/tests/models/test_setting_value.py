@@ -256,9 +256,8 @@ class SettingValueTestCase(CremeTestCase):
             with self.assertRaises(SettingValue.DoesNotExist):
                 SettingValue.objects.get_4_key(sk)
 
-        messages = log_cm.output
-        self.assertEqual(1, len(messages))
-        self.assertIn(''"creme_populate"'', messages[0])
+        message = self.get_alone_element(log_cm.output)
+        self.assertIn(''"creme_populate"'', message)
 
     def test_get_4_key04(self):
         "Default value."
@@ -270,9 +269,8 @@ class SettingValueTestCase(CremeTestCase):
         with self.assertLogs(level='CRITICAL') as log_cm:
             sv = SettingValue.objects.get_4_key(sk, default=False)
 
-        messages = log_cm.output
-        self.assertEqual(1, len(messages))
-        self.assertIn('creme_populate', messages[0])
+        message = self.get_alone_element(log_cm.output)
+        self.assertIn('creme_populate', message)
 
         self.assertEqual(sk.id, sv.key_id)
         self.assertIs(False, sv.value)
@@ -342,9 +340,8 @@ class SettingValueTestCase(CremeTestCase):
             with self.assertRaises(SettingValue.DoesNotExist):
                 SettingValue.objects.get_4_keys({'key': sk})
 
-        messages = log_cm.output
-        self.assertEqual(1, len(messages))
-        self.assertIn(''"creme_populate"'', messages[0])
+        message = self.get_alone_element(log_cm.output)
+        self.assertIn(''"creme_populate"'', message)
 
     def test_get_4_keys03(self):
         "Default value."
@@ -356,9 +353,8 @@ class SettingValueTestCase(CremeTestCase):
         with self.assertLogs(level='CRITICAL') as log_cm:
             svalues = SettingValue.objects.get_4_keys({'key': sk, 'default': False})
 
-        messages = log_cm.output
-        self.assertEqual(1, len(messages))
-        self.assertIn('creme_populate', messages[0])
+        message = self.get_alone_element(log_cm.output)
+        self.assertIn('creme_populate', message)
 
         sv = svalues.get(sk.id)
         self.assertEqual(sk.id, sv.key_id)

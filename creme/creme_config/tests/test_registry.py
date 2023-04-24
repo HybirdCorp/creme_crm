@@ -51,16 +51,11 @@ class RegistryTestCase(CremeTestCase):
 
         model_name = 'civility'
         registry.register_model(FakeCivility, model_name=model_name)
-        app_registries = [*registry.apps()]
-        self.assertEqual(1, len(app_registries))
 
-        app_registry = app_registries[0]
+        app_registry = self.get_alone_element(registry.apps())
         self.assertEqual('creme_core', app_registry.name)
 
-        model_configs = [*app_registry.models()]
-        self.assertEqual(1, len(model_configs))
-
-        model_config = model_configs[0]
+        model_config = self.get_alone_element(app_registry.models())
         self.assertEqual(FakeCivility, model_config.model)
         self.assertEqual(model_name,   model_config.model_name)
 

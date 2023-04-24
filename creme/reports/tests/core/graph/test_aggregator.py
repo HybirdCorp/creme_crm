@@ -188,20 +188,18 @@ class AggregatorCellConstraintsTestCase(CremeTestCase):
         # ---
         cell1 = constraint.get_cell(cell_key='regular_field-capital')
         self.assertIsInstance(cell1, EntityCellRegularField)
-        finfo = cell1.field_info
-        self.assertEqual(1, len(finfo))
-        self.assertEqual('capital', finfo[0].name)
+        finfo1 = cell1.field_info
+        self.assertEqual(1, len(finfo1))
+        self.assertEqual('capital', finfo1[0].name)
 
         self.assertIsNone(constraint.get_cell(cell_key='regular_field-sector'))
 
         # ---
-        cells = [*constraint.cells()]
-        self.assertEqual(1, len(cells))
-
-        cell2 = cells[0]
+        cell2 = self.get_alone_element(constraint.cells())
         self.assertIsInstance(cell2, EntityCellRegularField)
-        self.assertEqual(1, len(finfo))
-        self.assertEqual('capital', finfo[0].name)
+        finfo2 = cell2.field_info
+        self.assertEqual(1, len(finfo2))
+        self.assertEqual('capital', finfo2[0].name)
 
     def test_field_aggregation02(self):
         "Custom field."
@@ -246,10 +244,7 @@ class AggregatorCellConstraintsTestCase(CremeTestCase):
         self.assertIsNone(constraint.get_cell(cell_key=not_aggregable_cell.key))
 
         # ---
-        cells = [*constraint.cells()]
-        self.assertEqual(1, len(cells))
-
-        cell2 = cells[0]
+        cell2 = self.get_alone_element(constraint.cells())
         self.assertIsInstance(cell2, EntityCellCustomField)
         self.assertEqual(cfield1, cell2.custom_field)
 
@@ -280,9 +275,7 @@ class AggregatorCellConstraintsTestCase(CremeTestCase):
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        cells1 = [*constraint.cells()]
-        self.assertEqual(1, len(cells1))
-        cell1 = cells1[0]
+        cell1 = self.get_alone_element(constraint.cells())
         self.assertIsInstance(cell1, EntityCellRegularField)
         self.assertEqual('total_vat', cell1.field_info[0].name)
 
@@ -296,7 +289,7 @@ class AggregatorCellConstraintsTestCase(CremeTestCase):
         ]
         self.assertSetEqual(
             {'total_vat', 'total_no_vat'},
-            {cell.field_info[0].name for cell in cells3}
+            {cell.field_info[0].name for cell in cells3},
         )
 
         # ---
@@ -343,9 +336,8 @@ class AggregatorConstraintsRegistryTestCase(CremeTestCase):
         registry = AggregatorConstraintsRegistry(
         ).register_cell_constraints(ACCCount)
 
-        constraints = [*registry.cell_constraints(FakeInvoice)]
-        self.assertEqual(1, len(constraints))
-        self.assertIsInstance(constraints[0], ACCCount)
+        constraint = self.get_alone_element(registry.cell_constraints(FakeInvoice))
+        self.assertIsInstance(constraint, ACCCount)
 
         # ---
         get_constraint = registry.get_constraint_by_aggr_id

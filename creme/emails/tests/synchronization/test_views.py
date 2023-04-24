@@ -1027,10 +1027,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertRelationCount(0, email1, REL_SUB_MAIL_SENT,     contact1)
         self.assertRelationCount(1, email1, REL_SUB_MAIL_RECEIVED, contact2)
 
-        attachments = [*email1.attachments.all()]
-        self.assertEqual(1, len(attachments))
-
-        attachment = attachments[0]
+        attachment = self.get_alone_element(email1.attachments.all())
         self.assertEqual(file_name, attachment.title)
 
         path = attachment.filedata.path
@@ -1144,9 +1141,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertPOST200(self.ACCEPT_EMAIL_URL, data={'ids': e2s.id})
         email = self.get_object_or_fail(EntityEmail, subject=e2s.subject)
 
-        attachments = [*email.attachments.all()]
-        self.assertEqual(1, len(attachments))
-        self.assertEqual(folder, attachments[0].linked_folder)
+        attachment = self.get_alone_element(email.attachments.all())
+        self.assertEqual(folder, attachment.linked_folder)
 
     def test_accept_email_to_sync_perm01(self):
         "No emails credentials."

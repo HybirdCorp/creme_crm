@@ -1604,17 +1604,17 @@ END:VCARD"""
         with self.assertNoException():
             errors = response2.context['form'].errors['image_encoded']
 
-        self.assertEqual(1, len(errors))
+        error = self.get_alone_element(errors)
         self.assertEqual(
             _(
                 'An error occurred when trying to retrieve the referenced '
                 'image [original error: {}].'
             ).format(exception),
-            errors[0],
+            error,
         )
 
         # self.assertEqual(contact_count + 1, Contact.objects.count())
-        self.assertEqual(image_count,       Document.objects.count())
+        self.assertEqual(image_count, Document.objects.count())
 
     @override_settings(VCF_IMAGE_MAX_SIZE=10240)  # (10 kB)
     def test_vcf_with_image04(self):

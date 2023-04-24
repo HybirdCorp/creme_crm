@@ -409,9 +409,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.assertEqual(title, str(alert))
 
-        jobs = queue.refreshed_jobs
-        self.assertEqual(1, len(jobs))
-        self.assertEqual(self.get_reminder_job(), jobs[0][0])
+        job, _data = self.get_alone_element(queue.refreshed_jobs)
+        self.assertEqual(self.get_reminder_job(), job)
 
     def test_create_with_relative_datetime(self):
         "DatetimeField + dynamic user."
@@ -926,20 +925,15 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertLess(job.type.next_wakeup(job, now_value), now())
 
         self.execute_reminder_job(job)
-        reminders = DateReminder.objects.exclude(id__in=reminder_ids)
-        self.assertEqual(1, len(reminders))
 
-        reminder = reminders[0]
+        reminder = self.get_alone_element(DateReminder.objects.exclude(id__in=reminder_ids))
         self.assertEqual(alert1, reminder.object_of_reminder)
         self.assertEqual(1,      reminder.ident)
         self.assertDatetimesAlmostEqual(now_value, reminder.date_of_remind, seconds=60)
         self.assertTrue(self.refresh(alert1).reminded)
         self.assertFalse(self.refresh(alert2).reminded)
 
-        messages = mail.outbox
-        self.assertEqual(1, len(messages))
-
-        message = messages[0]
+        message = self.get_alone_element(mail.outbox)
         self.assertEqual([user.email], message.to)
 
         software = 'My CRM'
@@ -994,9 +988,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.execute_reminder_job(self.get_reminder_job())
         self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
 
-        messages = mail.outbox
-        self.assertEqual(1, len(messages))
-        self.assertEqual([self.other_user.email], messages[0].to)
+        message = self.get_alone_element(mail.outbox)
+        self.assertEqual([self.other_user.email], message.to)
 
     @override_settings(DEFAULT_TIME_ALERT_REMIND=30)
     def test_next_wakeup1(self):

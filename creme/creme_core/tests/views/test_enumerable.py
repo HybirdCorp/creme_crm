@@ -155,9 +155,9 @@ class EnumerableViewsTestCase(ViewsTestCase):
         self.assertIn('value', first_choice)
 
         def find_efilter_dict(efilter):
-            efilter_as_dicts = [c for c in choices if c['value'] == efilter.id]
-            self.assertEqual(1, len(efilter_as_dicts))
-            return efilter_as_dicts[0]
+            return self.get_alone_element(
+                c for c in choices if c['value'] == efilter.id
+            )
 
         self.assertDictEqual(
             {
@@ -191,9 +191,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
         def find_ctype_label(model):
             ctype_id = get_ct(model).id
-            ctype_as_lists = [t for t in choices if t['value'] == ctype_id]
-            self.assertEqual(1, len(ctype_as_lists))
-            choice = ctype_as_lists[0]
+            choice = self.get_alone_element(t for t in choices if t['value'] == ctype_id)
             self.assertEqual(2, len(choice))
             return choice['label']
 

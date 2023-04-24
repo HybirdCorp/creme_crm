@@ -818,10 +818,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response2 = self.client.post(url, data={'entry_id': entry_id})
         self.assertNoFormError(response2)
 
-        items = [*MenuConfigItem.objects.all()]
-        self.assertEqual(1, len(items))
-
-        special_item = items[0]
+        special_item = self.get_alone_element(MenuConfigItem.objects.all())
         self.assertEqual('creme_core-creme', special_item.entry_id)
         self.assertEqual(0,                  special_item.order)
         self.assertDictEqual({}, special_item.entry_data)
@@ -865,14 +862,10 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoFormError(response2)
 
         self.assertEqual(4, MenuConfigItem.objects.count())
-        items = [
-            *MenuConfigItem.objects.exclude(
-                id__in=[special_item1.id, container.id, item.id],
-            ),
-        ]
-        self.assertEqual(1, len(items))
 
-        special_item2 = items[0]
+        special_item2 = self.get_alone_element(MenuConfigItem.objects.exclude(
+            id__in=[special_item1.id, container.id, item.id],
+        ))
         self.assertEqual('creme_core-recent_entities', special_item2.entry_id)
         self.assertEqual(21, special_item2.order)
 
@@ -900,10 +893,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         entry_id = CremeEntry.id
         self.assertNoFormError(self.client.post(url, data={'entry_id': entry_id}))
 
-        items = [*MenuConfigItem.objects.all()]
-        self.assertEqual(1, len(items))
-
-        special_item = items[0]
+        special_item = self.get_alone_element(MenuConfigItem.objects.all())
         self.assertEqual('creme_core-creme', special_item.entry_id)
         self.assertEqual(0,                  special_item.order)
         self.assertDictEqual({}, special_item.entry_data)
@@ -938,10 +928,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         entry_id = CremeEntry.id
         self.assertNoFormError(self.client.post(url, data={'entry_id': entry_id}))
 
-        items = [*MenuConfigItem.objects.all()]
-        self.assertEqual(1, len(items))
-
-        special_item = items[0]
+        special_item = self.get_alone_element(MenuConfigItem.objects.all())
         self.assertEqual('creme_core-creme', special_item.entry_id)
         self.assertEqual(0,                  special_item.order)
         self.assertDictEqual({}, special_item.entry_data)

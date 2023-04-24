@@ -95,10 +95,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
         self.assertNoFormError(response)
 
-        acts = Act.objects.all()
-        self.assertEqual(1, len(acts))
-
-        act = acts[0]
+        act = self.get_alone_element(Act.objects.all())
         self.assertEqual(name,  act.name)
         self.assertEqual(atype, act.act_type)
         self.assertEqual(date(year=2011, month=11, day=20), act.start)
@@ -456,10 +453,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             },
         ))
 
-        objectives = ActObjective.objects.filter(act=act)
-        self.assertEqual(1, len(objectives))
-
-        objective = objectives[0]
+        objective = self.get_alone_element(ActObjective.objects.filter(act=act))
         self.assertEqual(name,         objective.name)
         self.assertEqual(act,          objective.act)
         self.assertEqual(0,            objective.counter)
@@ -576,9 +570,8 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         # ---
         self.assertNoFormError(self.client.post(url, data={'pattern': pattern.id}))
 
-        objectives = ActObjective.objects.filter(act=act)
-        self.assertEqual(1, len(objectives))
-        self.assertEqual(5, objectives[0].counter_goal)
+        objective = self.get_alone_element(ActObjective.objects.filter(act=act))
+        self.assertEqual(5, objective.counter_goal)
 
     @skipIfCustomPattern
     def test_add_objectives_from_pattern02(self):

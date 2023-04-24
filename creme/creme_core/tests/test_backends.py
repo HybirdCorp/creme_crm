@@ -41,10 +41,9 @@ class BackendsTestCase(CremeTestCase):
 
         self.assertIsNone(backend)
 
-        messages = log_cm.output
-        self.assertEqual(1, len(messages))
+        message = self.get_alone_element(log_cm.output)
         self.assertStartsWith(
-            messages[0],
+            message,
             f'WARNING:creme.creme_core.utils.imports:'
             f'An error occurred trying to import "{path}":'
         )
