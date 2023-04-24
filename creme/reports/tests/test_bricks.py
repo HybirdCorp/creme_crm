@@ -559,10 +559,9 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
         self.assertNoFormError(self.client.post(url, data={'fetcher': RGF_NOLINK}))
 
-        items = InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
-        self.assertEqual(1, len(items))
-
-        item = items[0]
+        item = self.get_alone_element(
+            InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
+        )
         self.assertEqual('instanceblock_reports-graph', item.brick_class_id)
         self.assertEqual(RGF_NOLINK, item.get_extra_data('type'))
         self.assertIsNone(item.get_extra_data('value'))
@@ -705,10 +704,9 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
         self.assertNoFormError(self.client.post(url, data={'fetcher': folder_choice}))
 
-        items = InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
-        self.assertEqual(1, len(items))
-
-        item = items[0]
+        item = self.get_alone_element(
+            InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
+        )
         self.assertEqual('instanceblock_reports-graph', item.brick_class_id)
         self.assertEqual(RGF_FK, item.get_extra_data('type'))
         self.assertEqual(fk_name, item.get_extra_data('value'))
@@ -867,10 +865,9 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
         self.assertNoFormError(self.client.post(url, data={'fetcher': choice_id}))
 
-        items = InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
-        self.assertEqual(1, len(items))
-
-        item = items[0]
+        item = self.get_alone_element(
+            InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
+        )
         self.assertEqual('instanceblock_reports-graph', item.brick_class_id)
         self.assertEqual(RGF_RELATION, item.get_extra_data('type'))
         self.assertEqual(rtype.id,     item.get_extra_data('value'))

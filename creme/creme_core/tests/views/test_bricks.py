@@ -128,13 +128,12 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         bstates = BrickState.objects.filter(brick_id=brick_id)
-        user_bstates  = [bstate for bstate in bstates if bstate.user == user]
-        other_bstates = [bstate for bstate in bstates if bstate.user == other_user]
-
-        self.assertEqual(1, len(user_bstates))
-        self.assertEqual(1, len(other_bstates))
-        user_bstate = user_bstates[0]
-        other_bstate = other_bstates[0]
+        user_bstate = self.get_alone_element(
+            bstate for bstate in bstates if bstate.user == user
+        )
+        other_bstate = self.get_alone_element(
+            bstate for bstate in bstates if bstate.user == other_user
+        )
 
         self.assertTrue(other_bstate.is_open)
         self.assertTrue(other_bstate.show_empty_fields)

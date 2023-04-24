@@ -166,20 +166,14 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         )
         self.assertNoFormError(response)
 
-        efilters = EntityFilter.objects.filter(entity_type=ct)
-        self.assertEqual(1, len(efilters))
-
-        efilter = efilters[0]
+        efilter = self.get_alone_element(EntityFilter.objects.filter(entity_type=ct))
         self.assertEqual(name, efilter.name)
         self.assertTrue(efilter.is_custom)
         self.assertFalse(efilter.is_private)
         self.assertIsNone(efilter.user)
         self.assertFalse(efilter.use_or)
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(field_name,                           condition.name)
         self.assertDictEqual(
@@ -436,10 +430,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         efilter = self.get_object_or_fail(EntityFilter, entity_type=ct, name=name)
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(field_name,                               condition.name)
         self.assertDictEqual({'name': daterange_type}, condition.value)
@@ -625,11 +616,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response, status=302)
 
         efilter = self.get_object_or_fail(EntityFilter, name='Filter 01')
-        conditions = efilter.conditions.all()
-
-        self.assertEqual(1, len(conditions))
-        condition = conditions[0]
-
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual('linked_folder',                      condition.name)
         self.assertDictEqual(
@@ -663,11 +650,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(user.id, efilter.user.id)
         self.assertIs(efilter.use_or, True)
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-        iter_conds = iter(conditions)
-
-        condition = next(iter_conds)
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual('user',                               condition.name)
         self.assertDictEqual(
@@ -1223,10 +1206,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertFalse(efilter.is_custom)
         self.assertEqual(self.user, efilter.user)
 
-        conditions = efilter.conditions.order_by('id')
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.order_by('id'))
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(field_name,                           condition.name)
         self.assertDictEqual(

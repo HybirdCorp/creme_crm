@@ -98,15 +98,14 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
         self.assertFalse(EmailToSync.objects.all())
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 _('There was no message on "{host}" for the user "{user}"').format(
                     host=item.host, user=item.username,
                 )
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job02(self):
@@ -152,10 +151,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         pop_instance.retr.assert_called_once_with(msg_id)
         pop_instance.dele.assert_called_once_with(msg_id)
 
-        emails_to_sync = [*EmailToSync.objects.all()]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync = emails_to_sync[0]
+        e2sync = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(user,        e2sync.user)
         self.assertEqual(subject,     e2sync.subject)
         self.assertEqual(body + '\n', e2sync.body)
@@ -173,8 +169,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             ],
         )
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -185,7 +180,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     count=1, host=item.host, user=item.username,
                 )
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job03(self):
@@ -286,8 +281,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         self.assertHTMLEqual(body_html2, e2sync2.body_html)
         self.assertIsNone(e2sync2.date)
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -298,7 +292,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     count=2, host=item.host, user=item.username,
                 ),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job_assign_user01(self):
@@ -425,15 +419,11 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         self.assertEqual(2, pop_instance.retr.call_count)
         self.assertEqual(2, pop_instance.dele.call_count)
 
-        emails_to_sync = [*EmailToSync.objects.all()]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync1 = emails_to_sync[0]
+        e2sync1 = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(subject, e2sync1.subject)
         self.assertEqual(user,    e2sync1.user)
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -449,7 +439,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     1
                 ).format(count=1),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job_invalid_data01(self):
@@ -484,8 +474,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
         self.assertFalse(EmailToSync.objects.all())
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -501,7 +490,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     1
                 ).format(count=1),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job_invalid_data02(self):
@@ -529,8 +518,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
         self.assertFalse(EmailToSync.objects.all())
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -546,7 +534,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     1
                 ).format(count=1),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     @skipIfCustomContact
@@ -596,10 +584,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             # Go !
             entity_emails_sync_type.execute(job)
 
-        emails_to_sync = [*EmailToSync.objects.order_by('id')]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync = emails_to_sync[0]
+        e2sync = self.get_alone_element(EmailToSync.objects.order_by('id'))
         self.assertEqual(user, e2sync.user)
 
         self.assertListEqual(
@@ -667,10 +652,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             # Go !
             entity_emails_sync_type.execute(job)
 
-        emails_to_sync = [*EmailToSync.objects.order_by('id')]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync = emails_to_sync[0]
+        e2sync = self.get_alone_element(EmailToSync.objects.order_by('id'))
         self.assertEqual(user, e2sync.user)
 
         self.assertListEqual(
@@ -738,10 +720,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             # Go !
             entity_emails_sync_type.execute(job)
 
-        emails_to_sync = [*EmailToSync.objects.order_by('id')]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync = emails_to_sync[0]
+        e2sync = self.get_alone_element(EmailToSync.objects.order_by('id'))
         self.assertEqual(user, e2sync.user)
 
         self.assertListEqual(
@@ -847,10 +826,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             # Go !
             entity_emails_sync_type.execute(job)
 
-        emails_to_sync = [*EmailToSync.objects.order_by('id')]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync = emails_to_sync[0]
+        e2sync = self.get_alone_element(EmailToSync.objects.order_by('id'))
         self.assertEqual(user, e2sync.user)
 
         filter_person = e2sync.related_persons.filter
@@ -906,10 +882,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             # Go !
             entity_emails_sync_type.execute(job)
 
-        emails_to_sync = [*EmailToSync.objects.all()]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync = emails_to_sync[0]
+        e2sync = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(subject, e2sync.subject)
         self.assertEqual(body,    e2sync.body)
         self.assertEqual('',      e2sync.body_html)
@@ -970,10 +943,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             # Go !
             entity_emails_sync_type.execute(job)
 
-        emails_to_sync = [*EmailToSync.objects.all()]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync = emails_to_sync[0]
+        e2sync = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(subject, e2sync.subject)
         self.assertFalse(e2sync.attachments.all())
 
@@ -991,16 +961,15 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
         self.assertFalse(EmailToSync.objects.all())
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 _(
                     'Error while retrieving emails on "{host}" for the user "{user}" '
                     '[original error: {error}]'
-                ).format(host=item.host, user=item.username, error=error_msg)
+                ).format(host=item.host, user=item.username, error=error_msg),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job_error02(self):
@@ -1030,8 +999,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
         self.assertFalse(EmailToSync.objects.all())
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             # TODO?
             # [
@@ -1045,7 +1013,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     host=item.host, user=item.username,
                 )
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job_error03(self):
@@ -1091,15 +1059,11 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         pop_instance.dele.assert_called_once_with(msg_id2)
         pop_instance.quit.assert_called_once()
 
-        emails_to_sync = [*EmailToSync.objects.all()]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync1 = emails_to_sync[0]
+        e2sync1 = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(subject, e2sync1.subject)
         self.assertEqual('',      e2sync1.body)
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -1113,7 +1077,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     2
                 ).format(count=2),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
 
@@ -1183,15 +1147,14 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
         self.assertFalse(EmailToSync.objects.all())
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 _('There was no message on "{host}" for the user "{user}"').format(
                     host=item.host, user=item.username,
                 )
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job02(self):
@@ -1235,10 +1198,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         imap_instance.store.assert_called_once_with(msg_id, '+FLAGS', r'\Deleted')
         imap_instance.expunge.assert_called_once()
 
-        emails_to_sync = [*EmailToSync.objects.all()]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync = emails_to_sync[0]
+        e2sync = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(user,        e2sync.user)
         self.assertEqual(subject,     e2sync.subject)
         self.assertEqual(body + '\n', e2sync.body)
@@ -1256,8 +1216,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             ],
         )
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -1268,7 +1227,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     count=1, host=item.host, user=item.username,
                 )
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job03(self):
@@ -1370,8 +1329,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         self.assertHTMLEqual(body_html2, e2sync2.body_html)
         self.assertIsNone(e2sync2.date)
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -1382,7 +1340,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     count=2, host=item.host, user=item.username,
                 ),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job_assign_user01(self):
@@ -1511,15 +1469,11 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         self.assertEqual(2, imap_instance.fetch.call_count)
         self.assertEqual(2, imap_instance.store.call_count)
 
-        emails_to_sync = [*EmailToSync.objects.all()]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync1 = emails_to_sync[0]
+        e2sync1 = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(subject, e2sync1.subject)
         self.assertEqual(user,    e2sync1.user)
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -1535,7 +1489,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     1
                 ).format(count=1),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job_invalid_data01(self):
@@ -1571,8 +1525,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
         self.assertFalse(EmailToSync.objects.all())
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -1588,7 +1541,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     1
                 ).format(count=1),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job_invalid_data02(self):
@@ -1616,8 +1569,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
         self.assertFalse(EmailToSync.objects.all())
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -1633,7 +1585,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     1
                 ).format(count=1),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     @skipIfCustomContact
@@ -1683,10 +1635,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             # Go !
             entity_emails_sync_type.execute(job)
 
-        emails_to_sync = [*EmailToSync.objects.order_by('id')]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync = emails_to_sync[0]
+        e2sync = self.get_alone_element(EmailToSync.objects.order_by('id'))
         self.assertEqual(user, e2sync.user)
 
         self.assertListEqual(
@@ -1754,10 +1703,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             # Go !
             entity_emails_sync_type.execute(job)
 
-        emails_to_sync = [*EmailToSync.objects.order_by('id')]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync = emails_to_sync[0]
+        e2sync = self.get_alone_element(EmailToSync.objects.order_by('id'))
         self.assertEqual(user, e2sync.user)
 
         self.assertListEqual(
@@ -1824,10 +1770,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             # Go !
             entity_emails_sync_type.execute(job)
 
-        emails_to_sync = [*EmailToSync.objects.all()]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync = emails_to_sync[0]
+        e2sync = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(subject, e2sync.subject)
         self.assertEqual(body,    e2sync.body)
         self.assertEqual('',      e2sync.body_html)
@@ -1889,10 +1832,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             # Go !
             entity_emails_sync_type.execute(job)
 
-        emails_to_sync = [*EmailToSync.objects.all()]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync = emails_to_sync[0]
+        e2sync = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(subject, e2sync.subject)
         self.assertFalse(e2sync.attachments.all())
 
@@ -1908,8 +1848,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
         self.assertFalse(EmailToSync.objects.all())
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 _(
@@ -1917,7 +1856,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     '[original error: {error}]'
                 ).format(host=item.host, user=item.username, error=error_msg),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job_error02(self):
@@ -1947,8 +1886,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
         self.assertFalse(EmailToSync.objects.all())
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             # TODO?
             # [
@@ -1962,7 +1900,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     host=item.host, user=item.username,
                 )
             ],
-            jresults[0].messages,
+            jresult.messages,
         )
 
     def test_job_error03(self):
@@ -2012,15 +1950,11 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         imap_instance.store.assert_called_once_with(msg_id2, '+FLAGS', r'\Deleted')
         imap_instance.logout.assert_called_once()
 
-        emails_to_sync = [*EmailToSync.objects.all()]
-        self.assertEqual(1, len(emails_to_sync))
-
-        e2sync1 = emails_to_sync[0]
+        e2sync1 = self.get_alone_element(EmailToSync.objects.all())
         self.assertEqual(subject, e2sync1.subject)
         self.assertEqual('',      e2sync1.body)
 
-        jresults = [*JobResult.objects.filter(job=job)]
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -2034,5 +1968,5 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
                     1
                 ).format(count=1),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )

@@ -167,10 +167,7 @@ class ExportingTestCase(CremeTestCase):
                 def dump_instance(self, instance):
                     return [{'value': 2}]
 
-        exporters = [*registry]
-        self.assertEqual(1, len(exporters))
-
-        item = exporters[0]
+        item = self.get_alone_element(registry)
         self.assertEqual(data_id, item[0])
         self.assertIsInstance(item[1], TestExporter02)
 
@@ -190,10 +187,7 @@ class ExportingTestCase(CremeTestCase):
                 def dump_instance(self, instance):
                     return [{'value': 2}]
 
-        exporters = [*registry]
-        self.assertEqual(1, len(exporters))
-
-        item = exporters[0]
+        item = self.get_alone_element(registry)
         self.assertEqual(data_id, item[0])
         self.assertIsInstance(item[1], TestExporter01)
 
@@ -211,9 +205,8 @@ class ExportingTestCase(CremeTestCase):
             return [{'value': 2}]
 
         registry.unregister(data_id1)
-        exporters = [*registry]
-        self.assertEqual(1, len(exporters))
-        self.assertEqual(data_id2, exporters[0][0])
+        item = self.get_alone_element(registry)
+        self.assertEqual(data_id2, item[0])
 
     def test_unregister02(self):
         "Un-register before."
@@ -231,9 +224,8 @@ class ExportingTestCase(CremeTestCase):
         def exporter2():
             return [{'value': 2}]
 
-        exporters = [*registry]
-        self.assertEqual(1, len(exporters))
-        self.assertEqual(data_id2, exporters[0][0])
+        item = self.get_alone_element(registry)
+        self.assertEqual(data_id2, item[0])
 
     def test_roles(self):
         "Roles."
@@ -398,9 +390,7 @@ class ExportingTestCase(CremeTestCase):
                 if dumped_rbi['relation_type'] == rtype01.id
             ]
 
-        self.assertEqual(1, len(all_rbi_info01))
-
-        rbi_info01 = all_rbi_info01[0]
+        rbi_info01 = self.get_alone_element(all_rbi_info01)
         self.assertEqual(rbi1.id, rbi_info01.get('id'))
         self.assertNotIn('cells', rbi_info01)
 
@@ -412,9 +402,7 @@ class ExportingTestCase(CremeTestCase):
                 if dumped_rbi['relation_type'] == rtype02.id
             ]
 
-        self.assertEqual(1, len(all_rbi_info02))
-
-        rbi_info02 = all_rbi_info02[0]
+        rbi_info02 = self.get_alone_element(all_rbi_info02)
         # self.assertEqual(rtype_brick_id02, rbi_info02.get('brick_id'))
         self.assertEqual(rbi2.id, rbi_info02.get('id'))
 
@@ -474,9 +462,7 @@ class ExportingTestCase(CremeTestCase):
                 if dumped_cbci['id'] == cbci.id
             ]
 
-        self.assertEqual(1, len(all_cbci_info01))
-
-        cbci_info = all_cbci_info01[0]
+        cbci_info = self.get_alone_element(all_cbci_info01)
         self.assertEqual('creme_core.fakecontact', cbci_info.get('content_type'))
         self.assertEqual(cbci.name, cbci_info.get('name'))
         self.assertListEqual(

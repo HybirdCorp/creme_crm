@@ -316,11 +316,10 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
         self.assertFalse(addr1.city)
         self.assertFalse(addr1.address)  # Not address_val1
 
-        jresults = self._get_job_results(job)
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(self._get_job_results(job))
         self.assertListEqual(
             [
                 _('The field «{}» has been configured as required.').format(_('City')),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )

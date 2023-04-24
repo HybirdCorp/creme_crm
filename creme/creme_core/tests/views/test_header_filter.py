@@ -74,10 +74,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         )
         self.assertNoFormError(response, status=302)
 
-        hfilters = HeaderFilter.objects.filter(entity_type=ct)
-        self.assertEqual(1, len(hfilters))
-
-        hfilter = hfilters[0]
+        hfilter = self.get_alone_element(HeaderFilter.objects.filter(entity_type=ct))
         self.assertEqual(name, hfilter.name)
         self.assertIsNone(hfilter.user)
         self.assertTrue(hfilter.is_custom)

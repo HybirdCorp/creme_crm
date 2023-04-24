@@ -21,10 +21,7 @@ class SearchConfigTestCase(CremeTestCase):
         )
         self.assertEqual(count + 1, SearchConfigItem.objects.count())
 
-        sc_items = SearchConfigItem.objects.filter(content_type=ct)
-        self.assertEqual(1, len(sc_items))
-
-        sc_item = sc_items[0]
+        sc_item = self.get_alone_element(SearchConfigItem.objects.filter(content_type=ct))
         self.assertEqual(FakeContact, sc_item.content_type.model_class())
         self.assertIsNone(sc_item.role)
         self.assertIs(sc_item.superuser, False)
@@ -101,9 +98,8 @@ class SearchConfigTestCase(CremeTestCase):
             FakeContact, ['invalid_field', 'first_name'],
         )
 
-        cells = [*sc_item.cells]
-        self.assertEqual(1, len(cells))
-        self.assertEqual('first_name', cells[0].value)
+        cell = self.get_alone_element(sc_item.cells)
+        self.assertEqual('first_name', cell.value)
 
     def test_manager_create_if_needed05(self):
         "Invalid fields : no subfield."
@@ -111,9 +107,8 @@ class SearchConfigTestCase(CremeTestCase):
             FakeContact, ['last_name__invalid', 'first_name'],
         )
 
-        cells = [*sc_item.cells]
-        self.assertEqual(1, len(cells))
-        self.assertEqual('first_name', cells[0].value)
+        cell = self.get_alone_element(sc_item.cells)
+        self.assertEqual('first_name', cell.value)
 
     def test_manager_create_if_needed06(self):
         "Disabled."
@@ -278,13 +273,14 @@ class SearchConfigTestCase(CremeTestCase):
         "One model, 1 config in DB."
         user = self.create_user()
 
-        sc_item = SearchConfigItem.objects.create_if_needed(
+        created_item = SearchConfigItem.objects.create_if_needed(
             FakeContact, ['first_name', 'last_name'],
         )
 
-        configs = [*SearchConfigItem.objects.iter_for_models([FakeContact], user)]
-        self.assertEqual(1, len(configs))
-        self.assertEqual(sc_item, configs[0])
+        retrieved_item = self.get_alone_element(
+            SearchConfigItem.objects.iter_for_models([FakeContact], user)
+        )
+        self.assertEqual(created_item, retrieved_item)
 
     def test_manager_get_for_models04(self):
         "One model, 2 configs in DB."
@@ -298,12 +294,13 @@ class SearchConfigTestCase(CremeTestCase):
         create(FakeContact, ['description'], role='superuser')
         create(FakeContact, ['first_name', 'last_name'])
         create(FakeContact, ['first_name'], role=role2)
-        sc_item = create(FakeContact, ['last_name'], role=self.role)  # <===
+        created_item = create(FakeContact, ['last_name'], role=self.role)  # <===
         create(FakeContact, ['first_name', 'description'], role=role3)
 
-        configs = [*SearchConfigItem.objects.iter_for_models([FakeContact], self.other_user)]
-        self.assertEqual(1, len(configs))
-        self.assertEqual(sc_item, configs[0])
+        retrieved_item = self.get_alone_element(
+            SearchConfigItem.objects.iter_for_models([FakeContact], self.other_user)
+        )
+        self.assertEqual(created_item, retrieved_item)
 
     def test_manager_get_for_models05(self):
         "One model, 2 configs in DB (other order)."

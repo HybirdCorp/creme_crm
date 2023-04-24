@@ -141,10 +141,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertGET405(url)
         self.assertPOST200(url, follow=True)
 
-        quotes = Quote.objects.all()
-        self.assertEqual(1, len(quotes))
-
-        quote = quotes[0]
+        quote = self.get_alone_element(Quote.objects.all())
         self.assertDatetimesAlmostEqual(date.today(), quote.issuing_date)
         self.assertEqual(1, quote.status_id)
         self.assertTrue(quote.number)
@@ -184,9 +181,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         quote1 = Quote.objects.all()[0]
 
         self.client.post(url)
-        quotes = Quote.objects.exclude(pk=quote1.id)
-        self.assertEqual(1, len(quotes))
-        quote2 = quotes[0]
+        quote2 = self.get_alone_element(Quote.objects.exclude(pk=quote1.id))
 
         self.assertRelationCount(1, quote2, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote2, REL_SUB_BILL_RECEIVED, target)
@@ -211,13 +206,11 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         invoice1 = Invoice.objects.all()[0]
 
         self.client.post(url)
-        invoices = Invoice.objects.exclude(pk=invoice1.id)
-        self.assertEqual(1, len(invoices))
+        invoice2 = self.get_alone_element(Invoice.objects.exclude(pk=invoice1.id))
 
-        invoices2 = invoices[0]
-        self.assertRelationCount(1, invoices2, REL_SUB_BILL_ISSUED,    emitter)
-        self.assertRelationCount(1, invoices2, REL_SUB_BILL_RECEIVED,  target)
-        self.assertRelationCount(1, invoices2, constants.REL_SUB_LINKED_INVOICE, opportunity)
+        self.assertRelationCount(1, invoice2, REL_SUB_BILL_ISSUED,    emitter)
+        self.assertRelationCount(1, invoice2, REL_SUB_BILL_RECEIVED,  target)
+        self.assertRelationCount(1, invoice2, constants.REL_SUB_LINKED_INVOICE, opportunity)
 
         self.assertRelationCount(1, invoice1, REL_SUB_BILL_ISSUED,    emitter)
         self.assertRelationCount(1, invoice1, REL_SUB_BILL_RECEIVED,  target)

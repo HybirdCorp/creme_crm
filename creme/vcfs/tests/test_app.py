@@ -27,14 +27,11 @@ class VcfsTestCase(CremeTestCase):
     def test_actions(self):
         user = self.login()
         contact = user.linked_contact
-        vcfs_actions = [
+        action = self.get_alone_element(
             action
             for action in actions_registry.instance_actions(user=user, instance=contact)
             if isinstance(action, GenerateVcfAction)
-        ]
-        self.assertEqual(1, len(vcfs_actions))
-
-        action = vcfs_actions[0]
+        )
         self.assertEqual('redirect', action.type)
         self.assertEqual(reverse('vcfs__export', args=(contact.id,)), action.url)
         self.assertTrue(action.is_enabled)  # TODO: test with credentials

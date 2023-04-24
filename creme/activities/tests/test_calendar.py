@@ -525,10 +525,7 @@ class CalendarTestCase(_ActivitiesTestCase):
             },
         ))
 
-        cals = Calendar.objects.filter(user=user)
-        self.assertEqual(1, len(cals))
-
-        cal = cals[0]
+        cal = self.get_alone_element(Calendar.objects.filter(user=user))
         self.assertEqual(name, cal.name)
         self.assertEqual(color, cal.color)
         self.assertIs(cal.is_default, True)
@@ -1181,9 +1178,9 @@ class CalendarTestCase(_ActivitiesTestCase):
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
     def test_selected_calendars_in_session(self):
         user = self.login()
-        sessions_before = self._get_user_sessions(user)
-        self.assertEqual(1, len(sessions_before))
-        self.assertNotIn('activities__calendars', sessions_before[0])
+
+        session_before = self.get_alone_element(self._get_user_sessions(user))
+        self.assertNotIn('activities__calendars', session_before)
 
         other_user = self.other_user
 
@@ -1216,19 +1213,17 @@ class CalendarTestCase(_ActivitiesTestCase):
             Calendar.objects.filter(id__in=get_ctxt('others_selected_calendar_ids')),
         )
 
-        sessions_after = self._get_user_sessions(user)
-        self.assertEqual(1, len(sessions_after))
+        session_after = self.get_alone_element(self._get_user_sessions(user))
         self.assertCountEqual(
             [cal1.id, cal3.id],
-            sessions_after[0]['activities__calendars'],
+            session_after['activities__calendars'],
         )
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
     def test_calendars_select(self):
         user = self.login()
-        sessions1 = self._get_user_sessions(user)
-        self.assertEqual(1, len(sessions1))
-        self.assertNotIn('activities__calendars', sessions1[0])
+        session1 = self.get_alone_element(self._get_user_sessions(user))
+        self.assertNotIn('activities__calendars', session1)
 
         other_user = self.other_user
 
@@ -1243,11 +1238,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertGET405(url)
 
         self.assertPOST200(url, data={'add': [str(cal1.id), str(cal2.id)]})
-        sessions2 = self._get_user_sessions(user)
-        self.assertEqual(1, len(sessions2))
+        session2 = self.get_alone_element(self._get_user_sessions(user))
         self.assertCountEqual(
             [cal1.id, cal2.id],
-            sessions2[0]['activities__calendars'],
+            session2['activities__calendars'],
         )
 
         # Ignore other not-public Calendars

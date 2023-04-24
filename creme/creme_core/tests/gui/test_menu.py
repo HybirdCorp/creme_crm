@@ -777,10 +777,7 @@ class MenuTestCase(CremeTestCase):
         registry = quick_forms.QuickFormsRegistry()
         seq.quickforms_registry = registry
 
-        entries1 = [*seq]
-        self.assertEqual(1, len(entries1))
-
-        entry11 = entries1[0]
+        entry11 = self.get_alone_element(seq)
         self.assertIsInstance(entry11, MenuEntry)
         self.assertEqual(_('No type available'), entry11.label)
 
@@ -1473,18 +1470,17 @@ class MenuTestCase(CremeTestCase):
         "Container does not accept children."
         container_item = MenuConfigItem(id=1, entry_id=RecentEntitiesEntry.id)
         sub_item = MenuConfigItem(
-            id=2, entry_id=FakeContactsEntry.id, parent_id=container_item.id
+            id=2, entry_id=FakeContactsEntry.id, parent_id=container_item.id,
         )
         registry = MenuRegistry().register(
             RecentEntitiesEntry, FakeContactsEntry
         )
 
-        entries = registry.get_entries([container_item, sub_item])
-        self.assertEqual(1, len(entries))
-
-        entry = entries[0]
+        entry = self.get_alone_element(
+            registry.get_entries([container_item, sub_item])
+        )
         self.assertIsInstance(entry, RecentEntitiesEntry)
-        self.assertListEqual([], [*entry.children])
+        self.assertFalse([*entry.children])
 
     def test_global_registry(self):
         entry_classes = {*menu_registry.entry_classes}

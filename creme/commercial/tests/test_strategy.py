@@ -50,10 +50,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
         self.assertNoFormError(response)
 
-        strategies = Strategy.objects.all()
-        self.assertEqual(1, len(strategies))
-
-        strategy = strategies[0]
+        strategy = self.get_alone_element(Strategy.objects.all())
         self.assertEqual(name, strategy.name)
         self.assertRedirects(response, strategy.get_absolute_url())
 
@@ -114,10 +111,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             },
         ))
 
-        segment_info = strategy.segment_info.all()
-        self.assertEqual(1, len(segment_info))
-
-        description = segment_info[0]
+        description = self.get_alone_element(strategy.segment_info.all())
         self.assertEqual(name,      description.segment.name)
         self.assertEqual(product,   description.product)
         self.assertEqual(place,     description.place)
@@ -233,10 +227,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
         self.assertNoFormError(response)
 
-        seginfo = strategy02.segment_info.all()
-        self.assertEqual(1, len(seginfo))
-
-        description = seginfo[0]
+        description = self.get_alone_element(strategy02.segment_info.all())
         self.assertEqual(industry,  description.segment)
         self.assertEqual(product,   description.product)
         self.assertEqual(place,     description.place)
@@ -274,10 +265,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
         self.assertNoFormError(response)
 
-        descriptions = strategy.segment_info.all()
-        self.assertEqual(1, len(descriptions))
-
-        description = descriptions[0]
+        description = self.get_alone_element(strategy.segment_info.all())
         self.assertEqual(name,      description.segment.name)
         self.assertEqual(product,   description.product)
         self.assertEqual(place,     description.place)
@@ -318,10 +306,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
         self.assertNoFormError(response)
 
-        seginfo = strategy.segment_info.all()
-        self.assertEqual(1, len(seginfo))
-
-        segment_desc = seginfo[0]
+        segment_desc = self.get_alone_element(strategy.segment_info.all())
         self.assertEqual(segment,  segment_desc.segment)
         self.assertFalse(segment_desc.product)
 

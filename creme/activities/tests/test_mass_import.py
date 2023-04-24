@@ -207,10 +207,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         )
         self.assertEqual(constants.NARROW, act7.floating_type)
 
-        jr_errors = [r for r in results if r.messages]
-        self.assertEqual(1, len(jr_errors))
-
-        jr_error = jr_errors[0]
+        jr_error = self.get_alone_element(r for r in results if r.messages)
         self.assertListEqual(
             [_('End time is before start time')],
             jr_error.messages,
@@ -356,10 +353,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         results = self._get_job_results(job)
         self.assertEqual(len(lines), len(results))
 
-        jr_errors = [r for r in results if r.messages]
-        self.assertEqual(1, len(jr_errors))
-
-        jr_error = jr_errors[0]
+        jr_error = self.get_alone_element(r for r in results if r.messages)
         self.assertEqual(
             [_('The participant «{}» cannot be found').format(unfoundable)],
             jr_error.messages,
@@ -468,10 +462,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         results = self._get_job_results(job)
         self.assertEqual(len(lines), len(results))
 
-        jr_errors = [r for r in results if r.messages]
-        self.assertEqual(1, len(jr_errors))
-
-        jr_error = jr_errors[0]
+        jr_error = self.get_alone_element(r for r in results if r.messages)
         err_fmt = _('The participant «{}» cannot be found').format
         self.assertListEqual(
             [

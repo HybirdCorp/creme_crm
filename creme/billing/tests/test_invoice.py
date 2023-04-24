@@ -633,15 +633,12 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice #1')[0]
 
-        export_actions = [
+        export_action = self.get_alone_element(
             action
             for action in actions.actions_registry
                                  .instance_actions(user=user, instance=invoice)
             if isinstance(action, ExportInvoiceAction)
-        ]
-        self.assertEqual(1, len(export_actions))
-
-        export_action = export_actions[0]
+        )
         self.assertEqual('billing-export_invoice', export_action.id)
         self.assertEqual('redirect', export_action.type)
         self.assertEqual(
@@ -655,15 +652,12 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         user = self.login()
         invoice = self.create_invoice_n_orgas('Invoice #1')[0]
 
-        number_actions = [
+        number_action = self.get_alone_element(
             action
             for action in actions.actions_registry
                                  .instance_actions(user=user, instance=invoice)
             if isinstance(action, GenerateNumberAction)
-        ]
-        self.assertEqual(1, len(number_actions))
-
-        number_action = number_actions[0]
+        )
         self.assertEqual('billing-generate_number', number_action.id)
         self.assertEqual('billing-invoice-number', number_action.type)
         self.assertEqual(
@@ -686,15 +680,12 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice.number = 'J03'
         invoice.save()
 
-        number_actions = [
+        number_action = self.get_alone_element(
             action
             for action in actions.actions_registry
                                  .instance_actions(user=user, instance=invoice)
             if isinstance(action, GenerateNumberAction)
-        ]
-        self.assertEqual(1, len(number_actions))
-
-        number_action = number_actions[0]
+        )
         self.assertEqual('billing-generate_number', number_action.id)
         self.assertEqual('billing-invoice-number', number_action.type)
         self.assertEqual(
@@ -1439,9 +1430,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.get_brick_table_column_titles(brick_node2),
         )
         rows = self.get_brick_table_rows(brick_node2)
-        self.assertEqual(1, len(rows))
-
-        table_cells = rows[0].findall('.//td')
+        table_cells = self.get_alone_element(rows).findall('.//td')
         self.assertEqual(5, len(table_cells))
         self.assertInstanceLink(table_cells[0], entity=invoice)
         self.assertEqual(invoice.number, table_cells[1].text)
@@ -1481,8 +1470,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.get_brick_table_column_titles(brick_node),
         )
         rows = self.get_brick_table_rows(brick_node)
-        self.assertEqual(1, len(rows))
-        self.assertEqual(4, len(rows[0].findall('.//td')))
+        row = self.get_alone_element(rows)
+        self.assertEqual(4, len(row.findall('.//td')))
 
     @override_settings(HIDDEN_VALUE='?')
     def test_brick03(self):
@@ -1515,9 +1504,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             brick=bricks.ReceivedInvoicesBrick,
         )
         rows = self.get_brick_table_rows(brick_node)
-        self.assertEqual(1, len(rows))
-
-        table_cells = rows[0].findall('.//td')
+        table_cells = self.get_alone_element(rows).findall('.//td')
         self.assertEqual(5, len(table_cells))
         self.assertEqual('?', table_cells[0].text)
         self.assertEqual('?', table_cells[1].text)

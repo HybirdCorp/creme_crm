@@ -303,14 +303,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.IEQUALS
         name = 'first_name'
         value = 'Faye'
-        conditions = field.clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    value,
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            field.clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    value,
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertEqual(EF_USER,                              condition.filter_type)
@@ -330,14 +329,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.IEQUALS
         name = 'first_name'
         value = 'Faye'
-        conditions = field.clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    value,
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            field.clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    value,
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertEqual(EF_CREDENTIALS,                       condition.filter_type)
@@ -355,14 +353,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         name = 'first_name'
         faye_name = 'Faye'
         ed_name = 'Ed'
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    f'{faye_name},{ed_name}',
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    f'{faye_name},{ed_name}',
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -379,14 +376,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         name = 'first_name'
         faye_name = 'Faye'
         ed_name = 'Ed'
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    [faye_name, ed_name],
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    [faye_name, ed_name],
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -402,14 +398,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         ).clean
         operator = operators.ISEMPTY
         name = 'description'
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    True,
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    True,
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -425,14 +420,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         ).clean
         operator = operators.ISEMPTY
         name = 'description'
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    False,
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    False,
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -447,14 +441,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         ).clean
         operator = operators.EQUALS
         name = 'subject_to_vat'
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    True,
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    True,
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -470,14 +463,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.ISTARTSWITH
         name = 'civility__title'
         value = 'Miss'
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    value,
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    value,
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -494,14 +486,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.EQUALS
         name = 'civility'
         value = FakeCivility.objects.all()[0].pk
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    value,
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    value,
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -516,14 +507,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.EQUALS
         name = 'civility'
         values = [c.pk for c in FakeCivility.objects.all()]
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    ','.join(str(v) for v in values),
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    ','.join(str(v) for v in values),
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -539,14 +529,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.EQUALS
         name = 'civility'
         values = [str(c.pk) for c in FakeCivility.objects.all()]
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    values,
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    values,
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -562,14 +551,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.EQUALS
         name = 'languages'
         value = Language.objects.all()[0].pk
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    value,
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    value,
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -585,14 +573,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.EQUALS
         name = 'languages'
         values = [str(v) for v in Language.objects.all().values_list('pk', flat=True)]
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    values,
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    values,
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -609,14 +596,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.EQUALS
         name = 'languages'
         values = Language.objects.all().values_list('pk', flat=True)
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    ','.join(str(v) for v in values),
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    ','.join(str(v) for v in values),
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -636,14 +622,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.EQUALS
         name = 'discount_unit'
         value = FakeInvoiceLine.Discount.AMOUNT
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    value,
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    value,
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -689,14 +674,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.IENDSWITH
         name = 'last_name'
         values = ['nagi', 'sume']
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    ','.join(values),
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    ','.join(values),
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -756,14 +740,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.IEQUALS
         name = 'languages__name'
         value = 'French'
-        conditions = clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    value,
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data({
+                'operator': operator,
+                'name':     name,
+                'value':    value,
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
@@ -861,14 +844,13 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
             ],
         )
 
-        conditions = field.clean(self.build_data({
-            'operator': operators.EQUALS,
-            'name':     hidden_fname,
-            'value':    'Faye',
-        }))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            field.clean(self.build_data({
+                'operator': operators.EQUALS,
+                'name':     hidden_fname,
+                'value':    'Faye',
+            }))
+        )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_fname,                         condition.name)
 
@@ -899,9 +881,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                 'value':    'Faye',
             }))
 
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(conditions)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_sfname,                        condition.name)
 
@@ -932,9 +912,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                 'value':    'Faye',
             }))
 
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(conditions)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_sfname,                        condition.name)
 
@@ -965,9 +943,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                 'name':     hidden_fname,
                 'value':    str(position.id),
             }))
-        self.assertEqual(1, len(conditions))
 
-        condition = conditions[0]
+        condition = self.get_alone_element(conditions)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_fname,                         condition.name)
 
@@ -1103,17 +1080,16 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         "Start + end."
         clean = DateFieldsConditionsField(model=FakeContact).clean
         name = 'modified'
-        conditions = clean(json_dump([{
-            'field': {'name': name, 'type': 'date'},
-            'range': {
-                'type': '',
-                'start': self.formfield_value_date(2010, 3, 24),
-                'end': self.formfield_value_date(2011, 7, 25),
-            },
-        }]))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(json_dump([{
+                'field': {'name': name, 'type': 'date'},
+                'range': {
+                    'type': '',
+                    'start': self.formfield_value_date(2010, 3, 24),
+                    'end': self.formfield_value_date(2011, 7, 25),
+                },
+            }]))
+        )
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                     condition.name)
         self.assertDictEqual(
@@ -1169,10 +1145,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                 },
             }])
 
-        conditions = field.clean(build_data(valid_fname))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(field.clean(build_data(valid_fname)))
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(valid_fname,                              condition.name)
 
@@ -1204,10 +1177,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
             }])
 
         clean = DateFieldsConditionsField(model=FakeInvoiceLine).clean
-        conditions = clean(build_data(valid_fname))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(clean(build_data(valid_fname)))
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(valid_fname,                              condition.name)
 
@@ -1271,9 +1241,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                 'range': {'type': '', 'start': self.formfield_value_date(2000, 1, 1)},
             }]))
 
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(conditions)
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_fname,                             condition.name)
 
@@ -1303,9 +1271,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                 'range': {'type': '', 'start': self.formfield_value_date(2000, 1, 1)},
             }]))
 
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(conditions)
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_sfname,                            condition.name)
 
@@ -1334,9 +1300,7 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                 'range': {'type': '', 'start': self.formfield_value_date(2000, 1, 1)},
             }]))
 
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(conditions)
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_sfname,                            condition.name)
 
@@ -1600,14 +1564,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
         operator = operators.EQUALS
         value = 180
-        conditions = field.clean(self.build_data(
-            field=self.cfield_int.id,
-            operator=operator,
-            value=value,
-        ))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            field.clean(self.build_data(
+                field=self.cfield_int.id,
+                operator=operator,
+                value=value,
+            ))
+        )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_int.id),             condition.name)
         self.assertEqual(EF_USER,                             condition.filter_type)
@@ -1631,14 +1594,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
         operator = operators.EQUALS
         value = 180
-        conditions = field.clean(self.build_data(
-            field=self.cfield_int.id,
-            operator=operator,
-            value=value,
-        ))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            field.clean(self.build_data(
+                field=self.cfield_int.id,
+                operator=operator,
+                value=value,
+            ))
+        )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_int.id),             condition.name)
         self.assertEqual(EF_CREDENTIALS,                      condition.filter_type)
@@ -1658,14 +1620,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         ).clean
         operator = operators.EQUALS
         value = str(self.cfield_enum_A.pk)
-        conditions = clean(self.build_data(
-            field=self.cfield_enum.id,
-            operator=operator,
-            value=value,
-        ))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data(
+                field=self.cfield_enum.id,
+                operator=operator,
+                value=value,
+            ))
+        )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_enum.id),            condition.name)
         self.assertDictEqual(
@@ -1683,14 +1644,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             efilter_registry=efilter_registry,
         ).clean
         operator = operators.EQUALS
-        conditions = clean(self.build_data(
-            field=self.cfield_enum.id,
-            operator=operator,
-            value=f'{self.cfield_enum_A.pk},{self.cfield_enum_B.pk}',
-        ))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data(
+                field=self.cfield_enum.id,
+                operator=operator,
+                value=f'{self.cfield_enum_A.pk},{self.cfield_enum_B.pk}',
+            ))
+        )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_enum.id),            condition.name)
         self.assertDictEqual(
@@ -1711,14 +1671,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             efilter_registry=efilter_registry,
         ).clean
         operator = operators.EQUALS
-        conditions = clean(self.build_data(
-            field=self.cfield_enum.id,
-            operator=operator,
-            value=[self.cfield_enum_A.pk, self.cfield_enum_B.pk],
-        ))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data(
+                field=self.cfield_enum.id,
+                operator=operator,
+                value=[self.cfield_enum_A.pk, self.cfield_enum_B.pk],
+            ))
+        )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_enum.id),            condition.name)
         self.assertDictEqual(
@@ -1739,14 +1698,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         ).clean
         operator = operators.EQUALS
         value = str(self.cfield_multienum_F.pk)
-        conditions = clean(self.build_data(
-            field=self.cfield_multienum.id,
-            operator=operator,
-            value=value,
-        ))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data(
+                field=self.cfield_multienum.id,
+                operator=operator,
+                value=value,
+            ))
+        )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_multienum.id),       condition.name)
         self.assertDictEqual(
@@ -1763,14 +1721,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             model=FakeContact, efilter_registry=efilter_registry,
         ).clean
         operator = operators.EQUALS
-        conditions = clean(self.build_data(
-            field=self.cfield_multienum.id,
-            operator=operator,
-            value=f'{self.cfield_multienum_F.pk},{self.cfield_multienum_H.pk}',
-        ))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data(
+                field=self.cfield_multienum.id,
+                operator=operator,
+                value=f'{self.cfield_multienum_F.pk},{self.cfield_multienum_H.pk}',
+            ))
+        )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_multienum.id),       condition.name)
         self.assertDictEqual(
@@ -1790,17 +1747,16 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             model=FakeContact, efilter_registry=efilter_registry,
         ).clean
         operator = operators.EQUALS
-        conditions = clean(self.build_data(
-            field=self.cfield_multienum.id,
-            operator=operator,
-            value=[
-                self.cfield_multienum_F.pk,
-                self.cfield_multienum_H.pk,
-            ],
-        ))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data(
+                field=self.cfield_multienum.id,
+                operator=operator,
+                value=[
+                    self.cfield_multienum_F.pk,
+                    self.cfield_multienum_H.pk,
+                ],
+            ))
+        )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_multienum.id),       condition.name)
         self.assertDictEqual(
@@ -1820,14 +1776,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             model=FakeContact, efilter_registry=efilter_registry,
         ).clean
         operator = operators.EQUALS
-        conditions = clean(self.build_data(
-            field=self.cfield_str.id,
-            operator=operator,
-            value='',
-        ))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data(
+                field=self.cfield_str.id,
+                operator=operator,
+                value='',
+            ))
+        )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_str.id),             condition.name)
         self.assertDictEqual(
@@ -1840,14 +1795,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             model=FakeContact, efilter_registry=efilter_registry,
         ).clean
         operator = operators.EQUALS
-        conditions = clean(self.build_data(
-            field=self.cfield_bool.id,
-            operator=operator,
-            value=False,
-        ))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            clean(self.build_data(
+                field=self.cfield_bool.id,
+                operator=operator,
+                value=False,
+            ))
+        )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_bool.id),            condition.name)
         self.assertDictEqual(
@@ -1915,14 +1869,13 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
         operator = operators.ICONTAINS
         value = '[pilot]'
-        conditions = field.clean(self.build_data(
-            field=cfield_str.id,
-            operator=operator,
-            value=value,
-        ))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            field.clean(self.build_data(
+                field=cfield_str.id,
+                operator=operator,
+                value=value,
+            ))
+        )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(cfield_str.id),                  condition.name)
         self.assertDictEqual(
@@ -2111,12 +2064,11 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
             ],
         )
 
-        conditions = field.clean(json_dump([
-            {'field': str(cfield.id), 'range': {'type': 'current_year'}},
-        ]))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            field.clean(json_dump([
+                {'field': str(cfield.id), 'range': {'type': 'current_year'}},
+            ]))
+        )
         self.assertEqual(DateCustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(cfield.id),                          condition.name)
 
@@ -2206,10 +2158,9 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
             field = PropertiesConditionsField(efilter_type=EF_CREDENTIALS)
             field.model = FakeContact
 
-        conditions = field.clean(json_dump([{'ptype': ptype.id, 'has': True}]))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            field.clean(json_dump([{'ptype': ptype.id, 'has': True}]))
+        )
         self.assertEqual(PropertyConditionHandler.type_id, condition.type)
         self.assertEqual(ptype.id,                         condition.name)
         self.assertEqual(EF_CREDENTIALS,                   condition.filter_type)
@@ -2243,12 +2194,11 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
             ],
         )
 
-        conditions = field.clean(json_dump([{'ptype': ptype.id, 'has': True}]))
-        self.assertEqual(1, len(conditions))
-
-        condition1 = conditions[0]
-        self.assertEqual(ptype.id, condition1.name)
-        self.assertIs(condition1.value, True)
+        condition = self.get_alone_element(
+            field.clean(json_dump([{'ptype': ptype.id, 'has': True}]))
+        )
+        self.assertEqual(ptype.id, condition.name)
+        self.assertIs(condition.value, True)
 
 
 class RelationsConditionsFieldTestCase(FieldTestCase):
@@ -2527,12 +2477,11 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
             field.model = FakeContact
 
         rt_id = rtype.id
-        conditions = field.clean(json_dump([
-            {'rtype': rt_id, 'has': True,  'ctype': 0, 'entity': None},
-        ]))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            field.clean(json_dump([
+                {'rtype': rt_id, 'has': True,  'ctype': 0, 'entity': None},
+            ]))
+        )
         self.assertEqual(RelationConditionHandler.type_id, condition.type)
         self.assertEqual(rt_id,                            condition.name)
         self.assertDictEqual({'has': True}, condition.value)
@@ -2570,15 +2519,14 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
             ],
         )
 
-        conditions = field.clean(json_dump([
-            {'rtype': rtype.id, 'has': True,  'ctype': 0, 'entity': None},
-        ]))
-        self.assertEqual(1, len(conditions))
-
-        condition1 = conditions[0]
-        self.assertEqual(RelationConditionHandler.type_id, condition1.type)
-        self.assertEqual(rtype.id,                         condition1.name)
-        self.assertDictEqual({'has': True}, condition1.value)
+        condition = self.get_alone_element(
+            field.clean(json_dump([
+                {'rtype': rtype.id, 'has': True,  'ctype': 0, 'entity': None},
+            ]))
+        )
+        self.assertEqual(RelationConditionHandler.type_id, condition.type)
+        self.assertEqual(rtype.id,                         condition.name)
+        self.assertDictEqual({'has': True}, condition.value)
 
     def test_render_empty(self):
         widget = RelationsConditionsWidget()
@@ -2707,23 +2655,19 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
 
         filter_id = self.sub_efilter01.id
         rt_id = rtype.id
-        conditions = field.clean(json_dump([
-            {
+        condition = self.get_alone_element(
+            field.clean(json_dump([{
                 'rtype': rt_id, 'has': True,
                 'ctype': ContentType.objects.get_for_model(FakeContact).id,
                 'filter': filter_id,
-            },
-        ]))
-        self.assertEqual(1, len(conditions))
-
-        type_id = RelationSubFilterConditionHandler.type_id
-        condition1 = conditions[0]
-        self.assertEqual(type_id,        condition1.type)
-        self.assertEqual(rt_id,          condition1.name)
-        self.assertEqual(EF_CREDENTIALS, condition1.filter_type)
+            }]))
+        )
+        self.assertEqual(RelationSubFilterConditionHandler.type_id, condition.type)
+        self.assertEqual(rt_id,          condition.name)
+        self.assertEqual(EF_CREDENTIALS, condition.filter_type)
         self.assertDictEqual(
             {'has': True, 'filter_id': filter_id},
-            condition1.value,
+            condition.value,
         )
 
     def test_disabled_rtype01(self):
@@ -2781,23 +2725,18 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
             ],
         )
         filter_id = self.sub_efilter01.id
-        conditions = field.clean(
-            json_dump([
-                {
-                    'rtype': rtype.id, 'has': True,
-                    'ctype': ContentType.objects.get_for_model(FakeContact).id,
-                    'filter': filter_id,
-                },
-            ]),
+        condition = self.get_alone_element(
+            field.clean(json_dump([{
+                'rtype': rtype.id, 'has': True,
+                'ctype': ContentType.objects.get_for_model(FakeContact).id,
+                'filter': filter_id,
+            }]))
         )
-        self.assertEqual(1, len(conditions))
-
-        condition1 = conditions[0]
-        self.assertEqual(RelationSubFilterConditionHandler.type_id, condition1.type)
-        self.assertEqual(rtype.id, condition1.name)
+        self.assertEqual(RelationSubFilterConditionHandler.type_id, condition.type)
+        self.assertEqual(rtype.id, condition.name)
         self.assertDictEqual(
             {'has': True, 'filter_id': filter_id},
-            condition1.value,
+            condition.value,
         )
 
     def test_render_empty(self):
@@ -2867,10 +2806,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
         self.assertIsNone(efilter.user, False)
         self.assertIs(efilter.is_private, False)
 
-        conditions = efilter.get_conditions()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.get_conditions())
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(fname,                                condition.name)
         self.assertDictEqual(
@@ -2969,10 +2905,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
         self.assertEqual(name, efilter_edited.name)
         self.assertIs(efilter_edited.use_or, True)
 
-        conditions = efilter.get_conditions()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.get_conditions())
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(fname,                                condition.name)
         self.assertDictEqual(

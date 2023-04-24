@@ -388,8 +388,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.get_brick_table_column_titles(brick_node2),
         )
         rows = self.get_brick_table_rows(brick_node2)
-        self.assertEqual(1, len(rows))
 
-        table_cells = rows[0].findall('.//td')
+        table_cells = self.get_alone_element(rows).findall('.//td')
         self.assertEqual(4, len(table_cells))
         self.assertInstanceLink(table_cells[0], entity=order)

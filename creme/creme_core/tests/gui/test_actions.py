@@ -209,19 +209,13 @@ class ActionsTestCase(CremeTestCase):
         registry.register_bulk_actions(MockBulkAction)
 
         # Entity ---
-        entity_actions = [*registry.bulk_actions(user, CremeEntity)]
-        self.assertEqual(1, len(entity_actions))
-
-        entity_action = entity_actions[0]
+        entity_action = self.get_alone_element(registry.bulk_actions(user, CremeEntity))
         self.assertIsInstance(entity_action, MockBulkAction)
         self.assertEqual(user,        entity_action.user)
         self.assertEqual(CremeEntity, entity_action.model)
 
         # Contact ---
-        contact_actions = [*registry.bulk_actions(user, FakeContact)]
-        self.assertEqual(1, len(contact_actions))
-
-        contact_action = contact_actions[0]
+        contact_action = self.get_alone_element(registry.bulk_actions(user, FakeContact))
         self.assertIsInstance(contact_action, MockBulkAction)
         self.assertEqual(user,        contact_action.user)
         self.assertEqual(FakeContact, contact_action.model)
@@ -256,10 +250,9 @@ class ActionsTestCase(CremeTestCase):
         registry.register_instance_actions(MockAction)
 
         # Entity ---
-        entity_actions = [*registry.instance_actions(user=user, instance=entity)]
-        self.assertEqual(1, len(entity_actions))
-
-        entity_action = entity_actions[0]
+        entity_action = self.get_alone_element(
+            registry.instance_actions(user=user, instance=entity)
+        )
         self.assertIsInstance(entity_action, MockAction)
         self.assertEqual(user,        entity_action.user)
         self.assertEqual(CremeEntity, entity_action.model)
@@ -270,10 +263,9 @@ class ActionsTestCase(CremeTestCase):
         )
 
         # Contact ---
-        contact_actions = [*registry.instance_actions(user=user, instance=contact)]
-        self.assertEqual(1, len(contact_actions))
-
-        contact_action = contact_actions[0]
+        contact_action = self.get_alone_element(
+            registry.instance_actions(user=user, instance=contact)
+        )
         self.assertIsInstance(contact_action, MockAction)
         self.assertEqual(user,        contact_action.user)
         self.assertEqual(FakeContact, contact_action.model)

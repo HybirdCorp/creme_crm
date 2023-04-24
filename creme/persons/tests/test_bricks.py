@@ -783,10 +783,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         user = self.user
         bricks.NeglectedOrganisationsBrick()
 
-        orgas = Organisation.objects.all()
-        self.assertEqual(1, len(orgas))
-
-        mng_orga = orgas[0]
+        mng_orga = self.get_alone_element(Organisation.objects.all())
         self.assertTrue(mng_orga.is_managed)
         self.assertFalse(self._get_neglected_orgas())
 

@@ -151,10 +151,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
         self.assertNoFormError(response)
 
-        jobs = Job.objects.all()
-        self.assertEqual(1, len(jobs))
-
-        job = jobs[0]
+        job = self.get_alone_element(Job.objects.all())
         self.assertEqual(self.user, job.user)
         self.assertIsNone(job.last_run)
         self.assertIsInstance(job.data, dict)
@@ -382,9 +379,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         self.assertFalse(FakePosition.objects.exclude(id__in=sector_ids).exists())
 
-        sectors = FakeSector.objects.exclude(id__in=position_ids)
-        self.assertEqual(1, len(sectors))
-        sector = sectors[0]
+        sector = self.get_alone_element(FakeSector.objects.exclude(id__in=position_ids))
         self.assertEqual(sctr_title, sector.title)
 
         created_contacts = {}
@@ -458,21 +453,15 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         job = self._execute_job(response)
 
-        contacts = FakeContact.objects.exclude(id__in=contact_ids)
-        self.assertEqual(1, len(contacts))
-
-        rei = contacts[0]
-        relations = Relation.objects.filter(subject_entity=rei, type=employed)
-        self.assertEqual(1, len(relations))
-
-        # employer = relations[0].object_entity.get_real_entity()
-        employer = relations[0].real_object
+        rei = self.get_alone_element(FakeContact.objects.exclude(id__in=contact_ids))
+        employer = self.get_alone_element(
+            Relation.objects.filter(subject_entity=rei, type=employed)
+        ).real_object
         self.assertIsInstance(employer, FakeOrganisation)
         self.assertEqual(orga_name, employer.name)
 
-        results = self._get_job_results(job)
-        self.assertEqual(1, len(results))
-        self.assertFalse(results[0].messages)
+        result = self.get_alone_element(self._get_job_results(job))
+        self.assertFalse(result.messages)
 
     def test_not_registered(self):
         self.login()
@@ -652,8 +641,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertRelationCount(1, rei, employed.id, seele)
         self.assertRelationCount(0, rei, employed.id, nerv)
 
-        results = self._get_job_results(job)
-        self.assertEqual(1, len(results))
+        result = self.get_alone_element(self._get_job_results(job))
         self.assertListEqual(
             [
                 Relation.error_messages['missing_subject_property'] % {
@@ -662,7 +650,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                     'property': ptype.text,
                 },
             ],
-            results[0].messages,
+            result.messages,
         )
 
     def test_relations_with_property_constraint_object02(self):
@@ -741,8 +729,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertRelationCount(1, rei, employed.id, seele)
         self.assertRelationCount(0, rei, employed.id, nerv)
 
-        results = self._get_job_results(job)
-        self.assertEqual(1, len(results))
+        result = self.get_alone_element(self._get_job_results(job))
         self.assertListEqual(
             [
                 Relation.error_messages['refused_subject_property'] % {
@@ -751,7 +738,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                     'property': ptype.text,
                 },
             ],
-            results[0].messages,
+            result.messages,
         )
 
     def test_relations_with_property_constraint_subject01(self):
@@ -787,8 +774,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(0, rei, employed.id, nerv)
 
-        results = self._get_job_results(job)
-        self.assertEqual(1, len(results))
+        result = self.get_alone_element(self._get_job_results(job))
         self.assertListEqual(
             [
                 Relation.error_messages['missing_subject_property'] % {
@@ -797,7 +783,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                     'property': ptype.text,
                 },
             ],
-            results[0].messages,
+            result.messages,
         )
 
     def test_relations_with_property_constraint_subject02(self):
@@ -871,8 +857,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(0, rei, employed.id, nerv)
 
-        results = self._get_job_results(job)
-        self.assertEqual(1, len(results))
+        result = self.get_alone_element(self._get_job_results(job))
         self.assertListEqual(
             [
                 Relation.error_messages['missing_subject_property'] % {
@@ -881,7 +866,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                     'property': ptype.text,
                 },
             ],
-            results[0].messages,
+            result.messages,
         )
 
     def test_relations_with_property_constraint_subject04(self):
@@ -949,8 +934,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(0, rei, employed.id, nerv)
 
-        results = self._get_job_results(job)
-        self.assertEqual(1, len(results))
+        result = self.get_alone_element(self._get_job_results(job))
         self.assertListEqual(
             [
                 Relation.error_messages['refused_subject_property'] % {
@@ -959,7 +943,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                     'property': ptype.text,
                 },
             ],
-            results[0].messages,
+            result.messages,
         )
 
     def test_relations_with_forbidden_property_constraint_subject02(self):
@@ -1034,8 +1018,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(0, rei, employed.id, nerv)
 
-        results = self._get_job_results(job)
-        self.assertEqual(1, len(results))
+        result = self.get_alone_element(self._get_job_results(job))
         self.assertListEqual(
             [
                 Relation.error_messages['refused_subject_property'] % {
@@ -1044,7 +1027,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                     'property': ptype.text,
                 },
             ],
-            results[0].messages,
+            result.messages,
         )
 
     def test_relations_with_forbidden_property_constraint_subject04(self):
@@ -1190,10 +1173,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         results = self._get_job_results(job)
         self.assertEqual(4, len(results))
 
-        jr_errors = [r for r in results if r.messages]
-        self.assertEqual(1, len(jr_errors))
-
-        jr_error = jr_errors[0]
+        jr_error = self.get_alone_element(r for r in results if r.messages)
         self.assertEqual([*lines[4]], jr_error.line)
         self.assertListEqual(
             [_('Enter a whole number.')],  # TODO: add the field verbose name !!
@@ -1267,10 +1247,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         results = self._get_job_results(job)
         self.assertEqual(2, len(results))
 
-        jr_errors = [r for r in results if r.messages]
-        self.assertEqual(1, len(jr_errors))
-
-        jr_error = jr_errors[0]
+        jr_error = self.get_alone_element(r for r in results if r.messages)
         self.assertEqual([*lines[2]], jr_error.line)
         self.assertListEqual(
             [
@@ -1916,7 +1893,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
 
     def test_import_with_update02(self):
-        "Several existing entities found"
+        "Several existing entities found."
         user = self.login()
 
         last_name = 'Ayanami'
@@ -1950,13 +1927,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(count + 1, FakeContact.objects.count())
         rei = self.get_object_or_fail(FakeContact, last_name=last_name, first_name=first_name)
 
-        results = self._get_job_results(job)
-        self.assertEqual(1, len(results))
-
-        jr_errors = [r for r in results if r.messages]
-        self.assertEqual(1, len(jr_errors))
-
-        jr_error = jr_errors[0]
+        jr_error = self.get_alone_element(self._get_job_results(job))
         self.assertEqual([last_name, first_name], jr_error.line)
         self.assertListEqual(
             [
@@ -2250,10 +2221,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         jresults = MassImportJobResult.objects.filter(job=job)
         self.assertEqual(2, len(jresults))
 
-        jr_errors = [r for r in jresults if r.messages]
-        self.assertEqual(1, len(jr_errors))
-
-        jr_error = jr_errors[0]
+        jr_error = self.get_alone_element(r for r in jresults if r.messages)
         self.assertIsNone(jr_error.entity_ctype)
         self.assertIsNone(jr_error.entity)
         self.assertListEqual(

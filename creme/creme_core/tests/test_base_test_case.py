@@ -492,6 +492,40 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm.exception),
         )
 
+    def test_get_alone_element(self):
+        with self.assertNoException():
+            e1 = self.get_alone_element([1])
+        self.assertEqual(1, e1)
+
+        # Other value returned ---
+        with self.assertNoException():
+            e2 = self.get_alone_element(['2'])
+        self.assertEqual('2', e2)
+
+        # Failure with list + length==2 ---
+        with self.assertRaises(self.failureException) as cm1:
+            self.get_alone_element([1, 2])
+        self.assertEqual(
+            'The iterable has 2 elements, not 1',
+            str(cm1.exception),
+        )
+
+        # Failure with range() + length==3 ---
+        with self.assertRaises(self.failureException) as cm2:
+            self.get_alone_element(range(1, 4))
+        self.assertEqual(
+            'The iterable has 3 elements, not 1',
+            str(cm2.exception),
+        )
+
+        # Failure with generator ---
+        with self.assertRaises(self.failureException) as cm3:
+            self.get_alone_element(i * i for i in range(3))
+        self.assertEqual(
+            'The iterable has 3 elements, not 1',
+            str(cm3.exception),
+        )
+
     def test_get_object_or_fail(self):
         sector1 = FakeSector.objects.create(title='Catch me')
 

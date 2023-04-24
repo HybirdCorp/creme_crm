@@ -272,9 +272,8 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertIsInstance(fields_groups, FieldGroupList)
         self.assertEqual(FakeContact, fields_groups.model)
         self.assertIs(base_cell_registry, fields_groups.cell_registry)
-        self.assertEqual(1, len(fields_groups))
 
-        group = fields_groups[0]
+        group = self.get_alone_element(fields_groups)
         self.assertIsInstance(group, FieldGroup)
         self.assertEqual(group_name, group.name)
         self.assertEqual(LAYOUT_REGULAR, group.layout)
@@ -412,13 +411,13 @@ class FieldGroupListTestCase(CremeTestCase):
                 ],
                 cell_registry=base_cell_registry,
             )
-        self.assertEqual(1, len(fields_groups))
-        self.assertEqual(LAYOUT_REGULAR, fields_groups[0].layout)
 
-        messages = logs_manager.output
-        self.assertEqual(1, len(messages))
+        fields_group = self.get_alone_element(fields_groups)
+        self.assertEqual(LAYOUT_REGULAR, fields_group.layout)
+
+        message = self.get_alone_element(logs_manager.output)
         self.assertStartsWith(
-            messages[0],
+            message,
             'WARNING:creme.creme_core.gui.custom_form:FieldGroupList.from_cells(): '
             'invalid layout "invalid" ',
         )
@@ -442,9 +441,8 @@ class FieldGroupListTestCase(CremeTestCase):
         )
         self.assertIsInstance(fields_groups, FieldGroupList)
         self.assertEqual(FakeContact, fields_groups.model)
-        self.assertEqual(1, len(fields_groups))
 
-        group = fields_groups[0]
+        group = self.get_alone_element(fields_groups)
         self.assertIsInstance(group, FieldGroup)
         self.assertEqual(group_name, group.name)
         self.assertEqual(LAYOUT_REGULAR, group.layout)
@@ -613,10 +611,7 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertNotIn('relation_types',   formfields1)
         self.assertNotIn('semifixed_rtypes', formfields1)
 
-        blocks = [*form1.get_blocks()]
-        self.assertEqual(1, len(blocks))
-
-        block = blocks[0]
+        block = self.get_alone_element(form1.get_blocks())
         self.assertEqual(group_name,     block.label)
         self.assertEqual(LAYOUT_REGULAR, block.layout)
 
@@ -692,10 +687,7 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertNotIn('sector',   fields)
         self.assertNotIn('address',  fields)
 
-        blocks = [*form.get_blocks()]
-        self.assertEqual(1, len(blocks))
-
-        block = blocks[0]
+        block = self.get_alone_element(form.get_blocks())
         self.assertEqual(group_name,        block.label)
         self.assertEqual(LAYOUT_DUAL_FIRST, block.layout)
         self.assertListEqual(mfields, [bfield.name for bfield in block.bound_fields])
@@ -1099,10 +1091,9 @@ class FieldGroupListTestCase(CremeTestCase):
         listified_blocks = [*form.get_blocks()]
         self.assertEqual(2, len(listified_blocks))
 
-        block_fields = listified_blocks[1].bound_fields
         # Not cfield1.id
-        self.assertEqual(1, len(block_fields))
-        self.assertEqual(f'custom_field-{cfield2.id}', block_fields[0].name)
+        block_field = self.get_alone_element(listified_blocks[1].bound_fields)
+        self.assertEqual(f'custom_field-{cfield2.id}', block_field.name)
 
     def test_form_custom_fields04(self):
         "Deleted missing required fields."
@@ -1777,10 +1768,7 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertEqual(label2, my_field2.label)
         self.assertIs(my_field2.required, False)
 
-        listified_blocks = [*form1.get_blocks()]
-        self.assertEqual(1, len(listified_blocks))
-
-        block_fields = listified_blocks[0].bound_fields
+        block_fields = self.get_alone_element(form1.get_blocks()).bound_fields
         self.assertEqual(4, len(block_fields))
         self.assertEqual('user', block_fields[0].name)
         self.assertEqual('name', block_fields[1].name)
@@ -2527,10 +2515,9 @@ class CustomFormDescriptorTestCase(CremeTestCase):
         groups = form_desc.groups(item=cfci)
 
         self.assertIsInstance(groups, FieldGroupList)
-        self.assertEqual(1, len(groups))
         self.assertEqual(FakeContact, groups.model)
 
-        group = groups[0]
+        group = self.get_alone_element(groups)
         self.assertEqual(group_name, group.name)
         self.assertEqual(LAYOUT_REGULAR, group.layout)
         self.assertListEqual(

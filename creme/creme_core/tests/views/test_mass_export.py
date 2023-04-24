@@ -260,9 +260,10 @@ class MassExportViewsTestCase(ViewsTestCase):
             follow=True,
         )
 
-        result = [*XlrdReader(None, file_contents=b''.join(response.streaming_content))]
-        self.assertEqual(1, len(result))
-        self.assertEqual(result[0], [hfi.title for hfi in cells])
+        result = self.get_alone_element(
+            XlrdReader(None, file_contents=b''.join(response.streaming_content))
+        )
+        self.assertListEqual([hfi.title for hfi in cells], result)
 
     def test_list_view_export_csv(self):
         user = self.login()
@@ -283,10 +284,7 @@ class MassExportViewsTestCase(ViewsTestCase):
             next(it)
 
         # History
-        hlines = HistoryLine.objects.exclude(id__in=existing_hline_ids)
-        self.assertEqual(1, len(hlines))
-
-        hline = hlines[0]
+        hline = self.get_alone_element(HistoryLine.objects.exclude(id__in=existing_hline_ids))
         self.assertEqual(self.ct,     hline.entity_ctype)
         self.assertEqual(user,        hline.entity_owner)
         self.assertEqual(TYPE_EXPORT, hline.type)
@@ -532,10 +530,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual('"","Wong","Edward","","is a girl"', result[1])
 
         # History
-        hlines = HistoryLine.objects.exclude(id__in=existing_hline_ids)
-        self.assertEqual(1, len(hlines))
-
-        hline = hlines[0]
+        hline = self.get_alone_element(HistoryLine.objects.exclude(id__in=existing_hline_ids))
         self.assertListEqual(
             [1, hf.name, efilter.name], hline.modifications,
         )
@@ -573,10 +568,7 @@ class MassExportViewsTestCase(ViewsTestCase):
             next(it)
 
         # FileRef
-        filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
-        self.assertEqual(1, len(filerefs))
-
-        fileref = filerefs[0]
+        fileref = self.get_alone_element(FileRef.objects.exclude(id__in=existing_fileref_ids))
         self.assertTrue(fileref.temporary)
         self.assertEqual('fakecontact.xls', fileref.basename)
         self.assertEqual(user, fileref.user)

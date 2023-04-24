@@ -126,10 +126,7 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNone(efilter.user)
         self.assertFalse(efilter.use_or)
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(field_name,                           condition.name)
         self.assertDictEqual(
@@ -204,10 +201,7 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIs(efilter.is_custom, True)
         self.assertIsNone(efilter.user)
 
-        conditions = efilter.conditions.order_by('id')
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.order_by('id'))
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(field_name,                           condition.name)
         self.assertDictEqual(

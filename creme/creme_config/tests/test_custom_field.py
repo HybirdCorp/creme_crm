@@ -160,10 +160,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         ))
 
-        cfields = CustomField.objects.filter(content_type=ct)
-        self.assertEqual(1, len(cfields))
-
-        cfield = cfields[0]
+        cfield = self.get_alone_element(CustomField.objects.filter(content_type=ct))
         self.assertEqual(name,       cfield.name)
         self.assertEqual(field_type, cfield.field_type)
         self.assertIs(cfield.is_required, False)

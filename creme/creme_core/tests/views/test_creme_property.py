@@ -702,7 +702,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.get_brick_node(doc2, info_brick_id)
 
     def test_reload_ptype_bricks03(self):
-        "Empty block."
+        "Empty brick."
         self.login()
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_murica', text='is american',
@@ -719,7 +719,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             result = response.json()
 
-        self.assertEqual(1, len(result))
-        doc = self.get_html_tree(result[0][1])
+        brick_data = self.get_alone_element(result)
+        doc = self.get_html_tree(brick_data[1])
         brick_node = self.get_brick_node(doc, brick_id)
         self.assertBrickHasClass(brick_node, 'is-empty')

@@ -300,16 +300,13 @@ class GraphHandConstraintsTestCase(CremeTestCase):
         )
 
         # ---
-        cells = [*constraint.cells()]
-        self.assertEqual(1, len(cells))
-
-        cell2 = cells[0]
+        cell2 = self.get_alone_element(constraint.cells())
         self.assertIsInstance(cell2, EntityCellCustomField)
         self.assertEqual(cfield1, cell2.custom_field)
 
         self.assertListEqual(
             [key1, key4],
-            [c.key for c in constraint.cells(not_hiddable_cell_keys=[key4])]
+            [c.key for c in constraint.cells(not_hiddable_cell_keys=[key4])],
         )
 
     def test_custom_date(self):
@@ -337,10 +334,7 @@ class GraphHandConstraintsTestCase(CremeTestCase):
         self.assertIsNone(get_cell(cell_key=f'custom_field-{cfield3.id}'))
 
         # ---
-        cells = [*constraint.cells()]
-        self.assertEqual(1, len(cells))
-
-        cell2 = cells[0]
+        cell2 = self.get_alone_element(constraint.cells())
         self.assertIsInstance(cell2, EntityCellCustomField)
         self.assertEqual(cfield1, cell2.custom_field)
 
@@ -360,9 +354,8 @@ class GraphHandConstraintsRegistryTestCase(CremeTestCase):
             rgraph_types=[AbscissaGroup.FK],
         )
 
-        constraints = [*registry.cell_constraints(FakeContact)]
-        self.assertEqual(1, len(constraints))
-        self.assertIsInstance(constraints[0], GHCCRegularFK)
+        constraint = self.get_alone_element(registry.cell_constraints(FakeContact))
+        self.assertIsInstance(constraint, GHCCRegularFK)
 
         # ---
         get_constraint = registry.get_constraint_by_rgraph_type
@@ -403,9 +396,8 @@ class GraphHandConstraintsRegistryTestCase(CremeTestCase):
             rgraph_types=[AbscissaGroup.MONTH, AbscissaGroup.YEAR],
         )
 
-        constraints = [*registry.cell_constraints(FakeContact)]
-        self.assertEqual(1, len(constraints))  # Not 2
-        self.assertIsInstance(constraints[0], GHCCRegularDate)
+        constraint = self.get_alone_element(registry.cell_constraints(FakeContact))  # Not 2
+        self.assertIsInstance(constraint, GHCCRegularDate)
 
     def test_cell_constraints04(self):
         "Duplicated constraints."

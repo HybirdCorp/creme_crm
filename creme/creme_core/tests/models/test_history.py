@@ -1541,9 +1541,10 @@ about this fantastic animation studio."""
         rei.last_name = new_last_name
         rei.save()
 
-        hlines = [*HistoryLine.objects.filter(entity=rei.id).order_by('id')]
-        self.assertEqual(1, len(hlines))
-        self.assertEqual(TYPE_CREATION, hlines[0].type)
+        hline = self.get_alone_element(
+            HistoryLine.objects.filter(entity=rei.id).order_by('id')
+        )
+        self.assertEqual(TYPE_CREATION, hline.type)
 
     def test_multi_save02(self):
         "Beware: internal backup must be recreated after the save()."
@@ -1752,9 +1753,8 @@ about this fantastic animation studio."""
         HistoryLine.delete_lines(hayao_line_qs)
         self.assertFalse(hayao_line_qs.all())
 
-        ghibli_lines = [*ghibli_line_qs.all()]
-        self.assertEqual(1, len(ghibli_lines))
-        self.assertEqual(TYPE_CREATION, ghibli_lines[0].type)
+        ghibli_line = self.get_alone_element(ghibli_line_qs.all())
+        self.assertEqual(TYPE_CREATION, ghibli_line.type)
 
     def test_populate_users01(self):
         user = self.user

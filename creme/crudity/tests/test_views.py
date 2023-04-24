@@ -566,10 +566,7 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         ldata = response.json()
         self.assertEqual([], ldata)
 
-        pop_instances = FakePOP3.instances
-        self.assertEqual(1, len(pop_instances))
-
-        pop_instance = pop_instances[0]
+        pop_instance = self.get_alone_element(FakePOP3.instances)
         self.assertIsInstance(pop_instance, FakePOP3_SSL)  # Because CREME_GET_EMAIL_SSL=True
         self.assertEqual('pop.test.org', pop_instance._host)
         self.assertEqual(123,            pop_instance._port)
@@ -623,8 +620,7 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         self.assertGET200(job.get_absolute_url())
 
-        jresults = JobResult.objects.filter(job=job)
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -633,7 +629,7 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
                     1
                 ).format(count=1),
             ],
-            jresults[0].messages
+            jresult.messages,
         )
 
         self.assertListEqual([], queue.started_jobs)
@@ -692,8 +688,7 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         # -----------------------------
         crudity_synchronize_type.execute(job)
 
-        jresults = JobResult.objects.filter(job=job)
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 ngettext(
@@ -702,7 +697,7 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
                     1
                 ).format(count=1),
             ],
-            jresults[0].messages
+            jresult.messages,
         )
 
         calls_args = self.FakeContactBackend.calls_args

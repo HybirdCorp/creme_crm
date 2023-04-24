@@ -124,10 +124,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
         self.assertNoFormError(response)
 
-        docs = Document.objects.all()
-        self.assertEqual(1, len(docs))
-
-        doc = docs[0]
+        doc = self.get_alone_element(Document.objects.all())
         self.assertEqual(title,       doc.title)
         self.assertEqual(description, doc.description)
         self.assertEqual(folder,      doc.linked_folder)
@@ -648,15 +645,12 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         user = self.login()
         doc1 = self._create_doc('Test doc #1')
 
-        dl_actions = [
+        download_action = self.get_alone_element(
             action
             for action in actions.actions_registry
                                  .instance_actions(user=user, instance=doc1)
             if isinstance(action, DownloadAction)
-        ]
-        self.assertEqual(1, len(dl_actions))
-
-        download_action = dl_actions[0]
+        )
         self.assertEqual('redirect', download_action.type)
         self.assertEqual(
             doc1.get_download_absolute_url(),
@@ -810,10 +804,10 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         )
         self.assertGET200(url)
 
+        # ---
         content = 'Yes I am the content (DocumentQuickFormTestCase.test_create)'
         file_obj = self.build_filedata(content)
         folder = Folder.objects.all()[0]
-
         self.assertNoFormError(self.client.post(
             url, follow=True,
             data={
@@ -823,10 +817,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
             },
         ))
 
-        docs = Document.objects.all()
-        self.assertEqual(1, len(docs))
-
-        doc = docs[0]
+        doc = self.get_alone_element(Document.objects.all())
         self.assertEqual(Path('documents/' + file_obj.base_name), Path(doc.filedata.name))
         self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.linked_folder)
@@ -864,10 +855,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
         )
         self.assertNoFormError(response)
 
-        docs = Document.objects.all()
-        self.assertEqual(1, len(docs))
-
-        doc = docs[0]
+        doc = self.get_alone_element(Document.objects.all())
         folder = get_csv_folder_or_create(user)
         self.assertEqual(Path('documents/' + file_obj.base_name), Path(doc.filedata.name))
         self.assertEqual('', doc.description)
@@ -927,10 +915,7 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
             )
         self.assertNoFormError(response)
 
-        docs = Document.objects.all()
-        self.assertEqual(1, len(docs))
-
-        doc = docs[0]
+        doc = self.get_alone_element(Document.objects.all())
         title = doc.title
         self.assertStartsWith(title, 'creme_22')
         self.assertEndsWith(title, '.png')

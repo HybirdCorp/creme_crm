@@ -184,10 +184,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         self.assertEqual(entity_filter_registries[EF_USER], efilter.registry)
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(fname,                                condition.name)
         self.assertEqual(
@@ -451,10 +448,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(user, efilter.user)
         self.assertFalse(efilter.use_or)
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual('first_name',                         condition.name)
         self.assertEqual(
@@ -675,9 +669,7 @@ class EntityFiltersTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             conds = efilter.get_conditions()
 
-        self.assertEqual(1, len(conds))
-
-        cond = conds[0]
+        cond = self.get_alone_element(conds)
         self.assertIsInstance(cond, EntityFilterCondition)
         self.assertEqual('last_name', cond.name)
 
@@ -1549,19 +1541,14 @@ class EntityFiltersTestCase(CremeTestCase):
             build(operator=operators.EQUALS, field_name='first_name', values=['Faye']),
         ])
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-        old_id = conditions[0].id
+        old_id = self.get_alone_element(efilter.conditions.all()).id
 
         operator = operators.CONTAINS
         name = 'last_name'
         value = 'Black'
         efilter.set_conditions([build(operator=operator, field_name=name, values=[value])])
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,   condition.name)
         self.assertEqual(old_id, condition.id)
@@ -1610,10 +1597,7 @@ class EntityFiltersTestCase(CremeTestCase):
         kwargs1['operator'] = operators.GT
         efilter.set_conditions([build(**kwargs1)])
 
-        conditions = efilter.conditions.all()
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(kwargs1['field_name'],                condition.name)
         self.assertEqual(old_id,                               condition.id)
@@ -1643,10 +1627,7 @@ class EntityFiltersTestCase(CremeTestCase):
         ])
         self.assertFalse(efilter.get_conditions())
 
-        conditions = [*efilter.conditions.all()]
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(SubFilterConditionHandler.type_id, condition.type)
         self.assertEqual('invalid_id',                      condition.name)
 
@@ -1708,18 +1689,16 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Test', model=FakeContact, is_custom=True,
         )
-        condition = RegularFieldConditionHandler.build_condition(
+        condition1 = RegularFieldConditionHandler.build_condition(
             model=FakeContact,
             operator=operators.EQUALS,
             field_name='last_name', values=['Ikari'],
         )
-        condition.filter = efilter
-        condition.save()
+        condition1.filter = efilter
+        condition1.save()
 
-        conditions = self.refresh(efilter).get_conditions()
-        self.assertEqual(1, len(conditions))
-
-        EntityFilterCondition.objects.filter(id=conditions[0].id).update(raw_value='[]')
+        condition2 = self.get_alone_element(self.refresh(efilter).get_conditions())
+        EntityFilterCondition.objects.filter(id=condition2.id).update(raw_value='[]')
         self.assertFalse(self.refresh(efilter).get_conditions())
 
     def test_multi_conditions_and01(self):

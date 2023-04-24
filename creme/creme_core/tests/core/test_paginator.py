@@ -519,9 +519,8 @@ class FlowPaginatorTestCase(CremeTestCase):
         with context:
             paginator.page(info)
 
-        queries = context.captured_sql
-        self.assertEqual(1, len(queries))
-        self.assertNotIn('OFFSET', queries[0])
+        query = self.get_alone_element(context.captured_sql)
+        self.assertNotIn('OFFSET', query)
 
     def test_previous_page01(self):
         self._build_contacts()

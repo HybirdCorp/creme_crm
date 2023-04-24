@@ -249,10 +249,7 @@ class OrganisationMergeTestCase(_BaseTestCase):
         with self.assertNoException():
             orga01 = self.refresh(orga01)
 
-        addresses = Address.objects.filter(object_id=orga01.id)
-        self.assertEqual(1, len(addresses))
-
-        address = addresses[0]
+        address = self.get_alone_element(Address.objects.filter(object_id=orga01.id))
         self.assertEqual(orga01.billing_address, address)
         self.assertEqual(_('Billing address'),   address.name)
         self.assertEqual('Merged address',       address.address)

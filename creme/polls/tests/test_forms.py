@@ -109,10 +109,9 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
         with self.assertNumQueries(0):
             field = PollFormLineConditionsField(sources=[line1, line2])
 
-        conditions = field.clean(self.build_data({'source': line1.id, 'choice': 1}))
-        self.assertEqual(1, len(conditions))
-
-        condition = conditions[0]
+        condition = self.get_alone_element(
+            field.clean(self.build_data({'source': line1.id, 'choice': 1}))
+        )
         self.assertIsInstance(condition, PollFormLineCondition)
         self.assertIsNone(condition.pk)
         self.assertEqual(line1,                        condition.source)

@@ -1523,10 +1523,9 @@ class ContactTestCase(_BaseTestCase):
             Command as StaffCommand,
         )
 
-        super_users = CremeUser.objects.filter(is_superuser=True, is_staff=False)
-        self.assertEqual(1, len(super_users))
-
-        super_user1 = super_users[0]
+        super_user1 = self.get_alone_element(
+            CremeUser.objects.filter(is_superuser=True, is_staff=False)
+        )
 
         # This superuser should not be used
         username2 = 'kirika'

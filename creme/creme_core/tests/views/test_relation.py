@@ -1655,10 +1655,7 @@ class RelationViewsTestCase(ViewsTestCase):
                 'entities':     [forbidden.id, allowed02.id, self.UNUSED_PK],
             },
         )
-        relations = Relation.objects.filter(type=rtype)
-        self.assertEqual(1, len(relations))
-
-        relation = relations[0]
+        relation = self.get_alone_element(Relation.objects.filter(type=rtype))
         self.assertEqual(allowed01, relation.subject_entity)
         self.assertEqual(allowed02, relation.object_entity)
 

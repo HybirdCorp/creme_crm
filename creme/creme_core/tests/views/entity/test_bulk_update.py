@@ -124,11 +124,12 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             choices_f = fields['_bulk_fieldname']
             choices = choices_f.choices
 
-        other_fields = [name for name in fields.keys() if name != '_bulk_fieldname']
-        self.assertEqual(1, len(other_fields))
+        other_field = self.get_alone_element(
+            name for name in fields.keys() if name != '_bulk_fieldname'
+        )
 
         with self.assertNoException():
-            FakeContact._meta.get_field(other_fields[0])
+            FakeContact._meta.get_field(other_field)
 
         build_url = partial(self.build_bulkupdate_uri, model=FakeContact)
         self.assertInChoices(
@@ -137,7 +138,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertInChoices(
             value=build_url(field='user'),       label=_('Owner user'), choices=choices,
         )
-        self.assertEqual(build_url(field=other_fields[0]), choices_f.initial)
+        self.assertEqual(build_url(field=other_field), choices_f.initial)
 
     def test_regular_field_not_entity_model(self):
         self.login()

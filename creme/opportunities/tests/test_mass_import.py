@@ -222,10 +222,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         self.assertEqual(count, Opportunity.objects.count())
         self.assertFalse(SalesPhase.objects.filter(name=sp1_name).count())
 
-        results = self._get_job_results(job)
-        self.assertEqual(1, len(results))
-
-        result = results[0]
+        result = self.get_alone_element(self._get_job_results(job))
         self.assertIsNone(result.entity)
         # 2 errors: retrieving of SalesPhase failed, creation of Opportunity failed
         self.assertEqual(2, len(result.messages))

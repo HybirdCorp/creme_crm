@@ -92,10 +92,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.client.post(url, data={'title': title, 'description': description})
         self.assertNoFormError(response)
 
-        commapps = CommercialApproach.objects.all()
-        self.assertEqual(1, len(commapps))
-
-        commapp = commapps[0]
+        commapp = self.get_alone_element(CommercialApproach.objects.all())
         self.assertEqual(title,       commapp.title)
         self.assertEqual(description, commapp.description)
         self.assertEqual(entity.id,   commapp.entity_id)
@@ -464,9 +461,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
         self._send_mails()
         messages = mail.outbox
-        self.assertEqual(1, len(messages))
 
-        message = messages[0]
+        message = self.get_alone_element(messages)
         self.assertEqual(
             _('[{software}] The organisation «{organisation}» seems neglected').format(
                 software='My CRM', organisation=customer,
@@ -617,12 +613,11 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         job = self._send_mails()
         self.assertFalse(mail.outbox)
 
-        jresults = JobResult.objects.filter(job=job)
-        self.assertEqual(1, len(jresults))
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 _('An error has occurred while sending emails'),
                 _('Original error: {}').format(err_msg),
             ],
-            jresults[0].messages,
+            jresult.messages,
         )

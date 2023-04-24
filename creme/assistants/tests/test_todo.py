@@ -528,20 +528,14 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.execute_reminder_job(job)
         self.assertIsNone(job.user)
 
-        reminders = DateReminder.objects.all()
-        self.assertEqual(1, len(reminders))
-
-        reminder = reminders[0]
+        reminder = self.get_alone_element(DateReminder.objects.all())
         self.assertEqual(todo1, reminder.object_of_reminder)
         self.assertEqual(1,     reminder.ident)
         self.assertDatetimesAlmostEqual(now_value, reminder.date_of_remind, seconds=60)
         self.assertTrue(self.refresh(todo1).reminded)
         self.assertFalse(self.refresh(todo4).reminded)
 
-        messages = mail.outbox
-        self.assertEqual(1, len(messages))
-
-        message = messages[0]
+        message = self.get_alone_element(mail.outbox)
         self.assertEqual([user.email], message.to)
 
         software = 'My CRM'
@@ -621,10 +615,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertTrue(send_messages_called)
         self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
 
-        jresults = JobResult.objects.filter(job=job)
-        self.assertEqual(1, len(jresults))
-
-        jresult = jresults[0]
+        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
         self.assertListEqual(
             [
                 _(
@@ -688,9 +679,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.execute_reminder_job(self.get_reminder_job())
         self.assertEqual(1, DateReminder.objects.count())
 
-        messages = mail.outbox
-        self.assertEqual(1, len(messages))
-        self.assertEqual([self.other_user.email], messages[0].to)
+        message = self.get_alone_element(mail.outbox)
+        self.assertEqual([self.other_user.email], message.to)
 
     def test_next_wakeup01(self):
         "Next wake is one day later + minimum hour."

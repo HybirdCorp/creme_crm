@@ -720,9 +720,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertIsInstance(q, Q)
         self.assertFalse(q.negated)
 
-        children = q.children
-        self.assertEqual(1, len(children))
-        k, v = children[0]
+        k, v = self.get_alone_element(q.children)
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id}, {*v})
 
@@ -757,9 +755,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertIsInstance(q_true, Q)
         self.assertFalse(q_true.negated)
 
-        children = q_true.children
-        self.assertEqual(1, len(children))
-        k, v = children[0]
+        k, v = self.get_alone_element(q_true.children)
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id}, {*v})
 
@@ -805,9 +801,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertIsInstance(q_equal, Q)
         self.assertFalse(q_equal.negated)
 
-        equal_children = q_equal.children
-        self.assertEqual(1, len(equal_children))
-        equal_k, equal_v = equal_children[0]
+        equal_k, equal_v = self.get_alone_element(q_equal.children)
         self.assertEqual('pk__in', equal_k)
         self.assertListEqual([ken.id], [*equal_v])
 
@@ -876,9 +870,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertIsInstance(q_equal, Q)
         self.assertFalse(q_equal.negated)
 
-        equal_children = q_equal.children
-        self.assertEqual(1, len(equal_children))
-        equal_k, equal_v = equal_children[0]
+        equal_k, equal_v = self.get_alone_element(q_equal.children)
         self.assertEqual('pk__in', equal_k)
         self.assertListEqual([ken.id], [*equal_v])
 
@@ -952,9 +944,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertIsInstance(q_range, Q)
         self.assertFalse(q_range.negated)
 
-        children = q_range.children
-        self.assertEqual(1, len(children))
-        k, v = children[0]
+        k, v = self.get_alone_element(q_range.children)
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id}, {*v})
 
@@ -1029,9 +1019,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertIsInstance(q_kick, Q)
         self.assertFalse(q_kick.negated)
 
-        children = q_kick.children
-        self.assertEqual(1, len(children))
-        k, v = children[0]
+        k, v = self.get_alone_element(q_kick.children)
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id}, {*v})
 
@@ -1046,9 +1034,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertIsInstance(q_null, Q)
         self.assertTrue(q_null.negated)
 
-        children = q_null.children
-        self.assertEqual(1, len(children))
-        k, v = children[0]
+        k, v = self.get_alone_element(q_null.children)
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id, zangief.id}, {*v})
 
@@ -1102,9 +1088,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertIsInstance(q_kick, Q)
         self.assertFalse(q_kick.negated)
 
-        children = q_kick.children
-        self.assertEqual(1, len(children))
-        k, v = children[0]
+        k, v = self.get_alone_element(q_kick.children)
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id}, {*v})
 
@@ -1119,9 +1103,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertIsInstance(q_null, Q)
         self.assertTrue(q_null.negated)
 
-        children = q_null.children
-        self.assertEqual(1, len(children))
-        k, v = children[0]
+        k, v = self.get_alone_element(q_null.children)
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id, zangief.id}, {*v})
 
@@ -1160,9 +1142,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertIsInstance(q, Q)
         self.assertFalse(q.negated)
 
-        children = q.children
-        self.assertEqual(1, len(children))
-        k, v = children[0]
+        k, v = self.get_alone_element(q.children)
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id}, {*v})
 

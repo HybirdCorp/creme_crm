@@ -957,10 +957,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        replies = PollReply.objects.filter(pform=pform)
-        self.assertEqual(1, len(replies))
-
-        self.assertEqual(person.id, replies[0].person_id)
+        reply = self.get_alone_element(PollReply.objects.filter(pform=pform))
+        self.assertEqual(person.id, reply.person_id)
 
     @skipIfCustomContact
     def test_create_from_person01(self):
