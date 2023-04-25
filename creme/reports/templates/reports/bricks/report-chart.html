@@ -2,7 +2,7 @@
 {% load i18n creme_bricks %}
 {% load jsondata templatize jsonify from creme_core_tags %}
 
-{% block brick_extra_class %}sketch-chart-brick reports-graph-brick{% if not data %} is-empty{% endif %}{% endblock %}
+{% block brick_extra_class %}sketch-chart-brick reports-graph-brick{% endblock %}
 
 {% block brick_header_title %}
     {% brick_header_title title=graph.name icon='report' %}
@@ -15,6 +15,8 @@
     {% brick_header_action id='sketch-popover' label=_('Scale') icon='view' %}
     {% endif %}
 {% endblock %}
+
+{% block brick_content_extra_class %}{% if not data %}is-empty{% endif %}{% endblock %}
 
 {% block brick_content %}
     {% if data %}
@@ -35,15 +37,15 @@
                     <option value="DESC" {% if not graph.asc %}selected{% endif %}>{% translate 'Descending' %}</option>
                 </select>
             </div>
-            <div class="graph-actions">
-                {% if object and fetcher.verbose_name %}
-                <div class="graph-volatile">
-                    <span class="graph-volatile-label">{% translate 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
-                    <span class="graph-volatile-value">{{ fetcher.verbose_name }}</span>
-                </div>
-                {% endif %}
+        </div>
+        {% if object and fetcher.verbose_name %}
+        <div class="graph-actions">
+            <div class="graph-volatile">
+                <span class="graph-volatile-label">{% translate 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
+                <span class="graph-volatile-value">{{ fetcher.verbose_name }}</span>
             </div>
         </div>
+        {% endif %}
     </div>
     <div class="brick-d3-content"></div>
     {% jsondata data class="sketch-chart-data" %}
@@ -51,7 +53,17 @@
     {% elif error %}
     <div class="brick-d3-empty brick-error">{{error}}</div>
     {% else %}
-    <div class="brick-d3-empty">{% translate 'No values or graph is not applicable here' %}</div>
+    {% if object and fetcher.verbose_name %}
+    <div class="brick-graph-header clearfix">
+        <div class="graph-actions">
+            <div class="graph-volatile">
+                <span class="graph-volatile-label">{% translate 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
+                <span class="graph-volatile-value">{{ fetcher.verbose_name }}</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="brick-d3-empty is-empty">{% translate 'No values or graph is not applicable here' %}</div>
     {% endif %}
 {% endblock %}
 

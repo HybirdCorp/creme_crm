@@ -201,22 +201,24 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertIs(chart_registry, report_chart_registry)
 
         # ------------------------------------------------------------
+        # Without any data, the arrays are empty
         response4 = self.assertGET200(self._build_fetch_url(rgraph, 'ASC'))
         data = response4.json()
-        self.assertIsDict(data, length=2)
+        self.assertEqual(data, {
+            'x': [], 'y': []
+        })
 
-        sectors = FakeSector.objects.all()
-        x_asc = data.get('x')
-        self.assertEqual([s.title for s in sectors], x_asc)
+        # Lets add some data
+        sectors = list(FakeSector.objects.all())
+        FakeOrganisation.objects.create(user=user, sector=sectors[0])
 
-        y_asc = data.get('y')
-        self.assertIsList(y_asc, length=len(x_asc))
-        self.assertListEqual(
-            [
-                0,
-                f'/tests/organisations?q_filter={self._serialize_qfilter(sector=sectors[0].id)}',
-            ],
-            y_asc[0],
+        # Now the abscissas are in the "x" array
+        data = self.assertGET200(self._build_fetch_url(rgraph, 'ASC')).json()
+        self.assertEqual(data['x'], [s.title for s in sectors])
+        self.assertIsList(data['y'], length=len(sectors))
+        self.assertEqual(
+            data['y'][0],
+            [1, f'/tests/organisations?q_filter={self._serialize_qfilter(sector=sectors[0].id)}'],
         )
 
         # ------------------------------------------------------------
@@ -1199,17 +1201,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch(user)
 
-        sectors = FakeSector.objects.all()
-        self.assertEqual([s.title for s in sectors], x_asc)
-        self.assertListEqual(
-            [
-                0,
-                '/tests/organisations?q_filter={}'.format(
-                    self._serialize_qfilter(sector=sectors[0].id),
-                ),
-            ],
-            y_asc[0]
-        )
+        self.assertEqual([], x_asc)
+        self.assertEqual([], y_asc)
         self.assertEqual(
             _('the field does not exist any more.'), rgraph.hand.ordinate_error,
         )
@@ -1229,17 +1222,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch(user)
 
-        sectors = FakeSector.objects.all()
-        self.assertEqual([s.title for s in sectors], x_asc)
-        self.assertListEqual(
-            [
-                0,
-                '/tests/organisations?q_filter={}'.format(
-                    self._serialize_qfilter(sector=sectors[0].id),
-                ),
-            ],
-            y_asc[0]
-        )
+        self.assertEqual([], x_asc)
+        self.assertEqual([], y_asc)
         self.assertEqual(
             _('the aggregation function is invalid.'), rgraph.hand.ordinate_error
         )
@@ -1259,17 +1243,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch(user)
 
-        sectors = FakeSector.objects.all()
-        self.assertListEqual([s.title for s in sectors], x_asc)
-        self.assertListEqual(
-            [
-                0,
-                '/tests/organisations?q_filter={}'.format(
-                    self._serialize_qfilter(sector=sectors[0].id),
-                ),
-            ],
-            y_asc[0]
-        )
+        self.assertEqual([], x_asc)
+        self.assertEqual([], y_asc)
         self.assertEqual(
             _('the field does not exist any more.'),
             rgraph.hand.ordinate_error,

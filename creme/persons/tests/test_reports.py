@@ -173,7 +173,11 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         response1 = self.assertGET200(contact.get_absolute_url())
         dom = self.get_html_tree(response1.content)
         brick_node = self.get_brick_node(dom, brick=ibci.brick_id)
-        self.assertBrickHasClass(brick_node, 'is-empty')
+        self.get_html_node_or_fail(
+            brick_node, './/div[@class="brick-content is-empty"]'
+        )
+
+        # self.assertBrickHasClass(brick_node, 'is-empty')
 
         # --
         response2 = self.assertGET200(
