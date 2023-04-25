@@ -95,7 +95,7 @@
     position: relative;
     align-items: center;
     overflow: hidden;
-    padding: 3px 15px;
+    padding: 5px 15px;
 }
 
 .reports-graph-brick .brick-graph-header .graph-action .empty {

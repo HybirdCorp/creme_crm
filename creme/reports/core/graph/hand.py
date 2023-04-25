@@ -135,6 +135,9 @@ class ReportGraphHand:
         if extra_q is not None:
             entities = entities.filter(extra_q)
 
+        if not entities.exists():
+            return x_values, y_values
+
         if not self.abscissa_error:
             x_append = x_values.append
             y_append = y_values.append

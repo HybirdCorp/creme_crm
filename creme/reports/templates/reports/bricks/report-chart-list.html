@@ -51,8 +51,8 @@
     </tr>
     <tr data-graph-id="{{graph.id}}" class="graph-row graph-row-collapsed{% if not row.data %} is-empty{% endif %}">
         <td class="reports-graph-brick" colspan="6">
-            {% if row.data %}
             <div class="brick-graph-header clearfix">
+                {% if row.data %}
                 <div class="graph-controls" data-fetch-settings-url="{{row.settings_update_url}}">
                     <div class="graph-control graph-controls-type">
                         <span class="graph-control-name">{% translate 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
@@ -70,6 +70,7 @@
                         </select>
                     </div>
                 </div>
+                {% endif %}
                 <div class="graph-actions">
                     {% if volatile_column %}
                     <div class="graph-volatile">
@@ -89,6 +90,7 @@
                     </div>
                 </div>
             </div>
+            {% if row.data %}
             <div class="brick-d3-content"></div>
             {% jsondata row.data class="sketch-chart-data" %}
             {% if row.props %}{% jsondata row.props class="sketch-chart-props" %}{% endif %}
