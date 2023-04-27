@@ -792,15 +792,13 @@ class RelationsTestCase(CremeTestCase):
             'The entity «%(entity)s» is a «%(model)s» which is not '
             'allowed by the relationship «%(predicate)s».'
         )
-        self.assertListEqual(
-            [
-                msg % {
-                    'entity': orga,
-                    'model': 'Test Organisation',
-                    'predicate': sym_rtype.predicate,
-                },
-            ],
-            cm1.exception.messages,
+        self.assertValidationError(
+            cm1.exception,
+            messages=msg % {
+                'entity': orga,
+                'model': 'Test Organisation',
+                'predicate': sym_rtype.predicate,
+            },
         )
 
         # ---
@@ -808,15 +806,13 @@ class RelationsTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as cm2:
             rel3.clean()
 
-        self.assertListEqual(
-            [
-                msg % {
-                    'entity': orga,
-                    'model': 'Test Organisation',
-                    'predicate': rtype.predicate,
-                },
-            ],
-            cm2.exception.messages,
+        self.assertValidationError(
+            cm2.exception,
+            messages=msg % {
+                'entity': orga,
+                'model': 'Test Organisation',
+                'predicate': rtype.predicate,
+            },
         )
 
     def test_clean03(self):
@@ -867,15 +863,13 @@ class RelationsTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as cm2:
             rel2.clean()
 
-        self.assertListEqual(
-            [
-                msg % {
-                    'entity': satsuki,
-                    'property': ptype3.text,
-                    'predicate': sym_rtype.predicate,
-                },
-            ],
-            cm2.exception.messages,
+        self.assertValidationError(
+            cm2.exception,
+            messages=msg % {
+                'entity': satsuki,
+                'property': ptype3.text,
+                'predicate': sym_rtype.predicate,
+            },
         )
 
         # ---
@@ -923,15 +917,13 @@ class RelationsTestCase(CremeTestCase):
             'The entity «%(entity)s» has the property «%(property)s» '
             'which is forbidden by the relationship «%(predicate)s».'
         )
-        self.assertListEqual(
-            [
-                msg % {
-                    'entity': satsuki,
-                    'property': ptype3.text,
-                    'predicate': sym_rtype.predicate,
-                },
-            ],
-            cm1.exception.messages,
+        self.assertValidationError(
+            cm1.exception,
+            messages=msg % {
+                'entity': satsuki,
+                'property': ptype3.text,
+                'predicate': sym_rtype.predicate,
+            },
         )
 
         # ---
@@ -942,15 +934,13 @@ class RelationsTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as cm2:
             rel3.clean()
 
-        self.assertListEqual(
-            [
-                msg % {
-                    'entity': ryuko,
-                    'property': ptype2.text,
-                    'predicate': rtype.predicate,
-                },
-            ],
-            cm2.exception.messages,
+        self.assertValidationError(
+            cm2.exception,
+            messages=msg % {
+                'entity': ryuko,
+                'property': ptype2.text,
+                'predicate': rtype.predicate,
+            },
         )
 
     def test_clean_subject_entity01(self):
@@ -977,15 +967,13 @@ class RelationsTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as cm:
             rel.clean_subject_entity(property_types=[])
 
-        self.assertListEqual(
-            [
-                Relation.error_messages['missing_subject_property'] % {
-                    'entity': ryuko,
-                    'property': ptype.text,
-                    'predicate': rtype.predicate,
-                },
-            ],
-            cm.exception.messages,
+        self.assertValidationError(
+            cm.exception,
+            messages=Relation.error_messages['missing_subject_property'] % {
+                'entity': ryuko,
+                'property': ptype.text,
+                'predicate': rtype.predicate,
+            },
         )
 
         # --
@@ -1022,7 +1010,7 @@ class RelationsTestCase(CremeTestCase):
             'property': ptype.text,
             'predicate': rtype.predicate,
         }
-        self.assertListEqual([message], cm1.exception.messages)
+        self.assertValidationError(cm1.exception, messages=message)
 
         # --
         with self.assertNoException():
@@ -1042,4 +1030,4 @@ class RelationsTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as cm2:
             rel2.clean_subject_entity()
 
-        self.assertListEqual([message], cm2.exception.messages)
+        self.assertValidationError(cm2.exception, messages=message)

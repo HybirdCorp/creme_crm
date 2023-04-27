@@ -418,16 +418,14 @@ class CustomFormConfigItemTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as cm1:
             cfci02.full_clean()
 
-        self.assertDictEqual(
-            {
-                '__all__': [
-                    _('%(model_name)s with this %(field_labels)s already exists.') % {
-                        'model_name': _('Custom form'),
-                        'field_labels': f"{_('Type of form')} {_('and')} {_('Related role')}",
-                    }
-                ],
+        self.assertValidationError(
+            cm1.exception,
+            messages={
+                '__all__': _('%(model_name)s with this %(field_labels)s already exists.') % {
+                    'model_name': _('Custom form'),
+                    'field_labels': f"{_('Type of form')} {_('and')} {_('Related role')}",
+                },
             },
-            cm1.exception.message_dict,
         )
 
         with self.assertRaises(IntegrityError):

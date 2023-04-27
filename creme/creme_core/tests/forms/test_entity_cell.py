@@ -12,16 +12,13 @@ from creme.creme_core.core.entity_cell import (
 )
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.forms.header_filter import (
-    EntityCellCustomFieldsField,
     EntityCellCustomFieldsWidget,
     EntityCellFunctionFieldsWidget,
     EntityCellRegularFieldsField,
     EntityCellRegularFieldsWidget,
-    EntityCellRelationsField,
     EntityCellRelationsWidget,
     EntityCellsField,
     EntityCellsWidget,
-    UniformEntityCellsField,
 )
 from creme.creme_core.models import (
     CremeEntity,
@@ -35,8 +32,8 @@ from creme.creme_core.models import (
 )
 
 from .. import fake_constants
+# from .base import FieldTestCase
 from ..base import CremeTestCase
-from .base import FieldTestCase
 
 
 class EntityCellsFieldTestCaseMixin:
@@ -479,11 +476,13 @@ class EntityCellsWidgetTestCase(CremeTestCase):
     # TODO: test render
 
 
-class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
+# class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
+class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
     def test_clean_empty_required(self):
-        clean = EntityCellsField(required=True, model=FakeContact).clean
-        self.assertFieldValidationError(EntityCellsField, 'required', clean, None)
-        self.assertFieldValidationError(EntityCellsField, 'required', clean, '')
+        field = EntityCellsField(required=True, model=FakeContact)
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
 
     def test_clean_empty_not_required(self):
         field = EntityCellsField(required=False, model=FakeContact)
@@ -512,16 +511,18 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         )
 
         fname2 = 'unknown'
-        self.assertFieldValidationError(
-            UniformEntityCellsField, 'invalid_value', field.clean,
-            f'regular_field-{fname2}',
-            message_args={'value': fname2},
+        msg = _('This value is invalid: %(value)s')
+        self.assertFormfieldError(
+            field=field,
+            value=f'regular_field-{fname2}',
+            messages=msg % {'value': fname2},
+            codes='invalid_value',
         )
-
-        self.assertFieldValidationError(
-            EntityCellRegularFieldsField, 'invalid_value', field.clean,
-            'regular_field-entity_type',
-            message_args={'value': 'entity_type'},
+        self.assertFormfieldError(
+            field=field,
+            value='regular_field-entity_type',
+            messages=msg % {'value': 'entity_type'},
+            codes='invalid_value',
         )
 
     def test_regularfields02(self):
@@ -568,20 +569,24 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             )
         )
 
-        self.assertFieldValidationError(
-            EntityCellRegularFieldsField, 'invalid_value', field.clean,
-            'regular_field-sector__is_custom',
-            message_args={'value': 'sector__is_custom'},
+        msg = _('This value is invalid: %(value)s')
+        self.assertFormfieldError(
+            field=field,
+            value='regular_field-sector__is_custom',
+            messages=msg % {'value': 'sector__is_custom'},
+            codes='invalid_value',
         )
-        self.assertFieldValidationError(
-            EntityCellRegularFieldsField, 'invalid_value', field.clean,
-            'regular_field-image__user__username',
-            message_args={'value': 'image__user__username'},
+        self.assertFormfieldError(
+            field=field,
+            value='regular_field-image__user__username',
+            messages=msg % {'value': 'image__user__username'},
+            codes='invalid_value',
         )
-        self.assertFieldValidationError(
-            EntityCellRegularFieldsField, 'invalid_value', field.clean,
-            'regular_field-image__categories__name',
-            message_args={'value': 'image__categories__name'},
+        self.assertFormfieldError(
+            field=field,
+            value='regular_field-image__categories__name',
+            messages=msg % {'value': 'image__categories__name'},
+            codes='invalid_value',
         )
 
     def test_regularfields03(self):
@@ -659,17 +664,21 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
         self.assertListEqual(
             [EntityCellRegularField.build(FakeContact, 'last_name')],
-            field.clean('regular_field-last_name')
+            field.clean('regular_field-last_name'),
         )
-        self.assertFieldValidationError(
-            UniformEntityCellsField, 'invalid_value', field.clean,
-            f'regular_field-{hidden_fname1}',
-            message_args={'value': hidden_fname1},
+
+        msg = _('This value is invalid: %(value)s')
+        self.assertFormfieldError(
+            field=field,
+            value=f'regular_field-{hidden_fname1}',
+            messages=msg % {'value': hidden_fname1},
+            codes='invalid_value',
         )
-        self.assertFieldValidationError(
-            UniformEntityCellsField, 'invalid_value', field.clean,
-            f'regular_field-address__{hidden_addr_fname}',
-            message_args={'value': f'address__{hidden_addr_fname}'},
+        self.assertFormfieldError(
+            field=field,
+            value=f'regular_field-address__{hidden_addr_fname}',
+            messages=msg % {'value': f'address__{hidden_addr_fname}'},
+            codes='invalid_value',
         )
 
     def test_regularfields05(self):
@@ -797,10 +806,13 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         )
 
         fname3 = 'sector'
-        self.assertFieldValidationError(
-            EntityCellRegularFieldsField, 'not_leaf', field.clean,
-            f'regular_field-{fname3}',
-            message_args={'value': fname3},
+        self.assertFormfieldError(
+            field=field,
+            value=f'regular_field-{fname3}',
+            messages=_(
+                'This field has sub-field & cannot be selected: %(value)s'
+            ) % {'value': fname3},
+            codes='not_leaf',
         )
 
     def test_customfields01(self):
@@ -835,9 +847,11 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         )
 
         value = '1024'
-        self.assertFieldValidationError(
-            UniformEntityCellsField, 'invalid_value', field2.clean, f'custom_field-{value}',
-            message_args={'value': value},
+        self.assertFormfieldError(
+            field=field2,
+            value=f'custom_field-{value}',
+            messages=_('This value is invalid: %(value)s') % {'value': value},
+            codes='invalid_value',
         )
 
     def test_customfields02(self):
@@ -858,12 +872,13 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
         self.assertListEqual(
             [EntityCellCustomField(cf1)],
-            field.clean(f'custom_field-{cf1.id}')
+            field.clean(f'custom_field-{cf1.id}'),
         )
-        self.assertFieldValidationError(
-            EntityCellCustomFieldsField, 'invalid_value', field.clean,
-            f'custom_field-{cf2.id}',
-            message_args={'value': cf2.id},
+        self.assertFormfieldError(
+            field=field,
+            value=f'custom_field-{cf2.id}',
+            messages=_('This value is invalid: %(value)s') % {'value': cf2.id},
+            codes='invalid_value',
         )
 
     def test_customfields03(self):
@@ -894,18 +909,19 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         name1 = 'get_pretty_properties'
         value = f'function_field-{name1}'
         self.assertCellInChoices(
-            value,
-            choices=self._find_sub_widget(field, 'function_field').choices,
+            value, choices=self._find_sub_widget(field, 'function_field').choices,
         )
         self.assertListEqual(
             [EntityCellFunctionField.build(FakeContact, name1)],
-            field.clean(value)
+            field.clean(value),
         )
 
         name2 = 'invalid'
-        self.assertFieldValidationError(
-            UniformEntityCellsField, 'invalid_value', field.clean, f'function_field-{name2}',
-            message_args={'value': name2},
+        self.assertFormfieldError(
+            field=field,
+            value=f'function_field-{name2}',
+            messages=_('This value is invalid: %(value)s') % {'value': name2},
+            codes='invalid_value',
         )
 
     def test_relations(self):
@@ -949,12 +965,19 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             [EntityCellRelation(model=FakeContact, rtype=rtype1)],
             field2.clean(f'relation-{rtype1.id}')
         )
-        self.assertFieldValidationError(
-            EntityCellRelationsField, 'incompatible', field2.clean, f'relation-{rtype2.id}',
-            message_args={'model': 'Test Contact'},
+        self.assertFormfieldError(
+            field=field2,
+            value=f'relation-{rtype2.id}',
+            messages=_(
+                'This type of relationship is not compatible with «%(model)s».'
+            ) % {'model': 'Test Contact'},
+            codes='incompatible',
         )
-        self.assertFieldValidationError(
-            EntityCellRelationsField, 'disabled', field2.clean, f'relation-{disabled_rtype.id}',
+        self.assertFormfieldError(
+            field=field2,
+            value=f'relation-{disabled_rtype.id}',
+            messages=_('This type of relationship is disabled.'),
+            codes='disabled',
         )
 
         # Non hiddable cells ---
@@ -1023,10 +1046,11 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
     def test_error(self):
         "Invalid type id."
-        field = EntityCellsField(model=FakeContact, required=False)
-        self.assertFieldValidationError(
-            EntityCellsField, 'invalid_type', field.clean, 'unknown-donotcare',
-            message_args={'type_id': 'unknown'},
+        self.assertFormfieldError(
+            field=EntityCellsField(model=FakeContact, required=False),
+            value='unknown-donotcare',
+            messages='The type of cell in invalid: %(type_id)s.' % {'type_id': 'unknown'},
+            codes='invalid_type',
         )
 
     def test_cell_registry01(self):
@@ -1059,10 +1083,11 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         assertNoSubWidget(EntityCellCustomFieldsWidget)
         assertNoSubWidget(EntityCellFunctionFieldsWidget)
 
-        self.assertFieldValidationError(
-            EntityCellsField, 'invalid_type', field.clean,
-            'function_field-get_pretty_properties',
-            message_args={'type_id': 'function_field'},
+        self.assertFormfieldError(
+            field=field,
+            value='function_field-get_pretty_properties',
+            messages='The type of cell in invalid: %(type_id)s.' % {'type_id': 'function_field'},
+            codes='invalid_type',
         )
 
     def test_cell_registry02(self):
@@ -1110,13 +1135,14 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
         ffield_name = 'get_pretty_properties'
         value = f'function_field-{ffield_name}'
-        self.assertFieldValidationError(
-            EntityCellsField, 'invalid_type', field1.clean, value,
-            message_args={'type_id': 'function_field'},
+        self.assertFormfieldError(
+            field=field1, value=value,
+            messages='The type of cell in invalid: %(type_id)s.' % {'type_id': 'function_field'},
+            codes='invalid_type',
         )
         self.assertListEqual(
             [EntityCellFunctionField.build(FakeContact, ffield_name)],
-            field2.clean(value)
+            field2.clean(value),
         )
 
     def test_copy03(self):
@@ -1137,9 +1163,12 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
         contact_fname = 'first_name'
         contact_value = f'regular_field-{contact_fname}'
-        self.assertFieldValidationError(
-            UniformEntityCellsField, 'invalid_value', field1.clean, contact_value,
-            message_args={'value': contact_fname},
+        msg = _('This value is invalid: %(value)s')
+        self.assertFormfieldError(
+            field=field1,
+            value=contact_value,
+            messages=msg % {'value': contact_fname},
+            codes='invalid_value',
         )
         self.assertListEqual(
             [EntityCellRegularField.build(FakeContact, contact_fname)],
@@ -1153,13 +1182,15 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
         orga_fname = 'capital'
         orga_value = f'regular_field-{orga_fname}'
-        self.assertFieldValidationError(
-            UniformEntityCellsField, 'invalid_value', field2.clean, orga_value,
-            message_args={'value': orga_fname},
+        self.assertFormfieldError(
+            field=field2,
+            value=orga_value,
+            messages=msg % {'value': orga_fname},
+            codes='invalid_value',
         )
         self.assertListEqual(
             [EntityCellRegularField.build(FakeOrganisation, orga_fname)],
-            field1.clean(orga_value)
+            field1.clean(orga_value),
         )
         self.assertCellInChoices(orga_value, choices=choices1)
         self.assertCellNotInChoices(orga_value, choices=choices2)

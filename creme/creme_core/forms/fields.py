@@ -201,13 +201,15 @@ class JSONField(fields.CharField):
 
     def _return_none_or_raise(self, required, error_key='required'):
         if required:
-            raise ValidationError(self.error_messages[error_key])
+            # raise ValidationError(self.error_messages[error_key])
+            raise ValidationError(self.error_messages[error_key], code=error_key)
 
         return None
 
     def _return_list_or_raise(self, required, error_key='required') -> list:
         if required:
-            raise ValidationError(self.error_messages[error_key])
+            # raise ValidationError(self.error_messages[error_key])
+            raise ValidationError(self.error_messages[error_key], code=error_key)
 
         return []
 
@@ -2194,7 +2196,8 @@ class OrderedMultipleChoiceField(fields.MultipleChoiceField):
                     ):
                         raise ValidationError(
                             self.error_messages['missing_choice'],
-                            code='invalid_choice',
+                            # code='invalid_choice',
+                            code='missing_choice',
                             params={'value': str_choice},
                         )
 

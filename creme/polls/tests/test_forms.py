@@ -1,7 +1,11 @@
 from functools import partial
 from json import dumps as json_dump
 
-from creme.creme_core.tests.forms.base import FieldTestCase
+from django.forms import Field
+from django.utils.translation import gettext as _
+
+# from creme.creme_core.tests.forms.base import FieldTestCase
+from creme.creme_core.tests.base import CremeTestCase
 
 from ..core import PollLineType
 from ..forms.fields import PollFormLineConditionsField
@@ -9,7 +13,8 @@ from ..models import PollFormLine, PollFormLineCondition
 from .base import PollForm, skipIfCustomPollForm
 
 
-class PollFormLineConditionsFieldTestCase(FieldTestCase):
+# class PollFormLineConditionsFieldTestCase(FieldTestCase):
+class PollFormLineConditionsFieldTestCase(CremeTestCase):
     @staticmethod
     def build_data(*info):
         return json_dump([
@@ -18,29 +23,34 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
         ])
 
     def test_clean_empty_required(self):
-        clean = PollFormLineConditionsField().clean
-        self.assertFieldValidationError(PollFormLineConditionsField, 'required', clean, None)
-        self.assertFieldValidationError(PollFormLineConditionsField, 'required', clean, '')
-        self.assertFieldValidationError(PollFormLineConditionsField, 'required', clean, [])
+        field = PollFormLineConditionsField()
+        code = 'required'
+        msg = Field.default_error_messages[code]
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value='')
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=[])
 
     def test_clean_empty_not_required(self):
         field = PollFormLineConditionsField(required=False)
         self.assertNoException(field.clean, None)
 
     def test_clean_invalid_data_type(self):
-        clean = PollFormLineConditionsField().clean
-        self.assertFieldValidationError(
-            PollFormLineConditionsField, 'invalidformat', clean, '[',
+        field = PollFormLineConditionsField()
+        self.assertFormfieldError(
+            field=field, value='[', codes='invalidformat', messages=_('Invalid format'),
         )
-        self.assertFieldValidationError(
-            PollFormLineConditionsField, 'invalidtype', clean, '"this is a string"',
+
+        type_code = 'invalidtype'
+        type_msg = _('Invalid type')
+        self.assertFormfieldError(
+            field=field, messages=type_msg, codes=type_code, value='"this is a string"',
         )
-        self.assertFieldValidationError(
-            PollFormLineConditionsField, 'invalidtype', clean, '"{}"',
+        self.assertFormfieldError(
+            field=field, messages=type_msg, codes=type_code, value='"{}"',
         )
-        self.assertFieldValidationError(
-            PollFormLineConditionsField, 'invalidtype', clean,
-            '{"foobar":{"operator": "3", "name": "first_name"}}',
+        self.assertFormfieldError(
+            field=field, codes=type_code, messages=type_msg,
+            value='{"foobar":{"operator": "3", "name": "first_name"}}',
         )
 
     def _create_lines(self):
@@ -72,34 +82,37 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
     @skipIfCustomPollForm
     def test_clean_invalid_source01(self):
         line1, line2 = self._create_lines()
-        self.assertFieldValidationError(
-            PollFormLineConditionsField, 'invalidsource',
-            PollFormLineConditionsField(sources=[line1]).clean,
-            self.build_data({'source': line2.id, 'choice': 1}),
+        self.assertFormfieldError(
+            field=PollFormLineConditionsField(sources=[line1]),
+            value=self.build_data({'source': line2.id, 'choice': 1}),
+            messages=_('This source is invalid.'),
+            codes='invalidsource',
         )
 
     @skipIfCustomPollForm
     def test_clean_invalid_source02(self):
-        "Only ENUM & MULTI_ENUM for now"
+        "Only ENUM & MULTI_ENUM for now."
         line1, line2 = self._create_lines()
         line3 = PollFormLine.objects.create(
             pform=self.pform,
-            question='What is your favorite meal ?',
-            type=PollLineType.STRING, order=3
+            question='What is your favorite meal?',
+            type=PollLineType.STRING, order=3,
         )
-        self.assertFieldValidationError(
-            PollFormLineConditionsField, 'invalidsource',
-            PollFormLineConditionsField(sources=[line1, line2, line3]).clean,
-            self.build_data({'source': line3.id, 'choice': 1}),
+        self.assertFormfieldError(
+            field=PollFormLineConditionsField(sources=[line1, line2, line3]),
+            value=self.build_data({'source': line3.id, 'choice': 1}),
+            messages=_('This source is invalid.'),
+            codes='invalidsource',
         )
 
     @skipIfCustomPollForm
     def test_clean_invalid_choice(self):
         line1, line2 = self._create_lines()
-        self.assertFieldValidationError(
-            PollFormLineConditionsField, 'invalidchoice',
-            PollFormLineConditionsField(sources=[line1]).clean,
-            self.build_data({'source': line1.id, 'choice': 3}),
+        self.assertFormfieldError(
+            field=PollFormLineConditionsField(sources=[line1]),
+            value=self.build_data({'source': line1.id, 'choice': 3}),
+            codes='invalidchoice',
+            messages=_('This choice is invalid.'),
         )
 
     @skipIfCustomPollForm

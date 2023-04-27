@@ -1,6 +1,5 @@
 from functools import partial
 
-from django.core.exceptions import ValidationError
 from django.forms import CharField
 from django.forms.widgets import TextInput
 from django.utils.translation import gettext as _
@@ -21,6 +20,7 @@ from creme.creme_core.models import (
     FakeSector,
 )
 
+# from .base import FieldTestCase
 from ..base import CremeTestCase
 
 # TODO: complete
@@ -408,6 +408,7 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         self.assertEqual(line3[2], eval3.value)
 
 
+# class ExtractorFieldTestCase(FieldTestCase):
 class ExtractorFieldTestCase(CremeTestCase):
     def test_attributes(self):
         user = self.get_root_user()
@@ -445,35 +446,32 @@ class ExtractorFieldTestCase(CremeTestCase):
             modelfield=FakeContact._meta.get_field('first_name'),
             modelform_field=CharField(),
         )
-
-        # TODO: improve assertFieldValidationError()
-        #       (it needs a default constructor for the error messages)
-        # self.assertFieldValidationError(ExtractorField, 'invalid', field.clean,
-        #                                 'notadict'
-        #                                )
-        invalid = (_('Enter a valid value.'), 'invalid', None)
-        with self.assertRaises(ValidationError) as cm1:
-            field.clean('notadict')
-        self.assertEqual(invalid, cm1.exception.args)
-
-        with self.assertRaises(ValidationError) as cm2:
-            field.clean({'selected_column': 'notanint'})
-        self.assertEqual(invalid, cm2.exception.args)
-
-        with self.assertRaises(ValidationError) as cm3:
-            field.clean({'selected_column': '25'})
-        self.assertEqual(invalid, cm3.exception.args)
-
-        with self.assertRaises(ValidationError) as cm4:
-            field.clean({'selected_column': '1'})  # No default value
-        self.assertEqual('invalid', cm4.exception.args[1])
-
-        with self.assertRaises(ValidationError) as cm5:
-            field.clean({
+        msg = _('Enter a valid value.')
+        code = 'invalid'
+        self.assertFormfieldError(
+            field=field, value='notadict', messages=msg, codes=code,
+        )
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code,
+            value={'selected_column': 'notanint'},
+        )
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code,
+            value={'selected_column': '25'},
+        )
+        self.assertFormfieldError(
+            field=field,
+            value={'selected_column': '1'},  # No default value
+            messages='Widget seems buggy, no default value',
+            codes=code,
+        )
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code,
+            value={
                 'selected_column': '1',
                 'default_value': 'John',
-            })
-        self.assertEqual(invalid, cm5.exception.args)
+            },
+        )
 
     # TODO: test with required + no column
     # TODO: test with not required
@@ -507,6 +505,7 @@ class ExtractorFieldTestCase(CremeTestCase):
         self.assertEqual(first_name, value)
 
 
+# class CustomfieldExtractorFieldTestCase(FieldTestCase):
 class CustomfieldExtractorFieldTestCase(CremeTestCase):
     def test_attributes(self):
         user = self.get_root_user()
@@ -553,22 +552,23 @@ class CustomfieldExtractorFieldTestCase(CremeTestCase):
             user=user,
         )
 
-        invalid = (_('Enter a valid value.'), 'invalid', None)
-        with self.assertRaises(ValidationError) as cm1:
-            field.clean('notadict')
-        self.assertEqual(invalid, cm1.exception.args)
-
-        with self.assertRaises(ValidationError) as cm2:
-            field.clean({'selected_column': 'notanint'})
-        self.assertEqual(invalid, cm2.exception.args)
-
-        with self.assertRaises(ValidationError) as cm3:
-            field.clean({'selected_column': '25'})
-        self.assertEqual(invalid, cm3.exception.args)
-
-        with self.assertRaises(ValidationError) as cm4:
-            field.clean({'selected_column': '1'})  # No default value
-        self.assertEqual('invalid', cm4.exception.args[1])
+        message = _('Enter a valid value.')
+        code = 'invalid'
+        self.assertFormfieldError(
+            field=field, value='notadict', messages=message, codes=code,
+        )
+        self.assertFormfieldError(
+            field=field, value={'selected_column': 'notanint'}, messages=message, codes=code,
+        )
+        self.assertFormfieldError(
+            field=field, value={'selected_column': '25'}, messages=message, codes=code,
+        )
+        self.assertFormfieldError(
+            field=field,
+            value={'selected_column': '1'},  # No default value
+            messages='Widget seems buggy, no default value',
+            codes=code,
+        )
 
     def test_clean(self):
         user = self.get_root_user()

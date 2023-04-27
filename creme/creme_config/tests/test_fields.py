@@ -3,7 +3,7 @@ from functools import partial
 from json import dumps as json_dump
 
 from django import forms
-from django.core.exceptions import ValidationError
+# from django.core.exceptions import ValidationError
 from django.forms.fields import CallableChoiceIterator, InvalidJSONInput
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -26,6 +26,7 @@ from creme.creme_core.models import (  # UserRole
     FakePosition,
     FakeSector,
 )
+# from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_menu import (
     FakeContactCreationEntry,
@@ -33,7 +34,6 @@ from creme.creme_core.tests.fake_menu import (
     FakeOrganisationCreationEntry,
     FakeOrganisationsEntry,
 )
-from creme.creme_core.tests.forms.base import FieldTestCase
 
 # from ..forms.fields import CustomEnumChoiceField
 from ..forms.fields import (
@@ -47,7 +47,7 @@ from ..forms.fields import (
 from ..forms.widgets import CreatorModelChoiceWidget
 
 
-class _ConfigFieldTestCase(FieldTestCase):
+class _ConfigFieldTestCase(CremeTestCase):
     @classmethod
     def create_admin(cls):
         return cls.create_user(
@@ -76,10 +76,14 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
         self.assertEqual(sector, field.clean(str(sector.id)))
 
     def test_empty_required(self):
-        kls = partial(CreatorModelChoiceField, queryset=FakeSector.objects.all())
-        field = kls()
+        field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
         self.assertTrue(field.required)
-        self.assertFieldValidationError(kls, 'required', field.clean, '')
+        self.assertFormfieldError(
+            field=field,
+            value='',
+            messages=_('This field is required.'),
+            codes='required',
+        )
 
     def test_empty_not_required(self):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all(), required=False)
@@ -334,10 +338,14 @@ class CreatorEnumerableModelChoiceFieldTestCase(_ConfigFieldTestCase):
         self.assertEqual(sector, field.clean(str(sector.id)))
 
     def test_empty_required(self):
-        kls = partial(CreatorEnumerableModelChoiceField, model=FakeContact, field_name='sector')
-        field = kls()
+        field = CreatorEnumerableModelChoiceField(model=FakeContact, field_name='sector')
         self.assertTrue(field.required)
-        self.assertFieldValidationError(kls, 'required', field.clean, '')
+        self.assertFormfieldError(
+            field=field,
+            value='',
+            messages=_('This field is required.'),
+            codes='required',
+        )
 
     def test_empty_not_required(self):
         field = CreatorEnumerableModelChoiceField(
@@ -867,7 +875,8 @@ class CustomMultiEnumChoiceFieldTestCase(_ConfigFieldTestCase):
         )
 
 
-class MenuEntriesFieldTestCase(FieldTestCase):
+# class MenuEntriesFieldTestCase(FieldTestCase):
+class MenuEntriesFieldTestCase(_ConfigFieldTestCase):
     def test_creators(self):
         label = 'Create a separator'
         creator1 = MenuEntriesField.EntryCreator(
@@ -1145,72 +1154,90 @@ class MenuEntriesFieldTestCase(FieldTestCase):
         self.assertListEqual([], field.clean('[]'))
 
     def test_empty_required(self):
-        field = MenuEntriesField(required=True)
-        self.assertFieldValidationError(MenuEntriesField, 'required', field.clean, '')
+        self.assertFormfieldError(
+            field=MenuEntriesField(required=True),
+            value='',
+            messages=_('This field is required.'),
+            codes='required',
+        )
 
     def test_invalid_JSON(self):
-        field = MenuEntriesField()
-        self.assertFieldValidationError(MenuEntriesField, 'invalid', field.clean, '[')
+        self.assertFormfieldError(
+            field=MenuEntriesField(),
+            value='[',
+            messages=_('Enter a valid JSON.'),
+            codes='invalid',
+        )
 
     def test_invalid_type(self):
-        clean = MenuEntriesField().clean
-        self.assertFieldValidationError(
-            MenuEntriesField, 'invalid_type', clean, json_dump({'data': 'foobar'})
+        field = MenuEntriesField()
+        msg = 'Enter a valid JSON list of dictionaries.'
+        self.assertFormfieldError(
+            field=field, value=json_dump({'data': 'foobar'}),
+            messages=msg, codes='invalid_type',
         )
-        self.assertFieldValidationError(
-            MenuEntriesField, 'invalid_type', clean, json_dump(['foo', 'bar'])
+        self.assertFormfieldError(
+            field=field, value=json_dump(['foo', 'bar']),
+            messages=msg, codes='invalid_type',
         )
         # TODO: complete ??
 
     def test_invalid_data01(self):
         "Missing Id."
-        clean = MenuEntriesField().clean
-        self.assertFieldValidationError(
-            MenuEntriesField, 'invalid_data', clean,
-            json_dump([{'notid': 'foobar'}]),
-            message_args={'error': _('no entry ID')},
+        self.assertFormfieldError(
+            field=MenuEntriesField(),
+            value=json_dump([{'notid': 'foobar'}]),
+            messages=_('Enter a valid list of entries: %(error)s.') % {'error': _('no entry ID')},
+            codes='invalid_data',
         )
 
     def test_invalid_data02(self):
         "Invalid label/extra-data."
-        clean = MenuEntriesField().clean
+        field = MenuEntriesField()
         label = 'Wikipedia'
         url = 'http://www.wikipedia.org'
 
-        self.assertFieldValidationError(
-            MenuEntriesField, 'invalid_data', clean,
-            json_dump([{'id': CustomURLEntry.id, 'data': 12}]),
-            message_args={'error': '"12" is not a dictionary'},
+        msg_fmt = _('Enter a valid list of entries: %(error)s.')
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{'id': CustomURLEntry.id, 'data': 12}]),
+            messages=msg_fmt % {'error': '"12" is not a dictionary'},
+            codes='invalid_data',
         )
-        self.assertFieldValidationError(
-            MenuEntriesField, 'invalid_data', clean,
-            json_dump([{'id': CustomURLEntry.id, 'data': {'label': label}}]),
-            message_args={
-                'error': _('the entry «{entry}» is invalid ({error})').format(
+
+        fmt_err = _('the entry «{entry}» is invalid ({error})').format
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{'id': CustomURLEntry.id, 'data': {'label': label}}]),
+            messages=msg_fmt % {
+                'error': fmt_err(
                     entry='Custom URL entry',
                     error='{} -> {}'.format(_('URL'), _('This field is required.')),
-                )
+                ),
             },
+            codes='invalid_data',
         )
-        self.assertFieldValidationError(
-            MenuEntriesField, 'invalid_data', clean,
-            json_dump([{'id': CustomURLEntry.id, 'data': {'label': label, 'url': 123}}]),
-            message_args={
-                'error': _('the entry «{entry}» is invalid ({error})').format(
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{'id': CustomURLEntry.id, 'data': {'label': label, 'url': 123}}]),
+            messages=msg_fmt % {
+                'error': fmt_err(
                     entry='Custom URL entry',
                     error='{} -> {}'.format(_('URL'), _('Enter a valid URL.')),
-                )
+                ),
             },
+            codes='invalid_data',
         )
-        self.assertFieldValidationError(
-            MenuEntriesField, 'invalid_data', clean,
-            json_dump([{'id': CustomURLEntry.id, 'data': {'url': url}}]),
-            message_args={
-                'error': _('the entry «{entry}» is invalid ({error})').format(
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{'id': CustomURLEntry.id, 'data': {'url': url}}]),
+            messages=msg_fmt % {
+                'error': fmt_err(
                     entry='Custom URL entry',
                     error='{} -> {}'.format(_('Label'), _('This field is required.')),
-                )
+                ),
             },
+            codes='invalid_data',
         )
 
     def test_invalid_data03(self):
@@ -1226,20 +1253,20 @@ class MenuEntriesFieldTestCase(FieldTestCase):
                 super().__init__(**kwargs)
                 this.count = 0 if not data else data.get('count', 0)
 
-        field = MenuEntriesField(menu_registry=MenuRegistry().register(TestEntry))
-        self.assertFieldValidationError(
-            MenuEntriesField, 'invalid_data', field.clean,
-            json_dump([{
+        self.assertFormfieldError(
+            field=MenuEntriesField(menu_registry=MenuRegistry().register(TestEntry)),
+            value=json_dump([{
                 'id': TestEntry.id,
                 'label': 'Are Contacts more than 12?',
                 'data': {'count': 'abc'},
             }]),
-            message_args={
+            messages=_('Enter a valid list of entries: %(error)s.') % {
                 'error': _('the entry «{entry}» is invalid ({error})').format(
                     entry='TestEntry',
                     error='{} -> {}'.format('Count', _('Enter a whole number.')),
                 ),
             },
+            codes='invalid_data',
         )
 
     def test_invalid_entry_id01(self):
@@ -1247,14 +1274,14 @@ class MenuEntriesFieldTestCase(FieldTestCase):
         field = MenuEntriesField(
             menu_registry=MenuRegistry().register(FakeContactsEntry),
         )
-
         entry_id = FakeContactCreationEntry.id
-        self.assertFieldValidationError(
-            MenuEntriesField, 'invalid_data', field.clean,
-            json_dump([{'id': entry_id}]),
-            message_args={
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{'id': entry_id}]),
+            messages=_('Enter a valid list of entries: %(error)s.') % {
                 'error': _('the entry ID "{}" is invalid.').format(entry_id),
             },
+            codes='invalid_data',
         )
 
     def test_invalid_entry_id02(self):
@@ -1265,14 +1292,14 @@ class MenuEntriesFieldTestCase(FieldTestCase):
             ),
             excluded_entry_ids=[FakeContactCreationEntry.id],
         )
-
         entry_id = FakeContactCreationEntry.id
-        self.assertFieldValidationError(
-            MenuEntriesField, 'invalid_data', field.clean,
-            json_dump([{'id': entry_id}]),
-            message_args={
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{'id': entry_id}]),
+            messages=_('Enter a valid list of entries: %(error)s.') % {
                 'error': _('the entry ID "{}" is invalid.').format(entry_id),
             },
+            codes='invalid_data',
         )
 
     def test_invalid_entry_id03(self):
@@ -1280,19 +1307,17 @@ class MenuEntriesFieldTestCase(FieldTestCase):
         field = MenuEntriesField(
             menu_registry=MenuRegistry().register(FakeContactsEntry),
         )
-
         entry_id = CustomURLEntry.id
-        self.assertFieldValidationError(
-            MenuEntriesField, 'invalid_data', field.clean,
-            json_dump([
-                {
-                    'id': entry_id,
-                    'label': 'My label', 'data': {'url': 'https://whateve.r'}
-                },
-            ]),
-            message_args={
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{
+                'id': entry_id,
+                'label': 'My label', 'data': {'url': 'https://whateve.r'}
+            }]),
+            messages=_('Enter a valid list of entries: %(error)s.') % {
                 'error': _('the entry ID "{}" is invalid.').format(entry_id),
             },
+            codes='invalid_data',
         )
 
     def test_invalid_entry_id04(self):
@@ -1301,18 +1326,19 @@ class MenuEntriesFieldTestCase(FieldTestCase):
 
         entry_id = ContainerEntry.id
         self.assertIsNotNone(field.menu_registry.get_class(entry_id))
-        self.assertFieldValidationError(
-            MenuEntriesField, 'invalid_data', field.clean,
-            json_dump([{'id': entry_id}]),
-            message_args={
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{'id': entry_id}]),
+            messages=_('Enter a valid list of entries: %(error)s.') % {
                 'error': _('the entry ID "{}" is invalid.').format(entry_id),
             },
+            codes='invalid_data',
         )
 
 
-class BricksConfigFieldTestCase(CremeTestCase):
-    # TODO: Use creme_core.tests.forms.base.FieldTestCase.assertFieldValidationError()
-    #       once it can handle ValidationError.error_list
+# class BricksConfigFieldTestCase(CremeTestCase):
+class BricksConfigFieldTestCase(_ConfigFieldTestCase):
+    choices = ((1, 'a'), (2, 'b'), (3, 'c'), (4, 'd'))
 
     def test_initial(self):
         field = BricksConfigField()
@@ -1325,45 +1351,40 @@ class BricksConfigFieldTestCase(CremeTestCase):
         self.assertRaises(NotImplementedError, BricksConfigField, required=False)
 
     def test_choices(self):
-        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
-        field = BricksConfigField(choices=choices)
+        field = BricksConfigField(choices=self.choices)
 
-        choices_list = [(1, "a"), (2, "b"), (3, "c"), (4, "d")]
-        self.assertEqual(field.choices, choices_list)
-        self.assertEqual(field._choices, choices_list)
-        self.assertEqual(field.widget.choices, choices_list)
+        choices_list = [*self.choices]
+        self.assertListEqual(field.choices, choices_list)
+        self.assertListEqual(field._choices, choices_list)
+        self.assertListEqual(field.widget.choices, choices_list)
 
         choices_set = {1, 2, 3, 4}
         self.assertEqual(field._valid_choices, choices_set)
 
     def test_copyfield(self):
-        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
-        field = BricksConfigField(choices=choices)
+        field = BricksConfigField(choices=self.choices)
         field_copy = deepcopy(field)
-
-        self.assertFalse(field._choices is field_copy._choices)
-        self.assertFalse(field._valid_choices is field_copy._valid_choices)
+        self.assertIsNot(field._choices, field_copy._choices)
+        self.assertIsNot(field._valid_choices, field_copy._valid_choices)
 
     def test_clean_invalid_json(self):
-        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
-        field = BricksConfigField(choices=choices)
-
-        with self.assertRaises(ValidationError) as context:
-            field.clean('TEST')
-
-        self.assertEqual(context.exception.code, 'invalid')
+        self.assertFormfieldError(
+            field=BricksConfigField(choices=self.choices),
+            value='TEST',
+            messages=_('Enter a valid JSON.'),
+            codes='invalid',
+        )
 
     @parameterized.expand([
         [""], [None],
     ])
     def test_clean_required(self, value):
-        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
-        field = BricksConfigField(choices=choices)
-
-        with self.assertRaises(ValidationError) as context:
-            field.clean(value)
-
-        self.assertEqual(context.exception.code, 'required')
+        self.assertFormfieldError(
+            field=BricksConfigField(choices=self.choices),
+            value=value,
+            messages=_('Your configuration is empty !'),
+            codes='required',
+        )
 
     @parameterized.expand([
         ["42"],
@@ -1372,54 +1393,48 @@ class BricksConfigFieldTestCase(CremeTestCase):
         [json_dump({"top": "lot a list"})],
     ])
     def test_clean_invalid_not_a_dict_of_lists(self, value):
-        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
-        field = BricksConfigField(choices=choices)
-
-        with self.assertRaises(ValidationError) as context:
-            field.clean(value)
-
-        self.assertEqual(context.exception.code, 'invalid_format')
+        self.assertFormfieldError(
+            field=BricksConfigField(choices=self.choices),
+            value=value,
+            messages=_("The value doesn't match the expected format."),
+            codes='invalid_format',
+        )
 
     def test_clean_invalid_choices(self):
-        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
-        field = BricksConfigField(choices=choices)
-
-        with self.assertRaises(ValidationError) as context:
-            field.clean('{"top": [5], "left": [6]}')
-
-        self.assertEqual(context.exception.error_list[0].code, 'invalid_choice')
-        self.assertEqual(context.exception.error_list[0].params, {"value": 5})
-        self.assertEqual(context.exception.error_list[1].code, 'invalid_choice')
-        self.assertEqual(context.exception.error_list[1].params, {"value": 6})
+        error_fmt = _('Select a valid choice. %(value)s is not one of the available choices.')
+        self.assertFormfieldError(
+            field=BricksConfigField(choices=self.choices),
+            value=json_dump({'top': [5], 'left': [6]}),
+            messages=[error_fmt % {'value': 5}, error_fmt % {'value': 6}],
+            codes=['invalid_choice'] * 2,
+        )
 
     def test_clean_duplicates(self):
         class Brick:
             def __init__(self, verbose_name):
                 self.verbose_name = verbose_name
 
-        choices = ((1, Brick("a")), (2, Brick("b")), (3, Brick("c")), (4, Brick("d")))
-        field = BricksConfigField(choices=choices)
-
-        with self.assertRaises(ValidationError) as context:
-            field.clean('{"top": [1, 2], "left": [2, 3], "bottom": [3, 4]}')
-
-        self.assertEqual(context.exception.error_list[0].code, 'duplicated_brick')
-        self.assertEqual(context.exception.error_list[0].params, {'block': "b"})
-        self.assertEqual(context.exception.error_list[1].code, 'duplicated_brick')
-        self.assertEqual(context.exception.error_list[1].params, {'block': "c"})
+        error_fmt = _('The following block should be displayed only once: «%(block)s»')
+        self.assertFormfieldError(
+            field=BricksConfigField(
+                choices=[(1, Brick('a')), (2, Brick('b')), (3, Brick('c')), (4, Brick('d'))],
+            ),
+            value=json_dump({'top': [1, 2], 'left': [2, 3], 'bottom': [3, 4]}),
+            messages=[error_fmt % {'block': 'b'}, error_fmt % {'block': 'c'}],
+            codes=['duplicated_brick'] * 2,
+        )
 
     def test_clean_empty_config(self):
-        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
-        field = BricksConfigField(choices=choices)
-
-        with self.assertRaises(ValidationError) as context:
-            field.clean('{"top": [], "left": []}')
-
-        self.assertEqual(context.exception.code, 'required')
+        self.assertFormfieldError(
+            field=BricksConfigField(choices=self.choices),
+            value=json_dump({'top': [], 'left': []}),
+            messages=_('Your configuration is empty !'),
+            codes='required',
+        )
 
     def test_clean_ok(self):
-        choices = ((1, "a"), (2, "b"), (3, "c"), (4, "d"))
-        field = BricksConfigField(choices=choices)
-
-        cleaned_value = field.clean('{"top": [1], "left": [2, 3]}')
-        self.assertEqual(cleaned_value, {"top": [1], "left": [2, 3], "right": [], "bottom": []})
+        field = BricksConfigField(choices=self.choices)
+        self.assertDictEqual(
+            {'top': [1], 'left': [2, 3], 'right': [], 'bottom': []},
+            field.clean(json_dump({'top': [1], 'left': [2, 3]})),
+        )

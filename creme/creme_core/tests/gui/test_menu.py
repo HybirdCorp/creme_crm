@@ -81,24 +81,28 @@ class MenuTestCase(CremeTestCase):
         self.assertDictEqual(expected, validate(data={'label': entry_label}))
         self.assertDictEqual(expected, validate({'label': entry_label, 'foo': 'bar'}))
 
+        # ---
         with self.assertRaises(ValidationError) as cm1:
             validate({'label': ''})
-        self.assertEqual(
-            '{} -> {}'.format(_('Label'), _('This field is required.')),
-            ','.join(cm1.exception.messages),
+
+        self.assertValidationError(
+            cm1.exception,
+            messages='{} -> {}'.format(_('Label'), _('This field is required.')),
         )
 
+        # ---
         with self.assertRaises(ValidationError) as cm2:
             validate({'label': 'foobar' * 10})
-        self.assertEqual(
-            '{} -> {}'.format(
+
+        self.assertValidationError(
+            cm2.exception,
+            messages='{} -> {}'.format(
                 _('Label'),
                 MaxLengthValidator.message % {
                     'limit_value': 50,
                     'show_value': 60,
                 },
             ),
-            ','.join(cm2.exception.messages),
         )
 
         # ---
@@ -170,23 +174,26 @@ class MenuTestCase(CremeTestCase):
 
         with self.assertRaises(ValidationError) as cm1:
             validate(data={'label': 'foobar'})
-        self.assertEqual(
-            '{} -> {}'.format('Count', _('This field is required.')),
-            ','.join(cm1.exception.messages),
+
+        self.assertValidationError(
+            cm1.exception,
+            messages='{} -> {}'.format('Count', _('This field is required.')),
         )
 
+        # ---
         with self.assertRaises(ValidationError) as cm2:
             validate(data={'label': 'foobar', 'count': 'foo'})
-        self.assertEqual(
-            '{} -> {}'.format('Count', _('Enter a whole number.')),
-            ','.join(cm2.exception.messages),
+
+        self.assertValidationError(
+            cm2.exception,
+            messages='{} -> {}'.format('Count', _('Enter a whole number.')),
         )
 
+        # ---
         with self.assertRaises(ValidationError) as cm3:
             validate({'label': 'foobar', 'count': 42})
-        self.assertEqual(
-            global_msg, ','.join(cm3.exception.messages),
-        )
+
+        self.assertValidationError(cm3.exception, messages=global_msg)
 
     def test_url_entry01(self):
         user = self.login_as_standard()
@@ -369,15 +376,12 @@ class MenuTestCase(CremeTestCase):
 
         with self.assertRaises(ValidationError) as cm:
             validate({'label': 'foobar' * 10})
-        self.assertEqual(
-            '{} -> {}'.format(
+        self.assertValidationError(
+            cm.exception,
+            messages='{} -> {}'.format(
                 _('Label'),
-                MaxLengthValidator.message % {
-                    'limit_value': 50,
-                    'show_value': 60,
-                },
+                MaxLengthValidator.message % {'limit_value': 50, 'show_value': 60},
             ),
-            ','.join(cm.exception.messages),
         )
 
         # ---
@@ -504,23 +508,23 @@ class MenuTestCase(CremeTestCase):
 
         with self.assertRaises(ValidationError) as cm1:
             validate(data={'label': label})
-        self.assertEqual(
-            '{} -> {}'.format(_('URL'), _('This field is required.')),
-            ','.join(cm1.exception.messages),
+        self.assertValidationError(
+            cm1.exception,
+            messages='{} -> {}'.format(_('URL'), _('This field is required.')),
         )
 
         with self.assertRaises(ValidationError) as cm2:
             validate({'label': label, 'url': '1234'})
-        self.assertEqual(
-            '{} -> {}'.format(_('URL'), _('Enter a valid URL.')),
-            ','.join(cm2.exception.messages),
+        self.assertValidationError(
+            cm2.exception,
+            messages='{} -> {}'.format(_('URL'), _('Enter a valid URL.')),
         )
 
         with self.assertRaises(ValidationError) as cm3:
             validate({'label': '', 'url': url})
-        self.assertEqual(
-            '{} -> {}'.format(_('Label'), _('This field is required.')),
-            ','.join(cm3.exception.messages),
+        self.assertValidationError(
+            cm3.exception,
+            messages='{} -> {}'.format(_('Label'), _('This field is required.')),
         )
 
         self.assertDictEqual(

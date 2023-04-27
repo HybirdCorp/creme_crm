@@ -12,10 +12,12 @@ from unittest import skipIf
 from unittest.util import safe_repr
 
 from bleach._vendor import html5lib
+from django import forms
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.backends.base import SessionBase
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
@@ -486,6 +488,24 @@ class _CremeTestCase:
                     f'label="{choice_label}".'
                 )
 
+    def assertFormfieldError(self, *, field: forms.Field, value,
+                             messages: str | list[str],
+                             codes: str | list[str | None] | None = None,
+                             ):
+        """Check that calling the method 'clean()' of a form-field with a given
+        value causes a certain validationError to be risen.
+        See 'assertValidationError()' for explanation on possible values for
+        "messages" & "codes".
+        """
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(value)
+
+        self.assertValidationError(
+            error=cm.exception,
+            messages=messages,
+            codes=codes,
+        )
+
     def assertFormInstanceErrors(self, form, *errors):
         form_errors = form.errors
         field_names = set()
@@ -689,11 +709,86 @@ class _CremeTestCase:
         if not s.endswith(prefix):
             raise self.failureException(f'The string {s!r} does not end with {prefix!r}')
 
+    # TODO: add a context manager assertRaisesValidationError() ?
+    def assertValidationError(
+        self, error: ValidationError, *,
+        messages: str | list[str] | dict[str, str | list[str]],
+        codes: str | list[str | None] | dict[str, str | list[str] | None] | None = None,
+    ):
+        """Check the content of a ValidationError instances
+        @param error: Exception to instance to test.
+        @param messages: Mandatory argument to test the messages contained by
+               the error (notice that a ValidationError can contain other
+               ValidationErrors). It can be:
+               - a list of strings
+               - a simple string (it's a shortcut for a list with only one string element).
+               - a dictionary with string keys ; each value can be
+                   - a list of strings
+                   - a simple string (it's a shortcut like above)
+        @param codes: Optional argument used to test the contained codes. If this
+               argument is not given, codes are just not checked. If given, the
+               value can have the same form as "messages" (notably simple strings
+               as shortcuts), excepted that 'None' is a possible value for list
+               elements & dictionary values.
+        """
+        if isinstance(messages, dict):
+            try:
+                err_messages = error.message_dict
+            except AttributeError:
+                self.fail('The given exception does not use an error dictionary.')
+
+            exp_messages = {
+                k: v if isinstance(v, list) else [v]
+                for k, v in messages.items()
+            }
+            if exp_messages != err_messages:
+                self.fail(
+                    f'The messages differ. Expected: {exp_messages!r}. Got: {err_messages!r}'
+                )
+
+            if codes is not None:
+                if not isinstance(codes, dict):
+                    raise TypeError('The argument "codes" must be a dictionary in this case.')
+
+                exp_codes = {
+                    k: v if isinstance(v, list) else [v]
+                    for k, v in codes.items()
+                }
+
+                err_codes = {
+                    k: [e.code for e in errors]
+                    for k, errors in error.error_dict.items()
+                }
+                if exp_codes != err_codes:
+                    self.fail(f'The codes differ. Expected: {exp_codes!r}. Got: {err_codes!r}')
+        else:
+            if hasattr(error, 'error_dict'):
+                self.fail('The given exception uses an error dictionary.')
+
+            if not isinstance(messages, list):
+                messages = [messages]
+
+            err_messages = error.messages
+            if messages != err_messages:
+                self.fail(f'The messages differ. Expected: {messages!r}. Got: {err_messages!r}')
+
+            if codes is not None:
+                if isinstance(codes, str):
+                    codes = [codes]
+                elif not isinstance(codes, list):
+                    raise TypeError(
+                        'The argument "codes" must be a list or a string in this case.'
+                    )
+
+                err_codes = [e.code for e in error.error_list]
+                if codes != err_codes:
+                    self.fail(f'The codes differ. Expected: {codes!r}. Got: {err_codes!r}')
+
     def assertXMLEqualv2(self, expected, actual):
         """Compare 2 strings representing XML document, with the XML semantic.
-        @param expected XML string ;
+        @param expected: XML string ;
                tip: better if it is well indented to have better error message.
-        @param actual XML string.
+        @param actual: XML string.
         """
         try:
             diff = xml_diff(expected, actual)

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.db.models.query_utils import Q
-from django.forms import ChoiceField, IntegerField, TypedChoiceField
+from django.forms import ChoiceField
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
@@ -33,7 +33,7 @@ from creme.creme_core.models import (
     FakeOrganisation,
     FieldsConfig,
 )
-from creme.creme_core.tests.forms.base import FieldTestCase
+# from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.date_period import (
     DatePeriodRegistry,
@@ -220,7 +220,8 @@ class ModelRelativeDatePeriodWidgetTestCase(AssistantsTestCase):
         )
 
 
-class ModelRelativeDatePeriodFieldTestCase(FieldTestCase):
+# class ModelRelativeDatePeriodFieldTestCase(FieldTestCase):
+class ModelRelativeDatePeriodFieldTestCase(AssistantsTestCase):
     def test_model_relativedate_period(self):
         RPeriod = RelativeDatePeriodField.RelativeDatePeriod
         MRPeriod = ModelRelativeDatePeriodField.ModelRelativeDatePeriod
@@ -302,15 +303,23 @@ class ModelRelativeDatePeriodFieldTestCase(FieldTestCase):
         )
 
     def test_required(self):
-        cls = ModelRelativeDatePeriodField
-        field = cls(model=FakeOrganisation)
-        clean = field.clean
+        field = ModelRelativeDatePeriodField(model=FakeOrganisation)
         pname = DaysPeriod.name
-        self.assertFieldValidationError(cls, 'required', clean, ['', ['', ['', '']]])
-        self.assertFieldValidationError(cls, 'required', clean, None)
-        self.assertFieldValidationError(cls, 'required', clean, ['', ['', [pname, '2']]])
-        self.assertFieldValidationError(cls, 'required', clean, ['', ['1', [pname, '']]])
-        self.assertFieldValidationError(cls, 'required', clean, ['created', ['1', [pname, '']]])
+        code = 'required'
+        msg = _('This field is required.')
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code, value=['', ['', ['', '']]],
+        )
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=None)
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code, value=['', ['', [pname, '2']]],
+        )
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code, value=['', ['1', [pname, '']]],
+        )
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='required', value=['created', ['1', [pname, '']]],
+        )
 
     def test_not_required(self):
         clean = ModelRelativeDatePeriodField(required=False).clean
@@ -324,29 +333,38 @@ class ModelRelativeDatePeriodFieldTestCase(FieldTestCase):
         self.assertIsNone(clean(['', ['1', ['', '2']]]))
 
     def test_invalid(self):
-        clean = ModelRelativeDatePeriodField(model=FakeOrganisation).clean
+        field = ModelRelativeDatePeriodField(model=FakeOrganisation)
 
         f_name = 'invalid_field'
-        self.assertFieldValidationError(
-            ChoiceField, 'invalid_choice', clean,
-            [f_name, ['-1', [YearsPeriod.name, '5']]],
-            message_args={'value': f_name},
+        choice_code = 'invalid_choice'
+        choice_msg = ChoiceField.default_error_messages[choice_code]
+        self.assertFormfieldError(
+            field=field,
+            value=[f_name, ['-1', [YearsPeriod.name, '5']]],
+            codes=choice_code,
+            messages=choice_msg % {'value': f_name},
         )
 
-        self.assertFieldValidationError(
-            TypedChoiceField, 'invalid_choice', clean,
-            ['created', ['notint', [YearsPeriod.name, '1']]],
-            message_args={'value': 'notint'},
+        notint = 'notint'
+        self.assertFormfieldError(
+            field=field,
+            value=['created', [notint, [YearsPeriod.name, '1']]],
+            codes=choice_code,
+            messages=choice_msg % {'value': notint},
         )
-        self.assertFieldValidationError(
-            IntegerField, 'invalid', clean,
-            ['created', ['1', [YearsPeriod.name, 'notint']]],
+        self.assertFormfieldError(
+            field=field,
+            value=['created', ['1', [YearsPeriod.name, notint]]],
+            codes='invalid',
+            messages=_('Enter a whole number.'),
         )
 
         p_name = 'unknownperiod'
-        self.assertFieldValidationError(
-            ChoiceField, 'invalid_choice', clean, ['created', ['-1', [p_name, '2']]],
-            message_args={'value': p_name},
+        self.assertFormfieldError(
+            field=field,
+            value=['created', ['-1', [p_name, '2']]],
+            codes=choice_code,
+            messages=choice_msg % {'value': p_name},
         )
 
     def test_model_1(self):
@@ -497,7 +515,8 @@ class ModelRelativeDatePeriodFieldTestCase(FieldTestCase):
         self.assertListEqual(choices, [*field.widget.relative_choices])
 
 
-class AbsoluteOrRelativeDatetimeFieldTestCase(FieldTestCase):
+# class AbsoluteOrRelativeDatetimeFieldTestCase(FieldTestCase):
+class AbsoluteOrRelativeDatetimeFieldTestCase(AssistantsTestCase):
     def test_ok(self):
         field = AbsoluteOrRelativeDatetimeField(model=FakeOrganisation)
         self.assertEqual(FakeOrganisation, field.model)

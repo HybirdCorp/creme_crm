@@ -25,7 +25,7 @@ from creme.billing.models import (
 )
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import FileRef, SetCredentials, Vat
-from creme.creme_core.tests.forms.base import FieldTestCase
+# from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.xlrd_utils import XlrdReader
 from creme.persons.tests.base import (
@@ -80,11 +80,14 @@ else:
     )
 
 
-class ExporterLocalisationFieldTestCase(FieldTestCase):
+# class ExporterLocalisationFieldTestCase(FieldTestCase):
+class ExporterLocalisationFieldTestCase(_BillingTestCase):
     def test_clean_empty_required(self):
-        clean = ExporterLocalisationField(required=True).clean
-        self.assertFieldValidationError(ExporterLocalisationField, 'required', clean, None)
-        self.assertFieldValidationError(ExporterLocalisationField, 'required', clean, '')
+        field = ExporterLocalisationField(required=True)
+        msg = _('This field is required.')
+        code = 'required'
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value='')
 
     def test_clean_empty_not_required(self):
         field = ExporterLocalisationField(required=False)
@@ -150,27 +153,25 @@ class ExporterLocalisationFieldTestCase(FieldTestCase):
         )
 
     def test_clean_invalid_data_type_main(self):
-        clean = ExporterLocalisationField(required=False).clean
-        self.assertFieldValidationError(
-            ExporterLocalisationField, 'invalidtype', clean, '"this is a string"',
+        field = ExporterLocalisationField(required=False)
+        code = 'invalidtype'
+        msg = _('Invalid type')
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code, value='"this is a string"',
         )
-        self.assertFieldValidationError(
-            ExporterLocalisationField, 'invalidtype', clean, '[]',
-        )
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value='[]')
 
     def test_clean_invalid_format(self):
         field = ExporterLocalisationField(required=False)
-        self.assertFieldValidationError(
-            ExporterLocalisationField,
-            'invalidformat',
-            field.clean,
-            '{"country": "notadict"}',
+        code = 'invalidformat'
+        msg = _('Invalid format')
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value='{"country": "notadict"}',
         )
-        self.assertFieldValidationError(
-            ExporterLocalisationField,
-            'invalidformat',
-            field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=json_dump({
                 'country': {
                     'country_code': 'FR',
                     'languages': ['fr_FR', 'en_EN'],
@@ -181,61 +182,56 @@ class ExporterLocalisationFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_key_required(self):
         field = ExporterLocalisationField()
-        self.assertFieldValidationError(
-            ExporterLocalisationField,
-            'countryrequired',
-            field.clean,
-            json_dump({
+        country_msg = 'The country is required.'
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump({
                 # 'country': {
                 #     'country_code': 'FR',
                 #     'languages': ['fr_FR', 'en_EN'],
                 # },
                 'language': {'language_code': 'en_EN'},
             }),
+            codes='countryrequired', messages=country_msg,
         )
-        self.assertFieldValidationError(
-            ExporterLocalisationField,
-            'countryrequired',
-            field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump({
                 'country': {
                     'country_code': '',  # <==
                     'languages': ['fr_FR', 'en_EN'],
                 },
                 'language': {'language_code': 'en_EN'},
             }),
+            codes='countryrequired', messages=country_msg,
         )
-        self.assertFieldValidationError(
-            ExporterLocalisationField,
-            'languagerequired',
-            field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump({
                 'country': {
                     'country_code': 'FR',
                     'languages': ['fr_FR', 'en_EN'],
                 },
                 # 'language': {'language_code': 'en_EN'},
             }),
+            codes='languagerequired',
+            messages='The language is required.',
         )
 
-        self.assertFieldValidationError(
-            ExporterLocalisationField,
-            'countryrequired',
-            field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump({
                 'country': {
                     # 'country_code': 'FR',
                     'languages': ['fr_FR', 'en_EN'],
                 },
                 'language': {'language_code': 'en_EN'},
             }),
+            codes='countryrequired', messages=country_msg,
         )
-        self.assertFieldValidationError(
-            ExporterLocalisationField,
-            # 'languagerequired',  TODO
-            'invalidformat',
-            field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump({
                 'country': {
                     'country_code': 'FR',
                     'languages': ['fr_FR', 'en_EN'],
@@ -244,6 +240,8 @@ class ExporterLocalisationFieldTestCase(FieldTestCase):
                     # 'language_code': 'en_EN',
                 },
             }),
+            codes='invalidformat',  # TODO: 'languagerequired'
+            messages=_('Invalid format'),
         )
 
     def test_clean_empty_country_not_required(self):
@@ -264,12 +262,9 @@ class ExporterLocalisationFieldTestCase(FieldTestCase):
         manager = BillingExportEngineManager([
             'creme.billing.tests.fake_exporters.OnlyInvoiceExportEngine',
         ])
-        field = ExporterLocalisationField(engine_manager=manager, model=Invoice)
-        self.assertFieldValidationError(
-            ExporterLocalisationField,
-            'invalidlocalisation',
-            field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=ExporterLocalisationField(engine_manager=manager, model=Invoice),
+            value=json_dump({
                 'country': {
                     'country_code': 'FR',
                     'languages': ['fr_FR', 'en_EN'],
@@ -278,6 +273,8 @@ class ExporterLocalisationFieldTestCase(FieldTestCase):
                     'language_code': 'it_IT',
                 },
             }),
+            messages='The couple country/language is invalid',
+            codes='invalidlocalisation',
         )
 
     def test_initial01(self):

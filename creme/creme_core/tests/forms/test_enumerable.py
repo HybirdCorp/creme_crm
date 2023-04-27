@@ -23,8 +23,8 @@ from creme.creme_core.models import (
     FakeSector,
 )
 
+# from ..forms.base import FieldTestCase
 from ..base import CremeTestCase
-from ..forms.base import FieldTestCase
 
 
 @override_settings(FORM_ENUMERABLE_LIMIT=100)
@@ -400,7 +400,8 @@ class EnumerableSelectTestCase(CremeTestCase):
 
 
 @override_settings(FORM_ENUMERABLE_LIMIT=100)
-class EnumerableModelChoiceFieldTestCase(FieldTestCase):
+# class EnumerableModelChoiceFieldTestCase(FieldTestCase):
+class EnumerableModelChoiceFieldTestCase(CremeTestCase):
     def test_default(self):
         farming, industry, software = FakeSector.objects.order_by('pk')
         field = EnumerableModelChoiceField(FakeContact, 'sector')

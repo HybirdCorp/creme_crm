@@ -843,7 +843,10 @@ class RelationsConditionsField(_ConditionsField):
         try:
             rtype = self._get_rtypes().get(id=rtype_id)
         except RelationType.DoesNotExist as e:
-            raise ValidationError(self.error_messages['invalidrtype']) from e
+            raise ValidationError(
+                self.error_messages['invalidrtype'],
+                code='invalidrtype',
+            ) from e
 
         return rtype
 

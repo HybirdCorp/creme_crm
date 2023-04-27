@@ -5,7 +5,8 @@ from django.utils.translation import gettext as _
 from parameterized import parameterized
 
 from creme.creme_core.models import Relation
-from creme.creme_core.tests.forms.base import FieldTestCase
+# from creme.creme_core.tests.forms.base import FieldTestCase
+from creme.creme_core.tests.base import CremeTestCase
 
 from .. import constants
 from ..forms.bulk_update import ActivityRangeField
@@ -14,7 +15,8 @@ from ..models import ActivitySubType, ActivityType
 from .base import Activity, _ActivitiesTestCase, skipIfCustomActivity
 
 
-class ActivityRangeFieldTestCase(FieldTestCase):
+# class ActivityRangeFieldTestCase(FieldTestCase):
+class ActivityRangeFieldTestCase(CremeTestCase):
     def test_range(self):
         DWOT = DateWithOptionalTimeField.DateWithOptionalTime
 
@@ -46,13 +48,13 @@ class ActivityRangeFieldTestCase(FieldTestCase):
         self.assertNotEqual(build_range(start=None),   act_range)
 
     def test_clean_empty_required(self):
-        clean = ActivityRangeField(required=True).clean
-        self.assertFieldValidationError(ActivityRangeField, 'required', clean, None)
-        self.assertFieldValidationError(ActivityRangeField, 'required', clean, [])
+        field = ActivityRangeField(required=True)
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
 
     def test_clean_empty_not_required(self):
         field = ActivityRangeField(required=False)
-        # self.assertListEqual([None, None, None, None], field.clean([]))
         self.assertIsNone(field.clean([]))
         self.assertIsNone(field.clean(['']))
         self.assertIsNone(field.clean(['', '']))
