@@ -1,6 +1,5 @@
 from decimal import Decimal
 
-from django.core.exceptions import ValidationError
 from django.utils.formats import number_format
 from django.utils.translation import gettext as _
 from parameterized import parameterized
@@ -13,6 +12,7 @@ from creme.billing.forms.mass_import import (
 )
 from creme.billing.tests.base import ProductLine
 from creme.creme_core.models import Vat
+# from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.base import CremeTestCase
 
 MODE_NO_TOTAL = '1'
@@ -21,6 +21,7 @@ MODE_COMPUTE_TOTAL_NO_VAT = '3'
 MODE_COMPUTE_VAT = '4'
 
 
+# class TotalsExtractorFieldTestCase(FieldTestCase):
 class TotalsExtractorFieldTestCase(CremeTestCase):
     choices = [(0, 'No column'), (1, 'Column #1'), (2, 'Column #2')]
 
@@ -457,100 +458,90 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
     def test_field_invalid_mode(self):
         field = TotalsExtractorField(choices=self.choices)
 
-        with self.assertRaises(ValidationError):
-            field.clean({
+        self.assertFormfieldError(
+            field=field, messages='Invalid mode',
+            value={
                 'mode': '6',
                 'total_vat_column_index': 1,
                 'total_no_vat_column_index': 2,
-            })
-
-        with self.assertRaises(ValidationError):
-            field.clean({
+            },
+        )
+        self.assertFormfieldError(
+            field=field, messages='Invalid value for mode',
+            value={
                 'mode': 'nan',
                 'total_vat_column_index': 1,
                 'total_no_vat_column_index': 2,
-            })
-
-        with self.assertRaises(ValidationError):
-            field.clean({
+            },
+        )
+        self.assertFormfieldError(
+            field=field, messages='Mode is required',
+            value={
                 # 'mode': '2',
                 'total_vat_column_index': 1,
                 'total_no_vat_column_index': 2,
-            })
+            },
+        )
 
     def test_field_invalid_index(self):
         field = TotalsExtractorField(choices=self.choices)
-
-        # ---
-        with self.assertRaises(ValidationError) as cm1:
-            field.clean({
+        self.assertFormfieldError(
+            field=field,
+            value={
                 'mode': MODE_COMPUTE_VAT,
                 'total_vat_column_index': 'nan',
                 'total_no_vat_column_index': 2,
-            })
-        self.assertEqual(
-            'Index "total_vat_column_index" should be an integer',
-            cm1.exception.message,
+            },
+            messages='Index "total_vat_column_index" should be an integer',
         )
-
-        # ---
-        with self.assertRaises(ValidationError) as cm2:
-            field.clean({
+        self.assertFormfieldError(
+            field=field,
+            value={
                 'mode': MODE_COMPUTE_VAT,
                 # 'total_vat_column_index': 1,
                 'total_no_vat_column_index': 2,
-            })
-        self.assertEqual(
-            'Index "total_vat_column_index" is required',
-            cm2.exception.message,
+            },
+            messages='Index "total_vat_column_index" is required',
         )
-
-        # ---
-        with self.assertRaises(ValidationError) as cm3:
-            field.clean({
+        self.assertFormfieldError(
+            field=field,
+            value={
                 'mode': MODE_COMPUTE_VAT,
                 'total_vat_column_index': 12,
                 'total_no_vat_column_index': 2,
-            })
-        self.assertEqual('Invalid index', cm3.exception.message)
+            },
+            messages='Invalid index',
+        )
 
     def test_field_required_choices(self):
-        clean = TotalsExtractorField(choices=self.choices).clean
+        field = TotalsExtractorField(choices=self.choices)
         msg_fmt = _('You have to select a column for «%(field)s».')
-
-        with self.assertRaises(ValidationError) as cm1:
-            clean({
+        self.assertFormfieldError(
+            field=field,
+            value={
                 'mode': MODE_COMPUTE_TOTAL_VAT,
                 'total_no_vat_column_index': '0',
                 'vat_column_index': 2,
-            })
-        self.assertListEqual(
-            [msg_fmt % {'field': _('Total without VAT')}],
-            [*cm1.exception],
+            },
+            messages=msg_fmt % {'field': _('Total without VAT')},
         )
-
-        # ---
-        with self.assertRaises(ValidationError) as cm2:
-            clean({
+        self.assertFormfieldError(
+            field=field,
+            value={
                 'mode': MODE_COMPUTE_TOTAL_VAT,
                 'total_no_vat_column_index': 1,
                 'vat_column_index': '0',
-            })
-        self.assertListEqual(
-            [msg_fmt % {'field': _('VAT')}],
-            [*cm2.exception],
+            },
+            messages=msg_fmt % {'field': _('VAT')},
         )
-
-        # ---
-        with self.assertRaises(ValidationError) as cm2:
-            clean({
+        self.assertFormfieldError(
+            field=field,
+            value={
                 'mode': MODE_COMPUTE_TOTAL_NO_VAT,
                 'total_vat_column_index': '0',
                 'vat_column_index': 2,
-            })
-        self.assertListEqual(
-            [msg_fmt % {'field': _('Total with VAT')}],
-            [*cm2.exception],
+            },
+            messages=msg_fmt % {'field': _('Total with VAT')},
         )
 
     def test_field_empty_not_required(self):

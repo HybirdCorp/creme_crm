@@ -117,15 +117,10 @@ class AuthTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as cm:
             user.clean()
 
-        with self.assertNoException():
-            error_dict = cm.exception.error_dict
-
-        self.assertDictEqual(
-            {'email': [_('An active user with the same email address already exists.')]},
-            {
-                field_name: [
-                    message for error in field_errors for message in error.messages
-                ] for field_name, field_errors in error_dict.items()
+        self.assertValidationError(
+            cm.exception,
+            messages={
+                'email': _('An active user with the same email address already exists.'),
             },
         )
 
@@ -150,9 +145,8 @@ class AuthTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as cm:
             user.clean()
 
-        self.assertListEqual(
-            ['A superuser cannot have a role.'],
-            cm.exception.messages,
+        self.assertValidationError(
+            cm.exception, messages='A superuser cannot have a role.',
         )
 
     def test_clean_team01(self):
@@ -180,9 +174,8 @@ class AuthTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as cm:
             team.clean()
 
-        self.assertListEqual(
-            ['A team cannot have a role.'],
-            cm.exception.messages,
+        self.assertValidationError(
+            cm.exception, messages='A team cannot have a role.',
         )
 
     def test_clean_team03(self):
@@ -192,9 +185,8 @@ class AuthTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as cm:
             team.clean()
 
-        self.assertListEqual(
-            ['A team cannot be marked as superuser.'],
-            cm.exception.messages,
+        self.assertValidationError(
+            cm.exception, messages='A team cannot be marked as superuser.',
         )
 
     def test_clean_team04(self):
@@ -202,27 +194,24 @@ class AuthTestCase(CremeTestCase):
         team1 = CremeUser(username='teamA', is_team=True, last_name='A')
         with self.assertRaises(ValidationError) as cm1:
             team1.clean()
-        self.assertListEqual(
-            ['A team cannot have a last name.'],
-            cm1.exception.messages,
+        self.assertValidationError(
+            cm1.exception, messages='A team cannot have a last name.',
         )
 
         # ---
         team2 = CremeUser(username='teamA', is_team=True, first_name='team')
         with self.assertRaises(ValidationError) as cm2:
             team2.clean()
-        self.assertListEqual(
-            ['A team cannot have a first name.'],
-            cm2.exception.messages,
+        self.assertValidationError(
+            cm2.exception, messages='A team cannot have a first name.',
         )
 
         # ---
         team3 = CremeUser(username='teamA', is_team=True, displayed_name='The famous A team')
         with self.assertRaises(ValidationError) as cm3:
             team3.clean()
-        self.assertListEqual(
-            ['A team cannot have a displayed name.'],
-            cm3.exception.messages,
+        self.assertValidationError(
+            cm3.exception, messages='A team cannot have a displayed name.',
         )
 
     def test_manager_create_user(self):
@@ -242,15 +231,10 @@ class AuthTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as cm:
             CremeUser.objects.create_user(**data)
 
-        with self.assertNoException():
-            error_dict = cm.exception.error_dict
-
-        self.assertDictEqual(
-            {'email': [_('An active user with the same email address already exists.')]},
-            {
-                field_name: [
-                    message for error in field_errors for message in error.messages
-                ] for field_name, field_errors in error_dict.items()
+        self.assertValidationError(
+            cm.exception,
+            messages={
+                'email': _('An active user with the same email address already exists.'),
             },
         )
 
@@ -285,15 +269,10 @@ class AuthTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as cm:
             CremeUser.objects.create_superuser(**data)
 
-        with self.assertNoException():
-            error_dict = cm.exception.error_dict
-
-        self.assertDictEqual(
-            {'email': [_('An active user with the same email address already exists.')]},
-            {
-                field_name: [
-                    message for error in field_errors for message in error.messages
-                ] for field_name, field_errors in error_dict.items()
+        self.assertValidationError(
+            cm.exception,
+            messages={
+                'email': _('An active user with the same email address already exists.'),
             },
         )
 

@@ -4,7 +4,7 @@ from json import dumps as json_dump
 from json import loads as json_load
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+# from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_filter import (
@@ -46,6 +46,7 @@ from creme.creme_core.forms.entity_filter.widgets import (
     RelationsConditionsWidget,
     RelationSubfiltersConditionsWidget,
 )
+# from creme.creme_core.forms.enumerable import EnumerableChoiceField
 from creme.creme_core.models import (
     CremeEntity,
     CremePropertyType,
@@ -63,8 +64,8 @@ from creme.creme_core.models import (
     Language,
     RelationType,
 )
-
-from .base import FieldTestCase
+# from .base import FieldTestCase
+from creme.creme_core.tests.base import CremeTestCase
 
 efilter_registry = _EntityFilterRegistry(
     id=0,
@@ -89,7 +90,8 @@ efilter_registry = _EntityFilterRegistry(
 )
 
 
-class RegularFieldsConditionsFieldTestCase(FieldTestCase):
+# class RegularFieldsConditionsFieldTestCase(FieldTestCase):
+class RegularFieldsConditionsFieldTestCase(CremeTestCase):
     @staticmethod
     def build_data(*conditions):
         return json_dump([
@@ -101,10 +103,11 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         ])
 
     def test_clean_empty_required(self):
-        clean = RegularFieldsConditionsField(required=True).clean
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, None)
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, '')
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, '[]')
+        field = RegularFieldsConditionsField(required=True)
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='[]')
 
     def test_clean_empty_not_required(self):
         field = RegularFieldsConditionsField(required=False)
@@ -112,106 +115,119 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         with self.assertNoException():
             value = field.clean(None)
 
-        self.assertEqual([], value)
+        self.assertListEqual([], value)
 
     def test_clean_invalid_data_type(self):
-        clean = RegularFieldsConditionsField().clean
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidtype', clean, '"this is a string"'
+        field = RegularFieldsConditionsField()
+        msg = _('Invalid type')
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidtype', value='"this is a string"',
         )
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidtype', clean, '"{}"'
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidtype', value='"{}"',
         )
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidtype', clean,
-            '{"foobar":{"operator":"3","name":"first_name","value":"Rei"}}'
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidtype',
+            value=json_dump({'foobar': {'operator': '3', 'name': 'first_name', 'value': 'Rei'}}),
         )
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidtype', clean, '1'
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidtype', value='1',
         )
 
     def test_clean_invalid_data(self):
-        clean = RegularFieldsConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidformat', clean,
-            '[{"operator": {"id": "notanumber"}, "field": {"name":"first_name"}, "value": "Rei"}]'
+        self.assertFormfieldError(
+            field=RegularFieldsConditionsField(model=FakeContact),
+            value=json_dump([{
+                'operator': {'id': 'notanumber'},
+                'field': {'name': 'first_name'},
+                'value': 'Rei',
+            }]),
+            messages=_('Invalid format'),
+            codes='invalidformat',
         )
 
     def test_clean_incomplete_data_required(self):
-        clean = RegularFieldsConditionsField(
+        field = RegularFieldsConditionsField(
             model=FakeContact, efilter_registry=efilter_registry,
-        ).clean
+        )
         EQUALS = operators.EQUALS
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidvalue', clean,
-            '[{"operator": {"id": "%s"}, "field": {"name": "first_name"}}]' % EQUALS
+        self.assertFormfieldError(
+            field=field,
+            value='[{"operator": {"id": "%s"}, "field": {"name": "first_name"}}]' % EQUALS,
+            messages=_('This value is invalid.'),
+            codes='invalidvalue',
         )
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidfield', clean,
-            '[{"operator": {"id": "%s"}, "value": "Rei"}]' % EQUALS
+        self.assertFormfieldError(
+            field=field,
+            value='[{"operator": {"id": "%s"}, "value": "Rei"}]' % EQUALS,
+            messages=_('This field is invalid with this model.'),
+            codes='invalidfield',
         )
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidoperator', clean,
-            '[{"field": {"name": "first_name"}, "value": "Rei"}]'
+        self.assertFormfieldError(
+            field=field,
+            value='[{"field": {"name": "first_name"}, "value": "Rei"}]',
+            messages=_('This operator is invalid.'),
+            codes='invalidoperator',
         )
 
     def test_clean_invalid_field(self):
-        clean = RegularFieldsConditionsField(
+        field = RegularFieldsConditionsField(
             model=FakeContact, efilter_registry=efilter_registry,
-        ).clean
-
+        )
         build_data = self.build_data
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidfield', clean,
-            build_data({
+        msg = _('This field is invalid with this model.')
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidfield',
+            value=build_data({
                 'operator': operators.EQUALS,
-                'name':     '  boobies_size',  # <---
-                'value':    90,
+                'name':     '  height',  # <---
+                'value':    160,
             }),
         )
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidfield', clean,
-            build_data({
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidfield',
+            value=build_data({
                 'operator': operators.IEQUALS,
                 'name':     'is_deleted',
                 'value':    '"Faye"',
             }),
         )
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidfield', clean,
-            build_data({
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidfield',
+            value=build_data({
                 'operator': operators.IEQUALS,
                 'name':     'created',
                 'value':    '"2011-5-12"',
             }),
+
         )
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidfield', clean,
-            build_data({
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidfield',
+            value=build_data({
                 'operator': operators.IEQUALS,
                 'name':     'civility__id',
                 'value':    5,
             }),
         )
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidfield', clean,
-            build_data({
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidfield',
+            value=build_data({
                 'operator': operators.IEQUALS,
                 'name':     'image__id',
                 'value':    5,
             }),
         )
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidfield', clean,
-            build_data({
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidfield',
+            value=build_data({
                 'operator': operators.IEQUALS,
                 'name':     'image__is_deleted',
                 'value':    5,
             }),
         )
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidfield', clean,
-            build_data({
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidfield',
+            value=build_data({
                 'operator': operators.IEQUALS,
                 'name':     'image__modified',
                 'value':    "2011-5-12",
@@ -220,59 +236,54 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         # TODO: M2M
 
     def test_clean_invalid_operator(self):
-        clean = RegularFieldsConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(
-            RegularFieldsConditionsField, 'invalidoperator', clean,
-            self.build_data({
+        self.assertFormfieldError(
+            field=RegularFieldsConditionsField(model=FakeContact),
+            value=self.build_data({
                 'operator': operators.EQUALS + 1000,  # <--
                 'name':     'first_name',
                 'value':    'Nana',
             }),
+            messages=_('This operator is invalid.'),
+            codes='invalidoperator',
         )
 
     def test_clean_invalid_fk_id(self):
         """FK field with invalid id."""
-        field = RegularFieldsConditionsField(
-            model=FakeContact, efilter_registry=efilter_registry,
-        )
-
-        with self.assertRaises(ValidationError) as cm:
-            field.clean(self.build_data({
+        self.assertFormfieldError(
+            field=RegularFieldsConditionsField(
+                model=FakeContact, efilter_registry=efilter_registry,
+            ),
+            value=self.build_data({
                 'operator': operators.EQUALS,
                 'name':     'civility',
                 'value':    'unknown',
-            }))
-
-        self.assertListEqual(
-            [_('Condition on field «{field}»: {error}').format(
+            }),
+            messages=_('Condition on field «{field}»: {error}').format(
                 field=_('Civility'),
-                error=_('Select a valid choice. That choice is not one of the available choices.'),
-            )],
-            cm.exception.messages,
+                error=_(
+                    'Select a valid choice. That choice is not one of the available choices.'
+                ),
+            ),
         )
 
     def test_clean_invalid_static_choice(self):
         """Static choice field with invalid value."""
-        field = RegularFieldsConditionsField(
-            model=FakeInvoiceLine,
-            efilter_registry=efilter_registry,
-        )
-
-        with self.assertRaises(ValidationError) as cm:
-            field.clean(self.build_data({
+        self.assertFormfieldError(
+            field=RegularFieldsConditionsField(
+                model=FakeInvoiceLine,
+                efilter_registry=efilter_registry,
+            ),
+            value=self.build_data({
                 'operator': operators.EQUALS,
                 'name':     'discount_unit',
                 'value':    'unknown',
-            }))
-
-        self.assertListEqual(
-            [_('Condition on field «{field}»: {error}').format(
+            }),
+            messages=_('Condition on field «{field}»: {error}').format(
                 field=_('Discount Unit'),
                 error=_(
                     'Select a valid choice. %(value)s is not one of the available choices.'
                 ) % {'value': 'unknown'},
-            )],
-            cm.exception.messages,
+            ),
         )
 
     def test_clean_invalid_many2many_id(self):
@@ -282,21 +293,19 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
         value = 12445
-        with self.assertRaises(ValidationError) as cm:
-            field.clean(self.build_data({
+        self.assertFormfieldError(
+            field=field,
+            value=self.build_data({
                 'operator': operators.EQUALS,
                 'name':     'languages',
                 'value':    f'{value}',
-            }))
-
-        self.assertListEqual(
-            [_('Condition on field «{field}»: {error}').format(
+            }),
+            messages=_('Condition on field «{field}»: {error}').format(
                 field=_('Spoken language(s)'),
                 error=_(
                     'Select a valid choice. %(value)s is not one of the available choices.'
                 ) % {'value': value},
-            )],
-            cm.exception.messages,
+            ),
         )
 
     def test_clean_several_invalid_inputs(self):
@@ -304,9 +313,10 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
             model=FakeContact,
             efilter_registry=efilter_registry,
         )
-
-        with self.assertRaises(ValidationError) as cm:
-            field.clean(self.build_data(
+        error_fmt = _('Condition on field «{field}»: {error}').format
+        self.assertFormfieldError(
+            field=field,
+            value=self.build_data(
                 {
                     'operator': operators.EQUALS,
                     'name':     'email',
@@ -316,11 +326,8 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                     'name':     'url_site',
                     'value':    'not_url',
                 },
-            ))
-
-        error_fmt = _('Condition on field «{field}»: {error}').format
-        self.assertListEqual(
-            [
+            ),
+            messages=[
                 error_fmt(
                     field=_('Email address'),
                     error=_('Enter a valid email address.'),
@@ -330,7 +337,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                     error=_('Enter a valid URL.'),
                 ),
             ],
-            cm.exception.messages,
         )
 
     def test_iequals_condition(self):
@@ -807,10 +813,10 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        clean = RegularFieldsConditionsField(
+        field = RegularFieldsConditionsField(
             model=FakeContact,
             efilter_registry=efilter_registry,
-        ).clean
+        )
 
         EQUALS = operators.EQUALS
         data = [{
@@ -823,7 +829,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
             'value': 'selfie',
         }]
 
-        conditions = clean(self.build_data(*data))
+        conditions = field.clean(self.build_data(*data))
         self.assertEqual(2, len(conditions))
 
         type_id = RegularFieldConditionHandler.type_id
@@ -832,13 +838,16 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
         # ------
         data[1]['name'] = hidden_fname
-        err = self.assertFieldRaises(ValidationError, clean, self.build_data(*data))[0]
-        self.assertEqual(_('This field is invalid with this model.'), err.messages[0])
+        msg = _('This field is invalid with this model.')
+        self.assertFormfieldError(
+            field=field, value=self.build_data(*data), messages=msg, codes='invalidfield',
+        )
 
         # ------
-        data[1]['name'] = 'image__' + hidden_fname
-        err = self.assertFieldRaises(ValidationError, clean, self.build_data(*data))[0]
-        self.assertEqual(_('This field is invalid with this model.'), err.messages[0])
+        data[1]['name'] = f'image__{hidden_fname}'
+        self.assertFormfieldError(
+            field=field, value=self.build_data(*data), messages=msg, codes='invalidfield',
+        )
 
     def test_fields_config02(self):
         "FK hidden => sub-fields hidden."
@@ -846,22 +855,18 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
             content_type=FakeContact,
             descriptions=[('image', {FieldsConfig.HIDDEN: True})],
         )
-        field = RegularFieldsConditionsField(
-            model=FakeContact,
-            efilter_registry=efilter_registry,
-        )
-
-        err = self.assertFieldRaises(
-            ValidationError, field.clean,
-            self.build_data({
+        self.assertFormfieldError(
+            field=RegularFieldsConditionsField(
+                model=FakeContact,
+                efilter_registry=efilter_registry,
+            ),
+            value=self.build_data({
                 'name':     'image__name',
                 'operator': operators.EQUALS,
                 'value':    'selfie',
             }),
-        )[0]
-        self.assertEqual(
-            _('This field is invalid with this model.'),
-            err.messages[0],
+            messages=_('This field is invalid with this model.'),
+            codes='invalidfield',
         )
 
     def test_fields_config03(self):
@@ -989,57 +994,73 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(hidden_fname,                         condition.name)
 
 
-class DateFieldsConditionsFieldTestCase(FieldTestCase):
+# class DateFieldsConditionsFieldTestCase(FieldTestCase):
+class DateFieldsConditionsFieldTestCase(CremeTestCase):
     def test_clean_invalid_data(self):
-        clean = DateFieldsConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(
-            DateFieldsConditionsField, 'invalidfield', clean,
-            json_dump([{
+        field = DateFieldsConditionsField(model=FakeContact)
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{
                 'field': {'name': 'first_name', 'type': 'string__null'},
                 'range': {'type': 'next_quarter', 'start': '2011-5-12'},
             }]),
+            messages=_('This field is not a date field for this model.'),
+            codes='invalidfield',
         )
-        self.assertFieldValidationError(
-            DateFieldsConditionsField, 'invalidformat', clean,
-            json_dump([{
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{
                 'field': {'name': 'birthday', 'type': 'date__null'},
                 'range': 'not a dict',
-            }])
+            }]),
+            messages=_('Invalid format'),
+            codes='invalidformat',
         )
-        self.assertFieldValidationError(
-            DateFieldsConditionsField, 'invaliddaterange', clean,
-            json_dump([{
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{
                 'field': {'name': 'birthday', 'type': 'date__null'},
                 'range': {'type': 'unknown_range'},
-            }])  # TODO: "start": '' ???
+            }]),  # TODO: "start": '' ???
+            messages=_('This date range is invalid.'),
+            codes='invaliddaterange',
         )
 
-        self.assertFieldValidationError(
-            DateFieldsConditionsField, 'emptydates', clean,
-            json_dump([{
+        empty_msg = _('Please enter a start date and/or a end date.')
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{
                 'field': {'name': 'birthday', 'type': 'date__null'},
                 'range': {'type': ''},
-            }])
+            }]),
+            messages=empty_msg, codes='emptydates',
         )
-        self.assertFieldValidationError(
-            DateFieldsConditionsField, 'emptydates', clean,
-            json_dump([{
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{
                 'field': {'name': 'birthday', 'type': 'date__null'},
                 'range': {'type': '', 'start': '', 'end': ''},
             }]),
+            messages=empty_msg, codes='emptydates',
         )
 
-        with self.assertRaises(ValidationError):
-            clean(json_dump([{
+        invalid_msg = _('Enter a valid date.')
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{
                 'field': {'name': 'created', 'type': 'date'},
                 'range': {'type': '', 'start': 'not a date'},
-            }]))
-
-        with self.assertRaises(ValidationError):
-            clean(json_dump([{
+            }]),
+            messages=invalid_msg, codes='invalid',
+        )
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{
                 'field': {'name': 'created', 'type': 'date'},
                 'range': {'type': '', 'end': '2011-2-30'},  # 30 february!
-            }]))
+            }]),
+            messages=invalid_msg, codes='invalid',
+        )
 
     def test_ok01(self):
         with self.assertNumQueries(0):
@@ -1153,10 +1174,9 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertDictEqual({'name': 'not_empty'}, condition.value)
 
     def test_clean_several_errors(self):
-        field = DateFieldsConditionsField(model=FakeContact)
-
-        with self.assertRaises(ValidationError) as cm:
-            field.clean(json_dump([
+        self.assertFormfieldError(
+            field=DateFieldsConditionsField(model=FakeContact),
+            value=json_dump([
                 {
                     'field': {'name': 'birthday', 'type': 'date__null'},
                     'range': {'type': '', 'start': '', 'end': ''},
@@ -1164,12 +1184,9 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                     'field': {'name': 'modified', 'type': 'date__null'},
                     'range': {'type': '', 'start': '', 'end': ''},
                 },
-            ]))
-
-        msg = _('Please enter a start date and/or a end date.')
-        self.assertListEqual(
-            [msg, msg],
-            cm.exception.messages,
+            ]),
+            messages=[_('Please enter a start date and/or a end date.')] * 2,
+            codes=['emptydates'] * 2,
         )
 
     def test_fields_config01(self):
@@ -1198,10 +1215,11 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(valid_fname,                              condition.name)
 
         # --------------
-        err = self.assertFieldRaises(ValidationError, field.clean, build_data(hidden_fname))[0]
-        self.assertEqual(
-            _('This field is not a date field for this model.'),
-            err.messages[0],
+        self.assertFormfieldError(
+            field=field,
+            value=build_data(hidden_fname),
+            messages=_('This field is not a date field for this model.'),
+            codes='invalidfield',
         )
 
     def test_fields_config02(self):
@@ -1224,19 +1242,16 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
                 },
             }])
 
-        clean = DateFieldsConditionsField(model=FakeInvoiceLine).clean
-        condition = self.get_alone_element(clean(build_data(valid_fname)))
+        field = DateFieldsConditionsField(model=FakeInvoiceLine)
+        condition = self.get_alone_element(field.clean(build_data(valid_fname)))
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(valid_fname,                              condition.name)
 
         # --------------
-        err = self.assertFieldRaises(
-            ValidationError, clean,
-            build_data(f'linked_invoice__{hidden_fname}'),
-        )[0]
-        self.assertEqual(
-            _('This field is not a date field for this model.'),
-            err.messages[0],
+        self.assertFormfieldError(
+            field=field, value=build_data(f'linked_invoice__{hidden_fname}'),
+            messages=_('This field is not a date field for this model.'),
+            codes='invalidfield',
         )
 
     def test_fields_config03(self):
@@ -1246,21 +1261,18 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
             content_type=FakeImage,
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
-        err = self.assertFieldRaises(
-            ValidationError,
-            DateFieldsConditionsField(model=FakeContact).clean,
-            json_dump([{
+        self.assertFormfieldError(
+            field=DateFieldsConditionsField(model=FakeContact),
+            value=json_dump([{
                 'field': {'name': f'image__{hidden_fname}', 'type': 'date__null'},
                 'range': {
                     'type': '',
                     'start': self.formfield_value_date(2015, 3, 24),
                     'end':   self.formfield_value_date(2015, 7, 25),
-                }
+                },
             }]),
-        )[0]
-        self.assertEqual(
-            _('This field is not a date field for this model.'),
-            err.messages[0],
+            messages=_('This field is not a date field for this model.'),
+            codes='invalidfield',
         )
 
     def test_fields_config04(self):
@@ -1400,7 +1412,8 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
 
-class CustomFieldsConditionsFieldTestCase(FieldTestCase):
+# class CustomFieldsConditionsFieldTestCase(FieldTestCase):
+class CustomFieldsConditionsFieldTestCase(CremeTestCase):
     # TODO: factorise?
     @staticmethod
     def build_data(*conditions):
@@ -1546,69 +1559,77 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_clean_invalid_data_format(self):
-        field = CustomFieldsConditionsField(
-            model=FakeContact, efilter_registry=efilter_registry,
-        )
-        self.assertFieldValidationError(
-            CustomFieldsConditionsField, 'invalidformat', field.clean,
-            self.build_data({
+        self.assertFormfieldError(
+            field=CustomFieldsConditionsField(
+                model=FakeContact, efilter_registry=efilter_registry,
+            ),
+            value=self.build_data({
                 'field':    'notanumber',
                 'operator': operators.EQUALS,
                 'value':    170,
             }),
+            messages=_('Invalid format'),
+            codes='invalidformat',
         )
 
     def test_clean_invalid_field(self):
         field = CustomFieldsConditionsField(
             model=FakeContact, efilter_registry=efilter_registry,
         )
-        self.assertFieldValidationError(
-            CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
-            self.build_data({
+        msg = _('This custom field is invalid with this model.')
+        self.assertFormfieldError(
+            field=field,
+            value=self.build_data({
                 'field':    2054,
                 'operator': operators.EQUALS,
                 'value':    170,
             }),
+            messages=msg,
+            codes='invalidcustomfield',
         )
-
-        self.assertFieldValidationError(
-            CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
-            json_dump([{
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{
                 'operator': {'id': str(operators.EQUALS)},
                 'value': [170],
             }]),
+            messages=msg,
+            codes='invalidcustomfield',
         )
 
     def test_clean_invalid_operator(self):
         field = CustomFieldsConditionsField(model=FakeContact)
+
         cfield = self.cfield_int
         value = 170
-        self.assertFieldValidationError(
-            CustomFieldsConditionsField, 'invalidoperator', field.clean,
-            self.build_data({
+        msg = _('This operator is invalid.')
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidoperator',
+            value=self.build_data({
                 'field':    cfield.id,
                 'operator': 121266,
                 'value':    value,
             }),
         )
-        self.assertFieldValidationError(
-            CustomFieldsConditionsField, 'invalidoperator', field.clean,
-            json_dump([
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidoperator',
+            value=json_dump([
                 {'field': {'id': str(cfield.id)}, 'value': value},
             ]),
         )
 
     def test_clean_missing_value(self):
-        field = CustomFieldsConditionsField(
-            model=FakeContact,
-            efilter_registry=efilter_registry,
-        )
-        self.assertFieldValidationError(
-            CustomFieldsConditionsField, 'invalidvalue', field.clean,
-            json_dump([{
+        self.assertFormfieldError(
+            field=CustomFieldsConditionsField(
+                model=FakeContact,
+                efilter_registry=efilter_registry,
+            ),
+            value=json_dump([{
                 'field':    {'id': str(self.cfield_int.id)},
                 'operator': {'id': str(operators.EQUALS)},
             }]),
+            messages=_('This value is invalid.'),
+            codes='invalidvalue',
         )
 
     def test_clean_integer01(self):
@@ -1679,19 +1700,17 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
         cfield = self.cfield_int
 
-        with self.assertRaises(ValidationError) as cm:
-            field.clean(self.build_data({
+        self.assertFormfieldError(
+            field=field,
+            value=self.build_data({
                 'field':    cfield.id,
                 'operator': operators.EQUALS,
                 'value':    'Nan',
-            }))
-
-        self.assertListEqual(
-            [_('Condition on field «{field}»: {error}').format(
+            }),
+            messages=_('Condition on field «{field}»: {error}').format(
                 field=cfield.name,
                 error=_('Enter a whole number.'),
-            )],
-            cm.exception.messages,
+            ),
         )
 
     def test_clean_enum(self):
@@ -1878,9 +1897,10 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             efilter_type=EF_CREDENTIALS,
             model=FakeContact
         )
-
-        with self.assertRaises(ValidationError) as cm:
-            field.clean(self.build_data(
+        error_fmt = _('Condition on field «{field}»: {error}').format
+        self.assertFormfieldError(
+            field=field,
+            value=self.build_data(
                 {
                     'field': self.cfield_int.id,
                     'operator': operators.EQUALS,
@@ -1890,11 +1910,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                     'operator': operators.EQUALS,
                     'value': 'Nan',
                 },
-            ))
-
-        error_fmt = _('Condition on field «{field}»: {error}').format
-        self.assertListEqual(
-            [
+            ),
+            messages=[
                 error_fmt(
                     field=self.cfield_int.name,
                     error=_('Enter a whole number.'),
@@ -1904,7 +1921,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                     error=_('Enter a number.'),
                 ),
             ],
-            cm.exception.messages,
         )
 
     def test_equals_boolean_condition(self):
@@ -1950,18 +1966,19 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         cfield_str.is_deleted = True
         cfield_str.save()
 
-        field = CustomFieldsConditionsField(
-            efilter_registry=efilter_registry,
-            efilter_type=EF_CREDENTIALS,
-            model=FakeContact
-        )
-        self.assertFieldValidationError(
-            CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
-            self.build_data({
+        self.assertFormfieldError(
+            field=CustomFieldsConditionsField(
+                efilter_registry=efilter_registry,
+                efilter_type=EF_CREDENTIALS,
+                model=FakeContact,
+            ),
+            value=self.build_data({
                 'field': cfield_str.id,
                 'operator': operators.ICONTAINS,
                 'value': '[pilot]',
             }),
+            messages=_('This custom field is invalid with this model.'),
+            codes='invalidcustomfield',
         )
 
     def test_deleted02(self):
@@ -2006,7 +2023,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
 
-class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
+# class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
+class DateCustomFieldsConditionsFieldTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
 
@@ -2019,40 +2037,49 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.cfield02 = create_cfield(name='First flight')
 
     def test_clean_invalid_data(self):
-        clean = DateCustomFieldsConditionsField(model=FakeContact).clean
-
-        self.assertFieldValidationError(
-            DateCustomFieldsConditionsField, 'invalidcustomfield', clean,
-            '[{"field": "2054", "range": {"type": "current_year"}}]'
+        field = DateCustomFieldsConditionsField(model=FakeContact)
+        self.assertFormfieldError(
+            field=field,
+            value='[{"field": "2054", "range": {"type": "current_year"}}]',
+            messages=_('This date custom field is invalid with this model.'),
+            codes='invalidcustomfield',
         )
-        self.assertFieldValidationError(
-            DateCustomFieldsConditionsField, 'invalidformat', clean,
-            json_dump([{'field': str(self.cfield01.id), 'range': 'not a dict'}])
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{'field': str(self.cfield01.id), 'range': 'not a dict'}]),
+            messages=_('Invalid format'),
+            codes='invalidformat',
         )
-        self.assertFieldValidationError(
-            DateCustomFieldsConditionsField, 'invaliddaterange', clean,
-            json_dump([{
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{
                 'field': str(self.cfield01.id),
                 'range': {'type': 'unknown_range'}},
             ]),
+            messages=_('This date range is invalid.'),
+            codes='invaliddaterange',
         )
-        self.assertFieldValidationError(
-            DateCustomFieldsConditionsField, 'emptydates', clean,
-            json_dump([{'field': str(self.cfield01.id), 'range': {'type': ''}}]),
+
+        msg = _('Please enter a start date and/or a end date.')
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{'field': str(self.cfield01.id), 'range': {'type': ''}}]),
+            messages=msg, codes='emptydates',
         )
-        self.assertFieldValidationError(
-            DateCustomFieldsConditionsField, 'emptydates', clean,
-            json_dump([{
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{
                 'field': str(self.cfield01.id),
                 'range': {'type': '', 'start': '', 'end': ''},
             }]),
+            messages=msg, codes='emptydates',
         )
 
     def test_clean_several_errors(self):
-        field = DateCustomFieldsConditionsField(model=FakeContact)
-
-        with self.assertRaises(ValidationError) as cm:
-            field.clean(json_dump([
+        msg = _('Please enter a start date and/or a end date.')
+        self.assertFormfieldError(
+            field=DateCustomFieldsConditionsField(model=FakeContact),
+            value=json_dump([
                 {
                     'field': str(self.cfield01.id),
                     'range': {'type': '', 'start': '', 'end': ''},
@@ -2060,12 +2087,8 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
                     'field': str(self.cfield02.id),
                     'range': {'type': '', 'start': '', 'end': ''},
                 },
-            ]))
-
-        msg = _('Please enter a start date and/or a end date.')
-        self.assertListEqual(
-            [msg, msg],
-            cm.exception.messages,
+            ]),
+            messages=[msg, msg],
         )
 
     def test_ok(self):
@@ -2177,12 +2200,13 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         cfield.is_deleted = True
         cfield.save()
 
-        field = DateCustomFieldsConditionsField(model=FakeContact)
-        self.assertFieldValidationError(
-            DateCustomFieldsConditionsField, 'invalidcustomfield', field.clean,
-            json_dump([
+        self.assertFormfieldError(
+            field=DateCustomFieldsConditionsField(model=FakeContact),
+            value=json_dump([
                 {'field': str(cfield.id), 'range': {'type': 'current_year'}},
-            ])
+            ]),
+            messages=_('This date custom field is invalid with this model.'),
+            codes='invalidcustomfield',
         )
 
     def test_deleted02(self):
@@ -2211,7 +2235,8 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(cfield.id),                          condition.name)
 
 
-class PropertiesConditionsFieldTestCase(FieldTestCase):
+# class PropertiesConditionsFieldTestCase(FieldTestCase):
+class PropertiesConditionsFieldTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
 
@@ -2228,43 +2253,48 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
         with self.assertNumQueries(0):
             field = PropertiesConditionsField(required=True)
 
-        clean = field.clean
-        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, None)
-        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, '')
-        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, '[]')
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='[]')
 
     def test_clean_empty_not_required(self):
         with self.assertNoException():
             PropertiesConditionsField(required=False).clean(None)
 
     def test_clean_invalid_data_type(self):
-        clean = PropertiesConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(
-            PropertiesConditionsField, 'invalidtype', clean, '"this is a string"',
+        field = PropertiesConditionsField(model=FakeContact)
+        msg = _('Invalid type')
+        self.assertFormfieldError(
+            field=field, value='"this is a string"', messages=msg, codes='invalidtype',
         )
-        self.assertFieldValidationError(
-            PropertiesConditionsField, 'invalidtype', clean, '"{}"',
+        self.assertFormfieldError(
+            field=field, value='"{}"', messages=msg, codes='invalidtype',
         )
-        self.assertFieldValidationError(
-            PropertiesConditionsField, 'invalidtype', clean,
-            '{"foobar":{"ptype": "test-foobar", "has": true}}',
+        self.assertFormfieldError(
+            field=field,
+            value='{"foobar":{"ptype": "test-foobar", "has": true}}',
+            messages=msg, codes='invalidtype',
         )
 
     def test_clean_incomplete_data_required(self):
-        clean = PropertiesConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(
-            PropertiesConditionsField, 'required', clean,
-            json_dump([{'ptype': self.ptype01.id}]),
+        field = PropertiesConditionsField(model=FakeContact)
+        msg = _('This field is required.')
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{'ptype': self.ptype01.id}]),
+            messages=msg, codes='required',
         )
-        self.assertFieldValidationError(
-            PropertiesConditionsField, 'required', clean, '[{"has": true}]'
+        self.assertFormfieldError(
+            field=field, codes='required', messages=msg, value='[{"has": true}]',
         )
 
     def test_unknown_ptype(self):
-        self.assertFieldValidationError(
-            PropertiesConditionsField, 'invalidptype',
-            PropertiesConditionsField(model=FakeContact).clean,
-            json_dump([{'ptype': self.ptype03.id, 'has': True}]),
+        self.assertFormfieldError(
+            field=PropertiesConditionsField(model=FakeContact),
+            value=json_dump([{'ptype': self.ptype03.id, 'has': True}]),
+            messages=_('This property type is invalid with this model.'),
+            codes='invalidptype',
         )
 
     def test_ok01(self):
@@ -2309,11 +2339,11 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
         ptype.enabled = False
         ptype.save()
 
-        field = PropertiesConditionsField(model=FakeContact)
-
-        self.assertFieldValidationError(
-            PropertiesConditionsField, 'invalidptype', field.clean,
-            json_dump([{'ptype': ptype.id, 'has': True}]),
+        self.assertFormfieldError(
+            field=PropertiesConditionsField(model=FakeContact),
+            value=json_dump([{'ptype': ptype.id, 'has': True}]),
+            messages=_('This property type is invalid with this model.'),
+            codes='invalidptype',
         )
 
     def test_disabled_ptype02(self):
@@ -2339,7 +2369,8 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
         self.assertIs(condition.value, True)
 
 
-class RelationsConditionsFieldTestCase(FieldTestCase):
+# class RelationsConditionsFieldTestCase(FieldTestCase):
+class RelationsConditionsFieldTestCase(CremeTestCase):
     def _create_rtype(self):
         return RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving', [FakeContact]),
@@ -2347,81 +2378,83 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_clean_empty_required(self):
-        clean = RelationsConditionsField(required=True).clean
-        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, None)
-        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '')
-        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '[]')
+        field = RelationsConditionsField(required=True)
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='[]')
 
     def test_clean_empty_not_required(self):
         with self.assertNoException():
             RelationsConditionsField(required=False).clean(None)
 
     def test_clean_invalid_data_type(self):
-        clean = RelationsConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(
-            RelationsConditionsField, 'invalidtype', clean, '"this is a string"',
+        field = RelationsConditionsField(model=FakeContact)
+        msg = _('Invalid type')
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidtype', value='"this is a string"',
         )
-        self.assertFieldValidationError(
-            RelationsConditionsField, 'invalidtype', clean, '"{}"',
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidtype', value='"{}"',
         )
-        self.assertFieldValidationError(
-            RelationsConditionsField, 'invalidtype', clean,
-            '{"foobar": {"rtype": "test-foobar", "has": true}}',
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidtype',
+            value=json_dump({'foobar': {'rtype': 'test-foobar', 'has': True}}),
         )
 
     def test_clean_invalid_data(self):
-        rtype = self._create_rtype()[0]
-        clean = RelationsConditionsField(model=FakeContact).clean
-        ct = ContentType.objects.get_for_model(FakeContact)
-        rt_id = rtype.id
-        self.assertFieldValidationError(
-            RelationsConditionsField, 'invalidformat', clean,
-            json_dump([{'rtype': rt_id, 'has': True, 'ctype': 'not an int'}]),
+        rt_id = self._create_rtype()[0].id
+        field = RelationsConditionsField(model=FakeContact)
+        msg = _('Invalid format')
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidformat',
+            value=json_dump([{'rtype': rt_id, 'has': True, 'ctype': 'not an int'}]),
         )
-        self.assertFieldValidationError(
-            RelationsConditionsField, 'invalidformat', clean,
-            json_dump([
+
+        ct = ContentType.objects.get_for_model(FakeContact)
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='invalidformat',
+            value=json_dump([
                 {'rtype': rt_id, 'has': True, 'ctype': ct.id, 'entity': 'not an int'},
             ]),
         )
 
     def test_clean_incomplete_data_required(self):
-        rtype = self._create_rtype()[0]
-
-        clean = RelationsConditionsField(model=FakeContact).clean
-        rt_id = rtype.id
-        self.assertFieldValidationError(
-            RelationsConditionsField, 'required', clean,
-            json_dump([{'rtype': rt_id}]),
+        field = RelationsConditionsField(model=FakeContact)
+        rt_id = self._create_rtype()[0].id
+        msg = _('This field is required.')
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='required',
+            value=json_dump([{'rtype': rt_id}]),
         )
-        self.assertFieldValidationError(
-            RelationsConditionsField, 'required', clean,
-            json_dump([{'has': True}]),
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='required',
+            value=json_dump([{'has': True}]),
         )
-        self.assertFieldValidationError(
-            RelationsConditionsField, 'required', clean,
-            json_dump([{'rtype': rt_id, 'has': 'not a boolean'}]),
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='required',
+            value=json_dump([{'rtype': rt_id, 'has': 'not a boolean'}]),
         )
 
     def test_unknown_ct(self):
         rtype = self._create_rtype()[0]
-
-        clean = RelationsConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(
-            RelationsConditionsField, 'invalidct', clean,
-            json_dump([{'rtype': rtype.id, 'has': True, 'ctype': 2121545}])
+        self.assertFormfieldError(
+            field=RelationsConditionsField(model=FakeContact),
+            value=json_dump([{'rtype': rtype.id, 'has': True, 'ctype': 2121545}]),
+            messages=_('This content type is invalid.'),
+            codes='invalidct',
         )
 
     def test_unknown_entity(self):
         rtype = self._create_rtype()[0]
-
         ct = ContentType.objects.get_for_model(FakeContact)
-        clean = RelationsConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(
-            RelationsConditionsField, 'invalidentity', clean,
-            json_dump([
+        self.assertFormfieldError(
+            field=RelationsConditionsField(model=FakeContact),
+            value=json_dump([
                 {'rtype': rtype.id, 'has': True, 'ctype': ct.id, 'entity': 2121545},
             ]),
+            messages=_('This entity is invalid.'),
+            codes='invalidentity',
         )
 
     def test_ok01(self):
@@ -2629,16 +2662,13 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         rtype.enabled = False
         rtype.save()
 
-        field = RelationsConditionsField(model=FakeContact)
-        err = self.assertFieldRaises(
-            ValidationError, field.clean,
-            json_dump([
+        self.assertFormfieldError(
+            field=RelationsConditionsField(model=FakeContact),
+            value=json_dump([
                 {'rtype': rtype.id, 'has': True, 'ctype': 0, 'entity': None},
             ]),
-        )[0]
-        self.assertEqual(
-            _('This type of relationship type is invalid with this model.'),
-            err.messages[0],
+            messages=_('This type of relationship type is invalid with this model.'),
+            codes='invalidrtype',
         )
 
     def test_disabled_rtype02(self):
@@ -2676,7 +2706,8 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         )
 
 
-class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
+# class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
+class RelationSubfiltersConditionsFieldTestCase(CremeTestCase):
     def _create_rtype(self):
         return RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving', [FakeContact]),
@@ -2696,42 +2727,36 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_clean_empty_required(self):
-        clean = RelationSubfiltersConditionsField(required=True).clean
-        self.assertFieldValidationError(
-            RelationSubfiltersConditionsField, 'required', clean, None,
-        )
-        self.assertFieldValidationError(
-            RelationSubfiltersConditionsField, 'required', clean, '',
-        )
-        self.assertFieldValidationError(
-            RelationSubfiltersConditionsField, 'required', clean, '[]',
-        )
+        field = RelationSubfiltersConditionsField(required=True)
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='[]')
 
     def test_clean_incomplete_data_required(self):
         rtype = self._create_rtype()[0]
-
-        clean = RelationSubfiltersConditionsField(model=FakeContact).clean
-        self.assertFieldValidationError(
-            RelationSubfiltersConditionsField, 'required', clean,
-            json_dump([{'rtype': rtype.id}]),
+        field = RelationSubfiltersConditionsField(model=FakeContact)
+        msg = _('This field is required.')
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='required', value=json_dump([{'rtype': rtype.id}]),
         )
-        self.assertFieldValidationError(
-            RelationSubfiltersConditionsField, 'required', clean,
-            json_dump([{'has': True}]),
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='required', value=json_dump([{'has': True}]),
         )
 
     def test_unknown_filter(self):
         rtype = self._create_rtype()[0]
-        user = self.get_root_user()
         field = RelationSubfiltersConditionsField(model=FakeContact)
-        field.user = user
-        self.assertFieldValidationError(
-            RelationSubfiltersConditionsField, 'invalidfilter', field.clean,
-            json_dump([{
+        field.user = self.get_root_user()
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump([{
                 'rtype': rtype.id, 'has': False,
                 'ctype': ContentType.objects.get_for_model(FakeContact).id,
                 'filter': '3213213543',  # <==
             }]),
+            messages=_('This filter is invalid.'),
+            codes='invalidfilter',
         )
 
     def test_ok(self):
@@ -2815,26 +2840,40 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         rtype.enabled = False
         rtype.save()
 
-        user = self.get_root_user()
-
-        field = RelationSubfiltersConditionsField(
-            model=FakeContact,
-            user=user,
-            efilter_type=EF_CREDENTIALS,
-        )
-        err = self.assertFieldRaises(
-            ValidationError, field.clean,
-            json_dump([
-                {
-                    'rtype': rtype.id, 'has': True,
-                    'ctype': ContentType.objects.get_for_model(FakeContact).id,
-                    'filter': self.sub_efilter01.id,
-                },
-            ]),
-        )[0]
-        self.assertEqual(
-            _('This type of relationship type is invalid with this model.'),
-            err.messages[0],
+        # user = self.get_root_user()
+        #
+        # field = RelationSubfiltersConditionsField(
+        #     model=FakeContact,
+        #     user=user,
+        #     efilter_type=EF_CREDENTIALS,
+        # )
+        # err = self.assertFieldRaises(
+        #     ValidationError, field.clean,
+        #     json_dump([
+        #         {
+        #             'rtype': rtype.id, 'has': True,
+        #             'ctype': ContentType.objects.get_for_model(FakeContact).id,
+        #             'filter': self.sub_efilter01.id,
+        #         },
+        #     ]),
+        # )[0]
+        # self.assertEqual(
+        #     _('This type of relationship type is invalid with this model.'),
+        #     err.messages[0],
+        # )
+        self.assertFormfieldError(
+            field=RelationSubfiltersConditionsField(
+                model=FakeContact,
+                user=self.get_root_user(),
+                efilter_type=EF_CREDENTIALS,
+            ),
+            value=json_dump([{
+                'rtype': rtype.id, 'has': True,
+                'ctype': ContentType.objects.get_for_model(FakeContact).id,
+                'filter': self.sub_efilter01.id,
+            }]),
+            messages=_('This type of relationship type is invalid with this model.'),
+            codes='invalidrtype',
         )
 
     def test_disabled_rtype02(self):
@@ -2887,7 +2926,8 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         )
 
 
-class EntityFilterFormsTestCase(FieldTestCase):
+# class EntityFilterFormsTestCase(FieldTestCase):
+class EntityFilterFormsTestCase(CremeTestCase):
     def test_creation_form01(self):
         user = self.get_root_user()
         efilter_registry = _EntityFilterRegistry(

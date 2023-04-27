@@ -308,8 +308,9 @@ class EnumerableChoiceField(mforms.ChoiceField):
     widget: type[EnumerableSelect] = EnumerableSelect
 
     default_error_messages = {
-        'invalid_choice': _('Select a valid choice. That choice is not one of'
-                            ' the available choices.'),
+        'invalid_choice': _(
+            'Select a valid choice. That choice is not one of the available choices.'
+        ),
     }
 
     def __init__(self, enum: type[EnumerableChoiceSet], *, empty_label="---------",
@@ -394,7 +395,7 @@ class EnumerableChoiceField(mforms.ChoiceField):
         except (ValueError, TypeError, IndexError) as e:
             raise ValidationError(
                 self.error_messages['invalid_choice'],
-                code='invalid_choice'
+                code='invalid_choice',
             ) from e
 
     def validate(self, value):

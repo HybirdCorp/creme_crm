@@ -151,11 +151,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         with self.assertRaises(ValidationError) as cm:
             ProductLine(on_the_fly_item='Flyyy product', ** kwargs).clean()
 
-        exception = cm.exception
-        self.assertEqual('useless_name', exception.code)
-        self.assertEqual(
-            _('You cannot set an on the fly name to a line with a related item'),
-            exception.message,
+        self.assertValidationError(
+            cm.exception,
+            messages=_('You cannot set an on the fly name to a line with a related item'),
+            codes='useless_name',
         )
 
         with self.assertNoException():
@@ -173,11 +172,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         with self.assertRaises(ValidationError) as cm:
             ProductLine(** kwargs).clean()
 
-        exception = cm.exception
-        self.assertEqual('required_name', exception.code)
-        self.assertEqual(
-            _('You must define a name for an on the fly item'),
-            exception.message,
+        self.assertValidationError(
+            cm.exception,
+            messages=_('You must define a name for an on the fly item'),
+            codes='required_name',
         )
 
         with self.assertNoException():

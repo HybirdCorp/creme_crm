@@ -5,7 +5,6 @@ from functools import partial
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail as django_mail
-from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -32,7 +31,8 @@ from creme.creme_core.models import (
     SetCredentials,
 )
 from creme.creme_core.models.history import TYPE_AUX_CREATION
-from creme.creme_core.tests.forms.base import FieldTestCase
+# from creme.creme_core.tests.forms.base import FieldTestCase
+from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.models import Civility
 from creme.persons.tests.base import (
@@ -441,7 +441,8 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertStillExists(item)
 
 
-class SendingConfigFieldTestCase(FieldTestCase):
+# class SendingConfigFieldTestCase(FieldTestCase):
+class SendingConfigFieldTestCase(CremeTestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -515,13 +516,20 @@ class SendingConfigFieldTestCase(FieldTestCase):
         )
 
     def test_required(self):
-        cls = SendingConfigField
-        field = cls()
-        clean = field.clean
-        self.assertFieldValidationError(cls, 'required', clean, ['', ''])
-        self.assertFieldValidationError(cls, 'required', clean, None)
-        self.assertFieldValidationError(cls, 'required', clean, [self.item1.id, ''])
-        self.assertFieldValidationError(cls, 'required', clean, ['', 'spike@mydomain.org'])
+        field = SendingConfigField()
+        msg = _('This field is required.')
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='required', value=['', ''],
+        )
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='required', value=None,
+        )
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='required', value=[self.item1.id, ''],
+        )
+        self.assertFormfieldError(
+            field=field, messages=msg, codes='required', value=['', 'spike@mydomain.org'],
+        )
 
     def test_not_required(self):
         clean = SendingConfigField(required=False).clean
@@ -533,24 +541,20 @@ class SendingConfigFieldTestCase(FieldTestCase):
         self.assertIsNone(clean(['', 'spike@mydomain.org']))
 
     def test_invalid_pk(self):
-        field = SendingConfigField()
-
-        with self.assertRaises(ValidationError) as cm:
-            field.clean([self.UNUSED_PK, 'spike@mydomain.org'])
-
-        self.assertListEqual(
-            [forms.ModelChoiceField.default_error_messages['invalid_choice']],
-            cm.exception.messages,
+        self.assertFormfieldError(
+            field=SendingConfigField(),
+            value=[self.UNUSED_PK, 'spike@mydomain.org'],
+            messages=forms.ModelChoiceField.default_error_messages['invalid_choice'],
+            codes='invalid_choice',
         )
-        self.assertEqual('invalid_choice', cm.exception.error_list[0].code)
 
     def test_invalid_email(self):
-        field = SendingConfigField()
-
-        with self.assertRaises(ValidationError) as cm:
-            field.clean([self.item1.id, 'not an email'])
-
-        self.assertListEqual([EmailValidator.message], cm.exception.messages)
+        self.assertFormfieldError(
+            field=SendingConfigField(),
+            value=[self.item1.id, 'not an email'],
+            messages=EmailValidator.message,
+            codes='invalid',
+        )
 
     def test_widget(self):
         field1 = SendingConfigField()

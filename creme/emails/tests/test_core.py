@@ -20,17 +20,13 @@ class ValidatorsTestCase(CremeTestCase):
 
         with self.assertRaises(ValidationError) as cm:
             v('Hello {{name}} {{invalid}}')
-
-        exception = cm.exception
-        self.assertListEqual(
-            [
-                _('The following variables are invalid: %(vars)s') % {
-                    'vars': 'name, invalid',
-                },
-            ],
-            exception.messages,
+        self.assertValidationError(
+            cm.exception,
+            messages=_('The following variables are invalid: %(vars)s') % {
+                'vars': 'name, invalid',
+            },
+            codes='invalid_vars',
         )
-        self.assertEqual('invalid_vars', exception.code)
 
         self.assertEqual(
             _('You can use variables: {}').format('{{first_name}} {{last_name}}'),
@@ -48,14 +44,13 @@ class ValidatorsTestCase(CremeTestCase):
         with self.assertRaises(ValidationError) as cm:
             v('Hello {{unknown}}')
 
-        exception = cm.exception
         self.assertListEqual(
             [
                 _('The following variables are invalid: %(vars)s') % {
                     'vars': 'unknown',
                 },
             ],
-            exception.messages,
+            cm.exception.messages,
         )
 
         self.assertEqual(

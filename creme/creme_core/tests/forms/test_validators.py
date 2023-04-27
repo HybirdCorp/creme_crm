@@ -20,25 +20,27 @@ class CredsValidatorTestCase(CremeTestCase):
         )
 
     def test_validate_none_user(self):
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_authenticated_user(
                 None, 'nobody', code='viewnotallowed',
             )
 
-        self.assertEqual(e.exception.message, 'nobody')
-        self.assertEqual(e.exception.code, 'viewnotallowed')
+        self.assertValidationError(
+            cm.exception, messages='nobody', codes='viewnotallowed',
+        )
 
     def test_validate_anonymous_user(self):
         user = get_user(self.client)
         self.assertTrue(user.is_anonymous)
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_authenticated_user(
                 None, 'we are legion', code='viewnotallowed',
             )
 
-        self.assertEqual(e.exception.message, 'we are legion')
-        self.assertEqual(e.exception.code, 'viewnotallowed')
+        self.assertValidationError(
+            cm.exception, messages='we are legion', codes='viewnotallowed',
+        )
 
     def test_validate_authenticated_user(self):
         user = self.login_as_standard()
@@ -77,14 +79,14 @@ class CredsValidatorTestCase(CremeTestCase):
         user = get_user(self.client)
         self.assertTrue(user.is_anonymous)
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_viewable_entity(entity, user)
 
-        self.assertEqual(
-            e.exception.message,
-            _('Not authenticated user is not allowed to view entities'),
+        self.assertValidationError(
+            cm.exception,
+            messages=_('Not authenticated user is not allowed to view entities'),
+            codes='viewnotallowed',
         )
-        self.assertEqual(e.exception.code, 'viewnotallowed')
 
     def test_validate_viewable_entity_notallowed_other(self):
         user = self.login_as_standard()
@@ -95,10 +97,16 @@ class CredsValidatorTestCase(CremeTestCase):
         self._set_user_credentials(user, EntityCredentials.VIEW, SetCredentials.ESET_OWN)
 
         # view permission set for owned entities
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_viewable_entity(entity, user)
 
-        self.assertEqual(e.exception.code, 'viewnotallowed')
+        self.assertValidationError(
+            cm.exception,
+            messages=_('You are not allowed to view this entity: {}').format(
+                _('Entity #{id} (not viewable)').format(id=entity.id)
+            ),
+            codes='viewnotallowed',
+        )
 
     def test_validate_viewable_entity_notallowed_all(self):
         user = self.login_as_standard()
@@ -109,10 +117,16 @@ class CredsValidatorTestCase(CremeTestCase):
         self._set_user_credentials(user, EntityCredentials.CHANGE, SetCredentials.ESET_ALL)
 
         # view permission not set
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_viewable_entity(entity, user)
 
-        self.assertEqual(e.exception.code, 'viewnotallowed')
+        self.assertValidationError(
+            cm.exception,
+            messages=_('You are not allowed to view this entity: {}').format(
+                _('Entity #{id} (not viewable)').format(id=entity.id)
+            ),
+            codes='viewnotallowed',
+        )
 
     def test_validate_viewable_entities_owner(self):
         user = self.login_as_standard()
@@ -143,10 +157,14 @@ class CredsValidatorTestCase(CremeTestCase):
         user = get_user(self.client)
         self.assertTrue(user.is_anonymous)
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_viewable_entities([a, b], user)
 
-        self.assertEqual(e.exception.code, 'viewnotallowed')
+        self.assertValidationError(
+            cm.exception,
+            messages=_('Not authenticated user is not allowed to view entities'),
+            codes='viewnotallowed',
+        )
 
     def test_validate_viewable_entities_notallowed_other(self):
         user = self.login_as_standard()
@@ -157,10 +175,17 @@ class CredsValidatorTestCase(CremeTestCase):
 
         self._set_user_credentials(user, EntityCredentials.VIEW,  SetCredentials.ESET_OWN)
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_viewable_entities([a, b], user)
 
-        self.assertEqual(e.exception.code, 'viewnotallowed')
+        e_fmt = _('Entity #{id} (not viewable)').format
+        self.assertValidationError(
+            cm.exception,
+            messages=_('Some entities are not viewable: {}').format(
+                f'{e_fmt(id=a.id)}, {e_fmt(id=b.id)}'
+            ),
+            codes='viewnotallowed',
+        )
 
     def test_validate_viewable_entities_notallowed_all(self):
         user = self.login_as_standard()
@@ -171,10 +196,17 @@ class CredsValidatorTestCase(CremeTestCase):
 
         self._set_user_credentials(user, EntityCredentials.CHANGE,  SetCredentials.ESET_ALL)
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_viewable_entities([a, b], user)
 
-        self.assertEqual(e.exception.code, 'viewnotallowed')
+        e_fmt = _('Entity #{id} (not viewable)').format
+        self.assertValidationError(
+            cm.exception,
+            messages=_('Some entities are not viewable: {}').format(
+                f'{e_fmt(id=a.id)}, {e_fmt(id=b.id)}'
+            ),
+            codes='viewnotallowed',
+        )
 
     def test_validate_editable_entity_owner(self):
         user = self.login_as_standard()
@@ -209,14 +241,14 @@ class CredsValidatorTestCase(CremeTestCase):
         user = get_user(self.client)
         self.assertTrue(user.is_anonymous)
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_editable_entity(a, user)
 
-        self.assertEqual(
-            e.exception.message,
-            _('Not authenticated user is not allowed to edit entities')
+        self.assertValidationError(
+            cm.exception,
+            messages=_('Not authenticated user is not allowed to edit entities'),
+            codes='changenotallowed',
         )
-        self.assertEqual(e.exception.code, 'changenotallowed')
 
     def test_validate_editable_entity_notallowed_other(self):
         user = self.login_as_standard()
@@ -226,10 +258,16 @@ class CredsValidatorTestCase(CremeTestCase):
 
         self._set_user_credentials(user, EntityCredentials.CHANGE, SetCredentials.ESET_OWN)
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_editable_entity(entity, user)
 
-        self.assertEqual(e.exception.code, 'changenotallowed')
+        self.assertValidationError(
+            cm.exception,
+            messages=_('You are not allowed to edit this entity: {}').format(
+                _('Entity #{id} (not viewable)').format(id=entity.id)
+            ),
+            codes='changenotallowed',
+        )
 
     def test_validate_editable_entity_notallowed_all(self):
         user = self.login_as_standard()
@@ -241,10 +279,14 @@ class CredsValidatorTestCase(CremeTestCase):
             user, EntityCredentials.VIEW, SetCredentials.ESET_ALL,
         )
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_editable_entity(entity, user)
 
-        self.assertEqual(e.exception.code, 'changenotallowed')
+        self.assertValidationError(
+            cm.exception,
+            messages=_('You are not allowed to edit this entity: {}').format(entity),
+            codes='changenotallowed',
+        )
 
     def test_validate_editable_entities_owner(self):
         user = self.login_as_standard()
@@ -270,10 +312,14 @@ class CredsValidatorTestCase(CremeTestCase):
         user = get_user(self.client)
         self.assertTrue(user.is_anonymous)
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_editable_entities([a, b], user)
 
-        self.assertEqual(e.exception.code, 'changenotallowed')
+        self.assertValidationError(
+            cm.exception,
+            messages=_('Not authenticated user is not allowed to edit entities'),
+            codes='changenotallowed',
+        )
 
     def test_validate_editable_entities_notallowed_other(self):
         user = self.login_as_standard()
@@ -284,10 +330,17 @@ class CredsValidatorTestCase(CremeTestCase):
 
         self._set_user_credentials(user, EntityCredentials.CHANGE, SetCredentials.ESET_OWN)
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_editable_entities([a, b], user)
 
-        self.assertEqual(e.exception.code, 'changenotallowed')
+        e_fmt = _('Entity #{id} (not viewable)').format
+        self.assertValidationError(
+            cm.exception,
+            messages=_('Some entities are not editable: {}').format(
+                f'{e_fmt(id=a.id)}, {e_fmt(id=b.id)}'
+            ),
+            codes='changenotallowed',
+        )
 
     def test_validate_editable_entities_notallowed_all(self):
         user = self.login_as_standard()
@@ -298,10 +351,14 @@ class CredsValidatorTestCase(CremeTestCase):
 
         self._set_user_credentials(user, EntityCredentials.VIEW, SetCredentials.ESET_ALL)
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_editable_entities([a, b], user)
 
-        self.assertEqual(e.exception.code, 'changenotallowed')
+        self.assertValidationError(
+            cm.exception,
+            messages=_('Some entities are not editable: {}').format(f'{a}, {b}'),
+            codes='changenotallowed',
+        )
 
     def test_validate_linkable_entity_owner(self):
         user = self.login_as_standard()
@@ -336,14 +393,14 @@ class CredsValidatorTestCase(CremeTestCase):
         user = get_user(self.client)
         self.assertTrue(user.is_anonymous)
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_linkable_entity(entity, user)
 
-        self.assertEqual(
-            e.exception.message,
-            _('Not authenticated user is not allowed to link entities'),
+        self.assertValidationError(
+            cm.exception,
+            messages=_('Not authenticated user is not allowed to link entities'),
+            codes='linknotallowed',
         )
-        self.assertEqual(e.exception.code, 'linknotallowed')
 
     def test_validate_linkable_entity_notallowed_other(self):
         user = self.login_as_standard()
@@ -355,10 +412,16 @@ class CredsValidatorTestCase(CremeTestCase):
             user, EntityCredentials.LINK, SetCredentials.ESET_OWN,
         )
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_linkable_entity(entity, user)
 
-        self.assertEqual(e.exception.code, 'linknotallowed')
+        self.assertValidationError(
+            cm.exception,
+            messages=_('You are not allowed to link this entity: {}').format(
+                _('Entity #{id} (not viewable)').format(id=entity.id)
+            ),
+            codes='linknotallowed',
+        )
 
     def test_validate_linkable_entity_notallowed_all(self):
         user = self.login_as_standard()
@@ -370,10 +433,14 @@ class CredsValidatorTestCase(CremeTestCase):
             user, EntityCredentials.VIEW, SetCredentials.ESET_ALL,
         )
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_linkable_entity(entity, user)
 
-        self.assertEqual(e.exception.code, 'linknotallowed')
+        self.assertValidationError(
+            cm.exception,
+            messages=_('You are not allowed to link this entity: {}').format(entity),
+            codes='linknotallowed',
+        )
 
     def test_validate_linkable_entities_owner(self):
         user = self.login_as_standard()
@@ -413,14 +480,14 @@ class CredsValidatorTestCase(CremeTestCase):
         user = get_user(self.client)
         self.assertTrue(user.is_anonymous)
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_linkable_entities([a, b], user)
 
-        self.assertEqual(
-            e.exception.message,
-            _('Not authenticated user is not allowed to link entities'),
+        self.assertValidationError(
+            cm.exception,
+            messages=_('Not authenticated user is not allowed to link entities'),
+            codes='linknotallowed',
         )
-        self.assertEqual(e.exception.code, 'linknotallowed')
 
     def test_validate_linkable_entities_notallowed_other(self):
         user = self.login_as_standard()
@@ -433,10 +500,17 @@ class CredsValidatorTestCase(CremeTestCase):
             user, EntityCredentials.LINK, SetCredentials.ESET_OWN,
         )
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_linkable_entities([a, b], user)
 
-        self.assertEqual(e.exception.code, 'linknotallowed')
+        e_fmt = _('Entity #{id} (not viewable)').format
+        self.assertValidationError(
+            cm.exception,
+            messages=_('Some entities are not linkable: {}').format(
+                f'{e_fmt(id=a.id)}, {e_fmt(id=b.id)}'
+            ),
+            codes='linknotallowed',
+        )
 
     def test_validate_linkable_entities_notallowed_all(self):
         user = self.login_as_standard()
@@ -449,10 +523,14 @@ class CredsValidatorTestCase(CremeTestCase):
             user, EntityCredentials.VIEW, SetCredentials.ESET_ALL,
         )
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_linkable_entities([a, b], user)
 
-        self.assertEqual(e.exception.code, 'linknotallowed')
+        self.assertValidationError(
+            cm.exception,
+            messages=_('Some entities are not linkable: {}').format(f'{a}, {b}'),
+            codes='linknotallowed',
+        )
 
     def test_validate_linkable_model(self):
         user = self.login_as_standard()
@@ -477,17 +555,16 @@ class CredsValidatorTestCase(CremeTestCase):
         user = get_user(self.client)
         self.assertTrue(user.is_anonymous)
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_linkable_model(FakeContact, user, user)
 
-        self.assertEqual(
-            e.exception.message,
-            _('Not authenticated user is not allowed to link «{model}»').format(
+        self.assertValidationError(
+            cm.exception,
+            messages=_('Not authenticated user is not allowed to link «{model}»').format(
                 model=FakeContact._meta.verbose_name_plural,
             ),
+            codes='linknotallowed',
         )
-
-        self.assertEqual(e.exception.code, 'linknotallowed')
 
     def test_validate_linkable_model_notallowed_other(self):
         user = self.login_as_standard()
@@ -496,10 +573,16 @@ class CredsValidatorTestCase(CremeTestCase):
         )
 
         other_user = self.get_root_user()
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_linkable_model(FakeContact, user, other_user)
 
-        self.assertEqual(e.exception.code, 'linknotallowed')
+        self.assertValidationError(
+            cm.exception,
+            messages=_(
+                'You are not allowed to link with the «{models}» of this user.'
+            ).format(models='Test Contacts'),
+            codes='linknotallowed',
+        )
 
     def test_validate_linkable_model_notallowed_all(self):
         user = self.login_as_standard()
@@ -507,7 +590,13 @@ class CredsValidatorTestCase(CremeTestCase):
             user, EntityCredentials.VIEW, SetCredentials.ESET_ALL,
         )
 
-        with self.assertRaises(ValidationError) as e:
+        with self.assertRaises(ValidationError) as cm:
             validators.validate_linkable_model(FakeContact, user, user)
 
-        self.assertEqual(e.exception.code, 'linknotallowed')
+        self.assertValidationError(
+            cm.exception,
+            messages=_(
+                'You are not allowed to link with the «{models}» of this user.'
+            ).format(models='Test Contacts'),
+            codes='linknotallowed',
+        )

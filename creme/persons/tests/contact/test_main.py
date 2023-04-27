@@ -120,12 +120,14 @@ class ContactTestCase(_BaseTestCase):
         with self.assertRaises(ValidationError) as cm:
             contact2.clean()
 
-        self.assertListEqual(
-            [_(
-                'This Contact is related to a user and an active user already '
-                'uses this email address.'
-            )],
-            cm.exception.messages,
+        self.assertValidationError(
+            cm.exception,
+            messages={
+                'email': _(
+                    'This Contact is related to a user and an active user '
+                    'already uses this email address.'
+                ),
+            },
         )
 
         # Ignore inactive ---
@@ -599,22 +601,31 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(last_name,  user.last_name)
         self.assertEqual('',         user.email)
 
-        with self.assertRaises(ValidationError) as cm:
+        with self.assertRaises(ValidationError) as cm1:
             contact.full_clean()
 
-        self.assertListEqual(
-            [_('This Contact is related to a user and must have a first name.')],
-            cm.exception.messages,
+        self.assertValidationError(
+            cm1.exception,
+            messages={
+                'first_name': _(
+                    'This Contact is related to a user and must have a first name.'
+                ),
+            },
         )
 
+        # ---
         contact.first_name = first_name
 
-        with self.assertRaises(ValidationError) as cm:
+        with self.assertRaises(ValidationError) as cm2:
             contact.full_clean()
 
-        self.assertListEqual(
-            [_('This Contact is related to a user and must have an email address.')],
-            cm.exception.messages,
+        self.assertValidationError(
+            cm2.exception,
+            messages={
+                'email': _(
+                    'This Contact is related to a user and must have an email address.'
+                ),
+            },
         )
 
     def test_listview(self):

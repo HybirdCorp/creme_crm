@@ -3,7 +3,7 @@ from json import dumps as json_dump
 from json import loads as json_load
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+# from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 from parameterized import parameterized
@@ -15,7 +15,6 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
     EntityCellRelation,
 )
-from creme.creme_core.forms.header_filter import UniformEntityCellsField
 from creme.creme_core.models import (
     CremeEntity,
     CustomField,
@@ -26,11 +25,12 @@ from creme.creme_core.models import (
     InstanceBrickConfigItem,
     RelationType,
 )
+from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_constants import (
     FAKE_REL_SUB_BILL_ISSUED,
     FAKE_REL_SUB_EMPLOYED_BY,
 )
-from creme.creme_core.tests.forms.base import FieldTestCase
+# from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.reports import constants
 from creme.reports.bricks import ReportGraphChartInstanceBrick
 from creme.reports.core.graph import AbscissaInfo, OrdinateInfo
@@ -70,7 +70,8 @@ from .base import (
 )
 
 
-class ReportHandsFieldTestCase(FieldTestCase):
+# class ReportHandsFieldTestCase(FieldTestCase):
+class ReportHandsFieldTestCase(CremeTestCase):
     # TODO: factorise with EntityCellsFieldTestCase
     def _find_sub_widget(self, field, cell_class_type_id):
         for sub_widget in field.widget.sub_widgets:
@@ -192,9 +193,11 @@ class ReportHandsFieldTestCase(FieldTestCase):
         )
 
     def test_clean_empty_required(self):
-        clean = ReportHandsField(required=True, model=FakeOrganisation).clean
-        self.assertFieldValidationError(ReportHandsField, 'required', clean, None)
-        self.assertFieldValidationError(ReportHandsField, 'required', clean, '')
+        field = ReportHandsField(required=True, model=FakeOrganisation)
+        code = 'required'
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value='')
 
     def test_clean_empty_not_required(self):
         field = ReportHandsField(required=False, model=FakeOrganisation)
@@ -229,14 +232,15 @@ class ReportHandsFieldTestCase(FieldTestCase):
         fname1 = 'name'
         self.assertListEqual(
             [EntityCellRegularField.build(FakeOrganisation, fname1)],
-            field.clean(f'regular_field-{fname1}')
+            field.clean(f'regular_field-{fname1}'),
         )
 
         fname2 = 'unknown'
-        self.assertFieldValidationError(
-            UniformEntityCellsField, 'invalid_value', field.clean,
-            f'regular_field-{fname2}',
-            message_args={'value': fname2},
+        self.assertFormfieldError(
+            field=field,
+            value=f'regular_field-{fname2}',
+            messages=_('This value is invalid: %(value)s') % {'value': fname2},
+            codes='invalid_value',
         )
 
     def test_regularfields02(self):
@@ -275,10 +279,11 @@ class ReportHandsFieldTestCase(FieldTestCase):
         )
 
         fname3 = 'linked_folder__parent'
-        self.assertFieldValidationError(
-            UniformEntityCellsField, 'invalid_value', field.clean,
-            f'regular_field-{fname3}',
-            message_args={'value': fname3},
+        self.assertFormfieldError(
+            field=field,
+            value=f'regular_field-{fname3}',
+            messages=_('This value is invalid: %(value)s') % {'value': fname3},
+            codes='invalid_value',
         )
 
     def test_regular_aggregates01(self):
@@ -319,10 +324,11 @@ class ReportHandsFieldTestCase(FieldTestCase):
         )
 
         agg_id2 = 'invalid'
-        self.assertFieldValidationError(
-            UniformEntityCellsField, 'invalid_value', field.clean,
-            f'regular_aggregate-{agg_id2}',
-            message_args={'value': agg_id2},
+        self.assertFormfieldError(
+            field=field,
+            value=f'regular_aggregate-{agg_id2}',
+            codes='invalid_value',
+            messages=_('This value is invalid: %(value)s') % {'value': agg_id2},
         )
 
     def test_regular_aggregates02(self):
@@ -338,10 +344,11 @@ class ReportHandsFieldTestCase(FieldTestCase):
             [],
             [*self._find_sub_widget(field, 'regular_aggregate').choices],
         )
-        self.assertFieldValidationError(
-            UniformEntityCellsField, 'invalid_value', field.clean,
-            'regular_aggregate-capital__avg',
-            message_args={'value': 'capital__avg'},
+        self.assertFormfieldError(
+            field=field,
+            value='regular_aggregate-capital__avg',
+            messages=_('This value is invalid: %(value)s') % {'value': 'capital__avg'},
+            codes='invalid_value',
         )
 
     def test_regular_aggregates03(self):
@@ -429,12 +436,13 @@ class ReportHandsFieldTestCase(FieldTestCase):
         field = ReportHandsField(model=FakeOrganisation)
         self.assertListEqual(
             [],
-            [*self._find_sub_widget(field, 'custom_aggregate').choices]
+            [*self._find_sub_widget(field, 'custom_aggregate').choices],
         )
-        self.assertFieldValidationError(
-            UniformEntityCellsField, 'invalid_value', field.clean,
-            f'custom_aggregate-{cfield.id}__avg',
-            message_args={'value': f'{cfield.id}__avg'},
+        self.assertFormfieldError(
+            field=field,
+            value=f'custom_aggregate-{cfield.id}__avg',
+            codes='invalid_value',
+            messages=_('This value is invalid: %(value)s') % {'value': f'{cfield.id}__avg'},
         )
 
     def test_custom_aggregates03(self):
@@ -596,7 +604,8 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
         )
 
 
-class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
+# class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
+class AbscissaFieldTestCase(AxisFieldsMixin, CremeTestCase):
     def test_clean_empty_not_required(self):
         with self.assertNoException():
             cleaned = AbscissaField(required=False).clean(None)
@@ -604,24 +613,28 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertIsNone(cleaned)
 
     def test_clean_invalid_json(self):
-        self.assertFieldValidationError(
-            AbscissaField, 'invalidformat',
-            AbscissaField(required=False).clean,
-            '{"entity_cell":{"cell_key":',
+        self.assertFormfieldError(
+            field=AbscissaField(required=False),
+            value='{"entity_cell":{"cell_key":',
+            messages=_('Invalid format'),
+            codes='invalidformat',
         )
 
     def test_clean_invalid_data_type(self):
-        clean = AbscissaField(required=False).clean
-        self.assertFieldValidationError(AbscissaField, 'invalidtype', clean, '"this is a string"')
-        self.assertFieldValidationError(AbscissaField, 'invalidtype', clean, '[]')
+        field = AbscissaField(required=False)
+        msg = _('Invalid type')
+        code = 'invalidtype'
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code, value='"this is a string"',
+        )
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value='[]')
 
     def test_clean_invalid_data(self):
-        field = AbscissaField(required=False)
-        self.assertFieldValidationError(
-            AbscissaField,
-            'invalidformat',
-            field.clean,
-            '{"graph_type":"notadict"}',
+        self.assertFormfieldError(
+            field=AbscissaField(required=False),
+            value='{"graph_type":"notadict"}',
+            messages=_('Invalid format'),
+            codes='invalidformat',
         )
 
     def test_clean_rfield_fk(self):
@@ -718,41 +731,41 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         field = AbscissaField(
             model=model, abscissa_constraints=abscissa_constraints,
         )
-
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellrequired', field.clean,
-            json_dump({
+        req_msg = 'The entity cell is required.'
+        req_code = 'ecellrequired'
+        self.assertFormfieldError(
+            field=field, codes=req_code, messages=req_msg,
+            value=json_dump({
                 # 'entity_cell': {
                 #     'cell_key': ...,
                 # },
-                'graph_type': {
-                    'type_id': ReportGraph.Group.FK,
-                },
+                'graph_type': {'type_id': ReportGraph.Group.FK},
                 'parameter': '',
             })
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellrequired', field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=field, codes=req_code, messages=req_msg,
+            value=json_dump({
                 'entity_cell': {
                     # 'cell_key': ...,
                 },
-                'graph_type': {
-                    'type_id': ReportGraph.Group.FK,
-                },
+                'graph_type': {'type_id': ReportGraph.Group.FK},
                 'parameter': '',
             })
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(
+
+        allow_code = 'ecellnotallowed'
+        allow_msg = 'This entity cell is not allowed.'
+        self.assertFormfieldError(
+            field=field, codes=allow_code, messages=allow_msg,
+            value=self.formfield_value_abscissa(
                 abscissa=model._meta.get_field('name'),  # <= forbidden field
                 graph_type=ReportGraph.Group.FK,
             ),
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=field, codes=allow_code, messages=allow_msg,
+            value=json_dump({
                 'entity_cell': {
                     'cell_key': 'regular_field-sector__title',  # <= forbidden field
                 },
@@ -760,11 +773,11 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
                     'type_id': ReportGraph.Group.FK,
                 },
                 'parameter': '',
-            })
+            }),
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=field, codes=allow_code, messages=allow_msg,
+            value=json_dump({
                 'entity_cell': {
                     'cell_key': 'regular_field-image__created',  # <= forbidden field
                 },
@@ -772,7 +785,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
                     'type_id': ReportGraph.Group.YEAR,
                 },
                 'parameter': '',
-            })
+            }),
         )
 
     def test_clean_rfield_error02(self):
@@ -781,25 +794,22 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         field = AbscissaField(
             model=model, abscissa_constraints=abscissa_constraints,
         )
-
-        self.assertFieldValidationError(
-            AbscissaField, 'graphtyperequired', field.clean,
-            json_dump({
-                'entity_cell': {
-                    'cell_key': 'regular_field-sector',
-                },
+        req_code = 'graphtyperequired'
+        req_msg = 'The graph type is required.'
+        self.assertFormfieldError(
+            field=field, codes=req_code, messages=req_msg,
+            value=json_dump({
+                'entity_cell': {'cell_key': 'regular_field-sector'},
                 # 'graph_type': {
                 #     'type_id': ...,
                 # },
                 'parameter': '',
-            })
+            }),
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'graphtyperequired', field.clean,
-            json_dump({
-                'entity_cell': {
-                    'cell_key': 'regular_field-sector',
-                },
+        self.assertFormfieldError(
+            field=field, codes=req_code, messages=req_msg,
+            value=json_dump({
+                'entity_cell': {'cell_key': 'regular_field-sector'},
                 'graph_type': {
                     # 'type_id': ...,
                 },
@@ -808,25 +818,27 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         )
 
         sector_field = model._meta.get_field('sector')
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(
+        allow_code = 'ecellnotallowed'
+        allow_msg = 'This entity cell is not allowed.'
+        self.assertFormfieldError(
+            field=field, codes=allow_code, messages=allow_msg,
+            value=self.formfield_value_abscissa(
                 abscissa=sector_field,
-                graph_type=ReportGraph.Group.YEAR,  # < ===
+                graph_type=ReportGraph.Group.YEAR,  # <===
             ),
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(
+        self.assertFormfieldError(
+            field=field, codes=allow_code, messages=allow_msg,
+            value=self.formfield_value_abscissa(
                 abscissa=sector_field,
-                graph_type=ReportGraph.Group.MONTH,  # < ===
+                graph_type=ReportGraph.Group.MONTH,  # <===
             ),
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(
+        self.assertFormfieldError(
+            field=field, codes=allow_code, messages=allow_msg,
+            value=self.formfield_value_abscissa(
                 abscissa=sector_field,
-                graph_type=ReportGraph.Group.DAY,  # < ===
+                graph_type=ReportGraph.Group.DAY,  # <===
             ),
         )
 
@@ -840,33 +852,27 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         abscissa = model._meta.get_field('created')
         graph_type = ReportGraph.Group.RANGE
 
-        with self.assertRaises(ValidationError) as cm1:
-            field.clean(self.formfield_value_abscissa(
+        self.assertFormfieldError(
+            field=field,
+            value=self.formfield_value_abscissa(
                 abscissa=abscissa,
                 graph_type=graph_type,
                 # parameter='2',
-            ))
-
-        exception = cm1.exception
-        self.assertEqual('invalidparameter', exception.code)
-        self.assertEqual(
-            _('The parameter is invalid. {}').format(_('This field is required.')),
-            exception.message
+            ),
+            messages=_('The parameter is invalid. {}').format(_('This field is required.')),
+            codes='invalidparameter',
         )
 
         # ---
-        with self.assertRaises(ValidationError) as cm2:
-            field.clean(self.formfield_value_abscissa(
+        self.assertFormfieldError(
+            field=field,
+            value=self.formfield_value_abscissa(
                 abscissa=abscissa,
                 graph_type=graph_type,
                 parameter='notanint',
-            ))
-
-        exception = cm2.exception
-        self.assertEqual('invalidparameter', exception.code)
-        self.assertEqual(
-            _('The parameter is invalid. {}').format(_('Enter a whole number.')),
-            exception.message,
+            ),
+            messages=_('The parameter is invalid. {}').format(_('Enter a whole number.')),
+            codes='invalidparameter',
         )
 
     def test_clean_rfield_fields_config(self):
@@ -887,12 +893,14 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertSetEqual(set(), field.widget.not_hiddable_cell_keys)
 
         sector_field = model._meta.get_field(field_name)
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(
+        self.assertFormfieldError(
+            field=field,
+            value=self.formfield_value_abscissa(
                 abscissa=sector_field,
                 graph_type=graph_type,
             ),
+            messages='This entity cell is not allowed.',
+            codes='ecellnotallowed',
         )
 
         # ---
@@ -940,12 +948,14 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         field = AbscissaField(
             model=model, abscissa_constraints=abscissa_constraints,
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(
+        self.assertFormfieldError(
+            field=field,
+            value=self.formfield_value_abscissa(
                 abscissa=rtype,
                 graph_type=ReportGraph.Group.RELATION,
             ),
+            messages='This entity cell is not allowed.',
+            codes='ecellnotallowed',
         )
 
     def test_clean_cfield_enum01(self):
@@ -988,10 +998,11 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             model=model,
             abscissa_constraints=abscissa_constraints,
         )
-
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(abscissa=cfield, graph_type=graph_type),
+        self.assertFormfieldError(
+            field=field,
+            value=self.formfield_value_abscissa(abscissa=cfield, graph_type=graph_type),
+            messages='This entity cell is not allowed.',
+            codes='ecellnotallowed',
         )
 
         # ---
@@ -1116,10 +1127,11 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             field_type=CustomField.INT,
         )
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
-
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(
+        msg = 'This entity cell is not allowed.'
+        code = 'ecellnotallowed'
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code,
+            value=self.formfield_value_abscissa(
                 abscissa=cfield1,
                 graph_type=ReportGraph.Group.CUSTOM_FK,
             ),
@@ -1131,9 +1143,9 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             name='Size',
             field_type=CustomField.ENUM,
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code,
+            value=self.formfield_value_abscissa(
                 abscissa=cfield2,
                 graph_type=ReportGraph.Group.CUSTOM_FK,
             ),
@@ -1149,30 +1161,32 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             name='Type',
             field_type=CustomField.ENUM,
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(
+        msg = 'This entity cell is not allowed.'
+        code = 'ecellnotallowed'
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=self.formfield_value_abscissa(
                 abscissa=cfield_enum,
                 graph_type=ReportGraph.Group.CUSTOM_YEAR,
             ),
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=self.formfield_value_abscissa(
                 abscissa=cfield_enum,
                 graph_type=ReportGraph.Group.CUSTOM_MONTH,
             ),
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=self.formfield_value_abscissa(
                 abscissa=cfield_enum,
                 graph_type=ReportGraph.Group.CUSTOM_DAY,
             ),
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=self.formfield_value_abscissa(
                 abscissa=cfield_enum,
                 graph_type=ReportGraph.Group.CUSTOM_RANGE,
                 parameter='7',
@@ -1184,9 +1198,9 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             name='First fight',
             field_type=CustomField.DATETIME,
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            self.formfield_value_abscissa(
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=self.formfield_value_abscissa(
                 abscissa=cfield_dt,
                 graph_type=ReportGraph.Group.CUSTOM_FK,
             ),
@@ -1204,33 +1218,25 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             field_type=CustomField.DATETIME,
         )
 
-        with self.assertRaises(ValidationError) as cm1:
-            field.clean(self.formfield_value_abscissa(
+        self.assertFormfieldError(
+            field=field,
+            value=self.formfield_value_abscissa(
                 abscissa=cfield,
                 graph_type=graph_type,
                 # parameter='2',
-            ))
-
-        exception = cm1.exception
-        self.assertEqual('invalidparameter', exception.code)
-        self.assertEqual(
-            _('The parameter is invalid. {}').format(_('This field is required.')),
-            exception.message,
+            ),
+            messages=_('The parameter is invalid. {}').format(_('This field is required.')),
+            codes='invalidparameter',
         )
-
-        # ---
-        with self.assertRaises(ValidationError) as cm2:
-            field.clean(self.formfield_value_abscissa(
+        self.assertFormfieldError(
+            field=field,
+            value=self.formfield_value_abscissa(
                 abscissa=cfield,
                 graph_type=graph_type,
                 parameter='notanint',
-            ))
-
-        exception = cm2.exception
-        self.assertEqual('invalidparameter', exception.code)
-        self.assertEqual(
-            _('The parameter is invalid. {}').format(_('Enter a whole number.')),
-            exception.message,
+            ),
+            messages=_('The parameter is invalid. {}').format(_('Enter a whole number.')),
+            codes='invalidparameter',
         )
 
     def test_clean_error01(self):
@@ -1238,53 +1244,39 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         model = FakeOrganisation
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
         cell = EntityCellFunctionField.build(FakeContact, 'get_pretty_properties')
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            json_dump({
-                'entity_cell': {
-                    'cell_key': cell.key,
-                },
-                'graph_type': {
-                    'type_id': ReportGraph.Group.FK,
-                },
+        msg = 'This entity cell is not allowed.'
+        code = 'ecellnotallowed'
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code,
+            value=json_dump({
+                'entity_cell': {'cell_key': cell.key},
+                'graph_type': {'type_id': ReportGraph.Group.FK},
                 'parameter': '',
-            })
+            }),
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            json_dump({
-                'entity_cell': {
-                    'cell_key': cell.key.replace('-', ''),
-                },
-                'graph_type': {
-                    'type_id': ReportGraph.Group.FK,
-                },
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code,
+            value=json_dump({
+                'entity_cell': {'cell_key': cell.key.replace('-', '')},
+                'graph_type': {'type_id': ReportGraph.Group.FK},
                 'parameter': '',
-            })
+            }),
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            json_dump({
-                'entity_cell': {
-                    'cell_key': 'regular_field-INVALID',
-                },
-                'graph_type': {
-                    'type_id': ReportGraph.Group.FK,
-                },
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code,
+            value=json_dump({
+                'entity_cell': {'cell_key': 'regular_field-INVALID'},
+                'graph_type': {'type_id': ReportGraph.Group.FK},
                 'parameter': '',
-            })
+            }),
         )
-        self.assertFieldValidationError(
-            AbscissaField, 'ecellnotallowed', field.clean,
-            json_dump({
-                'entity_cell': {
-                    'cell_key': 'INVALID-stuff',
-                },
-                'graph_type': {
-                    'type_id': ReportGraph.Group.FK,
-                },
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code,
+            value=json_dump({
+                'entity_cell': {'cell_key': 'INVALID-stuff'},
+                'graph_type': {'type_id': ReportGraph.Group.FK},
                 'parameter': '',
-            })
+            }),
         )
 
     def test_clean_error02(self):
@@ -1292,17 +1284,17 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         model = FakeContact
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
         cell = EntityCellRegularField.build(FakeContact, 'position')
-        self.assertFieldValidationError(
-            AbscissaField, 'graphtypenotallowed', field.clean,
-            json_dump({
-                'entity_cell': {
-                    'cell_key': cell.key,
-                },
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump({
+                'entity_cell': {'cell_key': cell.key},
                 'graph_type': {
                     'type_id': 1024,  # <==
                 },
                 'parameter': '',
-            })
+            }),
+            codes='graphtypenotallowed',
+            messages='The graph type is not allowed.',
         )
 
     def test_clean_error03(self):
@@ -1533,7 +1525,8 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         )
 
 
-class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
+# class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
+class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
     def test_clean_empty_not_required(self):
         with self.assertNoException():
             cleaned = OrdinateField(required=False).clean(None)
@@ -1541,24 +1534,28 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertIsNone(cleaned)
 
     def test_clean_invalid_json(self):
-        self.assertFieldValidationError(
-            OrdinateField, 'invalidformat',
-            OrdinateField(required=False).clean,
-            '{"entity_cell":{"cell_key":',
+        self.assertFormfieldError(
+            field=OrdinateField(required=False),
+            value='{"entity_cell":{"cell_key":',
+            messages=_('Invalid format'),
+            codes='invalidformat',
         )
 
     def test_clean_invalid_data_type(self):
-        clean = OrdinateField(required=False).clean
-        self.assertFieldValidationError(OrdinateField, 'invalidtype', clean, '"this is a string"')
-        self.assertFieldValidationError(OrdinateField, 'invalidtype', clean, '[]')
+        field = OrdinateField(required=False)
+        code = 'invalidtype'
+        msg = _('Invalid type')
+        self.assertFormfieldError(
+            field=field, messages=msg, codes=code, value='"this is a string"'
+        )
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value='[]')
 
     def test_clean_invalid_data(self):
-        field = OrdinateField(required=False)
-        self.assertFieldValidationError(
-            OrdinateField,
-            'invalidformat',
-            field.clean,
-            '{"aggregator":"notadict"}',
+        self.assertFormfieldError(
+            field=OrdinateField(required=False),
+            value='{"aggregator":"notadict"}',
+            messages=_('Invalid format'),
+            codes='invalidformat',
         )
 
     def test_clean_count(self):
@@ -1618,32 +1615,28 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
         "Error on aggregation ID."
         model = FakeOrganisation
         field = OrdinateField(model=model, ordinate_constraints=ordinate_constraints)
-
-        self.assertFieldValidationError(
-            OrdinateField, 'aggridrequired', field.clean,
-            json_dump({
+        req_msg = 'The aggregation id is required.'
+        self.assertFormfieldError(
+            field=field, codes='aggridrequired', messages=req_msg,
+            value=json_dump({
                 # 'aggregator': {
                 #     'aggr_id': ...,
                 # },
-                'entity_cell': {
-                    'cell_key': 'regular_field-capital',
-                },
+                'entity_cell': {'cell_key': 'regular_field-capital'},
             }),
         )
-        self.assertFieldValidationError(
-            OrdinateField, 'aggridrequired', field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=field, codes='aggridrequired', messages=req_msg,
+            value=json_dump({
                 'aggregator': {
                     # 'type_id': ...,
                 },
-                'entity_cell': {
-                    'cell_key': 'regular_field-capital',
-                },
+                'entity_cell': {'cell_key': 'regular_field-capital'},
             }),
         )
-        self.assertFieldValidationError(
-            OrdinateField, 'aggridinvalid', field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=field,
+            value=json_dump({
                 'aggregator': {
                     'aggr_id': 'invalid',
                 },
@@ -1651,6 +1644,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
                     'cell_key': 'regular_field-capital',
                 },
             }),
+            codes='aggridinvalid', messages='The aggregation id is invalid.',
         )
 
     def test_clean_rfield_error02(self):
@@ -1659,10 +1653,11 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
         field = OrdinateField(
             model=model, ordinate_constraints=ordinate_constraints,
         )
-
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellrequired', field.clean,
-            json_dump({
+        req_code = 'ecellrequired'
+        req_msg = 'The entity cell is required.'
+        self.assertFormfieldError(
+            field=field, codes=req_code, messages=req_msg,
+            value=json_dump({
                 'aggregator': {
                     # 'aggr_id': constants.RGA_MIN,
                     'aggr_id': ReportGraph.Aggregator.MIN,
@@ -1670,38 +1665,38 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
                 # 'entity_cell': {
                 #     'cell_key': ...,
                 # },
-            })
+            }),
         )
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellrequired', field.clean,
-            json_dump({
-                'aggregator': {
-                    'aggr_id': ReportGraph.Aggregator.MIN,
-                },
+        self.assertFormfieldError(
+            field=field, codes=req_code, messages=req_msg,
+            value=json_dump({
+                'aggregator': {'aggr_id': ReportGraph.Aggregator.MIN},
                 'entity_cell': {
                     # 'cell_key': ...,
                 },
-            })
+            }),
         )
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellrequired', field.clean,
-            self.formfield_value_ordinate(
+        self.assertFormfieldError(
+            field=field, codes=req_code, messages=req_msg,
+            value=self.formfield_value_ordinate(
                 aggr_id=ReportGraph.Aggregator.MIN,
                 # cell=...
             ),
         )
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellnotallowed', field.clean,
-            self.formfield_value_ordinate(
+
+        allow_code = 'ecellnotallowed'
+        allow_msg = 'This entity cell is not allowed.'
+        self.assertFormfieldError(
+            field=field, codes=allow_code, messages=allow_msg,
+            value=self.formfield_value_ordinate(
                 aggr_id=ReportGraph.Aggregator.SUM,
                 # forbidden field:
                 cell=EntityCellRegularField.build(model, 'item'),
             ),
         )
-
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellnotallowed', field.clean,
-            self.formfield_value_ordinate(
+        self.assertFormfieldError(
+            field=field, codes=allow_code, messages=allow_msg,
+            value=self.formfield_value_ordinate(
                 aggr_id=ReportGraph.Aggregator.SUM,
                 # field too deep:
                 cell=EntityCellRegularField.build(model, 'linked_invoice__total_vat'),
@@ -1727,9 +1722,11 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertSetEqual(set(), field.widget.not_hiddable_cell_keys)
 
         cell = EntityCellRegularField.build(model, field_name)
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellnotallowed', field.clean,
-            self.formfield_value_ordinate(aggr_id=aggr_id1, cell=cell),
+        self.assertFormfieldError(
+            field=field,
+            value=self.formfield_value_ordinate(aggr_id=aggr_id1, cell=cell),
+            codes='ecellnotallowed',
+            messages='This entity cell is not allowed.',
         )
 
         # ---
@@ -1782,18 +1779,19 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
         field = OrdinateField(
             model=model, ordinate_constraints=ordinate_constraints,
         )
-
         cfield_str = CustomField.objects.create(
             content_type=model,
             name='Tags',
             field_type=CustomField.STR,
         )
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellnotallowed', field.clean,
-            self.formfield_value_ordinate(
+        self.assertFormfieldError(
+            field=field,
+            value=self.formfield_value_ordinate(
                 aggr_id=ReportGraph.Aggregator.SUM,
                 cell=EntityCellCustomField(cfield_str),
             ),
+            codes='ecellnotallowed',
+            messages='This entity cell is not allowed.',
         )
 
     def test_clean_cfield_error02(self):
@@ -1808,17 +1806,18 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
             name='Size',
             field_type=CustomField.INT,
         )
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellnotallowed', field.clean,
-            self.formfield_value_ordinate(
+        code = 'ecellnotallowed'
+        msg = 'This entity cell is not allowed.'
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=self.formfield_value_ordinate(
                 aggr_id=ReportGraph.Aggregator.SUM,
                 cell=EntityCellCustomField(cfield),
             ),
         )
-
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellnotallowed', field.clean,
-            self.formfield_value_ordinate(
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=self.formfield_value_ordinate(
                 aggr_id=ReportGraph.Aggregator.COUNT,
                 cell=EntityCellRegularField.build(FakeOrganisation, 'capital'),
             ),
@@ -1837,17 +1836,18 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
             field_type=CustomField.INT,
             is_deleted=True,
         )
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellnotallowed', field.clean,
-            self.formfield_value_ordinate(
+        code = 'ecellnotallowed'
+        msg = 'This entity cell is not allowed.'
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=self.formfield_value_ordinate(
                 aggr_id=ReportGraph.Aggregator.SUM,
                 cell=EntityCellCustomField(cfield),
             ),
         )
-
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellnotallowed', field.clean,
-            self.formfield_value_ordinate(
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=self.formfield_value_ordinate(
                 aggr_id=ReportGraph.Aggregator.COUNT,
                 cell=EntityCellRegularField.build(FakeOrganisation, 'capital'),
             ),
@@ -1857,16 +1857,18 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
         "Error on cell."
         model = FakeOrganisation
         field = OrdinateField(model=model, ordinate_constraints=ordinate_constraints)
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellnotallowed', field.clean,
-            self.formfield_value_ordinate(
+        code = 'ecellnotallowed'
+        msg = 'This entity cell is not allowed.'
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=self.formfield_value_ordinate(
                 aggr_id=ReportGraph.Aggregator.SUM,
                 cell=EntityCellFunctionField.build(FakeContact, 'get_pretty_properties'),
             ),
         )
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellnotallowed', field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=json_dump({
                 'aggregator': {
                     'aggr_id': ReportGraph.Aggregator.SUM,
                     'aggr_category': 'not used',
@@ -1875,11 +1877,11 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
                     'cell_key': 'not_hyphened_str',
                     'aggr_category': 'not used',
                 },
-            })
+            }),
         )
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellnotallowed', field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=json_dump({
                 'aggregator': {
                     'aggr_id': ReportGraph.Aggregator.SUM,
                     'aggr_category': 'not used',
@@ -1888,11 +1890,11 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
                     'cell_key': 'regular_field-INVALID',
                     'aggr_category': 'not used',
                 },
-            })
+            }),
         )
-        self.assertFieldValidationError(
-            OrdinateField, 'ecellnotallowed', field.clean,
-            json_dump({
+        self.assertFormfieldError(
+            field=field, codes=code, messages=msg,
+            value=json_dump({
                 'aggregator': {
                     'aggr_id': 'sum',
                     'aggr_category': 'not used',
@@ -1901,7 +1903,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
                     'cell_key': 'INVALID-stuff',
                     'aggr_category': 'not used',
                 },
-            })
+            }),
         )
 
     def test_clean_not_required(self):
@@ -1988,7 +1990,8 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
         )
 
 
-class GraphFetcherFieldTestCase(FieldTestCase):
+# class GraphFetcherFieldTestCase(FieldTestCase):
+class GraphFetcherFieldTestCase(CremeTestCase):
     def _build_graph(self):
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
@@ -2004,13 +2007,10 @@ class GraphFetcherFieldTestCase(FieldTestCase):
     def test_clean_empty_required(self):
         field = GraphFetcherField()
         self.assertTrue(field.required)
-
-        with self.assertRaises(ValidationError) as cm:
-            field.clean(None)
-
-        exception = cm.exception
-        self.assertEqual('required', exception.code)
-        self.assertEqual(_('This field is required.'), exception.message)
+        self.assertFormfieldError(
+            field=field, value=None,
+            codes='required', messages=_('This field is required.'),
+        )
 
     def test_graph_n_iterator01(self):
         graph = self._build_graph()
@@ -2110,13 +2110,13 @@ class GraphFetcherFieldTestCase(FieldTestCase):
     def test_clean_ko01(self):
         "type=RGF_NOLINK."
         graph = self._build_graph()
-
         field = GraphFetcherField(graph=graph)
-
         value = f'{constants.RGF_NOLINK}|whatever'
-        self.assertFieldValidationError(
-            GraphFetcherField, 'invalid_choice', field.clean, value,
-            message_args={'value': value},
+        self.assertFormfieldError(
+            field=field, value=value, codes='invalid_choice',
+            messages=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': value},
         )
 
     def test_clean_ko02(self):
@@ -2131,48 +2131,58 @@ class GraphFetcherFieldTestCase(FieldTestCase):
         field = GraphFetcherField(graph=graph)
 
         # Empty field
+        code = 'invalid_choice'
+        msg = _(
+            'Select a valid choice. %(value)s is not one of the available choices.'
+        )
         value1 = constants.RGF_FK
-        self.assertFieldValidationError(
-            GraphFetcherField, 'invalid_choice', field.clean, value1,
-            message_args={'value': value1},
+        self.assertFormfieldError(
+            field=field, value=value1,
+            messages=msg % {'value': value1},
+            codes=code,
         )
 
         # Unknown field
         value2 = f'{constants.RGF_FK}|invalid'
-        self.assertFieldValidationError(
-            GraphFetcherField, 'invalid_choice', field.clean, value2,
-            message_args={'value': value2},
+        self.assertFormfieldError(
+            field=field, value=value2,
+            messages=msg % {'value': value2},
+            codes=code,
         )
 
         # Invalid field (not FK)
         value3 = f'{constants.RGF_FK}|last_name'
-        self.assertFieldValidationError(
-            GraphFetcherField, 'invalid_choice', field.clean, value3,
-            message_args={'value': value3},
+        self.assertFormfieldError(
+            field=field, value=value3,
+            messages=msg % {'value': value3},
+            codes=code,
         )
 
         # Invalid field (not FK to CremeEntity)
         value4 = f'{constants.RGF_FK}|sector'
-        self.assertFieldValidationError(
-            GraphFetcherField, 'invalid_choice', field.clean, value4,
-            message_args={'value': value4},
+        self.assertFormfieldError(
+            field=field, value=value4,
+            messages=msg % {'value': value4}, codes=code,
         )
 
         # Hidden field
         value5 = f'{constants.RGF_FK}|{hidden_fname}'
-        self.assertFieldValidationError(
-            GraphFetcherField, 'invalid_choice', field.clean, value5,
-            message_args={'value': value5},
+        self.assertFormfieldError(
+            field=field, value=value5,
+            messages=msg % {'value': value5}, codes=code,
         )
 
     def test_clean_ko03(self):
         "type=RGF_RELATIONS."
         graph = self._build_graph()
-        field = GraphFetcherField(graph=graph)
         value = f'{constants.RGF_RELATION}|{FAKE_REL_SUB_BILL_ISSUED}'
-        self.assertFieldValidationError(
-            GraphFetcherField, 'invalid_choice', field.clean, value,
-            message_args={'value': value},
+        self.assertFormfieldError(
+            field=GraphFetcherField(graph=graph),
+            value=value,
+            codes='invalid_choice',
+            messages=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': value},
         )
 
     def test_separator01(self):

@@ -3,6 +3,13 @@
   Developers side :
   -----------------
 
+    Non breaking changes :
+    ----------------------
+        # Deprecations :
+            - The module 'creme_core.tests.forms.base' is deprecated.
+              Use these new methods of 'CremeTestCase' instead: assertFormfieldError() & assertValidationError().
+              Then stop using the base class 'FieldTestCase' & 'FieldTestCaseMixin'.
+
     Breaking changes :
     ------------------
         # Deprecated stuffs which have been removed :

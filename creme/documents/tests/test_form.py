@@ -1,16 +1,17 @@
 from json import dumps as json_dump
 
 from django.db.models.query_utils import Q
+from django.forms import Field
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.tests.forms.base import FieldTestCaseMixin
-
+# from creme.creme_core.tests.forms.base import FieldTestCaseMixin
 from ..forms.fields import ImageEntityField, MultiImageEntityField
 from .base import Document, _DocumentsTestCase
 
 
-class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
+# class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
+class ImageEntityFieldTestCase(_DocumentsTestCase):
     def setUp(self):
         super().setUp()
         self.user = self.login_as_root_and_get()
@@ -46,22 +47,26 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         doc = self._create_doc('foobar.txt')
         self.assertIsNone(field.clean(''))
-        self.assertFieldValidationError(
-            ImageEntityField, 'isexcluded', field.clean, str(doc.id),
-            message_args={'entity': str(doc)},
+        self.assertFormfieldError(
+            field=field, value=str(doc.id),
+            codes='isexcluded',
+            messages=_('«%(entity)s» violates the constraints.') % {'entity': str(doc)},
         )
 
     def test_clean02(self):
         "Required."
         field = ImageEntityField(user=self.user)
-
         self.assertTrue(field.required)
-        self.assertFieldValidationError(ImageEntityField, 'required', field.clean, '')
+        self.assertFormfieldError(
+            field=field, value='',
+            codes='required', messages=Field.default_error_messages['required'],
+        )
 
         doc = self._create_doc('foobar.txt')
-        self.assertFieldValidationError(
-            ImageEntityField, 'isexcluded', field.clean, str(doc.id),
-            message_args={'entity': str(doc)},
+        self.assertFormfieldError(
+            field=field, value=str(doc.id),
+            messages=_('«%(entity)s» violates the constraints.') % {'entity': str(doc)},
+            codes='isexcluded',
         )
 
     def test_qfilter_init01(self):
@@ -79,9 +84,10 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1', ident=1)
-        self.assertFieldValidationError(
-            ImageEntityField, 'isexcluded', field.clean, str(img1.id),
-            message_args={'entity': str(img1)},
+        self.assertFormfieldError(
+            field=field, value=str(img1.id),
+            messages=_('«%(entity)s» violates the constraints.')  % {'entity': str(img1)},
+            codes='isexcluded',
         )
 
         img2 = self._create_image(title='Python Show 2018', ident=2)
@@ -102,9 +108,10 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1', ident=1)
-        self.assertFieldValidationError(
-            ImageEntityField, 'isexcluded', field.clean, str(img1.id),
-            message_args={'entity': str(img1)},
+        self.assertFormfieldError(
+            field=field, value=str(img1.id),
+            codes='isexcluded',
+            messages=_('«%(entity)s» violates the constraints.') % {'entity': str(img1)},
         )
 
         img2 = self._create_image(title='Python Show 2018', ident=2)
@@ -126,9 +133,10 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1')
-        self.assertFieldValidationError(
-            ImageEntityField, 'isexcluded', field.clean, str(img1.id),
-            message_args={'entity': str(img1)},
+        self.assertFormfieldError(
+            field=field, value=str(img1.id),
+            codes='isexcluded',
+            messages=_('«%(entity)s» violates the constraints.') % {'entity': str(img1)},
         )
 
         img2 = self._create_image(title='Python show 2018')
@@ -150,9 +158,10 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1')
-        self.assertFieldValidationError(
-            ImageEntityField, 'isexcluded', field.clean, str(img1.id),
-            message_args={'entity': str(img1)},
+        self.assertFormfieldError(
+            field=field, value=str(img1.id),
+            codes='isexcluded',
+            messages=_('«%(entity)s» violates the constraints.') % {'entity': str(img1)},
         )
 
         img2 = self._create_image(title='Python show 2018')
@@ -198,7 +207,8 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(_('Create an image'), field.widget.creation_label)
 
 
-class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
+# class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
+class MultiImageEntityFieldTestCase(_DocumentsTestCase):
     def setUp(self):
         super().setUp()
         self.user = self.login_as_root_and_get()
@@ -231,16 +241,17 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         "Not required."
         field = MultiImageEntityField(required=False)
         field.user = self.user
-        self.assertEqual([], field.clean('[]'))
+        self.assertListEqual([], field.clean('[]'))
 
         img = self._create_image()
-        self.assertEqual([img], field.clean(self._build_value(img)))
+        self.assertListEqual([img], field.clean(self._build_value(img)))
 
         doc = self._create_doc('foobar.txt')
         # self.assertEqual([], field.clean(json_dump([doc.id]))) TODO ?
-        self.assertFieldValidationError(
-            MultiImageEntityField, 'isexcluded', field.clean, self._build_value(doc),
-            message_args={'entity': str(doc)},
+        self.assertFormfieldError(
+            field=field, value=self._build_value(doc),
+            codes='isexcluded',
+            messages=_('«%(entity)s» violates the constraints.') % {'entity': str(doc)},
         )
 
     def test_clean02(self):
@@ -248,12 +259,16 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         field = MultiImageEntityField(user=self.user)
 
         self.assertTrue(field.required)
-        self.assertFieldValidationError(ImageEntityField, 'required', field.clean, '[]')
+        self.assertFormfieldError(
+            field=field, value='[]',
+            codes='required', messages=_('This field is required.'),
+        )
 
         doc = self._create_doc('foobar.txt')
-        self.assertFieldValidationError(
-            ImageEntityField, 'isexcluded', field.clean, self._build_value(doc),
-            message_args={'entity': str(doc)},
+        self.assertFormfieldError(
+            field=field, value=self._build_value(doc),
+            codes='isexcluded',
+            messages=_('«%(entity)s» violates the constraints.') % {'entity': str(doc)},
         )
 
     def test_qfilter_init(self):
@@ -270,9 +285,10 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1')
-        self.assertFieldValidationError(
-            ImageEntityField, 'isexcluded', field.clean, self._build_value(img1),
-            message_args={'entity': str(img1)},
+        self.assertFormfieldError(
+            field=field, value=self._build_value(img1),
+            codes='isexcluded',
+            messages=_('«%(entity)s» violates the constraints.') % {'entity': str(img1)},
         )
 
         img2 = self._create_image(title='Python show 2018')
@@ -295,13 +311,14 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1')
-        self.assertFieldValidationError(
-            ImageEntityField, 'isexcluded', field.clean, self._build_value(img1),
-            message_args={'entity': str(img1)},
+        self.assertFormfieldError(
+            field=field, value=self._build_value(img1),
+            codes='isexcluded',
+            messages=_('«%(entity)s» violates the constraints.') % {'entity': str(img1)},
         )
 
         img2 = self._create_image(title='Python Show 2018')
-        self.assertEqual([img2], field.clean(self._build_value(img2)))
+        self.assertListEqual([img2], field.clean(self._build_value(img2)))
 
     def test_qfilter_property02(self):
         "Q."
@@ -319,9 +336,10 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         # Clean
         img1 = self._create_image(title='Icon#1')
-        self.assertFieldValidationError(
-            ImageEntityField, 'isexcluded', field.clean, self._build_value(img1),
-            message_args={'entity': str(img1)},
+        self.assertFormfieldError(
+            field=field, value=self._build_value(img1),
+            codes='isexcluded',
+            messages=_('«%(entity)s» violates the constraints.') % {'entity': str(img1)},
         )
 
         img2 = self._create_image(title='Python Show 2018')

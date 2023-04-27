@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from django.utils.translation import override as override_language
@@ -490,6 +491,146 @@ class BaseTestCaseTestCase(CremeTestCase):
         self.assertEqual(
             "The string 'Hello world' does not end with 'bar'",
             str(cm.exception),
+        )
+
+    def test_assertValidationError01(self):
+        err = ValidationError(message='Foo')
+        self.assertValidationError(err, messages='Foo')
+        self.assertValidationError(err, messages=['Foo'])
+        self.assertValidationError(err, messages='Foo', codes=None)
+        self.assertValidationError(err, messages='Foo', codes=[None])
+
+        # ---
+        with self.assertRaises(self.failureException) as cm1:
+            self.assertValidationError(err, messages='Bar')
+        self.assertEqual(
+            "The messages differ. Expected: ['Bar']. Got: ['Foo']",
+            str(cm1.exception),
+        )
+
+        # ---
+        with self.assertRaises(self.failureException) as cm2:
+            self.assertValidationError(err, messages='Foo', codes='bar')
+        self.assertEqual(
+            "The codes differ. Expected: ['bar']. Got: [None]",
+            str(cm2.exception),
+        )
+
+        # ---
+        with self.assertRaises(self.failureException) as cm3:
+            self.assertValidationError(err, messages={'foo': 'Bar'})
+        self.assertEqual(
+            'The given exception does not use an error dictionary.',
+            str(cm3.exception),
+        )
+
+    def test_assertValidationError02(self):
+        err = ValidationError(message='Bar', code='invalid')
+        self.assertValidationError(err, messages='Bar')
+        self.assertValidationError(err, messages='Bar', codes='invalid')
+        self.assertValidationError(err, messages=['Bar'], codes=['invalid'])
+
+        # ---
+        with self.assertRaises(self.failureException) as cm1:
+            self.assertValidationError(err, messages='Bar', codes='bad_choice')
+        self.assertEqual(
+            "The codes differ. Expected: ['bad_choice']. Got: ['invalid']",
+            str(cm1.exception),
+        )
+
+        # ---
+        with self.assertRaises(self.failureException) as cm2:
+            self.assertValidationError(err, messages='Bar', codes=['bad', 'choice'])
+        self.assertEqual(
+            "The codes differ. Expected: ['bad', 'choice']. Got: ['invalid']",
+            str(cm2.exception),
+        )
+
+        # ---
+        with self.assertRaises(TypeError) as cm3:
+            self.assertValidationError(err, messages='Bar', codes={'choice': 'bad'})
+        self.assertEqual(
+            'The argument "codes" must be a list or a string in this case.',
+            str(cm3.exception),
+        )
+
+    def test_assertValidationError03(self):
+        err = ValidationError([
+            ValidationError(message='Foo'), ValidationError(message='Bar', code='deleted'),
+        ])
+        self.assertValidationError(err, messages=['Foo', 'Bar'])
+        self.assertValidationError(err, messages=['Foo', 'Bar'], codes=[None, 'deleted'])
+
+        # ---
+        with self.assertRaises(self.failureException) as cm1:
+            self.assertValidationError(err, messages=['Baz'])
+        self.assertEqual(
+            "The messages differ. Expected: ['Baz']. Got: ['Foo', 'Bar']",
+            str(cm1.exception),
+        )
+
+        # ---
+        with self.assertRaises(self.failureException) as cm2:
+            self.assertValidationError(err, messages=['Foo', 'Bar'], codes=['bad_choice'])
+        self.assertEqual(
+            "The codes differ. Expected: ['bad_choice']. Got: [None, 'deleted']",
+            str(cm2.exception),
+        )
+
+    def test_assertValidationError04(self):
+        err = ValidationError({
+            'foo': 'Invalid foo',
+            'bar': ValidationError(message='Bar', code='no_choice'),
+        })
+        self.assertValidationError(err, messages={'foo': 'Invalid foo', 'bar': 'Bar'})
+        self.assertValidationError(
+            err,
+            messages={'foo': 'Invalid foo', 'bar': 'Bar'},
+            codes={'foo': None, 'bar': 'no_choice'},
+        )
+
+        # ---
+        with self.assertRaises(self.failureException) as cm1:
+            self.assertValidationError(err, messages={'bar': 'Bar'})
+        self.assertEqual(
+            "The messages differ. "
+            "Expected: {'bar': ['Bar']}. "
+            "Got: {'foo': ['Invalid foo'], 'bar': ['Bar']}",
+            str(cm1.exception),
+        )
+
+        # ---
+        with self.assertRaises(self.failureException) as cm2:
+            self.assertValidationError(
+                err,
+                messages={'foo': ['Invalid foo'], 'bar': ['Bar']},
+                codes={'bar': 'no_choice'},
+            )
+        self.assertEqual(
+            "The codes differ. "
+            "Expected: {'bar': ['no_choice']}. "
+            "Got: {'foo': [None], 'bar': ['no_choice']}",
+            str(cm2.exception),
+        )
+
+        # ---
+        with self.assertRaises(self.failureException) as cm3:
+            self.assertValidationError(err, messages='Bar')
+        self.assertEqual(
+            'The given exception uses an error dictionary.',
+            str(cm3.exception),
+        )
+
+        # ---
+        with self.assertRaises(TypeError) as cm4:
+            self.assertValidationError(
+                err,
+                messages={'foo': ['Invalid foo'], 'bar': ['Bar']},
+                codes=['no_choice'],
+            )
+        self.assertEqual(
+            'The argument "codes" must be a dictionary in this case.',
+            str(cm4.exception),
         )
 
     def test_get_alone_element(self):

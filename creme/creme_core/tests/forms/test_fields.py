@@ -3,14 +3,14 @@ from datetime import timedelta
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.forms import (
     BooleanField,
     ChoiceField,
+    Field,
     Form,
     HiddenInput,
     IntegerField,
-    TypedChoiceField,
 )
 from django.test.utils import override_settings
 from django.utils.timezone import now
@@ -64,7 +64,8 @@ from creme.creme_core.utils.date_range import (
     DateRange,
 )
 
-from .base import FieldTestCase
+# from .base import FieldTestCase
+from ..base import CremeTestCase
 
 # class CremeUserChoiceFieldTestCase(FieldTestCase):
 #     def test_default(self):
@@ -205,7 +206,8 @@ from .base import FieldTestCase
 #         self.assertListEqual([(team.id, team.username)], team_group[1])
 
 
-class DatePeriodFieldTestCase(FieldTestCase):
+# class DatePeriodFieldTestCase(FieldTestCase):
+class DatePeriodFieldTestCase(CremeTestCase):
     def test_ok01(self):
         "Days."
         period = DatePeriodField().clean(['days', '3'])
@@ -231,9 +233,10 @@ class DatePeriodFieldTestCase(FieldTestCase):
         )
 
     def test_required(self):
-        clean = DatePeriodField().clean
-        self.assertFieldValidationError(DatePeriodField, 'required', clean, ['', ''])
-        self.assertFieldValidationError(DatePeriodField, 'required', clean, None)
+        field = DatePeriodField()
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=['', ''])
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
 
     def test_not_required(self):
         clean = DatePeriodField(required=False).clean
@@ -246,15 +249,19 @@ class DatePeriodFieldTestCase(FieldTestCase):
         self.assertIsNone(clean(['', 2]))
 
     def test_invalid(self):
-        clean = DatePeriodField().clean
-        self.assertFieldValidationError(
-            IntegerField, 'invalid', clean, ['years', 'notint'],
+        field = DatePeriodField()
+        self.assertFormfieldError(
+            field=field, value=['years', 'notint'],
+            messages=_('Enter a whole number.'), codes='invalid',
         )
 
         name = 'unknownperiod'
-        self.assertFieldValidationError(
-            ChoiceField, 'invalid_choice', clean, [name, '2'],
-            message_args={'value': name},
+        self.assertFormfieldError(
+            field=field, value=[name, '2'],
+            messages=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': name},
+            codes='invalid_choice',
         )
 
     def test_choices(self):
@@ -270,27 +277,24 @@ class DatePeriodFieldTestCase(FieldTestCase):
         )
 
     def test_period_names(self):
-        clean = DatePeriodField(period_names=('months',)).clean
-        period = clean(['months', '5'])
+        field = DatePeriodField(period_names=('months',))
+        period = field.clean(['months', '5'])
         self.assertIsInstance(period, DatePeriod)
 
         name = 'years'
-        self.assertFieldValidationError(
-            ChoiceField, 'invalid_choice', clean, [name, '2'],
-            message_args={'value': name},
+        self.assertFormfieldError(
+            field=field, value=[name, '2'],
+            messages=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': name},
+            codes='invalid_choice',
         )
 
     def test_notnull(self):
-        with self.assertRaises(ValidationError) as cm:
-            DatePeriodField().clean(['days', '0'])
-
-        self.assertListEqual(
-            [
-                _('Ensure this value is greater than or equal to %(limit_value)s.') % {
-                    'limit_value': 1,
-                },
-            ],
-            cm.exception.messages,
+        self.assertFormfieldError(
+            field=DatePeriodField(),
+            value=['days', '0'],
+            messages=MinValueValidator.message % {'limit_value': 1},
         )
 
     def test_registry_1(self):
@@ -328,7 +332,8 @@ class DatePeriodFieldTestCase(FieldTestCase):
         )
 
 
-class RelativeDatePeriodFieldTestCase(FieldTestCase):
+# class RelativeDatePeriodFieldTestCase(FieldTestCase):
+class RelativeDatePeriodFieldTestCase(CremeTestCase):
     def test_relative_date_period(self):
         RPeriod = RelativeDatePeriodField.RelativeDatePeriod
 
@@ -365,14 +370,14 @@ class RelativeDatePeriodFieldTestCase(FieldTestCase):
         )
 
     def test_required(self):
-        cls = RelativeDatePeriodField
-        field = cls()
-        clean = field.clean
+        field = RelativeDatePeriodField()
         pname = DaysPeriod.name
-        self.assertFieldValidationError(cls, 'required', clean, ['', ['', '']])
-        self.assertFieldValidationError(cls, 'required', clean, None)
-        self.assertFieldValidationError(cls, 'required', clean, ['', [pname, '2']])
-        self.assertFieldValidationError(cls, 'required', clean, ['1', [pname, '']])
+        code = 'required'
+        msg = Field.default_error_messages[code]
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=['', ['', '']])
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=['', [pname, '2']])
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=['1', [pname, '']])
 
     def test_not_required(self):
         clean = RelativeDatePeriodField(required=False).clean
@@ -385,34 +390,36 @@ class RelativeDatePeriodFieldTestCase(FieldTestCase):
         self.assertIsNone(clean(['1', ['', '2']]))
 
     def test_invalid(self):
-        clean = RelativeDatePeriodField().clean
-        self.assertFieldValidationError(
-            TypedChoiceField, 'invalid_choice', clean,
-            ['notint', [YearsPeriod.name, '1']],
-            message_args={'value': 'notint'},
+        field = RelativeDatePeriodField()
+        choice_msg = _(
+            'Select a valid choice. %(value)s is not one of the available choices.'
         )
-
-        self.assertFieldValidationError(
-            IntegerField, 'invalid', clean, ['1', [YearsPeriod.name, 'notint']],
+        self.assertFormfieldError(
+            field=field,
+            value=['notint', [YearsPeriod.name, '1']],
+            messages=choice_msg % {'value': 'notint'},
+            codes='invalid_choice',
+        )
+        self.assertFormfieldError(
+            field=field,
+            value=['1', [YearsPeriod.name, 'notint']],
+            messages=_('Enter a whole number.'),
+            codes='invalid',
         )
 
         name = 'unknownperiod'
-        self.assertFieldValidationError(
-            ChoiceField, 'invalid_choice', clean, ['-1', [name, '2']],
-            message_args={'value': name},
+        self.assertFormfieldError(
+            field=field,
+            value=['-1', [name, '2']],
+            messages=choice_msg % {'value': name},
+            codes='invalid_choice',
         )
 
     def test_notnull_period(self):
-        with self.assertRaises(ValidationError) as cm:
-            RelativeDatePeriodField().clean(['-1', [DaysPeriod.name, '0']])
-
-        self.assertListEqual(
-            [
-                _(
-                    'Ensure this value is greater than or equal to %(limit_value)s.'
-                ) % {'limit_value': 1},
-            ],
-            cm.exception.messages,
+        self.assertFormfieldError(
+            field=RelativeDatePeriodField(),
+            value=['-1', [DaysPeriod.name, '0']],
+            messages=MinValueValidator.message % {'limit_value': 1},
         )
 
     def test_period_names_1(self):
@@ -472,17 +479,21 @@ class RelativeDatePeriodFieldTestCase(FieldTestCase):
         self.assertListEqual(choices, [*field.widget.relative_choices])
 
 
-class DateRangeFieldTestCase(FieldTestCase):
+# class DateRangeFieldTestCase(FieldTestCase):
+class DateRangeFieldTestCase(CremeTestCase):
     def test_clean_empty_customized(self):
-        clean = DateRangeField().clean
-        self.assertFieldValidationError(DateRangeField, 'required', clean, ['', '', ''])
-        self.assertFieldValidationError(DateRangeField, 'required', clean, None)
+        field = DateRangeField()
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=['', '', ''])
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
 
     def test_start_before_end(self):
         date_value = self.formfield_value_date
-        self.assertFieldValidationError(
-            DateRangeField, 'customized_invalid',
-            DateRangeField().clean, ['', date_value(2011, 5, 16), date_value(2011, 5, 15)],
+        self.assertFormfieldError(
+            field=DateRangeField(),
+            value=['', date_value(2011, 5, 16), date_value(2011, 5, 15)],
+            messages=_('Start date has to be before end date.'),
+            codes='customized_invalid',
         )
 
     def _aux_test_ok(self):
@@ -524,25 +535,29 @@ class DateRangeFieldTestCase(FieldTestCase):
         self.assertIsNone(drange)
 
 
-class ColorFieldTestCase(FieldTestCase):
+# class ColorFieldTestCase(FieldTestCase):
+class ColorFieldTestCase(CremeTestCase):
     def test_empty01(self):
-        clean = ColorField().clean
-        self.assertFieldValidationError(ColorField, 'required', clean, None)
-        self.assertFieldValidationError(ColorField, 'required', clean, '')
-        self.assertFieldValidationError(ColorField, 'required', clean, [])
+        field = ColorField()
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
 
     def test_length01(self):
-        clean = ColorField().clean
-        self.assertFieldRaises(ValidationError, clean, '1')
-        self.assertFieldRaises(ValidationError, clean, '12')
-        self.assertFieldRaises(ValidationError, clean, '123')
-        self.assertFieldRaises(ValidationError, clean, '1234')
-        self.assertFieldRaises(ValidationError, clean, '12345')
+        field = ColorField()
+        msg = _('Enter a valid value (e.g. DF8177).')
+        self.assertFormfieldError(field=field, value='1',     messages=msg, codes='invalid')
+        self.assertFormfieldError(field=field, value='12',    messages=msg, codes='invalid')
+        self.assertFormfieldError(field=field, value='123',   messages=msg, codes='invalid')
+        self.assertFormfieldError(field=field, value='1234',  messages=msg, codes='invalid')
+        self.assertFormfieldError(field=field, value='12345', messages=msg, codes='invalid')
 
     def test_invalid_value01(self):
-        clean = ColorField().clean
-        self.assertFieldValidationError(ColorField, 'invalid', clean, 'GGGGGG')
-        self.assertFieldValidationError(ColorField, 'invalid', clean, '------')
+        field = ColorField()
+        msg = _('Enter a valid value (e.g. DF8177).')
+        self.assertFormfieldError(field=field, messages=msg, codes='invalid', value='GGGGGG')
+        self.assertFormfieldError(field=field, messages=msg, codes='invalid', value='------')
 
     def test_ok01(self):
         clean = ColorField().clean
@@ -588,18 +603,20 @@ class ColorFieldTestCase(FieldTestCase):
         )
 
 
-class DurationFieldTestCase(FieldTestCase):
+# class DurationFieldTestCase(FieldTestCase):
+class DurationFieldTestCase(CremeTestCase):
     def test_ok(self):
         clean = DurationField().clean
         self.assertEqual(timedelta(hours=10, minutes=2, seconds=0),  clean(['10', '2', '0']))
         self.assertEqual(timedelta(hours=8, minutes=12, seconds=25), clean([8, 12, 25]))
 
     def test_empty_required(self):
-        clean = DurationField().clean
-        self.assertFieldValidationError(DurationField, 'required', clean, None)
-        self.assertFieldValidationError(DurationField, 'required', clean, '')
-        self.assertFieldValidationError(DurationField, 'required', clean, [])
-        self.assertFieldValidationError(DurationField, 'required', clean, ['', '', ''])
+        field = DurationField()
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=['', '', ''])
 
     def test_empty_not_required(self):
         clean = DurationField(required=False).clean
@@ -610,29 +627,26 @@ class DurationFieldTestCase(FieldTestCase):
         self.assertEqual(empty, clean(['', '', '']))
 
     def test_invalid(self):
-        with self.assertRaises(ValidationError) as cm:
-            DurationField().clean(['a', 'b', 'c'])
-
-        self.assertEqual(
-            [_('Enter a whole number.')],
-            cm.exception.messages,
+        self.assertFormfieldError(
+            field=DurationField(),
+            value=['a', 'b', 'c'],
+            messages=_('Enter a whole number.'),
+            codes='invalid',
         )
 
     def test_positive(self):
-        with self.assertRaises(ValidationError) as cm:
-            DurationField().clean(['-1', '-1', '-1'])
-
-        self.assertEqual(
-            [
-                _('Ensure this value is greater than or equal to %(limit_value)s.') % {
-                    'limit_value': 0,
-                },
-            ],
-            cm.exception.messages,
+        self.assertFormfieldError(
+            field=DurationField(),
+            value=['-1', '-1', '-1'],
+            messages=_(
+                'Ensure this value is greater than or equal to %(limit_value)s.'
+            ) % {'limit_value': 0},
+            codes='min_value',
         )
 
 
-class OptionalFieldTestCase(FieldTestCase):
+# class OptionalFieldTestCase(FieldTestCase):
+class OptionalFieldTestCase(CremeTestCase):
     def test_option01(self):
         opt1 = OptionalField.Option(is_set=True, data=1)
         self.assertIs(opt1.is_set, True)
@@ -657,7 +671,8 @@ class OptionalFieldTestCase(FieldTestCase):
             OptionalField.Option(is_set=False, data=1)
 
 
-class OptionalChoiceFieldTestCase(FieldTestCase):
+# class OptionalChoiceFieldTestCase(FieldTestCase):
+class OptionalChoiceFieldTestCase(CremeTestCase):
     _team = ['Naruto', 'Sakura', 'Sasuke', 'Kakashi']
 
     def test_sub_fields(self):
@@ -687,55 +702,48 @@ class OptionalChoiceFieldTestCase(FieldTestCase):
         )
 
     def test_not_required(self):
-        clean = OptionalChoiceField(
+        field = OptionalChoiceField(
             choices=enumerate(self._team, start=1), required=False,
-        ).clean
+        )
         expected = OptionalChoiceField.Option(is_set=False, data=None)
-        self.assertEqual(expected, clean([False, '']))
-        self.assertEqual(expected, clean(['', '']))
-        self.assertEqual(expected, clean([False, 1]))
-        self.assertEqual(expected, clean([False, None]))
-        self.assertEqual(expected, clean([False]))
-        self.assertEqual(expected, clean([]))
+        self.assertEqual(expected, field.clean([False, '']))
+        self.assertEqual(expected, field.clean(['', '']))
+        self.assertEqual(expected, field.clean([False, 1]))
+        self.assertEqual(expected, field.clean([False, None]))
+        self.assertEqual(expected, field.clean([False]))
+        self.assertEqual(expected, field.clean([]))
 
-        self.assertFieldValidationError(
-            OptionalChoiceField, 'subfield_required', clean, ['on', None],
+        self.assertFormfieldError(
+            field=field, value=['on', None],
+            messages=_('Enter a value if you check the box.'),
+            codes='subfield_required',
         )
 
     def test_required(self):
-        clean = OptionalChoiceField(
+        field = OptionalChoiceField(
             choices=enumerate(self._team, start=1), required=True,
-        ).clean
+        )
 
         expected = OptionalChoiceField.Option(is_set=False, data=None)
-        self.assertEqual(expected, clean([False, None]))
-        self.assertEqual(expected, clean(['', None]))
-        self.assertEqual(expected, clean([False]))
-        self.assertEqual(expected, clean([]))
+        self.assertEqual(expected, field.clean([False, None]))
+        self.assertEqual(expected, field.clean(['', None]))
+        self.assertEqual(expected, field.clean([False]))
+        self.assertEqual(expected, field.clean([]))
 
-        self.assertFieldValidationError(
-            OptionalChoiceField, 'subfield_required', clean, [True, None],
-        )
-        self.assertFieldValidationError(
-            OptionalChoiceField, 'subfield_required', clean, ['on', None],
-        )
-        self.assertFieldValidationError(
-            OptionalChoiceField, 'subfield_required', clean, [True],
-        )
+        msg = _('Enter a value if you check the box.')
+        code = 'subfield_required'
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=[True, None])
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=['on', None])
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=[True])
 
     def test_invalid(self):
-        field = OptionalChoiceField(choices=enumerate(self._team, start=1))
-
-        with self.assertRaises(ValidationError) as cm:
-            field.clean([False, 'invalid'])
-
-        self.assertListEqual(
-            [
-                _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                    'value': 'invalid',
-                },
-            ],
-            cm.exception.messages,
+        self.assertFormfieldError(
+            field=OptionalChoiceField(choices=enumerate(self._team, start=1)),
+            value=[False, 'invalid'],
+            messages=_(
+                "Select a valid choice. %(value)s is not one of the available choices."
+            ) % {'value': 'invalid'},
+            codes='invalid_choice',
         )
 
     def test_disabled(self):
@@ -771,7 +779,8 @@ class TestUnionField(UnionField):
         super().__init__(**kwargs)
 
 
-class UnionFieldTestCase(FieldTestCase):
+# class UnionFieldTestCase(FieldTestCase):
+class UnionFieldTestCase(CremeTestCase):
     def test_fields_choices(self):
         field = TestUnionField()
 
@@ -826,27 +835,33 @@ class UnionFieldTestCase(FieldTestCase):
         self.assertIsNone(clean(('', {})))
 
     def test_required(self):
-        cls = TestUnionField
-        field = cls()
-        clean = field.clean
-        self.assertFieldValidationError(cls, 'required', clean, None)
-        self.assertFieldValidationError(cls, 'required', clean, ('', {}))
-        self.assertFieldValidationError(cls, 'required', clean, (None, {}))
-        self.assertFieldValidationError(cls, 'required', clean, ('invalid', {}))
+        field = TestUnionField()
+        code = 'required'
+        msg = Field.default_error_messages[code]
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=('', {}))
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=(None, {}))
+        self.assertFormfieldError(field=field, messages=msg, codes=code, value=('invalid', {}))
 
     def test_invalid(self):
-        clean = TestUnionField().clean
-        self.assertFieldValidationError(
-            ChoiceField, 'invalid_choice', clean,
-            (TestUnionField.CHOICE, {TestUnionField.CHOICE: 'z'}),
-            message_args={'value': 'z'},
+        field = TestUnionField()
+        self.assertFormfieldError(
+            field=field,
+            value=(TestUnionField.CHOICE, {TestUnionField.CHOICE: 'z'}),
+            messages=ChoiceField.default_error_messages['invalid_choice'] % {'value': 'z'},
+            codes='invalid_choice',
         )
-        self.assertFieldValidationError(
-            IntegerField, 'invalid', clean,
-            (TestUnionField.INT, {TestUnionField.INT: 'notint'}),
+        self.assertFormfieldError(
+            field=field,
+            value=(TestUnionField.INT, {TestUnionField.INT: 'notint'}),
+            messages=IntegerField.default_error_messages['invalid'],
+            codes='invalid',
         )
-        self.assertFieldValidationError(
-            TestUnionField, 'invalid', clean, (TestUnionField.INT, {}),
+        self.assertFormfieldError(
+            field=field,
+            value=(TestUnionField.INT, {}),
+            messages='No sub-data related to your choice.',
+            codes='invalid',
         )
 
     def test_widget1(self):
@@ -915,22 +930,28 @@ class UnionFieldTestCase(FieldTestCase):
         self.assertFalse(field_choices2[1][1].disabled)
 
 
-class ChoiceOrCharFieldTestCase(FieldTestCase):
+# class ChoiceOrCharFieldTestCase(FieldTestCase):
+class ChoiceOrCharFieldTestCase(CremeTestCase):
     _team = ['Naruto', 'Sakura', 'Sasuke', 'Kakashi']
 
     def test_empty_required(self):
-        clean = ChoiceOrCharField(choices=enumerate(self._team, start=1)).clean
-        self.assertFieldValidationError(ChoiceOrCharField, 'required', clean, None)
-        self.assertFieldValidationError(ChoiceOrCharField, 'required', clean, '')
-        self.assertFieldValidationError(ChoiceOrCharField, 'required', clean, [])
+        field = ChoiceOrCharField(choices=enumerate(self._team, start=1))
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
 
     def test_empty_other(self):
         field = ChoiceOrCharField(choices=enumerate(self._team, start=1))
-        self.assertFieldValidationError(ChoiceOrCharField, 'invalid_other', field.clean, [0, ''])
+        self.assertFormfieldError(
+            field=field, value=[0, ''],
+            messages=_('Enter a value for "Other" choice.'),
+            codes='invalid_other',
+        )
 
     def test_ok_choice(self):
         field = ChoiceOrCharField(choices=enumerate(self._team, start=1))
-        self.assertEqual((1, 'Naruto'), field.clean([1, '']))
+        self.assertTupleEqual((1, 'Naruto'), field.clean([1, '']))
 
     def test_ok_other(self):
         field = ChoiceOrCharField(choices=enumerate(self._team, start=1))
@@ -957,7 +978,8 @@ class ChoiceOrCharFieldTestCase(FieldTestCase):
     # TODO: set 'Other' label
 
 
-class _CTypeChoiceFieldTestCase(FieldTestCase):
+# class _CTypeChoiceFieldTestCase(FieldTestCase):
+class _CTypeChoiceFieldTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -988,7 +1010,9 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
 
         self.assertEqual(ct1, clean(ct1.id))
         self.assertEqual(ct2, clean(ct2.id))
-        self.assertFieldValidationError(CTypeChoiceField, 'required', clean, '')
+        self.assertFormfieldError(
+            field=field, messages=_('This field is required.'), codes='required', value='',
+        )
 
     def test_not_required(self):
         ct1 = self.ct1
@@ -1012,9 +1036,13 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         self.assertEqual(None, clean(''))
 
     def test_invalid(self):
-        clean = CTypeChoiceField(ctypes=[self.ct1, self.ct2]).clean
-        self.assertFieldValidationError(
-            CTypeChoiceField, 'invalid_choice', clean, self.ct3.id,
+        self.assertFormfieldError(
+            field=CTypeChoiceField(ctypes=[self.ct1, self.ct2]),
+            value=self.ct3.id,
+            messages=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
+            codes='invalid_choice',
         )
 
     def test_prepare_value(self):
@@ -1030,7 +1058,8 @@ class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         self.assertEqual(ct2.id, prepare_value(ct2))
 
 
-class _EntityCTypeChoiceFieldTestCase(FieldTestCase):
+# class _EntityCTypeChoiceFieldTestCase(FieldTestCase):
+class _EntityCTypeChoiceFieldTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -1045,10 +1074,13 @@ class EntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
     def test_required(self):
         ct1 = self.ct1
         ct2 = self.ct2
-        clean = EntityCTypeChoiceField().clean
-        self.assertEqual(ct1, clean(ct1.id))
-        self.assertEqual(ct2, clean(ct2.id))
-        self.assertFieldValidationError(EntityCTypeChoiceField, 'required', clean, '')
+        field = EntityCTypeChoiceField()
+        self.assertEqual(ct1, field.clean(ct1.id))
+        self.assertEqual(ct2, field.clean(ct2.id))
+        self.assertFormfieldError(
+            field=field, value='',
+            messages=_('This field is required.'), codes='required',
+        )
 
     def test_not_required(self):
         ct1 = self.ct1
@@ -1059,9 +1091,13 @@ class EntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
         self.assertEqual(None, clean(''))
 
     def test_invalid(self):
-        self.assertFieldValidationError(
-            EntityCTypeChoiceField, 'invalid_choice',
-            EntityCTypeChoiceField().clean, self.ct3.id,
+        self.assertFormfieldError(
+            field=EntityCTypeChoiceField(),
+            value=self.ct3.id,
+            messages=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
+            codes='invalid_choice',
         )
 
     def test_ctypes01(self):
@@ -1071,10 +1107,14 @@ class EntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
         with self.assertNumQueries(0):
             field = EntityCTypeChoiceField(ctypes=[ct1])
 
-        clean = field.clean
-        self.assertEqual(ct1, clean(ct1.id))
-        self.assertFieldValidationError(
-            EntityCTypeChoiceField, 'invalid_choice', clean, self.ct2.id,
+        self.assertEqual(ct1, field.clean(ct1.id))
+        self.assertFormfieldError(
+            field=field,
+            value=self.ct2.id,
+            messages=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
+            codes='invalid_choice',
         )
 
     def test_ctypes02(self):
@@ -1083,10 +1123,14 @@ class EntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
         field = EntityCTypeChoiceField()
         field.ctypes = [ct1]
 
-        clean = field.clean
-        self.assertEqual(ct1, clean(ct1.id))
-        self.assertFieldValidationError(
-            EntityCTypeChoiceField, 'invalid_choice', clean, self.ct2.id,
+        self.assertEqual(ct1, field.clean(ct1.id))
+        self.assertFormfieldError(
+            field=field,
+            value=self.ct2.id,
+            messages=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
+            codes='invalid_choice',
         )
 
     def test_ctypes03(self):
@@ -1105,8 +1149,6 @@ class MultiCTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
         ct1 = self.ct1
         ct2 = self.ct2
         field = MultiCTypeChoiceField(ctypes=[ct1, ct2])
-        clean = field.clean
-
         self.assertEqual(
             sorted(
                 [
@@ -1118,11 +1160,13 @@ class MultiCTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
             [(choice.value, label) for choice, label in field.widget.choices],
         )
 
-        self.assertEqual([ct1], clean([ct1.id]))
-        self.assertEqual([ct2], clean([ct2.id]))
-        self.assertFieldValidationError(MultiCTypeChoiceField, 'required', clean, '')
-        self.assertFieldValidationError(MultiCTypeChoiceField, 'required', clean, [])
-        self.assertFieldValidationError(MultiCTypeChoiceField, 'required', clean, None)
+        self.assertListEqual([ct1], field.clean([ct1.id]))
+        self.assertListEqual([ct2], field.clean([ct2.id]))
+
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
 
     def test_not_required(self):
         ct1 = self.ct1
@@ -1145,14 +1189,15 @@ class MultiCTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
 
     def test_invalid(self):
         ct1 = self.ct1
-        clean = MultiCTypeChoiceField(ctypes=[ct1, self.ct2]).clean
-        self.assertFieldValidationError(
-            MultiCTypeChoiceField, 'invalid_choice',
-            clean, [ct1.id, self.ct3.id],
+        field = MultiCTypeChoiceField(ctypes=[ct1, self.ct2])
+        msg = _(
+            'Select a valid choice. That choice is not one of the available choices.'
         )
-        self.assertFieldValidationError(
-            MultiCTypeChoiceField, 'invalid_choice',
-            clean, ['not an int'],
+        self.assertFormfieldError(
+            field=field, value=[ct1.id, self.ct3.id], messages=msg, codes='invalid_choice',
+        )
+        self.assertFormfieldError(
+            field=field, value=['not an int'], messages=msg, codes='invalid_choice',
         )
 
     def test_prepare_value(self):
@@ -1179,12 +1224,13 @@ class MultiEntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
         with self.assertNumQueries(0):
             field = MultiEntityCTypeChoiceField()
 
-        clean = field.clean
-        self.assertEqual([ct1], clean([ct1.id]))
-        self.assertEqual([ct2], clean([ct2.id]))
-        self.assertFieldValidationError(MultiEntityCTypeChoiceField, 'required', clean, '')
-        self.assertFieldValidationError(MultiEntityCTypeChoiceField, 'required', clean, [])
-        self.assertFieldValidationError(MultiEntityCTypeChoiceField, 'required', clean, None)
+        self.assertListEqual([ct1], field.clean([ct1.id]))
+        self.assertListEqual([ct2], field.clean([ct2.id]))
+
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
 
     def test_not_required(self):
         ct1 = self.ct1
@@ -1197,34 +1243,36 @@ class MultiEntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
         self.assertListEqual([],    clean([]))
 
     def test_invalid(self):
-        clean = MultiEntityCTypeChoiceField().clean
-        self.assertFieldValidationError(
-            MultiEntityCTypeChoiceField, 'invalid_choice',
-            clean, [self.ct1.id, self.ct3.id],
+        field = MultiEntityCTypeChoiceField()
+        msg = _(
+            'Select a valid choice. That choice is not one of the available choices.'
         )
-        self.assertFieldValidationError(
-            MultiEntityCTypeChoiceField, 'invalid_choice',
-            clean, ['not an int'],
+        self.assertFormfieldError(
+            field=field, value=[self.ct1.id, self.ct3.id], messages=msg, codes='invalid_choice',
+        )
+        self.assertFormfieldError(
+            field=field, value=['not an int'], messages=msg, codes='invalid_choice',
         )
 
     def test_ctypes(self):
         ct1 = self.ct1
-        clean = MultiEntityCTypeChoiceField(ctypes=[ct1]).clean
-        self.assertEqual([ct1], clean([ct1.id]))
-        self.assertFieldValidationError(
-            MultiEntityCTypeChoiceField,
-            'invalid_choice', clean, [self.ct2.id],
+        field = MultiEntityCTypeChoiceField(ctypes=[ct1])
+        self.assertListEqual([ct1], field.clean([ct1.id]))
+        self.assertFormfieldError(
+            field=field, value=[self.ct2.id],
+            messages=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
+            codes='invalid_choice',
         )
 
 
-class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
+# class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
+class EnhancedMultipleChoiceFieldTestCase(CremeTestCase):
     def test_required(self):
-        choices = [
-            (1, 'Sword'),
-            (2, 'Axes'),
-            (3, 'Spear'),
-        ]
-        field = EnhancedMultipleChoiceField(choices=choices)
+        field = EnhancedMultipleChoiceField(
+            choices=[(1, 'Sword'), (2, 'Axes'), (3, 'Spear')],
+        )
         self.assertTrue(field.required)
         self.assertIsInstance(field.widget, core_widgets.UnorderedMultipleChoiceWidget)
         self.assertSetEqual(set(), field.initial)
@@ -1233,39 +1281,34 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertCountEqual(['1', '3'], clean([1, 3]))
         self.assertCountEqual(['1', '3'], clean(['1', '3']))
 
-        # NB: we need a 0-argument constructor
-        field_builder = partial(EnhancedMultipleChoiceField, choices=choices)
-        self.assertFieldValidationError(field_builder, 'required', clean, '')
-        self.assertFieldValidationError(field_builder, 'required', clean, [])
-        self.assertFieldValidationError(field_builder, 'required', clean, None)
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
 
     def test_not_required(self):
         field = EnhancedMultipleChoiceField(
-            choices=[
-                (1, 'Sword'),
-                (2, 'Axes'),
-                (3, 'Spear'),
-            ],
+            choices=[(1, 'Sword'), (2, 'Axes'), (3, 'Spear')],
             required=False,
         )
 
         clean = field.clean
         self.assertListEqual(['2'], [*clean(['2'])])
-        self.assertFalse([], clean(''))
-        self.assertFalse([], clean([]))
+        self.assertListEqual([], clean(''))
+        self.assertListEqual([], clean([]))
 
     def test_invalid(self):
-        choices = [
-            (1, 'Sword'),
-            (2, 'Axes'),
-            (3, 'Spear'),
-        ]
-        field_builder = partial(EnhancedMultipleChoiceField, choices=choices)
-        field = field_builder()
-
-        self.assertFieldValidationError(
-            field_builder, 'invalid_choice', field.clean, [str(4)],
-            message_args={'value': 4},
+        field = EnhancedMultipleChoiceField(
+            choices=[(1, 'Sword'), (2, 'Axes'), (3, 'Spear')],
+        )
+        value = 4
+        self.assertFormfieldError(
+            field=field,
+            value=[str(value)],
+            messages=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': value},
+            codes='invalid_choice',
         )
 
     def test_choices01(self):
@@ -1503,7 +1546,8 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual('The "Sword" weapon', choice[0].help)
 
 
-class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
+# class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
+class EnhancedModelMultipleChoiceFieldTestCase(CremeTestCase):
     def assertFoundChoice(self, pk, label, choices):
         for choice in choices:
             id_obj = choice[0]
@@ -1544,13 +1588,10 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertCountEqual(expected, clean([sector1.id, sector3.id]))
         self.assertCountEqual(expected, clean([str(sector1.id), str(sector3.id)]))
 
-        # NB: we need a 0-argument constructor
-        field_builder = partial(
-            EnhancedModelMultipleChoiceField, queryset=FakeSector.objects.all(),
-        )
-        self.assertFieldValidationError(field_builder, 'required', clean, '')
-        self.assertFieldValidationError(field_builder, 'required', clean, [])
-        self.assertFieldValidationError(field_builder, 'required', clean, None)
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
 
     def test_not_required(self):
         field = EnhancedModelMultipleChoiceField(
@@ -1566,17 +1607,17 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertFalse(clean([]))
 
     def test_invalid(self):
-        field_builder = partial(
-            EnhancedModelMultipleChoiceField, queryset=FakeSector.objects.all(),
-        )
-        field = field_builder()
+        field = EnhancedModelMultipleChoiceField(queryset=FakeSector.objects.all())
 
         invalid_pk = self.UNUSED_PK
         self.assertFalse(FakeSector.objects.filter(pk=invalid_pk))
 
-        self.assertFieldValidationError(
-            field_builder, 'invalid_choice', field.clean, [str(invalid_pk)],
-            message_args={'value': invalid_pk},
+        self.assertFormfieldError(
+            field=field, value=[str(invalid_pk)],
+            messages=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': invalid_pk},
+            codes='invalid_choice',
         )
 
     def test_forced_values01(self):
@@ -1691,23 +1732,23 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(f'The "{sector}" sector', choice.help)
 
 
-class OrderedMultipleChoiceFieldTestCase(FieldTestCase):
+# class OrderedMultipleChoiceFieldTestCase(FieldTestCase):
+class OrderedMultipleChoiceFieldTestCase(CremeTestCase):
     def test_required(self):
-        choices = [(1, 'Sword'), (2, 'Axes'), (3, 'Spear')]
-        field = OrderedMultipleChoiceField(choices=choices)
+        field = OrderedMultipleChoiceField(
+            choices=[(1, 'Sword'), (2, 'Axes'), (3, 'Spear')],
+        )
         self.assertTrue(field.required)
         self.assertIsInstance(field.widget, core_widgets.OrderedMultipleChoiceWidget)
         self.assertIsNone(field.initial)
 
-        clean = field.clean
-        self.assertListEqual(['1', '3'], clean([1, 3]))
-        self.assertListEqual(['1', '3'], clean(['1', '3']))
+        self.assertListEqual(['1', '3'], field.clean([1, 3]))
+        self.assertListEqual(['1', '3'], field.clean(['1', '3']))
 
-        # NB: we need a 0-argument constructor
-        field_builder = partial(EnhancedMultipleChoiceField, choices=choices)
-        self.assertFieldValidationError(field_builder, 'required', clean, '')
-        self.assertFieldValidationError(field_builder, 'required', clean, [])
-        self.assertFieldValidationError(field_builder, 'required', clean, None)
+        msg = _('This field is required.')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value='')
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
 
     def test_not_required(self):
         field = OrderedMultipleChoiceField(
@@ -1724,14 +1765,14 @@ class OrderedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertFalse([], clean([]))
 
     def test_invalid(self):
-        field_builder = partial(
-            OrderedMultipleChoiceField,
-            choices=[(1, 'Sword'), (2, 'Axes'), (3, 'Spear')],
-        )
-        field = field_builder()
-        self.assertFieldValidationError(
-            field_builder, 'invalid_choice', field.clean, [str(4)],
-            message_args={'value': 4},
+        self.assertFormfieldError(
+            field=OrderedMultipleChoiceField(
+                choices=[(1, 'Sword'), (2, 'Axes'), (3, 'Spear')],
+            ),
+            value=['4'], codes='invalid_choice',
+            messages=_(
+                "Select a valid choice. %(value)s is not one of the available choices."
+            ) % {'value': 4},
         )
 
     def test_choices01(self):
@@ -1794,9 +1835,8 @@ class OrderedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(help_text, wid2.help)
 
     def test_disabled_values(self):
-        "Disabled "
-        field_builder = partial(
-            OrderedMultipleChoiceField,
+        "Disabled."
+        field = OrderedMultipleChoiceField(
             choices=[
                 {'value': 1, 'label': 'Sword'},
                 {'value': 2, 'label': 'Axes'},
@@ -1804,22 +1844,24 @@ class OrderedMultipleChoiceFieldTestCase(FieldTestCase):
             ],
             required=False,
         )
-        field = field_builder()
 
         # Disabled choice is initially not selected
-        clean = field.clean
-        self.assertListEqual(['2', '1'], clean(['2', '1']))
-        self.assertFieldValidationError(
-            field_builder, 'invalid_choice', clean, ['3'],
-            message_args={'value': 3},
+        self.assertListEqual(['2', '1'], field.clean(['2', '1']))
+        self.assertFormfieldError(
+            field=field, value=['3'],
+            messages=_(
+                "Select a valid choice. %(value)s is not one of the available choices."
+            ) % {'value': 3},
+            codes='invalid_choice',
         )
 
         # Disabled choice is initially selected
         field.initial = [1, 3]
-        self.assertListEqual(['2', '3'], clean(['2', '3']))
-        self.assertFieldValidationError(
-            field_builder, 'missing_choice', clean, ['2'],
-            message_args={'value': 3},
+        self.assertListEqual(['2', '3'], field.clean(['2', '3']))
+        self.assertFormfieldError(
+            field=field, value=['2'],
+            messages=_('The choice %(value)s is mandatory.') % {'value': 3},
+            codes='missing_choice',
         )
 
     def test_iterator(self):
@@ -1845,7 +1887,8 @@ class OrderedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual('The "Sword" weapon', choice[0].help)
 
 
-class ReadonlyMessageFieldTestCase(FieldTestCase):
+# class ReadonlyMessageFieldTestCase(FieldTestCase):
+class ReadonlyMessageFieldTestCase(CremeTestCase):
     def test_clean(self):
         label = 'Beware !'
         msg = 'This stuff is not available'

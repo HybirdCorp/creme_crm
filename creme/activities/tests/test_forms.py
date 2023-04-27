@@ -1,16 +1,18 @@
 from datetime import date, time
 
-from django.core.exceptions import ValidationError
+# from django.core.exceptions import ValidationError
 from django.db.models.expressions import Q
+from django.forms import Field
 from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
 from creme.activities.forms.fields import ActivitySubTypeField
 from creme.activities.models.activity import Activity
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.forms.enumerable import NO_LIMIT
+from creme.creme_core.forms.enumerable import NO_LIMIT  # EnumerableChoiceField
 from creme.creme_core.models import SetCredentials
-from creme.creme_core.tests.forms.base import FieldTestCase
+# from creme.creme_core.tests.forms.base import FieldTestCase
+from creme.creme_core.tests.base import CremeTestCase
 
 from .. import constants
 from ..forms.fields import (
@@ -21,7 +23,8 @@ from ..forms.fields import (
 from ..models import ActivitySubType, ActivityType, Calendar
 
 
-class ActivitySubTypeFieldTestCase(FieldTestCase):
+# class ActivitySubTypeFieldTestCase(FieldTestCase):
+class ActivitySubTypeFieldTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -72,10 +75,12 @@ class ActivitySubTypeFieldTestCase(FieldTestCase):
 
     def test_clean(self):
         field = ActivitySubTypeField()
-
         self.assertEqual(self.subtype, field.clean(self.subtype.pk))
-        with self.assertRaises(ValidationError):
-            field.clean(None)
+        self.assertFormfieldError(
+            field=field, value=None,
+            messages=_('This field is required.'),
+            codes='required',
+        )
 
     def test_clean__not_required(self):
         field = ActivitySubTypeField(required=False)
@@ -85,17 +90,22 @@ class ActivitySubTypeFieldTestCase(FieldTestCase):
         field = ActivitySubTypeField(
             limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO),
         )
-
         self.assertEqual(
             ActivitySubType.objects.get(pk=constants.ACTIVITYSUBTYPE_UNAVAILABILITY),
             field.clean(constants.ACTIVITYSUBTYPE_UNAVAILABILITY),
         )
+        self.assertFormfieldError(
+            field=field,
+            value=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+            messages=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
+            codes='invalid_choice',
+        )
 
-        with self.assertRaises(ValidationError):
-            field.clean(constants.ACTIVITYSUBTYPE_MEETING_MEETING)
 
-
-class DateWithOptionalTimeFieldTestCase(FieldTestCase):
+# class DateWithOptionalTimeFieldTestCase(FieldTestCase):
+class DateWithOptionalTimeFieldTestCase(CremeTestCase):
     def test_result(self):
         DWOT = DateWithOptionalTimeField.DateWithOptionalTime
         o1 = DWOT(date=date(year=2023, month=6, day=22), time=time(hour=12, minute=43))
@@ -134,9 +144,11 @@ class DateWithOptionalTimeFieldTestCase(FieldTestCase):
         )
 
     def test_clean_empty_required(self):
-        clean = DateWithOptionalTimeField(required=True).clean
-        self.assertFieldValidationError(DateWithOptionalTimeField, 'required', clean, None)
-        self.assertFieldValidationError(DateWithOptionalTimeField, 'required', clean, [])
+        field = DateWithOptionalTimeField(required=True)
+        code = 'required'
+        msg = Field.default_error_messages[code]
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=None)
+        self.assertFormfieldError(field=field, messages=msg, codes='required', value=[])
 
     def test_clean_empty_not_required(self):
         field = DateWithOptionalTimeField(required=False)
@@ -164,8 +176,8 @@ class DateWithOptionalTimeFieldTestCase(FieldTestCase):
         field = DateWithOptionalTimeField(required=False)
         field.required = True
 
-        self.assertFieldValidationError(
-            DateWithOptionalTimeField, 'required', field.clean, [],
+        self.assertFormfieldError(
+            field=field, value=[], codes='required', messages=_('This field is required.'),
         )
 
         with self.assertNoException():
@@ -177,7 +189,8 @@ class DateWithOptionalTimeFieldTestCase(FieldTestCase):
         )
 
 
-class UserParticipationFieldTestCase(FieldTestCase):
+# class UserParticipationFieldTestCase(FieldTestCase):
+class UserParticipationFieldTestCase(CremeTestCase):
     def test_clean_empty(self):
         user = self.get_root_user()
         field = UserParticipationField(user=user, required=False)
@@ -204,23 +217,26 @@ class UserParticipationFieldTestCase(FieldTestCase):
             user=self.get_root_user(), is_default=True, name='Cal #2', is_public=True,
         )
 
-        clean = UserParticipationField(user=user).clean
+        field = UserParticipationField(user=user)
         Option = UserParticipationField.Option
-        self.assertEqual(Option(is_set=True, data=cal11), clean([True, cal11.id]))
-        self.assertEqual(Option(is_set=True, data=cal12), clean([True, cal12.id]))
+        self.assertEqual(Option(is_set=True, data=cal11), field.clean([True, cal11.id]))
+        self.assertEqual(Option(is_set=True, data=cal12), field.clean([True, cal12.id]))
 
         # ---
-        with self.assertRaises(ValidationError) as cm:
-            clean([True, cal2.id])
-
-        self.assertEqual(
-            [_('Select a valid choice. That choice is not one of the available choices.')],
-            cm.exception.messages,
+        self.assertFormfieldError(
+            field=field,
+            value=[True, cal2.id],
+            codes='invalid_choice',
+            messages=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
         )
 
         # ---
-        self.assertFieldValidationError(
-            UserParticipationField, 'subfield_required', clean, ['on', None],
+        self.assertFormfieldError(
+            field=field, value=['on', None],
+            messages=_('Enter a value if you check the box.'),
+            codes='subfield_required',
         )
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
@@ -234,18 +250,15 @@ class UserParticipationFieldTestCase(FieldTestCase):
         )
 
         cal = Calendar.objects.create(user=user, is_default=True, name='Cal #11')
-        field = UserParticipationField(user=user)
-
-        with self.assertRaises(ValidationError) as cm:
-            field.clean([True, cal.id])
-
-        self.assertEqual(
-            [_('You are not allowed to link this entity: {}').format(user.linked_contact)],
-            cm.exception.messages,
+        self.assertFormfieldError(
+            field=UserParticipationField(user=user),
+            value=[True, cal.id],
+            messages=_('You are not allowed to link this entity: {}').format(user.linked_contact),
         )
 
 
-class ParticipatingUsersFieldTestCase(FieldTestCase):
+# class ParticipatingUsersFieldTestCase(FieldTestCase):
+class ParticipatingUsersFieldTestCase(CremeTestCase):
     def test_clean_empty(self):
         user = self.get_root_user()
         field = ParticipatingUsersField(user=user, required=False)
@@ -265,17 +278,18 @@ class ParticipatingUsersFieldTestCase(FieldTestCase):
         other_user = self.get_root_user()
         staff_user = self.create_user(index=2, is_staff=True)
 
-        clean = ParticipatingUsersField(user=user).clean
-
+        field = ParticipatingUsersField(user=user)
         self.assertCountEqual(
             [user.linked_contact, other_user.linked_contact],
-            clean([user.id, other_user.id]),
+            field.clean([user.id, other_user.id]),
         )
-
-        self.assertFieldValidationError(
-            ParticipatingUsersField, 'invalid_choice', clean,
-            [user.id, staff_user.id],
-            message_args={'value': staff_user.id},
+        self.assertFormfieldError(
+            field=field,
+            value=[user.id, staff_user.id],
+            codes='invalid_choice',
+            messages=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': staff_user.id},
         )
 
     def test_clean_teamate(self):
@@ -293,19 +307,13 @@ class ParticipatingUsersFieldTestCase(FieldTestCase):
 
     def test_not_linkable(self):
         user = self.login_as_standard(allowed_apps=('persons', 'activities'))
-
         SetCredentials.objects.create(
             role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_ALL,
         )
-
-        field = ParticipatingUsersField(user=user)
-
-        with self.assertRaises(ValidationError) as cm:
-            field.clean([user.id])
-
-        self.assertEqual(
-            [_('Some entities are not linkable: {}').format(user.linked_contact)],
-            cm.exception.messages,
+        self.assertFormfieldError(
+            field=ParticipatingUsersField(user=user),
+            value=[user.id],
+            messages=_('Some entities are not linkable: {}').format(user.linked_contact),
         )
