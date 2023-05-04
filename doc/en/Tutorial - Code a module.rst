@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 06-04-2023 for Creme 2.5
+:Version: 05-05-2023 for Creme 2.5
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2260,6 +2260,52 @@ Then you have to edit the new translation file created in ``my_project/locale_ov
 Finally, compile these new translations as seen before: ::
 
     > creme compilemessages --settings=my_project.settings
+
+
+Storing additional data in an existing model
+********************************************
+
+The model ``CremeEntity`` most of the small models (sector, status…)
+get a JSON field ``extra_data``. It allows to store data at instance level without
+having to modify the models or to create a model dedicated to these data.
+
+This field is not visible by users, and you can even use it to filter instances: ::
+
+    # In your file 'beavers.constants.py' --------------------------------------
+    TAG_COMPANY = 1
+    TAG_COMMUNITY = 2
+
+    # In your code for views, forms, bricks... ---------------------------------
+    from creme.persons import get_organisation_model
+    from my_project.beavers.constants import TAG_COMPANY
+    [...]
+
+    orga = get_organisation_model().objects.get(name='Acme').first()
+    [...]
+
+    # Assign a value
+    orga.extra_data['tag'] = TAG_COMPANY
+    orga.save()
+    [...]
+
+    # Test a value
+    if orga.extra_data.get('tag') == TAG_COMPANY:
+        [...]
+
+    # Filter instances with a value
+    for orga in get_organisation_model().objects.filter(extra_data__tag=TAG_COMPANY):
+        [...]
+
+**Going further** : you can also set several tags on the same entity, with a
+list instead of a simple integer. Beware, some filter operations could not work
+depending on your database engine  : ::
+
+    [...]
+    orga.extra_data['tags'] = [TAG_FOO, TAG_BAR]
+    orga.save()
+
+    # Works with PostgreSQL & MySQL, but not SQlite
+    for orga in get_organisation_model().objects.filter(extra_data__tags__contains=TAG_FOO),
 
 
 Modifying an existing model

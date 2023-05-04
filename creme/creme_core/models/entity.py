@@ -76,6 +76,10 @@ class CremeEntity(CremeModel):
         editable=False,
     ).set_tags(viewable=False)
 
+    # Can be used by third party code to store the data they want,
+    # without having to modify the code.
+    extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
+
     objects = CremeEntityManager()
 
     _real_entity: CremeEntity | Literal[True] | None = None

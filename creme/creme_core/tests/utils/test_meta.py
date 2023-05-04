@@ -273,6 +273,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         expected = [
             ('created',                    _('Creation date')),
             ('description',                _('Description')),
+            ('extra_data',                 'extra data'),
             ('header_filter_search_field', 'header filter search field'),
             ('id',                         'ID'),
             ('is_deleted',                 'is deleted'),
@@ -294,6 +295,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                 ('created',                    _('Creation date')),
                 ('description',                _('Description')),
                 ('entity_type',                'entity type'),
+                ('extra_data',                 'extra data'),
                 ('header_filter_search_field', 'header filter search field'),
                 ('id',                         'ID'),
                 ('is_deleted',                 'is deleted'),

@@ -4,6 +4,7 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.deletion import ProtectedError
+from django.test import skipUnlessDBFeature
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
@@ -18,6 +19,7 @@ from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
+    CremeUser,
     CustomField,
     CustomFieldBoolean,
     CustomFieldDateTime,
@@ -43,13 +45,11 @@ from ..base import CremeTestCase
 
 
 class EntityTestCase(CremeTestCase):
-    def setUp(self):
-        super().setUp()
-        self.login()
-
     def test_entity01(self):
+        user = self.create_user()
+
         with self.assertNoException():
-            entity = CremeEntity.objects.create(user=self.user)
+            entity = CremeEntity.objects.create(user=user)
 
         now_value = now()
         self.assertDatetimesAlmostEqual(now_value, entity.created)
@@ -57,7 +57,9 @@ class EntityTestCase(CremeTestCase):
 
     def test_entity_save01(self):
         "No update_fields."
-        orga = FakeOrganisation.objects.create(user=self.user, name='Nerv')
+        user = self.create_user()
+
+        orga = FakeOrganisation.objects.create(user=user, name='Nerv')
         FakeOrganisation.objects.filter(id=orga.id).update(
             modified=orga.modified - timedelta(days=10),
         )
@@ -73,7 +75,9 @@ class EntityTestCase(CremeTestCase):
 
     def test_entity_save02(self):
         "With update_fields."
-        orga = FakeOrganisation.objects.create(user=self.user, name='Nerv')
+        user = self.create_user()
+
+        orga = FakeOrganisation.objects.create(user=user, name='Nerv')
         FakeOrganisation.objects.filter(id=orga.id).update(
             modified=orga.modified - timedelta(days=10),
         )
@@ -88,11 +92,78 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual('Nerv inc.', orga.header_filter_search_field)
         self.assertFalse(orga.description)
 
+    def test_entity_extra_data01(self):
+        "Single tag."
+        user = self.create_user()
+
+        def create_orga(name, tag=None):
+            orga = FakeOrganisation(user=user, name=name)
+            if tag:
+                orga.extra_data['tag'] = tag
+            orga.save()
+
+            return orga
+
+        orga1 = create_orga(name='Nerv', tag=1)
+        orga1.refresh_from_db()
+        self.assertDictEqual({'tag': 1}, orga1.extra_data)
+
+        orga2 = create_orga(name='Seele', tag=2)
+        self.assertDictEqual({'tag': 2}, orga2.extra_data)
+
+        orga3 = create_orga(name='Acme', tag=1)
+
+        orga4 = create_orga(name='Foobar')
+        self.assertIsNone(orga4.extra_data.get('tag'))
+
+        self.assertCountEqual(
+            [orga1, orga3],
+            FakeOrganisation.objects.filter(extra_data__tag=1),
+        )
+
+        create_orga(name='Foo', tag=3)
+        self.assertCountEqual(
+            [orga1, orga2, orga3],
+            FakeOrganisation.objects.filter(extra_data__tag__in=[1, 2]),
+        )
+
+    @skipUnlessDBFeature('supports_json_field_contains')
+    def test_entity_extra_data02(self):
+        "Multi tags."
+        user = self.create_user()
+
+        def create_orga(name, *tags):
+            orga = FakeOrganisation(user=user, name=name)
+            if tags:
+                orga.extra_data['tags'] = [*tags]
+            orga.save()
+
+            return orga
+
+        orga1 = create_orga('Nerv', 1)
+        orga1.refresh_from_db()
+        self.assertDictEqual({'tags': [1]}, orga1.extra_data)
+
+        orga2 = create_orga('Seele', 2)
+        self.assertDictEqual({'tags': [2]}, orga2.extra_data)
+
+        orga3 = create_orga('Acme', 1)
+
+        orga4 = create_orga('Foobar')
+        self.assertIsNone(orga4.extra_data.get('tags'))
+
+        self.assertCountEqual(
+            [orga1, orga3],
+            FakeOrganisation.objects.filter(extra_data__tags__contains=1),
+        )
+
     def test_manager01(self):
         "Ordering NULL values as 'low'."
+        user = self.create_user()
+
         # NB: we should not use NULL & '' values at the same time, because they are
         # separated by the ordering, but they are equal for the users.
-        create_contact = partial(FakeContact.objects.create, user=self.user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         c1 = create_contact(
             first_name='Naruto', last_name='Uzumaki',
             # email='n.uzumaki@konoha.jp',
@@ -119,11 +190,13 @@ class EntityTestCase(CremeTestCase):
 
     def test_manager02(self):
         "Ordering NULL values as 'low' (FK)."
+        user = self.create_user()
+
         create_sector = FakeSector.objects.create
         s1 = create_sector(title='Hatake')
         s2 = create_sector(title='Uzumaki')
 
-        create_contact = partial(FakeContact.objects.create, user=self.user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         c1 = create_contact(first_name='Naruto',  last_name='Uzumaki', sector=s2)
         c2 = create_contact(first_name='Sasuke',  last_name='Uchiwa')
         c3 = create_contact(first_name='Sakura',  last_name='Haruno')
@@ -155,8 +228,9 @@ class EntityTestCase(CremeTestCase):
         self.ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
 
     def test_fieldtags_clonable(self):
+        user = self.create_user()
         naruto = FakeContact.objects.create(
-            user=self.user, first_name='Naruto', last_name='Uzumaki',
+            user=user, first_name='Naruto', last_name='Uzumaki',
         )
         get_field = naruto._meta.get_field
 
@@ -176,8 +250,9 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('preferred_countries').get_tag(FieldTag.CLONABLE))
 
     def test_fieldtags_viewable(self):
+        user = self.create_user()
         naruto = FakeContact.objects.create(
-            user=self.user, first_name='Naruto', last_name='Uzumaki',
+            user=user, first_name='Naruto', last_name='Uzumaki',
         )
         get_field = naruto._meta.get_field
 
@@ -190,8 +265,9 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('cremeentity_ptr').get_tag(FieldTag.VIEWABLE))
 
     def test_fieldtags_optional(self):
+        user = self.create_user()
         naruto = FakeContact.objects.create(
-            user=self.user, first_name='Naruto', last_name='Uzumaki',
+            user=user, first_name='Naruto', last_name='Uzumaki',
         )
         get_field = naruto._meta.get_field
 
@@ -200,7 +276,7 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('last_name').get_tag(FieldTag.OPTIONAL))
 
     def test_fieldtags_user(self):
-        get_field = self.user._meta.get_field
+        get_field = CremeUser._meta.get_field
 
         self.assertTrue(get_field('username').get_tag(FieldTag.VIEWABLE))
         self.assertFalse(get_field('id').get_tag(FieldTag.VIEWABLE))
@@ -213,7 +289,7 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('role').get_tag(FieldTag.VIEWABLE))
 
     def test_clone01(self):
-        user = self.user
+        user = self.create_user()
         self._build_rtypes_n_ptypes()
 
         created = modified = now()
@@ -253,7 +329,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_clone02(self):
         "Clone regular fields."
-        user = self.user
+        user = self.create_user()
         self._build_rtypes_n_ptypes()
 
         civility = FakeCivility.objects.all()[0]
@@ -299,6 +375,8 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(kage_bunshin.preferred_countries.all())  # Not clonable
 
     def test_clone03(self):
+        user = self.create_user()
+
         create_cf = partial(
             CustomField.objects.create,
             content_type=ContentType.objects.get_for_model(FakeOrganisation),
@@ -316,7 +394,7 @@ class EntityTestCase(CremeTestCase):
         m_enum1 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value='MEnum1')
         m_enum2 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value='MEnum2')
 
-        orga = FakeOrganisation.objects.create(name='Konoha', user=self.user)
+        orga = FakeOrganisation.objects.create(name='Konoha', user=user)
 
         CustomFieldInteger.objects.create(custom_field=cf_int, entity=orga, value=50)
         CustomFieldFloat.objects.create(custom_field=cf_float, entity=orga, value=Decimal('10.5'))
@@ -349,7 +427,9 @@ class EntityTestCase(CremeTestCase):
 
     def test_clone04(self):
         "ManyToMany"
-        image1 = FakeImage.objects.create(user=self.user, name='Konoha by night')
+        user = self.create_user()
+
+        image1 = FakeImage.objects.create(user=user, name='Konoha by night')
         categories = [*FakeImageCategory.objects.all()]
         self.assertTrue(categories)
         image1.categories.set(categories)
@@ -366,15 +446,17 @@ class EntityTestCase(CremeTestCase):
         )
 
     def test_delete01(self):
-        "Simple delete"
-        ce = CremeEntity.objects.create(user=self.user)
+        "Simple delete."
+        user = self.create_user()
+
+        ce = CremeEntity.objects.create(user=user)
         ce.delete()
         self.assertRaises(CremeEntity.DoesNotExist, CremeEntity.objects.get, id=ce.id)
 
     def test_delete02(self):
         "Can delete entities linked by a not internal relation"
+        user = self.create_user()
         self._build_rtypes_n_ptypes()
-        user = self.user
         ce1 = CremeEntity.objects.create(user=user)
         ce2 = CremeEntity.objects.create(user=user)
 
@@ -388,8 +470,8 @@ class EntityTestCase(CremeTestCase):
 
     def test_delete03(self):
         "Can't delete entities linked by an internal relation"
+        user = self.create_user()
         self._build_rtypes_n_ptypes()
-        user = self.user
         ce1 = CremeEntity.objects.create(user=user)
         ce2 = CremeEntity.objects.create(user=user)
 
@@ -401,7 +483,7 @@ class EntityTestCase(CremeTestCase):
         self.assertRaises(ProtectedError, ce2.delete)
 
     def test_properties_functionfield01(self):
-        user = self.user
+        user = self.create_user()
         entity = CremeEntity.objects.create(user=user)
 
         pp_ff = function_field_registry.get(CremeEntity, 'get_pretty_properties')
@@ -434,7 +516,7 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual('Awesome/Wonderful', result.render(ViewTag.TEXT_PLAIN))
 
     def test_properties_functionfield02(self):  # Prefetch with populate_entities()
-        user = self.user
+        user = self.create_user()
         create_entity = CremeEntity.objects.create
         entity1 = create_entity(user=user)
         entity2 = create_entity(user=user)
@@ -471,6 +553,8 @@ class EntityTestCase(CremeTestCase):
         )
 
     def test_customfield_value(self):
+        user = self.create_user()
+
         create_field = partial(
             CustomField.objects.create,
             content_type=ContentType.objects.get_for_model(FakeOrganisation),
@@ -479,7 +563,7 @@ class EntityTestCase(CremeTestCase):
         field_B = create_field(name='B', field_type=CustomField.INT)
         field_C = create_field(name='C', field_type=CustomField.INT)
 
-        orga = FakeOrganisation.objects.create(name='Konoha', user=self.user)
+        orga = FakeOrganisation.objects.create(name='Konoha', user=user)
 
         create_cf = CustomFieldInteger.objects.create
         value_A = create_cf(custom_field=field_A, entity=orga, value=50)
