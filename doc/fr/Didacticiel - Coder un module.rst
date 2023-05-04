@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 06-04-2023 pour la version 2.5 de Creme
+:Version: 05-05-2023 pour la version 2.5 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2342,6 +2342,55 @@ Il ne restera alors plus qu'à compiler ces nouvelles traductions comme déjà
 vu auparavant : ::
 
     > creme compilemessages --settings=my_project.settings
+
+
+Stocker des données additionnelles au niveau d'un modèle existant
+*****************************************************************
+
+Le modèle ``CremeEntity`` et la plupart des petits modèles (secteur, statut…)
+possèdent un champ JSON ``extra_data``. Il permet de stocker des données au niveau
+des instances sans avoir à modifier les modèles ou de créer un modèle dédié à
+ces données.
+
+Ce champ n'est pas visible par les utilisateurs, et vous pouvez même l'utiliser
+pour filtrer les instances : ::
+
+    # Dans votre fichier 'beavers.constants.py' --------------------------------
+    TAG_COMPANY = 1
+    TAG_COMMUNITY = 2
+
+    # Dans votre code des vues, formulaires, blocs... --------------------------
+    from creme.persons import get_organisation_model
+    from my_project.beavers.constants import TAG_COMPANY
+    [...]
+
+    orga = get_organisation_model().objects.get(name='Acme').first()
+    [...]
+
+    # Assigner une valeur
+    orga.extra_data['tag'] = TAG_COMPANY
+    orga.save()
+    [...]
+
+    # Tester une valeur
+    if orga.extra_data.get('tag') == TAG_COMPANY:
+        [...]
+
+    # Filtrer les instances pour une valeur
+    for orga in get_organisation_model().objects.filter(extra_data__tag=TAG_COMPANY):
+        [...]
+
+**Aller plus loin** : vous pouvez aussi mettre plusieurs tags sur la même fiche,
+avec une liste plutôt qu'un simple entier. Attention cependant, certaines
+opérations de filtre pourraient ne pas fonctionner selon votre serveur de base
+de données : ::
+
+    [...]
+    orga.extra_data['tags'] = [TAG_FOO, TAG_BAR]
+    orga.save()
+
+    # Fonctionne avec PostgreSQL & MySQL, mais pas SQlite
+    for orga in get_organisation_model().objects.filter(extra_data__tags__contains=TAG_FOO),
 
 
 Modification d'un modèle existant

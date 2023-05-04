@@ -122,10 +122,13 @@
         # In 'creme_core.gui.button_menu', the rendering of Button has been reworked (see the section <Breaking changes>!) ;
           the verbose name of the button (often use for the button's label) is now always injected in the context ("{{button.verbose_name}}" to get it).
         # In 'creme_core.models':
+            - In 'CremeEntity' :
+                - A JSON field 'extra_data' has been added; it can be used by third party code to store
+                  the data they want, without having to modify the code.
+                - The method 'clone()' now avoids copying 'ManyToManyFields' which are tagged as <clonable=False>
+                  (see '_clone_m2m()').
             - Some database indexes were added to improve general performance with large volumes of data on:
                 - HistoryLine
-            - The method 'CremeEntity.clone()' now avoids copying 'ManyToManyFields' which are tagged as <clonable=False>
-              (see '_clone_m2m()').
         # In 'creme_core.templatetags' :
             - In 'creme_widgets', the templatetag '{% widget_entity_hyperlink %}' has a new optional argument "target".
         # In 'creme_core.tests' :
