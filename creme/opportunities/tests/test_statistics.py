@@ -21,7 +21,6 @@ from .base import (
 class StatisticsTestCase(OpportunitiesBaseTestCase):
     def test_current_year01(self):
         "Empty."
-        self.create_user()
         self.assertListEqual(
             [],
             CurrentYearStatistics(Opportunity, Organisation)()
@@ -29,7 +28,8 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
 
     def test_current_year02(self):
         "Several managed organisation + only won."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         statf = CurrentYearStatistics(Opportunity, Organisation)
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -104,7 +104,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
 
     def test_current_year03(self):
         "Lost opportunities."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_orga = partial(Organisation.objects.create, user=user)
         emitter = create_orga(name='Emitter', is_managed=True)
@@ -147,7 +147,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
 
     def test_current_year04(self):
         "Since 1rst january."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_orga = partial(Organisation.objects.create, user=user)
         emitter = create_orga(name='Emitter', is_managed=True)
@@ -191,7 +191,7 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
 
     def test_current_year05(self):
         "closing_date is hidden."
-        user = self.create_user()
+        user = self.get_root_user()
 
         FieldsConfig.objects.create(
             content_type=Opportunity,

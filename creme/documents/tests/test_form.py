@@ -13,7 +13,8 @@ from .base import Document, _DocumentsTestCase
 class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
     def setUp(self):
         super().setUp()
-        self.login()
+        # self.login()
+        self.user = self.login_as_root_and_get()
 
     def test_init01(self):
         "Not required."
@@ -203,7 +204,8 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
     def setUp(self):
         super().setUp()
-        self.login()
+        # self.login()
+        self.user = self.login_as_root_and_get()
 
     @staticmethod
     def _build_value(*docs):

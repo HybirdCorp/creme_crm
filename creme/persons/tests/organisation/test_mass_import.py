@@ -54,7 +54,8 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
 
     @skipIfCustomAddress
     def test_mass_import01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name1 = 'Nerv'
         city1 = 'Tokyo'
@@ -62,7 +63,7 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
         city2 = 'Chicago'
         lines = [(name1, city1, ''), (name2, '', city2)]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.client.post(
             self._build_import_url(Organisation),
             follow=True,
@@ -116,7 +117,8 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
     @skipIfCustomAddress
     def test_mass_import02(self):
         "Update (with address)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'Bebop'
         city1 = 'Red city'
@@ -138,7 +140,7 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
         address_val1 = '213 Gauss Street'
         address_val2 = '56 Einstein Avenue'
         email = 'contact@bebop.mrs'
-        doc = self._build_csv_doc([(name, address_val1, address_val2, email)])
+        doc = self._build_csv_doc([(name, address_val1, address_val2, email)], user=user)
         response = self.client.post(
             self._build_import_url(Organisation),
             follow=True,
@@ -172,7 +174,8 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
     @skipIfCustomAddress
     def test_mass_import03(self):
         "FieldsConfig on Address sub-field."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Address,
             descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
@@ -181,7 +184,7 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
         name = 'Nerv'
         city = 'Tokyo'
         po_box = 'ABC123'
-        doc = self._build_csv_doc([(name, city, po_box)])
+        doc = self._build_csv_doc([(name, city, po_box)], user=user)
         response = self.client.post(
             self._build_import_url(Organisation), follow=True,
             data={
@@ -205,14 +208,15 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
     @skipIfCustomAddress
     def test_mass_import04(self):
         "FieldsConfig on 'billing_address' FK field."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Organisation,
             descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
         )
 
         name = 'Nerv'
-        doc = self._build_csv_doc([(name, 'Tokyo', 'ABC123')])
+        doc = self._build_csv_doc([(name, 'Tokyo', 'ABC123')], user=user)
         response = self.client.post(
             self._build_import_url(Organisation), follow=True,
             data={

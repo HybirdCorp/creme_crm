@@ -47,7 +47,8 @@ class MiscViewsTestCase(ViewsTestCase):
 
     @override_settings(SOFTWARE_LABEL='Creme')
     def test_home01(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         response = self.assertGET200(reverse('creme_core__home'))
         self.assertTemplateUsed(response, 'creme_core/home.html')
 
@@ -74,7 +75,8 @@ class MiscViewsTestCase(ViewsTestCase):
     @override_settings(SOFTWARE_LABEL='My CRM')
     def test_home02(self):
         "Superuser bricks configuration."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         # brick_id = StatisticsBrick.id_
         brick_id = StatisticsBrick.id
@@ -82,7 +84,9 @@ class MiscViewsTestCase(ViewsTestCase):
 
         # Should not be used
         # BrickHomeLocation.objects.create(brick_id=HistoryBrick.id_, role=self.role, order=1)
-        BrickHomeLocation.objects.create(brick_id=HistoryBrick.id, role=self.role, order=1)
+        BrickHomeLocation.objects.create(
+            brick_id=HistoryBrick.id, role=UserRole.objects.create(name='Test'), order=1,
+        )
 
         response = self.assertGET200(reverse('creme_core__home'))
         bricks = response.context.get('bricks')
@@ -97,13 +101,14 @@ class MiscViewsTestCase(ViewsTestCase):
 
     def test_home03(self):
         "Superuser bricks configuration"
-        self.login(is_superuser=False)
+        # self.login(is_superuser=False)
+        user = self.login_as_standard()
         role2 = UserRole.objects.create(name='Viewer')
 
         # brick_id = StatisticsBrick.id_
         brick_id = StatisticsBrick.id
         create_hbl = BrickHomeLocation.objects.create
-        create_hbl(brick_id=brick_id, role=self.role, order=1)
+        create_hbl(brick_id=brick_id, role=user.role, order=1)
 
         # Should not be used
         # create_hbl(brick_id=HistoryBrick.id_, superuser=True, order=1)
@@ -121,7 +126,8 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertEqual(brick_id, brick.id)
 
     def test_my_page(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         response = self.assertGET200('/my_page')
         self.assertTemplateUsed(response, 'creme_core/my_page.html')
 
@@ -136,12 +142,14 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertIn(HistoryBrick, {b.__class__ for b in bricks})
 
     def test_about(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         response = self.assertGET200('/creme_about')
         self.assertTemplateUsed(response, 'about/about.html')
 
     def test_logout(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         self.assertIn('_auth_user_id', self.client.session)
         # response = self.assertGET200(reverse('creme_logout'), follow=True)
@@ -152,7 +160,8 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertRedirects(response, reverse(settings.LOGIN_URL))
 
     def test_js_view(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         factory = RequestFactory()
 
         request = factory.get('/test_js')
@@ -168,7 +177,8 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertTrue(settings.FORCE_JS_TESTVIEW)
 
     def test_js_widget_view_home__disabled(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self.assertGET404(reverse('creme_core__test_widget_home'))
 
@@ -180,7 +190,8 @@ class MiscViewsTestCase(ViewsTestCase):
 
     @override_settings(FORCE_JS_TESTVIEW=True, TESTS_ON=False)
     def test_js_widget_view_home(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET200(reverse('creme_core__test_widget_home'))
 
     @parameterized.expand([
@@ -205,11 +216,13 @@ class MiscViewsTestCase(ViewsTestCase):
     ])
     @override_settings(FORCE_JS_TESTVIEW=True, TESTS_ON=False)
     def test_js_widget_views(self, widget):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET200(reverse('creme_core__test_widget', args=(widget,)))
 
     def test_400_middleware(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         response = self.assertGET(400, '/test_http_response?status=400')
         self.assertEqual(response.content, b'<p>Http Response 400</p>')
 
@@ -220,7 +233,8 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertEqual(response.content, b'XML Http Response 400')
 
     def test_403_middleware(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         response = self.assertGET403('/test_http_response?status=403')
         self.assertContains(response, 'Tests: operation is not allowed', status_code=403)
 
@@ -231,7 +245,8 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertContains(response, 'Tests: operation is not allowed', status_code=403)
 
     def test_404_middleware(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         response = self.assertGET404('/test_http_response?status=404')
         self.assertContains(
             response,
@@ -246,7 +261,8 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertContains(response, 'Tests: no such result or unknown url', status_code=404)
 
     def test_409_middleware(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         response = self.assertGET409('/test_http_response?status=409')
         self.assertContains(response, 'Tests: conflicting operation', status_code=409)
 
@@ -257,7 +273,8 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertEqual(response.content, b'Tests: conflicting operation')
 
     def test_500_middleware(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         with self.assertRaises(Exception):
             self.client.get('/test_http_response?status=500')
@@ -269,48 +286,54 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertEqual(response.content, b'Tests: server internal error')
 
     def test_auth_decorators01(self):
-        self.login(
-            is_superuser=False,
+        # self.login(
+        self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['documents'],  # Not 'creme_core'
             creatable_models=[FakeContact],
         )
         self.assertGET403('/tests/contact/add')
 
     def test_auth_decorators02(self):
-        self.login(
-            is_superuser=False,
+        # self.login(
+        self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['creme_core'],
             creatable_models=[FakeImage],  # Not FakeContact
         )
         self.assertGET403('/tests/contact/add')
 
     def test_auth_decorators03(self):
-        self.login(
-            is_superuser=False,
+        # self.login(
+        self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['creme_core'],
             creatable_models=[FakeContact],
         )
         self.assertGET200('/tests/contact/add')
 
     def test_auth_decorators_multiperm01(self):
-        self.login(
-            is_superuser=False,
+        # self.login(
+        self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['documents'],  # Not 'creme_core'
             creatable_models=[FakeOrganisation],
         )
         self.assertGET403('/tests/organisation/add')
 
     def test_auth_decorators_multiperm02(self):
-        self.login(
-            is_superuser=False,
+        # self.login(
+        self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['creme_core'],
             creatable_models=[FakeImage],  # Not FakeOrganisation
         )
         self.assertGET403('/tests/organisation/add')
 
     def test_auth_decorators_multiperm03(self):
-        self.login(
-            is_superuser=False,
+        # self.login(
+        self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['creme_core'],
             creatable_models=[FakeOrganisation],
         )
@@ -356,7 +379,8 @@ class MiscViewsTestCase(ViewsTestCase):
 class LanguageTestCase(ViewsTestCase):
     def setUp(self):
         super().setUp()
-        self.login()
+        # self.login()
+        self.login_as_root()
 
     def test_portal(self):
         self.assertGET200(
@@ -408,7 +432,8 @@ class LanguageTestCase(ViewsTestCase):
 class CurrencyTestCase(ViewsTestCase):
     def setUp(self):
         super().setUp()
-        self.login()
+        # self.login()
+        self.login_as_root()
 
     def test_portal(self):
         self.assertGET200(

@@ -358,9 +358,11 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_create_with_absolute_date(self):
         self.assertFalse(Alert.objects.exists())
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         entity = self.entity
-        entity.user = self.other_user
+        entity.user = other_user
         entity.save()
 
         queue = get_queue()
@@ -381,7 +383,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.assertFalse(user_f.required)
         self.assertEqual(
-            _('Same owner than the entity (currently «{user}»)').format(user=self.other_user),
+            _('Same owner than the entity (currently «{user}»)').format(user=other_user),
             user_f.empty_label,
         )
 
@@ -975,8 +977,11 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     @override_settings(DEFAULT_TIME_ALERT_REMIND=60)
     def test_reminder3(self):
         "Dynamic user."
+        # other_user = self.other_user
+        other_user = self.create_user()
+
         entity = self.entity
-        entity.user = self.other_user
+        entity.user = other_user
         entity.save()
 
         reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
@@ -989,7 +994,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
 
         message = self.get_alone_element(mail.outbox)
-        self.assertEqual([self.other_user.email], message.to)
+        self.assertEqual([other_user.email], message.to)
 
     @override_settings(DEFAULT_TIME_ALERT_REMIND=30)
     def test_next_wakeup1(self):
@@ -1038,23 +1043,33 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         user = self.user
         now_value = now()
 
-        create_user = get_user_model().objects.create
-        teammate1 = create_user(
-            username='luffy',
-            email='luffy@sunny.org', role=self.role,
-            first_name='Luffy', last_name='Monkey D.',
-        )
-        teammate2 = create_user(
-            username='zorro',
-            email='zorro@sunny.org', role=self.role,
-            first_name='Zorro', last_name='Roronoa',
-        )
+        # create_user = get_user_model().objects.create
+        # teammate1 = create_user(
+        #     username='luffy',
+        #     email='luffy@sunny.org', role=self.role,
+        #     first_name='Luffy', last_name='Monkey D.',
+        # )
+        # teammate2 = create_user(
+        #     username='zorro',
+        #     email='zorro@sunny.org', role=self.role,
+        #     first_name='Zorro', last_name='Roronoa',
+        # )
+        #
+        # team1 = create_user(username='Team #1', is_team=True)
+        # team1.teammates = [teammate1, user]
+        #
+        # team2 = create_user(username='Team #2', is_team=True)
+        # team2.teammates = [self.other_user, teammate2]
+        other_user = self.create_user(0)
+        teammate1 = self.create_user(1)
+        teammate2 = self.create_user(2)
 
-        team1 = create_user(username='Team #1', is_team=True)
+        create_team = partial(get_user_model().objects.create, is_team=True)
+        team1 = create_team(username='Team #1')
         team1.teammates = [teammate1, user]
 
-        team2 = create_user(username='Team #2', is_team=True)
-        team2.teammates = [self.other_user, teammate2]
+        team2 = create_team(username='Team #2', is_team=True)
+        team2.teammates = [other_user, teammate2]
 
         create_alert = partial(
             Alert.objects.create,

@@ -226,6 +226,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_brick(self):
         user = self.user
+        other_user = self.create_user()
         priority = UserMessagePriority.objects.first()
 
         entity1 = self.entity
@@ -238,7 +239,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 body='My body is ready',
                 creation_date=now(),
                 priority=priority,
-                sender=self.other_user,
+                # sender=self.other_user,
+                sender=other_user,
                 recipient=user,
                 # creme_entity=entity,
                 real_entity=entity,
@@ -302,7 +304,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_delete(self):
         user = self.user
-        other_user = self.other_user
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         priority = UserMessagePriority.objects.create(title='Important')
         self._create_usermessage(

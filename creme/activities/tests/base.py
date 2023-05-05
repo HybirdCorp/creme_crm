@@ -45,13 +45,19 @@ class _ActivitiesTestCase(CremeTestCase):
     EXTRA_ALERTPERIOD_KEY = 'cform_extra-activities_alert_period'
     EXTRA_MESSAGES_KEY    = 'cform_extra-activities_user_messages'
 
-    def login(self, is_superuser=True, is_staff=False,
-              allowed_apps=('activities', 'persons'), *args, **kwargs):
-        return super().login(
-            is_superuser=is_superuser,
-            is_staff=is_staff,
-            allowed_apps=allowed_apps,
-            *args, **kwargs
+    # def login(self, is_superuser=True, is_staff=False,
+    #           allowed_apps=('activities', 'persons'), *args, **kwargs):
+    #     return super().login(
+    #         is_superuser=is_superuser,
+    #         is_staff=is_staff,
+    #         allowed_apps=allowed_apps,
+    #         *args, **kwargs
+    #     )
+
+    def login_as_activities_user(self, *, allowed_apps=(), **kwargs):
+        return self.login_as_standard(
+            allowed_apps=['persons', 'activities', *allowed_apps],
+            **kwargs
         )
 
     @staticmethod
@@ -61,8 +67,10 @@ class _ActivitiesTestCase(CremeTestCase):
     def assertUserHasDefaultCalendar(self, user):
         return self.get_object_or_fail(Calendar, is_default=True, user=user)
 
-    def _build_nolink_setcreds(self):
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
+    # def _build_nolink_setcreds(self):
+    def _build_nolink_setcreds(self, user):
+        # create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
         create_sc(
             value=(
@@ -74,10 +82,12 @@ class _ActivitiesTestCase(CremeTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-    def _create_activity_by_view(self, title='My task',
+    def _create_activity_by_view(self,
+                                 user,
+                                 title='My task',
                                  subtype_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
                                  **kwargs):
-        user = self.login()
+        # user = self.login()
 
         data = {
             'user': user.pk,
@@ -97,6 +107,7 @@ class _ActivitiesTestCase(CremeTestCase):
         return self.get_object_or_fail(Activity, title=title)
 
     def _create_meeting(self,
+                        user,
                         title='Meeting01',
                         subtype_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
                         hour=14,
@@ -104,7 +115,9 @@ class _ActivitiesTestCase(CremeTestCase):
                         ):
         create_dt = self.create_datetime
         return Activity.objects.create(
-            user=self.user, title=title,
+            # user=self.user,
+            user=user,
+            title=title,
             type_id=ACTIVITYTYPE_MEETING, sub_type_id=subtype_id,
             start=create_dt(year=2013, month=4, day=1, hour=hour,     minute=0),
             end=create_dt(year=2013,   month=4, day=1, hour=hour + 1, minute=0),

@@ -7,16 +7,19 @@ from creme import persons
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.models import Relation, SetCredentials
-from creme.creme_core.tests.base import CremeTestCase
+# from creme.creme_core.tests.base import CremeTestCase
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 from creme.persons.models import Civility
+
+from .base import _BaseTestCase
 
 Address = persons.get_address_model()
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 
 
-class PersonsTagsTestCase(CremeTestCase):
+# class PersonsTagsTestCase(CremeTestCase):
+class PersonsTagsTestCase(_BaseTestCase):
     def test_persons_pretty_address01(self):
         "<address> & <po_box> fields."
         address1 = Address(address='742 Evergreen Terrace')
@@ -128,7 +131,7 @@ class PersonsTagsTestCase(CremeTestCase):
         )
 
     def test_persons_contact_first_employer01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         contact = Contact.objects.create(user=user, first_name='Homer', last_name='Simpson')
 
         with self.assertNoException():
@@ -173,7 +176,7 @@ class PersonsTagsTestCase(CremeTestCase):
 
     def test_persons_contact_first_employer02(self):
         "Deleted organisations."
-        user = self.create_user()
+        user = self.get_root_user()
         contact = Contact.objects.create(user=user, first_name='Homer', last_name='Simpson')
 
         create_orga = partial(Organisation.objects.create, user=user, is_deleted=True)
@@ -205,12 +208,14 @@ class PersonsTagsTestCase(CremeTestCase):
 
     def test_persons_contact_first_employer03(self):
         "Not viewable organisations."
-        user = self.login(is_superuser=False, allowed_apps=['persons'])
-        other_user = self.other_user
+        # user = self.login(is_superuser=False, allowed_apps=['persons'])
+        user = self.login_as_persons_user()
+        # other_user = self.other_user
+        other_user = self.get_root_user()
         contact = Contact.objects.create(user=user, first_name='Homer', last_name='Simpson')
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -265,7 +270,7 @@ class PersonsTagsTestCase(CremeTestCase):
 
     def test_persons_addresses_formblock_fields01(self):
         "1 FK, 1 field."
-        user = self.create_user()
+        user = self.get_root_user()
 
         class ContactForm(CremeEntityForm):
             class Meta(CremeEntityForm.Meta):
@@ -306,7 +311,7 @@ class PersonsTagsTestCase(CremeTestCase):
 
     def test_persons_addresses_formblock_fields02(self):
         "2 FKs, 2 fields."
-        user = self.create_user()
+        user = self.get_root_user()
 
         fks = [
             Contact._meta.get_field(fname)

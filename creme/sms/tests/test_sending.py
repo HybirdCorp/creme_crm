@@ -40,7 +40,8 @@ class SendingsTestCase(CremeTestCase):
 
     @skipIfCustomContact
     def test_create01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         # We create voluntarily duplicates (recipients that have same addresses
         # than Contact, MessagingLists that contain the same addresses)
         # Sending should not contain duplicates.
@@ -154,16 +155,18 @@ class SendingsTestCase(CremeTestCase):
 
     def test_create02(self):
         "No related to a campaign => error"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         self.assertGET404(self._build_add_url(nerv))
 
     def test_reload_messages_brick01(self):
         "Not super-user."
-        user = self.login(is_superuser=False, allowed_apps=['sms'])
+        # user = self.login(is_superuser=False, allowed_apps=['sms'])
+        user = self.login_as_standard(allowed_apps=['sms'])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -196,15 +199,17 @@ class SendingsTestCase(CremeTestCase):
         self.assertIn(f' id="{MessagesBrick.id}"', brick_data[1])
 
     def test_reload_sending_bricks02(self):
-        "Can not see the campaign"
-        user = self.login(is_superuser=False, allowed_apps=['sms'])
+        "Can not see the campaign."
+        # user = self.login(is_superuser=False, allowed_apps=['sms'])
+        user = self.login_as_standard(allowed_apps=['sms'])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_OWN,
         )
 
-        camp = SMSCampaign.objects.create(user=self.other_user, name='Camp#1')
+        # camp = SMSCampaign.objects.create(user=self.other_user, name='Camp#1')
+        camp = SMSCampaign.objects.create(user=self.get_root_user(), name='Camp#1')
         template = MessageTemplate.objects.create(
             user=user, name='My template', subject='Subject', body='My body is ready',
         )

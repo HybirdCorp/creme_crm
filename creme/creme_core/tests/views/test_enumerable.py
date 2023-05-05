@@ -20,12 +20,14 @@ class EnumerableViewsTestCase(ViewsTestCase):
         )
 
     def test_choices__invalid_limit(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         url = self._build_choices_url(models.FakeContact, 'civility')
         self.assertGET(400, f'{url}?limit=NaN')
 
     def test_choices__missing_only(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         mister = self.get_object_or_fail(models.FakeCivility, title='Mister')
         url = self._build_choices_url(models.FakeContact, 'civility')
 
@@ -38,7 +40,8 @@ class EnumerableViewsTestCase(ViewsTestCase):
         ], response.json())
 
     def test_choices_success_fk(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         mister = self.get_object_or_fail(models.FakeCivility, title='Mister')
         miss = self.get_object_or_fail(models.FakeCivility, title='Miss')
@@ -56,32 +59,37 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
         self.assertListEqual(expected, choices)
 
+        # ---
         response = self.assertGET200(f'{url}?limit=2')
 
         with self.assertNoException():
             self.assertListEqual(expected[:2], response.json())
 
+        # ---
         response = self.assertGET200(f'{url}?term=Mister')
 
         with self.assertNoException():
             choices = response.json()
 
-        self.assertListEqual([
-            {'value': mister.id, 'label': str(mister)}
-        ], response.json())
+        self.assertListEqual([{'value': mister.id, 'label': str(mister)}], choices)
 
+        # ---
         response = self.assertGET200(f'{url}?only={mister.pk},{miss.pk}')
 
         with self.assertNoException():
             choices = response.json()
 
-        self.assertListEqual([
-            {'value': miss.id, 'label': str(miss)},
-            {'value': mister.id, 'label': str(mister)},
-        ], response.json())
+        self.assertListEqual(
+            [
+                {'value': miss.id, 'label': str(miss)},
+                {'value': mister.id, 'label': str(mister)},
+            ],
+            choices,
+        )
 
     def test_choices_success_m2m(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         response = self.assertGET200(self._build_choices_url(models.FakeImage, 'categories'))
         self.assertListEqual(
             [
@@ -92,7 +100,8 @@ class EnumerableViewsTestCase(ViewsTestCase):
         )
 
     def test_choices_success_limited_choices_to(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         create_lang = models.Language.objects.create
         lang1 = create_lang(name='Klingon [deprecated]')
@@ -108,7 +117,8 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
     def test_choices_success_specific_printer01(self):
         "Model is EntityFilter."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_filter = models.EntityFilter.objects.smart_update_or_create
         build_cond = RegularFieldConditionHandler.build_condition
@@ -166,7 +176,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
                 'help': '',
                 'group': 'Test Contact',
             },
-            find_efilter_dict(efilter1)
+            find_efilter_dict(efilter1),
         )
         self.assertDictEqual(
             {
@@ -175,12 +185,13 @@ class EnumerableViewsTestCase(ViewsTestCase):
                 'help': _('Private ({})').format(user),
                 'group': 'Test Organisation',
             },
-            find_efilter_dict(efilter2)
+            find_efilter_dict(efilter2),
         )
 
     def test_choices_success_specific_printer02(self):
         "Field is a EntityCTypeForeignKey."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self.assertGET200(self._build_choices_url(models.FakeReport, 'ctype'))
         choices = response.json()
@@ -202,11 +213,13 @@ class EnumerableViewsTestCase(ViewsTestCase):
         self.assertFalse([t for t in choices if t['value'] == civ_ctid])
 
     def test_choices_POST(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertPOST405(self._build_choices_url(models.FakeContact, 'civility'))
 
     def test_choices_not_entity_model(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertContains(
             self.client.get(self._build_choices_url(models.FakeIngredient, 'group')),
             'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeIngredient',
@@ -214,7 +227,8 @@ class EnumerableViewsTestCase(ViewsTestCase):
         )
 
     def test_choices_not_viewable(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertContains(
             self.client.get(self._build_choices_url(models.FakeAddress, 'entity')),
             'This field is not viewable: creme_core.FakeAddress.entity',
@@ -222,7 +236,8 @@ class EnumerableViewsTestCase(ViewsTestCase):
         )
 
     def test_choices_no_app_credentials(self):
-        self.login(is_superuser=False, allowed_apps=['creme_config'])
+        # self.login(is_superuser=False, allowed_apps=['creme_config'])
+        self.login_as_standard(allowed_apps=['creme_config'])
         self.assertContains(
             self.client.get(
                 self._build_choices_url(models.FakeContact, 'civility'),
@@ -234,7 +249,8 @@ class EnumerableViewsTestCase(ViewsTestCase):
         )
 
     def test_choices_field_does_not_exist(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertContains(
             self.client.get(self._build_choices_url(models.FakeContact, 'unknown')),
             'This field does not exist.',
@@ -242,13 +258,15 @@ class EnumerableViewsTestCase(ViewsTestCase):
         )
 
     def test_custom_enum_not_exists(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self.assertGET404(reverse('creme_core__cfield_enums', args=(666,)))
         self.assertContains(response, 'No CustomField matches the given query', status_code=404)
 
     def test_custom_enum(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         custom_field = models.CustomField.objects.create(
             name='Eva',

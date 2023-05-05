@@ -75,8 +75,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_participants_brick(self):
         ParticipantsBrick.page_size = max(4, settings.BLOCK_SIZE)
 
-        user = self.login()
-        activity = self._create_meeting()
+        # # user = self.login()
+        user = self.login_as_root_and_get()
+        user = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user)
 
         create_contact = partial(Contact.objects.create, user=user)
         c1 = user.linked_contact
@@ -125,8 +127,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_subjects_brick(self):
         SubjectsBrick.page_size = max(4, settings.BLOCK_SIZE)
 
-        user = self.login()
-        activity = self._create_meeting()
+        # # user = self.login()
+        user = self.login_as_root_and_get()
+        user = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user)
 
         create_contact = partial(Contact.objects.create, user=user)
         c1 = user.linked_contact
@@ -180,15 +184,17 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_bricks_activity(self):
         ParticipantsBrick.page_size = SubjectsBrick.page_size = max(4, settings.BLOCK_SIZE)
 
-        user = self.login()
-        activity = self._create_meeting()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user)
 
         create_contact = partial(Contact.objects.create, user=user)
         c1 = user.linked_contact
         c2 = create_contact(first_name='Musashi', last_name='Miyamoto')
         c3 = create_contact(first_name='Kojiro',  last_name='Sasaki')
         c4 = create_contact(first_name='Seijuro', last_name='Yoshioka')
-        c5 = self.other_user.linked_contact
+        # c5 = self.other_user.linked_contact
+        c5 = self.create_user().linked_contact
 
         create_rel = partial(
             Relation.objects.create,
@@ -236,7 +242,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         FutureActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
         PastActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
 
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         now_value = now()
         today8 = self.create_datetime(
@@ -272,7 +279,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             ) for i in range(1, 5)
         ]
 
-        contact = self.other_user.linked_contact
+        # contact = self.other_user.linked_contact
+        contact = Contact.objects.create(
+            user=user, first_name='Musashi', last_name='Miyamoto',
+        )
         create_rel = partial(Relation.objects.create, user=user, subject_entity=contact)
         create_rel(object_entity=future[0], type_id=REL_SUB_PART_2_ACTIVITY)
         create_rel(object_entity=future[1], type_id=REL_SUB_ACTIVITY_SUBJECT)
@@ -334,7 +344,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         FutureActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
         PastActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
 
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         now_value = now()
         today8 = self.create_datetime(
@@ -419,7 +430,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sv.value = False
         sv.save()
 
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         now_value = now()
         today8 = self.create_datetime(
@@ -503,8 +515,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     @skipIfCustomContact
     def test_add_participants01(self):
-        user = self.login()
-        activity = self._create_meeting()
+        # # user = self.login()
+        user = self.login_as_root_and_get()
+        user = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user)
 
         create_contact = partial(Contact.objects.create, user=user)
         c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
@@ -537,9 +551,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     def test_add_participants02(self):
         "Credentials error with the activity."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_activities_user()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -549,7 +564,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         self.assertTrue(user.has_perm_to_change(activity))
         self.assertFalse(user.has_perm_to_link(activity))
         self.assertGET403(self._build_add_participants_url(activity))
@@ -557,14 +572,16 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomContact
     def test_add_participants03(self):
         "Credentials error with selected subjects."
-        user = self.login(is_superuser=False)
-        self._build_nolink_setcreds()
+        # user = self.login(is_superuser=False)
+        user = self.login_as_activities_user()
+        self._build_nolink_setcreds(user=user)
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         self.assertTrue(user.has_perm_to_link(activity))
 
         contact = Contact.objects.create(
-            user=self.other_user, first_name='Musashi', last_name='Miyamoto',
+            # user=self.other_user, first_name='Musashi', last_name='Miyamoto',
+            user=self.get_root_user(), first_name='Musashi', last_name='Miyamoto',
         )
         self.assertTrue(user.has_perm_to_change(contact))
         self.assertFalse(user.has_perm_to_link(contact))
@@ -589,9 +606,11 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomContact
     def test_add_participants04(self):
         "'My participation' field is removed when it is useless."
-        activity = self._create_activity_by_view()
+        user = self.login_as_root_and_get()
+        activity = self._create_activity_by_view(user=user)
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        # create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
         c2 = create_contact(first_name='Kojiro',  last_name='Sasaki')
 
@@ -609,7 +628,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             data={'participants': self.formfield_value_multi_creator_entity(c1, c2)},
         ))
         self.assertCountEqual(
-            [c1.id, c2.id, self.user.linked_contact.id],
+            [c1.id, c2.id, user.linked_contact.id],
             [
                 *Relation.objects
                          .filter(object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY)
@@ -620,12 +639,14 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomContact
     def test_add_participants05(self):
         "Fix a bug when checking for collision for a floating activities."
-        activity = self._create_activity_by_view()
+        user = self.login_as_root_and_get()
+        activity = self._create_activity_by_view(user=user)
         self.assertIsNone(activity.start)
         self.assertIsNone(activity.end)
         self.assertEqual(FLOATING, activity.floating_type)
 
-        create_contact = partial(Contact.objects.create, user=self.user)
+        # create_contact = partial(Contact.objects.create, user=self.user)
+        create_contact = partial(Contact.objects.create, user=user)
         c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
         c2 = create_contact(first_name='Kojiro',  last_name='Sasaki')
 
@@ -636,7 +657,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             data={'participants': self.formfield_value_multi_creator_entity(c1, c2)},
         ))
         self.assertCountEqual(
-            [c1.id, c2.id, self.user.linked_contact.id],
+            [c1.id, c2.id, user.linked_contact.id],
             [
                 *Relation.objects
                          .filter(object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY)
@@ -646,8 +667,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     def test_add_participants06(self):
         "When Teams are selected, their teammates are participants."
-        user = self.login()
-        activity = self._create_meeting()
+        # # user = self.login()
+        user = self.login_as_root_and_get()
+        user = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user)
 
         create_user = get_user_model().objects.create
         musashi = create_user(
@@ -685,8 +708,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomOrganisation
     def test_add_participants07(self):
         "Auto-subject."
-        user = self.login()
-        activity = self._create_meeting()
+        # # user = self.login()
+        user = self.login_as_root_and_get()
+        user = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user)
 
         akane = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo')
         dojo = Organisation.objects.create(user=user, name='Tendo Dojo')
@@ -704,13 +729,15 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     def test_add_participants08(self):
         "I already participate + the selected team includes me."
-        user = self.login()
-        other_user = self.other_user
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         team = get_user_model().objects.create(username='A-team', is_team=True)
         team.teammates = [user, other_user]
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         Relation.objects.create(
             user=user,
             subject_entity=user.linked_contact,
@@ -737,9 +764,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     @skipIfCustomContact
     def test_remove_participants01(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_activities_user()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -751,7 +779,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
 
         logged = user.linked_contact
-        other = self.other_user.linked_contact
+        # other = self.other_user.linked_contact
+        other = self.get_root_user().linked_contact
         contact3 = Contact.objects.create(user=user, first_name='Roy', last_name='Mustang')
 
         dt_now = now()
@@ -809,8 +838,9 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomContact
     def test_remove_participants02(self):
         "Cannot unlink the contact."
-        user = self.login(is_superuser=False)
-        create_creds = partial(SetCredentials.objects.create, role=self.role)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_activities_user()
+        create_creds = partial(SetCredentials.objects.create, role=user.role)
         create_creds(
             value=EntityCredentials.VIEW | EntityCredentials.UNLINK,
             set_type=SetCredentials.ESET_OWN,
@@ -825,7 +855,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        contact = self.other_user.linked_contact
+        # contact = self.other_user.linked_contact
+        contact = self.get_root_user().linked_contact
         self.assertFalse(user.has_perm_to_unlink(contact))
 
         phone_call = Activity.objects.create(
@@ -846,8 +877,9 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomContact
     def test_remove_participants03(self):
         "Cannot unlink the activity."
-        user = self.login(is_superuser=False)
-        create_creds = partial(SetCredentials.objects.create, role=self.role)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_activities_user()
+        create_creds = partial(SetCredentials.objects.create, role=user.role)
         create_creds(
             value=EntityCredentials.VIEW | EntityCredentials.UNLINK,
             set_type=SetCredentials.ESET_OWN,
@@ -867,7 +899,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         phone_call = Activity.objects.create(
             title='A random activity',
-            user=self.other_user,
+            # user=self.other_user,
+            user=self.get_root_user(),
             type_id=ACTIVITYTYPE_PHONECALL, sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
         )
         self.assertFalse(user.has_perm_to_unlink(phone_call))
@@ -882,9 +915,11 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     @skipIfCustomOrganisation
     def test_add_subjects01(self):
-        user = self.login()
+        # # user = self.login()
+        user = self.login_as_root_and_get()
+        user = self.login_as_root_and_get()
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         orga = Organisation.objects.create(user=user, name='Ghibli')
 
         url = self._build_add_subjects_url(activity)
@@ -924,9 +959,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     def test_add_subjects02(self):
         "Credentials error with the activity."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_activities_user()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -936,7 +972,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         self.assertTrue(user.has_perm_to_change(activity))
         self.assertFalse(user.has_perm_to_link(activity))
         self.assertGET403(self._build_add_subjects_url(activity))
@@ -944,13 +980,15 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomOrganisation
     def test_add_subjects03(self):
         "Credentials error with selected subjects."
-        user = self.login(is_superuser=False)
-        self._build_nolink_setcreds()
+        # user = self.login(is_superuser=False)
+        user = self.login_as_activities_user()
+        self._build_nolink_setcreds(user=user)
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         self.assertTrue(user.has_perm_to_link(activity))
 
-        orga = Organisation.objects.create(user=self.other_user, name='Ghibli')
+        # orga = Organisation.objects.create(user=self.other_user, name='Ghibli')
+        orga = Organisation.objects.create(user=self.get_root_user(), name='Ghibli')
         self.assertTrue(user.has_perm_to_change(orga))
         self.assertFalse(user.has_perm_to_link(orga))
 
@@ -973,9 +1011,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     def test_add_subjects04(self):
         "Bad ContentType (relationType constraint error)."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        create_meeting = self._create_meeting
+        create_meeting = partial(self._create_meeting, user=user)
         activity    = create_meeting(title='My meeting')
         bad_subject = create_meeting(title="I'm bad heeheeeee")
 
@@ -990,9 +1029,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     @skipIfCustomContact
     def test_remove_subject01(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_activities_user()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -1003,7 +1043,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
 
         create_rel = partial(
@@ -1031,9 +1071,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomContact
     def test_remove_subject02(self):
         "Can not unlink the activity."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -1043,7 +1084,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
         relation = Relation.objects.create(
             subject_entity=contact,
@@ -1061,9 +1102,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomContact
     def test_remove_subject03(self):
         "Can not unlink the contact."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
 
-        create_creds = partial(SetCredentials.objects.create, role=self.role)
+        create_creds = partial(SetCredentials.objects.create, role=user.role)
         create_creds(
             value=(
                 EntityCredentials.VIEW
@@ -1084,9 +1126,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         contact = Contact.objects.create(
-            user=self.other_user, first_name='Musashi', last_name='Miyamoto',
+            # user=self.other_user, first_name='Musashi', last_name='Miyamoto',
+            user=self.get_root_user(), first_name='Musashi', last_name='Miyamoto',
         )
         relation = Relation.objects.create(
             subject_entity=contact,
@@ -1102,9 +1145,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     @skipIfCustomContact
     def test_unlink01(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_activities_user()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -1115,7 +1159,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
 
         create_rel = partial(
@@ -1143,9 +1187,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomContact
     def test_unlink02(self):
         "Can not unlink the activity."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -1155,7 +1200,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
         relation = Relation.objects.create(
             subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY,
@@ -1170,9 +1215,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomContact
     def test_unlink03(self):
         "Can not unlink the contact."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
 
-        create_creds = partial(SetCredentials.objects.create, role=self.role)
+        create_creds = partial(SetCredentials.objects.create, role=user.role)
         create_creds(
             value=(
                 EntityCredentials.VIEW
@@ -1193,9 +1239,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         contact = Contact.objects.create(
-            user=self.other_user, first_name='Musashi', last_name='Miyamoto',
+            # user=self.other_user, first_name='Musashi', last_name='Miyamoto',
+            user=self.get_root_user(), first_name='Musashi', last_name='Miyamoto',
         )
         relation = Relation.objects.create(
             subject_entity=contact,
@@ -1210,7 +1257,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertStillExists(relation)
 
     def test_user_calendars(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         UserCalendarsBrick.page_size = max(3, settings.BLOCK_SIZE)
 
         cal1 = Calendar.objects.get_default_calendar(user)

@@ -57,7 +57,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
     def test_widget_entity_hyperlink01(self):
         "Escaping."
-        user = self.create_user()
+        user = self.get_root_user()
 
         name = 'NERV'
         orga = FakeOrganisation.objects.create(user=user, name=name + '<br/>')  # escaping OK ??
@@ -112,9 +112,11 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
     def test_widget_entity_hyperlink02(self):
         "Credentials."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
 
-        orga = FakeOrganisation.objects.create(user=self.other_user, name='NERV')
+        # orga = FakeOrganisation.objects.create(user=self.other_user, name='NERV')
+        orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='NERV')
         self.assertFalse(user.has_perm_to_view(orga))
 
         with self.assertNoException():
@@ -125,7 +127,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
     def test_widget_entity_hyperlink03(self):
         "Is deleted."
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Seele', is_deleted=True)
         ctxt = Context({'user': user, 'my_entity': orga})
 
@@ -373,7 +375,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         )
 
     def test_widget_icon_instance(self):
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Seele')
         theme = 'icecream'
 

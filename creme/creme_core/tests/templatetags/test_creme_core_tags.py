@@ -257,7 +257,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     # TODO: complete with other field types
     def test_print_field(self):
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation.objects.create(
             user=user, name='<br/>Amestris', url_site='www.amestris.org',
             # email='contact@mestris.org',
@@ -317,8 +317,9 @@ class CremeCoreTagsTestCase(CremeTestCase):
         )
 
     def test_has_perm_to01(self):
-        user = self.login()
-        orga = FakeOrganisation.objects.create(user=self.user, name='Xing')
+        # user = self.login()
+        user = self.get_root_user()
+        orga = FakeOrganisation.objects.create(user=user, name='Xing')
 
         with self.assertNoException():
             render = Template(
@@ -343,8 +344,9 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self.assertEqual('True' * 11, render.strip())
 
     def test_has_perm_to02(self):
-        user = self.login(is_superuser=False)
-        orga = FakeOrganisation.objects.create(user=self.user, name='Xerces')
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        orga = FakeOrganisation.objects.create(user=user, name='Xerces')
 
         with self.assertNoException():
             render = Template(
@@ -369,13 +371,16 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self.assertEqual('False' * 11, render.strip())
 
     def test_has_perm_to03(self):
-        user = self.login(
-            is_superuser=False,
-            allowed_apps=['creme_core'],
-            creatable_models=[FakeOrganisation],
+        # user = self.login(
+        #     is_superuser=False,
+        #     allowed_apps=['creme_core'],
+        #     creatable_models=[FakeOrganisation],
+        # )
+        user = self.login_as_standard(
+            allowed_apps=['creme_core'], creatable_models=[FakeOrganisation],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_ALL,
         )
@@ -638,7 +643,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
         )
 
     def test_optionize_model_iterable_filter(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='Amestris')
@@ -859,7 +864,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
         )
 
     def test_inner_edition_uri(self):
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Amestris')
 
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)

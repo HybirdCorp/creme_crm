@@ -11,7 +11,12 @@ from creme.creme_config.registry import (
 from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.gui.bricks import SimpleBrick, _BrickRegistry
-from creme.creme_core.models import FakeCivility, FakePosition, FakeSector
+from creme.creme_core.models import (
+    FakeCivility,
+    FakePosition,
+    FakeSector,
+    UserRole,
+)
 from creme.creme_core.tests.base import CremeTestCase
 from creme.documents.models import DocumentCategory
 
@@ -591,7 +596,9 @@ class RegistryTestCase(CremeTestCase):
 
     def test_get_model_creation_info01(self):
         "Not registered model."
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
+        user = self.get_root_user()
         registry = _ConfigRegistry()
 
         url, allowed = registry.get_model_creation_info(model=FakeCivility, user=user)
@@ -600,7 +607,8 @@ class RegistryTestCase(CremeTestCase):
 
     def test_get_model_creation_info02(self):
         "Registered model."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         registry = _ConfigRegistry()
         registry.register_model(FakeCivility)
@@ -614,13 +622,20 @@ class RegistryTestCase(CremeTestCase):
         self.assertEqual(creation_url, url)
 
         # User than cannot admin
-        url, allowed = registry.get_model_creation_info(model=FakeCivility, user=self.other_user)
+        role = UserRole(name='Basic')
+        role.allowed_apps = ('creme_core',)
+        # role.admin_4_apps = ('creme_core',)
+        role.save()
+        # other_user = self.other_user
+        other_user = self.create_user(role=role)
+        url, allowed = registry.get_model_creation_info(model=FakeCivility, user=other_user)
         self.assertIs(False, allowed)
         self.assertEqual(creation_url, url)
 
     def test_get_model_creation_info03(self):
         "Not super-user."
-        user = self.login(is_superuser=False, admin_4_apps=['creme_core'])
+        # user = self.login(is_superuser=False, admin_4_apps=['creme_core'])
+        user = self.login_as_standard(admin_4_apps=['creme_core'])
 
         registry = _ConfigRegistry()
         registry.register_model(FakeCivility)
@@ -630,7 +645,9 @@ class RegistryTestCase(CremeTestCase):
 
     def test_get_model_creation_info04(self):
         "Specific creation URL."
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
+        user = self.get_root_user()
 
         registry = _ConfigRegistry()
         registry.register_model(FakeCivility).creation(url_name='creme_config__create_team')
@@ -641,7 +658,9 @@ class RegistryTestCase(CremeTestCase):
 
     def test_get_model_creation_info05(self):
         "Enable function OK."
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
+        user = self.get_root_user()
 
         registry = _ConfigRegistry()
         registry.register_model(FakeCivility).creation(enable_func=lambda user: True)
@@ -657,7 +676,9 @@ class RegistryTestCase(CremeTestCase):
 
     def test_get_model_creation_info06(self):
         "Enable function KO."
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
+        user = self.get_root_user()
 
         registry = _ConfigRegistry()
         registry.register_model(FakeCivility).creation(enable_func=lambda user: False)

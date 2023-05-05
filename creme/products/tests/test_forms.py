@@ -230,7 +230,8 @@ from ..models import Category, SubCategory
 
 class CreateCategoryTestCase(CremeTestCase):
     def test_create_subcategory_from_widget(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         cat1 = Category.objects.create(name='cat1', description='description')
         count = SubCategory.objects.count()
@@ -275,7 +276,8 @@ class CreateCategoryTestCase(CremeTestCase):
         )
 
     def test_create_subcategory_from_widget__unknown_category(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         url, _allowed = config_registry.get_model_creation_info(SubCategory, user)
         self.assertGET200(url)
@@ -288,7 +290,8 @@ class CreateCategoryTestCase(CremeTestCase):
         self.assertEqual(count, SubCategory.objects.count())
 
     def test_create_category_from_widget(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         url, _allowed = config_registry.get_model_creation_info(Category, user)
         self.assertGET200(url)

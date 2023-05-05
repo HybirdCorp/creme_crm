@@ -84,7 +84,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_creds(self):
         "Not staff."
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET403(self.URL)
 
     def test_register01(self):
@@ -221,7 +222,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_error01(self):
         "Invalid JSON."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         json_file = StringIO("{'roles': [")
         json_file.name = 'config-23-10-2017.csv'  # Django uses this
@@ -234,7 +236,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_error02(self):
         "Invalid data."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         json_file = StringIO(json_dump([]))
         json_file.name = 'config-23-10-2017.csv'  # Django uses this
@@ -261,7 +264,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_error03(self):
         "Bad version."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         json_file = StringIO(json_dump({'version': '2.0', 'roles': []}))
         json_file.name = 'config-23-10-2017.csv'  # Django uses this
@@ -273,7 +277,8 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_roles01(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         self.assertGET200(self.URL)
 
@@ -366,7 +371,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_roles02(self):
         "Role with same name already exists => override it."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
         get_ct = ContentType.objects.get_for_model
         contact_ct = get_ct(FakeContact)
 
@@ -433,7 +439,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_roles03(self):
         "Credentials with filter."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
         ct_str_c = 'creme_core.fakecontact'
 
         rtype_id = 'creme_config-subject_test_import_roles03'
@@ -523,7 +530,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_roles_error(self):
         "Invalid filter."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
         efilter_id = 'creme_config-test_import_role_error'
         data = {
             'version': self.VERSION,
@@ -556,8 +564,10 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_menu(self):
-        self.login(is_staff=True)
-        role1 = self.role
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
+        # role1 = self.role
+        role1 = UserRole.objects.create(name='Test')
 
         role_name2 = 'Super-hero'
 
@@ -734,7 +744,8 @@ class ImportingTestCase(CremeTestCase):
         self.assertEqual(role2, role2_child1.role)
 
     def test_buttons(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         contact_ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(ButtonMenuItem.objects.filter(content_type=contact_ct))
@@ -781,8 +792,10 @@ class ImportingTestCase(CremeTestCase):
         self.assertDoesNotExist(orga_bmi)
 
     def test_search01(self):
-        self.login(is_staff=True)
-        role = self.role
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
+        # role = self.role
+        role = UserRole.objects.create(name='Test')  # TODO: in setupClass?
 
         cf_uuid = '6a52b4db-f838-489f-b6df-d1558b3938e5'
         search_data = [
@@ -851,7 +864,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_search02(self):
         "Related role is imported."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         role_name = 'Super-hero'
         search_data = [
@@ -906,7 +920,8 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_property_types01(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         pk_fmt = 'creme_config-test_import_property_type01_{}'.format
         pk1 = pk_fmt(1)
@@ -941,7 +956,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_property_types02(self):
         "Uniqueness of text."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         pk = 'creme_config-test_import_property_type02'
 
@@ -959,7 +975,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_property_types03(self):
         "Do no override a not custom ptype."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         ptype = CremePropertyType.objects.create(
             pk='creme_config-test_import_property_types03', text='Sugoi !',
@@ -977,7 +994,8 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_relations_types01(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         # ptype1 = CremePropertyType.objects.first(); self.assertIsNotNone(ptype1)
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -1072,7 +1090,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_relations_types02(self):
         "Invalid subject PK."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         pka = 'creme_config-test_import_relations_types02'  # not '-subject_'
 
@@ -1099,7 +1118,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_relations_types03(self):
         "Do no override a not custom relation-type."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         rtype = RelationType.objects.filter(is_custom=False, id__contains='-subject_').first()
         self.assertIsNotNone(rtype)
@@ -1124,7 +1144,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_relations_types04(self):
         "Invalid property types."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         ptype_pk = 'creme_config-test_import_relation_types_04_doesnotexist'
         rtypes_data = [{
@@ -1152,7 +1173,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_relations_types05(self):
         "A related property types is imported"
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         ptype1 = CremePropertyType.objects.smart_update_or_create(
             str_pk='creme_config-test_import_relation_types05_1',
@@ -1195,7 +1217,8 @@ class ImportingTestCase(CremeTestCase):
         self.assertCountEqual([ptype1, ptype2], rtype.subject_properties.all())
 
     def test_fields_config01(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         fname1 = 'description'
         fname2 = 'phone'
@@ -1230,7 +1253,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_fields_config02(self):
         "A configuration already exists for this ContentType."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         FieldsConfig.objects.create(
             content_type=FakeContact,
@@ -1261,7 +1285,8 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_customfields01(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         get_ct = ContentType.objects.get_for_model
 
@@ -1325,7 +1350,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_customfields02(self):
         "Invalid type."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         unknown_cfield_type = 1024
         cfields_data = [{
@@ -1345,7 +1371,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_customfields03(self):
         "Name + ContentType uniqueness"
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         name = 'Rating'
         # CustomField.objects.create(content_type=ContentType.objects.get_for_model(FakeContact),
@@ -1370,7 +1397,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_customfields04(self):
         "UUID uniqueness."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         cfield = CustomField.objects.create(
             content_type=FakeContact, name='Rating', field_type=CustomField.FLOAT,
@@ -1394,8 +1422,10 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_headerfilters01(self):
-        self.login(is_staff=True)
-        other_user = self.other_user
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
+        # other_user = self.other_user
+        other_user = self.get_root_user()
 
         get_ct = ContentType.objects.get_for_model
         ct_contact = get_ct(FakeContact)
@@ -1500,7 +1530,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_headerfilters02(self):
         "Do not override not custom header-filters."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         hf = self.get_object_or_fail(HeaderFilter, id=DEFAULT_HFILTER_FAKE_CONTACT)
 
@@ -1523,7 +1554,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_headerfilters03(self):
         "A used RelationType is imported"
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         rtype_id1 = 'creme_config-subject_test_import_headerfilter03_1'
 
@@ -1598,7 +1630,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_headerfilters04(self):
         "A used CustomField is imported."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         cf_uuid = '6a52b4db-f832-489f-b6de-d1558b3938e3'
         ct_str = 'creme_core.fakecontact'
@@ -1651,7 +1684,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_headerfilters_error01(self):
         "Invalid type of cell."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         cell_type = 'invalid'
         hf_id = 'creme_config-test_import_headerfilters_error01'
@@ -1681,7 +1715,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_headerfilters_error02(self):
         "Invalid cell: regular field."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         fname = 'name'
         hf_id = 'creme_config-test_import_headerfilters_error02'
@@ -1709,7 +1744,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_headerfilters_error03(self):
         "Invalid cell: custom-field."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         cf_uuid = '6a52b4db-f832-489f-b6de-d1558b3938f4'
         hf_id = 'creme_config-test_import_headerfilters_error03'
@@ -1737,7 +1773,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_headerfilters_error04(self):
         "Invalid cell: function field."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         ff_name = 'invalid'
         hf_id = 'creme_config-test_import_headerfilters-error04'
@@ -1768,7 +1805,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_headerfilters_error05(self):
         "Invalid cell: relation."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         rtype_id = 'creme_config-subject_test_import_headerfilters_error05'  # <= does not exist
         hf_id = 'creme_config-test_import_headerfilters-error04'
@@ -1798,8 +1836,10 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_entityfilters01(self):
-        self.login(is_staff=True)
-        other_user = self.other_user
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
+        # other_user = self.other_user
+        other_user = self.get_root_user()
 
         ct_str_c = 'creme_core.fakecontact'
         ct_str_o = 'creme_core.fakeorganisation'
@@ -2113,7 +2153,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_entityfilters02(self):
         "Do not override not custom filters."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'creme_config-contact_me', name='Me',
@@ -2156,7 +2197,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_entityfilters03(self):
         "Sub-filters ordering."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
         ct_str_c = 'creme_core.fakecontact'
 
         ef1 = EntityFilter.objects.smart_update_or_create(
@@ -2237,7 +2279,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_entityfilters04(self):
         "(relation) Sub-filters ordering."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
         ct_str_c = 'creme_core.fakecontact'
 
         rtype = RelationType.objects.filter(is_internal=False).first()
@@ -2326,7 +2369,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_entityfilters_error01(self):
         "Invalid condition type."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         unknown_cond_type = 1024
         efilter_id = 'creme_config-test_import_entityfilters_error01'
@@ -2359,7 +2403,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_entityfilters_error02(self):
         "Invalid condition: regular field."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         efilters_data = [{
             'id':         'creme_config-test_import_entityfilters_error02',
@@ -2384,7 +2429,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_entityfilters_error03(self):
         "Invalid condition: property."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         ptype_id = 'creme_config-test_import_entityfilter03'  # does not exist/not imported
         ef_id = 'creme_config-test_import_entityfilters_error03'
@@ -2414,7 +2460,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_entityfilters_error04_a(self):
         "Invalid condition: relation (invalid rtype)."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         # Does not exist/not imported
         rtype_id = 'creme_config-subject_test_import_entityfilter_error04_a'
@@ -2446,7 +2493,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_entityfilters_error04_b(self):
         "Invalid condition: relation (invalid entity's UUID)."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         rtype = RelationType.objects.filter(is_internal=False).first()
 
@@ -2480,7 +2528,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_entityfilters_error05(self):
         "Invalid condition: custom-field."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         cf_uuid = str(uuid4())  # does not exist/not imported
 
@@ -2511,7 +2560,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_entityfilters_error06(self):
         "Invalid condition: (date) custom-field."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         cf_uuid = str(uuid4())  # does not exist/not imported
 
@@ -2544,7 +2594,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_entityfilters_error07(self):
         "Invalid condition: sub-filter."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         ef_id1 = 'creme_config-test_import_entityfilters_error07_1'
         ef_id2 = 'creme_config-test_import_entityfilters_error07_2'
@@ -2575,7 +2626,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_entityfilters_error08(self):
         "Invalid condition: relation sub-filters (unknown filter)."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         rtype = RelationType.objects.filter(is_internal=False).first()
         self.assertIsNotNone(rtype)
@@ -2613,7 +2665,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_entityfilters_error09(self):
         "Invalid condition: relation sub-filters (unknown relation-type)."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
         ct_str_c = 'creme_core.fakecontact'
 
         ef_id1 = 'creme_config-test_import_entityfilters_error08_1'
@@ -2664,7 +2717,8 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_customforms(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM
         cf_uuid = '6a52b4db-f838-489f-b6df-d1558b3938d6'
@@ -2815,7 +2869,8 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_customforms_error(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         descriptor_id = 'INVALID'
         cforms_data = [{
@@ -2834,7 +2889,8 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_relation_bricks(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
         get_ct = ContentType.objects.get_for_model
         ct_str1 = 'creme_core.fakecontact'
         ct_str2 = 'creme_core.fakeorganisation'
@@ -2941,7 +2997,8 @@ class ImportingTestCase(CremeTestCase):
         assert_cells(FakeOrganisation, ['regular_field-name'])
 
     def test_custom_bricks(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         old_cbci = CustomBrickConfigItem.objects.create(
             id='creme_core-fake_orga_info',
@@ -3002,8 +3059,10 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_detailview_bricks01(self):
-        self.login(is_staff=True)
-        role = self.role
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
+        # role = self.role
+        role = UserRole.objects.create(name='Test')
 
         TOP    = BrickDetailviewLocation.TOP
         LEFT   = BrickDetailviewLocation.LEFT
@@ -3153,7 +3212,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_detailview_bricks02(self):
         "Related role is imported."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         TOP    = BrickDetailviewLocation.TOP
         LEFT   = BrickDetailviewLocation.LEFT
@@ -3242,7 +3302,8 @@ class ImportingTestCase(CremeTestCase):
         self.assertEqual([bricks_data[8]], role_contact_bricks_data.get(BOTTOM))
 
     def test_home_bricks01(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         bricks_data = [
             # {'id': bricks.HistoryBrick.id_,    'order': 5},
@@ -3266,8 +3327,10 @@ class ImportingTestCase(CremeTestCase):
 
     def test_home_bricks02(self):
         "Config per role."
-        self.login(is_staff=True)
-        role = self.role
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
+        # role = self.role
+        role = UserRole.objects.create(name='Test')
 
         bricks_data = [
             # {'id': bricks.HistoryBrick.id_,    'order': 5,  'role': role.name},
@@ -3291,7 +3354,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_home_bricks03(self):
         "Config per role (role is imported)."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         role_name = 'Super-hero'
         bricks_data = [
@@ -3341,7 +3405,8 @@ class ImportingTestCase(CremeTestCase):
 
     def test_home_bricks04(self):
         "Config for superuser."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         bricks_data = [
             # {'id': bricks.HistoryBrick.id_,    'order': 5,  'superuser': True},
@@ -3364,7 +3429,8 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_mypage_bricks(self):
-        user = self.login(is_staff=True)
+        # user = self.login(is_staff=True)
+        user = self.login_as_super(is_staff=True)
         user_loc = BrickMypageLocation.objects.create(
             # brick_id=bricks.HistoryBrick.id_, order=1, user=user,
             brick_id=bricks.HistoryBrick.id, order=1, user=user,

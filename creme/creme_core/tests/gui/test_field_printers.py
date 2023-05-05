@@ -494,7 +494,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_file_html01(self):
         "Not image."
-        user = self.create_user()
+        user = self.get_root_user()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
         file_name = 'FieldsPrintersTestCase_test_print_file_html01.txt'
@@ -547,7 +547,7 @@ class FieldsPrintersTestCase(CremeTestCase):
     @override_settings(ALLOWED_IMAGES_EXTENSIONS=['gif', 'png', 'jpg'])
     def test_print_file_html02(self):
         "Image."
-        user = self.create_user()
+        user = self.get_root_user()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
         file_name = 'add_16.png'
@@ -606,7 +606,7 @@ class FieldsPrintersTestCase(CremeTestCase):
     @override_settings(ALLOWED_IMAGES_EXTENSIONS=['gif', 'jpg'])  # Not 'png'
     def test_print_file_html03(self):
         "Not allowed image extensions."
-        user = self.create_user()
+        user = self.get_root_user()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
         file_name = 'add_16.png'
@@ -644,7 +644,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_file_html04(self):
         "Field not registered for download."
-        user = self.create_user()
+        user = self.get_root_user()
 
         file_name = 'FieldsPrintersTestCase_test_print_file_html04.txt'
         file_path = self.create_uploaded_file(file_name=file_name, dir_name='gui')
@@ -671,7 +671,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     @override_settings(ALLOWED_IMAGES_EXTENSIONS=['gif', 'png', 'jpg'])
     def test_print_image_html(self):
-        user = self.create_user()
+        user = self.get_root_user()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
         file_name = 'add_16.png'
@@ -728,7 +728,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_fk_printer_html01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         c = FakeContact()
         field1 = c._meta.get_field('sector')
@@ -763,7 +763,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_fk_printer_html02(self):
         "CremeEntity."
-        user = self.create_user()
+        user = self.get_root_user()
         c = FakeContact()
         field = c._meta.get_field('image')
 
@@ -784,7 +784,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_fk_printer_html03(self):
         "EntityFilter."
-        user = self.create_user()
+        user = self.get_root_user()
 
         printer = FKPrinter(
             none_printer=FKPrinter.print_fk_null_html,
@@ -842,7 +842,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_fk_printer_text01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         printer = FKPrinter(
             none_printer=lambda *args, **kwargs: '',
@@ -876,7 +876,8 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_fk_printer_text02(self):
         "No view credentials."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
 
         printer = FKPrinter(
             none_printer=lambda *args, **kwargs: '',
@@ -895,7 +896,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_many2many_printer_html01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         img = FakeImage.objects.create(user=user, name='My img')
         field = img._meta.get_field('categories')
 
@@ -920,7 +921,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_many2many_printer_html02(self):
         "Entity without specific handler."
-        user = self.create_user()
+        user = self.get_root_user()
         prod = FakeProduct.objects.create(user=user, name='Bebop')
         field = prod._meta.get_field('images')
 
@@ -941,9 +942,10 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_many2many_printer_html03(self):
         "Entity printer."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -953,7 +955,8 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         create_img = partial(FakeImage.objects.create, user=user)
         img1 = create_img(name='My img#1')
-        img2 = create_img(name='My img#2', user=self.other_user)
+        # img2 = create_img(name='My img#2', user=self.other_user)
+        img2 = create_img(name='My img#2', user=self.get_root_user())
         img3 = create_img(name='My img#3', is_deleted=True)
         prod.images.set([img1, img2, img3])
 
@@ -976,7 +979,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_many2many_printer_text01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         printer = M2MPrinterForText(
             default_printer=M2MPrinterForText.printer_simple,
@@ -1003,9 +1006,10 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_many2many_printer_text02(self):
         "Entity printer."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -1024,7 +1028,8 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         create_img = partial(FakeImage.objects.create, user=user)
         img1 = create_img(name='My img#1')
-        img2 = create_img(name='My img#2', user=self.other_user)
+        # img2 = create_img(name='My img#2', user=self.other_user)
+        img2 = create_img(name='My img#2', user=self.get_root_user())
         img3 = create_img(name='My img#3', is_deleted=True)
         prod.images.set([img1, img2, img3])
 
@@ -1036,7 +1041,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry(self):
         "Default."
-        user = self.create_user()
+        user = self.get_root_user()
 
         registry = _FieldPrintersRegistry()
         as_html = registry.get_html_field_value  # DEPRECATED
@@ -1114,7 +1119,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry_register_model_field_type(self):
         "Register by field types, different outputs..."
-        user = self.create_user()
+        user = self.get_root_user()
 
         print_charfield_html_args = []
         print_charfield_csv_args = []
@@ -1196,7 +1201,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_registry_register_model_field(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         print_lastname_html_args = []
 
@@ -1349,7 +1354,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )  # printer not used (other field)
 
     def test_registry_numeric(self):
-        user = self.create_user()
+        user = self.get_root_user()
         field_printers_registry = _FieldPrintersRegistry()
 
         # Integer
@@ -1375,7 +1380,7 @@ class FieldsPrintersTestCase(CremeTestCase):
     @override_settings(URLIZE_TARGET_BLANK=True)
     def test_registry_textfield(self):
         "Test TexField: link => target='_blank'."
-        user = self.create_user()
+        user = self.get_root_user()
         field_printers_registry = _FieldPrintersRegistry()
 
         hawk = FakeOrganisation.objects.create(
@@ -1396,7 +1401,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry_booleanfield(self):
         "Boolean Field."
-        user = self.create_user()
+        user = self.get_root_user()
         field_printers_registry = _FieldPrintersRegistry()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1421,7 +1426,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry_fk(self):
         "ForeignKey."
-        user = self.create_user()
+        user = self.get_root_user()
 
         field_printers_registry = _FieldPrintersRegistry(
         ).register_model_field_type(
@@ -1551,7 +1556,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual(user.username, render_field(field_name='image__user__username'))
 
     def test_registry_m2m01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         registry = _FieldPrintersRegistry()
 
         img = FakeImage.objects.create(user=user, name='My img')
@@ -1579,8 +1584,10 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry_m2m02(self):
         "Empty sub-values."
-        user1 = self.create_user(0)
-        user2 = self.create_user(1, theme='')
+        # user1 = self.create_user(0)
+        # user2 = self.create_user(1, theme='')
+        user1 = self.get_root_user()
+        user2 = self.create_user(0, theme='')
 
         team = CremeUser.objects.create(username='Team17', is_team=True)
         team.teammates_set.set([user1, user2])
@@ -1602,7 +1609,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_registry_m2m_entity01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         registry = _FieldPrintersRegistry()
 
         create_ml = partial(FakeMailingList.objects.create, user=user)
@@ -1634,16 +1641,18 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry_m2m_entity02(self):
         "Credentials."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_OWN,
         )
 
         create_ml = FakeMailingList.objects.create
         ml1 = create_ml(user=user, name='Swimsuits')
-        ml2 = create_ml(user=self.other_user, name='Hats')
+        # ml2 = create_ml(user=self.other_user, name='Hats')
+        ml2 = create_ml(user=self.get_root_user(), name='Hats')
 
         camp = FakeEmailCampaign.objects.create(user=user, name='Summer 2020')
         camp.mailing_lists.set([ml1, ml2])
@@ -1665,7 +1674,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry_m2m_entity03(self):
         "Deleted entity."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_ml = partial(FakeMailingList.objects.create, user=user)
         ml1 = create_ml(name='Swimsuits')
@@ -1690,9 +1699,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_registry_credentials(self):
-        user = self.login(is_superuser=False, allowed_apps=['creme_core'])
+        # user = self.login(is_superuser=False, allowed_apps=['creme_core'])
+        user = self.login_as_standard(allowed_apps=['creme_core'])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -1707,7 +1717,8 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         create_img = FakeImage.objects.create
         casca_face = create_img(
-            name='Casca face', user=self.other_user, description="Casca's selfie",
+            # name='Casca face', user=self.other_user, description="Casca's selfie",
+            name='Casca face', user=self.get_root_user(), description="Casca's selfie",
         )
         judo_face = create_img(
             name='Judo face',  user=user, description="Judo's selfie"

@@ -70,7 +70,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_get_ctypes_of_relation01(self):
         "No sort."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject__JSP01_3', 'is a customer of', [FakeContact]),
@@ -96,7 +97,8 @@ class RelationViewsTestCase(ViewsTestCase):
         )
 
     def test_get_ctypes_of_relation02(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar1', 'is loving'),
@@ -116,7 +118,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_get_ctypes_of_relation03(self):
         "'sort' argument."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'foo'),
@@ -144,7 +147,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_get_ctypes_of_relation04(self):
         "Type is disabled => error."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_customer', 'is a customer of', [FakeContact]),
@@ -158,23 +162,33 @@ class RelationViewsTestCase(ViewsTestCase):
             data={'fields': ['id', 'unicode']},
         )
 
-    def _create_contact(self):
+    # def _create_contact(self):
+    #     return FakeContact.objects.create(
+    #         user=self.user, first_name='Laharl', last_name='Overlord',
+    #     )
+    def _create_contact(self, user):
         return FakeContact.objects.create(
-            user=self.user, first_name='Laharl', last_name='Overlord',
+            user=user, first_name='Laharl', last_name='Overlord',
         )
 
-    def _create_contacts(self):
-        create_contact = partial(FakeContact.objects.create, user=self.user)
+    # def _create_contacts(self):
+    def _create_contacts(self, user):
+        # create_contact = partial(FakeContact.objects.create, user=self.user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         return (
             create_contact(first_name='Laharl', last_name='Overlord'),
             create_contact(first_name='Etna',   last_name='Devil'),
         )
 
-    def _create_organisation(self):
-        return FakeOrganisation.objects.create(user=self.user, name='Underworld')
+    # def _create_organisation(self):
+    #     return FakeOrganisation.objects.create(user=self.user, name='Underworld')
+    def _create_organisation(self, user):
+        return FakeOrganisation.objects.create(user=user, name='Underworld')
 
-    def _create_organisations(self):
-        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
+    # def _create_organisations(self):
+    def _create_organisations(self, user):
+        # create_orga = partial(FakeOrganisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         return (
             create_orga(name='Underworld'),
             create_orga(name='Heaven'),
@@ -200,7 +214,8 @@ class RelationViewsTestCase(ViewsTestCase):
         )
 
     def test_add_relations(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         rtype1, rtype2 = self._create_rtypes()
         rtype3 = RelationType.objects.smart_update_or_create(
@@ -210,7 +225,7 @@ class RelationViewsTestCase(ViewsTestCase):
         rtype3.enabled = False
         rtype3.save()
 
-        subject = self._create_contact()
+        subject = self._create_contact(user=user)
         self.assertFalse(subject.relations.all())
 
         url = self._build_add_url(subject)
@@ -233,7 +248,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertNotIn(rtype3.id, rtype_ids)
 
         # ---
-        object1, object2 = self._create_organisations()
+        object1, object2 = self._create_organisations(user=user)
         response2 = self.client.post(
             url,
             data={
@@ -249,29 +264,37 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(subject, rtype2, object2)
 
     def test_add_relations_not_superuser01(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        self._set_all_perms_on_own(user)
         subject = CremeEntity.objects.create(user=user)
         self.assertGET200(self._build_add_url(subject))
 
     def test_add_relations_not_superuser02(self):
         "Credentials problems."
-        self.login(is_superuser=False)
-        self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
-        subject = CremeEntity.objects.create(user=self.other_user)
+        # self.login(is_superuser=False)
+        user = self.login_as_standard()
+        self._set_all_perms_on_own(user)
+        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
+        # subject = CremeEntity.objects.create(user=self.other_user)
+        subject = CremeEntity.objects.create(user=self.get_root_user())
         self.assertGET403(self._build_add_url(subject))
 
     def test_add_relations_link_perm(self):
         "Credentials problems (no link credentials)."
-        self.login(is_superuser=False)
-        self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        self._set_all_perms_on_own(user)
+        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
 
-        subject = self._create_contact()
-        unlinkable = CremeEntity.objects.create(user=self.other_user)
-        self.assertTrue(self.user.has_perm_to_view(unlinkable))
-        self.assertFalse(self.user.has_perm_to_link(unlinkable))
+        subject = self._create_contact(user=user)
+        # unlinkable = CremeEntity.objects.create(user=self.other_user)
+        unlinkable = CremeEntity.objects.create(user=self.get_root_user())
+        self.assertTrue(user.has_perm_to_view(unlinkable))
+        self.assertFalse(user.has_perm_to_link(unlinkable))
 
         rtype1, rtype2 = self._create_rtypes()
-        linkable = self._create_organisation()
+        linkable = self._create_organisation(user=user)
         response = self.client.post(
             self._build_add_url(subject),
             data={
@@ -290,11 +313,12 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_duplicates01(self):
         "Duplicates -> error."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = self._create_contact()
+        subject = self._create_contact(user=user)
         rtype1, rtype2 = self._create_rtypes()
-        object1, object2 = self._create_organisations()
+        object1, object2 = self._create_organisations(user=user)
         response = self.client.post(
             self._build_add_url(subject),
             data={
@@ -315,10 +339,11 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_duplicates02(self):
         "Do not recreate existing relationships."
-        user = self.login()
-        subject = self._create_contact()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        subject = self._create_contact(user=user)
         rtype1, rtype2 = self._create_rtypes()
-        object1, object2 = self._create_organisations()
+        object1, object2 = self._create_organisations(user=user)
 
         Relation.objects.create(
             user=user,
@@ -340,9 +365,10 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_circular(self):
         "Cannot link an entity to itself."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = self._create_contact()
+        subject = self._create_contact(user=user)
         rtype = self._create_rtype()
         response = self.client.post(
             self._build_add_url(subject),
@@ -360,10 +386,11 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_property_constraints01(self):
         "CremeProperty constraints on subject."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = self._create_contact()
-        object1 = self._create_organisation()
+        subject = self._create_contact(user=user)
+        object1 = self._create_organisation(user=user)
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_string', text='Is strong')
@@ -439,9 +466,10 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_property_constraints02(self):
         "CremeProperty constraints on subject (forbidden types)."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = self._create_contact()
+        subject = self._create_contact(user=user)
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_cool', text='Is cool')
@@ -465,7 +493,7 @@ class RelationViewsTestCase(ViewsTestCase):
         url = self._build_add_url(subject)
 
         # A forbidden Property is used
-        object1 = self._create_organisation()
+        object1 = self._create_organisation(user=user)
         response1 = self.assertPOST200(
             url,
             data={
@@ -494,10 +522,11 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_property_constraints03(self):
         "CremeProperty constraints on objects."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = self._create_organisation()
-        rel_object = self._create_contact()
+        subject = self._create_organisation(user=user)
+        rel_object = self._create_contact(user=user)
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
@@ -539,9 +568,10 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_exclude(self):
         "'exclude' parameter."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = self._create_contact()
+        subject = self._create_contact(user=user)
         rtype1, rtype2 = self._create_rtypes()
         response = self.client.get(
             self._build_add_url(subject), data={'exclude': [rtype1.id]},
@@ -555,10 +585,11 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_semi_fixed01(self):
         "Only semi fixed."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = self._create_contact()
-        object1, object2 = self._create_organisations()
+        subject = self._create_contact(user=user)
+        object1, object2 = self._create_organisations(user=user)
         rtype1, rtype2 = self._create_rtypes()
 
         # Constraint OK & KO
@@ -625,10 +656,11 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_semi_fixed02(self):
         "Semi-fixed & not semi-fixed."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = self._create_contact()
-        object1, object2 = self._create_organisations()
+        subject = self._create_contact(user=user)
+        object1, object2 = self._create_organisations(user=user)
         rtype1, rtype2 = self._create_rtypes()
 
         create_sfrt = SemiFixedRelationType.objects.create
@@ -671,9 +703,10 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_semi_fixed_empty(self):
         "One relationship at least (semi-fixed or not semi-fixed)."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = self._create_contact()
+        subject = self._create_contact(user=user)
         response = self.assertPOST200(self._build_add_url(subject))
         self.assertFormError(
             response.context['form'],
@@ -683,10 +716,11 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_semi_fixed_duplicates(self):
         "Collision fixed / not fixed."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = self._create_contact()
-        object1, object2 = self._create_organisations()
+        subject = self._create_contact(user=user)
+        object1, object2 = self._create_organisations(user=user)
         rtype1, rtype2 = self._create_rtypes()
 
         create_sfrt = SemiFixedRelationType.objects.create
@@ -716,13 +750,16 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_semi_fixed_link_perm(self):
         "Filter not linkable entities."
-        self.login(is_superuser=False)
-        self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        self._set_all_perms_on_own(user)
+        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
 
-        subject = self._create_contact()
+        subject = self._create_contact(user=user)
         rtype1, rtype2 = self._create_rtypes()
-        unlinkable = CremeEntity.objects.create(user=self.other_user)
-        object2 = self._create_organisation()
+        # unlinkable = CremeEntity.objects.create(user=self.other_user)
+        unlinkable = CremeEntity.objects.create(user=self.get_root_user())
+        object2 = self._create_organisation(user=user)
 
         create_sfrt = SemiFixedRelationType.objects.create
         create_sfrt(
@@ -745,10 +782,11 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_semi_fixed_property_constraints01(self):
         "CremeProperty constraints on subject."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = self._create_contact()
-        object1, object2 = self._create_organisations()
+        subject = self._create_contact(user=user)
+        object1, object2 = self._create_organisations(user=user)
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
@@ -795,10 +833,11 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_semi_fixed_property_constraints02(self):
         "CremeProperty constraints on subject (forbidden types)."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject1, subject2 = self._create_contacts()
-        object1 = self._create_organisation()
+        subject1, subject2 = self._create_contacts(user=user)
+        object1 = self._create_organisation(user=user)
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_weak',   text='Is weak')
@@ -841,11 +880,12 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(1, subject2.relations.count())
 
     def test_add_relations_narrowedtype01(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         rtype = self._create_rtype()
-        subject = self._create_contact()
-        object1, object2 = self._create_organisations()
+        subject = self._create_contact(user=user)
+        object1, object2 = self._create_organisations(user=user)
 
         url = self._build_narrowed_add_url(subject, rtype)
         self.assertGET200(url)
@@ -866,10 +906,11 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_narrowedtype02(self):
         "Validation error."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = self._create_contact()
-        object1, object2 = self._create_organisations()
+        subject = self._create_contact(user=user)
+        object1, object2 = self._create_organisations(user=user)
         rtype1, rtype2 = self._create_rtypes()
 
         response = self.client.post(
@@ -892,11 +933,12 @@ class RelationViewsTestCase(ViewsTestCase):
         )
 
     def test_add_relations_narrowedtype03(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         allowed_rtype, rtype2 = self._create_rtypes()
-        subject = self._create_contact()
-        object1, object2 = self._create_organisations()
+        subject = self._create_contact(user=user)
+        object1, object2 = self._create_organisations(user=user)
 
         create_sfrt = SemiFixedRelationType.objects.create
         sfrt1 = create_sfrt(
@@ -933,8 +975,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_narrowedtype_internal(self):
         "Internal type => error."
-        self.login()
-        subject = self._create_contact()
+        # self.login()
+        user = self.login_as_root_and_get()
+        subject = self._create_contact(user=user)
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar1', 'is loving'),
             ('test-object_foobar1',  'is loved by'),
@@ -944,8 +987,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_narrowedtype_disabled(self):
         "Disabled type => error."
-        self.login()
-        subject = self._create_contact()
+        # self.login()
+        user = self.login_as_root_and_get()
+        subject = self._create_contact(user=user)
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar1', 'is loving'),
@@ -958,8 +1002,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_narrowedtype_constraints01(self):
         "ContentType constraints."
-        self.login()
-        subject01 = self._create_contact()
+        # self.login()
+        user = self.login_as_root_and_get()
+        subject01 = self._create_contact(user=user)
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar1', 'is hiring', [FakeOrganisation]),
             ('test-object_foobar1',  'is hired by'),
@@ -976,19 +1021,20 @@ class RelationViewsTestCase(ViewsTestCase):
         )
 
         # OK ---
-        subject02 = self._create_organisation()
+        subject02 = self._create_organisation(user=user)
         self.assertGET200(self._build_narrowed_add_url(subject02, rtype))
 
     def test_add_relations_narrowedtype_constraints02(self):
         "CremeProperty constraints."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_realm',  text='Is a realm')
         ptype2 = create_ptype(str_pk='test-prop_gentle', text='Is gentle')
         ptype3 = create_ptype(str_pk='test-prop_nasty',  text='Is nasty')
 
-        subject = self._create_organisation()
+        subject = self._create_organisation(user=user)
 
         create_prop = partial(CremeProperty.objects.create, creme_entity=subject)
         create_prop(type=ptype1)
@@ -1016,13 +1062,14 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_narrowedtype_constraints03(self):
         "Forbidden CremeProperty."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_nasty',  text='Is nasty',
         )
 
-        subject = self._create_organisation()
+        subject = self._create_organisation(user=user)
         CremeProperty.objects.create(creme_entity=subject, type=ptype)
 
         rtype = RelationType.objects.smart_update_or_create(
@@ -1039,14 +1086,19 @@ class RelationViewsTestCase(ViewsTestCase):
             status_code=409,
         )
 
-    def _aux_test_add_relations_bulk(self):
-        self.subject01, self.subject02 = self._create_contacts()
-        self.object01, self.object02 = self._create_organisations()
+    # def _aux_test_add_relations_bulk(self):
+    #     self.subject01, self.subject02 = self._create_contacts()
+    #     self.object01, self.object02 = self._create_organisations()
+    #     self.rtype01, self.rtype02 = self._create_rtypes()
+    def _aux_test_add_relations_bulk(self, user):
+        self.subject01, self.subject02 = self._create_contacts(user=user)
+        self.object01, self.object02 = self._create_organisations(user=user)
         self.rtype01, self.rtype02 = self._create_rtypes()
 
     def test_add_relations_bulk(self):
-        self.login()
-        self._aux_test_add_relations_bulk()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._aux_test_add_relations_bulk(user=user)
 
         rtype3 = RelationType.objects.smart_update_or_create(
             ('test-subject_disabled', 'disabled'),
@@ -1057,7 +1109,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         # This relation should not be recreated by the view
         Relation.objects.create(
-            user=self.user,
+            user=user,
             subject_entity=self.subject02,
             type=self.rtype02,
             object_entity=self.object02,
@@ -1103,11 +1155,14 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_bulk_view_perm(self):
         "Ignore subjects which are not viewable."
-        user = self.login(is_superuser=False)
-        self._set_all_creds_except_one(excluded=EntityCredentials.VIEW)
-        self._aux_test_add_relations_bulk()
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        self._set_all_perms_on_own(user)
+        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.VIEW)
+        self._aux_test_add_relations_bulk(user=user)
 
-        unviewable = CremeEntity.objects.create(user=self.other_user)
+        # unviewable = CremeEntity.objects.create(user=self.other_user)
+        unviewable = CremeEntity.objects.create(user=self.get_root_user())
         self.assertFalse(user.has_perm_to_view(unviewable))
 
         response1 = self.assertGET200(
@@ -1140,14 +1195,17 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_bulk_link_perm01(self):
         "Ignore subjects which are not linkable."
-        self.login(is_superuser=False)
-        self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        self._set_all_perms_on_own(user)
+        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
 
-        subject = self._create_contact()
+        subject = self._create_contact(user=user)
 
-        unlinkable = CremeEntity.objects.create(user=self.other_user)
-        self.assertTrue(self.user.has_perm_to_view(unlinkable))
-        self.assertFalse(self.user.has_perm_to_link(unlinkable))
+        # unlinkable = CremeEntity.objects.create(user=self.other_user)
+        unlinkable = CremeEntity.objects.create(user=self.get_root_user())
+        self.assertTrue(user.has_perm_to_view(unlinkable))
+        self.assertFalse(user.has_perm_to_link(unlinkable))
 
         response = self.assertGET200(
             self._build_bulk_add_url(CremeEntity, subject, unlinkable, GET=True),
@@ -1160,13 +1218,16 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_bulk_link_perm02(self):
         "Any object which is not linkable => error."
-        self.login(is_superuser=False)
-        self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        self._set_all_perms_on_own(user)
+        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
 
-        subject = self._create_contact()
+        subject = self._create_contact(user=user)
         self.assertGET200(self._build_bulk_add_url(CremeEntity, subject, GET=True))
 
-        unlinkable = CremeEntity.objects.create(user=self.other_user)
+        # unlinkable = CremeEntity.objects.create(user=self.other_user)
+        unlinkable = CremeEntity.objects.create(user=self.get_root_user())
         rtype = self._create_rtype()
         response = self.assertPOST200(
             self._build_bulk_add_url(CremeEntity),
@@ -1186,9 +1247,10 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_bulk_circular(self):
         "Cannot link an entity to itself."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject1, subject2 = self._create_contacts()
+        subject1, subject2 = self._create_contacts(user=user)
         rtype1, rtype2 = self._create_rtypes()
         response = self.client.post(
             self._build_bulk_add_url(CremeEntity),
@@ -1211,10 +1273,11 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_bulk_property_constraint(self):
         "CremeProperty constraints on subject."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = self._create_contact()
-        object1 = self._create_organisation()
+        subject = self._create_contact(user=user)
+        object1 = self._create_organisation(user=user)
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_string', text='Is strong')
@@ -1248,8 +1311,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_bulk_with_semi_fixed(self):
         "With SemiFixedRelationType."
-        user = self.login()
-        self._aux_test_add_relations_bulk()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        self._aux_test_add_relations_bulk(user=user)
 
         # This relation should not be recreated by the view
         Relation.objects.create(
@@ -1288,8 +1352,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_bulk_narrowed_types(self):
         "Choices of RelationTypes limited by the GUI."
-        user = self.login()
-        self._aux_test_add_relations_bulk()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        self._aux_test_add_relations_bulk(user=user)
 
         # This relation should not be recreated by the view
         Relation.objects.create(
@@ -1331,7 +1396,8 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(self.subject02, self.rtype02, self.object02)
 
     def _aux_relation_objects_to_link_selection(self):
-        user = self.login()
+        # user = self.login()
+        self.user = user = self.login_as_root_and_get()
 
         self.subject = CremeEntity.objects.create(user=user)
 
@@ -1466,9 +1532,10 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_select_relations_objects_internal(self):
         "Is internal => error."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        subject = CremeEntity.objects.create(user=self.user)
+        subject = CremeEntity.objects.create(user=user)
         ct = ContentType.objects.get_for_model(FakeContact)
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving',   [FakeContact]),
@@ -1487,7 +1554,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_select_relations_objects_disabled(self):
         "Is disabled => error."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         subject = CremeEntity.objects.create(user=user)
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -1507,8 +1575,10 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
 
-    def _aux_add_relations_with_same_type(self):
-        create_entity = partial(CremeEntity.objects.create, user=self.user)
+    # def _aux_add_relations_with_same_type(self):
+    def _aux_add_relations_with_same_type(self, user):
+        # create_entity = partial(CremeEntity.objects.create, user=self.user)
+        create_entity = partial(CremeEntity.objects.create, user=user)
         self.subject  = create_entity()
         self.object01 = create_entity()
         self.object02 = create_entity()
@@ -1519,8 +1589,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_same_type01(self):
         "No error."
-        self.login()
-        self._aux_add_relations_with_same_type()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._aux_add_relations_with_same_type(user=user)
 
         object_ids = [self.object01.id, self.object02.id]
         self.assertPOST200(
@@ -1539,8 +1610,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_same_type02(self):
         "An entity does not exist."
-        self.login()
-        self._aux_add_relations_with_same_type()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._aux_add_relations_with_same_type(user=user)
 
         self.assertPOST404(
             self.ADD_FROM_PRED_URL,
@@ -1558,8 +1630,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_same_type_errors01(self):
         "Errors."
-        self.login()
-        self._aux_add_relations_with_same_type()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._aux_add_relations_with_same_type(user=user)
 
         url = self.ADD_FROM_PRED_URL
         self.assertPOST404(
@@ -1602,7 +1675,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_same_type_errors02(self):
         "Object ID is not an int."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self.client.post(
             self.ADD_FROM_PRED_URL,
@@ -1621,11 +1695,14 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_same_type_credentials(self):
         "Credentials errors."
-        user = self.login(is_superuser=False)
-        self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        self._set_all_perms_on_own(user)
+        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
 
         create_entity = CremeEntity.objects.create
-        forbidden = create_entity(user=self.other_user)
+        # forbidden = create_entity(user=self.other_user)
+        forbidden = create_entity(user=self.get_root_user())
         allowed01 = create_entity(user=user)
         allowed02 = create_entity(user=user)
 
@@ -1661,7 +1738,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_same_type_ctype_constraints(self):
         "ContentType constraint errors."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga01 = create_orga(name='orga01')
@@ -1703,7 +1781,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_same_type_properties_constraints01(self):
         "Property constraints."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         subject_ptype1 = create_ptype(str_pk='test-prop_subj1', text='Subject property #1')
@@ -1764,7 +1843,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_same_type_properties_constraints02(self):
         "Forbidden property constraints."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         subject_forb_ptype = create_ptype(str_pk='test-prop_foobar01', text='Subject property')
@@ -1807,7 +1887,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_same_type_internal(self):
         "Is internal."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         subject  = create_entity()
@@ -1831,7 +1912,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_same_type_disabled(self):
         "Is disabled."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         subject  = create_entity()
@@ -1857,7 +1939,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_same_type_circular(self):
         "Subject is in the objects."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         subject = create_entity()
@@ -1884,7 +1967,8 @@ class RelationViewsTestCase(ViewsTestCase):
         )
 
     def test_delete01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         subject_entity = create_entity()
@@ -1905,12 +1989,14 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertFalse(Relation.objects.filter(pk__in=[relation.pk, sym_relation.pk]))
 
     def test_delete02(self):
-        user = self.login(is_superuser=False)
-
-        self._set_all_creds_except_one(excluded=EntityCredentials.UNLINK)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        self._set_all_perms_on_own(user)
+        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.UNLINK)
 
         allowed   = CremeEntity.objects.create(user=user)
-        forbidden = CremeEntity.objects.create(user=self.other_user)
+        # forbidden = CremeEntity.objects.create(user=self.other_user)
+        forbidden = CremeEntity.objects.create(user=self.get_root_user())
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
@@ -1927,7 +2013,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_delete03(self):
         "Is internal."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         subject_entity = create_entity()
@@ -1965,8 +2052,9 @@ class RelationViewsTestCase(ViewsTestCase):
         )
 
     def test_delete_similar01(self):
-        user = self.login(is_superuser=False)
-        self._set_all_creds_except_one(excluded=EntityCredentials.DELETE)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.DELETE)
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         subject_entity01 = create_entity()
@@ -2019,11 +2107,13 @@ class RelationViewsTestCase(ViewsTestCase):
         )
 
     def test_delete_similar02(self):
-        user = self.login(is_superuser=False)
-        self._set_all_creds_except_one(excluded=EntityCredentials.UNLINK)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.UNLINK)
 
         allowed   = CremeEntity.objects.create(user=user)
-        forbidden = CremeEntity.objects.create(user=self.other_user)
+        # forbidden = CremeEntity.objects.create(user=self.other_user)
+        forbidden = CremeEntity.objects.create(user=self.get_root_user())
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'is loving'),
@@ -2042,7 +2132,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_delete_similar03(self):
         "Is internal."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         subject_entity = create_entity()
@@ -2066,7 +2157,8 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertStillExists(relation)
 
     def test_not_copiable_relations01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         self.assertEqual(0, Relation.objects.count())
         rtype1, rtype2 = RelationType.objects.smart_update_or_create(
@@ -2099,7 +2191,8 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertRelationCounts(((rtype1, 1), (rtype2, 1), (rtype3, 2), (rtype4, 2)))
 
     def test_not_copiable_relations02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self.assertEqual(0, Relation.objects.count())
 
         create_rtype = RelationType.objects.smart_update_or_create

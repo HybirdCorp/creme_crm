@@ -15,7 +15,7 @@ from creme.activities.constants import (
 )
 from creme.activities.tests.base import skipIfCustomActivity
 
-from .base import MobileBaseTestCase
+from .base import Contact, MobileBaseTestCase
 
 
 class MobileAppTestCase(MobileBaseTestCase):
@@ -46,13 +46,15 @@ class MobileAppTestCase(MobileBaseTestCase):
         self.assertRedirects(response, self.PORTAL_URL)
 
     def test_logout(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         response = self.assertGET200(reverse('mobile__logout'), follow=True)
         self.assertRedirects(response, reverse(settings.LOGIN_URL))
 
     @skipIfCustomActivity
     def test_portal(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         contact = user.linked_contact
         now_val = localtime(now())
 
@@ -71,47 +73,48 @@ class MobileAppTestCase(MobileBaseTestCase):
         def today_in_the_future(near):
             return now_val + (today(23, 59, 59) - now_val) / near
 
-        create_m = partial(self._create_meeting, participant=contact)
-        m1 = create_m('Meeting: Manga', start=today_in_the_past(3))
+        create_m = partial(self._create_meeting, user=user, participant=contact)
+        m1 = create_m(title='Meeting: Manga', start=today_in_the_past(3))
         m2 = create_m(
-            'Meeting: Anime',
+            title='Meeting: Anime',
             start=today_in_the_past(2),
             status_id=STATUS_PLANNED,
         )
         m3 = create_m(
-            'Meeting: Manga #2',
+            title='Meeting: Manga #2',
             start=past_midnight,
             floating_type=FLOATING_TIME,
         )
         m4 = create_m(
-            'Meeting: Figures',
+            title='Meeting: Figures',
             start=today_in_the_future(3),
             status_id=STATUS_IN_PROGRESS,
         )
         m5 = create_m(
-            'Meeting: Figures #3',
+            title='Meeting: Figures #3',
             start=today_in_the_future(2),
         )  # Should be after m6
-        m6 = create_m('Meeting: Figures #2', start=today_in_the_future(3))
+        m6 = create_m(title='Meeting: Figures #2', start=today_in_the_future(3))
 
         oneday = timedelta(days=1)
         create_m(
-            'Meeting: Tezuka manga',
+            title='Meeting: Tezuka manga',
             start=today(9),
-            participant=self.other_user.linked_contact,
+            # participant=self.other_user.linked_contact,
+            participant=Contact.objects.create(user=user, first_name='Gally', last_name='Alita'),
         )  # I do not participate
         create_m(
-            'Meeting: Comics',
+            title='Meeting: Comics',
             start=today(7),
             status_id=STATUS_DONE,
         )  # Done are excluded
         create_m(
-            'Meeting: Manhua',
+            title='Meeting: Manhua',
             start=today(10),
             status_id=STATUS_CANCELLED,
         )  # Cancelled are excluded
-        create_m('Meeting: Manga again',  start=now_val - oneday)  # Yesterday
-        create_m('Meeting: Manga ter.',   start=now_val + oneday)  # Tomorrow
+        create_m(title='Meeting: Manga again',  start=now_val - oneday)  # Yesterday
+        create_m(title='Meeting: Manga ter.',   start=now_val + oneday)  # Tomorrow
 
         response = self.assertGET200(self.PORTAL_URL)
         self.assertTemplateUsed(response, 'mobile/index.html')

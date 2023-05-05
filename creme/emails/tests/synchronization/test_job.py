@@ -110,7 +110,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job02(self):
         "SSL, one message."
-        user = self.create_user()
+        user = self.get_root_user()
         item = EmailSyncConfigItem.objects.create(
             default_user=user,
             host='pop.mydomain.org',
@@ -185,7 +185,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job03(self):
         "SSL, several messages, long subject."
-        user = self.create_user()
+        user = self.get_root_user()
         item = EmailSyncConfigItem.objects.create(
             default_user=user,
             host='pop3.mydomain.org',
@@ -297,9 +297,9 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job_assign_user01(self):
         "Use sender & receivers to assign user."
-        user1 = self.create_user(0)
-        user2 = self.create_user(1)
-        user3 = self.create_user(2)
+        user1 = self.get_root_user()
+        user2 = self.create_user(0)
+        user3 = self.create_user(1)
 
         EmailSyncConfigItem.objects.create(
             default_user=user1,
@@ -384,7 +384,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job_assign_user02(self):
         "Ignore mails when default user is None & not known address is found."
-        user = self.create_user()
+        user = self.get_root_user()
 
         item = EmailSyncConfigItem.objects.create(
             # default_user=user,
@@ -444,7 +444,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job_invalid_data01(self):
         "No 'From' => ignored."
-        user = self.create_user()
+        user = self.get_root_user()
         item = EmailSyncConfigItem.objects.create(
             default_user=user,
             host='pop.mydomain.org',
@@ -495,7 +495,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job_invalid_data02(self):
         "No 'To' => ignored."
-        user = self.create_user()
+        user = self.get_root_user()
         item = self.create_config_item(user)
         job = self._get_sync_job()
 
@@ -540,10 +540,11 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
     @skipIfCustomContact
     def test_job_related_persons01(self):
         "Use sender & receivers to assign retrieve Contacts."
-        user = self.login(is_superuser=False, allowed_apps=['emails', 'persons'])
+        # user = self.login(is_superuser=False, allowed_apps=['emails', 'persons'])
+        user = self.login_as_emails_user(allowed_apps=['persons'])
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -622,7 +623,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
     @skipIfCustomOrganisation
     def test_job_related_persons02(self):
         "Use sender & receivers to assign retrieve Organisations."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga1 = create_orga(name='Bebop',       email='spiegel@bebop.mrs')
@@ -683,26 +684,29 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
     @skipIfCustomOrganisation
     def test_job_related_persons_credentials01(self, cred):
         "Need VIEW & LINK credentials."
-        user = self.login(is_superuser=False, allowed_apps=['emails', 'persons'])
+        # user = self.login(is_superuser=False, allowed_apps=['emails', 'persons'])
+        user = self.login_as_emails_user(allowed_apps=['persons'])
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             # value=EntityCredentials.VIEW | EntityCredentials.LINK,
             value=cred,
             set_type=SetCredentials.ESET_ALL,
         )
 
+        # other_user = self.other_user
+        other_user = self.get_root_user()
         contact = Contact.objects.create(
-            user=self.other_user,
+            user=other_user,
             first_name='Spike', last_name='Spiegel', email='spiegel@bebop.mrs',
         )
         orga = Organisation.objects.create(
-            user=self.other_user, name='Bebop', email='contact@bebop.mrs',
+            user=other_user, name='Bebop', email='contact@bebop.mrs',
         )
 
         self.create_config_item(user)
@@ -745,11 +749,13 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
     @skipIfCustomOrganisation
     def test_job_related_persons_credentials02(self):
         "Cache per user."
-        user = self.login(is_superuser=False, allowed_apps=['emails', 'persons'])
-        super_user = self.other_user
+        # user = self.login(is_superuser=False, allowed_apps=['emails', 'persons'])
+        user = self.login_as_emails_user(allowed_apps=['persons'])
+        # super_user = self.other_user
+        super_user = self.get_root_user()
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -809,7 +815,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job_forwarded_email(self):
         "Only one receiver which is ignored => email is not dropped."
-        user = self.create_user()
+        user = self.get_root_user()
 
         item = self.create_config_item(user)
         job = self._get_sync_job()
@@ -910,7 +916,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
     def test_job_attachment02(self):
         "Attachments not accepted."
         EmailSyncConfigItem.objects.create(
-            default_user=self.create_user(),
+            default_user=self.get_root_user(),
             host='pop3.mydomain.org',
             username='spiegel',
             password='$33 yo|_| sp4c3 c0wb0Y',
@@ -1018,7 +1024,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job_error03(self):
         "Error with some messages."
-        item = self.create_config_item(user=self.create_user(), use_ssl=False)
+        item = self.create_config_item(user=self.get_root_user(), use_ssl=False)
         job = self._get_sync_job()
 
         msg_id1 = 12
@@ -1159,7 +1165,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job02(self):
         "SSL, one message."
-        user = self.create_user()
+        user = self.get_root_user()
         item = EmailSyncConfigItem.objects.create(
             type=EmailSyncConfigItem.Type.IMAP,
             default_user=user,
@@ -1232,7 +1238,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job03(self):
         "POP, SSL, several messages."
-        user = self.create_user()
+        user = self.get_root_user()
         item = EmailSyncConfigItem.objects.create(
             type=EmailSyncConfigItem.Type.IMAP,
             default_user=user,
@@ -1345,9 +1351,9 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job_assign_user01(self):
         "Use sender & receivers to assign user."
-        user1 = self.create_user(0)
-        user2 = self.create_user(1)
-        user3 = self.create_user(2)
+        user1 = self.get_root_user()
+        user2 = self.create_user(0)
+        user3 = self.create_user(1)
 
         EmailSyncConfigItem.objects.create(
             type=EmailSyncConfigItem.Type.IMAP,
@@ -1433,7 +1439,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job_assign_user02(self):
         "Ignore mails when default user is None & not known address is found."
-        user = self.create_user()
+        user = self.get_root_user()
 
         item = EmailSyncConfigItem.objects.create(
             # default_user=user,
@@ -1494,7 +1500,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job_invalid_data01(self):
         "No 'From' => ignored."
-        user = self.create_user()
+        user = self.get_root_user()
         item = EmailSyncConfigItem.objects.create(
             default_user=user,
             type=EmailSyncConfigItem.Type.IMAP,
@@ -1546,7 +1552,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job_invalid_data02(self):
         "No 'To' => ignored."
-        user = self.create_user()
+        user = self.get_root_user()
         item = self.create_config_item(user)
         job = self._get_sync_job()
 
@@ -1591,10 +1597,10 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
     @skipIfCustomContact
     def test_job_related_persons01(self):
         "Use sender & receivers to assign retrieve Contacts."
-        user = self.login(is_superuser=False, allowed_apps=['emails', 'persons'])
-
+        # user = self.login(is_superuser=False, allowed_apps=['emails', 'persons'])
+        user = self.login_as_emails_user(allowed_apps=['persons'])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -1673,7 +1679,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
     @skipIfCustomOrganisation
     def test_job_related_persons02(self):
         "Use sender & receivers to assign retrieve Organisations."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga1 = create_orga(name='Bebop',       email='spiegel@bebop.mrs')
@@ -1730,7 +1736,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         "Attachments accepted."
         EmailSyncConfigItem.objects.create(
             type=EmailSyncConfigItem.Type.IMAP,
-            default_user=self.create_user(),
+            default_user=self.get_root_user(),
             host='pop3.mydomain.org',
             username='spiegel',
             password='$33 yo|_| sp4c3 c0wb0Y',
@@ -1799,7 +1805,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         "Attachments not accepted."
         EmailSyncConfigItem.objects.create(
             type=EmailSyncConfigItem.Type.IMAP,
-            default_user=self.create_user(),
+            default_user=self.get_root_user(),
             host='pop3.mydomain.org',
             username='spiegel',
             password='$33 yo|_| sp4c3 c0wb0Y',
@@ -1905,7 +1911,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
 
     def test_job_error03(self):
         "Error with some messages."
-        item = self.create_config_item(user=self.create_user(), use_ssl=False)
+        item = self.create_config_item(user=self.get_root_user(), use_ssl=False)
         job = self._get_sync_job()
 
         msg_id1 = b'12'

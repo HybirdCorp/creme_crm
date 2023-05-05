@@ -124,7 +124,8 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(title, civ.title)
 
     def test_update_model_instance01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         first_name = 'punpun'
         last_name = 'punpunyama'
         pupun = FakeContact.objects.create(
@@ -146,12 +147,13 @@ class MiscTestCase(CremeTestCase):
         )
 
     def test_update_model_instance02(self):
-        self.login()
+        # self.login()
 
         first_name = 'punpun'
         last_name = 'punpunyama'
         pupun = FakeContact.objects.create(
-            user=self.user, first_name=first_name, last_name=last_name,
+            # user=self.user, first_name=first_name, last_name=last_name,
+            user=self.get_root_user(), first_name=first_name, last_name=last_name,
         )
 
         first_name = first_name.title()
@@ -386,16 +388,18 @@ better &amp; lighter than the previous one.
         self.assertEqual(['foo', 'bar', '"baz'], smart_split('foo bar" \\"baz '))
 
     def test_entities_to_str(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
 
         SetCredentials.objects.create(
-            role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
+            role=user.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
         )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='Acme#1')
         orga2 = create_orga(name='Acme#2')
-        orga3 = create_orga(name='Acme#3', user=self.other_user)
+        # orga3 = create_orga(name='Acme#3', user=self.other_user)
+        orga3 = create_orga(name='Acme#3', user=self.get_root_user())
 
         self.assertEqual('', entities_to_str([], user))
         self.assertEqual(orga1.name, entities_to_str([orga1], user))

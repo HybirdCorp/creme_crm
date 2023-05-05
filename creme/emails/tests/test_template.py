@@ -21,7 +21,8 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
         return reverse('emails__remove_attachment_from_template', args=(template.id,))
 
     def test_createview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         url = reverse('emails__create_template')
         self.assertGET200(url)
@@ -66,13 +67,14 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
 
     def test_createview02(self):
         "Attachments."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         file_obj1 = self.build_filedata('Content #1')
-        doc1 = self._create_doc('My doc #1', file_obj1)
+        doc1 = self._create_doc(user=user, title='My doc #1', file_obj=file_obj1)
 
         file_obj2 = self.build_filedata('Content #2')
-        doc2 = self._create_doc('My doc #2', file_obj2)
+        doc2 = self._create_doc(user=user, title='My doc #2', file_obj=file_obj2)
 
         name = 'My first template'
         subject = 'Very important'
@@ -113,7 +115,8 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
 
     def test_createview03(self):
         "Validation error."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         response = self.assertPOST200(
             reverse('emails__create_template'),
@@ -137,10 +140,11 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
         )
 
     def test_editview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         file_obj = self.build_filedata('My Content')
-        doc = self._create_doc('My doc #1', file_obj)
+        doc = self._create_doc(user=user, title='My doc #1', file_obj=file_obj)
 
         name = 'my template'
         subject = 'Insert a joke *here*'
@@ -179,7 +183,8 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
 
     def test_editview02(self):
         "Validation errors."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         template = EmailTemplate.objects.create(
             user=user, name='My template', subject='Hello', body='Complete me',
@@ -205,7 +210,8 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
         )
 
     def test_listview(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         response = self.assertGET200(EmailTemplate.get_lv_absolute_url())
 
         with self.assertNoException():
@@ -213,7 +219,8 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
 
     @skipIfCustomDocument
     def test_add_attachments01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         template = EmailTemplate.objects.create(
             user=user, name='My template',
@@ -221,10 +228,10 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
         )
 
         file_obj1 = self.build_filedata('Content #1')
-        doc1 = self._create_doc('My doc #1', file_obj1)
+        doc1 = self._create_doc(user=user, title='My doc #1', file_obj=file_obj1)
 
         file_obj2 = self.build_filedata('Content #2')
-        doc2 = self._create_doc('My doc #2', file_obj2)
+        doc2 = self._create_doc(user=user, title='My doc #2', file_obj=file_obj2)
 
         url = reverse('emails__add_attachments_to_template', args=(template.id,))
 
@@ -246,27 +253,30 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
         self.assertCountEqual([doc1, doc2], template.attachments.all())
 
     def test_add_attachments02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Acme')
         self.assertGET404(reverse('emails__add_attachments_to_template', args=(orga.id,)))
 
     @skipIfCustomDocument
     def test_delete_attachments01(self):
-        user = self.login(
-            is_superuser=False, allowed_apps=['emails', 'documents'],
+        # user = self.login(
+        user = self.login_as_emails_user(
+            # is_superuser=False,
+            allowed_apps=['documents'],
             creatable_models=[Document],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
         )
 
         file_obj1 = self.build_filedata('Content #1')
-        doc1 = self._create_doc('My doc #1', file_obj1)
+        doc1 = self._create_doc('My doc #1', file_obj=file_obj1, user=user)
 
         file_obj2 = self.build_filedata('Content #2')
-        doc2 = self._create_doc('My doc #2', file_obj2)
+        doc2 = self._create_doc('My doc #2', file_obj=file_obj2, user=user)
 
         template = EmailTemplate.objects.create(
             user=user, name='My template',
@@ -284,18 +294,20 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
     @skipIfCustomDocument
     def test_delete_attachments02(self):
         "Not allowed to change the template."
-        user = self.login(
-            is_superuser=False, allowed_apps=['emails', 'documents'],
+        # user = self.login(
+        user = self.login_as_emails_user(
+            # is_superuser=False,
+            allowed_apps=['documents'],
             creatable_models=[Document],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,  # Not CHANGE
             set_type=SetCredentials.ESET_ALL,
         )
 
         file_obj = self.build_filedata('Content #1')
-        doc = self._create_doc('My doc #1', file_obj)
+        doc = self._create_doc('My doc #1', file_obj=file_obj, user=user)
 
         template = EmailTemplate.objects.create(
             user=user, name='My template',

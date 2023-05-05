@@ -298,23 +298,30 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         user = self.user
         now_value = now()
 
-        create_user = get_user_model().objects.create
-        teammate1 = create_user(
-            username='luffy',
-            email='luffy@sunny.org', role=self.role,
-            first_name='Luffy', last_name='Monkey D.',
-        )
-        teammate2 = create_user(
-            username='zorro',
-            email='zorro@sunny.org', role=self.role,
-            first_name='Zorro', last_name='Roronoa',
-        )
+        # create_user = get_user_model().objects.create
+        # teammate1 = create_user(
+        #     username='luffy',
+        #     email='luffy@sunny.org', role=self.role,
+        #     first_name='Luffy', last_name='Monkey D.',
+        # )
+        # teammate2 = create_user(
+        #     username='zorro',
+        #     email='zorro@sunny.org', role=self.role,
+        #     first_name='Zorro', last_name='Roronoa',
+        # )
+        other_user = self.create_user(0)
+        teammate1 = self.create_user(1)
+        teammate2 = self.create_user(2)
 
-        team1 = create_user(username='Team #1', is_team=True)
+        create_team = partial(get_user_model().objects.create, is_team=True)
+        # team1 = create_user(username='Team #1', is_team=True)
+        team1 = create_team(username='Team #1')
         team1.teammates = [teammate1, user]
 
-        team2 = create_user(username='Team #2', is_team=True)
-        team2.teammates = [self.other_user, teammate2]
+        # team2 = create_user(username='Team #2', is_team=True)
+        team2 = create_team(username='Team #2')
+        # team2.teammates = [self.other_user, teammate2]
+        team2.teammates = [other_user, teammate2]
 
         create_action = partial(
             Action.objects.create,

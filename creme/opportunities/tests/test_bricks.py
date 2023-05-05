@@ -35,8 +35,9 @@ from .base import (
 class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
     # TODO: OpportunityBrick
     def test_basic(self):
-        self.login()
-        opp, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        opp, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
 
         response1 = self.assertGET200(opp.get_absolute_url())
         tree1 = self.get_html_tree(response1.content)
@@ -57,8 +58,9 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
 
     def test_target01(self):
         "Source is displayed."
-        self.login()
-        opp, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        opp, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
         self.assertEqual(
             2, Organisation.objects.filter(is_managed=True, is_deleted=False).count(),
         )
@@ -72,9 +74,10 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
 
     def test_target02(self):
         "Source is not displayed."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         opp, target, emitter = self._create_opportunity_n_organisations(
-            name='Opp#1', managed=False,
+            user=user, name='Opp#1', managed=False,
         )
         self.assertEqual(
             1, Organisation.objects.filter(is_managed=True, is_deleted=False).count(),
@@ -90,12 +93,13 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
     @skipIfCustomContact
     def test_hat_card01(self):
         "All contacts can be displayed."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         brick_cls = bricks.OpportunityCardHatBrick
         self.assertEqual(5, brick_cls.displayed_contacts_number)
 
-        opp01, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        opp01, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
         opp02 = Opportunity.objects.create(
             user=user, name='Opp#2', sales_phase=opp01.sales_phase,
             emitter=emitter, target=target,
@@ -128,12 +132,13 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
     @skipIfCustomContact
     def test_hat_card02(self):
         "Too many contacts to display."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         brick_cls = bricks.OpportunityCardHatBrick
         brick_cls.displayed_contacts_number = 1
 
-        opp = self._create_opportunity_n_organisations(name='Opp#1')[0]
+        opp = self._create_opportunity_n_organisations(user=user, name='Opp#1')[0]
 
         create_contact = partial(get_contact_model().objects.create, user=user)
         contact01 = create_contact(first_name='Revy',  last_name='??')
@@ -157,8 +162,9 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         brick_cls = bricks.LinkedProductsBrick
         brick_cls.page_size = max(5, settings.BLOCK_SIZE)
 
-        user = self.login()
-        opp01, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        opp01, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
         opp02 = Opportunity.objects.create(
             user=user, name='Opp#2', sales_phase=opp01.sales_phase,
             emitter=emitter, target=target,
@@ -198,8 +204,9 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         brick_cls = bricks.LinkedServicesBrick
         brick_cls.page_size = max(5, settings.BLOCK_SIZE)
 
-        user = self.login()
-        opp01, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        opp01, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
         opp02 = Opportunity.objects.create(
             user=user, name='Opp#2', sales_phase=opp01.sales_phase,
             emitter=emitter, target=target,
@@ -242,8 +249,9 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
     def test_linked_contacts(self, brick_cls, rtype_id):
         brick_cls.page_size = max(5, settings.BLOCK_SIZE)
 
-        user = self.login()
-        opp01, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        opp01, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
         opp02 = Opportunity.objects.create(
             user=user, name='Opp#2', sales_phase=opp01.sales_phase,
             emitter=emitter, target=target,
@@ -273,9 +281,10 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
 
     # TODO: test title (several cases)
     def test_targeting01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        opp01, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        opp01, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
         Opportunity.objects.create(
             user=user, name='Opp#2', sales_phase=opp01.sales_phase,
             emitter=emitter, target=target,
@@ -307,14 +316,15 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
 
     def test_targeting02(self):
         "Field 'Estimated sales' is hidden."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Opportunity,
             descriptions=[('estimated_sales', {FieldsConfig.HIDDEN: True})],
         )
 
-        _opp, target, _emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        _opp, target, _emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
 
         response = self.assertGET200(target.get_absolute_url())
         brick_node = self.get_brick_node(
@@ -339,14 +349,15 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
 
     def test_targeting03(self):
         "Field 'Made sales' is hidden."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Opportunity,
             descriptions=[('made_sales', {FieldsConfig.HIDDEN: True})],
         )
 
-        _opp, target, _emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        _opp, target, _emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
 
         response = self.assertGET200(target.get_absolute_url())
         brick_node = self.get_brick_node(

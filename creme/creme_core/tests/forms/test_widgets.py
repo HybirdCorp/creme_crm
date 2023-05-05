@@ -253,7 +253,8 @@ class DynamicSelectTestCase(CremeTestCase):
         self.assertListEqual([(1, 'A'), (2, 'B')], select.choices)
 
     def test_options_queryset(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         FakeContact.objects.create(last_name='Doe', first_name='John', user=user)
 
         select = DynamicSelect(options=FakeContact.objects.values_list('id', 'last_name'))
@@ -1280,7 +1281,8 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
 
     def test_render_initial(self):
         "Initialized, creation_label."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         contact = FakeContact.objects.create(last_name='Doe', first_name='John', user=user)
         ct_id = contact.entity_type_id
 

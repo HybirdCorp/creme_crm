@@ -56,10 +56,10 @@ class FlowPaginatorTestCase(CremeTestCase):
             for names, order in names_orders_map.items()
         ]
 
+        cls.user = cls.get_root_user()
+
     def setUp(self):
         super().setUp()
-        self.login()
-
         self.assertIsNone(FakeContact.objects.first())
 
     @staticmethod
@@ -1630,7 +1630,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         "Key: pk1__pk2__foobar (pk1 not nullable) + ASC."
         self._build_contacts()
 
-        other_user = self.other_user
+        other_user = self.create_user(index=1)
 
         for contact in self._qs_2_shuffled_list(FakeContact.objects.all())[:3]:
             contact.user = other_user
@@ -1658,7 +1658,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         "Key: pk1__pk2__foobar (pk1 not nullable) + DESC."
         self._build_contacts()
 
-        other_user = self.other_user
+        other_user = self.create_user(index=1)
 
         for contact in self._qs_2_shuffled_list(FakeContact.objects.all())[:3]:
             contact.user = other_user

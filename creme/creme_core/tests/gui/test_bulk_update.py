@@ -434,7 +434,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
     def test_inner_uri01(self):
         "Regular field."
-        user = self.create_user()
+        user = self.get_root_user()
         model = FakeContact
         instance = model.objects.create(
             user=user, first_name='Guybrush', last_name='Threepwood',
@@ -468,7 +468,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
     def test_inner_uri02(self):
         "Not inner-editable field."
-        user = self.create_user()
+        user = self.get_root_user()
         model = FakeContact
         fname = 'first_name'
 
@@ -483,7 +483,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
     def test_inner_uri03(self):
         "Custom field."
-        user = self.create_user()
+        user = self.get_root_user()
         model = FakeContact
 
         registry = self.bulk_update_registry
@@ -568,7 +568,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertIsNotNone(form_cls)
         self.assertIsSubclass(form_cls, CremeModelForm)
 
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         # GET
@@ -605,7 +605,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             ],
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         # GET
@@ -726,7 +726,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             FakeActivity,
             [EntityCellRegularField.build(FakeActivity, field_name)],
         )
-        user = self.create_user()
+        user = self.get_root_user()
         atype = FakeActivityType.objects.first()
         create_activity = partial(FakeActivity.objects.create, user=user, type=atype)
         activity1 = create_activity(title='Meeting #1')
@@ -768,7 +768,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         registry = self.bulk_update_registry
         registry.register(FakeOrganisation)
 
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         cfield = CustomField.objects.create(
@@ -812,7 +812,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         registry = self.bulk_update_registry
         registry.register(FakeOrganisation)
 
-        orga = FakeOrganisation.objects.create(user=self.create_user(), name='NERV')
+        orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='NERV')
         cfield = CustomField.objects.create(
             content_type=orga.entity_type, name='Ammo', field_type=CustomField.INT,
             is_deleted=True,
@@ -877,7 +877,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             ],
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='NERV', capital=236)
@@ -980,7 +980,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             ],
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='NERV', capital=236)
 
         # GET
@@ -1034,7 +1034,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             ],
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='NERV', capital=236)
 
         form_field_name = f'override-{overridden}'
@@ -1066,7 +1066,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertIsNotNone(form_cls)
         self.assertIsSubclass(form_cls, CremeModelForm)
 
-        user = self.create_user()
+        user = self.get_root_user()
         civ1, civ2 = FakeCivility.objects.all()[:2]
         contact = FakeContact.objects.create(
             user=user, first_name='Asa', last_name='Asada', civility=civ1,
@@ -1093,7 +1093,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
     @override_settings(FORM_ENUMERABLE_LIMIT=100)
     def test_build_form_class_fk_limit_choices(self):
         "limit_choices_to: callable yielding Q."
-        user = self.create_user()
+        user = self.get_root_user()
 
         model = FakeContact
         registry = self.bulk_update_registry

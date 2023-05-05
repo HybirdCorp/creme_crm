@@ -152,7 +152,8 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
-            login = password = 'root'
+            login = constants.ROOT_USERNAME
+            password = constants.ROOT_PASSWORD
             root = get_user_model().objects.create_superuser(
                 pk=1, username=login, password=password,
                 first_name='Fulbert', last_name='Creme',

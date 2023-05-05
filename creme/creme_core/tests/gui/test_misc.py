@@ -31,7 +31,9 @@ from ..fake_forms import FakeContactQuickForm, FakeOrganisationQuickForm
 class GuiTestCase(CremeTestCase):
     @override_settings(MAX_LAST_ITEMS=5)
     def test_last_viewed_items(self):
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
+        user = self.get_root_user()
 
         class FakeRequest:
             def __init__(this):
@@ -47,7 +49,7 @@ class GuiTestCase(CremeTestCase):
 
         self.assertEqual(0, len(LastViewedItem.get_all(FakeRequest())))
 
-        create_contact = partial(FakeContact.objects.create, user=self.user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         contact01 = create_contact(first_name='Casca',    last_name='Mylove')
         contact02 = create_contact(first_name='Puck',     last_name='Elfman')
         contact03 = create_contact(first_name='Judo',     last_name='Doe')
@@ -110,7 +112,7 @@ class GuiTestCase(CremeTestCase):
         self.assertListEqual([contact02.pk], [i.pk for i in get_items()])
 
     def test_statistics01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         registry = _StatisticsRegistry()
 
@@ -286,7 +288,7 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual('Test Organisation', icon3.label)
 
     def test_button01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         class TestButton(Button):
             id = Button.generate_id('creme_core', 'test_button')
@@ -450,8 +452,12 @@ class GuiTestCase(CremeTestCase):
 
     def test_button_registry04(self):
         "Permissions."
-        basic_user = self.login(
-            is_superuser=False,
+        # basic_user = self.login(
+        #     is_superuser=False,
+        #     allowed_apps=['creme_core', 'persons'],
+        #     creatable_models=[FakeContact],
+        # )
+        basic_user = self.login_as_standard(
             allowed_apps=['creme_core', 'persons'],
             creatable_models=[FakeContact],
         )
@@ -475,7 +481,8 @@ class GuiTestCase(CremeTestCase):
             return request
 
         basic_ctxt = {'request': create_request(basic_user),      'entity': entity}
-        super_ctxt = {'request': create_request(self.other_user), 'entity': entity}
+        # super_ctxt = {'request': create_request(self.other_user), 'entity': entity}
+        super_ctxt = {'request': create_request(self.get_root_user()), 'entity': entity}
 
         # has_perm1 = TestButton01().has_perm
         # self.assertIs(has_perm1(super_ctxt), True)

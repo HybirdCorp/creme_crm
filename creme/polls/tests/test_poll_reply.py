@@ -88,38 +88,52 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def _build_preply_from_person_url(person):
         return reverse('polls__create_reply_from_person', args=(person.id,))
 
-    def _build_reply_with_bool_line(self):
-        return self._build_reply_with_1_line(PollLineType.BOOL, 'Do you like spam?')
-
-    def _build_reply_with_enumorstring_line(self):
+    # def _build_reply_with_bool_line(self):
+    def _build_reply_with_bool_line(self, user):
         return self._build_reply_with_1_line(
-            PollLineType.ENUM_OR_STRING,
-            'What is the main color of a swallow?',
+            user=user, qtype=PollLineType.BOOL, question='Do you like spam?',
+        )
+
+    # def _build_reply_with_enumorstring_line(self):
+    def _build_reply_with_enumorstring_line(self, user):
+        return self._build_reply_with_1_line(
+            user=user,
+            qtype=PollLineType.ENUM_OR_STRING,
+            question='What is the main color of a swallow?',
             choices=[[1, 'White'], [2, 'Black'], [3, 'Green']],
         )
 
-    def _build_reply_with_int_line(self, lower_bound=None, upper_bound=None):
+    # def _build_reply_with_int_line(self, lower_bound=None, upper_bound=None):
+    def _build_reply_with_int_line(self, *, user, lower_bound=None, upper_bound=None):
         return self._build_reply_with_1_line(
-            PollLineType.INT, 'How many swallows are there?',
+            user=user,
+            qtype=PollLineType.INT,
+            question='How many swallows are there?',
             lower_bound=lower_bound, upper_bound=upper_bound,
         )
 
-    def _build_reply_with_1_line(self, qtype, question, **type_kwargs):
-        pform  = PollForm.objects.create(user=self.user, name='Form#1')
+    # def _build_reply_with_1_line(self, qtype, question, **type_kwargs):
+    def _build_reply_with_1_line(self, *, user, qtype, question, **type_kwargs):
+        # pform  = PollForm.objects.create(user=self.user, name='Form#1')
+        pform  = PollForm.objects.create(user=user, name='Form#1')
         fline = self._get_formline_creator(pform)(question, qtype=qtype, **type_kwargs)
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         rline  = PollReplyLine.objects.get(pform_line=fline)
 
         return preply, rline
 
-    def _build_reply_with_text_line(self):
+    # def _build_reply_with_text_line(self):
+    def _build_reply_with_text_line(self, user):
         return self._build_reply_with_1_line(
-            PollLineType.TEXT,
-            'What is the difference between a swallow (argue)?',
+            user=user,
+            qtype=PollLineType.TEXT,
+            question='What is the difference between a swallow (argue)?',
         )
 
-    def _build_reply_with_2_lines(self):
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+    # def _build_reply_with_2_lines(self):
+    def _build_reply_with_2_lines(self, user):
+        # pform = PollForm.objects.create(user=self.user, name='Form#1')
+        pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
         fline1 = create_line('How many swallows are there?', qtype=PollLineType.INT)
@@ -134,8 +148,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         return preply, rline1, rline2
 
-    def _build_rlines_with_condition(self, only_2_questions=False):
-        pform  = PollForm.objects.create(user=self.user, name='Form#1')
+    # def _build_rlines_with_condition(self, only_2_questions=False):
+    def _build_rlines_with_condition(self, *, user, only_2_questions=False):
+        # pform  = PollForm.objects.create(user=self.user, name='Form#1')
+        pform  = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
         fline1 = create_line(
@@ -162,8 +178,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         self.rcondition = self.get_object_or_fail(PollReplyLineCondition, line=rline2)
 
-    def _build_rlines_with_conditions(self, conds_use_or=False):
-        pform  = PollForm.objects.create(user=self.user, name='Form#1')
+    # def _build_rlines_with_conditions(self, conds_use_or=False):
+    def _build_rlines_with_conditions(self, *, user, conds_use_or=False):
+        # pform  = PollForm.objects.create(user=self.user, name='Form#1')
+        pform  = PollForm.objects.create(user=user, name='Form#1')
 
         ENUM = PollLineType.ENUM
         create_line = self._get_formline_creator(pform)
@@ -183,8 +201,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.get_object_or_fail(PollReplyLine, pform_line=self.fline2)
         self.get_object_or_fail(PollReplyLine, pform_line=self.fline3)
 
-    def _build_rlines_with_conditions_on_bool(self):
-        pform  = PollForm.objects.create(user=self.user, name='Form#1')
+    # def _build_rlines_with_conditions_on_bool(self):
+    def _build_rlines_with_conditions_on_bool(self, user):
+        # pform  = PollForm.objects.create(user=self.user, name='Form#1')
+        pform  = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
         fline1      = create_line('Do you like swallows?', qtype=PollLineType.BOOL)
@@ -201,8 +221,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.rline2 = self.get_object_or_fail(PollReplyLine, pform_line=self.fline2)
         self.rcondition = self.get_object_or_fail(PollReplyLineCondition, line=self.rline2)
 
-    def _build_rlines_with_conditions_on_enumorstring(self, raw_cond):
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+    # def _build_rlines_with_conditions_on_enumorstring(self, raw_cond):
+    def _build_rlines_with_conditions_on_enumorstring(self, user, raw_cond):
+        # pform = PollForm.objects.create(user=self.user, name='Form#1')
+        pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
         fline1 = create_line(
@@ -223,8 +245,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.rline2 = self.get_object_or_fail(PollReplyLine, pform_line=self.fline2)
         self.rcondition = self.get_object_or_fail(PollReplyLineCondition, line=self.rline2)
 
-    def _build_rlines_with_conditions_on_multienum(self):
-        pform  = PollForm.objects.create(user=self.user, name='Form#1')
+    # def _build_rlines_with_conditions_on_multienum(self):
+    def _build_rlines_with_conditions_on_multienum(self, user):
+        # pform  = PollForm.objects.create(user=self.user, name='Form#1')
+        pform  = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
         fline1 = create_line(
@@ -256,8 +280,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def _build_fill_url(preply):
         return reverse('polls__fill_reply', args=(preply.id,))
 
-    def _build_preply(self, ptype=None):
-        user  = self.user
+    # def _build_preply(self, ptype=None):
+    def _build_preply(self, *, user, ptype=None):
+        # user  = self.user
         pform = PollForm.objects.create(user=user, name='Form#1', type=ptype)
         return PollReply.objects.create(user=user, pform=pform, name='Reply#1', type=ptype)
 
@@ -269,14 +294,16 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(self.client.post(
             self._build_preply_from_pform_url(pform),
             data={
-                'user': self.user.id,
+                # 'user': self.user.id,
+                'user': pform.user.id,   # TDOO: "user" argument?
                 'name': name,
             },
         ))
 
         return self.get_object_or_fail(PollReply, name=name)
 
-    def _create_activity(self):
+    # def _create_activity(self):
+    def _create_activity(self, user):
         atype = ActivityType.objects.create(
             pk='polls-test-type', name="Queen's blade",
             default_day_duration=7, default_hour_duration="00:00:00",
@@ -287,7 +314,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             type=atype, is_custom=True,
         )
 
-        return Activity.objects.create(user=self.user, type=atype, sub_type=sub_type)
+        # return Activity.objects.create(user=self.user, type=atype, sub_type=sub_type)
+        return Activity.objects.create(user=user, type=atype, sub_type=sub_type)
 
     def _edit_answer(self, preply, rline, answer, is_complete):
         self.assertPOST200(
@@ -326,7 +354,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         return response
 
     def test_createview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self.assertFalse(PollReply.objects.all())
 
         pform = PollForm.objects.create(
@@ -461,7 +490,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_createview02(self):
         "Create view: validation error when no PollForm."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         response = self.assertPOST200(
             self.ADD_REPLY_URL,
             follow=True,
@@ -476,7 +506,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_createview03(self):
         "Create view: validation error when no line."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         response = self.assertPOST200(
@@ -496,7 +527,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_createview04(self):
         "Create view: validation error when no valid line."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         PollFormLine.objects.create(
@@ -522,7 +554,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_createview05(self):
         "Create view: orders are not successive"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(
             user=user, name='Form#1', type=PollType.objects.all()[0],
         )
@@ -557,7 +590,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_createview06(self):
         "Create view : create several replies"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
@@ -590,7 +624,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     def test_createview07(self):
         "Create view : create several replies linked to Contact/Organisation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         count = PollReply.objects.count()
 
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -629,7 +664,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             self.assertEqual(entity, preply.person.get_real_entity())
 
     def test_create_from_pollform01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
@@ -658,13 +694,15 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_create_from_pollform02(self):
         "Create from PollForm: no lines causes a 404 error"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         self.assertGET404(self._build_preply_from_pform_url(pform))
 
     def test_create_from_pollform03(self):
         "Create from PollForm: no _valid_ lines causes a 404 error"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         self._get_formline_creator(pform)(
             'What is the difference between a swallow?',
@@ -675,7 +713,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_create_from_pollform04(self):
         "Create from PollForm: disabled lines are not copied"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
@@ -692,7 +731,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_create_from_pollform05(self):
         "Create from PollForm: deleted choices are not copied"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         choices = [[1, 'White'], [2, 'black']]
         line = self._get_formline_creator(pform)(
@@ -713,7 +753,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_create_from_pollform06(self):
         "Create from PollForm: several replies"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
@@ -739,11 +780,12 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_create_from_pollform07(self):
         "Not superuser."
-        user = self.login(
-            is_superuser=False, allowed_apps=['polls'], creatable_models=[PollReply],
-        )
+        # user = self.login(
+        #     is_superuser=False, allowed_apps=['polls'], creatable_models=[PollReply],
+        # )
+        user = self.login_as_polls_user(creatable_models=[PollReply])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -763,12 +805,13 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_create_from_pollform08(self):
         "Creation creds are needed"
-        user = self.login(
-            is_superuser=False, allowed_apps=['polls'],
-            # creatable_models=[PollReply],
-        )
+        # user = self.login(
+        #     is_superuser=False, allowed_apps=['polls'],
+        #     # creatable_models=[PollReply],
+        # )
+        user = self.login_as_polls_user()  # creatable_models=[PollReply],
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -788,11 +831,12 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_create_from_pollform09(self):
         "LINK creds are needed."
-        user = self.login(
-            is_superuser=False, allowed_apps=['polls'], creatable_models=[PollReply],
-        )
+        # user = self.login(
+        #     is_superuser=False, allowed_apps=['polls'], creatable_models=[PollReply],
+        # )
+        user = self.login_as_polls_user(creatable_models=[PollReply])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -810,8 +854,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         self.assertGET403(self._build_preply_from_pform_url(pform))
 
-    def _aux_test_link_to(self, person):
-        user = self.user
+    # def _aux_test_link_to(self, person):
+    def _aux_test_link_to(self, user, person):
+        # user = self.user
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_preply = partial(PollReply.objects.create, user=user, pform=pform)
@@ -843,22 +888,29 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     @skipIfCustomContact
     def test_link_to_contact(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self._aux_test_link_to(
-            Contact.objects.create(user=user, first_name='Leina', last_name='Vance'),
+            user=user,
+            person=Contact.objects.create(user=user, first_name='Leina', last_name='Vance'),
         )
 
     @skipIfCustomOrganisation
     def test_link_to_orga(self):
-        user = self.login()
-        self._aux_test_link_to(Organisation.objects.create(user=user, name='Gaimos'))
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        self._aux_test_link_to(
+            user=user,
+            person=Organisation.objects.create(user=user, name='Gaimos'),
+        )
 
     @skipIfCustomContact
     def test_link_to_creds(self):
         "Not super-user."
-        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+        # user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+        user = self.login_as_polls_user(allowed_apps=('creme_core', 'persons'))
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
         )
@@ -869,9 +921,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_link_to_error01(self):
         "CHANGE credentials error."
-        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+        # user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+        user = self.login_as_polls_user(allowed_apps=('creme_core', 'persons'))
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(
             value=EntityCredentials.CHANGE, set_type=SetCredentials.ESET_OWN,
         )
@@ -887,7 +940,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         )
 
         pform = PollForm.objects.create(user=user, name='Form#1')
-        preply = PollReply.objects.create(user=self.other_user, name='Reply#1', pform=pform)
+        # preply = PollReply.objects.create(user=self.other_user, name='Reply#1', pform=pform)
+        preply = PollReply.objects.create(user=self.get_root_user(), name='Reply#1', pform=pform)
 
         leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
         response = self.assertPOST200(
@@ -903,17 +957,19 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomActivity
     def test_link_to_error02(self):
         "Want to link to an Activity (not a Contact/Organisation)."
-        self.login()
-        self.assertGET404(self._build_linkto_url(self._create_activity()))
+        # self.login()
+        user = self.login_as_root_and_get()
+        self.assertGET404(self._build_linkto_url(self._create_activity(user=user)))
 
     @skipIfCustomContact
     def test_link_to_error03(self):
         "LINK credentials are needed"
-        user = self.login(
-            is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'),
-        )
+        # user = self.login(
+        #     is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'),
+        # )
+        user = self.login_as_polls_user(allowed_apps=('creme_core', 'persons'))
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
             set_type=SetCredentials.ESET_ALL,
         )
@@ -922,7 +978,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertGET403(self._build_linkto_url(leina))
 
     def _aux_test_create_from_person(self, person):
-        user = self.user
+        # user = self.user
+        user = person.user  # TDOO: argument "user"
 
         url = self._build_preply_from_person_url(person)
         response = self.assertGET200(url)
@@ -963,7 +1020,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_create_from_person01(self):
         "From a Contact."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self._aux_test_create_from_person(
             Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
         )
@@ -971,7 +1029,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     def test_create_from_person02(self):
         "From an Organisation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self._aux_test_create_from_person(
             Organisation.objects.create(user=user, name='Gaimos')
         )
@@ -979,17 +1038,19 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomActivity
     def test_create_from_person03(self):
         "From an Activity --> error."
-        self.login()
-        self.assertGET404(self._build_preply_from_person_url(self._create_activity()))
+        # self.login()
+        user = self.login_as_root_and_get()
+        self.assertGET404(self._build_preply_from_person_url(self._create_activity(user=user)))
 
     def test_create_from_person04(self):
         "Not super-user."
-        user = self.login(
-            is_superuser=False, allowed_apps=['polls', 'persons'],
-            creatable_models=[PollReply],
-        )
+        # user = self.login(
+        #     is_superuser=False, allowed_apps=['polls', 'persons'],
+        #     creatable_models=[PollReply],
+        # )
+        user = self.login_as_polls_user(allowed_apps=['persons'], creatable_models=[PollReply])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -1004,12 +1065,16 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_create_from_person05(self):
         "Creation credentials are needed."
-        user = self.login(
-            is_superuser=False, allowed_apps=['polls', 'persons'],
+        # user = self.login(
+        #     is_superuser=False, allowed_apps=['polls', 'persons'],
+        #     # creatable_models=[PollReply],
+        # )
+        user = self.login_as_polls_user(
+            allowed_apps=['persons'],
             # creatable_models=[PollReply],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -1024,12 +1089,16 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_create_from_person06(self):
         "LINK credentials are needed."
-        user = self.login(
-            is_superuser=False, allowed_apps=['polls', 'persons'],
+        # user = self.login(
+        #     is_superuser=False, allowed_apps=['polls', 'persons'],
+        #     creatable_models=[PollReply],
+        # )
+        user = self.login_as_polls_user(
+            allowed_apps=['persons'],
             creatable_models=[PollReply],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -1043,7 +1112,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertGET403(self._build_preply_from_person_url(orga))
 
     def test_editview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         ptype1, ptype2, ptype3 = PollType.objects.all()[:3]
 
         create_pform = partial(PollForm.objects.create, user=user)
@@ -1085,7 +1155,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_editview02(self):
         "Edit campaign & person"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform  = PollForm.objects.create(user=user, name='Form#1')
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform)
 
@@ -1110,10 +1181,11 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_editview03(self):
         "Permissions for new related person."
-        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+        # user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+        user = self.login_as_polls_user(allowed_apps=('creme_core', 'persons'))
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -1126,7 +1198,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         create_contact = partial(Contact.objects.create, last_name='Vance')
         leina     = create_contact(user=user,            first_name='Leina')
-        claudette = create_contact(user=self.other_user, first_name='Claudette')
+        # claudette = create_contact(user=self.other_user, first_name='Claudette')
+        claudette = create_contact(user=self.get_root_user(), first_name='Claudette')
         erina     = create_contact(user=user,            first_name='Erina')
 
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -1158,10 +1231,11 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_editview04(self):
         "No permissions checking on related person when not changed"
-        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+        # user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+        user = self.login_as_polls_user(allowed_apps=('creme_core', 'persons'))
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -1173,7 +1247,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         )
 
         leina = Contact.objects.create(
-            user=self.other_user, first_name='Leina', last_name='Vance',
+            # user=self.other_user, first_name='Leina', last_name='Vance',
+            user=self.get_root_user(), first_name='Leina', last_name='Vance',
         )
 
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -1195,7 +1270,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(leina, preply.person.get_real_entity())
 
     def test_inneredit01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform  = PollForm.objects.create(user=user, name='Form#1')
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform)
 
@@ -1210,7 +1286,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_inneredit02(self):
         "Inner edition: 'pform' field is not editable."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_pform = partial(PollForm.objects.create, user=user)
         pform1 = create_pform(name='Form#1')
@@ -1228,7 +1305,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_inneredit_person01(self):
         "Not required."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=PollReply,
@@ -1264,7 +1342,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_inneredit_person02(self):
         "Configured as required."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         field_name = 'person'
         FieldsConfig.objects.create(
@@ -1285,9 +1364,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_inneredit04(self):
         "Inner edition: 'person' field + not superuser."
-        user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+        # user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
+        user = self.login_as_polls_user(allowed_apps=('creme_core', 'persons'))
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
         create_sc(
             value=(
@@ -1307,7 +1387,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         uri = self.build_inneredit_uri(preply, field_name)
 
         create_contact = Contact.objects.create
-        leina = create_contact(user=self.other_user, first_name='Leina', last_name='Vance')
+        # leina = create_contact(user=self.other_user, first_name='Leina', last_name='Vance')
+        leina = create_contact(user=self.get_root_user(), first_name='Leina', last_name='Vance')
         response = self.client.post(
             uri, data={f'override-{field_name}': self.formfield_value_generic_entity(leina)},
         )
@@ -1328,7 +1409,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_inneredit05(self):
         "Inner edition: 'person' field (set None)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -1339,7 +1421,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertIsNone(self.refresh(preply).person)
 
     def test_listview(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_reply = partial(PollReply.objects.create, user=user, pform=pform)
@@ -1356,9 +1439,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_delete_type(self):
         "Set to NULL."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
         ptype  = PollType.objects.create(name='Political poll')
-        preply = self._build_preply(ptype=ptype)
+        preply = self._build_preply(user=user, ptype=ptype)
 
         self.assertNoFormError(self.client.post(
             reverse(
@@ -1375,7 +1459,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertIsNone(preply.type)
 
     def test_section_tree(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform  = PollForm.objects.create(user=user, name='Form#1')
 
         create_section = partial(PollFormSection.objects.create, pform=pform)
@@ -1417,8 +1502,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_string01(self):
         "Fill one STRING question"
-        self.login()
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        # self.login()
+        user = self.login_as_root_and_get()
+        pform = PollForm.objects.create(user=user, name='Form#1')
         fline = self._get_formline_creator(pform)('What is the difference between a swallow?')
 
         preply = self._build_preply_from_pform(pform, 'Reply#1')
@@ -1447,8 +1533,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_text01(self):
         "Fill one TEXT question (not empty)."
-        self.login()
-        preply, rline = self._build_reply_with_text_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_text_line(user=user)
 
         answer = 'The 2 legs are equal, almost the right one.'
         self.assertNoFormError(self._fill(preply, answer))
@@ -1456,16 +1543,18 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_text02(self):
         "Fill one TEXT question (empty)."
-        self.login()
-        preply, rline = self._build_reply_with_text_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_text_line(user=user)
         answer = ''
         self.assertNoFormError(self._fill(preply, answer))
         self.assertEqual(answer, self.refresh(rline).answer)
 
     def test_fillview_int01(self):
         "Fill one INT question."
-        self.login()
-        preply, rline = self._build_reply_with_int_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_int_line(user=user)
         response = self._fill(preply, 'notanint', check_errors=False)
         self.assertFormError(
             response.context['form'],
@@ -1479,10 +1568,13 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_int02(self):
         "Fill one INT question with bounds."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
         lower_bound = 10
         upper_bound = 20
-        preply, rline = self._build_reply_with_int_line(lower_bound, upper_bound)
+        preply, rline = self._build_reply_with_int_line(
+            user=user, lower_bound=lower_bound, upper_bound=upper_bound,
+        )
 
         response1 = self._fill(preply, 5, check_errors=False)
         self.assertFormError(
@@ -1511,15 +1603,17 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_bool01(self):
         "Fill one BOOL question (True)."
-        self.login()
-        preply, rline = self._build_reply_with_bool_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_bool_line(user=user)
         self.assertNoFormError(self._fill(preply, 1))
         self.assertEqual(_('Yes'), self.refresh(rline).answer)
 
     def test_fillview_bool02(self):
         "Fill one BOOL question (False)."
-        self.login()
-        preply, rline = self._build_reply_with_bool_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_bool_line(user=user)
         self.assertNoFormError(self._fill(preply, 0))
         rline = self.refresh(rline)
         self.assertEqual('0',     rline.raw_answer)
@@ -1527,8 +1621,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_bool03(self):
         "Fill one BOOL question : no answer (caused an issue)."
-        self.login()
-        preply, rline = self._build_reply_with_bool_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_bool_line(user=user)
         response = self.client.post(self._build_fill_url(preply), follow=True)
         self.assertFormError(
             response.context['form'], field='answer', errors=_('The answer is required.'),
@@ -1536,8 +1631,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_date01(self):
         "One DATE question."
-        self.login()
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        # self.login()
+        user = self.login_as_root_and_get()
+        pform = PollForm.objects.create(user=user, name='Form#1')
         fline = self._get_formline_creator(pform)(
             'When is your birthday?', qtype=PollLineType.DATE,
         )
@@ -1556,8 +1652,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_hour01(self):
         "One HOUR question"
-        self.login()
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        # self.login()
+        user = self.login_as_root_and_get()
+        pform = PollForm.objects.create(user=user, name='Form#1')
         fline = self._get_formline_creator(pform)(
             'What is the best hour to see a killer rabbit?',
             qtype=PollLineType.HOUR,
@@ -1590,8 +1687,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_enum01(self):
         "Fill one ENUM question."
-        self.login()
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        # self.login()
+        user = self.login_as_root_and_get()
+        pform = PollForm.objects.create(user=user, name='Form#1')
         choices = [[1, 'White'], [2, 'Black'], [3, 'Green']]
         fline = self._get_formline_creator(pform)(
             'What is the main color of a swallow?',
@@ -1635,7 +1733,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_multienum01(self):
         "Fill one MULTI_ENUM question."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         choices = [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']]
@@ -1674,8 +1773,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_enumorstring01(self):
         "Fill one ENUM_OR_STRING question."
-        self.login()
-        preply, rline = self._build_reply_with_enumorstring_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_enumorstring_line(user=user)
         answer = 42
         response = self._fill(preply, {'answer_0': answer, 'answer_1': ''}, check_errors=False)
         self.assertFormError(
@@ -1693,8 +1793,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_enumorstring02(self):
         "Fill one ENUM_OR_STRING question --> 'free' choice."
-        self.login()
-        preply, rline = self._build_reply_with_enumorstring_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_enumorstring_line(user=user)
 
         answer = 'Red'
         self.assertNoFormError(self._fill(preply, {'answer_0': 0, 'answer_1': answer}))
@@ -1704,8 +1805,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_comment01(self):
         "Fill one COMMENT question."
-        self.login()
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        # self.login()
+        user = self.login_as_root_and_get()
+        pform = PollForm.objects.create(user=user, name='Form#1')
         fline = PollFormLine.objects.create(
             pform=pform, type=PollLineType.COMMENT,
             question='Beware, the next questions talk about weird things !'
@@ -1735,8 +1837,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         )
 
     def test_fillview_not_applicable01(self):
-        self.login()
-        preply, rline = self._build_reply_with_int_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_int_line(user=user)
         self._fill(preply, '', not_applicable=True)
 
         rline = self.refresh(rline)
@@ -1745,8 +1848,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_not_applicable02(self):
         "If the answer is applicable, 'answer' field is required."
-        self.login()
-        preply, rline = self._build_reply_with_int_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_int_line(user=user)
         response = self._fill(preply, '', not_applicable=False, check_errors=False)
         self.assertFormError(
             response.context['form'],
@@ -1755,8 +1859,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_wizard01(self):
         "Wizard with 2 questions."
-        self.login()
-        preply, rline1, rline2 = self._build_reply_with_2_lines()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline1, rline2 = self._build_reply_with_2_lines(user=user)
 
         answer = 8
         self._fill(preply, answer)
@@ -1783,42 +1888,48 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_wizard02(self):
         "Wizard: no line (SHOULD NOT HAPPEN...)."
-        self.login()
-        preply = self._build_preply()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply = self._build_preply(user=user)
         self.assertGET404(self._build_fill_url(preply))
 
     def test_fillview_wizard03(self):
         "Wizard: with a condition (that is OK)."
-        self.login()
-        self._build_rlines_with_condition()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_condition(user=user)
         self.assertFalse(self.rcondition.is_met(self.rline1))
         self.assertCurrentQuestion(self._fill(self.preply, 2), self.fline2, 2)
 
     def test_fillview_wizard04(self):
         "Wizard: condition (that is false)."
-        self.login()
-        self._build_rlines_with_condition()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_condition(user=user)
         self.assertCurrentQuestion(self._fill(self.preply, 1), self.fline3)
 
     def test_fillview_wizard05(self):
         "Wizard: condition (false) + no more question."
-        self.login()
-        self._build_rlines_with_condition(only_2_questions=True)
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_condition(user=user, only_2_questions=True)
 
         self._fill(self.preply, 1)
         self.assertTrue(self.refresh(self.preply).is_complete)
 
     def test_fillview_wizard06(self):
         "Wizard: complex conditions (OK and OK)."
-        self.login()
-        self._build_rlines_with_conditions()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_conditions(user=user)
         self.assertCurrentQuestion(self._fill(self.preply, 2), self.fline2)
         self.assertCurrentQuestion(self._fill(self.preply, 2), self.fline3)
 
     def test_fillview_wizard07(self):
         "Wizard: complex conditions (OK and KO)."
-        self.login()
-        self._build_rlines_with_conditions()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_conditions(user=user)
         self.assertCurrentQuestion(self._fill(self.preply, 2), self.fline2)
 
         self._fill(self.preply, 1)
@@ -1826,48 +1937,55 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_wizard08(self):
         "Wizard: complex conditions (KO or OK)."
-        self.login()
-        self._build_rlines_with_conditions(conds_use_or=True)
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_conditions(user=user, conds_use_or=True)
         self.assertCurrentQuestion(self._fill(self.preply, 1), self.fline2)
         self.assertCurrentQuestion(self._fill(self.preply, 2), self.fline3)
 
     def test_fillview_wizard09(self):
         "Wizard: 'N/A' == condition is false."
-        self.login()
-        self._build_rlines_with_condition()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_condition(user=user)
         self.assertCurrentQuestion(self._fill(self.preply, '', not_applicable=True), self.fline3)
 
     def test_fillview_wizard_multienum01(self):
         "Wizard: answer in choices of condition (MULTI_ENUM question)."
-        self.login()
-        self._build_rlines_with_conditions_on_multienum()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_conditions_on_multienum(user=user)
         self.assertFalse(self.rcondition.is_met(self.rline1))
         self.assertCurrentQuestion(self._fill(self.preply, 1), self.fline2)
 
     def test_fillview_wizard_multienum02(self):
         "Wizard: answer not in choices of condition (MULTI_ENUM question)."
-        self.login()
-        self._build_rlines_with_conditions_on_multienum()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_conditions_on_multienum(user=user)
         self._fill(self.preply, 2)
         self.assertTrue(self.refresh(self.preply).is_complete)
 
     def test_fillview_wizard_multienum03(self):
         "Wizard: one answer in choices of condition (MULTI_ENUM question)."
-        self.login()
-        self._build_rlines_with_conditions_on_multienum()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_conditions_on_multienum(user=user)
         self.assertCurrentQuestion(self._fill(self.preply, [1, 2]), self.fline2)
 
     def test_fillview_wizard_multienum04(self):
         "Wizard: no answer in choices of condition (MULTI_ENUM question)."
-        self.login()
-        self._build_rlines_with_conditions_on_multienum()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_conditions_on_multienum(user=user)
         self._fill(self.preply, [3, 4])
         self.assertTrue(self.refresh(self.preply).is_complete)
 
     def test_fillview_wizard_enumorstring01(self):
         "Wizard: condition on the regular choice 'True' (MULTI_ENUM question)."
-        self.login()
-        self._build_rlines_with_conditions_on_enumorstring(1)
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_conditions_on_enumorstring(user=user, raw_cond=1)
         self.assertFalse(self.rcondition.is_met(self.rline1))
         self.assertCurrentQuestion(
             self._fill(self.preply, {'answer_0': 1, 'answer_1': ''}),
@@ -1876,15 +1994,17 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_wizard_enumorstring02(self):
         "Wizard: condition on the regular choice 'False' (MULTI_ENUM question)."
-        self.login()
-        self._build_rlines_with_conditions_on_enumorstring(1)
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_conditions_on_enumorstring(user=user, raw_cond=1)
         self._fill(self.preply, {'answer_0': 2, 'answer_1': ''})
         self.assertTrue(self.refresh(self.preply).is_complete)
 
     def test_fillview_wizard_enumorstring03(self):
         "Wizard: condition (that is True) on 'Other' choice (MULTI_ENUM question)."
-        self.login()
-        self._build_rlines_with_conditions_on_enumorstring(0)
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_conditions_on_enumorstring(user=user, raw_cond=0)
         self.assertCurrentQuestion(
             self._fill(self.preply, {'answer_0': 0, 'answer_1': 'Pistachio'}),
             self.fline2,
@@ -1892,27 +2012,31 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_wizard_enumorstring04(self):
         "Wizard: condition (that is False) on 'Other' choice (MULTI_ENUM question)."
-        self.login()
-        self._build_rlines_with_conditions_on_enumorstring(0)
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_conditions_on_enumorstring(user=user, raw_cond=0)
         self._fill(self.preply, {'answer_0': 2, 'answer_1': ''})
         self.assertTrue(self.refresh(self.preply).is_complete)
 
     def test_fillview_wizard_bool01(self):
-        self.login()
-        self._build_rlines_with_conditions_on_bool()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_conditions_on_bool(user=user)
         self.assertFalse(self.rcondition.is_met(self.rline1))
         self.assertCurrentQuestion(self._fill(self.preply, 1), self.fline2)
 
     def test_fillview_wizard_bool02(self):
         "Wizard: BOOL question that causes false condition."
-        self.login()
-        self._build_rlines_with_conditions_on_bool()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_conditions_on_bool(user=user)
         self._fill(self.preply, 0)
         self.assertTrue(self.refresh(self.preply).is_complete)
 
     def test_fillview_wizard_not_applicable01(self):
-        self.login()
-        preply, rline1, rline2 = self._build_reply_with_2_lines()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline1, rline2 = self._build_reply_with_2_lines(user=user)
 
         self._fill(preply, '', not_applicable=True)
         self.assertFalse(self.refresh(rline1).applicable)
@@ -1929,8 +2053,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_fillview_wizard_not_applicable02(self):
         "Wizard: answer is not applicable (but we still post a valid answer)."
-        self.login()
-        preply, rline = self._build_reply_with_int_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_int_line(user=user)
         self._fill(preply, 12, not_applicable=True)
         self.assertTrue(self.refresh(preply).is_complete)
 
@@ -1939,8 +2064,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertIsNone(rline.raw_answer)
 
     def test_clean_answers(self):
-        self.login()
-        preply, rline1, rline2 = self._build_reply_with_2_lines()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline1, rline2 = self._build_reply_with_2_lines(user=user)
         self._fill(preply, '56')
         self._fill(preply, '', not_applicable=True)
         self.assertTrue(self.refresh(preply).is_complete)
@@ -1958,7 +2084,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_answer01(self):
         "Edit answer: one INT answer already answered."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         question = 'How many swallows are there?'
         fline = self._get_formline_creator(pform)(question, qtype=PollLineType.INT)
@@ -1992,8 +2119,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_answer02(self):
         "Edit answer: one INT answer not answered (so reply becomes fully filled)."
-        self.login()
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        # self.login()
+        user = self.login_as_root_and_get()
+        pform = PollForm.objects.create(user=user, name='Form#1')
         fline = self._get_formline_creator(pform)(
             'How many swallows are there?',
             qtype=PollLineType.INT,
@@ -2006,8 +2134,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_answer03(self):
         "Edit answer: 2 STRING answers not answered -> we edit the second one first."
-        self.login()
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        # self.login()
+        user = self.login_as_root_and_get()
+        pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
         fline1 = create_line('What is your name?')
@@ -2026,8 +2155,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         """Edit answer : 3 BOOL answers ; the 2 first are already filled, we
         edit the first (line order > edited order).
         """
-        self.login()
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        # self.login()
+        user = self.login_as_root_and_get()
+        pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.BOOL)
         flines = [
@@ -2047,8 +2177,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         """Edit answer : 2 filled lines with a condition -> dependant line is
         cleared ('is_complete' changes too).
         """
-        self.login()
-        self._build_rlines_with_condition(only_2_questions=True)
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_condition(user=user, only_2_questions=True)
 
         preply = self.preply
         self._fill(preply, 2, 'Asian ones')
@@ -2059,8 +2190,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_answer06(self):
         "Idem, but this time condition become True."
-        self.login()
-        self._build_rlines_with_condition(only_2_questions=True)
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_condition(user=user, only_2_questions=True)
 
         preply = self.preply
         self._fill(preply, 1)
@@ -2071,7 +2203,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_answer07(self):
         "Edit answer: chain of conditions dependencies."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
@@ -2103,8 +2236,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_answer08(self):
         "Edit answer: can not edit an answer when related conditions are false."
-        self.login()
-        self._build_rlines_with_condition()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_condition(user=user)
 
         preply = self.preply
         self._fill(preply, 1)
@@ -2113,8 +2247,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_answer_not_applicable01(self):
         "Edit answer: edit a not applicable answer."
-        self.login()
-        preply, rline = self._build_reply_with_int_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_int_line(user=user)
         self._fill(preply, '', not_applicable=True)
 
         response = self.client.get(self._build_edit_answer_url(preply, rline))
@@ -2129,8 +2264,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_answer_not_applicable02(self):
         "Edit answer: edit an answer to set it not applicable."
-        self.login()
-        preply, rline = self._build_reply_with_int_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_int_line(user=user)
         self._fill(preply, 12)
 
         self.assertPOST200(
@@ -2142,11 +2278,12 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertIsNone(rline.raw_answer)
 
     def test_edit_answer_not_superuser01(self):
-        self.login(
-            is_superuser=False, allowed_apps=['polls'], creatable_models=[PollReply],
-        )
+        # user = self.login(
+        #     is_superuser=False, allowed_apps=['polls'], creatable_models=[PollReply],
+        # )
+        user = self.login_as_polls_user(creatable_models=[PollReply])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -2157,7 +2294,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        pform = PollForm.objects.create(user=user, name='Form#1')
         question = 'How many swallows are there?'
         fline = self._get_formline_creator(pform)(question, qtype=PollLineType.INT)
 
@@ -2172,11 +2309,12 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_answer_not_superuser02(self):
         "Edition permission on PollReply is needed."
-        self.login(
-            is_superuser=False, allowed_apps=['polls'], creatable_models=[PollReply],
-        )
+        # user = self.login(
+        #     is_superuser=False, allowed_apps=['polls'], creatable_models=[PollReply],
+        # )
+        user = self.login_as_polls_user(creatable_models=[PollReply])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.DELETE
@@ -2187,7 +2325,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        pform = PollForm.objects.create(user=user, name='Form#1')
         question = 'How many swallows are there?'
         fline = self._get_formline_creator(pform)(question, qtype=PollLineType.INT)
 
@@ -2199,8 +2337,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_wizard01(self):
         "Edition wizard: without conditions."
-        self.login()
-        pform  = PollForm.objects.create(user=self.user, name='Form#1')
+        # self.login()
+        user = self.login_as_root_and_get()
+        pform  = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
         fline1 = create_line('What is your name?')
@@ -2225,8 +2364,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_wizard02(self):
         "Edition wizard: with a condition already met."
-        self.login()
-        self._build_rlines_with_condition()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_condition(user=user)
 
         preply = self.preply
         self._fill(preply, 2, 1)
@@ -2237,8 +2377,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_wizard03(self):
         "Edition wizard: with a condition that becomes false."
-        self.login()
-        self._build_rlines_with_condition()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_rlines_with_condition(user=user)
 
         preply = self.preply
         self._fill(preply, 1, '3')
@@ -2249,8 +2390,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_initialised_enum_answer(self):
         "One ENUM answer already answered"
-        self.login()
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+        # self.login()
+        user = self.login_as_root_and_get()
+        pform = PollForm.objects.create(user=user, name='Form#1')
         fline = self._get_formline_creator(pform)(
             'What type of swallow?',
             qtype=PollLineType.ENUM, choices=[[1, 'European'], [2, 'African']],
@@ -2271,7 +2413,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_initialised_date_answer(self):
         "One DATE answer already answered."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         fline = self._get_formline_creator(pform)(
             'When is your birthday?', qtype=PollLineType.DATE,
@@ -2294,7 +2437,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_answer_n_fill(self):
         "Does fill view manage answers already filled"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = partial(PollFormLine.objects.create, pform=pform, type=PollLineType.BOOL)
@@ -2311,8 +2455,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self._fill(preply, 0, 1)
         self.assertTrue(self.refresh(preply).is_complete)
 
-    def _build_rline_for_stat(self, type, answer, choices=None):
-        pform = PollForm.objects.create(user=self.user, name='Form#1')
+    # def _build_rline_for_stat(self, type, answer, choices=None):
+    def _build_rline_for_stat(self, *, user, type, answer, choices=None):
+        # pform = PollForm.objects.create(user=self.user, name='Form#1')
+        pform = PollForm.objects.create(user=user, name='Form#1')
         fline = self._get_formline_creator(pform)(
             'What do you think about swallows?', qtype=type, choices=choices,
         )
@@ -2323,42 +2469,51 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         return PollReplyLine.objects.get(pform_line=fline)
 
     def test_stats_rline_string(self):
-        self.login()
-        rline = self._build_rline_for_stat(PollLineType.STRING, 'a')
+        # self.login()
+        user = self.login_as_root_and_get()
+        rline = self._build_rline_for_stat(user=user, type=PollLineType.STRING, answer='a')
         self.assertEqual(None, rline.stats)
 
     def test_stats_rline_text(self):
-        self.login()
-        rline = self._build_rline_for_stat(PollLineType.TEXT, 'a')
+        # self.login()
+        user = self.login_as_root_and_get()
+        rline = self._build_rline_for_stat(user=user, type=PollLineType.TEXT, answer='a')
         self.assertEqual(None, rline.stats)
 
     def test_stats_rline_integer(self):
-        self.login()
-        rline = self._build_rline_for_stat(PollLineType.INT, 12)
+        # self.login()
+        user = self.login_as_root_and_get()
+        rline = self._build_rline_for_stat(user=user, type=PollLineType.INT, answer=12)
         self.assertEqual([(12, 1)], rline.stats)
 
     def test_stats_rline_boolean(self):
-        self.login()
-        rline = self._build_rline_for_stat(PollLineType.BOOL, 1)
+        # self.login()
+        user = self.login_as_root_and_get()
+        rline = self._build_rline_for_stat(user=user, type=PollLineType.BOOL, answer=1)
         self.assertCountEqual([(_('Yes'), 1), (_('No'), 0)], rline.stats)
 
     def test_stats_rline_boolean_false(self):
-        self.login()
-        rline = self._build_rline_for_stat(PollLineType.BOOL, 0)
+        # self.login()
+        user = self.login_as_root_and_get()
+        rline = self._build_rline_for_stat(user=user, type=PollLineType.BOOL, answer=0)
         self.assertCountEqual([(_('Yes'), 0), (_('No'), 1)], rline.stats)
 
     def test_stats_rline_enum(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
         rline = self._build_rline_for_stat(
-            PollLineType.ENUM, 1, [[1, 'European'], [2, 'African']],
+            user=user, type=PollLineType.ENUM, answer=1, choices=[[1, 'European'], [2, 'African']],
         )
         self.assertCountEqual([('European', 1), ('African', 0)], rline.stats)
 
     def test_stats_rline_multi_enum(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
         rline = self._build_rline_for_stat(
-            PollLineType.MULTI_ENUM, [2, 3],
-            [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']],
+            user=user,
+            type=PollLineType.MULTI_ENUM,
+            answer=[2, 3],
+            choices=[[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']],
         )
         self.assertCountEqual(
             [('White', 0), ('Black', 1), ('Green', 1), ('Purple', 0)],
@@ -2366,11 +2521,13 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         )
 
     def test_stats_rline_enum_or_string(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
         rline = self._build_rline_for_stat(
-            PollLineType.ENUM_OR_STRING,
-            {'answer_0': 0, 'answer_1': 'doh?'},
-            [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']],
+            user=user,
+            type=PollLineType.ENUM_OR_STRING,
+            answer={'answer_0': 0, 'answer_1': 'doh?'},
+            choices=[[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']],
         )
         self.assertCountEqual(
             [('White', 0), ('Black', 0), ('Green', 0), ('Purple', 0), (_('Other'), 1)],
@@ -2378,11 +2535,13 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         )
 
     def test_stats_rline_enum_or_string_custom(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
         rline = self._build_rline_for_stat(
-            PollLineType.ENUM_OR_STRING,
-            {'answer_0': 2, 'answer_1': ''},
-            [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']],
+            user=user,
+            type=PollLineType.ENUM_OR_STRING,
+            answer={'answer_0': 2, 'answer_1': ''},
+            choices=[[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']],
         )
         self.assertCountEqual(
             [('White', 0), ('Black', 1), ('Green', 0), ('Purple', 0), (_('Other'), 0)],
@@ -2390,13 +2549,15 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         )
 
     def test_stats_rline_not_applicable(self):
-        self.login()
-        preply, rline = self._build_reply_with_bool_line()
+        # self.login()
+        user = self.login_as_root_and_get()
+        preply, rline = self._build_reply_with_bool_line(user=user)
         self._fill(preply, '', not_applicable=True)
         self.assertEqual([], self.refresh(rline).stats)
 
     def test_stats_tree(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = self._get_formline_creator(pform)
@@ -2505,7 +2666,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         )
 
     def test_statsview(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         answer1 = 'African'

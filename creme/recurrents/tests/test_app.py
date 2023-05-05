@@ -16,7 +16,7 @@ class RecurrentsAppTestCase(CremeTestCase):
         ))
 
     def test_registry(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         registry = RecurrentRegistry()
         self.assertFalse([*registry.models])

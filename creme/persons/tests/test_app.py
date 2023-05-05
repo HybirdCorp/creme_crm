@@ -7,15 +7,16 @@ from django.utils.translation import gettext as _
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.menu import CremeEntry
 from creme.creme_core.models import EntityFilter, HeaderFilter, SetCredentials
-from creme.creme_core.tests.base import CremeTestCase
+# from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from .. import bricks, constants, workflow
 from ..menu import UserContactEntry
-from .base import Contact, Organisation
+from .base import Contact, Organisation, _BaseTestCase
 
 
-class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
+# class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
+class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
     def test_populate(self):
         self.get_relationtype_or_fail(
             constants.REL_SUB_EMPLOYED_BY, [Contact], [Organisation],
@@ -59,7 +60,8 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     def test_config_portal(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         response = self.assertGET200(reverse('creme_config__portal'))
         self.get_brick_node(
             self.get_html_tree(response.content),
@@ -67,7 +69,9 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     def test_transform_target_into_prospect01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+
         create_orga = partial(Organisation.objects.create, user=user)
         source = create_orga(name='Source')
         target = create_orga(name='Target')
@@ -80,7 +84,9 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertRelationCount(1, target, constants.REL_SUB_PROSPECT, source)
 
     def test_transform_target_into_customer01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+
         create_orga = partial(Organisation.objects.create, user=user)
         source = create_orga(name='Source')
         target = create_orga(name='Target')
@@ -93,9 +99,10 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertRelationCount(1, target, constants.REL_SUB_CUSTOMER_SUPPLIER, source)
 
     def test_user_contact_menu_entry01(self):
-        user = self.login(is_superuser=False, allowed_apps=['persons'])
+        # user = self.login(is_superuser=False, allowed_apps=['persons'])
+        user = self.login_as_persons_user()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_ALL,
         )
@@ -121,7 +128,8 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
             self.fail(f'No user entry found in {creme_children}.')
 
     def test_user_contact_menu_entry02(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
 
         self.assertHTMLEqual(
             f'<span class="ui-creme-navigation-text-entry forbidden">{user}</span>',

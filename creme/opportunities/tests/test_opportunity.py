@@ -154,12 +154,13 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_createview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         url = self.ADD_URL
         self.assertGET200(url)
 
-        target, emitter = self._create_target_n_emitter()
+        target, emitter = self._create_target_n_emitter(user=user)
         name = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
         response = self.client.post(
@@ -199,9 +200,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_createview02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        target, emitter = self._create_target_n_emitter()
+        target, emitter = self._create_target_n_emitter(user=user)
         name = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
         response = self.client.post(
@@ -241,7 +243,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     def test_createview03(self):
         "Only contact & orga models are allowed as target."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_camp = partial(FakeEmailCampaign.objects.create, user=user)
         target  = create_camp(name='Target')
@@ -282,14 +285,15 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_createview04(self):
         "LINK credentials error."
-        self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['opportunities'],
             creatable_models=[Opportunity],
         )
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -299,11 +303,11 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             set_type=SetCredentials.ESET_OWN
         )
 
-        target, emitter = self._create_target_n_emitter()
+        target, emitter = self._create_target_n_emitter(user=user)
         response = self.assertPOST200(
             self.ADD_URL, follow=True,
             data={
-                'user':         self.user.pk,
+                'user':         user.pk,
                 'name':         'My opportunity',
                 'sales_phase':  SalesPhase.objects.all()[0].id,
                 'closing_date': self.formfield_value_date(2011, 3, 14),
@@ -327,13 +331,14 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_createview05(self):
         "Emitter not managed by Creme."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        target, emitter = self._create_target_n_emitter(managed=False)
+        target, emitter = self._create_target_n_emitter(user=user, managed=False)
         response = self.assertPOST200(
             self.ADD_URL, follow=True,
             data={
-                'user':         self.user.pk,
+                'user':         user.pk,
                 'name':         'My opportunity',
                 'sales_phase':  SalesPhase.objects.all()[0].id,
                 'closing_date': self.formfield_value_date(2011, 3, 14),
@@ -352,9 +357,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_add_to_orga01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        target, emitter = self._create_target_n_emitter()
+        target, emitter = self._create_target_n_emitter(user=user)
         url = self._build_addrelated_url(target)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add.html')
@@ -414,9 +420,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_add_to_orga02(self):
         "Popup version."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        target, emitter = self._create_target_n_emitter()
+        target, emitter = self._create_target_n_emitter(user=user)
         url = self._build_addrelated_url(target, popup=True)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
@@ -457,14 +464,15 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     def test_add_to_orga03(self):
         "Try to add with wrong credentials (no link credentials)."
-        self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['opportunities'],
             creatable_models=[Opportunity],
         )
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -474,18 +482,20 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             set_type=SetCredentials.ESET_OWN
         )
 
-        target = Organisation.objects.create(user=self.user, name='Target renegade')
+        target = Organisation.objects.create(user=user, name='Target renegade')
         self.assertGET403(self._build_addrelated_url(target))
         self.assertGET403(self._build_addrelated_url(target, popup=True))
 
     def test_add_to_orga04(self):
         "User must be allowed to created Opportunity."
-        user = self.login(
-            is_superuser=False, allowed_apps=['persons', 'opportunities'],
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
+            allowed_apps=['persons', 'opportunities'],
             # creatable_models=[Opportunity],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL
         )
@@ -505,9 +515,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomContact
     def test_add_to_contact01(self):
         "Target is a Contact."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        target, emitter = self._create_target_n_emitter(contact=True)
+        target, emitter = self._create_target_n_emitter(user=user, contact=True)
         url = self._build_addrelated_url(target)
         self.assertGET200(url)
 
@@ -556,9 +567,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomContact
     def test_add_to_contact02(self):
         "Popup version."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        target, emitter = self._create_target_n_emitter(contact=True)
+        target, emitter = self._create_target_n_emitter(user=user, contact=True)
         url = self._build_addrelated_url(target, popup=True)
         self.assertGET200(url)
 
@@ -589,14 +601,14 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomContact
     def test_add_to_contact03(self):
         "User can not link to the Contact target"
-        self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['persons', 'opportunities'],
             creatable_models=[Opportunity],
         )
-
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -607,14 +619,15 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         )
 
         target = Contact.objects.create(
-            user=self.user, first_name='Target', last_name='Renegade',
+            user=user, first_name='Target', last_name='Renegade',
         )
         self.assertGET403(self._build_addrelated_url(target))
         self.assertGET403(self._build_addrelated_url(target, popup=True))
 
     def test_add_to_something01(self):
         "Target is not a Contact/Organisation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         target = CremeEntity.objects.create(user=user)
         self.assertGET404(self._build_addrelated_url(target))
@@ -622,10 +635,11 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_editview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'opportunity01'
-        opp, target, emitter = self._create_opportunity_n_organisations(name)
+        opp, target, emitter = self._create_opportunity_n_organisations(user=user, name=name)
         url = opp.get_edit_absolute_url()
         response = self.assertGET200(url)
 
@@ -676,10 +690,11 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomContact
     def test_editview02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'opportunity01'
-        opp, target1, emitter = self._create_opportunity_n_organisations(name)
+        opp, target1, emitter = self._create_opportunity_n_organisations(user=user, name=name)
         target2 = Contact.objects.create(user=user, first_name='Mike', last_name='Danton')
 
         target_rel = self.get_object_or_fail(
@@ -707,10 +722,11 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_listview(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        opp1 = self._create_opportunity_n_organisations('Opp1')[0]
-        opp2 = self._create_opportunity_n_organisations('Opp2')[0]
+        opp1 = self._create_opportunity_n_organisations(user=user, name='Opp1')[0]
+        opp2 = self._create_opportunity_n_organisations(user=user, name='Opp2')[0]
 
         response = self.assertGET200(reverse('opportunities__list_opportunities'))
 
@@ -724,9 +740,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete01(self):
         "Cannot delete the target & the source."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        opp, target, emitter = self._create_opportunity_n_organisations('My Opp')
+        opp, target, emitter = self._create_opportunity_n_organisations(user=user, name='My Opp')
         target.trash()
         emitter.trash()
 
@@ -744,9 +761,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete02(self):
         "Can delete the Opportunity."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        opp, target, emitter = self._create_opportunity_n_organisations('My Opp')
+        opp, target, emitter = self._create_opportunity_n_organisations(user=user, name='My Opp')
         opp.trash()
 
         self.assertPOST200(opp.get_delete_absolute_url(), follow=True)
@@ -755,9 +773,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertStillExists(emitter)
 
     def test_clone(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        opportunity, target, emitter = self._create_opportunity_n_organisations()
+        opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)
         cloned = opportunity.clone()
 
         self.assertEqual(opportunity.name,         cloned.name)
@@ -772,9 +791,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_get_weighted_sales01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        opportunity = self._create_opportunity_n_organisations()[0]
+        opportunity = self._create_opportunity_n_organisations(user=user)[0]
         funf = function_field_registry.get(Opportunity, 'get_weighted_sales')
         self.assertIsNotNone(funf)
 
@@ -794,14 +814,15 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_get_weighted_sales02(self):
         "With field 'estimated_sales' hidden with FieldsConfig."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Opportunity,
             descriptions=[('estimated_sales', {FieldsConfig.HIDDEN: True})],
         )
 
-        opportunity = self._create_opportunity_n_organisations()[0]
+        opportunity = self._create_opportunity_n_organisations(user=user)[0]
 
         FieldsConfig.objects.get_for_model(Opportunity)
 
@@ -814,7 +835,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(_('Error: «Estimated sales» is hidden'), w_sales)
 
     def test_delete_currency(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         currency = Currency.objects.create(
             name='Berry', local_symbol='B', international_symbol='BRY',
@@ -840,8 +862,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     def test_bulk_edit(self):
         "Bulk edit 2 Opportunities."
-        user = self.login()
-        target, emitter = self._create_target_n_emitter()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        target, emitter = self._create_target_n_emitter(user=user)
         phase1, phase2, phase3 = SalesPhase.objects.all()[:3]
 
         create_opport = partial(

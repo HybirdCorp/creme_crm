@@ -116,7 +116,7 @@ class FileRefTestCase(base.CremeTestCase):
         self.assertStillExists(file_ref)
 
     def test_create_at_deletion01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         existing_ids = [*FileRef.objects.values_list('id', flat=True)]
         path = self.create_uploaded_file(

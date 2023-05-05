@@ -270,7 +270,7 @@ class EntityCellTestCase(CremeTestCase):
 
         # Render ---
         birthday = date(year=2058, month=3, day=26)
-        user = self.create_user()
+        user = self.get_root_user()
         yoko = FakeContact.objects.create(
             user=user, first_name='Yoko', last_name='Littner', birthday=birthday,
         )
@@ -382,7 +382,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIsNone(EntityCellCustomField.build(FakeContact, 'notanint'))
 
         # Render ---
-        user = self.create_user()
+        user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         self.assertEqual('', cell.render_html(entity=yoko, user=user))
         self.assertEqual('', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
@@ -406,7 +406,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
         # Render ---
-        user = self.create_user()
+        user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         value = Decimal('1.52')
         value_str = number_format(value)
@@ -428,7 +428,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, cell.header_listview_css_class)
 
         # Render ---
-        user = self.create_user()
+        user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         dt = self.create_datetime(year=2058, month=3, day=26, hour=12)
         customfield.value_class.objects.create(
@@ -472,7 +472,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DATE_HEADER_LISTVIEW, cell.header_listview_css_class)
 
         # Render ---
-        user = self.create_user()
+        user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         date_obj = date(year=2058, month=3, day=26)
         customfield.value_class.objects.create(
@@ -515,7 +515,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
         # Render ---
-        user = self.create_user()
+        user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=True)
         self.assertEqual(
@@ -538,7 +538,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
         # Render ---
-        user = self.create_user()
+        user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
 
         value = '<i>Sniper</i>'
@@ -563,7 +563,7 @@ class EntityCellTestCase(CremeTestCase):
         cell = EntityCellCustomField(customfield)
 
         # Render ---
-        user = self.create_user()
+        user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
 
         value = 'Yoko is a young woman from <i>Littner</i>, a village neighboring Giha.\n' \
@@ -593,7 +593,7 @@ class EntityCellTestCase(CremeTestCase):
         cell = EntityCellCustomField(customfield)
 
         # Render ---
-        user = self.create_user()
+        user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
 
         value = 'www.littner.org'
@@ -626,7 +626,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
         # Render ---
-        user = self.create_user()
+        user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         # self.assertEqual('', cell.render_html(entity=yoko, user=user))
         # self.assertEqual('', cell.render_csv(entity=yoko, user=user))
@@ -668,7 +668,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
         # Render ---
-        user = self.create_user()
+        user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         # self.assertEqual('', cell.render_html(entity=yoko, user=user))
         # self.assertEqual('', cell.render_csv(entity=yoko, user=user))
@@ -725,7 +725,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
         # Render ---
-        user = self.create_user()
+        user = self.get_root_user()
         create_contact = partial(FakeContact.objects.create, user=user)
         contacts = [
             create_contact(first_name='Nagate',  last_name='Tanikaze'),
@@ -779,7 +779,7 @@ class EntityCellTestCase(CremeTestCase):
         )[0]
         cell = EntityCellRelation(model=FakeContact, rtype=loved)
 
-        user = self.create_user()
+        user = self.get_root_user()
         create_contact = partial(FakeContact.objects.create, user=user)
         subject = create_contact(first_name='Nagate',  last_name='Tanikaze')
         obj_entity = create_contact(first_name='Shizuka', last_name='Hoshijiro')
@@ -843,7 +843,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIsNone(EntityCellFunctionField.build(FakeContact, func_field_name='invalid'))
 
         # Render ---
-        user = self.create_user()
+        user = self.get_root_user()
         contact = FakeContact.objects.create(
             user=user, first_name='Nagate',  last_name='Tanikaze',
         )
@@ -920,7 +920,7 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_mixed_populate_entities01(self):
         "Regular fields: no FK."
-        user = self.create_user()
+        user = self.get_root_user()
 
         pos = FakePosition.objects.create(title='Pilot')
         create_contact = partial(FakeContact.objects.create, user=user, position_id=pos.id)
@@ -940,7 +940,7 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_mixed_populate_entities02(self):
         "Regular fields: FK."
-        user = self.create_user()
+        user = self.get_root_user()
 
         pos = FakePosition.objects.all()[0]
         civ = FakeCivility.objects.all()[0]
@@ -970,7 +970,7 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_mixed_populate_entities03(self):
         "Relationships."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_rt = RelationType.objects.smart_update_or_create
         loved = create_rt(
@@ -1028,7 +1028,7 @@ class EntityCellTestCase(CremeTestCase):
 
     def test_mixed_populate_entities04(self):
         "Mixed types."
-        user = self.create_user()
+        user = self.get_root_user()
 
         pos = FakePosition.objects.all()[0]
         create_contact = partial(FakeContact.objects.create, user=user)

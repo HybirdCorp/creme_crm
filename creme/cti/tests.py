@@ -39,18 +39,19 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
     def _build_add_pcall_url(contact):
         return reverse('cti__create_phonecall', args=(contact.id,))
 
-    def login(self, *args, **kwargs):
-        user = super().login(*args, **kwargs)
-
-        other_user = self.other_user
-        self.contact = user.linked_contact
-        self.contact_other_user = other_user.linked_contact
-
-        return user
+    # def login(self, *args, **kwargs):
+    #     user = super().login(*args, **kwargs)
+    #
+    #     other_user = self.other_user
+    #     self.contact = user.linked_contact
+    #     self.contact_other_user = other_user.linked_contact
+    #
+    #     return user
 
     def test_config(self):
         "Should not be available when creating UserRoles."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self.assertGET200(reverse('creme_config__create_role'))
 
@@ -66,8 +67,10 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNotInChoices(value='cti', choices=app_labels)  # <==
 
     def test_print_phone(self):
-        user = self.login()
-        contact = self.contact
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        # contact = self.contact
+        contact = user.linked_contact
 
         render_field = partial(
             field_printers_registry.get_field_value,
@@ -86,7 +89,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomContact
     def test_add_phonecall01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         atype = self.get_object_or_fail(ActivityType, pk=a_constants.ACTIVITYTYPE_PHONECALL)
         self.assertTrue(ActivitySubType.objects.filter(type=atype).exists())
@@ -104,8 +108,11 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDatetimesAlmostEqual(now(), pcall.start)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
-        self.assertRelationCount(1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
-        self.assertRelationCount(1, contact,      a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
+        # self.assertRelationCount(1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
+        self.assertRelationCount(
+            1, user.linked_contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall,
+        )
+        self.assertRelationCount(1, contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
 
         calendar = Calendar.objects.get_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
@@ -113,7 +120,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomActivity
     def test_add_phonecall02(self):
         "No contact."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         self.assertPOST404(self.ADD_PCALL_URL, data={'entity_id': str(self.UNUSED_PK)})
         self.assertFalse(Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL))
@@ -121,7 +129,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     def test_add_phonecall03(self):
         "Organisation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='Gunsmith Cats')
         self.assertPOST200(self.ADD_PCALL_URL, data={'entity_id': orga.id})
@@ -135,7 +144,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_respond_to_a_call01(self):
         "Contact."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         phone = '558899'
         contact = Contact.objects.create(
@@ -174,7 +184,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_respond_to_a_call02(self):
         "Contact's other field (mobile)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         phone = '558899'
         contact = Contact.objects.create(
@@ -187,7 +198,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     def test_respond_to_a_call03(self):
         "Organisation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         phone = '558899'
         orga1 = Organisation.objects.all()[0]
@@ -200,7 +212,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     def test_respond_to_a_call04(self):
         """FieldsConfig: all fields are hidden."""
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         fc_create = FieldsConfig.objects.create
         fc_create(
@@ -220,7 +233,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_respond_to_a_call05(self):
         """FieldsConfig: some fields are hidden."""
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Contact,
@@ -236,7 +250,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomContact
     def test_create_contact(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         phone = '121366'
         url = reverse('cti__create_contact', args=(phone,))
@@ -265,7 +280,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_create_orga(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         phone = '987654'
         url = reverse('cti__create_organisation', args=(phone,))
@@ -293,7 +309,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     @skipIfCustomActivity
     def test_create_phonecall01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
         self.assertPOST(302, self._build_add_pcall_url(contact))
@@ -309,41 +326,53 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDatetimesAlmostEqual(now(), pcall.start)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
-        self.assertRelationCount(1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
-        self.assertRelationCount(1, contact,      a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
+        # self.assertRelationCount(1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
+        self.assertRelationCount(
+            1, user.linked_contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall,
+        )
+        self.assertRelationCount(1, contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
 
         calendar = Calendar.objects.get_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
 
     @skipIfCustomActivity
     def test_create_phonecall02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        contact = user.linked_contact
 
-        self.assertPOST(302, self._build_add_pcall_url(self.contact))
+        # self.assertPOST(302, self._build_add_pcall_url(self.contact))
+        self.assertPOST(302, self._build_add_pcall_url(contact))
 
         phone_call = self.get_alone_element(Activity.objects.all())
-        self.assertRelationCount(1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call)
+        self.assertRelationCount(1, contact, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call)
 
         calendar = Calendar.objects.get_default_calendar(user)
         self.assertTrue(phone_call.calendars.filter(pk=calendar.id).exists())
 
     @skipIfCustomActivity
     def test_create_phonecall03(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        # other_user_contact = self.contact_other_user
+        other_user = self.create_user()
+        other_user_contact = other_user.linked_contact
 
-        self.assertPOST(302, self._build_add_pcall_url(self.contact_other_user))
+        self.assertPOST(302, self._build_add_pcall_url(other_user_contact))
 
         self.assertEqual(1, Activity.objects.count())
 
         phone_call = Activity.objects.all()[0]
         self.assertRelationCount(
-            1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call,
+            # 1, self.contact, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call,
+            1, user.linked_contact, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call,
         )
         self.assertRelationCount(
-            1, self.contact_other_user, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call,
+            1, other_user_contact, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call,
         )
 
         get_cal = Calendar.objects.get_default_calendar
         filter_calendars = phone_call.calendars.filter
         self.assertTrue(filter_calendars(pk=get_cal(user).id).exists())
-        self.assertTrue(filter_calendars(pk=get_cal(self.other_user).id).exists())
+        # self.assertTrue(filter_calendars(pk=get_cal(self.other_user).id).exists())
+        self.assertTrue(filter_calendars(pk=get_cal(other_user).id).exists())

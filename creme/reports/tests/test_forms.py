@@ -489,7 +489,7 @@ class ReportHandsFieldTestCase(FieldTestCase):
 @skipIfCustomReport
 class ReportFieldsFormTestCase(BaseReportsTestCase):
     def test_initial01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         report = self._create_simple_contacts_report(user=user)
 
         rtype = self.get_object_or_fail(RelationType, id=REL_SUB_HAS)
@@ -522,7 +522,7 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
 
     def test_initial02(self):
         "Regular aggregate."
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(
             user=user,
             name='Organisation report',
@@ -553,7 +553,7 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
             field_type=CustomField.INT,
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(
             user=user,
             name='Contact report',
@@ -575,7 +575,7 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
 
     def test_initial04(self):
         "Related field."
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(
             user=user,
             name='Folder report',
@@ -2002,7 +2002,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
 
 class GraphFetcherFieldTestCase(FieldTestCase):
     def _build_graph(self):
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
 
         return ReportGraph(user=user, name='Field Test', linked_report=report)
@@ -2224,7 +2224,7 @@ class GraphFetcherFieldTestCase(FieldTestCase):
 
 class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
     def test_init_n_clean(self):
-        user = self.create_user()
+        user = self.get_root_user()
         graph = self._create_documents_rgraph(user)
 
         form1 = GraphInstanceBrickForm(user=user, graph=graph)
@@ -2247,7 +2247,7 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
         self.assertEqual(fk_name,          ibci.get_extra_data('value'))
 
     def test_uniqueness01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         graph = self._create_documents_rgraph(user)
 
         fk_name = 'linked_folder'
@@ -2280,7 +2280,7 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
 
     def test_uniqueness02(self):
         "Not same graph."
-        user = self.create_user()
+        user = self.get_root_user()
         graph1 = self._create_documents_rgraph(user)
         graph2 = self._create_documents_rgraph(user)
 
@@ -2300,7 +2300,7 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
 
     def test_uniqueness03(self):
         "Not same brick class."
-        user = self.create_user()
+        user = self.get_root_user()
         graph = self._create_documents_rgraph(user)
 
         class OtherReportGraphBrick(ReportGraphChartInstanceBrick):

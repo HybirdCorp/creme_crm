@@ -45,7 +45,8 @@ class QuickFormTestCase(CremeTestCase):
         )
 
     def test_create_contact(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         count = FakeContact.objects.count()
 
         url = self._build_quickform_url(FakeContact)
@@ -82,21 +83,25 @@ class QuickFormTestCase(CremeTestCase):
 
     def test_get_not_superuser(self):
         "Not super-user."
-        self.login(is_superuser=False, creatable_models=[FakeOrganisation])
+        # self.login(is_superuser=False, creatable_models=[FakeOrganisation])
+        self.login_as_standard(creatable_models=[FakeOrganisation])
         self.assertGET200(self._build_quickform_url(FakeOrganisation))
 
     def test_get_missing_permission(self):
         "Creation permission needed."
-        self.login(is_superuser=False, creatable_models=[FakeContact])
+        # self.login(is_superuser=False, creatable_models=[FakeContact])
+        self.login_as_standard(creatable_models=[FakeContact])
         self.assertGET403(self._build_quickform_url(FakeOrganisation))
 
     def test_get_model_without_quickform(self):
         "Model without form."
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET404(self._build_quickform_url(FakeInvoice))
 
     def test_customfields(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_cf = partial(
             CustomField.objects.create,
@@ -143,7 +148,8 @@ class QuickFormTestCase(CremeTestCase):
         self.assertEqual(3, cf_value)
 
     def test_fields_config_required(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         not_required = 'url_site'
         required = 'mobile'

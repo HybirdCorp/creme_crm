@@ -76,10 +76,12 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
             ):
                 self.fail(f'A brick unexpectedly found for prefix "{brick_id_prefix}".')
 
-    def _build_contacts(self, user=None):
+    # def _build_contacts(self, user=None):
+    def _build_contacts(self, user):
         sector = FakeSector.objects.create(title='Linux dev')
 
-        create_contact = partial(FakeContact.objects.create, user=user or self.user)
+        # create_contact = partial(FakeContact.objects.create, user=user or self.user)
+        create_contact = partial(FakeContact.objects.create, user=user)
         self.linus = create_contact(
             first_name='Linus',  last_name='Torvalds',
         )
@@ -93,18 +95,21 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
             first_name='Andrew', last_name='Morton', sector=sector,
         )
 
-    def _setup_contacts(self, disabled=False, user=None):
+    # def _setup_contacts(self, disabled=False, user=None):
+    def _setup_contacts(self, *, user, disabled=False):
         SearchConfigItem.objects.create_if_needed(
             FakeContact,
             ['first_name', 'last_name', 'sector__title'],
             disabled=disabled,
         )
-        self._build_contacts(user)
+        self._build_contacts(user=user)
 
-    def _setup_orgas(self):
+    # def _setup_orgas(self):
+    def _setup_orgas(self, user):
         SearchConfigItem.objects.create_if_needed(FakeOrganisation, ['name'])
 
-        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
+        # create_orga = partial(FakeOrganisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         self.linusfo = create_orga(name='FoobarLinusFoundation')
         self.coxco   = create_orga(name='StuffCoxCorp')
 
@@ -120,8 +125,9 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         return self.client.get(reverse('creme_core__search'), data=data)
 
     def test_search(self):
-        self.login()
-        self._setup_contacts()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._setup_contacts(user=user)
 
         term = 'john'
         response = self._search(term, self.contact_ct_id)
@@ -157,8 +163,9 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_regular_fields01(self):
         "Find result in field & sub-field; deleted entities are found too."
-        self.login()
-        self._setup_contacts()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._setup_contacts(user=user)
 
         response = self._search('linu', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
@@ -178,9 +185,10 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertNoInstanceLink(brick_node, entity=self.alan)
 
     def test_search_regular_fields02(self):
-        self.login()
-        self._setup_contacts()
-        self._setup_orgas()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._setup_contacts(user=user)
+        self._setup_orgas(user=user)
 
         response = self._search('cox')
         context = response.context
@@ -210,9 +218,10 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_regular_fields03(self):
         "Error."
-        self.login()
-        self._setup_contacts()
-        self._setup_orgas()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._setup_contacts(user=user)
+        self._setup_orgas(user=user)
 
         self.assertEqual(
             _('Please enter at least {count} characters').format(count=3),
@@ -222,9 +231,10 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_regular_fields04(self):
         "No config for FakeContact."
-        self.login()
-        self._build_contacts()
-        self._setup_orgas()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._build_contacts(user=user)
+        self._setup_orgas(user=user)
 
         response = self._search('torvalds', self.contact_ct_id)
         # self.assertContains(response, self.linus.get_absolute_url())
@@ -237,9 +247,10 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_regular_fields05(self):
         "Search only in configured fields if the config exists."
-        self.login()
-        self._setup_contacts()
-        self._setup_orgas()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._setup_contacts(user=user)
+        self._setup_orgas(user=user)
 
         linus = self.linus
         linus.description = 'He is very smart but wears ugly shorts.'
@@ -254,9 +265,10 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertNoInstanceLink(brick_node, entity=linus)
 
     def test_search_disabled(self):
-        self.login()
-        self._setup_contacts(disabled=True)
-        self._setup_orgas()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._setup_contacts(user=user, disabled=True)
+        self._setup_orgas(user=user)
 
         response = self._search('cox')
         context = response.context
@@ -277,12 +289,14 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_for_role(self):
         "Use Role's config if it exists."
-        self.login(is_superuser=False, allowed_apps=['creme_core'])
+        # user = self.login(is_superuser=False, allowed_apps=['creme_core'])
+        user = self.login_as_standard(allowed_apps=['creme_core'])
+        self._set_all_perms_on_own(user)
 
         SearchConfigItem.objects.create_if_needed(
-            FakeContact, ['description'], role=self.role,
+            FakeContact, ['description'], role=user.role,
         )
-        self._setup_contacts()
+        self._setup_contacts(user=user)
 
         response = self._search('bear', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
@@ -297,12 +311,13 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_super_user(self):
         "Use Role's config if it exists (super-user)."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         SearchConfigItem.objects.create_if_needed(
             FakeContact, ['description'], role='superuser',
         )
-        self._setup_contacts()
+        self._setup_contacts(user=user)
 
         response = self._search('bear', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
@@ -319,7 +334,8 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertInstanceLinkNoLabel(brick_node, entity=self.alan)
 
     def test_search_fields_config01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         hidden_fname1 = 'description'
         hidden_fname2 = 'sector'
@@ -375,7 +391,8 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_fields_config02(self):
         "With FieldsConfig: all fields are hidden."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         hidden_fname = 'description'
         SearchConfigItem.objects.create_if_needed(FakeContact, [hidden_fname])
@@ -383,7 +400,7 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
             content_type=FakeContact,
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
-        self._build_contacts()
+        self._build_contacts(user=user)
 
         response = self._search('Cool', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
@@ -410,14 +427,16 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_error01(self):
         "Model is not a CremeEntity."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self._search('john', ContentType.objects.get_for_model(ContentType).id)
         self.assertEqual(409, response.status_code)
 
     def test_search_empty(self):
         "Empty page"
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self._search(research='', ct_id='')
         self.assertEqual(200, response.status_code)
@@ -425,8 +444,9 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_words01(self):
         "String is split."
-        self.login()
-        self._setup_contacts()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._setup_contacts(user=user)
 
         response = self._search('linus torval', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
@@ -446,7 +466,8 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_words02(self):
         "Grouped words."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         SearchConfigItem.objects.create_if_needed(FakeOrganisation, ['name'])
 
@@ -474,7 +495,8 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_custom_field01(self):
         "Type <CustomField.STR>."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ct = ContentType.objects.get_for_model(FakeOrganisation)
         cfield = CustomField.objects.create(
@@ -509,7 +531,8 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_custom_field02(self):
         "Type <CustomField.ENUM>."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ct = ContentType.objects.get_for_model(FakeOrganisation)
         cfield = CustomField.objects.create(
@@ -550,7 +573,8 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_custom_field03(self):
         "Type <CustomField.MULTI_ENUM>."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ct = ContentType.objects.get_for_model(FakeOrganisation)
         cfield = CustomField.objects.create(
@@ -591,7 +615,8 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_invalid_cell_type(self):
         "No error."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         ct = ContentType.objects.get_for_model(FakeOrganisation)
         cell = EntityCellFunctionField.build(FakeOrganisation, 'get_pretty_properties')
@@ -603,8 +628,9 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertEqual(200, response.status_code)
 
     def test_reload_brick(self):
-        self.login()
-        self._setup_contacts()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._setup_contacts(user=user)
 
         url = reverse('creme_core__reload_search_brick')
         # brick_id = self.CONTACT_BRICKID + '-32132154'
@@ -625,12 +651,12 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.get_brick_node(doc, brick_id)
 
     def test_light_search01(self):
-        user = self.login()
-
-        self._setup_contacts()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        self._setup_contacts(user=user)
         coxi = FakeContact.objects.create(user=user, first_name='Coxi', last_name='Nail')
 
-        self._setup_orgas()
+        self._setup_orgas(user=user)
 
         response = self.assertGET200(self.LIGHT_URL, data={'value': 'cox'})
 
@@ -685,16 +711,17 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         )
 
     def test_light_search02(self):
-        "Credentials"
-        user = self.login(is_superuser=False, allowed_apps=['creme_core'])
-
+        "Credentials."
+        # user = self.login(is_superuser=False, allowed_apps=['creme_core'])
+        user = self.login_as_standard(allowed_apps=['creme_core'])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_OWN
         )
 
-        self._setup_contacts(user=self.other_user)
+        # self._setup_contacts(user=self.other_user)
+        self._setup_contacts(user=self.get_root_user())
         coxi = FakeContact.objects.create(user=user, first_name='Coxi', last_name='Nail')
 
         response = self.assertGET200(self.LIGHT_URL, data={'value': 'cox'})
@@ -730,8 +757,9 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         )
 
     def test_light_search03(self):
-        "Errors"
-        self.login()
+        "Errors."
+        # self.login()
+        self.login_as_root()
 
         url = self.LIGHT_URL
         response = self.assertGET200(url)
@@ -760,8 +788,9 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_light_search04(self):
         "Deleted entities are ignored."
-        self.login()
-        self._setup_contacts()
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._setup_contacts(user=user)
         response = self.assertGET200(self.LIGHT_URL, data={'value': 'Linu'})
 
         linus = self.linus

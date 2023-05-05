@@ -294,16 +294,17 @@ class DateWithOptionalTimeFieldTestCase(FieldTestCase):
 
 class UserParticipationFieldTestCase(FieldTestCase):
     def test_clean_empty(self):
-        user = self.create_user()
+        user = self.get_root_user()
         field = UserParticipationField(user=user, required=False)
         self.assertTupleEqual((False, None), field.clean([]))
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_clean(self):
-        user = self.login(is_superuser=False, allowed_apps=('persons', 'activities'))
+        # user = self.login(is_superuser=False, allowed_apps=('persons', 'activities'))
+        user = self.login_as_standard(allowed_apps=('persons', 'activities'))
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
             ctype=type(user.linked_contact),
@@ -313,7 +314,8 @@ class UserParticipationFieldTestCase(FieldTestCase):
         cal11 = create_cal(user=user, is_default=True,  name='Cal #11')
         cal12 = create_cal(user=user, is_default=False, name='Cal #12')
         cal2 = create_cal(
-            user=self.other_user, is_default=True, name='Cal #2', is_public=True,
+            # user=self.other_user, is_default=True, name='Cal #2', is_public=True,
+            user=self.get_root_user(), is_default=True, name='Cal #2', is_public=True,
         )
 
         clean = UserParticipationField(user=user).clean
@@ -330,10 +332,11 @@ class UserParticipationFieldTestCase(FieldTestCase):
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_not_linkable(self):
-        user = self.login(is_superuser=False, allowed_apps=('persons', 'activities'))
+        # user = self.login(is_superuser=False, allowed_apps=('persons', 'activities'))
+        user = self.login_as_standard(allowed_apps=('persons', 'activities'))
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_ALL,
         )
@@ -352,22 +355,24 @@ class UserParticipationFieldTestCase(FieldTestCase):
 
 class ParticipatingUsersFieldTestCase(FieldTestCase):
     def test_clean_empty(self):
-        user = self.create_user()
+        user = self.get_root_user()
         field = ParticipatingUsersField(user=user, required=False)
         self.assertFalse(field.clean([]))
         self.assertFalse(field.clean(None))
 
     def test_clean(self):
-        user = self.login(is_superuser=False, allowed_apps=('persons', 'activities'))
+        # user = self.login(is_superuser=False, allowed_apps=('persons', 'activities'))
+        user = self.login_as_standard(allowed_apps=('persons', 'activities'))
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
             ctype=type(user.linked_contact),
         )
 
-        other_user = self.other_user
+        # other_user = self.other_user
+        other_user = self.get_root_user()
         staff_user = self.create_user(index=2, is_staff=True)
 
         clean = ParticipatingUsersField(user=user).clean
@@ -384,8 +389,10 @@ class ParticipatingUsersFieldTestCase(FieldTestCase):
         )
 
     def test_clean_teamate(self):
-        user = self.login()
-        other_user = self.other_user
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         create_user = get_user_model().objects.create
         musashi = create_user(
@@ -407,10 +414,11 @@ class ParticipatingUsersFieldTestCase(FieldTestCase):
         )
 
     def test_not_linkable(self):
-        user = self.login(is_superuser=False, allowed_apps=('persons', 'activities'))
+        # user = self.login(is_superuser=False, allowed_apps=('persons', 'activities'))
+        user = self.login_as_standard(allowed_apps=('persons', 'activities'))
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_ALL,
         )

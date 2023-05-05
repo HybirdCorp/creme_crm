@@ -2,6 +2,8 @@ from decimal import Decimal
 
 from django.conf import settings
 
+ROOT_USERNAME = ROOT_PASSWORD = 'root'
+
 DEFAULT_VAT = Decimal(getattr(settings, 'DEFAULT_VAT', '20.0'))  # TODO: depends on country...
 
 REL_SUB_HAS = 'creme_core-subject_has'

@@ -29,7 +29,8 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         return reverse('billing__set_default_payment_info', args=(pi.id, invoice.id))
 
     def test_createview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         organisation = Organisation.objects.create(user=user, name='Nintendo')
         url = self._build_add_url(organisation)
@@ -63,7 +64,8 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('', pi.bic)
 
     def test_createview02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         organisation = Organisation.objects.create(user=user, name='Nintendo')
         first_pi = PaymentInformation.objects.create(
@@ -115,19 +117,19 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_createview03(self):
         "Related is not an organisation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self.assertGET404(self._build_add_url(user.linked_contact))
 
     def test_related_createview01(self):
-        user = self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Organisation, Invoice],
         )
 
         create_sc = partial(
             SetCredentials.objects.create,
-            role=self.role, set_type=SetCredentials.ESET_ALL,
+            role=user.role, set_type=SetCredentials.ESET_ALL,
         )
         create_sc(
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
@@ -138,7 +140,7 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
             ctype=Organisation,
         )
 
-        invoice, source, target = self.create_invoice_n_orgas('Playstations')
+        invoice, source, target = self.create_invoice_n_orgas(user=user, name='Playstations')
         url = self._build_add_related_url(invoice)
 
         context = self.assertGET200(url).context
@@ -167,15 +169,14 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_related_createview02(self):
         "Credentials for source."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Organisation, Invoice],
         )
 
         create_sc = partial(
             SetCredentials.objects.create,
-            role=self.role, set_type=SetCredentials.ESET_ALL,
+            role=user.role, set_type=SetCredentials.ESET_ALL,
         )
         create_sc(
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
@@ -186,11 +187,12 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
             ctype=Organisation,
         )
 
-        invoice, source, target = self.create_invoice_n_orgas('Playstations')
+        invoice, source, target = self.create_invoice_n_orgas(user=user, name='Playstations')
         self.assertGET403(self._build_add_related_url(invoice))
 
     def test_editview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         organisation = Organisation.objects.create(user=user, name='Nintendo')
         pi = PaymentInformation.objects.create(organisation=organisation, name='RIB 1')
@@ -224,7 +226,8 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(bic,     pi.bic)
 
     def test_editview02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga1 = create_orga(name='Nintendo')
@@ -270,7 +273,8 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertIs(True, self.refresh(pi_11).is_default)
 
     def test_orga_brick01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='Sony', is_managed=True)
         payment_info = PaymentInformation.objects.create(organisation=orga, name='RIB sony')
@@ -294,7 +298,8 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_orga_brick02(self):
         "Organisation is not managed."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         self.assertIs(SettingValue.objects.value_4_key(payment_info_key), True)
 
@@ -310,7 +315,8 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_orga_brick03(self):
         "Organisation is not managed + Setting is False."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         SettingValue.objects.set_4_key(payment_info_key, False)
 
@@ -325,9 +331,10 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     def test_billing_brick01(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        source, target = self.create_orgas()
+        source, target = self.create_orgas(user=user)
 
         create_pi = PaymentInformation.objects.create
         payment_info1 = create_pi(organisation=source, name='RIB source #1')
@@ -335,7 +342,7 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         create_pi(organisation=target, name='RIB target')
         self.assertTrue(payment_info1.is_default)
 
-        invoice = self.create_invoice('My invoice', source, target)
+        invoice = self.create_invoice(user=user, name='My invoice', source=source, target=target)
         self.assertEqual(invoice.payment_info_id, payment_info1.id)
 
         response = self.assertGET200(invoice.get_absolute_url())
@@ -378,12 +385,13 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomInvoice
     def test_billing_brick02(self):
         "Field is hidden."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        source, target = self.create_orgas()
+        source, target = self.create_orgas(user=user)
         PaymentInformation.objects.create(organisation=source, name='RIB source')
 
-        invoice = self.create_invoice('My invoice', source, target)
+        invoice = self.create_invoice(user=user, name='My invoice', source=source, target=target)
 
         FieldsConfig.objects.create(
             content_type=Invoice,
@@ -401,26 +409,28 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     def test_set_default_in_invoice01(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
-        pi_sony = PaymentInformation.objects.create(organisation=sony_source, name='RIB sony')
-        url = self._build_setdefault_url(pi_sony, invoice)
+        invoice, source, target = self.create_invoice_n_orgas(user=user, name='Playstations')
+        pinfo = PaymentInformation.objects.create(organisation=source, name='RIB sony')
+        url = self._build_setdefault_url(pinfo, invoice)
         self.assertGET405(url)
         self.assertPOST200(url)
-        self.assertEqual(pi_sony, self.refresh(invoice).payment_info)
+        self.assertEqual(pinfo, self.refresh(invoice).payment_info)
 
     @skipIfCustomInvoice
     def test_set_default_in_invoice02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        sega = Organisation.objects.create(user=user, name='Sega')
-        invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
+        other = Organisation.objects.create(user=user, name='Sega')
+        invoice, source, target = self.create_invoice_n_orgas(user=user, name='Playstations')
 
         create_pi = PaymentInformation.objects.create
-        pi_nintendo = create_pi(organisation=nintendo_target, name='RIB nintendo')
-        pi_sony     = create_pi(organisation=sony_source,     name='RIB sony')
-        pi_sega     = create_pi(organisation=sega,            name='RIB sega')
+        pi_target = create_pi(organisation=target, name='RIB nintendo')
+        pi_source = create_pi(organisation=source, name='RIB sony')
+        pi_other  = create_pi(organisation=other,  name='RIB sega')
 
         def assertPostStatus(code, pi):
             self.assertEqual(
@@ -428,29 +438,31 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
                 self.client.post(self._build_setdefault_url(pi, invoice)).status_code
             )
 
-        assertPostStatus(409, pi_nintendo)
-        assertPostStatus(409, pi_sega)
-        assertPostStatus(200, pi_sony)
+        assertPostStatus(409, pi_target)
+        assertPostStatus(409, pi_other)
+        assertPostStatus(200, pi_source)
 
     @skipIfCustomInvoice
     def test_set_default_in_invoice03(self):
         "Trashed organisation."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice, sony_source = self.create_invoice_n_orgas('Playstations')[:2]
-        pi_sony = PaymentInformation.objects.create(organisation=sony_source, name='RIB sony')
+        invoice, source = self.create_invoice_n_orgas(user=user, name='Playstations')[:2]
+        pinfo = PaymentInformation.objects.create(organisation=source, name='RIB sony')
 
-        sony_source.trash()
+        source.trash()
 
-        self.assertPOST403(self._build_setdefault_url(pi_sony, invoice))
-        self.assertNotEqual(pi_sony, self.refresh(invoice).payment_info)
+        self.assertPOST403(self._build_setdefault_url(pinfo, invoice))
+        self.assertNotEqual(pinfo, self.refresh(invoice).payment_info)
 
     @skipIfCustomInvoice
     def test_set_default_in_invoice04(self):
         "'payment_info' is hidden."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice, sony_source = self.create_invoice_n_orgas('Playstations')[:2]
+        invoice, sony_source = self.create_invoice_n_orgas(user=user, name='Playstations')[:2]
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name='RIB sony')
 
         FieldsConfig.objects.create(

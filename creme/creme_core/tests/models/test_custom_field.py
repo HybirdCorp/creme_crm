@@ -107,7 +107,7 @@ class CustomFieldsTestCase(CremeTestCase):
 
     def _create_orga(self):
         return FakeOrganisation.objects.create(
-            user=self.create_user(),
+            user=self.get_root_user(),
             name='Arcadia',
         )
 
@@ -302,7 +302,7 @@ by a man named Tochiro.
         self.assertIsInstance(formfield, forms.DateField)
 
     def test_datetime(self):
-        user = self.create_user()
+        user = self.get_root_user()
         cfield = CustomField.objects.create(
             name='Last battle',
             field_type=CustomField.DATETIME,
@@ -550,7 +550,7 @@ by a man named Tochiro.
     def test_delete_entity(self):
         create_orga = partial(
             FakeOrganisation.objects.create,
-            user=self.create_user(),
+            user=self.get_root_user(),
         )
         orga1 = create_orga(name='Arcadia')
         orga2 = create_orga(name='Queen Emeraldas')
@@ -586,7 +586,7 @@ by a man named Tochiro.
         )
         create_orga = partial(
             FakeOrganisation.objects.create,
-            user=self.create_user(),
+            user=self.get_root_user(),
         )
         orga1 = create_orga(name='Arcadia')
         orga2 = create_orga(name='Queen Emeraldas')
@@ -650,7 +650,7 @@ by a man named Tochiro.
 
         create_orga = partial(
             FakeOrganisation.objects.create,
-            user=self.create_user(),
+            user=self.get_root_user(),
         )
         orga1 = create_orga(name='Arcadia')
         orga2 = create_orga(name='Queen Emeraldas')
@@ -694,7 +694,7 @@ by a man named Tochiro.
 
         create_orga = partial(
             FakeOrganisation.objects.create,
-            user=self.create_user(),
+            user=self.get_root_user(),
         )
         orga1 = create_orga(name='Arcadia')
         orga2 = create_orga(name='Queen Emeraldas')

@@ -71,10 +71,6 @@ class BillingTestCase(OpportunitiesBaseTestCase):
             args=(opportunity.id, ContentType.objects.get_for_model(model).id),
         )
 
-    def _create_organisations(self):
-        create_orga = partial(Organisation.objects.create, user=self.user)
-        return create_orga(name='Source'), create_orga(name='Target')
-
     @staticmethod
     def _set_quote_config(use_current_quote):
         sv = SettingValue.objects.get_4_key(setting_keys.quote_key)
@@ -112,7 +108,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomProduct
     @skipIfCustomService
     def test_generate_new_doc01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self.assertEqual(0, Quote.objects.count())
 
         subcat = SubCategory.objects.first()
@@ -131,7 +128,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
             unit='week',
         )
 
-        opportunity, target, emitter = self._create_opportunity_n_organisations()
+        opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)
 
         create_rel = partial(Relation.objects.create, user=user, object_entity=opportunity)
         create_rel(subject_entity=product, type_id=REL_SUB_LINKED_PRODUCT)
@@ -172,9 +169,10 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_generate_new_doc02(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        opportunity, target, emitter = self._create_opportunity_n_organisations()
+        opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)
         url = self._build_gendoc_url(opportunity)
 
         self.client.post(url)
@@ -197,9 +195,10 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_generate_new_doc03(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        opportunity, target, emitter = self._create_opportunity_n_organisations()
+        opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)
         url = self._build_gendoc_url(opportunity, Invoice)
 
         self.client.post(url)
@@ -221,28 +220,30 @@ class BillingTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_generate_new_doc_error01(self):
         "Invalid target type."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
 
-        opportunity = self._create_opportunity_n_organisations()[0]
+        opportunity = self._create_opportunity_n_organisations(user=user)[0]
         self.assertPOST404(self._build_gendoc_url(opportunity, Contact))
         self.assertEqual(contact_count, Contact.objects.count())  # No Contact created
 
     @skipIfCustomOrganisation
     def test_generate_new_doc_error02(self):
-        "Credentials problems"
-        self.login(
-            is_superuser=False,
+        "Credentials problems."
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['billing', 'opportunities'],
             creatable_models=[Opportunity],  # Not Quote
         )
 
-        opportunity = self._create_opportunity_n_organisations()[0]
+        opportunity = self._create_opportunity_n_organisations(user=user)[0]
         url = self._build_gendoc_url(opportunity)
         self.assertPOST403(url)
 
-        role = self.role
+        role = user.role
         get_ct = ContentType.objects.get_for_model
         quote_ct = get_ct(Quote)
         role.creatable_ctypes.add(quote_ct)
@@ -270,9 +271,10 @@ class BillingTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_generate_new_doc_error03(self):
         "Relation type is disabled."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        opportunity = self._create_opportunity_n_organisations()[0]
+        opportunity = self._create_opportunity_n_organisations(user=user)[0]
 
         rtype = self.get_object_or_fail(RelationType, id=constants.REL_SUB_LINKED_QUOTE)
         rtype.enabled = False
@@ -286,9 +288,10 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_current_quote_01(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        opportunity, target, emitter = self._create_opportunity_n_organisations()
+        opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)
         gendoc_url = self._build_gendoc_url(opportunity)
 
         self.client.post(gendoc_url)
@@ -319,9 +322,10 @@ class BillingTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_current_quote_02(self):
         "Refresh the estimated_sales when we change which quote is the current."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        opportunity = self._create_opportunity_n_organisations()[0]
+        opportunity = self._create_opportunity_n_organisations(user=user)[0]
         url = self._build_gendoc_url(opportunity)
 
         opportunity.estimated_sales = Decimal('1000')
@@ -379,9 +383,10 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_current_quote_03(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        opportunity = self._create_opportunity_n_organisations()[0]
+        opportunity = self._create_opportunity_n_organisations(user=user)[0]
         self._set_quote_config(False)
 
         estimated_sales = Decimal('69')
@@ -403,10 +408,11 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_current_quote_04(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self._set_quote_config(True)
 
-        opportunity = self._create_opportunity_n_organisations()[0]
+        opportunity = self._create_opportunity_n_organisations(user=user)[0]
         self.client.post(self._build_gendoc_url(opportunity))
 
         quote = Quote.objects.all()[0]
@@ -422,10 +428,11 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_current_quote_05(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self._set_quote_config(True)
 
-        opportunity = self._create_opportunity_n_organisations()[0]
+        opportunity = self._create_opportunity_n_organisations(user=user)[0]
         self.client.post(self._build_gendoc_url(opportunity))
 
         quote = Quote.objects.all()[0]
@@ -456,7 +463,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         if billing.quote_model_is_custom():
             return
 
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         from django.db import DEFAULT_DB_ALIAS, connections
         from django.test.utils import CaptureQueriesContext
@@ -464,7 +472,10 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         context = CaptureQueriesContext(connections[DEFAULT_DB_ALIAS])
 
         status = QuoteStatus.objects.all()[0]
-        source, target = self._create_organisations()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        source = create_orga(name='Source')
+        target = create_orga(name='Target')
 
         with context:
             quote = Quote.objects.create(
@@ -482,10 +493,11 @@ class BillingTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_current_quote_7(self):
         "Delete the relationship REL_SUB_LINKED_QUOTE => REL_SUB_CURRENT_DOC is deleted too."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self._set_quote_config(True)
 
-        opp1, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        opp1, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
         self.client.post(self._build_gendoc_url(opp1))
 
         opp2 = Opportunity.objects.create(
@@ -526,7 +538,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_select_relations_billing_objects01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         get_4_key = SettingValue.objects.get_4_key
 
@@ -538,8 +551,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         sv_emitter.value = False
         sv_emitter.save()
 
-        opp, target1, emitter1 = self._create_opportunity_n_organisations(name='Opp#1')
-        target2, emitter2 = self._create_target_n_emitter(managed=False)
+        opp, target1, emitter1 = self._create_opportunity_n_organisations(user=user, name='Opp#1')
+        target2, emitter2 = self._create_target_n_emitter(user=user, managed=False)
 
         qstatus = QuoteStatus.objects.all()[0]
         create_rel = partial(Relation.objects.create, user=user)
@@ -603,7 +616,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_select_relations_billing_objects02(self):
         "Same target."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         get_4_key = SettingValue.objects.get_4_key
         self.assertTrue(get_4_key(setting_keys.target_constraint_key).value)
@@ -612,8 +626,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         sv.value = False
         sv.save()
 
-        opp, target1, emitter1 = self._create_opportunity_n_organisations(name='Opp#1')
-        target2, emitter2 = self._create_target_n_emitter(managed=False)
+        opp, target1, emitter1 = self._create_opportunity_n_organisations(user=user, name='Opp#1')
+        target2, emitter2 = self._create_target_n_emitter(user=user, managed=False)
 
         qstatus = QuoteStatus.objects.all()[0]
         create_rel = partial(Relation.objects.create, user=user)
@@ -674,7 +688,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_select_relations_billing_objects03(self):
         "Same emitter."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         get_4_key = SettingValue.objects.get_4_key
         self.assertTrue(get_4_key(setting_keys.emitter_constraint_key).value)
@@ -683,8 +698,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         sv.value = False
         sv.save()
 
-        opp, target1, emitter1 = self._create_opportunity_n_organisations(name='Opp#1')
-        target2, emitter2 = self._create_target_n_emitter(managed=False)
+        opp, target1, emitter1 = self._create_opportunity_n_organisations(user=user, name='Opp#1')
+        target2, emitter2 = self._create_target_n_emitter(user=user, managed=False)
 
         qstatus = QuoteStatus.objects.all()[0]
         create_rel = partial(Relation.objects.create, user=user)
@@ -746,13 +761,14 @@ class BillingTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_select_relations_billing_objects04(self):
         "2 constraints."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         get_4_key = SettingValue.objects.get_4_key
         self.assertTrue(get_4_key(setting_keys.emitter_constraint_key).value)
         self.assertTrue(get_4_key(setting_keys.emitter_constraint_key).value)
 
-        opp, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        opp, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
 
         url = self.SELECTION_URL
         get_ct = ContentType.objects.get_for_model

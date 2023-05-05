@@ -262,14 +262,14 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertEqual(label, ffield.verbose_name)
         self.assertIs(False, ffield.is_hidden)
 
-        user = self.create_user()
+        user = self.get_root_user()
         entity = CremeEntity.objects.create(user=user)
         result = ffield(entity, user)
         self.assertIsInstance(result, FunctionFieldResult)
         self.assertEqual(entity.get_delete_absolute_url(), result.for_csv())
 
     def test_properties_field(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_foo', text='Foo')

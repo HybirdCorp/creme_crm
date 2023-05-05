@@ -406,7 +406,7 @@ class FieldsConfigTestCase(CremeTestCase):
         )
 
     def test_form_update_hidden01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         self._create_contact_hidden_conf()
 
         fields = FakeContactForm(user=user).fields
@@ -416,7 +416,9 @@ class FieldsConfigTestCase(CremeTestCase):
 
     def test_form_update_hidden02(self):
         "In view."
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
+        user = self.get_root_user()
         self._create_contact_hidden_conf()
 
         url = '/tests/contact/add'
@@ -452,7 +454,7 @@ class FieldsConfigTestCase(CremeTestCase):
 
     def test_form_update_hidden03(self):
         "Field not in form."
-        user = self.create_user()
+        user = self.get_root_user()
         self._create_contact_hidden_conf()
 
         class TestFakeContactForm(FakeContactForm):
@@ -467,7 +469,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNotIn('mobile', fields)
 
     def test_form_update_required01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         FieldsConfig.objects.create(
             content_type=FakeContact,
@@ -482,7 +484,7 @@ class FieldsConfigTestCase(CremeTestCase):
 
     def test_form_update_required02(self):
         "Field not present => added."
-        user = self.create_user()
+        user = self.get_root_user()
 
         class LightFakeContactForm(FakeContactForm):
             class Meta(FakeContactForm.Meta):
@@ -740,7 +742,7 @@ class FieldsConfigTestCase(CremeTestCase):
         )
 
         contact = FakeContact(
-            user=self.create_user(),
+            user=self.get_root_user(),
             last_name='Senjougahara',
             first_name='Hitagi',
         )

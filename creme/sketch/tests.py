@@ -78,7 +78,8 @@ class ChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
         ],
     ])
     def test_demo_chart_render(self, chart_class, expected):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         content = self.render_brick(user, chart_class)
 
         self.assertInHTML(

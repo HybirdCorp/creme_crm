@@ -68,7 +68,7 @@ class GraphFetcherRegistryTestCase(CremeTestCase):
         self.assertEqual(OtherSimpleGraphFetcher, registry.default_class)
 
     def test_register01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph(user=user, name='Field Test', linked_report=report)
 

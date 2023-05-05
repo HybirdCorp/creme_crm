@@ -11,7 +11,8 @@ from .base import Contact, Organisation
 
 class PersonsStatisticsTestCase(CremeTestCase):
     def _aux_test(self, cls, rtype_id):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         stat = cls(Organisation)
         self.assertListEqual([], stat())

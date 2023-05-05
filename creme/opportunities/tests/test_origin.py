@@ -9,16 +9,16 @@ from .base import Opportunity, Organisation, skipIfCustomOpportunity
 
 
 class OriginTestCase(CremeTestCase):
-    def setUp(self):
-        super().setUp()
-        self.login()
+    # def setUp(self):
+    #     super().setUp()
+    #     self.login()
 
     @skipIfCustomOpportunity
     def test_delete01(self):
         "Set to NULL."
+        user = self.login_as_root_and_get()
         origin = Origin.objects.create(name='Web site')
 
-        user = self.user
         create_orga = partial(Organisation.objects.create, user=user)
         opp = Opportunity.objects.create(
             user=user, name='Opp', origin=origin,
@@ -42,10 +42,11 @@ class OriginTestCase(CremeTestCase):
     @skipIfCustomOpportunity
     def test_delete02(self):
         "Set to another value."
+        user = self.login_as_root_and_get()
+
         origin1 = Origin.objects.create(name='Web site')
         origin2 = Origin.objects.exclude(id=origin1.id)[0]
 
-        user = self.user
         create_orga = partial(Organisation.objects.create, user=user)
         opp = Opportunity.objects.create(
             user=user, name='Opp', origin=origin1,

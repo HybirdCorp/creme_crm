@@ -70,7 +70,7 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(size, sv.value)
 
     def test_type_bool(self):
-        self.login()
+        # self.login()
 
         sk = SettingKey(
             id='activities-test_model_bool', description='Display logo?',
@@ -100,7 +100,7 @@ class SettingValueTestCase(CremeTestCase):
         )
 
     def test_type_hour(self):
-        self.login()
+        # self.login()
 
         sk = SettingKey(
             id='persons-test_model_hour', description='Reminder hour',
@@ -118,7 +118,7 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(_('{hour}h').format(hour=hour), sv.as_html)
 
     def test_type_email(self):
-        self.login()
+        # self.login()
 
         sk = SettingKey(
             id='persons-test_model_email', description='Campaign Sender',
@@ -522,7 +522,7 @@ class UserSettingValueTestCase(CremeTestCase):
         self._registered_skey.extend(skeys)
 
     def test_basic(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         sk = UserSettingKey(
             'creme_core-test_model_string',
@@ -555,7 +555,7 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertEqual(title, value)
 
     def test_get(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         sk = UserSettingKey(
             'creme_core-test_model_string',
@@ -588,7 +588,7 @@ class UserSettingValueTestCase(CremeTestCase):
 
     def test_serialise(self):
         "JSON in DB + int."
-        user = self.create_user()
+        user = self.get_root_user()
 
         sk = UserSettingKey(
             'creme_core-test_model_int',
@@ -612,7 +612,7 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertEqual(size, value)
 
     def test_bool(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         sk = UserSettingKey(
             'creme_core-test_model_bool',
@@ -635,7 +635,7 @@ class UserSettingValueTestCase(CremeTestCase):
         test_value(False)
 
     def test_multi_save(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         build_key = partial(
             UserSettingKey, app_label='creme_core', type=SettingKey.INT, hidden=False,
@@ -663,7 +663,7 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertEqual(height, value2)
 
     def _aux_test_pop(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         sk = UserSettingKey(
             'creme_core-test_model_int',
@@ -716,7 +716,7 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertEqual(default, value)
 
     def test_cast_int(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         sk = UserSettingKey(
             'creme_core-test_model_int',
@@ -743,7 +743,7 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertIsInstance(d.get(sk.id), int)
 
     def test_cast_bool(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         sk = UserSettingKey(
             'creme_core-test_model_bool',
@@ -778,7 +778,7 @@ class UserSettingValueTestCase(CremeTestCase):
         self.assertIsInstance(d.get(sk.id), bool)
 
     def test_as_html(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         sk1 = UserSettingKey(
             'creme_core-test_model_bool',

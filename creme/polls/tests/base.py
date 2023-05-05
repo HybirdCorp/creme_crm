@@ -48,6 +48,12 @@ class AutoIncr:
 class _PollsTestCase(CremeTestCase):
     ADD_REPLY_URL = reverse('polls__create_reply')
 
+    def login_as_polls_user(self, *, allowed_apps=(), **kwargs):
+        return super().login_as_standard(
+            allowed_apps=['polls', *allowed_apps],
+            **kwargs
+        )
+
     @staticmethod
     def _build_stats_url(pform):
         return reverse('polls__form_stats', args=(pform.id,))

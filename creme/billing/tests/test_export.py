@@ -614,7 +614,8 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_configuration_portal(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self.assertGET200(
             reverse('creme_config__app_portal', args=('billing',))
@@ -631,7 +632,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         'creme.billing.exporters.xls.XLSExportEngine',
     ])
     def test_configuration_edition01(self):
-        self.login(is_superuser=False, admin_4_apps=['billing'])
+        self.login_as_standard(admin_4_apps=['billing'])
 
         ct = ContentType.objects.get_for_model(Invoice)
         ExporterConfigItem.objects.filter(
@@ -696,7 +697,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     ])
     def test_configuration_edition02(self):
         "Initial values."
-        self.login(is_superuser=False, admin_4_apps=['billing'])
+        self.login_as_standard(admin_4_apps=['billing'])
 
         ct = ContentType.objects.get_for_model(Invoice)
         ExporterConfigItem.objects.filter(
@@ -738,7 +739,8 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
     def test_configuration_edition03(self):
         "Invalid initial value."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         ct = ContentType.objects.get_for_model(Invoice)
         ExporterConfigItem.objects.filter(
@@ -758,14 +760,15 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
     def test_configuration_edition04(self):
         "Not admin credentials."
-        self.login(is_superuser=False)  # Not admin_4_apps=['billing']
+        self.login_as_standard()  # Not admin_4_apps=['billing']
 
         ct = ContentType.objects.get_for_model(Invoice)
         self.assertGET403(reverse('billing__edit_exporter_config', args=(ct.id,)))
 
     def test_export_error01(self):
         "Bad CT."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         orga = Organisation.objects.create(user=user, name='Laputa')
         self.assertGET404(self._build_export_url(orga))
 
@@ -774,8 +777,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomQuote
     def test_export_error02(self):
         "Empty configuration."
-        self.login()
-        quote = self.create_quote_n_orgas('My Quote')[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
         ExporterConfigItem.objects.filter(
             content_type=quote.entity_type,
@@ -799,8 +803,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
     def test_export_error03(self):
         "Invalid configuration."
-        self.login()
-        quote = self.create_quote_n_orgas('My Quote')[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
         ExporterConfigItem.objects.filter(
             content_type=quote.entity_type,
@@ -823,8 +828,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     ])
     def test_export_error04(self):
         "Incompatible CT."
-        self.login()
-        quote = self.create_quote_n_orgas('My Quote')[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
         ExporterConfigItem.objects.filter(
             content_type=quote.entity_type,
@@ -849,8 +855,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIf(pdflatex_not_installed, '"pdflatex" is not installed.')
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
     def test_export_invoice_latex(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('My Invoice', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='My Invoice', discount=0)[0]
 
         ExporterConfigItem.objects.filter(
             content_type=invoice.entity_type,
@@ -894,8 +901,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         'creme.billing.exporters.weasyprint.WeasyprintExportEngine',
     ])
     def test_export_invoice_weasyprint(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('My Invoice', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='My Invoice', discount=0)[0]
 
         ExporterConfigItem.objects.filter(
             content_type=invoice.entity_type,
@@ -939,8 +947,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
     ])
     def test_export_invoice_xhtml2pdf(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('My Invoice', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='My Invoice', discount=0)[0]
 
         ExporterConfigItem.objects.filter(
             content_type=invoice.entity_type,
@@ -967,13 +976,14 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
     def test_export_invoice_xls01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         payment_type = SettlementTerms.objects.create(name='23 days')
         order_number = 'PI31416'
 
         # source: siret / naf / rcs / tvaintra
         invoice, source, target = self.create_invoice_n_orgas(
-            'My Invoice',
+            user=user, name='My Invoice',
             discount=0, payment_type=payment_type.id,
             comment='Very important invoice',
             buyers_order_number=order_number,
@@ -1211,10 +1221,11 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
     def test_export_invoice_xls02(self):
         "Number, no issuing_date, no settlement terms, no payment info, global discount..."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         invoice, source, target = self.create_invoice_n_orgas(
-            'My Invoice',
+            user=user, name='My Invoice',
             discount=Decimal('6.3'),
             issuing_date='',
             expiration_date='',
@@ -1280,8 +1291,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIf(pdflatex_not_installed, '"pdflatex" is not installed.')
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.latex.LatexExportEngine'])
     def test_export_quote_latex(self):
-        user = self.login()
-        quote = self.create_quote_n_orgas('My Quote')[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
         ExporterConfigItem.objects.filter(
             content_type=quote.entity_type,
@@ -1308,10 +1320,11 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
     def test_export_quote_xls(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         quote, source, target = self.create_quote_n_orgas(
-            'My Invoice', comment='Very important quote',
+            user=user, name='My Invoice', comment='Very important quote',
         )
         vat = Vat.objects.get_or_create(value=10)[0]
 
@@ -1405,8 +1418,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         'creme.billing.exporters.weasyprint.WeasyprintExportEngine',
     ])
     def test_export_quote_weasyprint(self):
-        user = self.login()
-        quote = self.create_quote_n_orgas('My Quote')[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
         ExporterConfigItem.objects.filter(
             content_type=quote.entity_type,
@@ -1436,8 +1450,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
     ])
     def test_export_quote_xhtml2pdf(self):
-        user = self.login()
-        quote = self.create_quote_n_orgas('My Quote')[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
 
         ExporterConfigItem.objects.filter(
             content_type=quote.entity_type,
@@ -1460,19 +1475,22 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomInvoice
     def test_export_credentials(self):
         "Billing entity credentials."
-        user = self.login(
-            is_superuser=False, allowed_apps=['persons', 'billing'],
+        user = self.login_as_standard(
+            allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Organisation],
         )
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK | EntityCredentials.UNLINK,
             set_type=SetCredentials.ESET_OWN,
         )
 
-        invoice, source, target = self.create_invoice_n_orgas('My Invoice', discount=0)
-        invoice.user = self.other_user
+        invoice, source, target = self.create_invoice_n_orgas(
+            user=user, name='My Invoice', discount=0,
+        )
+        # invoice.user = self.other_user
+        invoice.user = self.get_root_user()
         invoice.save()
 
         self.assertFalse(user.has_perm_to_view(invoice))
@@ -1486,19 +1504,22 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomInvoice
     def test_export_latex_credentials01(self):
         "Source credentials."
-        user = self.login(
-            is_superuser=False, allowed_apps=['persons', 'billing'],
+        user = self.login_as_standard(
+            allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Organisation],
         )
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK | EntityCredentials.UNLINK,
             set_type=SetCredentials.ESET_OWN,
         )
 
-        invoice, source, target = self.create_invoice_n_orgas('My Invoice', discount=0)
-        source.user = self.other_user
+        invoice, source, target = self.create_invoice_n_orgas(
+            user=user, name='My Invoice', discount=0,
+        )
+        # source.user = self.other_user
+        source.user = self.get_root_user()
         source.save()
 
         self.assertTrue(user.has_perm_to_view(invoice))
@@ -1515,19 +1536,22 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomInvoice
     def test_export_latex_credentials02(self):
         "Target credentials."
-        user = self.login(
-            is_superuser=False, allowed_apps=['persons', 'billing'],
+        user = self.login_as_standard(
+            allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Organisation],
         )
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK | EntityCredentials.UNLINK,
             set_type=SetCredentials.ESET_OWN,
         )
 
-        invoice, source, target = self.create_invoice_n_orgas('My Invoice', discount=0)
-        target.user = self.other_user
+        invoice, source, target = self.create_invoice_n_orgas(
+            user=user, name='My Invoice', discount=0,
+        )
+        # target.user = self.other_user
+        target.user = self.get_root_user()
         target.save()
 
         self.assertTrue(user.has_perm_to_view(invoice))

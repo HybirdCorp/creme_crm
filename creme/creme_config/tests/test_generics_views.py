@@ -47,9 +47,14 @@ from ..bricks import GenericModelBrick, PropertyTypesBrick, SettingsBrick
 
 
 class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = cls.get_root_user()
+
     def setUp(self):
         super().setUp()
-        self.login()
+        self.login_as_root()
 
     def assertReplacersEqual(self, expected, dcom):
         # NB: works well on for FixedValueReplacer ??
@@ -1516,7 +1521,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         "Other user's job."
         job = Job.objects.create(
             type_id=deletor_type.id,
-            user=self.other_user,
+            user=self.create_user(0),
             status=Job.STATUS_OK,
         )
 

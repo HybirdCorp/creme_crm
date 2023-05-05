@@ -70,7 +70,7 @@ class ReportGraphHandTestCase(CremeTestCase):
                 )
 
     def test_regular_field_day(self):
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -91,7 +91,7 @@ class ReportGraphHandTestCase(CremeTestCase):
     def test_regular_field_month(self):
         ordinate_cell = EntityCellRegularField.build(FakeOrganisation, 'capital')
 
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeOrganisation)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -111,7 +111,7 @@ class ReportGraphHandTestCase(CremeTestCase):
         self.assertIsNone(ordinate.error)
 
     def test_regular_field_year(self):
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -125,7 +125,7 @@ class ReportGraphHandTestCase(CremeTestCase):
         self.assertIsNone(hand.abscissa_error)
 
     def test_regular_field_date_range(self):
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -140,7 +140,7 @@ class ReportGraphHandTestCase(CremeTestCase):
         self.assertIsNone(hand.abscissa_error)
 
     def test_regular_field_fk(self):
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -155,7 +155,7 @@ class ReportGraphHandTestCase(CremeTestCase):
 
     def test_regular_field_error01(self):
         "Invalid field."
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -181,7 +181,7 @@ class ReportGraphHandTestCase(CremeTestCase):
             ],
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -197,7 +197,7 @@ class ReportGraphHandTestCase(CremeTestCase):
         self.assertEqual(_('Line of business'), hand.verbose_abscissa)
 
     def test_relation(self):
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -213,7 +213,7 @@ class ReportGraphHandTestCase(CremeTestCase):
         self.assertEqual('employs', hand.verbose_abscissa)
 
     def test_relation_error01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -231,7 +231,7 @@ class ReportGraphHandTestCase(CremeTestCase):
 
     def test_relation_error02(self):
         "The RelationType is disabled."
-        user = self.create_user()
+        user = self.get_root_user()
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_disabled', '[disabled]'),
@@ -262,7 +262,7 @@ class ReportGraphHandTestCase(CremeTestCase):
             name='First fight',
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -284,7 +284,7 @@ class ReportGraphHandTestCase(CremeTestCase):
             name='First fight',
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -306,7 +306,7 @@ class ReportGraphHandTestCase(CremeTestCase):
             name='First fight',
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -328,7 +328,7 @@ class ReportGraphHandTestCase(CremeTestCase):
             name='First fight',
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -350,7 +350,7 @@ class ReportGraphHandTestCase(CremeTestCase):
             name='Sport',
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -366,7 +366,7 @@ class ReportGraphHandTestCase(CremeTestCase):
 
     def test_custom_field_error01(self):
         "Field does not exist."
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -393,7 +393,7 @@ class ReportGraphHandTestCase(CremeTestCase):
             is_deleted=True,
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,

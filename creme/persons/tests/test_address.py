@@ -31,12 +31,15 @@ from .base import (
 
 
 @skipIfCustomAddress
-class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
-    def login(self, create_orga=True, *args, **kwargs):
-        super().login(*args, **kwargs)
+class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
+    # def login(self, create_orga=True, *args, **kwargs):
+    #     super().login(*args, **kwargs)
+    #     if create_orga:
+    #         return Organisation.objects.create(user=self.user, name='Nerv')
+    def login_n_create_orga(self):
+        user = self.login_as_root_and_get()
 
-        if create_orga:
-            return Organisation.objects.create(user=self.user, name='Nerv')
+        return Organisation.objects.create(user=user, name='Nerv')
 
     @staticmethod
     def _build_add_url(entity):
@@ -83,7 +86,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     def test_empty_fields(self):
-        orga = self.login()
+        # orga = self.login()
+        orga = self.login_n_create_orga()
 
         with self.assertNoException():
             address = Address.objects.create(owner=orga)
@@ -99,7 +103,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_createview(self):
-        orga = self.login()
+        # orga = self.login()
+        orga = self.login_n_create_orga()
         self.assertFalse(Address.objects.filter(object_id=orga.id).exists())
 
         context = self.assertGET200(self._build_add_url(orga)).context
@@ -147,7 +152,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_create_billing01(self):
-        orga = self.login()
+        # orga = self.login()
+        orga = self.login_n_create_orga()
 
         url = reverse('persons__create_billing_address', args=(orga.id,))
         response = self.assertGET200(url)
@@ -186,7 +192,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     def test_create_billing02(self):
         "FK is hidden"
-        orga = self.login()
+        # orga = self.login()
+        orga = self.login_n_create_orga()
 
         FieldsConfig.objects.create(
             content_type=Organisation,
@@ -196,7 +203,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_create_shipping(self):
-        orga = self.login()
+        # orga = self.login()
+        orga = self.login_n_create_orga()
         url = reverse('persons__create_shipping_address', args=(orga.id,))
 
         context = self.assertGET200(url).context
@@ -226,7 +234,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_editview01(self):
-        orga = self.login()
+        # orga = self.login()
+        orga = self.login_n_create_orga()
 
         name = 'Address#1'
         address_value = '21 jump street'
@@ -275,7 +284,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     def test_editview02(self):
         "Billing address"
-        orga = self.login()
+        # orga = self.login()
+        orga = self.login_n_create_orga()
 
         name = 'Address#1'
         address_value = '21 jump street'
@@ -312,7 +322,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     def test_editview03(self):
         "Shipping address"
-        orga = self.login()
+        # orga = self.login()
+        orga = self.login_n_create_orga()
 
         name = 'Address#1'
         address_value = '21 jump street'
@@ -348,7 +359,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_deleteview(self):
-        orga = self.login()
+        # orga = self.login()
+        orga = self.login_n_create_orga()
 
         self._create_address(
             orga,
@@ -446,7 +458,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     def test_delete_orga(self):
         "Addresses are deleted when the related Organisation is deleted."
-        orga = self.login()
+        # orga = self.login()
+        orga = self.login_n_create_orga()
 
         create_address = Address.objects.create
         orga.billing_address = b_addr = create_address(
@@ -470,9 +483,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_delete_contact(self):
         "Addresses are deleted when the related Contact is deleted."
-        self.login(create_orga=False)
+        # self.login(create_orga=False)
+        user = self.login_as_root_and_get()
 
-        contact = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')
+        contact = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
 
         create_address = partial(Address.objects.create, owner=contact)
         contact.billing_address = b_addr = create_address(
@@ -492,7 +506,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_history(self):
         "Address is auxiliary + double save() because of addresses caused problems."
-        user = self.login(create_orga=False)
+        # user = self.login(create_orga=False)
+        user = self.login_as_root_and_get()
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         old_count = HistoryLine.objects.count()
         country = 'Japan'
@@ -502,7 +519,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
             follow=True,
             data={
                 'name': name,
-                'user':  self.other_user.id,
+                'user':  other_user.id,
                 'billing_address-country': country,
             },
         ))
@@ -520,14 +537,14 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         hline = hlines[-2]
         self.assertEqual(gainax.id,          hline.entity.id)
         self.assertEqual(gainax.entity_type, hline.entity_ctype)
-        self.assertEqual(self.other_user,    hline.entity_owner)
+        self.assertEqual(other_user,         hline.entity_owner)
         self.assertEqual(TYPE_CREATION,      hline.type)
         self.assertListEqual([],             hline.modifications)
 
         hline = hlines[-1]
         self.assertEqual(gainax.id,          hline.entity.id)
         self.assertEqual(gainax.entity_type, hline.entity_ctype)
-        self.assertEqual(self.other_user,    hline.entity_owner)
+        self.assertEqual(other_user,         hline.entity_owner)
         self.assertEqual(TYPE_AUX_CREATION,  hline.type)
         self.assertEqual(
             [ContentType.objects.get_for_model(address).id, address.id, str(address)],
@@ -607,11 +624,12 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     #            )
     #     )
     def test_search_field01(self):
-        self.login(create_orga=False)
+        # self.login(create_orga=False)
+        user = self.login_as_root_and_get()
 
         field = AddressFKField(
             cell=EntityCellRegularField.build(model=Organisation, name='billing_address'),
-            user=self.user,
+            user=user,
         )
         self.assertIsInstance(field.widget, lv_forms.TextLVSWidget)
 
@@ -619,7 +637,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(Q(), to_python(value=''))
         self.assertEqual(Q(), to_python(value=None))
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         orga1 = create_orga(name='Orga without address')
         orga2 = create_orga(name='Orga with empty address')
         orga3 = create_orga(name='Orga with address #1')
@@ -647,7 +665,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_search_field02(self):
         "Ignore hidden fields."
-        self.login(create_orga=False)
+        # self.login(create_orga=False)
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Address,
@@ -656,10 +675,10 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
 
         field = AddressFKField(
             cell=EntityCellRegularField.build(model=Organisation, name='billing_address'),
-            user=self.user,
+            user=user,
         )
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         orga1 = create_orga(name='Orga without address')
         orga2 = create_orga(name='Orga with empty address')
         orga3 = create_orga(name='Orga with address #1')

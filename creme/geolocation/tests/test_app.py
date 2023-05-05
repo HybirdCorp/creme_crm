@@ -6,7 +6,8 @@ from .base import GeoLocationBaseTestCase, Organisation
 
 class GeolocationAppTestCase(GeoLocationBaseTestCase):
     def test_geoaddress_config(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         town = Town.objects.create(
             name='Marseille', country='FRANCE',

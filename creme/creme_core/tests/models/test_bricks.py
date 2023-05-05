@@ -488,7 +488,7 @@ class BrickTestCase(CremeTestCase):
         )
 
         # For user
-        user = self.create_user()
+        user = self.get_root_user()
         loc2 = BrickMypageLocation.objects.create(
             # brick_id=HistoryBrick.id_, order=1, user=user,
             brick_id=HistoryBrick.id, order=1, user=user,
@@ -641,7 +641,8 @@ class BrickTestCase(CremeTestCase):
         )
 
     def test_relationbrick_delete01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
@@ -661,7 +662,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_relationbrick_delete02(self):
         "Cannot delete because it is used."
-        self.login()
+        # self.login()
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
@@ -684,12 +685,14 @@ class BrickTestCase(CremeTestCase):
             brick=rbi.brick_id, order=5,
             zone=BrickDetailviewLocation.RIGHT,
         )
-        loc1 = create_dbl(model=FakeContact, role=self.role)
+        # role = self.role
+        role = UserRole.objects.create(name='Test')
+        loc1 = create_dbl(model=FakeContact, role=role)
         try_delete(
             _(
                 'This block is used in the detail-view configuration of '
                 '«{model}» for role «{role}»'
-            ).format(model='Test Contact', role=self.role),
+            ).format(model='Test Contact', role=role),
             [loc1],
         )
         self.assertStillExists(loc1)
@@ -774,7 +777,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(1, len(cbci.cells))
 
     def test_custom_brick_delete01(self):
-        self.login()
+        # self.login()
         cbci = CustomBrickConfigItem.objects.create(
             content_type=FakeContact, name='Info',
         )
@@ -784,7 +787,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_custom_brick_delete02(self):
         "Cannot delete because it is used."
-        self.login()
+        # self.login()
         cbci = CustomBrickConfigItem.objects.create(
             content_type=FakeContact, name='Info',
         )
@@ -812,7 +815,7 @@ class BrickTestCase(CremeTestCase):
 
     # NB: see reports for InstanceBrickConfigItem with a working Brick class
     def test_instance_brick01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         class TestInstanceBrick(Brick):
             # id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
@@ -854,7 +857,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_instance_brick02(self):
         "Extra data."
-        user = self.create_user()
+        user = self.get_root_user()
 
         class TestInstanceBrick(Brick):
             # id_ = InstanceBrickConfigItem.generate_base_id('creme_core', 'invalid_id')
@@ -887,7 +890,8 @@ class BrickTestCase(CremeTestCase):
         )
 
     def test_instance_brick_delete01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         naru = FakeContact.objects.create(
             user=user, first_name='Naru', last_name='Narusegawa',
         )
@@ -912,7 +916,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_instance_brick_delete02(self):
         "Cannot delete because it is used by detail-view configuration."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         naru = FakeContact.objects.create(
             user=user, first_name='Naru', last_name='Narusegawa',
         )
@@ -945,7 +950,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_instance_brick_delete03(self):
         "Cannot delete because it is used by home configuration."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         naru = FakeContact.objects.create(
             user=user, first_name='Naru', last_name='Narusegawa',
         )
@@ -970,11 +976,13 @@ class BrickTestCase(CremeTestCase):
             BrickHomeLocation.objects.create,
             brick_id=ibi.brick_id, order=5,
         )
-        loc1 = create_bhl(role=self.role)
+        # role = self.role
+        role = UserRole.objects.create(name='Test')
+        loc1 = create_bhl(role=role)
         try_delete(
             _(
                 'This block is used in the Home configuration of role «{}»'
-            ).format(self.role),
+            ).format(role),
             [loc1],
         )
         self.assertStillExists(loc1)
@@ -997,7 +1005,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_instance_brick_delete04(self):
         """Cannot delete because it is used by "My Page" configuration."""
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         naru = FakeContact.objects.create(
             user=user, first_name='Naru', last_name='Narusegawa',
         )
@@ -1041,8 +1050,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_brick_state_manager_get_for_brick_id01(self):
         "State does not exist in DB."
-        user1 = self.create_user(index=0)
-        user2 = self.create_user(index=1)
+        user1 = self.get_root_user()
+        user2 = self.create_user()
 
         class TestBrick(Brick):
             # id_ = Brick.generate_id('creme_core', 'test_brick_models_state01')
@@ -1069,7 +1078,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_brick_state_manager_get_for_brick_id02(self):
         "State stored in DB."
-        user = self.create_user()
+        user = self.get_root_user()
 
         class TestBrick(Brick):
             # id_ = Brick.generate_id('creme_core', 'test_brick_models_state02')
@@ -1094,7 +1103,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_brick_state_manager_get_for_brick_id03(self):
         "Other value for SettingValues."
-        user = self.create_user()
+        user = self.get_root_user()
 
         class TestBrick(Brick):
             # id_ = Brick.generate_id('creme_core', 'test_brick_models_state03')
@@ -1120,7 +1129,7 @@ class BrickTestCase(CremeTestCase):
         self.assertFalse(state.show_empty_fields)
 
     def test_brick_state_extra_data(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         class TestBrick(Brick):
             id_ = Brick.generate_id('creme_core', 'test_brick_state_extra')
@@ -1167,7 +1176,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_brick_state_manager_get_for_brick_ids01(self):
         "States do not exist in DB."
-        user = self.create_user()
+        user = self.get_root_user()
 
         class TestBrick1(Brick):
             # id_ = Brick.generate_id('creme_core', 'test_brick_models_states01_01')
@@ -1204,8 +1213,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_brick_state_manager_get_for_brick_ids02(self):
         "A state is stored in DB."
-        user1 = self.create_user(index=0)
-        user2 = self.create_user(index=1)
+        user1 = self.get_root_user()
+        user2 = self.create_user()
 
         class TestBrick1(Brick):
             # id_ = Brick.generate_id('creme_core', 'test_brick_models_states02_01')
@@ -1252,7 +1261,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_brick_state_manager_get_for_brick_ids03(self):
         "Other value for SettingValues."
-        user = self.create_user()
+        user = self.get_root_user()
 
         class TestBrick(Brick):
             # id_ = Brick.generate_id('creme_core', 'test_brick_models_states03')

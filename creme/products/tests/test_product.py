@@ -74,7 +74,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
     @skipIfCustomProduct
     def test_detailview01(self):
         "No image."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.all()[0]
         product = Product.objects.create(
@@ -105,7 +106,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
     @skipIfCustomProduct
     def test_detailview02(self):
         "With image."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.all()[0]
         product = Product.objects.create(
@@ -142,7 +144,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     @skipIfCustomProduct
     def test_createview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         self.assertEqual(0, Product.objects.count())
 
@@ -211,7 +214,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         )
         img_1 = create_image(ident=1)
         img_2 = create_image(ident=2)
-        img_3 = create_image(ident=3, user=self.other_user)
+        # img_3 = create_image(ident=3, user=self.other_user)
+        img_3 = create_image(ident=3, user=self.get_root_user())
 
         self.assertTrue(user.has_perm_to_link(img_1))
         self.assertFalse(user.has_perm_to_link(img_3))
@@ -252,7 +256,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     @skipIfCustomProduct
     def test_editview(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'Eva00'
         code = 42
@@ -297,7 +302,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     @skipIfCustomProduct
     def test_listview(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         cat = Category.objects.all()[0]
         create_prod = partial(
@@ -320,7 +326,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertCountEqual(products, products_page.object_list)
 
     def test_delete_category01(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
         sub_cat = SubCategory.objects.create(
@@ -337,13 +344,16 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         job.type.execute(job)
         self.assertDoesNotExist(sub_cat)
 
-    def _build_product_cat_subcat(self):
+    # def _build_product_cat_subcat(self):
+    def _build_product_cat_subcat(self, user):
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
         sub_cat = SubCategory.objects.create(
             name='Eva', description='Fake gods', category=cat,
         )
         product = Product.objects.create(
-            user=self.user, name='Eva00', description='A fake god',
+            # user=self.user,
+            user=user,
+            name='Eva00', description='A fake god',
             unit_price=Decimal('1.23'), code=42,
             category=cat, sub_category=sub_cat,
         )
@@ -352,9 +362,10 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     @skipIfCustomProduct
     def test_delete_category02(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        product, cat, sub_cat = self._build_product_cat_subcat()
+        product, cat, sub_cat = self._build_product_cat_subcat(user=user)
         response = self.assertPOST200(reverse(
             'creme_config__delete_instance',
             args=('products', 'subcategory', sub_cat.id),
@@ -366,9 +377,10 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         )
 
     def test_delete_category03(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        product, cat, sub_cat = self._build_product_cat_subcat()
+        product, cat, sub_cat = self._build_product_cat_subcat(user=user)
         response = self.assertPOST200(reverse(
             'creme_config__delete_instance',
             args=('products', 'category', cat.id),
@@ -380,7 +392,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         )
 
     def test_edit_inner_category(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.order_by('category')[0]
         product = Product.objects.create(
@@ -415,7 +428,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertEqual(next_sub_cat.category, product.category)
 
     def test_update_bulk_category(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.order_by('category')[0]
         create_product = partial(
@@ -458,7 +472,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertEqual(next_sub_cat.category, product2.category)
 
     def test_update_bulk_sub_category(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.order_by('category')[0]
 
@@ -490,7 +505,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         img_1 = create_image(ident=1)
         img_2 = create_image(ident=2)
         img_3 = create_image(ident=3)
-        img_4 = create_image(ident=4, user=self.other_user)
+        # img_4 = create_image(ident=4, user=self.other_user)
+        img_4 = create_image(ident=4, user=self.get_root_user())
         self.assertTrue(user.has_perm_to_link(img_1))
         self.assertFalse(user.has_perm_to_link(img_4))
 
@@ -544,18 +560,20 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     def test_add_images02(self):
         "Related is not a Product."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         self.assertGET404(reverse('products__add_images_to_product', args=(rei.id,)))
 
     def test_remove_image(self):
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['documents', 'products'],
             creatable_models=[get_document_model()],
         )
         creds = SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
         )
@@ -593,7 +611,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     def test_mass_import01(self):
         "Categories not in CSV."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         count = Product.objects.count()
 
@@ -607,7 +626,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             (names[1], descriptions[1], prices[1], codes[1]),
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         url = self._build_import_url(Product)
         self.assertGET200(url)
 
@@ -683,7 +702,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     def test_mass_import02(self):
         "Categories in CSV ; no creation"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         count = Product.objects.count()
 
         cat1 = Category.objects.create(name='(Test) Video games')
@@ -711,7 +731,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         ]
 
         url = self._build_import_url(Product)
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         description = 'Imported from CSV'
         price = '12'
         code = 489
@@ -831,7 +851,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     def test_mass_import03(self):
         "Categories in CSV ; creation of Category/SubCategory"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         count = Product.objects.count()
 
         cat1 = Category.objects.create(name='(Test) Video games')
@@ -844,7 +865,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         cat3_name = 'Books'
         sub_cat31_name = 'Sci-Fi'
 
-        names = ['Product %2i' % i for i in range(1, 5)]
+        names = [f'Product {i}' for i in range(1, 5)]
 
         lines = [
             (names[0], '', ''),
@@ -852,8 +873,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             (names[2], cat2.name, sub_cat22_name),
             (names[3], cat3_name, sub_cat31_name),
         ]
-
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
 
         description = 'Imported from CSV'
         price = '12'
@@ -929,16 +949,17 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self._assertNoResultError(results)
 
     def test_mass_import04(self):
-        "Categories in CSV ; want to create Category but not it is allowed."
-        user = self.login(
-            is_superuser=False,
+        "Categories in CSV; want to create Category but not it is allowed."
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['products', 'documents'],
             creatable_models=[Product, get_document_model()],
         )
         count = Product.objects.count()
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -963,7 +984,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             (names[3], 'Books',   'Sci-Fi'),
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         url = self._build_import_url(Product)
         self.assertGET200(url)
 

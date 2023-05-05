@@ -19,7 +19,8 @@ class RelationTypeTestCase(CremeTestCase):
 
     def setUp(self):  # In CremeConfigTestCase ??
         super().setUp()
-        self.login()
+        # self.login()
+        self.login_as_root()
 
     @staticmethod
     def _build_edit_url(rtype):
@@ -332,7 +333,8 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
 
     def setUp(self):
         super().setUp()
-        self.login()
+        # self.login()
+        self.user = self.login_as_root_and_get()
 
         self.loves = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),

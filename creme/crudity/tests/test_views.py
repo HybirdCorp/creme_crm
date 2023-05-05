@@ -150,7 +150,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         )
 
     def test_validate(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self._build_test_registry()
 
         first_name = 'Haruhi'
@@ -200,10 +201,11 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.assertEqual(c_count + 1, FakeContact.objects.count())
 
         contact = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertEqual(self.user, contact.user)
+        self.assertEqual(user, contact.user)
 
     def test_delete01(self):
-        user = self.login(is_superuser=False, allowed_apps=['crudity'])
+        # user = self.login(is_superuser=False, allowed_apps=['crudity'])
+        user = self.login_as_standard(allowed_apps=['crudity'])
         subject = CrudityBackend.normalize_subject('test_create_contact')
 
         def create_action(first_name, last_name):
@@ -239,7 +241,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
     def test_delete02(self):
         "Not allowed."
-        user = self.login(is_superuser=False, allowed_apps=['crudity'])
+        # user = self.login(is_superuser=False, allowed_apps=['crudity'])
+        user = self.login_as_standard(allowed_apps=['crudity'])
         subject = CrudityBackend.normalize_subject('test_create_contact')
 
         def create_action(first_name, last_name, owner):
@@ -256,7 +259,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
             )
 
         wa1 = create_action(first_name='Haruhi', last_name='Suzumiya', owner=user)
-        wa2 = create_action(first_name='Yuki', last_name='Nagato',     owner=self.other_user)
+        # wa2 = create_action(first_name='Yuki', last_name='Nagato',     owner=self.other_user)
+        wa2 = create_action(first_name='Yuki', last_name='Nagato',     owner=self.get_root_user())
 
         url = reverse('crudity__delete_actions')
         data = {'ids': [wa1.id, wa2.id]}
@@ -273,14 +277,16 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
     def test_delete03(self):
         "Errors."
-        self.login()
+        # self.login()
+        self.login_as_root()
         url = reverse('crudity__delete_actions')
         self.assertPOST404(url, data={'ids': [1235]})
         self.assertPOST(400, url, data={'ids': ['notanint']})
         self.assertPOST(400, url, data={'ids': []})
 
     def test_download_email_template(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self._build_test_registry()
 
         subject = 'create_contact'
@@ -313,7 +319,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
     def test_download_ini_template01(self):
         "Error."
-        self.login()
+        # self.login()
+        self.login_as_root()
         self._build_test_registry(FAKE_CRUDITY_BACKENDS)
 
         # No backend
@@ -323,7 +330,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.assertGET404(reverse('crudity__dl_fs_ini_template', args=('CREATECONTACT',)))
 
     def test_download_ini_template02(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         subject = 'CREATE_CONTACT'
         last_name = 'Suzumiya'
         description = 'The best waifu\nis here'
@@ -382,7 +390,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
     def test_download_ini_template03(self):
         "Sandbox per user."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self._set_sandbox_by_user()
 
         subject = 'CREATE_CONTACT'
@@ -414,7 +423,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.assertEqual(user.username, username)
 
     def test_history(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self.assertGET200(reverse('crudity__history'))
         self.assertTemplateUsed(response, 'crudity/history.html')
@@ -439,7 +449,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.assertNotIn(FakeImage, models)
 
     def test_history_reload01(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         ct = ContentType.objects.get_for_model(FakeContact)
         brick_id = f'block_crudity-{ct.id}'
@@ -457,7 +468,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         # TODO: complete ?
 
     def test_history_reload02(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         ct = ContentType.objects.get_for_model(FakeImage)
         self.assertGET200(
@@ -490,7 +502,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         CREME_GET_EMAIL_PASSWORD='p4$$w0rD',
     )
     def test_actions_portal01(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self._build_test_registry()
 
         response = self.assertGET200(reverse('crudity__actions'))
@@ -507,7 +520,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.assertFalse(FakePOP3.instances)
 
     def test_actions_portal02(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         self._build_test_registry(FAKE_CRUDITY_BACKENDS)
         response = self.assertGET200(reverse('crudity__actions'))
@@ -518,7 +532,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         # TODO: complete
 
     def test_actions_reload(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         self._build_test_registry(FAKE_CRUDITY_BACKENDS)
         brick_id = 'block_crudity-waiting_actions-swallow|swallow|CREATECONTACT'
@@ -556,7 +571,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         CREME_GET_EMAIL_PASSWORD='p4$$w0rD',
     )
     def test_actions_fetch01(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         self._build_test_registry()
         url = reverse('crudity__refresh_actions')
@@ -581,7 +597,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
     @override_settings(CRUDITY_BACKENDS=FAKE_CRUDITY_BACKENDS)
     def test_actions_fetch02(self):
         "Fetcher without backend are not used + not default backend"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         self.SwallowFetcher.last_name = last_name = 'Suzumiya'
         self.SwallowFetcher.user_id = user.id
@@ -596,7 +613,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.get_object_or_fail(FakeContact, last_name=last_name)
 
     def test_job01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         SwallowFetcher = self.SwallowFetcher
         SwallowFetcher.user_id = user.id
@@ -639,8 +657,10 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
     def test_job02(self):
         "Default backend + job configuration."
-        self.login()
-        other_user = self.other_user
+        # self.login()
+        self.login_as_root()
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         queue = get_queue()
         queue.clear()

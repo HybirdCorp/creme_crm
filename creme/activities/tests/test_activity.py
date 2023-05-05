@@ -87,22 +87,27 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def _create_phonecall(
             self,
+            user,
             title='Call01',
             subtype_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
             hour=14):
         create_dt = self.create_datetime
         return Activity.objects.create(
-            user=self.user, title=title,
+            # user=self.user,
+            user=user,
+            title=title,
             type_id=constants.ACTIVITYTYPE_PHONECALL, sub_type_id=subtype_id,
             start=create_dt(year=2013, month=4, day=1, hour=hour, minute=0),
             end=create_dt(year=2013,   month=4, day=1, hour=hour, minute=15),
         )
 
-    def _create_task(self, title='Task01', day=1):
+    def _create_task(self, user, title='Task01', day=1):
         create_dt = self.create_datetime
         type_id = constants.ACTIVITYTYPE_TASK
         return Activity.objects.create(
-            user=self.user, title=title,
+            # user=self.user,
+            user=user,
+            title=title,
             type_id=type_id,
             sub_type=ActivitySubType.objects.filter(type_id=type_id).first(),
             start=create_dt(year=2013, month=4, day=day, hour=8,  minute=0),
@@ -144,22 +149,27 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
         # Filters
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
         acts = [
             self._create_meeting(
-                'Meeting01', subtype_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK, hour=14,
+                user=user, title='Meeting01',
+                subtype_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK, hour=14,
             ),
             self._create_meeting(
-                'Meeting02', subtype_id=constants.ACTIVITYSUBTYPE_MEETING_REVIVAL, hour=15,
+                user=user, title='Meeting02',
+                subtype_id=constants.ACTIVITYSUBTYPE_MEETING_REVIVAL, hour=15,
             ),
             self._create_phonecall(
-                'Call01', subtype_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, hour=14,
+                user=user, title='Call01',
+                subtype_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, hour=14,
             ),
             self._create_phonecall(
-                'Call02', subtype_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, hour=15,
+                user=user, title='Call02',
+                subtype_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, hour=15,
             ),
-            self._create_task('Task01', day=1),
-            self._create_task('Task02', day=2),
+            self._create_task(user=user, title='Task01', day=1),
+            self._create_task(user=user, title='Task02', day=2),
         ]
 
         def check_content(efilter, *expected_titles):
@@ -222,7 +232,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_status02(self):
         "Render."
-        user = self.create_user()
+        user = self.get_root_user()
         status = Status.objects.create(name='OK', color='00FF00')
         ctxt = {
             'user': user,
@@ -247,8 +257,10 @@ class ActivityTestCase(_ActivitiesTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_createview01(self):
-        user = self.login()
-        other_user = self.other_user
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         create_contact = partial(Contact.objects.create, user=user)
         ranma = create_contact(first_name='Ranma', last_name='Saotome')
@@ -351,11 +363,13 @@ class ActivityTestCase(_ActivitiesTestCase):
     @skipIfCustomOrganisation
     def test_createview02(self):
         "Credentials errors."
-        user = self.login(is_superuser=False)
-        self._build_nolink_setcreds()
-        self.role.creatable_ctypes.set([ContentType.objects.get_for_model(Activity)])
+        # user = self.login(is_superuser=False)
+        user = self.login_as_activities_user()
+        self._build_nolink_setcreds(user=user)
+        user.role.creatable_ctypes.set([ContentType.objects.get_for_model(Activity)])
 
-        other_user = self.other_user
+        # other_user = self.other_user
+        other_user = self.get_root_user()
 
         mireille = user.linked_contact
         mireille.user = other_user
@@ -409,7 +423,8 @@ class ActivityTestCase(_ActivitiesTestCase):
     @skipIfCustomOrganisation
     def test_createview03(self):
         "No end given ; auto subjects."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         me = user.linked_contact
 
         response1 = self.assertGET200(self.ACTIVITY_CREATION_URL)
@@ -510,7 +525,9 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview04(self):
         "No end but end time."
+        user = self.login_as_root_and_get()
         act = self._create_activity_by_view(
+            user=user,
             **{
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 29),
                 f'{self.EXTRA_START_KEY}_1': '14:30:00',
@@ -523,14 +540,17 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview05(self):
         "FLOATING type."
-        act = self._create_activity_by_view()
+        user = self.login_as_root_and_get()
+        act = self._create_activity_by_view(user=user)
         self.assertIsNone(act.start)
         self.assertIsNone(act.end)
         self.assertEqual(constants.FLOATING, act.floating_type)
 
     def test_createview06(self):
         "FLOATING_TIME type."
+        user = self.login_as_root_and_get()
         act = self._create_activity_by_view(
+            user=user,
             **{
                 # f'{self.EXTRA_START_KEY}_0': '2013-3-30',
                 # f'{self.EXTRA_END_KEY}_0':   '2013-3-30',
@@ -545,12 +565,15 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview_default_duration01(self):
         "default_day_duration=1 + FLOATING_TIME."
+        user = self.login_as_root_and_get()
+
         atype = self.get_object_or_fail(ActivityType, id=constants.ACTIVITYTYPE_SHOW)
         self.assertEqual(1,          atype.default_day_duration)
         self.assertEqual('00:00:00', atype.default_hour_duration)
 
         act = self._create_activity_by_view(
-            'TGS',
+            user=user,
+            title='TGS',
             atype_id=atype.id,
             subtype_id='activities-activitysubtype_show_exhibitor',  # see populate
             **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 3)}
@@ -562,12 +585,15 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview_default_duration02(self):
         "default_day_duration=1 + is_all_day."
+        user = self.login_as_root_and_get()
+
         atype = self.get_object_or_fail(ActivityType, id=constants.ACTIVITYTYPE_SHOW)
         self.assertEqual(1, atype.default_day_duration)
         self.assertEqual('00:00:00', atype.default_hour_duration)
 
         act = self._create_activity_by_view(
-            'TGS',
+            user=user,
+            title='TGS',
             atype_id=atype.id,
             subtype_id='activities-activitysubtype_show_exhibitor',  # see populate
             is_all_day=True,
@@ -580,6 +606,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview_default_duration03(self):
         "default_duration = 1.5 day + FLOATING_TIME."
+        user = self.login_as_root_and_get()
+
         atype = ActivityType.objects.create(
             pk='activities-activity_custom_1',
             name='Big Show',
@@ -595,7 +623,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
         act = self._create_activity_by_view(
-            'TGS',
+            user=user,
+            title='TGS',
             atype_id=atype.id, subtype_id=sub_type.id,
             **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 3)}
         )
@@ -606,6 +635,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview_default_duration04(self):
         "default_duration = 0 + FLOATING_TIME."
+        user = self.login_as_root_and_get()
+
         atype = ActivityType.objects.create(
             pk='activities-activity_custom_1',
             name='Big Show',
@@ -621,7 +652,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
         act = self._create_activity_by_view(
-            'TGS',
+            user=user,
+            title='TGS',
             atype_id=atype.id, subtype_id=sub_type.id,
             **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 3)}
         )
@@ -632,7 +664,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     @skipIfCustomOrganisation
     def test_createview_no_auto_subjects(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         me = user.linked_contact
 
         sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
@@ -680,7 +713,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview_teams(self):
         "Teams as participants are replaced by their teammates."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_user = get_user_model().objects.create
         musashi = create_user(
@@ -725,6 +759,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview_light_customform(self):
         "Start/end fields are missing."
+        user = self.login_as_root_and_get()
+
         cfci = CustomFormConfigItem.objects.get(descriptor_id=ACTIVITY_CREATION_CFORM.id)
         new_groups = FieldGroupList.from_cells(
             model=Activity,
@@ -746,7 +782,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         cfci.store_groups(new_groups)
         cfci.save()
 
-        act = self._create_activity_by_view('TGS')
+        act = self._create_activity_by_view(user=user, title='TGS')
 
         self.assertIsNone(act.start)
         self.assertIsNone(act.end)
@@ -754,7 +790,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     @skipIfCustomOrganisation
     def test_createview_disable_rtype(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         dojo = Organisation.objects.create(user=user, name='Dojo')
         def_calendar = Calendar.objects.get_default_calendar(user)
 
@@ -786,7 +823,10 @@ class ActivityTestCase(_ActivitiesTestCase):
             title = 'My task'
             type_id = constants.ACTIVITYTYPE_MEETING
             sub_type_id = constants.ACTIVITYSUBTYPE_MEETING_OTHER
-            other_contact = self.other_user.linked_contact
+            # other_contact = self.other_user.linked_contact
+            other_contact = Contact.objects.create(
+                user=user, first_name='Ranma', last_name='Saotome'
+            )
             response2 = self.client.post(
                 url,
                 follow=True,
@@ -822,7 +862,8 @@ class ActivityTestCase(_ActivitiesTestCase):
             rtype.save()
 
     def test_createview_errors01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         data = {
             'user': user.pk,
@@ -870,9 +911,10 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview_errors02(self):
         "RelationType constraint error."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        bad_subject = self._create_meeting()
+        bad_subject = self._create_meeting(user=user)
         response = self.assertPOST200(
             self.ACTIVITY_CREATION_URL, follow=True,
             data={
@@ -896,10 +938,12 @@ class ActivityTestCase(_ActivitiesTestCase):
     @skipIfCustomContact
     def test_createview_errors03(self):
         "other_participants contains contact of user."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
-        other = self.other_user.linked_contact
+        # other = self.other_user.linked_contact
+        other = self.create_user().linked_contact
         response = self.assertPOST200(
             self.ACTIVITY_CREATION_URL, follow=True,
             data={
@@ -924,7 +968,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview_errors04(self):
         "participating_users contains request.user."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         response = self.assertPOST200(
             self.ACTIVITY_CREATION_URL,
@@ -951,7 +996,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     @skipIfNotInstalled('creme.assistants')
     def test_createview_alert01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         title = 'Meeting01'
         my_calendar = Calendar.objects.get_default_calendar(user)
@@ -1015,7 +1061,8 @@ class ActivityTestCase(_ActivitiesTestCase):
     @skipIfNotInstalled('creme.assistants')
     def test_createview_alert02(self):
         "Period value is missing: no alert created."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         title = 'Meeting01'
         my_calendar = Calendar.objects.get_default_calendar(user)
@@ -1045,7 +1092,8 @@ class ActivityTestCase(_ActivitiesTestCase):
     @skipIfNotInstalled('creme.assistants')
     def test_createview_alert03(self):
         "Cannot create a relative alert on floating activity."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         title = 'Meeting01'
         my_calendar = Calendar.objects.get_default_calendar(user)
@@ -1076,8 +1124,10 @@ class ActivityTestCase(_ActivitiesTestCase):
     @override_settings(SOFTWARE_LABEL='My CRM')
     def test_createview_usermessage(self):
         "UserMessage creation."
-        user = self.login()
-        other_user = self.other_user
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        # other_user = self.other_user
+        other_user = self.create_user()
         self.assertEqual(0, UserMessage.objects.count())
 
         # TODO: improve FieldGroupList API (eg .extend()) ?
@@ -1176,7 +1226,8 @@ class ActivityTestCase(_ActivitiesTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_create_view_meeting(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         atype = self.get_object_or_fail(ActivityType, pk=constants.ACTIVITYTYPE_MEETING)
         self.assertEqual(0,          atype.default_day_duration)
@@ -1250,7 +1301,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertRelationCount(1, dojo, constants.REL_SUB_LINKED_2_ACTIVITY, meeting)
 
     def test_create_view_phonecall(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         type_id = constants.ACTIVITYTYPE_PHONECALL
         subtype = self.get_object_or_fail(
@@ -1290,11 +1342,13 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.get_object_or_fail(Activity, type=type_id, title=title)
 
     def test_create_view_invalidtype(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET404(reverse('activities__create_activity', args=('invalid',)))
 
     def test_create_view_task(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         type_id = constants.ACTIVITYTYPE_TASK
 
         url = reverse('activities__create_activity', args=('task',))
@@ -1339,8 +1393,10 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     @skipIfCustomContact
     def test_createview_related01(self):
-        user = self.login()
-        other_user = self.other_user
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         contact01 = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
         contact02 = other_user.linked_contact
@@ -1393,21 +1449,25 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview_related02(self):
         "Link to a user-Contact => selected a participating user."
-        self.login()
+        # self.login()
+        self.login_as_root()
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         response = self.assertGET200(self._build_add_related_uri(
-            self.other_user.linked_contact, constants.ACTIVITYTYPE_MEETING,
+            other_user.linked_contact, constants.ACTIVITYTYPE_MEETING,
         ))
 
         with self.assertNoException():
             form = response.context['form']
 
-        self.assertListEqual([self.other_user], form.initial.get(self.EXTRA_PARTUSERS_KEY))
+        self.assertListEqual([other_user], form.initial.get(self.EXTRA_PARTUSERS_KEY))
 
     @skipIfCustomOrganisation
     def test_createview_related03(self):
         "Link to an Entity which can be a subject."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         dojo = Organisation.objects.create(user=user, name='Tendo no dojo')
         response = self.assertGET200(
@@ -1421,7 +1481,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview_related04(self):
         "Link to an Entity which cannot be a participant/subject."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         linked = Activity.objects.create(
             user=user, title='Meet01',
@@ -1451,9 +1512,10 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview_related05(self):
         "Not allowed LINKing."
-        user = self.login(is_superuser=False, creatable_models=[Activity])
+        # user = self.login(is_superuser=False, creatable_models=[Activity])
+        user = self.login_as_activities_user(creatable_models=[Activity])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             # Not LINK
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
             set_type=SetCredentials.ESET_OWN,
@@ -1469,7 +1531,8 @@ class ActivityTestCase(_ActivitiesTestCase):
     @skipIfCustomContact
     def test_createview_related_meeting(self):
         "Meeting forced."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
 
@@ -1506,7 +1569,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     @skipIfCustomContact
     def test_createview_related_other(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
         build_url = partial(self._build_add_related_uri, ryoga)
@@ -1515,7 +1579,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertGET404(build_url('foobar'))
 
     def test_popup_view01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_dt = partial(self.create_datetime, year=2010, month=10, day=1)
         activity = Activity.objects.create(
@@ -1531,7 +1596,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertContains(response, activity.type)
 
     def test_editview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         title = 'meet01'
         create_dt = partial(self.create_datetime, year=2013, month=10, day=1)
@@ -1572,7 +1638,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             url,
             follow=True,
             data={
-                'user': self.user.pk,
+                'user': user.pk,
                 'title': title,
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2011, 2, 22),
                 self.EXTRA_SUBTYPE_KEY: sub_type_id,
@@ -1592,7 +1658,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_editview02(self):
         "Change type."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         title = 'act01'
         create_dt = self.create_datetime
@@ -1624,7 +1691,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_editview03(self):
         "Collision."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         contact = user.linked_contact
 
         def create_meeting(**kwargs):
@@ -1687,7 +1755,9 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_editview04(self):
         "Edit FLOATING_TIME activity."
+        user = self.login_as_root_and_get()
         task = self._create_activity_by_view(
+            user=user,
             **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 25)}
         )
         self.assertEqual(constants.FLOATING_TIME, task.floating_type)
@@ -1706,7 +1776,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_editview05(self):
         "Edit an Unavailability: type cannot be changed, sub_type can."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_dt = self.create_datetime
         activity = Activity.objects.create(
@@ -1769,9 +1840,10 @@ class ActivityTestCase(_ActivitiesTestCase):
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete01(self):
         "Cannot delete a participant."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         musashi = Contact.objects.create(
             user=user, first_name='Musashi', last_name='Miyamoto', is_deleted=True,
         )
@@ -1790,9 +1862,10 @@ class ActivityTestCase(_ActivitiesTestCase):
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete02(self):
         "Relations constants.REL_SUB_PART_2_ACTIVITY are removed when the Activity is deleted."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         activity.trash()
 
         musashi = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
@@ -1813,9 +1886,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         """Relations constants.REL_SUB_PART_2_ACTIVITY are removed when the
         Activity is deleted (empty_trash).
         """
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
         activity.trash()
 
         musashi = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
@@ -1839,12 +1913,13 @@ class ActivityTestCase(_ActivitiesTestCase):
         """If an Activity & its participants are in the trash, the relationships
         cannot avoid the trash emptying.
         """
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_contact = partial(Contact.objects.create, user=user)
         musashi = create_contact(first_name='Musashi', last_name='Miyamoto')
 
-        activity = self._create_meeting()
+        activity = self._create_meeting(user=user)
 
         kojiro = create_contact(first_name='Kojiro',  last_name='Sasaki')
         # we want that at least one contact tries to delete() before the activity
@@ -1872,7 +1947,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def _aux_inner_edit_type(self, field_name):
         "Type (& subtype)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_dt = self.create_datetime
         activity = Activity.objects.create(
@@ -1916,7 +1992,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_inner_edit_type03(self):
         "Exclude constants.ACTIVITYTYPE_INDISPO from valid choices."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_dt = self.create_datetime
         activity = Activity.objects.create(
@@ -1941,7 +2018,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_inner_edit_type04(self):
         "Unavailability type cannot be changed, the sub_type can."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         subtype = ActivitySubType.objects.create(
             id='holidays', name='Holidays',
@@ -1976,7 +2054,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_bulk_edit_type01(self):
         "No Unavailability."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_dt = self.create_datetime
         create_activity = partial(
@@ -2032,7 +2111,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_bulk_edit_type02(self):
         "Unavailability cannot be changed when they are mixed with other types."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_dt = self.create_datetime
         create_activity = partial(
@@ -2092,7 +2172,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_bulk_edit_type03(self):
         "Unavailability type can be changed when they are not mixed with other types."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ACTIVITYTYPE_INDISPO = constants.ACTIVITYTYPE_INDISPO
         ACTIVITYSUBTYPE_UNAVAILABILITY = constants.ACTIVITYSUBTYPE_UNAVAILABILITY
@@ -2148,7 +2229,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(subtype,              activity2.sub_type)
 
     def test_listviews(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self.assertFalse(Activity.objects.all())
 
         create_act = partial(Activity.objects.create, user=user)
@@ -2194,7 +2276,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertListEqual([acts[1]], [*meetings_page.object_list])
 
     def test_listview_bulk_actions(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         export_action = self.get_alone_element(
             action
             for action in actions.actions_registry.bulk_actions(user=user, model=Activity)
@@ -2208,7 +2291,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_unavailability_createview01(self):
         "Can not create an unavailability with the generic view."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         url = self.ACTIVITY_CREATION_URL
         self.assertGET200(url)
@@ -2241,8 +2325,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
     def test_unavailability_createview02(self):
-        user = self.login()
-        other_user = self.other_user
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         url = self.ADD_UNAVAILABILITY_URL
         response1 = self.assertGET200(url)
@@ -2327,7 +2413,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_unavailability_createview03(self):
         "Is all day."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         title = 'AFK'
         subtype = ActivitySubType.objects.create(
@@ -2361,7 +2448,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_unavailability_createview04(self):
         "Start & end are required."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         response = self.assertPOST200(
             self.ADD_UNAVAILABILITY_URL,
@@ -2378,7 +2466,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertFormError(form, field=self.EXTRA_END_KEY,   errors=msg)
 
     def test_detete_activity_type01(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         atype = ActivityType.objects.update_or_create(
             id='activities-activity_custom_1',
@@ -2400,7 +2489,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertDoesNotExist(atype)
 
     def test_detete_activity_type02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         atype = ActivityType.objects.create(
             id='activities-activity_custom_1',
@@ -2429,7 +2519,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
     def test_dl_ical(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_act = partial(
             Activity.objects.create,
@@ -2489,9 +2580,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         # TODO: test view permission
 
     def test_clone01(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        activity1 = self._create_meeting()
+        activity1 = self._create_meeting(user=user)
         activity2 = activity1.clone()
         self.assertNotEqual(activity1.pk, activity2.pk)
 
@@ -2503,7 +2595,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     @skipIfCustomContact
     def test_clone02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         rtype_participant = RelationType.objects.get(pk=constants.REL_SUB_PART_2_ACTIVITY)
 
@@ -2540,7 +2633,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertSameRelationsNProperties(activity1, activity2, exclude_internal=False)
 
     def test_manager_future_linked(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         create_dt = self.create_datetime
         today = create_dt(year=2019, month=8, day=26, hour=8)
 
@@ -2609,7 +2703,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertFalse(Activity.objects.future_linked(entity=c2, today=today))
 
     def test_manager_past_linked(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         create_dt = self.create_datetime
         today = create_dt(year=2019, month=8, day=26, hour=8)
 
@@ -2678,7 +2773,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertFalse(Activity.objects.past_linked(entity=c2, today=today))
 
     def test_manager_future_linked_to_organisation(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
         sv.value = False  # We disable the auto subjects feature
@@ -2788,7 +2884,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
     def test_manager_past_linked_to_organisation(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
         sv.value = False  # We disable the auto subjects feature

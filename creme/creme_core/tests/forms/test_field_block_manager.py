@@ -184,7 +184,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         )
 
     def test_invalid_field02(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         block_id = 'particulars'
         block_vname = 'Particulars'

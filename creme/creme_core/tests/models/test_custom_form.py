@@ -317,7 +317,8 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
 
     def test_get_for_user01(self):
         "No item for role."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         with self.assertNoException():
             cfci01 = CustomFormConfigItem.objects.get_for_user(
@@ -334,7 +335,8 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
         with self.assertNoException():
             cfci02 = CustomFormConfigItem.objects.get_for_user(
                 descriptor=FAKEACTIVITY_CREATION_CFORM,
-                user=self.other_user,
+                # user=self.other_user,
+                user=self.create_user(),
             )
 
         self.assertEqual(cfci01.id, cfci02.id)
@@ -352,7 +354,10 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
 
     def test_get_for_user02(self):
         "Super-user's form & role's form."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
+        role1 = UserRole.objects.create(name='Basic')
+        other_user = self.create_user(0, role=role1)
         role2 = UserRole.objects.create(name='CEO')
 
         desc = FAKEACTIVITY_CREATION_CFORM
@@ -373,7 +378,7 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
         self.assertEqual(super_cfci.id, cfci01.id)
 
         # ---
-        other_user = self.other_user
+        # other_user = self.other_user
 
         with self.assertNoException():
             cfci02 = CustomFormConfigItem.objects.get_for_user(
@@ -396,7 +401,8 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
 
     def test_get_for_user03(self):
         "Descriptor ID passed."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         desc_id = FAKEACTIVITY_CREATION_CFORM.id
 
         with self.assertNoException():

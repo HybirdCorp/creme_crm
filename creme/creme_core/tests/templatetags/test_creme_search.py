@@ -13,7 +13,7 @@ from creme.creme_core.tests.base import CremeTestCase
 
 class CremeSearchTagsTestCase(CremeTestCase):
     def test_search_form01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         get_ct = ContentType.objects.get_for_model
         contact_ct_id = get_ct(FakeContact).id
 
@@ -70,7 +70,7 @@ class CremeSearchTagsTestCase(CremeTestCase):
         )
 
     def test_search_form02(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         SearchConfigItem.objects.create_if_needed(
             model=FakeContact,

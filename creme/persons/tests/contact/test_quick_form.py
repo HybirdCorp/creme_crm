@@ -29,7 +29,8 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
     def test_quickform01(self):
         "1 Contact."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
         orga_count = Organisation.objects.count()
@@ -72,12 +73,13 @@ class ContactQuickFormTestCase(_BaseTestCase):
     @skipIfCustomOrganisation
     def test_quickform02(self):
         "1 Contact & 1 Organisation created."
-        user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        # user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         count = Contact.objects.count()
 
         create_sc = partial(
             SetCredentials.objects.create,
-            role=self.role, set_type=SetCredentials.ESET_OWN,
+            role=user.role, set_type=SetCredentials.ESET_OWN,
         )
         create_sc(value=EntityCredentials.VIEW)
         create_sc(value=EntityCredentials.LINK)
@@ -85,7 +87,8 @@ class ContactQuickFormTestCase(_BaseTestCase):
         orga_name = 'Bebop'
         self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
         # Not viewable
-        existing_orga = Organisation.objects.create(user=self.other_user, name=orga_name)
+        # existing_orga = Organisation.objects.create(user=self.other_user, name=orga_name)
+        existing_orga = Organisation.objects.create(user=self.get_root_user(), name=orga_name)
 
         first_name = 'Faye'
         last_name = 'Valentine'
@@ -113,11 +116,12 @@ class ContactQuickFormTestCase(_BaseTestCase):
     @skipIfCustomOrganisation
     def test_quickform03(self):
         "1 Contact created and link with an existing Organisation"
-        user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        # user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         count = Contact.objects.count()
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -127,7 +131,8 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
         create_orga = partial(Organisation.objects.create, name=orga_name)
         orga1 = create_orga(user=user)
-        orga2 = create_orga(user=self.other_user)  # This one cannot be seen by user
+        # orga2 = create_orga(user=self.other_user)  # This one cannot be seen by user
+        orga2 = create_orga(user=self.get_root_user())  # This one cannot be seen by user
 
         first_name = 'Faye'
         last_name = 'Valentine'
@@ -153,10 +158,11 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
     def test_quickform04(self):
         "No permission to create Organisation."
-        user = self.login(is_superuser=False, creatable_models=[Contact])  # <== not 'Organisation'
+        # user = self.login(is_superuser=False, creatable_models=[Contact])
+        user = self.login_as_persons_user(creatable_models=[Contact])  # <== not 'Organisation'
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
         )
@@ -198,11 +204,12 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
     def test_quickform05(self):
         "No permission to link Organisation"
-        user = self.login(is_superuser=False, creatable_models=[Contact])
+        # user = self.login(is_superuser=False, creatable_models=[Contact])
+        user = self.login_as_persons_user(creatable_models=[Contact])
 
         create_sc = partial(
             SetCredentials.objects.create,
-            role=self.role, set_type=SetCredentials.ESET_ALL,
+            role=user.role, set_type=SetCredentials.ESET_ALL,
         )
         create_sc(value=EntityCredentials.VIEW)
         create_sc(value=EntityCredentials.LINK, ctype=Contact)
@@ -240,12 +247,13 @@ class ContactQuickFormTestCase(_BaseTestCase):
         self.assertFalse(Relation.objects.filter(subject_entity=contact))
 
     def test_quickform06(self):
-        "No permission to link Contact in general"
-        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        "No permission to link Contact in general."
+        # self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
 
         create_sc = partial(
             SetCredentials.objects.create,
-            role=self.role, set_type=SetCredentials.ESET_ALL,
+            role=user.role, set_type=SetCredentials.ESET_ALL,
         )
         create_sc(value=EntityCredentials.VIEW)
         create_sc(value=EntityCredentials.LINK, ctype=Organisation)
@@ -263,9 +271,10 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
     def test_quickform07(self):
         "No permission to link Contact with a specific owner."
-        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        # user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(
             value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
         )
@@ -290,7 +299,8 @@ class ContactQuickFormTestCase(_BaseTestCase):
         first_name = 'Faye'
         last_name = 'Valentine'
         data = {
-            'user':       self.other_user.id,
+            # 'user':       self.other_user.id,
+            'user':       self.get_root_user().id,
             'first_name': 'Faye',
             'last_name':  'Valentine',
         }
@@ -310,12 +320,14 @@ class ContactQuickFormTestCase(_BaseTestCase):
     @skipIfCustomOrganisation
     def test_quickform08(self):
         "Multiple Organisations found."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         orga_name = 'Bebop'
         create_orga = partial(Organisation.objects.create, name=orga_name)
         create_orga(user=user)
-        create_orga(user=self.other_user)
+        # create_orga(user=self.other_user)
+        create_orga(user=self.create_user())
 
         response = self.client.post(
             self._build_quickform_url(),
@@ -335,16 +347,18 @@ class ContactQuickFormTestCase(_BaseTestCase):
     @skipIfCustomOrganisation
     def test_quickform09(self):
         "Multiple Organisations found, only one linkable (so we use it)."
-        user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        # user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
 
         orga_name = 'Bebop'
         create_orga = partial(Organisation.objects.create, name=orga_name)
         orga1 = create_orga(user=user)
-        create_orga(user=self.other_user)  # Cannot be linked by user
+        # create_orga(user=self.other_user)  # Cannot be linked by user
+        create_orga(user=self.get_root_user())  # Cannot be linked by user
 
         first_name = 'Faye'
         last_name = 'Valentine'
@@ -367,16 +381,19 @@ class ContactQuickFormTestCase(_BaseTestCase):
     @skipIfCustomOrganisation
     def test_quickform10(self):
         "Multiple Organisations found, but none of them is linkable."
-        user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        # user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
 
         orga_name = 'Bebop'
+        # other_user = self.other_user
+        other_user = self.get_root_user()
 
         for i in range(2):
-            Organisation.objects.create(user=self.other_user, name=orga_name)
+            Organisation.objects.create(user=other_user, name=orga_name)
 
         response = self.client.post(
             self._build_quickform_url(),
@@ -394,9 +411,10 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
     def test_quickform11(self):
         "Have to create an Organisations, but can not link to it."
-        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        # self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+        user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=Contact)
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
@@ -407,7 +425,8 @@ class ContactQuickFormTestCase(_BaseTestCase):
         response = self.client.post(
             self._build_quickform_url(),
             data={
-                'user':         self.other_user.id,
+                # 'user':         self.other_user.id,
+                'user':         self.get_root_user().id,
                 'first_name':   'Faye',
                 'last_name':    'Valentine',
                 'organisation': orga_name,
@@ -424,7 +443,8 @@ class ContactQuickFormTestCase(_BaseTestCase):
     @skipIfCustomOrganisation
     def test_quickform12(self):
         "Multiple Organisations found, only one is not deleted (so we use it)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         orga_name = 'Bebop'
         create_orga = partial(Organisation.objects.create, name=orga_name, user=user)
@@ -457,9 +477,10 @@ class ContactNamesEditionTestCase(_BaseTestCase):
         return reverse('persons__edit_contact_names', args=(contact.id,))
 
     def test_edit01(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_persons_user()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -493,9 +514,10 @@ class ContactNamesEditionTestCase(_BaseTestCase):
 
     def test_edit02(self):
         "No permission."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_persons_user()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,  # No EntityCredentials.CHANGE
             set_type=SetCredentials.ESET_OWN,
         )

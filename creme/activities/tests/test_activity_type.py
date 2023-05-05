@@ -62,7 +62,8 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         self.assertListEqual(logs_manager3.output, ['CRITICAL:foo:dummy message'])
 
     def test_create_type(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET200(reverse('creme_config__app_portal', args=('activities',)))
         self.assertGET200(reverse(
             'creme_config__model_portal',
@@ -90,7 +91,8 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         self.assertEqual('0:15:0', atype.default_hour_duration)
 
     def test_edit_type(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         type_id = 'test-activity_awesome'
         atype = ActivityType.objects.create(
@@ -126,7 +128,8 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         self.assertEqual('1:0:0', atype.default_hour_duration)
 
     def test_create_subtype(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET200(reverse(
             'creme_config__model_portal',
             args=('activities', 'activity_sub_type')
@@ -153,7 +156,8 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         self.get_object_or_fail(ActivitySubType, name=name, type=atype)
 
     def test_edit_subtype(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         atype = ActivityType.objects.create(
             pk='test-activity_karate',

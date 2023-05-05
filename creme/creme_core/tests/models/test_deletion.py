@@ -25,7 +25,7 @@ from ..base import CremeTestCase
 
 class DeletionCommandTestCase(CremeTestCase):
     def test_creme_replace_null(self):
-        user = self.create_user()
+        user = self.get_root_user()
         civ = FakeCivility.objects.create(title='Kun')
         contact = FakeContact.objects.create(
             user=user, civility=civ,
@@ -39,7 +39,7 @@ class DeletionCommandTestCase(CremeTestCase):
         self.assertIsNone(contact.civility)
 
     def test_creme_replace(self):
-        user = self.create_user()
+        user = self.get_root_user()
         sector = FakeSector.objects.create(title='Ninja')
         orga = FakeOrganisation.objects.create(
             user=user, sector=sector, name='Hattori clan',
@@ -54,7 +54,7 @@ class DeletionCommandTestCase(CremeTestCase):
         self.assertEqual(sector, orga.sector)
 
     def test_deletion_command01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         civ = FakeCivility.objects.create(title='Kun')
         job = Job.objects.create(
@@ -73,7 +73,7 @@ class DeletionCommandTestCase(CremeTestCase):
 
     def test_deletion_command02(self):
         "<instance_to_delete> setter."
-        user = self.create_user()
+        user = self.get_root_user()
 
         sector = FakeSector.objects.create(title='Ninja')
         job = Job.objects.create(
@@ -96,7 +96,7 @@ class DeletionCommandTestCase(CremeTestCase):
         self.assertEqual([], dcom.replacers)
 
     def test_deletion_command_replacers01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_sector = FakeSector.objects.create
         sector     = create_sector(title='Shinobi')
@@ -139,7 +139,7 @@ class DeletionCommandTestCase(CremeTestCase):
 
     def test_deletion_command_replacers02(self):
         "SETReplacer"
-        user = self.create_user()
+        user = self.get_root_user()
         prio2del = FakeTicketPriority.objects.create(name='Not so important')
 
         job = Job.objects.create(
@@ -162,7 +162,7 @@ class DeletionCommandTestCase(CremeTestCase):
 
     def test_deletor_job01(self):
         "No replacement."
-        user = self.create_user()
+        user = self.get_root_user()
 
         civ = FakeCivility.objects.create(title='Kun')
         contact = FakeContact.objects.create(
@@ -214,7 +214,7 @@ class DeletionCommandTestCase(CremeTestCase):
 
     def test_deletor_job02(self):
         "One replacement."
-        user = self.create_user()
+        user = self.get_root_user()
 
         civ = FakeCivility.objects.first()
         civ2del = FakeCivility.objects.create(title='Kun')
@@ -280,7 +280,7 @@ class DeletionCommandTestCase(CremeTestCase):
 
     def test_deletor_job03(self):
         "Several Replacement."
-        user = self.create_user()
+        user = self.get_root_user()
 
         civ = FakeCivility.objects.first()
         civ2del = FakeCivility.objects.create(title='Kun')
@@ -325,7 +325,7 @@ class DeletionCommandTestCase(CremeTestCase):
 
     def test_deletor_job04(self):
         "No replacement + exception."
-        user = self.create_user()
+        user = self.get_root_user()
         sector = FakeSector.objects.create(title='Ninja')
         orga = FakeOrganisation.objects.create(
             user=user, sector=sector, name='Hattori clan',

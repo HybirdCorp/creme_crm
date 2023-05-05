@@ -35,7 +35,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         cls.orga_ct    = get_ct(FakeOrganisation)
 
     def test_manager_create_if_needed01(self):
-        self.login()
+        # self.login()
 
         name = 'Contact view'
         pk   = 'tests-hf_contact'
@@ -73,7 +73,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_manager_create_if_needed02(self):
         "With cells."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_rtype = RelationType.objects.smart_update_or_create
         loves = create_rtype(
@@ -111,7 +111,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_manager_create_if_needed03(self):
         "Do not modify if it already exists."
-        self.login()
+        # self.login()
 
         pk = 'tests-hf_contact'
         name = 'Contact view'
@@ -122,7 +122,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         )
 
         hf = HeaderFilter.objects.create_if_needed(
-            pk=pk, name='Contact view edited', user=self.user,
+            # pk=pk, name='Contact view edited', user=self.user,
+            pk=pk, name='Contact view edited', user=self.get_root_user(),
             model=FakeContact, is_custom=False,
             cells_desc=[
                 (EntityCellRegularField, {'name': 'first_name'}),
@@ -138,7 +139,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_manager_create_if_needed04(self):
         "Errors."
-        user = self.create_user()
+        user = self.get_root_user()
 
         # Private + no user => error
         with self.assertRaises(ValueError):
@@ -208,7 +209,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         )
 
     def test_cells_property_errors01(self):
-        self.login()
+        # self.login()
 
         ffield_name = 'get_pretty_properties'
         rfield_name = 'last_name'
@@ -325,7 +326,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_populate_entities_fields01(self):
         "Regular fields: no FK."
-        user = self.create_user()
+        user = self.get_root_user()
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf', name='Contact view', model=FakeContact,
             cells_desc=[
@@ -349,7 +350,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_populate_entities_fields02(self):
         "Regular fields: FK."
-        user = self.create_user()
+        user = self.get_root_user()
         build = partial(EntityCellRegularField.build, model=FakeContact)
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf', name='Contact view', model=FakeContact,
@@ -381,7 +382,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_populate_entities_fields03(self):
         "Regular fields: invalid fields are removed automatically."
-        user = self.create_user()
+        user = self.get_root_user()
 
         cell1 = EntityCellRegularField.build(model=FakeContact, name='last_name')
 
@@ -416,13 +417,15 @@ class HeaderFiltersTestCase(CremeTestCase):
                 hf.populate_entities(contacts, user)
 
     def test_manager_filter_by_user(self):
-        user = self.login(is_superuser=False)
-        other_user = self.other_user
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        # other_user = self.other_user
+        other_user = self.get_root_user()
 
         User = get_user_model()
         teammate = User.objects.create(
             username='fulbertc',
-            email='fulbert@creme.org', role=self.role,
+            email='fulbert@creme.org', role=user.role,
             first_name='Fulbert', last_name='Creme',
         )
 
@@ -482,7 +485,8 @@ class HeaderFiltersTestCase(CremeTestCase):
             self.assertIn(hf, filtered2)
 
     def test_filterlist01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         create_hf = partial(
             HeaderFilter.objects.create_if_needed,
             name='Orga view',
@@ -494,7 +498,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         hf1 = create_hf(pk='test-hf_orga1')
         hf2 = create_hf(pk='test-hf_orga2', user=user)
         hf3 = create_hf(pk='test-hf_contact', model=FakeContact, name='Contact view')
-        hf4 = create_hf(pk='test-hf_orga3', user=self.other_user)
+        # hf4 = create_hf(pk='test-hf_orga3', user=self.other_user)
+        hf4 = create_hf(pk='test-hf_orga3', user=self.create_user())
 
         ct = self.orga_ct
         hfl = HeaderFilterList(ct, user)
@@ -513,14 +518,16 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_filterlist02(self):
         "Private filters + not superuser (+ team management)."
-        user = self.login(is_superuser=False)
-        other_user = self.other_user
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        # other_user = self.other_user
+        other_user = self.get_root_user()
 
         User = get_user_model()
         teammate = User.objects.create(
             username='fulbertc',
             email='fulbert@creme.org',
-            role=self.role,
+            role=user.role,
             first_name='Fulbert', last_name='Creme',
         )
 
@@ -565,8 +572,10 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_filterlist03(self):
         "Staff user -> can see all filters."
-        user = self.login(is_staff=True)
-        other_user = self.other_user
+        # user = self.login(is_staff=True)
+        user = self.login_as_super(is_staff=True)
+        # other_user = self.other_user
+        other_user = self.get_root_user()
 
         cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
 

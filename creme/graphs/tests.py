@@ -43,11 +43,18 @@ def skipIfCustomGraph(test_func):
 
 @skipIfCustomGraph
 class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
-    def login(self, allowed_apps=('graphs',), *args, **kwargs):
-        return super().login(allowed_apps=allowed_apps, *args, **kwargs)
+    # def login(self, allowed_apps=('graphs',), *args, **kwargs):
+    #     return super().login(allowed_apps=allowed_apps, *args, **kwargs)
+
+    def login_as_graphs_user(self, *, allowed_apps=(), **kwargs):
+        return super().login_as_standard(
+            allowed_apps=['graphs', *allowed_apps],
+            **kwargs
+        )
 
     def test_graph_create(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         url = reverse('graphs__create_graph')
         self.assertGET200(url)
@@ -69,7 +76,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.get_brick_node(tree, brick=OrbitalRelationTypesBrick)
 
     def test_graph_edit(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'Nodz-a-lapalooza'
         graph = Graph.objects.create(user=user, name=name)
@@ -85,7 +93,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(name, self.refresh(graph).name)
 
     def test_listview(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_graph = partial(Graph.objects.create, user=user)
         graph1 = create_graph(name='Graph01')
@@ -100,7 +109,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(graph2, graphs)
 
     def test_relation_types01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         graph = Graph.objects.create(user=user, name='Graph01')
         self.assertEqual(0, graph.orbital_relation_types.count())
@@ -161,9 +171,11 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_relation_types02(self):
-        self.login(is_superuser=False)
+        # self.login(is_superuser=False)
+        self.login_as_graphs_user()
 
-        graph = Graph.objects.create(user=self.other_user, name='Graph01')
+        # graph = Graph.objects.create(user=self.other_user, name='Graph01')
+        graph = Graph.objects.create(user=self.get_root_user(), name='Graph01')
         self.assertGET403(reverse('graphs__add_rtypes', args=(graph.id,)))
 
         rtype = RelationType.objects.smart_update_or_create(
@@ -245,7 +257,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
     #     _ = [*response.streaming_content]
 
     def test_add_rootnode(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         contact = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
@@ -328,7 +341,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(rnode)
 
     def test_edit_rootnode01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         # TODO: factorise
@@ -377,7 +391,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_rootnode02(self):
         "Disabled relation types are already selected => still proposed."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         rtype_create = RelationType.objects.smart_update_or_create
@@ -407,8 +422,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_rootnode01(self):
         "Not superuser."
-        user = self.login(is_superuser=False)
-
+        # user = self.login(is_superuser=False)
+        user = self.login_as_graphs_user()
         SetCredentials.objects.create(
             role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
@@ -428,8 +443,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_rootnode02(self):
         "Not superuser + cannot change Graph => error."
-        user = self.login(is_superuser=False)
-
+        # user = self.login(is_superuser=False)
+        user = self.login_as_graphs_user()
         SetCredentials.objects.create(
             role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
@@ -437,7 +452,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
-        graph = Graph.objects.create(user=self.other_user, name='Graph01')
+        # graph = Graph.objects.create(user=self.other_user, name='Graph01')
+        graph = Graph.objects.create(user=self.get_root_user(), name='Graph01')
         rnode = RootNode.objects.create(graph=graph, real_entity=orga)
 
         self.assertPOST403(
@@ -466,7 +482,8 @@ class RelationChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_chart_data(self):
         self.maxDiff = None
 
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         is_employee, has_employee = RelationType.objects.smart_update_or_create(
             ('test-subject_employee', 'is employed by'),
@@ -539,7 +556,8 @@ class RelationChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_chart_data_multiple_roots(self):
         self.maxDiff = None
 
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         is_employee, has_employee = RelationType.objects.smart_update_or_create(
             ('test-subject_employee', 'is employed by'),
@@ -657,7 +675,8 @@ class RelationChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_chart_data_orbital_relations(self):
         self.maxDiff = None
 
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         is_employee, has_employee = RelationType.objects.smart_update_or_create(
             ('test-subject_employee', 'is employed by'),

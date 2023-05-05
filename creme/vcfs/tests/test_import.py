@@ -95,7 +95,8 @@ class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
 
         cls.IMPORT_URL = reverse('vcfs__import')
 
-    def _post_step0(self, content):
+    # def _post_step0(self, content):
+    def _post_step0(self, user, content):
         tmpfile = NamedTemporaryFile()
         tmpfile.write(content.encode())
         tmpfile.flush()
@@ -107,7 +108,8 @@ class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
             self.IMPORT_URL,
             follow=True,
             data={
-                'user':     self.user,
+                # 'user':     self.user,
+                'user':     user,
                 'vcf_step': 0,
                 'vcf_file': filedata,
             },
@@ -123,11 +125,12 @@ class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
         return response
 
     def test_add_vcf(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         self.assertGET200(self.IMPORT_URL)
 
-        response = self._post_step0('BEGIN:VCARD\nFN:Test\nEND:VCARD')
+        response = self._post_step0(user=user, content='BEGIN:VCARD\nFN:Test\nEND:VCARD')
         self.assertNoFormError(response)
 
         with self.assertNoException():
@@ -137,14 +140,15 @@ class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
 
     def test_parsing_vcf00(self):
         "First & last names not separated."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         first_name = 'Yûna'
         last_name = 'Akashi'
         content = f'BEGIN:VCARD\nFN:{first_name} {last_name}\nEND:VCARD'
         self.assertEqual(f'{first_name} {last_name}', read_vcf(content).fn.value)
 
-        response = self._post_step0(content)
+        response = self._post_step0(user=user, content=content)
 
         with self.assertNoException():
             form = response.context['form']
@@ -159,7 +163,8 @@ class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
 
     def test_parsing_vcf01(self):  # TODO: use BDAY
         "Contact with details & address."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         first_name = 'Yûna'
         last_name = 'Akashi'
@@ -187,7 +192,7 @@ TEL;TYPE=FAX:{fax}
 EMAIL;TYPE=HOME:{email}
 URL;TYPE=HOME:{site}
 END:VCARD"""
-        response = self._post_step0(content)
+        response = self._post_step0(user=user, content=content)
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -249,7 +254,8 @@ END:VCARD"""
 
     def test_parsing_vcf02(self):
         "Organisation."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         name = 'Negima'
         phone = '00 00 00 00 00'
@@ -269,7 +275,7 @@ TEL;TYPE=WORK:{phone}
 EMAIL;TYPE=WORK:{email}
 URL;TYPE=WORK:{site}
 END:VCARD"""
-        response = self._post_step0(content)
+        response = self._post_step0(user=user, content=content)
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -309,7 +315,8 @@ END:VCARD"""
 
     def test_parsing_vcf03(self):
         "Address without type ; VCF tags are lower case."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         box = '852'
         street = '21 Run street'
@@ -326,7 +333,7 @@ x-mozilla-html:FALSE
 url:www.url.com
 version:2.1
 end:vcard"""
-        response = self._post_step0(content)
+        response = self._post_step0(user=user, content=content)
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -355,7 +362,8 @@ end:vcard"""
     @skipIfCustomOrganisation
     def test_parsing_vcf04(self):
         "Existing Organisation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'Negima'
         orga = Organisation.objects.create(user=user, name=name)
@@ -367,7 +375,7 @@ TEL;TYPE=WORK:11 11 11 11 11
 EMAIL;TYPE=WORK:email@email.com
 URL;TYPE=WORK:www.web-site.com
 END:VCARD"""
-        response = self._post_step0(content)
+        response = self._post_step0(user=user, content=content)
 
         with self.assertNoException():
             form = response.context['form']
@@ -376,7 +384,8 @@ END:VCARD"""
 
     def test_parsing_vcf05(self):
         "Multi line, escape chars."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         first_name = 'Fûka'
         last_name = 'Naritaki'
@@ -391,7 +400,7 @@ ADR;type=HOME:;;Main Street 256\;\n1rst floor\, Pink door;Mahora;;598;Japan
 ORG:University of Mahora\, Department of
   Robotics
 END:VCARD"""
-        self._post_step0(content)
+        self._post_step0(user=user, content=content)
 
         vobj = read_vcf(content)
         version = vobj.version
@@ -416,7 +425,8 @@ END:VCARD"""
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_add_contact_vcf00(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
         orga_count = Organisation.objects.count()
@@ -431,7 +441,7 @@ TEL;TYPE=FAX:22 22 22 22 22
 EMAIL;TYPE=HOME:email@email.com
 URL;TYPE=HOME:http://www.url.com/
 END:VCARD"""
-        form = self._post_step0(content).context['form']
+        form = self._post_step0(user=user, content=content).context['form']
 
         fields = form.fields
         user_id    = fields['user'].initial
@@ -475,7 +485,8 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype01 = create_ptype(
@@ -530,7 +541,7 @@ TEL;TYPE=FAX:22 22 22 22 22
 EMAIL;TYPE=HOME:email@email.com
 URL;TYPE=HOME:www.url.com
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
 
         with self.assertNoException():
             rtype_ids = {*fields['relation'].queryset.values_list('id', flat=True)}
@@ -572,7 +583,8 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
         orga_count = Organisation.objects.count()
@@ -588,7 +600,7 @@ URL;TYPE=HOME:http://www.url.com/
 URL;TYPE=WORK:www.work.com
 ORG:Corporate
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
         phone      = fields['phone'].initial
@@ -632,7 +644,8 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf03(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
         orga_count = Organisation.objects.count()
@@ -648,7 +661,7 @@ URL;TYPE=HOME:www.url.com
 URL;TYPE=WORK:http://www.work.com/
 ORG:Corporate
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
         phone      = fields['phone'].initial
@@ -703,7 +716,8 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_add_contact_vcf04(self):
         "Related organisation exists & is not updated."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
         orga = Organisation.objects.create(
@@ -726,7 +740,7 @@ URL;TYPE=HOME:www.url2.com
 URL;TYPE=WORK:www.work2.com
 ORG:{orga.name}
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
         phone      = fields['phone'].initial
@@ -778,7 +792,8 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomAddress
     def test_add_contact_vcf05(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
         address_count = Address.objects.count()
@@ -791,7 +806,7 @@ TEL;TYPE=FAX:22 22 22 22 22
 EMAIL;TYPE=HOME:email@email.com
 URL;TYPE=HOME:www.url.com
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
 
@@ -841,7 +856,8 @@ END:VCARD"""
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_add_contact_vcf06(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
         contact_count = Contact.objects.count()
         address_count = Address.objects.count()
         orga_count    = Organisation.objects.count()
@@ -859,7 +875,7 @@ URL;TYPE=HOME:www.url.com
 URL;TYPE=WORK:www.work.com
 ORG:Corporate
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
 
@@ -932,12 +948,12 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf07(self):
-        self.login()
-
+        # self.login()
+        user = self.login_as_root_and_get()
         contact_count = Contact.objects.count()
 
         orga = Organisation.objects.create(
-            user=self.user, name='Corporate', phone='00 00 00 00 00',
+            user=user, name='Corporate', phone='00 00 00 00 00',
             email='corp@corp.com', url_site='www.corp.com',
         )
 
@@ -954,7 +970,7 @@ URL;TYPE=WORK:{url_site}
 ORG:{name}
 END:VCARD"""
 
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         data = {
             'user':       fields['user'].initial,
             'first_name': fields['first_name'].initial,
@@ -1009,7 +1025,8 @@ END:VCARD"""
 
     @skipIfCustomContact
     def test_add_contact_vcf08(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
         content = """BEGIN:VCARD
@@ -1020,7 +1037,7 @@ EMAIL;TYPE=WORK:work@work.com
 URL;TYPE=WORK:www.work.com
 ORG:Corporate
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         response = self._post_step1(
             errors=True,
             data={
@@ -1065,18 +1082,19 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf09(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         name = 'Negima'
         Organisation.objects.create(
-            user=self.user, name=name, phone='00 00 00 00 00',
+            user=user, name=name, phone='00 00 00 00 00',
             email='corp@corp.com', url_site='www.corp.com',
         )
         content = f"""BEGIN:VCARD
 FN:Akira Ookôchi
 ORG:{name}
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         response = self._post_step1(
             errors=True,
             data={
@@ -1108,7 +1126,8 @@ END:VCARD"""
     @skipIfCustomAddress
     def test_add_contact_vcf10(self):
         "Organisation with existing Address."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'Robotic club'
         orga = Organisation.objects.create(
@@ -1154,7 +1173,7 @@ EMAIL;TYPE=WORK:{email}
 URL;TYPE=WORK:www.work.com
 ORG:{name}
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         self._post_step1(
             data={
                 'user':       user.id,
@@ -1208,7 +1227,8 @@ END:VCARD"""
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_add_contact_vcf11(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'Astronomy club'
         Organisation.objects.create(
@@ -1225,7 +1245,7 @@ FN:Chizuru NABA
 ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
 ORG:{name}
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         orga_id       = fields['organisation'].initial
         work_adr_name = fields['workaddr_name'].initial
         work_address  = fields['workaddr_address'].initial
@@ -1282,7 +1302,8 @@ END:VCARD"""
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_add_contact_vcf12(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
@@ -1337,7 +1358,7 @@ END:VCARD"""
             'QwbJcZzwM9BRRRTGf//Z'
             '\nEND:VCARD'
         )
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         user       = fields['user'].initial
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
@@ -1372,7 +1393,8 @@ END:VCARD"""
 
     @skipIfCustomContact
     def test_add_contact_vcf13(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
         first_name = 'Negi'
@@ -1386,7 +1408,7 @@ END:VCARD"""
                 position=_('CEO'),
             )
         )
-        response = self._post_step0(content)
+        response = self._post_step0(user=user, content=content)
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -1396,7 +1418,7 @@ END:VCARD"""
             civility_id  = fields['civility'].initial
             position_id  = fields['position'].initial
 
-        self.assertEqual(self.user.id, user_id)
+        self.assertEqual(user.id, user_id)
         self.assertEqual(first_name, first_name_f.initial)
         self.assertEqual(last_name, last_name_f.initial)
         self.assertEqual(3, civility_id)  # pk=3 see persons.populate
@@ -1423,7 +1445,8 @@ END:VCARD"""
     @skipIfCustomAddress
     def test_vcf_with_image01(self):
         "Raw image embedded in the file."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
@@ -1436,7 +1459,7 @@ END:VCARD"""
             f'PHOTO;TYPE=JPEG:{self.image_data}\n'
             f'END:VCARD'
         )
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
         image = fields['image_encoded'].initial
@@ -1477,7 +1500,8 @@ END:VCARD"""
     @override_settings(VCF_IMAGE_MAX_SIZE=10_000_000)
     def test_vcf_with_image02(self):
         "Link to an image."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         # url_parts = ['static', 'common', 'images', '500_200.png']
         # self.assertTrue(os_path.exists(
@@ -1499,10 +1523,13 @@ END:VCARD"""
         first_name = 'Ayaka'
         last_name = 'YUKIHIRO'
         response1 = self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'PHOTO;VALUE=URL:{url}\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'PHOTO;VALUE=URL:{url}\n'
+                f'END:VCARD'
+            ),
         )
 
         with self.assertNoException():
@@ -1550,7 +1577,8 @@ END:VCARD"""
     @skipIfCustomContact
     def test_vcf_with_image03(self):
         "Referenced image cannot be found."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         # contact_count = Contact.objects.count()
         image_count = Document.objects.count()
@@ -1562,10 +1590,13 @@ END:VCARD"""
         # )
         url = 'http://localhost:8001/photograph/doesnotexist.png'
         response1 = self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'PHOTO;VALUE=URL:{url}\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'PHOTO;VALUE=URL:{url}\n'
+                f'END:VCARD'
+            ),
         )
         with self.assertNoException():
             # encoded_img = response1.context['form'].fields['image_encoded'].initial
@@ -1619,7 +1650,8 @@ END:VCARD"""
     @override_settings(VCF_IMAGE_MAX_SIZE=10240)  # (10 kB)
     def test_vcf_with_image04(self):
         "Referenced image is too large."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         # url_parts = ['static', 'common', 'images', '500_200.png']
         # self.assertTrue(os_path.exists(
@@ -1640,10 +1672,13 @@ END:VCARD"""
         first_name = 'Satomi'
         last_name = 'HAKASE'
         response1 = self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'PHOTO;VALUE=URL:{url}\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'PHOTO;VALUE=URL:{url}\n'
+                f'END:VCARD'
+            ),
         )
 
         # with self.assertNoException():
@@ -1685,14 +1720,18 @@ END:VCARD"""
 
     def test_vcf_with_image05(self):
         "Invalid base64 data."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         first_name = 'Satomi'
         last_name = 'HAKASE'
         self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'END:VCARD'
+            ),
         )
 
         response2 = self._post_step1(
@@ -1711,14 +1750,18 @@ END:VCARD"""
 
     def test_vcf_with_image06(self):
         "Invalid image data."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         first_name = 'Satomi'
         last_name = 'HAKASE'
         self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'END:VCARD'
+            ),
         )
 
         response2 = self._post_step1(
@@ -1737,7 +1780,8 @@ END:VCARD"""
     @skipIfCustomContact
     def test_fields_config_hidden01(self):
         "Hide some regular Contact fields."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Contact,
@@ -1757,7 +1801,7 @@ URL;TYPE=HOME:http://www.url.com/
 URL;TYPE=WORK:www.work.com
 ORG:Corporate
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
         phone      = fields['phone'].initial
@@ -1801,7 +1845,8 @@ END:VCARD"""
     @skipIfCustomAddress
     def test_fields_config_hidden02(self):
         "Hide some regular Organisation & Address fields."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         create_fc = FieldsConfig.objects.create
         create_fc(
@@ -1831,7 +1876,7 @@ URL;TYPE=HOME:http://www.url.com/
 URL;TYPE=WORK:www.work.com
 ORG:Corporate
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
 
@@ -1908,7 +1953,8 @@ END:VCARD"""
     @skipIfCustomAddress
     def test_fields_config_hidden03(self):
         "Hide Contact.billing_address."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         create_fc = FieldsConfig.objects.create
         create_fc(
@@ -1926,7 +1972,7 @@ ADR;TYPE=HOME:56;;Second street;Kyoto;Kyoto region;7777;Japan
 TEL;TYPE=HOME:00 00 00 00 00
 EMAIL;TYPE=HOME:email@email.com
 ORG:Corporate\nEND:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
 
@@ -1959,7 +2005,8 @@ ORG:Corporate\nEND:VCARD"""
     @skipIfCustomAddress
     def test_fields_config_hidden04(self):
         "Hide Organisation.billing_address."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_fc = FieldsConfig.objects.create
         create_fc(
@@ -1981,7 +2028,7 @@ TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=WORK:33 33 33 33 33
 ORG:Corporate
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
 
         work_name = fields['work_name'].initial
 
@@ -2011,7 +2058,8 @@ END:VCARD"""
     @skipIfCustomContact
     def test_fields_config_hidden05(self):
         "Hide <Contact.image>."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         image_count = Document.objects.count()
 
         FieldsConfig.objects.create(
@@ -2022,10 +2070,13 @@ END:VCARD"""
         first_name = 'Sakurako'
         last_name = 'SHIINA'
         response0 = self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'PHOTO;TYPE=JPEG:{self.image_data}\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'PHOTO;TYPE=JPEG:{self.image_data}\n'
+                f'END:VCARD'
+            ),
         )
 
         with self.assertNoException():
@@ -2053,7 +2104,8 @@ END:VCARD"""
 
     @skipIfCustomContact
     def test_fields_config_required_contact(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Contact,
@@ -2061,10 +2113,13 @@ END:VCARD"""
         )
 
         response = self._post_step0(
-            'BEGIN:VCARD\n'
-            'FN:Asuna Kagurazaka\n'
-            'EMAIL;TYPE=HOME:asuna@sao.jp\n'
-            'END:VCARD'
+            user=user,
+            content=(
+                'BEGIN:VCARD\n'
+                'FN:Asuna Kagurazaka\n'
+                'EMAIL;TYPE=HOME:asuna@sao.jp\n'
+                'END:VCARD'
+            ),
         )
 
         with self.assertNoException():
@@ -2078,8 +2133,9 @@ END:VCARD"""
     @skipIfCustomContact
     def test_fields_config_required_contact_image01(self):
         "No image data => visible image field."
-        user = self.login()
-        image = self._create_image()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        image = self._create_image(user=user)
 
         FieldsConfig.objects.create(
             content_type=Contact,
@@ -2089,10 +2145,13 @@ END:VCARD"""
         first_name = 'Asuna'
         last_name = 'Kagurazaka'
         response1 = self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
+                f'END:VCARD'
+            ),
         )
 
         with self.assertNoException():
@@ -2122,7 +2181,8 @@ END:VCARD"""
     @skipIfCustomContact
     def test_fields_config_required_contact_image02(self):
         "Image data => no explicit image field."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Contact,
@@ -2132,10 +2192,13 @@ END:VCARD"""
         first_name = 'Asuna'
         last_name = 'Kagurazaka'
         response1 = self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'PHOTO;TYPE=JPEG:{self.image_data}\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'PHOTO;TYPE=JPEG:{self.image_data}\n'
+                f'END:VCARD'
+            ),
         )
 
         with self.assertNoException():
@@ -2182,7 +2245,8 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_fields_config_required_organisation01(self):
         "Field is already in the form; Organisation is created."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         req_fname = 'phone'
         FieldsConfig.objects.create(
@@ -2194,10 +2258,13 @@ END:VCARD"""
         last_name = 'Kagurazaka'
         name = 'SAO'
         response1 = self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'ORG:{name}\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'ORG:{name}\n'
+                f'END:VCARD'
+            ),
         )
 
         with self.assertNoException():
@@ -2233,7 +2300,8 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_fields_config_required_organisation02(self):
         "Field is already in the form; Organisation already exists."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         req_fname = 'phone'
         orga = Organisation.objects.create(user=user, name='SAO')
@@ -2247,10 +2315,13 @@ END:VCARD"""
         last_name = 'Kagurazaka'
 
         self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'ORG:{orga.name}\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'ORG:{orga.name}\n'
+                f'END:VCARD'
+            ),
         )
 
         response = self._post_step1(
@@ -2281,7 +2352,8 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_fields_config_required_organisation03(self):
         "Field not in the base form (must be added); Organisation is created."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         req_fname = 'sector'
         FieldsConfig.objects.create(
@@ -2293,10 +2365,13 @@ END:VCARD"""
         last_name = 'Kagurazaka'
         name = 'SAO'
         response1 = self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'ORG:{name}\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'ORG:{name}\n'
+                f'END:VCARD'
+            ),
         )
 
         with self.assertNoException():
@@ -2333,7 +2408,8 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_fields_config_required_organisation04(self):
         "Field not in the base form (must be added); Organisation is updated."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         req_fname = 'sector'
 
@@ -2349,10 +2425,13 @@ END:VCARD"""
         last_name = 'Kagurazaka'
         name = 'SAO'
         response1 = self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'ORG:{name}\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'ORG:{name}\n'
+                f'END:VCARD'
+            ),
         )
 
         with self.assertNoException():
@@ -2388,7 +2467,8 @@ END:VCARD"""
     @skipIfCustomContact
     def test_fields_config_required_address01(self):
         "Addresses not filled."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         req_fname = 'country'
         FieldsConfig.objects.create(
@@ -2399,10 +2479,13 @@ END:VCARD"""
         first_name = 'Asuna'
         last_name = 'Kagurazaka'
         response1 = self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
+                f'END:VCARD'
+            ),
         )
 
         with self.assertNoException():
@@ -2433,7 +2516,8 @@ END:VCARD"""
     @skipIfCustomContact
     def test_fields_config_required_address02(self):
         "Addresses are filled (+ field name must be remapped on VCF name)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         req_fname = 'department'
         req_fname_vcf = 'region'  # name in VCF data
@@ -2446,10 +2530,13 @@ END:VCARD"""
         first_name = 'Asuna'
         last_name = 'Kagurazaka'
         self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
+                f'END:VCARD'
+            ),
         )
 
         data = {
@@ -2485,7 +2572,8 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_fields_config_required_address03(self):
         "Existing organisation without address."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='SAO')
 
@@ -2500,10 +2588,13 @@ END:VCARD"""
         first_name = 'Asuna'
         last_name = 'Kagurazaka'
         self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
+                f'END:VCARD'
+            ),
         )
 
         # ---
@@ -2553,7 +2644,8 @@ END:VCARD"""
     @skipIfCustomAddress
     def test_fields_config_required_address04(self):
         "Organisation with existing address."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='SAO')
         country = 'Japan'
@@ -2577,10 +2669,13 @@ END:VCARD"""
         first_name = 'Asuna'
         last_name = 'Kagurazaka'
         self._post_step0(
-            f'BEGIN:VCARD\n'
-            f'FN:{first_name} {last_name}\n'
-            f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
-            f'END:VCARD'
+            user=user,
+            content=(
+                f'BEGIN:VCARD\n'
+                f'FN:{first_name} {last_name}\n'
+                f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
+                f'END:VCARD'
+            ),
         )
 
         # ---
@@ -2629,7 +2724,8 @@ END:VCARD"""
     @skipIfCustomContact
     def test_customfields01(self):
         "Required custom-fields on Contact must be used."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_cfield = partial(
             CustomField.objects.create,
@@ -2646,7 +2742,7 @@ TEL;TYPE=HOME:00 00 00 00 00
 EMAIL;TYPE=HOME:email@email.com
 ORG:Corporate
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         self.assertNotIn(f'custom_field-{cfield2.id}', fields)
         self.assertNotIn(f'custom_field-{cfield3.id}', fields)
         self.assertNotIn(f'custom_field-{cfield4.id}', fields)
@@ -2686,7 +2782,8 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_customfields02(self):
         "Required custom-fields on Organisations must be used."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_cfield = partial(
             CustomField.objects.create,
@@ -2702,7 +2799,7 @@ TEL;TYPE=HOME:00 00 00 00 00
 EMAIL;TYPE=HOME:email@email.com
 ORG:SAO
 END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
+        fields = self._post_step0(user=user, content=content).context['form'].fields
         self.assertNotIn(f'custom_field-{cfield2.id}', fields)
         self.assertNotIn(f'custom_field-{cfield3.id}', fields)
 
@@ -2750,7 +2847,8 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_customfields03(self):
         "Required custom-fields on Organisations must be used (organisation already exists."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         cfield = CustomField.objects.create(
             field_type=CustomField.STR,
@@ -2770,7 +2868,7 @@ TEL;TYPE=HOME:00 00 00 00 00
 EMAIL;TYPE=HOME:email@email.com
 ORG:{orga.name}
 END:VCARD"""
-        form = self._post_step0(content).context['form']
+        form = self._post_step0(user=user, content=content).context['form']
 
         with self.assertNoException():
             cf_formfield = form.fields[f'custom_field-{cfield.id}']
