@@ -1,7 +1,6 @@
 from functools import partial
 from json import dumps as json_dump
 
-from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.test.utils import override_settings
@@ -69,18 +68,22 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_no_app_perm(self):
         # Not 'creme_core'
-        self.login(is_superuser=False, allowed_apps=['documents'])
+        # self.login(is_superuser=False, allowed_apps=['documents'])
+        self.login_as_standard(allowed_apps=['documents'])
         self.assertGET403(self._build_add_url(FakeOrganisation))
 
     def test_app_perm(self):
-        self.login(is_superuser=False, allowed_apps=['creme_core'])
+        # self.login(is_superuser=False, allowed_apps=['creme_core'])
+        self.login_as_standard(allowed_apps=['creme_core'])
         self.assertGET200(self._build_add_url(FakeOrganisation))
 
     @override_settings(MAX_JOBS_PER_USER=1)
     def test_max_job(self):
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
         Job.objects.create(
-            user=user, type_id=batch_process_type.id, language='en',
+            # user=user, type_id=batch_process_type.id, language='en',
+            user=self.get_root_user(), type_id=batch_process_type.id, language='en',
         )
 
         response = self.assertGET200(self._build_add_url(FakeOrganisation), follow=True)
@@ -90,7 +93,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         queue = get_queue()
         queue.clear()
 
-        self.login()
+        # user = self.login()
+        self.login_as_root()
+        user = self.get_root_user()
+
         self.assertFalse(Job.objects.filter(type_id=batch_process_type.id))
         self.assertEqual([], queue.started_jobs)
         self.assertEqual([], queue.refreshed_jobs)
@@ -114,7 +120,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertIn('name', orga_fields)
         self.assertIn('capital', orga_fields)
 
-        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Manga club')
 
@@ -131,7 +137,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
 
         job = self.get_alone_element(Job.objects.filter(type_id=batch_process_type.id))
-        self.assertEqual(self.user, job.user)
+        self.assertEqual(user, job.user)
         self.assertDatetimesAlmostEqual(now(), job.reference_run, 1)
         self.assertIsInstance(job.data, dict)
         self.assertEqual(Job.STATUS_WAIT, job.status)
@@ -185,9 +191,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_batching_lower01(self):
         "Lower OP & use CT."
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
 
-        create_contact = partial(FakeContact.objects.create, user=user)
+        # create_contact = partial(FakeContact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=self.get_root_user())
         contact01 = create_contact(first_name='Saki',     last_name='Kasukabe')
         contact02 = create_contact(first_name='Harunobu', last_name='Madarame')
 
@@ -210,9 +218,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_batching_suffix(self):
         "Operator value + unicode char."
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
 
-        create_contact = partial(FakeContact.objects.create, user=user)
+        # create_contact = partial(FakeContact.objects.create, user=user)
+        create_contact = partial(FakeContact.objects.create, user=self.get_root_user())
         contact01 = create_contact(first_name='Saki',   last_name='Kasukabe')
         contact02 = create_contact(first_name='Kanako', last_name='Ono')
 
@@ -235,7 +245,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_validation_error01(self):
         "Invalid field."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self.assertPOST200(
             self._build_add_url(FakeContact), follow=True,
@@ -278,7 +289,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 #                            )
 
     def test_select_efilter(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Contains "club"',
             FakeOrganisation, is_custom=True,
@@ -299,9 +311,13 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_several_actions(self):
         "'upper' + 'title' operators."
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
 
-        contact = FakeContact.objects.create(user=user, first_name='kanji', last_name='sasahara')
+        # contact = FakeContact.objects.create(user=user, first_name='kanji', last_name='sasahara')
+        contact = FakeContact.objects.create(
+            user=self.get_root_user(), first_name='kanji', last_name='sasahara',
+        )
         response = self.client.post(
             self._build_add_url(FakeContact), follow=True,
             data={
@@ -320,7 +336,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_several_actions_error(self):
         "Several times the same field"
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         name = 'first_name'
         response = self.assertPOST200(
@@ -341,9 +358,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         )
 
     def test_with_filter01(self):
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
 
-        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        # create_orga = partial(FakeOrganisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.get_root_user())
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Manga club')
         orga03 = create_orga(name='Anime club')
@@ -409,12 +428,14 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_with_filter02(self):
         "Private filters (which belong to other users) are forbidden."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Contains "club"',
             FakeOrganisation, is_custom=True,
-            is_private=True, user=self.other_user,
+            # is_private=True, user=self.other_user,
+            is_private=True, user=self.create_user(),
             conditions=[
                 RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation, field_name='name',
@@ -445,12 +466,15 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_with_filter03(self):
         "__currentuser__ condition (need global_info)."
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
 
-        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        # create_orga = partial(FakeOrganisation.objects.create, user=user)
+        create_orga = partial(FakeOrganisation.objects.create, user=self.get_root_user())
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Manga club')
-        orga03 = create_orga(name='Anime club', user=self.other_user)
+        # orga03 = create_orga(name='Anime club', user=self.other_user)
+        orga03 = create_orga(name='Anime club', user=self.create_user())
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Assigned to me',
@@ -485,9 +509,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual('Anime club', self.refresh(orga03).name)  # <== not changed
 
     def test_use_edit_perm(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(
             value=(
                 EntityCredentials.VIEW
@@ -509,11 +534,12 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         )
 
         create_orga = FakeOrganisation.objects.create
-        orga01 = create_orga(user=self.other_user, name='Genshiken')
+        # orga01 = create_orga(user=self.other_user, name='Genshiken')
+        orga01 = create_orga(user=self.get_root_user(), name='Genshiken')
         orga02 = create_orga(user=user,            name='Manga club')
 
-        self.assertFalse(self.user.has_perm_to_change(orga01))  # <== user cannot change
-        self.assertTrue(self.user.has_perm_to_change(orga02))
+        self.assertFalse(user.has_perm_to_change(orga01))  # <== user cannot change
+        self.assertTrue(user.has_perm_to_change(orga02))
 
         response = self.client.post(
             self._build_add_url(FakeOrganisation), follow=True,
@@ -541,7 +567,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         )
 
     def test_model_error(self):
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
 
         description = 'Genshiken member'
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -559,7 +586,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         first_name = 'Kanako'
         last_name = 'Ouno'
-        create_contact = partial(FakeContact.objects.create, user=user, description=description)
+        # create_contact = partial(FakeContact.objects.create, user=user, description=description)
+        create_contact = partial(
+            FakeContact.objects.create,
+            user=self.get_root_user(), description=description,
+        )
         contact01 = create_contact(first_name=first_name, last_name=last_name)
         create_contact(first_name='Mitsunori', last_name='Kugayama')
 
@@ -608,12 +639,14 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_get_ops01(self):
         "Unknown ContentType."
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET404(self.build_ops_url(ct_id=1216545, field='name'))
 
     def test_get_ops02(self):
         "CharField."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         def assertStrOps(fieldname):
             response = self.assertGET200(self.build_ops_url(self.contact_ct_id, fieldname))
@@ -630,7 +663,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_get_ops03(self):
         "Organisation CT, other category of operator."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self.assertGET200(self.build_ops_url(self.orga_ct.id, 'capital'))
 
@@ -641,25 +675,33 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_get_ops04(self):
         "Empty category."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self.assertGET200(self.build_ops_url(self.contact_ct_id, 'image'))
         self.assertListEqual([], response.json())
 
     def test_get_ops05(self):
         "No app credentials."
-        self.login(is_superuser=False, allowed_apps=['documents'])  # Not 'creme_core'
+        # self.login(is_superuser=False, allowed_apps=['documents'])  # Not 'creme_core'
+        self.login_as_standard(allowed_apps=['documents'])  # Not 'creme_core'
         self.assertGET403(self.build_ops_url(self.contact_ct_id, 'first_name'))
 
     def test_get_ops06(self):
         "Unknown field."
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET(400, self.build_ops_url(self.contact_ct_id, 'foobar'))
 
     def test_resume_job(self):
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
 
-        create_orga = partial(FakeOrganisation.objects.create, user=user, description='club')
+        # create_orga = partial(FakeOrganisation.objects.create, user=user, description='club')
+        create_orga = partial(
+            FakeOrganisation.objects.create,
+            user=self.get_root_user(), description='club',
+        )
         orga01 = create_orga(name='Coding club')
         orga02 = create_orga(name='Manga club')
         orga03 = create_orga(name='Anime club')
@@ -705,12 +747,12 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual('Anime',   self.refresh(orga03).name)
         self.assertEqual('Coding',  self.refresh(orga01).name)  # <== Should not be modified again
 
+    @override_settings(MAX_JOBS_PER_USER=1)
     def test_job_limit(self):
-        settings.MAX_JOBS_PER_USER = 1
+        # self.login()
+        self.login_as_root()
 
-        self.login()
-
-        response = self.client.post(
+        response1 = self.client.post(
             self._build_add_url(FakeOrganisation), follow=True,
             data={
                 'actions': self.build_formfield_value(
@@ -720,13 +762,14 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                 ),
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response1)
 
-        response = self.assertGET200(self._build_add_url(FakeOrganisation), follow=True)
-        self.assertRedirects(response, reverse('creme_core__my_jobs'))
+        response2 = self.assertGET200(self._build_add_url(FakeOrganisation), follow=True)
+        self.assertRedirects(response2, reverse('creme_core__my_jobs'))
 
     def test_fatalerror(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Contains "club"', FakeOrganisation, is_custom=True,

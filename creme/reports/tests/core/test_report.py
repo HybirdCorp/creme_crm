@@ -61,7 +61,7 @@ from ..base import Report, skipIfCustomReport
 @skipIfCustomReport
 class ReportHandTestCase(CremeTestCase):
     def test_regular_field01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         fname = 'first_name'
         rfield = Field(
@@ -128,7 +128,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_regular_field_bool(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         rfield = Field(
             report=Report(user=user, ct=FakeContact), type=RFT_FIELD, name='is_a_nerd',
@@ -147,7 +147,7 @@ class ReportHandTestCase(CremeTestCase):
         DATETIME_INPUT_FORMATS=['%Y/%m/%d %H:%M:%S'],
     )
     def test_regular_field_datetime(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         rfield = Field(
             report=Report(user=user, ct=FakeContact), type=RFT_FIELD, name='modified',
@@ -161,7 +161,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_regular_field_fk01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         rfield = Field(
             report=Report(user=user, ct=FakeContact), type=RFT_FIELD, name='sector',
@@ -191,7 +191,7 @@ class ReportHandTestCase(CremeTestCase):
         self.assertIs(hand.linked2entity, True)
 
     def test_regular_field_m2m01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         rfield = Field(
             report=Report(user=user, ct=FakeContact),
@@ -222,7 +222,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_custom_field01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         cfield = CustomField.objects.create(
             name='Size (cm)',
             field_type=CustomField.INT,
@@ -265,7 +265,7 @@ class ReportHandTestCase(CremeTestCase):
         self.assertIs(hand.hidden, True)
 
     def test_custom_field_bool(self):
-        user = self.create_user()
+        user = self.get_root_user()
         cfield = CustomField.objects.create(
             name='Uses sword',
             field_type=CustomField.BOOL,
@@ -286,7 +286,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_custom_field_datetime(self):
-        user = self.create_user()
+        user = self.get_root_user()
         cfield = CustomField.objects.create(
             name='Knighting',
             field_type=CustomField.DATETIME,
@@ -308,7 +308,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_custom_field_date(self):
-        user = self.create_user()
+        user = self.get_root_user()
         cfield = CustomField.objects.create(
             name='Knighting',
             field_type=CustomField.DATE,
@@ -330,7 +330,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_custom_field_decimal(self):
-        user = self.create_user()
+        user = self.get_root_user()
         cfield = CustomField.objects.create(
             name="Sword's price",
             field_type=CustomField.FLOAT,
@@ -353,7 +353,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_custom_field_multienum(self):
-        user = self.create_user()
+        user = self.get_root_user()
         cfield = CustomField.objects.create(
             name='Weapons',
             field_type=CustomField.MULTI_ENUM,
@@ -392,7 +392,7 @@ class ReportHandTestCase(CremeTestCase):
         self.assertEqual(f'Invalid custom field: "{cf_id}"', str(cm.exception))
 
     def test_relation(self):
-        user = self.create_user()
+        user = self.get_root_user()
         rtype = RelationType.objects.get(id=FAKE_REL_SUB_EMPLOYED_BY)
 
         rfield = Field(
@@ -443,7 +443,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_function_field(self):
-        user = self.create_user()
+        user = self.get_root_user()
         rfield = Field(
             report=Report(ct=FakeContact),
             type=RFT_FUNCTION, name='get_pretty_properties',
@@ -487,7 +487,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_regular_aggregate01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         rfield = Field(
             report=Report(ct=FakeOrganisation),
             type=RFT_AGG_FIELD, name='capital__avg',
@@ -571,7 +571,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_custom_aggregate01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         cfield = CustomField.objects.create(
             name='Size (cm)',
             field_type=CustomField.INT,
@@ -671,7 +671,7 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     def test_related(self):
-        user = self.create_user()
+        user = self.get_root_user()
         rfield = Field(
             report=Report(user=user, ct=FakeReportsFolder),
             type=RFT_RELATED, name='fakereportsdocument',

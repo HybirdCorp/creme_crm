@@ -43,7 +43,8 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomRGraph
     def test_report_graph_fetcher01(self):
         "Contact-user."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -83,7 +84,9 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         create_orga(name='Orga#1', creation_date=date(year=2015, month=1, day=1))
         create_orga(name='Orga#2', creation_date=date(year=2015, month=2, day=2))
         create_orga(
-            name='Orga#3', creation_date=date(year=2015, month=3, day=3), user=self.other_user,
+            name='Orga#3', creation_date=date(year=2015, month=3, day=3),
+            # user=self.other_user,
+            user=self.create_user(),
         )
         create_orga(name='Orga#4', creation_date=date(year=2016, month=4, day=4))
 
@@ -136,7 +139,8 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomRGraph
     def test_report_graph_fetcher02(self):
         "Basic Contact (is_user=None)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -193,7 +197,8 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomRGraph
     def test_report_graph_fetcher03(self):
         "Entity is not even a Contact."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -244,7 +249,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_fetcher_init(self):
         "No value is needed."
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,

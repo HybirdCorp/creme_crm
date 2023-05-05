@@ -74,7 +74,8 @@ class UtilsTestCase(_ActivitiesTestCase):
 
     @skipIfCustomContact
     def test_collision01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_activity = partial(
             Activity.objects.create,
@@ -199,7 +200,7 @@ class UtilsTestCase(_ActivitiesTestCase):
 class ICalEncoderTestCase(_ActivitiesTestCase):
     @override_tz('Europe/Paris')
     def test_encode_activity01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         create_dt = self.create_datetime
 
         activity = Activity.objects.create(
@@ -231,7 +232,7 @@ class ICalEncoderTestCase(_ActivitiesTestCase):
 
     @override_tz('Europe/London')
     def test_encode_activity02(self):
-        user = self.create_user()
+        user = self.get_root_user()
         create_dt = self.create_datetime
 
         activity = Activity.objects.create(
@@ -418,7 +419,7 @@ END:VTIMEZONE""",
 
     @override_tz('Europe/Paris')
     def test_encode(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_act = partial(
             Activity.objects.create,

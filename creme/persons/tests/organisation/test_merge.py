@@ -18,7 +18,8 @@ class OrganisationMergeTestCase(_BaseTestCase):
     @skipIfCustomAddress
     def test_merge01(self):
         "Merging addresses."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='NERV')
@@ -190,7 +191,8 @@ class OrganisationMergeTestCase(_BaseTestCase):
     @skipIfCustomAddress
     def test_merge02(self):
         "Merging addresses (no existing address)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='NERV')
@@ -265,7 +267,8 @@ class OrganisationMergeTestCase(_BaseTestCase):
     @skipIfCustomAddress
     def test_merge03(self):
         "Merging addresses (existing address for one Organisation)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='NERV')
@@ -347,7 +350,8 @@ class OrganisationMergeTestCase(_BaseTestCase):
     @skipIfCustomAddress
     def test_merge04(self):
         "FieldsConfig on Address sub-field."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Address,
             descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
@@ -370,7 +374,8 @@ class OrganisationMergeTestCase(_BaseTestCase):
     @skipIfCustomAddress
     def test_merge05(self):
         "FieldsConfig on 'billing_address' FK field."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Organisation,
@@ -409,7 +414,8 @@ class OrganisationMergeTestCase(_BaseTestCase):
     @skipIfCustomAddress
     def test_merge06(self):
         "FieldsConfig on 'shipping_address' FK field."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Organisation,
@@ -431,7 +437,8 @@ class OrganisationMergeTestCase(_BaseTestCase):
 
     def test_merge07(self):
         "The first organisation is managed."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='NERV', is_managed=True)
@@ -459,7 +466,8 @@ class OrganisationMergeTestCase(_BaseTestCase):
 
     def test_merge08(self):
         "The second organisation is managed => swapped."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga01 = create_orga(name='NERV')
@@ -474,7 +482,8 @@ class OrganisationMergeTestCase(_BaseTestCase):
 
     def test_merge09(self):
         "The 2 organisations are managed => no swap."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user, is_managed=True)
         orga01 = create_orga(name='NERV')

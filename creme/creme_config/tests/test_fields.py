@@ -492,13 +492,15 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
 
     def test_filtered_queryset(self):
         "With action."
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
         first_sector = FakeSector.objects.first()
 
         field = CreatorModelMultipleChoiceField(
             queryset=FakeSector.objects.filter(pk=first_sector.pk),
         )
-        field.user = user
+        # field.user = user
+        field.user = self.get_root_user()
 
         positions = [(first_sector.pk, first_sector.title)]
         self.assertListEqual(positions, [*field.choices])

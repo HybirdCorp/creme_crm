@@ -42,7 +42,8 @@ else:
 class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCase ?
     def setUp(self):
         super().setUp()
-        self.login()
+        # self.login()
+        self.user = self.login_as_root_and_get()
 
     def _get_pop_email(
             self,
@@ -550,7 +551,8 @@ description3=[[<br>]]
     def test_create_email_input14(self):
         "Text mail un-sandboxed but by user"
         user = self.user
-        other_user = self.other_user
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         self._set_sandbox_by_user()
 
@@ -591,7 +593,8 @@ description3=[[<br>]]
     def test_create_email_input15(self):
         "Text mail sandboxed by user and created later"
         user = self.user
-        other_user = self.other_user
+        # other_user = self.other_user
+        other_user = self.create_user()
         self._set_sandbox_by_user()
 
         email_input = self._get_email_input(
@@ -673,7 +676,8 @@ description3=[[<br>]]
         "The user matches."
         self._set_sandbox_by_user()
         user = self.user
-        other_user = self.other_user
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         email_input = self._get_email_input(
             ContactFakeBackend,
@@ -861,7 +865,8 @@ class FileSystemInputTestCase(CrudityTestCase):
 
     def setUp(self):
         super().setUp()
-        self.login()
+        # self.login()
+        self.user = self.login_as_root_and_get()
 
     @classmethod
     def get_deletable_file_path(cls, name):
@@ -1031,6 +1036,8 @@ class FileSystemInputTestCase(CrudityTestCase):
         )
 
     def test_sandbox_by_user01(self):
+        # other_user = self.other_user
+        other_user = self.create_user(index=1)
         self._set_sandbox_by_user()
 
         inifile_input = IniFileInput()
@@ -1061,10 +1068,12 @@ class FileSystemInputTestCase(CrudityTestCase):
             },
             waction.data,
         )
-        self.assertEqual(self.other_user, waction.user)
+        self.assertEqual(other_user, waction.user)
 
     def test_sandbox_by_user02(self):
         "Unknown username."
+        # other_user = self.other_user
+        other_user = self.create_user(index=1)
         self._set_sandbox_by_user()
 
         inifile_input = IniFileInput()
@@ -1107,7 +1116,7 @@ class FileSystemInputTestCase(CrudityTestCase):
 
         owner = waction.user
         self.assertIsNotNone(owner)
-        self.assertNotEqual(self.other_user, owner)
+        self.assertNotEqual(other_user, owner)
         self.assertTrue(owner.is_superuser)
 
     def test_no_sandbox01(self):

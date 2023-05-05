@@ -55,7 +55,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
     def test_cell_4_regularfield03(self):
         "By instance."
-        user = self.create_user()
+        user = self.get_root_user()
 
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
 
@@ -75,7 +75,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
     def test_cell_4_regularfield04(self):
         "No assignment."
-        user = self.create_user()
+        user = self.get_root_user()
 
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
 
@@ -193,7 +193,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
     def test_cell_render01(self):
         "Direct render ; default tag."
-        user = self.create_user()
+        user = self.get_root_user()
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
         cell = EntityCellRegularField.build(model=FakeContact, name='last_name')
 
@@ -210,7 +210,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
     def test_cell_render_tag01(self):
         "Direct render ; tag=ViewTag.HTML_DETAIL."
-        user = self.create_user()
+        user = self.get_root_user()
         ripley = FakeContact(
             user=user, first_name='Helen', last_name='Ripley', email='hripley@nostromo.corp',
         )
@@ -232,7 +232,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
     def test_cell_render_tag02(self):
         "Direct render ; tag=ViewTag.TEXT_PLAIN."
-        user = self.create_user()
+        user = self.get_root_user()
         ripley = FakeContact(
             user=user, first_name='Helen', last_name='Ripley',
             email='hripley@nostromo.corp',
@@ -253,7 +253,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
     # DEPRECATED
     def test_cell_render_output01(self):
         "Direct render ; html output."
-        user = self.create_user()
+        user = self.get_root_user()
         ripley = FakeContact(
             user=user, first_name='Helen', last_name='Ripley', email='hripley@nostromo.corp',
         )
@@ -276,7 +276,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
     # DEPRECATED
     def test_cell_render_output02(self):
         "Direct render ; CSV output."
-        user = self.create_user()
+        user = self.get_root_user()
         ripley = FakeContact(
             user=user, first_name='Helen', last_name='Ripley',
             email='hripley@nostromo.corp',
@@ -304,7 +304,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
             )
 
     def test_cell_render_assignment(self):
-        user = self.create_user()
+        user = self.get_root_user()
         ripley = FakeContact(
             user=user, first_name='Helen', last_name='Ripley',
             email='hripley@nostromo.corp',
@@ -325,7 +325,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
         )
 
     def test_cell_render_syntax_errors(self):
-        user = self.create_user()
+        user = self.get_root_user()
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
         cell = EntityCellRegularField.build(model=FakeContact, name='last_name')
 
@@ -372,7 +372,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
     # DEPRECATED
     def test_cell_render_dyn_errors(self):
-        user = self.create_user()
+        user = self.get_root_user()
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
         cell = EntityCellRegularField.build(model=FakeContact, name='last_name')
 

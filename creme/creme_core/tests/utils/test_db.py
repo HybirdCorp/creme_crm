@@ -15,6 +15,7 @@ from creme.creme_core.models import (
     FakePosition,
     FakeSector,
     Relation,
+    UserRole,
 )
 from creme.creme_core.utils.db import (
     PreFetcher,
@@ -288,12 +289,14 @@ class DBTestCase(CremeTestCase):
                 FakeContact, ['last_name', '*', '*', 'cremeentity_ptr_id'],
             )
 
-    def _create_contacts(self):
+    # def _create_contacts(self):
+    def _create_contacts(self, user=None):
         self.sector1, self.sector2 = FakeSector.objects.all()[:2]
         self.civ1, self.civ2 = FakeCivility.objects.all()[:2]
 
         create_contact = partial(
-            FakeContact.objects.create, user=self.user, last_name='Simpson',
+            # FakeContact.objects.create, user=self.user, last_name='Simpson',
+            FakeContact.objects.create, user=user or self.get_root_user(), last_name='Simpson',
         )
         contacts = [
             create_contact(first_name='Homer', sector=self.sector1),
@@ -306,7 +309,7 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related01(self):
         "One field."
-        self.login()
+        # self.login()
 
         with self.assertNoException():
             populate_related([], ['sector'])
@@ -328,7 +331,7 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related02(self):
         "Two fields."
-        self.login()
+        # self.login()
         contacts = self._create_contacts()
 
         with self.assertNumQueries(2):
@@ -345,8 +348,8 @@ class DBTestCase(CremeTestCase):
         self.assertIsNone(contacts[2].civility)
 
     def test_populate_related03(self):
-        "Do not retrieve already cached values"
-        self.login()
+        "Do not retrieve already cached values."
+        # self.login()
 
         contacts = self._create_contacts()
         contacts[0].sector  # NOQA
@@ -356,8 +359,8 @@ class DBTestCase(CremeTestCase):
             populate_related(contacts, ['sector', 'civility'])
 
     def test_populate_related04(self):
-        "Partially cached"
-        self.login()
+        "Partially cached."
+        # self.login()
 
         contacts = self._create_contacts()
         contacts[0].sector  # NOQA
@@ -368,7 +371,7 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related05(self):
         "Two fields related to the same model."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_contact = partial(
             FakeContact.objects.create, user=user, last_name='Simpson',
@@ -394,8 +397,7 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related06(self):
         "depth = 1."
-        self.login()
-
+        # self.login()
         contacts = self._create_contacts()
 
         with self.assertNumQueries(1):
@@ -407,7 +409,7 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related07(self):
         "Field with depth=1 is a FK."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_folder = partial(FakeFolder.objects.create, user=user)
         folder1  = create_folder(title='Maps')
@@ -445,15 +447,18 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related08(self):
         "Two fields + depth > 1  => instances of level 2 have different models."
-        user = self.login()
-        user2 = self.other_user
+        # user1 = self.login()
+        # user2 = self.other_user
+        user1 = self.get_root_user()
+        role = UserRole.objects.create(name='Test')
+        user2 = self.create_user(role=role)
 
-        create_folder = partial(FakeFolder.objects.create, user=user)
+        create_folder = partial(FakeFolder.objects.create, user=user1)
         folder1 = create_folder(title='Maps')
         folder11 = create_folder(title='Earth maps', parent=folder1)
         folder2 = create_folder(title='Blue prints')
 
-        create_doc = partial(FakeDocument.objects.create, user=user)
+        create_doc = partial(FakeDocument.objects.create, user=user1)
         docs = [
             create_doc(title='Japan map part#1', linked_folder=folder1),
             create_doc(title='Mars city 1',      linked_folder=folder11),
@@ -489,23 +494,26 @@ class DBTestCase(CremeTestCase):
         # Users
         with self.assertNumQueries(0):
             u1 = docs[0].user
-        self.assertEqual(user, u1)
+        self.assertEqual(user1, u1)
 
         with self.assertNumQueries(0):
             u2 = docs[2].user
         self.assertEqual(user2, u2)
 
         with self.assertNumQueries(0):
-            role = u2.role
-        self.assertEqual(self.role, role)
+            role2 = u2.role
+        # self.assertEqual(self.role, role2)
+        self.assertEqual(role, role2)
 
     def test_populate_related09(self):
-        "Already cached field (level 2)"
-        user = self.login()
-        user2 = self.other_user
+        "Already cached field (level 2)."
+        # user1 = self.login()
+        # user2 = self.other_user
+        user1 = self.get_root_user()
+        user2 = self.create_user(role=UserRole.objects.create(name='Test'))
 
         create_contact = partial(
-            FakeContact.objects.create, user=user, last_name='Simpson',
+            FakeContact.objects.create, user=user1, last_name='Simpson',
         )
         contacts = [
             create_contact(first_name='Homer'),

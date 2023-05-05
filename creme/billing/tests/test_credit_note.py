@@ -15,6 +15,7 @@ from creme.creme_core.models import (
     FieldsConfig,
     Relation,
     SetCredentials,
+    UserRole,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import skipIfCustomOrganisation
@@ -56,7 +57,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(expected_total, invoice.total_vat)
 
     def test_status(self):
-        user = self.create_user()
+        user = self.get_root_user()
         status = CreditNoteStatus.objects.create(name='OK', color='00FF00')
         order = CreditNote(user=user, name='OK Note', status=status)
 
@@ -82,10 +83,11 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     def test_createview01(self):
         "Credit note total < billing document total where the credit note is applied."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self.assertGET200(reverse('billing__create_cnote'))
 
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
 
         create_line = partial(ProductLine.objects.create, user=user)
         create_line(
@@ -95,7 +97,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal('200'),
         )
 
-        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
         create_line(
             related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('299'),
         )
@@ -138,8 +140,9 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     def test_createview02(self):
         "Credit note total > document billing total where the credit note is applied"
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
 
         create_line = partial(ProductLine.objects.create, user=user)
         create_line(
@@ -149,7 +152,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal('200')
         )
 
-        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
         create_line(
             related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('301'),
         )
@@ -168,15 +171,16 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     def test_createview03(self):
         "Credit note in a negative Invoice -> a bigger negative Invoice"
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
 
         create_line = partial(ProductLine.objects.create, user=user)
         create_line(
             related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('-100'),
         )
 
-        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
         create_line(
             related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('1'),
         )
@@ -193,8 +197,9 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_unlink_from_invoice(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         self.assertListEqual([], invoice.get_credit_notes())
 
         create_line = partial(ProductLine.objects.create, user=user)
@@ -203,7 +208,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertEqual(Decimal('100'), self.refresh(invoice).total_no_vat)
 
-        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
         create_line(
             related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('60'),
         )
@@ -222,8 +227,9 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_trash_linked_to_invoice(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
 
         create_line = partial(ProductLine.objects.create, user=user)
         create_line(
@@ -231,7 +237,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertEqual(Decimal('100'), self.refresh(invoice).total_no_vat)
 
-        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
         create_line(
             related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('60'),
         )
@@ -253,13 +259,14 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
 
     def test_delete_status(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         new_status = CreditNoteStatus.objects.first()
         status2del = CreditNoteStatus.objects.create(name='OK')
 
         credit_note = self.create_credit_note_n_orgas(
-            'Credit Note 001', status=status2del,
+            user=user, name='Credit Note 001', status=status2del,
         )[0]
 
         self.assertDeleteStatusOK(
@@ -273,10 +280,11 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     def test_addrelated_view(self):
         "Attach credit note to existing invoice."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         create_line = partial(ProductLine.objects.create, user=user)
 
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         # invoice_target = invoice.get_target()
         invoice_target = invoice.target
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'))
@@ -301,7 +309,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         # ---
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note(
-            'Credit Note 001', source=credit_note_source, target=invoice_target,
+            user=user, name='Credit Note 001', source=credit_note_source, target=invoice_target,
         )
         create_line(
             related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'),
@@ -330,18 +338,20 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_addrelated_view_no_invoice(self):
         "Cannot attach credit note to invalid invoice."
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET404(reverse('billing__link_to_cnotes', args=(12445,)))
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_addrelated_view_not_same_currency(self):
         "Cannot attach credit note in US Dollar to invoice in Euro."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         create_line = partial(ProductLine.objects.create, user=user)
         us_dollar = Currency.objects.all()[1]
 
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         invoice_target = invoice.target
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'))
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal('200'))
@@ -351,8 +361,9 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note(
-            'Credit Note 001',
-            source=credit_note_source, target=invoice_target, currency=us_dollar,
+            user=user, name='Credit Note 001',
+            source=credit_note_source, target=invoice_target,
+            currency=us_dollar,
         )
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'))
 
@@ -386,11 +397,12 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     def test_addrelated_view_already_linked(self):
         "Cannot attach credit note in US Dollar to invoice in Euro."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         create_line = partial(ProductLine.objects.create, user=user)
         us_dollar = Currency.objects.all()[1]
 
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         invoice_target = invoice.target
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'))
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal('200'))
@@ -400,7 +412,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note(
-            'Credit Note 001',
+            user=user, name='Credit Note 001',
             source=credit_note_source,
             target=invoice_target,
             currency=us_dollar,
@@ -447,10 +459,11 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     def test_addrelated_view_already_not_same_target(self):
         "Cannot attach credit note in US Dollar to invoice in Euro."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         create_line = partial(ProductLine.objects.create, user=user)
 
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'))
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal('200'))
 
@@ -460,7 +473,8 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note_target = Organisation.objects.create(user=user, name='Organisation 004')
         credit_note = self.create_credit_note(
-            'Credit Note 001', source=credit_note_source, target=credit_note_target,
+            user=user, name='Credit Note 001',
+            source=credit_note_source, target=credit_note_target,
         )
         create_line(
             related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'),
@@ -488,13 +502,12 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     def test_addrelated_view_notsuperuser(self):
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Invoice],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -505,20 +518,21 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         self.assertGET200(reverse('billing__link_to_cnotes', args=(invoice.id,)))
 
     @skipIfCustomInvoice
     def test_addrelated_view_linkcredentials(self):
-        self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['billing', 'persons'],
             creatable_models=[Invoice],
         )
 
         create_sc = partial(
             SetCredentials.objects.create,
-            role=self.role, set_type=SetCredentials.ESET_ALL,
+            role=user.role, set_type=SetCredentials.ESET_ALL,
         )
         create_sc(
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -534,15 +548,16 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             ),
         )
 
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         self.assertGET403(reverse('billing__link_to_cnotes', args=(invoice.id,)))
 
     def test_editview(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        credit_note, source, target  = self.create_credit_note_n_orgas('credit Note 001')
+        cnote, source, target  = self.create_credit_note_n_orgas(user=user, name='credit Note 001')
 
-        url = credit_note.get_edit_absolute_url()
+        url = cnote.get_edit_absolute_url()
         response1 = self.assertGET200(url)
 
         with self.assertNoException():
@@ -550,12 +565,12 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertFalse(number_f.help_text)
 
-        name = credit_note.name.title()
+        name = cnote.name.title()
         currency = Currency.objects.create(
             name='Martian dollar', local_symbol='M$',
             international_symbol='MUSD', is_custom=True,
         )
-        status = CreditNoteStatus.objects.exclude(id=credit_note.status_id)[0]
+        status = CreditNoteStatus.objects.exclude(id=cnote.status_id)[0]
         response2 = self.client.post(
             url,
             follow=True,
@@ -577,30 +592,32 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertNoFormError(response2)
 
-        credit_note = self.refresh(credit_note)
-        self.assertEqual(name,                             credit_note.name)
-        self.assertEqual(date(year=2020, month=2, day=12), credit_note.issuing_date)
-        self.assertEqual(date(year=2020, month=3, day=14), credit_note.expiration_date)
-        self.assertEqual(currency,                         credit_note.currency)
-        self.assertEqual(status,                           credit_note.status)
+        cnote = self.refresh(cnote)
+        self.assertEqual(name,                             cnote.name)
+        self.assertEqual(date(year=2020, month=2, day=12), cnote.issuing_date)
+        self.assertEqual(date(year=2020, month=3, day=14), cnote.expiration_date)
+        self.assertEqual(currency,                         cnote.currency)
+        self.assertEqual(status,                           cnote.status)
 
-        self.assertRelationCount(1, credit_note, REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, credit_note, REL_SUB_BILL_RECEIVED, target)
+        self.assertRelationCount(1, cnote, REL_SUB_BILL_ISSUED,   source)
+        self.assertRelationCount(1, cnote, REL_SUB_BILL_RECEIVED, target)
 
     @skipIfCustomInvoice
     def test_addrelated_view_badrelated(self):
         "No related to a compatible billing entity"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Foo')
         self.assertGET404(reverse('billing__link_to_cnotes', args=(orga.id,)))
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_deleterelated_view(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         create_line = partial(ProductLine.objects.create, user=user)
 
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         invoice_target = invoice.target
         create_line(
             related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
@@ -608,7 +625,8 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note(
-            'Credit Note 001', source=credit_note_source, target=invoice_target,
+            user=user, name='Credit Note 001',
+            source=credit_note_source, target=invoice_target,
         )
         create_line(
             related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'),
@@ -641,10 +659,11 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_deleterelated_view_not_exists(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         create_line = partial(ProductLine.objects.create, user=user)
 
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         invoice_target = invoice.target
         create_line(
             related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
@@ -652,7 +671,8 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note(
-            'Credit Note 001', source=credit_note_source, target=invoice_target,
+            user=user, name='Credit Note 001',
+            source=credit_note_source, target=invoice_target,
         )
         create_line(
             related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'),
@@ -673,10 +693,11 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_deleterelated_view_not_allowed(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         create_line = partial(ProductLine.objects.create, user=user)
 
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         invoice_target = invoice.target
         create_line(
             related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
@@ -684,7 +705,8 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note(
-            'Credit Note 001', source=credit_note_source, target=invoice_target,
+            user=user, name='Credit Note 001',
+            source=credit_note_source, target=invoice_target,
         )
         create_line(
             related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal('50'),
@@ -704,7 +726,9 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 50)
 
         self.client.logout()
-        self.client.login(username=self.other_user.username, password='test')
+        # self.client.login(username=self.other_user.username, password='test')
+        other = self.create_user(role=UserRole.objects.create(name='Test'))
+        self.client.login(username=other.username, password=self.USER_PASSWORD)
 
         self.assertPOST403(
             self._build_deleterelated_url(credit_note, invoice), follow=True,
@@ -719,13 +743,14 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 50)
 
     def test_editcomment01(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=CreditNote,
             descriptions=[('issuing_date', {FieldsConfig.HIDDEN: True})],
         )
 
-        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
 
         url = self._build_editcomment_url(credit_note)
         response = self.assertGET200(url)
@@ -744,49 +769,49 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_editcomment02(self):
         "'comment' is hidden."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=CreditNote,
             descriptions=[('comment', {FieldsConfig.HIDDEN: True})],
         )
 
-        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
         self.assertGET409(self._build_editcomment_url(credit_note))
 
     def test_editcomment03(self):
         "Not super-user."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[CreditNote],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
         )
 
-        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
         self.assertGET200(self._build_editcomment_url(credit_note))
 
     def test_editcomment04(self):
         "CHANGE permission is needed."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[CreditNote],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,  # Not CHANGE
             set_type=SetCredentials.ESET_ALL,
         )
 
-        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
         self.assertGET403(self._build_editcomment_url(credit_note))
 
     def test_brick(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         BrickDetailviewLocation.objects.create_if_needed(
             brick=ReceivedCreditNotesBrick, order=600,
             zone=BrickDetailviewLocation.RIGHT, model=Organisation,

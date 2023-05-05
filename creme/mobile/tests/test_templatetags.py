@@ -44,7 +44,8 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
     ])
     @skipIfNotInstalled('creme.geolocation')
     def test_mobile_location_map_url(self, pattern, expected):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         address = self.create_address(user)
 
         with OverrideSettingValueContext(setting_keys.LOCATION_MAP_URL, pattern):
@@ -62,7 +63,8 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
     def test_mobile_location_map_url_geoaddress(self, pattern, expected):
         from creme.geolocation.models import GeoAddress
 
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         address = self.create_address(user)
 
         address.geoaddress.status = GeoAddress.Status.COMPLETE

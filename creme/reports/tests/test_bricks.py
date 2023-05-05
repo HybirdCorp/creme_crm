@@ -122,7 +122,7 @@ def get_listview_url(url, q_filters):
 @mock.patch('creme.reports.bricks.ReportGraphChartBrick._render')
 class D3ReportGraphChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_detailview_display__no_data(self, mock_brick_render):
-        user = self.create_user()
+        user = self.get_root_user()
         graph = self._create_documents_rgraph(user=user)
 
         context = detailview_display_context(graph, user)
@@ -144,7 +144,7 @@ class D3ReportGraphChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         })
 
     def test_detailview_display(self, mock_brick_render):
-        user = self.create_user()
+        user = self.get_root_user()
         graph = self._create_documents_rgraph(user=user)
 
         create_fake_docs(user)
@@ -201,7 +201,7 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
         )
 
     def test_detailview_display__no_graphs(self, mock_brick_render):
-        user = self.create_user()
+        user = self.get_root_user()
         report = self._create_simple_documents_report(user=user)
 
         context = detailview_display_context(report, user)
@@ -220,7 +220,7 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
         self.assertEqual(render_context['rows'], [])
 
     def test_detailview_display__no_data(self, mock_brick_render):
-        user = self.create_user()
+        user = self.get_root_user()
         report = self._create_simple_documents_report(user=user)
         graph_by_year, graph_by_month = self._create_report_graphs(report)
 
@@ -267,7 +267,7 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
         ])
 
     def test_detailview_display(self, mock_brick_render):
-        user = self.create_user()
+        user = self.get_root_user()
         report = self._create_simple_documents_report(user=user)
         graph_by_year, graph_by_month = self._create_report_graphs(report)
 
@@ -351,7 +351,8 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
 @mock.patch('creme.reports.bricks.ReportGraphChartInstanceBrick._render')
 class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_detailview_display__no_data(self, mock_brick_render):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
         instance = self._create_graph_instance_brick(graph)
 
@@ -375,7 +376,8 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
         })
 
     def test_detailview_display(self, mock_brick_render):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
         instance = self._create_graph_instance_brick(graph)
 
@@ -410,7 +412,8 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
         })
 
     def test_home_display__no_data(self, mock_brick_render):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
         instance = self._create_graph_instance_brick(graph)
 
@@ -434,7 +437,8 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
         })
 
     def test_home_display(self, mock_brick_render):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
         instance = self._create_graph_instance_brick(graph)
 
@@ -493,9 +497,10 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         return uri
 
     def test_fetchfrombrick_save_settings(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         folder = FakeReportsFolder.objects.create(title='my Folder', user=user)
-        rgraph = self._create_documents_rgraph()
+        rgraph = self._create_documents_rgraph(user=user)
 
         fetcher = RegularFieldLinkedGraphFetcher(graph=rgraph, value='linked_folder')
         self.assertIsNone(fetcher.error)
@@ -529,8 +534,9 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         self.assertFalse(rgraph.asc)
 
     def test_add_graph_instance_brick01(self):
-        user = self.login()
-        rgraph = self._create_invoice_report_n_graph()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        rgraph = self._create_invoice_report_n_graph(user=user)
         self.assertFalse(
             InstanceBrickConfigItem.objects.filter(entity=rgraph.id).exists()
         )
@@ -677,8 +683,9 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_add_graph_instance_brick02(self):
         "Volatile column (RGF_FK)."
-        user = self.login()
-        rgraph = self._create_documents_rgraph()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        rgraph = self._create_documents_rgraph(user=user)
 
         url = self._build_add_brick_url(rgraph)
         response = self.assertGET200(url)
@@ -754,22 +761,26 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_add_graph_instance_brick_not_superuser01(self):
         apps = ['reports']
-        self.login(is_superuser=False, allowed_apps=apps, admin_4_apps=apps)
-        rgraph = self._create_invoice_report_n_graph()
+        # user = self.login(is_superuser=False, allowed_apps=apps, admin_4_apps=apps)
+        user = self.login_as_standard(allowed_apps=apps, admin_4_apps=apps)
+        rgraph = self._create_invoice_report_n_graph(user=user)
         self.assertGET200(self._build_add_brick_url(rgraph))
 
     def test_add_graph_instance_brick_not_superuser02(self):
-        "Admin permission needed"
-        self.login(
-            is_superuser=False, allowed_apps=['reports'],  # admin_4_apps=['reports'],
+        "Admin permission needed."
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
+            allowed_apps=['reports'],  # admin_4_apps=['reports'],
         )
-        rgraph = self._create_invoice_report_n_graph()
+        rgraph = self._create_invoice_report_n_graph(user=user)
         self.assertGET403(self._build_add_brick_url(rgraph))
 
     def test_add_graph_instance_brick02_error01(self):
         "Volatile column (RFT_FIELD): invalid field."
-        user = self.login()
-        rgraph = self._create_documents_rgraph()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        rgraph = self._create_documents_rgraph(user=user)
 
         # We create voluntarily an invalid item
         fname = 'invalid'
@@ -795,8 +806,9 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_add_graph_instance_brick02_error02(self):
         "Volatile column (RFT_FIELD): field is not a FK to CremeEntity."
-        user = self.login()
-        rgraph = self._create_documents_rgraph()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        rgraph = self._create_documents_rgraph(user=user)
 
         # We create voluntarily an invalid item
         fname = 'description'
@@ -820,8 +832,9 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_add_graph_instance_brick02_error03(self):
         "Volatile column (RGF_FK): field is not a FK to the given Entity type."
-        user = self.login()
-        rgraph = self._create_documents_rgraph()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        rgraph = self._create_documents_rgraph(user=user)
 
         fetcher = RegularFieldLinkedGraphFetcher(graph=rgraph, value='linked_folder')
         self.assertIsNone(fetcher.error)
@@ -836,8 +849,9 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_add_graph_instance_brick03(self):
         "Volatile column (RGF_RELATION)."
-        user = self.login()
-        report = self._create_simple_contacts_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_contacts_report(user=user)
         rtype = RelationType.objects.get(pk=fake_constants.FAKE_REL_SUB_EMPLOYED_BY)
         incompatible_rtype = RelationType.objects.smart_update_or_create(
             ('reports-subject_related_doc', 'is related to doc',   [Report]),
@@ -926,8 +940,9 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_add_graph_instance_brick03_error(self):
         "Volatile column (RFT_RELATION): invalid relation type."
-        user = self.login()
-        rgraph = self._create_documents_rgraph()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        rgraph = self._create_documents_rgraph(user=user)
 
         # We create voluntarily an invalid item
         rtype_id = 'invalid'
@@ -948,8 +963,9 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_get_fetcher_from_instance_brick(self):
         "Invalid type."
-        self.login()
-        rgraph = self._create_documents_rgraph()
+        # self.login()
+        user = self.login_as_root_and_get()
+        rgraph = self._create_documents_rgraph(user=user)
 
         ibci = InstanceBrickConfigItem.objects.create(
             # brick_class_id=ReportGraphChartInstanceBrick.id_,
@@ -971,9 +987,10 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_fetch_with_credentials(self):
         "Filter retrieved entities with permission (brick + regular field version)."
-        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'reports'])
+        # user = self.login(is_superuser=False, allowed_apps=['creme_core', 'reports'])
+        user = self.login_as_standard(allowed_apps=['creme_core', 'reports'])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -984,10 +1001,11 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         doc1 = create_doc(title='Doc#1', user=user)
         create_doc(title='Doc#2', user=user)
         # Cannot be seen => should not be used to compute aggregate
-        doc3 = create_doc(title='Doc#3', user=self.other_user)
+        # doc3 = create_doc(title='Doc#3', user=self.other_user)
+        doc3 = create_doc(title='Doc#3', user=self.get_root_user())
         self.assertEqual(doc1.created.year, doc3.created.year)
 
-        rgraph = self._create_documents_rgraph()
+        rgraph = self._create_documents_rgraph(user=user)
         fetcher = RegularFieldLinkedGraphFetcher(graph=rgraph, value='linked_folder')
         self.assertIsNone(fetcher.error)
 

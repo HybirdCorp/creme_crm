@@ -33,7 +33,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def setUp(self):
         super().setUp()
-        self.login()
+        self.login_as_root()
 
     def test_portal(self):
         response = self.assertGET200(reverse('creme_config__buttons'))

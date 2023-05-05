@@ -46,6 +46,7 @@ from creme.creme_core.models import (
     FakeOrganisation,
     FakeSector,
     RelationType,
+    UserRole,
 )
 from creme.creme_core.utils.date_period import (
     DatePeriod,
@@ -67,8 +68,10 @@ from .base import FieldTestCase
 
 class CremeUserChoiceFieldTestCase(FieldTestCase):
     def test_default(self):
-        user = self.login()
-        other_user = self.other_user
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        # other_user = self.other_user
+        other_user = self.create_user(role=UserRole.objects.create(name='Test'))
         staff = CremeUser.objects.create(username='deunan', is_staff=True)
 
         # Alphabetically-first user (__str__, not username)
@@ -124,8 +127,10 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(other_user, clean(str(other_user.id)))
 
     def test_queryset(self):
-        user = self.login()
-        other_user = self.other_user
+        # user = self.login()
+        user = self.get_root_user()
+        # other_user = self.other_user
+        other_user = self.create_user()
         staff = CremeUser.objects.create(username='deunan', is_staff=True)
 
         field = CremeUserChoiceField(queryset=CremeUser.objects.exclude(is_staff=True))
@@ -139,15 +144,18 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         self.assertNotInChoices(value=staff.id, choices=active_choices)
 
     def test_initial(self):
-        self.login()
-        other_id = self.other_user.id
+        # self.login()
+        # other_id = self.other_user.id
+        other_id = self.create_user().id
 
         field = CremeUserChoiceField(initial=other_id)
         self.assertEqual(other_id, field.initial)
 
     def test_inactive_users(self):
-        user = self.login()
-        other_user = self.other_user
+        # user = self.login()
+        user = self.get_root_user()
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         create_inactive_user = partial(CremeUser.objects.create, is_active=False)
         inactive1 = create_inactive_user(
@@ -183,12 +191,14 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         )
 
     def test_teams(self):
-        user = self.login()
-        other_user = self.other_user
+        # user = self.login()
+        user = self.get_root_user()
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         team_name = 'Team#1'
         team = CremeUser.objects.create(username=team_name, is_team=True)
-        team.teammates = [user, self.other_user]
+        team.teammates = [user, other_user]
 
         field = CremeUserChoiceField()
 

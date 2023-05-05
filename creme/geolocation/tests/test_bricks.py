@@ -33,13 +33,23 @@ from .base import Contact, GeoLocationBaseTestCase, Organisation
 @skipIfCustomContact
 @skipIfCustomOrganisation
 class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
+    # @classmethod
+    # def setUpClass(cls):
+    #     super().setUpClass()
+    #     cls.user = cls.create_user()
+
     def setUp(self):
         super().setUp()
-        self.login()
         self.brick = _MapBrick()
 
         self.contacts_title      = str(Contact._meta.verbose_name_plural)
         self.organisations_title = str(Organisation._meta.verbose_name_plural)
+
+    # def _simple_login(self):
+    #     user = self.user
+    #     self.client.login(username=user.username, password=self.USER_PASSWORD)
+    #
+    #     return user
 
     @staticmethod
     def create_filter(pk, name, owner, model, field, operator, *values):
@@ -73,7 +83,8 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertEqual(GoogleDetailMapBrick().get_map_settings(), {})
 
     def test_filter_choices01(self):
-        user = self.user
+        # user = self.user
+        user = self.get_root_user()
         self.assertListEqual([], self.brick.get_filter_choices(user))
 
         get_efilter = EntityFilter.objects.get
@@ -103,7 +114,8 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         )
 
     def test_filter_choices02(self):
-        user = self.user
+        # user = self.user
+        user = self.get_root_user()
 
         get_efilter = EntityFilter.objects.get
         contact_me    = get_efilter(pk=FILTER_CONTACT_ME)
@@ -117,7 +129,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
             'filter-2', 'Orga filter', user, Organisation, 'name', EQUALS, 'Le spectre',
         )
 
-        self.assertEqual([], self.brick.get_filter_choices(user))
+        self.assertListEqual([], self.brick.get_filter_choices(user))
 
         contact_group = self.brick.get_filter_choices(user, Contact)[0]
         contacts_title = self.contacts_title
@@ -159,8 +171,10 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         )
 
     def test_filter_choices_private(self):
-        user = self.user
-        other_user = self.other_user
+        # user = self.user
+        # other_user = self.create_user(1)
+        user = self.get_root_user()
+        other_user = self.create_user(index=0)
 
         managed_orgas = EntityFilter.objects.get(pk=FILTER_MANAGED_ORGA)
         efilter = self.create_filter(
@@ -196,7 +210,9 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
 
     @skipIfCustomAddress
     def test_google_detail(self):
-        contact = self.user.linked_contact
+        # user = self._simple_login()
+        user = self.login_as_root_and_get()
+        contact = user.linked_contact
         self.create_address(contact)
 
         BrickDetailviewLocation.objects.create_if_needed(
@@ -223,7 +239,10 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
 
     @skipIfCustomAddress
     def test_osm_detail(self):
-        contact = self.user.linked_contact
+        # user = self._simple_login()
+        user = self.login_as_root_and_get()
+
+        contact = user.linked_contact
         self.create_address(contact)
 
         BrickDetailviewLocation.objects.create_if_needed(
@@ -263,6 +282,9 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         )
 
     def test_google_filtered(self):
+        # self._simple_login()
+        self.login_as_root()
+
         BrickHomeLocation.objects.get_or_create(
             # brick_id=GoogleFilteredMapBrick.id_,
             brick_id=GoogleFilteredMapBrick.id,
@@ -285,6 +307,9 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertIn(f"apiKey: '{api_key}'", script_node.text)
 
     def test_osm_filtered(self):
+        # self._simple_login()
+        self.login_as_root()
+
         BrickHomeLocation.objects.get_or_create(
             # brick_id=OpenStreetMapFilteredMapBrick.id_,
             brick_id=OpenStreetMapFilteredMapBrick.id,
@@ -322,7 +347,10 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
 
     @skipIfCustomAddress
     def test_google_neighbours(self):
-        contact = self.user.linked_contact
+        # user = self._simple_login()
+        user = self.login_as_root_and_get()
+
+        contact = user.linked_contact
         self.create_address(contact)
 
         BrickDetailviewLocation.objects.create_if_needed(
@@ -349,7 +377,10 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
 
     @skipIfCustomAddress
     def test_osm_neighbours(self):
-        contact = self.user.linked_contact
+        # user = self._simple_login()
+        user = self.login_as_root_and_get()
+
+        contact = user.linked_contact
         self.create_address(contact)
 
         BrickDetailviewLocation.objects.create_if_needed(

@@ -154,7 +154,7 @@ class BrickRegistryTestCase(CremeTestCase):
         )
 
     def test_register_4_instance01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         casca = FakeContact.objects.create(
             user=user, first_name='Casca', last_name='Mylove',
         )
@@ -289,7 +289,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
     def test_get_brick_4_instance(self):
         "With 'entity' argument."
-        user = self.create_user()
+        user = self.get_root_user()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
         class FoobarInstanceBrick(InstanceBrick):
@@ -317,7 +317,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertEqual((FakeOrganisation, FakeContact), ibrick.dependencies)
 
     def test_get_compatible_bricks01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
         class FoobarBrick1(Brick):
@@ -735,7 +735,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
     def test_get_bricks02(self):
         "Model brick."
-        user = self.create_user()
+        user = self.get_root_user()
 
         class ContactBrick(EntityBrick):
             template_name = 'persons/bricks/my_contact.html'
@@ -798,7 +798,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
     def test_get_bricks04(self):
         "Hat brick."
-        user = self.create_user()
+        user = self.get_root_user()
         casca = FakeContact.objects.create(
             user=user, first_name='Casca', last_name='Mylove',
         )
@@ -851,7 +851,7 @@ class BrickRegistryTestCase(CremeTestCase):
     def test_brick_4_model02(self):
         brick_registry = _BrickRegistry()
 
-        user = self.create_user()
+        user = self.get_root_user()
         casca = FakeContact.objects.create(
             user=user, first_name='Casca', last_name='Mylove',
         )
@@ -885,7 +885,7 @@ class BrickRegistryTestCase(CremeTestCase):
             brick_registry.register_4_model(FakeContact, ContactBrick)
 
     def test_brick_4_instance01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_contact = FakeContact.objects.create
         casca = create_contact(user=user, first_name='Casca', last_name='Mylove')
@@ -939,7 +939,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertIsInstance(brick3, Brick)
 
     def test_brick_4_instance02(self):
-        self.login()
+        # self.login()
 
         class BaseBrick(InstanceBrick):
             # Used twice !!
@@ -1213,10 +1213,11 @@ class BrickTestCase(CremeTestCase):
             [c for c in page.object_list if c.id in ids],
         )
 
-    def _build_request(self, url='/'):  # TODO: factorise (see CremeBricksTagsTestCase)
+    # TODO: factorise (see CremeBricksTagsTestCase)
+    def _build_request(self, *, user=None, url='/'):
         request = self.factory.get(url)
         request.session = SessionBase()
-        request.user = self.user
+        request.user = user or self.user
 
         return request
 
@@ -1285,7 +1286,8 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual([rtype.id], cbrick.relation_type_deps)
 
     def test_paginated_brick01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         description = 'Dungeon explorer'
         create_contact = partial(FakeContact.objects.create, user=user, description=description)
@@ -1296,7 +1298,8 @@ class BrickTestCase(CremeTestCase):
         brick = self.OrderedBrick()
         brick.page_size = 2
         template_context = brick.get_template_context(
-            self._build_context(self._build_request()),
+            # self._build_context(self._build_request()),
+            self._build_context(self._build_request(user=user)),
             FakeContact.objects.filter(description=description),
         )
 
@@ -1309,7 +1312,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_paginated_brick02(self):
         "Page in request."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         description = 'Dungeon explorer'
         create_contact = partial(FakeContact.objects.create, user=user, description=description)
@@ -1320,7 +1324,7 @@ class BrickTestCase(CremeTestCase):
         brick = self.OrderedBrick()
         brick.page_size = 2
         # request = self._build_request(f'/?{brick.id_}_page=2')
-        request = self._build_request(f'/?{brick.id}_page=2')
+        request = self._build_request(user=user, url=f'/?{brick.id}_page=2')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.filter(description=description),
@@ -1331,7 +1335,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_paginated_brick03(self):
         "Page in request: invalid number (not int)."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         description = 'Dungeon explorer'
         create_contact = partial(FakeContact.objects.create, user=user, description=description)
@@ -1342,7 +1347,7 @@ class BrickTestCase(CremeTestCase):
         brick = self.OrderedBrick()
         brick.page_size = 2
         # request = self._build_request(f'/?{brick.id_}_page=NaN')
-        request = self._build_request(f'/?{brick.id}_page=NaN')
+        request = self._build_request(user=user, url=f'/?{brick.id}_page=NaN')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.filter(description=description),
@@ -1353,7 +1358,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_paginated_brick04(self):
         "Page in request: number too great."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         description = 'Dungeon explorer'
         create_contact = partial(FakeContact.objects.create, user=user, description=description)
@@ -1364,7 +1370,7 @@ class BrickTestCase(CremeTestCase):
         brick = self.OrderedBrick()
         brick.page_size = 2
         # request = self._build_request(f'/?{brick.id_}_page=3')
-        request = self._build_request(f'/?{brick.id}_page=3')
+        request = self._build_request(user=user, url=f'/?{brick.id}_page=3')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.filter(description=description),
@@ -1374,8 +1380,9 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(2, page.number)
 
     def test_queryset_brick_order01(self):
-        "No order in request"
-        user = self.login()
+        "No order in request."
+        # user = self.login()
+        user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
         wallen = create_contact(first_name='Aiz',  last_name='Wallenstein')
@@ -1384,7 +1391,8 @@ class BrickTestCase(CremeTestCase):
 
         brick = self.OrderedBrick()
         template_context = brick.get_template_context(
-            self._build_context(self._build_request()),
+            # self._build_context(self._build_request()),
+            self._build_context(self._build_request(user=user)),
             FakeContact.objects.all(),
         )
 
@@ -1397,7 +1405,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_queryset_brick_order02(self):
         "No order in request: invalid field in Brick class."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         class ProblematicBrick(QuerysetBrick):
             # id_ = QuerysetBrick.generate_id(
@@ -1414,14 +1423,16 @@ class BrickTestCase(CremeTestCase):
 
         brick = ProblematicBrick()
         template_context = brick.get_template_context(
-            self._build_context(self._build_request()),
+            # self._build_context(self._build_request()),
+            self._build_context(self._build_request(user=user)),
             FakeContact.objects.all(),
         )
         self._assertPageOrderedLike(template_context['page'], [cranel, crozzo, wallen])
 
     def test_queryset_brick_order03(self):
         "Order in request: valid field."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
         aiz  = create_contact(first_name='Aiz',      last_name='Wallenstein')
@@ -1433,7 +1444,7 @@ class BrickTestCase(CremeTestCase):
 
         # ASC
         # request = self._build_request(f'/?{brick.id_}_order=first_name')
-        request = self._build_request(f'/?{brick.id}_order=first_name')
+        request = self._build_request(user=user, url=f'/?{brick.id}_order=first_name')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.all(),
@@ -1442,7 +1453,7 @@ class BrickTestCase(CremeTestCase):
 
         # DESC
         # request = self._build_request(f'/?{brick.id_}_order=-first_name')
-        request = self._build_request(f'/?{brick.id}_order=-first_name')
+        request = self._build_request(user=user, url=f'/?{brick.id}_order=-first_name')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.all(),
@@ -1451,7 +1462,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_queryset_brick_order04(self):
         "Order in request: invalid field."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
         wallen = create_contact(first_name='Aiz',  last_name='Wallenstein')
@@ -1460,7 +1472,7 @@ class BrickTestCase(CremeTestCase):
 
         brick = self.OrderedBrick()
         # request = self._build_request(f'/?{brick.id_}_order=unknown')
-        request = self._build_request(f'/?{brick.id}_order=unknown')
+        request = self._build_request(user=user, url=f'/?{brick.id}_order=unknown')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.all()
@@ -1473,8 +1485,9 @@ class BrickTestCase(CremeTestCase):
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
     def test_queryset_brick_order05(self):
-        "Order in request: not sortable field"
-        user = self.login()
+        "Order in request: not sortable field."
+        # user = self.login()
+        user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
         wallen = create_contact(first_name='Aiz',  last_name='Wallenstein')
@@ -1483,7 +1496,7 @@ class BrickTestCase(CremeTestCase):
 
         brick = self.OrderedBrick()
         # request = self._build_request(f'/?{brick.id_}_order=languages')
-        request = self._build_request(f'/?{brick.id}_order=languages')
+        request = self._build_request(user=user, url=f'/?{brick.id}_order=languages')
         template_context = brick.get_template_context(
             self._build_context(request),
             FakeContact.objects.all()

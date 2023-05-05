@@ -15,9 +15,13 @@ from .base import Address, Contact, GeoLocationBaseTestCase, Organisation
 @skipIfCustomOrganisation
 @skipIfCustomAddress
 class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = cls.create_user()
+
     def setUp(self):
         super().setUp()
-        user = self.login()
 
         create_town = partial(Town.objects.create, name='Marseille', country='FRANCE')
         self.marseille1 = create_town(zipcode='13001', latitude=43.299985, longitude=5.378865)
@@ -26,7 +30,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             zipcode='13400', latitude=43.2833, longitude=5.56667, name='Aubagne',
         )
 
-        self.orga = Organisation.objects.create(name='Orga 1', user=user)
+        self.orga = Organisation.objects.create(name='Orga 1', user=self.user)
 
     def test_create(self):
         town = self.marseille2
@@ -518,8 +522,9 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
 
     @skipIfCustomContact
     def test_neighbours(self):
-        contact = Contact.objects.create(last_name='Contact 1', user=self.user)
-        orga2   = Organisation.objects.create(name='Orga 2', user=self.user)
+        user = self.user
+        contact = Contact.objects.create(last_name='Contact 1', user=user)
+        orga2   = Organisation.objects.create(name='Orga 2', user=user)
 
         town1 = self.marseille1
         town2 = self.aubagne

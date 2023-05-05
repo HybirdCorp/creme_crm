@@ -41,9 +41,12 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         cls.ct_contact = get_ct(FakeContact)
         cls.ct_orga    = get_ct(FakeOrganisation)
 
+        cls.role = UserRole.objects.create(name='Test')
+
     def setUp(self):
         super().setUp()
-        self.login()
+        # self.login()
+        self.login_as_root()
 
     @staticmethod
     def _build_add_url(ctype):

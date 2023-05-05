@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 05-05-2023 for Creme 2.5
+:Version: 15-05-2023 for Creme 2.5
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3226,7 +3226,7 @@ Add a file ``beavers/tests.py``: ::
 
     class BeaverTestCase(CremeTestCase):
         def test_createview(self):
-            user = self.login()
+            user = self.login_as_root_and_get()
 
             self.assertEqual(0, Beaver.objects.count())
             url = Beaver.get_create_absolute_url()

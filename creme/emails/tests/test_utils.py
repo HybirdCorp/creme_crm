@@ -19,8 +19,9 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
     def test_get_mime_image(self):
         "PNG."
-        self.login()
-        img = self._create_image()
+        # self.login()
+        user = self.login_as_root_and_get()
+        img = self._create_image(user=user)
 
         with self.assertNoException():
             imime = get_mime_image(img)
@@ -40,11 +41,12 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
     def test_signature_renderer(self):
         "With images."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_img = self._create_image
-        img1 = create_img(title='My image#1', ident=1)
-        img2 = create_img(title='My image#2', ident=2)
+        img1 = create_img(user=user, title='My image#1', ident=1)
+        img2 = create_img(user=user, title='My image#2', ident=2)
 
         signature = EmailSignature.objects.create(
             user=user, name='Funny signature', body='I love you... <b>not</b>',
@@ -81,7 +83,8 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
         self.assertEqual(img1, rend_image1.entity)
 
     def test_sender01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self.assertFalse(django_mail.outbox)
 
         body = 'Want to meet you'
@@ -117,11 +120,12 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
     def test_sender02(self):
         "Signature (with images)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_img = self._create_image
-        img1 = create_img(title='My image#1', ident=1)
-        img2 = create_img(title='My image#2', ident=2)
+        img1 = create_img(user=user, title='My image#1', ident=1)
+        img2 = create_img(user=user, title='My image#2', ident=2)
 
         signature = EmailSignature.objects.create(
             user=user, name='Funny signature', body='I love you... <b>not</b>',

@@ -122,7 +122,7 @@ class MenuDisplayTestCase(CremeTestCase):
     @override_settings(SOFTWARE_LABEL='My CRM')
     def test_regular_config01(self):
         "Logged as superuser."
-        user = self.create_user()
+        user = self.get_root_user()
         render = self._render(user)
         self._assert_vanilla_menu(self.get_html_tree(render))
 
@@ -155,7 +155,7 @@ class MenuDisplayTestCase(CremeTestCase):
         self._assert_no_container(tree, label=super_container_label)
 
     def test_superuser_config(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         container_label = 'My super directory'
         url = 'https://mastodon.mycompagny.org'
@@ -273,7 +273,7 @@ class MenuButtonsDisplayTestCase(CremeTestCase):
                     yield node
 
     def test_menu_buttons_display01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         create_button = ButtonMenuItem.objects.create_if_needed
@@ -319,7 +319,7 @@ class MenuButtonsDisplayTestCase(CremeTestCase):
 
     def test_menu_buttons_display02(self):
         "A button present in default config & ContentType's one => not duplicated."
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         create_button = ButtonMenuItem.objects.create_if_needed

@@ -99,6 +99,12 @@
             - The function 'creme_core.utils.dates.make_aware_dt()' is now deprecated ; use 'django.utils.timezone.make_aware()' instead.
             - In the template "creme_core/base.html", the '{% block extrahead %}' is deprecated ;
               use the new '{% block head %}' with '{{block.super}}' instead.
+            - In the 'creme_core.tests':
+                - In the class 'base._CremeTestCase' :
+                    - The method 'login()' is deprecated ; use the new methods 'login_as_*()'
+                      (plus 'create_user()' & 'get_root_user()' if you need several users) instead.
+                    - Passing no "user" argument to the method 'build_request()' is deprecated.
+                - Passing no "user" argument to the methods 'views.base.MassImportBaseTestCaseMixin._build_*doc() is deprecated.
             - Apps :
                 * Activities :
                     - In 'constants', 'DEFAULT_CALENDAR_COLOR' & 'COLOR_POOL' are deprecated.

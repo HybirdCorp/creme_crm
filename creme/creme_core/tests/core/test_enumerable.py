@@ -102,7 +102,7 @@ class EnumerableTestCase(CremeTestCase):
         )
 
     def test_qs_enumerable_limit_choices_to(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         class _Enumerator(QSEnumerator):
             limit_choices_to = {'title__icontains': 'Mi'}
@@ -137,7 +137,8 @@ class EnumerableTestCase(CremeTestCase):
         ], limited_enum.choices(user))
 
     def test_basic_choices_fk(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         registry = _EnumerableRegistry()
         self.assertEqual('_EnumerableRegistry:', str(registry))
 
@@ -160,7 +161,7 @@ class EnumerableTestCase(CremeTestCase):
         self.assertEqual(expected, enum2.choices(user))
 
     def test_basic_choices_fk__limit(self):
-        user = self.create_user()
+        user = self.get_root_user()
         registry = _EnumerableRegistry()
 
         enum = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
@@ -173,27 +174,25 @@ class EnumerableTestCase(CremeTestCase):
         self.assertListEqual(expected, enum.choices(user, limit=100))
 
     def test_basic_choices_fk__only(self):
-        user = self.create_user()
         registry = _EnumerableRegistry()
 
         enum = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
         only = [1, 3]
-        expected = [
-            {'value': id, 'label': title}
-            for id, title in FakeCivility.objects.filter(pk__in=only).values_list('id', 'title')
-        ]
-
-        self.assertListEqual(expected, enum.choices(user, only=only))
+        self.assertListEqual(
+            [
+                {'value': id, 'label': title}
+                for id, title in FakeCivility.objects.filter(pk__in=only)
+                                                     .values_list('id', 'title')
+            ],
+            enum.choices(self.get_root_user(), only=only),
+        )
 
     def test_basic_choices_fk__term(self):
-        user = self.create_user()
         registry = _EnumerableRegistry()
-
         enum = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
-
         self.assertListEqual(
             ['Miss', 'Mister'],
-            [c['label'] for c in enum.choices(user, term='Mi')]
+            [c['label'] for c in enum.choices(self.get_root_user(), term='Mi')],
         )
 
     @skipIf(
@@ -201,7 +200,7 @@ class EnumerableTestCase(CremeTestCase):
         'Skip if database does not support unaccent feature',
     )
     def test_basic_choices_fk__term__diacritics(self):
-        user = self.create_user()
+        user = self.get_root_user()
         registry = _EnumerableRegistry()
 
         create_civility = FakeCivility.objects.create
@@ -210,24 +209,22 @@ class EnumerableTestCase(CremeTestCase):
         create_civility(title='Mâdâme', shortcut='Mme.')
 
         enum = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
-
         self.assertListEqual(
             ['Madam', 'Mâdâme'],
             [c['label'] for c in enum.choices(user, term='Mada')]
         )
-
         self.assertListEqual(
             ['Miss', 'Mïssy', 'Mister'],
             [c['label'] for c in enum.choices(user, term='Mi')]
         )
-
         self.assertListEqual(
             ['Miss', 'Mïssy', 'Mister', 'Môssïeur'],
             [c['label'] for c in enum.choices(user, term='ï')]
         )
 
     def test_basic_choices_m2m(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         registry = _EnumerableRegistry()
 
         enum1 = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
@@ -243,18 +240,18 @@ class EnumerableTestCase(CremeTestCase):
         self.assertListEqual(expected, enum2.choices(user))
 
     def test_basic_choices_m2m__only(self):
-        user = self.create_user()
         registry = _EnumerableRegistry()
 
         enum = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
         only = [1, 3]
-        expected = [
-            {'value': id, 'label': title} for id, title in FakeImageCategory.objects.filter(
-                pk__in=only
-            ).values_list('id', 'name')
-        ]
-
-        self.assertListEqual(expected, enum.choices(user, only=only))
+        self.assertListEqual(
+            [
+                {'value': id, 'label': title}
+                for id, title in FakeImageCategory.objects.filter(pk__in=only)
+                                                          .values_list('id', 'name')
+            ],
+            enum.choices(self.get_root_user(), only=only),
+        )
 
     def test_basic_choices_m2m__limit(self):
         user = self.create_user()
@@ -270,19 +267,18 @@ class EnumerableTestCase(CremeTestCase):
         self.assertListEqual(expected, enum.choices(user, limit=100))
 
     def test_basic_choices_m2m__term(self):
-        user = self.create_user()
         registry = _EnumerableRegistry()
 
         enum = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
-
-        # only the first cateogory "Product image" matches the search
+        # only the first category "Product image" matches the search
         self.assertListEqual(
             ['Product image'],
-            [c['label'] for c in enum.choices(user, term='image')]
+            [c['label'] for c in enum.choices(self.get_root_user(), term='image')],
         )
 
     def test_basic_choices_limited_choices_to(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         registry = _EnumerableRegistry()
 
         create_lang = Language.objects.create
@@ -537,8 +533,10 @@ class EnumerableTestCase(CremeTestCase):
         )
 
     def test_user_enumerator(self):
-        user = self.login()
-        other_user = self.other_user
+        # user = self.login()
+        user = self.get_root_user()
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         # Alphabetically-first user (__str__, not username)
         first_user = CremeUser.objects.create_user(
@@ -604,14 +602,16 @@ class EnumerableTestCase(CremeTestCase):
         )
 
     def test_user_enumerator__limit(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         # Alphabetically-first user (__str__, not username)
-        CremeUser.objects.create_user(
+        user2 = CremeUser.objects.create_user(
             username='noir', email='chloe@noir.jp',
             first_name='Chloe', last_name='Noir',
             password='uselesspw',
         )
+        self.assertLess(str(user2), str(user))
 
         enum = enumerators.UserEnumerator(FakeContact._meta.get_field('user'))
 
@@ -621,23 +621,20 @@ class EnumerableTestCase(CremeTestCase):
         self.assertListEqual(all_choices, enum.choices(user, limit=100))
 
     def test_user_enumerator__only(self):
-        user = self.login()
-
-        chloe = CremeUser.objects.create_user(
-            username='noir', email='chloe@noir.jp',
-            first_name='Chloe', last_name='Noir',
-            password='uselesspw',
-        )
+        # user = self.login()
+        user = self.get_root_user()
+        user2 = self.create_user()
 
         enum = enumerators.UserEnumerator(FakeContact._meta.get_field('user'))
 
         self.assertListEqual(
-            [{'value': chloe.pk, 'label': str(chloe)}],
-            enum.choices(user, only=[chloe.pk])
+            [{'value': user2.pk, 'label': str(user2)}],
+            enum.choices(user, only=[user2.pk])
         )
 
     def test_user_enumerator__term(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         # Alphabetically-first user (__str__, not username)
         first_user = CremeUser.objects.create_user(
@@ -645,6 +642,7 @@ class EnumerableTestCase(CremeTestCase):
             first_name='Chloe', last_name='Noir',
             password='uselesspw',
         )
+        self.assertLess(str(first_user), str(user))
 
         enum = enumerators.UserEnumerator(FakeContact._meta.get_field('user'))
 
@@ -654,7 +652,8 @@ class EnumerableTestCase(CremeTestCase):
         )
         self.assertListEqual(
             [str(user)],
-            [c['label'] for c in enum.choices(user, term='kirika')]
+            # [c['label'] for c in enum.choices(user, term='kirika')]
+            [c['label'] for c in enum.choices(user, term=user.username)]
         )
 
     def test_efilter_enumerator(self):
@@ -833,7 +832,7 @@ class EnumerableTestCase(CremeTestCase):
         )
 
     def test_vat_enumerator(self):
-        user = self.create_user()
+        user = self.get_root_user()
         enum = enumerators.VatEnumerator(FakeInvoiceLine._meta.get_field('vat_value'))
 
         vats = Vat.objects.order_by('value')

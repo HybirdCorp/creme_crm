@@ -38,7 +38,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         return reverse('billing__create_related_order', args=(target.id,))
 
     def test_status(self):
-        user = self.create_user()
+        user = self.get_root_user()
         status = SalesOrderStatus.objects.create(name='OK', color='00FF00')
         order = SalesOrder(user=user, name='OK Order', status=status)
 
@@ -61,18 +61,17 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_detailview01(self):
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Organisation, SalesOrder, Invoice],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
 
-        order = self.create_salesorder_n_orgas('My order')[0]
+        order = self.create_salesorder_n_orgas(user=user, name='My order')[0]
         response = self.assertGET200(order.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_sales_order.html')
         self.assertConvertButtons(
@@ -82,18 +81,17 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_detailview02(self):
         "Cannot create invoice => convert button disabled."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Organisation, SalesOrder],  # Invoice
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
 
-        order = self.create_salesorder_n_orgas('My order')[0]
+        order = self.create_salesorder_n_orgas(user=user, name='My order')[0]
         response = self.assertGET200(order.get_absolute_url())
         self.assertConvertButtons(
             response,
@@ -102,12 +100,15 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_createview01(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self.assertGET200(reverse('billing__create_order'))
 
         currency = Currency.objects.all()[0]
         status   = SalesOrderStatus.objects.all()[1]
-        order, source, target = self.create_salesorder_n_orgas('My Sales Order', currency, status)
+        order, source, target = self.create_salesorder_n_orgas(
+            user=user, name='My Sales Order', currency=currency, status=status,
+        )
         self.assertEqual(date(year=2012, month=1, day=5),  order.issuing_date)
         self.assertEqual(date(year=2012, month=2, day=15), order.expiration_date)
         self.assertEqual(currency,                         order.currency)
@@ -117,9 +118,10 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
 
     def test_create_related01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        source, target = self.create_orgas()
+        source, target = self.create_orgas(user=user)
         url = self._build_related_creation_url(target) + '?redirection=true'
         response = self.assertGET200(url)
         context = response.context
@@ -171,9 +173,10 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_create_related02(self):
         "No redirection after the creation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        source, target = self.create_orgas()
+        source, target = self.create_orgas(user=user)
         name = 'Order#1'
         currency = Currency.objects.all()[0]
         status = SalesOrderStatus.objects.all()[1]
@@ -207,13 +210,12 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_create_related03(self):
         "Not a super-user."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[SalesOrder],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -224,18 +226,17 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        source, target = self.create_orgas()
+        source, target = self.create_orgas(user=user)
         self.assertGET200(self._build_related_creation_url(target))
 
     def test_create_related04(self):
         "Creation creds are needed."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             # creatable_models=[SalesOrder],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -246,18 +247,17 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        source, target = self.create_orgas()
+        source, target = self.create_orgas(user=user)
         self.assertGET403(self._build_related_creation_url(target))
 
     def test_create_related05(self):
         "CHANGE creds are needed."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[SalesOrder],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 # | EntityCredentials.CHANGE
@@ -268,14 +268,15 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        source, target = self.create_orgas()
+        source, target = self.create_orgas(user=user)
         self.assertGET403(self._build_related_creation_url(target))
 
     def test_editview(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'my sales order'
-        order, source, target = self.create_salesorder_n_orgas(name)
+        order, source, target = self.create_salesorder_n_orgas(user=user, name=name)
 
         url = order.get_edit_absolute_url()
         self.assertGET200(url)
@@ -311,10 +312,11 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(status,                           order.status)
 
     def test_listview(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        order1 = self.create_salesorder_n_orgas('Order1')[0]
-        order2 = self.create_salesorder_n_orgas('Order2')[0]
+        order1 = self.create_salesorder_n_orgas(user=user, name='Order1')[0]
+        order2 = self.create_salesorder_n_orgas(user=user, name='Order2')[0]
 
         response = self.assertGET200(reverse('billing__list_orders'))
 
@@ -325,12 +327,11 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertCountEqual([order1, order2], orders_page.paginator.object_list)
 
     def test_delete_status(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         new_status = SalesOrderStatus.objects.first()
         status2del = SalesOrderStatus.objects.create(name='OK')
-
-        order = self.create_salesorder_n_orgas('Order', status=status2del)[0]
-
+        order = self.create_salesorder_n_orgas(user=user, name='Order', status=status2del)[0]
         self.assertDeleteStatusOK(
             status2del=status2del,
             short_name='sales_order_status',
@@ -340,16 +341,23 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     def test_mass_import(self):
-        self.login()
-        self._aux_test_csv_import_no_total(SalesOrder, SalesOrderStatus)
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._aux_test_csv_import_no_total(
+            user=user, model=SalesOrder, status_model=SalesOrderStatus,
+        )
 
     @skipIfCustomAddress
     def test_mass_import_update(self):
-        self.login()
-        self._aux_test_csv_import_update(SalesOrder, SalesOrderStatus)
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._aux_test_csv_import_update(
+            user=user, model=SalesOrder, status_model=SalesOrderStatus,
+        )
 
     def test_brick(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         BrickDetailviewLocation.objects.create_if_needed(
             brick=ReceivedSalesOrdersBrick, order=600,
             zone=BrickDetailviewLocation.RIGHT, model=Organisation,

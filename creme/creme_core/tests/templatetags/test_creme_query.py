@@ -19,7 +19,9 @@ from ..base import CremeTestCase
 class CremeQueryTagsTestCase(CremeTestCase):
     def test_entities_count01(self):
         "Superuser."
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
+        user = self.get_root_user()
 
         create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user, name='O-1')
@@ -40,16 +42,18 @@ class CremeQueryTagsTestCase(CremeTestCase):
 
     def test_entities_count02(self):
         "Regular user."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_OWN,
         )
 
         create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user, name='O-1')
-        create_orga(user=self.other_user, name='O-2')
+        # create_orga(user=self.other_user, name='O-2')
+        create_orga(user=self.get_root_user(), name='O-2')
 
         with self.assertLogs(level='DEBUG') as logs_manager:
             with self.assertNoException():
@@ -74,7 +78,8 @@ class CremeQueryTagsTestCase(CremeTestCase):
 
     def test_entities_count03(self):
         "Regular user + fast count is not possible."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
         name = 'Acme'
 
         efilter = EntityFilter.objects.create(
@@ -96,7 +101,7 @@ class CremeQueryTagsTestCase(CremeTestCase):
         )
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_FILTER,
             ctype=FakeOrganisation,
@@ -105,7 +110,8 @@ class CremeQueryTagsTestCase(CremeTestCase):
 
         create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user, name=name)
-        create_orga(user=self.other_user, name='Other name')
+        # create_orga(user=self.other_user, name='Other name')
+        create_orga(user=self.get_root_user(), name='Other name')
 
         with self.assertLogs(level='DEBUG') as logs_manager:
             with self.assertNoException():

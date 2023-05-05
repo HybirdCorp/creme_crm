@@ -32,7 +32,7 @@ from creme.reports.tests.base import Report, ReportGraph
 # TODO: test fetch() ??
 class GraphFetcherTestCase(CremeTestCase):
     def test_simple(self):
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -77,7 +77,7 @@ class GraphFetcherTestCase(CremeTestCase):
         self.assertEqual(graph, b_fetcher.graph)
 
     def test_fk01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -153,7 +153,7 @@ class GraphFetcherTestCase(CremeTestCase):
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph(user=user, name='Field Test', linked_report=report)
 
@@ -161,7 +161,7 @@ class GraphFetcherTestCase(CremeTestCase):
         self.assertEqual(_('The field is hidden.'), fetcher.error)
 
     def test_relation(self):
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
@@ -224,7 +224,7 @@ class GraphFetcherTestCase(CremeTestCase):
             # id_ = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
             id = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
 
-        user = self.create_user()
+        user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,

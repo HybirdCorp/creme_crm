@@ -51,15 +51,34 @@ def skipIfCustomMailingList(test_func):
 
 
 class _EmailsTestCase(CremeTestCase):
-    def login(self, allowed_apps=('emails',), *args, **kwargs):
-        return super().login(allowed_apps=allowed_apps, *args, **kwargs)
+    # def login(self, allowed_apps=('emails',), *args, **kwargs):
+    #     return super().login(allowed_apps=allowed_apps, *args, **kwargs)
+
+    def login_as_emails_user(self, *, allowed_apps=(), **kwargs):
+        return super().login_as_standard(
+            allowed_apps=['emails', *allowed_apps],
+            **kwargs
+        )
+
+    def login_as_emails_admin(self, *, allowed_apps=(), admin_4_apps=(), **kwargs):
+        return super().login_as_standard(
+            allowed_apps=['emails', *allowed_apps],
+            admin_4_apps=['emails', *admin_4_apps],
+            **kwargs
+        )
 
     @staticmethod
     def _build_create_entitymail_url(entity):
         return reverse('emails__create_email', args=(entity.id,))
 
-    def _create_email(self, status=EntityEmail.Status.NOT_SENT, body_html='', signature=None):
-        user = self.user
+    # def _create_email(self, status=EntityEmail.Status.NOT_SENT, body_html='', signature=None):
+    def _create_email(self,
+                      user,
+                      status=EntityEmail.Status.NOT_SENT,
+                      body_html='',
+                      signature=None,
+                      ):
+        # user = self.user
         return EntityEmail.objects.create(
             user=user,
             sender=user.linked_contact.email,
@@ -71,7 +90,8 @@ class _EmailsTestCase(CremeTestCase):
             signature=signature,
         )
 
-    def _create_emails(self):
+    # def _create_emails(self):
+    def _create_emails(self, user):
         if persons.contact_model_is_custom():
             self.fail(
                 'Cannot use _EmailsTestCase._create_emails() with custom Contact model.'
@@ -82,7 +102,7 @@ class _EmailsTestCase(CremeTestCase):
                 'Cannot use _EmailsTestCase._create_emails() with custom Organisation model.'
             )
 
-        user = self.user
+        # user = self.user
 
         create_c = partial(Contact.objects.create, user=user)
         contacts = [

@@ -110,7 +110,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         }])
 
     def _test_import01(self, builder):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         count = FakeContact.objects.count()
         lines = [
@@ -118,7 +119,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ('Asuka', 'Langley'),
         ]
 
-        doc = builder(lines)
+        doc = builder(lines, user=user)
         url = self._build_import_url(FakeContact)
         response = self.assertGET200(url)
 
@@ -152,7 +153,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertNoFormError(response)
 
         job = self.get_alone_element(Job.objects.all())
-        self.assertEqual(self.user, job.user)
+        self.assertEqual(user, job.user)
         self.assertIsNone(job.last_run)
         self.assertIsInstance(job.data, dict)
         self.assertEqual(Job.STATUS_WAIT, job.status)
@@ -251,7 +252,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         """Use header, default value, model search and create, properties,
         fixed and dynamic relations.
         """
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         pos_title  = 'Pilot'
         sctr_title = 'Army'
@@ -295,8 +297,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         disabled_rtype.enabled = False
         disabled_rtype.save()
 
-        nerv = FakeOrganisation.objects.create(user=self.user, name='Nerv')
-        shinji = FakeContact.objects.create(user=self.user, first_name='Shinji', last_name='Ikari')
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        shinji = FakeContact.objects.create(user=user, first_name='Shinji', last_name='Ikari')
         contact_count = FakeContact.objects.count()
 
         city = 'Tokyo'
@@ -306,7 +308,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ('Asuka',      'Langley',   pos_title,  sctr_title, '',     ''),
         ]
 
-        doc = builder(lines)
+        doc = builder(lines, user=user)
         url = self._build_import_url(FakeContact)
         response1 = self.client.post(
             url,
@@ -427,7 +429,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def _test_import03(self, builder):
         "Create entities to link with them"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         orga_name = 'Nerv'
@@ -437,7 +440,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ('test-subject_employed_by', 'is an employee of'),
             ('test-object_employed_by',  'employs'),
         )[0]
-        doc = builder([('Ayanami', 'Rei', orga_name)])
+        doc = builder([('Ayanami', 'Rei', orga_name)], user=user)
         response = self.client.post(
             self._build_import_url(FakeContact), follow=True,
             data={
@@ -464,7 +467,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertFalse(result.messages)
 
     def test_not_registered(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET404(self._build_import_url(FakeEmailCampaign))
 
     def test_mass_import01(self):
@@ -487,7 +491,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_mass_import04(self):
         "Other separator"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         lines = [
@@ -496,7 +501,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ('Gentoku',    'Ryûbi'),
         ]
 
-        doc = self._build_csv_doc(lines, separator=';')
+        doc = self._build_csv_doc(lines, separator=';', user=user)
         url = self._build_import_url(FakeContact)
         response = self.client.post(
             url,
@@ -535,7 +540,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_duplicated_relations(self):
         "Same Relation in fixed & dynamic fields at creation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         employed = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'employed by'),
@@ -546,7 +552,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         last_name = 'Ayanami'
         first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
         response = self.client.post(
             self._build_import_url(FakeContact), follow=True,
             data={
@@ -567,7 +573,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_relations_with_property_constraint_object01(self):
         "Constraint on object."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_rich', text='Is rich',
@@ -585,7 +592,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         last_name = 'Ayanami'
         first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name, seele.name)])
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name, seele.name)], user=user)
 
         # Fixed relation
         response1 = self.client.post(
@@ -655,7 +662,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_relations_with_property_constraint_object02(self):
         "Constraint on object (forbidden property type)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_bankrupt', text='Went bankrupt',
@@ -673,7 +681,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         last_name = 'Ayanami'
         first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name, seele.name)])
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name, seele.name)], user=user)
 
         # Fixed relation
         response1 = self.client.post(
@@ -743,7 +751,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_relations_with_property_constraint_subject01(self):
         "Constraint on subject: fixed relationships + error."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_pilot', text='Is a pilot',
@@ -757,7 +766,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         last_name = 'Ayanami'
         first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
 
         response = self.client.post(
             self._build_import_url(FakeContact), follow=True,
@@ -788,7 +797,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_relations_with_property_constraint_subject02(self):
         "Constraint on subject: fixed relationships (OK)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_pilot', text='Is a pilot',
@@ -802,7 +812,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         last_name = 'Ayanami'
         first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
 
         response = self.client.post(
             self._build_import_url(FakeContact),
@@ -823,7 +833,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_relations_with_property_constraint_subject03(self):
         "Constraint on subject: dynamic relationships + error."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_pilot', text='Is a pilot',
@@ -837,7 +848,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         last_name = 'Ayanami'
         first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
 
         response = self.client.post(
             self._build_import_url(FakeContact),
@@ -871,7 +882,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_relations_with_property_constraint_subject04(self):
         "Constraint on subject: dynamic relationships (OK)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_pilot', text='Is a pilot',
@@ -883,7 +895,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         last_name = 'Ayanami'
         first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
         response = self.client.post(
             self._build_import_url(FakeContact),
             follow=True,
@@ -905,7 +917,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_relations_with_forbidden_property_constraint_subject01(self):
         "Fixed relationships + error."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_robotophobia', text='Hates big robots',
@@ -917,7 +930,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         last_name = 'Ayanami'
         first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
         response = self.client.post(
             self._build_import_url(FakeContact), follow=True,
             data={
@@ -948,7 +961,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_relations_with_forbidden_property_constraint_subject02(self):
         "Fixed relationships (OK)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(
@@ -965,7 +979,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         last_name = 'Ayanami'
         first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
         response = self.client.post(
             self._build_import_url(FakeContact),
             follow=True,
@@ -985,7 +999,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_relations_with_forbidden_property_constraint_subject03(self):
         "Dynamic relationships + error."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_robotophobia', text='Hates big robots',
@@ -998,7 +1013,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         last_name = 'Ayanami'
         first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
         response = self.client.post(
             self._build_import_url(FakeContact),
             follow=True,
@@ -1032,7 +1047,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_relations_with_forbidden_property_constraint_subject04(self):
         "Constraint on subject: dynamic relationships (OK)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(
@@ -1050,7 +1066,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         last_name = 'Ayanami'
         first_name = 'Rei'
-        doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)], user=user)
         response = self.client.post(
             self._build_import_url(FakeContact),
             follow=True,
@@ -1072,11 +1088,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_default_value(self):
         "Use default value when CSV value is empty (+ fix unicode bug)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         first_name = 'Gentoku'
         last_name = 'Ryûbi'
-        doc = self._build_csv_doc([(first_name, '')])
+        doc = self._build_csv_doc([(first_name, '')], user=user)
         response = self.client.post(
             self._build_import_url(FakeContact),
             follow=True,
@@ -1100,7 +1117,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_mass_import_customfields01(self):
         "CustomField.INT, STR & FLOAT, update, cast error."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
         cf_int = create_cf(name='Size (cm)',   field_type=CustomField.INT)
@@ -1125,7 +1143,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.client.post(
             self._build_import_url(FakeContact),
             follow=True,
@@ -1185,7 +1203,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_mass_import_customfields02(self):
         "CustomField.ENUM/MULTI_ENUM (no creation of choice)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
@@ -1209,7 +1228,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ('Unchô',      'Kan-u',     'strangulation', 'Spear'),
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.client.post(
             self._build_import_url(FakeContact),
             follow=True,
@@ -1267,7 +1286,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_mass_import_customfields03(self):
         "CustomField.ENUM (creation of choice if not found)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
@@ -1285,7 +1305,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ('Gentoku',    'Ryûbi',     '',              ''),
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.client.post(
             self._build_import_url(FakeContact),
             follow=True,
@@ -1338,11 +1358,13 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_mass_import_customfields04(self):
         "CustomField.ENUM/MULTI_ENUM: creation credentials."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['creme_core', 'documents'],
             creatable_models=[FakeContact, Document],
         )
+        self._set_all_perms_on_own(user)
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
         cf_enum  = create_cf(name='Attack',  field_type=CustomField.ENUM)
@@ -1357,7 +1379,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ('Unchô',      'Kan-u',     'strangulation', 'spear'),
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         url = self._build_import_url(FakeContact)
 
         def post():
@@ -1387,7 +1409,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
 
         # ---
-        role = self.role
+        role = user.role
         role.admin_4_apps = ['creme_config']
         role.save()
 
@@ -1404,7 +1426,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_mass_import_customfields05(self):
         "Default value"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         contact_ids = [*FakeContact.objects.values_list('id', flat=True)]
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
@@ -1421,7 +1444,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ('Unchô',      'Kan-u',   '',     '',       ''),
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         url = self._build_import_url(FakeContact)
 
         def post(defint):
@@ -1469,10 +1492,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertListEqual([sword], [*get_cf_values(cf_menum, kanu).value.all()])
 
     def test_import_error01(self):
-        "Form error: unknown extension"
-        self.login()
+        "Form error: unknown extension."
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        doc = self._build_doc(self._build_file(b'Non Empty File...', 'doc'))
+        doc = self._build_doc(self._build_file(b'Non Empty File...', 'doc'), user=user)
         response = self.assertPOST200(
             self._build_import_url(FakeContact), data={'step': 0, 'document': doc.id},
         )
@@ -1485,15 +1509,16 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
 
     def test_import_error02(self):
-        "Validate default value"
-        self.login()
+        "Validate default value."
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         lines = [
             ('Name', 'Capital'),
             ('Nerv', '1000'),
         ]
 
-        doc = self._build_csv_doc(lines, separator=';')
+        doc = self._build_csv_doc(lines, separator=';', user=user)
         url = self._build_import_url(FakeOrganisation)
         response = self.assertPOST200(
             url,
@@ -1501,7 +1526,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 **self.lv_import_data,
                 'document': doc.id,
                 'has_header': True,
-                'user': self.user.id,
+                'user': user.id,
                 'name_colselect': 1,
 
                 'capital_colselect': 2,
@@ -1515,11 +1540,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_import_error03(self):
         "Required field without column or default value."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         lines = [('Capital',), ('1000',)]  # No 'Name'
-
-        doc = self._build_csv_doc(lines, separator=';')
+        doc = self._build_csv_doc(lines, separator=';', user=user)
         response = self.assertPOST200(
             self._build_import_url(FakeOrganisation),
             data={
@@ -1538,7 +1563,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_import_error04(self):
         "Required custom-field without column or default value."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_cf = partial(
             CustomField.objects.create,
@@ -1548,7 +1574,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         cf2 = create_cf(field_type=CustomField.INT, name='Eva number', is_required=True)
 
         lines = [('Ayanami', )]
-        doc = self._build_csv_doc(lines, separator=';')
+        doc = self._build_csv_doc(lines, separator=';', user=user)
         response = self.assertPOST200(
             self._build_import_url(FakeContact),
             data={
@@ -1573,7 +1599,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
     @override_settings(MAX_JOBS_PER_USER=1)
     def test_import_error05(self):
         "Max jobs."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         Job.objects.create(
             user=user,
             type_id=mass_import_type.id,
@@ -1586,13 +1613,14 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_auxiliary_creation(self):
         """Ok if several fields but the not selected fields have a default value."""
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         priority = FakeTicketPriority.objects.first()
 
         ticket_title = 'Duplicated ticket'
         status_name = 'Duplicated'
-        doc = self._build_csv_doc([(ticket_title, status_name)])
+        doc = self._build_csv_doc([(ticket_title, status_name)], user=user)
         response = self.assertPOST200(
             self._build_import_url(FakeTicket),
             follow=True,
@@ -1622,9 +1650,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_auxiliary_creation_error01(self):
         "Creation for 'auxiliary' model is disabled in creme_config."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        doc = self._build_csv_doc([('Ayanami', 'Rei', 'Pilot')])
+        doc = self._build_csv_doc([('Ayanami', 'Rei', 'Pilot')], user=user)
         response = self.assertPOST200(
             self._build_import_url(FakeContact),
             follow=True,
@@ -1647,9 +1676,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_auxiliary_creation_error02(self):
         "Creation for 'auxiliary' model in creme_config use a custom URL."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        doc = self._build_csv_doc([('NERV', 'Secret organisation')])
+        doc = self._build_csv_doc([('NERV', 'Secret organisation')], user=user)
         response = self.assertPOST200(
             self._build_import_url(FakeOrganisation),
             follow=True,
@@ -1671,9 +1701,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_auxiliary_creation_error03(self):
         "Several fields, only one without a default value but another one is selected."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         priority = FakeTicketPriority.objects.first()
-        doc = self._build_csv_doc([('Duplicated ticket', '00ff00')])
+        doc = self._build_csv_doc([('Duplicated ticket', '00ff00')], user=user)
         response = self.assertPOST200(
             self._build_import_url(FakeTicket),
             follow=True,
@@ -1701,8 +1732,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_credentials01(self):
         "Creation credentials for imported model."
-        user = self.login(
-            is_superuser=False, allowed_apps=['creme_core'],
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
+            allowed_apps=['creme_core'],
             creatable_models=[FakeOrganisation],  # Not Contact
         )
         self.assertFalse(user.has_perm_to_create(FakeContact))
@@ -1710,13 +1743,15 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_credentials02(self):
         "Creation credentials for 'auxiliary' models."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['creme_core', 'documents'],
             creatable_models=[FakeContact, FakeOrganisation, Document],
         )
+        self._set_all_perms_on_own(user)
 
-        doc = self._build_csv_doc([('Ayanami', 'Rei', 'Piloting')])
+        doc = self._build_csv_doc([('Ayanami', 'Rei', 'Piloting')], user=user)
         response = self.assertPOST200(
             self._build_import_url(FakeContact),
             data={
@@ -1738,17 +1773,19 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_credentials03(self):
         "Creation credentials for related entities."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['creme_core', 'documents'],
             creatable_models=[FakeContact, Document],  # Not Organisation
         )
+        self._set_all_perms_on_own(user)
 
         employed = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'is an employee of'),
             ('test-object_employed_by',  'employs'),
         )[0]
-        doc = self._build_csv_doc([('Ayanami', 'Rei', 'NERV')])
+        doc = self._build_csv_doc([('Ayanami', 'Rei', 'NERV')], user=user)
         response = self.assertPOST200(
             self._build_import_url(FakeContact),
             data={
@@ -1771,7 +1808,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
 
     def test_import_with_update01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
         shinji = create_contact(first_name='Shinji', last_name='Ikari')
@@ -1818,10 +1856,13 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertFalse(FakeContact.objects.filter(last_name=asuka_info['last_name']))
 
         count = FakeContact.objects.count()
-        doc = self._build_csv_doc([
-            (d['first_name'], d['last_name'], d['phone'], d['email'])
-            for d in (rei_info, asuka_info)
-        ])
+        doc = self._build_csv_doc(
+            [
+                (d['first_name'], d['last_name'], d['phone'], d['email'])
+                for d in (rei_info, asuka_info)
+            ],
+            user=user,
+        )
         response = self.client.post(
             self._build_import_url(FakeContact),
             follow=True,
@@ -1894,7 +1935,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_import_with_update02(self):
         "Several existing entities found."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         last_name = 'Ayanami'
         first_name = 'Rei'
@@ -1907,7 +1949,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         count = FakeContact.objects.count()
 
-        doc = self._build_csv_doc([(last_name, first_name)])
+        doc = self._build_csv_doc([(last_name, first_name)], user=user)
         response = self.client.post(
             self._build_import_url(FakeContact),
             follow=True,
@@ -1943,7 +1985,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_import_with_update03(self):
         "Ignore trashed entities."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         last_name = 'Ayanami'
         first_name = 'Rei'
@@ -1953,7 +1996,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         count = FakeContact.objects.count()
 
-        doc = self._build_csv_doc([(last_name, first_name)])
+        doc = self._build_csv_doc([(last_name, first_name)], user=user)
         response = self.client.post(
             self._build_import_url(FakeContact), follow=True,
             data={
@@ -1977,12 +2020,15 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_import_with_update04(self):
         "Ignore non editable entities."
-        user = self.login(
-            is_superuser=False, allowed_apps=['creme_core', 'documents'],
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
+            allowed_apps=['creme_core', 'documents'],
             creatable_models=[FakeContact, Document],
         )
+        self._set_all_perms_on_own(user)
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 # | EntityCredentials.CHANGE
@@ -1998,14 +2044,15 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         first_name = 'Rei'
 
         c = FakeContact.objects.create(
-            user=self.other_user, last_name=last_name, first_name='Lei',
+            # user=self.other_user, last_name=last_name, first_name='Lei',
+            user=self.get_root_user(), last_name=last_name, first_name='Lei',
         )
         self.assertTrue(user.has_perm_to_view(c))
         self.assertFalse(user.has_perm_to_change(c))
 
         count = FakeContact.objects.count()
 
-        doc = self._build_csv_doc([(last_name, first_name)])
+        doc = self._build_csv_doc([(last_name, first_name)], user=user)
         response = self.client.post(
             self._build_import_url(FakeContact), follow=True,
             data={
@@ -2029,7 +2076,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_import_with_update05(self):
         "Update key uses a FK."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         civ1, civ2 = FakeCivility.objects.all()[:2]
 
@@ -2043,7 +2091,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         email = 'ayanami@nerv.jp'
 
         url = self._build_import_url(FakeContact)
-        doc = self._build_csv_doc([(last_name, civ2.title, email)])
+        doc = self._build_csv_doc([(last_name, civ2.title, email)], user=user)
 
         # Check key fields
         response = self.client.post(url, data={'step': 0, 'document': doc.id})
@@ -2087,9 +2135,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(email, self.refresh(contact2).email)
 
     def test_validate_subfield(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        doc = self._build_csv_doc([('Rei', 'Ayanami', 'Pilot')])
+        doc = self._build_csv_doc([('Rei', 'Ayanami', 'Pilot')], user=user)
         response = self.assertPOST200(
             self._build_import_url(FakeContact),
             follow=True,
@@ -2113,7 +2162,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
 
     def test_fields_config_hidden(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         hidden_fname1 = 'phone'
         hidden_fname2 = 'description'
@@ -2129,12 +2179,13 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             'first_name': 'Rei', 'last_name': 'Ayanami',
             hidden_fname1: '111111', 'email': 'rei.ayanami@nerv.jp',
         }
-        doc = self._build_csv_doc([
-            (
+        doc = self._build_csv_doc(
+            [(
                 rei_info['first_name'], rei_info['last_name'],
                 rei_info['phone'], rei_info['email'],
-            ),
-        ])
+            )],
+            user=user,
+        )
         url = self._build_import_url(FakeContact)
         response = self.client.post(url, data={'step': 0, 'document': doc.id})
         self.assertNoFormError(response)
@@ -2173,7 +2224,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertIsNone(getattr(rei, hidden_fname1))
 
     def test_fields_config_required(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         required_fname = 'phone'
         FieldsConfig.objects.create(
@@ -2185,10 +2237,13 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             {'first_name': 'Rei',   'last_name': 'Ayanami', required_fname: '111111'},
             {'first_name': 'Asuka', 'last_name': 'Langley', required_fname: ''},
         ]
-        doc = self._build_csv_doc([
-            (c_info['first_name'], c_info['last_name'], c_info[required_fname])
-            for c_info in info
-        ])
+        doc = self._build_csv_doc(
+            [
+                (c_info['first_name'], c_info['last_name'], c_info[required_fname])
+                for c_info in info
+            ],
+            user=user,
+        )
 
         url = self._build_import_url(FakeContact)
         data = {
@@ -2230,7 +2285,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
 
     def test_resume(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         lines = [
             ('Rei',   'Ayanami'),
             ('Asuka', 'Langley'),
@@ -2242,7 +2298,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
 
         count = FakeContact.objects.count()
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.client.post(
             self._build_import_url(FakeContact), follow=True,
             data={**self.lv_import_data, 'document': doc.id, 'user': user.id},
@@ -2262,7 +2318,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def _aux_test_dl_errors(self, doc_builder, result_builder, ext, header=False):
         "CSV, no header."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         first_name = 'Unchô'
         last_name = 'Kan-u'
@@ -2272,7 +2329,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         # lines.append(('Asuka',    'Langley',   '01-02-1997'))  # OK
         lines.append(('Asuka',    'Langley',   self.formfield_value_date(1997, 2, 1)))  # OK
 
-        doc = doc_builder(lines)
+        doc = doc_builder(lines, user=user)
         data = {
             **self.lv_import_data,
             'document': doc.id,
@@ -2352,7 +2409,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_dl_errors04(self):
         "Bad Job type."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         job = Job.objects.create(
             user=user,
             type_id=batch_process_type.id,
@@ -2365,9 +2423,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
     def test_dl_errors05(self):
         "Bad user."
-        self.login(is_superuser=False)
+        # self.login(is_superuser=False)
+        self.login_as_standard()
         job = Job.objects.create(
-            user=self.other_user,
+            # user=self.other_user,
+            user=self.get_root_user(),
             type_id=mass_import_type.id,
             language='en',
             status=Job.STATUS_WAIT,

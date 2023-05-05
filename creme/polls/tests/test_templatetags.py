@@ -12,7 +12,7 @@ from .base import PollForm, _PollsTestCase, skipIfCustomPollForm
 @skipIfCustomPollForm
 class PollsTagsTestCase(_PollsTestCase):
     def test_line_condition(self):
-        user = self.create_user()
+        user = self.get_root_user()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_l = self._get_formline_creator(pform=pform)
@@ -61,7 +61,7 @@ class PollsTagsTestCase(_PollsTestCase):
         )
 
     def test_node_number(self):
-        user = self.create_user()
+        user = self.get_root_user()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_l = self._get_formline_creator(pform=pform)
@@ -79,7 +79,7 @@ class PollsTagsTestCase(_PollsTestCase):
         self.assertEqual('1#2#3#', render.strip())
 
     def test_node_css(self):
-        user = self.create_user()
+        user = self.get_root_user()
         pform = PollForm.objects.create(user=user, name='Form#1')
         create_section = partial(PollFormSection.objects.create, pform=pform, order=1)
         create_l = self._get_formline_creator(pform=pform)

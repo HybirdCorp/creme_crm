@@ -51,7 +51,7 @@ from .base import (
 @skipIfCustomQuote
 class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_status(self):
-        user = self.create_user()
+        user = self.get_root_user()
         status = QuoteStatus.objects.create(name='OK', color='00FF00')
         ctxt = {
             'user': user,
@@ -75,18 +75,17 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_detailview01(self):
         "Cannot create Sales Orders => convert button disabled."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Organisation, Quote, Invoice],  # Not SalesOrder
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
 
-        quote = self.create_quote_n_orgas('My Quote')[0]
+        quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
         response = self.assertGET200(quote.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_quote.html')
         self.assertConvertButtons(
@@ -100,18 +99,17 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_detailview02(self):
         "Cannot create Invoice => convert button disabled."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Organisation, Quote, SalesOrder],  # Not Invoice
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN
         )
 
-        quote = self.create_quote_n_orgas('My Quote')[0]
+        quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
         response = self.assertGET200(quote.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_quote.html')
         self.assertConvertButtons(
@@ -126,7 +124,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(SOFTWARE_LABEL='My CRM')
     def test_createview01(self):
         "Source is not managed + no number given."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         managed_orga = self.get_alone_element(Organisation.objects.filter_managed_by_creme())
         response1 = self.assertGET200(reverse('billing__create_quote'))
@@ -148,7 +147,9 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         # ---
         terms = SettlementTerms.objects.all()[0]
-        quote, source, target = self.create_quote_n_orgas('My Quote', payment_type=terms.id)
+        quote, source, target = self.create_quote_n_orgas(
+            user=user, name='My Quote', payment_type=terms.id,
+        )
 
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
         self.assertIsNone(quote.acceptation_date)
@@ -160,15 +161,16 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertRelationCount(1, target, REL_SUB_PROSPECT,      source)
 
         # ---
-        quote2, source2, target2 = self.create_quote_n_orgas('My Quote Two')
+        quote2, source2, target2 = self.create_quote_n_orgas(user=user, name='My Quote Two')
         self.assertRelationCount(1, target2, REL_SUB_PROSPECT, source2)
 
     def test_createview02(self):
         "Source is managed + no number given."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self.assertGET200(reverse('billing__create_quote'))
 
-        source, target1 = self.create_orgas()
+        source, target1 = self.create_orgas(user=user)
         self._set_managed(source)
 
         algo_qs = SimpleBillingAlgo.objects.filter(
@@ -177,7 +179,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertEqual([0], [*algo_qs.values_list('last_number', flat=True)])
 
-        quote = self.create_quote('My Quote', source=source, target=target1)
+        quote = self.create_quote(user=user, name='My Quote', source=source, target=target1)
 
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
         self.assertIsNone(quote.acceptation_date)
@@ -192,22 +194,28 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         # ---
         target2 = Organisation.objects.create(user=user, name='Target #2')
-        quote2 = self.create_quote('My second Quote', source, target2)
+        quote2 = self.create_quote(
+            user=user, name='My second Quote', source=source, target=target2,
+        )
 
         self.assertRelationCount(1, target2, REL_SUB_PROSPECT, source)
         self.assertEqual('DE2', quote2.number)
 
     def test_createview03(self):
         "Source is not managed + a number is given."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         number = 'Q123'
-        quote, source, target = self.create_quote_n_orgas('My Quote', number=number)
+        quote, source, target = self.create_quote_n_orgas(
+            user=user, name='My Quote', number=number,
+        )
         self.assertEqual(number, quote.number)
 
     def test_createview04(self):
         "The field 'number' is not in the form."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         cfci = CustomFormConfigItem.objects.get(
             descriptor_id=QUOTE_CREATION_CFORM.id,
@@ -244,22 +252,22 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotIn('number', fields)
 
     def test_create_related01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        source, target = self.create_orgas()
+        source, target = self.create_orgas(user=user)
         url = reverse('billing__create_related_quote', args=(target.id,))
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
-        context = response.context
+        context = response1.context
         self.assertEqual(
             _('Create a quote for «{entity}»').format(entity=target),
             context.get('title'),
         )
         self.assertEqual(Quote.save_label, context.get('submit_label'))
 
-        # ---
         with self.assertNoException():
-            form = response.context['form']
+            form = context['form']
 
         self.assertDictEqual(
             {
@@ -269,10 +277,11 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             form.initial,
         )
 
+        # ---
         name = 'Quote#1'
         currency = Currency.objects.all()[0]
         status = QuoteStatus.objects.all()[1]
-        response = self.client.post(
+        response2 = self.client.post(
             url, follow=True,
             data={
                 'user':            user.pk,
@@ -288,7 +297,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         quote = self.get_object_or_fail(Quote, name=name)
         self.assertEqual(date(year=2013, month=12, day=14), quote.issuing_date)
@@ -301,13 +310,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_create_related02(self):
         "Not a super-user."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Quote],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -318,20 +326,19 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        source, target = self.create_orgas()
+        source, target = self.create_orgas(user=user)
         self.assertGET200(
             reverse('billing__create_related_quote', args=(target.id,)),
         )
 
     def test_create_related03(self):
         "Creation creds are needed."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             # creatable_models=[Quote],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -342,20 +349,19 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        source, target = self.create_orgas()
+        source, target = self.create_orgas(user=user)
         self.assertGET403(
             reverse('billing__create_related_quote', args=(target.id,)),
         )
 
     def test_create_related04(self):
         "CHANGE creds are needed."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Quote],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 # | EntityCredentials.CHANGE
@@ -366,16 +372,17 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        source, target = self.create_orgas()
+        source, target = self.create_orgas(user=user)
         self.assertGET403(
             reverse('billing__create_related_quote', args=(target.id,)),
         )
 
     def test_editview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'my quote'
-        quote, source, target = self.create_quote_n_orgas(name)
+        quote, source, target = self.create_quote_n_orgas(user=user, name=name)
 
         url = quote.get_edit_absolute_url()
         response1 = self.assertGET200(url)
@@ -425,13 +432,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_editview02(self):
         "Change source/target + perms."
-        user = self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=('persons', 'billing'),
             creatable_models=[Quote],
         )
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(
             value=(
                 EntityCredentials.VIEW
@@ -444,9 +450,10 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
-        quote, source1, target1 = self.create_quote_n_orgas('My quote')
+        quote, source1, target1 = self.create_quote_n_orgas(user=user, name='My quote')
 
-        unlinkable_source, unlinkable_target = self.create_orgas(user=self.other_user)
+        # unlinkable_source, unlinkable_target = self.create_orgas(user=self.other_user)
+        unlinkable_source, unlinkable_target = self.create_orgas(user=self.get_root_user())
         self.assertFalse(user.has_perm_to_link(unlinkable_source))
         self.assertFalse(user.has_perm_to_link(unlinkable_target))
 
@@ -485,13 +492,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_editview03(self):
         "Change source/target + perms: unlinkable but not changed."
-        user = self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=('persons', 'billing'),
             creatable_models=[Quote],
         )
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(
             value=(
                 EntityCredentials.VIEW
@@ -504,9 +510,10 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
-        quote, source, target = self.create_quote_n_orgas('My quote')
+        quote, source, target = self.create_quote_n_orgas(user=user, name='My quote')
 
-        source.user = target.user = self.other_user
+        # source.user = target.user = self.other_user
+        source.user = target.user = self.get_root_user()
         source.save()
         target.save()
         self.assertFalse(user.has_perm_to_link(source))
@@ -532,10 +539,11 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
 
     def test_listview(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        quote1 = self.create_quote_n_orgas('Quote1')[0]
-        quote2 = self.create_quote_n_orgas('Quote2')[0]
+        quote1 = self.create_quote_n_orgas(user=user, name='Quote1')[0]
+        quote2 = self.create_quote_n_orgas(user=user, name='Quote2')[0]
 
         response = self.assertGET200(Quote.get_lv_absolute_url())
 
@@ -546,8 +554,9 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertCountEqual([quote1, quote2], quotes_page.paginator.object_list)
 
     def test_listview_actions(self):
-        user = self.login()
-        quote = self.create_quote_n_orgas('Quote #1')[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        quote = self.create_quote_n_orgas(user=user, name='Quote #1')[0]
 
         export_action = self.get_alone_element(
             action
@@ -563,11 +572,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     # def test_delete_status01(self):
     def test_delete_status(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         new_status = QuoteStatus.objects.first()
         status2del = QuoteStatus.objects.create(name='OK')
 
-        quote = self.create_quote_n_orgas('Nerv', status=status2del)[0]
+        quote = self.create_quote_n_orgas(user=user, name='Nerv', status=status2del)[0]
 
         self.assertDeleteStatusOK(
             status2del=status2del,
@@ -578,12 +588,14 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     def test_mass_import_no_total01(self):
-        self.login()
-        self._aux_test_csv_import_no_total(Quote, QuoteStatus)
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._aux_test_csv_import_no_total(user=user, model=Quote, status_model=QuoteStatus)
 
     def test_mass_import_no_total02(self):
         "Source is managed."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         count = Quote.objects.count()
         create_orga = partial(Organisation.objects.create, user=user)
@@ -602,7 +614,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             (names[1], numbers[1], source.name, target2.name),
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         url = self._build_import_url(Quote)
         self.assertGET200(url)
 
@@ -616,7 +628,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
                 'document': doc.id,
                 # has_header
 
-                'user': self.user.id,
+                'user': user.id,
                 'key_fields': [],
 
                 'name_colselect':   1,
@@ -679,14 +691,18 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotEqual(number1, number2)
 
     def test_mass_import_total_no_vat_n_vat(self):
-        self.login()
-        self._aux_test_csv_import_total_no_vat_n_vat(Quote, QuoteStatus)
+        # self.login()
+        user = self.login_as_root_and_get()
+        self._aux_test_csv_import_total_no_vat_n_vat(
+            user=user, model=Quote, status_model=QuoteStatus,
+        )
 
     @skipIfCustomAddress
     @skipIfCustomServiceLine
     def test_clone01(self):
         "Organisation not managed => number is set to '0'."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
 
         target.billing_address = b_addr = Address.objects.create(
@@ -699,7 +715,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         # status = QuoteStatus.objects.filter(is_default=False)[0] TODO
 
         quote = self.create_quote(
-            'Quote001', source, target,
+            user=user, name='Quote001', source=source, target=target,
             # status=status,
             number='12',
         )
@@ -707,7 +723,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         quote.save()
 
         sl = ServiceLine.objects.create(
-            related_item=self.create_service(), user=user, related_document=quote,
+            related_item=self.create_service(user=user), user=user, related_document=quote,
         )
 
         cloned = self.refresh(quote.clone())
@@ -735,12 +751,13 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_clone02(self):
         "Organisation is managed => number is generated (but only once BUGFIX)."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        source, target = self.create_orgas()
+        source, target = self.create_orgas(user=user)
         self._set_managed(source)
 
-        quote = self.create_quote('My Quote', source=source, target=target)
+        quote = self.create_quote(user=user, name='My Quote', source=source, target=target)
         self.assertEqual('DE1', quote.number)
 
         cloned = quote.clone()
@@ -753,7 +770,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         from django.db import DEFAULT_DB_ALIAS, connections
         from django.test.utils import CaptureQueriesContext
 
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         # NB: we do not use assertNumQueries, because external
         #     signal handlers can add their owns queries
@@ -778,7 +796,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.assertNotIn('billing_serviceline', query)
 
     def test_brick01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
 
         response1 = self.assertGET200(target.get_absolute_url())
@@ -822,7 +841,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_brick02(self):
         "Field 'expiration_date' is hidden."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
 
         FieldsConfig.objects.create(
@@ -855,9 +875,9 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(HIDDEN_VALUE='?')
     def test_brick03(self):
         "No VIEW permission."
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'billing'])
+        user = self.login_as_standard(allowed_apps=['persons', 'billing'])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -871,7 +891,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         source, target = self.create_orgas(user=user)
 
         Quote.objects.create(
-            user=self.other_user, name='My Quote',
+            # user=self.other_user, name='My Quote',
+            user=self.get_root_user(), name='My Quote',
             status=QuoteStatus.objects.all()[0],
             source=source, target=target,
             expiration_date=date(year=2023, month=6, day=1),

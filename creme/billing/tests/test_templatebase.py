@@ -40,7 +40,8 @@ class TemplateBaseTestCase(_BillingTestCase):
 
     def setUp(self):
         super().setUp()
-        user = self.login()
+        # user = self.login()
+        self.user = user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         self.source = create_orga(name='Source')
@@ -324,7 +325,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         tpl2 = self._create_templatebase(Invoice, other_status.id)
         tpl3 = self._create_templatebase(Quote,   status2del.id)
 
-        invoice = self.create_invoice_n_orgas('Nerv')[0]
+        invoice = self.create_invoice_n_orgas(user=self.user, name='Nerv')[0]
         invoice.status = status2del
         invoice.save()
 
@@ -352,7 +353,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         tpl2 = self._create_templatebase(Quote,   other_status.id)
         tpl3 = self._create_templatebase(Invoice, status2del.id)
 
-        quote = self.create_quote_n_orgas('Nerv', status=status2del)[0]
+        quote = self.create_quote_n_orgas(user=self.user, name='Nerv', status=status2del)[0]
 
         self.assertDeleteStatusOK(
             status2del=status2del,
@@ -378,7 +379,7 @@ class TemplateBaseTestCase(_BillingTestCase):
         tpl2 = self._create_templatebase(SalesOrder, other_status.id)
         tpl3 = self._create_templatebase(Invoice,    status2del.id)
 
-        order = self.create_salesorder_n_orgas('Order', status=status2del)[0]
+        order = self.create_salesorder_n_orgas(user=self.user, name='Order', status=status2del)[0]
 
         self.assertDeleteStatusOK(
             status2del=status2del,
@@ -404,7 +405,9 @@ class TemplateBaseTestCase(_BillingTestCase):
         tpl2 = self._create_templatebase(CreditNote, other_status.id)
         tpl3 = self._create_templatebase(Invoice,    status2del.id)
 
-        credit_note = self.create_credit_note_n_orgas('Credit Note', status=status2del)[0]
+        credit_note = self.create_credit_note_n_orgas(
+            user=self.user, name='Credit Note', status=status2del,
+        )[0]
 
         self.assertDeleteStatusOK(
             status2del=status2del,

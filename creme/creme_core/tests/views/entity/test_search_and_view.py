@@ -16,7 +16,8 @@ class SearchAndViewTestCase(ViewsTestCase):
         self.assertRedirects(response, entity.get_absolute_url())
 
     def test_one_model_one_field(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         phone = '123456789'
         url = self.SEARCHNVIEW_URL
@@ -38,7 +39,8 @@ class SearchAndViewTestCase(ViewsTestCase):
         self.assertDetailview(self.client.get(url, data=data, follow=True), onizuka)
 
     def test_one_model_two_fields(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         phone = '999999999'
         url = self.SEARCHNVIEW_URL
@@ -55,7 +57,8 @@ class SearchAndViewTestCase(ViewsTestCase):
         self.assertDetailview(self.client.get(url, data=data, follow=True), onizuka)
 
     def test_two_models_two_fields(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         phone = '696969'
         url = self.SEARCHNVIEW_URL
@@ -78,7 +81,8 @@ class SearchAndViewTestCase(ViewsTestCase):
         self.assertDetailview(self.client.get(url, data=data, follow=True), onizuka)
 
     def test_errors(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         url = self.SEARCHNVIEW_URL
         base_data = {
@@ -100,7 +104,9 @@ class SearchAndViewTestCase(ViewsTestCase):
         self.assertGET404(url, data={**base_data, 'models': 'persons-civility'})
 
     def test_credentials(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
+        self._set_all_perms_on_own(user)
 
         phone = '44444'
         url = self.SEARCHNVIEW_URL
@@ -113,7 +119,8 @@ class SearchAndViewTestCase(ViewsTestCase):
         create_contact = FakeContact.objects.create
         # Phone is OK but not readable
         onizuka = create_contact(
-            user=self.other_user, first_name='Eikichi', last_name='Onizuka', mobile=phone,
+            # user=self.other_user, first_name='Eikichi', last_name='Onizuka', mobile=phone,
+            user=self.get_root_user(), first_name='Eikichi', last_name='Onizuka', mobile=phone,
         )
         # Phone is KO
         ryuji = create_contact(
@@ -131,7 +138,8 @@ class SearchAndViewTestCase(ViewsTestCase):
         self.assertDetailview(self.client.get(url, data=data, follow=True), onibaku)
 
     def test_app_credentials(self):
-        user = self.login(is_superuser=False, allowed_apps=['documents'])  # Not 'creme_core'
+        # user = self.login(is_superuser=False, allowed_apps=['documents'])  # Not 'creme_core'
+        user = self.login_as_standard(allowed_apps=['documents'])  # Not 'creme_core'
 
         phone = '31337'
         data = {
@@ -147,7 +155,8 @@ class SearchAndViewTestCase(ViewsTestCase):
 
     def test_fields_config(self):
         "Phone field is hidden."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         FieldsConfig.objects.create(
             content_type=FakeContact,

@@ -60,15 +60,21 @@ class HistoryTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
         HistoryLine.objects.all().delete()
+        cls.user = cls.create_user()
 
     def setUp(self):
         super().setUp()
         self.old_time = now().replace(microsecond=0)
-        self.login()
 
     def tearDown(self):
         super().tearDown()
         HistoryLine.ENABLED = True
+
+    def _simple_login(self):
+        user = self.user
+        self.client.login(username=user.username, password=self.USER_PASSWORD)
+
+        return user
 
     def _build_organisation(self, name, extra_args=None, **kwargs):
         data = {'name': name}
@@ -120,24 +126,29 @@ class HistoryTestCase(CremeTestCase):
         return [*HistoryLine.objects.order_by('id')]
 
     def test_creation01(self):
+        other_user = self.create_user(1)
+        user = self._simple_login()
+
         old_count = HistoryLine.objects.count()
-        gainax = self._build_organisation(user=self.other_user.id, name='Gainax')
+        gainax = self._build_organisation(user=other_user.id, name='Gainax')
         hlines = self._get_hlines()
         self.assertEqual(old_count + 1, len(hlines))
 
         hline = hlines[-1]
         self.assertEqual(gainax.id,          hline.entity.id)
         self.assertEqual(gainax.entity_type, hline.entity_ctype)
-        self.assertEqual(self.other_user,    hline.entity_owner)
-        self.assertEqual(self.user.username, hline.username)
+        self.assertEqual(other_user,         hline.entity_owner)
+        self.assertEqual(user.username,      hline.username)
         self.assertEqual(TYPE_CREATION,      hline.type)
         self.assertListEqual([], hline.modifications)
         self.assertBetweenDates(hline)
 
     def test_creation_n_aux(self):
         "Address is auxiliary + double save() because of addresses caused problems"
+        other_user = self.create_user(1)
+
         old_count = HistoryLine.objects.count()
-        gainax = FakeOrganisation.objects.create(user=self.other_user, name='Gainax')
+        gainax = FakeOrganisation.objects.create(user=other_user, name='Gainax')
         gainax.address = address = FakeAddress.objects.create(entity=gainax, country='Japan')
         gainax.save()
 
@@ -148,7 +159,7 @@ class HistoryTestCase(CremeTestCase):
         hline = hlines[-2]
         self.assertEqual(gainax.id,          hline.entity.id)
         self.assertEqual(gainax.entity_type, hline.entity_ctype)
-        self.assertEqual(self.other_user,    hline.entity_owner)
+        self.assertEqual(other_user,         hline.entity_owner)
         self.assertEqual(TYPE_CREATION,      hline.type)
         self.assertListEqual([], hline.modifications)
         self.assertBetweenDates(hline)
@@ -156,7 +167,7 @@ class HistoryTestCase(CremeTestCase):
         hline = hlines[-1]
         self.assertEqual(gainax.id,          hline.entity.id)
         self.assertEqual(gainax.entity_type, hline.entity_ctype)
-        self.assertEqual(self.other_user,    hline.entity_owner)
+        self.assertEqual(other_user,         hline.entity_owner)
         self.assertEqual(TYPE_AUX_CREATION,  hline.type)
         self.assertBetweenDates(hline)
         self.assertListEqual(
@@ -165,11 +176,12 @@ class HistoryTestCase(CremeTestCase):
         )
 
     def test_edition01(self):
+        user = self._simple_login()
         old_count = HistoryLine.objects.count()
 
         name = 'gainax'
         old_capital = 12000
-        gainax = self._build_organisation(user=self.user.id, name=name, capital=old_capital)
+        gainax = self._build_organisation(user=user.id, name=name, capital=old_capital)
 
         self.assertEqual(old_count + 1, HistoryLine.objects.count())
 
@@ -178,7 +190,7 @@ class HistoryTestCase(CremeTestCase):
             gainax.get_edit_absolute_url(),
             follow=True,
             data={
-                'user':    self.user.id,
+                'user':    user.id,
                 'name':    name,
                 'capital': capital,
             },
@@ -196,7 +208,7 @@ class HistoryTestCase(CremeTestCase):
 
     # TODO: change 'name' but keep the old unicode() ???
     def test_edition02(self):
-        user = self.user
+        user = self._simple_login()
         old_count = HistoryLine.objects.count()
 
         create_sector = FakeSector.objects.create
@@ -256,16 +268,18 @@ about this fantastic animation studio."""
 
     def test_edition_no_change(self):
         "No change."
+        user = self._simple_login()
+
         name = 'gainax'
         capital = 12000
-        gainax = self._build_organisation(user=self.user.id, name=name, capital=capital)
+        gainax = self._build_organisation(user=user.id, name=name, capital=capital)
         old_count = HistoryLine.objects.count()
 
         response = self.client.post(
             gainax.get_edit_absolute_url(),
             follow=True,
             data={
-                'user':    self.user.id,
+                'user':    user.id,
                 'name':    name,
                 'capital': capital,
             },
@@ -275,16 +289,18 @@ about this fantastic animation studio."""
 
     def test_edition_ignored_changed(self):
         "Ignore the changes : None -> ''."
+        user = self._simple_login()
+
         name = 'gainax'
         old_capital = 12000
-        gainax = FakeOrganisation.objects.create(user=self.user, name=name, capital=old_capital)
+        gainax = FakeOrganisation.objects.create(user=user, name=name, capital=old_capital)
 
         capital = old_capital * 2
         response = self.client.post(
             gainax.get_edit_absolute_url(),
             follow=True,
             data={
-                'user':           self.user.id,
+                'user':           user.id,
                 'name':           name,
                 'capital':        capital,
                 'subject_to_vat': True,
@@ -314,7 +330,7 @@ about this fantastic animation studio."""
 
     def test_edition_fk(self):
         "FK to CremeEntity."
-        user = self.user
+        user = self._simple_login()
         hayao = self._build_contact(user=user.id, first_name='Hayao', last_name='Miyazaki')
         img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
 
@@ -786,8 +802,11 @@ about this fantastic animation studio."""
     # TODO: other CustomField types ?
 
     def test_deletion01(self):
+        other_user = self.create_user(1)
+        user = self._simple_login()
+
         old_count = HistoryLine.objects.count()
-        gainax = FakeOrganisation.objects.create(user=self.other_user, name='Gainax')
+        gainax = FakeOrganisation.objects.create(user=other_user, name='Gainax')
         entity_repr = str(gainax)
 
         self.assertEqual(old_count + 1, HistoryLine.objects.count())
@@ -805,8 +824,8 @@ about this fantastic animation studio."""
         hline = hlines[-1]
         self.assertIsNone(hline.entity)
         self.assertEqual(entity_repr,        hline.entity_repr)
-        self.assertEqual(self.other_user,    hline.entity_owner)
-        self.assertEqual(self.user.username, hline.username)
+        self.assertEqual(other_user,         hline.entity_owner)
+        self.assertEqual(user.username,      hline.username)
         self.assertEqual(TYPE_DELETION,      hline.type)
         self.assertListEqual([], hline.modifications)
         self.assertBetweenDates(hline)
@@ -862,7 +881,7 @@ about this fantastic animation studio."""
 
     def test_related_edition01(self):
         "No HistoryConfigItem => no related line."
-        user = self.user
+        user = self._simple_login()
         ghibli = self._build_organisation(user=user.id, name='Ghibli')
 
         first_name = 'Hayao'
@@ -902,7 +921,7 @@ about this fantastic animation studio."""
         self.assertIsNone(hline.related_line)
 
     def test_related_edition02(self):
-        user = self.user
+        user = self._simple_login()
         ghibli = self.create_old(FakeOrganisation, user=user, name='Ghibli')
 
         first_name = 'Hayao'
@@ -1216,7 +1235,8 @@ about this fantastic animation studio."""
 
     def test_auxiliary_creation(self):
         "Auxiliary: Address."
-        user = self.user
+        user = self._simple_login()
+
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         old_count = HistoryLine.objects.count()
 
@@ -1240,9 +1260,12 @@ about this fantastic animation studio."""
 
     def test_auxiliary_edition01(self):
         "Address."
+        other_user = self.create_user(1)
+        self._simple_login()
+
         country = 'Japan'
         old_city = 'MITAKA'
-        gainax = self._build_organisation(user=self.other_user.id, name='Gainax')
+        gainax = self._build_organisation(user=other_user.id, name='Gainax')
         address = FakeAddress.objects.create(entity=gainax, country=country, city=old_city)
 
         old_count = HistoryLine.objects.count()
@@ -1267,7 +1290,7 @@ about this fantastic animation studio."""
         hline = hlines[-1]
         self.assertEqual(gainax.id,          hline.entity.id)
         self.assertEqual(gainax.entity_type, hline.entity_ctype)
-        self.assertEqual(self.other_user,    hline.entity_owner)
+        self.assertEqual(other_user,         hline.entity_owner)
         self.assertEqual(TYPE_AUX_EDITION,   hline.type)
         self.assertBetweenDates(hline)
         self.assertListEqual(
@@ -1317,9 +1340,10 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_AUX_EDITION, hline.type)
 
     def test_auxiliary_edition_m2m01(self):
+        other_user = self.create_user(1)
         cat1, cat2 = FakeTodoCategory.objects.order_by('id')[:2]
 
-        gainax = FakeOrganisation.objects.create(user=self.other_user, name='Gainax')
+        gainax = FakeOrganisation.objects.create(user=other_user, name='Gainax')
         todo = FakeTodo.objects.create(title='New logo', creme_entity=gainax)
         old_count = HistoryLine.objects.count()
 
@@ -1332,7 +1356,7 @@ about this fantastic animation studio."""
 
         self.assertEqual(gainax.id,          hline1.entity.id)
         self.assertEqual(gainax.entity_type, hline1.entity_ctype)
-        self.assertEqual(self.other_user,    hline1.entity_owner)
+        self.assertEqual(other_user,         hline1.entity_owner)
         self.assertListEqual(
             [
                 [
@@ -1757,7 +1781,7 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_CREATION, ghibli_line.type)
 
     def test_populate_users01(self):
-        user = self.user
+        user = self._simple_login()
 
         self._build_organisation(user=user.id, name='Gainax')
         hline = self._get_hlines()[-1]
@@ -1772,7 +1796,7 @@ about this fantastic animation studio."""
 
     def test_populate_users02(self):
         user = self.user
-        other_user = self.other_user
+        other_user = self.create_user(1)
 
         admin = get_user_model().objects.order_by('id').first()
         self.assertNotEqual(user, admin)

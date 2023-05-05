@@ -64,6 +64,7 @@ from creme.creme_core.models import (
     RelationType,
     SearchConfigItem,
     SetCredentials,
+    UserRole,
 )
 from creme.creme_core.tests import fake_custom_forms
 from creme.creme_core.tests.base import CremeTestCase
@@ -106,7 +107,8 @@ class ExportingTestCase(CremeTestCase):
 
     def test_creds(self):
         "Not staff."
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET403(self.URL)
 
     def test_register01(self):
@@ -229,14 +231,23 @@ class ExportingTestCase(CremeTestCase):
 
     def test_roles(self):
         "Roles."
-        self.login(
-            is_staff=True,
-            allowed_apps=('creme_core', 'persons'),
-            admin_4_apps=('persons',),
-            creatable_models=(FakeContact, FakeOrganisation),
-        )
-        role = self.role
-        role.exportable_ctypes.set([ContentType.objects.get_for_model(FakeContact)])
+        # self.login(
+        #     is_staff=True,
+        #     allowed_apps=('creme_core', 'persons'),
+        #     admin_4_apps=('persons',),
+        #     creatable_models=(FakeContact, FakeOrganisation),
+        # )
+        # role = self.role
+        self.login_as_super(is_staff=True)
+
+        # TODO: create_role() in _CremeTestCase?
+        role = UserRole(name='Test')
+        role.allowed_apps = ('creme_core', 'persons')
+        role.admin_4_apps = ('persons',)
+        role.save()
+        get_ct = ContentType.objects.get_for_model
+        role.creatable_ctypes.set([get_ct(FakeContact), get_ct(FakeOrganisation)])
+        role.exportable_ctypes.set([get_ct(FakeContact)])
 
         efilter = EntityFilter.objects.create(
             id='creme_core-test_transfer_exporting_roles',
@@ -347,7 +358,8 @@ class ExportingTestCase(CremeTestCase):
             self.fail(f'EntityFilter with id="{efilter.id}" not found.')
 
     def test_relation_bricks(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
         get_ct = ContentType.objects.get_for_model
 
         create_rtype = RelationType.objects.smart_update_or_create
@@ -431,7 +443,8 @@ class ExportingTestCase(CremeTestCase):
         )
 
     def test_custom_bricks(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         cfield = CustomField.objects.create(
             content_type=ContentType.objects.get_for_model(FakeContact),
@@ -476,7 +489,8 @@ class ExportingTestCase(CremeTestCase):
 
     def test_detail_bricks01(self):
         "Default detail-views config."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         existing_default_bricks_data = defaultdict(list)
 
@@ -539,7 +553,8 @@ class ExportingTestCase(CremeTestCase):
 
     def test_detail_bricks02(self):
         "CT config."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         self.assertFalse(
             BrickDetailviewLocation.objects.filter(
@@ -617,8 +632,10 @@ class ExportingTestCase(CremeTestCase):
 
     def test_detail_bricks03(self):
         "CT config per role."
-        self.login(is_staff=True)
-        role = self.role
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
+        # role = self.role
+        role = UserRole.objects.create(name='Test')
 
         LEFT  = BrickDetailviewLocation.LEFT
         RIGHT = BrickDetailviewLocation.RIGHT
@@ -680,7 +697,8 @@ class ExportingTestCase(CremeTestCase):
 
     def test_detail_bricks04(self):
         "CT config for superusers."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         LEFT = BrickDetailviewLocation.LEFT
         BrickDetailviewLocation.objects.create_for_model_brick(
@@ -711,7 +729,8 @@ class ExportingTestCase(CremeTestCase):
         )
 
     def test_home_bricks01(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         existing_locs = [*BrickHomeLocation.objects.all()]
         self.assertTrue(existing_locs)
@@ -726,10 +745,12 @@ class ExportingTestCase(CremeTestCase):
 
     def test_home_bricks02(self):
         "Config per role."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
         norole_brick_ids = {*BrickHomeLocation.objects.values_list('brick_id', flat=True)}
 
-        role = self.role
+        # role = self.role
+        role = UserRole.objects.create(name='Test')
         create_bhl = partial(BrickHomeLocation.objects.create, role=role)
         # create_bhl(brick_id=bricks.HistoryBrick.id_,    order=1)
         create_bhl(brick_id=bricks.HistoryBrick.id,    order=1)
@@ -762,7 +783,8 @@ class ExportingTestCase(CremeTestCase):
 
     def test_home_bricks03(self):
         "Config for super_user."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
         nosuper_brick_ids = {*BrickHomeLocation.objects.values_list('brick_id', flat=True)}
 
         create_bhl = partial(BrickHomeLocation.objects.create, superuser=True)
@@ -796,7 +818,8 @@ class ExportingTestCase(CremeTestCase):
         )
 
     def test_mypage_bricks(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         existing_locs = [*BrickMypageLocation.objects.filter(user=None)]
         self.assertTrue(existing_locs)
@@ -811,10 +834,12 @@ class ExportingTestCase(CremeTestCase):
 
     def test_instance_bricks01(self):
         "Detail view."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         naru = FakeContact.objects.create(
-            user=self.other_user, first_name='Naru', last_name='Narusegawa',
+            # user=self.other_user, first_name='Naru', last_name='Narusegawa',
+            user=self.get_root_user(), first_name='Naru', last_name='Narusegawa',
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
@@ -863,10 +888,12 @@ class ExportingTestCase(CremeTestCase):
 
     def test_instance_bricks02(self):
         "Home view."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         naru = FakeContact.objects.create(
-            user=self.other_user, first_name='Naru', last_name='Narusegawa',
+            # user=self.other_user, first_name='Naru', last_name='Narusegawa',
+            user=self.get_root_user(), first_name='Naru', last_name='Narusegawa',
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
@@ -891,10 +918,12 @@ class ExportingTestCase(CremeTestCase):
 
     def test_instance_bricks03(self):
         "<My page> view."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         naru = FakeContact.objects.create(
-            user=self.other_user, first_name='Naru', last_name='Narusegawa',
+            # user=self.other_user, first_name='Naru', last_name='Narusegawa',
+            user=self.get_root_user(), first_name='Naru', last_name='Narusegawa',
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
@@ -918,8 +947,10 @@ class ExportingTestCase(CremeTestCase):
         )
 
     def test_menu(self):
-        self.login(is_staff=True)
-        role = self.role
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
+        # role = self.role
+        role = UserRole.objects.create(name='Test')
 
         creme_item = MenuConfigItem.objects.get(entry_id=CremeEntry.id)
 
@@ -1017,7 +1048,8 @@ class ExportingTestCase(CremeTestCase):
         )
 
     def test_buttons(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         default_buttons = [*ButtonMenuItem.objects.filter(content_type=None)]
         self.assertTrue(default_buttons)
@@ -1062,8 +1094,10 @@ class ExportingTestCase(CremeTestCase):
         )
 
     def test_search(self):
-        self.login(is_staff=True)
-        role = self.role
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
+        # role = self.role
+        role = UserRole.objects.create(name='Test')
 
         ct = ContentType.objects.get_for_model(FakeContact)
         cfield = CustomField.objects.create(
@@ -1139,7 +1173,8 @@ class ExportingTestCase(CremeTestCase):
         )
 
     def test_property_types(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         CremePropertyType.objects.create(
             pk='creme_config_export-test_export_entityfilters', text='Sugoi !',
@@ -1183,7 +1218,8 @@ class ExportingTestCase(CremeTestCase):
         )
 
     def test_relations_types(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         self.assertTrue(RelationType.objects.filter(is_custom=False))
 
@@ -1281,7 +1317,8 @@ class ExportingTestCase(CremeTestCase):
         self.assertEqual(['creme_core.fakedocument'], object_ctypes2a)
 
     def test_fields_config(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         fname1 = 'description'
         fname2 = 'phone'
@@ -1315,7 +1352,8 @@ class ExportingTestCase(CremeTestCase):
         )
 
     def test_customfields(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         self.assertFalse(CustomField.objects.all())
 
@@ -1364,8 +1402,10 @@ class ExportingTestCase(CremeTestCase):
 
     def test_headerfilters(self):
         # self.maxDiff = None
-        self.login(is_staff=True)
-        other_user = self.other_user
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
+        # other_user = self.other_user
+        other_user = self.get_root_user()
 
         self.assertTrue(HeaderFilter.objects.filter(is_custom=False))
         self.assertFalse(HeaderFilter.objects.filter(is_custom=True))
@@ -1452,8 +1492,10 @@ class ExportingTestCase(CremeTestCase):
         )
 
     def test_entityfilters(self):
-        user = self.login(is_staff=True)
-        other_user = self.other_user
+        # user = self.login(is_staff=True)
+        user = self.login_as_super(is_staff=True)
+        # other_user = self.other_user
+        other_user = self.get_root_user()
 
         self.assertTrue(EntityFilter.objects.filter(is_custom=False))
         self.assertFalse(EntityFilter.objects.filter(is_custom=True))
@@ -1637,7 +1679,8 @@ class ExportingTestCase(CremeTestCase):
         )
 
     def test_customforms01(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         response = self.assertGET200(self.URL)
         content = response.json()
@@ -1667,7 +1710,10 @@ class ExportingTestCase(CremeTestCase):
         )
 
     def test_customforms02(self):
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
+        # role = self.role
+        role = UserRole.objects.create(name='Test')
 
         desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM
         descriptor_id = desc.id
@@ -1727,7 +1773,7 @@ class ExportingTestCase(CremeTestCase):
                     ],
                 },
             ],
-            role=self.role,
+            role=role,
         )
 
         response = self.assertGET200(self.URL)
@@ -1778,7 +1824,7 @@ class ExportingTestCase(CremeTestCase):
                     ],
                 }, {
                     'descriptor': descriptor_id,
-                    'role': self.role.name,
+                    'role': role.name,
                     'groups': [
                         {
                             'name':  gname3,

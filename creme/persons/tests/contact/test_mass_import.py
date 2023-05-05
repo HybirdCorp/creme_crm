@@ -54,7 +54,8 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
 
     @skipIfCustomAddress
     def test_simple(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         count = Contact.objects.count()
         lines = [
@@ -62,7 +63,7 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
             ('Asuka', 'Langley'),
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.client.post(
             self._build_import_url(Contact),
             follow=True,
@@ -88,7 +89,8 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
 
     @skipIfCustomAddress
     def test_address(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
 
@@ -99,7 +101,7 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
             ('Asuka',      'Langley',   ''),
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.client.post(
             self._build_import_url(Contact),
             follow=True,
@@ -133,7 +135,8 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
     @skipIfCustomAddress
     def test_update(self):
         "Update with address."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         last_name = 'Ayanami'
         first_name = 'Rei'
@@ -153,7 +156,10 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
         address_val1 = '213 Gauss Street'
         address_val2 = '56 Einstein Avenue'
         email = 'contact@bebop.mrs'
-        doc = self._build_csv_doc([(first_name, last_name, address_val1, address_val2, email)])
+        doc = self._build_csv_doc(
+            [(first_name, last_name, address_val1, address_val2, email)],
+            user=user,
+        )
         response = self.client.post(
             self._build_import_url(Contact),
             follow=True,
@@ -185,7 +191,8 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
 
     @skipIfCustomAddress
     def test_address_fields_config(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Address,
@@ -201,7 +208,7 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
             ('Asuka',  'Langley',   '',   b_address_value, city, s_address_value),
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.client.post(
             self._build_import_url(Contact),
             follow=True,
@@ -264,7 +271,8 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
         """Does not update invalid Address
         (i.e. already invalid, because empty values are filtered).
         """
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Address,
@@ -284,9 +292,12 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
 
         address_val1 = '213 Gauss Street'
         address_val2 = '56 Einstein Avenue'
-        doc = self._build_csv_doc([
-            (first_name, last_name, '', address_val1, city2, address_val2),  # Not city1
-        ])
+        doc = self._build_csv_doc(
+            [
+                (first_name, last_name, '', address_val1, city2, address_val2),  # Not city1
+            ],
+            user=user
+        )
         response = self.client.post(
             self._build_import_url(Contact),
             follow=True,

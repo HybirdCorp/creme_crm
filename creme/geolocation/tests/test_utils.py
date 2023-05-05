@@ -25,7 +25,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_address_as_dict(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
         address = self.create_address(
@@ -55,7 +55,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_address_as_dict_empty_billing_shipping(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
         address = self.create_billing_address(
@@ -109,7 +109,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_address_as_dict_empty(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
         address = self.create_address(
@@ -139,7 +139,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_address_as_dict_missing_geoaddress01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
         address = self.create_address(
@@ -176,7 +176,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomAddress
     def test_address_as_dict_missing_geoaddress02(self):
         "With select_related."
-        user = self.create_user()
+        user = self.get_root_user()
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
         address = self.create_address(
@@ -211,7 +211,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomContact
     def test_addresses_from_persons(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         orga1 = Organisation.objects.create(name='Orga 1', user=user)
         orga2 = Organisation.objects.create(name='Orga 2', user=user)

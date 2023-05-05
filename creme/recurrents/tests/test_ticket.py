@@ -45,7 +45,8 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
 
     def setUp(self):
         super().setUp()
-        self.login()
+        # self.login()
+        self.user = self.login_as_root_and_get()
 
     def _create_ticket_template(self, title='Support ticket'):
         return TicketTemplate.objects.create(

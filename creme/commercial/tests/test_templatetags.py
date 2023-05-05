@@ -4,6 +4,7 @@ from django.template import Context, Template
 from django.urls import reverse
 
 from creme.commercial.models import CommercialAsset, MarketSegmentCharm
+from creme.creme_core.models import UserRole
 
 from .base import (
     CommercialBaseTestCase,
@@ -16,7 +17,8 @@ from .base import (
 @skipIfCustomStrategy
 class CommercialTagsTestCase(CommercialBaseTestCase):
     def test_segments_for_category(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
 
         industry   = self._create_segment_desc(strategy, 'Industry')
@@ -74,7 +76,8 @@ class CommercialTagsTestCase(CommercialBaseTestCase):
         )
 
     def test_widget_asset_score(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         industry = self._create_segment_desc(strategy, 'Industry')
         asset = CommercialAsset.objects.create(name='Capital', strategy=strategy)
@@ -114,7 +117,8 @@ class CommercialTagsTestCase(CommercialBaseTestCase):
         )
 
         # ---
-        ctxt['user'] = self.other_user
+        # ctxt['user'] = self.other_user
+        ctxt['user'] = self.create_user(role=UserRole.objects.create(name='Basic'))
         with self.assertNoException():
             render2 = template.render(ctxt)
 
@@ -129,7 +133,8 @@ class CommercialTagsTestCase(CommercialBaseTestCase):
         )
 
     def test_widget_charm_score(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         industry = self._create_segment_desc(strategy, 'Industry')
         charm = MarketSegmentCharm.objects.create(strategy=strategy, name='Money')
@@ -169,7 +174,8 @@ class CommercialTagsTestCase(CommercialBaseTestCase):
         )
 
         # ---
-        ctxt['user'] = self.other_user
+        # ctxt['user'] = self.other_user
+        ctxt['user'] = self.create_user(role=UserRole.objects.create(name='Basic'))
         with self.assertNoException():
             render2 = template.render(ctxt)
 

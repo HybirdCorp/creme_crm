@@ -7,6 +7,7 @@ from datetime import date, datetime, timedelta, timezone
 from json import dumps as json_dump
 from os.path import basename
 from tempfile import NamedTemporaryFile
+from typing import Iterable
 from unittest import skipIf
 from unittest.util import safe_repr
 
@@ -24,6 +25,7 @@ from django.utils.formats import get_format
 # from django.utils.timezone import utc
 from django.utils.timezone import get_current_timezone, make_aware
 
+from ..constants import ROOT_PASSWORD, ROOT_USERNAME
 from ..global_info import clear_global_info
 from ..gui.icons import get_icon_by_name, get_icon_size_px
 from ..management.commands.creme_populate import Command as PopulateCommand
@@ -119,8 +121,13 @@ class _CremeTestCase:
         }, {
             'username': 'chloe',
             'first_name': 'Chloé',
-            'last_name': '??',
+            'last_name': 'Noir',
             'email': 'chloe@noir.jp',
+        }, {
+            'username': 'altena',
+            'first_name': 'Alténa',
+            'last_name': 'Soldat',
+            'email': 'altena@noir.jp',
         },
     ]
 
@@ -146,8 +153,65 @@ class _CremeTestCase:
 
         return user
 
+    @classmethod
+    def get_root_user(cls) -> CremeUser:
+        # Should exist (see 'creme_core.populate.py')
+        return CremeUser.objects.get(username=ROOT_USERNAME)
+
+    def login_as_root(self) -> None:
+        # Should exist (see 'creme_core.populate.py')
+        self.client.login(username=ROOT_USERNAME, password=ROOT_PASSWORD)
+
+    def login_as_root_and_get(self) -> CremeUser:
+        self.login_as_root()
+        return self.get_root_user()
+
+    def login_as_super(self,
+                       is_staff=False,
+                       index: int = 0,
+                       password: str = 'test',
+                       ) -> CremeUser:
+        user = self.create_user(index=index, is_staff=is_staff)
+
+        logged = self.client.login(username=user.username, password=password)
+        self.assertTrue(logged, 'Not logged in')
+
+        return user
+
+    def login_as_standard(self, *,
+                          allowed_apps: Iterable[str] = ('creme_core',),
+                          admin_4_apps: Iterable[str] = (),
+                          creatable_models: Iterable[type[CremeEntity]] = (),
+                          index: int = 0,
+                          password: str = 'test',
+                          ) -> CremeUser:
+        # role = UserRole(name='Basic')
+        # role.allowed_apps = allowed_apps
+        # role.admin_4_apps = admin_4_apps
+        # role.save()
+        role = UserRole.objects.create(
+            name='Basic',
+            allowed_apps=allowed_apps,
+            admin_4_apps=admin_4_apps,
+        )
+        if creatable_models:
+            get_ct = ContentType.objects.get_for_model
+            role.creatable_ctypes.set([get_ct(model) for model in creatable_models])
+
+        user = self.create_user(index=index, role=role)
+
+        logged = self.client.login(username=user.username, password=password)
+        self.assertTrue(logged, 'Not logged in')
+
+        return user
+
     def login(self, is_superuser=True, is_staff=False, allowed_apps=('creme_core',),
               creatable_models=None, admin_4_apps=()):
+        warnings.warn(
+            f'The method {type(self).__name__}.login() is deprecated;'
+            f'use the methods login_as_*() instead.',
+            DeprecationWarning
+        )
         self.password = password = 'test'
 
         superuser = self.create_user(
@@ -644,7 +708,17 @@ class _CremeTestCase:
     def build_request(self, url='/', user=None):
         request = self.request_factory.get(url)
         request.session = SessionBase()
-        request.user = user or self.user
+        # request.user = user or self.user
+
+        if user is None:
+            warnings.warn(
+                f'Passing no "user" argument to the method '
+                f'{type(self).__name__}.build_request() is deprecated.',
+                DeprecationWarning
+            )
+            request.user = self.user
+        else:
+            request.user = user
 
         return request
 

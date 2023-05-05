@@ -64,7 +64,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             return self.string_format_home(self.id)
 
     def test_set_state01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         # brick_id = RelationsBrick.id_
         brick_id = RelationsBrick.id
 
@@ -89,7 +90,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(bstate.show_empty_fields)
 
     def test_set_state02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         # brick_id = RelationsBrick.id_
         brick_id = RelationsBrick.id
 
@@ -115,8 +117,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(bstate.show_empty_fields)
 
     def test_set_state03(self):
-        user = self.login()
-        other_user = self.other_user
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         # brick_id = RelationsBrick.id_
         brick_id = RelationsBrick.id
@@ -144,7 +148,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_set_state04(self):
         "Instance brick."
         # "Brick ids with |"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         casca = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
 
         class ContactBrick(InstanceBrick):
@@ -175,7 +180,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     def test_reload_basic01(self):
-        self.login(is_superuser=False, creatable_models=[FakeContact])
+        # self.login(is_superuser=False, creatable_models=[FakeContact])
+        self.login_as_standard(creatable_models=[FakeContact])
 
         class FoobarBrick1(self.TestBrick):
             # id_ = Brick.generate_id('creme_core', 'test_bricks_reload_basic01_1')
@@ -209,7 +215,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_reload_basic02(self):
         "Do not have the credentials."
-        self.login(is_superuser=False)
+        # self.login(is_superuser=False)
+        self.login_as_standard()
 
         class FoobarBrick1(self.TestBrick):
             # id_ = Brick.generate_id('creme_core', 'test_bricks_reload_basic02')
@@ -226,7 +233,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_reload_basic03(self):
         "Other app."
         app_name = 'persons'
-        self.login(is_superuser=False, allowed_apps=[app_name])
+        # self.login(is_superuser=False, allowed_apps=[app_name])
+        self.login_as_standard(allowed_apps=[app_name])
 
         class FoobarBrick1(self.TestBrick):
             # id_ = Brick.generate_id('creme_core', 'test_bricks_reload_basic03')
@@ -248,7 +256,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_reload_basic04(self):
         "Extra data."
-        self.login()
+        # self.login()
+        self.login_as_root()
         extra_data = [1, 2]
 
         received_extra_data = None
@@ -285,7 +294,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_reload_basic05(self):
         "Invalid extra data."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         error = None
         received_extra_data = None
@@ -319,7 +329,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsNotNone(error)
 
     def test_reload_detailview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
         class FoobarBrick(self.TestBrick):
@@ -349,7 +360,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_reload_detailview02(self):
         "With dependencies."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
         class FoobarBrick1(self.TestBrick):
@@ -405,10 +417,12 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_reload_detailview03(self):
         "Do not have the credentials"
-        self.login(is_superuser=False)
+        # self.login(is_superuser=False)
+        self.login_as_standard()
 
         atom = FakeContact.objects.create(
-            user=self.other_user, first_name='Atom', last_name='Tenma',
+            # user=self.other_user, first_name='Atom', last_name='Tenma',
+            user=self.get_root_user(), first_name='Atom', last_name='Tenma',
         )
 
         class FoobarBrick(self.TestBrick):
@@ -425,15 +439,17 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_reload_detailview04(self):
         "Not superuser."
-        self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
         SetCredentials.objects.create(
-            role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
+            role=user.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
         )
 
         atom = FakeContact.objects.create(
-            user=self.other_user, first_name='Atom', last_name='Tenma',
+            # user=self.other_user, first_name='Atom', last_name='Tenma',
+            user=self.get_root_user(), first_name='Atom', last_name='Tenma',
         )
-        self.assertTrue(self.user.has_perm_to_view(atom))
+        self.assertTrue(user.has_perm_to_view(atom))
 
         class FoobarBrick(self.TestBrick):
             # id_ = Brick.generate_id('creme_core', 'test_bricks_reload_detailview04')
@@ -456,7 +472,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_reload_detailview05(self):
         "Invalid brick_id."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
         response = self.assertGET200(
@@ -468,7 +485,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_reload_detailview06(self):
         "Extra data."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
         extra_data = [1, 2]
         received_extra_data = None
@@ -505,7 +523,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(extra_data, received_extra_data)
 
     def test_reload_home(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         class FoobarBrick1(self.TestBrick):
             # id_ = Brick.generate_id('creme_core', 'test_bricks_reload_home_1')
@@ -534,7 +553,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     def test_properties_brick(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
         atom  = create_contact(first_name='Atom', last_name='Tenma')
@@ -567,7 +587,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNoInstanceLink(brick_node, ptype2)
 
     def test_relations_brick01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
         atom  = create_contact(first_name='Atom', last_name='Tenma')
@@ -605,7 +626,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         """With A SpecificRelationBrick ; but the concerned relationship is minimal_display=False
         (so there is no RelationType to exclude).
         """
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         # rbrick_id = RelationsBrick.id_
         rbrick_id = RelationsBrick.id
 
@@ -681,7 +703,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         """With A SpecificRelationBrick ; the concerned relationship is minimal_display=True,
         so the RelationType is excluded.
         """
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         # rbrick_id = RelationsBrick.id_
         rbrick_id = RelationsBrick.id
 
@@ -767,7 +790,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         assertBadData({'exclude': [[]]})
 
     def test_customfields_brick(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
         create_cfield = partial(CustomField.objects.create, content_type=type(atom))
@@ -799,7 +823,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_history_brick01(self):
         "Detail-view."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         atom = FakeContact.objects.create(
             user=user, first_name='Atom', last_name='Tenma', phone='123456',
         )
@@ -837,7 +862,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_history_brick02(self):
         "Home."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
         atom  = create_contact(first_name='Atom', last_name='Tenma')
@@ -858,7 +884,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertInstanceLink(brick_node, tenma)
 
     def test_statistics_brick01(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
 
         s_id1 = 'creme_core-fake_contacts'
         label1 = 'Fake Contacts'
@@ -925,7 +952,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsNone(content_node.find(f'.//div[@data-key="{key}"]'))
 
     def test_display_objectbrick01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         naru = FakeContact.objects.create(
             user=user, last_name='Narusegawa', first_name='Naru', phone='1122334455',
         )
@@ -942,7 +970,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_display_objectbrick02(self):
         "With FieldsConfig."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=FakeContact,
@@ -961,7 +990,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self._assertNoBrickTile(content_node, 'regular_field-phone')
 
     def test_display_custombrick01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         fname1 = 'last_name'
         fname2 = 'phone'
@@ -996,7 +1026,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_display_custombrick02(self):
         "With FieldsConfig."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         hidden_fname = 'phone'
         FieldsConfig.objects.create(
@@ -1031,7 +1062,8 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_display_custombrick03(self):
         "With FieldsConfig on sub-fields."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         hidden_fname = 'zipcode'
         FieldsConfig.objects.create(

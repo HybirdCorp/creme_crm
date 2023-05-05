@@ -158,13 +158,19 @@ class BaseReportsTestCase(CremeTestCase):
 
         return InstanceBrickConfigItem.objects.get(entity=graph.id)
 
-    def _create_simple_contacts_report(self,
+    # def _create_simple_contacts_report(self,
+    #                                    name='Contact report',
+    #                                    efilter=None,
+    #                                    user=None,
+    #                                    **kwargs):
+    def _create_simple_contacts_report(self, *,
+                                       user,
                                        name='Contact report',
                                        efilter=None,
-                                       user=None,
                                        **kwargs):
         report = Report.objects.create(
-            user=user or self.user,
+            # user=user or self.user,
+            user=user,
             name=name,
             ct=FakeContact,
             filter=efilter,
@@ -176,7 +182,8 @@ class BaseReportsTestCase(CremeTestCase):
 
         return report
 
-    def _create_contacts_report(self, name='Report #1', efilter=None, user=None):
+    # def _create_contacts_report(self, name='Report #1', efilter=None, user=None):
+    def _create_contacts_report(self, *, user, name='Report #1', efilter=None):
         report = self._create_simple_contacts_report(name=name, efilter=efilter, user=user)
 
         create_field = partial(Field.objects.create, report=report)
@@ -186,10 +193,12 @@ class BaseReportsTestCase(CremeTestCase):
 
         return report
 
-    def _create_simple_documents_report(self, user=None):
+    # def _create_simple_documents_report(self, user=None):
+    def _create_simple_documents_report(self, user):
         report = Report.objects.create(
             name='Documents report',
-            user=user or self.user,
+            # user=user or self.user,
+            user=user,
             ct=FakeReportsDocument,
         )
 
@@ -199,9 +208,11 @@ class BaseReportsTestCase(CremeTestCase):
 
         return report
 
-    def _create_simple_organisations_report(self, name='Orga report', efilter=None):
+    # def _create_simple_organisations_report(self, name='Orga report', efilter=None):
+    def _create_simple_organisations_report(self, user, name='Orga report', efilter=None):
         report = Report.objects.create(
-            user=self.user, name=name, ct=FakeOrganisation, filter=efilter,
+            # user=self.user, name=name, ct=FakeOrganisation, filter=efilter,
+            user=user, name=name, ct=FakeOrganisation, filter=efilter,
         )
         Field.objects.create(report=report, name='name', type=constants.RFT_FIELD, order=1)
 
@@ -213,8 +224,9 @@ class BaseReportsTestCase(CremeTestCase):
         except Field.DoesNotExist as e:
             self.fail(str(e))
 
-    def _create_persons(self):
-        user = self.user
+    # def _create_persons(self):
+    def _create_persons(self, user):
+        # user = self.user
 
         create = partial(FakeContact.objects.create, user=user)
         create(
@@ -249,7 +261,8 @@ class BaseReportsTestCase(CremeTestCase):
                         total_vat=Decimal('0'),
                         issuing_date=None,
                         ):
-        user = self.user
+        # user = self.user
+        user = source.user
         invoice = FakeInvoice.objects.create(
             user=user,
             issuing_date=issuing_date or now().date(),
@@ -271,9 +284,10 @@ class BaseReportsTestCase(CremeTestCase):
 
         return invoice
 
-    def _create_documents_rgraph(self, user=None):
-        user = user or self.user
-        report = self._create_simple_documents_report(user)
+    # def _create_documents_rgraph(self, user=None):
+    def _create_documents_rgraph(self, user):
+        # user = user or self.user
+        report = self._create_simple_documents_report(user=user)
         return ReportGraph.objects.create(
             user=user,
             linked_report=report,
@@ -284,19 +298,22 @@ class BaseReportsTestCase(CremeTestCase):
         )
 
     def _create_invoice_report_n_graph(self,
+                                       user,
                                        abscissa='issuing_date',
                                        ordinate_type=ReportGraph.Aggregator.SUM,
                                        ordinate_field='total_no_vat',
                                        ):
         self.report = report = Report.objects.create(
-            user=self.user,
+            # user=self.user,
+            user=user,
             name='All invoices of the current year',
             ct=FakeInvoice,
         )
 
         # TODO: we need a helper ReportGraph.create() ??
         return ReportGraph.objects.create(
-            user=self.user,
+            # user=self.user,
+            user=user,
             linked_report=report,
             name='Sum of current year invoices total without taxes / month',
             abscissa_cell_value=abscissa,

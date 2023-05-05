@@ -44,8 +44,9 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
         )
 
     def _create_lines(self):
-        self.login()
-        self.pform = pform = PollForm.objects.create(user=self.user, name='Form#1')
+        # user = self.login()
+        user = self.get_root_user()
+        self.pform = pform = PollForm.objects.create(user=user, name='Form#1')
 
         create_line = partial(PollFormLine.objects.create, pform=pform)
         serialize = PollLineType.build_serialized_args

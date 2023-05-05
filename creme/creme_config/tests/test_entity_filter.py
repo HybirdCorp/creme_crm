@@ -46,7 +46,8 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_portal01(self):
         "Super-user."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self.assertGET200(reverse('creme_config__efilters'))
         self.assertTemplateUsed(response, 'creme_config/portals/entity-filter.html')
@@ -64,7 +65,8 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         "Not super-user."
         from creme import documents
 
-        self.login(is_superuser=False, allowed_apps=['documents'])
+        # self.login(is_superuser=False, allowed_apps=['documents'])
+        self.login_as_standard(allowed_apps=('documents',))
 
         response = self.assertGET200(reverse('creme_config__efilters'))
         self.assertCountEqual(
@@ -78,15 +80,19 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     @override_settings(FILTERS_INITIAL_PRIVATE=False)
     def test_create01(self):
         "Check app credentials."
-        self.login(is_superuser=False, allowed_apps=['documents'])
+        # self.login(is_superuser=False, allowed_apps=['documents'])
+        user = self.login_as_standard(allowed_apps=('documents',))
 
         ct = ContentType.objects.get_for_model(FakeContact)
 
         uri = self._build_add_url(ct)
         self.assertGET403(uri)
 
-        self.role.allowed_apps = ['documents', 'creme_core']
-        self.role.save()
+        # self.role.allowed_apps = ['documents', 'creme_core']
+        # self.role.save()
+        role = user.role
+        role.allowed_apps = ['documents', 'creme_core']
+        role.save()
         response1 = self.assertGET200(uri)
         context1 = response1.context
         self.assertEqual(
@@ -136,7 +142,8 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @override_settings(FILTERS_INITIAL_PRIVATE=True)
     def test_create02(self):
-        self.login(is_superuser=False)
+        # self.login(is_superuser=False)
+        self.login_as_standard()
 
         context = self.assertGET200(
             self._build_add_url(ContentType.objects.get_for_model(FakeContact))
@@ -148,7 +155,8 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIs(form.initial.get('is_private'), True)
 
     def test_edit01(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         name = 'My filter'
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -211,9 +219,11 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit02(self):
         "Can not edit Filter that belongs to another user."
-        self.login(is_superuser=False, allowed_apps=['creme_core'])
+        # self.login(is_superuser=False, allowed_apps=['creme_core'])
+        self.login_as_standard(allowed_apps=('creme_core',))
 
         efilter = EntityFilter.objects.smart_update_or_create(
-            'test-filter01', 'Filter01', FakeContact, user=self.other_user, is_custom=True,
+            # 'test-filter01', 'Filter01', FakeContact, user=self.other_user, is_custom=True,
+            'test-filter01', 'Filter01', FakeContact, user=self.get_root_user(), is_custom=True,
         )
         self.assertGET403(self._build_edit_url(efilter))

@@ -49,6 +49,7 @@ from creme.creme_core.models import (
     Language,
     Relation,
     RelationType,
+    UserRole,
 )
 from creme.creme_core.models.entity_filter import EntityFilterList
 
@@ -61,10 +62,11 @@ class EntityFiltersTestCase(CremeTestCase):
         super().setUpClass()
 
         cls._excluded_ids = frozenset(CremeEntity.objects.values_list('id', flat=True))
+        cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
 
     def setUp(self):
         super().setUp()
-        user = self.login()
+        self.user = user = self.create_user()  # TODO: in setUpClass + get_root_user() instead
 
         create = partial(FakeContact.objects.create, user=user)
 
@@ -98,8 +100,6 @@ class EntityFiltersTestCase(CremeTestCase):
             'genji':  create(first_name='Genji',  last_name='Ikaru'),
             'risato': create(first_name='Risato', last_name='Katsuragu'),
         }
-
-        self.contact_ct = ContentType.objects.get_for_model(FakeContact)
 
     def assertExpectedFiltered(
             self,
@@ -235,13 +235,14 @@ class EntityFiltersTestCase(CremeTestCase):
             - OR to one of his teams
         """
         user = self.user
-        other_user = self.other_user
-        User = get_user_model()
 
-        team = User.objects.create(username='TeamTitan', is_team=True)
+        other_user = self.create_user(1)
+
+        create_team = partial(get_user_model().objects.create, is_team=True)
+        team = create_team(username='TeamTitan')
         team.teammates = [user, other_user]
 
-        other_team = User.objects.create(username='A-Team', is_team=True)
+        other_team = create_team(username='A-Team')
         other_team.teammates = [other_user]
 
         def create_subfilter(idx, owner):
@@ -482,13 +483,14 @@ class EntityFiltersTestCase(CremeTestCase):
             ),
         ]
         pk = 'test-filter'
-        create_efilter(pk, 'Misato', FakeContact, user=self.other_user, conditions=conditions)
+        other_user = self.create_user(1)
+        create_efilter(pk, 'Misato', FakeContact, user=other_user, conditions=conditions)
         count = EntityFilter.objects.count()
 
         name = 'Misato my love'
         efilter = create_efilter(pk, name, FakeContact, user=self.user, conditions=conditions)
         self.assertEqual(name, efilter.name)
-        self.assertEqual(self.other_user, efilter.user)
+        self.assertEqual(other_user, efilter.user)
 
         self.assertEqual(count, EntityFilter.objects.count())
 
@@ -762,7 +764,7 @@ class EntityFiltersTestCase(CremeTestCase):
         )
 
     def test_filter_field_equals_currentuser01(self):
-        other_user = self.other_user
+        other_user = self.create_user(1)
 
         contacts = self.contacts
         first_names = ('rei', 'asuka')
@@ -800,19 +802,14 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_filter_field_equals_currentuser02(self):
         "Teams."
         user = self.user
-        other_user = self.other_user
+        other_user = self.create_user(1)
+        teammate = self.create_user(2)
 
-        User = get_user_model()
-        teammate = User.objects.create(
-            username='fulbertc',
-            email='fulbert@creme.org', role=self.role,
-            first_name='Fulbert', last_name='Creme',
-        )
-
-        tt_team = User.objects.create(username='TeamTitan', is_team=True)
+        create_team = partial(get_user_model().objects.create, is_team=True)
+        tt_team = create_team(username='TeamTitan')
         tt_team.teammates = [user, teammate]
 
-        a_team = User.objects.create(username='A-Team', is_team=True)
+        a_team = create_team(username='A-Team')
         a_team.teammates = [other_user]
 
         contacts = self.contacts
@@ -846,19 +843,14 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_filter_field_not_equals_currentuser(self):
         user = self.user
-        other_user = self.other_user
+        other_user = self.create_user(1)
+        teammate = self.create_user(2)
 
-        User = get_user_model()
-        teammate = User.objects.create(
-            username='fulbertc',
-            email='fulbert@creme.org', role=self.role,
-            first_name='Fulbert', last_name='Creme',
-        )
-
-        tt_team = User.objects.create(username='TeamTitan', is_team=True)
+        create_team = partial(get_user_model().objects.create, is_team=True)
+        tt_team = create_team(username='TeamTitan')
         tt_team.teammates = [user, teammate]
 
-        a_team = User.objects.create(username='A-Team', is_team=True)
+        a_team = create_team(username='A-Team')
         a_team.teammates = [other_user]
 
         contacts = self.contacts
@@ -3377,19 +3369,15 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_manager_filter_by_user(self):
         user = self.user
-        other_user = self.other_user
+        other_user = self.create_user(1)
+        teammate = self.create_user(2)
 
-        User = get_user_model()
-        teammate = User.objects.create(
-            username='fulbertc',
-            email='fulbert@creme.org', role=self.role,
-            first_name='Fulbert', last_name='Creme',
-        )
+        create_team = partial(get_user_model().objects.create, is_team=True)
 
-        tt_team = User.objects.create(username='TeamTitan', is_team=True)
+        tt_team = create_team(username='TeamTitan')
         tt_team.teammates = [user, teammate]
 
-        a_team = User.objects.create(username='A-Team', is_team=True)
+        a_team = create_team(username='A-Team')
         a_team.teammates = [other_user]
 
         create_ef = partial(
@@ -3457,7 +3445,8 @@ class EntityFiltersTestCase(CremeTestCase):
             EntityFilter.objects.filter_by_user(tt_team)
 
         # ---
-        staff = User.objects.create(
+        staff = self.create_user(
+            index=3,
             username='staffito', email='staff@creme.org',
             is_superuser=True, is_staff=True,
             first_name='Staffito', last_name='Creme',
@@ -3700,7 +3689,7 @@ class EntityFiltersTestCase(CremeTestCase):
                 ),
             ],
         )
-        ef4 = create_ef(pk='test-ef_contact3', user=self.other_user)
+        ef4 = create_ef(pk='test-ef_contact3', user=self.create_user(1))
 
         ct = self.contact_ct
         efl = EntityFilterList(ct, user)
@@ -3719,25 +3708,15 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_filterlist02(self):
         "Private filters + not superuser (+ team management)."
-        self.client.logout()
+        super_user = self.user
+        other_user = self.create_user(1, role=UserRole.objects.create(name='Basic'))
+        teammate = self.create_user(2)
 
-        super_user = self.other_user
-        other_user = self.user
-
-        logged = self.client.login(username=super_user.username, password=self.password)
-        self.assertTrue(logged)
-
-        User = get_user_model()
-        teammate = User.objects.create(
-            username='fulbertc',
-            email='fulbert@creme.org', role=self.role,
-            first_name='Fulbert', last_name='Creme',
-        )
-
-        tt_team = User.objects.create(username='TeamTitan', is_team=True)
+        create_team = partial(get_user_model().objects.create, is_team=True)
+        tt_team = create_team(username='TeamTitan')
         tt_team.teammates = [super_user, teammate]
 
-        a_team = User.objects.create(username='A-Team', is_team=True)
+        a_team = create_team(username='A-Team')
         a_team.teammates = [other_user]
 
         conditions = [
@@ -3788,7 +3767,7 @@ class EntityFiltersTestCase(CremeTestCase):
         user.is_staff = True
         user.save()
 
-        other_user = self.other_user
+        other_user = self.create_user(1)
 
         conditions = [
             RegularFieldConditionHandler.build_condition(

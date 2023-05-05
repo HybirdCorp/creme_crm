@@ -67,7 +67,7 @@ class HistoryRenderTestCase(CremeTestCase):
         return html_history_registry.line_explainers([hline], user)[0].render()
 
     def test_render_creation(self):
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='Acme')
 
         registry = HistoryRegistry()
@@ -111,7 +111,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_edition(self):
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation.objects.create(user=user, name='<i>Acme</i>')
 
         # One modification ---
@@ -180,7 +180,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_edition_invalid_field(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
@@ -204,7 +204,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_edition_datetimefield(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         activity = FakeActivity.objects.create(
             user=user, title='Meeting with Seele',
@@ -230,7 +230,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_edition_textfield(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Gainax')
 
@@ -340,7 +340,7 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_edition_choices(self):
         "Field with <choices> attribute."
-        user = self.create_user()
+        user = self.get_root_user()
 
         camp = FakeEmailCampaign.objects.create(
             user=user, name='Campaign for Seele products',
@@ -377,7 +377,7 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_edition_set_null01(self):
         "BooleanField."
-        user = self.create_user()
+        user = self.get_root_user()
 
         peter = FakeContact.objects.create(
             user=user, first_name='Peter', last_name='Parker',
@@ -403,7 +403,7 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_edition_set_null02(self):
         "IntegerField."
-        user = self.create_user()
+        user = self.get_root_user()
 
         old_capital = 1000
         orga = FakeOrganisation.objects.create(user=user, name='Acme', capital=old_capital)
@@ -428,9 +428,10 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_edition_fk01(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -504,9 +505,10 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_edition_fk02(self):
         "Not allowed to see."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -514,7 +516,8 @@ class HistoryRenderTestCase(CremeTestCase):
         hayao = FakeContact.objects.create(
             user=user, first_name='Hayao', last_name='Miyazaki',
         )
-        img = FakeImage.objects.create(user=self.other_user, name='Grumpy Hayao')
+        # img = FakeImage.objects.create(user=self.other_user, name='Grumpy Hayao')
+        img = FakeImage.objects.create(user=self.get_root_user(), name='Grumpy Hayao')
 
         hayao = self.refresh(hayao)
         hayao.image = img
@@ -535,7 +538,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_edition_m2m01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         cat1, cat2 = FakeImageCategory.objects.order_by('id')[:2]
         cat3 = FakeImageCategory.objects.create(name='<i>grumpy</i>')
 
@@ -608,7 +611,7 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_edition_m2m02(self):
         "Adding & removing at the same time."
-        user = self.create_user()
+        user = self.get_root_user()
         cat1, cat2, cat3 = FakeImageCategory.objects.order_by('id')[:3]
 
         img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
@@ -637,9 +640,10 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_edition_m2m03(self):
         "M2M to entities."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -686,7 +690,8 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
         # Credentials ---
-        ml.user = self.other_user
+        # ml.user = self.other_user
+        ml.user = self.get_root_user()
         ml.save()
         self.assertHTMLEqual(
             '<div class="history-line history-line-edition">{}<div>'.format(
@@ -703,7 +708,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_edition_prefetching(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         position1, position2, position3 = FakePosition.objects.all()[:3]
         hayao = FakeContact.objects.create(
@@ -734,7 +739,7 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_custom_edition01(self):
         "String, date, integer."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_cfield = partial(
             CustomField.objects.create,
@@ -809,7 +814,7 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_custom_edition02(self):
         "Enum & multi-enum."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_cfield = partial(
             CustomField.objects.create,
@@ -854,7 +859,7 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_custom_edition03(self):
         "Deleted CustomField."
-        user = self.create_user()
+        user = self.get_root_user()
 
         cfield = CustomField.objects.create(
             content_type=FakeOrganisation, name='Punch line', field_type=CustomField.STR,
@@ -877,7 +882,7 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_custom_edition04(self):
         "Invalid value (does not match CustomField type)."
-        user = self.create_user()
+        user = self.get_root_user()
 
         cfield = CustomField.objects.create(
             content_type=FakeOrganisation, name='Power', field_type=CustomField.DATE,
@@ -902,7 +907,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_custom_edition_prefetching(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_cfield = partial(
             CustomField.objects.create,
@@ -937,7 +942,7 @@ class HistoryRenderTestCase(CremeTestCase):
                 explainer.render()
 
     def test_render_deletion(self):
-        user = self.create_user()
+        user = self.get_root_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
 
         gainax.delete()
@@ -949,7 +954,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_related_edition(self):
-        user = self.create_user()
+        user = self.get_root_user()
         ghibli = FakeOrganisation.objects.create(user=user, name='Ghibli')
 
         hayao = FakeContact.objects.create(user=user, last_name='<i>Miyazaki</i>')
@@ -1036,7 +1041,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_property_addition(self):
-        user = self.create_user()
+        user = self.get_root_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
 
         text = 'Make <i>anime</i> series'
@@ -1065,7 +1070,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_property_deletion(self):
-        user = self.create_user()
+        user = self.get_root_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
 
         text = 'Make <i>anime</i> series'
@@ -1096,7 +1101,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_property_prefetching(self):
-        user = self.create_user()
+        user = self.get_root_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -1123,7 +1128,7 @@ class HistoryRenderTestCase(CremeTestCase):
                 explainer.render()
 
     def test_render_relation_addition(self):
-        user = self.create_user()
+        user = self.get_root_user()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         rtype, srtype = RelationType.objects.smart_update_or_create(
@@ -1191,7 +1196,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_relation_deletion(self):
-        user = self.create_user()
+        user = self.get_root_user()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         rtype, srtype = RelationType.objects.smart_update_or_create(
@@ -1260,7 +1265,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_relation_prefetching(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
@@ -1307,7 +1312,7 @@ class HistoryRenderTestCase(CremeTestCase):
                 explainer.render()
 
     def test_render_auxiliary_creation(self):
-        user = self.create_user()
+        user = self.get_root_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
         address = FakeAddress.objects.create(
             entity=gainax, country='Japan', city='<b>Mitaka</b>',
@@ -1328,7 +1333,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_auxiliary_edition01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         country = 'Japan'
         old_city = 'MITAKA'
@@ -1387,7 +1392,7 @@ class HistoryRenderTestCase(CremeTestCase):
         - DecimalField.
         - field with choices.
         """
-        user = self.create_user()
+        user = self.get_root_user()
         invoice = FakeInvoice.objects.create(
             user=user, name='Invoice', expiration_date=date(year=2021, month=12, day=15),
         )
@@ -1456,7 +1461,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_auxiliary_edition_m2m(self):
-        user = self.create_user()
+        user = self.get_root_user()
         cat = FakeTodoCategory.objects.create(name='Very <b>Important</b>')
 
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
@@ -1505,7 +1510,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_auxiliary_deletion(self):
-        user = self.create_user()
+        user = self.get_root_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
         address = FakeAddress.objects.create(
             entity=gainax, country='Japan', city='<b>Mitaka</b>',
@@ -1529,7 +1534,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_trash(self):
-        user = self.create_user()
+        user = self.get_root_user()
         gainax = self.refresh(
             FakeOrganisation.objects.create(user=user, name='Gainax')
         )

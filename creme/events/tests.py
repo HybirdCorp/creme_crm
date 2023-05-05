@@ -84,14 +84,16 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertTrue(EventType.objects.exists())
 
-    def _create_event(self, name, etype=None, start_date=date(2010, 11, 3), **extra_data):
+    # def _create_event(self, name, etype=None, start_date=date(2010, 11, 3), **extra_data):
+    def _create_event(self, user, name, etype=None, start_date=date(2010, 11, 3), **extra_data):
         etype = etype or EventType.objects.all()[0]
 
         self.assertNoFormError(self.client.post(
             self.ADD_URL,
             follow=True,
             data={
-                'user':       self.user.id,
+                # 'user':       self.user.id,
+                'user':       user.id,
                 'name':       name,
                 'type':       etype.pk,
                 # 'start_date': start_date,
@@ -103,7 +105,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         return self.get_object_or_fail(Event, name=name)
 
     def test_detailview(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         event = Event.objects.create(
             user=user, name='Eclipse',
             type=EventType.objects.all()[0],
@@ -120,11 +123,12 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(_('Results'), self.get_brick_title(brick_node))
 
     def test_createview01(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
         self.assertGET200(self.ADD_URL)
 
         etype = EventType.objects.all()[0]
-        event = self._create_event('Eclipse', etype)
+        event = self._create_event(user=user, name='Eclipse', etype=etype)
 
         self.assertEqual(1, Event.objects.count())
         self.assertEqual(etype, event.type)
@@ -133,11 +137,14 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_createview02(self):
         "End data, hours."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         etype = EventType.objects.all()[1]
         event = self._create_event(
-            'Comiket', etype,
+            user=user,
+            name='Comiket',
+            etype=etype,
             start_date=datetime(year=2016, month=7, day=25, hour=8),
             end_date=datetime(year=2016, month=7, day=29, hour=18, minute=30),
         )
@@ -155,7 +162,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_createview03(self):
         "start > end."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         etype = EventType.objects.all()[1]
         response = self.assertPOST200(
             self.ADD_URL, follow=True,
@@ -175,7 +183,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_createview04(self):
         "FieldsConfig: end is hidden."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Event,
@@ -183,7 +192,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         event = self._create_event(
-            'Comiket',
+            user=user,
+            name='Comiket',
             start_date=datetime(year=2016, month=7, day=25, hour=8),
             end_date=datetime(year=2016, month=7, day=29, hour=18, minute=30),
         )
@@ -194,15 +204,17 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNone(event.end_date)
 
     def test_editview(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'Eclipse'
         etype = EventType.objects.all()[0]
-        event = self._create_event(name, etype)
+        event = self._create_event(user=user, name=name, etype=etype)
 
         url = event.get_edit_absolute_url()
         self.assertGET200(url)
 
+        # ---
         name += '_edited'
         self.assertNoFormError(self.client.post(
             url, follow=True,
@@ -219,11 +231,12 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(self.create_datetime(2010, 11, 4), event.start_date)
 
     def test_listview(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         etype = EventType.objects.all()[0]
-        event1 = self._create_event('Eclipse', etype)
-        event2 = self._create_event('Show', etype)
+        event1 = self._create_event(user=user, name='Eclipse', etype=etype)
+        event2 = self._create_event(user=user, name='Show', etype=etype)
 
         response = self.assertGET200(Event.get_lv_absolute_url())
 
@@ -234,8 +247,9 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertCountEqual([event1, event2], events_page.object_list)
 
     def test_listview_add_related_opport_action(self):
-        user = self.login()
-        event = self._create_event('Eclipse')
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(first_name='Casca', last_name='Miura', user=user)
 
         action = AddRelatedOpportunityAction(
@@ -251,9 +265,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(action.is_enabled)
 
     def test_stats01(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        event = self._create_event('Eclipse')
+        event = self._create_event(user=user, name='Eclipse')
         stats = event.get_stats()
 
         self.assertEqual(4, len(stats))
@@ -266,12 +281,13 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
                 stats['visitors_count'],
             ]
 
-        self.assertEqual([0] * 4, stats_list)
+        self.assertListEqual([0] * 4, stats_list)
 
     @skipIfCustomContact
     def test_stats02(self):
-        user = self.login()
-        event = self._create_event('Eclipse')
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        event = self._create_event(user=user, name='Eclipse')
 
         create_contact = partial(Contact.objects.create, user=user)
         casca    = create_contact(first_name='Casca',    last_name='Miura')
@@ -318,9 +334,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     def test_set_invitation_status01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        event = self._create_event('Eclipse')
+        event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         stats = event.get_stats()
@@ -350,9 +367,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     def test_set_invitation_status02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        event = self._create_event('Eclipse')
+        event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         url = self._build_invitation_url(event, casca)
@@ -371,9 +389,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     def test_set_invitation_status03(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        event = self._create_event('Eclipse')
+        event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         self._set_invitation_status(event, casca, constants.INV_STATUS_REFUSED)
@@ -390,9 +409,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     def test_set_invitation_status04(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        event = self._create_event('Eclipse')
+        event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         self._set_invitation_status(event, casca, constants.INV_STATUS_ACCEPTED)
@@ -410,9 +430,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     def test_set_invitation_status05(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        event = self._create_event('Eclipse')
+        event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         self._set_invitation_status(event, casca, constants.INV_STATUS_REFUSED)
@@ -425,8 +446,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomContact
     def test_set_invitation_status06(self):
         "Credentials errors"
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'events'])
-        other_user = self.other_user
+        # user = self.login(is_superuser=False, allowed_apps=['persons', 'events'])
+        user = self.login_as_standard(allowed_apps=['persons', 'events'])
+        # other_user = self.other_user
+        other_user = self.get_root_user()
 
         create_creds = partial(SetCredentials.objects.create, role=user.role)
         create_creds(
@@ -483,9 +506,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     def test_set_presence_status01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        event = self._create_event('Eclipse')
+        event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         self.assertEqual(
@@ -512,9 +536,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     def test_set_presence_status02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        event = self._create_event('Eclipse')
+        event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         self._set_presence_status(event, casca, constants.PRES_STATUS_COME)
@@ -530,9 +555,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     def test_set_presence_status03(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        event = self._create_event('Eclipse')
+        event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         self._set_presence_status(event, casca, constants.PRES_STATUS_NOT_COME)
@@ -545,9 +571,11 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     def test_set_presence_status04(self):
-        "Credentials errors"
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'events'])
-        other_user = self.other_user
+        "Credentials errors."
+        # user = self.login(is_superuser=False, allowed_apps=['persons', 'events'])
+        user = self.login_as_standard(allowed_apps=['persons', 'events'])
+        # other_user = self.other_user
+        other_user = self.get_root_user()
 
         create_creds = partial(SetCredentials.objects.create, role=user.role)
         create_creds(
@@ -594,10 +622,11 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     def test_list_contacts(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        event1 = self._create_event('Eclipse')
-        event2 = self._create_event('Coronation')
+        event1 = self._create_event(user=user, name='Eclipse')
+        event2 = self._create_event(user=user, name='Coronation')
 
         create_contact = partial(Contact.objects.create, user=user)
         casca     = create_contact(first_name='Casca',     last_name='Miura')
@@ -630,22 +659,24 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     def test_link_contacts01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        event = self._create_event('Eclipse')
+        event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         url = self._build_link_contacts_url(event)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/link.html')
         self.assertEqual(
             _('Link some contacts to «{object}»').format(object=event),
-            response.context.get('title'),
+            response1.context.get('title'),
         )
-        self.assertEqual(_('Link these contacts'), response.context.get('submit_label'))
+        self.assertEqual(_('Link these contacts'), response1.context.get('submit_label'))
 
+        # ---
         cb_url = reverse('events__list_related_contacts', args=(event.id,))
-        response = self.client.post(
+        response2 = self.client.post(
             url, follow=True,
             data={
                 'related_contacts': self.formfield_value_multi_relation_entity(
@@ -654,16 +685,17 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'callback_url': cb_url,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
         self.assertListEqual(
             [constants.REL_SUB_CAME_EVENT], self.relations_types(casca, event),
         )
-        self.assertRedirects(response, cb_url)
+        self.assertRedirects(response2, cb_url)
 
     @skipIfCustomContact
     def test_link_contacts02(self):
-        user = self.login()
-        event = self._create_event('Eclipse')
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        event = self._create_event(user=user, name='Eclipse')
 
         create_contact = partial(Contact.objects.create, user=user)
         casca    = create_contact(first_name='Casca',    last_name='Miura')
@@ -745,9 +777,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomContact
     def test_link_contacts03(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        event = self._create_event('Eclipse')
+        event = self._create_event(user=user, name='Eclipse')
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         response = self.assertPOST200(
@@ -769,10 +802,11 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomContact
     def test_link_contacts04(self):
         "Link credentials error."
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'events'])
+        # user = self.login(is_superuser=False, allowed_apps=['persons', 'events'])
+        user = self.login_as_standard(allowed_apps=['persons', 'events'])
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -808,11 +842,12 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_delete_type(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
         etype = EventType.objects.create(name='Natural')
         etype2 = EventType.objects.exclude(id=etype.id)[0]
 
-        event = self._create_event('Eclipse', etype)
+        event = self._create_event(user=user, name='Eclipse', etype=etype)
 
         self.assertNoFormError(self.client.post(
             reverse(
@@ -834,7 +869,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomOpportunity
     def test_related_opportunity01(self):
         "Contact is not related to an Organisation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'Opp01'
         self.assertFalse(Opportunity.objects.filter(name=name))
@@ -885,7 +921,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomOpportunity
     def test_related_opportunity02(self):
         "Contact is related to an Organisation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         emitter = create_orga(name='My society', is_managed=True)
@@ -944,7 +981,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomOpportunity
     def test_related_opportunity03(self):
         """Opportunity.description is hidden."""
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
             content_type=Opportunity,
@@ -980,8 +1018,9 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomOpportunity
     def test_related_opportunity04(self):
         "Not super-user."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['persons', 'opportunities', 'events'],
             creatable_models=[Opportunity],
         )
@@ -1001,8 +1040,9 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomOpportunity
     def test_related_opportunity05(self):
         "Creation permission needed."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['persons', 'opportunities', 'events'],
             # creatable_models=[Opportunity],
         )
@@ -1026,8 +1066,9 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomOpportunity
     def test_related_opportunity06(self):
         "LINK permission is needed."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['persons', 'opportunities', 'events'],
             creatable_models=[Opportunity],
         )
@@ -1047,8 +1088,9 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomOpportunity
     def test_related_opportunity07(self):
         "Contact must be viewable."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['persons', 'opportunities', 'events'],
             creatable_models=[Opportunity],
         )
@@ -1063,7 +1105,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         casca = Contact.objects.create(
-            user=self.other_user, first_name='Casca', last_name='Miura',
+            # user=self.other_user, first_name='Casca', last_name='Miura',
+            user=self.get_root_user(), first_name='Casca', last_name='Miura',
         )
         event = Event.objects.create(
             user=user, name='Eclipse', type=EventType.objects.all()[0], start_date=now(),

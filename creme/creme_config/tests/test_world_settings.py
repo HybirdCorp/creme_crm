@@ -23,7 +23,8 @@ WorldSettings = get_world_settings_model()
 )
 class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_portal(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         response = self.assertGET200(reverse('creme_config__world_settings'))
         self.assertTemplateUsed(response, 'creme_config/portals/world-settings.html')
@@ -36,7 +37,8 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @override_settings(MENU_ICON_MAX_SIZE=4092)
     def test_edit_menu_icon01(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         self.assertEqual(1, WorldSettings.objects.count())
 
@@ -103,7 +105,8 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
     @override_settings(MENU_ICON_MAX_SIZE=3145728)
     def test_edit_menu_icon02(self):
         "Image resized if too big."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         uploaded_path = Path(
             settings.CREME_ROOT, 'static', 'common', 'images', 'creme_logo.png',
@@ -133,7 +136,8 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_menu_icon03(self):
         "Image file too large."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         uploaded_path = Path(
             settings.CREME_ROOT, 'static', 'common', 'images', 'creme_logo.png',
@@ -158,7 +162,8 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_menu_icon04(self):
         "Reject not image."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         uploaded_path = Path(
             settings.CREME_ROOT, 'static', 'common', 'images', 'fulbert', 'fulbert.blend',
@@ -184,7 +189,8 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_menu_icon05(self):
         "Check image type."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         source_path = Path(
             settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png',
@@ -214,16 +220,19 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_menu_icon_error01(self):
         "Not superuser."
-        self.login(is_superuser=False, admin_4_apps=['creme_core'])
+        # self.login(is_superuser=False, admin_4_apps=['creme_core'])
+        self.login_as_standard(admin_4_apps=['creme_core'])
         self.assertGET403(reverse('creme_config__edit_world_setting', args=('menu_icon',)))
 
     def test_edit_menu_icon_error02(self):
         "Invalid field name."
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET404(reverse('creme_config__edit_world_setting', args=('invalid',)))
 
     def test_edit_password_features(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         url = reverse('creme_config__edit_world_setting', args=('password',))
         response1 = self.assertGET200(url)
@@ -263,7 +272,8 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(w_settings.password_change_enabled)
 
     def test_edit_displayed_name(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertTrue(WorldSettings.objects.get().user_name_change_enabled)
 
         url = reverse('creme_config__edit_world_setting', args=('displayed_name',))

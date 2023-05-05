@@ -40,10 +40,12 @@ from .base import FieldTestCase
 
 class _JSONFieldBaseTestCase(FieldTestCase):
     def login_as_basic_user(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
 
         SetCredentials.objects.create(
-            role=self.role,
+            # role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -58,13 +60,15 @@ class _JSONFieldBaseTestCase(FieldTestCase):
 
     def create_contact(
             self,
+            *, user,
             first_name='Eikichi',
             last_name='Onizuka',
             ptypes=(),
-            user=None,
+            # user=None,
             **kwargs):
         contact = FakeContact.objects.create(
-            user=user or self.user,
+            # user=user or self.user,
+            user=user,
             first_name=first_name, last_name=last_name,
             **kwargs
         )
@@ -78,8 +82,9 @@ class _JSONFieldBaseTestCase(FieldTestCase):
 
         return contact
 
-    def create_orga(self, name='Onibaku', user=None, **kwargs):
-        user = user or self.user
+    # def create_orga(self, name='Onibaku', user=None, **kwargs):
+    def create_orga(self, user, name='Onibaku', **kwargs):
+        # user = user or self.user
         return FakeOrganisation.objects.create(user=user, name=name, **kwargs)
 
     @staticmethod
@@ -171,8 +176,10 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_entity_from_model(self):
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
         field = JSONField(required=True)
 
         clean = field._clean_entity_from_model
@@ -186,8 +193,10 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_filtered_entity_from_model(self):
-        user = self.login()
-        contact = self.create_contact()
+        # user = self.login()
+        # contact = self.create_contact()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
         field = JSONField(required=True, user=user)
 
         clean = field._clean_entity_from_model
@@ -199,8 +208,10 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_deleted_entity_from_model(self):
-        user = self.login()
-        contact = self.create_contact(is_deleted=True)
+        # user = self.login()
+        # contact = self.create_contact(is_deleted=True)
+        user = self.get_root_user()
+        contact = self.create_contact(user=user, is_deleted=True)
         field = JSONField(user=user)
         self.assertFieldValidationError(
             JSONField, 'isdeleted',
@@ -239,10 +250,13 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertTrue(ctypes)
 
     def test_models_property(self):
-        self.login()
+        # self.login()
+        user = self.get_root_user()
 
-        contact = self.create_contact()
-        orga = self.create_orga('orga')
+        # contact = self.create_contact()
+        # orga = self.create_orga('orga')
+        contact = self.create_contact(user=user)
+        orga = self.create_orga(name='orga', user=user)
 
         ctype1 = contact.entity_type
         ctype2 = orga.entity_type
@@ -258,8 +272,10 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertIn(ctype2, ctypes)
 
     def test_format_object(self):
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
         field = GenericEntityField(models=[FakeOrganisation, FakeContact, FakeImage])
 
         self.assertEqual(
@@ -288,7 +304,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
             json_load(field.from_python(contact)),
         )
 
-        field.user = self.user
+        # field.user = self.user
+        field.user = user
         expected = {
             'ctype': {
                 'id': ct_id,
@@ -347,9 +364,9 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_forbidden_ctype(self):
-        self.login()
-
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
         self.assertFieldValidationError(
             GenericEntityField, 'ctypenotallowed',
             GenericEntityField(models=[FakeOrganisation, FakeImage]).clean,
@@ -357,8 +374,9 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_unknown_entity(self):
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
         ct_id = ContentType.objects.get_for_model(FakeImage).id  # Not Contact !!
         self.assertFieldValidationError(
             GenericEntityField, 'doesnotexist',
@@ -367,8 +385,10 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_deleted_entity(self):
-        user = self.login()
-        contact = self.create_contact(is_deleted=True)
+        # user = self.login()
+        # contact = self.create_contact(is_deleted=True)
+        user = self.get_root_user()
+        contact = self.create_contact(user=user, is_deleted=True)
 
         field = GenericEntityField(models=[FakeOrganisation, FakeContact, FakeImage])
         field.user = user
@@ -382,8 +402,10 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_entity(self):
-        user = self.login()
-        contact = self.create_contact()
+        # user = self.login()
+        # contact = self.create_contact()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
 
         with self.assertNumQueries(0):
             field = GenericEntityField(models=[FakeOrganisation, FakeContact, FakeImage])
@@ -395,8 +417,10 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_incomplete_not_required(self):
-        user = self.login()
-        contact = self.create_contact()
+        # user = self.login()
+        # contact = self.create_contact()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
 
         clean = GenericEntityField(
             models=[FakeOrganisation, FakeContact, FakeImage],
@@ -415,8 +439,9 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_incomplete_required(self):
         "Required -> 'friendly' errors."
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
 
         clean = GenericEntityField(
             models=[FakeOrganisation, FakeContact, FakeImage],
@@ -451,7 +476,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_with_permission01(self):
         "Perm checking OK."
         user = self.login_as_basic_user()
-        contact = self.create_contact()
+        contact = self.create_contact(user=user)
         field = GenericEntityField(
             models=[FakeOrganisation, FakeContact, FakeImage],
             user=user,
@@ -465,7 +490,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         "Perm checking KO (LINK)."
         user = self.login_as_basic_user()
 
-        contact = self.create_contact(user=self.other_user)
+        # contact = self.create_contact(user=self.other_user)
+        contact = self.create_contact(user=self.get_root_user())
         field = GenericEntityField(models=[FakeOrganisation, FakeContact], user=user)
 
         with self.assertRaises(ValidationError) as cm:
@@ -485,14 +511,16 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         user = self.login_as_basic_user()
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_ALL,
             ctype=FakeContact,
         )
 
-        contact = self.create_contact(user=self.other_user)
-        orga    = self.create_orga(user=self.other_user)
+        # other_user = self.other_user
+        other_user = self.get_root_user()
+        contact = self.create_contact(user=other_user)
+        orga    = self.create_orga(user=other_user)
 
         field = GenericEntityField(
             models=[FakeOrganisation, FakeContact], user=user,
@@ -520,14 +548,16 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         user = self.login_as_basic_user()
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.CHANGE,
             set_type=SetCredentials.ESET_ALL,
             ctype=FakeContact,
         )
 
-        contact = self.create_contact(user=self.other_user)
-        orga    = self.create_orga(user=self.other_user)
+        # other_user = self.other_user
+        other_user = self.create_user(index=1)
+        contact = self.create_contact(user=other_user)
+        orga    = self.create_orga(user=other_user)
 
         field = GenericEntityField(
             models=[FakeOrganisation, FakeContact], user=user,
@@ -553,18 +583,20 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_with_permission05(self):
         "Perm checking: perm combo."
         user = self.login_as_basic_user()
+        # other_user = self.other_user
+        other_user = self.get_root_user()
 
         get_ct = ContentType.objects.get_for_model
         create_sc = partial(
             SetCredentials.objects.create,
-            role=self.role, set_type=SetCredentials.ESET_ALL,
+            role=user.role, set_type=SetCredentials.ESET_ALL,
         )
         create_sc(value=EntityCredentials.VIEW, ctype=get_ct(FakeContact))
         create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
 
-        contact = self.create_contact(user=self.other_user)
-        orga1 = self.create_orga(user=self.other_user)
-        orga2 = self.create_orga()
+        contact = self.create_contact(user=other_user)
+        orga1 = self.create_orga(user=other_user)
+        orga2 = self.create_orga(user=user)
 
         field = GenericEntityField(
             models=[FakeOrganisation, FakeContact],
@@ -626,10 +658,13 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertTrue(ctypes)
 
     def test_format_object(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
-        contact = self.create_contact()
-        orga    = self.create_orga()
+        # contact = self.create_contact()
+        # orga    = self.create_orga()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
 
         contact_ct_id = contact.entity_type_id
         orga_ct_id    = orga.entity_type_id
@@ -755,18 +790,23 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_forbidden_ctype(self):
-        self.login()
+        # self.login()
+        user = self.get_root_user()
 
         clean = MultiGenericEntityField(models=[FakeOrganisation, FakeImage]).clean
-        value = self.build_data(self.create_contact(), self.create_orga())
+        # value = self.build_data(self.create_contact(), self.create_orga())
+        value = self.build_data(self.create_contact(user=user), self.create_orga(user=user))
         self.assertFieldValidationError(
             MultiGenericEntityField, 'ctypenotallowed', clean, value,
         )
 
     def test_clean_unknown_entity(self):
-        self.login()
-        contact1   = self.create_contact()
-        contact2   = self.create_contact(first_name='Ryuji', last_name='Danma')
+        # self.login()
+        # contact1   = self.create_contact()
+        # contact2   = self.create_contact(first_name='Ryuji', last_name='Danma')
+        user = self.get_root_user()
+        contact1   = self.create_contact(user=user)
+        contact2   = self.create_contact(user=user, first_name='Ryuji', last_name='Danma')
         ct_orga_id = ContentType.objects.get_for_model(FakeOrganisation).id
 
         field = MultiGenericEntityField(
@@ -781,8 +821,10 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_deleted_entity(self):
-        user = self.login()
-        contact = self.create_contact(is_deleted=True)
+        # user = self.login()
+        # contact = self.create_contact(is_deleted=True)
+        user = self.get_root_user()
+        contact = self.create_contact(user=user, is_deleted=True)
         field = MultiGenericEntityField(
             models=[FakeOrganisation, FakeContact, FakeImage],
             user=user,
@@ -793,9 +835,12 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_entities(self):
-        user = self.login()
-        contact = self.create_contact()
-        orga    = self.create_orga()
+        # user = self.login()
+        # contact = self.create_contact()
+        # orga    = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
 
         with self.assertNumQueries(0):
             field = MultiGenericEntityField(models=[FakeOrganisation, FakeContact])
@@ -805,9 +850,12 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_duplicates(self):
         "Duplicates are removed."
-        user = self.login()
-        contact = self.create_contact()
-        orga    = self.create_orga()
+        # user = self.login()
+        # contact = self.create_contact()
+        # orga    = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
 
         field = MultiGenericEntityField(models=[FakeOrganisation, FakeContact])
         field.user = user
@@ -818,9 +866,12 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_duplicates_no_unique(self):
         "Duplicates are allowed."
-        user = self.login()
-        contact = self.create_contact()
-        orga    = self.create_orga()
+        # user = self.login()
+        # contact = self.create_contact()
+        # orga    = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
 
         field = MultiGenericEntityField(
             models=[FakeOrganisation, FakeContact], unique=False, user=user,
@@ -832,9 +883,12 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_incomplete_not_required(self):
         "Not required."
-        user = self.login()
-        contact = self.create_contact()
-        orga    = self.create_orga()
+        # user = self.login()
+        # contact = self.create_contact()
+        # orga    = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
 
         clean = MultiGenericEntityField(
             models=[FakeOrganisation, FakeContact], required=False, user=user,
@@ -859,9 +913,12 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_incomplete_required(self):
         "Required -> 'friendly' errors."
-        user = self.login()
-        contact = self.create_contact()
-        orga    = self.create_orga()
+        # user = self.login()
+        # contact = self.create_contact()
+        # orga    = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
 
         clean = MultiGenericEntityField(
             models=[FakeOrganisation, FakeContact], required=True, user=user,
@@ -887,8 +944,8 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_with_permission01(self):
         "Perm checking OK."
         user = self.login_as_basic_user()
-        contact = self.create_contact()
-        orga = self.create_orga()
+        contact = self.create_contact(user=user)
+        orga = self.create_orga(user=user)
         field = MultiGenericEntityField(
             models=[FakeOrganisation, FakeContact],
             user=user,
@@ -902,8 +959,9 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_with_permission02(self):
         "Perm checking KO."
         user = self.login_as_basic_user()
-        contact = self.create_contact()
-        orga = self.create_orga(user=self.other_user)
+        contact = self.create_contact(user=user)
+        # orga = self.create_orga(user=self.other_user)
+        orga = self.create_orga(user=self.get_root_user())
         field = MultiGenericEntityField(
             models=[FakeOrganisation, FakeContact],
             user=user,
@@ -928,14 +986,16 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         get_ct = ContentType.objects.get_for_model
         create_sc = partial(
             SetCredentials.objects.create,
-            role=self.role, set_type=SetCredentials.ESET_ALL,
+            role=user.role, set_type=SetCredentials.ESET_ALL,
         )
         create_sc(value=EntityCredentials.VIEW, ctype=get_ct(FakeContact))
         create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
 
-        contact = self.create_contact(user=self.other_user)
-        orga1 = self.create_orga(user=self.other_user)
-        orga2 = self.create_orga()
+        # other_user = self.other_user
+        other_user = self.get_root_user()
+        contact = self.create_contact(user=other_user)
+        orga1 = self.create_orga(user=other_user)
+        orga2 = self.create_orga(user=user)
 
         field = MultiGenericEntityField(
             models=[FakeOrganisation, FakeContact],
@@ -1065,8 +1125,9 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_unknown_rtype(self):
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
 
         rtype_id1 = 'test-i_do_not_exist'
         rtype_id2 = 'test-neither_do_i'
@@ -1080,8 +1141,9 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_not_allowed_rtype(self):
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
 
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
@@ -1098,8 +1160,9 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_not_allowed_rtype_queryset(self):
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
 
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
@@ -1118,8 +1181,10 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_ctype_constraint_error(self):
-        user = self.login()
-        orga = self.create_orga()
+        # user = self.login()
+        # orga = self.create_orga()
+        user = self.get_root_user()
+        orga = self.create_orga(user=user)
 
         rtype1 = self.create_employed_rtype()[1]
         rtype2 = self.create_customer_rtype()[1]
@@ -1144,8 +1209,9 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_unknown_entity(self):
-        self.login()
-        orga = self.create_orga()
+        # self.login()
+        # orga = self.create_orga()
+        orga = self.create_orga(user=self.get_root_user())
 
         rtype1 = self.create_employed_rtype()[1]
         rtype2 = self.create_customer_rtype()[1]
@@ -1161,8 +1227,10 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_deleted_entity(self):
-        user = self.login()
-        orga = self.create_orga(is_deleted=True)
+        # user = self.login()
+        # orga = self.create_orga(is_deleted=True)
+        user = self.get_root_user()
+        orga = self.create_orga(user=user, is_deleted=True)
         rtype1 = self.create_employed_rtype()[0]
         rtype2 = self.create_customer_rtype()[0]
 
@@ -1177,8 +1245,10 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_relation(self):
-        user = self.login()
-        contact = self.create_contact()
+        # user = self.login()
+        # contact = self.create_contact()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
         rtype1 = self.create_employed_rtype()[1]
         rtype2 = self.create_customer_rtype()[1]
 
@@ -1192,8 +1262,10 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertTupleEqual((rtype1, contact), cleaned)
 
     def test_clean_ctype_without_constraint(self):
-        user = self.login()
-        contact = self.create_contact()
+        # user = self.login()
+        # contact = self.create_contact()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
         rtype = self.create_loves_rtype()[0]
 
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
@@ -1203,7 +1275,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_properties_constraint_error(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
@@ -1213,7 +1286,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype, sym_rtype = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))
 
         # Does not have the property 'ptype2'
-        contact = self.create_contact(ptypes=(ptype1, ptype3))
+        # contact = self.create_contact(ptypes=(ptype1, ptype3))
+        contact = self.create_contact(user=user, ptypes=(ptype1, ptype3))
 
         field = RelationEntityField(allowed_rtypes=[rtype.pk], user=user)
 
@@ -1235,7 +1309,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_properties_constraint(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
@@ -1245,7 +1320,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))[0]
 
         # Has all the properties
-        contact = self.create_contact(ptypes=(ptype1, ptype2, ptype3))
+        # contact = self.create_contact(ptypes=(ptype1, ptype2, ptype3))
+        contact = self.create_contact(user=user, ptypes=(ptype1, ptype2, ptype3))
 
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
         self.assertTupleEqual(
@@ -1254,14 +1330,16 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_forbidden_properties_constraint_error(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_strong', text='Is not kind',
         )
 
         rtype, sym_rtype = self.create_loves_rtype(object_forbidden_ptypes=ptype)
-        contact = self.create_contact(ptypes=ptype)
+        # contact = self.create_contact(ptypes=ptype)
+        contact = self.create_contact(user=user, ptypes=ptype)
 
         field = RelationEntityField(allowed_rtypes=[rtype.pk], user=user)
 
@@ -1283,7 +1361,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_forbidden_properties_constraint(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_strong', text='Is not kind')
@@ -1292,7 +1371,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype = self.create_loves_rtype(object_forbidden_ptypes=ptype1)[0]
 
         # Has no forbidden property
-        contact = self.create_contact(ptypes=ptype2)
+        # contact = self.create_contact(ptypes=ptype2)
+        contact = self.create_contact(user=user, ptypes=ptype2)
 
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
         self.assertTupleEqual(
@@ -1303,7 +1383,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_with_permission01(self):
         "Perm checking OK."
         user = self.login_as_basic_user()
-        contact = self.create_contact()
+        contact = self.create_contact(user=user)
         rtype = self.create_loves_rtype()[0]
 
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
@@ -1315,7 +1395,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_with_permission02(self):
         "Perm checking KO."
         user = self.login_as_basic_user()
-        contact = self.create_contact(user=self.other_user)
+        # contact = self.create_contact(user=self.other_user)
+        contact = self.create_contact(user=self.get_root_user())
         rtype = self.create_loves_rtype()[0]
 
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
@@ -1327,9 +1408,10 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_incomplete01(self):
         "Not required."
-        self.login()
+        # self.login()
         rtype = self.create_loves_rtype()[0]
-        contact = self.create_contact()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
 
         clean = RelationEntityField(required=False).clean
         self.assertIsNone(clean(json_dump({'rtype': rtype.id})))
@@ -1339,9 +1421,10 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_incomplete02(self):
         "Required -> 'friendly' errors."
-        self.login()
+        # self.login()
         rtype = self.create_loves_rtype()[0]
-        contact = self.create_contact()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
 
         clean = RelationEntityField(required=True).clean
         self.assertFieldValidationError(
@@ -1467,8 +1550,9 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_unknown_rtype(self):
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
 
         rtype_id1 = 'test-i_do_not_exist'
         rtype_id2 = 'test-neither_do_i'
@@ -1481,9 +1565,12 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_not_allowed_rtype(self):
-        self.login()
-        contact = self.create_contact()
-        orga    = self.create_orga()
+        # self.login()
+        # contact = self.create_contact()
+        # orga    = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
 
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
@@ -1504,9 +1591,12 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_not_allowed_rtype_queryset(self):
         cls = MultiRelationEntityField
-        self.login()
-        contact = self.create_contact()
-        orga    = self.create_orga()
+        # self.login()
+        # contact = self.create_contact()
+        # orga    = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
 
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
@@ -1526,9 +1616,12 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_ctype_constraint_error(self):
-        user = self.login()
-        contact = self.create_contact()
-        orga = self.create_orga()
+        # user = self.login()
+        # contact = self.create_contact()
+        # orga = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
 
         rtype1 = self.create_employed_rtype()[1]
         rtype2 = self.create_customer_rtype()[1]
@@ -1553,9 +1646,12 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_unknown_entity(self):
-        self.login()
-        contact = self.create_contact()
-        orga = self.create_orga()
+        # self.login()
+        # contact = self.create_contact()
+        # orga = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
 
         rtype1 = self.create_employed_rtype()[1]
         rtype2 = self.create_customer_rtype()[1]
@@ -1570,8 +1666,10 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_deleted_entity(self):
-        user = self.login()
-        contact = self.create_contact(is_deleted=True)
+        # user = self.login()
+        # contact = self.create_contact(is_deleted=True)
+        user = self.get_root_user()
+        contact = self.create_contact(user=user, is_deleted=True)
 
         rtype1 = self.create_employed_rtype()[1]
         rtype2 = self.create_customer_rtype()[1]
@@ -1587,9 +1685,12 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_relations(self):
-        user = self.login()
-        contact = self.create_contact()
-        orga = self.create_orga()
+        # user = self.login()
+        # contact = self.create_contact()
+        # orga = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
 
         rtype_employed, rtype_employs = self.create_employed_rtype()
         rtype_supplier = self.create_customer_rtype()[1]
@@ -1629,9 +1730,12 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_relations_queryset(self):
-        user = self.login()
-        contact = self.create_contact()
-        orga = self.create_orga()
+        # user = self.login()
+        # contact = self.create_contact()
+        # orga = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
 
         rtype_employed, rtype_employs = self.create_employed_rtype()
         rtype_supplier = self.create_customer_rtype()[1]
@@ -1656,8 +1760,10 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_ctype_without_constraint(self):
-        user = self.login()
-        contact = self.create_contact()
+        # user = self.login()
+        # contact = self.create_contact()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
         rtype = self.create_loves_rtype()[0]
 
         field = MultiRelationEntityField(allowed_rtypes=[rtype.id], user=user)
@@ -1667,7 +1773,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_properties_constraint_error(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
@@ -1678,9 +1785,11 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype_no_constr = self.create_hates_rtype()[0]
 
         # Does not have the property 'ptype2'
-        contact = self.create_contact(ptypes=(ptype1, ptype3))
+        # contact = self.create_contact(ptypes=(ptype1, ptype3))
+        contact = self.create_contact(user=user, ptypes=(ptype1, ptype3))
 
-        orga = self.create_orga()
+        # orga = self.create_orga()
+        orga = self.create_orga(user=user)
 
         field = MultiRelationEntityField(
             allowed_rtypes=[rtype_constr.pk, rtype_no_constr.pk], user=user,
@@ -1703,7 +1812,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_properties_constraint(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
@@ -1714,9 +1824,11 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype_no_constr = self.create_hates_rtype()[0]
 
         # Has all the properties
-        contact = self.create_contact(ptypes=(ptype1, ptype3, ptype2))
+        # contact = self.create_contact(ptypes=(ptype1, ptype3, ptype2))
+        contact = self.create_contact(user=user, ptypes=(ptype1, ptype3, ptype2))
 
-        orga = self.create_orga()
+        # orga = self.create_orga()
+        orga = self.create_orga(user=user)
 
         field = MultiRelationEntityField(allowed_rtypes=[rtype_constr.pk, rtype_no_constr.pk])
         field.user = user
@@ -1729,7 +1841,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_forbidden_properties_constraint_error(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_strong', text='Is not kind',
@@ -1738,8 +1851,10 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype_constr    = self.create_loves_rtype(object_forbidden_ptypes=[ptype])[0]
         rtype_no_constr = self.create_hates_rtype()[0]
 
-        contact = self.create_contact(ptypes=ptype)
-        orga = self.create_orga()
+        # contact = self.create_contact(ptypes=ptype)
+        # orga = self.create_orga()
+        contact = self.create_contact(user=user, ptypes=ptype)
+        orga = self.create_orga(user=user, )
 
         field = MultiRelationEntityField(
             allowed_rtypes=[rtype_constr.pk, rtype_no_constr.pk], user=user,
@@ -1762,7 +1877,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_forbidden_properties_constraint(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_strong', text='Is not kind')
@@ -1772,9 +1888,11 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype_no_constr = self.create_hates_rtype()[0]
 
         # Has no forbidden properties
-        contact = self.create_contact(ptypes=ptype2)
+        # contact = self.create_contact(ptypes=ptype2)
+        contact = self.create_contact(user=user, ptypes=ptype2)
 
-        orga = self.create_orga()
+        # orga = self.create_orga()
+        orga = self.create_orga(user=user)
 
         field = MultiRelationEntityField(allowed_rtypes=[rtype_constr.pk, rtype_no_constr.pk])
         field.user = user
@@ -1788,9 +1906,11 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_incomplete01(self):
         "Not required."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         rtype = self.create_loves_rtype()[0]
-        contact = self.create_contact()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=user)
 
         clean = MultiRelationEntityField(
             required=False, allowed_rtypes=[rtype.id], user=user,
@@ -1812,9 +1932,11 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_incomplete02(self):
         "Required -> 'friendly' errors."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         rtype = self.create_loves_rtype()[0]
-        contact = self.create_contact()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=user)
 
         clean = MultiRelationEntityField(
             required=True, allowed_rtypes=[rtype.id], user=user,
@@ -1839,8 +1961,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_with_permission01(self):
         "Perm checking OK."
         user = self.login_as_basic_user()
-        contact = self.create_contact()
-        orga    = self.create_orga()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
 
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
@@ -1860,8 +1982,9 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_with_permission02(self):
         "Perm checking KO"
         user = self.login_as_basic_user()
-        contact = self.create_contact()
-        orga    = self.create_orga(user=self.other_user)
+        contact = self.create_contact(user=user)
+        # orga    = self.create_orga(user=self.other_user)
+        orga    = self.create_orga(user=self.get_root_user())
 
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
@@ -1885,9 +2008,12 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_format_object(self):
-        self.login()
-        contact = self.create_contact()
-        orga    = self.create_orga()
+        # self.login()
+        # contact = self.create_contact()
+        # orga    = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga    = self.create_orga(user=user)
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
 
@@ -1934,8 +2060,9 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(CreatorEntityField, 'required', field.clean, '1')
 
     def test_format_object(self):
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
         from_python = CreatorEntityField(model=FakeContact).from_python
         jsonified = str(contact.pk)
         self.assertEqual(jsonified, from_python(jsonified))
@@ -1954,8 +2081,9 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_qfilter01(self):
         "Dict."
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
         qfilter = {'pk': contact.pk}
         action_url = f'/persons/quickforms/from_widget/{contact.entity_type_id}/'
 
@@ -1986,8 +2114,9 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_qfilter02(self):
         "Dict."
-        self.login()
-        orga = self.create_orga()
+        # self.login()
+        # orga = self.create_orga()
+        orga = self.create_orga(user=self.get_root_user())
         qfilter = ~Q(id=orga.id)
 
         field = CreatorEntityField(model=FakeOrganisation)
@@ -2004,9 +2133,12 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(field.q_filter, qfilter)
 
     def test_format_object_from_other_model(self):
-        self.login()
-        contact = self.create_contact()
-        orga = self.create_orga()
+        # self.login()
+        # contact = self.create_contact()
+        # orga = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga = self.create_orga(user=user)
         field = CreatorEntityField(model=FakeContact)
 
         jsonified = str(contact.pk)
@@ -2021,8 +2153,9 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_invalid_qfilter(self):
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
         action_url = f'/persons/quickforms/from_widget/{contact.entity_type_id}/'
 
         field = CreatorEntityField(model=FakeContact)
@@ -2050,7 +2183,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_action_buttons_no_custom_quickform(self):
         self.assertIsNotNone(quickforms_registry.get_form_class(FakeContact))
 
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         self.assertTrue(user.has_perm_to_create(FakeContact))
 
         field = CreatorEntityField(model=FakeContact, required=False)
@@ -2060,7 +2194,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertTrue(url)
         self.assertEqual(url, field.widget.creation_url)
 
-        contact = self.create_contact()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=user)
         q_filter = ~Q(pk=contact.pk)
         field.q_filter = q_filter
         self.assertEqual(q_filter, field.q_filter)
@@ -2078,7 +2213,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual('', field.widget.creation_url)
 
     def test_action_buttons_no_user(self):
-        self.login()
+        # self.login()
         field = CreatorEntityField(model=FakeContact, required=False)
         self.assertIsNone(field.user)
 
@@ -2087,7 +2222,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFalse(widget.creation_allowed)
 
     def test_action_buttons_required(self):
-        self.login()
+        # self.login()
         field = CreatorEntityField(model=FakeContact)
 
         self.assertIsNone(field.user)
@@ -2095,7 +2230,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertListEqual([], field.widget.actions)
 
     def test_action_buttons_no_quickform(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         field = CreatorEntityField(model=CremeEntity, required=False)
         field.user = user
@@ -2105,10 +2241,11 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFalse(field.widget.creation_url)
 
     def test_action_buttons_not_allowed(self):
-        self.login()
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
 
         field = CreatorEntityField(model=FakeContact, required=False)
-        field.user = self.other_user
+        field.user = user
 
         self.assertFalse(field.user.has_perm_to_create(FakeContact))
         self.assertIsNotNone(quickforms_registry.get_form_class(FakeContact))
@@ -2120,7 +2257,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_action_buttons_allowed(self):
         self.assertIsNotNone(quickforms_registry.get_form_class(FakeContact))
 
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         self.assertTrue(user.has_perm_to_create(FakeContact))
 
         field = CreatorEntityField(model=FakeContact, required=False)
@@ -2133,7 +2271,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertTrue(widget.creation_allowed)
 
     def test_create_action_url(self):
-        self.login()
+        # self.login()
 
         field = CreatorEntityField(model=FakeContact)
         self.assertEqual(
@@ -2151,7 +2289,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(url, field.create_action_url)
 
     def test_create_action_label(self):
-        self.login()
+        # self.login()
 
         label = 'Create an agent'
         field = CreatorEntityField(model=FakeContact, create_action_label=label)
@@ -2179,9 +2317,12 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(CreatorEntityField, 'invalidtype', clean, '{}')
 
     def test_clean_unknown_entity(self):
-        self.login()
-        contact = self.create_contact()
-        orga = self.create_orga()
+        # self.login()
+        # contact = self.create_contact()
+        # orga = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga = self.create_orga(user=user)
 
         self.assertFieldValidationError(
             CreatorEntityField, 'doesnotexist',
@@ -2198,7 +2339,7 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         "Perm checking OK."
         user = self.login_as_basic_user()
 
-        orga = self.create_orga()
+        orga = self.create_orga(user=user)
 
         field = CreatorEntityField(model=FakeOrganisation)
         field.user = user
@@ -2208,7 +2349,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         "Perm checking KO."
         user = self.login_as_basic_user()
 
-        orga = self.create_orga(user=self.other_user)
+        # orga = self.create_orga(user=self.other_user)
+        orga = self.create_orga(user=self.get_root_user())
 
         field = CreatorEntityField(model=FakeOrganisation)
         field.user = user
@@ -2218,8 +2360,10 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual('linknotallowed', cm.exception.code)
 
     def test_clean_deleted_entity(self):
-        user = self.login()
-        contact = self.create_contact(is_deleted=True)
+        # user = self.login()
+        # contact = self.create_contact(is_deleted=True)
+        user = self.get_root_user()
+        contact = self.create_contact(user=user, is_deleted=True)
         self.assertFieldValidationError(
             CreatorEntityField, 'isdeleted',
             CreatorEntityField(model=FakeContact, user=user).clean,
@@ -2229,8 +2373,10 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_filtered_entity01(self):
         "q_filter is a dict."
-        user = self.login()
-        contact1 = self.create_contact()
+        # user = self.login()
+        # contact1 = self.create_contact()
+        user = self.get_root_user()
+        contact1 = self.create_contact(user=user)
 
         with self.assertNumQueries(0):
             field = CreatorEntityField(model=FakeContact)
@@ -2239,7 +2385,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field.q_filter = {'pk': contact1.pk}
         self.assertEqual(contact1, field.clean(str(contact1.pk)))
 
-        contact2 = self.create_contact()
+        # contact2 = self.create_contact()
+        contact2 = self.create_contact(user=user)
         self.assertFieldValidationError(
             CreatorEntityField, 'isexcluded', field.clean, str(contact2.pk),
             message_args={'entity': str(contact2)},
@@ -2247,8 +2394,10 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_filtered_entity02(self):
         "q_filter is a Q."
-        user = self.login()
-        orga = self.create_orga()
+        # user = self.login()
+        # orga = self.create_orga()
+        user = self.get_root_user()
+        orga = self.create_orga(user=user)
 
         with self.assertNumQueries(0):
             field = CreatorEntityField(model=FakeOrganisation)
@@ -2265,9 +2414,12 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_filtered_entity03(self):
         "Several objects returned with the same pk (not distinct)."
-        user = self.login()
-        onibaku = self.create_orga()
-        teachers = self.create_orga(name='teachers')
+        # user = self.login()
+        # onibaku = self.create_orga()
+        # teachers = self.create_orga(name='teachers')
+        user = self.get_root_user()
+        onibaku = self.create_orga(user=user)
+        teachers = self.create_orga(user=user, name='teachers')
 
         create_contact = partial(FakeContact.objects.create, user=user)
         onizuka = create_contact(first_name='Eikichi', last_name='Onizuka')
@@ -2297,7 +2449,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(onizuka, field.clean(str(onizuka.pk)))
 
     def test_hook(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         form = fake_forms.FakeContactForm(user=user)
 
@@ -2324,7 +2477,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_void01(self):
         "Model is None."
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         with self.assertNumQueries(0):
             field = MultiCreatorEntityField(required=False, user=user)
@@ -2341,8 +2495,9 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_format_object(self):
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
 
         field = MultiCreatorEntityField(model=FakeContact)
         self.assertEqual(field.value_type, list)
@@ -2355,26 +2510,31 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual('', from_python([]))
 
     def test_format_object_list(self):
-        self.login()
+        # self.login()
+        user = self.get_root_user()
 
-        contact = self.create_contact()
-        contact2 = self.create_contact()
-        contact3 = self.create_contact()
+        # contact1 = self.create_contact()
+        # contact2 = self.create_contact()
+        # contact3 = self.create_contact()
+        contact1 = self.create_contact(user=user)
+        contact2 = self.create_contact(user=user)
+        contact3 = self.create_contact(user=user)
 
         field = MultiCreatorEntityField(model=FakeContact)
         self.assertEqual(field.value_type, list)
 
         from_python = field.from_python
         jsonified = json_dump(
-            [contact.id, contact2.id, contact3.id], separators=(',', ':'),
+            [contact1.id, contact2.id, contact3.id], separators=(',', ':'),
         )
         self.assertEqual(jsonified, from_python(jsonified))
-        self.assertEqual(jsonified, from_python([contact, contact2, contact3]))
-        self.assertEqual(jsonified, from_python([contact.pk, contact2.pk, contact3.pk]))
+        self.assertEqual(jsonified, from_python([contact1, contact2, contact3]))
+        self.assertEqual(jsonified, from_python([contact1.pk, contact2.pk, contact3.pk]))
 
     def test_qfilter(self):
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
         qfilter = {'pk': contact.pk}
         action_url = f'/persons/quickforms/from_widget/{contact.entity_type_id}/'
 
@@ -2391,11 +2551,15 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(field.create_action_url, action_url)
 
     def test_format_object_with_qfilter(self):
-        self.login()
+        # self.login()
+        user = self.get_root_user()
 
-        contact1 = self.create_contact()
-        contact2 = self.create_contact()
-        contact3 = self.create_contact()
+        # contact1 = self.create_contact()
+        # contact2 = self.create_contact()
+        # contact3 = self.create_contact()
+        contact1 = self.create_contact(user=user)
+        contact2 = self.create_contact(user=user)
+        contact3 = self.create_contact(user=user)
 
         field = MultiCreatorEntityField(model=FakeContact, q_filter=~Q(pk=contact1.id))
 
@@ -2419,34 +2583,39 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_format_object_from_other_model(self):
-        self.login()
+        # self.login()
+        user = self.get_root_user()
 
-        contact = self.create_contact()
-        contact2 = self.create_contact()
-        orga = self.create_orga()
+        # contact1 = self.create_contact()
+        # contact2 = self.create_contact()
+        # orga = self.create_orga()
+        contact1 = self.create_contact(user=user)
+        contact2 = self.create_contact(user=user)
+        orga = self.create_orga(user=user)
 
         field = MultiCreatorEntityField(model=FakeContact)
 
         jsonified = json_dump(
-            [orga.id, contact.id, contact2.id], separators=(',', ':'),
+            [orga.id, contact1.id, contact2.id], separators=(',', ':'),
         )
 
         self.assertEqual(jsonified, field.from_python(jsonified))
-        self.assertEqual(jsonified, field.from_python([orga, contact, contact2]))
+        self.assertEqual(jsonified, field.from_python([orga, contact1, contact2]))
 
         with self.assertRaises(ValueError) as error:
-            field.from_python([orga.pk, contact.pk, contact2.pk])
+            field.from_python([orga.pk, contact1.pk, contact2.pk])
 
         self.assertEqual(
             str(error.exception),
             "The entities with ids [{}] don't exist.".format(
-                ', '.join(str(e.id) for e in (orga, contact, contact2)),
+                ', '.join(str(e.id) for e in (orga, contact1, contact2)),
             ),
         )
 
     def test_invalid_qfilter(self):
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        # contact = self.create_contact()
+        contact = self.create_contact(user=self.get_root_user())
         action_url = f'/persons/quickforms/from_widget/{contact.entity_type_id}/'
 
         field = MultiCreatorEntityField(model=FakeContact)
@@ -2469,7 +2638,7 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(str(error.exception), qfilter_error)
 
     def test_create_action_url(self):
-        self.login()
+        # self.login()
 
         field = MultiCreatorEntityField(model=FakeContact)
         self.assertEqual(
@@ -2510,7 +2679,8 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_invalid_data_type(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         clean = MultiCreatorEntityField(
             model=FakeContact, required=False, user=user,
@@ -2526,9 +2696,12 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_unknown_entity(self):
-        self.login()
-        contact = self.create_contact()
-        orga = self.create_orga()
+        # self.login()
+        # contact = self.create_contact()
+        # orga = self.create_orga()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
+        orga = self.create_orga(user=user)
 
         self.assertFieldValidationError(
             MultiCreatorEntityField, 'doesnotexist',
@@ -2542,8 +2715,10 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_deleted_entity(self):
-        user = self.login()
-        contact = self.create_contact(is_deleted=True)
+        # user = self.login()
+        # contact = self.create_contact(is_deleted=True)
+        user = self.get_root_user()
+        contact = self.create_contact(user=user, is_deleted=True)
 
         field = MultiCreatorEntityField(model=FakeContact)
         field.user = user
@@ -2556,20 +2731,25 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_entities(self):
-        user = self.login()
-        contact = self.create_contact()
-        contact2 = self.create_contact()
+        # user = self.login()
+        # contact1 = self.create_contact()
+        # contact2 = self.create_contact()
+        user = self.get_root_user()
+        contact1 = self.create_contact(user=user)
+        contact2 = self.create_contact(user=user)
 
         field = MultiCreatorEntityField(model=FakeContact)
         field.user = user
         self.assertListEqual(
-            [contact, contact2],
-            field.clean(json_dump([contact.id, contact2.id])),
+            [contact1, contact2],
+            field.clean(json_dump([contact1.id, contact2.id])),
         )
 
     def test_clean_filtered_entities(self):
-        user = self.login()
-        contact = self.create_contact()
+        # user = self.login()
+        # contact = self.create_contact()
+        user = self.get_root_user()
+        contact = self.create_contact(user=user)
 
         with self.assertNumQueries(0):
             field = MultiCreatorEntityField(model=FakeContact)
@@ -2588,8 +2768,8 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         "Perm checking OK."
         user = self.login_as_basic_user()
 
-        orga1 = self.create_orga('Orga #1')
-        orga2 = self.create_orga('Orga #2')
+        orga1 = self.create_orga(user=user, name='Orga #1')
+        orga2 = self.create_orga(user=user, name='Orga #2')
 
         field = MultiCreatorEntityField(model=FakeOrganisation)
         field.user = user
@@ -2602,8 +2782,9 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         "Perm checking KO."
         user = self.login_as_basic_user()
 
-        orga1 = self.create_orga('Orga #1')
-        orga2 = self.create_orga('Orga #2', user=self.other_user)
+        orga1 = self.create_orga(name='Orga #1', user=user)
+        # orga2 = self.create_orga('Orga #2', user=self.other_user)
+        orga2 = self.create_orga(name='Orga #2', user=self.get_root_user())
 
         field = MultiCreatorEntityField(model=FakeOrganisation, user=user)
 
@@ -2612,7 +2793,8 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual('linknotallowed', cm.exception.code)
 
     def test_hook(self):
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
 
         form = fake_forms.FakeEmailCampaignForm(user=user)
 
@@ -2648,9 +2830,7 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
         cls.ct_contact = get_ct(FakeContact)
         cls.ct_orga    = get_ct(FakeOrganisation)
 
-    def setUp(self):
-        super().setUp()
-        self.login()
+        cls.user = cls.get_root_user()
 
     def test_clean_empty_required(self):
         clean = FilteredEntityTypeField(required=True).clean
@@ -2761,10 +2941,11 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
         "Private invisible filter -> no user."
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'John', FakeContact, is_custom=True,
-            user=self.other_user, is_private=True,
+            user=self.user, is_private=True,
         )
+
         field = FilteredEntityTypeField()
-        field.user = self.user
+        field.user = self.create_user()
         self.assertFieldValidationError(
             FilteredEntityTypeField, 'invalidefilter',
             field.clean,

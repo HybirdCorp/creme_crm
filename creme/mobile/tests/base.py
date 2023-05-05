@@ -25,18 +25,25 @@ Activity = get_activity_model()
 class MobileBaseTestCase(CremeTestCase):
     PORTAL_URL = reverse('mobile__portal')
 
-    def login(self, is_superuser=True, is_staff=False,
-              allowed_apps=('activities', 'persons'),
-              *args, **kwargs):
-        return super().login(
-            is_superuser=is_superuser,
-            is_staff=is_staff,
-            allowed_apps=allowed_apps,
-            *args, **kwargs
+    # def login(self, is_superuser=True, is_staff=False,
+    #           allowed_apps=('activities', 'persons'),
+    #           *args, **kwargs):
+    #     return super().login(
+    #         is_superuser=is_superuser,
+    #         is_staff=is_staff,
+    #         allowed_apps=allowed_apps,
+    #         *args, **kwargs
+    #     )
+
+    def login_as_mobile_user(self, *, allowed_apps=(), **kwargs):
+        return super().login_as_standard(
+            allowed_apps=['activities', 'persons', *allowed_apps],
+            **kwargs
         )
 
-    def _create_floating(self, title, participant, status_id=None):
-        user = self.user
+    # def _create_floating(self, title, participant, status_id=None):
+    def _create_floating(self, user, title, participant, status_id=None):
+        # user = self.user
         activity = Activity.objects.create(
             user=user, title=title,
             type_id=ACTIVITYTYPE_MEETING,
@@ -53,13 +60,14 @@ class MobileBaseTestCase(CremeTestCase):
 
         return activity
 
-    def _create_pcall(self, title, start=None, participant=None, status_id=None,
+    # def _create_pcall(self, title, start=None, participant=None, status_id=None,
+    def _create_pcall(self, user, title, start=None, participant=None, status_id=None,
                       **kwargs):
         if start is None:
             start = self.create_datetime(year=2014, month=1, day=6, hour=8) \
                         .replace(month=randint(1, 12))
 
-        user = self.user
+        # user = self.user
         activity = Activity.objects.create(
             user=user, title=title,
             type_id=ACTIVITYTYPE_PHONECALL,
@@ -79,7 +87,8 @@ class MobileBaseTestCase(CremeTestCase):
 
         return activity
 
-    def _create_meeting(self, title, start=None, end=None, participant=None, status_id=None,
+    # def _create_meeting(self, title, start=None, end=None, participant=None, status_id=None,
+    def _create_meeting(self, user, title, start=None, end=None, participant=None, status_id=None,
                         **kwargs):
         if start is None:
             start = now()
@@ -87,7 +96,7 @@ class MobileBaseTestCase(CremeTestCase):
         if end is None:
             end = start + timedelta(hours=1)
 
-        user = self.user
+        # user = self.user
         activity = Activity.objects.create(
             user=user, title=title,
             type_id=ACTIVITYTYPE_MEETING,

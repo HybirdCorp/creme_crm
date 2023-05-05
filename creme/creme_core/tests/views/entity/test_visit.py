@@ -88,7 +88,7 @@ class VisitTestCase(ViewsTestCase):
         )
 
     def test_empty(self):
-        self.login()
+        self.login_as_root()
         self.assertFalse(FakeOrganisation.objects.all())
         self.assertGET404(self._build_visit_uri(FakeOrganisation))
 
@@ -117,7 +117,7 @@ class VisitTestCase(ViewsTestCase):
 
     def test_simple(self):
         "No filter, search..."
-        user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orgas = [
@@ -199,7 +199,7 @@ class VisitTestCase(ViewsTestCase):
         )
 
     def test_is_deleted(self):
-        user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         create_orga(name='AAA', is_deleted=True)
@@ -216,15 +216,17 @@ class VisitTestCase(ViewsTestCase):
         )
 
     def test_view_credentials(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_standard()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_OWN,
         )
 
         create_orga = FakeOrganisation.objects.create
-        create_orga(user=self.other_user, name='AAA')
+        # create_orga(user=self.other_user, name='AAA')
+        create_orga(user=self.get_root_user(), name='AAA')
         allowed = create_orga(user=user, name='AAAA')
 
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='name')
@@ -238,7 +240,7 @@ class VisitTestCase(ViewsTestCase):
         )
 
     def test_other_sort_field(self):
-        user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         second = create_orga(name='Acme',  phone='2222')
@@ -270,7 +272,7 @@ class VisitTestCase(ViewsTestCase):
         )
 
     def test_efilter(self):
-        user = self.login()
+        user = self.login_as_root_and_get()
 
         efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-visit', name='Acme', model=FakeOrganisation, is_custom=True,
@@ -326,7 +328,7 @@ class VisitTestCase(ViewsTestCase):
         )
 
     def test_efilter_distinct(self):
-        user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orgas  = [
@@ -340,7 +342,7 @@ class VisitTestCase(ViewsTestCase):
             ('test-object_pilots',  'is piloted by'),
         )[1]
 
-        create_contact = partial(FakeContact.objects.create, user=self.other_user)
+        create_contact = partial(FakeContact.objects.create, user=self.create_user())
         spike = create_contact(first_name='Spike',  last_name='Spiegel')
         jet   = create_contact(first_name='Jet',    last_name='Black')
 
@@ -383,7 +385,7 @@ class VisitTestCase(ViewsTestCase):
         )
 
     def test_extra_q(self):
-        user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orgas  = [
@@ -418,7 +420,7 @@ class VisitTestCase(ViewsTestCase):
         self.assertURLEqual(url2, visitor.uri)
 
     def test_extra_q_distinct(self):
-        user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orgas  = [
@@ -432,7 +434,7 @@ class VisitTestCase(ViewsTestCase):
             ('test-object_pilots',  'is piloted by'),
         )[1]
 
-        create_contact = partial(FakeContact.objects.create, user=self.other_user)
+        create_contact = partial(FakeContact.objects.create, user=self.create_user())
         spike = create_contact(first_name='Spike',  last_name='Spiegel')
         jet   = create_contact(first_name='Jet',    last_name='Black')
 
@@ -466,7 +468,7 @@ class VisitTestCase(ViewsTestCase):
         )
 
     def test_quick_search(self):
-        user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orgas  = [
@@ -500,7 +502,7 @@ class VisitTestCase(ViewsTestCase):
 
     def test_complete_visit01(self):
         "Even number of entities."
-        user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orgas = [
@@ -549,7 +551,7 @@ class VisitTestCase(ViewsTestCase):
 
     def test_complete_visit02(self):
         "Odd number of entities."
-        user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orgas = [
@@ -604,7 +606,7 @@ class VisitTestCase(ViewsTestCase):
         self.assertTemplateUsed(response6, 'creme_core/visit-end.html')
 
     def test_visit_duplicates(self):
-        user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orgas = [
@@ -639,7 +641,8 @@ class VisitTestCase(ViewsTestCase):
         self.assertEqual(orgas[2], ctxt3['object'])
 
     def test_page_errors(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         build_uri = partial(
             self._build_visit_uri,
@@ -657,7 +660,7 @@ class VisitTestCase(ViewsTestCase):
         self.assertGET200(build_uri(index=0, page={'type': 'unknown'}))  # Only log
 
     def test_hfilter_errors(self):
-        self.login()
+        self.login_as_root()
 
         build_uri = partial(
             self._build_visit_uri,
@@ -684,13 +687,13 @@ class VisitTestCase(ViewsTestCase):
             pk='creme_core-visit_orga_private',
             model=FakeOrganisation,
             name='Simple contact view',
-            is_custom=True, user=self.other_user, is_private=True,
+            is_custom=True, user=self.create_user(), is_private=True,
             cells_desc=[(EntityCellRegularField, {'name': 'email'})],
         )
         self.assertGET404(build_uri(hfilter=private_hf.id))
 
     def test_efilter_errors(self):
-        user = self.login()
+        user = self.login_as_root_and_get()
 
         build_uri = partial(
             self._build_visit_uri,
@@ -728,7 +731,7 @@ class VisitTestCase(ViewsTestCase):
             'test-hf_orga_test_private_efilter',
             name='With Contact mail',
             model=FakeOrganisation,
-            is_custom=True, user=self.other_user, is_private=True,  # <===
+            is_custom=True, user=self.create_user(), is_private=True,  # <===
             conditions=[
                 entity_filter.condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation, field_name='email',
@@ -744,7 +747,8 @@ class VisitTestCase(ViewsTestCase):
         )
 
     def test_extra_q_errors(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET(
             400,
             self._build_visit_uri(
@@ -756,7 +760,7 @@ class VisitTestCase(ViewsTestCase):
         )
 
     def test_quick_search_errors(self):
-        user = self.login()
+        user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='A1')
 
         field_name = 'capital'

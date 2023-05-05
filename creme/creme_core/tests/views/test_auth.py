@@ -125,7 +125,9 @@ class AuthViewsTestCase(ViewsTestCase):
 
     def test_change_own_password01(self):
         "Feature is enabled."
-        user = self.login()
+        # user = self.login()
+        self.login_as_root()
+        user = self.get_root_user()
 
         w_settings = WorldSettings.objects.get()
         self.assertTrue(w_settings.password_change_enabled)
@@ -146,7 +148,8 @@ class AuthViewsTestCase(ViewsTestCase):
             change_url,
             follow=True,
             data={
-                'old_password': self.password,
+                # 'old_password': self.password,
+                'old_password': 'root',
                 'new_password1': new_password,
                 'new_password2': new_password,
             },
@@ -166,7 +169,8 @@ class AuthViewsTestCase(ViewsTestCase):
 
     def test_change_own_password02(self):
         "Feature is disabled."
-        self.create_user()
+        # self.create_user()
+        self.login_as_root()
 
         WorldSettings.objects.update(password_change_enabled=False)
 
@@ -176,7 +180,8 @@ class AuthViewsTestCase(ViewsTestCase):
 
     def test_change_own_password03(self):
         "Feature 'reset password' is disabled."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         w_settings = WorldSettings.objects.get()
         w_settings.password_reset_enabled = False

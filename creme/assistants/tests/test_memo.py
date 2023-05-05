@@ -275,24 +275,34 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_manager_filter_by_user(self):
         "Teams."
         user = self.user
+        # other_user = self.other_user
+        # create_user = get_user_model().objects.create
+        # teammate1 = create_user(
+        #     username='luffy',
+        #     email='luffy@sunny.org', role=self.role,
+        #     first_name='Luffy', last_name='Monkey D.',
+        # )
+        # teammate2 = create_user(
+        #     username='zorro',
+        #     email='zorro@sunny.org', role=self.role,
+        #     first_name='Zorro', last_name='Roronoa',
+        # )
+        #
+        # team1 = create_user(username='Team #1', is_team=True)
+        # team1.teammates = [teammate1, user]
+        #
+        # team2 = create_user(username='Team #2', is_team=True)
+        # team2.teammates = [self.other_user, teammate2]
+        other_user = self.create_user(0)
+        teammate1  = self.create_user(1)
+        teammate2  = self.create_user(2)
 
-        create_user = get_user_model().objects.create
-        teammate1 = create_user(
-            username='luffy',
-            email='luffy@sunny.org', role=self.role,
-            first_name='Luffy', last_name='Monkey D.',
-        )
-        teammate2 = create_user(
-            username='zorro',
-            email='zorro@sunny.org', role=self.role,
-            first_name='Zorro', last_name='Roronoa',
-        )
-
-        team1 = create_user(username='Team #1', is_team=True)
+        create_team = partial(get_user_model().objects.create, is_team=True)
+        team1 = create_team(username='Team #1')
         team1.teammates = [teammate1, user]
 
-        team2 = create_user(username='Team #2', is_team=True)
-        team2.teammates = [self.other_user, teammate2]
+        team2 = create_team(username='Team #2')
+        team2.teammates = [other_user, teammate2]
 
         create_memo = partial(
             Memo.objects.create, real_entity=self.entity, user=user, on_homepage=True,

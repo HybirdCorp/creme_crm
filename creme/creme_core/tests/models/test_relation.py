@@ -23,9 +23,10 @@ from ..fake_models import FakeDocument
 
 
 class RelationsTestCase(CremeTestCase):
-    def setUp(self):
-        super().setUp()
-        self.user = get_user_model().objects.create(username='name')
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = get_user_model().objects.create(username='name')
 
     def test_type_manager_smart_update_or_create01(self):
         subject_id = 'test-subject_foobar'

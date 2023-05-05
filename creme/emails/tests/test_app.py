@@ -31,7 +31,8 @@ class EmailsTestCase(_EmailsTestCase):
     @skipIfCustomContact
     def test_fieldconfigs_warning(self):
         "If Contact/Organisation.email is hidden => warning."
-        self.login()
+        # self.login()
+        self.login_as_root_and_get()
 
         fconf = FieldsConfig.objects.create(content_type=Contact, descriptions=[])
         self.assertListEqual([], fconf.errors_on_hidden)

@@ -398,7 +398,8 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_create_geoaddress_no_town(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         self.assertEqual(0, GeoAddress.objects.count())
 
@@ -439,7 +440,8 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_create_geoaddress_with_town(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self.command.import_town_database(
             [self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET],
             {'country': 'FRANCE'},
@@ -480,7 +482,8 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
     @skipIfCustomAddress
     def test_populate_empty(self):
         "No zipcode, no city."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self.command.import_town_database(
             [self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET],
             {'country': 'FRANCE'},

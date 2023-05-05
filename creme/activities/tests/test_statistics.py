@@ -30,7 +30,7 @@ class StatisticsTestCase(CremeTestCase):
         now_value = now()
         create_activity = partial(
             Activity.objects.create,
-            user=self.create_user(),
+            user=self.get_root_user(),
             type_id=constants.ACTIVITYTYPE_MEETING,
             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
@@ -64,7 +64,7 @@ class StatisticsTestCase(CremeTestCase):
         now_value = now()
         create_activity = partial(
             Activity.objects.create,
-            user=self.create_user(),
+            user=self.get_root_user(),
             type_id=constants.ACTIVITYTYPE_MEETING,
             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
@@ -107,7 +107,7 @@ class StatisticsTestCase(CremeTestCase):
     def test_average_per_month04(self):
         "0.5 phone call per month."
         now_value = now()
-        create_activity = partial(Activity.objects.create, user=self.create_user())
+        create_activity = partial(Activity.objects.create, user=self.get_root_user())
 
         create_activity(
             title='Task', start=now_value - relativedelta(months=1),

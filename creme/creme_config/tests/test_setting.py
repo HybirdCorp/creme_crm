@@ -13,7 +13,8 @@ class SettingTestCase(CremeTestCase):
         return reverse('creme_config__edit_setting', args=(setting_value.id,))
 
     def test_edit_string(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         sk = SettingKey(
             id='persons-test_edit_string', description='Page title',
@@ -40,7 +41,8 @@ class SettingTestCase(CremeTestCase):
         self.assertEqual(title, self.refresh(sv).value)
 
     def test_edit_int(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         sk = SettingKey(
             id='persons-test_edit_int', description='Page size',
@@ -58,7 +60,8 @@ class SettingTestCase(CremeTestCase):
         self.assertEqual(size, self.refresh(sv).value)
 
     def test_edit_bool(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         sk = SettingKey(
             id='persons-test_edit_bool', description='Display logo ?',
@@ -75,7 +78,8 @@ class SettingTestCase(CremeTestCase):
         self.assertFalse(self.refresh(sv).value)
 
     def test_edit_hour(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         sk = SettingKey(
             id='persons-test_edit_hour', description='Reminder hour',
@@ -113,7 +117,8 @@ class SettingTestCase(CremeTestCase):
         )
 
     def test_edit_email(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         sk = SettingKey(
             id='persons-test_edit_email', description='Campaign Sender',
@@ -140,7 +145,8 @@ class SettingTestCase(CremeTestCase):
 
     def test_edit_hidden01(self):
         "Hidden => not editable (value=True)"
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         sk = SettingKey(
             id='persons-test_edit_hidden01', description='Display logo ?',
@@ -155,7 +161,8 @@ class SettingTestCase(CremeTestCase):
 
     def test_edit_hidden02(self):
         "Hidden => not editable (value=False)."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         sk = SettingKey(
             id='persons-test_edit_hidden02', description='Display logo ?',
@@ -169,7 +176,8 @@ class SettingTestCase(CremeTestCase):
         self.assertGET409(self._build_edit_url(sv))
 
     def test_edit_blank01(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         sk = SettingKey(
             id='persons-test_edit_blank01', description='API key',
@@ -189,7 +197,8 @@ class SettingTestCase(CremeTestCase):
         self.assertIsNone(sv.value)
 
     def test_edit_blank02(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         sk = SettingKey(
             id='persons-test_edit_blank02', description='API key',
@@ -216,7 +225,8 @@ class SettingTestCase(CremeTestCase):
         self.assertIsNone(sv.value)
 
     def test_edit_app_perm01(self):
-        self.login(is_superuser=False, admin_4_apps=['creme_core'])
+        # self.login(is_superuser=False, admin_4_apps=['creme_core'])
+        self.login_as_standard(admin_4_apps=['creme_core'])
 
         sk = SettingKey(
             id='creme_core-test_edit_app_perm01', description='Page title',
@@ -231,7 +241,8 @@ class SettingTestCase(CremeTestCase):
 
     def test_edit_app_perm02(self):
         "No app perm => error."
-        self.login(is_superuser=False)
+        # self.login(is_superuser=False)
+        self.login_as_standard()
 
         sk = SettingKey(
             id='creme_core-test_edit_app_perm02', description='Page title',

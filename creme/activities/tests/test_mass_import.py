@@ -60,7 +60,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     }
 
     def test_import01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         url = self._build_import_url(Activity)
         self.assertGET200(url)
@@ -103,7 +104,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             (title7, date_value(2014, 6, 2), dt_value(year=2014, month=6, day=2, hour=18)),
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.client.post(
             url,
             data={
@@ -221,10 +222,12 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         search on first_name/last_name.
         Dynamic subjects without creation.
         """
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         user_contact = user.linked_contact
 
-        other_user = self.other_user
+        # other_user = self.other_user
+        other_user = self.create_user()
         other_contact = other_user.linked_contact
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -267,7 +270,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             user=user, is_default=False, name='Imported activities',
         )
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         data = {
             **self.lv_import_data,
             'document': doc.id,
@@ -368,9 +371,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     def test_import03(self):
         "Dynamic participants with cell splitting & pattern '$last_name $first_name'."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        other_user = self.other_user
+        # other_user = self.other_user
+        other_user = self.create_user()
         other_contact = other_user.linked_contact
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -413,7 +418,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             ),
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -480,7 +485,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     def test_import04(self):
         "Another cell splitting type: pattern '$civility $first_name $last_name'."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         miss = self.get_object_or_fail(Civility, pk=2)
         aoi = Contact.objects.create(
@@ -491,7 +497,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         # Notice trailing spaces
         lines = [(title1, f' {aoi.civility} {aoi.first_name} {aoi.last_name} ')]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         url = self._build_import_url(Activity)
         data = {
             **self.lv_import_data,
@@ -522,16 +528,17 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomOrganisation
     def test_import05(self):
         "Dynamic participants with search on first_name/last_name + creation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         title = 'Task#1'
         first_name = 'Aoi'
         last_name = 'Kunieda'
 
         # Should not be used as subject
-        orga = Organisation.objects.create(user=self.user, name=last_name)
+        orga = Organisation.objects.create(user=user, name=last_name)
 
-        doc = self._build_csv_doc([(title, first_name, last_name)])
+        doc = self._build_csv_doc([(title, first_name, last_name)], user=user)
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -559,16 +566,18 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     def test_import06(self):
         "Dynamic participants with cell splitting + creation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         aoi = Contact.objects.create(user=user, first_name='Aoi', last_name='Kunieda')
 
         title = 'Task#1'
         first_name = 'Tatsumi'
         last_name = 'Oga'
-        doc = self._build_csv_doc([
-            (title, f'{first_name} {last_name}#{aoi.first_name} {aoi.last_name}'),
-        ])
+        doc = self._build_csv_doc(
+            [(title, f'{first_name} {last_name}#{aoi.first_name} {aoi.last_name}')],
+            user=user,
+        )
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -597,12 +606,14 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     def test_import07(self):
         "Search on first_name/last_name + not creation credentials."
-        self.login(
-            is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
+        # self.login(
+        user = self.login_as_activities_user(
+            # is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
+            allowed_apps=('documents',),
             creatable_models=[Activity, Document],  # Not Contact
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -610,13 +621,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         title = 'Task#1'
         first_name = 'Aoi'
         last_name = 'Kunieda'
-        doc = self._build_csv_doc([(title, first_name, last_name)])
+        doc = self._build_csv_doc([(title, first_name, last_name)], user=user)
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
                 **self.lv_import_data,
                 'document': doc.id,
-                'user': self.user.id,
+                'user': user.id,
                 'type_selector': constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
 
                 'participants_mode': 1,  # Search with 1 or 2 columns
@@ -633,14 +644,15 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     def test_import08(self):
         "Property creation (regular post creation handler should be called)"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_imported', text='Has been imported',
         )
 
         title = 'Task#1'
-        doc = self._build_csv_doc([(title, 'Aoi', 'Kunieda')])
+        doc = self._build_csv_doc([(title, 'Aoi', 'Kunieda')], user=user)
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -661,27 +673,29 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     def test_import_errors(self):
         "Link credentials for user's Contact."
-        user = self.login(
-            is_superuser=False,
-            allowed_apps=('activities', 'persons', 'documents'),
+        # user = self.login(
+        user = self.login_as_activities_user(
+            # is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
+            allowed_apps=('documents',),
             creatable_models=[Activity, Document],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
             ctype=Contact,
             forbidden=True,
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
         )
 
-        other_user = self.other_user
+        # other_user = self.other_user
+        other_user = self.get_root_user()
         my_calendar = Calendar.objects.get_default_calendar(user)
-        doc = self._build_csv_doc([('Meeting#1',)])
+        doc = self._build_csv_doc([('Meeting#1',)], user=user)
         response = self.assertPOST200(
             self._build_import_url(Activity),
             follow=True,
@@ -715,7 +729,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         """Subject: Contact is searched if Organisation is not found.
         No creation asked.
         """
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         title1 = 'Task#1'
         title2 = 'Task#2'
@@ -735,14 +750,17 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         clan1 = create_orga(name='Clan')
         clan2 = create_orga(name='Clan')
 
-        doc = self._build_csv_doc([
-            (title1, str(aoi)),
-            (title2, f' {aoi} '.upper()),
-            (title3, f' {name} '),
-            (title4, clan1.name),
-            (title5, furyo1.last_name),
-            (title6, f'{aoi}/{clan1.name}'),
-        ])
+        doc = self._build_csv_doc(
+            [
+                (title1, str(aoi)),
+                (title2, f' {aoi} '.upper()),
+                (title3, f' {name} '),
+                (title4, clan1.name),
+                (title5, furyo1.last_name),
+                (title6, f'{aoi}/{clan1.name}'),
+            ],
+            user=user,
+        )
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -817,12 +835,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     def test_import_subjects02(self):
         "Subject: creation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         title = 'My task'
         name = 'Ishiyama'
 
-        doc = self._build_csv_doc([(title, f' {name} ')])
+        doc = self._build_csv_doc([(title, f' {name} ')], user=user)
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -844,20 +863,21 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     def test_import_subjects03(self):
         "Subject: creation credentials."
-        user = self.login(
-            is_superuser=False,
-            allowed_apps=('activities', 'persons', 'documents'),
+        # user = self.login(
+        user = self.login_as_activities_user(
+            # is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
+            allowed_apps=('documents',),
             creatable_models=[Activity, Document],  # Not Organisation
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
 
         title = 'Task#1'
         name = 'Ishiyama'
-        doc = self._build_csv_doc([(title, f' {name} ')])
+        doc = self._build_csv_doc([(title, f' {name} ')], user=user)
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -879,13 +899,14 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomOrganisation
     def test_import_subjects04(self):
         "Subject: view credentials."
-        user = self.login(
-            is_superuser=False,
-            allowed_apps=('activities', 'persons', 'documents'),
+        # user = self.login(
+        user = self.login_as_activities_user(
+            # is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
+            allowed_apps=('documents',),
             creatable_models=[Activity, Document],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -894,10 +915,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         name = 'Ishiyama'
 
         create_orga = Organisation.objects.create
-        orga1 = create_orga(user=self.user, name=name)
-        orga2 = create_orga(user=self.other_user, name=name)
+        orga1 = create_orga(user=user, name=name)
+        # orga2 = create_orga(user=self.other_user, name=name)
+        orga2 = create_orga(user=self.get_root_user(), name=name)
 
-        doc = self._build_csv_doc([(title, name)])
+        doc = self._build_csv_doc([(title, name)], user=user)
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -922,7 +944,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomOrganisation
     def test_import_with_update(self):
         "No duplicated Subjects/participants."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_contact = partial(Contact.objects.create, user=user)
         participant1 = create_contact(first_name='Tatsumi', last_name='Oga')
@@ -957,7 +980,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             (act2.title, '',                      participant2.last_name, subject.name, ''),
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.client.post(
             self._build_import_url(Activity), follow=True,
             data={
@@ -1000,7 +1023,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     # @skipIfCustomOrganisation
     # def test_import_duplicated_subjects(self):
     #     "Dynamic & fixed subjects are duplicated in creation."
-    #     user = self.login()
+    #     # user = self.login()
+        user = self.login_as_root_and_get()
     #
     #     participant = Contact.objects.create(user=user, first_name='Tatsumi', last_name='Oga')
     #     subject = Organisation.objects.create(user=user, name='Ishiyama')
@@ -1098,7 +1122,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     @skipIfCustomContact
     def test_participants_multicol_extractor01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         # -----
         ext = MultiColumnsParticipantsExtractor(1, 2)
@@ -1153,9 +1178,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     def test_participants_multicol_extractor02(self):
         "View credentials."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_activities_user()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
@@ -1163,7 +1189,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         last_name = 'Kunieda'
         create_contact = partial(Contact.objects.create, last_name=last_name)
         aoi = create_contact(user=user, first_name='Aoi')
-        create_contact(user=self.other_user, first_name='Ittôsai')
+        # create_contact(user=self.other_user, first_name='Ittôsai')
+        create_contact(user=self.get_root_user(), first_name='Ittôsai')
 
         ext = MultiColumnsParticipantsExtractor(0, 1)
         contacts, err_msg = ext.extract_value([last_name], user)
@@ -1173,9 +1200,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     def test_participants_multicol_extractor03(self):
         "Link credentials."
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_activities_user()
 
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
@@ -1196,7 +1224,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         )
 
         create_contact = partial(Contact.objects.create, last_name=last_name)
-        create_contact(user=self.other_user, first_name='Ittôsai')
+        # create_contact(user=self.other_user, first_name='Ittôsai')
+        create_contact(user=self.get_root_user(), first_name='Ittôsai')
 
         contacts, err_msg = extract()
         self.assertFalse(contacts)
@@ -1212,14 +1241,15 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
     def test_participants_multicol_extractor04(self):
         "Creation if not found."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         ext = MultiColumnsParticipantsExtractor(1, 2, create_if_unfound=True)
         first_name = 'Aoi'
         last_name = 'Kunieda'
 
         def extract():
-            return ext.extract_value([first_name, last_name], self.user)
+            return ext.extract_value([first_name, last_name], user)
 
         contacts, err_msg = extract()
         self.assertFalse(err_msg)
@@ -1235,7 +1265,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     def test_participants_singlecol_extractor01(self):
         "SplitColumnParticipantsExtractor."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         ext = SplitColumnParticipantsExtractor(1, '#', _pattern_FL)
 
         create_contact = partial(Contact.objects.create, user=user, last_name='Kunieda')
@@ -1280,16 +1311,18 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     def test_participants_singlecol_extractor02(self):
         "SplitColumnParticipantsExtractor + credentials"
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_activities_user()
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
 
         create_contact = partial(Contact.objects.create, last_name='Kunieda')
         aoi = create_contact(user=user, first_name='Aoi')
-        create_contact(user=self.other_user, first_name='Ittôsai')
+        # create_contact(user=self.other_user, first_name='Ittôsai')
+        create_contact(user=self.get_root_user(), first_name='Ittôsai')
 
         ext = SplitColumnParticipantsExtractor(1, '#', _pattern_FL)
         contacts, err_msg = ext.extract_value(['Kunieda'], user)
@@ -1299,7 +1332,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     def test_participants_singlecol_extractor03(self):
         "Creation if not found + civility."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         ext = SplitColumnParticipantsExtractor(1, '#', _pattern_CFL, create_if_unfound=True)
 
         first_name = 'Aoi'
@@ -1339,12 +1373,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     def test_subjects_extractor01(self):
         "Link credentials."
-        user = self.login(
-            is_superuser=False,
-            allowed_apps=('activities', 'persons', 'documents'),
+        # user = self.login(
+        user = self.login_as_activities_user(
+            # is_superuser=False, allowed_apps=('activities', 'persons', 'documents'),
+            allowed_apps=('documents',),
             creatable_models=[Activity, Document],
         )
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
@@ -1365,7 +1400,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         )
 
         create_contact = partial(Contact.objects.create, last_name=last_name)
-        create_contact(user=self.other_user, first_name='Ittôsai')
+        # create_contact(user=self.other_user, first_name='Ittôsai')
+        create_contact(user=self.get_root_user(), first_name='Ittôsai')
 
         contacts, err_msg = extract()
         self.assertFalse(contacts)
@@ -1382,7 +1418,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfCustomContact
     def test_subjects_extractor02(self):
         "Limit."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         ext = SubjectsExtractor(1, '#')
 
         last_name = 'Kunieda'
@@ -1415,7 +1452,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         rtype = self.get_object_or_fail(RelationType, pk=constants.REL_OBJ_ACTIVITY_SUBJECT)
         self.assertIn(Ticket, (ct.model_class() for ct in rtype.object_ctypes.all()))
 
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         last_name = 'Kunieda'
         ticket = Ticket.objects.create(
             user=user, title=f"{last_name}'s ticket",

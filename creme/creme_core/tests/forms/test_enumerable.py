@@ -79,30 +79,34 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         )
 
     def test_choices(self):
-        user = CremeUser.objects.first()
+        # user = CremeUser.objects.first()
+        user = self.get_root_user()
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('user'))
 
         choices, more = enumerable.choices()
-
         self.assertFalse(more)
-        self.assertListEqual([
-            EnumerableChoice(user.pk, str(user)).as_dict()
-        ], [c.as_dict() for c in choices])
+        self.assertListEqual(
+            [EnumerableChoice(user.pk, str(user)).as_dict()],
+            [c.as_dict() for c in choices],
+        )
 
     def test_choices__empty_label(self):
-        user = CremeUser.objects.first()
+        # user = CremeUser.objects.first()
+        user = self.get_root_user()
         enumerable = FieldEnumerableChoiceSet(
             FakeContact._meta.get_field('user'),
             empty_label='No value'
         )
 
         choices, more = enumerable.choices()
-
         self.assertFalse(more)
-        self.assertListEqual([
-            EnumerableChoice('', 'No value').as_dict(),
-            EnumerableChoice(user.pk, str(user)).as_dict()
-        ], [c.as_dict() for c in choices])
+        self.assertListEqual(
+            [
+                EnumerableChoice('', 'No value').as_dict(),
+                EnumerableChoice(user.pk, str(user)).as_dict(),
+            ],
+            [c.as_dict() for c in choices],
+        )
 
     @parameterized.expand([
         (NO_LIMIT, False),
@@ -111,8 +115,9 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         (2, True)
     ])
     def test_choices__more(self, limit, has_more):
-        fulbert = CremeUser.objects.order_by('pk').first()
-        kirika = self.create_user()
+        # fulbert = CremeUser.objects.order_by('pk').first()
+        fulbert = self.get_root_user()
+        kirika = self.create_user(0)
         mireille = self.create_user(1)
 
         available_choices = [
@@ -139,7 +144,6 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         choices, more = enumerable.choices(
             selected_values=[industry.pk, sector_B.pk, software.pk]
         )
-
         self.assertFalse(more)
         self.assertListEqual([
             EnumerableChoice(farming.pk, str(farming)).as_dict(),
@@ -162,7 +166,6 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         choices, more = enumerable.choices(
             selected_values=[industry.pk, sector_C.pk]
         )
-
         self.assertTrue(more)
         self.assertListEqual([
             EnumerableChoice(farming.pk, str(farming)).as_dict(),
@@ -197,8 +200,9 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         The current language of forced to english to prevent some group ordering
         issues depending on the test runner configuration
         """
-        fulbert = CremeUser.objects.order_by('pk').first()
-        kirika = self.create_user()
+        # fulbert = CremeUser.objects.order_by('pk').first()
+        fulbert = self.get_root_user()
+        kirika = self.create_user(0)
         mireille = self.create_user(1)
         chloe = CremeUser.objects.create_user(
             username='noir', email='chloe@noir.jp',
@@ -254,10 +258,11 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
     def test_groups__more(self, limit, has_more):
         """
         The current language of forced to english to prevent some group ordering
-        issues depending on the test runner configuration
+        issues depending on the test runner configuration.
         """
-        fulbert = CremeUser.objects.order_by('pk').first()
-        kirika = self.create_user()
+        # fulbert = CremeUser.objects.order_by('pk').first()
+        fulbert = self.get_root_user()
+        kirika = self.create_user(0)
         mireille = self.create_user(1)
         chloe = CremeUser.objects.create_user(
             username='noir', email='chloe@noir.jp',

@@ -57,7 +57,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         return join(rel_media_dir_path, basename(abs_path))
 
     def test_creme_config_portal(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         EmailSyncConfigItem.objects.create(
             host='pop.mydomain.org',
@@ -81,7 +82,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_server_config_creation01(self):
         "POP, SSL, no attachments."
-        self.login(allowed_apps=['emails'])
+        self.login_as_emails_admin()
 
         url = reverse('emails__create_sync_config_item')
         context1 = self.assertGET200(url).context
@@ -131,12 +132,14 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_server_config_creation02(self):
         "No admin credentials."
-        self.login(is_superuser=False)
+        # self.login(is_superuser=False)
+        self.login_as_emails_user()
         self.assertGET403(reverse('emails__create_sync_config_item'))
 
     def test_server_config_edition01(self):
         "IMAP, no SSL, default port, keep attachments."
-        self.login(allowed_apps=['emails'])
+        # self.login(allowed_apps=['emails'])
+        self.login_as_emails_admin()
 
         item = EmailSyncConfigItem.objects.create(
             type=EmailSyncConfigItem.Type.POP,
@@ -201,7 +204,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_server_config_edition02(self):
         "Port is set, password is kept."
-        self.login(allowed_apps=['emails'])
+        # self.login(allowed_apps=['emails'])
+        self.login_as_emails_admin()
 
         password = 'c0w|3OY B3b0P'
         item = EmailSyncConfigItem.objects.create(
@@ -243,7 +247,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_server_config_edition03(self):
         "No admin credentials."
-        self.login(is_superuser=False)
+        # self.login(is_superuser=False)
+        self.login_as_emails_user()
 
         item = EmailSyncConfigItem.objects.create(
             host='pop.mydomain.org',
@@ -255,7 +260,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertGET403(item.get_edit_absolute_url())
 
     def test_server_config_deletion01(self):
-        self.login(allowed_apps=['emails'])
+        # self.login(allowed_apps=['emails'])
+        self.login_as_emails_admin()
 
         item = EmailSyncConfigItem.objects.create(
             host='pop.mydomain.org',
@@ -274,7 +280,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_server_config_deletion02(self):
         "No admin credentials."
-        self.login(is_superuser=False)
+        # self.login(is_superuser=False)
+        self.login_as_emails_user()
 
         item = EmailSyncConfigItem.objects.create(
             host='pop.mydomain.org',
@@ -287,11 +294,13 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertStillExists(item)
 
     def test_sync_portal01(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_emails_user()
 
         create_e2s = EmailToSync.objects.create
         create_e2s(user=user,            subject='I want a swordfish II')
-        create_e2s(user=self.other_user, subject='I want a swordfish III')
+        # create_e2s(user=self.other_user, subject='I want a swordfish III')
+        create_e2s(user=self.get_root_user(), subject='I want a swordfish III')
 
         response = self.assertGET200(reverse('emails__sync_portal'))
 
@@ -307,14 +316,17 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
     def test_sync_portal02(self):
-        self.login(is_superuser=False, allowed_apps=['documents'])
+        # self.login(is_superuser=False, allowed_apps=['documents'])
+        self.login_as_standard(allowed_apps=['documents'])
         self.assertGET403(reverse('emails__sync_portal'))
 
     def test_sync_portal03(self):
         "Staff."
-        self.login(is_staff=True)
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
 
-        EmailToSync.objects.create(user=self.other_user, subject='I want a swordfish')
+        # EmailToSync.objects.create(user=self.other_user, subject='I want a swordfish')
+        EmailToSync.objects.create(user=self.get_root_user(), subject='I want a swordfish')
 
         response = self.assertGET200(reverse('emails__sync_portal'))
         brick_node = self.get_brick_node(
@@ -329,7 +341,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
     def test_delete_email_to_sync01(self):
-        user = self.login(is_superuser=False, allowed_apps=['emails'])
+        # user = self.login(is_superuser=False, allowed_apps=['emails'])
+        user = self.login_as_emails_user()
 
         create_e2s = partial(EmailToSync.objects.create, user=user)
         e2s1 = create_e2s(subject='I want a swordfish I')
@@ -363,8 +376,9 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_delete_email_to_sync02(self):
         "No emails credentials."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['persons'],  # <====
         )
         e2s = EmailToSync.objects.create(user=user, subject='I want a swordfish II')
@@ -374,9 +388,11 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_delete_email_to_sync03(self):
         "Not owner."
-        self.login(is_superuser=False, allowed_apps=['emails'])
+        # self.login(is_superuser=False, allowed_apps=['emails'])
+        self.login_as_emails_user()
         e2s = EmailToSync.objects.create(
-            user=self.other_user,  # <====
+            # user=self.other_user,  # <====
+            user=self.get_root_user(),  # <====
             subject='I want a swordfish II',
         )
 
@@ -385,26 +401,33 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_delete_email_to_sync04(self):
         "Not owner but staff."
-        self.login(is_staff=True)
-        e2s = EmailToSync.objects.create(user=self.other_user, subject='I want a swordfish II')
+        # self.login(is_staff=True)
+        self.login_as_super(is_staff=True)
+        e2s = EmailToSync.objects.create(
+            # user=self.other_user, subject='I want a swordfish II'
+            user=self.get_root_user(), subject='I want a swordfish II',
+        )
 
         self.assertPOST200(self.DEL_EMAIL_URL, data={'ids': e2s.id})
         self.assertDoesNotExist(e2s)
 
     def test_delete_email_to_sync_error01(self):
         "issues with ID list."
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertPOST404(self.DEL_EMAIL_URL, data={})
         self.assertPOST(400, self.DEL_EMAIL_URL, data={'ids': '1,notint'})
         self.assertPOST(400, self.DEL_EMAIL_URL, data={'ids': ''})
 
     def test_delete_email_to_sync_error02(self):
         "Error mix."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_e2s = EmailToSync.objects.create
         e2s1 = create_e2s(user=user,            subject='I want a swordfish I')
-        e2s2 = create_e2s(user=self.other_user, subject='I want a swordfish II')
+        # e2s2 = create_e2s(user=self.other_user, subject='I want a swordfish II')
+        e2s2 = create_e2s(user=self.create_user(), subject='I want a swordfish II')
 
         response = self.assertPOST403(
             self.DEL_EMAIL_URL,
@@ -429,9 +452,10 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     @skipIfCustomContact
     def test_edit_person01(self):
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'emails'])
+        # user = self.login(is_superuser=False, allowed_apps=['persons', 'emails'])
+        user = self.login_as_emails_user(allowed_apps=['persons'])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -494,8 +518,9 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_edit_person02(self):
         "No emails credentials."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['persons'],  # <====
         )
 
@@ -510,9 +535,10 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     def test_edit_person03(self):
         "LINK credentials."
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'emails'])
+        # user = self.login(is_superuser=False, allowed_apps=['persons', 'emails'])
+        user = self.login_as_emails_user(allowed_apps=['persons'])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW | EntityCredentials.CHANGE
                 # | EntityCredentials.LINK
@@ -540,9 +566,10 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     def test_edit_person04(self):
         "CHANGE credentials if email must be set."
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'emails'])
+        # user = self.login(is_superuser=False, allowed_apps=['persons', 'emails'])
+        user = self.login_as_emails_user(allowed_apps=['persons'])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW | EntityCredentials.LINK
                 # | EntityCredentials.CHANGE
@@ -578,7 +605,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(contact, self.refresh(recipient).person)
 
     def test_mark_recipient01(self):
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'emails'])
+        # user = self.login(is_superuser=False, allowed_apps=['persons', 'emails'])
+        user = self.login_as_emails_user(allowed_apps=['persons'])
 
         create_e2s = partial(EmailToSync.objects.create, user=user)
         e2s_1 = create_e2s(subject='I want a swordfish II')
@@ -619,7 +647,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_mark_recipient02(self):
         "Cannot mark senders."
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'emails'])
+        # user = self.login(is_superuser=False, allowed_apps=['persons', 'emails'])
+        user = self.login_as_emails_user(allowed_apps=['persons'])
         e2s = EmailToSync.objects.create(user=user, subject='I want a swordfish II')
         sender = EmailToSyncPerson.objects.create(
             email_to_sync=e2s, email='spike@bebop.mrs',
@@ -632,8 +661,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_mark_recipient03(self):
         "No emails credentials."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
             allowed_apps=['persons'],  # <===
         )
         e2s = EmailToSync.objects.create(user=user, subject='I want a swordfish II')
@@ -648,9 +677,11 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_mark_recipient04(self):
         "Not owner."
-        self.login(is_superuser=False, allowed_apps=['emails'])
+        # self.login(is_superuser=False, allowed_apps=['emails'])
+        self.login_as_emails_user()
         e2s = EmailToSync.objects.create(
-            user=self.other_user,  # <===
+            # user=self.other_user,  # <===
+            user=self.get_root_user(),  # <===
             subject='I want a swordfish II',
         )
         recipient = EmailToSyncPerson.objects.create(
@@ -663,7 +694,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
     def test_delete_recipient01(self):
-        user = self.login(is_superuser=False, allowed_apps=['emails'])
+        # user = self.login(is_superuser=False, allowed_apps=['emails'])
+        user = self.login_as_emails_user()
         e2s = EmailToSync.objects.create(user=user, subject='I want a swordfish II')
 
         create_person = partial(EmailToSyncPerson.objects.create, email_to_sync=e2s)
@@ -698,8 +730,9 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_delete_recipient02(self):
         "No emails credentials."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['persons'],  # <====
         )
         e2s = EmailToSync.objects.create(user=user, subject='I want a swordfish II')
@@ -715,10 +748,12 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_delete_recipient03(self):
         "Not owner."
-        self.login(is_superuser=False, allowed_apps=['emails'])
+        # self.login(is_superuser=False, allowed_apps=['emails'])
+        self.login_as_emails_user()
 
         e2s = EmailToSync.objects.create(
-            user=self.other_user,   # <====
+            # user=self.other_user,   # <====
+            user=self.get_root_user(),   # <====
             subject='I want a swordfish II',
         )
         recipient = EmailToSyncPerson.objects.create(
@@ -732,7 +767,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
     def test_delete_attachment01(self):
-        user = self.login(is_superuser=False, allowed_apps=['emails'])
+        # user = self.login(is_superuser=False, allowed_apps=['emails'])
+        user = self.login_as_emails_user()
         e2s = EmailToSync.objects.create(user=user, subject='I want a swordfish II')
 
         create_fileref = partial(FileRef.objects.create, user=user, temporary=False)
@@ -754,8 +790,9 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_delete_attachment02(self):
         "No emails credentials."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['persons'],  # <===
         )
         e2s = EmailToSync.objects.create(user=user, subject='I want a swordfish II')
@@ -774,11 +811,14 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_delete_attachment03(self):
         "Not owner."
-        self.login(is_superuser=False, allowed_apps=['emails'])
-        e2s = EmailToSync.objects.create(user=self.other_user, subject='I want a swordfish II')
+        # self.login(is_superuser=False, allowed_apps=['emails'])
+        self.login_as_emails_user()
+        # other_user = self.other_user
+        other_user = self.get_root_user()
+        e2s = EmailToSync.objects.create(user=other_user, subject='I want a swordfish II')
 
         attached_file = FileRef.objects.create(
-            user=self.other_user,
+            user=other_user,
             filedata=self._create_file_for_document('test_delete_attachment03.txt'),
             temporary=False,
         )
@@ -790,9 +830,10 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
     def test_fix_email_to_sync01(self):
-        user = self.login(is_superuser=False, allowed_apps=['persons', 'emails'])
+        # user = self.login(is_superuser=False, allowed_apps=['persons', 'emails'])
+        user = self.login_as_emails_user(allowed_apps=['persons'])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
         )
@@ -853,8 +894,9 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_fix_email_to_sync02(self):
         "No emails credentials."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['persons'],  # <===
         )
 
@@ -872,7 +914,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_fix_email_to_sync03(self):
         "No emails credentials."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         e2s = EmailToSync.objects.create(user=user, subject='Fw: I want a swordfish')
 
         contact1 = user.linked_contact
@@ -896,7 +939,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_fix_email_to_sync04(self):
         "Sender/recipient must have an email address."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         e2s = EmailToSync.objects.create(user=user, subject='Fw: I want a swordfish')
 
@@ -937,7 +981,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     @skipIfCustomContact
     def test_accept_email_to_sync01(self):
-        user = self.login(is_superuser=False, allowed_apps=['emails'])
+        # user = self.login(is_superuser=False, allowed_apps=['emails'])
+        user = self.login_as_emails_user()
 
         create_e2s = partial(EmailToSync.objects.create, user=user)
         e2s1 = create_e2s(
@@ -1060,7 +1105,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_accept_email_to_syn02(self):
         "Reception date."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         reception_date = self.create_datetime(
             year=2022, month=1, day=11, hour=16, minute=25,
@@ -1073,7 +1119,10 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
         sender_contact = user.linked_contact
-        recipient_contact = self.other_user.linked_contact
+        # recipient_contact = self.other_user.linked_contact
+        recipient_contact = Contact.objects.create(
+            user=user, first_name='Jet', last_name='Black',
+        )
 
         create_person = partial(EmailToSyncPerson.objects.create, email_to_sync=e2s)
         create_person(
@@ -1097,8 +1146,10 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     def test_accept_email_to_sync02(self):
         "Folder already exists."
-        user = self.login()
-        other_user = self.other_user
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        # other_user = self.other_user
+        other_user = self.create_user()
 
         create_folder = partial(
             Folder.objects.create,
@@ -1146,8 +1197,9 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_accept_email_to_sync_perm01(self):
         "No emails credentials."
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['persons'],  # <====
         )
 
@@ -1160,10 +1212,12 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_accept_email_to_sync_perm02(self):
         "Not owner."
-        self.login(is_superuser=False, allowed_apps=['emails'])
+        # self.login(is_superuser=False, allowed_apps=['emails'])
+        self.login_as_emails_user()
 
         e2s = EmailToSync.objects.create(
-            user=self.other_user,  # <====
+            # user=self.other_user,  # <====
+            user=self.get_root_user(),  # <====
             subject='I want a swordfish II',
             body="Hello,\nI'd prefer a blue one.\n Have a good day.",
         )
@@ -1171,16 +1225,19 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_accept_email_to_sync_perm03(self):
         "Not owner but staff."
-        user = self.login(is_staff=True)
+        # user = self.login(is_staff=True)
+        user = self.login_as_super(is_staff=True)
 
+        # other_user = self.other_user
+        other_user = self.get_root_user()
         e2s = EmailToSync.objects.create(
-            user=self.other_user,
+            user=other_user,
             subject='I want a swordfish II',
             body="Hello,\nI'd prefer a blue one.\n Have a good day.",
         )
 
         sender_contact = user.linked_contact
-        recipient_contact = self.other_user.linked_contact
+        recipient_contact = other_user.linked_contact
 
         create_person = partial(EmailToSyncPerson.objects.create, email_to_sync=e2s)
         create_person(
@@ -1200,7 +1257,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     def test_accept_email_to_sync_error01(self):
         "No sender, 2 senders (should not happen)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         e2s = EmailToSync.objects.create(
             user=user,
@@ -1208,7 +1266,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             body="Hello,\nI'd prefer a blue one.\n Have a good day.",
         )
 
-        recipient_contact = self.other_user.linked_contact
+        # recipient_contact = self.other_user.linked_contact
+        recipient_contact = Contact.objects.create(user=user, first_name='Jet', last_name='Black')
 
         create_person = partial(EmailToSyncPerson.objects.create, email_to_sync=e2s)
         create_person(
@@ -1252,7 +1311,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_accept_email_to_sync_error02(self):
         "No main recipient."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         e2s = EmailToSync.objects.create(
             user=user,
@@ -1261,7 +1321,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
         sender_contact = user.linked_contact
-        recipient_contact = self.other_user.linked_contact
+        # recipient_contact = self.other_user.linked_contact
+        recipient_contact = self.create_user().linked_contact
 
         create_person = partial(EmailToSyncPerson.objects.create, email_to_sync=e2s)
         create_person(
@@ -1287,7 +1348,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_accept_email_to_sync_error03(self):
         "Sender is not complete (no related person)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         e2s = EmailToSync.objects.create(
             user=user,
@@ -1295,7 +1357,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             body="Hello,\nI'd prefer a blue one.\nHave a good day.",
         )
 
-        recipient_contact = self.other_user.linked_contact
+        # recipient_contact = self.other_user.linked_contact
+        recipient_contact = self.create_user().linked_contact
 
         create_person = partial(EmailToSyncPerson.objects.create, email_to_sync=e2s)
         create_person(
@@ -1321,7 +1384,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_accept_email_to_sync_error04(self):
         "Recipient is not complete (no related person)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         e2s = EmailToSync.objects.create(
             user=user,
@@ -1329,7 +1393,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             body="Hello,\nI'd prefer a blue one.\nHave a good day.",
         )
 
-        sender_contact = self.other_user.linked_contact
+        # sender_contact = self.other_user.linked_contact
+        sender_contact = self.create_user().linked_contact
 
         create_person = partial(EmailToSyncPerson.objects.create, email_to_sync=e2s)
         create_person(

@@ -44,8 +44,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_clean01(self):
         "Discount.PERCENT."
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice01', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice01', discount=0)[0]
         kwargs = {
             'user': user,
             'related_document': invoice,
@@ -65,8 +66,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_clean02(self):
         "Discount.LINE_AMOUNT."
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice01', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice01', discount=0)[0]
         kwargs = {
             'user': user,
             'related_document': invoice,
@@ -102,8 +104,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_clean03(self):
         "Discount.ITEM_AMOUNT."
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice01', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice01', discount=0)[0]
         kwargs = {
             'user': user,
             'related_document': invoice,
@@ -139,9 +142,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_clean04(self):
         "With related item."
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice01', discount=0)[0]
-        product = self.create_product()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice01', discount=0)[0]
+        product = self.create_product(user=user)
         kwargs = {
             'user': user,
             'related_document': invoice,
@@ -163,8 +167,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_clean05(self):
         "On-the-fly item."
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice01', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice01', discount=0)[0]
         kwargs = {
             'user': user,
             'related_document': invoice,
@@ -186,9 +191,11 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProduct
     def test_add_product_lines(self):
         "Multiple adding."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
+        # invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
+        invoice = self.create_invoice_n_orgas(name='Invoice001', user=self.create_user())[0]
         url = reverse('billing__create_product_lines', args=(invoice.id,))
         response1 = self.assertGET200(url)
         self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add-popup.html')
@@ -203,8 +210,8 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         # ---
         self.assertFalse(invoice.get_lines(ServiceLine))
 
-        product1 = self.create_product()
-        product2 = self.create_product()
+        product1 = self.create_product(user=user)
+        product2 = self.create_product(user=user)
         vat = Vat.objects.get_or_create(value=Decimal('5.5'))[0]
         quantity = 2
         self.assertNoFormError(self.client.post(
@@ -249,13 +256,12 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_addlines_not_superuser(self):
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -266,19 +272,19 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
+        # invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
+        invoice = self.create_invoice_n_orgas(name='Invoice001', user=self.get_root_user())[0]
         self.assertGET200(reverse('billing__create_product_lines', args=(invoice.id,)))
         self.assertGET200(reverse('billing__create_service_lines', args=(invoice.id,)))
 
     def test_add_lines_link(self):
         "LINK creds are needed."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice],
         )
         create_sc = partial(
-            SetCredentials.objects.create, role=self.role, set_type=SetCredentials.ESET_ALL,
+            SetCredentials.objects.create, role=user.role, set_type=SetCredentials.ESET_ALL,
         )
         create_sc(
             value=(
@@ -301,13 +307,15 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
+        # invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
+        invoice = self.create_invoice_n_orgas(name='Invoice001', user=self.get_root_user())[0]
         self.assertGET403(reverse('billing__create_product_lines', args=(invoice.id,)))
         self.assertGET403(reverse('billing__create_service_lines', args=(invoice.id,)))
 
     def test_addlines_bad_related(self):
         "Related is not a billing entity."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='Acme')
         self.assertGET404(reverse('billing__create_product_lines', args=(orga.id,)))
@@ -315,9 +323,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProduct
     def test_lines_with_negatives_values(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        quote = self.create_quote_n_orgas('Quote001')[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
+        quote = self.create_quote_n_orgas(user=user, name='Quote001')[0]
         unit_price = Decimal('-50.0')
         product_name = 'on the fly product'
         create_pline = partial(
@@ -333,16 +342,17 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     def test_listviews(self):
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice1 = self.create_invoice_n_orgas('Invoice001')[0]
-        invoice2 = self.create_invoice_n_orgas('Invoice002')[0]
+        invoice1 = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
+        invoice2 = self.create_invoice_n_orgas(user=user, name='Invoice002')[0]
 
-        create_pline = partial(ProductLine.objects.create, user=self.user)
+        create_pline = partial(ProductLine.objects.create, user=user)
         pline1 = create_pline(related_document=invoice1, on_the_fly_item='FlyP1')
         pline2 = create_pline(related_document=invoice2, on_the_fly_item='FlyP2')
 
-        create_sline = partial(ServiceLine.objects.create, user=self.user)
+        create_sline = partial(ServiceLine.objects.create, user=user)
         sline1 = create_sline(related_document=invoice1, on_the_fly_item='FlyS1')
         sline2 = create_sline(related_document=invoice2, on_the_fly_item='FlyS2')
 
@@ -370,10 +380,12 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     def test_delete_product_line01(self):
-        self.login()
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         product_line = ProductLine.objects.create(
-            user=self.user, related_document=invoice, on_the_fly_item='Flyyyyy',
+            user=user, related_document=invoice, on_the_fly_item='Flyyyyy',
         )
         self.assertPOST409(
             reverse(
@@ -389,9 +401,11 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomService
     def test_add_service_lines01(self):
         "Multiple adding."
-        self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
+        # invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
+        invoice = self.create_invoice_n_orgas(name='Invoice001', user=self.create_user())[0]
         url = reverse('billing__create_service_lines', args=(invoice.id,))
         self.assertGET200(url)
         response1 = self.assertGET200(url)
@@ -407,8 +421,8 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         # ---
         self.assertFalse(invoice.get_lines(Service))
 
-        service1 = self.create_service()
-        service2 = self.create_service()
+        service1 = self.create_service(user=user)
+        service2 = self.create_service(user=user)
         vat = Vat.objects.get_or_create(value=Decimal('19.6'))[0]
         quantity = 2
         self.assertNoFormError(self.client.post(
@@ -455,8 +469,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     def test_related_document01(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
 
         product_line = ProductLine.objects.create(
             user=user, related_document=invoice, on_the_fly_item='Flyyyyy',
@@ -467,10 +482,11 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProduct
     @skipIfCustomProductLine
     def test_related_item01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        product = self.create_product()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
+        product = self.create_product(user=user)
 
         product_line = ProductLine.objects.create(
             user=user, related_document=invoice, related_item=product,
@@ -486,9 +502,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     def test_related_item02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         product_line = ProductLine.objects.create(
             user=user, related_document=invoice, on_the_fly_item='Flyyyyy',
         )
@@ -511,14 +528,15 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProduct
     @skipIfCustomProductLine
     def test_product_line_clone(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        product = self.create_product()
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        invoice2 = self.create_invoice_n_orgas('Invoice002')[0]
+        product = self.create_product(user=user)
+        invoice1 = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
+        invoice2 = self.create_invoice_n_orgas(user=user, name='Invoice002')[0]
 
         product_line = ProductLine.objects.create(
-            user=user, related_document=invoice, related_item=product,
+            user=user, related_document=invoice1, related_item=product,
         )
         product_line2 = product_line.clone(invoice2)
 
@@ -544,11 +562,12 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomServiceLine
     def test_service_line_clone(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        service = self.create_service()
-        invoice1 = self.create_invoice_n_orgas('Invoice001')[0]
-        invoice2 = self.create_invoice_n_orgas('Invoice002')[0]
+        service = self.create_service(user=user)
+        invoice1 = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
+        invoice2 = self.create_invoice_n_orgas(user=user, name='Invoice002')[0]
 
         service_line1 = ServiceLine.objects.create(
             user=user, related_document=invoice1, related_item=service,
@@ -584,9 +603,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     def test_multiple_delete01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001', discount=0)[0]
 
         create_line = partial(ProductLine.objects.create, user=user, related_document=invoice)
         ids = tuple(
@@ -616,14 +636,13 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     def test_multiple_delete02(self):
-        user = self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Organisation]
         )
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.DELETE
@@ -633,7 +652,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001', discount=0)[0]
         self.assertFalse(user.has_perm_to_change(invoice))
 
         create_line = partial(
@@ -651,7 +670,8 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(2, ProductLine.objects.filter(pk__in=ids).count())
 
     def test_delete_vat01(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
         response = self.client.post(reverse(
@@ -665,10 +685,11 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     def test_delete_vat02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
-        invoice = self.create_invoice_n_orgas('Nerv')[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Nerv')[0]
         ProductLine.objects.create(
             user=user, related_document=invoice, on_the_fly_item='Flyyyyy', vat_value=vat,
         )
@@ -685,7 +706,8 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     def test_mass_import(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
         self.assertGET404(self._build_import_url(ServiceLine))
         self.assertGET404(self._build_import_url(ProductLine))
 
@@ -695,15 +717,17 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_convert_on_the_fly_line_to_real_item_error(self):
         "Entity is not a line."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         self.assertGET404(self._build_add2catalog_url(user.linked_contact))
 
     @skipIfCustomProductLine
     def test_convert_on_the_fly_line_to_real_item01(self):
         "Convert on the fly product."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         unit_price = Decimal('50.0')
         product_name = 'on the fly product'
         product_line = ProductLine.objects.create(
@@ -743,9 +767,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_convert_on_the_fly_line_to_real_item02(self):
         "Convert on the fly service."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice  = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         unit_price = Decimal('50.0')
         service_name = 'on the fly service'
         service_line = ServiceLine.objects.create(
@@ -780,13 +805,13 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     def test_convert_on_the_fly_line_to_real_item03(self):
         "On-the-fly + product creation + no creation creds."
-        user = self.login(
-            is_superuser=False, allowed_apps=['persons', 'billing'],
+        user = self.login_as_standard(
+            allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Contact, Organisation],  # Not 'Product'
         )
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -797,7 +822,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice  = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         product_line = ProductLine.objects.create(
             user=user, related_document=invoice,
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0')
@@ -813,13 +838,13 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_convert_on_the_fly_line_to_real_item04(self):
         "On-the-fly + service creation + no creation creds."
-        user = self.login(
-            is_superuser=False, allowed_apps=['persons', 'billing'],
+        user = self.login_as_standard(
+            allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Contact, Organisation],  # Not 'Service'
         )
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -830,7 +855,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice  = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         service_line = ServiceLine.objects.create(
             user=user, related_document=invoice,
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
@@ -846,10 +871,11 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     def test_convert_on_the_fly_line_to_real_item05(self):
         "Already related item product line."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        product = self.create_product()
-        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        product = self.create_product(user=user)
+        invoice  = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         product_line = ProductLine.objects.create(
             user=user, related_document=invoice,
             related_item=product, unit_price=Decimal('50.0')
@@ -873,10 +899,11 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_convert_on_the_fly_line_to_real_item06(self):
         "Already related item service line."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        service = self.create_service()
-        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        service = self.create_service(user=user)
+        invoice  = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         service_line = ServiceLine.objects.create(
             user=user, related_document=invoice,
             related_item=service, unit_price=Decimal('50.0'),
@@ -900,9 +927,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_multi_save_lines01(self):
         "1 service line updated."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         service_line = ServiceLine.objects.create(
             user=user, related_document=invoice,
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
@@ -950,9 +978,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     def test_multi_save_lines02(self):
         "1 product line created on the fly and 1 deleted."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         product_line = ProductLine.objects.create(
             user=user, related_document=invoice,
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
@@ -1001,14 +1030,13 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_multi_save_lines03(self):
         "No creds."
-        user = self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Contact, Organisation],
         )
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.DELETE
@@ -1018,7 +1046,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice  = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         service_line = ServiceLine.objects.create(
             user=user, related_document=invoice,
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
@@ -1047,9 +1075,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_multi_save_lines04(self):
         "Other type of discount: amount per line."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         service_line = ServiceLine.objects.create(
             user=user, related_document=invoice,
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
@@ -1084,9 +1113,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_multi_save_lines05(self):
         "Other type of discount: amount per item"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         service_line = ServiceLine.objects.create(
             user=user, related_document=invoice,
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
@@ -1120,7 +1150,8 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_multi_save_lines06(self):
         "1 service line updated with concrete related Service."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.all()[0]
         shipping = Service.objects.create(
@@ -1130,7 +1161,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             unit_price=Decimal('60.0'),
         )
 
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         line = ServiceLine.objects.create(
             user=user, related_document=invoice,
             related_item=shipping,
@@ -1165,7 +1196,8 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_multi_save_lines07(self):
         "Bad related model."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Foxhound')
         ct_id = ContentType.objects.get_for_model(ProductLine).id
         self.assertPOST404(
@@ -1189,9 +1221,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     def test_multiple_save_lines__order(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         lines = [
             ProductLine.objects.create(
                 user=user, related_document=invoice,
@@ -1281,8 +1314,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     ])
     @skipIfCustomProductLine
     def test_reorder_lines(self, target_name, next_order, expected):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001', discount=0)[0]
         default_vat = Vat.objects.default()
         create_prod_line = partial(
             ProductLine.objects.create,
@@ -1324,8 +1358,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(0, fake_invoice_save.call_count)
 
     def test_reorder_lines__invalid_ids(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001', discount=0)[0]
 
         line = ProductLine.objects.create(
             user=user, related_document=invoice, vat_value=Vat.objects.default(),
@@ -1347,14 +1382,13 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_reorder_lines__invalid_perms(self):
-        user = self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Organisation]
         )
 
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.DELETE
@@ -1364,7 +1398,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001', discount=0)[0]
         self.assertFalse(user.has_perm_to_change(invoice))
 
         line = ProductLine.objects.create(
@@ -1377,8 +1411,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_reorder_lines__invalid_target(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001', discount=0)[0]
 
         line = ProductLine.objects.create(
             user=user, related_document=invoice, vat_value=Vat.objects.default(),
@@ -1392,8 +1427,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     def test_global_discount_change(self):
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001', discount=0)[0]
 
         ProductLine.objects.create(
             user=user, unit_price=Decimal('10'),
@@ -1420,8 +1456,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_discount01(self):
         "No discount."
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
 
         kwargs = {
             'user': user,
@@ -1451,8 +1488,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_discount02(self):
         "Discount.PERCENT."
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
 
         kwargs = {
             'user': user,
@@ -1479,8 +1517,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_discount03(self):
         "Discount.LINE_AMOUNT."
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
 
         kwargs = {
             'user': user,
@@ -1509,8 +1548,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_discount04(self):
         "DISCOUNT_ITEM_AMOUNT."
-        user = self.login()
-        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
 
         kwargs = {
             'user': user,
@@ -1538,8 +1578,11 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     def test_discount05(self):
         "Document's discount."
-        user = self.login()
-        invoice1, source, target = self.create_invoice_n_orgas('Invoice01', discount=10)
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        invoice1, source, target = self.create_invoice_n_orgas(
+            user=user, name='Invoice01', discount=10,
+        )
 
         kwargs = {
             'user': user,
@@ -1572,9 +1615,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     def test_rounding_policy(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice = self.create_invoice_n_orgas('Invoice0001')[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001')[0]
 
         kwargs = {'user': user, 'related_document': invoice}
         product_line = ProductLine.objects.create(
@@ -1603,9 +1647,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     def test_inneredit(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001', discount=0)[0]
         pline = ProductLine.objects.create(
             user=user, unit_price=Decimal('10'),
             vat_value=Vat.objects.default(),

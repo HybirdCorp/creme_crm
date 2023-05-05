@@ -88,7 +88,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         return QSerializer().dumps(Q(**kwargs))
 
     def test_listview_URL_builder01(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         builder = ListViewURLBuilder(FakeContact)
         self.assertListviewURL(builder(None), FakeContact)
@@ -123,7 +124,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_listview_URL_builder03(self):
         "common_q."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         q = Q(first_name__endswith='a')
         builder = ListViewURLBuilder(FakeContact, common_q=q)
@@ -132,8 +134,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_createview01(self):
         "Group.FK."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
 
         url = self._build_add_graph_url(report)
         context = self.assertGET200(url).context
@@ -227,8 +230,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_createview02(self):
         "Ordinate with aggregate + Group.DAY."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -299,8 +303,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_createview_with_relation(self):
         "Group.RELATION."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -335,8 +340,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         (ReportGraph.Group.YEAR,),
     ])
     def test_createview_with_date(self, gtype):
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -347,7 +353,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             return self.client.post(
                 url,
                 data={
-                    'user': self.user.pk,
+                    'user': user.pk,
                     'name': name,
                     'chart': 'barchart',
 
@@ -387,8 +393,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_createview_with_range(self):
         "ReportGraph.Group.RANGE."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -441,12 +448,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_createview_with_customfk(self):
         "ReportGraph.Group.CUSTOM_FK."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         cf_enum = CustomField.objects.create(
             content_type=self.ct_contact, name='Hair', field_type=CustomField.ENUM,
         )
 
-        report = self._create_simple_contacts_report()
+        report = self._create_simple_contacts_report(user=user)
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -476,7 +484,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         (ReportGraph.Group.CUSTOM_YEAR,),
     ])
     def test_createview_with_customdatetime(self, gtype):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         cf_dt = CustomField.objects.create(
             content_type=self.ct_orga,
@@ -484,7 +493,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             field_type=CustomField.DATETIME,
         )
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -517,7 +526,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         (ReportGraph.Group.CUSTOM_YEAR,),
     ])
     def test_createview_with_customdate(self, gtype):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         cf_date = CustomField.objects.create(
             content_type=self.ct_orga,
@@ -525,7 +535,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             field_type=CustomField.DATE,
         )
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -554,13 +564,14 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_createview_with_customrange(self):
         "ReportGraph.Group.CUSTOM_RANGE."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         cf_dt = CustomField.objects.create(
             content_type=self.ct_orga, name='First victory', field_type=CustomField.DATETIME,
         )
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
@@ -569,7 +580,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertNoFormError(self.client.post(
             url,
             data={
-                'user': self.user.pk,
+                'user': user.pk,
                 'name': name,
                 'chart': 'barchart',
 
@@ -594,13 +605,15 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_createview_bad_related(self):
         "Not related to a Report => error."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='House Stark')
         self.assertGET404(self._build_add_graph_url(orga))
 
     def test_createview_fieldsconfig(self):
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
 
         hidden_fname1 = 'sector'
         hidden_fname2 = 'capital'
@@ -638,8 +651,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
     def test_createview_disabled_rtype(self):
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_disabled', '[disabled]'),
@@ -671,8 +685,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
     def test_abscissa_info(self):
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph(
             user=user, linked_report=report,
             name='Capital per month of creation',
@@ -710,8 +725,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual('3', abs_info2.parameter)
 
     def test_ordinate_info01(self):
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph(
             user=user, linked_report=report,
             name='Capital per month of creation',
@@ -757,14 +773,15 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_ordinate_info02(self):
         "Ignore FieldSConfig."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         hidden_fname = 'capital'
         FieldsConfig.objects.create(
             content_type=FakeOrganisation,
             descriptions=[(hidden_fname, {FieldsConfig.HIDDEN: True})],
         )
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         cell_key = f'regular_field-{hidden_fname}'
         aggr_id = ReportGraph.Aggregator.MAX
         rgraph = ReportGraph(
@@ -780,8 +797,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(cell_key, ord_info.cell.key)
 
     def test_editview01(self):
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Capital per month of creation',
@@ -835,8 +853,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_editview02(self):
         "Another ContentType."
-        user = self.login()
-        rgraph = self._create_invoice_report_n_graph()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        rgraph = self._create_invoice_report_n_graph(user=user)
         url = self._build_edit_url(rgraph)
         response = self.assertGET200(url)
 
@@ -880,8 +899,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_editview03(self):
         "With FieldsConfig."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         rgraph = self._create_invoice_report_n_graph(
+            user=user,
             ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_field='total_vat',
         )
@@ -920,9 +941,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_editview04(self):
         "With FieldsConfig: if fields are already selected => still proposed (abscissa)."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
         hidden_fname = 'expiration_date'
-        rgraph = self._create_invoice_report_n_graph(abscissa=hidden_fname)
+        rgraph = self._create_invoice_report_n_graph(user=user, abscissa=hidden_fname)
 
         FieldsConfig.objects.create(
             content_type=FakeInvoice,
@@ -959,9 +981,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_editview05(self):
         "With FieldsConfig: if fields are already selected => still proposed (ordinate)."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
         hidden_fname = 'total_no_vat'
         rgraph = self._create_invoice_report_n_graph(
+            user=user,
             ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_field=hidden_fname,
         )
@@ -993,14 +1017,15 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_editview06(self):
         "Custom field."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         cf = CustomField.objects.create(
             content_type=self.ct_orga,
             name='Country',
             field_type=CustomField.ENUM,
         )
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
 
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
@@ -1021,7 +1046,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_fk_01(self):
         "Count."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         create_position = FakePosition.objects.create
         hand = create_position(title='Hand of the king')
         lord = create_position(title='Lord')
@@ -1044,7 +1070,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ],
         )
 
-        report = self._create_simple_contacts_report(efilter=efilter)
+        report = self._create_simple_contacts_report(user=user, efilter=efilter)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contacts by position',
@@ -1087,7 +1113,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_fk_02(self):
         "Aggregate."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_sector = FakeSector.objects.create
         war   = create_sector(title='War')
@@ -1110,7 +1137,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ],
         )
 
-        report = self._create_simple_organisations_report(efilter=efilter)
+        report = self._create_simple_organisations_report(user=user, efilter=efilter)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Capital max by sector',
@@ -1136,7 +1163,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_fk_03(self):
         "Aggregate ordinate with custom field."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_sector = FakeSector.objects.create
         war   = create_sector(title='War')
@@ -1159,7 +1187,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_cfval(entity=starks,     value=400)
         create_cfval(entity=targaryens, value=200)
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Max soldiers by sector',
@@ -1188,10 +1216,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_fk_04(self):
         "Aggregate ordinate with invalid field."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         rgraph = ReportGraph.objects.create(
             user=user,
-            linked_report=self._create_simple_organisations_report(),
+            linked_report=self._create_simple_organisations_report(user=user),
             name='Max soldiers by sector',
             abscissa_cell_value='sector', abscissa_type=ReportGraph.Group.FK,
             ordinate_type=ReportGraph.Aggregator.MAX,
@@ -1209,10 +1238,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_fk_05(self):
         "Aggregate ordinate with invalid aggregate."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         rgraph = ReportGraph.objects.create(
             user=user,
-            linked_report=self._create_simple_organisations_report(),
+            linked_report=self._create_simple_organisations_report(user=user),
             name='Max soldiers by sector',
             abscissa_cell_value='sector', abscissa_type=ReportGraph.Group.FK,
             ordinate_type='invalid',  # <=====
@@ -1230,10 +1260,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_fk_06(self):
         "Aggregate ordinate with invalid custom field."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         rgraph = ReportGraph.objects.create(
             user=user,
-            linked_report=self._create_simple_organisations_report(),
+            linked_report=self._create_simple_organisations_report(user=user),
             name='Max soldiers by sector',
             abscissa_cell_value='sector', abscissa_type=ReportGraph.Group.FK,
             ordinate_type=ReportGraph.Aggregator.MAX,
@@ -1252,8 +1283,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_fk_07(self):
         "Abscissa field on Users has a limit_choices_to which excludes staff users."
-        user = self.login(is_staff=True)
-        other_user = self.other_user
+        # user = self.login(is_staff=True)
+        user = self.login_as_super(is_staff=True)
+        # other_user = self.other_user
+        other_user = self.get_root_user()
 
         last_name = 'Stark'
         create_contact = partial(FakeContact.objects.create, user=other_user, last_name=last_name)
@@ -1272,7 +1305,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ],
         )
 
-        report = self._create_simple_contacts_report(efilter=efilter)
+        report = self._create_simple_contacts_report(user=user, efilter=efilter)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contacts count by User',
@@ -1288,11 +1321,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_fk_08(self):
         "Abscissa field on ContentType enumerates only entities types."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         get_ct = ContentType.objects.get_for_model
         report = Report.objects.create(
-            user=self.user, name='Report on Reports', ct=get_ct(Report),
+            user=user, name='Report on Reports', ct=get_ct(Report),
         )
 
         rgraph = ReportGraph.objects.create(
@@ -1310,8 +1344,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_fk_09(self):
         "Invalid field (not enumerable)."
-        user = self.login()
-        report = self._create_simple_contacts_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_contacts_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contact count per address',
@@ -1331,8 +1366,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_date_range01(self):
         "Count."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
 
         def create_graph(days):
             return ReportGraph.objects.create(
@@ -1413,8 +1449,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_date_range02(self):
         "Aggregate."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
 
         days = 10
         rgraph = ReportGraph.objects.create(
@@ -1460,8 +1497,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_asymmetrical_date_range01(self):
         "Count, where the ASC values are different from the DESC ones."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
 
         def create_graph(days):
             return ReportGraph.objects.create(
@@ -1539,7 +1577,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_custom_date_range(self):
         "Count."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         cf = CustomField.objects.create(
             content_type=self.ct_orga, field_type=CustomField.DATE, name='First victory',
@@ -1564,7 +1603,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         days = 15
         rgraph = ReportGraph.objects.create(
             user=user,
-            linked_report=self._create_simple_organisations_report(),
+            linked_report=self._create_simple_organisations_report(user=user),
             name=f'First victory / {days} day(s)',
             abscissa_cell_value=cf.id,
             abscissa_type=ReportGraph.Group.CUSTOM_RANGE, abscissa_parameter=str(days),
@@ -1600,7 +1639,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_custom_datetime_range(self):
         "Count."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_cf = partial(
             CustomField.objects.create,
@@ -1640,7 +1680,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         days = 15
         rgraph = ReportGraph.objects.create(
             user=user,
-            linked_report=self._create_simple_organisations_report(),
+            linked_report=self._create_simple_organisations_report(user=user),
             name=f'First victory / {days} day(s)',
             abscissa_cell_value=cf.id,
             abscissa_type=ReportGraph.Group.CUSTOM_RANGE, abscissa_parameter=str(days),
@@ -1740,8 +1780,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_custom_date_range_error(self):
         "Invalid CustomField."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Useless name',
@@ -1756,8 +1797,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_day(self):
         "Aggregate."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Average of capital by creation date (by day)',
@@ -1819,7 +1861,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_customday_date(self):
         "Aggregate + DATE."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         cf = CustomField.objects.create(
             name='First victory', content_type=self.ct_orga, field_type=CustomField.DATE,
         )
@@ -1835,7 +1878,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_cf_value(entity=baratheons, value=create_date(month=6, day=22))
         create_cf_value(entity=targaryens, value=create_date(month=7, day=5))
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Average of capital by 1rst victory (by day)',
@@ -1862,7 +1905,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_customday_datetime(self):
         "Aggregate + DATETIME."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         create_cf_dt = partial(
             CustomField.objects.create,
             content_type=self.ct_orga, field_type=CustomField.DATETIME,
@@ -1887,7 +1931,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_cf_value(custom_field=cf2, entity=lannisters, value=create_dt(month=7, day=6))
         create_cf_value(custom_field=cf2, entity=lannisters, value=create_dt(month=7, day=5))
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Average of capital by 1rst victory (by day)',
@@ -1938,8 +1982,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_customday_error(self):
         "Invalid CustomField."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Average of capital by creation date (by day)',
@@ -1961,8 +2006,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_month(self):
         "Count."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of orgas by creation date (period of 1 month)',
@@ -1999,7 +2045,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_custommonth_date(self):
         "Count."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         cf = CustomField.objects.create(
             content_type=self.ct_orga, name='First victory', field_type=CustomField.DATE,
@@ -2015,7 +2062,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_cf_value(entity=baratheons, value=create_date(month=6, day=25))
         create_cf_value(entity=targaryens, value=create_date(month=8, day=5))
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of houses by 1rst victory (period of 1 month)',
@@ -2044,7 +2091,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_custommonth_datetime(self):
         "Count."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         cf = CustomField.objects.create(
             content_type=self.ct_orga, name='First victory', field_type=CustomField.DATETIME,
@@ -2060,7 +2108,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_cf_value(entity=baratheons, value=create_dt(month=6, day=25))
         create_cf_value(entity=targaryens, value=create_dt(month=8, day=5))
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of houses by 1rst victory (period of 1 month)',
@@ -2105,8 +2153,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_year01(self):
         "Count."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of orgas by creation date (period of 1 year)',
@@ -2143,7 +2192,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_year02(self):
         "Aggregate ordinate with custom field."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         lannisters = create_orga(name='House Lannister', creation_date=date(2013, 6, 22))
@@ -2162,7 +2212,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_cfval(entity=baratheons, value='100.0')
         create_cfval(entity=tullies,    value='0.0')
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Sum of vine by creation date (period of 1 year)',
@@ -2185,8 +2235,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_year03(self):
         "Invalid field."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of orgas by creation date (period of 1 year)',
@@ -2205,7 +2256,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_year04(self):
         "Entity type with several CustomFields with the same type (bugfix)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_cf = partial(
             CustomField.objects.create,
@@ -2238,7 +2290,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_cf_value2(entity=starks,     value=12)
         create_cf_value2(entity=targaryens, value=1)
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         rgraph1 = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Sum of gold by creation date (period of 1 year)',
@@ -2274,7 +2326,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_cutomfields_on_x_n_y(self):
         "Graphs with CustomFields on abscissa & ordinate."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct_orga)
         cf_x = create_cf(name='Birthday', field_type=CustomField.DATETIME)
@@ -2298,7 +2351,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_cf_value_y(entity=starks,     value=100)
         create_cf_value_y(entity=baratheons, value=500)
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Sum of gold by birthday (period of 1 year)',
@@ -2323,7 +2376,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_customyear_date(self):
         "Count."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         cf = CustomField.objects.create(
             content_type=self.ct_orga, name='First victory', field_type=CustomField.DATE,
@@ -2339,7 +2393,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_cf_value(entity=baratheons, value=date(year=2013, month=7, day=25))
         create_cf_value(entity=targaryens, value=date(year=2014, month=8, day=5))
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of house by 1rst victory (period of 1 year)',
@@ -2363,7 +2417,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_customyear_datetime(self):
         "Count."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         cf = CustomField.objects.create(
             content_type=self.ct_orga, name='First victory', field_type=CustomField.DATETIME,
@@ -2380,7 +2435,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_cf_value(entity=baratheons, value=create_dt(year=2013, month=7, day=25))
         create_cf_value(entity=targaryens, value=create_dt(year=2014, month=8, day=5))
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of house by 1rst victory (period of 1 year)',
@@ -2424,7 +2479,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_relation01(self):
         "Count"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         lannisters = create_orga(name='House Lannister')
         starks     = create_orga(name='House Stark')
@@ -2455,7 +2511,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_rel(subject_entity=starks,     object_entity=aria)
         create_rel(subject_entity=starks,     object_entity=jon)
 
-        report = self._create_simple_contacts_report(efilter=efilter)
+        report = self._create_simple_contacts_report(user=user, efilter=efilter)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of employees',
@@ -2507,7 +2563,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_relation02(self):
         "Aggregate."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         lannisters = create_orga(name='House Lannister', capital=100)
         starks     = create_orga(name='House Stark',     capital=50)
@@ -2527,7 +2584,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_rel(subject_entity=starks,     object_entity=ned)
         create_rel(subject_entity=tullies,    object_entity=ned)
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Capital by lords',
@@ -2564,7 +2621,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_relation03(self):
         "Aggregate ordinate with custom field."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_cf = CustomField.objects.create
         cf = create_cf(
@@ -2600,7 +2658,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_cfval(entity=jaime,  value=400)
         create_cfval(entity=tyrion, value=200)
 
-        report = self._create_simple_contacts_report()
+        report = self._create_simple_contacts_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contacts HP by house',
@@ -2625,8 +2683,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_by_relation04(self):
         "Invalid RelationType."
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Average of capital by creation date (by day)',
@@ -2647,8 +2706,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
     def test_fetch_with_customfk_01(self):
-        user = self.login()
-        report = self._create_simple_contacts_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_contacts_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contacts by title',
@@ -2671,7 +2731,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_customfk_02(self):
         "Count."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         cf = CustomField.objects.create(
             content_type=self.ct_contact, name='Title', field_type=CustomField.ENUM,
         )
@@ -2690,7 +2751,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_enum(entity=robb, value=lord)
         create_enum(entity=bran, value=lord)
 
-        report = self._create_simple_contacts_report()
+        report = self._create_simple_contacts_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Contacts by title',
@@ -2733,7 +2794,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetch_with_customfk_03(self):
         "Aggregate."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         cf = CustomField.objects.create(
             content_type=self.ct_orga, name='Policy', field_type=CustomField.ENUM,
         )
@@ -2751,7 +2813,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_enum(entity=baratheons, value=fight)
         create_enum(entity=lannisters, value=smartness)
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Capital by policy',
@@ -2784,7 +2846,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         """Entity type with several CustomFields with the same type
         + custom-field ENUM for aggregation (bugfix).
         """
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct_orga)
         cf_int1 = create_cf(name='Gold',          field_type=CustomField.INT)
@@ -2818,7 +2881,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_enum(entity=baratheons, value=knights)
         create_enum(entity=targaryens, value=dragons)
 
-        report = self._create_simple_organisations_report()
+        report = self._create_simple_organisations_report(user=user)
         rgraph1 = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Sum of gold by type',
@@ -2858,8 +2921,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetchgraphview_with_decimal_ordinate(self):
         "Test json encoding for Graph with Decimal in fetch_graph view."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         rgraph = self._create_invoice_report_n_graph(
+            user=user,
             ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_field='total_vat',
         )
@@ -2877,8 +2942,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertGET200(self._build_fetch_url(rgraph, 'ASC'))
 
     def test_fetchgraphview_save_settings01(self):
-        self.login()
-        rgraph = self._create_documents_rgraph()
+        # self.login()
+        user = self.login_as_root_and_get()
+        rgraph = self._create_documents_rgraph(user=user)
 
         chart1 = 'piechart'
         url = self._build_fetch_url
@@ -2914,14 +2980,16 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_fetchgraphview_save_settings02(self):
         "Not super-user."
-        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'reports'])
+        # user = self.login(is_superuser=False, allowed_apps=['creme_core', 'reports'])
+        user = self.login_as_standard(allowed_apps=['creme_core', 'reports'])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
             set_type=SetCredentials.ESET_OWN,
         )
 
-        rgraph1 = self._create_documents_rgraph(user=self.other_user)
+        # rgraph1 = self._create_documents_rgraph(user=self.other_user)
+        rgraph1 = self._create_documents_rgraph(user=self.get_root_user())
         self.assertFalse(user.has_perm_to_view(rgraph1))
 
         chart = 'piechart'
@@ -2937,8 +3005,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_delete_graph_instance01(self):
         "No related Brick location."
-        self.login()
-        rgraph = self._create_documents_rgraph()
+        # self.login()
+        user = self.login_as_root_and_get()
+        rgraph = self._create_documents_rgraph(user=user)
         ibci = SimpleGraphFetcher(graph=rgraph).create_brick_config_item()
 
         rgraph.delete()
@@ -2947,8 +3016,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_delete_graph_instance02(self):
         "There are Brick locations => cannot delete."
-        self.login()
-        rgraph = self._create_documents_rgraph()
+        # self.login()
+        user = self.login_as_root_and_get()
+        rgraph = self._create_documents_rgraph(user=user)
         ibci = SimpleGraphFetcher(graph=rgraph).create_brick_config_item()
 
         brick_id = ibci.brick_id
@@ -2977,8 +3047,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         import time
         from datetime import datetime
 
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of organisation created by day',
@@ -3017,8 +3088,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         import time
         from datetime import datetime
 
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Sum of capital by creation date (period of 1 days)',
@@ -3082,8 +3154,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
     #     self.assertGET404(build_uri(rgraph, 'chart'))
 
     def test_clone_report(self):
-        user = self.login()
-        report = self._create_simple_organisations_report()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        report = self._create_simple_organisations_report(user=user)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='capital per month of creation',
@@ -3112,15 +3185,17 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
     def test_credentials01(self):
         "Filter retrieved entities with permission."
-        user = self.login(is_superuser=False, allowed_apps=['creme_core', 'reports'])
+        # user = self.login(is_superuser=False, allowed_apps=['creme_core', 'reports'])
+        user = self.login_as_standard(allowed_apps=['creme_core', 'reports'])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
             set_type=SetCredentials.ESET_OWN,
         )
 
-        other_user = self.other_user
-        report = self._create_simple_organisations_report()
+        # other_user = self.other_user
+        other_user = self.get_root_user()
+        report = self._create_simple_organisations_report(user=user)
 
         create_orga = FakeOrganisation.objects.create
         create_orga(name='O#1', user=user)

@@ -46,7 +46,7 @@ from ..base import CremeTestCase
 
 class EntityTestCase(CremeTestCase):
     def test_entity01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         with self.assertNoException():
             entity = CremeEntity.objects.create(user=user)
@@ -57,7 +57,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_entity_save01(self):
         "No update_fields."
-        user = self.create_user()
+        user = self.get_root_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
         FakeOrganisation.objects.filter(id=orga.id).update(
@@ -75,7 +75,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_entity_save02(self):
         "With update_fields."
-        user = self.create_user()
+        user = self.get_root_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Nerv')
         FakeOrganisation.objects.filter(id=orga.id).update(
@@ -94,7 +94,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_entity_extra_data01(self):
         "Single tag."
-        user = self.create_user()
+        user = self.get_root_user()
 
         def create_orga(name, tag=None):
             orga = FakeOrganisation(user=user, name=name)
@@ -130,7 +130,7 @@ class EntityTestCase(CremeTestCase):
     @skipUnlessDBFeature('supports_json_field_contains')
     def test_entity_extra_data02(self):
         "Multi tags."
-        user = self.create_user()
+        user = self.get_root_user()
 
         def create_orga(name, *tags):
             orga = FakeOrganisation(user=user, name=name)
@@ -159,7 +159,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_manager01(self):
         "Ordering NULL values as 'low'."
-        user = self.create_user()
+        user = self.get_root_user()
 
         # NB: we should not use NULL & '' values at the same time, because they are
         # separated by the ordering, but they are equal for the users.
@@ -190,7 +190,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_manager02(self):
         "Ordering NULL values as 'low' (FK)."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_sector = FakeSector.objects.create
         s1 = create_sector(title='Hatake')
@@ -228,7 +228,7 @@ class EntityTestCase(CremeTestCase):
         self.ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
 
     def test_fieldtags_clonable(self):
-        user = self.create_user()
+        user = self.get_root_user()
         naruto = FakeContact.objects.create(
             user=user, first_name='Naruto', last_name='Uzumaki',
         )
@@ -250,7 +250,7 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('preferred_countries').get_tag(FieldTag.CLONABLE))
 
     def test_fieldtags_viewable(self):
-        user = self.create_user()
+        user = self.get_root_user()
         naruto = FakeContact.objects.create(
             user=user, first_name='Naruto', last_name='Uzumaki',
         )
@@ -265,7 +265,7 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('cremeentity_ptr').get_tag(FieldTag.VIEWABLE))
 
     def test_fieldtags_optional(self):
-        user = self.create_user()
+        user = self.get_root_user()
         naruto = FakeContact.objects.create(
             user=user, first_name='Naruto', last_name='Uzumaki',
         )
@@ -289,7 +289,7 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(get_field('role').get_tag(FieldTag.VIEWABLE))
 
     def test_clone01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         self._build_rtypes_n_ptypes()
 
         created = modified = now()
@@ -329,7 +329,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_clone02(self):
         "Clone regular fields."
-        user = self.create_user()
+        user = self.get_root_user()
         self._build_rtypes_n_ptypes()
 
         civility = FakeCivility.objects.all()[0]
@@ -375,7 +375,7 @@ class EntityTestCase(CremeTestCase):
         self.assertFalse(kage_bunshin.preferred_countries.all())  # Not clonable
 
     def test_clone03(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_cf = partial(
             CustomField.objects.create,
@@ -427,7 +427,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_clone04(self):
         "ManyToMany"
-        user = self.create_user()
+        user = self.get_root_user()
 
         image1 = FakeImage.objects.create(user=user, name='Konoha by night')
         categories = [*FakeImageCategory.objects.all()]
@@ -447,7 +447,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_delete01(self):
         "Simple delete."
-        user = self.create_user()
+        user = self.get_root_user()
 
         ce = CremeEntity.objects.create(user=user)
         ce.delete()
@@ -455,7 +455,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_delete02(self):
         "Can delete entities linked by a not internal relation"
-        user = self.create_user()
+        user = self.get_root_user()
         self._build_rtypes_n_ptypes()
         ce1 = CremeEntity.objects.create(user=user)
         ce2 = CremeEntity.objects.create(user=user)
@@ -470,7 +470,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_delete03(self):
         "Can't delete entities linked by an internal relation"
-        user = self.create_user()
+        user = self.get_root_user()
         self._build_rtypes_n_ptypes()
         ce1 = CremeEntity.objects.create(user=user)
         ce2 = CremeEntity.objects.create(user=user)
@@ -483,7 +483,7 @@ class EntityTestCase(CremeTestCase):
         self.assertRaises(ProtectedError, ce2.delete)
 
     def test_properties_functionfield01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         entity = CremeEntity.objects.create(user=user)
 
         pp_ff = function_field_registry.get(CremeEntity, 'get_pretty_properties')
@@ -516,7 +516,7 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual('Awesome/Wonderful', result.render(ViewTag.TEXT_PLAIN))
 
     def test_properties_functionfield02(self):  # Prefetch with populate_entities()
-        user = self.create_user()
+        user = self.get_root_user()
         create_entity = CremeEntity.objects.create
         entity1 = create_entity(user=user)
         entity2 = create_entity(user=user)
@@ -553,7 +553,7 @@ class EntityTestCase(CremeTestCase):
         )
 
     def test_customfield_value(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_field = partial(
             CustomField.objects.create,

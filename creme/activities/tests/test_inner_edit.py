@@ -63,8 +63,10 @@ class ActivityRangeFieldTestCase(FieldTestCase):
 @skipIfCustomActivity
 class ActivityInnerEditionTestCase(_ActivitiesTestCase):
     def test_inner_edit_start_n_end(self):
-        user = self.login()
-        activity = self._create_meeting(busy=True)
+        # # user = self.login()
+        user = self.login_as_root_and_get()
+        user = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user, busy=True)
 
         Relation.objects.create(
             user=user,
@@ -137,8 +139,9 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         ('busy', ),
     ])
     def test_inner_edit_start_floating(self, field_name):
-        self.login()
-        activity = self._create_meeting()
+        # self.login()
+        user = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user)
 
         url = self.build_inneredit_uri(activity, field_name)
 
@@ -168,8 +171,9 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertFalse(activity.busy)
 
     def test_inner_edit_start_all_day(self):
-        self.login()
-        activity = self._create_meeting()
+        # self.login()
+        user = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user)
 
         field_name = 'start'
         self.assertNoFormError(self.client.post(
@@ -195,8 +199,9 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(hour=23, minute=59), activity.end)
 
     def test_inner_edit_start_busy(self):
-        self.login()
-        activity = self._create_meeting()
+        # self.login()
+        user = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user)
 
         field_name = 'start'
         self.assertNoFormError(self.client.post(
@@ -224,8 +229,9 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(hour=12), activity.end)
 
     def test_inner_edit_start_floating_time(self):
-        self.login()
-        activity = self._create_meeting()
+        # self.login()
+        user = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user)
 
         field_name = 'start'
         url = self.build_inneredit_uri(activity, field_name)
@@ -261,8 +267,9 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(day=15, hour=23, minute=59), activity.end)
 
     def test_inner_edit_start_only_end_time(self):
-        self.login()
-        activity = self._create_meeting()
+        # self.login()
+        user = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user)
 
         field_name = 'start'
         self.assertNoFormError(self.client.post(
@@ -292,8 +299,9 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertFalse(activity.busy)
 
     def test_inner_edit_start_computed_end(self):
-        self.login()
-        activity = self._create_meeting()
+        # self.login()
+        user = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user)
 
         act_type = activity.type
         self.assertEqual(0, act_type.default_day_duration)
@@ -323,7 +331,8 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertFalse(activity.busy)
 
     def test_inner_edit_start_computed_end_all_day01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         atype = ActivityType.objects.create(
             id='test-activity_contest',
@@ -371,7 +380,8 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
 
     def test_inner_edit_start_computed_end_all_day02(self):
         "Duration is not a round number of days."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         atype = ActivityType.objects.create(
             id='test-activity_contest',
@@ -417,7 +427,8 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertTrue(activity.is_all_day)
 
     def test_inner_edit_start_computed_end_floating_time(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         atype = ActivityType.objects.create(
             id='test-activity_contest',
@@ -461,7 +472,8 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertEqual(constants.FLOATING_TIME, activity.floating_type)
 
     def test_inner_edit_start_collision(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_activity = partial(
             Activity.objects.create,

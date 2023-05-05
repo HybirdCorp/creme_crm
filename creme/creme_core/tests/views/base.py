@@ -1,3 +1,4 @@
+import warnings
 from tempfile import NamedTemporaryFile
 
 from django.contrib.contenttypes.models import ContentType
@@ -15,12 +16,27 @@ from ..base import CremeTestCase
 
 
 class ViewsTestCase(CremeTestCase):
-    # TODO: improve CremeTestCase.login instead ?
-    def login(self, is_superuser=True, *args, **kwargs):
-        user = super().login(is_superuser, *args, **kwargs)
+    # def login(self, is_superuser=True, *args, **kwargs):
+    #     user = super().login(is_superuser, *args, **kwargs)
+    #
+    #     SetCredentials.objects.create(
+    #         role=self.role,
+    #         value=(
+    #             EntityCredentials.VIEW
+    #             | EntityCredentials.CHANGE
+    #             | EntityCredentials.DELETE
+    #             | EntityCredentials.LINK
+    #             | EntityCredentials.UNLINK
+    #         ),
+    #         set_type=SetCredentials.ESET_OWN,
+    #     )
+    #
+    #     return user
 
+    # TODO: in CremeTestCase ?
+    def _set_all_perms_on_own(self, user):
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -31,9 +47,9 @@ class ViewsTestCase(CremeTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        return user
-
-    def _set_all_creds_except_one(self, excluded):  # TODO: in CremeTestCase ?
+    # TODO: in CremeTestCase ?
+    # def _set_all_creds_except_one(self, excluded):
+    def _set_all_creds_except_one(self, *, user, excluded):
         value = EntityCredentials.NONE
 
         for cred in (
@@ -47,7 +63,8 @@ class ViewsTestCase(CremeTestCase):
                 value |= cred
 
         SetCredentials.objects.create(
-            role=self.user.role, value=value,
+            # role=self.user.role, value=value,
+            role=user.role, value=value,
             set_type=SetCredentials.ESET_ALL,
         )
 
@@ -230,11 +247,20 @@ class MassImportBaseTestCaseMixin:
 
         return tmpfile
 
-    def _build_doc(self, tmpfile):
+    def _build_doc(self, tmpfile, user=None):
+        if user is None:
+            warnings.warn(
+                f'Passing no "user" argument to the methods '
+                f'{type(self).__name__}._build_*doc() is deprecated.',
+                DeprecationWarning
+            )
+
+            user = self.user
+
         tmpfile.file.seek(0)
         category = FolderCategory.objects.create(id=10, name='Test category')
         folder = Folder.objects.create(
-            user=self.user, title='Test folder',
+            user=user, title='Test folder',
             parent_folder=None,
             category=category,
         )
@@ -243,7 +269,7 @@ class MassImportBaseTestCaseMixin:
         response = self.client.post(
             reverse('documents__create_document'), follow=True,
             data={
-                'user':          self.user.id,
+                'user':          user.id,
                 'title':         title,
                 'description':   'CSV file for contacts',
                 'filedata':      tmpfile,
@@ -257,22 +283,24 @@ class MassImportBaseTestCaseMixin:
 
         return doc
 
-    def _build_csv_doc(self, lines, separator=',', extension='csv'):
+    # def _build_csv_doc(self, lines, separator=',', extension='csv'):
+    def _build_csv_doc(self, lines, *, user=None, separator=',', extension='csv'):
         content = '\n'.join(
             separator.join(f'"{item}"' for item in line) for line in lines
         )
         tmpfile = self._build_file(content.encode(), extension)
 
-        return self._build_doc(tmpfile)
+        return self._build_doc(tmpfile, user=user)
 
-    def _build_xls_doc(self, lines, extension='xls'):
+    # def _build_xls_doc(self, lines, extension='xls'):
+    def _build_xls_doc(self, lines, *, user=None, extension='xls'):
         tmpfile = self._build_file(b'', extension)
         wb = XlwtWriter()
         for line in lines:
             wb.writerow(line)
         wb.save(tmpfile.name)
 
-        return self._build_doc(tmpfile)
+        return self._build_doc(tmpfile, user=user)
 
     @staticmethod
     def _build_import_url(model):

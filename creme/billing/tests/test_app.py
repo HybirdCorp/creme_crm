@@ -98,7 +98,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomOrganisation
     def test_algoconfig(self):
-        user = self.create_user()
+        user = self.get_root_user()
         orga = Organisation.objects.create(user=user, name='NERV')
 
         self.assertFalse(ConfigBillingAlgo.objects.filter(organisation=orga))
@@ -127,13 +127,16 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def _merge_organisations(self, orga1, orga2):
-        user = self.user
+        # user = self.user
         response = self.client.post(
             self.build_merge_url(orga1, orga2), follow=True,
             data={
-                'user_1':      user.id,
-                'user_2':      user.id,
-                'user_merged': user.id,
+                # 'user_1':      user.id,
+                # 'user_2':      user.id,
+                # 'user_merged': user.id,
+                'user_1':      orga1.user_id,
+                'user_2':      orga2.user_id,
+                'user_merged': orga1.user_id,
 
                 'name_1':      orga1.name,
                 'name_2':      orga2.name,
@@ -153,7 +156,8 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomOrganisation
     def test_merge_algoconfig01(self):
         "One managed organisation."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga1 = self._set_managed(create_orga(name='NERV'))
@@ -180,7 +184,8 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomOrganisation
     def test_merge_algoconfig02(self):
         "Two managed organisations."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga1 = self._set_managed(create_orga(name='NERV'))
@@ -205,7 +210,8 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomOrganisation
     def test_merge_algoconfig03(self):
         "Two organisations with algo config, but not managed (anymore)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga1 = self._set_managed(create_orga(name='NERV'))
@@ -235,7 +241,8 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         """Two organisations with algo config, but only one is still managed
             => we delete the config of the other one.
         """
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga1 = self._set_managed(create_orga(name='NERV'))
@@ -262,7 +269,8 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomOrganisation
     def test_merge_algoconfig05(self):
         "Second organisation has algo config (none is managed anymore)."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga1 = create_orga(name='NERV')
@@ -290,12 +298,13 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomOrganisation
     def test_brick_orga01(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         sv = self.get_object_or_fail(SettingValue, key_id=setting_keys.payment_info_key.id)
         self.assertIs(True, sv.value)
 
-        orga = Organisation.objects.create(user=self.user, name='NERV')
+        orga = Organisation.objects.create(user=user, name='NERV')
 
         response = self.assertGET200(orga.get_absolute_url())
         payment_info_tlpt = 'billing/bricks/orga-payment-information.html'
@@ -312,11 +321,10 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomOrganisation
     def test_brick_orga02(self):
         "Managed organisation."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        orga = self._set_managed(
-            Organisation.objects.create(user=self.user, name='NERV')
-        )
+        orga = self._set_managed(Organisation.objects.create(user=user, name='NERV'))
 
         response = self.assertGET200(orga.get_absolute_url())
         payment_info_tlpt = 'billing/bricks/orga-payment-information.html'
@@ -334,9 +342,10 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomOrganisation
     def test_brick_orga03(self):
         "Statistics."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        orga = Organisation.objects.create(user=self.user, name='NERV')
+        orga = Organisation.objects.create(user=user, name='NERV')
         # brick_id = bricks.PersonsStatisticsBrick.id_
         brick_id = bricks.PersonsStatisticsBrick.id
 

@@ -121,10 +121,6 @@ class CremePropertyTypeTestCase(CremeTestCase):
 
 
 class CremePropertyTestCase(CremeTestCase):
-    def setUp(self):
-        super().setUp()
-        self.login()
-
     def test_create(self):
         text = 'is delicious'
 
@@ -132,7 +128,7 @@ class CremePropertyTestCase(CremeTestCase):
             ptype = CremePropertyType.objects.smart_update_or_create(
                 str_pk='test-prop_foobar', text=text,
             )
-            entity = CremeEntity.objects.create(user=self.user)
+            entity = CremeEntity.objects.create(user=self.get_root_user())
             CremeProperty.objects.create(type=ptype, creme_entity=entity)
 
         self.assertEqual(text, ptype.text)
@@ -163,7 +159,7 @@ class CremePropertyTestCase(CremeTestCase):
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_foobar', text=text,
         )
-        entity = CremeEntity.objects.create(user=self.user)
+        entity = CremeEntity.objects.create(user=self.get_root_user())
 
         CremeProperty.objects.safe_create(type=ptype, creme_entity=entity)
         self.assertHasProperty(entity=entity, ptype=ptype)
@@ -177,7 +173,7 @@ class CremePropertyTestCase(CremeTestCase):
         ptype  = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_foobar', text=text,
         )
-        entity = CremeEntity.objects.create(user=self.user)
+        entity = CremeEntity.objects.create(user=self.get_root_user())
 
         prop1 = CremeProperty.objects.safe_get_or_create(type=ptype, creme_entity=entity)
         self.assertIsInstance(prop1, CremeProperty)
@@ -198,8 +194,9 @@ class CremePropertyTestCase(CremeTestCase):
         ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
         ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
 
-        entity1 = CremeEntity.objects.create(user=self.user)
-        entity2 = CremeEntity.objects.create(user=self.user)
+        user = self.get_root_user()
+        entity1 = CremeEntity.objects.create(user=user)
+        entity2 = CremeEntity.objects.create(user=user)
 
         count = CremeProperty.objects.safe_multi_save([
             CremeProperty(type=ptype1, creme_entity=entity1),
@@ -219,7 +216,7 @@ class CremePropertyTestCase(CremeTestCase):
         ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
         ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
 
-        entity = CremeEntity.objects.create(user=self.user)
+        entity = CremeEntity.objects.create(user=self.get_root_user())
 
         count = CremeProperty.objects.safe_multi_save([
             CremeProperty(type=ptype1, creme_entity=entity),
@@ -238,7 +235,7 @@ class CremePropertyTestCase(CremeTestCase):
         ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
         ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
 
-        entity = CremeEntity.objects.create(user=self.user)
+        entity = CremeEntity.objects.create(user=self.get_root_user())
 
         def build_prop1():
             return CremeProperty(type=ptype1, creme_entity=entity)
@@ -269,7 +266,7 @@ class CremePropertyTestCase(CremeTestCase):
         ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
         ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
 
-        entity = CremeEntity.objects.create(user=self.user)
+        entity = CremeEntity.objects.create(user=self.get_root_user())
 
         with CaptureQueriesContext() as ctxt1:
             CremeProperty.objects.safe_multi_save(

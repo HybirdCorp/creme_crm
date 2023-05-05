@@ -72,11 +72,13 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         return reverse('commercial__incr_objective_counter', args=(objective.id,))
 
     def test_create01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         url = self.ADD_URL
         self.assertGET200(url)
 
+        # ---
         name = 'Act#1'
         atype = ActType.objects.create(title='Show')
         segment = self._create_segment()
@@ -105,7 +107,8 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_create02(self):
         "Error: due date < start."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         atype = ActType.objects.create(title='Show')
         segment = self._create_segment()
@@ -130,7 +133,8 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_create03(self):
         "Error: start/due date not filled."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         atype = ActType.objects.create(title='Show')
         segment = self._create_segment()
@@ -156,9 +160,11 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertFormError(post(start=date_str),    field='due_date', errors=msg)
         self.assertFormError(post(due_date=date_str), field='start',    errors=msg)
 
-    def create_act(self, name='NAME', expected_sales=1000):
+    def create_act(self, user, name='NAME', expected_sales=1000):
         return Act.objects.create(
-            user=self.user, name=name,
+            # user=self.user,
+            user=user,
+            name=name,
             expected_sales=expected_sales, cost=50,
             goal='GOAL', start=date(2010, 11, 25),
             due_date=date(2011, 12, 26),
@@ -167,9 +173,10 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
 
     def test_edit(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        act = self.create_act()
+        act = self.create_act(user=user)
         url = act.get_edit_absolute_url()
         self.assertGET200(url)
 
@@ -208,8 +215,9 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_edit02(self):
         "Error: due_date < start date."
-        user = self.login()
-        act = self.create_act()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
 
         atype = ActType.objects.create(title='Demo')
         segment = self._create_segment('Segment#2')
@@ -235,7 +243,8 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(date(year=2011, month=12, day=26), self.refresh(act).due_date)
 
     def test_listview(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_act = partial(
             Act.objects.create,
@@ -257,15 +266,17 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertCountEqual(acts, acts_page.object_list)
 
     def test_detailview(self):
-        self.login()
-        act = self.create_act()
+        # self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
         self.assertGET200(act.get_absolute_url())
 
     @skipIfCustomOrganisation
     @skipIfCustomOpportunity
     def test_create_linked_opportunity01(self):
-        user = self.login()
-        act = self.create_act()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
 
         url = reverse('commercial__create_opportunity', args=(act.id,))
         self.assertGET200(url)
@@ -302,15 +313,14 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_create_linked_opportunity02(self):
         "Cannot link the Act."
-        user = self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=('commercial', 'opportunities'),
             creatable_models=[Opportunity],
         )
 
         create_sc = partial(
             SetCredentials.objects.create,
-            role=self.role, set_type=SetCredentials.ESET_ALL,
+            role=user.role, set_type=SetCredentials.ESET_ALL,
         )
         create_sc(
             value=(
@@ -331,7 +341,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             ctype=Opportunity,
         )
 
-        act = self.create_act()
+        act = self.create_act(user=user)
         self.assertFalse(user.has_perm_to_link(act))
         self.assertTrue(user.has_perm_to_link(Opportunity))
 
@@ -347,14 +357,12 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_create_linked_opportunity03(self):
         "Cannot link with Opportunity."
-        user = self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=('commercial', 'opportunities'),
             creatable_models=[Opportunity],
         )
-
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -366,7 +374,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             ctype=Act,
         )
 
-        act = self.create_act()
+        act = self.create_act(user=user)
         self.assertTrue(user.has_perm_to_link(act))
         self.assertFalse(user.has_perm_to_link(Opportunity))
 
@@ -380,56 +388,55 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_create_linked_opportunity04(self):
         "Must be related to an Act."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Acme')
 
         self.assertGET404(reverse('commercial__create_opportunity', args=(orga.id,)))
 
     def test_create_linked_opportunity05(self):
         "Not super-user."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=('commercial', 'opportunities'),
             creatable_models=[Opportunity],
         )
         SetCredentials.objects.create(
-            role=self.role, set_type=SetCredentials.ESET_ALL,
+            role=user.role, set_type=SetCredentials.ESET_ALL,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
         )
-        act = self.create_act()
+        act = self.create_act(user=user)
         self.assertGET200(reverse('commercial__create_opportunity', args=(act.id,)))
 
     def test_create_linked_opportunity06(self):
         "Not super-user."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=('commercial', 'opportunities'),
             creatable_models=[Opportunity],
         )
         SetCredentials.objects.create(
-            role=self.role, set_type=SetCredentials.ESET_ALL,
+            role=user.role, set_type=SetCredentials.ESET_ALL,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
         )
-        act = self.create_act()
+        act = self.create_act(user=user)
         self.assertGET200(reverse('commercial__create_opportunity', args=(act.id,)))
 
     def test_create_linked_opportunity07(self):
-        "Creation credentials"
-        self.login(
-            is_superuser=False,
+        "Creation credentials."
+        user = self.login_as_standard(
             allowed_apps=('commercial', 'opportunities'),
             # creatable_models=[Opportunity],
         )
         SetCredentials.objects.create(
-            role=self.role, set_type=SetCredentials.ESET_ALL,
+            role=user.role, set_type=SetCredentials.ESET_ALL,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
         )
-        act = self.create_act()
+        act = self.create_act(user=user)
         self.assertGET403(reverse('commercial__create_opportunity', args=(act.id,)))
 
     def test_add_objective01(self):
-        self.login()
-        act = self.create_act()
+        # self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
         url = self._build_addobjective_url(act)
 
         context = self.assertGET200(url).context
@@ -480,8 +487,9 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_add_objective02(self):
         "Count by content type only."
-        self.login()
-        act = self.create_act()
+        # self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
 
         name = 'Objective#2'
         counter_goal = 2
@@ -506,8 +514,9 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_add_objective03(self):
         "Count with EntityFilter."
-        self.login()
-        act = self.create_act()
+        # self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
         ct = ContentType.objects.get_for_model(Organisation)
 
         create_efilter = EntityFilter.objects.smart_update_or_create
@@ -516,7 +525,8 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
         priv_efilter = create_efilter(
             'test-filter_priv01', 'Acme', Organisation,
-            is_custom=True, is_private=True, user=self.other_user,
+            # is_custom=True, is_private=True, user=self.other_user,
+            is_custom=True, is_private=True, user=self.create_user(),
         )
 
         name = 'Objective#3'
@@ -551,8 +561,9 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     @skipIfCustomPattern
     def test_add_objectives_from_pattern01(self):
         "No component"
-        user = self.login()
-        act = self.create_act(expected_sales=21000)
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user, expected_sales=21000)
         pattern = ActObjectivePattern.objects.create(
             user=user, name='Mr Pattern',
             average_sales=5000,  # NB: 21000 / 5000 => Ratio = 5
@@ -576,8 +587,9 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     @skipIfCustomPattern
     def test_add_objectives_from_pattern02(self):
         "With components."
-        user = self.login()
-        act = self.create_act(expected_sales=20000)
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user, expected_sales=20000)
         pattern = ActObjectivePattern.objects.create(
             user=user, name='Mr Pattern',
             average_sales=5000,  # NB: 20000 / 5000 => Ratio = 4
@@ -643,9 +655,10 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(200, objective12.counter_goal)  # 10% -> 20 * 10
 
     def test_edit_objective01(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        act = self.create_act()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         self.assertEqual(1, objective.counter_goal)
 
@@ -681,13 +694,15 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_edit_objective02(self):
         "Private filter."
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         priv_efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter_priv01', 'Acme (private)', Organisation,
-            is_custom=True, is_private=True, user=self.other_user,
+            # is_custom=True, is_private=True, user=self.other_user,
+            is_custom=True, is_private=True, user=self.create_user(),
         )
-        act = self.create_act()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(
             act=act, name='OBJ#1', counter_goal=3,
             ctype=priv_efilter.entity_type,
@@ -734,20 +749,19 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_edit_objective03(self):
         "Not super-user + not custom filter => can be used."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'commercial'],
             creatable_models=[Act],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
             set_type=SetCredentials.ESET_ALL,
         )
 
         sys_efilter = self.get_object_or_fail(EntityFilter, pk=FILTER_MANAGED_ORGA)
 
-        act = self.create_act()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(
             act=act, name='OBJ#1', counter_goal=3,
             ctype=sys_efilter.entity_type,
@@ -763,9 +777,10 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertIn('entity_counting', fields)
 
     def test_delete_objective(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
-        act = self.create_act()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         ct = ContentType.objects.get_for_model(ActObjective)
 
@@ -777,8 +792,9 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertDoesNotExist(objective)
 
     def test_incr_objective_counter01(self):
-        self.login()
-        act = self.create_act()
+        # self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         self.assertEqual(0, objective.counter)
 
@@ -794,8 +810,9 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_incr_objective_counter02(self):
         "Relationships counter -> error."
-        self.login()
-        act = self.create_act()
+        # self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(
             act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
         )
@@ -803,8 +820,9 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_objective_create_entity01(self):
         "Alright (No filter, quick form exists, credentials are OK)."
-        user = self.login()
-        act = self.create_act()
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(
             act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
         )
@@ -829,15 +847,17 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_objective_create_entity02(self):
         "Not a relationships counter objective."
-        self.login()
-        act = self.create_act()
+        # self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         self.assertGET409(self._build_create_related_entity_url(objective))
 
     def test_objective_create_entity03(self):
         "No quick for this entity type."
-        self.login()
-        act = self.create_act()
+        # self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(
             act=act, name='Act counter', counter_goal=2, ctype=Act,
         )
@@ -845,9 +865,9 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_objective_create_entity04(self):
         "The objective has a filter -> error"
-        self.login()
-
-        act = self.create_act()
+        # self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Acme', Organisation, is_custom=True,
@@ -866,21 +886,20 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertGET409(self._build_create_related_entity_url(objective))
 
     def test_objective_create_entity_not_superuser01(self):
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'commercial'],
             creatable_models=[Organisation],
         )
         create_sc = partial(
             SetCredentials.objects.create,
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.LINK,  # | EntityCredentials.CHANGE
             set_type=SetCredentials.ESET_ALL,
         )
         create_sc(ctype=Act)
         create_sc(ctype=Organisation)
 
-        act = self.create_act()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(
             act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
         )
@@ -888,18 +907,17 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_objective_create_entity_not_superuser02(self):
         "Creation permission is needed."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'commercial'],
             # creatable_models=[Organisation],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
         )
 
-        act = self.create_act()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(
             act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
         )
@@ -907,19 +925,18 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_objective_create_entity_not_superuser03(self):
         "<LINK related Act> permission needed."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'commercial'],
             creatable_models=[Organisation],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
             ctype=Organisation,
         )
 
-        act = self.create_act()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(
             act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
         )
@@ -927,19 +944,18 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     def test_objective_create_entity_not_superuser04(self):
         "<LINK created entity> permission needed."
-        self.login(
-            is_superuser=False,
+        user = self.login_as_standard(
             allowed_apps=['persons', 'commercial'],
             creatable_models=[Organisation],
         )
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_ALL,
             ctype=Act,
         )
 
-        act = self.create_act()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(
             act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
         )
@@ -948,10 +964,11 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_count_relations01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_COMPLETE_GOAL)
 
-        act = self.create_act()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(
             act=act, name='Orga counter', counter_goal=2, ctype=Organisation,
         )
@@ -987,7 +1004,8 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     @skipIfCustomOrganisation
     def test_count_relations02(self):
         "With filter."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Acme', Organisation, is_custom=True,
@@ -1000,7 +1018,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             ],
         )
 
-        act = self.create_act()
+        act = self.create_act(user=user)
         objective = ActObjective.objects.create(
             act=act, name='Orga counter', counter_goal=2,
             ctype=Organisation, filter=efilter,
@@ -1040,8 +1058,8 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(obj_a.ctype,        obj_b.ctype)
 
     def test_clone(self):
-        self.login()
-        act = self.create_act()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Acme', Organisation, is_custom=True,
@@ -1067,10 +1085,11 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomOpportunity
     def test_related_opportunities(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_COMPLETE_GOAL)
 
-        act = self.create_act()
+        act = self.create_act(user=user)
         self.assertEqual([], act.get_related_opportunities())
         self.assertEqual(0,  act.get_made_sales())
 
@@ -1137,8 +1156,9 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertListEqual([opp02], self.refresh(act).get_related_opportunities())
 
     def test_delete_type(self):
-        self.login()
-        act = self.create_act()
+        # self.login()
+        user = self.login_as_root_and_get()
+        act = self.create_act(user=user)
         response = self.assertPOST200(reverse(
             'creme_config__delete_instance',
             args=('commercial', 'act_type', act.act_type_id),
@@ -1153,9 +1173,10 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     @skipIfCustomActivity
     @skipIfCustomOpportunity
     def test_link_to_activity(self):
-        user = self.login()
-        act1 = self.create_act('Act#1')
-        act2 = self.create_act('Act#2')
+        # user = self.login()
+        user = self.login_as_root_and_get()
+        act1 = self.create_act(user=user, name='Act#1')
+        act2 = self.create_act(user=user, name='Act#2')
 
         create_orga = partial(Organisation.objects.create, user=user)
         opp = Opportunity.objects.create(

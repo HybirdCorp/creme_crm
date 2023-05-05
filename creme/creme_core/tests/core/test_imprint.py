@@ -41,7 +41,8 @@ class ImprintManagerTestCase(CremeTestCase):
         manager = _ImprintManager()
         manager.register(FakeContact, minutes=60)
 
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         willy = FakeContact.objects.create(user=user, first_name='Willy', last_name='Wonka')
         self.assertFalse(Imprint.objects.all())
 
@@ -59,7 +60,8 @@ class ImprintManagerTestCase(CremeTestCase):
         manager = _ImprintManager()
         manager.register(FakeContact, minutes=60)
 
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         willy = FakeContact.objects.create(user=user, first_name='Willy', last_name='Wonka')
 
         imprint1 = Imprint.objects.create(real_entity=willy, user=user)
@@ -70,7 +72,8 @@ class ImprintManagerTestCase(CremeTestCase):
         self.assertIsNotNone(manager.create_imprint(entity=charlie, user=user))
 
         # Other user
-        other_user = self.other_user
+        # other_user = self.other_user
+        other_user = self.create_user()
         imprint3 = manager.create_imprint(entity=willy, user=other_user)
         self.assertIsNotNone(imprint3)
         self.assertEqual(imprint3.user, other_user)
@@ -84,7 +87,8 @@ class ImprintManagerTestCase(CremeTestCase):
         manager = _ImprintManager()
         manager.register(FakeContact, minutes=30)
 
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         willy = FakeContact.objects.create(user=user, first_name='Willy', last_name='Wonka')
 
         imprint1 = Imprint.objects.create(real_entity=willy, user=user)
@@ -97,7 +101,8 @@ class ImprintManagerTestCase(CremeTestCase):
         manager = _ImprintManager()
         manager.register(FakeDocument, minutes=60)
 
-        user = self.login()
+        # user = self.login()
+        user = self.get_root_user()
         willy = FakeContact.objects.create(user=user, first_name='Willy', last_name='Wonka')
 
         self.assertIsNone(manager.create_imprint(entity=willy, user=user))

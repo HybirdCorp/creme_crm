@@ -17,7 +17,7 @@ class ButtonsTestCase(CremeTestCase):
         (buttons.BecomeSupplierButton, ),
     ])
     def test_become(self, button_class):
-        user = self.create_user()
+        user = self.get_root_user()
 
         managed_orga = self.get_alone_element(
             Organisation.objects.filter_managed_by_creme().all()
@@ -38,7 +38,7 @@ class ButtonsTestCase(CremeTestCase):
 
     def test_become_error(self):
         "Cannot link a managed organisation with itself."
-        self.create_user()
+        # self.create_user()
 
         managed_orga = self.get_alone_element(
             Organisation.objects.filter_managed_by_creme().all()

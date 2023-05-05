@@ -2377,7 +2377,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
     def test_ok03(self):
         "Wanted entity."
         rtype = self._create_rtype()[0]
-        user = self.create_user()
+        user = self.get_root_user()
 
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
         field = RelationsConditionsField(model=FakeContact)
@@ -2406,7 +2406,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
     def test_ok04(self):
         "Wanted CT + wanted entity."
         rtype1, rtype2 = self._create_rtype()
-        user = self.create_user()
+        user = self.get_root_user()
 
         ct_id = ContentType.objects.get_for_model(FakeContact).id
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
@@ -2431,7 +2431,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
     def test_ok05(self):
         "Wanted entity is deleted."
         rtype = self._create_rtype()[0]
-        user = self.create_user()
+        user = self.get_root_user()
 
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -2584,7 +2584,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
 
     def test_unknown_filter(self):
         rtype = self._create_rtype()[0]
-        user = self.create_user()
+        user = self.get_root_user()
         field = RelationSubfiltersConditionsField(model=FakeContact)
         field.user = user
         self.assertFieldValidationError(
@@ -2599,7 +2599,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
     def test_ok(self):
         rtype1, rtype2 = self._create_rtype()
         self._create_subfilters()
-        user = self.create_user()
+        user = self.get_root_user()
 
         with self.assertNumQueries(0):
             field = RelationSubfiltersConditionsField(model=FakeContact)
@@ -2645,7 +2645,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         self._create_subfilters()
 
         rtype = self._create_rtype()[0]
-        user = self.create_user()
+        user = self.get_root_user()
 
         field = RelationSubfiltersConditionsField(
             model=FakeContact,
@@ -2677,7 +2677,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         rtype.enabled = False
         rtype.save()
 
-        user = self.create_user()
+        user = self.get_root_user()
 
         field = RelationSubfiltersConditionsField(
             model=FakeContact,
@@ -2707,7 +2707,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         rtype.enabled = False
         rtype.save()
 
-        user = self.create_user()
+        user = self.get_root_user()
 
         field = RelationSubfiltersConditionsField(
             model=FakeContact,
@@ -2751,7 +2751,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
 
 class EntityFilterFormsTestCase(FieldTestCase):
     def test_creation_form01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         efilter_registry = _EntityFilterRegistry(
             id=-1,
             verbose_name='Test',
@@ -2815,7 +2815,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
         )
 
     def test_creation_form02(self):
-        user = self.create_user()
+        user = self.get_root_user()
         efilter_registry = _EntityFilterRegistry(
             id=-1,
             verbose_name='Test',
@@ -2837,7 +2837,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
         self.assertEqual(FakeOrganisation, prop_f.model)
 
     def test_edition_form01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         efilter_registry = _EntityFilterRegistry(
             id=-1,
             verbose_name='Test',
@@ -2914,7 +2914,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
         )
 
     def test_edition_form02(self):
-        user = self.create_user()
+        user = self.get_root_user()
         efilter_registry = _EntityFilterRegistry(
             id=-1,
             verbose_name='Test',

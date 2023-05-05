@@ -26,7 +26,8 @@ class PollsAppTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     @skipIfCustomContact
     def test_contact_brick(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         leina = Contact.objects.create(
             user=user, first_name='Leina', last_name='Vance',
         )
@@ -40,7 +41,8 @@ class PollsAppTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_orga_brick(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         gaimos = Organisation.objects.create(user=user, name='Gaimos')
 
         pform = PollForm.objects.create(user=user, name='Form#1')

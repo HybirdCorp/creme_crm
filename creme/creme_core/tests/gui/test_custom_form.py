@@ -161,7 +161,7 @@ class CustomFormExtraEntityCellTestCase(CremeTestCase):
         self.assertEqual(sub_cell, cell.sub_cell)
         self.assertEqual(vname, cell.title)
 
-        user = self.create_user()
+        user = self.get_root_user()
         orga = FakeOrganisation(user=user, name='Nerv')
         ffield = cell.formfield(instance=orga, user=user)
         self.assertIsInstance(ffield, forms.CharField)
@@ -180,7 +180,7 @@ class CustomFormExtraEntityCellTestCase(CremeTestCase):
 
         cell = EntityCellCustomFormExtra(TestSubCell(model=FakeOrganisation))
 
-        user = self.create_user()
+        user = self.get_root_user()
         ffield = cell.formfield(
             instance=FakeOrganisation(user=user, name='Nerv'),
             user=user,
@@ -221,7 +221,7 @@ class ExtraFieldGroupTestCase(CremeTestCase):
         self.assertEqual(LAYOUT_REGULAR, group.layout)
 
         self.assertFalse(
-            [*group.formfields(user=self.create_user(), instance=FakeOrganisation())],
+            [*group.formfields(user=self.get_root_user(), instance=FakeOrganisation())],
         )
 
         with self.assertRaises(ValueError) as cm:
@@ -564,7 +564,7 @@ class FieldGroupListTestCase(CremeTestCase):
         )
 
     def test_form_regular_fields01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         group_name = 'General'
         mfields = ['user', 'last_name', 'first_name', 'is_a_nerd']
         fields_groups = FieldGroupList.from_cells(
@@ -657,7 +657,7 @@ class FieldGroupListTestCase(CremeTestCase):
         class MyFormBase(CremeEntityForm):
             pass
 
-        user = self.create_user()
+        user = self.get_root_user()
         group_name = 'Regular fields'
         mfields = ['user', 'name', 'description']
         fields_groups = FieldGroupList.from_cells(
@@ -694,7 +694,7 @@ class FieldGroupListTestCase(CremeTestCase):
 
     def test_form_regular_fields03(self):
         "Missing required fields."
-        user = self.create_user()
+        user = self.get_root_user()
 
         fields_groups1 = FieldGroupList.from_cells(
             model=FakeOrganisation,
@@ -744,7 +744,7 @@ class FieldGroupListTestCase(CremeTestCase):
 
     def test_form_regular_fields04(self):
         "Exclude required fields."
-        user = self.create_user()
+        user = self.get_root_user()
 
         fields_groups = FieldGroupList.from_cells(
             model=FakeOrganisation,
@@ -771,7 +771,7 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertEqual(1, len(blocks))  # No special block for missing required
 
     def test_form_regular_fields_not_editable(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         fields_groups = FieldGroupList.from_cells(
             model=FakeOrganisation,
@@ -803,7 +803,7 @@ class FieldGroupListTestCase(CremeTestCase):
         )
 
     def test_form_regular_fields_too_deep(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         fields_groups = FieldGroupList.from_cells(
             model=FakeOrganisation,
@@ -837,7 +837,7 @@ class FieldGroupListTestCase(CremeTestCase):
         )
 
     def test_form_regular_fields_hidden_fields(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         hidden = 'description'
         FieldsConfig.objects.create(
@@ -863,7 +863,7 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertNotIn(hidden, fields)
 
     def test_form_regular_fields_required_fields(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         required1 = 'email'
         required2 = 'phone'
@@ -901,7 +901,7 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertTrue(required_field2.required)
 
     def test_form_custom_fields01(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_cfield = partial(CustomField.objects.create, content_type=FakeContact)
         cfield1 = create_cfield(name='IQ',       field_type=CustomField.INT, is_required=True)
@@ -995,7 +995,7 @@ class FieldGroupListTestCase(CremeTestCase):
 
     def test_form_custom_fields02(self):
         "Missing required fields."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_cfield = partial(
             CustomField.objects.create,
@@ -1050,7 +1050,7 @@ class FieldGroupListTestCase(CremeTestCase):
 
     def test_form_custom_fields03(self):
         "Deleted custom fields."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_cfield = partial(
             CustomField.objects.create,
@@ -1097,7 +1097,7 @@ class FieldGroupListTestCase(CremeTestCase):
 
     def test_form_custom_fields04(self):
         "Deleted missing required fields."
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_cfield = partial(
             CustomField.objects.create,
@@ -1140,7 +1140,7 @@ class FieldGroupListTestCase(CremeTestCase):
         )
 
     def test_form_remaining_regular_fields(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         model = FakeContact
         hidden = 'first_name'
@@ -1232,7 +1232,7 @@ class FieldGroupListTestCase(CremeTestCase):
         )
 
     def test_form_remaining_custom_fields(self):
-        user = self.create_user()
+        user = self.get_root_user()
 
         create_cfield = partial(
             CustomField.objects.create, content_type=FakeContact, field_type=CustomField.INT,
@@ -1309,7 +1309,7 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertEqual(f'custom_field-{cfield3.id}', block_fields2[1].name)
 
     def test_form_properties(self):
-        user = self.create_user()
+        user = self.get_root_user()
         model = FakeContact
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -1451,7 +1451,7 @@ class FieldGroupListTestCase(CremeTestCase):
         )
 
     def test_form_relations01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         model = FakeContact
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1583,7 +1583,7 @@ class FieldGroupListTestCase(CremeTestCase):
 
     def test_form_relations02(self):
         "No semi-fixed available."
-        user = self.create_user()
+        user = self.get_root_user()
 
         fields_groups = self._build_basic_relations_groups()
         form_cls = fields_groups.form_class()
@@ -1594,7 +1594,7 @@ class FieldGroupListTestCase(CremeTestCase):
 
     def test_form_relations03(self):
         "Forced relationships."
-        user = self.create_user()
+        user = self.get_root_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Technodrome')
         rtype = RelationType.objects.smart_update_or_create(
@@ -1646,7 +1646,7 @@ class FieldGroupListTestCase(CremeTestCase):
 
     def test_form_relations04(self):
         "Properties constraints."
-        user = self.create_user()
+        user = self.get_root_user()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_bad',  text='Is bad',
@@ -1742,7 +1742,7 @@ class FieldGroupListTestCase(CremeTestCase):
         )
 
         form_class = fields_groups.form_class()
-        user = self.create_user()
+        user = self.get_root_user()
         form1 = form_class(user=user)
 
         fields = form1.fields
@@ -1848,7 +1848,7 @@ class FieldGroupListTestCase(CremeTestCase):
             cell_registry=deepcopy(base_cell_registry).register(ExtraCells),
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         form_class = fields_groups.form_class()
         form1 = form_class(user=user)
 
@@ -1920,7 +1920,7 @@ class FieldGroupListTestCase(CremeTestCase):
             }],
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         name = 'Technodrome'
         form = fields_groups.form_class()(
             user=user,
@@ -1967,7 +1967,7 @@ class FieldGroupListTestCase(CremeTestCase):
             }],
         )
 
-        user = self.create_user()
+        user = self.get_root_user()
         form_instance = fields_groups.form_class()(
             user=user,
             data={
@@ -1979,7 +1979,7 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertFormInstanceErrors(form_instance, (extra_cell.key, error_msg))
 
     def test_form_extra_groups01(self):
-        logger_user = self.create_user()
+        logger_user = self.get_root_user()
         group_fname = 'city'
 
         class AddressGroup(ExtraFieldGroup):
@@ -2078,7 +2078,7 @@ class FieldGroupListTestCase(CremeTestCase):
 
     def test_form_extra_groups02(self):
         "clean() method + error."
-        user = self.create_user()
+        user = self.get_root_user()
         error_msg = 'Error caused by the extra group'
 
         class AddressGroup(ExtraFieldGroup):
@@ -2116,7 +2116,7 @@ class FieldGroupListTestCase(CremeTestCase):
 
     def test_form_extra_groups03(self):
         "save() returns <False>."
-        user = self.create_user()
+        user = self.get_root_user()
 
         class AddressGroup(ExtraFieldGroup):
             name = 'Address'
@@ -2653,7 +2653,7 @@ class CustomFormDescriptorTestCase(CremeTestCase):
         self.assertEqual(LAYOUT_DUAL_FIRST, group3.layout)
 
     def test_form_class01(self):
-        user = self.create_user()
+        user = self.get_root_user()
         form_desc = CustomFormDescriptor(
             id='creme_core-tests_fakecontact',
             model=FakeContact,
@@ -2702,7 +2702,7 @@ class CustomFormDescriptorTestCase(CremeTestCase):
         class TestSubCell2(BaseTestSubCell):
             sub_type_id = 'test02'
 
-        user = self.create_user()
+        user = self.get_root_user()
         form_desc = CustomFormDescriptor(
             id='creme_core-tests_fakecontact',
             model=FakeContact,

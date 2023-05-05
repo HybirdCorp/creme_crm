@@ -29,7 +29,8 @@ from ..base import (
 @skipIfCustomOrganisation
 class OrganisationTestCase(_BaseTestCase):
     def test_empty_fields(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         with self.assertNoException():
             orga = Organisation.objects.create(user=user, name='Nerv')
@@ -66,7 +67,8 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertEqual(count + 2, size2.order)
 
     def test_createview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         url = reverse('persons__create_organisation')
         self.assertGET200(url)
@@ -97,7 +99,8 @@ class OrganisationTestCase(_BaseTestCase):
     @skipIfCustomAddress
     def test_createview02(self):
         "With addresses, creation date."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'Bebop'
         creation_date = date(year=2005, month=11, day=5)
@@ -153,7 +156,8 @@ class OrganisationTestCase(_BaseTestCase):
     @skipIfCustomAddress
     def test_createview03(self):
         "FieldsConfig on Address sub-fields."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Address,
             descriptions=[('po_box', {FieldsConfig.HIDDEN: True})],
@@ -210,7 +214,8 @@ class OrganisationTestCase(_BaseTestCase):
     @skipIfCustomAddress
     def test_createview04(self):
         "FieldsConfig on 'billing_address' FK field."
-        self.login()
+        # self.login()
+        self.login_as_root()
         FieldsConfig.objects.create(
             content_type=Organisation,
             descriptions=[('billing_address', {FieldsConfig.HIDDEN: True})],
@@ -227,7 +232,8 @@ class OrganisationTestCase(_BaseTestCase):
 
     @skipIfCustomAddress
     def test_editview01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'Bebop'
         orga = Organisation.objects.create(user=user, name=name)
@@ -254,7 +260,8 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertEqual(zipcode, edited_orga.billing_address.zipcode)
 
     def test_listview(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         nerv = create_orga(name='Nerv')
@@ -274,7 +281,8 @@ class OrganisationTestCase(_BaseTestCase):
     @skipIfCustomAddress
     def test_clone(self):
         "Addresses are problematic"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         bebop = Organisation.objects.create(user=user, name='Bebop')
 
@@ -317,14 +325,17 @@ class OrganisationTestCase(_BaseTestCase):
             self.assertIsNotNone(address2, ident)
             self.assertAddressOnlyContentEqual(address, address2)
 
-    def _build_managed_orga(self, user=None, name='Bebop'):
-        return Organisation.objects.create(user=user or self.user, name=name, is_managed=True)
+    # def _build_managed_orga(self, user=None, name='Bebop'):
+    #     return Organisation.objects.create(user=user or self.user, name=name, is_managed=True)
+    def _build_managed_orga(self, user, name='Bebop'):
+        return Organisation.objects.create(user=user, name=name, is_managed=True)
 
     def test_manager_filter_managed_by_creme(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        mng_orga1 = self._build_managed_orga()
-        mng_orga2 = self._build_managed_orga(name='NERV')
+        mng_orga1 = self._build_managed_orga(user=user)
+        mng_orga2 = self._build_managed_orga(user=user, name='NERV')
         orga = Organisation.objects.create(user=user, name='Seele')
 
         with self.assertNumQueries(1):
@@ -343,9 +354,10 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertEqual(id(qs1), id(qs2))
 
     def _become_test(self, url_name, relation_type_id):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        mng_orga = self._build_managed_orga()
+        mng_orga = self._build_managed_orga(user=user)
         customer = Contact.objects.create(user=user, first_name='Jet', last_name='Black')
 
         url = reverse(url_name, args=(customer.id,))
@@ -363,7 +375,8 @@ class OrganisationTestCase(_BaseTestCase):
         )
 
     def test_get_employees(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga1 = create_orga(name='Bebop')
@@ -389,7 +402,8 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertListEqual([c2, c1], [*orga1.get_employees()])
 
     def test_get_managers(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga1 = create_orga(name='Bebop')
@@ -417,9 +431,10 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertListEqual([c2, c1], [*orga1.get_managers()])
 
     def test_leads_customers01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        self._build_managed_orga()
+        self._build_managed_orga(user=user)
         Organisation.objects.create(user=user, name='Nerv')
 
         response = self.assertGET200(reverse('persons__leads_customers'))
@@ -440,9 +455,10 @@ class OrganisationTestCase(_BaseTestCase):
         )
 
     def test_leads_customers02(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        mng_orga = self._build_managed_orga()
+        mng_orga = self._build_managed_orga(user=user)
 
         create_orga = partial(Organisation.objects.create, user=user)
         nerv = create_orga(name='Nerv')
@@ -474,7 +490,8 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertNotIn(evil, orgas_set)
 
     def test_leads_customers03(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         nerv = create_orga(name='Nerv')
@@ -491,7 +508,8 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertEqual(0, response.context['page_obj'].paginator.count)
 
     def test_leads_customers_disabled_rtypes01(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         rtype = self.get_object_or_fail(
             RelationType, id=constants.REL_SUB_SUSPECT,
@@ -518,7 +536,8 @@ class OrganisationTestCase(_BaseTestCase):
         )
 
     def test_leads_customers_disabled_rtypes02(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         rtype = self.get_object_or_fail(
             RelationType, id=constants.REL_SUB_PROSPECT,
@@ -545,7 +564,8 @@ class OrganisationTestCase(_BaseTestCase):
         )
 
     def test_leads_customers_disabled_rtypes03(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         rtypes = [
             *RelationType.objects.filter(
@@ -573,7 +593,8 @@ class OrganisationTestCase(_BaseTestCase):
         )
 
     def test_leads_customers_disabled_rtypes04(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         rtypes = [
             *RelationType.objects.filter(id__in=[
@@ -594,7 +615,8 @@ class OrganisationTestCase(_BaseTestCase):
                 rtype.save()
 
     def test_create_customer01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         managed1 = self.get_object_or_fail(Organisation, is_managed=True)
         managed2 = Organisation.objects.create(user=user, name='Nerv', is_managed=True)
@@ -664,9 +686,10 @@ class OrganisationTestCase(_BaseTestCase):
 
     def test_create_customer02(self):
         "Not super-user."
-        user = self.login(is_superuser=False, creatable_models=[Organisation])
+        # user = self.login(is_superuser=False, creatable_models=[Organisation])
+        user = self.login_as_persons_user(creatable_models=[Organisation])
 
-        create_creds = partial(SetCredentials.objects.create, role=self.role)
+        create_creds = partial(SetCredentials.objects.create, role=user.role)
         create_creds(
             value=(
                 EntityCredentials.VIEW
@@ -715,7 +738,8 @@ class OrganisationTestCase(_BaseTestCase):
             follow=True,
             data={
                 **data,
-                'user': self.other_user.id,  # <==
+                # 'user': self.other_user.id,  # <==
+                'user': self.get_root_user().id,  # <==
                 'customers_managed_orga': managed2.id,
             },
         )
@@ -739,9 +763,10 @@ class OrganisationTestCase(_BaseTestCase):
 
     def test_create_customer03(self):
         "Can never link."
-        self.login(is_superuser=False, creatable_models=[Organisation])
+        # self.login(is_superuser=False, creatable_models=[Organisation])
+        user = self.login_as_standard(creatable_models=[Organisation])
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -753,7 +778,8 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertPOST403(reverse('persons__create_customer'))
 
     def test_create_customer_disabled_rtype01(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         rtype = self.get_object_or_fail(
             RelationType, id=constants.REL_SUB_SUSPECT,
@@ -793,7 +819,8 @@ class OrganisationTestCase(_BaseTestCase):
         )
 
     def test_create_customer_disabled_rtype02(self):
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         rtypes = [
             *RelationType.objects.filter(id__in=[
@@ -815,7 +842,8 @@ class OrganisationTestCase(_BaseTestCase):
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         orga01 = Organisation.objects.create(user=user, name='Nerv')
         url = orga01.get_delete_absolute_url()
         self.assertPOST200(url, follow=True)
@@ -831,7 +859,8 @@ class OrganisationTestCase(_BaseTestCase):
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete02(self):
         "Cannot delete the last managed organisation."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         managed_orga = self.get_alone_element(Organisation.objects.filter(is_managed=True))
         self.assertPOST409(managed_orga.get_delete_absolute_url())  # follow=True
@@ -840,7 +869,8 @@ class OrganisationTestCase(_BaseTestCase):
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete03(self):
         "A managed organisation can be deleted if it's not the last one."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         managed_orga = Organisation.objects.create(user=user, name='Nerv', is_managed=True)
         url = managed_orga.get_delete_absolute_url()
@@ -856,7 +886,8 @@ class OrganisationTestCase(_BaseTestCase):
 
     def test_delete_sector01(self):
         "Set to NULL."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         hunting = Sector.objects.create(title='Bounty hunting')
         bebop = Organisation.objects.create(user=user, name='Bebop', sector=hunting)
 
@@ -875,7 +906,8 @@ class OrganisationTestCase(_BaseTestCase):
 
     def test_delete_sector02(self):
         "Set to another value."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         sector2 = Sector.objects.first()
         hunting = Sector.objects.create(title='Bounty hunting')
         bebop = Organisation.objects.create(user=user, name='Bebop', sector=hunting)
@@ -898,7 +930,8 @@ class OrganisationTestCase(_BaseTestCase):
 
     def test_delete_legal_form01(self):
         "Set to NULL."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         band = LegalForm.objects.create(title='Bounty hunting band')
         bebop = Organisation.objects.create(user=user, name='Bebop', legal_form=band)
 
@@ -917,7 +950,8 @@ class OrganisationTestCase(_BaseTestCase):
 
     def test_delete_legal_form02(self):
         "Set to another value."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         lform2 = LegalForm.objects.first()
         band = LegalForm.objects.create(title='Bounty hunting band')
         bebop = Organisation.objects.create(user=user, name='Bebop', legal_form=band)
@@ -940,7 +974,8 @@ class OrganisationTestCase(_BaseTestCase):
 
     def test_delete_staff_size01(self):
         "Set to NULL."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         size = StaffSize.objects.create(size='4 and a dog')
         bebop = Organisation.objects.create(user=user, name='Bebop', staff_size=size)
 
@@ -959,7 +994,8 @@ class OrganisationTestCase(_BaseTestCase):
 
     def test_delete_staff_size02(self):
         "Set to another value."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         size2 = StaffSize.objects.first()
         size = StaffSize.objects.create(size='4 and a dog')
         bebop = Organisation.objects.create(user=user, name='Bebop', staff_size=size)
@@ -980,7 +1016,8 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertEqual(size2, bebop.staff_size)
 
     def test_set_orga_as_managed01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
         orga1 = create_orga(name='Bebop')
@@ -1019,27 +1056,32 @@ class OrganisationTestCase(_BaseTestCase):
 
     def test_set_orga_as_managed02(self):
         "Not super-user."
-        self.login(
-            is_superuser=False,
-            allowed_apps=['creme_core', 'persons'],
+        # self.login(
+        self.login_as_persons_user(
+            # is_superuser=False,
+            # allowed_apps=['creme_core', 'persons'],
+            allowed_apps=['creme_core'],
             admin_4_apps=['creme_core'],
         )
         self.assertGET200(reverse('persons__orga_set_managed'))
 
     def test_set_orga_as_managed03(self):
         "Admin permission needed."
-        self.login(
-            is_superuser=False,
-            allowed_apps=['creme_core', 'persons'],
+        # self.login(
+        self.login_as_persons_user(
+            # is_superuser=False,
+            # allowed_apps=['creme_core', 'persons'],
+            allowed_apps=['creme_core'],
             # admin_4_apps=['creme_core'],
         )
         self.assertGET403(reverse('persons__orga_set_managed'))
 
     def test_set_orga_as_not_managed(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
 
         orga1 = self.get_alone_element(Organisation.objects.filter(is_managed=True))
-        orga2 = self._build_managed_orga()
+        orga2 = self._build_managed_orga(user=user)
 
         url = reverse('persons__orga_unset_managed')
         data = {'id': orga2.id}

@@ -10,7 +10,8 @@ from .base import EmailTemplate, _EmailsTestCase, skipIfCustomEmailTemplate
 
 class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_brick(self):
-        user = self.login(is_superuser=False)
+        # user = self.login(is_superuser=False)
+        user = self.login_as_emails_user()
 
         signature = EmailSignature.objects.create(
             user=user,
@@ -35,7 +36,8 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
     def test_create(self):
-        self.login(is_superuser=False)
+        # self.login(is_superuser=False)
+        user = self.login_as_emails_user()
         self.assertFalse(EmailSignature.objects.count())
 
         url = reverse('emails__create_signature')
@@ -48,18 +50,20 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertNoFormError(self.client.post(url, data={'name': name, 'body': body}))
 
         signature = self.get_object_or_fail(EmailSignature, name=name)
-        self.assertEqual(body,      signature.body)
-        self.assertEqual(self.user, signature.user)
-        self.assertEqual(0,         signature.images.count())
+        self.assertEqual(body, signature.body)
+        self.assertEqual(user, signature.user)
+        self.assertEqual(0,    signature.images.count())
 
     def test_create_not_allowed(self):
-        self.login(is_superuser=False, allowed_apps=['persons'])
+        # self.login(is_superuser=False, allowed_apps=['persons'])
+        self.login_as_standard(allowed_apps=['persons'])
         self.assertGET403(reverse('emails__create_signature'))
 
     # TODO: create with images....
 
     def test_edit01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         name = 'Funny signature'
         body = 'I love you... not'
@@ -88,19 +92,23 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_edit02(self):
         "'perm' error."
-        self.login(is_superuser=False)
+        # self.login(is_superuser=False)
+        self.login_as_emails_user()
 
         signature = EmailSignature.objects.create(
-            user=self.other_user, name='Funny signature', body='I love you... not',
+            # user=self.other_user, name='Funny signature', body='I love you... not',
+            user=self.get_root_user(), name='Funny signature', body='I love you... not',
         )
         self.assertGET403(signature.get_edit_absolute_url())
 
     def test_edit03(self):
         "Superuser can edit all signatures."
-        self.login()
+        # self.login()
+        self.login_as_root()
 
         signature = EmailSignature.objects.create(
-            user=self.other_user, name='Funny signature', body='I love you... not',
+            # user=self.other_user, name='Funny signature', body='I love you... not',
+            user=self.create_user(), name='Funny signature', body='I love you... not',
         )
         self.assertGET200(signature.get_edit_absolute_url())
 
@@ -110,7 +118,8 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
     def test_delete01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         signature = EmailSignature.objects.create(
             user=user, name="Spike's one", body='See U space cowboy',
@@ -120,10 +129,12 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_delete02(self):
         "'perm' error."
-        self.login(is_superuser=False)
+        # self.login(is_superuser=False)
+        self.login_as_emails_user()
 
         signature = EmailSignature.objects.create(
-            user=self.other_user, name="Spike's one", body='See U space cowboy',
+            # user=self.other_user, name="Spike's one", body='See U space cowboy',
+            user=self.get_root_user(), name="Spike's one", body='See U space cowboy',
         )
         self.assertEqual(403, self._delete(signature).status_code)
         self.assertEqual(1, EmailSignature.objects.filter(pk=signature.id).count())
@@ -131,7 +142,8 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomEmailTemplate
     def test_delete03(self):
         "Dependencies problem."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         signature = EmailSignature.objects.create(
             user=user, name="Spike's one", body='See U space cowboy',
@@ -140,7 +152,7 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
             user=user, name='name', signature=signature,
             subject='Hello', body='Do you know the real folk blues ?',
         )
-        email = self._create_email(signature=signature)
+        email = self._create_email(user=user, signature=signature)
 
         self.assertEqual(200, self._delete(signature).status_code)
         self.assertDoesNotExist(signature)

@@ -32,9 +32,11 @@ class VcfExportTestCase(CremeTestCase):
 
         return response
 
-    def create_contact(self, **kwargs):
+    # def create_contact(self, **kwargs):
+    def create_contact(self, user, **kwargs):
         return Contact.objects.create(**{
-            'user': self.user,
+            # 'user': self.user,
+            'user': user,
             'last_name': 'Abitbol',
             'first_name': 'George',
             'phone': '0404040404',
@@ -58,19 +60,21 @@ class VcfExportTestCase(CremeTestCase):
         )
 
     def test_button(self):
-        self.login()
+        # self.login()
+        user = self.login_as_root_and_get()
         ButtonMenuItem.objects.create_if_needed(
             model=Contact,
             button=GenerateVcfButton,
             order=100,
         )
 
-        contact = self.create_contact()
+        contact = self.create_contact(user=user)
         response = self.assertGET200(contact.get_absolute_url())
         self.assertTemplateUsed(response, GenerateVcfButton.template_name)
 
     def test_get_empty_vcf(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         response = self._generate_vcf(Contact.objects.create(user=user, last_name='Abitbol'))
         self.assertEqual(
             b'BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\nEND:VCARD\r\n',
@@ -78,14 +82,14 @@ class VcfExportTestCase(CremeTestCase):
         )
 
     def test_get_vcf_basic_role(self):
-        user = self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=('creme_core', 'persons', 'vcfs'),
             creatable_models=[Contact],
         )
-
         SetCredentials.objects.create(
-            role=self.role,
+            role=user.role,
             value=(
                 EntityCredentials.CHANGE
                 | EntityCredentials.DELETE
@@ -96,13 +100,15 @@ class VcfExportTestCase(CremeTestCase):
             set_type=SetCredentials.ESET_ALL
         )
 
-        contact = Contact.objects.create(user=self.other_user, last_name='Abitbol')
+        # contact = Contact.objects.create(user=self.other_user, last_name='Abitbol')
+        contact = Contact.objects.create(user=self.get_root_user(), last_name='Abitbol')
         self.assertTrue(user.has_perm_to_change(contact))
         self.assertFalse(user.has_perm_to_view(contact))
         self._generate_vcf(contact, status_code=403)
 
     def test_get_vcf_civility(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         contact = Contact.objects.create(
             user=user,
             civility=Civility.objects.create(title='Monsieur'),
@@ -117,7 +123,8 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomOrganisation
     def test_get_vcf_org(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
         contact = Contact.objects.create(user=user, last_name='Abitbol')
         orga = Organisation.objects.create(user=user, name='ORGNAME')
 
@@ -135,8 +142,9 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomAddress
     def test_get_vcf_billing_addr(self):
-        self.login()
-        contact = self.create_contact(civility=Civility.objects.create(title='Mr'))
+        # self.login()
+        user = self.login_as_root_and_get()
+        contact = self.create_contact(user=user, civility=Civility.objects.create(title='Mr'))
         contact.billing_address = self.create_address(contact, 'Org')
         contact.save()
 
@@ -152,8 +160,9 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomAddress
     def test_get_vcf_shipping_addr(self):
-        self.login()
-        contact = self.create_contact(civility=Civility.objects.create(title='Mr'))
+        # self.login()
+        user = self.login_as_root_and_get()
+        contact = self.create_contact(user=user, civility=Civility.objects.create(title='Mr'))
         contact.shipping_address = self.create_address(contact, 'Org')
         contact.save()
 
@@ -169,8 +178,9 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomAddress
     def test_get_vcf_both_addr(self):
-        self.login()
-        contact = self.create_contact(civility=Civility.objects.create(title='Mr'))
+        # self.login()
+        user = self.login_as_root_and_get()
+        contact = self.create_contact(user=user, civility=Civility.objects.create(title='Mr'))
         contact.shipping_address = self.create_address(contact, 'shipping')
         contact.billing_address = self.create_address(contact, 'billing')
         contact.save()
@@ -190,8 +200,9 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomAddress
     def test_get_vcf_addr_eq(self):
-        self.login()
-        contact = self.create_contact(civility=Civility.objects.create(title='Mr'))
+        # self.login()
+        user = self.login_as_root_and_get()
+        contact = self.create_contact(user=user, civility=Civility.objects.create(title='Mr'))
         contact.shipping_address = self.create_address(contact, 'Org')
         contact.billing_address = self.create_address(contact, 'Org')
         contact.save()
@@ -209,8 +220,9 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomAddress
     def test_person(self):
-        self.login()
-        contact = self.create_contact(civility=Civility.objects.create(title='Mr'))
+        # self.login()
+        user = self.login_as_root_and_get()
+        contact = self.create_contact(user=user, civility=Civility.objects.create(title='Mr'))
         contact.shipping_address = self.create_address(contact, 'shipping')
         contact.billing_address = self.create_address(contact, 'billing')
         contact.save()
@@ -232,8 +244,9 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomAddress
     def test_fields_config(self):
-        self.login()
-        contact = self.create_contact()
+        # self.login()
+        user = self.login_as_root_and_get()
+        contact = self.create_contact(user=user)
         contact.billing_address = self.create_address(contact, 'billing')
         contact.save()
 

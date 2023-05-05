@@ -65,7 +65,8 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
     @skipIfCustomContact
     def test_mass_import01(self):
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         count = Opportunity.objects.count()
 
@@ -99,7 +100,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
             # TODO emitter by name
         ]
 
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         url = self._build_import_url(Opportunity)
         self.assertGET200(url)
         self.assertNoFormError(self.client.post(
@@ -179,7 +180,8 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
     def test_mass_import02(self):
         "SalesPhase creation forbidden by the user."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         count = Opportunity.objects.count()
 
@@ -190,7 +192,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         self.assertFalse(SalesPhase.objects.filter(name=sp1_name))
 
         lines = [('Opp01', sp1_name, '1000', '2000', target1.name, '')]
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.client.post(
             self._build_import_url(Opportunity),
             follow=True,
@@ -243,13 +245,14 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
     def test_mass_import03(self):
         "SalesPhase is required"
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         emitter = Organisation.objects.filter(is_managed=True)[0]
         target  = Organisation.objects.create(user=user, name='Acme')
 
         lines = [('Opp01', '1000', '2000', target.name)]
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.assertPOST200(
             self._build_import_url(Opportunity),
             data={
@@ -280,7 +283,8 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
     def test_mass_import04(self):
         "Creation of Organisation/Contact is not wanted."
-        user = self.login()
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
         count = Opportunity.objects.count()
         emitter = Organisation.objects.filter(is_managed=True)[0]
@@ -291,7 +295,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
             ('Opp01', 'SP name', '1000', '2000', orga_name, ''),
             ('Opp02', 'SP name', '1000', '2000', '',        contact_name),
         ]
-        doc = self._build_csv_doc(lines)
+        doc = self._build_csv_doc(lines, user=user)
         response = self.client.post(
             self._build_import_url(Opportunity),
             follow=True,
@@ -335,12 +339,13 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
     @override_settings(MAX_JOBS_PER_USER=2)
     def test_mass_import05(self):
         "Creation credentials for Organisation & SalesPhase are forbidden."
-        self.login(
-            is_superuser=False,
+        # user = self.login(
+        user = self.login_as_standard(
+            # is_superuser=False,
             allowed_apps=['persons', 'documents', 'opportunities'],
             creatable_models=[Opportunity, get_document_model()],  # Not Organisation
         )
-        role = self.role
+        role = user.role
         SetCredentials.objects.create(
             role=role,
             value=(
@@ -354,12 +359,15 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         )
         # TODO: factorise
         emitter = Organisation.objects.filter(is_managed=True)[0]
-        doc = self._build_csv_doc([('Opp01', '1000', '2000', 'Acme', 'New phase')])
+        doc = self._build_csv_doc(
+            [('Opp01', '1000', '2000', 'Acme', 'New phase')],
+            user=user,
+        )
         url = self._build_import_url(Opportunity)
         data = {
             **self.lvimport_data,
             'document': doc.id,
-            'user': self.user.id,
+            'user': user.id,
             'emitter': emitter.id,
 
             'name_colselect': 1,
@@ -406,10 +414,11 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
     @skipIfCustomOrganisation
     def test_mass_import06(self):
-        "Update"
-        user = self.login()
+        "Update."
+        # user = self.login()
+        user = self.login_as_root_and_get()
 
-        opp1, target1, emitter = self._create_opportunity_n_organisations()
+        opp1, target1, emitter = self._create_opportunity_n_organisations(user=user)
         target2 = Organisation.objects.create(user=user, name='Acme')
 
         count = Opportunity.objects.count()
@@ -421,13 +430,16 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         opp1.sales_phase = phase1
         opp1.save()
 
-        doc = self._build_csv_doc([
-            # Should be updated
-            (opp1.name, '1000', '2000', target2.name, phase1.name),
+        doc = self._build_csv_doc(
+            [
+                # Should be updated
+                (opp1.name, '1000', '2000', target2.name, phase1.name),
 
-            # Phase is different => not updated
-            (opp1.name, '1000', '2000', target2.name, phase2.name),
-        ])
+                # Phase is different => not updated
+                (opp1.name, '1000', '2000', target2.name, phase2.name),
+            ],
+            user=user,
+        )
         response = self.client.post(
             self._build_import_url(Opportunity),
             follow=True,

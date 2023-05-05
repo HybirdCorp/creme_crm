@@ -29,6 +29,7 @@ class _DocumentsTestCase(CremeTestCase):
         super().setUpClass()
         cls.ADD_DOC_URL = reverse('documents__create_document')
 
+    # TODO: user mandatory?
     def _create_doc(self, title,
                     file_obj=None, folder=None, description=None, user=None,
                     **extra_data):
@@ -51,6 +52,7 @@ class _DocumentsTestCase(CremeTestCase):
 
         return self.get_object_or_fail(Document, title=title)
 
+    # TODO: user mandatory?
     def _create_image(self, ident=1, user=None, title=None, folder=None, description=None):
         IMAGE_PATHS = {
             1: 'creme_22.png',
