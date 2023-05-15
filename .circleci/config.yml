@@ -31,7 +31,7 @@ commands:
     steps:
       - run: sudo apt update
 #      - run: sudo apt install -y python3-dev graphviz libgraphviz-dev pkg-config
-      - run: sudo apt install -y python3-dev pkg-config
+      - run: sudo apt install -y python3-dev pkg-config python3-cairo libcairo-dev
 
   install-py-dev-env:
     steps:
