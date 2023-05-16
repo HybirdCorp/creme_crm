@@ -39,7 +39,6 @@ from creme.creme_core.models import (
     FakeActivity,
     FakeOrganisation,
     FieldsConfig,
-    UserRole,
 )
 from creme.creme_core.tests import fake_forms
 from creme.creme_core.tests.base import CremeTestCase
@@ -183,7 +182,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.role = UserRole.objects.create(name='Test')
+        cls.role = cls.create_role()
 
     def test_portal(self):
         # self.login()
@@ -278,7 +277,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         # self.login()
         self.login_as_root()
         role1 = self.role
-        role2 = UserRole.objects.create(name='Salesman')
+        role2 = self.create_role(name='Salesman')
 
         descriptor_id = FAKEACTIVITY_CREATION_CFORM.id
         item1 = self.get_object_or_fail(
@@ -1786,7 +1785,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             ],
             role='superuser',
         )
-        role = UserRole.objects.create(name='Basic')
+        role = self.create_role(name='Basic')
         cfci1_role = CustomFormConfigItem.objects.create_if_needed(
             descriptor=desc1,
             groups_desc=[

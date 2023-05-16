@@ -14,7 +14,7 @@ from creme.creme_core.gui.actions import (
 )
 from creme.creme_core.gui.merge import merge_form_registry
 from creme.creme_core.models import CremeEntity, CremeUser
-from creme.creme_core.models.auth import SetCredentials, UserRole
+from creme.creme_core.models.auth import SetCredentials
 
 from ..base import CremeTestCase
 from ..fake_models import FakeActivity, FakeContact, FakeOrganisation
@@ -821,22 +821,16 @@ class ActionsTestCase(CremeTestCase):
 
 class BuiltinActionsTestCase(CremeTestCase):
     @classmethod
-    def _create_role(
-            cls, name,
-            allowed_apps=(),
-            admin_4_apps=(),
-            set_creds=(),
-            creates=(),
-            users=()):
-        get_ct = ContentType.objects.get_for_model
-
-        role = UserRole(name=name)
-        role.allowed_apps = allowed_apps
-        role.admin_4_apps = admin_4_apps
-        role.save()
-
-        role.creatable_ctypes.set([get_ct(model) for model in creates])
-        role.save()
+    def _create_role(cls, name,
+                     allowed_apps=(),
+                     admin_4_apps=(),
+                     set_creds=(),
+                     creatable_models=(),
+                     ):
+        role = cls.create_role(
+            name=name, allowed_apps=allowed_apps, admin_4_apps=admin_4_apps,
+            creatable_models=creatable_models,
+        )
 
         for sc in set_creds:
             if len(sc) == 2:
@@ -848,33 +842,22 @@ class BuiltinActionsTestCase(CremeTestCase):
 
             SetCredentials.objects.create(role=role, value=value, set_type=set_type, ctype=ctype)
 
-        for user in users:
-            user.role = role
-            user.save()
-
         return role
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.user = user = CremeUser(
-            username='yui', email='kawa.yui@kimengumi.jp',
-            first_name='Yui', last_name='Kawa',
-        )
-        cls.other_user = other_user = CremeUser(
-            username='johndoe', email='john.doe@unknown.org',
-            first_name='John', last_name='Doe',
-        )
-
-        cls.role = cls._create_role(
+        role = cls._create_role(
             'Action view only', ['creme_core'],
-            users=[user, other_user],  # 'persons'
             set_creds=[
                 (EntityCredentials._ALL_CREDS, SetCredentials.ESET_OWN),
             ],
-            creates=[FakeContact],
+            creatable_models=[FakeContact],
         )
+
+        cls.user = user = cls.create_user(index=0, role=role)
+        cls.other_user = other_user = cls.create_user(index=1, role=role)
 
         create_contact = FakeContact.objects.create
         cls.contact = create_contact(last_name='A', user=user)

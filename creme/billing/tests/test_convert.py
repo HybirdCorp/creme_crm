@@ -2,7 +2,6 @@ from datetime import date, timedelta
 from decimal import Decimal
 from functools import partial
 
-from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -216,13 +215,11 @@ class ConvertTestCase(_BillingTestCase):
     def test_not_super_user(self):
         "SalesOrder + not superuser."
         # user = self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
-        user = self.login_as_standard(allowed_apps=['billing', 'persons'])
-
-        role = user.role
-        get_ct = ContentType.objects.get_for_model
-        role.creatable_ctypes.set([get_ct(Quote), get_ct(SalesOrder)])
+        user = self.login_as_standard(
+            allowed_apps=['billing', 'persons'], creatable_models=[Quote, SalesOrder],
+        )
         SetCredentials.objects.create(
-            role=role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -250,13 +247,11 @@ class ConvertTestCase(_BillingTestCase):
     def test_ajax(self):
         "SalesOrder + not superuser."
         # user = self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
-        user = self.login_as_standard(allowed_apps=['billing', 'persons'])
-
-        role = user.role
-        get_ct = ContentType.objects.get_for_model
-        role.creatable_ctypes.set([get_ct(Quote), get_ct(SalesOrder)])
+        user = self.login_as_standard(
+            allowed_apps=['billing', 'persons'], creatable_models=[Quote, SalesOrder],
+        )
         SetCredentials.objects.create(
-            role=role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -282,13 +277,12 @@ class ConvertTestCase(_BillingTestCase):
     def test_creation_forbidden(self):
         "Credentials (creation) errors."
         # user = self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
-        user = self.login_as_standard(allowed_apps=['billing', 'persons'])
-
-        role = user.role
-        get_ct = ContentType.objects.get_for_model
-        role.creatable_ctypes.set([get_ct(Quote)])  # Not get_ct(Invoice)
+        user = self.login_as_standard(
+            allowed_apps=['billing', 'persons'],
+            creatable_models=[Quote],  # Not Invoice
+        )
         SetCredentials.objects.create(
-            role=role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE
@@ -307,13 +301,11 @@ class ConvertTestCase(_BillingTestCase):
     def test_view_forbidden(self):
         "Credentials (view) errors."
         # user = self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
-        user = self.login_as_standard(allowed_apps=['billing', 'persons'])
-
-        role = user.role
-        get_ct = ContentType.objects.get_for_model
-        role.creatable_ctypes.set([get_ct(Quote), get_ct(Invoice)])
+        user = self.login_as_standard(
+            allowed_apps=['billing', 'persons'], creatable_models=[Quote, Invoice],
+        )
         SetCredentials.objects.create(
-            role=role,
+            role=user.role,
             value=(
                 EntityCredentials.VIEW
                 | EntityCredentials.CHANGE

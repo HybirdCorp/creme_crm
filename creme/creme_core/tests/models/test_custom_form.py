@@ -20,12 +20,7 @@ from creme.creme_core.gui.custom_form import (
     FieldGroupList,
     base_cell_registry,
 )
-from creme.creme_core.models import (
-    CustomField,
-    FakeContact,
-    FakeOrganisation,
-    UserRole,
-)
+from creme.creme_core.models import CustomField, FakeContact, FakeOrganisation
 from creme.creme_core.models.custom_form import (
     CustomFormConfigItem,
     CustomFormConfigItemManager,
@@ -250,7 +245,7 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
             verbose_name='Creation form for FakeOrganisation',
         )
 
-        role = UserRole.objects.create(name='CEO')
+        role = self.create_role(name='CEO')
 
         mngr = CustomFormConfigItemManager()
         mngr.model = CustomFormConfigItem
@@ -356,9 +351,9 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
         "Super-user's form & role's form."
         # user = self.login()
         user = self.get_root_user()
-        role1 = UserRole.objects.create(name='Basic')
+        role1 = self.create_role(name='Basic')
         other_user = self.create_user(0, role=role1)
-        role2 = UserRole.objects.create(name='CEO')
+        role2 = self.create_role(name='CEO')
 
         desc = FAKEACTIVITY_CREATION_CFORM
         default_cfci = self.get_object_or_fail(
@@ -416,7 +411,7 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
 
 class CustomFormConfigItemTestCase(CremeTestCase):
     def test_uniqueness(self):
-        role = UserRole.objects.create(name='Basic')
+        role = self.create_role(name='Basic')
         kwargs = {
             'descriptor_id': FAKEACTIVITY_CREATION_CFORM.id,
             'role': role,

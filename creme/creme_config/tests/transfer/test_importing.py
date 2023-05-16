@@ -376,14 +376,13 @@ class ImportingTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         contact_ct = get_ct(FakeContact)
 
-        role = UserRole.objects.create(
+        role = self.create_role(
             name='Superhero',
             allowed_apps=['creme_core', 'persons'],
             admin_4_apps=['persons'],
+            creatable_models=[FakeContact],
+            exportable_models=[FakeContact],
         )
-        role.creatable_ctypes.set([contact_ct])
-        role.exportable_ctypes.set([contact_ct])
-
         SetCredentials.objects.create(
             role=role,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -567,7 +566,7 @@ class ImportingTestCase(CremeTestCase):
         # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
         # role1 = self.role
-        role1 = UserRole.objects.create(name='Test')
+        role1 = self.create_role(name='Test')
 
         role_name2 = 'Super-hero'
 
@@ -795,7 +794,7 @@ class ImportingTestCase(CremeTestCase):
         # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
         # role = self.role
-        role = UserRole.objects.create(name='Test')  # TODO: in setupClass?
+        role = self.create_role(name='Test')  # TODO: in setupClass?
 
         cf_uuid = '6a52b4db-f838-489f-b6df-d1558b3938e5'
         search_data = [
@@ -3062,7 +3061,7 @@ class ImportingTestCase(CremeTestCase):
         # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
         # role = self.role
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role(name='Test')
 
         TOP    = BrickDetailviewLocation.TOP
         LEFT   = BrickDetailviewLocation.LEFT
@@ -3330,7 +3329,7 @@ class ImportingTestCase(CremeTestCase):
         # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
         # role = self.role
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role(name='Test')
 
         bricks_data = [
             # {'id': bricks.HistoryBrick.id_,    'order': 5,  'role': role.name},

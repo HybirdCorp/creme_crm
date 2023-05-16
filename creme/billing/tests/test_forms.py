@@ -12,7 +12,7 @@ from creme.billing.forms.mass_import import (
     VatExtractor,
 )
 from creme.billing.tests.base import ProductLine
-from creme.creme_core.models import UserRole, Vat
+from creme.creme_core.models import Vat
 from creme.creme_core.tests.base import CremeTestCase
 
 MODE_NO_TOTAL = '1'
@@ -588,10 +588,10 @@ class TotalsExtractorFieldTestCase(CremeTestCase):
         self.assertTrue(extractor1.create_vat)
 
         # ---
-        role = UserRole(name='Basic')
-        role.allowed_apps = ['creme_core']
-        role.admin_4_apps = ['persons']  # creme_core
-        role.save()
+        role = self.create_role(
+            allowed_apps=['creme_core'],
+            admin_4_apps=['persons'],  # creme_core
+        )
 
         field.user = self.build_user(index=1, role=role)
         self.assertIs(field.can_create_vat, False)

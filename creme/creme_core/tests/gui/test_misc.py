@@ -21,7 +21,6 @@ from creme.creme_core.models import (
     FakeImage,
     FakeInvoice,
     FakeOrganisation,
-    UserRole,
 )
 
 from ..base import CremeTestCase, skipIfNotInstalled
@@ -314,10 +313,7 @@ class GuiTestCase(CremeTestCase):
         )
 
     def test_button02(self):
-        role = UserRole(name='Role#1')
-        role.allowed_apps = ['documents', 'persons']
-        role.save()
-
+        role = self.create_role(name='Role#1', allowed_apps=['documents', 'persons'])
         user = self.create_user(role=role)
 
         class TestButton01(Button):

@@ -48,7 +48,6 @@ from creme.creme_core.models import (
     Language,
     Relation,
     RelationType,
-    UserRole,
 )
 from creme.creme_core.models.entity_filter import EntityFilterList
 
@@ -3691,7 +3690,7 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_filterlist02(self):
         "Private filters + not superuser (+ team management)."
         super_user = self.user
-        other_user = self.create_user(1, role=UserRole.objects.create(name='Basic'))
+        other_user = self.create_user(1, role=self.create_role())
         teammate = self.create_user(2)
 
         tt_team = self.create_team('TeamTitan', super_user, teammate)

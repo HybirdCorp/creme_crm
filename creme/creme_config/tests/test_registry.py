@@ -11,12 +11,7 @@ from creme.creme_config.registry import (
 from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.gui.bricks import SimpleBrick, _BrickRegistry
-from creme.creme_core.models import (
-    FakeCivility,
-    FakePosition,
-    FakeSector,
-    UserRole,
-)
+from creme.creme_core.models import FakeCivility, FakePosition, FakeSector
 from creme.creme_core.tests.base import CremeTestCase
 from creme.documents.models import DocumentCategory
 
@@ -622,12 +617,11 @@ class RegistryTestCase(CremeTestCase):
         self.assertEqual(creation_url, url)
 
         # User than cannot admin
-        role = UserRole(name='Basic')
-        role.allowed_apps = ('creme_core',)
-        # role.admin_4_apps = ('creme_core',)
-        role.save()
         # other_user = self.other_user
-        other_user = self.create_user(role=role)
+        other_user = self.create_user(
+            role=self.create_role(allowed_apps=('creme_core',))  # admin_4_apps=['creme_core']
+        )
+
         url, allowed = registry.get_model_creation_info(model=FakeCivility, user=other_user)
         self.assertIs(False, allowed)
         self.assertEqual(creation_url, url)

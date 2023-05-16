@@ -4,7 +4,6 @@ from django.template import Context, Template
 from django.urls import reverse
 
 from creme.commercial.models import CommercialAsset, MarketSegmentCharm
-from creme.creme_core.models import UserRole
 
 from .base import (
     CommercialBaseTestCase,
@@ -118,7 +117,7 @@ class CommercialTagsTestCase(CommercialBaseTestCase):
 
         # ---
         # ctxt['user'] = self.other_user
-        ctxt['user'] = self.create_user(role=UserRole.objects.create(name='Basic'))
+        ctxt['user'] = self.create_user(role=self.create_role())
         with self.assertNoException():
             render2 = template.render(ctxt)
 
@@ -175,7 +174,7 @@ class CommercialTagsTestCase(CommercialBaseTestCase):
 
         # ---
         # ctxt['user'] = self.other_user
-        ctxt['user'] = self.create_user(role=UserRole.objects.create(name='Basic'))
+        ctxt['user'] = self.create_user(role=self.create_role())
         with self.assertNoException():
             render2 = template.render(ctxt)
 

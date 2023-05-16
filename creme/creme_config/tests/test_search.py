@@ -8,12 +8,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellRegularField,
 )
-from creme.creme_core.models import (
-    CustomField,
-    FieldsConfig,
-    SearchConfigItem,
-    UserRole,
-)
+from creme.creme_core.models import CustomField, FieldsConfig, SearchConfigItem
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_models import (
     FakeContact,
@@ -41,7 +36,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         cls.ct_contact = get_ct(FakeContact)
         cls.ct_orga    = get_ct(FakeOrganisation)
 
-        cls.role = UserRole.objects.create(name='Test')
+        cls.role = cls.create_role()
 
     def setUp(self):
         super().setUp()
@@ -168,7 +163,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         ct = self.ct_contact
         SearchConfigItem.objects.create(content_type=ct, role=role)
 
-        role2 = UserRole.objects.create(name='CEO')
+        role2 = self.create_role(name='CEO')
 
         response = self.assertGET200(self._build_add_url(ct))
 

@@ -92,19 +92,9 @@ class CreatorModelChoiceFieldTestCase(FieldTestCase):
         with self.assertNumQueries(0):
             field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
 
-        role = UserRole(name='Industry')
-        role.allowed_apps = ['persons']  # Not admin
-        role.save()
-
-        user = get_user_model().objects.create_user(
-            username='averagejoe',
-            first_name='Joe',
-            last_name='Average',
-            email='averagejoe@company.com',
+        field.user = self.create_user(
+            role=self.create_role(name='Industry', allowed_apps=['persons']),
         )
-        user.role = role
-
-        field.user = user
 
         render_str = field.widget.render('sector', None)
         self.assertIn(_('Cannot create'), render_str)
@@ -116,11 +106,9 @@ class CreatorModelChoiceFieldTestCase(FieldTestCase):
     def test_actions_admin(self):
         field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
 
-        role = UserRole(name='CEO')
-        role.admin_4_apps = ['creme_core']
-        role.save()
-
-        field.user = get_user_model().objects.create(username='chloe', role=role)
+        field.user = self.create_user(
+            role=self.create_role(name='CEO', admin_4_apps=['creme_core']),
+        )
 
         render_str = field.widget.render('sector', None)
         self.assertIn(self.ADD_URL, render_str)
@@ -132,12 +120,9 @@ class CreatorModelChoiceFieldTestCase(FieldTestCase):
 
     def test_actions_admin_no_creatable(self):
         field = CreatorModelChoiceField(queryset=FakePosition.objects.all())
-
-        role = UserRole(name='CEO')
-        role.admin_4_apps = ['creme_core']
-        role.save()
-
-        field.user = get_user_model().objects.create(username='chloe', role=role)
+        field.user = self.create_user(
+            role=self.create_role(name='CEO', admin_4_apps=['creme_core']),
+        )
 
         render_str = field.widget.render('position', None)
         self.assertNotIn(

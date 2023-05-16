@@ -18,7 +18,6 @@ from creme.creme_core.models import (
     FakeImage,
     FakeOrganisation,
     Language,
-    UserRole,
 )
 from creme.creme_core.utils.media import get_creme_media_url
 from creme.creme_core.views.testjs import js_testview_or_404
@@ -85,7 +84,7 @@ class MiscViewsTestCase(ViewsTestCase):
         # Should not be used
         # BrickHomeLocation.objects.create(brick_id=HistoryBrick.id_, role=self.role, order=1)
         BrickHomeLocation.objects.create(
-            brick_id=HistoryBrick.id, role=UserRole.objects.create(name='Test'), order=1,
+            brick_id=HistoryBrick.id, role=self.create_role(), order=1,
         )
 
         response = self.assertGET200(reverse('creme_core__home'))
@@ -103,7 +102,7 @@ class MiscViewsTestCase(ViewsTestCase):
         "Superuser bricks configuration"
         # self.login(is_superuser=False)
         user = self.login_as_standard()
-        role2 = UserRole.objects.create(name='Viewer')
+        role2 = self.create_role(name='Viewer')
 
         # brick_id = StatisticsBrick.id_
         brick_id = StatisticsBrick.id

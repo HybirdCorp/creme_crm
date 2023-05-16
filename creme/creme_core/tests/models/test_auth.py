@@ -67,10 +67,9 @@ class AuthTestCase(CremeTestCase):
 
     @staticmethod
     def _create_role(name, allowed_apps=(), admin_4_apps=(), set_creds=(), users=()):
-        role = UserRole(name=name)
-        role.allowed_apps = allowed_apps
-        role.admin_4_apps = admin_4_apps
-        role.save()
+        role = UserRole.objects.create(
+            name=name, allowed_apps=allowed_apps, admin_4_apps=admin_4_apps,
+        )
 
         for sc in set_creds:
             sc.role = role

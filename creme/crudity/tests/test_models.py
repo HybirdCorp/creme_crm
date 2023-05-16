@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.timezone import now
 
-from creme.creme_core.models import CremeEntity, UserRole
+from creme.creme_core.models import CremeEntity
 from creme.creme_core.tests.fake_models import FakeContact
 
 from ..models import WaitingAction
@@ -48,7 +48,7 @@ class WaitingActionTestCase(CrudityTestCase):
         # user = self.login()
         user = self.login_as_root_and_get()
         # other_user = self.other_user
-        other_user = self.create_user(role=UserRole.objects.create(name='Test'))
+        other_user = self.create_user(role=self.create_role())
 
         self._set_sandbox_by_user()
 
