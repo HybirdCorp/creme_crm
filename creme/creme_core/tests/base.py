@@ -154,6 +154,13 @@ class _CremeTestCase:
         return user
 
     @classmethod
+    def create_team(cls, name, *users):
+        team = CremeUser.objects.create(username=name, is_team=True)
+        team.teammates = users
+
+        return team
+
+    @classmethod
     def get_root_user(cls) -> CremeUser:
         # Should exist (see 'creme_core.populate.py')
         return CremeUser.objects.get(username=ROOT_USERNAME)

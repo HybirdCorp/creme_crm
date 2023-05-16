@@ -2,7 +2,7 @@ from datetime import date, timedelta
 from functools import partial
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import now
@@ -313,15 +313,8 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         teammate1 = self.create_user(1)
         teammate2 = self.create_user(2)
 
-        create_team = partial(get_user_model().objects.create, is_team=True)
-        # team1 = create_user(username='Team #1', is_team=True)
-        team1 = create_team(username='Team #1')
-        team1.teammates = [teammate1, user]
-
-        # team2 = create_user(username='Team #2', is_team=True)
-        team2 = create_team(username='Team #2')
-        # team2.teammates = [self.other_user, teammate2]
-        team2.teammates = [other_user, teammate2]
+        team1 = self.create_team('Team #1', teammate1, user)
+        team2 = self.create_team('Team #2', other_user, teammate2)
 
         create_action = partial(
             Action.objects.create,

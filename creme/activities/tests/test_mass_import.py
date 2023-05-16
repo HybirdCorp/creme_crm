@@ -1,6 +1,5 @@
 from functools import partial
 
-from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -234,18 +233,16 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         participant1 = create_contact(first_name='Tatsumi', last_name='Oga')
         participant2 = create_contact(first_name='Aoi',     last_name='Kunieda')
 
-        create_user = get_user_model().objects.create
-        furuichi = create_user(
+        furuichi = self.create_user(
             username='furuichi', first_name='Furuichi',
             last_name='Takayuki', email='furuichi@ishiyama.jp',
         )
-        chiaki = create_user(
+        chiaki = self.create_user(
             username='chiaki', first_name='Chiaki',
             last_name='Tanimura', email='chiaki@ishiyama.jp',
         )
 
-        team = create_user(username='Samurais', is_team=True, role=None)
-        team.teammates = [furuichi, chiaki]
+        team = self.create_team('Samurais', furuichi, chiaki)
 
         unfoundable = 'Behemoth'
         self.assertFalse(Contact.objects.filter(last_name=unfoundable).exists())

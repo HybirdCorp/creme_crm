@@ -1092,9 +1092,7 @@ class AuthTestCase(CremeTestCase):
         self._create_users_n_contacts()
         user = self.user
         other = self.other_user
-
-        team = CremeUser.objects.create(username='Teamee', is_team=True)
-        team.teammates = [user, other]
+        team = self.create_team('Teamee', user, other)
 
         VIEW = EntityCredentials.VIEW
         self._create_role(
@@ -1233,8 +1231,7 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(user.has_perm_to_link(FakeContact, owner=other))
         self.assertTrue(user.has_perm_to_link(FakeOrganisation, owner=other))
 
-        team = CremeUser.objects.create(username='Teamee', is_team=True)
-        team.teammates = [user, other]
+        team = self.create_team('Teamee', user, other)
         self.assertTrue(user.has_perm_to_link(FakeContact, owner=team))
         self.assertFalse(user.has_perm_to_link(FakeOrganisation, owner=team))
 
@@ -2291,11 +2288,6 @@ class AuthTestCase(CremeTestCase):
         self.assertEqual(1, len(team.teammates))
         self.assertDictEqual({other.id: other}, self.refresh(team).teammates)
 
-    def _create_team(self, name, teammates):
-        team = CremeUser.objects.create(username=name, is_team=True, role=None)
-        team.teammates = teammates
-        return team
-
     def test_team_credentials01(self):
         user, other = self._create_users()
         self._create_role(
@@ -2309,7 +2301,7 @@ class AuthTestCase(CremeTestCase):
             ],
         )
 
-        team = self._create_team('Teamee', [user])
+        team = self.create_team('Teamee', user)
 
         entity = self.refresh(
             FakeContact.objects.create(user=team, first_name='Ito', last_name='Ittosaï')
@@ -2360,10 +2352,10 @@ class AuthTestCase(CremeTestCase):
             ],
         )
 
-        create_team = self._create_team
-        team1 = create_team('Teamee 1', [user])
-        team2 = create_team('Teamee 2', [other, user])
-        team3 = create_team('Teamee 3', [other])
+        create_team = self.create_team
+        team1 = create_team('Teamee 1', user)
+        team2 = create_team('Teamee 2', other, user)
+        team3 = create_team('Teamee 3', other)
 
         create_user = FakeContact.objects.create
         entity1 = create_user(user=team1, first_name='Munisai', last_name='Shinmen')
@@ -2515,7 +2507,7 @@ class AuthTestCase(CremeTestCase):
             ],
         )
 
-        team = self._create_team('Teamee', [user, self.other_user])
+        team = self.create_team('Teamee', user, self.other_user)
 
         has_perm_to_link = user.has_perm_to_link
         self.assertTrue(has_perm_to_link(FakeOrganisation))
@@ -2581,8 +2573,8 @@ class AuthTestCase(CremeTestCase):
             ],
         )
 
-        team1 = self._create_team('Team#1', [user, other_user])
-        team2 = self._create_team('Team#2', [other_user])
+        team1 = self.create_team('Team#1', user, other_user)
+        team2 = self.create_team('Team#2', other_user)
 
         has_perm_to_link = user.has_perm_to_link
         self.assertTrue(has_perm_to_link(FakeOrganisation, owner=None))
@@ -2730,9 +2722,7 @@ class AuthTestCase(CremeTestCase):
         self._create_users_n_contacts()
         user = self.user
         other = self.other_user
-
-        team = CremeUser.objects.create(username='Teamee', is_team=True)
-        team.teammates = [user, other]
+        team = self.create_team('Teamee', user, other)
 
         VIEW = EntityCredentials.VIEW
         CHANGE = EntityCredentials.CHANGE
@@ -3590,7 +3580,7 @@ class AuthTestCase(CremeTestCase):
                 ),
             ],
         )
-        team = self._create_team('Teamee', [user])
+        team = self.create_team('Teamee', user)
         sandbox = Sandbox.objects.create(user=team)
 
         contact3 = FakeContact.objects.create(
