@@ -64,7 +64,6 @@ from creme.creme_core.models import (
     RelationType,
     SearchConfigItem,
     SetCredentials,
-    UserRole,
 )
 from creme.creme_core.tests import fake_custom_forms
 from creme.creme_core.tests.base import CremeTestCase
@@ -239,15 +238,13 @@ class ExportingTestCase(CremeTestCase):
         # )
         # role = self.role
         self.login_as_super(is_staff=True)
-
-        # TODO: create_role() in _CremeTestCase?
-        role = UserRole(name='Test')
-        role.allowed_apps = ('creme_core', 'persons')
-        role.admin_4_apps = ('persons',)
-        role.save()
-        get_ct = ContentType.objects.get_for_model
-        role.creatable_ctypes.set([get_ct(FakeContact), get_ct(FakeOrganisation)])
-        role.exportable_ctypes.set([get_ct(FakeContact)])
+        role = self.create_role(
+            name='Test',
+            allowed_apps=('creme_core', 'persons'),
+            admin_4_apps=('persons',),
+            creatable_models=[FakeContact, FakeOrganisation],
+            exportable_models=[FakeContact],
+        )
 
         efilter = EntityFilter.objects.create(
             id='creme_core-test_transfer_exporting_roles',
@@ -635,7 +632,7 @@ class ExportingTestCase(CremeTestCase):
         # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
         # role = self.role
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role(name='Test')
 
         LEFT  = BrickDetailviewLocation.LEFT
         RIGHT = BrickDetailviewLocation.RIGHT
@@ -750,7 +747,7 @@ class ExportingTestCase(CremeTestCase):
         norole_brick_ids = {*BrickHomeLocation.objects.values_list('brick_id', flat=True)}
 
         # role = self.role
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role(name='Test')
         create_bhl = partial(BrickHomeLocation.objects.create, role=role)
         # create_bhl(brick_id=bricks.HistoryBrick.id_,    order=1)
         create_bhl(brick_id=bricks.HistoryBrick.id,    order=1)
@@ -950,7 +947,7 @@ class ExportingTestCase(CremeTestCase):
         # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
         # role = self.role
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role(name='Test')
 
         creme_item = MenuConfigItem.objects.get(entry_id=CremeEntry.id)
 
@@ -1097,7 +1094,7 @@ class ExportingTestCase(CremeTestCase):
         # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
         # role = self.role
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role(name='Test')
 
         ct = ContentType.objects.get_for_model(FakeContact)
         cfield = CustomField.objects.create(
@@ -1713,7 +1710,7 @@ class ExportingTestCase(CremeTestCase):
         # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
         # role = self.role
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role(name='Test')
 
         desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM
         descriptor_id = desc.id

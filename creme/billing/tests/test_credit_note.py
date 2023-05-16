@@ -15,7 +15,6 @@ from creme.creme_core.models import (
     FieldsConfig,
     Relation,
     SetCredentials,
-    UserRole,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import skipIfCustomOrganisation
@@ -727,7 +726,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.client.logout()
         # self.client.login(username=self.other_user.username, password='test')
-        other = self.create_user(role=UserRole.objects.create(name='Test'))
+        other = self.create_user(role=self.create_role())
         self.client.login(username=other.username, password=self.USER_PASSWORD)
 
         self.assertPOST403(

@@ -22,7 +22,6 @@ from creme.creme_core.models import (
     HeaderFilter,
     RelationType,
     SetCredentials,
-    UserRole,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons import get_contact_model
@@ -745,13 +744,13 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         # user = self.login(allowed_apps=['creme_core', 'persons', 'documents'])
         user = self.login_as_root_and_get()
         # other_user = self.other_user
-        role = UserRole.objects.create(
-            name='Test', allowed_apps=['creme_core', 'persons', 'documents'],
+        role = self.create_role(
+            allowed_apps=['creme_core', 'persons', 'documents'],
+            exportable_models=[Contact],
         )
         other_user = self.create_user(role=role)
 
         # role = self.role
-        role.exportable_ctypes.set([ContentType.objects.get_for_model(Contact)])
         SetCredentials.objects.create(
             role=role,
             value=(

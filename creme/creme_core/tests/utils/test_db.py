@@ -15,7 +15,6 @@ from creme.creme_core.models import (
     FakePosition,
     FakeSector,
     Relation,
-    UserRole,
 )
 from creme.creme_core.utils.db import (
     PreFetcher,
@@ -450,7 +449,7 @@ class DBTestCase(CremeTestCase):
         # user1 = self.login()
         # user2 = self.other_user
         user1 = self.get_root_user()
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role()
         user2 = self.create_user(role=role)
 
         create_folder = partial(FakeFolder.objects.create, user=user1)
@@ -510,7 +509,7 @@ class DBTestCase(CremeTestCase):
         # user1 = self.login()
         # user2 = self.other_user
         user1 = self.get_root_user()
-        user2 = self.create_user(role=UserRole.objects.create(name='Test'))
+        user2 = self.create_user(role=self.create_role())
 
         create_contact = partial(
             FakeContact.objects.create, user=user1, last_name='Simpson',

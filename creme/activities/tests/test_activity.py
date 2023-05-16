@@ -2,7 +2,6 @@ from datetime import timedelta
 from functools import partial
 
 from django.apps import apps
-from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelMultipleChoiceField
 from django.template import Context, Template
 from django.test.utils import override_settings
@@ -363,9 +362,8 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview02(self):
         "Credentials errors."
         # user = self.login(is_superuser=False)
-        user = self.login_as_activities_user()
+        user = self.login_as_activities_user(creatable_models=[Activity])
         self._build_nolink_setcreds(user=user)
-        user.role.creatable_ctypes.set([ContentType.objects.get_for_model(Activity)])
 
         # other_user = self.other_user
         other_user = self.get_root_user()

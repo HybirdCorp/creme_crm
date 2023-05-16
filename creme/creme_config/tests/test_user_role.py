@@ -83,7 +83,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login(is_superuser=superuser, admin_4_apps=['creme_config'])
         if superuser:
             self.login_as_super()
-            role = UserRole.objects.create(name='Test')
+            role = self.create_role()
         else:
             user = self.login_as_standard(admin_4_apps=['creme_config'])
             role = user.role
@@ -523,9 +523,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_as_root()
         user = self.get_root_user()
 
-        role = UserRole(name='CEO')
-        role.allowed_apps = ['creme_core']
-        role.save()
+        role = self.create_role(name='CEO', allowed_apps=['creme_core'])
 
         other_user = CremeUser.objects.create(username='chloe', role=role)
         contact = FakeContact.objects.create(
@@ -615,9 +613,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole(name='CEO')
-        role.allowed_apps = ['persons']
-        role.save()
+        role = self.create_role(name='CEO', allowed_apps=['persons'])
 
         url = self._build_add_creds_url(role)
         response = self.assertGET200(url)
@@ -672,9 +668,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         "Not super-user => error."
         self.login_not_as_superuser()
 
-        role = UserRole(name='CEO')
-        role.allowed_apps = ['persons']
-        role.save()
+        role = self.create_role(name='CEO', allowed_apps=['persons'])
 
         url = self._build_add_creds_url(role)
         self.assertGET403(url)
@@ -702,7 +696,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['persons'])
+        role = self.create_role(name='CEO', allowed_apps=['persons'])
 
         url = self._build_add_creds_url(role)
         ct_contact = ContentType.objects.get_for_model(Contact)
@@ -750,9 +744,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole(name='CEO')
-        role.allowed_apps = ['persons']
-        role.save()
+        role = self.create_role(name='CEO', allowed_apps=['persons'])
 
         step_key = 'credentials_adding_wizard-current_step'
         response = self.assertPOST200(
@@ -779,7 +771,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
+        role = self.create_role(name='CEO', allowed_apps=['creme_core'])
         url = self._build_add_creds_url(role)
 
         # Step 1 ---
@@ -903,7 +895,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             field_type=CustomField.INT,
         )
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
+        role = self.create_role(name='CEO', allowed_apps=['creme_core'])
         url = self._build_add_creds_url(role)
 
         # Step 1
@@ -1001,7 +993,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
+        role = self.create_role(name='CEO', allowed_apps=['creme_core'])
         url = self._build_add_creds_url(role)
 
         # Step 1 ---
@@ -1085,7 +1077,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
+        role = self.create_role(name='CEO', allowed_apps=['creme_core'])
         url = self._build_add_creds_url(role)
 
         # Step 1
@@ -1131,7 +1123,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['persons'])
+        role = self.create_role(name='CEO', allowed_apps=['persons'])
 
         creds = SetCredentials.objects.create(
             role=role, set_type=SetCredentials.ESET_ALL, value=EntityCredentials.VIEW,
@@ -1218,7 +1210,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_edit_credentials02(self):
         "Not super-user => error."
         self.login_not_as_superuser()
-        role = UserRole.objects.create(name='CEO')
+        role = self.create_role(name='CEO')
         creds = SetCredentials.objects.create(
             role=role, set_type=SetCredentials.ESET_ALL, value=EntityCredentials.VIEW,
         )
@@ -1229,7 +1221,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
+        role = self.create_role(name='CEO', allowed_apps=['creme_core'])
         creds = SetCredentials.objects.create(
             role=role, set_type=SetCredentials.ESET_ALL,
             value=EntityCredentials.VIEW, ctype=FakeContact,
@@ -1338,7 +1330,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             field_type=CustomField.INT,
         )
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
+        role = self.create_role(name='CEO', allowed_apps=['creme_core'])
         efilter1 = EntityFilter.objects.create(
             id='creme_core-test_credentials_edition02',
             name='Agencies',
@@ -1485,7 +1477,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             str_pk='test-prop_is_secret', text='Is secret',
         )
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
+        role = self.create_role(name='CEO', allowed_apps=['creme_core'])
         efilter1 = EntityFilter.objects.create(
             id='creme_core-test_credentials_edition02',
             name='Agencies',
@@ -1586,7 +1578,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
+        role = self.create_role(name='CEO', allowed_apps=['creme_core'])
 
         efilter = EntityFilter.objects.create(
             id='creme_config-test_user_role',
@@ -1656,7 +1648,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             str_pk='test-prop_is_secret', text='Is secret',
         )
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
+        role = self.create_role(name='CEO', allowed_apps=['creme_core'])
         efilter1 = EntityFilter.objects.create(
             id='creme_core-test_credentials_edition04',
             name='My entities',
@@ -1757,7 +1749,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
+        role = self.create_role(name='CEO', allowed_apps=['creme_core'])
         creds = SetCredentials.objects.create(
             role=role,
             set_type=SetCredentials.ESET_ALL,
@@ -1826,7 +1818,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
+        role = self.create_role(name='CEO', allowed_apps=['creme_core'])
         efilter1 = EntityFilter.objects.create(
             id='creme_core-test_credentials_edition04',
             name='My entities',
@@ -1889,9 +1881,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole(name='CEO')
-        role.allowed_apps = ['persons']
-        role.save()
+        role = self.create_role(name='CEO', allowed_apps=['persons'])
 
         create_creds = partial(
             SetCredentials.objects.create,
@@ -1911,7 +1901,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_delete_credentials02(self):
         self.login_not_as_superuser()
 
-        role = UserRole.objects.create(name='CEO')
+        role = self.create_role(name='CEO')
         sc = SetCredentials.objects.create(
             role=role, set_type=SetCredentials.ESET_ALL, value=EntityCredentials.VIEW,
         )
@@ -1924,7 +1914,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole.objects.create(name='CEO', allowed_apps=['persons'])
+        role = self.create_role(name='CEO', allowed_apps=['persons'])
         SetCredentials.objects.create(
             role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
         )
@@ -2046,14 +2036,14 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         "Not super-user."
         self.login_not_as_superuser()
 
-        role = UserRole.objects.create(name='CEO')
+        role = self.create_role(name='CEO')
         self.assertGET403(self._build_wizard_edit_url(role))
 
     def test_delete01(self):
         "Not superuser -> error."
         self.login_not_as_superuser()
 
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role(name='Test')
         # url = self._build_del_role_url(self.role)
         url = self._build_del_role_url(role)
         self.assertGET403(url)
@@ -2065,7 +2055,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_as_root()
         user = self.get_root_user()
 
-        role = UserRole.objects.create(name='CEO')
+        role = self.create_role(name='CEO')
         creds = SetCredentials.objects.create(
             role=role, set_type=SetCredentials.ESET_ALL, value=EntityCredentials.VIEW,
         )
@@ -2113,9 +2103,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.get_root_user()
 
         # replacing_role = self.role
-        replacing_role = UserRole.objects.create(name='CEO')
-        role_2_del = UserRole.objects.create(name='CEO (old)')
-        other_role = UserRole.objects.create(name='Coder')
+        replacing_role = self.create_role(name='CEO')
+        role_2_del = self.create_role(name='CEO (old)')
+        other_role = self.create_role(name='Coder')
         # Role is used
         user_2_update = CremeUser.objects.create(username='chloe', role=role_2_del)
 
@@ -2161,7 +2151,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole.objects.create(name='CEO')
+        role = self.create_role(name='CEO')
         CremeUser.objects.create(username='chloe', role=role)  # <= role is used
 
         response = self.assertPOST200(self._build_del_role_url(role))
@@ -2180,13 +2170,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         job = Job.objects.create(type_id=deletor_type.id, user=user)
         self.assertEqual(Job.STATUS_WAIT, job.status)
 
-        role_2_del1 = UserRole.objects.create(name='CEO')
+        role_2_del1 = self.create_role(name='CEO')
         dcom = DeletionCommand.objects.create(
             job=job,
             instance_to_delete=role_2_del1,
         )
 
-        role_2_del2 = UserRole.objects.create(name='Coder')
+        role_2_del2 = self.create_role(name='Coder')
         url = self._build_del_role_url(role_2_del2)
 
         msg = _('A deletion process for a role already exists.')
@@ -2209,14 +2199,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role1 = UserRole.objects.create(
+        role1 = self.create_role(
             name='CEO',
             allowed_apps=['creme_core', 'documents', 'persons'],
             admin_4_apps=['persons'],
+            creatable_models=[FakeContact, FakeDocument],
+            exportable_models=[FakeContact, FakeOrganisation],
         )
-        get_ct = ContentType.objects.get_for_model
-        role1.creatable_ctypes.set(map(get_ct, (FakeContact, FakeDocument)))
-        role1.exportable_ctypes.set(map(get_ct, (FakeContact, FakeOrganisation)))
 
         efilter1 = EntityFilter.objects.create(
             id='creme_core-test_credentials_edition02',
@@ -2299,7 +2288,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         creds2 = all_credentials[1]
         self.assertIsNotNone(creds2)
         self.assertEqual(EntityCredentials.CHANGE, creds2.value)
-        self.assertEqual(get_ct(FakeContact), creds2.ctype)
+        self.assertEqual(ContentType.objects.get_for_model(FakeContact), creds2.ctype)
         self.assertTrue(creds2.forbidden)
 
         efilter2 = creds2.efilter
@@ -2314,7 +2303,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
         # role1 = self.role
-        role1 = UserRole.objects.create(name='Test')
+        role1 = self.create_role(name='Test')
 
         BrickDetailviewLocation.objects.multi_create(
             defaults={
@@ -2350,7 +2339,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
         # role1 = self.role
-        role1 = UserRole.objects.create(name='Test')
+        role1 = self.create_role(name='Test')
 
         BrickDetailviewLocation.objects.multi_create(
             defaults={
@@ -2403,7 +2392,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
         # role1 = self.role
-        role1 = UserRole.objects.create(name='Test')
+        role1 = self.create_role(name='Test')
 
         create_loc = partial(BrickHomeLocation.objects.create, role=role1)
         # create_loc(brick_id=core_bricks.HistoryBrick.id_,    order=15)
@@ -2433,7 +2422,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
         # role1 = self.role
-        role1 = UserRole.objects.create(name='Test')
+        role1 = self.create_role(name='Test')
 
         create_loc = partial(BrickHomeLocation.objects.create, role=role1)
         # create_loc(brick_id=core_bricks.HistoryBrick.id_,    order=15)
@@ -2469,7 +2458,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
         # role1 = self.role
-        role1 = UserRole.objects.create(name='Test')
+        role1 = self.create_role(name='Test')
 
         SearchConfigItem.objects.create_if_needed(
             model=FakeContact,
@@ -2499,7 +2488,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
         # role1 = self.role
-        role1 = UserRole.objects.create(name='Test')
+        role1 = self.create_role(name='Test')
 
         SearchConfigItem.objects.create_if_needed(
             role=role1, model=FakeContact, fields=['first_name', 'last_name'],
@@ -2540,7 +2529,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
         # role1 = self.role
-        role1 = UserRole.objects.create(name='Test')
+        role1 = self.create_role(name='Test')
 
         create_mitem = partial(MenuConfigItem.objects.create, role=role1)
         create_mitem(entry_id=CremeEntry.id, order=1)
@@ -2574,7 +2563,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
         # role1 = self.role
-        role1 = UserRole.objects.create(name='Test')
+        role1 = self.create_role(name='Test')
 
         create_mitem = partial(MenuConfigItem.objects.create, role=role1)
         create_mitem(entry_id=CremeEntry.id, order=1)
@@ -2626,7 +2615,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
         # role1 = self.role
-        role1 = UserRole.objects.create(name='Test')
+        role1 = self.create_role(name='Test')
 
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=FAKEORGANISATION_CREATION_CFORM,
@@ -2664,7 +2653,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
         # role1 = self.role
-        role1 = UserRole.objects.create(name='Test')
+        role1 = self.create_role(name='Test')
 
         g_name = 'General'
         CustomFormConfigItem.objects.create_if_needed(

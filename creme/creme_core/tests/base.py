@@ -161,6 +161,25 @@ class _CremeTestCase:
         return team
 
     @classmethod
+    def create_role(self, *,
+                    name='Test',
+                    creatable_models: Iterable[type[CremeEntity]] = (),
+                    exportable_models: Iterable[type[CremeEntity]] = (),
+                    **kwargs
+                    ) -> UserRole:
+        role = UserRole.objects.create(name=name, **kwargs)
+
+        if creatable_models:
+            get_ct = ContentType.objects.get_for_model
+            role.creatable_ctypes.set([get_ct(model) for model in creatable_models])
+
+        if exportable_models:
+            get_ct = ContentType.objects.get_for_model
+            role.exportable_ctypes.set([get_ct(model) for model in exportable_models])
+
+        return role
+
+    @classmethod
     def get_root_user(cls) -> CremeUser:
         # Should exist (see 'creme_core.populate.py')
         return CremeUser.objects.get(username=ROOT_USERNAME)
@@ -189,22 +208,17 @@ class _CremeTestCase:
                           allowed_apps: Iterable[str] = ('creme_core',),
                           admin_4_apps: Iterable[str] = (),
                           creatable_models: Iterable[type[CremeEntity]] = (),
+                          exportable_models: Iterable[type[CremeEntity]] = (),
                           index: int = 0,
                           password: str = 'test',
                           ) -> CremeUser:
-        # role = UserRole(name='Basic')
-        # role.allowed_apps = allowed_apps
-        # role.admin_4_apps = admin_4_apps
-        # role.save()
-        role = UserRole.objects.create(
+        role = self.create_role(
             name='Basic',
             allowed_apps=allowed_apps,
             admin_4_apps=admin_4_apps,
+            creatable_models=creatable_models,
+            exportable_models=exportable_models,
         )
-        if creatable_models:
-            get_ct = ContentType.objects.get_for_model
-            role.creatable_ctypes.set([get_ct(model) for model in creatable_models])
-
         user = self.create_user(index=index, role=role)
 
         logged = self.client.login(username=user.username, password=password)

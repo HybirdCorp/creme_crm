@@ -181,7 +181,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         brick_registry.register_4_instance(HomeInstanceBrick)
 
         cls.user = cls.get_root_user()
-        cls.role = UserRole.objects.create(name='Test')
+        cls.role = cls.create_role()
 
         get_ct = ContentType.objects.get_for_model
         cls.contact_ct = get_ct(FakeContact)
@@ -393,7 +393,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         url = self._build_adddetail_url(ct)
 
         role1 = self.role
-        role2 = UserRole.objects.create(name='Viewer')
+        role2 = self.create_role(name='Viewer')
 
         def get_choices():
             response = self.assertGET200(url)
@@ -1163,7 +1163,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         url = reverse('creme_config__create_home_bricks')
 
         role1 = self.role
-        role2 = UserRole.objects.create(name='Viewer')
+        role2 = self.create_role(name='Viewer')
 
         def get_choices():
             response = self.assertGET200(url)
@@ -1506,7 +1506,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         # ---
-        role2 = UserRole.objects.create(name='CEO')
+        role2 = self.create_role(name='CEO')
         response4 = self.assertGET200(url)
         brick_node4 = self.get_brick_node(
             self.get_html_tree(response4.content), brick_id,

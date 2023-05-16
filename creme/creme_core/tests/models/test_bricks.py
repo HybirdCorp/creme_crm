@@ -31,7 +31,6 @@ from creme.creme_core.models import (
     RelationBrickItem,
     RelationType,
     SettingValue,
-    UserRole,
 )
 
 from ..base import CremeTestCase
@@ -159,7 +158,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_detail_manager_create_if_needed04(self):
         "For a Role + ContentType instance."
-        role = UserRole.objects.create(name='Viewer')
+        role = self.create_role(name='Viewer')
         ctype = ContentType.objects.get_for_model(FakeContact)
 
         # brick_id = PropertiesBrick.id_
@@ -262,7 +261,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_detail_manager_create_for_model_brick03(self):
         "With a Role."
-        role = UserRole.objects.create(name='Viewer')
+        role = self.create_role(name='Viewer')
         loc = BrickDetailviewLocation.objects.create_for_model_brick(
             model=FakeContact, role=role,
             order=8, zone=BrickDetailviewLocation.BOTTOM,
@@ -392,7 +391,7 @@ class BrickTestCase(CremeTestCase):
         )
 
         # For a role
-        role = UserRole.objects.create(name='Viewer')
+        role = self.create_role(name='Viewer')
         loc3 = BrickDetailviewLocation.objects.create_if_needed(
             brick=RelationsBrick, order=25, zone=TOP,
             model=FakeContact, role=role,
@@ -449,7 +448,7 @@ class BrickTestCase(CremeTestCase):
         )
 
         # For role
-        role = UserRole.objects.create(name='Viewer')
+        role = self.create_role(name='Viewer')
         loc2 = BrickHomeLocation.objects.create(
             # brick_id=HistoryBrick.id_, order=1, role=role,
             brick_id=HistoryBrick.id, order=1, role=role,
@@ -686,7 +685,7 @@ class BrickTestCase(CremeTestCase):
             zone=BrickDetailviewLocation.RIGHT,
         )
         # role = self.role
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role(name='Test')
         loc1 = create_dbl(model=FakeContact, role=role)
         try_delete(
             _(
@@ -977,7 +976,7 @@ class BrickTestCase(CremeTestCase):
             brick_id=ibi.brick_id, order=5,
         )
         # role = self.role
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role(name='Test')
         loc1 = create_bhl(role=role)
         try_delete(
             _(

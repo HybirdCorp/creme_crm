@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.models import FieldsConfig, SearchConfigItem, UserRole
+from creme.creme_core.models import FieldsConfig, SearchConfigItem
 
 from ..base import CremeTestCase
 from ..fake_models import FakeContact, FakeOrganisation
@@ -54,7 +54,7 @@ class SearchConfigTestCase(CremeTestCase):
         count = SearchConfigItem.objects.count()
 
         # role = self.role
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role()
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeOrganisation, ['name'], role=role,
         )
@@ -287,7 +287,7 @@ class SearchConfigTestCase(CremeTestCase):
         "One model, 2 configs in DB."
         # self.login()
 
-        create_role = UserRole.objects.create
+        create_role = self.create_role
         role1 = create_role(name='Basic')
         role2 = create_role(name='CEO')
         role3 = create_role(name='Office lady')
@@ -311,7 +311,7 @@ class SearchConfigTestCase(CremeTestCase):
     def test_manager_get_for_models05(self):
         "One model, 2 configs in DB (other order)."
         # self.login()
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role(name='Test')
         user = self.create_user(role=role)
 
         create_sci = SearchConfigItem.objects.create_if_needed
@@ -330,7 +330,7 @@ class SearchConfigTestCase(CremeTestCase):
         "One model, 2 configs in DB (super-user)."
         user = self.get_root_user()
 
-        create_role = UserRole.objects.create
+        create_role = self.create_role
         role1 = create_role(name='CEO')
         role2 = create_role(name='Office lady')
 

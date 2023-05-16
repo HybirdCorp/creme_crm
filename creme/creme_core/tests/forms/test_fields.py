@@ -46,7 +46,6 @@ from creme.creme_core.models import (
     FakeOrganisation,
     FakeSector,
     RelationType,
-    UserRole,
 )
 from creme.creme_core.utils.date_period import (
     DatePeriod,
@@ -71,7 +70,7 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         # user = self.login()
         user = self.login_as_root_and_get()
         # other_user = self.other_user
-        other_user = self.create_user(role=UserRole.objects.create(name='Test'))
+        other_user = self.create_user(role=self.create_role())
         staff = CremeUser.objects.create(username='deunan', is_staff=True)
 
         # Alphabetically-first user (__str__, not username)

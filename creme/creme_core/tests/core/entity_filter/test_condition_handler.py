@@ -55,7 +55,6 @@ from creme.creme_core.models import (
     Relation,
     RelationType,
     SetCredentials,
-    UserRole,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.utils.date_range import date_range_registry
@@ -812,7 +811,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # user = self.login()
         user = self.login_as_root_and_get()
         # other_user = self.other_user
-        other_user = self.create_user(role=UserRole.objects.create(name='Test'))
+        other_user = self.create_user(role=self.create_role())
 
         create_folder = FakeFolder.objects.create
         folder       = create_folder(title='Folder 01', user=user)

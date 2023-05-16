@@ -24,7 +24,6 @@ from creme.creme_core.models import (
     Mutex,
     RelationType,
     SetCredentials,
-    UserRole,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -421,11 +420,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Not superuser; special chars in username; displayed_name."
         # user = self.login()
         user = self.login_as_root_and_get()
-
-        role = UserRole(name='Mangaka')
-        role.allowed_apps = ['persons']
-        role.save()
-
+        role = self.create_role(name='Mangaka', allowed_apps=['persons'])
         SetCredentials.objects.create(
             role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
         )
@@ -799,9 +794,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         # user = self.login()
         user = self.login_as_root_and_get()
 
-        role1 = UserRole(name='Master')
-        role1.allowed_apps = ['persons']
-        role1.save()
+        role1 = self.create_role(name='Master', allowed_apps=['persons'])
         SetCredentials.objects.create(
             role=role1, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL
         )
@@ -827,7 +820,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         first_name = 'Deunan'
         last_name = 'Knut'
         email = 'd.knut@eswat.ol'
-        role2 = UserRole.objects.create(name='Slave')
+        role2 = self.create_role(name='Slave')
         self.assertNoFormError(self.client.post(
             url,
             follow=True,
@@ -911,9 +904,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Logged as regular user."
         user = self.login_as_config_admin()
 
-        role1 = UserRole(name='Master')
-        role1.allowed_apps = ['persons']
-        role1.save()
+        role1 = self.create_role(name='Lieutenant', allowed_apps=['persons'])
         SetCredentials.objects.create(
             role=role1, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
         )
@@ -927,7 +918,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         url = self._build_edit_url(other_user.id)
         self.assertGET403(url)
 
-        role2 = UserRole.objects.create(name='Slave')
+        role2 = self.create_role(name='General')
         self.assertPOST403(
             url,
             data={
@@ -947,7 +938,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         # other_user = self.other_user
         # role = other_user.role
         # self.assertIsNotNone(role)
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role()
         other_user = self.create_user(role=role)
 
         url = self._build_edit_url(other_user.id)
@@ -1293,36 +1284,24 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        role = UserRole(name='Role')
-        role.allowed_apps = ['creme_core']
-        role.save()
+        role = self.create_role(allowed_apps=['creme_core'])
         SetCredentials.objects.create(
             role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
         )
 
-        def create_user(name, email):
-            user = User.objects.create_user(
-                username=name, email=email, first_name=name, last_name='Endou',
-                password='uselesspw',
-            )
-            user.role = role
-            user.save()
+        user1 = self.create_user(0, role=role)
+        user2 = self.create_user(1, role=role)
+        user3 = self.create_user(2, role=role)
 
-            return user
-
-        user01 = create_user('Maruo',   'maruo@century.jp')
-        user02 = create_user('Yokiji',  'yokiji@century.jp')
-        user03 = create_user('Koizumi', 'koizumi@century.jp')
-
-        self.assertGET404(reverse('creme_config__edit_team', args=(user01.id,)))
+        self.assertGET404(reverse('creme_config__edit_team', args=(user1.id,)))
 
         team_name = 'Teamee'
-        team = self.create_team(team_name, user01, user02)
+        team = self.create_team(team_name, user1, user2)
 
         entity = CremeEntity.objects.create(user=team)
-        self.assertTrue(user01.has_perm_to_view(entity))
-        self.assertTrue(user02.has_perm_to_view(entity))
-        self.assertFalse(user03.has_perm_to_view(entity))
+        self.assertTrue(user1.has_perm_to_view(entity))
+        self.assertTrue(user2.has_perm_to_view(entity))
+        self.assertFalse(user3.has_perm_to_view(entity))
 
         url = reverse('creme_config__edit_team', args=(team.id,))
         self.assertGET200(url)
@@ -1333,7 +1312,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             follow=True,
             data={
                 'username':  team_name,
-                'teammates': [user02.id, user03.id],
+                'teammates': [user2.id, user3.id],
             },
         )
         self.assertNoFormError(response)
@@ -1343,15 +1322,15 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         teammates = team.teammates
         self.assertEqual(2, len(teammates))
-        self.assertIn(user02.id, teammates)
-        self.assertIn(user03.id, teammates)
-        self.assertNotIn(user01.id, teammates)
+        self.assertIn(user2.id, teammates)
+        self.assertIn(user3.id, teammates)
+        self.assertNotIn(user1.id, teammates)
 
         # Credentials have been updated ?
         entity = CremeEntity.objects.get(pk=entity.id)
-        self.assertFalse(self.refresh(user01).has_perm_to_view(entity))
-        self.assertTrue(self.refresh(user02).has_perm_to_view(entity))
-        self.assertTrue(self.refresh(user03).has_perm_to_view(entity))
+        self.assertFalse(self.refresh(user1).has_perm_to_view(entity))
+        self.assertTrue(self.refresh(user2).has_perm_to_view(entity))
+        self.assertTrue(self.refresh(user3).has_perm_to_view(entity))
 
     @skipIfNotCremeUser
     def test_edit_team02(self):
@@ -1477,7 +1456,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login_as_root_and_get()
 
         # other_user = self.other_user
-        other_user = self.create_user(role=UserRole.objects.create(name='Test'))
+        other_user = self.create_user(role=self.create_role())
         self.assertFalse(other_user.is_superuser)
 
         ce = CremeEntity.objects.create(user=other_user)

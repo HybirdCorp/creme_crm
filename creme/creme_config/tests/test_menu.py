@@ -18,7 +18,7 @@ from creme.creme_core.gui.menu import (
     menu_registry,
 )
 from creme.creme_core.menu import CremeEntry, LogoutEntry, RecentEntitiesEntry
-from creme.creme_core.models import FakeContact, MenuConfigItem, UserRole
+from creme.creme_core.models import FakeContact, MenuConfigItem
 from creme.creme_core.tests import fake_menu
 from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 from creme.creme_core.tests.fake_menu import (
@@ -366,7 +366,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         cls._items_backup = [*MenuConfigItem.objects.all()]
         MenuConfigItem.objects.all().delete()
 
-        cls.role = UserRole.objects.create(name='Test')
+        cls.role = cls.create_role()
 
     @classmethod
     def tearDownClass(cls):
@@ -1304,7 +1304,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_standard(admin_4_apps=['creme_core'])
         # role1 = self.role
         role1 = user.role
-        role2 = UserRole.objects.create(name='Salesman')
+        role2 = self.create_role(name='Salesman')
 
         self._build_simple_menu()
 
@@ -1389,7 +1389,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         # ---
-        role2 = UserRole.objects.create(name='Salesman')
+        role2 = self.create_role(name='Salesman')
         response2 = self.assertGET200(url)
 
         with self.assertNoException():
@@ -1411,7 +1411,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_standard(admin_4_apps=('creme_core',))
         # role1 = self.role
         role1 = user.role
-        role2 = UserRole.objects.create(name='Salesman')
+        role2 = self.create_role(name='Salesman')
 
         self._build_simple_menu()
         self._build_simple_menu(role=role1)
