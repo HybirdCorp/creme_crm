@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -296,18 +296,34 @@ class RegularFieldsConditionsField(_ConditionsField):
         clean_fieldname = self._clean_fieldname
         clean_operator_n_values = self._clean_operator_n_values
         conditions = []
+        errors = []
         self._get_fields()  # Build self._fields
 
-        try:
-            for entry in data:
+        # try:
+        #     for entry in data:
+        #         operator, values = clean_operator_n_values(entry)
+        #         conditions.append(build_condition(
+        #             field_name=clean_fieldname(entry),
+        #             operator=operator,
+        #             values=values,
+        #         ))
+        # except condition_handler.FilterConditionHandler.ValueError as e:
+        #     raise ValidationError(str(e)) from e
+        for entry in data:
+            try:
                 operator, values = clean_operator_n_values(entry)
-                conditions.append(build_condition(
+                condition = build_condition(
                     field_name=clean_fieldname(entry),
                     operator=operator,
                     values=values,
-                ))
-        except condition_handler.FilterConditionHandler.ValueError as e:
-            raise ValidationError(str(e)) from e
+                )
+            except condition_handler.FilterConditionHandler.ValueError as e:
+                errors.append(str(e))
+            else:
+                conditions.append(condition)
+
+        if errors:
+            raise ValidationError(errors)
 
         return conditions
 
@@ -462,6 +478,8 @@ class DateFieldsConditionsField(_ConditionsField):
 
         return fname
 
+    # TODO: move more validation code to handler
+    #  + prefix error message by "Condition on field «{field}»: "
     def _value_from_unjsonfied(self, data):
         build_condition = partial(
             condition_handler.DateRegularFieldConditionHandler.build_condition,
@@ -472,16 +490,33 @@ class DateFieldsConditionsField(_ConditionsField):
         clean_field_name = self._clean_field_name
         clean_date_range = self._clean_date_range
         conditions = []
+        errors = []
 
-        try:
-            for entry in data:
+        # try:
+        #     for entry in data:
+        #         date_range, start, end = clean_date_range(entry)
+        #         conditions.append(build_condition(
+        #             field_name=clean_field_name(entry),
+        #             date_range=date_range, start=start, end=end
+        #         ))
+        # except condition_handler.FilterConditionHandler.ValueError as e:
+        #     raise ValidationError(str(e)) from e
+        for entry in data:
+            try:
                 date_range, start, end = clean_date_range(entry)
-                conditions.append(build_condition(
+                condition = build_condition(
                     field_name=clean_field_name(entry),
-                    date_range=date_range, start=start, end=end
-                ))
-        except condition_handler.FilterConditionHandler.ValueError as e:
-            raise ValidationError(str(e)) from e
+                    date_range=date_range, start=start, end=end,
+                )
+            except ValidationError as e:
+                errors.append(e)
+            except condition_handler.FilterConditionHandler.ValueError as e:
+                errors.append(str(e))
+            else:
+                conditions.append(condition)
+
+        if errors:
+            raise ValidationError(errors)
 
         return conditions
 
@@ -623,17 +658,33 @@ class CustomFieldsConditionsField(_ConditionsField):
         clean_cfield = self._clean_custom_field
         clean_operator_n_values = self._clean_operator_n_values
         conditions = []
+        errors = []
 
-        try:
-            for entry in data:
+        # try:
+        #     for entry in data:
+        #         operator, values = clean_operator_n_values(entry)
+        #         conditions.append(build_condition(
+        #             custom_field=clean_cfield(entry),
+        #             operator=operator,
+        #             values=values,
+        #         ))
+        # except condition_handler.FilterConditionHandler.ValueError as e:
+        #     raise ValidationError(str(e)) from e
+        for entry in data:
+            try:
                 operator, values = clean_operator_n_values(entry)
-                conditions.append(build_condition(
+                condition = build_condition(
                     custom_field=clean_cfield(entry),
                     operator=operator,
                     values=values,
-                ))
-        except condition_handler.FilterConditionHandler.ValueError as e:
-            raise ValidationError(str(e)) from e
+                )
+            except condition_handler.FilterConditionHandler.ValueError as e:
+                errors.append(str(e))
+            else:
+                conditions.append(condition)
+
+        if errors:
+            raise ValidationError(errors)
 
         return conditions
 
@@ -709,16 +760,33 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         clean_cfield = self._clean_custom_field
         clean_date_range = self._clean_date_range
         conditions = []
+        errors = []
 
-        try:
-            for entry in data:
+        # try:
+        #     for entry in data:
+        #         date_range, start, end = clean_date_range(entry)
+        #         conditions.append(build_condition(
+        #             custom_field=clean_cfield(entry),
+        #             date_range=date_range, start=start, end=end,
+        #         ))
+        # except condition_handler.FilterConditionHandler.ValueError as e:
+        #     raise ValidationError(str(e)) from e
+        for entry in data:
+            try:
                 date_range, start, end = clean_date_range(entry)
-                conditions.append(build_condition(
+                condition = build_condition(
                     custom_field=clean_cfield(entry),
                     date_range=date_range, start=start, end=end,
-                ))
-        except condition_handler.FilterConditionHandler.ValueError as e:
-            raise ValidationError(str(e)) from e
+                )
+            except ValidationError as e:
+                errors.append(e)
+            except condition_handler.FilterConditionHandler.ValueError as e:
+                errors.append(str(e))
+            else:
+                conditions.append(condition)
+
+        if errors:
+            raise ValidationError(errors)
 
         return conditions
 
