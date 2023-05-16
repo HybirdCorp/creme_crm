@@ -167,7 +167,7 @@ def fill(request, preply_id):
     user.has_perm_to_change_or_die(preply)
 
     if preply.is_complete:
-        logger.warn('All questions have been answered.')
+        logger.warning('All questions have been answered.')
         return redirect(preply.pform)
 
     tree = ReplySectionTree(preply)
