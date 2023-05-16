@@ -33,7 +33,6 @@ from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
-    CremeUser,
     CustomField,
     CustomFieldEnum,
     CustomFieldEnumValue,
@@ -3935,11 +3934,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
     def test_operand_currentuser(self):
         # user = self.login()
         user1 = self.get_root_user()
-        user2 = self.create_user(0)
-
+        user2 = self.create_user(index=0)
         user3 = self.create_user(index=1)
-        team = CremeUser.objects.create(username='NOIR', is_team=True)
-        team.teammates = [user3]
+        team = self.create_team('NOIR', user3)
 
         value = operands.CurrentUserOperand.type_id
 

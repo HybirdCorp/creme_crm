@@ -2,7 +2,6 @@ from datetime import timedelta
 from functools import partial
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.backends.base import SessionBase
 from django.test import RequestFactory
@@ -667,35 +666,25 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     def test_add_participants06(self):
         "When Teams are selected, their teammates are participants."
-        # # user = self.login()
-        user = self.login_as_root_and_get()
-        user = self.login_as_root_and_get()
-        activity = self._create_meeting(user=user)
+        # user = self.login()
+        user1 = self.login_as_root_and_get()
+        activity = self._create_meeting(user=user1)
 
-        create_user = get_user_model().objects.create
-        musashi = create_user(
-            username='musashi', first_name='Musashi',
-            last_name='Miyamoto', email='musashi@miyamoto.jp',
-        )
-        kojiro  = create_user(
-            username='kojiro', first_name='Kojiro',
-            last_name='Sasaki', email='kojiro@sasaki.jp',
-        )
-
-        team = create_user(username='Samurais', is_team=True, role=None)
-        team.teammates = [musashi, kojiro, user]
+        user2 = self.create_user(0)
+        user3  = self.create_user(1)
+        team = self.create_team('Samurais', user2, user3, user1)
 
         response = self.client.post(
             self._build_add_participants_url(activity),
             data={
                 'my_participation_0':  True,
-                'my_participation_1':  Calendar.objects.get_default_calendar(user).pk,
-                'participating_users': [team.id, kojiro.id],
+                'my_participation_1':  Calendar.objects.get_default_calendar(user1).pk,
+                'participating_users': [team.id, user3.id],
             },
         )
         self.assertNoFormError(response)
         self.assertCountEqual(
-            [musashi.linked_contact, kojiro.linked_contact, user.linked_contact],
+            [user2.linked_contact, user3.linked_contact, user1.linked_contact],
             [
                 r.subject_entity.get_real_entity()
                 for r in Relation.objects.filter(
@@ -733,9 +722,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         user = self.login_as_root_and_get()
         # other_user = self.other_user
         other_user = self.create_user()
-
-        team = get_user_model().objects.create(username='A-team', is_team=True)
-        team.teammates = [user, other_user]
+        team = self.create_team('A-team', user, other_user)
 
         activity = self._create_meeting(user=user)
         Relation.objects.create(

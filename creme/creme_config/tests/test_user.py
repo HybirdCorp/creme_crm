@@ -899,7 +899,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         #     email='d.knut@eswat.ol', password='uselesspw',
         # )
         user = self.create_user()
-        team = self._create_team('Teamee', [user])
+        team = self.create_team('Teamee', user)
 
         url = self._build_edit_url(team.id)
         self.assertGET404(url)
@@ -1288,12 +1288,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             url, data={'username':  'Team-A', 'teammates': [user01.id]},
         )
 
-    def _create_team(self, name, teammates):
-        team = User.objects.create(username=name, is_team=True, role=None)
-        team.teammates = teammates
-
-        return team
-
     @skipIfNotCremeUser
     def test_edit_team01(self):
         # self.login()
@@ -1323,7 +1317,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertGET404(reverse('creme_config__edit_team', args=(user01.id,)))
 
         team_name = 'Teamee'
-        team = self._create_team(team_name, [user01, user02])
+        team = self.create_team(team_name, user01, user02)
 
         entity = CremeEntity.objects.create(user=team)
         self.assertTrue(user01.has_perm_to_view(entity))
@@ -1374,7 +1368,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         teamname = 'Teamee'
-        team = self._create_team(teamname, [user01, user02])
+        team = self.create_team(teamname, user01, user02)
 
         url = reverse('creme_config__edit_team', args=(team.id,))
         self.assertGET403(url)
@@ -1392,7 +1386,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             first_name='Choji', last_name='Ochiai',
             email='shogun@century.jp', password='uselesspw',
         )
-        team = self._create_team('Teamee', [])
+        team = self.create_team('Teamee')
 
         url = self._build_delete_url(team)
         self.assertGET200(url)
@@ -1409,8 +1403,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             first_name='Choji', last_name='Ochiai',
             email='shogun@century.jp', password='uselesspw',
         )
-        team1 = self._create_team('Teamee', [user])
-        team2 = self._create_team('Teamee2', [user])
+        team1 = self.create_team('Teamee', user)
+        team2 = self.create_team('Teamee2', user)
 
         ce = CremeEntity.objects.create(user=team1)
 
@@ -1427,7 +1421,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         # user = self.login()
         user = self.login_as_root_and_get()
 
-        team = self._create_team('Teamee', [])
+        team = self.create_team('Teamee')
         CremeEntity.objects.create(user=team)
 
         self.assertPOST200(self._build_delete_url(team), data={'to_user': user.id})
@@ -1442,7 +1436,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             first_name='Choji', last_name='Ochiai', email='shogun@century.jp',
             # password='uselesspw',
         )
-        team = self._create_team('Teamee', [])
+        team = self.create_team('Teamee')
 
         url = self._build_delete_url(team)
         self.assertGET403(url)

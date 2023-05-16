@@ -3,7 +3,7 @@ from functools import partial
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.db.models.query_utils import Q
@@ -1064,12 +1064,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         teammate1 = self.create_user(1)
         teammate2 = self.create_user(2)
 
-        create_team = partial(get_user_model().objects.create, is_team=True)
-        team1 = create_team(username='Team #1')
-        team1.teammates = [teammate1, user]
-
-        team2 = create_team(username='Team #2', is_team=True)
-        team2.teammates = [other_user, teammate2]
+        team1 = self.create_team('Team #1', teammate1, user)
+        team2 = self.create_team('Team #2', other_user, teammate2)
 
         create_alert = partial(
             Alert.objects.create,

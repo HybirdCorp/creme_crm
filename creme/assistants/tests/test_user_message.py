@@ -86,11 +86,14 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         title = 'TITLE'
         body = 'BODY'
         priority = UserMessagePriority.objects.create(title='Important')
-        user01 = User.objects.create_user(
-            'User01',
-            email='user01@foobar.com', first_name='User01', last_name='Foo',
+        # user1 = User.objects.create_user(
+        #     'User01',
+        #     email='user01@foobar.com', first_name='User01', last_name='Foo',
+        # )
+        user1 = self.create_user(
+            username='User01', email='user01@foobar.com', first_name='User01', last_name='Foo',
         )
-        self._create_usermessage(title, body, priority, [user01], entity)
+        self._create_usermessage(title, body, priority, [user1], entity)
 
         message = self.get_alone_element(UserMessage.objects.all())
         self.assertEqual(title,    message.title)
@@ -103,7 +106,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(entity.entity_type_id, message.entity_content_type_id)
 
         self.assertEqual(self.user, message.sender)
-        self.assertEqual(user01,    message.recipient)
+        self.assertEqual(user1,    message.recipient)
 
         self.assertDatetimesAlmostEqual(now(), message.creation_date)
 
@@ -117,13 +120,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         now_value = now()
         priority = UserMessagePriority.objects.create(title='Important')
 
-        create_user = User.objects.create_user
-        user01 = create_user(
-            'User01', first_name='User01', last_name='Foo', email='user01@foobar.com',
-        )
-        user02 = create_user(
-            'User02', first_name='User02', last_name='Bar', email='user02@foobar.com',
-        )
+        user1 = self.create_user(index=0)
+        user2 = self.create_user(index=1)
 
         job = self._get_usermessages_job()
         self.assertIsNone(job.user)
@@ -131,10 +129,10 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         title = 'TITLE'
         body  = 'BODY'
-        self._create_usermessage(title, body, priority, [user01, user02], self.entity)
+        self._create_usermessage(title, body, priority, [user1, user2], self.entity)
 
         messages = UserMessage.objects.all()
-        self.assertCountEqual([user01, user02], [msg.recipient for msg in messages])
+        self.assertCountEqual([user1, user2], [msg.recipient for msg in messages])
 
         self.assertIs(now_value, job.type.next_wakeup(job, now_value))
 
@@ -173,11 +171,9 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(_('Save the message'), context.get('submit_label'))
 
         priority = UserMessagePriority.objects.create(title='Important')
-        user01 = User.objects.create_user(
-            'User01', email='user01@foobar.com', first_name='User01', last_name='Foo',
-        )
+        user1 = self.create_user(index=0)
 
-        self._create_usermessage('TITLE', 'BODY', priority, [user01], None)
+        self._create_usermessage('TITLE', 'BODY', priority, [user1], None)
 
         message = self.get_alone_element(UserMessage.objects.all())
         self.assertIsNone(message.entity_id)
@@ -195,8 +191,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             ) for i in range(1, 3)
         ]
 
-        team = User.objects.create(username='Team', is_team=True, role=None)
-        team.teammates = users
+        team = self.create_team('Team', *users)
 
         self._create_usermessage('TITLE', 'BODY', None, [team], self.entity)
         self.assertCountEqual(users, [msg.recipient for msg in UserMessage.objects.all()])
@@ -211,14 +206,11 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             ) for i in range(1, 5)
         ]
 
-        team01 = User.objects.create(username='Team01', is_team=True, role=None)
-        team01.teammates = users[:2]
-
-        team02 = User.objects.create(username='Team02', is_team=True, role=None)
-        team02.teammates = users[1:3]
+        team1 = self.create_team('Team01', *users[:2])
+        team2 = self.create_team('Team02', *users[1:3])
 
         self._create_usermessage(
-            'TITLE', 'BODY', None, [team01, team02, users[0], users[3]], self.entity,
+            'TITLE', 'BODY', None, [team1, team2, users[0], users[3]], self.entity,
         )
         self.assertCountEqual(
             users, [msg.recipient for msg in UserMessage.objects.all()],
@@ -291,11 +283,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_delete_related01(self):
         priority = UserMessagePriority.objects.create(title='Important')
-        user01 = User.objects.create_user(
-            'User01',
-            email='user01@foobar.com', first_name='User01', last_name='Foo',
-        )
-        self._create_usermessage('TITLE', 'BODY', priority, [user01], self.entity)
+        self._create_usermessage('TITLE', 'BODY', priority, [self.user], self.entity)
 
         self.assertEqual(1, UserMessage.objects.count())
 
@@ -328,18 +316,16 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_merge(self):
         def creator(contact01, contact02):
             priority = UserMessagePriority.objects.create(title='Important')
-            user01 = User.objects.create_user(
-                'User01', email='user01@foobar.com', first_name='User01', last_name='Foo',
-            )
+            user1 = self.create_user(0)
             self._create_usermessage(
                 'Beware',
                 'This guy wants to fight against you',
-                priority, [user01], contact01,
+                priority, [user1], contact01,
             )
             self._create_usermessage(
                 'Oh',
                 'This guy wants to meet you',
-                priority, [user01], contact02,
+                priority, [user1], contact02,
             )
             self.assertEqual(2, UserMessage.objects.count())
 
@@ -383,12 +369,9 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_job(self):
         "Error on email sending."
         priority = UserMessagePriority.objects.create(title='Important')
-        user01 = User.objects.create_user(
-            'User01',
-            email='user01@foobar.com', first_name='User01', last_name='Foo',
-        )
+        user1 = self.create_user()
 
-        self._create_usermessage('TITLE', 'BODY', priority, [user01], None)
+        self._create_usermessage('TITLE', 'BODY', priority, [user1], None)
 
         self.send_messages_called = False
         err_msg = 'Sent error'

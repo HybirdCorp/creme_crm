@@ -1588,9 +1588,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         # user2 = self.create_user(1, theme='')
         user1 = self.get_root_user()
         user2 = self.create_user(0, theme='')
-
-        team = CremeUser.objects.create(username='Team17', is_team=True)
-        team.teammates_set.set([user1, user2])
+        team = self.create_team('Team17', user1, user2)
 
         registry = _FieldPrintersRegistry()
         theme1 = settings.THEMES[0][1]

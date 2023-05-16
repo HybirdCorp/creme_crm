@@ -2,7 +2,6 @@ from datetime import date
 from functools import partial
 from json import dumps as json_dump
 
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
@@ -471,12 +470,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         # other_user = self.other_user
         other_user = self.create_user()
 
-        User = get_user_model()
-        my_team = User.objects.create(username='TeamTitan', is_team=True)
-        my_team.teammates = [user, other_user]
-
-        a_team = User.objects.create(username='A-team', is_team=True)
-        a_team.teammates = [other_user]
+        my_team = self.create_team('TeamTitan', user, other_user)
+        a_team = self.create_team('A-team', other_user)
 
         name = 'Katsuragi'
 
@@ -514,9 +509,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         user = self.login_as_super(is_staff=True)
         # other_user = self.other_user
         other_user = self.get_root_user()
-
-        team = get_user_model().objects.create(username='A-team', is_team=True)
-        team.teammates = [user]
+        team = self.create_team('A-team', user)
 
         subfilter = EntityFilter.objects.smart_update_or_create(
             'creme_core-subfilter', 'Misato', model=FakeContact,
@@ -770,12 +763,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             - OK in a private filter (with the same owner).
             - Error in a public filter.
         """
-        # user = self.login()
         user = self.login_as_root_and_get()
-
-        team = get_user_model().objects.create(username='A-team', is_team=True)
-        # team.teammates = [user, self.other_user]
-        team.teammates = [user, self.create_user()]
+        team = self.create_team('A-team', user, self.create_user())
 
         subfilter1 = EntityFilter.objects.smart_update_or_create(
             'creme_core-subfilter1', 'Misato', model=FakeContact,
@@ -848,12 +837,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         # other_user = self.other_user
         other_user = self.create_user()
 
-        User = get_user_model()
-        team = User.objects.create(username='A-team', is_team=True)
-        team.teammates = [user, other_user]
-
-        other_team = User.objects.create(username='TeamTitan', is_team=True)
-        other_team.teammates = [user, other_user]
+        team = self.create_team('A-team', user, other_user)
+        other_team = self.create_team('TeamTitan', user, other_user)
 
         subfilter1 = EntityFilter.objects.smart_update_or_create(
             'creme_core-subfilter1', 'Miss', model=FakeContact,
@@ -1552,10 +1537,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         user = self.login_as_root_and_get()
         # other_user = self.other_user
         other_user = self.create_user()
-
-        User = get_user_model()
-        team = User.objects.create(username='A-team', is_team=True)
-        team.teammates = [user, other_user]
+        team = self.create_team('A-team', user, other_user)
 
         efilter1 = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Filter 01', FakeContact, is_custom=True,
@@ -1577,8 +1559,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         )
 
         # ---
-        other_team = User.objects.create(username='TeamTitan', is_team=True)
-        other_team.teammates = [user, other_user]
+        other_team = self.create_team('TeamTitan', user, other_user)
 
         response2 = self._aux_edit_subfilter(efilter1, is_private='on', user=other_team)
         self.assertFormError(
@@ -1604,9 +1585,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         user = self.login_as_root_and_get()
         # other_user = self.other_user
         other_user = self.create_user()
-
-        team = get_user_model().objects.create(username='A-team', is_team=True)
-        team.teammates = [user]
+        team = self.create_team('A-team', user)
 
         efilter1 = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Filter 01', FakeContact, is_custom=True,
@@ -1688,9 +1667,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "Belongs to my team -> OK."
         # user = self.login(is_superuser=False)
         user = self.login_as_standard()
-
-        my_team = get_user_model().objects.create(username='TeamTitan', is_team=True)
-        my_team.teammates = [user]
+        my_team = self.create_team('TeamTitan', user)
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Filter01', FakeContact,
@@ -1704,17 +1681,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
-        User = get_user_model()
-        my_team = User.objects.create(username='A-team', is_team=True)
-        my_team.teammates = [user]
-
-        a_team = User.objects.create(username='TeamTitan', is_team=True)
-        # a_team.teammates = [self.other_user]
-        a_team.teammates = [self.get_root_user()]
+        self.create_team('A-team', user)
+        other_team = self.create_team('TeamTitan', self.get_root_user())
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Filter01', FakeContact,
-            is_custom=True, user=a_team,
+            is_custom=True, user=other_team,
         )
         self._delete(efilter)
         self.assertStillExists(efilter)

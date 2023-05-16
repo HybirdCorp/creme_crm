@@ -2,7 +2,6 @@ from functools import partial
 from json import dumps as json_dump
 from json import loads as json_load
 
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.constants import REL_SUB_HAS
@@ -422,18 +421,10 @@ class HeaderFiltersTestCase(CremeTestCase):
         # other_user = self.other_user
         other_user = self.get_root_user()
 
-        User = get_user_model()
-        teammate = User.objects.create(
-            username='fulbertc',
-            email='fulbert@creme.org', role=user.role,
-            first_name='Fulbert', last_name='Creme',
-        )
+        teammate = self.create_user(index=1, role=user.role)
 
-        tt_team = User.objects.create(username='TeamTitan', is_team=True)
-        tt_team.teammates = [user, teammate]
-
-        a_team = User.objects.create(username='A-Team', is_team=True)
-        a_team.teammates = [other_user]
+        tt_team = self.create_team('TeamTitan', user, teammate)
+        a_team = self.create_team('A-Team', other_user)
 
         cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
 
@@ -475,11 +466,7 @@ class HeaderFiltersTestCase(CremeTestCase):
             HeaderFilter.objects.filter_by_user(tt_team)
 
         # ---
-        staff = User.objects.create(
-            username='staffito', email='staff@creme.org',
-            is_superuser=True, is_staff=True,
-            first_name='Staffito', last_name='Creme',
-        )
+        staff = self.create_user(index=2, is_staff=True)
         filtered2 = [*HeaderFilter.objects.filter_by_user(staff)]
         for hf in hfilters:
             self.assertIn(hf, filtered2)
@@ -522,20 +509,9 @@ class HeaderFiltersTestCase(CremeTestCase):
         user = self.login_as_standard()
         # other_user = self.other_user
         other_user = self.get_root_user()
-
-        User = get_user_model()
-        teammate = User.objects.create(
-            username='fulbertc',
-            email='fulbert@creme.org',
-            role=user.role,
-            first_name='Fulbert', last_name='Creme',
-        )
-
-        tt_team = User.objects.create(username='TeamTitan', is_team=True)
-        tt_team.teammates = [user, teammate]
-
-        a_team = User.objects.create(username='A-Team', is_team=True)
-        a_team.teammates = [other_user]
+        teammate = self.create_user(index=1, role=user.role)
+        tt_team = self.create_team('TeamTitan', user, teammate)
+        a_team = self.create_team('A-Team', other_user)
 
         cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
 

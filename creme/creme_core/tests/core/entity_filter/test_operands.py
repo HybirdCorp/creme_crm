@@ -38,13 +38,8 @@ class OperandTestCase(CremeTestCase):
 
     def test_current_user04(self):
         "Resolve with team."
-        create_user = CremeUser.objects.create
-        user = create_user(
-            username='kirika', email='kirika@noir.jp',
-            first_name='Kirika', last_name='Yumura',
-        )
-        team = create_user(username='Noir', is_team=True)
-        team.teammates = [user]
+        user = self.create_user(0)
+        team = self.create_team('Noir', user)
 
         operand = operands.CurrentUserOperand(user=user)
         self.assertEqual(user, operand.user)

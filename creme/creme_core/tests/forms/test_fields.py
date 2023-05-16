@@ -195,10 +195,7 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
         user = self.get_root_user()
         # other_user = self.other_user
         other_user = self.create_user()
-
-        team_name = 'Team#1'
-        team = CremeUser.objects.create(username=team_name, is_team=True)
-        team.teammates = [user, other_user]
+        team = self.create_team('Team#1', user, other_user)
 
         field = CremeUserChoiceField()
 
@@ -215,7 +212,7 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):
 
         team_group = choices[1]
         self.assertEqual(_('Teams'), team_group[0])
-        self.assertListEqual([(team.id, team_name)], team_group[1])
+        self.assertListEqual([(team.id, team.username)], team_group[1])
 
 
 class DatePeriodFieldTestCase(FieldTestCase):

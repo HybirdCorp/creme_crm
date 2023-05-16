@@ -2,7 +2,6 @@ from datetime import timedelta
 from functools import partial
 
 from django.apps import apps
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelMultipleChoiceField
 from django.template import Context, Template
@@ -714,32 +713,22 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview_teams(self):
         "Teams as participants are replaced by their teammates."
         # user = self.login()
-        user = self.login_as_root_and_get()
-
-        create_user = get_user_model().objects.create
-        musashi = create_user(
-            username='musashi', first_name='Musashi',
-            last_name='Miyamoto', email='musashi@miyamoto.jp',
-        )
-        kojiro  = create_user(
-            username='kojiro', first_name='Kojiro',
-            last_name='Sasaki', email='kojiro@sasaki.jp',
-        )
-
-        team = create_user(username='Samurais', is_team=True, role=None)
-        team.teammates = [musashi, kojiro, user]  # TODO: user + my_participation !!!!!!
+        user1 = self.login_as_root_and_get()
+        user2 = self.create_user(0)
+        user3 = self.create_user(1)
+        team = self.create_team('Soldats', user2, user3, user1)  # TODO: user + my_participation
 
         title = 'Fight !!'
         response = self.client.post(
             self.ACTIVITY_CREATION_URL, follow=True,
             data={
-                'user':  user.pk,
+                'user':  user1.pk,
                 'title': title,
 
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2015, 3, 10),
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
-                f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
+                f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user1).pk,
 
                 self.EXTRA_PARTUSERS_KEY: [team.id],
 
@@ -753,7 +742,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             subject_entity=act.id, type=constants.REL_OBJ_PART_2_ACTIVITY,
         )
         self.assertCountEqual(
-            [musashi.linked_contact, kojiro.linked_contact, user.linked_contact],
+            [user2.linked_contact, user3.linked_contact, user1.linked_contact],
             [r.real_object for r in relations],
         )
 

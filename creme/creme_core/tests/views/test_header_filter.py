@@ -1,6 +1,5 @@
 from functools import partial
 
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
@@ -225,12 +224,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         # other_user = self.other_user
         other_user = self.create_user()
 
-        User = get_user_model()
-        my_team = User.objects.create(username='TeamTitan', is_team=True)
-        my_team.teammates = [user, other_user]
-
-        a_team = User.objects.create(username='A-team', is_team=True)
-        a_team.teammates = [other_user]
+        my_team = self.create_team('TeamTitan', user, other_user)
+        a_team = self.create_team('A-team', other_user)
 
         name = 'DefaultHeaderFilter'
 
@@ -491,12 +486,10 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertGET403(hf.get_edit_absolute_url())
 
     def test_edit05(self):
-        "User belongs to the team -> OK"
+        "User belongs to the team -> OK."
         # user = self.login(is_superuser=False)
         user = self.login_as_standard()
-
-        my_team = get_user_model().objects.create(username='TeamTitan', is_team=True)
-        my_team.teammates = [user]
+        my_team = self.create_team('TeamTitan', user)
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='tests-hf_contact', name='Contact view',
@@ -509,12 +502,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
-        User = get_user_model()
-        my_team = User.objects.create(username='TeamTitan', is_team=True)
-        # my_team.teammates = [user] # <=====
-
-        a_team = User.objects.create(username='A-team', is_team=True)
-        a_team.teammates = [user]
+        my_team = self.create_team('TeamTitan')  # 'user' is not a teammate
+        self.create_team('A-team', user)
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='tests-hf_contact', name='Contact view',
@@ -734,9 +723,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         "The user belongs to the owner team -> OK."
         # user = self.login(is_superuser=False)
         user = self.login_as_standard()
-
-        my_team = get_user_model().objects.create(username='TeamTitan', is_team=True)
-        my_team.teammates = [user]
+        my_team = self.create_team('TeamTitan', user)
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='tests-hf_contact', name='Contact view',
@@ -750,13 +737,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
-        User = get_user_model()
-        a_team = User.objects.create(username='TeamTitan', is_team=True)
-        # a_team.teammates = [self.other_user]
-        a_team.teammates = [self.get_root_user()]
-
-        my_team = User.objects.create(username='A-team', is_team=True)
-        my_team.teammates = [user]
+        a_team = self.create_team('TeamTitan', self.get_root_user())
+        self.create_team('A-team', user)
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='tests-hf_contact', name='Contact view',

@@ -3,7 +3,7 @@ from functools import partial
 from unittest import SkipTest
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.core.mail.backends.locmem import EmailBackend
@@ -82,15 +82,18 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def _create_several_todos(self):
         self._create_todo('Todo01', 'Description01')
 
-        entity02 = FakeContact.objects.create(
+        entity2 = FakeContact.objects.create(
             user=self.user, first_name='Akane', last_name='Tendo',
         )
-        self._create_todo('Todo02', 'Description02', entity=entity02)
+        self._create_todo('Todo02', 'Description02', entity=entity2)
 
-        user02 = get_user_model().objects.create_user(
+        # user2 = get_user_model().objects.create_user(
+        #     username='ryoga', first_name='Ryoga', last_name='Hibiki', email='user@creme.org',
+        # )
+        user2 = self.create_user(
             username='ryoga', first_name='Ryoga', last_name='Hibiki', email='user@creme.org',
         )
-        self._create_todo('Todo03', 'Description03', user=user02)
+        self._create_todo('Todo03', 'Description03', user=user2)
 
     def test_populate(self):
         sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
@@ -650,8 +653,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         # team = create_user(username='Team #1', is_team=True)
         # team.teammates = [teammate, user]
         teammate = self.create_user(0)
-        team = get_user_model().objects.create(username='Team #1', is_team=True)
-        team.teammates = [teammate, user]
+        team = self.create_team('Team #1', teammate, user)
 
         sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv.value = max(localtime(now_value).hour - 1, 0)
@@ -862,12 +864,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         teammate1  = self.create_user(1)
         teammate2  = self.create_user(2)
 
-        create_team = partial(get_user_model().objects.create, is_team=True)
-        team1 = create_team(username='Team #1')
-        team1.teammates = [teammate1, user]
-
-        team2 = create_team(username='Team #2')
-        team2.teammates = [other_user, teammate2]
+        team1 = self.create_team('Team #1', teammate1, user)
+        team2 = self.create_team('Team #2', other_user, teammate2)
 
         create_todo = partial(ToDo.objects.create, real_entity=self.entity, user=user)
         todo1 = create_todo(title='Todo#1')

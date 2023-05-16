@@ -16,8 +16,8 @@ from creme.creme_core.forms.enumerable import (
     EnumerableSelect,
     FieldEnumerableChoiceSet,
 )
+# from creme.creme_core.models import CremeUser
 from creme.creme_core.models import (
-    CremeUser,
     Currency,
     FakeContact,
     FakeInvoice,
@@ -202,27 +202,18 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         """
         # fulbert = CremeUser.objects.order_by('pk').first()
         fulbert = self.get_root_user()
-        kirika = self.create_user(0)
-        mireille = self.create_user(1)
-        chloe = CremeUser.objects.create_user(
-            username='noir', email='chloe@noir.jp',
-            first_name='Chloe', last_name='Noir',
-            password='uselesspw', is_active=False
-        )
+        kirika = self.create_user(index=0)
+        mireille = self.create_user(index=1)
+        chloe = self.create_user(index=2, is_active=False)
 
-        team_A = CremeUser.objects.create(username='ATeam', is_team=True)
-        team_A.teammates = [kirika, mireille]
-
-        team_B = CremeUser.objects.create(username='BTeam', is_team=True)
-        team_B.teammates = [fulbert]
+        team_A = self.create_team('ATeam', kirika, mireille)
+        team_B = self.create_team('BTeam', fulbert)
 
         enumerable = FieldEnumerableChoiceSet(
-            FakeContact._meta.get_field('user'),
-            empty_label='No value'
+            FakeContact._meta.get_field('user'), empty_label='No value',
         )
 
         groups, more = enumerable.groups()
-
         self.assertFalse(more)
         self.assertListEqual([
             (
@@ -262,23 +253,15 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         """
         # fulbert = CremeUser.objects.order_by('pk').first()
         fulbert = self.get_root_user()
-        kirika = self.create_user(0)
-        mireille = self.create_user(1)
-        chloe = CremeUser.objects.create_user(
-            username='noir', email='chloe@noir.jp',
-            first_name='Chloe', last_name='Noir',
-            password='uselesspw', is_active=False
-        )
+        kirika = self.create_user(index=0)
+        mireille = self.create_user(index=1)
+        chloe = self.create_user(index=2, is_active=False)
 
-        team_A = CremeUser.objects.create(username='ATeam', is_team=True)
-        team_A.teammates = [kirika, mireille]
-
-        team_B = CremeUser.objects.create(username='BTeam', is_team=True)
-        team_B.teammates = [fulbert]
+        team_A = self.create_team('ATeam', kirika, mireille)
+        team_B = self.create_team('BTeam', fulbert)
 
         enumerable = FieldEnumerableChoiceSet(
-            FakeContact._meta.get_field('user'),
-            limit=limit
+            FakeContact._meta.get_field('user'), limit=limit,
         )
 
         available_choices = [
@@ -296,7 +279,6 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
             expected = available_choices[:limit]
 
         groups, more = enumerable.groups()
-
         self.assertListEqual(
             [
                 (group, [c.as_dict() for c in choices])

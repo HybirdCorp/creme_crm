@@ -1408,7 +1408,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(last_name,  contact.last_name)
 
     def test_user_linked_contact02(self):
-        user = CremeUser.objects.create(
+        user = self.create_user(
             username='dknut', is_team=True, last_name='Knut', first_name='Deunan',
         )
 
@@ -1480,7 +1480,7 @@ class ContactTestCase(_BaseTestCase):
         "Team."
         user = self.create_user()
 
-        eswat = CremeUser.objects.create(username='eswat', is_team=True)
+        eswat = self.create_team('eswat')
         deunan = Contact.objects.create(user=eswat, first_name='Deunan', last_name='Knut')
 
         self.assertEqual(

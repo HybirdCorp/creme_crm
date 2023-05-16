@@ -546,9 +546,7 @@ class EnumerableTestCase(CremeTestCase):
         )
         self.assertGreater(str(user), str(first_user))
 
-        team_name = 'Team#1'
-        team = CremeUser.objects.create(username=team_name, is_team=True)
-        team.teammates = [user, other_user]
+        team = self.create_team('Team#1', user, other_user)
 
         inactive = CremeUser.objects.create(username='deunan', is_active=False)
 
@@ -589,7 +587,7 @@ class EnumerableTestCase(CremeTestCase):
         self.assertGreater(user_index,  first_index)
 
         self.assertDictEqual(
-            {'value': team.pk, 'label': team_name, 'group': _('Teams')},
+            {'value': team.pk, 'label': team.username, 'group': _('Teams')},
             find_user_dict(team)[1]
         )
         self.assertEqual(

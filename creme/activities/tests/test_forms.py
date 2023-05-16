@@ -1,7 +1,6 @@
 # from json import dumps as json_dump
 from datetime import date, time
 
-from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models.expressions import Q
 from django.test.utils import override_settings
@@ -389,28 +388,16 @@ class ParticipatingUsersFieldTestCase(FieldTestCase):
         )
 
     def test_clean_teamate(self):
-        # user = self.login()
-        user = self.login_as_root_and_get()
-        # other_user = self.other_user
-        other_user = self.create_user()
+        user1 = self.login_as_root_and_get()
+        user2 = self.create_user(0)
+        user3 = self.create_user(1)
+        user4 = self.create_user(2)
+        team = self.create_team('Samurais', user3, user4)
 
-        create_user = get_user_model().objects.create
-        musashi = create_user(
-            username='musashi', first_name='Musashi',
-            last_name='Miyamoto', email='musashi@miyamoto.jp',
-        )
-        kojiro = create_user(
-            username='kojiro', first_name='Kojiro',
-            last_name='Sasaki', email='kojiro@sasaki.jp',
-        )
-
-        team = create_user(username='Samurais', is_team=True, role=None)
-        team.teammates = [musashi, kojiro]
-
-        field = ParticipatingUsersField(user=user)
+        field = ParticipatingUsersField(user=user1)
         self.assertCountEqual(
-            [u.linked_contact for u in (other_user, musashi, kojiro)],
-            field.clean([other_user.id, team.id]),
+            [u.linked_contact for u in (user2, user3, user4)],
+            field.clean([user2.id, team.id]),
         )
 
     def test_not_linkable(self):

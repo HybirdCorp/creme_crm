@@ -2,7 +2,6 @@ from datetime import date, timedelta
 from functools import partial
 from logging import info
 
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
 from django.utils.timezone import now
@@ -238,12 +237,8 @@ class EntityFiltersTestCase(CremeTestCase):
 
         other_user = self.create_user(1)
 
-        create_team = partial(get_user_model().objects.create, is_team=True)
-        team = create_team(username='TeamTitan')
-        team.teammates = [user, other_user]
-
-        other_team = create_team(username='A-Team')
-        other_team.teammates = [other_user]
+        team = self.create_team('TeamTitan', user, other_user)
+        other_team = self.create_team('A-Team', other_user)
 
         def create_subfilter(idx, owner):
             return EntityFilter.objects.smart_update_or_create(
@@ -805,12 +800,8 @@ class EntityFiltersTestCase(CremeTestCase):
         other_user = self.create_user(1)
         teammate = self.create_user(2)
 
-        create_team = partial(get_user_model().objects.create, is_team=True)
-        tt_team = create_team(username='TeamTitan')
-        tt_team.teammates = [user, teammate]
-
-        a_team = create_team(username='A-Team')
-        a_team.teammates = [other_user]
+        tt_team = self.create_team('TeamTitan', user, teammate)
+        a_team = self.create_team('A-Team', other_user)
 
         contacts = self.contacts
 
@@ -846,12 +837,8 @@ class EntityFiltersTestCase(CremeTestCase):
         other_user = self.create_user(1)
         teammate = self.create_user(2)
 
-        create_team = partial(get_user_model().objects.create, is_team=True)
-        tt_team = create_team(username='TeamTitan')
-        tt_team.teammates = [user, teammate]
-
-        a_team = create_team(username='A-Team')
-        a_team.teammates = [other_user]
+        tt_team = self.create_team('TeamTitan', user, teammate)
+        a_team = self.create_team('A-Team', other_user)
 
         contacts = self.contacts
 
@@ -3372,13 +3359,8 @@ class EntityFiltersTestCase(CremeTestCase):
         other_user = self.create_user(1)
         teammate = self.create_user(2)
 
-        create_team = partial(get_user_model().objects.create, is_team=True)
-
-        tt_team = create_team(username='TeamTitan')
-        tt_team.teammates = [user, teammate]
-
-        a_team = create_team(username='A-Team')
-        a_team.teammates = [other_user]
+        tt_team = self.create_team('TeamTitan', user, teammate)
+        a_team = self.create_team('A-Team', other_user)
 
         create_ef = partial(
             EntityFilter.objects.smart_update_or_create,
@@ -3712,12 +3694,8 @@ class EntityFiltersTestCase(CremeTestCase):
         other_user = self.create_user(1, role=UserRole.objects.create(name='Basic'))
         teammate = self.create_user(2)
 
-        create_team = partial(get_user_model().objects.create, is_team=True)
-        tt_team = create_team(username='TeamTitan')
-        tt_team.teammates = [super_user, teammate]
-
-        a_team = create_team(username='A-Team')
-        a_team.teammates = [other_user]
+        tt_team = self.create_team('TeamTitan', super_user, teammate)
+        a_team = self.create_team('A-Team', other_user)
 
         conditions = [
             RegularFieldConditionHandler.build_condition(
