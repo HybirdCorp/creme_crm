@@ -24,7 +24,7 @@ from decimal import Decimal
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db.models import (
     BooleanField,
     ForeignKey,
@@ -35,6 +35,7 @@ from django.db.models import (
 from django.utils.formats import date_format
 from django.utils.hashable import make_hashable
 from django.utils.timezone import make_aware, now
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms.entity_filter.fields as ef_fields
@@ -459,12 +460,22 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         except FieldDoesNotExist as e:
             raise cls.ValueError(str(e)) from e
 
+        field = finfo[-1]
+
         try:
             # TODO: cast more values (e.g. integers instead of "digit" string)
             values = operator_obj.validate_field_values(
-                field=finfo[-1], values=values, user=user,
+                # field=finfo[-1], values=values, user=user,
+                field=field, values=values, user=user,
                 efilter_registry=cls.efilter_registry,
             )
+        except ValidationError as e:
+            raise cls.ValueError(
+                gettext('Condition on field «{field}»: {error}').format(
+                    field=field.verbose_name,
+                    error='\n'.join(e.messages),
+                )
+            ) from e
         except Exception as e:
             raise cls.ValueError(str(e)) from e
 
@@ -969,6 +980,13 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
                     value = [str(clean_value([v])[0]) for v in values]
                 else:
                     value = [str(clean_value(v)) for v in values]
+        except ValidationError as e:
+            raise cls.ValueError(
+                gettext('Condition on field «{field}»: {error}').format(
+                    field=custom_field.name,
+                    error='\n'.join(e.messages),
+                )
+            ) from e
         except Exception as e:
             raise cls.ValueError(str(e)) from e
 

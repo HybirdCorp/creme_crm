@@ -232,65 +232,130 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_fk_id(self):
         """FK field with invalid id."""
-        clean = RegularFieldsConditionsField(
+        field = RegularFieldsConditionsField(
             model=FakeContact, efilter_registry=efilter_registry,
-        ).clean
-        err = self.assertFieldRaises(
-            ValidationError, clean,
-            self.build_data({
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(self.build_data({
                 'operator': operators.EQUALS,
                 'name':     'civility',
                 'value':    'unknown',
-            }),
-        )[0]
-        self.assertEqual(
-            err.messages[0],
-            str([_('Select a valid choice. That choice is not one of the available choices.')])
+            }))
+
+        # self.assertEqual(
+        #     str([_('Select a valid choice. That choice is not one of the available choices.')]),
+        #     cm.exception.messages[0],
+        # )
+        self.assertListEqual(
+            [_('Condition on field «{field}»: {error}').format(
+                field=_('Civility'),
+                error=_('Select a valid choice. That choice is not one of the available choices.'),
+            )],
+            cm.exception.messages,
         )
 
     def test_clean_invalid_static_choice(self):
         """Static choice field with invalid value."""
-        clean = RegularFieldsConditionsField(
+        field = RegularFieldsConditionsField(
             model=FakeInvoiceLine,
             efilter_registry=efilter_registry,
-        ).clean
-        err = self.assertFieldRaises(
-            ValidationError, clean,
-            self.build_data({
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(self.build_data({
                 'operator': operators.EQUALS,
                 'name':     'discount_unit',
                 'value':    'unknown',
-            }),
-        )[0]
-        self.assertEqual(
-            err.messages[0],
-            str([
-                _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                    'value': 'unknown',
-                },
-            ])
+            }))
+
+        # self.assertEqual(
+        #     str([
+        #         _('Select a valid choice. %(value)s is not one of the available choices.') % {
+        #             'value': 'unknown',
+        #         },
+        #     ]),
+        #     cm.exception.messages[0],
+        # )
+        self.assertListEqual(
+            [_('Condition on field «{field}»: {error}').format(
+                field=_('Discount Unit'),
+                error=_(
+                    'Select a valid choice. %(value)s is not one of the available choices.'
+                ) % {'value': 'unknown'},
+            )],
+            cm.exception.messages,
         )
 
     def test_clean_invalid_many2many_id(self):
-        clean = RegularFieldsConditionsField(
+        field = RegularFieldsConditionsField(
             model=FakeContact,
             efilter_registry=efilter_registry,
-        ).clean
-        err = self.assertFieldRaises(
-            ValidationError, clean,
-            self.build_data({
+        )
+
+        value = 12445
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(self.build_data({
                 'operator': operators.EQUALS,
                 'name':     'languages',
-                'value':    '12445',
-            }),
-        )[0]
-        self.assertEqual(
-            err.messages[0],
-            str([
-                _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                    'value': 12445,
+                'value':    f'{value}',
+            }))
+
+        # self.assertEqual(
+        #     str([
+        #         _('Select a valid choice. %(value)s is not one of the available choices.') % {
+        #             'value': 12445,
+        #         },
+        #     ]),
+        #     cm.exception.messages[0],
+        # )
+        self.assertListEqual(
+            # str([
+            #     _('Select a valid choice. %(value)s is not one of the available choices.') % {
+            #         'value': 12445,
+            #     },
+            # ]),
+            [_('Condition on field «{field}»: {error}').format(
+                field=_('Spoken language(s)'),
+                error=_(
+                    'Select a valid choice. %(value)s is not one of the available choices.'
+                ) % {'value': value},
+            )],
+            cm.exception.messages,
+        )
+
+    def test_clean_several_invalid_inputs(self):
+        field = RegularFieldsConditionsField(
+            model=FakeContact,
+            efilter_registry=efilter_registry,
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(self.build_data(
+                {
+                    'operator': operators.EQUALS,
+                    'name':     'email',
+                    'value':    'not_email',
+                }, {
+                    'operator': operators.EQUALS,
+                    'name':     'url_site',
+                    'value':    'not_url',
                 },
-            ])
+            ))
+
+        error_fmt = _('Condition on field «{field}»: {error}').format
+        self.assertListEqual(
+            [
+                error_fmt(
+                    field=_('Email address'),
+                    error=_('Enter a valid email address.'),
+                ),
+                error_fmt(
+                    field=_('Web Site'),
+                    error=_('Enter a valid URL.'),
+                ),
+            ],
+            cm.exception.messages,
         )
 
     def test_iequals_condition(self):
@@ -954,64 +1019,52 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         clean = DateFieldsConditionsField(model=FakeContact).clean
         self.assertFieldValidationError(
             DateFieldsConditionsField, 'invalidfield', clean,
-            '[{'
-            '"field": {"name": "first_name", "type": "string__null"}, '
-            '"range": {"type": "next_quarter", "start": "2011-5-12"}'
-            '}]'
+            json_dump([{
+                'field': {'name': 'first_name', 'type': 'string__null'},
+                'range': {'type': 'next_quarter', 'start': '2011-5-12'},
+            }]),
         )
         self.assertFieldValidationError(
             DateFieldsConditionsField, 'invalidformat', clean,
-            '[{'
-            '"field": {"name": "birthday", "type": "date__null"}, '
-            '"range": "not a dict"'
-            '}]'
+            json_dump([{
+                'field': {'name': 'birthday', 'type': 'date__null'},
+                'range': 'not a dict',
+            }])
         )
         self.assertFieldValidationError(
             DateFieldsConditionsField, 'invaliddaterange', clean,
-            '[{'
-            '"field": {"name": "birthday", "type": "date__null"}, '
-            '"range": {"type": "unknown_range"}'
-            '}]'  # TODO: "start": '' ???
+            json_dump([{
+                'field': {'name': 'birthday', 'type': 'date__null'},
+                'range': {'type': 'unknown_range'},
+            }])  # TODO: "start": '' ???
         )
 
         self.assertFieldValidationError(
             DateFieldsConditionsField, 'emptydates', clean,
-            '[{'
-            '"field": {"name": "birthday", "type": "date__null"}, '
-            '"range": {"type": ""}'
-            '}]'
+            json_dump([{
+                'field': {'name': 'birthday', 'type': 'date__null'},
+                'range': {'type': ''},
+            }])
         )
         self.assertFieldValidationError(
             DateFieldsConditionsField, 'emptydates', clean,
-            '[{'
-            '"field": {"name": "birthday", "type": "date__null"}, '
-            '"range": {"type": "", "start": "", "end": ""}'
-            '}]'
+            json_dump([{
+                'field': {'name': 'birthday', 'type': 'date__null'},
+                'range': {'type': '', 'start': '', 'end': ''},
+            }]),
         )
 
-        try:
-            clean(
-                '[{'
-                '"field": {"name": "created", "type": "date"}, '
-                '"range": {"type": "", "start": "not a date"}'
-                '}]'
-            )
-        except ValidationError:
-            pass
-        else:
-            self.fail('No ValidationError')
+        with self.assertRaises(ValidationError):
+            clean(json_dump([{
+                'field': {'name': 'created', 'type': 'date'},
+                'range': {'type': '', 'start': 'not a date'},
+            }]))
 
-        try:
-            clean(
-                '[{'
-                '"field": {"name": "created", "type": "date"}, '
-                '"range": {"type": "", "end": "2011-2-30"}'
-                '}]'
-            )  # 30 february !!
-        except ValidationError:
-            pass
-        else:
-            self.fail('No ValidationError')
+        with self.assertRaises(ValidationError):
+            clean(json_dump([{
+                'field': {'name': 'created', 'type': 'date'},
+                'range': {'type': '', 'end': '2011-2-30'},  # 30 february!
+            }]))
 
     def test_ok01(self):
         with self.assertNumQueries(0):
@@ -1123,6 +1176,26 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(type_id,    condition.type)
         self.assertEqual('modified', condition.name)
         self.assertDictEqual({'name': 'not_empty'}, condition.value)
+
+    def test_clean_several_errors(self):
+        field = DateFieldsConditionsField(model=FakeContact)
+
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(json_dump([
+                {
+                    'field': {'name': 'birthday', 'type': 'date__null'},
+                    'range': {'type': '', 'start': '', 'end': ''},
+                }, {
+                    'field': {'name': 'modified', 'type': 'date__null'},
+                    'range': {'type': '', 'start': '', 'end': ''},
+                },
+            ]))
+
+        msg = _('Please enter a start date and/or a end date.')
+        self.assertListEqual(
+            [msg, msg],
+            cm.exception.messages,
+        )
 
     def test_fields_config01(self):
         valid_fname  = 'issuing_date'
@@ -1353,10 +1426,19 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
 
 
 class CustomFieldsConditionsFieldTestCase(FieldTestCase):
+    # TODO: factorise?
     @staticmethod
-    def build_data(field, operator, value):
+    # def build_data(field, operator, value):
+    #     return json_dump([
+    #         {'field': {'id': str(field)}, 'operator': {'id': str(operator)}, 'value': value}
+    #     ])
+    def build_data(*conditions):
         return json_dump([
-            {'field': {'id': str(field)}, 'operator': {'id': str(operator)}, 'value': value}
+            {
+                'field':    {'id': condition['field']},
+                'operator': {'id': str(condition['operator'])},
+                'value':    condition['value'],
+            } for condition in conditions
         ])
 
     def setUp(self):
@@ -1498,11 +1580,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
         self.assertFieldValidationError(
             CustomFieldsConditionsField, 'invalidformat', field.clean,
-            self.build_data(
-                field='notanumber',
-                operator=operators.EQUALS,
-                value=170,
-            ),
+            self.build_data({
+                'field':    'notanumber',
+                'operator': operators.EQUALS,
+                'value':    170,
+            }),
         )
 
     def test_clean_invalid_field(self):
@@ -1511,11 +1593,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
         self.assertFieldValidationError(
             CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
-            self.build_data(
-                field=2054,
-                operator=operators.EQUALS,
-                value=170,
-            ),
+            self.build_data({
+                'field':    2054,
+                'operator': operators.EQUALS,
+                'value':    170,
+            }),
         )
 
         self.assertFieldValidationError(
@@ -1528,18 +1610,20 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_operator(self):
         field = CustomFieldsConditionsField(model=FakeContact)
+        cfield = self.cfield_int
+        value = 170
         self.assertFieldValidationError(
             CustomFieldsConditionsField, 'invalidoperator', field.clean,
-            self.build_data(
-                field=self.cfield_int.id,
-                operator=121266,
-                value=170,
-            ),
+            self.build_data({
+                'field':    cfield.id,
+                'operator': 121266,
+                'value':    value,
+            }),
         )
         self.assertFieldValidationError(
             CustomFieldsConditionsField, 'invalidoperator', field.clean,
             json_dump([
-                {'field': {'id': str(self.cfield_int.id)}, 'value': 170},
+                {'field': {'id': str(cfield.id)}, 'value': value},
             ]),
         )
 
@@ -1565,11 +1649,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.EQUALS
         value = 180
         condition = self.get_alone_element(
-            field.clean(self.build_data(
-                field=self.cfield_int.id,
-                operator=operator,
-                value=value,
-            ))
+            field.clean(self.build_data({
+                'field': self.cfield_int.id,
+                'operator': operator,
+                'value': value,
+            }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_int.id),             condition.name)
@@ -1592,17 +1676,18 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             )
             field.model = FakeContact
 
+        cfield = self.cfield_int
         operator = operators.EQUALS
         value = 180
         condition = self.get_alone_element(
-            field.clean(self.build_data(
-                field=self.cfield_int.id,
-                operator=operator,
-                value=value,
-            ))
+            field.clean(self.build_data({
+                'field':    cfield.id,
+                'operator': operator,
+                'value':    value,
+            }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(self.cfield_int.id),             condition.name)
+        self.assertEqual(str(cfield.id),                      condition.name)
         self.assertEqual(EF_CREDENTIALS,                      condition.filter_type)
         self.assertDictEqual(
             {
@@ -1613,6 +1698,31 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             condition.value,
         )
 
+    def test_clean_integer_error(self):
+        "Invalid value."
+        field = CustomFieldsConditionsField(
+            efilter_registry=efilter_registry,
+            efilter_type=EF_CREDENTIALS,
+        )
+        field.model = FakeContact
+
+        cfield = self.cfield_int
+
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(self.build_data({
+                'field':    cfield.id,
+                'operator': operators.EQUALS,
+                'value':    'Nan',
+            }))
+
+        self.assertListEqual(
+            [_('Condition on field «{field}»: {error}').format(
+                field=cfield.name,
+                error=_('Enter a whole number.'),
+            )],
+            cm.exception.messages,
+        )
+
     def test_clean_enum(self):
         clean = CustomFieldsConditionsField(
             model=FakeContact,
@@ -1621,11 +1731,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.EQUALS
         value = str(self.cfield_enum_A.pk)
         condition = self.get_alone_element(
-            clean(self.build_data(
-                field=self.cfield_enum.id,
-                operator=operator,
-                value=value,
-            ))
+            clean(self.build_data({
+                'field':    self.cfield_enum.id,
+                'operator': operator,
+                'value':    value,
+            }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_enum.id),            condition.name)
@@ -1645,11 +1755,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         ).clean
         operator = operators.EQUALS
         condition = self.get_alone_element(
-            clean(self.build_data(
-                field=self.cfield_enum.id,
-                operator=operator,
-                value=f'{self.cfield_enum_A.pk},{self.cfield_enum_B.pk}',
-            ))
+            clean(self.build_data({
+                'field':    self.cfield_enum.id,
+                'operator': operator,
+                'value':    f'{self.cfield_enum_A.pk},{self.cfield_enum_B.pk}',
+            }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_enum.id),            condition.name)
@@ -1672,11 +1782,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         ).clean
         operator = operators.EQUALS
         condition = self.get_alone_element(
-            clean(self.build_data(
-                field=self.cfield_enum.id,
-                operator=operator,
-                value=[self.cfield_enum_A.pk, self.cfield_enum_B.pk],
-            ))
+            clean(self.build_data({
+                'field':    self.cfield_enum.id,
+                'operator': operator,
+                'value':    [self.cfield_enum_A.pk, self.cfield_enum_B.pk],
+            }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_enum.id),            condition.name)
@@ -1699,11 +1809,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.EQUALS
         value = str(self.cfield_multienum_F.pk)
         condition = self.get_alone_element(
-            clean(self.build_data(
-                field=self.cfield_multienum.id,
-                operator=operator,
-                value=value,
-            ))
+            clean(self.build_data({
+                'field': self.cfield_multienum.id,
+                'operator': operator,
+                'value': value,
+            }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_multienum.id),       condition.name)
@@ -1722,11 +1832,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         ).clean
         operator = operators.EQUALS
         condition = self.get_alone_element(
-            clean(self.build_data(
-                field=self.cfield_multienum.id,
-                operator=operator,
-                value=f'{self.cfield_multienum_F.pk},{self.cfield_multienum_H.pk}',
-            ))
+            clean(self.build_data({
+                'field': self.cfield_multienum.id,
+                'operator': operator,
+                'value': f'{self.cfield_multienum_F.pk},{self.cfield_multienum_H.pk}',
+            }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_multienum.id),       condition.name)
@@ -1746,19 +1856,20 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         clean = CustomFieldsConditionsField(
             model=FakeContact, efilter_registry=efilter_registry,
         ).clean
+        cfield = self.cfield_multienum
         operator = operators.EQUALS
         condition = self.get_alone_element(
-            clean(self.build_data(
-                field=self.cfield_multienum.id,
-                operator=operator,
-                value=[
+            clean(self.build_data({
+                'field': cfield.id,
+                'operator': operator,
+                'value': [
                     self.cfield_multienum_F.pk,
                     self.cfield_multienum_H.pk,
                 ],
-            ))
+            }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(self.cfield_multienum.id),       condition.name)
+        self.assertEqual(str(cfield.id),                      condition.name)
         self.assertDictEqual(
             {
                 'operator': operator,
@@ -1777,11 +1888,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         ).clean
         operator = operators.EQUALS
         condition = self.get_alone_element(
-            clean(self.build_data(
-                field=self.cfield_str.id,
-                operator=operator,
-                value='',
-            ))
+            clean(self.build_data({
+                'field':    self.cfield_str.id,
+                'operator': operator,
+                'value':    '',
+            }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(self.cfield_str.id),             condition.name)
@@ -1790,20 +1901,63 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             condition.value,
         )
 
+    def test_clean_several_invalid_inputs(self):
+        field = CustomFieldsConditionsField(
+            efilter_registry=efilter_registry,
+            efilter_type=EF_CREDENTIALS,
+            model=FakeContact
+        )
+
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(self.build_data(
+                {
+                    'field': self.cfield_int.id,
+                    'operator': operators.EQUALS,
+                    'value': 'Nan',
+                }, {
+                    'field': self.cfield_float.id,
+                    'operator': operators.EQUALS,
+                    'value': 'Nan',
+                },
+            ))
+
+        # self.assertListEqual(
+        #     [_('Condition on field «{field}»: {error}').format(
+        #         field=cfield.name,
+        #         error=_('Enter a whole number.'),
+        #     )],
+        #     cm.exception.messages,
+        # )
+        error_fmt = _('Condition on field «{field}»: {error}').format
+        self.assertListEqual(
+            [
+                error_fmt(
+                    field=self.cfield_int.name,
+                    error=_('Enter a whole number.'),
+                ),
+                error_fmt(
+                    field=self.cfield_float.name,
+                    error=_('Enter a number.'),
+                ),
+            ],
+            cm.exception.messages,
+        )
+
     def test_equals_boolean_condition(self):
         clean = CustomFieldsConditionsField(
             model=FakeContact, efilter_registry=efilter_registry,
         ).clean
+        cfield = self.cfield_bool
         operator = operators.EQUALS
         condition = self.get_alone_element(
-            clean(self.build_data(
-                field=self.cfield_bool.id,
-                operator=operator,
-                value=False,
-            ))
+            clean(self.build_data({
+                'field': cfield.id,
+                'operator': operator,
+                'value': False,
+            }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(self.cfield_bool.id),            condition.name)
+        self.assertEqual(str(cfield.id),                      condition.name)
         self.assertDictEqual(
             {'operator': operator, 'rname': 'customfieldboolean', 'values': ['False']},
             condition.value,
@@ -1839,11 +1993,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
         self.assertFieldValidationError(
             CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
-            self.build_data(
-                field=cfield_str.id,
-                operator=operators.ICONTAINS,
-                value='[pilot]',
-            ),
+            self.build_data({
+                'field': cfield_str.id,
+                'operator': operators.ICONTAINS,
+                'value': '[pilot]',
+            }),
         )
 
     def test_deleted02(self):
@@ -1870,11 +2024,11 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         operator = operators.ICONTAINS
         value = '[pilot]'
         condition = self.get_alone_element(
-            field.clean(self.build_data(
-                field=cfield_str.id,
-                operator=operator,
-                value=value,
-            ))
+            field.clean(self.build_data({
+                'field': cfield_str.id,
+                'operator': operator,
+                'value': value,
+            }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         self.assertEqual(str(cfield_str.id),                  condition.name)
@@ -1927,7 +2081,27 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
             json_dump([{
                 'field': str(self.cfield01.id),
                 'range': {'type': '', 'start': '', 'end': ''},
-            }])
+            }]),
+        )
+
+    def test_clean_several_errors(self):
+        field = DateCustomFieldsConditionsField(model=FakeContact)
+
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(json_dump([
+                {
+                    'field': str(self.cfield01.id),
+                    'range': {'type': '', 'start': '', 'end': ''},
+                }, {
+                    'field': str(self.cfield02.id),
+                    'range': {'type': '', 'start': '', 'end': ''},
+                },
+            ]))
+
+        msg = _('Please enter a start date and/or a end date.')
+        self.assertListEqual(
+            [msg, msg],
+            cm.exception.messages,
         )
 
     def test_ok(self):

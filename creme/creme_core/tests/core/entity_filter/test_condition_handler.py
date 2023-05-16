@@ -765,8 +765,11 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         with self.assertRaises(FilterConditionHandler.ValueError) as cm:
             build(operator=operators.EQUALS, values=['misato'])
         self.assertEqual(
-            "['{}']".format(_('Enter a valid email address.')),
-            # cm.exception.args[0],
+            # "['{}']".format(_('Enter a valid email address.')),
+            _('Condition on field «{field}»: {error}').format(
+                field=_('Email address'),
+                error=_('Enter a valid email address.'),
+            ),
             str(cm.exception),
         )
 
@@ -774,7 +777,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         with self.assertNoException():
             build(operator=operators.ISTARTSWITH, values=['misato'])
 
-        # TODO: should not work (fix it in creme 2.5)
+        # TODO: should not work (fix it in creme 2.6)
         with self.assertNoException():
             build(operator=operators.RANGE, values=['misato', 'yui'])
 
@@ -792,7 +795,11 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         with self.assertRaises(FilterConditionHandler.ValueError) as cm:
             build(operator=operators.EQUALS, values=['misato'])
         self.assertEqual(
-            "['{}']".format(_('Enter a valid URL.')),
+            # "['{}']".format(_('Enter a valid URL.')),
+            _('Condition on field «{field}»: {error}').format(
+                field=_('Web Site'),
+                error=_('Enter a valid URL.'),
+            ),
             str(cm.exception),
         )
 
@@ -1892,23 +1899,31 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         self.assertRaises(
             ValueError, build_cond,
-            custom_field=cf_int, operator=1216, values=155,  # Invalid operator
+            custom_field=cf_int, operator=1216, values=[155],  # Invalid operator
         )
-        self.assertRaises(
-            ValueError, build_cond,
-            custom_field=cf_int, operator=operators.CONTAINS, values='not an int',
+        with self.assertRaises(ValueError) as cm:
+            build_cond(
+                custom_field=cf_int, operator=operators.CONTAINS, values=['not an int'],
+            )
+        self.assertEqual(
+            # "['{}']".format(_('Enter a whole number.')),
+            _('Condition on field «{field}»: {error}').format(
+                field=cf_int.name,
+                error=_('Enter a whole number.'),
+            ),
+            str(cm.exception),
         )
 
         cf_date = create_cf(name='Day', field_type=CustomField.DATETIME)
         self.assertRaises(
             ValueError, build_cond,
-            custom_field=cf_date, operator=operators.EQUALS, values=2011,  # DATE
+            custom_field=cf_date, operator=operators.EQUALS, values=[2011],  # DATE
         )
 
-        cf_bool = create_cf(name='Cute ?', field_type=CustomField.BOOL)
+        cf_bool = create_cf(name='Cute?', field_type=CustomField.BOOL)
         self.assertRaises(
             ValueError, build_cond,
-            custom_field=cf_bool, operator=operators.CONTAINS, values=True,  # Bad operator
+            custom_field=cf_bool, operator=operators.CONTAINS, values=[True],  # Bad operator
         )
 
     def test_customfield_condition04(self):
