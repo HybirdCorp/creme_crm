@@ -262,7 +262,9 @@
             - 'creme.form.Select2' accepts the 'data-no-empty' attribute : select the first option as default if the value is empty.
         # Apps :
             * Creme_config :
-                - 'creme.creme_config.MenuContainersController' has been renamed 'creme.MenuContainersController'
+                - In 'forms', many classes have ben renamed in these modules :
+                  bricks, button_menu, creme_property_type, fields_config, relation_type, user.
+                - In JavaScript, 'creme.creme_config.MenuContainersController' has been renamed 'creme.MenuContainersController'.
             * Documents :
                 - Some constants have been moved :
                     - 'UUID_DOC_CAT_IMG_ORGA' & 'UUID_DOC_CAT_IMG_CONTACT' to the app 'persons'.

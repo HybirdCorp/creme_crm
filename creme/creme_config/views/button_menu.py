@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,13 +35,13 @@ class Portal(generic.BricksView):
 
 
 class ButtonMenuWizard(generic.wizard.CremeWizardViewPopup):
-    class _ResourceStep(button_forms.ButtonMenuAddForm):
+    class _ResourceStep(button_forms.ButtonMenuCreationForm):
         step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
 
         def save(self, commit=False):
             return super().save(commit=commit)
 
-    class _ButtonsStep(button_forms.ButtonMenuEditForm):
+    class _ButtonsStep(button_forms.ButtonMenuEditionForm):
         @property
         def step_title(self):
             return gettext('New buttons configuration for «{model}»').format(model=self.ct)
@@ -67,7 +67,7 @@ class ButtonMenuWizard(generic.wizard.CremeWizardViewPopup):
 
 class ButtonMenuEdition(EntityCTypeRelatedMixin, base.ConfigEdition):
     model = ButtonMenuItem
-    form_class = button_forms.ButtonMenuEditForm
+    form_class = button_forms.ButtonMenuEditionForm
     ct_id_0_accepted = True
 
     def __init__(self, *args, **kwargs):

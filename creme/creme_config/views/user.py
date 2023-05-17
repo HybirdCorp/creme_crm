@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 
 class PasswordChange(generic.CremeModelEditionPopup):
     model = get_user_model()
-    form_class = user_forms.UserChangePwForm
+    form_class = user_forms.UserPasswordChangeForm
     pk_url_kwarg = 'user_id'
     permissions = SUPERUSER_PERM
     title = _('Change password for «{object}»')
@@ -61,11 +61,11 @@ class BaseUserCreation(generic.CremeModelCreationPopup):
 
 
 class UserCreation(BaseUserCreation):
-    form_class = user_forms.UserAddForm
+    form_class = user_forms.UserCreationForm
 
 
 class TeamCreation(BaseUserCreation):
-    form_class = user_forms.TeamCreateForm
+    form_class = user_forms.TeamCreationForm
     title = _('New team')
     submit_label = _('Save the team')
 
@@ -87,12 +87,12 @@ class BaseUserEdition(generic.CremeModelEditionPopup):
 
 class UserEdition(BaseUserEdition):
     queryset = get_user_model().objects.filter(is_team=False)
-    form_class = user_forms.UserEditForm
+    form_class = user_forms.UserEditionForm
 
 
 class TeamEdition(BaseUserEdition):
     queryset = get_user_model().objects.filter(is_team=True, is_staff=False)
-    form_class = user_forms.TeamEditForm
+    form_class = user_forms.TeamEditionForm
 
 
 class UserDeletion(BaseUserEdition):
