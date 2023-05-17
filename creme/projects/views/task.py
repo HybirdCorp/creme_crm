@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -73,7 +73,7 @@ class TaskEditionPopup(generic.EntityEditionPopup):
 
 class ParentsAdding(generic.EntityEditionPopup):
     model = ProjectTask
-    form_class = task_forms.TaskAddParentForm
+    form_class = task_forms.TaskParentsAddingForm
     pk_url_kwarg = 'task_id'
     title = _('Adding parents to «{object}»')
 
@@ -96,7 +96,7 @@ class ParentRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
 class ActivityEditionPopup(generic.EntityEditionPopup):
     model = Activity
     # NB: the form checks that the Activity is related to a task
-    form_class = task_forms.RelatedActivityEditForm
+    form_class = task_forms.RelatedActivityEditionForm
     pk_url_kwarg = 'activity_id'
 
 
@@ -106,7 +106,7 @@ class ActivityEditionPopup(generic.EntityEditionPopup):
 # TODO: LINK perm instead of CHANGE ?
 class RelatedActivityCreation(generic.AddingInstanceToEntityPopup):
     model = Activity
-    form_class = task_forms.RelatedActivityCreateForm
+    form_class = task_forms.RelatedActivityCreationForm
     permissions = cperm(Activity)
     title = _('New activity related to «{entity}»')
     entity_id_url_kwarg = 'task_id'

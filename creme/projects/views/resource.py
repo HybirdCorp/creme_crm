@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ from ..models import Resource
 # NB: Resource not registered as CremeEntity
 class ResourceCreation(generic.AddingInstanceToEntityPopup):
     model = Resource
-    form_class = resource_forms.ResourceCreateForm
+    form_class = resource_forms.ResourceCreationForm
     title = _('Allocation of a new resource')
     entity_classes = get_task_model()
     entity_id_url_kwarg = 'task_id'
@@ -52,7 +52,7 @@ class ResourceCreation(generic.AddingInstanceToEntityPopup):
 
 class ResourceEdition(generic.RelatedToEntityEditionPopup):
     model = Resource
-    form_class = resource_forms.ResourceEditForm
+    form_class = resource_forms.ResourceEditionForm
     permissions = 'projects'
     pk_url_kwarg = 'resource_id'
     title = _('Resource for «{entity}»')

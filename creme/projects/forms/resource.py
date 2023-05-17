@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,8 @@ from .task import _link_contact_n_activity
 
 
 # Not CremeEntityForm to avoid Relations/CremeProperties fields
-class ResourceCreateForm(CremeModelForm):
+# class ResourceCreateForm(CremeModelForm):
+class _ResourceForm(CremeModelForm):
     contact = CreatorEntityField(
         label=_('Contact to be assigned to this task'),
         model=get_contact_model(),
@@ -63,7 +64,13 @@ class ResourceCreateForm(CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-class ResourceEditForm(ResourceCreateForm):
+# class ResourceCreateForm(_ResourceForm):
+class ResourceCreationForm(_ResourceForm):
+    pass
+
+
+# class ResourceEditForm(ResourceCreateForm):
+class ResourceEditionForm(_ResourceForm):
     keep_participating = BooleanField(
         label=_(
             'If the contact changes, the old one '

@@ -284,6 +284,13 @@
                 - The template "graphs/graph_error.html" has been removed.
             * Tickets :
                 - In 'models.status.BASE_STATUS', the tuples contain an additional column for colors.
+            * Projects :
+                - In 'forms', several classes have ben renamed :
+                    - 'resource.ResourceCreateForm' => 'ResourceCreationForm'.
+                    - 'resource.ResourceEditForm' => 'ResourceEditionForm'.
+                    - 'task.RelatedActivityCreateForm' => 'RelatedActivityCreationForm'.
+                    - 'task.RelatedActivityEditForm' => 'RelatedActivityEditionForm'.
+                    - 'task.TaskAddParentForm' => 'TaskParentsAddingForm'.
             * Polls :
                 - In the template "polls/bricks/preplies.html", the block '{% block poll_replies_extra_rows %}'
                   has been removed ; use '{{block.super}}' instead.
