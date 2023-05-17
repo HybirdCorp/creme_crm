@@ -281,6 +281,9 @@
                 - The form 'forms.sending.SendingCreateForm' has been replaced by a new one, 'SendingCreationForm'.
                 - The attribute 'utils.EMailSender._mime_images' has been removed.
             * Billing :
+                - In 'forms.payment_information', the classes have been renamed :
+                    - 'PaymentInformationCreateForm' => 'PaymentInformationCreationForm'.
+                    - 'PaymentInformationEditForm' => 'PaymentInformationEditionForm'.
                 - The function 'utils.print_discount()' has been fixed with the new printers signature.
             * Commercial :
                 - In 'forms', several classes have ben renamed :

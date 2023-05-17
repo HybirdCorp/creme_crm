@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ from ..models import PaymentInformation
 
 class PaymentInformationCreation(generic.AddingInstanceToEntityPopup):
     model = PaymentInformation
-    form_class = pi_forms.PaymentInformationCreateForm
+    form_class = pi_forms.PaymentInformationCreationForm
     permissions = 'billing'
     entity_id_url_kwarg = 'orga_id'
     entity_classes = get_organisation_model()
@@ -42,7 +42,7 @@ class PaymentInformationCreation(generic.AddingInstanceToEntityPopup):
 
 class PaymentInformationRelatedCreation(generic.AddingInstanceToEntityPopup):
     model = PaymentInformation
-    form_class = pi_forms.PaymentInformationCreateForm
+    form_class = pi_forms.PaymentInformationCreationForm
     permissions = 'billing'
     entity_classes = [
         billing.get_invoice_model(),
@@ -81,7 +81,7 @@ class PaymentInformationRelatedCreation(generic.AddingInstanceToEntityPopup):
 
 class PaymentInformationEdition(generic.RelatedToEntityEditionPopup):
     model = PaymentInformation
-    form_class = pi_forms.PaymentInformationEditForm
+    form_class = pi_forms.PaymentInformationEditionForm
     permissions = 'billing'
     pk_url_kwarg = 'pinfo_id'
     title = _('Payment information for «{entity}»')
