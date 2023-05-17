@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,14 +26,16 @@ from .base import CremeForm
 from .fields import ReadonlyMessageField
 
 
-class _AddPropertiesForm(CremeForm):
+# class _AddPropertiesForm(CremeForm):
+class _PropertiesForm(CremeForm):
     types = ModelMultipleChoiceField(
         label=_('Type of property'),
         queryset=CremePropertyType.objects.none(),
     )
 
 
-class AddPropertiesForm(_AddPropertiesForm):
+# class AddPropertiesForm(_AddPropertiesForm):
+class PropertiesAddingForm(_PropertiesForm):
     def __init__(self, entity, *args, **kwargs):
         # We need this entity in super constructor when post_init_callback is called.
         # TODO: Add unit tests for this !
@@ -54,7 +56,8 @@ class AddPropertiesForm(_AddPropertiesForm):
             create(creme_entity=self.entity, type=ptype)
 
 
-class AddPropertiesBulkForm(_AddPropertiesForm):
+# class AddPropertiesBulkForm(_AddPropertiesForm):
+class PropertiesBulkAddingForm(_PropertiesForm):
     entities_lbl = ReadonlyMessageField(label=_('Related entities'))
 
     def __init__(self, model, entities, forbidden_entities, *args, **kwargs):

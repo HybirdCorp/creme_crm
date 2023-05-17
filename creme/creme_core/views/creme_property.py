@@ -40,7 +40,7 @@ from .generic.base import EntityCTypeRelatedMixin
 # TODO: Factorise with add_relations_bulk and bulk_update?
 class PropertiesBulkAdding(EntityCTypeRelatedMixin,
                            generic.CremeFormPopup):
-    form_class = prop_forms.AddPropertiesBulkForm
+    form_class = prop_forms.PropertiesBulkAddingForm
     title = _('Multiple adding of properties')
     submit_label = _('Add the properties')
 
@@ -82,7 +82,7 @@ class PropertiesBulkAdding(EntityCTypeRelatedMixin,
 
 
 class PropertiesAdding(generic.RelatedToEntityFormPopup):
-    form_class = prop_forms.AddPropertiesForm
+    form_class = prop_forms.PropertiesAddingForm
     title = _('New properties for «{entity}»')
     submit_label = _('Add the properties')
 

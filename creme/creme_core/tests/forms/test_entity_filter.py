@@ -35,8 +35,8 @@ from creme.creme_core.forms.entity_filter.fields import (
     RelationSubfiltersConditionsField,
 )
 from creme.creme_core.forms.entity_filter.forms import (
-    EntityFilterCreateForm,
-    EntityFilterEditForm,
+    EntityFilterCreationForm,
+    EntityFilterEditionForm,
 )
 from creme.creme_core.forms.entity_filter.widgets import (
     CustomFieldConditionSelector,
@@ -2940,7 +2940,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
             'efilter_registry': efilter_registry,
         }
 
-        form1 = EntityFilterCreateForm(**kwargs)
+        form1 = EntityFilterCreationForm(**kwargs)
 
         regular_f = form1.fields.get('regularfieldcondition')
         self.assertIsInstance(regular_f, RegularFieldsConditionsField)
@@ -2958,7 +2958,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
         foperator = operators.IEQUALS
         fname = 'first_name'
         fvalue = 'Faye'
-        form2 = EntityFilterCreateForm(
+        form2 = EntityFilterCreationForm(
             data={
                 'name': name,
                 'use_or': 'False',
@@ -2998,7 +2998,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
             PropertyConditionHandler,
         )
 
-        form = EntityFilterCreateForm(
+        form = EntityFilterCreationForm(
             ctype=ContentType.objects.get_for_model(FakeOrganisation),
             user=user,
             efilter_registry=efilter_registry,
@@ -3039,7 +3039,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
             'efilter_registry': efilter_registry,
         }
 
-        form1 = EntityFilterEditForm(**kwargs)
+        form1 = EntityFilterEditionForm(**kwargs)
         self.assertIn('name',       form1.fields)
         self.assertIn('is_private', form1.fields)
 
@@ -3059,7 +3059,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
         foperator = operators.IEQUALS
         fname = 'first_name'
         fvalue = 'Faye'
-        form2 = EntityFilterEditForm(
+        form2 = EntityFilterEditionForm(
             data={
                 'name': name,
                 'use_or': 'True',
@@ -3110,7 +3110,7 @@ class EntityFilterFormsTestCase(FieldTestCase):
             ],
         )
 
-        form1 = EntityFilterEditForm(
+        form1 = EntityFilterEditionForm(
             instance=efilter,
             user=user,
             efilter_registry=efilter_registry,

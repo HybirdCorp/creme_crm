@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,8 +28,7 @@ from . import base
 from . import fields as core_fields
 
 
-# TODO: rename "Creation/Adding/..."
-class _RelationsCreateForm(base.CremeForm):
+class _RelationsForm(base.CremeForm):
     relations = core_fields.MultiRelationEntityField(
         label=_('Relationships'), required=False, autocomplete=True,
     )
@@ -188,7 +187,8 @@ class _RelationsCreateForm(base.CremeForm):
         )
 
 
-class RelationCreateForm(_RelationsCreateForm):
+# class RelationCreateForm(_RelationsCreateForm):
+class RelationsAddingForm(_RelationsForm):
     def __init__(self, subject, relations_types=None, *args, **kwargs):
         super().__init__(
             [subject], subject.entity_type,
@@ -197,7 +197,8 @@ class RelationCreateForm(_RelationsCreateForm):
         )
 
 
-class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
+# class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
+class RelationsBulkAddingForm(_RelationsForm):
     entities_lbl = core_fields.ReadonlyMessageField(label=_('Related entities'))
 
     # TODO: use Meta.fields ?? (beware to bad_entities_lbl)

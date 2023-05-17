@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -134,7 +134,7 @@ def json_rtype_ctypes(request, rtype_id):
 
 
 class RelationsAdding(base.RelatedToEntityFormPopup):
-    form_class = rel_forms.RelationCreateForm
+    form_class = rel_forms.RelationsAddingForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     title = _('Relationships for «{entity}»')
     submit_label = _('Save the relationships')
@@ -193,7 +193,7 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
 # TODO: Factorise with add_properties_bulk and bulk_update?
 class RelationsBulkAdding(base.EntityCTypeRelatedMixin, base.CremeFormPopup):
     template_name = 'creme_core/generics/blockform/link-popup.html'
-    form_class = rel_forms.MultiEntitiesRelationCreateForm
+    form_class = rel_forms.RelationsBulkAddingForm
     title = _('Multiple adding of relationships')
     submit_label = _('Save the relationships')
 
