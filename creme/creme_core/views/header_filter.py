@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,7 @@ class HeaderFilterCreation(base.EntityCTypeRelatedMixin,
                            entity_filter.FilterMixin,
                            generic.CremeModelCreation):
     model = HeaderFilter
-    form_class = hf_forms.HeaderFilterCreateForm
+    form_class = hf_forms.HeaderFilterCreationForm
     template_name = 'creme_core/forms/header-filter.html'
     ctype_form_kwarg = 'ctype'
 
@@ -62,7 +62,7 @@ class HeaderFilterCreation(base.EntityCTypeRelatedMixin,
 class HeaderFilterEdition(entity_filter.FilterMixin,
                           generic.CremeModelEdition):
     model = HeaderFilter
-    form_class = hf_forms.HeaderFilterEditForm
+    form_class = hf_forms.HeaderFilterEditionForm
     template_name = 'creme_core/forms/header-filter.html'
     pk_url_kwarg = 'hfilter_id'
     submit_label = _('Save the modified view')

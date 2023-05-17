@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2022  Hybird
+#    Copyright (C) 2021-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,7 @@ class EntityFilterCreation(EntityCTypeRelatedMixin,
                            EntityFilterMixin,
                            generic.CremeModelCreationPopup):
     model = EntityFilter
-    form_class = efilter_forms.EntityFilterCreateForm
+    form_class = efilter_forms.EntityFilterCreationForm
     title = _('Create a filter for «{model}»')
     ctype_form_kwarg = 'ctype'
 
@@ -66,7 +66,7 @@ class EntityFilterCreation(EntityCTypeRelatedMixin,
 
 class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEditionPopup):
     model = EntityFilter
-    form_class = efilter_forms.EntityFilterEditForm
+    form_class = efilter_forms.EntityFilterEditionForm
     pk_url_kwarg = 'efilter_id'
     submit_label = _('Save the filter')
 

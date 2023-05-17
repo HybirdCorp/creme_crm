@@ -192,15 +192,30 @@
                 - The class attribute '_EXTRA_RENDERERS' has been reworked.
                 - The method '_get_renderer()' has been removed.
         # In 'creme_core.forms' :
-            - In 'entity_filter', the widget class 'creme_core.forms.enumerable.EnumerableSelectMultiple'
-              is now used for regular-field conditions of EntityFilter instead of 'DynamicSelectMultiple'.
-            - In 'enumerable':
+            - In 'creme_property', these classes have been renamed :
+                - '_AddPropertiesForm' => '_PropertiesForm'.
+                - 'AddPropertiesForm' => 'PropertiesAddingForm'.
+                - 'AddPropertiesBulkForm' => 'PropertiesBulkAddingForm'.
+            - In 'entity_filter' :
+                - These classes have been renamed :
+                    - 'EntityFilterCreateForm' => 'EntityFilterCreationForm'.
+                    - 'EntityFilterEditForm' => 'EntityFilterEditionForm'.
+                - The widget class 'enumerable.EnumerableSelectMultiple' is now used
+                  for regular-field conditions of EntityFilter instead of 'DynamicSelectMultiple'.
+            - In 'enumerable' :
                 - The constructor of class 'EnumerableChoiceSet' has changed; it requires now an 'Enumerator' instead of a model 'Field' and an 'EnumerableRegistry'.
                 - The 'FieldEnumerableChoiceSet' has a lazy 'url' property that uses the "creme_core__enumerable_choices" provided by the new property 'default_url'.
+            - In 'header_filter', these classes have been renamed :
+                - 'HeaderFilterCreateForm' => 'HeaderFilterCreationForm'.
+                - 'HeaderFilterEditForm' => 'HeaderFilterEditionForm'.
             - In 'mass_import' :
                 - In the class 'RegularFieldExtractorField', the attribute '_can_create' has been removed.
                 - In the method 'RegularFieldExtractor.set_subfield_search()', the argument 'create_if_unfound'
                   has been replaced by 'creation_form_class'.
+            - In 'relation', these classes have been renamed :
+                - '_RelationsCreateForm' => '_RelationsForm'.
+                - 'RelationCreateForm' => 'RelationsAddingForm'.
+                - 'MultiEntitiesRelationCreateForm' => 'RelationsBulkAddingForm'.
         # In 'creme_core.gui' :
             - In 'bricks' :
                 - In the class 'Brick' (& so, all the child classes you defined), the attribute "id" must be filled & used instead of "id_".

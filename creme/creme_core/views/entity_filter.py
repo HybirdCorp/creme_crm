@@ -134,7 +134,7 @@ class EntityFilterCreation(base.EntityCTypeRelatedMixin,
                            EntityFilterMixin,
                            generic.CremeModelCreation):
     model = EntityFilter
-    form_class = efilter_forms.EntityFilterCreateForm
+    form_class = efilter_forms.EntityFilterCreationForm
     template_name = 'creme_core/forms/entity-filter.html'
     ctype_form_kwarg = 'ctype'
 
@@ -166,7 +166,7 @@ class EntityFilterCreation(base.EntityCTypeRelatedMixin,
 
 class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
     model = EntityFilter
-    form_class = efilter_forms.EntityFilterEditForm
+    form_class = efilter_forms.EntityFilterEditionForm
     template_name = 'creme_core/forms/entity-filter.html'
     pk_url_kwarg = 'efilter_id'
     submit_label = _('Save the modified filter')

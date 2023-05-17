@@ -656,8 +656,8 @@ class _HeaderFilterForm(CremeModelForm):
         return cdata
 
 
-# TODO: rename "Creation"
-class HeaderFilterCreateForm(_HeaderFilterForm):
+# class HeaderFilterCreateForm(_HeaderFilterForm):
+class HeaderFilterCreationForm(_HeaderFilterForm):
     def __init__(self,
                  ctype: 'ContentType',
                  smart_columns_registry: SmartColumnsRegistry | None = None,
@@ -686,7 +686,8 @@ class HeaderFilterCreateForm(_HeaderFilterForm):
         return instance
 
 
-class HeaderFilterEditForm(_HeaderFilterForm):
+# class HeaderFilterEditForm(_HeaderFilterForm):
+class HeaderFilterEditionForm(_HeaderFilterForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         instance = self.instance
