@@ -280,6 +280,12 @@
                 - The attribute 'utils.EMailSender._mime_images' has been removed.
             * Billing :
                 - The function 'utils.print_discount()' has been fixed with the new printers signature.
+            * Commercial :
+                - In 'forms', several classes have ben renamed :
+                    - 'commercial_approach.ComAppCreateForm' => 'ComAppCreationForm'.
+                    - 'strategy.SegmentCreateForm' => 'SegmentCreationForm'.
+                    - 'strategy.SegmentEditForm' => 'SegmentEditionForm'.
+                    - 'strategy.SegmentLinkgForm' => 'SegmentLinkingForm'.
             * Mobile :
                 - In 'mobile.forms' :
                     - the class 'MobileContactCreateForm' has been renamed 'MobileContactCreationForm'.

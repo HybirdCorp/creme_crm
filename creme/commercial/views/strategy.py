@@ -73,13 +73,13 @@ class _AddToStrategy(generic.AddingInstanceToEntityPopup):
 
 class SegmentDescCreation(_AddToStrategy):
     model = MarketSegment
-    form_class = forms.SegmentCreateForm
+    form_class = forms.SegmentCreationForm
     title = _('New market segment for «{entity}»')
 
 
 class SegmentLinking(_AddToStrategy):
     model = MarketSegmentDescription
-    form_class = forms.SegmentLinkForm
+    form_class = forms.SegmentLinkingForm
     title = _('New market segment for «{entity}»')
 
 
@@ -106,7 +106,7 @@ class EvaluatedOrgaAdding(generic.RelatedToEntityFormPopup):
 
 class SegmentDescEdition(generic.RelatedToEntityEditionPopup):
     model = MarketSegmentDescription
-    form_class = forms.SegmentEditForm
+    form_class = forms.SegmentEditionForm
     permissions = 'commercial'
     pk_url_kwarg = 'segdesc_id'
     title = _('Segment for «{entity}»')
