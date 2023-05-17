@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,7 +51,7 @@ class Portal(BricksView):
 class BrickDetailviewLocationsCreation(EntityCTypeRelatedMixin,
                                        base.ConfigCreation):
     # model = BrickDetailviewLocation
-    form_class = bricks_forms.BrickDetailviewLocationsAddForm
+    form_class = bricks_forms.BrickDetailviewLocationsCreationForm
 
     def check_related_ctype(self, ctype):
         super().check_related_ctype(ctype)
@@ -73,18 +73,18 @@ class BrickDetailviewLocationsCreation(EntityCTypeRelatedMixin,
 
 class RelationTypeBrickCreation(base.ConfigModelCreation):
     model = RelationBrickItem
-    form_class = bricks_forms.RTypeBrickAddForm
+    form_class = bricks_forms.RTypeBrickCreationForm
 
 
 class CustomBrickWizard(base.ConfigModelCreationWizard):
-    class _ResourceStep(bricks_forms.CustomBrickConfigItemCreateForm):
+    class _ResourceStep(bricks_forms.CustomBrickConfigItemCreationForm):
         step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
 
         def save(self, commit=False, *args, **kwargs):
             super().save(commit=commit, *args, **kwargs)
 
-    class _ConfigStep(bricks_forms.CustomBrickConfigItemEditForm):
-        class Meta(bricks_forms.CustomBrickConfigItemEditForm.Meta):
+    class _ConfigStep(bricks_forms.CustomBrickConfigItemEditionForm):
+        class Meta(bricks_forms.CustomBrickConfigItemEditionForm.Meta):
             exclude = ('name',)
 
         @property
@@ -149,7 +149,7 @@ class BrickDetailviewLocationsEdition(EntityCTypeRelatedMixin,
                                       RoleRelatedMixin,
                                       base.ConfigEdition):
     # model = BrickDetailviewLocation
-    form_class = bricks_forms.BrickDetailviewLocationsEditForm
+    form_class = bricks_forms.BrickDetailviewLocationsEditionForm
     submit_label = _('Save the configuration')
     ct_id_0_accepted = True
 
@@ -237,12 +237,12 @@ class RelationCTypeBrickWizard(base.ConfigModelEditionWizard):
     model = RelationBrickItem
     pk_url_kwarg = 'rbi_id'
 
-    class _ContentTypeStep(bricks_forms.RTypeBrickItemAddCtypeForm):
+    class _ContentTypeStep(bricks_forms.RTypeBrickItemCtypeAddingForm):
         step_submit_label = pgettext_lazy('creme_config-verb', 'Select')
 
     form_list = [
         _ContentTypeStep,
-        bricks_forms.RTypeBrickItemEditCtypeForm,
+        bricks_forms.RTypeBrickItemCtypeEditionForm,
     ]
     title = _('New customised type for «{object}»')
     submit_label = _('Save the configuration')
@@ -262,7 +262,7 @@ class RelationCTypeBrickWizard(base.ConfigModelEditionWizard):
 
 class RelationCTypeBrickEdition(EntityCTypeRelatedMixin, base.ConfigModelEdition):
     model = RelationBrickItem
-    form_class = bricks_forms.RTypeBrickItemEditCtypeForm
+    form_class = bricks_forms.RTypeBrickItemCtypeEditionForm
     pk_url_kwarg = 'rbi_id'
     title = _('Edit «{model}» configuration')
 
@@ -310,7 +310,7 @@ class CellsOfRtypeBrickDeletion(base.ConfigDeletion):
 
 class CustomBrickEdition(base.ConfigModelEdition):
     model = CustomBrickConfigItem
-    form_class = bricks_forms.CustomBrickConfigItemEditForm
+    form_class = bricks_forms.CustomBrickConfigItemEditionForm
     pk_url_kwarg = 'cbci_id'
     title = _('Edit the block «{object}»')
 

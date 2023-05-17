@@ -49,11 +49,11 @@ from creme.creme_core.utils.unicode_collation import collator
 from .fields import BricksConfigField
 
 __all__ = (
-    'BrickDetailviewLocationsAddForm', 'BrickDetailviewLocationsEditForm',
+    'BrickDetailviewLocationsCreationForm', 'BrickDetailviewLocationsEditionForm',
     'BrickHomeLocationsAddingForm', 'BrickHomeLocationsEditionForm',
     'BrickMypageLocationsForm',
-    'RTypeBrickAddForm', 'RTypeBrickItemAddCtypeForm', 'RTypeBrickItemEditCtypeForm',
-    'CustomBrickConfigItemCreateForm', 'CustomBrickConfigItemEditForm',
+    'RTypeBrickCreationForm', 'RTypeBrickItemCtypeAddingForm', 'RTypeBrickItemCtypeEditionForm',
+    'CustomBrickConfigItemCreationForm', 'CustomBrickConfigItemEditionForm',
 )
 
 
@@ -188,7 +188,8 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
         )
 
 
-class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
+# class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
+class BrickDetailviewLocationsCreationForm(_BrickDetailviewLocationsForm):
     role = forms.ModelChoiceField(
         label=_('Role'), queryset=UserRole.objects.none(),
         empty_label=None, required=False,
@@ -231,7 +232,8 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
         super().save(*args, **kwargs)
 
 
-class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
+# class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
+class BrickDetailviewLocationsEditionForm(_BrickDetailviewLocationsForm):
     def __init__(self, role, superuser, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.role = role
@@ -343,7 +345,8 @@ class BrickMypageLocationsForm(_BrickLocationsForm):
         )
 
 
-class RTypeBrickAddForm(base.CremeModelForm):
+# class RTypeBrickAddForm(base.CremeModelForm):
+class RTypeBrickCreationForm(base.CremeModelForm):
     relation_type = forms.ModelChoiceField(
         RelationType.objects.none(), empty_label=None,
         widget=core_widgets.DynamicSelect(attrs={'autocomplete': True}),
@@ -359,7 +362,8 @@ class RTypeBrickAddForm(base.CremeModelForm):
         ).filter(enabled=True)
 
 
-class RTypeBrickItemAddCtypeForm(base.CremeModelForm):
+# class RTypeBrickItemAddCtypeForm(base.CremeModelForm):
+class RTypeBrickItemCtypeAddingForm(base.CremeModelForm):
     ctype = core_fields.EntityCTypeChoiceField(
         label=_('Customised resource'),
         widget=core_widgets.DynamicSelect({'autocomplete': True}),
@@ -390,7 +394,8 @@ class RTypeBrickItemAddCtypeForm(base.CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-class RTypeBrickItemEditCtypeForm(base.CremeModelForm):
+# class RTypeBrickItemEditCtypeForm(base.CremeModelForm):
+class RTypeBrickItemCtypeEditionForm(base.CremeModelForm):
     cells = EntityCellsField(label=_('Columns'))
 
     class Meta:
@@ -469,7 +474,8 @@ class _CustomBrickConfigItemBaseForm(base.CremeModelForm):
         return instance
 
 
-class CustomBrickConfigItemCreateForm(_CustomBrickConfigItemBaseForm):
+# class CustomBrickConfigItemCreateForm(_CustomBrickConfigItemBaseForm):
+class CustomBrickConfigItemCreationForm(_CustomBrickConfigItemBaseForm):
     ctype = core_fields.EntityCTypeChoiceField(
         label=_('Related resource'),
         widget=core_widgets.DynamicSelect(attrs={'autocomplete': True}),
@@ -494,7 +500,8 @@ class CustomBrickConfigItemCreateForm(_CustomBrickConfigItemBaseForm):
         return cdata
 
 
-class CustomBrickConfigItemEditForm(_CustomBrickConfigItemBaseForm):
+# class CustomBrickConfigItemEditForm(_CustomBrickConfigItemBaseForm):
+class CustomBrickConfigItemEditionForm(_CustomBrickConfigItemBaseForm):
     cells = EntityCellsField(label=_('Lines'))
 
     blocks = base.CremeModelForm.blocks.new({

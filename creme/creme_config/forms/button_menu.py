@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,8 @@ from creme.creme_core.utils.unicode_collation import collator
 from .widgets import ButtonMenuEditionWidget
 
 
-class ButtonMenuAddForm(CremeForm):
+# class ButtonMenuAddForm(CremeForm):
+class ButtonMenuCreationForm(CremeForm):
     ctype = EntityCTypeChoiceField(
         label=_('Related resource'),
         widget=DynamicSelect({'autocomplete': True}),
@@ -62,7 +63,8 @@ class ButtonMenuAddForm(CremeForm):
         return bmi
 
 
-class ButtonMenuEditForm(CremeForm):
+# class ButtonMenuEditForm(CremeForm):
+class ButtonMenuEditionForm(CremeForm):
     button_ids = MultipleChoiceField(
         label=_('Buttons to display'), required=False,
         choices=(), widget=ButtonMenuEditionWidget,

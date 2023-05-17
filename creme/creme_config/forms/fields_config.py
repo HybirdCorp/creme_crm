@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,8 @@ from creme.creme_core.gui.fields_config import fields_config_registry
 from creme.creme_core.models import CremeEntity, FieldsConfig
 
 
-class FieldsConfigAddForm(CremeModelForm):
+# class FieldsConfigAddForm(CremeModelForm):
+class FieldsConfigCreationForm(CremeModelForm):
     ctype = core_fields.CTypeChoiceField(
         label=_('Related resource'),
         help_text=_(
@@ -102,7 +103,8 @@ class FieldsConfigAddForm(CremeModelForm):
         return self.instance
 
 
-class FieldsConfigEditForm(CremeModelForm):
+# class FieldsConfigEditForm(CremeModelForm):
+class FieldsConfigEditionForm(CremeModelForm):
     blocks = FieldBlockManager({
         'id': 'general', 'label': _('Fields to hide or mark as required'), 'fields': '*',
     })

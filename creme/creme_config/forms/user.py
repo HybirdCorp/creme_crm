@@ -35,7 +35,8 @@ CremeUser = get_user_model()
 
 # TODO: inherit from django.contrib.auth.forms.(Base)UserCreationForm
 #       => we need a Mixin to initialize the user in fields (like HookableForm)
-class UserAddForm(CremeModelForm):
+# class UserAddForm(CremeModelForm):
+class UserCreationForm(CremeModelForm):
     error_messages = {
         'password_mismatch': auth_forms.UserCreationForm.error_messages['password_mismatch'],
     }
@@ -122,7 +123,8 @@ class UserAddForm(CremeModelForm):
 
 
 # TODO: factorise with UserAddForm
-class UserEditForm(CremeModelForm):
+# class UserEditForm(CremeModelForm):
+class UserEditionForm(CremeModelForm):
     role = ModelChoiceField(
         label=_('Role'), queryset=UserRole.objects.all(), required=False,
     )
@@ -149,7 +151,8 @@ class UserEditForm(CremeModelForm):
 
 # NB: we cannot use django.contrib.auth.forms.AdminPasswordChangeForm, because it defines a 'user'
 #     attribute like us (but it corresponds to our 'user2edit' one, not our 'user' one)
-class UserChangePwForm(CremeForm):
+# class UserChangePwForm(CremeForm):
+class UserPasswordChangeForm(CremeForm):
     error_messages = {
         'password_mismatch': auth_forms.SetPasswordForm.error_messages['password_mismatch'],
         'password_incorrect': auth_forms.PasswordChangeForm.error_messages['password_incorrect'],
@@ -207,7 +210,8 @@ class UserChangePwForm(CremeForm):
         user.save()
 
 
-class TeamCreateForm(CremeModelForm):
+# class TeamCreateForm(CremeModelForm):
+class _TeamForm(CremeModelForm):
     teammates = ModelMultipleChoiceField(
         queryset=CremeUser.objects.filter(is_team=False, is_staff=False),
         label=_('Teammates'), required=False,
@@ -229,7 +233,12 @@ class TeamCreateForm(CremeModelForm):
         return team
 
 
-class TeamEditForm(TeamCreateForm):
+class TeamCreationForm(_TeamForm):
+    pass
+
+
+# class TeamEditForm(TeamCreateForm):
+class TeamEditionForm(_TeamForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['teammates'].initial = self.instance.teammates

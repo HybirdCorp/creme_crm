@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,8 +50,8 @@ _PropertyTypesField = partial(
 )
 
 
-# TODO: rename RelationTypeCreationForm
-class RelationTypeCreateForm(CremeForm):
+# class RelationTypeCreateForm(CremeForm):
+class _RelationTypeForm(CremeForm):
     error_messages = {
         'property_types_collision':  _(
             'These property types cannot be mandatory and forbidden at the '
@@ -193,7 +193,12 @@ class RelationTypeCreateForm(CremeForm):
         )
 
 
-class RelationTypeEditForm(RelationTypeCreateForm):
+class RelationTypeCreationForm(_RelationTypeForm):
+    pass
+
+
+# class RelationTypeEditForm(RelationTypeCreateForm):
+class RelationTypeEditionForm(_RelationTypeForm):
     def __init__(self, instance, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.instance = instance
@@ -235,8 +240,8 @@ class RelationTypeEditForm(RelationTypeCreateForm):
         )
 
 
-# TODO: rename SemiFixedRelationTypeCreatIONForm (other forms too)
-class SemiFixedRelationTypeCreateForm(CremeModelForm):
+# class SemiFixedRelationTypeCreateForm(CremeModelForm):
+class SemiFixedRelationTypeCreationForm(CremeModelForm):
     semi_relation = RelationEntityField(
         label=_('Type and object'), autocomplete=True,
         allowed_rtypes=RelationType.objects.filter(is_internal=False),
@@ -273,6 +278,7 @@ class SemiFixedRelationTypeCreateForm(CremeModelForm):
         return super().save(*args, **kwargs)
 
 
+# class SemiFixedRelationTypeEditionForm(CremeModelForm):
 class SemiFixedRelationTypeEditionForm(CremeModelForm):
     class Meta:
         model = SemiFixedRelationType
