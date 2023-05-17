@@ -437,7 +437,8 @@ workflows:
   coverage:
     triggers:
       - schedule:
-          cron: "0 0 * * *"
+          # First day of the month at midnight
+          cron: "0 0 1 * *"
           filters:
             branches:
               only:
