@@ -1,5 +1,10 @@
 {% load i18n %}
 <footer>
-  {% if show_delog %}<a href="{% url 'mobile__logout' %}?{{REDIRECT_FIELD_NAME}}={% url 'mobile__login' %}" class="button">{% translate 'Log out' %}</a>{% endif %}
+{#  {% if show_delog %}<a href="{% url 'mobile__logout' %}?{{REDIRECT_FIELD_NAME}}={% url 'mobile__login' %}" class="button">{% translate 'Log out' %}</a>{% endif %} #}
+  {% if show_delog %}
+  <form id="logout-form" method="POST" action="{% url 'mobile__logout' %}?{{REDIRECT_FIELD_NAME}}={% url 'mobile__login' %}">{% csrf_token %}
+    <button type="submit">{% translate 'Log out' %}</button>
+  </form>
+  {% endif %}
   <a href="{{NON_MOBILE_SITE_DOMAIN}}" class="button">{% translate 'Go to the complete site' %}</a>
 </footer>

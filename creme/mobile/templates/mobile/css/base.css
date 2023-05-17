@@ -33,6 +33,7 @@ footer {
 
 /* button */
 
+#logout-form button,
 .button {
   display: block;
   width: 100%;
@@ -62,10 +63,12 @@ footer {
   outline: none;
 }
 
+#logout-form + .button,
 .button + .button {
   margin-top: 17px;
 }
 
+#logout-form button,
 footer .button {
   color: #696969;
 }
@@ -267,6 +270,7 @@ body {
   font-size: 16px;
 }
 
+#logout-form button,
 html.all .button {
   font-weight: 700;
 }
