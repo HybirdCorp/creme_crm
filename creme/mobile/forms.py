@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2022  Hybird
+#    Copyright (C) 2014-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -70,9 +70,9 @@ class MobilePersonCreationFormMixin:
         ]
 
 
-# TODO: rename "CreationForm"
-class MobileContactCreateForm(MobilePersonCreationFormMixin,
-                              quick.ContactQuickForm):
+# class MobileContactCreateForm(MobilePersonCreationFormMixin,
+class MobileContactCreationForm(MobilePersonCreationFormMixin,
+                                quick.ContactQuickForm):
     is_favorite = BooleanField(
         label=pgettext_lazy('mobile-contact', 'Is favorite'), required=False,
     )
@@ -97,9 +97,9 @@ class MobileContactCreateForm(MobilePersonCreationFormMixin,
         return contact
 
 
-# TODO: rename "CreationForm"
-class MobileOrganisationCreateForm(MobilePersonCreationFormMixin,
-                                   quick.OrganisationQuickForm):
+# class MobileOrganisationCreateForm(MobilePersonCreationFormMixin,
+class MobileOrganisationCreationForm(MobilePersonCreationFormMixin,
+                                     quick.OrganisationQuickForm):
     is_favorite = BooleanField(label=pgettext_lazy('mobile-orga', 'Is favorite'), required=False)
 
     class Meta(quick.OrganisationQuickForm.Meta):
