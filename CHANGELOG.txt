@@ -272,6 +272,9 @@
                     - 'UUID_FOLDER_CAT_EMAILS' to the app 'emails'.
                 - In 'gui', the functions 'print_fk_image_html()' & 'print_doc_summary_html' have been fixed with the new printers signature.
             * Activities :
+                - In 'forms.bricks', these classes have been renamed :
+                    - 'ParticipantCreateForm' => 'ParticipantsAddingForm'.
+                    - 'SubjectCreateForm' => 'SubjectsAddingForm'.
                 - A 'ValueError' is raised when you try to create a not custom 'ActivitySubType' related to a custom 'ActivityType'
                   (in <Creme 2.4> it was just a log).
                 - The class 'utils.PytzToVtimezone' has been removed.

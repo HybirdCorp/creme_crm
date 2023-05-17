@@ -43,7 +43,8 @@ logger = logging.getLogger(__name__)
 Contact = get_contact_model()
 
 
-class ParticipantCreateForm(CremeForm):
+# class ParticipantCreateForm(CremeForm):
+class ParticipantsAddingForm(CremeForm):
     my_participation = act_fields.UserParticipationField(
         label=_('Do I participate to this activity?'), empty_label=None,
     )
@@ -151,7 +152,8 @@ class ParticipantCreateForm(CremeForm):
             activity.calendars.add(*calendars_chunk)
 
 
-class SubjectCreateForm(CremeForm):
+# class SubjectCreateForm(CremeForm):
+class SubjectsAddingForm(CremeForm):
     # TODO: qfilter to exclude current subjects, see MultiGenericEntityField
     subjects = MultiGenericEntityField(label=_('Subjects'))
 
