@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -90,7 +90,8 @@ class BaseTaskCreationCustomForm(CremeEntityForm):
         return instance
 
 
-class TaskAddParentForm(CremeForm):
+# class TaskAddParentForm(CremeForm):
+class TaskParentsAddingForm(CremeForm):
     parents = MultiCreatorEntityField(label=_('Parent tasks'), required=False, model=ProjectTask)
 
     class Meta:
@@ -112,7 +113,8 @@ class TaskAddParentForm(CremeForm):
             add_parent(parent)
 
 
-class RelatedActivityEditForm(CremeEntityForm):
+# class RelatedActivityEditForm(CremeEntityForm):
+class _RelatedActivityForm(CremeEntityForm):
     resource = CreatorEntityField(label=_('Allocated resource'), model=get_contact_model())
     type_selector = ActivitySubTypeField(label=_('Type'))
 
@@ -214,7 +216,12 @@ class RelatedActivityEditForm(CremeEntityForm):
         return instance
 
 
-class RelatedActivityCreateForm(RelatedActivityEditForm):
+class RelatedActivityEditionForm(_RelatedActivityForm):
+    pass
+
+
+# class RelatedActivityCreateForm(RelatedActivityEditForm):
+class RelatedActivityCreationForm(_RelatedActivityForm):
     def __init__(self, entity, *args, **kwargs):
         self._task = entity
         super().__init__(*args, **kwargs)
