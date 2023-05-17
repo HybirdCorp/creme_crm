@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,8 @@ from .. import get_messagetemplate_model
 from ..models.message import MESSAGE_STATUS_NOTSENT, Message, Sending
 
 
-class SendingCreateForm(CremeModelForm):
+# class SendingCreateForm(CremeModelForm):
+class SendingCreationForm(CremeModelForm):
     template = CreatorEntityField(label=_('Message template'), model=get_messagetemplate_model())
 
     class Meta:

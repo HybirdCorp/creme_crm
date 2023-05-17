@@ -31,13 +31,13 @@ from creme.creme_core.views.bricks import BricksReloading
 
 from .. import get_smscampaign_model
 from ..bricks import MessagesBrick
-from ..forms.message import SendingCreateForm
+from ..forms.message import SendingCreationForm
 from ..models import Message, Sending
 
 
 class SendingCreation(generic.AddingInstanceToEntityPopup):
     model = Sending
-    form_class = SendingCreateForm
+    form_class = SendingCreationForm
     entity_id_url_kwarg = 'campaign_id'
     entity_classes = get_smscampaign_model()
     title = _('New sending for «{entity}»')

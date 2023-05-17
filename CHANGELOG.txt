@@ -289,6 +289,8 @@
                   has been removed ; use '{{block.super}}' instead.
             * CTI :
                 - The function 'utils.print_phone_html()' has been fixed with the new printers signature.
+            * SMS :
+                - The class 'forms.message.SendingCreateForm' has been renamed 'SendingCreationForm'.
 
     Internal breaking changes :
     ---------------------------
