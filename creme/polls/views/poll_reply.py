@@ -236,7 +236,7 @@ def _clear_dependant_answers(tree, line_node):
 
 class PollRepliesCreation(generic.CremeFormView):
     # model = PollReply
-    form_class = preply_forms.PollRepliesCreateForm
+    form_class = preply_forms.PollRepliesCreationForm
     permissions = ('polls', _CREATION_PERM)
     title = PollReply.multi_creation_label
     submit_label = PollReply.multi_save_label
@@ -252,7 +252,7 @@ class PollRepliesCreation(generic.CremeFormView):
 
 class _RelatedRepliesCreationBase(generic.RelatedToEntityFormPopup):
     model = PollReply
-    form_class = preply_forms.PollRepliesCreateForm
+    form_class = preply_forms.PollRepliesCreationForm
     permissions = ('polls', _CREATION_PERM)
     title = _('New replies for «{entity}»')
     submit_label = PollReply.multi_save_label
@@ -285,7 +285,7 @@ class PollReplyDetail(generic.EntityDetail):
 
 class PollReplyEdition(generic.EntityEdition):
     model = PollReply
-    form_class = preply_forms.PollReplyEditForm
+    form_class = preply_forms.PollReplyEditionForm
     pk_url_kwarg = 'preply_id'
 
 

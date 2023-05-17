@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2022  Hybird
+#    Copyright (C) 2012-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,7 @@ PollForm = get_pollform_model()
 class LineEdition(generic.RelatedToEntityEditionPopup):
     # model = PollFormLine
     queryset = PollFormLine.objects.filter(disabled=False)
-    form_class = pf_forms.PollFormLineEditForm
+    form_class = pf_forms.PollFormLineEditionForm
     permissions = 'polls'
     pk_url_kwarg = 'line_id'
     title = _('Question for «{entity}»')
@@ -72,7 +72,7 @@ def disable_line(request, line_id):
 
 class SectionEdition(generic.RelatedToEntityEditionPopup):
     model = PollFormSection
-    form_class = pf_forms.PollFormSectionEditForm
+    form_class = pf_forms.PollFormSectionEditionForm
     permissions = 'polls'
     pk_url_kwarg = 'section_id'
     title = _('Section for «{entity}»')
@@ -144,7 +144,7 @@ class PollFormsList(generic.EntitiesList):
 
 class _LineCreationBase(generic.AddingInstanceToEntityPopup):
     model = PollFormLine
-    form_class = pf_forms.PollFormLineCreateForm
+    form_class = pf_forms.PollFormLineCreationForm
     title = _('New question for «{entity}»')
     entity_classes = PollForm
 
@@ -190,7 +190,7 @@ class AddingLineToSection(_RelatedSectionMixin, _LineCreationBase):
 
 class _SectionCreationBase(generic.AddingInstanceToEntityPopup):
     model = PollFormSection
-    form_class = pf_forms.PollFormSectionCreateForm
+    form_class = pf_forms.PollFormSectionCreationForm
     entity_classes = PollForm
 
 
