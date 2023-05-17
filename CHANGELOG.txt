@@ -280,6 +280,10 @@
                 - The attribute 'utils.EMailSender._mime_images' has been removed.
             * Billing :
                 - The function 'utils.print_discount()' has been fixed with the new printers signature.
+            * Mobile :
+                - In 'mobile.forms' :
+                    - the class 'MobileContactCreateForm' has been renamed 'MobileContactCreationForm'.
+                    - the class 'MobileOrganisationCreateForm' has been renamed 'MobileOrganisationCreationForm'.
             * Graphs :
                 - The template "graphs/graph_error.html" has been removed.
             * Tickets :

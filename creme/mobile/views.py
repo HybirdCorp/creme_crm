@@ -258,14 +258,14 @@ class MobilePersonBase(MobileBase):
 
 @method_decorator(lw_exceptions, name='dispatch')
 class MobileContactCreation(MobilePersonBase, ContactCreation):
-    form_class = mobile_forms.MobileContactCreateForm
+    form_class = mobile_forms.MobileContactCreationForm
     template_name = 'mobile/add_contact.html'
     field_to_init = 'last_name'
 
 
 @method_decorator(lw_exceptions, name='dispatch')
 class MobileOrganisationCreation(MobilePersonBase, OrganisationCreation):
-    form_class = mobile_forms.MobileOrganisationCreateForm
+    form_class = mobile_forms.MobileOrganisationCreationForm
     template_name = 'mobile/add_orga.html'
 
 
