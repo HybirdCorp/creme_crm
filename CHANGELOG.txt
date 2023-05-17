@@ -1,5 +1,6 @@
 == Version 2.4.4 Work in progress (not released -- this is a draft) ==
 
+# TODO: compile messages (creme_core)
 
 == Version 2.4.3 ==
 
