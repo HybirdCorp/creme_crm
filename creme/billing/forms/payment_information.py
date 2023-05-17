@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2018  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,8 @@ from creme.creme_core.forms.base import CremeModelForm
 from ..models import PaymentInformation
 
 
-class PaymentInformationEditForm(CremeModelForm):
+# class PaymentInformationEditForm(CremeModelForm):
+class _PaymentInformationForm(CremeModelForm):
     class Meta:
         model = PaymentInformation
         exclude = ('organisation', )
@@ -31,7 +32,12 @@ class PaymentInformationEditForm(CremeModelForm):
         self.entity = entity
 
 
-class PaymentInformationCreateForm(PaymentInformationEditForm):
+class PaymentInformationEditionForm(_PaymentInformationForm):
+    pass
+
+
+# class PaymentInformationCreateForm(PaymentInformationEditForm):
+class PaymentInformationCreationForm(_PaymentInformationForm):
     def save(self, *args, **kwargs):
         self.instance.organisation = self.entity
         return super().save(*args, **kwargs)
