@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2022  Hybird
+#    Copyright (C) 2012-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,8 @@ from ..utils import SectionTree
 from .fields import PollFormLineConditionsField
 
 
-class PollFormSectionEditForm(CremeModelForm):
+# class PollFormSectionEditForm(CremeModelForm):
+class _PollFormSectionForm(CremeModelForm):
     class Meta(CremeModelForm.Meta):
         model = PollFormSection
 
@@ -43,7 +44,12 @@ class PollFormSectionEditForm(CremeModelForm):
         self.pform = entity
 
 
-class PollFormSectionCreateForm(PollFormSectionEditForm):
+class PollFormSectionEditionForm(_PollFormSectionForm):
+    pass
+
+
+# class PollFormSectionCreateForm(PollFormSectionEditForm):
+class PollFormSectionCreationForm(_PollFormSectionForm):
     def __init__(self, parent=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.parent = parent
@@ -90,7 +96,8 @@ class _PollFormLineForm(CremeModelForm):
 
 
 # TODO: get the fields from PollLineTypes objects ???
-class PollFormLineCreateForm(_PollFormLineForm):
+# class PollFormLineCreateForm(_PollFormLineForm):
+class PollFormLineCreationForm(_PollFormLineForm):
     type = forms.TypedChoiceField(
         label=_('Type'),
         choices=PollLineType.choices(),
@@ -227,7 +234,8 @@ class PollFormLineCreateForm(_PollFormLineForm):
         return super().save(*args, **kwargs)
 
 
-class PollFormLineEditForm(_PollFormLineForm):
+# class PollFormLineEditForm(_PollFormLineForm):
+class PollFormLineEditionForm(_PollFormLineForm):
     class Meta(_PollFormLineForm.Meta):
         exclude = ('type',)
 

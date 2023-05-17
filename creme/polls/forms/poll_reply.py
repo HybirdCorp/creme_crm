@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2022  Hybird
+#    Copyright (C) 2012-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,8 @@ PollForm     = polls.get_pollform_model()
 PollReply    = polls.get_pollreply_model()
 
 
-class PollRepliesCreateForm(core_forms.CremeForm):
+# class PollRepliesCreateForm(core_forms.CremeForm):
+class PollRepliesCreationForm(core_forms.CremeForm):
     user = forms.ModelChoiceField(
         label=_('User'), queryset=get_user_model().objects.filter(is_staff=False),
     )
@@ -143,7 +144,8 @@ class PollRepliesCreateForm(core_forms.CremeForm):
             self.preplies.append(instance)
 
 
-class PollReplyEditForm(core_forms.CremeEntityForm):
+# class PollReplyEditForm(core_forms.CremeEntityForm):
+class PollReplyEditionForm(core_forms.CremeEntityForm):
     # TODO: rename it 'person' when initial works well + remove from exclude + remove save()
     related_person = core_fields.GenericEntityField(
         label=_('Person who filled'),

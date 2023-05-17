@@ -302,6 +302,12 @@
                     - 'task.RelatedActivityEditForm' => 'RelatedActivityEditionForm'.
                     - 'task.TaskAddParentForm' => 'TaskParentsAddingForm'.
             * Polls :
+                - In 'forms', several classes have ben renamed :
+                    - 'poll_form.PollFormLineCreateForm' => 'PollFormLineCreationForm'.
+                    - 'poll_form.PollFormSectionCreateForm' => 'PollFormSectionCreationForm'.
+                    - 'poll_form.PollFormSectionEditForm' => 'PollFormSectionEditionForm'.
+                    - 'poll_reply.PollRepliesCreationForm' => 'PollRepliesCreationForm'.
+                    - 'poll_reply.PollReplyEditForm' => 'PollReplyEditionForm'.
                 - In the template "polls/bricks/preplies.html", the block '{% block poll_replies_extra_rows %}'
                   has been removed ; use '{{block.super}}' instead.
             * CTI :
