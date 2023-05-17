@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,8 @@ class _AuxForm(CremeModelForm):
         self.instance.strategy = entity
 
 
-class SegmentLinkForm(_AuxForm):
+# class SegmentLinkForm(_AuxForm):
+class SegmentLinkingForm(_AuxForm):
     class Meta(_AuxForm.Meta):
         model = MarketSegmentDescription
 
@@ -117,7 +118,8 @@ class _SegmentForm(_AuxForm):
         return name
 
 
-class SegmentEditForm(_SegmentForm):
+# class SegmentEditForm(_SegmentForm):
+class SegmentEditionForm(_SegmentForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].initial = self.instance.segment.name
@@ -139,7 +141,8 @@ class SegmentEditForm(_SegmentForm):
         return seginfo
 
 
-class SegmentCreateForm(_SegmentForm):
+# class SegmentCreateForm(_SegmentForm):
+class SegmentCreationForm(_SegmentForm):
     def save(self, *args, **kwargs):
         segment_desc = self.instance
         name = self.cleaned_data['name']
