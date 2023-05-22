@@ -71,6 +71,7 @@ virtual env, in order to keep the old one working).
      - Django 3.2
      - redis 4.1
      - python-dateutil 2.8
+     - cryptography 39.0
      - bleach 5.0
      - Pillow 9.2
      - django-formtools 2.4
