@@ -34,6 +34,7 @@ from creme.creme_core.utils import (
     truncate_str,
     update_model_instance,
 )
+from creme.creme_core.utils.crypto import SymmetricEncrypter
 from creme.creme_core.utils.dates import (
     date_2_dict,
     date_from_ISO8601,
@@ -774,6 +775,23 @@ class UnicodeCollationTestCase(CremeTestCase):
     #     #test memory consumption
     #     #from time import sleep
     #     #sleep(10)
+
+
+class CryptoTestCase(CremeTestCase):
+    def test_symmetric_encrypter(self):
+        se = SymmetricEncrypter(salt='my_app.my_model')
+        data = b'Secret message!'
+        encrypted = se.encrypt(data)
+        self.assertNotEqual(data, encrypted)
+        self.assertEqual(data, se.decrypt(encrypted))
+
+        # ---
+        se2 = SymmetricEncrypter(salt='other_salt')
+        with self.assertRaises(SymmetricEncrypter.Error) as cm:
+            se2.decrypt(encrypted)
+        self.assertEqual(
+            'SymmetricEncrypter.decrypt: invalid token', str(cm.exception),
+        )
 
 
 class CurrencyFormatTestCase(CremeTestCase):

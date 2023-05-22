@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022  Hybird
+#    Copyright (C) 2022-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 
 import logging
 
-from django.core import signing
+# from django.core import signing
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -26,6 +26,7 @@ from django.utils.translation import pgettext_lazy
 
 from creme.creme_core import models as core_models
 from creme.creme_core.models import fields as core_fields
+from creme.creme_core.utils.crypto import SymmetricEncrypter
 from creme.emails.constants import SUBJECT_LENGTH
 
 logger = logging.getLogger(__name__)
@@ -79,30 +80,47 @@ class EmailSyncConfigItem(core_models.CremeModel):
     def get_edit_absolute_url(self):
         return reverse('emails__edit_sync_config_item', args=(self.id,))
 
+    def _password_encrypter(self):
+        return SymmetricEncrypter(salt=self.password_salt)
+
     @property
-    def password(self):
+    def password(self) -> str:
+        # try:
+        #     return signing.loads(
+        #         self.encoded_password,
+        #         salt=self.password_salt,
+        #         # serializer=self.serializer
+        #     )
+        # except signing.BadSignature:
+        #     logger.critical(
+        #         'creme.emails.models.synchronization: '
+        #         'bad signature for password of EmailSyncConfigItem with id=%s',
+        #         self.id
+        #     )
+        #     return ''
         try:
-            return signing.loads(
-                self.encoded_password,
-                salt=self.password_salt,
-                # serializer=self.serializer
-            )
-        except signing.BadSignature:
+            return self._password_encrypter().decrypt(
+                self.encoded_password.encode()
+            ).decode()
+        except SymmetricEncrypter.Error as e:
             logger.critical(
                 'creme.emails.models.synchronization: '
-                'bad signature for password of EmailSyncConfigItem with id=%s',
-                self.id
+                'issue with password of EmailSyncConfigItem with id=%s: %s',
+                self.id, e,
             )
             return ''
 
     @password.setter
-    def password(self, password):
-        self.encoded_password = signing.dumps(
-            password,
-            salt=self.password_salt,
-            # serializer=self.serializer,
-            # compress=True,
-        )
+    def password(self, password: str):
+        # self.encoded_password = signing.dumps(
+        #     password,
+        #     salt=self.password_salt,
+        #     # serializer=self.serializer,
+        #     # compress=True,
+        # )
+        self.encoded_password = self._password_encrypter().encrypt(
+            password.encode()
+        ).decode()
 
     @property
     def password_salt(self):
