@@ -71,6 +71,7 @@ virtual env, in order to keep the old one working).
      - Django
      - redis
      - python-dateutil
+     - cryptography
      - bleach
      - Pillow
      - django-formtools
