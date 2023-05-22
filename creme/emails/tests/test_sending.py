@@ -112,7 +112,8 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
             [
                 f'CRITICAL:'
                 f'creme.emails.models.sending:'
-                f'bad signature for password of EmailSendingConfigItem with id={item.id}'
+                f'issue with password of EmailSendingConfigItem with id={item.id}: '
+                f'SymmetricEncrypter.decrypt: invalid token'
             ],
         )
 
