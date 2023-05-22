@@ -103,8 +103,8 @@ Installation with 'pip':
    - mysql_config & libmysqlclient-dev (or libpq-dev if you want to use PostGreSQL)
    - redis-server
    - libxslt1-dev
-   - default-jre
    - libjpeg-dev
+   - libcairo-dev
 
 
 ### Install
