@@ -23,7 +23,6 @@ from json import loads as json_load
 from time import sleep
 
 from django.conf import settings
-from django.core import signing
 from django.core.mail import get_connection, send_mail
 from django.db import IntegrityError, models
 from django.db.transaction import atomic
@@ -37,6 +36,7 @@ from django.utils.translation import pgettext, pgettext_lazy
 
 import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CremeEntity, CremeModel
+from creme.creme_core.utils.crypto import SymmetricEncrypter
 
 from ..utils import EMailSender, ImageFromHTMLError, generate_id
 from .mail import ID_LENGTH, _Email
@@ -117,33 +117,31 @@ class EmailSendingConfigItem(CremeModel):
     def get_edit_absolute_url(self):
         return reverse('emails__edit_sending_config_item', args=(self.id,))
 
+    def _password_encrypter(self):
+        return SymmetricEncrypter(salt=self.password_salt)
+
     @property
     def password(self):
         encoded_password = self.encoded_password
 
         if encoded_password:
             try:
-                return signing.loads(
-                    encoded_password,
-                    salt=self.password_salt,
-                    # serializer=self.serializer
-                )
-            except signing.BadSignature:
+                return self._password_encrypter().decrypt(
+                    self.encoded_password.encode()
+                ).decode()
+            except SymmetricEncrypter.Error as e:
                 logger.critical(
-                    'bad signature for password of %s with id=%s',
-                    type(self).__name__, self.id,
+                    'issue with password of EmailSendingConfigItem with id=%s: %s',
+                    self.id, e,
                 )
 
         return ''
 
     @password.setter
     def password(self, password):
-        self.encoded_password = signing.dumps(
-            password,
-            salt=self.password_salt,
-            # serializer=self.serializer,
-            # compress=True,
-        ) if password else ''
+        self.encoded_password = self._password_encrypter().encrypt(
+            password.encode()
+        ).decode() if password else ''
 
     @property
     def password_salt(self):
