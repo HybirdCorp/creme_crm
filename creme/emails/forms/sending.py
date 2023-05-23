@@ -130,7 +130,7 @@ class SendingConfigField(forms.MultiValueField):
 
 
 # Forms ------------------------------------------------------------------------
-class _SendingConfigItemForm(core_forms.CremeModelForm):
+class SendingConfigItemCreationForm(core_forms.CremeModelForm):
     password = forms.CharField(
         label=_('Password'),
         required=False,
@@ -151,16 +151,29 @@ class _SendingConfigItemForm(core_forms.CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-class SendingConfigItemCreationForm(_SendingConfigItemForm):
-    pass
+class SendingConfigItemEditionForm(core_forms.CremeModelForm):
+    class Meta:
+        model = EmailSendingConfigItem
+        fields = (
+            'name', 'host', 'username', 'port', 'use_tls', 'default_sender',
+        )
 
 
-class SendingConfigItemEditionForm(_SendingConfigItemForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        password_f = self.fields['password']
-        password_f.required = False
-        password_f.help_text = _('Leave empty to keep the recorded password')
+class SendingConfigItemPasswordEditionForm(core_forms.CremeModelForm):
+    password = forms.CharField(
+        label=_('Password'),
+        required=False,
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+    )
+
+    class Meta:
+        model = EmailSendingConfigItem
+        fields = ('password',)
+
+    def save(self, *args, **kwargs):
+        self.instance.password = self.cleaned_data['password']
+        return super().save(*args, **kwargs)
 
 
 # class SendingCreateForm(CremeModelForm):
