@@ -1,6 +1,6 @@
 import os
 
-from creme.settings import *
+from creme.settings import *  # NOQA
 
 DEBUG = bool(int(os.getenv('CREME_DEBUG', 0)))
 
@@ -10,7 +10,7 @@ DATABASES = {
     'default': {
         # Possible backends: 'postgresql', 'mysql', 'sqlite3'.
         # NB: 'oracle' backend is not working with creme for now.
-        'ENGINE':   os.getenv('CREME_DATABASE_ENGINE', "django.db.backends.sqlite3"),
+        'ENGINE': os.getenv('CREME_DATABASE_ENGINE', "django.db.backends.sqlite3"),
 
         # Name of the database, or path to the database file if using 'sqlite3'.
         'NAME': os.getenv('CREME_DATABASE_NAME', "/srv/creme/data/cremecrm.db"),
