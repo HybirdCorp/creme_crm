@@ -777,10 +777,14 @@ class Populator(BasePopulator):
                     current_year_unpaid_invoice_filter,
                 )
 
-    def create_reports(
-            self,
-            rt_sub_bill_received, current_year_invoice_filter,
-            current_year_unpaid_invoice_filter):
+    def create_reports(self,
+                       rt_sub_bill_received,
+                       current_year_invoice_filter,
+                       current_year_unpaid_invoice_filter,
+                       ):
+        # NB: the fixed UUIDs were added with Creme2.5 in order to facilitate
+        #     import/export in 'creme_config'. So the Reports/ReportGraphes
+        #     populated with previous versions will have different UUIDs.
         from functools import partial
 
         from django.contrib.auth import get_user_model
@@ -816,6 +820,7 @@ class Populator(BasePopulator):
 
         # Create current year invoices report ----------------------------------
         invoices_report1 = create_report(
+            uuid='e8dc076c-16c5-462e-b32e-61c6e0249dfd',
             name=_('All invoices of the current year'),
             filter=current_year_invoice_filter,
         )
@@ -823,6 +828,7 @@ class Populator(BasePopulator):
 
         cell_key = total_no_vat_cell.key
         rgraph1 = create_graph(
+            uuid='c94e414d-931c-47bb-a7b9-144245997062',
             name=_('Sum of current year invoices total without taxes / month'),
             linked_report=invoices_report1,
             abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
@@ -830,6 +836,7 @@ class Populator(BasePopulator):
             ordinate_cell_key=cell_key,
         )
         create_graph(
+            uuid='94b3b88a-7350-4fae-9d9e-2d36a66677fb',
             name=_('Sum of current year invoices total without taxes / invoices status'),
             linked_report=invoices_report1,
             abscissa_cell_value='status', abscissa_type=ReportGraph.Group.FK,
@@ -841,12 +848,14 @@ class Populator(BasePopulator):
 
         # Create current year and unpaid invoices report -----------------------
         invoices_report2 = create_report(
+            uuid='2a1f7582-7e01-434a-b26f-6ee811e4c704',
             name=_('Invoices unpaid of the current year'),
             filter=current_year_unpaid_invoice_filter,
         )
         create_report_columns(invoices_report2)
 
         rgraph3 = create_graph(
+            uuid='5388305f-0fcc-4ebb-b8a8-2cb4b3154c9c',
             name=_('Sum of current year and unpaid invoices total without taxes / month'),
             linked_report=invoices_report2,
             abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
