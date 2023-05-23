@@ -74,6 +74,9 @@ from .base import (
 class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
     DEL_CONF_URL = reverse('emails__delete_sending_config_item')
 
+    def _build_password_edition_url(self, item):
+        return reverse('emails__set_sending_config_item_password', args=(item.id,))
+
     def test_model(self):
         name = 'Config #1'
         password = 'c0w|3OY B3b0P'
@@ -248,11 +251,12 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         "No TLS, default port."
         self.login_as_emails_admin()
 
+        password = 'c0w|3OY B3b0P'
         item = EmailSendingConfigItem.objects.create(
             name='My config',
             host='smail.mydomain.org',
             username='jet@mydomain.org',
-            password='c0w|3OY B3b0P',
+            password=password,
             port=25,
             use_tls=False,
         )
@@ -261,13 +265,9 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         context1 = self.assertGET200(url).context
 
         with self.assertNoException():
-            password_f = context1['form'].fields['password']
+            fields1 = context1['form'].fields
 
-        self.assertFalse(password_f.required)
-        self.assertEqual(
-            _('Leave empty to keep the recorded password'),
-            password_f.help_text,
-        )
+        self.assertNotIn('password', fields1)
 
         self.assertEqual(
             pgettext('emails', 'Edit the server configuration'),
@@ -282,7 +282,6 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         name = 'My config #1'
         host = 'smtp.mydomain.org'
         username = 'campaigns'
-        password = 's33 y4 $p4c3 c0xBoY'
         # port = 1024
         response2 = self.client.post(
             url,
@@ -290,7 +289,6 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
                 'name': name,
                 'host': host,
                 'username': username,
-                'password': password,
                 # 'port': port,
                 'use_tls': '',
             },
@@ -301,21 +299,20 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(name,      item.name)
         self.assertEqual(host,      item.host)
         self.assertEqual(username,  item.username)
-        self.assertEqual(password,  item.password)
+        self.assertEqual(password,  item.password)  # No change
         # self.assertEqual(port,     item.port)
         self.assertIsNone(item.port)
         self.assertFalse(item.use_tls)
 
     def test_edition02(self):
-        "Port is set, password is kept."
+        "Port is set."
         self.login_as_emails_admin()
 
-        password = 'c0w|3OY B3b0P'
         item = EmailSendingConfigItem.objects.create(
             name='Config #1',
             host='smtp.bebop.mrs',
             username='spiegel@bebop.mrs',
-            password=password,
+            password='c0w|3OY B3b0P',
             # port=...,
             use_tls=False,
         )
@@ -329,19 +326,15 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
                 'name': item.name,
                 'host': host,
                 'username': username,
-                'password': '',  # <== empty
                 'port': port,
-                'use_tls': '',
+                'use_tls': 'on',
             },
         )
         self.assertNoFormError(response)
 
         item = self.refresh(item)
-        self.assertEqual(host, item.host)
-        self.assertEqual(username,  item.username)
-        self.assertEqual(password,  item.password)
-        self.assertEqual(port,      item.port)
-        self.assertFalse(item.use_tls)
+        self.assertEqual(port, item.port)
+        self.assertTrue(item.use_tls)
 
     def test_edition03(self):
         "No admin credentials."
@@ -354,6 +347,72 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
             password='c0w|3OY B3b0P',
         )
         self.assertGET403(item.get_edit_absolute_url())
+
+    def test_password_edition01(self):
+        self.login_as_emails_admin()
+
+        item = EmailSendingConfigItem.objects.create(
+            name='My config',
+            host='smail.mydomain.org',
+            username='jet@mydomain.org',
+            # password='',
+            port=25,
+            use_tls=False,
+        )
+
+        url = self._build_password_edition_url(item)
+        context1 = self.assertGET200(url).context
+
+        with self.assertNoException():
+            fields1 = context1['form'].fields
+
+        self.assertIn('password', fields1)
+        self.assertEqual(1, len(fields1))
+
+        self.assertEqual(
+            pgettext('emails', 'Edit the server password'),
+            context1.get('title'),
+        )
+        self.assertEqual(
+            _('Save the password'),
+            context1.get('submit_label'),
+        )
+
+        # ---
+        password = 'c0w|3OY B3b0P'
+        response2 = self.client.post(url, data={'password': password})
+        self.assertNoFormError(response2)
+        self.assertEqual(password, self.refresh(item).password)
+
+    def test_password_edition02(self):
+        "Set empty password."
+        self.login_as_emails_admin()
+
+        item = EmailSendingConfigItem.objects.create(
+            name='My config',
+            host='smail.mydomain.org',
+            username='jet@mydomain.org',
+            password='123456',
+            port=25,
+            use_tls=True,
+        )
+        response = self.client.post(
+            self._build_password_edition_url(item),
+            data={'password': ''},
+        )
+        self.assertNoFormError(response)
+        self.assertEqual('', self.refresh(item).password)
+
+    def test_password_edition03(self):
+        "No admin credentials."
+        self.login_as_emails_user()
+
+        item = EmailSendingConfigItem.objects.create(
+            host='smtp.host.mrs',
+            username='spike@host.mrs',
+            password='c0w|3OY B3b0P',
+        )
+        self.assertGET403(self._build_password_edition_url(item))
 
     def test_deletion01(self):
         self.login_as_emails_admin()

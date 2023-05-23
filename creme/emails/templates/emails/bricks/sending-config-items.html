@@ -23,7 +23,7 @@
     {% brick_table_column_for_field ctype=objects_ctype field='use_tls' %}
     {% brick_table_column_for_field ctype=objects_ctype field='default_sender' %}
 
-    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+    {% brick_table_column title=_('Actions') status='action' colspan=3 %}
 {% endblock %}
 
 {% block brick_table_rows %}
@@ -38,6 +38,9 @@
         <td>{% if item.port %}{% print_field object=item field='port' %}{% else %}<span class="emails-campaign-default">{% trans 'Default port' %}</span>{% endif %}</td>
         <td>{% print_field object=item field='use_tls' %}</td>
         <td>{{item.default_sender|default:'—'}}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='emails__set_sending_config_item_password'|url:item.id label=_('Change the password') icon='security' enabled=admin_perm %}
+        </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url=item.get_edit_absolute_url label=edit_label enabled=admin_perm %}
         </td>

@@ -52,6 +52,15 @@ class SendingConfigItemEdition(generic.CremeModelEditionPopup):
     permissions = 'emails.can_admin'
 
 
+class SendingConfigItemPasswordEdition(generic.CremeModelEditionPopup):
+    model = EmailSendingConfigItem
+    form_class = sending_forms.SendingConfigItemPasswordEditionForm
+    pk_url_kwarg = 'item_id'
+    title = pgettext_lazy('emails', 'Edit the server password')
+    submit_label = _('Save the password')
+    permissions = 'emails.can_admin'
+
+
 class SendingConfigItemDeletion(generic.CheckedView):
     id_arg = 'id'
     permissions = 'emails.can_admin'

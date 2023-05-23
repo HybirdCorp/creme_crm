@@ -39,6 +39,11 @@ urlpatterns = [
         name='emails__edit_sending_config_item',
     ),
     re_path(
+        r'^sending/config/set_password/(?P<item_id>\d+)[/]?$',
+        sending.SendingConfigItemPasswordEdition.as_view(),
+        name='emails__set_sending_config_item_password',
+    ),
+    re_path(
         r'^sending/config/delete[/]?$',
         sending.SendingConfigItemDeletion.as_view(),
         name='emails__delete_sending_config_item',

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-04 17:48+0200\n"
+"POT-Creation-Date: 2023-05-23 13:27+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -300,11 +300,10 @@ msgstr "Fichier CSV"
 msgid "Password"
 msgstr "Mot de passe"
 
-msgid "Leave empty to keep the recorded password"
-msgstr "Laissez vide pour garder mot de passe enregistré"
-
 msgid "Beware to use an email address compatible with the chosen SMTP server"
-msgstr "Attention de bien donner une adresse e-mail compatible avec le serveur SMTP choisi"
+msgstr ""
+"Attention de bien donner une adresse e-mail compatible avec le serveur SMTP "
+"choisi"
 
 msgid "Email template"
 msgstr "Patron d'e-mail"
@@ -336,6 +335,9 @@ msgstr "La date d'envoi doit être dans le futur"
 
 msgid "*No default user*"
 msgstr "*Pas d'utilisateur par défaut*"
+
+msgid "Leave empty to keep the recorded password"
+msgstr "Laissez vide pour garder mot de passe enregistré"
 
 msgid "Contact or Organisation"
 msgstr "Contact ou Société"
@@ -512,9 +514,9 @@ msgid ""
 "If you fill this field with an email address, this address will be used as "
 "the default value in the form for the field «Sender» when sending a campaign."
 msgstr ""
-"Si vous remplissez ce champ avec une adresse e-mail, celle-ci sera utilisée comme "
-"valeur par défaut dans le formulaire pour le champ «Expéditeur» lorsque vous "
-"envoyez une campagne."
+"Si vous remplissez ce champ avec une adresse e-mail, celle-ci sera utilisée "
+"comme valeur par défaut dans le formulaire pour le champ «Expéditeur» "
+"lorsque vous envoyez une campagne."
 
 msgctxt "emails"
 msgid "Create a server configuration"
@@ -1036,6 +1038,10 @@ msgstr "Supprimer cette configuration"
 msgid "Default port"
 msgstr "Port par défaut"
 
+# Already in creme_config
+msgid "Change the password"
+msgstr ""
+
 msgctxt "emails"
 msgid "No server for the moment"
 msgstr "Aucun serveur pour le moment"
@@ -1055,8 +1061,8 @@ msgid ""
 "No configuration for SMTP is available; so creation & edition of sending are "
 "forbidden."
 msgstr ""
-"Aucune configuration pour SMTP n'est disponible ; donc la création & la modification "
-"des envois est interdite."
+"Aucune configuration pour SMTP n'est disponible ; donc la création & la "
+"modification des envois est interdite."
 
 #, python-format
 msgid "You can create a configuration <a href=\"%(url)s\">here</a>."
@@ -1242,6 +1248,13 @@ msgstr "Nouveaux destinataires pour «{entity}»"
 msgctxt "emails"
 msgid "Edit the server configuration"
 msgstr "Modifier la configuration serveur"
+
+msgctxt "emails"
+msgid "Edit the server password"
+msgstr "Modifier le not de passe serveur"
+
+msgid "Save the password"
+msgstr "Enregistrer le mot de passe"
 
 #, python-brace-format
 msgid "New sending for «{entity}»"
