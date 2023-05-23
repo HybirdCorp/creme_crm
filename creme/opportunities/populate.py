@@ -550,6 +550,9 @@ class Populator(BasePopulator):
 
     def create_report_n_graphes(self, rt_obj_emit_orga):
         "Create the report 'Opportunities' and 2 ReportGraphs."
+        # NB: the fixed UUIDs were added with Creme2.5 in order to facilitate
+        #     import/export in 'creme_config'. So the Reports/ReportGraphes
+        #     populated with previous versions will have different UUIDs.
         from django.contrib.auth import get_user_model
 
         from creme import reports
@@ -566,6 +569,7 @@ class Populator(BasePopulator):
 
         # Create the report ----------------------------------------------------
         report = reports.get_report_model().objects.create(
+            uuid='18a8226d-c2f1-4732-a4d5-705bd30c141f',
             name=_('Opportunities'),
             user=admin,
             ct=Opportunity,
@@ -606,6 +610,7 @@ class Populator(BasePopulator):
         )
         esales_vname = FieldInfo(Opportunity, 'estimated_sales').verbose_name
         rgraph1 = create_graph(
+            uuid='bab31c4c-368d-4c72-a62b-57350a00f669',
             name=_('Sum {estimated_sales} / {sales_phase}').format(
                 estimated_sales=esales_vname,
                 sales_phase=FieldInfo(Opportunity, 'sales_phase').verbose_name,
@@ -614,6 +619,7 @@ class Populator(BasePopulator):
             abscissa_cell_value='sales_phase',
         )
         rgraph2 = create_graph(
+            uuid='47d9f0db-b96e-48e1-b975-4ffdbe5f4fa4',
             name=_('Sum {estimated_sales} / Quarter (90 days on {closing_date})').format(
                 estimated_sales=esales_vname,
                 closing_date=FieldInfo(Opportunity, 'closing_date').verbose_name,
