@@ -104,7 +104,6 @@ Installation with 'pip':
    - python-dev
    - mysql_config & libmysqlclient-dev (or libpq-dev if you want to use PostGreSQL)
    - redis-server
-   - libxslt1-dev
    - libjpeg-dev
    - libcairo-dev
    - [DEPRECATED] graphviz & graphviz-dev (if you want the optional app 'graphs')
