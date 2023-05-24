@@ -66,6 +66,7 @@ from creme.creme_core.models import (
     EntityFilterCondition,
     FieldsConfig,
     HeaderFilter,
+    InstanceBrickConfigItem,
     MenuConfigItem,
     RelationBrickItem,
     RelationType,
@@ -1626,6 +1627,38 @@ class RelationBrickItemsImporter(Importer):
             rbi.save()
 
 
+@IMPORTERS.register(data_id=constants.ID_INSTANCE_BRICKS)
+class InstanceBrickConfigItemsImporter(Importer):
+    def _validate_section(self, deserialized_section, validated_data):
+        self._data = data = []
+
+        for info in deserialized_section:
+            uuid = info['entity']
+            try:
+                entity = CremeEntity.objects.get(uuid=uuid)
+            except CremeEntity.DoesNotExist:
+                logger.warning(
+                    'InstanceBrickConfigItemsImporter: the entity with '
+                    'uuid=%s does not exist, so the instance brick will be ignored.',
+                    uuid,
+                )
+            else:
+                data.append({
+                    'id': info['id'],
+                    'brick_class_id': info['brick_class'],
+                    'entity_id': entity.id,
+                    'json_extra_data': info['extra_data'],
+                })
+
+        validated_data[InstanceBrickConfigItem].update(d['id'] for d in self._data)
+
+    def save(self):
+        InstanceBrickConfigItem.objects.all().delete()  # TODO: recycle instances
+
+        for data in self._data:
+            InstanceBrickConfigItem.objects.create(**data)
+
+
 @IMPORTERS.register(data_id=constants.ID_CUSTOM_BRICKS)
 class CustomBrickConfigItemsImporter(Importer):
     # Cells can contain reference to RelationTypes/CustomFields
@@ -1666,7 +1699,7 @@ class CustomBrickConfigItemsImporter(Importer):
 
 @IMPORTERS.register(data_id=constants.ID_DETAIL_BRICKS)
 class DetailviewBricksLocationsImporter(Importer):
-    dependencies = [constants.ID_ROLES]
+    dependencies = [constants.ID_ROLES, constants.ID_INSTANCE_BRICKS]
 
     def _validate_section(self, deserialized_section, validated_data):
         ZONE_NAMES = BrickDetailviewLocation.ZONE_NAMES
@@ -1680,8 +1713,14 @@ class DetailviewBricksLocationsImporter(Importer):
             return zone
 
         def load_loc(info):
+            brick_id = info['id']
+
+            ibci_id = InstanceBrickConfigItem.id_from_brick_id(brick_id)
+            if ibci_id and ibci_id not in validated_data[InstanceBrickConfigItem]:
+                return None
+
             data = {
-                'brick_id': info['id'],
+                'brick_id': brick_id,
                 'order':    int(info['order']),
                 'zone':     validated_zone(int(info['zone'])),
             }
@@ -1701,7 +1740,7 @@ class DetailviewBricksLocationsImporter(Importer):
 
             return data
 
-        self._data = [*map(load_loc, deserialized_section)]
+        self._data = [*filter(None, map(load_loc, deserialized_section))]
 
     def save(self):
         BrickDetailviewLocation.objects.all().delete()  # TODO: recycle instances
@@ -1717,12 +1756,18 @@ class DetailviewBricksLocationsImporter(Importer):
 # TODO: factorise
 @IMPORTERS.register(data_id=constants.ID_HOME_BRICKS)
 class HomeBricksLocationsImporter(Importer):
-    dependencies = [constants.ID_ROLES]
+    dependencies = [constants.ID_ROLES, constants.ID_INSTANCE_BRICKS]
 
     def _validate_section(self, deserialized_section, validated_data):
         def load_loc(info):
+            brick_id = info['id']
+
+            ibci_id = InstanceBrickConfigItem.id_from_brick_id(brick_id)
+            if ibci_id and ibci_id not in validated_data[InstanceBrickConfigItem]:
+                return None
+
             data = {
-                'brick_id': info['id'],
+                'brick_id': brick_id,
                 'order':    int(info['order']),
             }
 
@@ -1737,7 +1782,7 @@ class HomeBricksLocationsImporter(Importer):
 
             return data
 
-        self._data = [*map(load_loc, deserialized_section)]
+        self._data = [*filter(None, map(load_loc, deserialized_section))]
 
     def save(self):
         BrickHomeLocation.objects.all().delete()  # TODO: recycle instances
@@ -1752,13 +1797,22 @@ class HomeBricksLocationsImporter(Importer):
 
 @IMPORTERS.register(data_id=constants.ID_MYPAGE_BRICKS)
 class MypageBricksLocationsImporter(Importer):
+    dependencies = [constants.ID_INSTANCE_BRICKS]
+
     def _validate_section(self, deserialized_section, validated_data):
-        self._data = [
-            {
-                'brick_id': loc_info['id'],
-                'order':    int(loc_info['order']),
-            } for loc_info in deserialized_section
-        ]
+        self._data = data = []
+
+        for info in deserialized_section:
+            brick_id = info['id']
+
+            ibci_id = InstanceBrickConfigItem.id_from_brick_id(brick_id)
+            if ibci_id and ibci_id not in validated_data[InstanceBrickConfigItem]:
+                continue
+
+            data.append({
+                'brick_id': brick_id,
+                'order': int(info['order']),
+            })
 
     def save(self):
         BrickMypageLocation.objects.filter(user=None).delete()  # TODO: recycle instances
