@@ -3,8 +3,8 @@ from datetime import date
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
+# from django.utils.translation import gettext as _
 from django.urls import reverse
-from django.utils.translation import gettext as _
 
 from creme.creme_config.core.exporters import Exporter, ExportersRegistry
 from creme.creme_core import bricks, constants
@@ -33,7 +33,6 @@ from creme.creme_core.forms import (
     LAYOUT_DUAL_SECOND,
     LAYOUT_REGULAR,
 )
-from creme.creme_core.gui.bricks import InstanceBrick, brick_registry
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import (
@@ -66,33 +65,14 @@ from creme.creme_core.models import (
     SetCredentials,
 )
 from creme.creme_core.tests import fake_custom_forms
-from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_forms import FakeAddressGroup
 from creme.creme_core.tests.fake_menu import FakeContactsEntry
 
-
-class ExportingInstanceBrick(InstanceBrick):
-    # id_ = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_exporting')
-    id = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_exporting')
-
-    # NB: would be in __init__() in classical cases...
-    verbose_name = 'Instance brick for exporter'
-
-    def detailview_display(self, context):
-        return (
-            # f'<table id="{self.id_}">'
-            f'<table id="{self.id}">'
-            f'<thead><tr>{self.config_item.entity}</tr></thead>'
-            f'</table>'
-        )
-
-    def home_display(self, context):
-        return self.detailview_display(context)
+from .base import TransferBaseTestCase, TransferInstanceBrick
 
 
-class ExportingTestCase(CremeTestCase):
+class ExportingTestCase(TransferBaseTestCase):
     URL = reverse('creme_config__transfer_export')
-    VERSION = '1.3'
 
     @classmethod
     def setUpClass(cls):
@@ -102,7 +82,7 @@ class ExportingTestCase(CremeTestCase):
         BrickHomeLocation.objects.filter(brick_id__startswith='instanceblock').delete()
         BrickMypageLocation.objects.filter(brick_id__startswith='instanceblock').delete()
 
-        brick_registry.register_4_instance(ExportingInstanceBrick)
+        # brick_registry.register_4_instance(ExportingInstanceBrick)
 
     def test_creds(self):
         "Not staff."
@@ -841,8 +821,9 @@ class ExportingTestCase(CremeTestCase):
 
         ibi = InstanceBrickConfigItem.objects.create(
             # brick_class_id=ExportingInstanceBrick.id_,
-            brick_class_id=ExportingInstanceBrick.id,
+            brick_class_id=TransferInstanceBrick.id,
             entity=naru,
+            json_extra_data={'foo': 123},
         )
 
         # ---
@@ -853,34 +834,70 @@ class ExportingTestCase(CremeTestCase):
         )
         create_bdl(model=FakeContact)
 
-        msg_fmt = _(
-            'The configuration of blocks for detailed-views cannot be '
-            'exported because it contains references to some instance-blocks '
-            '({blocks}), which are not managed, for the following cases: {models}.'
-        )
-        self.assertContains(
-            self.client.get(self.URL),
-            msg_fmt.format(
-                blocks=ExportingInstanceBrick.verbose_name,
-                models=FakeContact._meta.verbose_name,
-            ),
-            status_code=409,
-            html=True,
-        )
+        # msg_fmt = _(
+        #     'The configuration of blocks for detailed-views cannot be '
+        #     'exported because it contains references to some instance-blocks '
+        #     '({blocks}), which are not managed, for the following cases: {models}.'
+        # )
+        # self.assertContains(
+        #     self.client.get(self.URL),
+        #     msg_fmt.format(
+        #         blocks=ExportingInstanceBrick.verbose_name,
+        #         models=FakeContact._meta.verbose_name,
+        #     ),
+        #     status_code=409,
+        #     html=True,
+        # )
 
         # ---
-        create_bdl(model=None)
-        self.assertContains(
-            self.client.get(self.URL),
-            msg_fmt.format(
-                blocks=ExportingInstanceBrick.verbose_name,
-                models='{}, {}'.format(
-                    _('Default configuration'),
-                    FakeContact._meta.verbose_name,
-                ),
-            ),
-            status_code=409,
-            html=True,
+        # create_bdl(model=None)  TODO
+        # self.assertContains(
+        #     self.client.get(self.URL),
+        #     msg_fmt.format(
+        #         blocks=ExportingInstanceBrick.verbose_name,
+        #         models='{}, {}'.format(
+        #             _('Default configuration'),
+        #             FakeContact._meta.verbose_name,
+        #         ),
+        #     ),
+        #     status_code=409,
+        #     html=True,
+        # )
+        response = self.assertGET200(self.URL)
+        content = response.json()
+
+        # ----
+        instance_bricks_info = content.get('instance_bricks')
+        self.assertIsList(instance_bricks_info, min_length=1)
+
+        with self.assertNoException():
+            my_ibci_info01 = [
+                dumped_ibci
+                for dumped_ibci in instance_bricks_info
+                if dumped_ibci['brick_class'] == ibi.brick_class_id
+            ]
+
+        ibci_info01 = self.get_alone_element(my_ibci_info01)
+        self.assertEqual(ibi.id,         ibci_info01.get('id'))
+        self.assertEqual(str(naru.uuid), ibci_info01.get('entity'))
+        self.assertDictEqual(ibi.json_extra_data, ibci_info01.get('extra_data'))
+
+        # ---
+        contact_bricks_info = [
+            dumped_bdl
+            for dumped_bdl in content.get('detail_bricks')
+            if dumped_bdl.get('ctype') == 'creme_core.fakecontact'
+        ]
+        RIGHT = BrickDetailviewLocation.RIGHT
+        self.assertListEqual(
+            [
+                {
+                    'id': ibi.brick_id,  # TODO: contains local ID !!!
+                    'order': 5, 'zone': RIGHT,
+                    'ctype': 'creme_core.fakecontact',
+                },
+            ],
+            [binfo for binfo in contact_bricks_info if binfo['zone'] == RIGHT],
         )
 
     def test_instance_bricks02(self):
@@ -895,22 +912,54 @@ class ExportingTestCase(CremeTestCase):
 
         ibi = InstanceBrickConfigItem.objects.create(
             # brick_class_id=ExportingInstanceBrick.id_,
-            brick_class_id=ExportingInstanceBrick.id,
+            brick_class_id=TransferInstanceBrick.id,
             entity=naru,
         )
 
         BrickHomeLocation.objects.create(brick_id=ibi.brick_id, order=1, superuser=True)
-        self.assertContains(
-            self.client.get(self.URL),
-            _(
-                'The configuration of blocks for Home cannot be exported '
-                'because it contains references to some instance-blocks '
-                '({blocks}), which are not managed.'
-            ).format(
-                blocks=ExportingInstanceBrick.verbose_name,
-            ),
-            status_code=409,
-            html=True,
+        # self.assertContains(
+        #     self.client.get(self.URL),
+        #     _(
+        #         'The configuration of blocks for Home cannot be exported '
+        #         'because it contains references to some instance-blocks '
+        #         '({blocks}), which are not managed.'
+        #     ).format(
+        #         blocks=ExportingInstanceBrick.verbose_name,
+        #     ),
+        #     status_code=409,
+        #     html=True,
+        # )
+        response = self.assertGET200(self.URL)
+        content = response.json()
+
+        # ----
+        instance_bricks_info = content.get('instance_bricks')
+        self.assertIsList(instance_bricks_info, min_length=1)
+
+        with self.assertNoException():
+            my_ibci_info01 = [
+                dumped_ibci
+                for dumped_ibci in instance_bricks_info
+                if dumped_ibci['brick_class'] == ibi.brick_class_id
+            ]
+
+        ibci_info01 = self.get_alone_element(my_ibci_info01)
+        self.assertEqual(ibi.id,         ibci_info01.get('id'))
+        self.assertEqual(str(naru.uuid), ibci_info01.get('entity'))
+        self.assertDictEqual({}, ibci_info01.get('extra_data'))
+
+        # ---
+        self.assertListEqual(
+            [{
+                'id': ibi.brick_id,  # TODO: contains local ID !!!
+                'superuser': True,
+                'order': 1,
+            }],
+            [
+                dumped_bdl
+                for dumped_bdl in content.get('home_bricks')
+                if 'superuser' in dumped_bdl
+            ],
         )
 
     def test_instance_bricks03(self):
@@ -925,22 +974,35 @@ class ExportingTestCase(CremeTestCase):
 
         ibi = InstanceBrickConfigItem.objects.create(
             # brick_class_id=ExportingInstanceBrick.id_,
-            brick_class_id=ExportingInstanceBrick.id,
+            brick_class_id=TransferInstanceBrick.id,
             entity=naru,
         )
 
         BrickMypageLocation.objects.create(brick_id=ibi.brick_id, order=1)
-        self.assertContains(
-            self.client.get(self.URL),
-            _(
-                'The configuration of blocks for «My page» cannot be exported '
-                'because it contains references to some instance-blocks '
-                '({blocks}), which are not managed.'
-            ).format(
-                blocks=ExportingInstanceBrick.verbose_name,
-            ),
-            status_code=409,
-            html=True,
+        # self.assertContains(
+        #     self.client.get(self.URL),
+        #     _(
+        #         'The configuration of blocks for «My page» cannot be exported '
+        #         'because it contains references to some instance-blocks '
+        #         '({blocks}), which are not managed.'
+        #     ).format(
+        #         blocks=ExportingInstanceBrick.verbose_name,
+        #     ),
+        #     status_code=409,
+        #     html=True,
+        # )
+        response = self.assertGET200(self.URL)
+        content = response.json()
+
+        # ----
+        instance_bricks_info = content.get('instance_bricks')
+        self.assertIsList(instance_bricks_info, min_length=1)
+        self.assertIn(
+            {
+                'id': ibi.brick_id,  # TODO: contains local ID !!!
+                'order': 1,
+            },
+            [dumped_bdl for dumped_bdl in content.get('mypage_bricks')],
         )
 
     def test_menu(self):

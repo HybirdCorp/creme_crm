@@ -61,6 +61,7 @@ from creme.creme_core.models import (
     FakeOrganisation,
     FieldsConfig,
     HeaderFilter,
+    InstanceBrickConfigItem,
     MenuConfigItem,
     RelationBrickItem,
     RelationType,
@@ -69,7 +70,6 @@ from creme.creme_core.models import (
     UserRole,
 )
 from creme.creme_core.tests import fake_custom_forms
-from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_constants import DEFAULT_HFILTER_FAKE_CONTACT
 from creme.creme_core.tests.fake_forms import FakeAddressGroup
 from creme.creme_core.tests.fake_menu import (
@@ -77,10 +77,11 @@ from creme.creme_core.tests.fake_menu import (
     FakeOrganisationsEntry,
 )
 
+from .base import TransferBaseTestCase, TransferInstanceBrick
 
-class ImportingTestCase(CremeTestCase):
+
+class ImportingTestCase(TransferBaseTestCase):
     URL = reverse('creme_config__transfer_import')
-    VERSION = '1.3'
 
     def test_creds(self):
         "Not staff."
@@ -2994,6 +2995,98 @@ class ImportingTestCase(CremeTestCase):
             ],
         )
         assert_cells(FakeOrganisation, ['regular_field-name'])
+
+    def test_instance_bricks(self):
+        self.login_as_super(is_staff=True)
+
+        create_contact = partial(FakeContact.objects.create, user=self.get_root_user())
+        contact1 = create_contact(first_name='Naru',    last_name='Narusegawa')
+        contact2 = create_contact(first_name='Mutsumi', last_name='Otohime')
+
+        create_ibi = partial(
+            InstanceBrickConfigItem.objects.create,
+            brick_class_id=TransferInstanceBrick.id,
+        )
+        create_ibi(entity=contact1)
+        create_ibi(entity=contact2)
+
+        ibi_id1 = 1
+        extra_data1 = {'foo': 128}
+
+        ibi_id2 = 2
+        e_uuid2 = uuid4()
+        self.assertFalse(CremeEntity.objects.filter(uuid=e_uuid2).exists())
+
+        ibi_data = [
+            {
+                'id': ibi_id1,
+                'brick_class': TransferInstanceBrick.id,
+                'entity': str(contact1.uuid),
+                'extra_data': extra_data1,
+            }, {
+                'id': ibi_id2,
+                'brick_class': TransferInstanceBrick.id,
+                'entity': str(e_uuid2),
+                'extra_data': {},
+            },
+        ]
+        LEFT = BrickDetailviewLocation.LEFT
+        detail_bricks_data = [
+            {'id': constants.MODELBRICK_ID,    'order': 1, 'zone': LEFT},
+            {'id': f'instanceblock-{ibi_id1}', 'order': 2, 'zone': LEFT},
+            {'id': f'instanceblock-{ibi_id2}', 'order': 3, 'zone': LEFT},  # Should be dropped
+        ]
+        home_bricks_data = [
+            {'id': bricks.StatisticsBrick.id,  'order': 1},
+            {'id': f'instanceblock-{ibi_id1}', 'order': 2},
+            {'id': f'instanceblock-{ibi_id2}', 'order': 3},  # Should be dropped
+        ]
+        mypage_bricks_data = [
+            {'id': bricks.HistoryBrick.id,     'order': 1},
+            {'id': f'instanceblock-{ibi_id1}', 'order': 2},
+            {'id': f'instanceblock-{ibi_id2}', 'order': 3},  # Should be dropped
+        ]
+
+        json_file = StringIO(json_dump({
+            'version': self.VERSION,
+            'instance_bricks': ibi_data,
+            'detail_bricks': detail_bricks_data,
+            'home_bricks': home_bricks_data,
+            'mypage_bricks': mypage_bricks_data,
+        }))
+        json_file.name = 'config-24-05-2023.csv'  # Django uses this
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+
+        ibi = self.get_alone_element(InstanceBrickConfigItem.objects.all())
+        self.assertEqual(ibi_id1,                  ibi.id)
+        self.assertEqual(contact1.id,              ibi.entity_id)
+        self.assertEqual(TransferInstanceBrick.id, ibi.brick_class_id)
+        self.assertDictEqual(extra_data1, ibi.json_extra_data)
+
+        self.assertFalse(InstanceBrickConfigItem.objects.filter(id=ibi_id2))
+
+        self.assertListEqual(
+            [detail_bricks_data[0]['id'], detail_bricks_data[1]['id']],  # Not ..._data[2]
+            [
+                *BrickDetailviewLocation.objects.filter(
+                    content_type=None, role=None, superuser=False, zone=LEFT,
+                ).values_list('brick_id', flat=True)
+            ],
+        )
+        self.assertListEqual(
+            [home_bricks_data[0]['id'], home_bricks_data[1]['id']],  # Not ..._data[2]
+            [
+                *BrickHomeLocation.objects.values_list('brick_id', flat=True)
+            ],
+        )
+        self.assertListEqual(
+            [mypage_bricks_data[0]['id'], mypage_bricks_data[1]['id']],  # Not ..._data[2]
+            [
+                *BrickMypageLocation.objects.filter(user=None).values_list('brick_id', flat=True)
+            ],
+        )
 
     def test_custom_bricks(self):
         # self.login(is_staff=True)

@@ -606,7 +606,9 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
         on_delete=models.CASCADE, editable=False,
     )
 
-    # NB: do not use directly ; use the function get_extra_data() & set_extra_data()
+    # NB1: do not use directly ; use the function get_extra_data() & set_extra_data()
+    # NB: if you want to refer instances, you should store UUID instead of local
+    #     IDs, in order to make import/export more reliable.
     json_extra_data = models.JSONField(
         editable=False,
         default=dict,
