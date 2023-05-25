@@ -1255,27 +1255,35 @@ class ImportingTestCase(CremeTestCase):
             descriptions=[('mobile', {FieldsConfig.HIDDEN: True})],
         )
 
-        fconfs_data = [
-            {
-                'ctype': 'creme_core.fakecontact',
-                'descriptions': [['phone', {'hidden': True}]],
-            },
-        ]
+        fname = 'phone'
         data = {
             'version': self.VERSION,
-            'fields_config': fconfs_data,
+            'fields_config': [
+                {
+                    'ctype': 'creme_core.fakecontact',
+                    'descriptions': [[fname, {'hidden': True}]],
+                },
+            ],
         }
 
         json_file = StringIO(json_dump(data))
         json_file.name = 'config-02-07-2021.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
-        self.assertFormError(
-            response, 'form', 'config',
-            _(
-                'There is already a fields configuration for the model «{}».'
-            ).format('Test Contact'),
+        # self.assertFormError(
+        #     response, 'form', 'config',
+        #     _(
+        #         'There is already a fields configuration for the model «{}».'
+        #     ).format('Test Contact'),
+        # )
+        self.assertNoFormError(response)
+
+        fconf = self.get_object_or_fail(
+            FieldsConfig,
+            content_type=ContentType.objects.get_for_model(FakeContact),
         )
+        self.assertEqual(1, len(fconf.descriptions))
+        self.assertTrue(fconf.is_fieldname_hidden(fname))
 
     def test_customfields01(self):
         self.login(is_staff=True)

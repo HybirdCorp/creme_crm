@@ -811,13 +811,12 @@ class FieldsConfigImporter(Importer):
         def load_fields_config(fconfig_info: dict) -> dict:
             ctype = load_ct(fconfig_info['ctype'])
 
-            if FieldsConfig.objects.filter(content_type=ctype).exists():
-                raise ValidationError(
-                    _(
-                        'There is already a fields configuration for the model «{}».'
-                    ).format(ctype)
-                )
-
+            # if FieldsConfig.objects.filter(content_type=ctype).exists():
+            #     raise ValidationError(
+            #         _(
+            #             'There is already a fields configuration for the model «{}».'
+            #         ).format(ctype)
+            #     )
             return {
                 'content_type': ctype,
                 'descriptions': fconfig_info['descriptions'],
@@ -826,8 +825,15 @@ class FieldsConfigImporter(Importer):
         self._data = [*map(load_fields_config, deserialized_section)]
 
     def save(self):
+        # TODO: delete existing configuration?
         for data in self._data:
-            FieldsConfig.objects.create(**data)
+            # FieldsConfig.objects.create(**data)
+            FieldsConfig.objects.update_or_create(
+                content_type=data['content_type'],
+                defaults={
+                    'descriptions': data['descriptions'],
+                },
+            )
 
 
 @IMPORTERS.register(data_id=constants.ID_CUSTOM_FIELDS)

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-15 19:13+0100\n"
+"POT-Creation-Date: 2023-05-25 15:59+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -174,9 +174,6 @@ msgstr "Cette clé primaire de type de relation est invalide : «{}»."
 
 msgid "This relation type cannot be overridden: «{}»."
 msgstr "Ce type de relation ne peut pas être écrasé : «{}»."
-
-msgid "There is already a fields configuration for the model «{}»."
-msgstr "Il y a déjà une configuration de champs pour le modèle «{}»"
 
 msgid "This custom-field type is invalid: {}."
 msgstr "Ce type de champ personnalisé est invalide: {}."
@@ -2454,6 +2451,39 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 msgid "Edit the instance's settings"
 msgstr "Modifier la configuration de l'instance"
 
+<<<<<<< HEAD
+=======
+#~ msgid "There is already a fields configuration for the model «{}»."
+#~ msgstr "Il y a déjà une configuration de champs pour le modèle «{}»"
+
+#~ msgid ""
+#~ "The configuration of blocks for detailed-views cannot be exported because "
+#~ "it contains references to some instance-blocks ({blocks}), which are not "
+#~ "managed, for the following cases: {models}."
+#~ msgstr ""
+#~ "La configuration des blocs pour les vues détaillées ne peut pas être "
+#~ "exportée car elle contient des références à des bloc d'instance "
+#~ "({blocks}), qui ne sont pas gérés, pour les cas suivants : {models}."
+
+#~ msgid ""
+#~ "The configuration of blocks for Home cannot be exported because it "
+#~ "contains references to some instance-blocks ({blocks}), which are not "
+#~ "managed."
+#~ msgstr ""
+#~ "La configuration des blocs pour l'Accueil ne peut pas être exportée car "
+#~ "elle contient des références à des blocs d'instance ({blocks}), qui ne "
+#~ "sont pas gérés."
+
+#~ msgid ""
+#~ "The configuration of blocks for «My page» cannot be exported because it "
+#~ "contains references to some instance-blocks ({blocks}), which are not "
+#~ "managed."
+#~ msgstr ""
+#~ "La configuration des blocs pour «Ma page» ne peut pas être exportée car "
+#~ "elle contient des références à des blocs d'instance ({blocks}), qui ne "
+#~ "sont pas gérés."
+
+>>>>>>> a026714b2... Improve management of FieldsConfigs in export/import of config.
 #~ msgid "No filter"
 #~ msgstr "Pas de filtre"
 
