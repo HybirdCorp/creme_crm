@@ -22,7 +22,8 @@ def convert_settings(apps, schema_editor):
             # password=...,
             encoded_password=signing.dumps(
                 password,
-                salt='creme.emails.models.campaign.EmailSendingConfigItem',
+                # salt='creme.emails.models.campaign.EmailSendingConfigItem',
+                salt='creme.emails.models.sending.EmailSendingConfigItem',
                 # serializer=...,
                 # compress=...,
             ),

@@ -10,8 +10,17 @@ def convert_pw(apps, schema_editor):
     encrypter = SymmetricEncrypter(salt=salt)
 
     for item in apps.get_model('emails', 'EmailSendingConfigItem').objects.exclude(encoded_password=''):
-        pw = signing.loads(item.encoded_password, salt=salt)
-        item.encoded_password = encrypter.encrypt(pw.encode()).decode()
+        try:
+            pw = signing.loads(item.encoded_password, salt=salt)
+        except signing.BadSignature:
+            print(
+                f'Bad signature with EmailSendingConfigItem id={item.id}; '
+                f'you will have to fill the password again.'
+            )
+            item.encoded_password = ''
+        else:
+            item.encoded_password = encrypter.encrypt(pw.encode()).decode()
+
         item.save()
 
 
