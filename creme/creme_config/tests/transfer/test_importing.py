@@ -2822,7 +2822,7 @@ class ImportingTestCase(CremeTestCase):
             descriptor_id=desc.id, role=role, superuser=False,
         )
 
-    def test_customforms_error(self):
+    def test_customforms_error01(self):
         self.login(is_staff=True)
 
         descriptor_id = 'INVALID'
@@ -2838,6 +2838,41 @@ class ImportingTestCase(CremeTestCase):
         self.assertFormError(
             response, 'form', 'config',
             f"The custom-form descriptor ID is invalid: {descriptor_id}",
+        )
+
+    def test_customforms_error02(self):
+        self.login(is_staff=True)
+
+        descriptor_id = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM.id
+        cell_type = 'INVALID'
+        cforms_data = [{
+            'descriptor': descriptor_id,
+            'groups': [
+                {
+                    'name': 'Main',
+                    'layout': LAYOUT_DUAL_FIRST,
+                    'cells': [
+                        {'type': EntityCellRegularField.type_id, 'value': 'user'},
+                        {'type': EntityCellRegularField.type_id, 'value': 'name'},
+                        {'type': cell_type, 'value': 'foobar'},
+                    ],
+                },
+            ],
+        }]
+
+        json_file = StringIO(json_dump({'version': self.VERSION, 'custom_forms': cforms_data}))
+        json_file.name = 'config-2023-05-25.csv'
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertFormError(
+            response, 'form',
+            field='config',
+            errors=_(
+                'The column with type="{type}" is invalid in «{container}».'
+            ).format(
+                type=cell_type,
+                container=_('custom-form with id="{id}"').format(id=descriptor_id),
+            ),
         )
 
     def test_relation_bricks(self):
