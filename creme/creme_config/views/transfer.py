@@ -23,9 +23,11 @@ from json import dumps as json_dump
 from typing import Any
 
 from django.http import HttpResponse
+from django.utils.decorators import method_decorator
 from django.utils.formats import date_format
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from creme.creme_core.auth import STAFF_PERM
 from creme.creme_core.views import generic
@@ -70,6 +72,9 @@ class ConfigExport(generic.CheckedView):
         )
 
 
+# NB about the xframe: the form uses an-iframe (there is a FileField) & we
+#    potentially need to display validation errors.
+@method_decorator(xframe_options_sameorigin, name='dispatch')
 class ConfigImport(generic.CremeFormPopup):
     form_class = ImportForm
     permissions = STAFF_PERM
