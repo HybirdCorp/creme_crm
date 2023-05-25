@@ -10,6 +10,8 @@
   Users side :
   ------------
     # Apps :
+        * Creme_config :
+            - An iframe issue with the view to import configuration has been fixed.
         * Emails :
             - The password for synchronisation servers are stored more securely.
 
