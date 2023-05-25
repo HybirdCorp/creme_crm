@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-24 20:44+0200\n"
+"POT-Creation-Date: 2023-05-25 15:59+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -142,9 +142,6 @@ msgstr "Cette clé primaire de type de relation est invalide : «{}»."
 
 msgid "This relation type cannot be overridden: «{}»."
 msgstr "Ce type de relation ne peut pas être écrasé : «{}»."
-
-msgid "There is already a fields configuration for the model «{}»."
-msgstr "Il y a déjà une configuration de champs pour le modèle «{}»"
 
 msgid "This custom-field type is invalid: {}."
 msgstr "Ce type de champ personnalisé est invalide: {}."
@@ -2462,6 +2459,9 @@ msgstr "Vous n'avez pas la permission de modifier votre nom affiché"
 
 msgid "Edit the instance's settings"
 msgstr "Modifier la configuration de l'instance"
+
+#~ msgid "There is already a fields configuration for the model «{}»."
+#~ msgstr "Il y a déjà une configuration de champs pour le modèle «{}»"
 
 #~ msgid ""
 #~ "The configuration of blocks for detailed-views cannot be exported because "
