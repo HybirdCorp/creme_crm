@@ -12,8 +12,9 @@
     # Apps :
         * Creme_config :
             - An iframe issue with the view to import configuration has been fixed.
-            - The management of FieldsConfigs in transfer (export/import) of configuration has been improved :
-              existing configurations are now overridden.
+            - In transfer (export/import) of configuration :
+                - An issue with extra cells for CustomForms has been fixed.
+                - The management of FieldsConfigs has been improved: existing configurations are now overridden.
         * Emails :
             - The password for synchronisation servers are stored more securely.
 

@@ -47,6 +47,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
 )
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.custom_form import (
+    EntityCellCustomFormExtra,
     EntityCellCustomFormSpecial,
     FieldGroupList,
     customform_descriptor_registry,
@@ -1488,11 +1489,27 @@ class CellProxyCustomFormSpecial(CellProxy):
         pass
 
 
+class CellProxyCustomFormExtra(CellProxy):
+    cell_cls = EntityCellCustomFormExtra
+
+    def _validate(self, validated_data):
+        pass
+
+    def build_cell(self):
+        # We bypass the sub-cell checking; it's not a big problem because the
+        # checking is done when instancing the final form.
+        class LaxEntityCellCustomFormExtra(entity_cell.EntityCell):
+            type_id = self.cell_cls.type_id
+
+        return LaxEntityCellCustomFormExtra(model=self.model, value=self.value)
+
+
 custom_forms_cells_registry = CellProxiesRegistry()
 # TODO: add a method 'register()' ??
 custom_forms_cells_registry(CellProxyRegularField)
 custom_forms_cells_registry(CellProxyCustomField)
 custom_forms_cells_registry(CellProxyCustomFormSpecial)
+custom_forms_cells_registry(CellProxyCustomFormExtra)
 
 
 @IMPORTERS.register(data_id=constants.ID_CUSTOM_FORMS)

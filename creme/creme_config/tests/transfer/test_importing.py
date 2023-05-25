@@ -40,7 +40,10 @@ from creme.creme_core.forms import (
 )
 from creme.creme_core.function_fields import PropertiesField
 from creme.creme_core.gui.button_menu import Button
-from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.custom_form import (
+    EntityCellCustomFormExtra,
+    EntityCellCustomFormSpecial,
+)
 from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
 from creme.creme_core.menu import CremeEntry, RecentEntitiesEntry
 from creme.creme_core.models import (
@@ -2668,7 +2671,7 @@ class ImportingTestCase(CremeTestCase):
             ).format(subfilter=ef_id1, id=ef_id2),
         )
 
-    def test_customforms(self):
+    def test_customforms01(self):
         self.login(is_staff=True)
 
         desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM
@@ -2820,6 +2823,83 @@ class ImportingTestCase(CremeTestCase):
         self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=desc.id, role=role, superuser=False,
+        )
+
+    def test_customforms02(self):
+        "Cells extra."
+        self.login(is_staff=True)
+
+        desc = fake_custom_forms.FAKEACTIVITY_CREATION_CFORM
+        gname1 = 'Main'
+        gname2 = 'When'
+        data = {
+            'version': self.VERSION,
+            'custom_forms': [
+                {
+                    'descriptor': desc.id,
+                    'groups': [
+                        {
+                            'name': gname1,
+                            'layout': LAYOUT_DUAL_FIRST,
+                            'cells': [
+                                {'type': EntityCellRegularField.type_id, 'value': 'user'},
+                                {'type': EntityCellRegularField.type_id, 'value': 'type'},
+                                {'type': EntityCellRegularField.type_id, 'value': 'title'},
+                            ],
+                        }, {
+                            'name': gname2,
+                            'cells': [
+                                {
+                                    'type': EntityCellCustomFormExtra.type_id,
+                                    'value': 'fakeactivity_start',
+                                },
+                                {
+                                    'type': EntityCellCustomFormExtra.type_id,
+                                    'value': 'fakeactivity_end',
+                                },
+                            ],
+                            'layout': LAYOUT_DUAL_SECOND,
+                        },
+                    ],
+                },
+            ],
+        }
+
+        json_file = StringIO(json_dump(data))
+        json_file.name = 'config-2023-05-25.csv'  # Django uses this
+
+        response = self.client.post(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+
+        cfci = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=desc.id, role=None, superuser=False,
+        )
+
+        groups = desc.groups(cfci)
+        self.assertEqual(2, len(groups), groups)
+
+        group1 = groups[0]
+        self.assertEqual(gname1,            group1.name)
+        self.assertEqual(LAYOUT_DUAL_FIRST, group1.layout)
+        self.assertListEqual(
+            [
+                EntityCellRegularField.build(model=FakeActivity, name='user'),
+                EntityCellRegularField.build(model=FakeActivity, name='type'),
+                EntityCellRegularField.build(model=FakeActivity, name='title'),
+            ],
+            [*group1.cells],
+        )
+
+        group2 = groups[1]
+        self.assertEqual(gname2,             group2.name)
+        self.assertEqual(LAYOUT_DUAL_SECOND, group2.layout)
+        self.assertListEqual(
+            [
+                {'type': EntityCellCustomFormExtra.type_id, 'value': 'fakeactivity_start'},
+                {'type': EntityCellCustomFormExtra.type_id, 'value': 'fakeactivity_end'},
+            ],
+            [cell.to_dict() for cell in group2.cells],
         )
 
     def test_customforms_error01(self):
