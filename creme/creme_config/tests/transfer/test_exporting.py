@@ -34,7 +34,10 @@ from creme.creme_core.forms import (
     LAYOUT_REGULAR,
 )
 from creme.creme_core.gui.button_menu import Button
-from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+from creme.creme_core.gui.custom_form import (
+    EntityCellCustomFormExtra,
+    EntityCellCustomFormSpecial,
+)
 from creme.creme_core.gui.menu import (
     ContainerEntry,
     Separator0Entry,
@@ -64,7 +67,7 @@ from creme.creme_core.models import (
     SearchConfigItem,
     SetCredentials,
 )
-from creme.creme_core.tests import fake_custom_forms
+from creme.creme_core.tests import fake_custom_forms, fake_forms
 from creme.creme_core.tests.fake_forms import FakeAddressGroup
 from creme.creme_core.tests.fake_menu import FakeContactsEntry
 
@@ -1896,6 +1899,83 @@ class ExportingTestCase(TransferBaseTestCase):
                         },
                     ],
                 }
+            ],
+            loaded_cforms.get(descriptor_id),
+        )
+
+    def test_customforms03(self):
+        "Extra cells."
+        self.login_as_super(is_staff=True)
+
+        desc = fake_custom_forms.FAKEACTIVITY_CREATION_CFORM
+        descriptor_id = desc.id
+        CustomFormConfigItem.objects.filter(descriptor_id=descriptor_id).delete()
+
+        gname1 = 'Main'
+        gname2 = 'When & where'
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=desc,
+            groups_desc=[
+                {
+                    'name': gname1,
+                    'layout': LAYOUT_DUAL_FIRST,
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'type'}),
+                        (EntityCellRegularField, {'name': 'title'}),
+                    ],
+                }, {
+                    'name': gname2,
+                    'cells': [
+                        fake_forms.FakeActivityStartSubCell().into_cell(),
+                        fake_forms.FakeActivityEndSubCell().into_cell(),
+                        (EntityCellRegularField, {'name': 'place'}),
+                    ],
+                    'layout': LAYOUT_DUAL_SECOND,
+                },
+            ],
+        )
+
+        response = self.assertGET200(self.URL)
+        content = response.json()
+
+        loaded_cforms = defaultdict(list)
+
+        with self.assertNoException():
+            for d in content.get('custom_forms'):
+                loaded_cforms[d['descriptor']].append(d)
+
+        # self.maxDiff = None
+        self.assertListEqual(
+            [
+                {
+                    'descriptor': descriptor_id,
+                    'groups': [
+                        {
+                            'name':  gname1,
+                            'layout':  LAYOUT_DUAL_FIRST,
+                            'cells': [
+                                {'type': EntityCellRegularField.type_id, 'value': 'user'},
+                                {'type': EntityCellRegularField.type_id, 'value': 'type'},
+                                {'type': EntityCellRegularField.type_id, 'value': 'title'},
+                            ],
+                        }, {
+                            'name':  gname2,
+                            'layout':  LAYOUT_DUAL_SECOND,
+                            'cells': [
+                                {
+                                    'type': EntityCellCustomFormExtra.type_id,
+                                    'value': 'fakeactivity_start',
+                                },
+                                {
+                                    'type': EntityCellCustomFormExtra.type_id,
+                                    'value': 'fakeactivity_end',
+                                },
+                                {'type': 'regular_field', 'value': 'place'},
+                            ],
+                        },
+                    ],
+                },
             ],
             loaded_cforms.get(descriptor_id),
         )
