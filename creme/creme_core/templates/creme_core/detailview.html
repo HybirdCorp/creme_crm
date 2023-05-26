@@ -1,10 +1,10 @@
 {# {% extends 'creme_core/base.html' %} #}
 {% extends BASE_HTML %}
-{% load i18n creme_bricks creme_widgets %}{% load get_meta_value from creme_core_tags %}
+{% load i18n creme_bricks creme_ctype creme_widgets %}{% load get_meta_value from creme_core_tags %}
 
 {% block page_title %}{{object}} - {% endblock %}
 
-{% block content_extra_class %}content-detail-view{% endblock %}
+{% block content_extra_class %}content-detail-view {% ctype_for_model object as ctype %}content-detail-view-{{ctype.app_label}}-{{ctype.model}}{% endblock %}
 
 {% block content %}
     {% block global_buttons_container %}
