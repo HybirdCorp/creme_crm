@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2022  Hybird
+#    Copyright (C) 2017-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from ..utils.translation import get_model_verbose_name
 register = Library()
 
 
-# TODO: {% ctype_for_instance %} ?
+# TODO: {% ctype_for_instance %} ? (ctype_for_model already works for instances...)
 # TODO: {% if object|ctype_is:my_ctype %} ?
 
 
