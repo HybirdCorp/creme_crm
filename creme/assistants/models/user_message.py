@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 class UserMessagePriority(core_models.MinionModel):
     title = models.CharField(_('Title'), max_length=200)
 
-    creation_label = pgettext_lazy('assistants-messaqe_priority', 'Create a priority')
+    creation_label = pgettext_lazy('assistants-message', 'Create a priority')
 
     class Meta:
         app_label = 'assistants'
@@ -56,7 +56,8 @@ class UserMessage(core_models.CremeModel):
     )
 
     sender = creme_fields.CremeUserForeignKey(
-        verbose_name=_('Sender'), related_name='sent_assistants_messages_set',
+        verbose_name=pgettext_lazy('assistants-message', 'Sender'),
+        related_name='sent_assistants_messages_set',
     )
     recipient = creme_fields.CremeUserForeignKey(
         verbose_name=_('Recipient'), related_name='received_assistants_messages_set',
