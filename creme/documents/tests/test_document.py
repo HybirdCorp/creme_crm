@@ -1,8 +1,11 @@
 import filecmp
+from decimal import Decimal
 from functools import partial
 from os.path import exists, join
 from pathlib import Path
+from unittest import skipIf
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
@@ -39,6 +42,13 @@ from .base import (
     skipIfCustomDocument,
     skipIfCustomFolder,
 )
+
+if apps.is_installed('creme.products'):
+    from creme.products import product_model_is_custom
+
+    skip_product_test = product_model_is_custom()
+else:
+    skip_product_test = True
 
 
 @skipIfCustomDocument
@@ -701,7 +711,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertIsNone(folder.category)
 
     @skipIfCustomContact
-    def test_field_printers01(self):
+    def test_field_printers_fk01(self):
         "Field printer with FK on Image."
         # user = self.login()
         user = self.login_as_root_and_get()
@@ -737,7 +747,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
 
     @skipIfCustomContact
-    def test_field_printers02(self):
+    def test_field_printers_fk02(self):
         "Field printer with FK on Image + credentials."
         Contact = get_contact_model()
 
@@ -798,7 +808,71 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             HIDDEN_VALUE, render_field(instance=casca, field_name='image__description'),
         )
 
-    # TODO: complete
+    @skipIfCustomContact
+    def test_field_printers_fk03(self):
+        "Document is not an Image."
+        user = self.login_as_root_and_get()
+
+        doc = self._create_doc(user=user, title='Text doc')
+        contact = get_contact_model().objects.create(
+            user=user, image=doc, first_name='Casca', last_name='Mylove',
+        )
+        self.assertHTMLEqual(
+            f'<a href="{doc.get_absolute_url()}" target="_self">{doc}</a>',
+            field_printers_registry.get_field_value(
+                instance=contact, field_name='image', user=user, tag=ViewTag.HTML_DETAIL,
+            ),
+        )
+
+    @skipIf(skip_product_test, '"Product" model is not available.')
+    @override_settings(HIDDEN_VALUE='XXX')
+    def test_field_printers_m2m(self):
+        "Field printer with FK on Image."
+        from creme.products import get_product_model
+        from creme.products.models import SubCategory
+
+        user = self.login_as_standard(
+            allowed_apps=('documents', 'products'),
+            creatable_models=[Document],
+        )
+        SetCredentials.objects.create(
+            role=user.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        folder = Folder.objects.create(user=user, title='My docs')
+        image = self._create_image(user=user, ident=1, title='Doc #1', folder=folder)
+        doc = self._create_doc(user=user, title='Doc #2', folder=folder)
+
+        forbidden = self._create_doc(user=user, title='Doc #3', folder=folder)
+        forbidden.user = self.get_root_user()
+        forbidden.save()
+
+        sub_cat = SubCategory.objects.first()
+        product = get_product_model().objects.create(
+            user=user,
+            name='My product',
+            category=sub_cat.category,
+            sub_category=sub_cat,
+            unit_price=Decimal('10'),
+        )
+        product.images.set([image, doc, forbidden])
+
+        self.assertHTMLEqual(
+            f'''<ul>
+             <li>
+              <a onclick="creme.dialogs.image('{image.get_download_absolute_url()}').open();">
+               {image.get_entity_summary(user)}
+              </a>
+             </li>
+             <li><a href="{doc.get_absolute_url()}" target="_blank">{doc}</a></li>
+             <li>XXX</li>
+            </ul>''',
+            field_printers_registry.get_field_value(
+                instance=product, field_name='images', user=user, tag=ViewTag.HTML_DETAIL,
+            ),
+        )
 
 
 @skipIfCustomDocument
