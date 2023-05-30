@@ -55,7 +55,7 @@ It's recommended to use a database engine which supports transactions :
  - SQLite support is principally done for developers, but it remains a solution
    for small databases (e.g. a use as mono-user app with the server running of your computer).
 
-You probably should use 'virtualenv' (for an upgrade from Creme 2.3, you should create a new
+You probably should use 'virtualenv' (for an upgrade from Creme 2.4, you should create a new
 virtual env, in order to keep the old one working).
 
 
@@ -120,7 +120,7 @@ For an upgrade from the previous major version, back up your existing DB
 (of course you should back up regularly, even when you do not upgrade Creme...).
 
 Project creation:
-For new installations AND for upgrades from Creme 2.3, create a new project ;
+For new installations AND for upgrades from Creme 2.4, create a new project ;
 with the virtualenv activated, use the following command which creates a new folder:
 ```sh
 >> creme creme_start_project my_project
@@ -138,7 +138,7 @@ For an upgrade from the previous version of Creme :
 
 Filling the DB tables & creating the static asset:
 You must be in the parent folder "my_project/" (i.e. not "my_project/my_project/").
-Run the following commands (new installations AND upgrades from Creme 2.3):
+Run the following commands (new installations AND upgrades from a previous version):
 ```sh
 >> creme migrate --settings=my_project.settings
 >> creme creme_populate --settings=my_project.settings
