@@ -335,10 +335,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         self.assertEqual('employs', rgraph.hand.verbose_abscissa)
 
-    @parameterized.expand([
-        (ReportGraph.Group.MONTH,),
-        (ReportGraph.Group.YEAR,),
-    ])
+    @parameterized.expand([ReportGraph.Group.MONTH, ReportGraph.Group.YEAR])
     def test_createview_with_date(self, gtype):
         # user = self.login()
         user = self.login_as_root_and_get()
@@ -479,9 +476,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(gtype,           rgraph.abscissa_type)
 
     @parameterized.expand([
-        (ReportGraph.Group.CUSTOM_DAY,),
-        (ReportGraph.Group.CUSTOM_MONTH,),
-        (ReportGraph.Group.CUSTOM_YEAR,),
+        ReportGraph.Group.CUSTOM_DAY,
+        ReportGraph.Group.CUSTOM_MONTH,
+        ReportGraph.Group.CUSTOM_YEAR,
     ])
     def test_createview_with_customdatetime(self, gtype):
         # user = self.login()
@@ -521,9 +518,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(cf_dt.name, rgraph.hand.verbose_abscissa)
 
     @parameterized.expand([
-        (ReportGraph.Group.CUSTOM_DAY,),
-        (ReportGraph.Group.CUSTOM_MONTH,),
-        (ReportGraph.Group.CUSTOM_YEAR,),
+        ReportGraph.Group.CUSTOM_DAY,
+        ReportGraph.Group.CUSTOM_MONTH,
+        ReportGraph.Group.CUSTOM_YEAR,
     ])
     def test_createview_with_customdate(self, gtype):
         # user = self.login()

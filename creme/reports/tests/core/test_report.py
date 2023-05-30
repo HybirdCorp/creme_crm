@@ -697,8 +697,8 @@ class ReportHandTestCase(CremeTestCase):
         )
 
     @parameterized.expand([
-        ('title', ),  # Not ForeignKey
-        ('unknown', ),
+        'title',  # Not ForeignKey
+        'unknown',
     ])
     def test_related_error(self, fname):
         rfield = Field(

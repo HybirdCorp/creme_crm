@@ -10,11 +10,11 @@ from .base import Organisation, skipIfCustomOrganisation
 @skipIfCustomOrganisation
 class ButtonsTestCase(CremeTestCase):
     @parameterized.expand([
-        (buttons.BecomeCustomerButton, ),
-        (buttons.BecomeProspectButton, ),
-        (buttons.BecomeSuspectButton, ),
-        (buttons.BecomeInactiveButton, ),
-        (buttons.BecomeSupplierButton, ),
+        buttons.BecomeCustomerButton,
+        buttons.BecomeProspectButton,
+        buttons.BecomeSuspectButton,
+        buttons.BecomeInactiveButton,
+        buttons.BecomeSupplierButton,
     ])
     def test_become(self, button_class):
         user = self.get_root_user()

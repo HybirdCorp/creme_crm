@@ -133,10 +133,10 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertFalse(activity.busy)
 
     @parameterized.expand([
-        ('start', ),
-        ('end', ),
-        ('is_all_day', ),
-        ('busy', ),
+        'start',
+        'end',
+        'is_all_day',
+        'busy',
     ])
     def test_inner_edit_start_floating(self, field_name):
         # self.login()

@@ -676,10 +676,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         self.assertEqual(orga2, receivers.get(orga2.email))
         self.assertIsNone(receivers.get(address3, -1))
 
-    @parameterized.expand([
-        (EntityCredentials.LINK, ),
-        (EntityCredentials.VIEW, ),
-    ])
+    @parameterized.expand([EntityCredentials.LINK, EntityCredentials.VIEW])
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_job_related_persons_credentials01(self, cred):

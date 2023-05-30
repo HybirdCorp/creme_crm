@@ -1853,10 +1853,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertStillExists(activity)
 
-    @parameterized.expand([
-        (True, ),
-        (False, ),
-    ])
+    @parameterized.expand([True, False])
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_delete_task(self, deletion_allowed):

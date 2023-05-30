@@ -392,10 +392,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
             response.content,
         )
 
-    @parameterized.expand([
-        (True, ),
-        (False, ),
-    ])
+    @parameterized.expand([True, False])
     def test_delete_entity_auxiliary(self, deletion_allowed):
         with override_settings(ENTITIES_DELETION_ALLOWED=deletion_allowed):
             # user = self.login()
