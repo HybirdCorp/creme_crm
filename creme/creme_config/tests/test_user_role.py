@@ -75,10 +75,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login(is_superuser=False, allowed_apps=apps, admin_4_apps=apps)
         return self.login_as_standard(allowed_apps=apps, admin_4_apps=apps)
 
-    @parameterized.expand([
-        (False,),
-        (True,),
-    ])
+    @parameterized.expand([False, True])
     def test_portal(self, superuser):
         # self.login(is_superuser=superuser, admin_4_apps=['creme_config'])
         if superuser:

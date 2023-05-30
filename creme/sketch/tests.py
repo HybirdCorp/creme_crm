@@ -26,11 +26,11 @@ class ChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
     @parameterized.expand([
         [
             bricks.BarChartBrick,
-            {"limits": [], "transition": True, "xAxisTitle": None, "yAxisTitle": None}
+            {'limits': [], 'transition': True, 'xAxisTitle': None, 'yAxisTitle': None},
         ],
-        [bricks.DonutChartBrick, {"band": 60, "transition": True}],
-        [bricks.GroupBarChartBrick, {"limits": [], "transition": True, "showLegend": True}],
-        [bricks.StackBarChartBrick, {"limits": [], "transition": True, "showLegend": True}],
+        [bricks.DonutChartBrick, {'band': 60, 'transition': True}],
+        [bricks.GroupBarChartBrick, {'limits': [], 'transition': True, 'showLegend': True}],
+        [bricks.StackBarChartBrick, {'limits': [], 'transition': True, 'showLegend': True}],
     ])
     def test_chart_default_props(self, chart_class, expected):
         class FooChartBrick(chart_class):
@@ -47,34 +47,20 @@ class ChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
         [
             bricks.DemoBarChartBrick,
             {
-                "limits": [],
-                "transition": True,
-                "xAxisTitle": "Axis of Abscissas",
-                "yAxisTitle": "Axis of Ordinates"
-            }
+                'limits': [],
+                'transition': True,
+                'xAxisTitle': "Axis of Abscissas",
+                'yAxisTitle': "Axis of Ordinates",
+            },
         ],
-        [
-            bricks.DemoDonutChartBrick,
-            {
-                "band": 60,
-                "transition": True
-            }
-        ],
+        [bricks.DemoDonutChartBrick, {'band': 60, 'transition': True}],
         [
             bricks.DemoGroupBarChartBrick,
-            {
-                "limits": [],
-                "transition": True,
-                "showLegend": True
-            }
+            {'limits': [], 'transition': True, 'showLegend': True},
         ],
         [
             bricks.DemoStackBarChartBrick,
-            {
-                "limits": [],
-                "transition": True,
-                "showLegend": True
-            }
+            {'limits': [], 'transition': True, 'showLegend': True},
         ],
     ])
     def test_demo_chart_render(self, chart_class, expected):
@@ -83,5 +69,5 @@ class ChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
         content = self.render_brick(user, chart_class)
 
         self.assertInHTML(
-            jsondata(expected, **{"class": "sketch-chart-props"}), content, 1
+            jsondata(expected, **{'class': 'sketch-chart-props'}), content, 1,
         )

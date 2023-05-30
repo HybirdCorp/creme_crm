@@ -836,10 +836,7 @@ better &amp; lighter than the previous one.
             form, field='o_recipients', errors=msg % {'entity': orga01},
         )
 
-    @parameterized.expand([
-        (REL_SUB_MAIL_SENT,),
-        (REL_SUB_MAIL_RECEIVED,),
-    ])
+    @parameterized.expand([REL_SUB_MAIL_SENT, REL_SUB_MAIL_RECEIVED])
     @skipIfCustomContact
     def test_createview_disabled_rtype(self, rtype_id):
         # user = self.login()
@@ -1009,10 +1006,7 @@ better &amp; lighter than the previous one.
         )
         self.assertGET403(self._build_send_from_template_url(contact))
 
-    @parameterized.expand([
-        (REL_SUB_MAIL_SENT,),
-        (REL_SUB_MAIL_RECEIVED,),
-    ])
+    @parameterized.expand([REL_SUB_MAIL_SENT, REL_SUB_MAIL_RECEIVED])
     @skipIfCustomContact
     def test_create_from_template_disabled_rtype(self, rtype_id):
         # user = self.login()

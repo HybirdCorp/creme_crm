@@ -840,9 +840,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         post(EntityCellRelation.build(FakeActivity, REL_SUB_HAS))
 
     @parameterized.expand([
-        ('user__username', ),  # Deep field
-        ('place', ),  # Used field
-        ('created', ),  # Not editable field
+        'user__username',  # Deep field
+        'place',  # Used field
+        'created',  # Not editable field
     ])
     def test_group_edition_regularfields_error(self, fname):
         # self.login()

@@ -279,10 +279,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertContains(response, fmt(bricks.InstanceBricksConfigBrick.id))
         self.assertContains(response, fmt(bricks.CustomBricksConfigBrick.id))
 
-    @parameterized.expand([
-        (False,),
-        (True,),
-    ])
+    @parameterized.expand([False, True])
     def test_add_detailview(self, superuser):
         # self.login(is_superuser=superuser, admin_4_apps=['creme_core'])
         # role = None if superuser else self.role
@@ -1095,10 +1092,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                                    .count()
         )
 
-    @parameterized.expand([
-        (False,),
-        (True,),
-    ])
+    @parameterized.expand([False, True])
     def test_add_home(self, superuser):
         # self.login(is_superuser=superuser, admin_4_apps=['creme_core'])
         # role = None if superuser else self.role

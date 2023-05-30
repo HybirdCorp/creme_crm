@@ -292,9 +292,9 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertNotIn(recipient.address, addresses)
 
     @parameterized.expand([
-        ('\n',),    # Unix EOF
-        ('\r\n',),  # Windows EOF
-        ('\r',),    # Old Mac EOF
+        '\n',    # Unix EOF
+        '\r\n',  # Windows EOF
+        '\r',    # Old Mac EOF
     ])
     def test_add_recipients_from_csv(self, end):
         # user = self.login()

@@ -1007,10 +1007,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         ))
         self.assertIsInstance(abs_info, AbscissaInfo)
 
-    @parameterized.expand([
-        (CustomField.DATETIME,),
-        (CustomField.DATE,),
-    ])
+    @parameterized.expand([CustomField.DATETIME, CustomField.DATE])
     def test_clean_cfield_date_year(self, cfield_type):
         model = FakeContact
         graph_type = ReportGraph.Group.CUSTOM_YEAR
@@ -1038,10 +1035,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertEqual(graph_type, abs_info.graph_type)
         self.assertIsNone(abs_info.parameter)
 
-    @parameterized.expand([
-        (CustomField.DATETIME,),
-        (CustomField.DATE,),
-    ])
+    @parameterized.expand([CustomField.DATETIME, CustomField.DATE])
     def test_clean_cfield_date_month(self, cfield_type):
         model = FakeContact
         graph_type = ReportGraph.Group.CUSTOM_MONTH
@@ -1066,10 +1060,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertEqual(graph_type, abs_info.graph_type)
         self.assertIsNone(abs_info.parameter)
 
-    @parameterized.expand([
-        (CustomField.DATETIME,),
-        (CustomField.DATE,),
-    ])
+    @parameterized.expand([CustomField.DATETIME, CustomField.DATE])
     def test_clean_cfield_date_day(self, cfield_type):
         model = FakeContact
         graph_type = ReportGraph.Group.CUSTOM_DAY
