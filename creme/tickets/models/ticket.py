@@ -55,7 +55,8 @@ class TicketMixin(CremeEntity):
         Priority, verbose_name=_('Priority'), on_delete=CREME_REPLACE,
     )
     criticity = models.ForeignKey(
-        Criticity, verbose_name=_('Criticity'), on_delete=CREME_REPLACE,
+        # Criticity, verbose_name=_('Criticity'), on_delete=CREME_REPLACE,
+        Criticity, verbose_name=_('Criticality'), on_delete=CREME_REPLACE,
     )
     solution = models.TextField(_('Solution'), blank=True)
 
