@@ -251,8 +251,8 @@ class HistoryBrick(QuerysetBrick):
             hline.can_be_viewed = user.has_perm_to_view(entity) if entity is not None else True
 
     def detailview_display(self, context):
-        pk = context['object'].pk
-        btc = self.get_template_context(context, HistoryLine.objects.filter(entity=pk))
+        entity = context['object']
+        btc = self.get_template_context(context, HistoryLine.objects.filter(entity=entity.pk))
         hlines = btc['page'].object_list
         user = context['user']
 
@@ -264,7 +264,9 @@ class HistoryBrick(QuerysetBrick):
         self._populate_explainers([*hlines, *related_hlines], user)
 
         for hline in hlines:
-            # All lines are referencing context['object'], which can be viewed.
+            hline.entity = entity  # Avoids queries
+
+            # All lines are referencing "entity", which can be viewed.
             hline.can_be_viewed = True
 
         return self._render(btc)

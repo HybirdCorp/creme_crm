@@ -5,16 +5,16 @@ from unittest.case import skipIf
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.sessions.backends.base import SessionBase
+# from django.contrib.sessions.backends.base import SessionBase
 from django.db.models.query_utils import Q
-from django.test.client import RequestFactory
+# from django.test.client import RequestFactory
 from django.urls.base import reverse
 from django.utils.timezone import datetime, make_aware
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.gui.bricks import BricksManager
+# from creme.creme_core.gui.bricks import BricksManager
 from creme.creme_core.models.auth import SetCredentials
 from creme.creme_core.models.bricks import (
     BrickDetailviewLocation,
@@ -51,30 +51,29 @@ from creme.reports.tests.fake_models import (
 
 from .base import Report, ReportGraph, skipIfCustomReport, skipIfCustomRGraph
 
+# def detailview_display_context(entity, user):
+#     request = RequestFactory().get(entity.get_absolute_url())
+#     request.session = SessionBase()
+#     request.user = user
+#
+#     return {
+#         'object': entity,
+#         'request': request,
+#         'user': user,
+#         BricksManager.var_name: BricksManager(),
+#     }
 
-def detailview_display_context(entity, user):
-    request = RequestFactory().get(entity.get_absolute_url())
-    request.session = SessionBase()
-    request.user = user
 
-    return {
-        'object': entity,
-        'request': request,
-        'user': user,
-        BricksManager.var_name: BricksManager(),
-    }
-
-
-def home_display_context(user):
-    request = RequestFactory().get(reverse('creme_core__home'))
-    request.session = SessionBase()
-    request.user = user
-
-    return {
-        'request': request,
-        'user': user,
-        BricksManager.var_name: BricksManager(),
-    }
+# def home_display_context(user):
+#     request = RequestFactory().get(reverse('creme_core__home'))
+#     request.session = SessionBase()
+#     request.user = user
+#
+#     return {
+#         'request': request,
+#         'user': user,
+#         BricksManager.var_name: BricksManager(),
+#     }
 
 
 def create_fake_docs(user):
@@ -125,7 +124,8 @@ class D3ReportGraphChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         user = self.get_root_user()
         graph = self._create_documents_rgraph(user=user)
 
-        context = detailview_display_context(graph, user)
+        # context = detailview_display_context(graph, user)
+        context = self.build_context(user=user, instance=graph)
 
         brick = ReportGraphChartBrick()
         brick.detailview_display(context)
@@ -149,7 +149,8 @@ class D3ReportGraphChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         create_fake_docs(user)
 
-        context = detailview_display_context(graph, user)
+        # context = detailview_display_context(graph, user)
+        context = self.build_context(user=user, instance=graph)
         data = [
             {
                 'x': '2022',
@@ -204,7 +205,8 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
         user = self.get_root_user()
         report = self._create_simple_documents_report(user=user)
 
-        context = detailview_display_context(report, user)
+        # context = detailview_display_context(report, user)
+        context = self.build_context(user=user, instance=report)
 
         brick = ReportGraphChartListBrick()
         brick.detailview_display(context)
@@ -224,7 +226,8 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
         report = self._create_simple_documents_report(user=user)
         graph_by_year, graph_by_month = self._create_report_graphs(report)
 
-        context = detailview_display_context(report, user)
+        # context = detailview_display_context(report, user)
+        context = self.build_context(user=user, instance=report)
 
         brick = ReportGraphChartListBrick()
         brick.detailview_display(context)
@@ -274,7 +277,8 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
         create_fake_docs(user)
 
         brick = ReportGraphChartListBrick()
-        brick.detailview_display(detailview_display_context(report, user))
+        # brick.detailview_display(detailview_display_context(report, user))
+        brick.detailview_display(self.build_context(user=user, instance=report))
 
         graph_by_year_data = [
             {
@@ -356,7 +360,8 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
         graph = self._create_documents_rgraph(user=user)
         instance = self._create_graph_instance_brick(graph)
 
-        context = detailview_display_context(graph, user)
+        # context = detailview_display_context(graph, user)
+        context = self.build_context(user=user, instance=graph)
 
         brick = ReportGraphChartInstanceBrick(instance)
         brick.detailview_display(context)
@@ -383,7 +388,8 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
 
         create_fake_docs(user)
 
-        context = detailview_display_context(graph, user)
+        # context = detailview_display_context(graph, user)
+        context = self.build_context(user=user, instance=graph)
         data = [
             {
                 'x': '2022',
@@ -417,7 +423,8 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
         graph = self._create_documents_rgraph(user=user)
         instance = self._create_graph_instance_brick(graph)
 
-        context = home_display_context(user)
+        # context = home_display_context(user)
+        context = self.build_context(user=user)
 
         brick = ReportGraphChartInstanceBrick(instance)
         brick.home_display(context)
@@ -444,7 +451,8 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
 
         create_fake_docs(user)
 
-        context = home_display_context(user)
+        # context = home_display_context(user)
+        context = self.build_context(user=user)
         data = [
             {
                 'x': '2022',

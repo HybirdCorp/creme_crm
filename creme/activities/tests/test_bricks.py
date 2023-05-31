@@ -3,8 +3,6 @@ from functools import partial
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.sessions.backends.base import SessionBase
-from django.test import RequestFactory
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
@@ -12,7 +10,6 @@ from django.utils.translation import ngettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import REL_SUB_HAS
-from creme.creme_core.gui.bricks import BricksManager
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -74,8 +71,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_participants_brick(self):
         ParticipantsBrick.page_size = max(4, settings.BLOCK_SIZE)
 
-        # # user = self.login()
-        user = self.login_as_root_and_get()
+        # user = self.login()
         user = self.login_as_root_and_get()
         activity = self._create_meeting(user=user)
 
@@ -92,12 +88,6 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_rel(subject_entity=c2, type_id=REL_SUB_PART_2_ACTIVITY)
         create_rel(subject_entity=c3, type_id=REL_SUB_ACTIVITY_SUBJECT)
 
-        brick = ParticipantsBrick()
-
-        request = RequestFactory().get(activity.get_absolute_url())
-        request.session = SessionBase()
-        request.user = user
-
         ContentType.objects.get_for_model(Relation)  # Fill cache
 
         # Queries:
@@ -108,15 +98,11 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         #   - Contact (with user/is_user/civility)
         #   - Calendar
         with self.assertNumQueries(6):
-            render = brick.detailview_display({
-                'object': activity,
-                'request': request,
-                'user': user,
-                BricksManager.var_name: BricksManager(),
-            })
+            render = ParticipantsBrick().detailview_display(
+                self.build_context(user=user, instance=activity)
+            )
 
-        tree = self.get_html_tree(render)
-        brick_node = self.get_brick_node(tree, ParticipantsBrick)
+        brick_node = self.get_brick_node(self.get_html_tree(render), ParticipantsBrick)
         self.assertInstanceLink(brick_node, c1)
         self.assertInstanceLink(brick_node, c2)
         self.assertNoInstanceLink(brick_node, c3)
@@ -126,8 +112,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_subjects_brick(self):
         SubjectsBrick.page_size = max(4, settings.BLOCK_SIZE)
 
-        # # user = self.login()
-        user = self.login_as_root_and_get()
+        # user = self.login()
         user = self.login_as_root_and_get()
         activity = self._create_meeting(user=user)
 
@@ -147,12 +132,6 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_rel(subject_entity=c3,   type_id=REL_SUB_ACTIVITY_SUBJECT)
         create_rel(subject_entity=orga, type_id=REL_SUB_ACTIVITY_SUBJECT)
 
-        brick = SubjectsBrick()
-
-        request = RequestFactory().get(activity.get_absolute_url())
-        request.session = SessionBase()
-        request.user = user
-
         ContentType.objects.get_for_model(Relation)  # Fill cache
 
         # Queries:
@@ -163,15 +142,11 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         #   - Contact
         #   - Organisation
         with self.assertNumQueries(6):
-            render = brick.detailview_display({
-                'object': activity,
-                'request': request,
-                'user': user,
-                BricksManager.var_name: BricksManager(),
-            })
+            render = SubjectsBrick().detailview_display(
+                self.build_context(user=user, instance=activity)
+            )
 
-        tree = self.get_html_tree(render)
-        brick_node = self.get_brick_node(tree, SubjectsBrick)
+        brick_node = self.get_brick_node(self.get_html_tree(render), SubjectsBrick)
         self.assertInstanceLink(brick_node, c2)
         self.assertInstanceLink(brick_node, c3)
         self.assertInstanceLink(brick_node, orga)

@@ -743,6 +743,26 @@ class _CremeTestCase:
 
         return request
 
+    # TODO: @classmethod (build_request() too)
+    def build_context(self, user, url=None, instance=None):
+        from django.template.context import make_context
+        from django.template.engine import Engine
+
+        if not url:
+            url = reverse('creme_core__home') if instance is None else instance.get_absolute_url()
+
+        request = self.build_request(url=url, user=user)
+
+        context = make_context({}, request)
+
+        for processor in Engine.get_default().template_context_processors:
+            context.update(processor(request))
+
+        if instance is not None:
+            context['object'] = instance
+
+        return context.flatten()
+
     @staticmethod
     def create_datetime(*args, **kwargs):
         tz = timezone.utc if kwargs.pop('utc', False) else get_current_timezone()
