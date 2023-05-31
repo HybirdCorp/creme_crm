@@ -130,9 +130,10 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
 
 
 # NB: model (i.e. _meta.model) is set later, because this class is only used as base class
-class LineEditForm(core_forms.CremeModelForm):
-    # TODO: we want to disabled CreatorChoiceField ;
-    #       should we disabled globally this feature with Vat model ??
+# class LineEditForm(core_forms.CremeModelForm):
+class LineEditionForm(core_forms.CremeModelForm):
+    # TODO: we want to disable CreatorChoiceField;
+    #       should we disable globally this feature with Vat model ??
     vat_value = forms.ModelChoiceField(
         label=_('Vat'), queryset=Vat.objects.all(), empty_label=None,
     )
@@ -273,9 +274,10 @@ class AddToCatalogForm(core_forms.CremeForm):
         )
 
 
-class BaseLineEditFormset(formset_factory(core_forms.CremeModelForm, formset=BaseModelFormSet)):
+# class BaseLineEditFormset(formset_factory(core_forms.CremeModelForm, formset=BaseModelFormSet)):
+class BaseLineEditionFormset(formset_factory(core_forms.CremeModelForm, formset=BaseModelFormSet)):
     model = None
-    base_form_class = LineEditForm
+    base_form_class = LineEditionForm
     extra = 0
     can_delete = True
 
@@ -294,4 +296,5 @@ class BaseLineEditFormset(formset_factory(core_forms.CremeModelForm, formset=Bas
         return self.form_class(
             self.user,
             related_document=self.related_document,
-            **kwargs)
+            **kwargs
+        )

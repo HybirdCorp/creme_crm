@@ -299,20 +299,23 @@
                 - The form 'forms.sending.SendingCreateForm' has been replaced by a new one, 'SendingCreationForm'.
                 - The attribute 'utils.EMailSender._mime_images' has been removed.
             * Billing :
-                - In 'forms.payment_information', the classes have been renamed :
-                    - 'PaymentInformationCreateForm' => 'PaymentInformationCreationForm'.
-                    - 'PaymentInformationEditForm' => 'PaymentInformationEditionForm'.
+                - In 'forms', these classes have been renamed :
+                    - 'credit_note.CreditNotePopupEditForm' => 'CreditNotePopupEditionForm'.
+                    - 'line.LineEditForm' => 'LineEditionForm'.
+                    - 'line.BaseLineEditFormset' => 'BaseLineEditionFormset'.
+                    - 'payment_information.PaymentInformationCreateForm' => 'PaymentInformationCreationForm'.
+                    - 'payment_information.PaymentInformationEditForm' => 'PaymentInformationEditionForm'.
                 - The function 'utils.print_discount()' has been fixed with the new printers signature.
             * Commercial :
                 - In 'forms', several classes have ben renamed :
                     - 'commercial_approach.ComAppCreateForm' => 'ComAppCreationForm'.
                     - 'strategy.SegmentCreateForm' => 'SegmentCreationForm'.
                     - 'strategy.SegmentEditForm' => 'SegmentEditionForm'.
-                    - 'strategy.SegmentLinkgForm' => 'SegmentLinkingForm'.
+                    - 'strategy.SegmentLinkForm' => 'SegmentLinkingForm'.
             * Mobile :
-                - In 'mobile.forms' :
-                    - the class 'MobileContactCreateForm' has been renamed 'MobileContactCreationForm'.
-                    - the class 'MobileOrganisationCreateForm' has been renamed 'MobileOrganisationCreationForm'.
+                - In 'forms', these classes have been renamed :
+                    - 'MobileContactCreateForm' => 'MobileContactCreationForm'.
+                    - 'MobileOrganisationCreateForm' => 'MobileOrganisationCreationForm'.
             * Graphs :
                 - The template "graphs/graph_error.html" has been removed.
             * Tickets :

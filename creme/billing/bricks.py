@@ -97,7 +97,7 @@ class _LinesBrick(SimpleBrick):
         line_model = self.line_model
         lines = document.get_lines(line_model).order_by('order')
 
-        lineformset = line_forms.BaseLineEditFormset(
+        lineformset = line_forms.BaseLineEditionFormset(
             line_model,
             user,
             related_document=document,
