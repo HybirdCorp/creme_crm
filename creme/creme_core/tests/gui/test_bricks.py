@@ -1,8 +1,8 @@
 from functools import partial
 
-from django.contrib.sessions.backends.base import SessionBase
-from django.template.context import make_context
-from django.template.engine import Engine
+# from django.contrib.sessions.backends.base import SessionBase
+# from django.template.context import make_context
+# from django.template.engine import Engine
 from django.test import RequestFactory
 from django.utils.translation import gettext as _
 
@@ -1213,22 +1213,21 @@ class BrickTestCase(CremeTestCase):
             [c for c in page.object_list if c.id in ids],
         )
 
-    # TODO: factorise (see CremeBricksTagsTestCase)
-    def _build_request(self, *, user=None, url='/'):
-        request = self.factory.get(url)
-        request.session = SessionBase()
-        request.user = user or self.user
+    # def _build_request(self, *, user=None, url='/'):
+    #     request = self.factory.get(url)
+    #     request.session = SessionBase()
+    #     request.user = user or self.user
+    #
+    #     return request
 
-        return request
-
-    @staticmethod
-    def _build_context(request):
-        context = make_context({}, request)
-
-        for processor in Engine.get_default().template_context_processors:
-            context.update(processor(request))
-
-        return context.flatten()
+    # @staticmethod
+    # def _build_context(request):
+    #     context = make_context({}, request)
+    #
+    #     for processor in Engine.get_default().template_context_processors:
+    #         context.update(processor(request))
+    #
+    #     return context.flatten()
 
     def test_relation_type_deps(self):
         class OKBrick1(Brick):
@@ -1299,7 +1298,7 @@ class BrickTestCase(CremeTestCase):
         brick.page_size = 2
         template_context = brick.get_template_context(
             # self._build_context(self._build_request()),
-            self._build_context(self._build_request(user=user)),
+            self.build_context(user=user),
             FakeContact.objects.filter(description=description),
         )
 
@@ -1324,9 +1323,9 @@ class BrickTestCase(CremeTestCase):
         brick = self.OrderedBrick()
         brick.page_size = 2
         # request = self._build_request(f'/?{brick.id_}_page=2')
-        request = self._build_request(user=user, url=f'/?{brick.id}_page=2')
         template_context = brick.get_template_context(
-            self._build_context(request),
+            # self._build_context(request),
+            self.build_context(user=user, url=f'/?{brick.id}_page=2'),
             FakeContact.objects.filter(description=description),
         )
 
@@ -1347,9 +1346,9 @@ class BrickTestCase(CremeTestCase):
         brick = self.OrderedBrick()
         brick.page_size = 2
         # request = self._build_request(f'/?{brick.id_}_page=NaN')
-        request = self._build_request(user=user, url=f'/?{brick.id}_page=NaN')
         template_context = brick.get_template_context(
-            self._build_context(request),
+            # self._build_context(request),
+            self.build_context(user=user, url=f'/?{brick.id}_page=NaN'),
             FakeContact.objects.filter(description=description),
         )
 
@@ -1370,9 +1369,9 @@ class BrickTestCase(CremeTestCase):
         brick = self.OrderedBrick()
         brick.page_size = 2
         # request = self._build_request(f'/?{brick.id_}_page=3')
-        request = self._build_request(user=user, url=f'/?{brick.id}_page=3')
         template_context = brick.get_template_context(
-            self._build_context(request),
+            # self._build_context(request),
+            self.build_context(user=user, url=f'/?{brick.id}_page=3'),
             FakeContact.objects.filter(description=description),
         )
 
@@ -1392,7 +1391,7 @@ class BrickTestCase(CremeTestCase):
         brick = self.OrderedBrick()
         template_context = brick.get_template_context(
             # self._build_context(self._build_request()),
-            self._build_context(self._build_request(user=user)),
+            self.build_context(user=user),
             FakeContact.objects.all(),
         )
 
@@ -1424,7 +1423,7 @@ class BrickTestCase(CremeTestCase):
         brick = ProblematicBrick()
         template_context = brick.get_template_context(
             # self._build_context(self._build_request()),
-            self._build_context(self._build_request(user=user)),
+            self.build_context(user=user),
             FakeContact.objects.all(),
         )
         self._assertPageOrderedLike(template_context['page'], [cranel, crozzo, wallen])
@@ -1444,18 +1443,18 @@ class BrickTestCase(CremeTestCase):
 
         # ASC
         # request = self._build_request(f'/?{brick.id_}_order=first_name')
-        request = self._build_request(user=user, url=f'/?{brick.id}_order=first_name')
         template_context = brick.get_template_context(
-            self._build_context(request),
+            # self._build_context(request),
+            self.build_context(user=user, url=f'/?{brick.id}_order=first_name'),
             FakeContact.objects.all(),
         )
         self._assertPageOrderedLike(template_context['page'], [aiz, bell, lili, welf])
 
         # DESC
         # request = self._build_request(f'/?{brick.id_}_order=-first_name')
-        request = self._build_request(user=user, url=f'/?{brick.id}_order=-first_name')
         template_context = brick.get_template_context(
-            self._build_context(request),
+            # self._build_context(request),
+            self.build_context(user=user, url=f'/?{brick.id}_order=-first_name'),
             FakeContact.objects.all(),
         )
         self._assertPageOrderedLike(template_context['page'], [welf, lili, bell, aiz])
@@ -1472,9 +1471,9 @@ class BrickTestCase(CremeTestCase):
 
         brick = self.OrderedBrick()
         # request = self._build_request(f'/?{brick.id_}_order=unknown')
-        request = self._build_request(user=user, url=f'/?{brick.id}_order=unknown')
         template_context = brick.get_template_context(
-            self._build_context(request),
+            # self._build_context(request),
+            self.build_context(user=user, url=f'/?{brick.id}_order=unknown'),
             FakeContact.objects.all()
         )
 
@@ -1496,9 +1495,9 @@ class BrickTestCase(CremeTestCase):
 
         brick = self.OrderedBrick()
         # request = self._build_request(f'/?{brick.id_}_order=languages')
-        request = self._build_request(user=user, url=f'/?{brick.id}_order=languages')
         template_context = brick.get_template_context(
-            self._build_context(request),
+            # self._build_context(request),
+            self.build_context(user=user, url=f'/?{brick.id}_order=languages'),
             FakeContact.objects.all()
         )
 
