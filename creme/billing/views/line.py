@@ -188,7 +188,7 @@ def multi_save_lines(request, document_id):
             relations__type=constants.REL_OBJ_HAS_LINE,
         )
 
-        lineformset = line_forms.BaseLineEditFormset(
+        lineformset = line_forms.BaseLineEditionFormset(
             line_model,
             user,
             related_document=b_entity,
