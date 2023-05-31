@@ -9,6 +9,7 @@
 
   Users side :
   ------------
+    # Some small fixes have been made on the multi-checkbox widget.
     # Apps :
         * Creme_config :
             - An iframe issue with the view to import configuration has been fixed.
