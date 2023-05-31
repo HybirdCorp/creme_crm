@@ -925,7 +925,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(1, Service.objects.count())
 
     @skipIfCustomServiceLine
-    def test_multi_save_lines01(self):
+    def test_multi_save_lines__1_edition(self):
         "1 service line updated."
         # user = self.login()
         user = self.login_as_root_and_get()
@@ -976,7 +976,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(discount_unit,       service_line.discount_unit)
 
     @skipIfCustomProductLine
-    def test_multi_save_lines02(self):
+    def test_multi_save_lines__1_creation_1_deletion(self):
         "1 product line created on the fly and 1 deleted."
         # user = self.login()
         user = self.login_as_root_and_get()
@@ -1028,8 +1028,8 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(1,                   product_line.order)
 
     @skipIfCustomServiceLine
-    def test_multi_save_lines03(self):
-        "No creds."
+    def test_multi_save_lines__credentials_error(self):
+        "No CHANGE creds."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Contact, Organisation],
@@ -1052,7 +1052,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
         )
 
-        self.assertPOST403(
+        response = self.client.post(
             self._build_msave_url(invoice),
             data={
                 service_line.entity_type_id: json_dump({
@@ -1071,9 +1071,15 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
                 }),
             },
         )
+        self.assertContains(
+            response,
+            _('You are not allowed to edit this entity: {}').format(invoice),
+            status_code=403,
+            html=True,
+        )
 
     @skipIfCustomServiceLine
-    def test_multi_save_lines04(self):
+    def test_multi_save_lines__discount_amount_per_line(self):
         "Other type of discount: amount per line."
         # user = self.login()
         user = self.login_as_root_and_get()
@@ -1111,8 +1117,8 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(discount_unit, service_line.discount_unit)
 
     @skipIfCustomServiceLine
-    def test_multi_save_lines05(self):
-        "Other type of discount: amount per item"
+    def test_multi_save_lines__discount_amount_per_item(self):
+        "Other type of discount: amount per item."
         # user = self.login()
         user = self.login_as_root_and_get()
 
@@ -1148,7 +1154,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(discount_unit, self.refresh(service_line).discount_unit)
 
     @skipIfCustomServiceLine
-    def test_multi_save_lines06(self):
+    def test_multi_save_lines__related_service(self):
         "1 service line updated with concrete related Service."
         # user = self.login()
         user = self.login_as_root_and_get()
@@ -1194,7 +1200,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertIsNone(line.on_the_fly_item)
         self.assertEqual(Decimal('51'), line.unit_price)
 
-    def test_multi_save_lines07(self):
+    def test_multi_save_lines__errors(self):
         "Bad related model."
         # user = self.login()
         user = self.login_as_root_and_get()
@@ -1217,6 +1223,101 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
                     'product_line_formset-0-unit':            'month',
                 }),
             },
+        )
+
+    @skipIfCustomProductLine
+    def test_multi_save_lines__validation_errors01(self):
+        "No saved line."
+        user = self.login_as_root_and_get()
+
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
+        name = 'new on the fly product'
+        quantity = '2'
+        unit = 'month'
+        ct_id = ContentType.objects.get_for_model(ProductLine).id
+        response = self.assertPOST409(
+            self._build_msave_url(invoice),
+            data={
+                ct_id: json_dump({
+                    'product_line_formset-TOTAL_FORMS':   1,
+                    'product_line_formset-INITIAL_FORMS': 0,
+                    'product_line_formset-MAX_NUM_FORMS':     '',
+                    'product_line_formset-0-user':            user.id,
+                    'product_line_formset-0-on_the_fly_item': name,
+                    # 'product_line_formset-0-unit_price':    ...,   Missing
+                    'product_line_formset-0-quantity':        quantity,
+                    'product_line_formset-0-discount':        '50.00',
+                    'product_line_formset-0-discount_unit':   '1',
+                    'product_line_formset-0-vat_value':       Vat.objects.all()[0].id,
+                    'product_line_formset-0-unit':            unit,
+                }),
+            },
+        )
+        self.assertTemplateUsed(response, 'billing/frags/lines-errors.html')
+
+        errors = response.context.get('errors')
+        self.assertIsList(errors, length=1)
+
+        error = errors[0]
+        self.assertIsDict(error, length=3)
+        self.assertIsNone(error.get('item', -1))
+        self.assertIn('instance', error)
+        self.assertListEqual(
+            [(ProductLine._meta.get_field('unit_price'), [_('This field is required.')])],
+            error.get('errors'),
+        )
+
+    @skipIfCustomProductLine
+    def test_multi_save_lines__validation_errors02(self):
+        "Edited line + non field error."
+        user = self.login_as_root_and_get()
+
+        invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
+        line = ProductLine.objects.create(
+            user=user, related_document=invoice,
+            on_the_fly_item='Awesome product',
+            unit_price=Decimal('50.0'),
+            vat_value=Vat.objects.all()[0],
+        )
+        response = self.assertPOST409(
+            self._build_msave_url(invoice),
+            data={
+                line.entity_type_id: json_dump({
+                    'product_line_formset-TOTAL_FORMS':       1,
+                    'product_line_formset-INITIAL_FORMS':     1,
+                    'product_line_formset-MAX_NUM_FORMS':     '',
+                    'product_line_formset-0-cremeentity_ptr': line.id,
+                    'product_line_formset-0-user':            user.id,
+                    'product_line_formset-0-on_the_fly_item': 'New name',
+                    'product_line_formset-0-unit_price':      str(line.unit_price),
+                    'product_line_formset-0-quantity':        str(line.quantity),
+                    'product_line_formset-0-vat_value':       line.vat_value_id,
+                    'product_line_formset-0-unit':            line.unit,
+
+                    # Error:
+                    'product_line_formset-0-discount_unit': str(ProductLine.Discount.PERCENT),
+                    'product_line_formset-0-discount':      '101.00',
+                }),
+            },
+        )
+        self.assertTemplateUsed(response, 'billing/frags/lines-errors.html')
+
+        errors = response.context.get('errors')
+        self.assertIsList(errors, length=1)
+
+        error = errors[0]
+        self.assertIsDict(error, length=3)
+        self.assertEqual(line.on_the_fly_item, error.get('item'))  # Not 'New name'
+        self.assertIn('instance', error)
+        self.assertListEqual(
+            [(
+                None,
+                [_(
+                    'If you choose % for your discount unit, '
+                    'your discount must be between 1 and 100%'
+                )],
+            )],
+            error.get('errors'),
         )
 
     @skipIfCustomProductLine
@@ -1265,9 +1366,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         response = self.client.post(
             self._build_msave_url(invoice),
-            data={
-                lines[0].entity_type_id: json_dump(data)
-            },
+            data={lines[0].entity_type_id: json_dump(data)},
         )
 
         self.assertNoFormError(response)
