@@ -498,17 +498,18 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 /*---------------------------------*/
-
+/*
 .ui-creme-checklistselect {
     padding: 1px;
 }
+*/
 
 .ui-creme-checklistselect .checklist-header {
     float: right;
     color: #777;
-    margin-top: 2px;
     margin-bottom: 2px;
     margin-right: 5px;
+    display: flex;
 }
 
 .ui-creme-checklistselect.is-disabled .checklist-header {
@@ -518,7 +519,6 @@ input:disabled + .ui-datepicker-trigger {
 .ui-creme-checklistselect .checklist-header a {
     color: #777;
     background-color: none;
-    vertical-align: middle;
     text-shadow: none;
 
     -webkit-transition: none;
@@ -526,6 +526,8 @@ input:disabled + .ui-datepicker-trigger {
         -ms-transition: none;
          -o-transition: none;
             transition: none;
+
+    transition: none;
 }
 
 .ui-creme-checklistselect .checklist-header a+a {
@@ -552,7 +554,6 @@ input:disabled + .ui-datepicker-trigger {
 
 .ui-creme-checklistselect .checklist-header .checklist-filter {
     margin-left: 8px;
-    margin-top: 2px;
     margin-bottom: 2px;
 
     font-size: 10px;
@@ -560,16 +561,17 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 .ui-creme-checklistselect .checklist-counter {
+    display: inline-block;
+    visibility: hidden;
+
     float: left;
-    color: #777;
     margin-left: 2px;
-    margin-top: 2px;
     margin-bottom: 2px;
-    display: none;
+    color: #777;
 }
 
 .ui-creme-checklistselect .checklist-counter.visible {
-    display: inline-block;
+    visibility: visible;
 }
 
 .ui-creme-checklistselect .checklist-content {
@@ -602,7 +604,7 @@ input:disabled + .ui-datepicker-trigger {
     display: -ms-flexbox;
     display: flex;
 
-    margin-right: 20px;
+    margin-right: 10px;
 
     padding-top: 2px;
     padding-bottom: 2px;
