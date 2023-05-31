@@ -485,17 +485,18 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 /*---------------------------------*/
+/*
 .ui-creme-checklistselect {
     padding: 1px;
 }
+*/
 
 .ui-creme-checklistselect .checklist-header {
     float: right;
-    margin-top: 2px;
+    color: #777;
     margin-bottom: 2px;
     margin-right: 5px;
-
-    color: #777;
+    display: flex;
 }
 
 .ui-creme-checklistselect.is-disabled .checklist-header {
@@ -505,17 +506,14 @@ input:disabled + .ui-datepicker-trigger {
 .ui-creme-checklistselect .checklist-header a {
     color: #777;
     background-color: none;
-    vertical-align: middle;
     text-shadow: none;
-
     transition: none;
 }
 
 .ui-creme-checklistselect .checklist-header a+a {
+    border-left: 1px solid #777;
     padding-left: 4px;
     margin-left: 4px;
-
-    border-left: 1px solid #777;
 }
 
 .ui-creme-checklistselect .checklist-header a:hover {
@@ -536,7 +534,6 @@ input:disabled + .ui-datepicker-trigger {
 
 .ui-creme-checklistselect .checklist-header .checklist-filter {
     margin-left: 8px;
-    margin-top: 2px;
     margin-bottom: 2px;
 
     font-size: 10px;
@@ -544,18 +541,17 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 .ui-creme-checklistselect .checklist-counter {
-    display: none;
+    display: inline-block;
+    visibility: hidden;
+
     float: left;
-
     margin-left: 2px;
-    margin-top: 2px;
     margin-bottom: 2px;
-
     color: #777;
 }
 
 .ui-creme-checklistselect .checklist-counter.visible {
-    display: inline-block;
+    visibility: visible;
 }
 
 .ui-creme-checklistselect .checklist-content {
@@ -577,7 +573,7 @@ input:disabled + .ui-datepicker-trigger {
 .ui-creme-checklistselect .checklist-content .checkbox-field {
     display: flex;
 
-    margin-right: 20px;
+    margin-right: 10px;
 
     padding-top: 2px;
     padding-bottom: 2px;
@@ -617,7 +613,6 @@ input:disabled + .ui-datepicker-trigger {
 
     display: flex;
     flex-direction: column;
-
 }
 
 .ui-creme-checklistselect .checklist-content .checkbox-label-help {
@@ -709,7 +704,6 @@ input:disabled + .ui-datepicker-trigger {
 
     background: #d9d9d9;
 }
-
 
 .ui-creme-checklistselect .checklist-content.ie-layout-fallback .checkbox-field,
 .ui-creme-checklistselect .checklist-content.ie-layout-fallback .checkbox-group-header {
