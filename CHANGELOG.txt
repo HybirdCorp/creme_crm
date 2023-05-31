@@ -9,6 +9,7 @@
 
   Users side :
   ------------
+    # Fix little CSS issues in checklistselect widget
     # Apps :
         * Creme_config :
             - An iframe issue with the view to import configuration has been fixed.
