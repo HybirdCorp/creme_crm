@@ -1,3 +1,23 @@
+== Version 2.4.4 ==
+
+  UPGRADE NOTE :
+    - You should upgrade the minor version of Django 3.2 (3.2.19 or more).
+    - The python library has to be installed (indeed it's necessary only if you use the app 'emails');
+      it's already installed in vanilla installations (because it is a dependence of 'xhtml2pdf').
+
+  Users side :
+  ------------
+    # Some small fixes have been made on the multi-checkbox widget.
+    # Apps :
+        * Creme_config :
+            - An iframe issue with the view to import configuration has been fixed.
+            - In transfer (export/import) of configuration :
+                - An issue with extra cells for CustomForms has been fixed.
+                - The management of FieldsConfigs has been improved: existing configurations are now overridden.
+        * Emails :
+            - The password for synchronisation servers are stored more securely.
+
+
 == Version 2.4.3 ==
 
   UPGRADE NOTE :

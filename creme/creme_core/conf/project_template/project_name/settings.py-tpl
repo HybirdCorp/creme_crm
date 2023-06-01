@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent
 LANGUAGE_CODE = 'en'
 
 # Local time zone used for this installation (like the strings inserted in
-# Data Base by the command "creme_populate) & interpreted as the default user
+# Data Base by the command "creme_populate") & interpreted as the default user
 # time zone (when USE_TZ is True, which is the case by default in creme.settings).
 # Choices ('Europe/Paris', 'America/Chicago', 'Asia/Tokyo' etc...) can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name

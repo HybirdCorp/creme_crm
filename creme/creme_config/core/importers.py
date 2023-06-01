@@ -47,6 +47,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
 )
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.custom_form import (
+    EntityCellCustomFormExtra,
     EntityCellCustomFormSpecial,
     FieldGroupList,
     customform_descriptor_registry,
@@ -811,13 +812,12 @@ class FieldsConfigImporter(Importer):
         def load_fields_config(fconfig_info: dict) -> dict:
             ctype = load_ct(fconfig_info['ctype'])
 
-            if FieldsConfig.objects.filter(content_type=ctype).exists():
-                raise ValidationError(
-                    _(
-                        'There is already a fields configuration for the model «{}».'
-                    ).format(ctype)
-                )
-
+            # if FieldsConfig.objects.filter(content_type=ctype).exists():
+            #     raise ValidationError(
+            #         _(
+            #             'There is already a fields configuration for the model «{}».'
+            #         ).format(ctype)
+            #     )
             return {
                 'content_type': ctype,
                 'descriptions': fconfig_info['descriptions'],
@@ -826,8 +826,15 @@ class FieldsConfigImporter(Importer):
         self._data = [*map(load_fields_config, deserialized_section)]
 
     def save(self):
+        # TODO: delete existing configuration?
         for data in self._data:
-            FieldsConfig.objects.create(**data)
+            # FieldsConfig.objects.create(**data)
+            FieldsConfig.objects.update_or_create(
+                content_type=data['content_type'],
+                defaults={
+                    'descriptions': data['descriptions'],
+                },
+            )
 
 
 @IMPORTERS.register(data_id=constants.ID_CUSTOM_FIELDS)
@@ -1482,11 +1489,27 @@ class CellProxyCustomFormSpecial(CellProxy):
         pass
 
 
+class CellProxyCustomFormExtra(CellProxy):
+    cell_cls = EntityCellCustomFormExtra
+
+    def _validate(self, validated_data):
+        pass
+
+    def build_cell(self):
+        # We bypass the sub-cell checking; it's not a big problem because the
+        # checking is done when instancing the final form.
+        class LaxEntityCellCustomFormExtra(entity_cell.EntityCell):
+            type_id = self.cell_cls.type_id
+
+        return LaxEntityCellCustomFormExtra(model=self.model, value=self.value)
+
+
 custom_forms_cells_registry = CellProxiesRegistry()
 # TODO: add a method 'register()' ??
 custom_forms_cells_registry(CellProxyRegularField)
 custom_forms_cells_registry(CellProxyCustomField)
 custom_forms_cells_registry(CellProxyCustomFormSpecial)
+custom_forms_cells_registry(CellProxyCustomFormExtra)
 
 
 @IMPORTERS.register(data_id=constants.ID_CUSTOM_FORMS)

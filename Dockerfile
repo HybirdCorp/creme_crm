@@ -19,6 +19,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
         wait-for-it \
         libpq-dev \
         libmariadb-dev \
+        libcairo-dev \
         build-essential;
 
 RUN useradd --shell /bin/bash --uid 1001 creme_user

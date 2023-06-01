@@ -71,6 +71,7 @@ virtual env, in order to keep the old one working).
      - Django 3.2
      - redis 4.1
      - python-dateutil 2.8
+     - cryptography 39.0
      - bleach 5.0
      - Pillow 9.2
      - django-formtools 2.4
@@ -103,9 +104,8 @@ Installation with 'pip':
    - python-dev
    - mysql_config & libmysqlclient-dev (or libpq-dev if you want to use PostGreSQL)
    - redis-server
-   - libxslt1-dev
-   - default-jre
    - libjpeg-dev
+   - libcairo-dev
    - [DEPRECATED] graphviz & graphviz-dev (if you want the optional app 'graphs')
 
 
