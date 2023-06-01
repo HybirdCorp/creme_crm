@@ -2,6 +2,7 @@ from decimal import Decimal
 from functools import partial
 from unittest.case import skipIf
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.db import connection, models
 from django.utils.translation import gettext as _
@@ -29,10 +30,15 @@ from creme.creme_core.models import (
     Language,
     Vat,
 )
+from creme.creme_core.models.custom_field import (
+    CustomField,
+    CustomFieldEnumValue,
+)
 from creme.creme_core.models.fields import (
     CTypeForeignKey,
     EntityCTypeForeignKey,
 )
+from creme.creme_core.utils.content_type import ctype_choices, entity_ctypes
 
 from ..base import CremeTestCase
 
@@ -857,3 +863,60 @@ class EnumerableTestCase(CremeTestCase):
                 {'label': '20.00', 'value': vat_200.pk},
                 {'label': '21.20', 'value': vat_212.pk},
             ], list(enum.choices(user, term='20')))
+
+    def test_customfield_enumerator(self):
+        user = self.create_user()
+
+        create_cf = partial(CustomField.objects.create, content_type=FakeContact)
+        cfield = create_cf(name='Languages', field_type=CustomField.ENUM)
+
+        create_evalue = CustomFieldEnumValue.objects.create
+        lang_A = create_evalue(custom_field=cfield, value='C')
+        lang_B = create_evalue(custom_field=cfield, value='Python')
+        lang_C = create_evalue(custom_field=cfield, value='Rust')
+
+        enum = enumerators.CustomFieldEnumerator(cfield)
+        self.assertListEqual([
+            {'label': 'C', 'value': lang_A.pk},
+            {'label': 'Python', 'value': lang_B.pk},
+            {'label': 'Rust', 'value': lang_C.pk},
+        ], enum.choices(user))
+
+        self.assertListEqual([
+            {'label': 'Rust', 'value': lang_C.pk},
+        ], enum.choices(user, term='Ru'))
+
+        self.assertListEqual([
+            {'label': 'C', 'value': lang_A.pk},
+            {'label': 'Python', 'value': lang_B.pk},
+        ], enum.choices(user, limit=2))
+
+        self.assertListEqual([
+            {'label': 'C', 'value': lang_A.pk},
+            {'label': 'Rust', 'value': lang_C.pk},
+        ], enum.choices(user, only=[lang_A.pk, lang_C.pk]))
+
+    def test_entity_ctypefk_enumerator(self):
+        user = self.create_user()
+        enum = enumerators.EntityCTypeForeignKeyEnumerator(FakeReport._meta.get_field('ctype'))
+        all_ctype_choices = ctype_choices(entity_ctypes())
+
+        fake_contact_ct = ContentType.objects.get_for_model(FakeContact)
+        fake_orga_ct = ContentType.objects.get_for_model(FakeOrganisation)
+
+        self.assertListEqual([
+            {'label': label, 'value': ct_id} for ct_id, label in all_ctype_choices
+        ], enum.choices(user))
+
+        self.assertListEqual([
+            {'label': 'Test Contact', 'value': fake_contact_ct.pk},
+        ], enum.choices(user, term='test contact'))
+
+        self.assertListEqual([
+            {'label': label, 'value': ct_id} for ct_id, label in all_ctype_choices[:2]
+        ], enum.choices(user, limit=2))
+
+        self.assertListEqual([
+            {'label': 'Test Contact', 'value': fake_contact_ct.pk},
+            {'label': 'Test Organisation', 'value': fake_orga_ct.pk},
+        ], enum.choices(user, only=[fake_contact_ct.pk, fake_orga_ct.pk]))
