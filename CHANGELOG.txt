@@ -1,7 +1,5 @@
 == Version 2.4.4 Work in progress (not released -- this is a draft) ==
 
-# TODO: compile messages (creme_core, creme_config)
-
   UPGRADE NOTE :
     - You should upgrade the minor version of Django 3.2 (3.2.19 or more).
     - The python library has to be installed (indeed it's necessary only if you use the app 'emails');
