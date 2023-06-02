@@ -413,7 +413,7 @@ class ReportEntityCellRegularAggregatesField(hf_forms.UniformEntityCellsField):
                 lambda model, field, depth:
                 isinstance(field, aggregation_registry.authorized_fields)
             ),
-            viewable=True,   # TODO: test
+            viewable=True,  # TODO: test
         )
 
         for aggregate in aggregation_registry.aggregations:
@@ -618,16 +618,34 @@ class ReportExportPreviewFilterForm(CremeForm):
         fields['doc_type'].choices = self._backend_choices()
 
     def _date_field_choices(self, report):
-        model = report.ct.model_class()
-        is_field_hidden = FieldsConfig.objects.get_for_model(model).is_field_hidden
+        # model = report.ct.model_class()
+        # is_field_hidden = FieldsConfig.objects.get_for_model(model).is_field_hidden
+        #
+        # return [
+        #     ('', pgettext_lazy('reports-date_filter', 'None')),
+        #     *(
+        #         (field.name, field.verbose_name)
+        #         for field in model._meta.fields
+        #         if is_date_field(field) and not is_field_hidden(field)
+        #     ),
+        # ]
+        get_fconf = FieldsConfig.LocalCache().get_for_model
+        enumerator = ModelFieldEnumerator(
+            model=report.ct.model_class(), depth=1, only_leaves=True,
+        ).filter(
+            # TODO: remove the obligation to test <not depth and field.is_relation>?
+            (
+                lambda model, field, depth:
+                (not depth and field.is_relation) or is_date_field(field)
+            ),
+            viewable=True,
+        ).exclude(
+            lambda model, field, depth: get_fconf(model).is_field_hidden(field)
+        )
 
         return [
             ('', pgettext_lazy('reports-date_filter', 'None')),
-            *(
-                (field.name, field.verbose_name)
-                for field in model._meta.fields
-                if is_date_field(field) and not is_field_hidden(field)
-            ),
+            *enumerator.choices(),
         ]
 
     def _backend_choices(self):

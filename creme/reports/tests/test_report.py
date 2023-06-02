@@ -1012,6 +1012,19 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         self.assertInChoices(value='created', label=_('Creation date'), choices=field_choices)
         self.assertInChoices(value='birthday', label=_('Birthday'),     choices=field_choices)
+        self.assertInChoices(
+            value='image__modified',
+            label='[{}] - {}'.format(_('Photograph'), _('Last modification')),
+            choices=field_choices,
+        )
+        self.assertInChoices(
+            value='image__exif_date',
+            label='[{}] - {}'.format(_('Photograph'), _('Exif date')),
+            choices=field_choices,
+        )
+        self.assertNotInChoices(value='last_name',   choices=field_choices)
+        self.assertNotInChoices(value='image',       choices=field_choices)
+        self.assertNotInChoices(value='image__name', choices=field_choices)
 
         columns = context1.get('flat_columns')
         self.assertIsList(columns, length=4)
@@ -1025,7 +1038,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertContains(response1, osaka.last_name)
 
         # ---
-        response2 = self.assertGET200(
+        response2 = self.client.get(
             url,
             data={
                 'doc_type': 'csv',
@@ -1119,13 +1132,18 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertContains(response, msg)
 
     def test_preview06(self):
-        "Hidden field."
+        "Hidden fields."
         user = self.login_as_root_and_get()
 
         hidden = 'birthday'
+        img_hidden = 'exif_date'
         FieldsConfig.objects.create(
             content_type=FakeContact,
             descriptions=[(hidden, {FieldsConfig.HIDDEN: True})],
+        )
+        FieldsConfig.objects.create(
+            content_type=FakeImage,
+            descriptions=[(img_hidden, {FieldsConfig.HIDDEN: True})],
         )
 
         report = self._create_contacts_report(user=user, name='My report')
@@ -1134,9 +1152,37 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         with self.assertNoException():
             field_choices = response.context['form'].fields['date_field'].choices
 
-        self.assertInChoices(value='created', label=_('Creation date'),      choices=field_choices)
+        self.assertInChoices(value='created',  label=_('Creation date'),     choices=field_choices)
         self.assertInChoices(value='modified', label=_('Last modification'), choices=field_choices)
-        self.assertNotInChoices(value='birthday', choices=field_choices)
+        self.assertNotInChoices(value=hidden,                 choices=field_choices)
+        self.assertNotInChoices(value=f'image__{img_hidden}', choices=field_choices)
+
+    def test_preview07(self):
+        "Filter on sub-field."
+        user = self.login_as_root_and_get()
+
+        create_image = partial(FakeImage.objects.create, user=user)
+        img1 = create_image(name='Chiyo pix', exif_date=date(year=1995, month=3, day=26))
+        img2 = create_image(name='Ayumu pix', exif_date=date(year=1990, month=4, day=1))
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        chiyo = create_contact(first_name='Chiyo', last_name='Mihana', image=img1)
+        osaka = create_contact(first_name='Ayumu', last_name='Kasuga', image=img2)
+
+        report = self._create_contacts_report(user=user, name='My report')
+        response = self.client.get(
+            self._build_preview_url(report),
+            data={
+                'doc_type': 'csv',
+                'date_filter_0': '',
+                'date_filter_1': self.formfield_value_date(1990,  1,  1),
+                'date_filter_2': self.formfield_value_date(1990, 12, 31),
+                'date_field':    'image__exif_date',
+            },
+        )
+        self.assertNoFormError(response)
+        self.assertContains(response, osaka.last_name)
+        self.assertNotContains(response, chiyo.last_name)
 
     def test_report_reorder_field01(self):
         user = self.login_as_root_and_get()
@@ -1249,15 +1295,15 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertGET200(url)
 
         # ---
-        date_field = 'birthday'
         response = self.assertPOST200(
             url,
             data={
                 'doc_type': 'csv',
+                'date_field': 'birthday',
+
                 'date_filter_0': '',
                 'date_filter_1': '',
                 'date_filter_2': '',
-                'date_field': date_field,
             },
         )
         self.assertFormError(
@@ -1518,6 +1564,35 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             smart_str('"{}","is an employee of"'.format(_('Last name'))),
             next(content),
         )
+
+    def test_report_csv09(self):
+        "Date filter on sub-field."
+        user = self.login_as_root_and_get()
+
+        create_image = partial(FakeImage.objects.create, user=user)
+        img1 = create_image(name='Chiyo pix', exif_date=date(year=1995, month=3, day=26))
+        img2 = create_image(name='Ayumu pix', exif_date=date(year=1990, month=4, day=1))
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        create_contact(first_name='Chiyo', last_name='Mihana', image=img1)
+        osaka = create_contact(first_name='Ayumu', last_name='Kasuga', image=img2)
+
+        report = self._create_simple_contacts_report(user=user, name='My report')
+        response = self.assertGET200(
+            self._build_export_url(report),
+            data={
+                'doc_type': 'csv',
+                'date_field': 'image__exif_date',
+                'date_filter_0': '',
+                'date_filter_1': self.formfield_value_date(1990,  1,  1),
+                'date_filter_2': self.formfield_value_date(1990, 12, 31),
+            },
+        )
+
+        content = [s for s in response.content.decode().split('\r\n') if s]
+        self.assertEqual(2, len(content))
+        self.assertEqual('"{}"'.format(_('Last name')), content[0])
+        self.assertEqual(f'"{osaka.last_name}"',        content[1])
 
     def test_report_xls(self):
         "With date filter."
