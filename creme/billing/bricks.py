@@ -212,7 +212,7 @@ class ReceivedInvoicesBrick(QuerysetBrick):
             Invoice.objects.filter(
                 relations__object_entity=person_id,
                 relations__type=constants.REL_SUB_BILL_RECEIVED,
-            ),
+            ).select_related('status', 'currency'),
             hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
         ))
 
