@@ -1531,6 +1531,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice.generate_number(source)
         invoice.save()
 
+        # ----
         response2 = self.assertGET200(target.get_absolute_url())
         brick_node2 = self.get_brick_node(
             self.get_html_tree(response2.content),
@@ -1557,6 +1558,23 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertEqual(invoice.status.name, table_cells[3].text)
         # TODO: test table_cells[4]
+
+        # ----
+        context = self.build_context(user=user, instance=target)
+        # Queries:
+        #   - FieldsConfig
+        #   - COUNT Invoices
+        #   - BrickStates
+        #   - SettingValues "is open"/"how empty fields"
+        #   - Invoices
+        #   - SettingValues "creme_core-display_currency_local_symbol"
+        with self.assertNumQueries(6):
+            render = bricks.ReceivedInvoicesBrick().detailview_display(context)
+
+        brick_node3 = self.get_brick_node(
+            self.get_html_tree(render), brick=bricks.ReceivedInvoicesBrick,
+        )
+        self.assertInstanceLink(brick_node3, entity=invoice)
 
     def test_brick02(self):
         "Field 'expiration_date' is hidden."
