@@ -1,5 +1,12 @@
 == Version 2.6 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Reports :
+            - The date fields of referenced models can be used for temporal filtering in the Reports
+              (e.g. in a report on Contacts, Photograph's fields are available).
+
   Developers side :
   -----------------
 
