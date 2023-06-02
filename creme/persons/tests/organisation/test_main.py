@@ -300,6 +300,11 @@ class OrganisationTestCase(_BaseTestCase):
         for i in range(3, 5):
             create_address(name=f'Hideout #{i}')
 
+        self.assertEqual(
+            reverse('creme_core__clone_entity'),
+            bebop.get_clone_absolute_url(),
+        )
+
         cloned = bebop.clone()
 
         self.assertEqual(bebop.name, cloned.name)
@@ -330,6 +335,7 @@ class OrganisationTestCase(_BaseTestCase):
         "Do not clone 'is_managed'."
         user = self.login_as_root_and_get()
         bebop = Organisation.objects.create(user=user, name='Bebop', is_managed=True)
+        self.assertEqual('', bebop.get_clone_absolute_url())
 
         cloned = bebop.clone()
         self.assertEqual(bebop.name, cloned.name)

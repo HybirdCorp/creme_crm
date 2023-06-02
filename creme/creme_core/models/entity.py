@@ -182,6 +182,8 @@ class CremeEntity(CremeModel):
 
         return real_entity.get_absolute_url()
 
+    # TODO: not 'staticmethod' (Organisation override is as an classical method)?
+    # TODO: better clone system with a registry?
     @staticmethod
     def get_clone_absolute_url() -> str:
         """Returns the url of the clone view of this entity type.
