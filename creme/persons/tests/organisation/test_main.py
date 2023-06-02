@@ -262,8 +262,8 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertIn(acme, orgas_set)
 
     @skipIfCustomAddress
-    def test_clone(self):
-        "Addresses are problematic"
+    def test_clone01(self):
+        "Addresses are problematic."
         user = self.login()
 
         bebop = Organisation.objects.create(user=user, name='Bebop')
@@ -285,6 +285,7 @@ class OrganisationTestCase(_BaseTestCase):
         cloned = bebop.clone()
 
         self.assertEqual(bebop.name, cloned.name)
+        self.assertFalse(cloned.is_managed)
 
         self.assertEqual(bebop.id, bebop.billing_address.object_id)
         self.assertEqual(bebop.id, bebop.shipping_address.object_id)
@@ -306,6 +307,15 @@ class OrganisationTestCase(_BaseTestCase):
             address2 = c_addresses_map.get(ident)
             self.assertIsNotNone(address2, ident)
             self.assertAddressOnlyContentEqual(address, address2)
+
+    def test_clone02(self):
+        "Do not clone 'is_managed'."
+        user = self.login()
+        bebop = Organisation.objects.create(user=user, name='Bebop', is_managed=True)
+
+        cloned = bebop.clone()
+        self.assertEqual(bebop.name, cloned.name)
+        self.assertFalse(cloned.is_managed)
 
     def _build_managed_orga(self, user=None, name='Bebop'):
         return Organisation.objects.create(user=user or self.user, name=name, is_managed=True)

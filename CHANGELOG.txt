@@ -3,6 +3,9 @@
   Users side :
   ------------
     # Some small fixes have been made on the multi-checkbox widget.
+    # Apps :
+        * Persons :
+            - The field 'Organisation.is_managed' is not cloned anymore.
 
 
 == Version 2.3.12 ==
