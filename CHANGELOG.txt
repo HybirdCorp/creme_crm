@@ -1,5 +1,11 @@
 == Version 2.4.5 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Persons :
+            - The field 'Organisation.is_managed' is not cloned anymore.
+
 
 == Version 2.4.4 ==
 
