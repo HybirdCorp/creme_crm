@@ -90,17 +90,16 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         ContentType.objects.get_for_model(Relation)  # Fill cache
 
+        context = self.build_context(user=user, instance=activity)
         # Queries:
-        #   - COUNT Relation
-        #   - BrickState
-        #   - SettingValue "is open"
-        #   - Relation
-        #   - Contact (with user/is_user/civility)
-        #   - Calendar
+        #   - COUNT Relations
+        #   - BrickStates
+        #   - SettingValues "is open"/"how empty fields"
+        #   - Relations
+        #   - Contacts (with user/is_user/civility)
+        #   - Calendars
         with self.assertNumQueries(6):
-            render = ParticipantsBrick().detailview_display(
-                self.build_context(user=user, instance=activity)
-            )
+            render = ParticipantsBrick().detailview_display(context)
 
         brick_node = self.get_brick_node(self.get_html_tree(render), ParticipantsBrick)
         self.assertInstanceLink(brick_node, c1)
@@ -134,17 +133,16 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         ContentType.objects.get_for_model(Relation)  # Fill cache
 
+        context = self.build_context(user=user, instance=activity)
         # Queries:
-        #   - COUNT Relation
-        #   - BrickState
-        #   - SettingValue "is open"
-        #   - Relation
-        #   - Contact
-        #   - Organisation
+        #   - COUNT Relations
+        #   - BrickStates
+        #   - SettingValues "is open"/"how empty fields"
+        #   - Relations
+        #   - Contacts
+        #   - Organisations
         with self.assertNumQueries(6):
-            render = SubjectsBrick().detailview_display(
-                self.build_context(user=user, instance=activity)
-            )
+            render = SubjectsBrick().detailview_display(context)
 
         brick_node = self.get_brick_node(self.get_html_tree(render), SubjectsBrick)
         self.assertInstanceLink(brick_node, c2)
@@ -266,6 +264,31 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_rel(object_entity=past[1], type_id=REL_SUB_ACTIVITY_SUBJECT)
         create_rel(object_entity=past[2], type_id=REL_SUB_LINKED_2_ACTIVITY)
 
+        sv = SettingValue.objects.get_4_key(review_key)
+        sv.value = True
+        sv.save()
+
+        context = self.build_context(user=user, instance=contact)
+        # Queries:
+        #   - COUNT Activities
+        #   - BrickStates
+        #   - SettingValues "is open"/"how empty fields"
+        #   - Activities
+        #   - Relations ("participates", "subject of activity", "linked to activity")
+        #   - Contacts
+        with self.assertNumQueries(6):
+            render = FutureActivitiesBrick().detailview_display(context)
+
+        future_brick_node1 = self.get_brick_node(
+            self.get_html_tree(render), brick=FutureActivitiesBrick,
+        )
+        self.assertInstanceLink(future_brick_node1, future[0])
+        self.assertInstanceLink(future_brick_node1, future[1])
+        self.assertInstanceLink(future_brick_node1, future[2])
+        self.assertNoInstanceLink(future_brick_node1, future[3])
+        self.assertNoInstanceLink(future_brick_node1, past[0])
+
+        # From view ---
         create_brick_detail = partial(
             BrickDetailviewLocation.objects.create_if_needed,
             model=Contact, zone=BrickDetailviewLocation.RIGHT,
@@ -273,23 +296,19 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_brick_detail(brick=FutureActivitiesBrick, order=50)
         create_brick_detail(brick=PastActivitiesBrick,   order=51)
 
-        sv = SettingValue.objects.get_4_key(review_key)
-        sv.value = True
-        sv.save()
-
         response = self.assertGET200(contact.get_absolute_url())
         tree = self.get_html_tree(response.content)
 
-        future_brick_node = self.get_brick_node(tree, FutureActivitiesBrick)
-        self.assertInstanceLink(future_brick_node, future[0])
-        self.assertInstanceLink(future_brick_node, future[1])
-        self.assertInstanceLink(future_brick_node, future[2])
-        self.assertNoInstanceLink(future_brick_node, future[3])
-        self.assertNoInstanceLink(future_brick_node, past[0])
+        future_brick_node2 = self.get_brick_node(tree, FutureActivitiesBrick)
+        self.assertInstanceLink(future_brick_node2, future[0])
+        self.assertInstanceLink(future_brick_node2, future[1])
+        self.assertInstanceLink(future_brick_node2, future[2])
+        self.assertNoInstanceLink(future_brick_node2, future[3])
+        self.assertNoInstanceLink(future_brick_node2, past[0])
 
         future_minutes = {
             n.text
-            for n in future_brick_node.findall('.//div[@class="activity-group-value"]/p')
+            for n in future_brick_node2.findall('.//div[@class="activity-group-value"]/p')
         }
         self.assertIn(future[0].minutes, future_minutes)
         self.assertIn(future[1].minutes, future_minutes)
@@ -360,6 +379,28 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_rel(object_entity=past[1], type_id=REL_SUB_ACTIVITY_SUBJECT)
         create_rel(object_entity=past[2], type_id=REL_SUB_LINKED_2_ACTIVITY)
 
+        context = self.build_context(user=user)
+        # Queries:
+        #   - COUNT Activities
+        #   - BrickStates
+        #   - SettingValues "is open"/"how empty fields"
+        #   - Activities
+        #   - Relations ("participates", "subject of activity", "linked to activity")
+        #   - Contacts
+        #   - SettingValues "activities-display_review_activities_blocks"
+        with self.assertNumQueries(7):
+            render = FutureActivitiesBrick().home_display(context)
+
+        future_brick_node1 = self.get_brick_node(
+            self.get_html_tree(render), brick=FutureActivitiesBrick,
+        )
+        self.assertInstanceLink(future_brick_node1, future[0])
+        self.assertInstanceLink(future_brick_node1, future[1])
+        self.assertInstanceLink(future_brick_node1, future[2])
+        self.assertNoInstanceLink(future_brick_node1, future[3])
+        self.assertNoInstanceLink(future_brick_node1, past[0])
+
+        # From view ---
         BrickHomeLocation.objects.get_or_create(
             # brick_id=FutureActivitiesBrick.id_, defaults={'order': 10},
             brick_id=FutureActivitiesBrick.id, defaults={'order': 10},

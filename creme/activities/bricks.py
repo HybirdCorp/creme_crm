@@ -154,7 +154,8 @@ class _RelatedActivitiesBrick(QuerysetBrick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
             context,
-            self._get_queryset_for_entity(context['object'], context).select_related('status'),
+            self._get_queryset_for_entity(context['object'], context)
+                .select_related('status', 'type'),
             rtype_id=constants.REL_SUB_LINKED_2_ACTIVITY,
         ))
 
@@ -162,7 +163,7 @@ class _RelatedActivitiesBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             self._get_queryset_for_entity(context['user'].linked_contact, context)
-                .select_related('status'),
+                .select_related('status', 'type'),
             is_home=True,
         ))
 
