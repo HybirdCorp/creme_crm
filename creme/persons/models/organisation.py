@@ -49,7 +49,7 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
             str
         )(),
         default=False, editable=False,
-    )
+    ).set_tags(clonable=False)
 
     phone    = PhoneField(_('Phone'), max_length=100, blank=True).set_tags(optional=True)
     fax      = models.CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)
