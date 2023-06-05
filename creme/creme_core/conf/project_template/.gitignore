@@ -3,11 +3,11 @@ syntax: glob
 *~
 *.pyc
 
-media/upload/*/*
-media/static/*
+*/media/upload/*/*
+*/media/static/*
 
-local_settings.py
-_generated_media_names.py
+*/local_settings.py
+*/_generated_media_names.py
 *.sqlite3
 
 # Python package
