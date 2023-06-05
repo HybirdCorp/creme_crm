@@ -532,7 +532,8 @@ class RHFunctionField(ReportHand):
         super().__init__(report_field, title=str(funcfield.verbose_name))
 
     def _get_value_single_on_allowed(self, entity, user, scope):
-        return self._funcfield(entity, user).for_csv()
+        # return self._funcfield(entity, user).for_csv()
+        return self._funcfield(entity, user).render(tag=ViewTag.TEXT_PLAIN)
 
 
 # TODO: pass field_aggregation_registry as argument
