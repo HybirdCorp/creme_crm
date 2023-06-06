@@ -993,6 +993,26 @@ QUnit.test('creme.widget.CheckListSelect.createItem', function(assert) {
             ]);
 });
 
+QUnit.test('creme.widget.CheckListSelect.createItem (disabled)', function(assert) {
+    var element = this.createCheckListSelectElement({
+        createUrl: ''
+    });
+    this.addCheckListSelectChoice(element, 'item1', 12);
+    this.addCheckListSelectChoice(element, 'item2', 78);
+    this.addCheckListSelectChoice(element, 'item3', 5);
+
+    creme.widget.create(element);
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    equal(element.find('.checklist-create').attr('href'), '');
+
+    element.find('.checklist-create').trigger('click');
+
+    this.assertClosedDialog();
+    deepEqual([], this.mockBackendUrlCalls());
+});
+
 QUnit.test('creme.widget.CheckListSelect.less (initial, true)', function(assert) {
     var element = this.createCheckListSelectElement({less: true});
     var widget = creme.widget.create(element);
