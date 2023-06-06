@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # Fix UnorderedMultipleChoiceWidget : disable creation button if the user is not allowed to create the resource.
     # Apps :
         * Persons :
             - The field 'Organisation.is_managed' is not cloned anymore.
