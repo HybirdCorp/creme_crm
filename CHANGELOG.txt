@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # Fix UnorderedMultipleChoiceWidget : disable creation button if the user is not allowed to create the resource.
     # Some small fixes have been made on the multi-checkbox widget.
     # Apps :
         * Persons :

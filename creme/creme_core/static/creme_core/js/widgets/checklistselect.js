@@ -40,16 +40,16 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
 
         this._initializeController(element, options);
 
-        $('.checklist-create:not([disabled])', element).on('click', function(e) {
+        $('.checklist-create:not(.is-disabled)', element).on('click', function(e) {
             e.preventDefault();
             self._createItem(element, $(this));
         });
 
-        $(element).on('click', '.checklist-check-all:not([disabled])', function() {
+        $(element).on('click', '.checklist-check-all:not(.is-disabled)', function() {
             self.selectAll(element);
         });
 
-        $(element).on('click', '.checklist-check-none:not([disabled])', function() {
+        $(element).on('click', '.checklist-check-none:not(.is-disabled)', function() {
             self.unselectAll(element);
         });
 
@@ -307,14 +307,10 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
             return this._disabled;
         }
 
-        element.toggleAttr('disabled', disabled);  // TODO: remove (invalid attribute for div)
         element.toggleClass('is-disabled', disabled);
         this._disabled = disabled;
 
-        $(
-            '.checklist-check-all, .checklist-check-none, .checklist-filter, .checklist-create',
-             element
-        ).toggleAttr('disabled', disabled);
+        element.find('.checklist-filter').toggleAttr('disabled', disabled);
 
         if (this._controller) {
             this._controller.renderer().disabled(disabled);
@@ -381,7 +377,9 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
     },
 
     _createItem: function(element, link) {
-        if (this._disabled) {
+        var url = link.attr('href');
+
+        if (this.disabled(element) || !url) {
             return this;
         }
 
@@ -396,7 +394,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
                           });
                       })
               .start({
-                  url: link.attr('href'),
+                  url: url,
                   title: link.attr('title')
                });
     },
@@ -412,7 +410,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
     },
 
     selectAll: function(element) {
-        if (!this._disabled) {
+        if (!this.disabled(element)) {
             this._selections.selectAll();
         }
 
@@ -420,7 +418,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
     },
 
     unselectAll: function(element) {
-        if (!this._disabled) {
+        if (!this.disabled(element)) {
             this._selections.unselectAll();
         }
 
