@@ -431,6 +431,15 @@ input:disabled + .ui-datepicker-trigger {
     display: none;
 }
 
+.ui-creme-checklistselect .checklist-header a.is-disabled {
+    opacity: 0.5;
+}
+
+.ui-creme-checklistselect .checklist-header a.is-disabled:hover {
+    text-decoration: none;
+    cursor: default;
+}
+
 .ui-creme-checklistselect .checklist-header .checklist-filter {
     margin-left: 8px;
     margin-bottom: 2px;
