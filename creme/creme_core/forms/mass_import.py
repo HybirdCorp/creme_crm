@@ -32,7 +32,7 @@ from django.db.models import BooleanField as ModelBooleanField
 from django.db.models import ManyToManyField, Model, prefetch_related_objects
 from django.db.transaction import atomic
 from django.forms.models import modelform_factory
-from django.forms.widgets import HiddenInput, Select, Widget
+from django.forms.widgets import HiddenInput, Widget  # Select
 from django.template.defaultfilters import slugify
 from django.urls import reverse_lazy as reverse
 from django.utils.html import format_html, format_html_join
@@ -64,7 +64,12 @@ from ..utils.url import TemplateURLBuilder
 from .base import _CUSTOM_NAME, CremeForm, CremeModelForm, FieldBlockManager
 from .enumerable import EnumerableChoiceField
 from .fields import CreatorEntityField, MultiRelationEntityField
-from .widgets import ChainedInput, SelectorList, UnorderedMultipleChoiceWidget
+from .widgets import (
+    ChainedInput,
+    PrettySelect,
+    SelectorList,
+    UnorderedMultipleChoiceWidget,
+)
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Optional, Sequence, Tuple
@@ -172,7 +177,8 @@ class SingleColumnExtractor(BaseExtractor):
 class BaseExtractorWidget(Widget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.column_select = Select()
+        # self.column_select = Select()
+        self.column_select = PrettySelect()
 
     @property
     def choices(self):

@@ -118,6 +118,14 @@ class DatePickerMixin:
         )
 
 
+class PrettySelect(widgets.Select):
+    template_name = 'creme_core/forms/widgets/select.html'
+
+
+class PrettyNullBooleanSelect(widgets.NullBooleanSelect):
+    template_name = 'creme_core/forms/widgets/select.html'
+
+
 # TODO: to be improved....
 class DynamicInput(widgets.TextInput):
     def __init__(self, type='text', attrs=None):
@@ -1059,7 +1067,8 @@ class OptionalWidget(widgets.MultiWidget):
 
 class OptionalSelect(OptionalWidget):
     def __init__(self, choices=(), *args, **kwargs):
-        super().__init__(widgets.Select(choices=choices), *args, **kwargs)
+        # super().__init__(widgets.Select(choices=choices), *args, **kwargs)
+        super().__init__(PrettySelect(choices=choices), *args, **kwargs)
 
 
 class UnionWidget(widgets.Widget):
@@ -1361,7 +1370,8 @@ class DatePeriodWidget(widgets.MultiWidget):
     def __init__(self, choices=(), attrs=None):
         super().__init__(
             widgets=(
-                widgets.Select(choices=choices, attrs={'class': 'dperiod-type'}),
+                # widgets.Select(choices=choices, attrs={'class': 'dperiod-type'}),
+                PrettySelect(choices=choices, attrs={'class': 'dperiod-type'}),
                 widgets.NumberInput(attrs={'class': 'dperiod-value', 'min': 1}),
             ),
             attrs=attrs,
@@ -1413,11 +1423,13 @@ class RelativeDatePeriodWidget(widgets.MultiWidget):
     def __init__(self, period_choices=(), relative_choices=(), attrs=None):
         super().__init__(
             widgets=(
-                widgets.Select(
+                # widgets.Select(
+                PrettySelect(
                     choices=relative_choices,
                     attrs={'class': 'relative_dperiod-direction'},
                 ),
-                widgets.Select(
+                # widgets.Select(
+                PrettySelect(
                     choices=period_choices,
                     attrs={'class': 'relative_dperiod-type'},
                 ),
@@ -1484,7 +1496,8 @@ class DateRangeWidget(widgets.MultiWidget):
 
         super().__init__(
             widgets=(
-                widgets.Select(choices=choices, attrs={'data-daterange-type': True}),
+                # Select(choices=choices, attrs={'data-daterange-type': True}),
+                PrettySelect(choices=choices, attrs={'data-daterange-type': True}),
                 CalendarWidget(attrs={'data-daterange-field': 'start'}),
                 CalendarWidget(attrs={'data-daterange-field': 'end'}),
             ),
@@ -1541,7 +1554,8 @@ class ChoiceOrCharWidget(widgets.MultiWidget):
     def __init__(self, attrs=None, choices=()):
         super().__init__(
             widgets=(
-                widgets.Select(choices=choices),
+                # widgets.Select(choices=choices),
+                PrettySelect(choices=choices),
                 widgets.TextInput(attrs={
                     'placeholder': _('Value not in the choices? Fill it here!'),
                 }),
