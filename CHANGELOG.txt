@@ -99,8 +99,10 @@
             - In 'creme_core.templatetags.creme_cells', the argument "output" of '{% cell_render %} is deprecated ;
               use "tag" instead.
             - The function 'creme_core.utils.dates.make_aware_dt()' is now deprecated ; use 'django.utils.timezone.make_aware()' instead.
-            - In the template "creme_core/base.html", the '{% block extrahead %}' is deprecated ;
-              use the new '{% block head %}' with '{{block.super}}' instead.
+            - In templates :
+                - In the file "creme_core/base.html", the '{% block extrahead %}' is deprecated ;
+                  use the new '{% block head %}' with '{{block.super}}' instead.
+                - The file "creme_core/generics/error.html" is deprecated.
             - In the 'creme_core.tests':
                 - In the class 'base._CremeTestCase' :
                     - The method 'login()' is deprecated ; use the new methods 'login_as_*()'
