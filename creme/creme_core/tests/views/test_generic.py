@@ -19,6 +19,7 @@ from creme.creme_core.gui.custom_form import (
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.models import (
     CremePropertyType,
+    CremeUser,
     CustomFormConfigItem,
     FakeActivity,
     FakeActivityType,
@@ -635,12 +636,13 @@ class CreationTestCase(ViewsTestCase):
             str(cm.exception),
         )
 
-    def test_adding_to_entity(self):
+    def test_adding_to_entity01(self):
         user = self.login()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         url = reverse('creme_core__create_fake_address', args=(nerv.id,))
 
-        response = self.assertGET200(url)
+        headers = {'X-Requested-With': 'XMLHttpRequest'}
+        response = self.assertGET200(url, headers=headers, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         get_ctxt  = response.context.get
@@ -649,8 +651,24 @@ class CreationTestCase(ViewsTestCase):
 
         # POST ---
         city = 'Tokyo'
-        self.assertNoFormError(self.client.post(url, data={'city': city}))
+        self.assertNoFormError(self.client.post(
+            url, headers=headers, data={'city': city}, HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        ))
         self.get_object_or_fail(FakeAddress, city=city, entity=nerv.id)
+
+    def test_adding_to_entity02(self):
+        "Not logged."
+        user = CremeUser.objects.get(username='root')
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        self.assertContains(
+            response=self.client.get(
+                reverse('creme_core__create_fake_address', args=(nerv.id,)),
+                HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            ),
+            text=_('It seems you logged out.'),
+            html=True,
+            status_code=403,
+        )
 
 
 class EditionTestCase(ViewsTestCase):
