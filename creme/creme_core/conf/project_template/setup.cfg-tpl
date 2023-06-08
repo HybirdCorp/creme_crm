@@ -54,7 +54,11 @@ exclude =
     _generated_media_names.py
 max-line-length = 99
 ignore =
-    E221 ;multiple spaces before operator
-    E241 ;multiple spaces after ':', ','
-    E272 ;multiple spaces before keyword
-    W503 ;line break before binary operator  # Anti-pattern: https://www.flake8rules.com/rules/W503.html
+    # Multiple spaces before operator
+    E221
+    # Multiple spaces after ':', ','
+    E241
+    # Multiple spaces before keyword
+    E272
+    # Line break before binary operator. Anti-pattern: https://www.flake8rules.com/rules/W503.html
+    W503
