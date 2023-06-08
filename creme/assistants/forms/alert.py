@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.core.entity_cell import CELLS_MAP, EntityCellRegularField
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms import fields as core_fields
+from creme.creme_core.forms.widgets import PrettySelect
 from creme.creme_core.models import CremeEntity, FieldsConfig
 from creme.creme_core.utils import date_period
 from creme.creme_core.utils.meta import is_date_field
@@ -43,15 +44,18 @@ class ModelRelativeDatePeriodWidget(widgets.MultiWidget):
     def __init__(self, period_choices=(), field_choices=(), relative_choices=(), attrs=None):
         super().__init__(
             widgets=(
-                widgets.Select(
+                # widgets.Select(
+                PrettySelect(
                     choices=field_choices,
                     attrs={'class': 'assistants-offset_dperiod-field'},
                 ),
-                widgets.Select(
+                # widgets.Select(
+                PrettySelect(
                     choices=relative_choices,
                     attrs={'class': 'assistants-offset_dperiod-direction'},
                 ),
-                widgets.Select(
+                # widgets.Select(
+                PrettySelect(
                     choices=period_choices,
                     attrs={'class': 'assistants-offset_dperiod-type'},
                 ),

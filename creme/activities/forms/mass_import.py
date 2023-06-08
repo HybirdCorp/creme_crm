@@ -24,7 +24,7 @@ from functools import partial
 from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
 from django.forms import Field
-from django.forms.widgets import Select
+# from django.forms.widgets import Select
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
@@ -35,6 +35,7 @@ from creme.creme_core.forms.mass_import import (
     BaseExtractorWidget,
     ImportForm4CremeEntity,
 )
+from creme.creme_core.forms.widgets import PrettySelect
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils import as_int
 # from creme.creme_core.utils.dates import make_aware_dt
@@ -291,7 +292,8 @@ class ParticipantsExtractorWidget(BaseExtractorWidget):
             name_fmt='{}_pattern_colselect', selected_key='pattern_column_index',
         )
 
-        widget_cxt['pattern_select'] = Select(
+        # widget_cxt['pattern_select'] = Select(
+        widget_cxt['pattern_select'] = PrettySelect(
             choices=[
                 (pattern_id, str(pattern.verbose_name))
                 for pattern_id, pattern in _PATTERNS.items()

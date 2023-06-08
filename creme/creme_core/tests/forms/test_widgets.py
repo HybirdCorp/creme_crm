@@ -850,13 +850,10 @@ class ActionButtonListTestCase(CremeTestCase):
 <ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
     widget="ui-creme-actionbuttonlist">
     <li class="delegate">
-        <div class="select-wrapper">
-            <select name="field">
-                <option value="1">A</option>
-                <option value="2" selected>B</option>
-            </select>
-            <div class="select-arrow"></div>
-        </div>
+        <select name="field">
+            <option value="1">A</option>
+            <option value="2" selected>B</option>
+        </select>
     </li>
 </ul>'''
         self.assertHTMLEqual(html, widget.render('field', 2))
@@ -870,13 +867,10 @@ class ActionButtonListTestCase(CremeTestCase):
 <ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
     widget="ui-creme-actionbuttonlist">
     <li class="delegate">
-        <div class="select-wrapper">
-            <select name="field">
-                <option value="1" selected>A</option>
-                <option value="2">B</option>
-            </select>
-            <div class="select-arrow"></div>
-        </div>
+        <select name="field">
+            <option value="1" selected>A</option>
+            <option value="2">B</option>
+        </select>
     </li>
     <li>
         <button class="ui-creme-actionbutton" name="action_a"

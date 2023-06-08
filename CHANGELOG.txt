@@ -190,6 +190,8 @@
                 * Products :
                     - In 'forms.fields', the classes 'CategoryField' & 'CreatorCategorySelector' have been removed.
                     - The function-view 'views.product.get_subcategories()' (URL named "products__subcategories") has been removed.
+        # In 'creme_core.apps', the method 'CremeCoreConfig.hook_select_template()' has been removed.
+          It means that the template of 'Select' is not overriden by default anymore (you can use the new class 'creme_core.forms.widgets.PrettySelect').
         # In 'creme_core.core.entity_cell' :
             - In the class 'EntityCellRegularField', the attributes '_printer_html' & '_printer_csv' have been removed.
             - In the class 'EntityCellCustomField' :

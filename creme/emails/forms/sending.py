@@ -28,7 +28,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core import forms as core_forms
 from creme.creme_core.auth import EntityCredentials
-from creme.creme_core.forms.widgets import CalendarWidget
+from creme.creme_core.forms.widgets import CalendarWidget, PrettySelect
 # from creme.creme_core.utils.dates import make_aware_dt
 # from creme.creme_core.models import SettingValue
 from creme.creme_core.models import HistoryLine
@@ -40,7 +40,8 @@ from ..models import EmailSending, EmailSendingConfigItem, LightWeightEmail
 
 # Widgets ----------------------------------------------------------------------
 # TODO: move to creme_core?
-class _SendingConfigSelect(forms.Select):
+# class _SendingConfigSelect(forms.Select):
+class _SendingConfigSelect(PrettySelect):
     def create_option(self, *args, extra_data, **kwargs):
         option = super().create_option(*args, **kwargs)
         if extra_data:

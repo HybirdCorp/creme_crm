@@ -36,6 +36,7 @@ from creme.creme_config.forms.fields import CreatorModelChoiceField
 from creme.creme_core.backends import export_backend_registry
 from creme.creme_core.core import entity_cell
 from creme.creme_core.forms import CremeForm
+from creme.creme_core.forms.widgets import PrettySelect
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import (
     CremeEntity,
@@ -594,8 +595,12 @@ class ReportFieldsStep(CremeForm):
 
 
 class ReportExportPreviewFilterForm(CremeForm):
-    doc_type = forms.ChoiceField(label=_('Extension'), required=False, choices=())
-    date_field = forms.ChoiceField(label=_('Date field'), required=False, choices=())
+    doc_type = forms.ChoiceField(
+        label=_('Extension'), required=False, choices=(), widget=PrettySelect,
+    )
+    date_field = forms.ChoiceField(
+        label=_('Date field'), required=False, choices=(), widget=PrettySelect,
+    )
     date_filter = core_fields.DateRangeField(label=_('Date filter'), required=False)
 
     error_messages = {

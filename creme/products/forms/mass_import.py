@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2022  Hybird
+#    Copyright (C) 2017-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 from collections import defaultdict
 
 from django.forms import Field, ValidationError
-from django.forms.widgets import Select
+# from django.forms.widgets import Select
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -28,6 +28,7 @@ from creme.creme_core.forms.mass_import import (
     BaseExtractorWidget,
     ImportForm4CremeEntity,
 )
+from creme.creme_core.forms.widgets import PrettySelect
 
 from ..models import Category, SubCategory
 
@@ -193,7 +194,8 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
             selected_subcat_id = selected_subcat_choice[0] if selected_subcat_choice else None
 
         widget_cxt['subcat_js_map'] = sub_cat_map
-        widget_cxt['category_defvalselect'] = Select(
+        # widget_cxt['category_defvalselect'] = Select(
+        widget_cxt['category_defvalselect'] = PrettySelect(
             choices=cat_choices,
         ).get_context(
             name=f'{name}_cat_defval',
@@ -203,7 +205,8 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
                 'class': 'category-default-value',
             },
         )['widget']
-        widget_cxt['subcategory_defvalselect'] = Select(
+        # widget_cxt['subcategory_defvalselect'] = Select(
+        widget_cxt['subcategory_defvalselect'] = PrettySelect(
             choices=sub_cat_map[selected_cat_id],
         ).get_context(
             name=f'{name}_subcat_defval',
