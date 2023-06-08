@@ -122,10 +122,10 @@
             <div class="error-icon">{% block icon %}{% endblock %}</div>
             <div class="main-content">
                 <div class="title">
-                    {% block title %}Creme Error{% endblock %}
+                    {% block title %}{{title|default:'Creme Error'}}{% endblock %}
                 </div>
                 <div class="message">
-                    {% block error_message %}{% translate 'An internal error has occurred.' %}{% endblock %}
+                    {% block error_message %}{{message|default:_('An internal error has occurred.')}}{% endblock %}
                 </div>
             </div>
         </div>
