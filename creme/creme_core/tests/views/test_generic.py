@@ -667,13 +667,14 @@ class CreationTestCase(ViewsTestCase):
             str(cm.exception),
         )
 
-    def test_adding_to_entity(self):
+    def test_adding_to_entity01(self):
         # user = self.login()
         user = self.login_as_root_and_get()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         url = reverse('creme_core__create_fake_address', args=(nerv.id,))
 
-        response = self.assertGET200(url)
+        headers = {'X-Requested-With': 'XMLHttpRequest'}
+        response = self.assertGET200(url, headers=headers)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         get_ctxt  = response.context.get
@@ -682,8 +683,22 @@ class CreationTestCase(ViewsTestCase):
 
         # POST ---
         city = 'Tokyo'
-        self.assertNoFormError(self.client.post(url, data={'city': city}))
+        self.assertNoFormError(self.client.post(url, headers=headers, data={'city': city}))
         self.get_object_or_fail(FakeAddress, city=city, entity=nerv.id)
+
+    def test_adding_to_entity02(self):
+        "Not logged."
+        user = self.get_root_user()
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+        self.assertContains(
+            response=self.client.get(
+                reverse('creme_core__create_fake_address', args=(nerv.id,)),
+                headers={'X-Requested-With': 'XMLHttpRequest'},
+            ),
+            text=_('It seems you logged out.'),
+            html=True,
+            status_code=403,
+        )
 
 
 class EditionTestCase(ViewsTestCase):
