@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2022  Hybird
+#    Copyright (C) 2018-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,6 +36,7 @@ from django.http import (
 )
 from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
+from django.utils.html import escape
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.views import generic as django_generic
@@ -44,6 +45,7 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.gui.bricks import Brick, brick_registry
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
+from creme.creme_core.http import is_ajax
 from creme.creme_core.models import CremeEntity, CustomFormConfigItem
 from creme.creme_core.utils.content_type import get_ctype_or_404
 
@@ -139,6 +141,21 @@ class PermissionsMixin:
                 raise PermissionDenied(gettext('You are not allowed to access this view.'))
 
     def handle_not_logged(self):
+        if is_ajax(self.request):
+            # NB: we do not use a link to 'self.get_login_uri()' because we want
+            #     to redirect to main page's URI, not the AJAX URI.
+            # TODO: use a separated template file? ({% extends 'creme_core/popup-base.html' %})
+            return HttpResponse(
+                '<div class="inner-popup-content">'
+                ' <p>{message}</p>'
+                '</div>'.format(message=escape(gettext('It seems you logged out.'))),
+                # NB: the error page
+                #  - contains a button to reload the page.
+                #  - does not have an annoying "save" button.
+                #  - is not particularly pretty, but this case should not happen often.
+                status=403,
+            )
+
         return HttpResponseRedirect(self.get_login_uri())
 
     def get_login_uri(self):
