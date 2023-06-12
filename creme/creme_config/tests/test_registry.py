@@ -592,8 +592,7 @@ class RegistryTestCase(CremeTestCase):
     def test_get_model_creation_info01(self):
         "Not registered model."
         # user = self.login()
-        self.login_as_root()
-        user = self.get_root_user()
+        user = self.login_as_root_and_get()
         registry = _ConfigRegistry()
 
         url, allowed = registry.get_model_creation_info(model=FakeCivility, user=user)
@@ -640,8 +639,7 @@ class RegistryTestCase(CremeTestCase):
     def test_get_model_creation_info04(self):
         "Specific creation URL."
         # user = self.login()
-        self.login_as_root()
-        user = self.get_root_user()
+        user = self.login_as_root_and_get()
 
         registry = _ConfigRegistry()
         registry.register_model(FakeCivility).creation(url_name='creme_config__create_team')
@@ -653,8 +651,7 @@ class RegistryTestCase(CremeTestCase):
     def test_get_model_creation_info05(self):
         "Enable function OK."
         # user = self.login()
-        self.login_as_root()
-        user = self.get_root_user()
+        user= self.login_as_root_and_get()
 
         registry = _ConfigRegistry()
         registry.register_model(FakeCivility).creation(enable_func=lambda user: True)
@@ -671,8 +668,7 @@ class RegistryTestCase(CremeTestCase):
     def test_get_model_creation_info06(self):
         "Enable function KO."
         # user = self.login()
-        self.login_as_root()
-        user = self.get_root_user()
+        user = self.login_as_root_and_get()
 
         registry = _ConfigRegistry()
         registry.register_model(FakeCivility).creation(enable_func=lambda user: False)
