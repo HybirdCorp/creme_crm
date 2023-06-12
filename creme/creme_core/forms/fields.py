@@ -132,8 +132,8 @@ class CremeUserChoiceField(mforms.ModelChoiceField):
         return str(obj) if not obj.is_team else obj.username
 
 
-class CremeUserEnumerableField(enum_fields.EnumerableChoiceField):
-    """Specialization of EnumerableChoiceField the User model.
+class CremeUserEnumerableField(enum_fields.EnumerableModelChoiceField):
+    """Specialization of EnumerableModelChoiceField the User model.
     The user set by the form (see CremeForm/CremeModelForm) is used as initial
     choice by default.
     """

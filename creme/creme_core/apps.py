@@ -674,7 +674,7 @@ class CremeCoreConfig(CremeAppConfig):
                     help_text=self.help_text,
                 )
             elif self.get_tag(FieldTag.ENUMERABLE):
-                return config_fields.CreatorEnumerableChoiceField(
+                return config_fields.CreatorEnumerableModelChoiceField(
                     model=self.model,
                     field_name=self.name,
                     required=not self.blank,

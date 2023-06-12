@@ -12,7 +12,7 @@ from creme.creme_core.forms.enumerable import (
     DEFAULT_LIMIT,
     NO_LIMIT,
     EnumerableChoice,
-    EnumerableChoiceField,
+    EnumerableModelChoiceField,
     EnumerableSelect,
     FieldEnumerableChoiceSet,
 )
@@ -406,10 +406,10 @@ class EnumerableSelectTestCase(CremeTestCase):
 
 
 @override_settings(FORM_ENUMERABLE_LIMIT=100)
-class EnumerableChoiceFieldTestCase(FieldTestCase):
+class EnumerableModelChoiceFieldTestCase(FieldTestCase):
     def test_default(self):
         farming, industry, software = FakeSector.objects.order_by('pk')
-        field = EnumerableChoiceField(FakeContact, 'sector')
+        field = EnumerableModelChoiceField(FakeContact, 'sector')
 
         self.assertEqual('---------', field.empty_label)
         self.assertIsNone(field.initial)
@@ -429,7 +429,7 @@ class EnumerableChoiceFieldTestCase(FieldTestCase):
 
     def test_initial(self):
         farming, industry, software = FakeSector.objects.order_by('pk')
-        field = EnumerableChoiceField(
+        field = EnumerableModelChoiceField(
             FakeContact, 'sector', empty_label='No value...', initial=industry.pk
         )
 
@@ -449,7 +449,7 @@ class EnumerableChoiceFieldTestCase(FieldTestCase):
         self.assertListEqual(expected, [c.as_dict() for c in field.choices])
 
     def test_initial_from_model_default(self):
-        field1 = EnumerableChoiceField(
+        field1 = EnumerableModelChoiceField(
             FakeInvoice, 'currency', empty_label='No value…',
         )
 
@@ -459,7 +459,7 @@ class EnumerableChoiceFieldTestCase(FieldTestCase):
 
         # ---
         other_currency = Currency.objects.exclude(id=DEFAULT_CURRENCY_PK)[0]
-        field2 = EnumerableChoiceField(
+        field2 = EnumerableModelChoiceField(
             FakeInvoice, 'currency', empty_label='No value…', initial=other_currency.pk,
         )
 
@@ -469,7 +469,7 @@ class EnumerableChoiceFieldTestCase(FieldTestCase):
 
     def test_clean_value(self):
         farming = FakeSector.objects.order_by('pk').first()
-        field = EnumerableChoiceField(FakeContact, 'sector', required=False)
+        field = EnumerableModelChoiceField(FakeContact, 'sector', required=False)
 
         self.assertIsNone(field.to_python(''))
         self.assertEqual(farming, field.to_python(farming.pk))
@@ -477,7 +477,7 @@ class EnumerableChoiceFieldTestCase(FieldTestCase):
     @override_settings(FORM_ENUMERABLE_LIMIT=2)
     def test_clean_value__outside_limit(self):
         farming, industry, software = FakeSector.objects.order_by('pk')
-        field = EnumerableChoiceField(FakeContact, 'sector', required=False)
+        field = EnumerableModelChoiceField(FakeContact, 'sector', required=False)
 
         expected = [
             EnumerableChoice('', '---------').as_dict(),
@@ -490,7 +490,7 @@ class EnumerableChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(software, field.to_python(software.pk))
 
     def test_invalid_value(self):
-        field = EnumerableChoiceField(FakeContact, 'sector')
+        field = EnumerableModelChoiceField(FakeContact, 'sector')
 
         with self.assertRaises(ValidationError):
             field.to_python('unknown')

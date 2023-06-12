@@ -325,7 +325,6 @@ class EnumerableSelectMultiple(EnumerableSelect):
 
 
 class EnumerableChoiceField(mforms.ChoiceField):
-    enumerable: type[EnumerableChoiceSet] = FieldEnumerableChoiceSet
     widget: type[EnumerableSelect] = EnumerableSelect
 
     default_error_messages = {
@@ -333,15 +332,10 @@ class EnumerableChoiceField(mforms.ChoiceField):
                             ' the available choices.'),
     }
 
-    def __init__(self, model: type[Model], field_name: str, *, user=None, empty_label="---------",
-                 required=True, label=None, initial=None, help_text='', limit=None,
+    def __init__(self, enum: type[EnumerableChoiceSet], *, empty_label="---------",
+                 required=True, label=None, initial=None, help_text='',
                  **kwargs):
-        field = model._meta.get_field(field_name)
-
-        # Handles the model field default value. See ForeignKey.formfield implementation.
-        if field.has_default() and initial is None:
-            initial = field.default
-            kwargs.setdefault('show_hidden_initial', callable(initial))
+        self.enum = enum
 
         # Call Field instead of ChoiceField __init__() because we don't need
         # ChoiceField.__init__(). See ModelChoiceField implementation.
@@ -349,12 +343,6 @@ class EnumerableChoiceField(mforms.ChoiceField):
             self, required=required, label=label,
             initial=initial, help_text=help_text,
             **kwargs
-        )
-
-        self.enum = self.enumerable(
-            field=field,
-            user=user,
-            limit=limit,
         )
 
         if required and initial is not None:
@@ -438,3 +426,25 @@ class EnumerableChoiceField(mforms.ChoiceField):
         initial_value = initial if initial is not None else ''
         data_value = data if data is not None else ''
         return str(self.prepare_value(initial_value)) != str(data_value)
+
+
+class EnumerableModelChoiceField(EnumerableChoiceField):
+    enumerable: type[EnumerableChoiceSet] = FieldEnumerableChoiceSet
+    widget: type[EnumerableSelect] = EnumerableSelect
+
+    def __init__(self, model: type[Model], field_name: str, *, user=None, initial=None,
+                 limit=None, **kwargs):
+        field = model._meta.get_field(field_name)
+
+        # Handles the model field default value. See ForeignKey.formfield implementation.
+        if field.has_default() and initial is None:
+            initial = field.default
+            kwargs.setdefault('show_hidden_initial', callable(initial))
+
+        enum = self.enumerable(
+            field=field,
+            user=user,
+            limit=limit,
+        )
+
+        super().__init__(enum, initial=initial, **kwargs)

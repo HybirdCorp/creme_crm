@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2022  Hybird
+#    Copyright (C) 2017-2023 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms.fields as core_fields
 import creme.creme_core.forms.widgets as core_widgets
-from creme.creme_config.forms.fields import CreatorEnumerableChoiceField
+from creme.creme_config.forms.fields import CreatorEnumerableModelChoiceField
 from creme.creme_core.forms import validators
 from creme.creme_core.forms.enumerable import NO_LIMIT
 # from creme.creme_core.utils.url import TemplateURLBuilder
@@ -149,7 +149,7 @@ from ..models import Calendar
 #             yield instance.id, str(instance)
 
 
-class ActivitySubTypeField(CreatorEnumerableChoiceField):
+class ActivitySubTypeField(CreatorEnumerableModelChoiceField):
     def __init__(self, *,
                  model=get_activity_model(), field_name='sub_type',
                  limit_choices_to=None,
