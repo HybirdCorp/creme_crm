@@ -726,7 +726,7 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.client.logout()
         # self.client.login(username=self.other_user.username, password='test')
-        other = self.create_user(role=self.create_role())
+        other = self.create_user(role=self.create_role(), password=self.USER_PASSWORD)
         self.client.login(username=other.username, password=self.USER_PASSWORD)
 
         self.assertPOST403(
