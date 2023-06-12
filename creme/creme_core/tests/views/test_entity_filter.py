@@ -1920,11 +1920,7 @@ class UserChoicesTestCase(ViewsTestCase):
         other_user = self.create_user()
 
         # Alphabetically-first user (__str__, not username)
-        first_user = CremeUser.objects.create_user(
-            username='noir', email='chloe@noir.jp',
-            first_name='Chloe', last_name='Noir',
-            password='uselesspw',
-        )
+        first_user = self.create_user(index=2)
         self.assertGreater(str(user), str(first_user))
 
         url = reverse(

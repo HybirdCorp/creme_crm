@@ -4,7 +4,6 @@ from shutil import copy, rmtree
 from tempfile import NamedTemporaryFile, mkdtemp
 
 from django.apps import apps
-from django.contrib.auth import get_user_model
 from django.db.models.query_utils import Q
 from django.test.utils import override_settings
 
@@ -541,7 +540,7 @@ description3=[[<br>]]
         self.assertFalse(WaitingAction.objects.filter(user=None))
 
         waction = self.get_alone_element(
-            WaitingAction.objects.filter(user=get_user_model().objects.get_admin())
+            WaitingAction.objects.filter(user=self.get_root_user())
         )
         self.assertDictEqual(
             {'user_id': str(user.id), 'created': '01/02/2003'}, waction.data,
@@ -691,7 +690,7 @@ description3=[[<br>]]
         self.assertEqual(other_user, email_input.get_owner(True, sender=other_user.email))
 
     def test_get_owner03(self):
-        "The user doesn't match"
+        "The user doesn't match."
         self._set_sandbox_by_user()
         user = self.user
 
@@ -705,7 +704,7 @@ description3=[[<br>]]
             },
         )
         self.assertEqual(
-            get_user_model().objects.get_admin(),
+            self.get_root_user(),
             email_input.get_owner(True, sender='another_user@cremecrm.com'),
         )
 

@@ -1,6 +1,5 @@
 from functools import partial
 
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import prefetch_related_objects
@@ -26,7 +25,7 @@ class RelationsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = get_user_model().objects.create(username='name')
+        cls.user = cls.get_root_user()
 
     def test_type_manager_smart_update_or_create01(self):
         subject_id = 'test-subject_foobar'

@@ -14,7 +14,6 @@ from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
     MenuConfigItem,
-    UserRole,
 )
 
 from ..base import CremeTestCase
@@ -129,7 +128,7 @@ class MenuDisplayTestCase(CremeTestCase):
     @override_settings(SOFTWARE_LABEL='Amazing CRM')
     def test_regular_config02(self):
         "Logged as not super-user."
-        create_role = UserRole.objects.create
+        create_role = self.create_role
         role1 = create_role(name='Developer')
         role2 = create_role(name='Salesman')
 
@@ -171,7 +170,7 @@ class MenuDisplayTestCase(CremeTestCase):
         self._assert_custom_url_entry(container_node=container_li_node, url=url)
 
     def test_role_config(self):
-        create_role = UserRole.objects.create
+        create_role = self.create_role
         role1 = create_role(name='Developer')
         role2 = create_role(name='Salesman')
 

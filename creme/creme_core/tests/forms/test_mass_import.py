@@ -15,7 +15,6 @@ from creme.creme_core.forms.mass_import import (
     RegularFieldExtractorWidget,
 )
 from creme.creme_core.models import (
-    CremeUser,
     CustomField,
     CustomFieldEnumValue,
     FakeContact,
@@ -38,7 +37,7 @@ class ExtractorTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = CremeUser(**cls.USERS_DATA[0])
+        cls.user = cls.build_user()
 
     def test_extract01(self):
         user = self.user
@@ -161,7 +160,7 @@ class CustomFieldExtractorTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = CremeUser(**cls.USERS_DATA[0])
+        cls.user = cls.build_user()
 
     def test_extract01(self):
         user = self.user
@@ -502,8 +501,9 @@ class ExtractorFieldTestCase(CremeTestCase):
         self.assertEqual(def_val, extractor._default_value)
 
         first_name = 'Claus'
-        user = CremeUser(**self.USERS_DATA[0])
-        value, err_msg = extractor.extract_value(line=[first_name, 'Valca'], user=user)
+        value, err_msg = extractor.extract_value(
+            line=[first_name, 'Valca'], user=self.build_user(),
+        )
         self.assertIsNone(err_msg)
         self.assertEqual(first_name, value)
 

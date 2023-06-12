@@ -189,7 +189,7 @@ class FieldInfoTestCase(CremeTestCase):
     def test_field_info_get_value01(self):
         FieldInfo = meta.FieldInfo
 
-        user = get_user_model().objects.create(username='alphonse')
+        user = self.get_root_user()
         al = FakeContact.objects.create(user=user, first_name='Alphonse', last_name='Elric')
 
         self.assertEqual(
@@ -224,7 +224,7 @@ class FieldInfoTestCase(CremeTestCase):
         "ManyToManyField."
         FieldInfo = meta.FieldInfo
 
-        user = get_user_model().objects.create(username='alphonse')
+        user = self.get_root_user()
         al = FakeContact.objects.create(user=user, first_name='Alphonse', last_name='Elric')
 
         self.assertEqual([], FieldInfo(FakeContact, 'languages').value_from(al))

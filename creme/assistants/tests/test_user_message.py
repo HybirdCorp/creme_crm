@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.mail.backends.locmem import EmailBackend
 from django.test.utils import override_settings
@@ -22,8 +21,6 @@ from ..bricks import UserMessagesBrick
 from ..creme_jobs import usermessages_send_type
 from ..models import UserMessage, UserMessagePriority
 from .base import AssistantsTestCase
-
-User = get_user_model()  # TODO: self.User
 
 
 class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
@@ -183,14 +180,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_create04(self):
         "One team."
-        create_user = User.objects.create_user
-        users = [
-            create_user(
-                f'User{i}',
-                email=f'user{i}@foobar.com', first_name=f'User{i}', last_name='Foobar',
-            ) for i in range(1, 3)
-        ]
-
+        users = [self.create_user(index=i) for i in range(2)]
         team = self.create_team('Team', *users)
 
         self._create_usermessage('TITLE', 'BODY', None, [team], self.entity)
@@ -198,13 +188,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_create05(self):
         "Teams and isolated users with non-void intersections."
-        create_user = User.objects.create_user
-        users = [
-            create_user(
-                f'User{i}',
-                email=f'user{i}@foobar.com', first_name=f'User{i}', last_name='Foobar',
-            ) for i in range(1, 5)
-        ]
+        users = [self.create_user(index=i) for i in range(4)]
 
         team1 = self.create_team('Team01', *users[:2])
         team2 = self.create_team('Team02', *users[1:3])
