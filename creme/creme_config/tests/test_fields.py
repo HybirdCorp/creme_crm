@@ -38,7 +38,7 @@ from creme.creme_core.tests.forms.base import FieldTestCase
 
 from ..forms.fields import (
     BricksConfigField,
-    CreatorEnumerableChoiceField,
+    CreatorEnumerableModelChoiceField,
     CreatorModelChoiceField,
     CreatorModelMultipleChoiceField,
     CustomEnumChoiceField,
@@ -340,7 +340,7 @@ class CreatorModelChoiceFieldTestCase(_ConfigFieldTestCase):
         )
 
 
-class CreatorEnumerableChoiceFieldTestCase(_ConfigFieldTestCase):
+class CreatorEnumerableModelChoiceFieldTestCase(_ConfigFieldTestCase):
     ADD_URL = reverse(
         'creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'),
     )
@@ -351,25 +351,25 @@ class CreatorEnumerableChoiceFieldTestCase(_ConfigFieldTestCase):
         cls.admin = cls.create_admin()
 
     def test_ok(self):
-        field = CreatorEnumerableChoiceField(model=FakeContact, field_name='sector')
+        field = CreatorEnumerableModelChoiceField(model=FakeContact, field_name='sector')
         sector = FakeSector.objects.first()
         self.assertEqual(sector, field.clean(str(sector.id)))
 
     def test_empty_required(self):
-        kls = partial(CreatorEnumerableChoiceField, model=FakeContact, field_name='sector')
+        kls = partial(CreatorEnumerableModelChoiceField, model=FakeContact, field_name='sector')
         field = kls()
         self.assertTrue(field.required)
         self.assertFieldValidationError(kls, 'required', field.clean, '')
 
     def test_empty_not_required(self):
-        field = CreatorEnumerableChoiceField(
+        field = CreatorEnumerableModelChoiceField(
             model=FakeContact, field_name='sector', required=False,
         )
         self.assertFalse(field.required)
         self.assertIsNone(field.clean(''))
 
     def test_create_action_url(self):
-        field = CreatorEnumerableChoiceField(model=FakeContact, field_name='sector')
+        field = CreatorEnumerableModelChoiceField(model=FakeContact, field_name='sector')
         widget = field.widget
 
         self.assertEqual('', field.create_action_url)
@@ -385,7 +385,7 @@ class CreatorEnumerableChoiceFieldTestCase(_ConfigFieldTestCase):
         self.assertEqual(url, widget.create_url)
 
     def test_creation_url_n_allowed(self):
-        field = CreatorEnumerableChoiceField(model=FakeContact, field_name='sector')
+        field = CreatorEnumerableModelChoiceField(model=FakeContact, field_name='sector')
 
         self.assertTupleEqual(('', False), field.creation_url_n_allowed)
 
@@ -394,7 +394,7 @@ class CreatorEnumerableChoiceFieldTestCase(_ConfigFieldTestCase):
         self.assertTupleEqual((self.ADD_URL, True), field.creation_url_n_allowed)
 
     def test_creation_not_allowed(self):
-        field = CreatorEnumerableChoiceField(model=FakeContact, field_name='sector')
+        field = CreatorEnumerableModelChoiceField(model=FakeContact, field_name='sector')
         user = self.create_user(
             index=1,
             role=self.create_role(

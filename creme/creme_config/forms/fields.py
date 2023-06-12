@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -113,8 +113,8 @@ class CreatorModelChoiceField(modelforms.ModelChoiceField,
         self.creation_info(create_action_url, user)
 
 
-class CreatorEnumerableChoiceField(enum_forms.EnumerableChoiceField,
-                                   CreatorChoiceMixin):
+class CreatorEnumerableModelChoiceField(enum_forms.EnumerableModelChoiceField,
+                                        CreatorChoiceMixin):
     def __init__(self, model: type[Model], field_name: str, *, user=None,
                  create_action_url='', **kwargs):
         super().__init__(model, field_name, user=user, **kwargs)

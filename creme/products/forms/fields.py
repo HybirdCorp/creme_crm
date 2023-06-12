@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2022  Hybird
+#    Copyright (C) 2013-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@
 # from creme.creme_core.utils.url import TemplateURLBuilder
 #
 # from ..models import Category, SubCategory
-from creme.creme_config.forms.fields import CreatorEnumerableChoiceField
+from creme.creme_config.forms.fields import CreatorEnumerableModelChoiceField
 
 # class CreatorCategorySelector(ActionButtonList):
 #     def __init__(self, categories=(), attrs=None, creation_url='', creation_allowed=False):
@@ -189,7 +189,7 @@ from creme.creme_config.forms.fields import CreatorEnumerableChoiceField
 #         )
 
 
-class SubCategoryField(CreatorEnumerableChoiceField):
+class SubCategoryField(CreatorEnumerableModelChoiceField):
     def widget_attrs(self, widget):
         attrs = super().widget_attrs(widget)
         attrs['data-selection-show-group'] = 'true'

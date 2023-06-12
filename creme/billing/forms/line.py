@@ -221,7 +221,7 @@ class AddToCatalogForm(core_forms.CremeForm):
         self.related_item_class = related_item_class
 
         # HACK : We need to handle the case of SubCategoryField for Service or
-        # any other line type and the EnumerableChoiceField does not give any
+        # any other line type and the EnumerableModelChoiceField does not give any
         # tool for this (rare) usecase.
         if related_item_class != Product:
             sub_cat = self.fields['sub_category']

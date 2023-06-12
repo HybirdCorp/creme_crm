@@ -62,7 +62,7 @@ from ..models import (
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.url import TemplateURLBuilder
 from .base import _CUSTOM_NAME, CremeForm, CremeModelForm, FieldBlockManager
-from .enumerable import EnumerableChoiceField
+from .enumerable import EnumerableModelChoiceField
 from .fields import CreatorEntityField, MultiRelationEntityField
 from .widgets import (
     ChainedInput,
@@ -1509,7 +1509,7 @@ class ImportForm(CremeModelForm):
 
 class ImportForm4CremeEntity(ImportForm):
     # TODO : Replace by CremeUserChoiceField
-    user = EnumerableChoiceField(
+    user = EnumerableModelChoiceField(
         label=_('Owner user'), empty_label=None,
         model=CremeEntity, field_name='user',
     )
@@ -1672,7 +1672,7 @@ def extractorfield_factory(modelfield, header_dict, choices, **kwargs):
     if selected_column is None:
         selected_column = header_dict.get(slugify(modelfield.name), 0)
 
-    # Removed because it causes a conflict with EnumerableChoiceField
+    # Removed because it causes a conflict with EnumerableModelChoiceField
     # which does not allow to set "choices"
     #
     # Originally force a default value when the related field is required

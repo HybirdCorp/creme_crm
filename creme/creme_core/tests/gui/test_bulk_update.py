@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
-from creme.creme_config.forms.fields import CreatorEnumerableChoiceField
+from creme.creme_config.forms.fields import CreatorEnumerableModelChoiceField
 from creme.creme_core.core import entity_cell
 from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
@@ -1078,7 +1078,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         fields1 = form1.fields
         self.assertCountEqual([field_name], fields1.keys())
-        self.assertIsInstance(fields1[field_name], CreatorEnumerableChoiceField)
+        self.assertIsInstance(fields1[field_name], CreatorEnumerableModelChoiceField)
         self.assertDictEqual({field_name: civ1.id}, form1.initial)
 
         # POST ---
