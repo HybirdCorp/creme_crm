@@ -413,9 +413,11 @@ class CustomFieldEnum(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
-        from creme.creme_config.forms.fields import CustomEnumChoiceField
+        from creme.creme_config.forms.fields import (
+            CreatorCustomEnumerableChoiceField,
+        )
 
-        return CustomEnumChoiceField(**kwargs)
+        return CreatorCustomEnumerableChoiceField(**kwargs)
 
     @classmethod
     def _get_4_entities(cls, entities, cfields):
@@ -424,12 +426,12 @@ class CustomFieldEnum(CustomFieldValue):
 
     @staticmethod
     def _build_formfield(custom_field, formfield, user=None):
-        formfield.choices = [
-            ('', '-------'),
-            *CustomFieldEnumValue.objects
-                                 .filter(custom_field=custom_field)
-                                 .values_list('id', 'value'),
-        ]
+        # formfield.choices = [
+        #     ('', '-------'),
+        #     *CustomFieldEnumValue.objects
+        #                          .filter(custom_field=custom_field)
+        #                          .values_list('id', 'value'),
+        # ]
         formfield.user = user
         formfield.custom_field = custom_field
 
@@ -437,9 +439,9 @@ class CustomFieldEnum(CustomFieldValue):
         field.initial = self.value_id
 
     def set_value_n_save(self, value):
-        value = int(value)
-        if self.value_id != value:
-            self.value_id = value
+        value_id = int(value)
+        if self.value_id != value_id:
+            self.value_id = value_id
             self.save()
 
 

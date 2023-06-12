@@ -1102,7 +1102,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         with self.assertNoException():
             field = response1.context['form'].fields[formfield_name]
 
-        self.assertIsInstance(field, config_fields.CustomEnumChoiceField)
+        self.assertIsInstance(field, config_fields.CreatorCustomEnumerableChoiceField)
         self.assertEqual(user, field.user)
 
         # Enum
@@ -1755,7 +1755,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         with self.assertNoException():
             field = response.context['form'].fields[f'custom_field-{cfield.id}']
 
-        self.assertIsInstance(field, config_fields.CustomEnumChoiceField)
+        self.assertIsInstance(field, config_fields.CreatorCustomEnumerableChoiceField)
         self.assertEqual(user, field.user)
 
     def test_custom_field03(self):

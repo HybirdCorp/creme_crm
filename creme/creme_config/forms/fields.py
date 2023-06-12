@@ -28,7 +28,10 @@ from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.core.enumerable import EmptyEnumerator
+from creme.creme_core.enumerators import CustomFieldEnumerator
 from creme.creme_core.forms import enumerable as enum_forms
+from creme.creme_core.forms.enumerable import EnumerableChoiceSet
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.gui import menu
 
@@ -113,8 +116,8 @@ class CreatorModelChoiceField(modelforms.ModelChoiceField,
         self.creation_info(create_action_url, user)
 
 
-class CreatorEnumerableModelChoiceField(enum_forms.EnumerableModelChoiceField,
-                                        CreatorChoiceMixin):
+class CreatorEnumerableModelChoiceField(CreatorChoiceMixin,
+                                        enum_forms.EnumerableModelChoiceField):
     def __init__(self, model: type[Model], field_name: str, *, user=None,
                  create_action_url='', **kwargs):
         super().__init__(model, field_name, user=user, **kwargs)
@@ -189,6 +192,43 @@ class CreatorCustomEnumChoiceMixin(CreatorChoiceMixin):
     def custom_field(self, cfield):
         self._custom_field = cfield
         self._update_creation_info()
+
+
+class CreatorCustomEnumerableChoiceField(CreatorCustomEnumChoiceMixin,
+                                         enum_forms.EnumerableChoiceField):
+    def __init__(self, *, custom_field=None, user=None, empty_label="---------", **kwargs):
+        super().__init__(
+            EnumerableChoiceSet(enumerator=EmptyEnumerator(None)),
+            **kwargs
+        )
+        self.enum_empty_label = empty_label
+        self.custom_field = custom_field
+        self.user = user
+
+    def _update_enumerator(self):
+        custom_field = self.custom_field
+
+        if custom_field:
+            custom_choices_url = reverse('creme_core__cfield_enums', args=(custom_field.id,))
+            self.enum = EnumerableChoiceSet(
+                enumerator=CustomFieldEnumerator(custom_field=custom_field),
+                url=custom_choices_url,
+                empty_label=self.enum_empty_label,
+                user=self.user
+            )
+        else:
+            self.enum = EnumerableChoiceSet(
+                enumerator=EmptyEnumerator(None)
+            )
+
+    def _update_creation_info(self):
+        url, allowed = self.creation_url_n_allowed
+        self.widget.create_url = url if allowed else None
+        self._update_enumerator()
+
+    def to_python(self, value):
+        value = super().to_python(value)
+        return value.pk if value else None
 
 
 class CustomEnumChoiceField(CreatorCustomEnumChoiceMixin,
