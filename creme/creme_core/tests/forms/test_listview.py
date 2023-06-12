@@ -18,7 +18,6 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.core.enumerable import QSEnumerator, _EnumerableRegistry
 from creme.creme_core.gui.listview import ListViewSearchFieldRegistry
 from creme.creme_core.models import (
-    CremeUser,
     CustomField,
     CustomFieldEnumValue,
     FakeActivity,
@@ -233,7 +232,7 @@ class SearchFieldsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.user = cls.create_user()
+        cls.user = cls.get_root_user()
 
     def test_regular_charfield01(self):
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='name')
@@ -1201,10 +1200,7 @@ class SearchFormTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.user = CremeUser(
-            username='yui', email='kawa.yui@kimengumi.jp',
-            first_name='Yui', last_name='Kawa',
-        )
+        cls.user = cls.build_user()
 
     def test_search_form01(self):
         "Empty data."

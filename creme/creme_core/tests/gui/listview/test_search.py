@@ -48,10 +48,8 @@ class ListViewSearchTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.user = CremeUser(
-            username='yui', email='kawa.yui@kimengumi.jp',
-            first_name='Yui', last_name='Kawa',
-        )
+        cls.user1 = cls.build_user(index=0)
+        cls.user2 = cls.build_user(index=1)
 
     def test_regularrelatedfield_registry01(self):
         "Register by related model."
@@ -61,7 +59,7 @@ class ListViewSearchTestCase(CremeTestCase):
         registry = lv_search.RegularRelatedFieldSearchRegistry(
         ).register_related_model(model=CremeUser, sfield_builder=MyUserFKField)
 
-        get_field = partial(registry.get_field, user=self.user)
+        get_field = partial(registry.get_field, user=self.user1)
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         self.assertIsInstance(get_field(cell=build_cell(name='user')),    MyUserFKField)
         self.assertIsInstance(get_field(cell=build_cell(name='is_user')), MyUserFKField)
@@ -81,7 +79,7 @@ class ListViewSearchTestCase(CremeTestCase):
         registry = lv_search.RegularRelatedFieldSearchRegistry(
         ).register_default(MyFKField)
 
-        get_field = partial(registry.get_field, user=self.user)
+        get_field = partial(registry.get_field, user=self.user1)
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
         self.assertIsInstance(get_field(cell=build_cell(name='sector')), MyFKField)
         self.assertEqual(MyFKField, registry.default_builder)
@@ -93,17 +91,13 @@ class ListViewSearchTestCase(CremeTestCase):
             model=FakeInvoiceLine, name='linked_invoice',
         )
         self.assertIsInstance(
-            registry.get_field(cell=cell, user=self.user),
+            registry.get_field(cell=cell, user=self.user1),
             lv_forms.EntityRelatedField,
         )
 
     def test_regularrelatedfield_registry04(self):
         "register_related_model(): register a sub-registry."
-        user1 = self.user
-        user2 = CremeUser(
-            username='chie', email='uru.chie@kimengumi.jp',
-            first_name='Chie', last_name='Uru',
-        )
+        user1 = self.user1
 
         class MyUserField1(lv_forms.ListViewSearchField):
             pass
@@ -123,15 +117,11 @@ class ListViewSearchTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='user')
         get_field = registry.get_field
         self.assertIsInstance(get_field(cell=cell, user=user1), MyUserField1)
-        self.assertIsInstance(get_field(cell=cell, user=user2), MyUserField2)
+        self.assertIsInstance(get_field(cell=cell, user=self.user2), MyUserField2)
 
     def test_regularrelatedfield_registry05(self):
         "register_default(): register a sub-registry."
-        user1 = self.user
-        user2 = CremeUser(
-            username='chie', email='uru.chie@kimengumi.jp',
-            first_name='Chie', last_name='Uru',
-        )
+        user1 = self.user1
 
         class MyFKField1(lv_forms.ListViewSearchField):
             pass
@@ -151,15 +141,11 @@ class ListViewSearchTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='user')
         get_field = registry.get_field
         self.assertIsInstance(get_field(cell=cell, user=user1), MyFKField1)
-        self.assertIsInstance(get_field(cell=cell, user=user2), MyFKField2)
+        self.assertIsInstance(get_field(cell=cell, user=self.user2), MyFKField2)
 
     def test_regularrelatedfield_registry06(self):
         "Default is a sub-registry."
-        user1 = self.user
-        user2 = CremeUser(
-            username='chie', email='uru.chie@kimengumi.jp',
-            first_name='Chie', last_name='Uru',
-        )
+        user1 = self.user1
 
         class MyFKField1(lv_forms.ListViewSearchField):
             pass
@@ -178,11 +164,11 @@ class ListViewSearchTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='user')
         get_field = registry.get_field
         self.assertIsInstance(get_field(cell=cell, user=user1), MyFKField1)
-        self.assertIsInstance(get_field(cell=cell, user=user2), MyFKField2)
+        self.assertIsInstance(get_field(cell=cell, user=self.user2), MyFKField2)
 
     def test_regularfield_registry01(self):
         "Register by type."
-        user = self.user
+        user = self.user1
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
         str_cell = build_cell(name='name')
 
@@ -202,7 +188,7 @@ class ListViewSearchTestCase(CremeTestCase):
             pass
 
         registry.register_model_field_type(type=CharField, sfield_builder=MyField)
-        str_field = registry.get_field(cell=str_cell, user=self.user)
+        str_field = registry.get_field(cell=str_cell, user=self.user1)
         self.assertIsInstance(str_field, MyField)
         self.assertEqual(MyField, registry.builder_4_model_field_type(CharField))
         self.assertIsNone(
@@ -210,7 +196,7 @@ class ListViewSearchTestCase(CremeTestCase):
         )
 
         int_cell = build_cell(name='capital')
-        int_field = registry.get_field(cell=int_cell, user=self.user)
+        int_field = registry.get_field(cell=int_cell, user=self.user1)
         self.assertIsInstance(int_field, lv_forms.ListViewSearchField)
         self.assertNotIsInstance(int_field, MyField)
         self.assertIsNone(registry.builder_4_model_field_type(IntegerField))
@@ -225,7 +211,7 @@ class ListViewSearchTestCase(CremeTestCase):
         registry = lv_search.RegularFieldSearchRegistry(to_register=())
         registry.register_model_field_type(type=IntegerField, sfield_builder=MyField)
 
-        int_field = registry.get_field(cell=int_cell, user=self.user)
+        int_field = registry.get_field(cell=int_cell, user=self.user1)
         self.assertIsInstance(int_field, MyField)
 
     def test_regularfield_registry03(self):
@@ -242,14 +228,14 @@ class ListViewSearchTestCase(CremeTestCase):
         registry.register_model_field(
             model=FakeContact, field_name='first_name', sfield_builder=LVField,
         )
-        fname_field = registry.get_field(cell=fname_cell, user=self.user)
+        fname_field = registry.get_field(cell=fname_cell, user=self.user1)
         self.assertIsInstance(fname_field, LVField)
         self.assertEqual(
             LVField,
             registry.builder_4_model_field(model=FakeContact, field_name='first_name'),
         )
 
-        lname_field = registry.get_field(cell=lname_cell, user=self.user)
+        lname_field = registry.get_field(cell=lname_cell, user=self.user1)
         self.assertIsInstance(lname_field, lv_forms.ListViewSearchField)
         self.assertNotIsInstance(lname_field, LVField)
 
@@ -268,7 +254,7 @@ class ListViewSearchTestCase(CremeTestCase):
             choice_sfield_builder=MyChoiceField,
         )
 
-        user = self.user
+        user = self.user1
         item_field = registry.get_field(cell=build_cell(name='item'), user=user)
         self.assertIsInstance(item_field, MyCharField)
 
@@ -291,16 +277,12 @@ class ListViewSearchTestCase(CremeTestCase):
         )
 
         unit_cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='discount_unit')
-        unit_field = registry.get_field(cell=unit_cell, user=self.user)
+        unit_field = registry.get_field(cell=unit_cell, user=self.user1)
         self.assertIsInstance(unit_field, MyUnitField)
 
     def test_regularfield_registry06(self):
         "register_model_field():  sub-registry."
-        user1 = self.user
-        user2 = CremeUser(
-            username='chie', email='uru.chie@kimengumi.jp',
-            first_name='Chie', last_name='Uru',
-        )
+        user1 = self.user1
 
         class MyField1(lv_forms.ListViewSearchField):
             pass
@@ -323,15 +305,11 @@ class ListViewSearchTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='first_name')
         get_field = registry.get_field
         self.assertIsInstance(get_field(cell=cell, user=user1), MyField1)
-        self.assertIsInstance(get_field(cell=cell, user=user2), MyField2)
+        self.assertIsInstance(get_field(cell=cell, user=self.user2), MyField2)
 
     def test_regularfield_registry07(self):
         "Choices + sub-registry."
-        user1 = self.user
-        user2 = CremeUser(
-            username='chie', email='uru.chie@kimengumi.jp',
-            first_name='Chie', last_name='Uru',
-        )
+        user1 = self.user1
 
         class MyChoiceField1(lv_forms.ListViewSearchField):
             pass
@@ -351,14 +329,14 @@ class ListViewSearchTestCase(CremeTestCase):
 
         get_field = registry.get_field
         self.assertIsInstance(get_field(cell=cell, user=user1), MyChoiceField1)
-        self.assertIsInstance(get_field(cell=cell, user=user2), MyChoiceField2)
+        self.assertIsInstance(get_field(cell=cell, user=self.user2), MyChoiceField2)
 
         self.assertIsInstance(registry.choice_builder, MyChoiceRegistry)
 
     def test_regularfield_registry_default01(self):
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         get_field = partial(
-            lv_search.RegularFieldSearchRegistry().get_field, user=self.user,
+            lv_search.RegularFieldSearchRegistry().get_field, user=self.user1,
         )
         self.assertIsInstance(
             get_field(cell=build_cell(name='first_name')),
@@ -403,7 +381,7 @@ class ListViewSearchTestCase(CremeTestCase):
         "Choices."
         build_cell = partial(EntityCellRegularField.build, model=FakeInvoiceLine)
         get_field = partial(
-            lv_search.RegularFieldSearchRegistry().get_field, user=self.user,
+            lv_search.RegularFieldSearchRegistry().get_field, user=self.user1,
         )
         self.assertIsInstance(
             get_field(cell=build_cell(name='item')),
@@ -418,7 +396,7 @@ class ListViewSearchTestCase(CremeTestCase):
         "ForeignKey to entity."
         cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='linked_invoice')
         self.assertIsInstance(
-            lv_search.RegularFieldSearchRegistry().get_field(user=self.user, cell=cell),
+            lv_search.RegularFieldSearchRegistry().get_field(user=self.user1, cell=cell),
             lv_forms.EntityRelatedField,
         )
 
@@ -426,7 +404,7 @@ class ListViewSearchTestCase(CremeTestCase):
         "ManyToManyField to entity."
         cell = EntityCellRegularField.build(model=FakeEmailCampaign, name='mailing_lists')
         self.assertIsInstance(
-            lv_search.RegularFieldSearchRegistry().get_field(user=self.user, cell=cell),
+            lv_search.RegularFieldSearchRegistry().get_field(user=self.user1, cell=cell),
             lv_forms.EntityRelatedField,
         )
 
@@ -442,7 +420,7 @@ class ListViewSearchTestCase(CremeTestCase):
         int_cell = EntityCellCustomField(customfield=int_cfield)
 
         registry = lv_search.CustomFieldSearchRegistry(to_register=())
-        field = registry.get_field(cell=str_cell, user=self.user)
+        field = registry.get_field(cell=str_cell, user=self.user1)
         self.assertIsInstance(field, lv_forms.ListViewSearchField)
         # self.assertFalse(field.widget.type)
 
@@ -454,10 +432,10 @@ class ListViewSearchTestCase(CremeTestCase):
             pass
 
         registry.register(type=CustomField.STR, sfield_builder=MyCustomField)
-        str_field = registry.get_field(cell=str_cell, user=self.user)
+        str_field = registry.get_field(cell=str_cell, user=self.user1)
         self.assertIsInstance(str_field, MyCustomField)
 
-        int_field = registry.get_field(cell=int_cell, user=self.user)
+        int_field = registry.get_field(cell=int_cell, user=self.user1)
         self.assertIsInstance(int_field, lv_forms.ListViewSearchField)
 
         self.assertEqual(MyCustomField, builder(CustomField.STR))
@@ -465,7 +443,7 @@ class ListViewSearchTestCase(CremeTestCase):
 
     def test_customfield_registry02(self):
         "Default data."
-        user = self.user
+        user = self.user1
         create_cfield = partial(
             CustomField.objects.create,
             content_type=ContentType.objects.get_for_model(FakeContact),
@@ -524,11 +502,7 @@ class ListViewSearchTestCase(CremeTestCase):
 
     def test_customfield_registry03(self):
         "Sub-registry."
-        user1 = self.user
-        user2 = CremeUser(
-            username='chie', email='uru.chie@kimengumi.jp',
-            first_name='Chie', last_name='Uru',
-        )
+        user1 = self.user1
 
         class MyCustomField1(lv_forms.ListViewSearchField):
             pass
@@ -555,7 +529,7 @@ class ListViewSearchTestCase(CremeTestCase):
 
         get_field = registry.get_field
         self.assertIsInstance(get_field(cell=cell, user=user1), MyCustomField1)
-        self.assertIsInstance(get_field(cell=cell, user=user2), MyCustomField2)
+        self.assertIsInstance(get_field(cell=cell, user=self.user2), MyCustomField2)
 
     def test_functionfield_registry01(self):
         "Default data."
@@ -564,7 +538,7 @@ class ListViewSearchTestCase(CremeTestCase):
         funfield1 = self.PhoneFunctionField()
         cell1 = EntityCellFunctionField(model=FakeContact, func_field=funfield1)
 
-        field = registry.get_field(cell=cell1, user=self.user)
+        field = registry.get_field(cell=cell1, user=self.user1)
         self.assertIsInstance(field, lv_forms.ListViewSearchField)
         self.assertIsNone(registry.builder(funfield1))
 
@@ -576,9 +550,9 @@ class ListViewSearchTestCase(CremeTestCase):
         cell2 = EntityCellFunctionField(model=FakeContact, func_field=funfield2)
 
         registry.register(ffield=funfield2, sfield_builder=MyField)
-        self.assertIsInstance(registry.get_field(cell=cell2, user=self.user), MyField)
+        self.assertIsInstance(registry.get_field(cell=cell2, user=self.user1), MyField)
 
-        field1 = registry.get_field(cell=cell1, user=self.user)
+        field1 = registry.get_field(cell=cell1, user=self.user1)
         self.assertIsInstance(field1, lv_forms.ListViewSearchField)
         self.assertNotIsInstance(field1, MyField)
 
@@ -597,7 +571,7 @@ class ListViewSearchTestCase(CremeTestCase):
         cell = EntityCellFunctionField(
             model=FakeContact, func_field=self.PhoneFunctionField(),
         )
-        self.assertIsInstance(registry.get_field(cell=cell, user=self.user), MyField)
+        self.assertIsInstance(registry.get_field(cell=cell, user=self.user1), MyField)
 
     def test_functionfield_registry03(self):
         "Function field with default search-field."
@@ -612,7 +586,7 @@ class ListViewSearchTestCase(CremeTestCase):
         funfield = SearchablePhoneFunctionField()
         cell = EntityCellFunctionField(model=FakeContact, func_field=funfield)
         self.assertIsInstance(
-            registry.get_field(cell=cell, user=self.user),
+            registry.get_field(cell=cell, user=self.user1),
             MySearchField1
         )
 
@@ -622,17 +596,13 @@ class ListViewSearchTestCase(CremeTestCase):
 
         registry.register(ffield=funfield, sfield_builder=MySearchField2)
         self.assertIsInstance(
-            registry.get_field(cell=cell, user=self.user),
+            registry.get_field(cell=cell, user=self.user1),
             MySearchField2,
         )
 
     def test_functionfield_registry04(self):
         "Register sub-registry."
-        user1 = self.user
-        user2 = CremeUser(
-            username='chie', email='uru.chie@kimengumi.jp',
-            first_name='Chie', last_name='Uru',
-        )
+        user1 = self.user1
 
         class MyFunField1(lv_forms.ListViewSearchField):
             pass
@@ -653,15 +623,11 @@ class ListViewSearchTestCase(CremeTestCase):
                             .register(ffield=funfield, sfield_builder=MyFunRegistry)
         get_field = registry.get_field
         self.assertIsInstance(get_field(cell=cell, user=user1), MyFunField1)
-        self.assertIsInstance(get_field(cell=cell, user=user2), MyFunField2)
+        self.assertIsInstance(get_field(cell=cell, user=self.user2), MyFunField2)
 
     def test_functionfield_registry05(self):
         "Sub-registry defined in FunctionField attribute."
-        user1 = self.user
-        user2 = CremeUser(
-            username='chie', email='uru.chie@kimengumi.jp',
-            first_name='Chie', last_name='Uru',
-        )
+        user1 = self.user1
 
         class MyFunField1(lv_forms.ListViewSearchField):
             pass
@@ -684,7 +650,7 @@ class ListViewSearchTestCase(CremeTestCase):
         registry = lv_search.FunctionFieldSearchRegistry()
         get_field = registry.get_field
         self.assertIsInstance(get_field(cell=cell, user=user1), MyFunField1)
-        self.assertIsInstance(get_field(cell=cell, user=user2), MyFunField2)
+        self.assertIsInstance(get_field(cell=cell, user=self.user2), MyFunField2)
 
     def test_relationtype_registry01(self):
         "Default data + register() method."
@@ -692,7 +658,7 @@ class ListViewSearchTestCase(CremeTestCase):
 
         cell1 = EntityCellRelation.build(model=FakeContact, rtype_id=REL_SUB_HAS)
 
-        field = registry.get_field(cell=cell1, user=self.user)
+        field = registry.get_field(cell=cell1, user=self.user1)
         self.assertIsInstance(field, lv_forms.RelationField)
         self.assertIsNone(registry.builder(REL_SUB_HAS))
         self.assertEqual(lv_forms.RelationField, registry.default_builder)
@@ -709,10 +675,10 @@ class ListViewSearchTestCase(CremeTestCase):
 
         registry.register(rtype_id=rtype2.id, sfield_builder=MyRelationField)
         self.assertIsInstance(
-            registry.get_field(cell=cell2, user=self.user), MyRelationField,
+            registry.get_field(cell=cell2, user=self.user1), MyRelationField,
         )
         self.assertIsInstance(
-            registry.get_field(cell=cell1, user=self.user), lv_forms.RelationField,
+            registry.get_field(cell=cell1, user=self.user1), lv_forms.RelationField,
         )
 
         self.assertIsNone(registry.builder(REL_SUB_HAS))
@@ -728,7 +694,7 @@ class ListViewSearchTestCase(CremeTestCase):
         ])
 
         cell = EntityCellRelation.build(model=FakeContact, rtype_id=REL_SUB_HAS)
-        self.assertIsInstance(registry.get_field(cell=cell, user=self.user), MyRelationField)
+        self.assertIsInstance(registry.get_field(cell=cell, user=self.user1), MyRelationField)
 
     def test_relationtype_registry03(self):
         "Set default."
@@ -739,15 +705,11 @@ class ListViewSearchTestCase(CremeTestCase):
         self.assertEqual(MyRelationField, registry.default_builder)
 
         cell = EntityCellRelation.build(model=FakeContact, rtype_id=REL_SUB_HAS)
-        self.assertIsInstance(registry.get_field(cell=cell, user=self.user), MyRelationField)
+        self.assertIsInstance(registry.get_field(cell=cell, user=self.user1), MyRelationField)
 
     def test_relationtype_registry04(self):
         "Register sub-registry."
-        user1 = self.user
-        user2 = CremeUser(
-            username='chie', email='uru.chie@kimengumi.jp',
-            first_name='Chie', last_name='Uru',
-        )
+        user1 = self.user1
 
         class MyRelationField1(lv_forms.ListViewSearchField):
             pass
@@ -772,15 +734,11 @@ class ListViewSearchTestCase(CremeTestCase):
         cell = EntityCellRelation.build(model=FakeContact, rtype_id=REL_SUB_HAS)
         get_field = registry.get_field
         self.assertIsInstance(get_field(cell=cell, user=user1), MyRelationField1)
-        self.assertIsInstance(get_field(cell=cell, user=user2), MyRelationField2)
+        self.assertIsInstance(get_field(cell=cell, user=self.user2), MyRelationField2)
 
     def test_relationtype_registry05(self):
         "Default is a sub-registry."
-        user1 = self.user
-        user2 = CremeUser(
-            username='chie', email='uru.chie@kimengumi.jp',
-            first_name='Chie', last_name='Uru',
-        )
+        user1 = self.user1
 
         class MyRelationField1(lv_forms.ListViewSearchField):
             pass
@@ -803,15 +761,11 @@ class ListViewSearchTestCase(CremeTestCase):
         cell = EntityCellRelation.build(model=FakeContact, rtype_id=REL_SUB_HAS)
         get_field = registry.get_field
         self.assertIsInstance(get_field(cell=cell, user=user1), MyRelationField1)
-        self.assertIsInstance(get_field(cell=cell, user=user2), MyRelationField2)
+        self.assertIsInstance(get_field(cell=cell, user=self.user2), MyRelationField2)
 
     def test_relationtype_registry06(self):
         "Register a default sub-registry."
-        user1 = self.user
-        user2 = CremeUser(
-            username='chie', email='uru.chie@kimengumi.jp',
-            first_name='Chie', last_name='Uru',
-        )
+        user1 = self.user1
 
         class MyRelationField1(lv_forms.ListViewSearchField):
             pass
@@ -834,12 +788,12 @@ class ListViewSearchTestCase(CremeTestCase):
         cell = EntityCellRelation.build(model=FakeContact, rtype_id=REL_SUB_HAS)
         get_field = registry.get_field
         self.assertIsInstance(get_field(cell=cell, user=user1), MyRelationField1)
-        self.assertIsInstance(get_field(cell=cell, user=user2), MyRelationField2)
+        self.assertIsInstance(get_field(cell=cell, user=self.user2), MyRelationField2)
 
     def test_cell_registry_regularfield(self):
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
         get_field = lv_search.ListViewSearchFieldRegistry().get_field
-        user = self.user
+        user = self.user1
         self.assertIsInstance(
             get_field(cell=build_cell(name='first_name'), user=user),
             lv_forms.RegularCharField,
@@ -866,7 +820,7 @@ class ListViewSearchTestCase(CremeTestCase):
         cell = EntityCellCustomField(customfield=cfield)
         registry = lv_search.ListViewSearchFieldRegistry()
 
-        field = registry.get_field(cell=cell, user=self.user)
+        field = registry.get_field(cell=cell, user=self.user1)
         self.assertIsInstance(field, lv_forms.CustomCharField)
 
     def test_cell_registry_functionfield01(self):
@@ -874,7 +828,7 @@ class ListViewSearchTestCase(CremeTestCase):
         cell = EntityCellFunctionField(model=FakeContact, func_field=funfield)
         registry = lv_search.ListViewSearchFieldRegistry(to_register=())
 
-        field = registry.get_field(cell=cell, user=self.user)
+        field = registry.get_field(cell=cell, user=self.user1)
         self.assertIsInstance(field, lv_forms.ListViewSearchField)
 
         with self.assertRaises(KeyError):
@@ -886,14 +840,14 @@ class ListViewSearchTestCase(CremeTestCase):
         cell = EntityCellFunctionField(model=FakeContact, func_field=funfield)
         registry = lv_search.ListViewSearchFieldRegistry()
 
-        field = registry.get_field(cell=cell, user=self.user)
+        field = registry.get_field(cell=cell, user=self.user1)
         self.assertEqual(lv_forms.ListViewSearchField, type(field))
 
     def test_cell_registry_relation01(self):
         cell = EntityCellRelation.build(model=FakeContact, rtype_id=REL_SUB_HAS)
         registry = lv_search.ListViewSearchFieldRegistry(to_register=())
 
-        field = registry.get_field(cell=cell, user=self.user)
+        field = registry.get_field(cell=cell, user=self.user1)
         self.assertIsInstance(field, lv_forms.ListViewSearchField)
 
         class MyField(lv_forms.RelationField):
@@ -904,7 +858,7 @@ class ListViewSearchTestCase(CremeTestCase):
                 return MyField(cell=cell, user=user)
 
         registry.register(cell_id=EntityCellRelation.type_id, registry_class=Registry)
-        field = registry.get_field(cell=cell, user=self.user)
+        field = registry.get_field(cell=cell, user=self.user1)
         self.assertIsInstance(field, MyField)
 
     def test_cell_registry_relation02(self):
@@ -912,7 +866,7 @@ class ListViewSearchTestCase(CremeTestCase):
         registry = lv_search.ListViewSearchFieldRegistry()
         cell = EntityCellRelation.build(model=FakeContact, rtype_id=REL_SUB_HAS)
 
-        field = registry.get_field(cell=cell, user=self.user)
+        field = registry.get_field(cell=cell, user=self.user1)
         self.assertIsInstance(field, lv_forms.RelationField)
 
     def test_cell_registry_get_item(self):
@@ -926,7 +880,7 @@ class ListViewSearchTestCase(CremeTestCase):
         registry[EntityCellFunctionField.type_id].register(
             ffield=funfield, sfield_builder=MyField,
         )
-        self.assertIsInstance(registry.get_field(cell=cell, user=self.user), MyField)
+        self.assertIsInstance(registry.get_field(cell=cell, user=self.user1), MyField)
 
         with self.assertNoException():
             registry[EntityCellRegularField.type_id].builder_4_model_field_type(ForeignKey)

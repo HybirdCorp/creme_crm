@@ -1,7 +1,7 @@
 from django.test import RequestFactory
 
 from creme.creme_core.gui.listview import ListViewState
-from creme.creme_core.models import CremeUser, FakeContact
+from creme.creme_core.models import FakeContact
 from creme.creme_core.tests.base import CremeTestCase
 
 
@@ -11,10 +11,7 @@ class ListViewStateTestCase(CremeTestCase):
         super().setUpClass()
 
         cls.factory = RequestFactory()
-        cls.user = CremeUser(
-            username='yui', email='kawa.yui@kimengumi.jp',
-            first_name='Yui', last_name='Kawa',
-        )
+        cls.user = cls.build_user()
         cls.url = FakeContact.get_lv_absolute_url()
 
     def _assertLVSEmpty(self, lvs):

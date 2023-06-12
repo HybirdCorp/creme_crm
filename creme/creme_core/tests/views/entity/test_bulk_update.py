@@ -3,7 +3,6 @@ from decimal import Decimal
 from functools import partial
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import Max
@@ -1201,7 +1200,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         # user = self.login()
         user = self.login_as_root_and_get()
 
-        empty_user1 = get_user_model().objects.create_user(
+        empty_user1 = self.create_user(
             username='empty1', first_name='', last_name='', email='',
         )
         empty_contact1 = FakeContact.objects.create(
@@ -1226,8 +1225,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         # user = self.login()
         user = self.login_as_root_and_get()
         create_empty_user = partial(
-            get_user_model().objects.create_user,
-            first_name='', last_name='', email='',
+            self.create_user, first_name='', last_name='', email='',
         )
         empty_user1 = create_empty_user(username='empty1')
         empty_user2 = create_empty_user(username='empty2')
@@ -1800,7 +1798,7 @@ class InnerEditTestCase(_BulkEditTestCase):
     def test_other_field_validation_error(self):
         # user = self.login()
         user = self.login_as_root_and_get()
-        empty_user = get_user_model().objects.create_user(
+        empty_user = self.create_user(
             username='empty', first_name='', last_name='', email='',
         )
         empty_contact = FakeContact.objects.create(
@@ -1821,7 +1819,7 @@ class InnerEditTestCase(_BulkEditTestCase):
     def test_both_edited_field_and_field_validation_error(self):
         # user = self.login()
         user = self.login_as_root_and_get()
-        empty_user = get_user_model().objects.create_user(
+        empty_user = self.create_user(
             username='empty', first_name='', last_name='', email='',
         )
         empty_contact = FakeContact.objects.create(

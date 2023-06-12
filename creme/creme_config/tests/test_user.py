@@ -1,4 +1,4 @@
-from functools import partial
+# from functools import partial
 from json import dumps as json_dump
 from unittest import skipIf
 
@@ -1225,20 +1225,22 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNotIn('displayed_name', fields)
 
         # ---
-        create_user = partial(User.objects.create_user, password='uselesspw')
-        user01 = create_user(
-            username='Shogun',
-            first_name='Choji', last_name='Ochiai', email='shogun@century.jp',
-        )
-        user02 = create_user(
-            username='Yukiji',
-            first_name='Yukiji', last_name='Setoguchi', email='yukiji@century.jp',
-        )
+        # create_user = partial(User.objects.create_user, password='uselesspw')
+        # user1 = create_user(
+        #     username='Shogun',
+        #     first_name='Choji', last_name='Ochiai', email='shogun@century.jp',
+        # )
+        # user2 = create_user(
+        #     username='Yukiji',
+        #     first_name='Yukiji', last_name='Setoguchi', email='yukiji@century.jp',
+        # )
+        user1 = self.create_user(index=1)
+        user2 = self.create_user(index=2)
 
         self.assertNoFormError(self.client.post(
             url,
             follow=True,
-            data={'username': 'Team-A', 'teammates': [user01.id, user02.id]},
+            data={'username': 'Team-A', 'teammates': [user1.id, user2.id]},
         ))
 
         team = self.get_alone_element(User.objects.filter(is_team=True))
@@ -1249,8 +1251,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         teammates = team.teammates
         self.assertEqual(2, len(teammates))
-        self.assertIn(user01.id, teammates)
-        self.assertIn(user02.id, teammates)
+        self.assertIn(user1.id, teammates)
+        self.assertIn(user2.id, teammates)
 
         self.assertFalse(Contact.objects.filter(is_user=team))
 
@@ -1258,7 +1260,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertNoFormError(self.client.post(
             url,
             follow=True,
-            data={'username': 'Team-B', 'teammates': [user02.id]},
+            data={'username': 'Team-B', 'teammates': [user2.id]},
         ))
 
     @skipIfNotCremeUser
@@ -1268,12 +1270,13 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         url = self.ADD_TEAM_URL
         self.assertGET403(url)
 
-        user01 = User.objects.create_user(
-            username='Shogun', first_name='Choji', last_name='Ochiai',
-            email='shogun@century.jp', password='uselesspw',
-        )
+        # user = User.objects.create_user(
+        #     username='Shogun', first_name='Choji', last_name='Ochiai',
+        #     email='shogun@century.jp', password='uselesspw',
+        # )
+        user = self.create_user(index=1)
         self.assertPOST403(
-            url, data={'username':  'Team-A', 'teammates': [user01.id]},
+            url, data={'username':  'Team-A', 'teammates': [user.id]},
         )
 
     @skipIfNotCremeUser
@@ -1333,23 +1336,25 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_edit_team02(self):
         self.login_as_config_admin()
 
-        create_user = partial(User.objects.create_user, password='uselesspw')
-        user01 = create_user(
-            username='Shogun', first_name='Choji', last_name='Ochiai',
-            email='shogun@century.jp',
-        )
-        user02 = create_user(
-            username='Yukiji', first_name='Yukiji', last_name='Setoguchi',
-            email='yukiji@century.jp',
-        )
+        # create_user = partial(User.objects.create_user, password='uselesspw')
+        # user1 = create_user(
+        #     username='Shogun', first_name='Choji', last_name='Ochiai',
+        #     email='shogun@century.jp',
+        # )
+        # user2 = create_user(
+        #     username='Yukiji', first_name='Yukiji', last_name='Setoguchi',
+        #     email='yukiji@century.jp',
+        # )
+        user1 = self.create_user(index=1)
+        user2 = self.create_user(index=2)
 
         teamname = 'Teamee'
-        team = self.create_team(teamname, user01, user02)
+        team = self.create_team(teamname, user1, user2)
 
         url = reverse('creme_config__edit_team', args=(team.id,))
         self.assertGET403(url)
         self.assertPOST403(
-            url, data={'username': teamname, 'teammates': [user02.id]},
+            url, data={'username': teamname, 'teammates': [user2.id]},
         )
 
     @skipIfNotCremeUser
@@ -1357,11 +1362,12 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        user = User.objects.create_user(
-            username='Shogun',
-            first_name='Choji', last_name='Ochiai',
-            email='shogun@century.jp', password='uselesspw',
-        )
+        # user = User.objects.create_user(
+        #     username='Shogun',
+        #     first_name='Choji', last_name='Ochiai',
+        #     email='shogun@century.jp', password='uselesspw',
+        # )
+        user = self.create_user()
         team = self.create_team('Teamee')
 
         url = self._build_delete_url(team)
@@ -1374,11 +1380,12 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         # self.login()
         self.login_as_root()
 
-        user = User.objects.create_user(
-            username='Shogun',
-            first_name='Choji', last_name='Ochiai',
-            email='shogun@century.jp', password='uselesspw',
-        )
+        # user = User.objects.create_user(
+        #     username='Shogun',
+        #     first_name='Choji', last_name='Ochiai',
+        #     email='shogun@century.jp', password='uselesspw',
+        # )
+        user = self.create_user()
         team1 = self.create_team('Teamee', user)
         team2 = self.create_team('Teamee2', user)
 
@@ -1407,11 +1414,12 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_delete_team04(self):
         self.login_as_config_admin()
 
-        user = User.objects.create_user(
-            username='Shogun',
-            first_name='Choji', last_name='Ochiai', email='shogun@century.jp',
-            # password='uselesspw',
-        )
+        # user = User.objects.create_user(
+        #     username='Shogun',
+        #     first_name='Choji', last_name='Ochiai', email='shogun@century.jp',
+        #     # password='uselesspw',
+        # )
+        user = self.create_user(index=1)
         team = self.create_team('Teamee')
 
         url = self._build_delete_url(team)

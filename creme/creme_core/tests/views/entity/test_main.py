@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -248,7 +247,7 @@ class EntityViewsTestCase(ViewsTestCase):
         url = self.CLONE_URL
 
         mario = FakeContact.objects.create(
-            user=get_user_model().objects.first(),
+            user=self.get_root_user(),
             first_name='Mario', last_name='Bros',
         )
 

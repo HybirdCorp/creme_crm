@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from functools import partial
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils.timezone import localtime, now
 
@@ -25,20 +24,12 @@ class MobileAppTestCase(MobileBaseTestCase):
         self.assertTemplateUsed(response, 'mobile/login.html')
         self.assertEqual('next', response.context.get('REDIRECT_FIELD_NAME'))
 
-        username = 'gally'
         password = 'passwd'
-        get_user_model().objects.create_superuser(
-            username,
-            first_name='Gally',
-            last_name='Alita',
-            email='gally@zalem.org',
-            password=password,
-        )
-
+        user = self.create_user(password=password)
         response = self.assertPOST200(
             url, follow=True,
             data={
-                'username': username,
+                'username': user.username,
                 'password': password,
                 'next':     self.PORTAL_URL,
             },

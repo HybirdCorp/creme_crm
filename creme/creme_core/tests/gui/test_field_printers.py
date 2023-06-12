@@ -61,7 +61,6 @@ from creme.creme_core.gui.field_printers import (
 )
 from creme.creme_core.models import (
     CremeEntity,
-    CremeUser,
     EntityFilter,
     FakeActivity,
     FakeContact,
@@ -84,9 +83,15 @@ from creme.creme_core.tests.base import CremeTestCase
 
 
 class FieldsPrintersTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.user = cls.build_user()
+
     def test_simple_print_html(self):
         c = FakeContact()
-        user = CremeUser()
+        user = self.user
         field = c._meta.get_field('first_name')
         self.assertEqual(
             '',
@@ -109,7 +114,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_simple_print_txt(self):
         c = FakeContact()
-        user = CremeUser()
+        user = self.user
         field = c._meta.get_field('first_name')
         self.assertEqual(
             '',
@@ -125,7 +130,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
     def test_print_choice(self):
-        user = CremeUser()
+        user = self.user
         field = FakeInvoiceLine._meta.get_field('discount_unit')
 
         line1 = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.PERCENT)
@@ -151,7 +156,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def _aux_print_integer_html01(self):
         o = FakeOrganisation()
-        user = CremeUser()
+        user = self.user
         field = o._meta.get_field('capital')
         self.assertEqual(
             '',
@@ -177,7 +182,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_decimal_html(self):
         line = FakeInvoiceLine()
-        user = CremeUser()
+        user = self.user
         field = line._meta.get_field('discount')
         self.assertEqual(
             '',
@@ -194,7 +199,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_decimal_text(self):
         line = FakeInvoiceLine()
-        user = CremeUser()
+        user = self.user
         field = line._meta.get_field('discount')
         self.assertEqual(
             '',
@@ -211,7 +216,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_boolean_html(self):
         c = FakeContact()
-        user = CremeUser()
+        user = self.user
         field = c._meta.get_field('is_a_nerd')
         self.assertEqual(
             '',
@@ -231,7 +236,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_boolean_text(self):
         c = FakeContact()
-        user = CremeUser()
+        user = self.user
         field = c._meta.get_field('is_a_nerd')
         self.assertEqual(
             '',
@@ -252,7 +257,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_url_html(self):
         o = FakeOrganisation()
-        user = CremeUser()
+        user = self.user
         field = o._meta.get_field('url_site')
         self.assertEqual(
             '',
@@ -276,7 +281,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     # def test_print_date(self):  # DEPRECATED
     #     c = FakeContact()
-    #     user = CremeUser()
+    #     user = self.user
     #     field = c._meta.get_field('birthday')
     #     self.assertEqual('', print_date(c, None, user, field))
     #
@@ -288,7 +293,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_date_html(self):
         c = FakeContact()
-        user = CremeUser()
+        user = self.user
         field = c._meta.get_field('birthday')
         # self.assertEqual('', print_date_html(c, None, user, field))
         self.assertEqual(
@@ -318,7 +323,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_date_text(self):
         c = FakeContact()
-        user = CremeUser()
+        user = self.user
         field = c._meta.get_field('birthday')
         # self.assertEqual('', print_date_csv(c, None, user, field))
         self.assertEqual('', print_date_text(instance=c, value=None, user=user, field=field))
@@ -347,7 +352,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     # def test_print_datetime(self):  # DEPRECATED
     #     a = FakeActivity()
-    #     user = CremeUser()
+    #     user = self.user
     #     field = a._meta.get_field('start')
     #     self.assertEqual('', print_datetime(a, None, user, field))
     #
@@ -359,7 +364,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_datetime_html(self):
         a = FakeActivity()
-        user = CremeUser()
+        user = self.user
         field = a._meta.get_field('start')
         # self.assertEqual('', print_datetime_html(a, None, user, field))
         self.assertEqual(
@@ -389,7 +394,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_datetime_text(self):
         a = FakeActivity()
-        user = CremeUser()
+        user = self.user
         field = a._meta.get_field('start')
         # self.assertEqual('', print_datetime_csv(a, None, user, field))/
         self.assertEqual('', print_datetime_text(instance=a, value=None, user=user, field=field))
@@ -419,7 +424,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_email_html(self):
         c = FakeContact()
-        user = CremeUser()
+        user = self.user
         field = c._meta.get_field('email')
         # self.assertEqual('', print_email_html(c, None, user, field))
         self.assertEqual(
@@ -442,7 +447,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_text_html(self):
         c = FakeContact()
-        user = CremeUser()
+        user = self.user
         field = c._meta.get_field('description')
         # self.assertEqual('', print_text_html(c, None, user, field))
         self.assertEqual('', print_text_html(instance=c, value=None, user=user, field=field))
@@ -475,7 +480,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_print_unsafehtml_html(self):
         c = FakeContact()
-        user = CremeUser()
+        user = self.user
         field = c._meta.get_field('description')
         # self.assertEqual('', print_unsafehtml_html(c, None, user, field))
         self.assertEqual(
@@ -1251,7 +1256,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             )
 
     def test_registry_print_choice(self):
-        user = CremeUser()
+        user = self.user
 
         registry = _FieldPrintersRegistry()
         render_field = partial(
@@ -1273,7 +1278,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual('', render_field(instance=l3, tag=ViewTag.TEXT_PLAIN))
 
     def test_registry_register_choice_printer01(self):
-        user = CremeUser()
+        user = self.user
 
         registry = _FieldPrintersRegistry()
 
@@ -1315,7 +1320,7 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry_register_choice_printer02(self):
         "Register choice-printer for specific field."
-        user = CremeUser()
+        user = self.user
         registry = _FieldPrintersRegistry()
 
         def print_discount_html(*, instance, value, user, field):

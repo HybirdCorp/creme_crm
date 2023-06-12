@@ -13,7 +13,7 @@ from creme.creme_core.gui.actions import (
     UIAction,
 )
 from creme.creme_core.gui.merge import merge_form_registry
-from creme.creme_core.models import CremeEntity, CremeUser
+from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.auth import SetCredentials
 
 from ..base import CremeTestCase
@@ -75,10 +75,7 @@ class ActionsTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.user = CremeUser(
-            username='yui', email='kawa.yui@kimengumi.jp',
-            first_name='Yui', last_name='Kawa',
-        )
+        cls.user = cls.build_user()
 
     def setUp(self):
         super().setUp()
@@ -128,18 +125,19 @@ class ActionsTestCase(CremeTestCase):
             UIAction(user)
 
     def test_action_is_visible(self):
-        other_user = CremeUser(username='other', first_name='other', last_name='other')
+        user = self.user
+        other_user = self.build_user(username='other', first_name='other', last_name='other')
 
-        class OnlyForYuiAction(MockAction):
+        class OnlyForFixedUserAction(MockAction):
             @property
-            def is_visible(self):
-                return self.user.username == 'yui'
+            def is_visible(this):
+                return this.user.username == user.username
 
-        self.assertTrue(MockAction(self.user).is_visible)
+        self.assertTrue(MockAction(user).is_visible)
         self.assertTrue(MockAction(other_user).is_visible)
 
-        self.assertTrue(OnlyForYuiAction(self.user).is_visible)
-        self.assertFalse(OnlyForYuiAction(other_user).is_visible)
+        self.assertTrue(OnlyForFixedUserAction(user).is_visible)
+        self.assertFalse(OnlyForFixedUserAction(other_user).is_visible)
 
     def test_actions_chain(self):
         achain = ActionsChain()

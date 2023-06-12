@@ -30,7 +30,6 @@ from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
-    CremeUser,
     CustomField,
     CustomFieldBoolean,
     CustomFieldDateTime,
@@ -675,11 +674,7 @@ class EntityFiltersTestCase(CremeTestCase):
             efilter, FakeContact, self._get_ikari_case_sensitive()
         )
 
-        user = CremeUser.objects.create(
-            username='Kanna', email='kanna@century.jp',
-            first_name='Kanna', last_name='Gendou',
-            password='uselesspw',
-        )
+        user = self.get_root_user()
 
         cond_accept = partial(cond.accept, user=user)
         filter_accept = partial(efilter.accept, user=user)
@@ -1395,11 +1390,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_accept01(self):
         "One condition."
-        user = CremeUser.objects.create(
-            username='Kanna', email='kanna@century.jp',
-            first_name='Kanna', last_name='Gendou',
-            password='uselesspw',
-        )
+        user = self.get_root_user()
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Ikari', FakeContact,
             conditions=[
@@ -1419,11 +1410,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_accept02(self):
         "Two conditions + AND."
-        user = CremeUser.objects.create(
-            username='Kanna', email='kanna@century.jp',
-            first_name='Kanna', last_name='Gendou',
-            password='uselesspw',
-        )
+        user = self.get_root_user()
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Ikari', FakeContact,
             conditions=[
@@ -1448,11 +1435,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_accept03(self):
         "Two conditions + OR."
-        user = CremeUser.objects.create(
-            username='Kanna', email='kanna@century.jp',
-            first_name='Kanna', last_name='Gendou',
-            password='uselesspw',
-        )
+        user = self.get_root_user()
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Ikari', FakeContact,
             use_or=True,

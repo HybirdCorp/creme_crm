@@ -1,6 +1,5 @@
 from functools import partial
 
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import ProtectedError
 from django.utils.translation import gettext as _
@@ -506,9 +505,7 @@ class BrickTestCase(CremeTestCase):
         order = 3
         BrickMypageLocation.objects.create(brick_id=brick_id, order=order)
 
-        user = get_user_model().objects.create(username='Kirika')
-        user.set_password('password')
-        user.save()
+        user = self.create_user()
         self.get_object_or_fail(
             BrickMypageLocation,
             user=user, brick_id=brick_id, order=order,

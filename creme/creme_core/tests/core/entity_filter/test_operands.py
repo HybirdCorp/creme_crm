@@ -5,7 +5,7 @@ from creme.creme_core.core.entity_filter import (
     entity_filter_registries,
     operands,
 )
-from creme.creme_core.models import CremeUser, FakeContact
+from creme.creme_core.models import FakeContact
 from creme.creme_core.tests.base import CremeTestCase
 
 
@@ -27,10 +27,7 @@ class OperandTestCase(CremeTestCase):
 
     def test_current_user03(self):
         "Resolve with no team."
-        user = CremeUser.objects.create(
-            username='kirika', email='kirika@noir.jp',
-            first_name='Kirika', last_name='Yumura',
-        )
+        user = self.create_user()
 
         operand = operands.CurrentUserOperand(user=user)
         self.assertEqual(user, operand.user)
