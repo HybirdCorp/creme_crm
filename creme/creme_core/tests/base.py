@@ -132,7 +132,7 @@ class _CremeTestCase:
     ]
 
     @classmethod
-    def build_user(cls, index=0, **kwargs):
+    def build_user(cls, index=0, password='', **kwargs):
         user_data = {
             **cls.USERS_DATA[index],
             **kwargs,
@@ -142,7 +142,10 @@ class _CremeTestCase:
             user_data['is_superuser'] = True
 
         user = CremeUser(**user_data)
-        user.set_password(cls.USER_PASSWORD)
+
+        # user.set_password(cls.USER_PASSWORD)
+        if password:
+            user.set_password(password)
 
         return user
 
@@ -197,7 +200,7 @@ class _CremeTestCase:
                        index: int = 0,
                        password: str = 'test',
                        ) -> CremeUser:
-        user = self.create_user(index=index, is_staff=is_staff)
+        user = self.create_user(index=index, is_staff=is_staff, password=password)
 
         logged = self.client.login(username=user.username, password=password)
         self.assertTrue(logged, 'Not logged in')
@@ -219,7 +222,7 @@ class _CremeTestCase:
             creatable_models=creatable_models,
             exportable_models=exportable_models,
         )
-        user = self.create_user(index=index, role=role)
+        user = self.create_user(index=index, role=role, password=password)
 
         logged = self.client.login(username=user.username, password=password)
         self.assertTrue(logged, 'Not logged in')

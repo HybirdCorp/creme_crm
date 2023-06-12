@@ -651,7 +651,7 @@ class RegistryTestCase(CremeTestCase):
     def test_get_model_creation_info05(self):
         "Enable function OK."
         # user = self.login()
-        user= self.login_as_root_and_get()
+        user = self.login_as_root_and_get()
 
         registry = _ConfigRegistry()
         registry.register_model(FakeCivility).creation(enable_func=lambda user: True)

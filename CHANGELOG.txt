@@ -262,8 +262,10 @@
             - RelationType.is_compatible()
             - custom_field.CustomFieldManager.compatible()
             - custom_field.CustomFieldManager.get_for_model()
-        # The method 'creme_core.tests.base._CremeTestCase.http_file()' has been removed ;
-          see the note about 'creme_core.utils.test.CremeDiscoverRunner' below.
+        # In the class 'creme_core.tests.base._CremeTestCase' :
+            - The method 'http_file()' has been removed ; see the note about 'creme_core.utils.test.CremeDiscoverRunner' below.
+            - The method 'create_user()' does not set the password by default anymore ;
+              you have to fill the argument "password" explicitly (hint: use <self.USER_PASSWORD> if you want to login with the returned user.
         # In 'creme_core.urls' :
             - The URL 'creme_core__efilter_user_choices' has changed and follows the pattern 'users/{ct_id}/{field}/json[/]?$'
               like the default enumerable choices URL.

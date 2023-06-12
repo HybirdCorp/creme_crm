@@ -60,7 +60,7 @@ class HistoryTestCase(CremeTestCase):
     def setUpClass(cls):
         super().setUpClass()
         HistoryLine.objects.all().delete()
-        cls.user = cls.create_user()
+        cls.user = cls.create_user(password=cls.USER_PASSWORD)
 
     def setUp(self):
         super().setUp()
