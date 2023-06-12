@@ -375,10 +375,9 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_calendar_view02(self):
         "Some calendars selected ; floating activities."
         # user = self.login()
-        user = self.create_user(0)
-        self.client.login(username=user.username, password=self.USER_PASSWORD)
+        user = self.login_as_super(index=0)
         # other_user = self.other_user
-        other_user = self.create_user(1)
+        other_user = self.create_user(index=1)
         # staff_user = CremeUser.objects.create_superuser(
         #     username='staffman', first_name='Richard', last_name='Staffman',
         #     email='richard@freestaffoundation.org',
@@ -491,8 +490,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_calendar_view04(self):
         "No calendars selected ; no default calendar => a default calendar is created."
         # user = self.login()
-        user = self.create_user()
-        self.client.login(username=user.username, password=self.USER_PASSWORD)
+        user = self.login_as_super()
         self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
 
         response = self.assertGET200(self.CALENDAR_URL)
@@ -508,8 +506,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_calendar_view05(self):
         "No calendar => a default public calendar is created."
         # user = self.login()
-        user = self.create_user()
-        self.client.login(username=user.username, password=self.USER_PASSWORD)
+        user = self.login_as_super()
         self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
 
         with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True):
@@ -521,8 +518,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_add_user_calendar01(self):
         # user = self.login()
-        user = self.create_user()
-        self.client.login(username=user.username, password=self.USER_PASSWORD)
+        user = self.login_as_super()
         self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
 
         url = self.ADD_URL
@@ -1415,8 +1411,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_config01(self):
         # user = self.login()
-        user = self.create_user()
-        self.client.login(username=user.username, password=self.USER_PASSWORD)
+        user = self.login_as_super()
 
         self.assertGET200(reverse('creme_config__app_portal', args=('activities',)))
         self.assertGET200(reverse('creme_config__model_portal', args=('activities', 'calendar')))
