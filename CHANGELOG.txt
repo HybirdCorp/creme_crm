@@ -21,6 +21,7 @@
                   each used can change its own displayed name by default (& you can disable this feature).
                 - When creating a new user, usernames which differ only in case are rejected.
                 - Displayed Users can be filtered (by user-name, first name, last name & new field displayed-name).
+            - Enumerable custom fields are using the Select2 widget in forms.
         * Persons :
             - The UI forbids to clone managed Organisations.
         * Activities :
@@ -211,6 +212,9 @@
             - In 'enumerable' :
                 - The constructor of class 'EnumerableChoiceSet' has changed; it requires now an 'Enumerator' instead of a model 'Field' and an 'EnumerableRegistry'.
                 - The 'FieldEnumerableChoiceSet' has a lazy 'url' property that uses the "creme_core__enumerable_choices" provided by the new property 'default_url'.
+                - 'EnumerableChoiceField' has been split into :
+                     - A base class 'EnumerableChoiceField' that accepts an 'EnumerableChoiceSet'
+                     - A new 'EnumerableChoiceModelField' that inherits from 'EnumerableChoiceField' and keeps the previous behaviour.
             - In 'header_filter', these classes have been renamed :
                 - 'HeaderFilterCreateForm' => 'HeaderFilterCreationForm'.
                 - 'HeaderFilterEditForm' => 'HeaderFilterEditionForm'.
@@ -285,8 +289,9 @@
             - 'creme.form.Select2' accepts the 'data-no-empty' attribute : select the first option as default if the value is empty.
         # Apps :
             * Creme_config :
-                - In 'forms', many classes have ben renamed in these modules :
-                  bricks, button_menu, creme_property_type, fields_config, relation_type, user.
+                - In 'forms':
+                    - Many classes have been renamed in these modules : bricks, button_menu, creme_property_type, fields_config, relation_type, user.
+                    - New 'CreatorCustomEnumerableChoiceField' that requires a CustomField instead of a Model/fieldname. Used as new default form field.
                 - In JavaScript, 'creme.creme_config.MenuContainersController' has been renamed 'creme.MenuContainersController'.
             * Documents :
                 - Some constants have been moved :

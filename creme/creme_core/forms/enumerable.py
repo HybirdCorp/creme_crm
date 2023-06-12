@@ -279,10 +279,11 @@ class EnumerableSelect(widgets.Select):
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
+        enumerable = self.enumerable
 
-        choices, more = self.enumerable.groups(
+        choices, more = enumerable.groups(
             selected_values=[value] if value else None
-        )
+        ) if enumerable is not None else ((), False)
 
         context['widget']['choices'] = choices
         self.build_enum_attrs(context['widget']['attrs'], more)
@@ -335,8 +336,6 @@ class EnumerableChoiceField(mforms.ChoiceField):
     def __init__(self, enum: type[EnumerableChoiceSet], *, empty_label="---------",
                  required=True, label=None, initial=None, help_text='',
                  **kwargs):
-        self.enum = enum
-
         # Call Field instead of ChoiceField __init__() because we don't need
         # ChoiceField.__init__(). See ModelChoiceField implementation.
         mforms.Field.__init__(
@@ -344,6 +343,8 @@ class EnumerableChoiceField(mforms.ChoiceField):
             initial=initial, help_text=help_text,
             **kwargs
         )
+
+        self.enum = enum
 
         if required and initial is not None:
             self.empty_label = None

@@ -9,7 +9,7 @@ from django.db.models import QuerySet
 from django.utils.translation import gettext as _
 
 from creme.creme_config.forms.fields import (
-    CustomEnumChoiceField,
+    CreatorCustomEnumerableChoiceField,
     CustomMultiEnumChoiceField,
 )
 from creme.creme_core.models import (
@@ -412,7 +412,7 @@ by a man named Tochiro.
         self.assertValueEqual(cfield=cfield, entity=orga, value=enum_value)
 
         formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
-        self.assertIsInstance(formfield, CustomEnumChoiceField)
+        self.assertIsInstance(formfield, CreatorCustomEnumerableChoiceField)
         self.assertEqual(orga.user, formfield.user)
         self.assertEqual(cfield,    formfield.custom_field)
         self.assertFalse(formfield.required)

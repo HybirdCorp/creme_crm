@@ -7,11 +7,12 @@ from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
 from creme.creme_config.forms.fields import (
-    CustomEnumChoiceField,
+    CreatorCustomEnumerableChoiceField,
     CustomMultiEnumChoiceField,
 )
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import CremeForm, CremeModelForm
+from creme.creme_core.forms.enumerable import EnumerableChoice
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import (
     CremePropertyType,
@@ -284,16 +285,16 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertEqual(cfield2.name, cf_f2.label)
         self.assertFalse(cf_f2.required)
 
-        self.assertIsInstance(cf_f3, CustomEnumChoiceField)
+        self.assertIsInstance(cf_f3, CreatorCustomEnumerableChoiceField)
         self.assertEqual(user,    cf_f3.user)
         self.assertEqual(cfield3, cf_f3.custom_field)
         self.assertListEqual(
             [
-                ('', '-------'),
-                (eval1_01.id, eval1_01.value),
-                (eval1_02.id, eval1_02.value),
+                EnumerableChoice('', '---------').as_dict(),
+                EnumerableChoice(eval1_01.id, eval1_01.value).as_dict(),
+                EnumerableChoice(eval1_02.id, eval1_02.value).as_dict(),
             ],
-            cf_f3.choices,
+            [c.as_dict() for c in cf_f3.choices],
         )
 
         self.assertIsInstance(cf_f4, CustomMultiEnumChoiceField)
