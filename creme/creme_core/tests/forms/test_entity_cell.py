@@ -1,6 +1,8 @@
 from copy import deepcopy
 from functools import partial
 
+from django.utils.translation import gettext as _
+
 from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellFunctionField,
@@ -14,8 +16,11 @@ from creme.creme_core.forms.header_filter import (
     EntityCellCustomFieldsWidget,
     EntityCellFunctionFieldsWidget,
     EntityCellRegularFieldsField,
+    EntityCellRegularFieldsWidget,
     EntityCellRelationsField,
+    EntityCellRelationsWidget,
     EntityCellsField,
+    EntityCellsWidget,
     UniformEntityCellsField,
 )
 from creme.creme_core.models import (
@@ -30,6 +35,7 @@ from creme.creme_core.models import (
 )
 
 from .. import fake_constants
+from ..base import CremeTestCase
 from .base import FieldTestCase
 
 
@@ -68,6 +74,409 @@ class EntityCellsFieldTestCaseMixin:
                 self.fail(
                     f'The choice for cell-key="{cell_key}" has been unexpectedly found.'
                 )
+
+
+class EntityCellRegularFieldsWidgetTestCase(CremeTestCase):
+    def test_get_context1(self):
+        widget = EntityCellRegularFieldsWidget()
+        self.assertTupleEqual((), widget.choices)
+
+        name = 'my_sub_widget'
+        self.assertDictEqual(
+            {
+                'widget': {
+                    'attrs': {},
+                    'choices': [],
+                    'hide_alone_subfield': True,
+                    'is_hidden': False,
+                    'name': name,
+                    'only_leaves': False,
+                    'required': False,
+                    'template_name': 'creme_core/forms/widgets/entity-cells/regular-fields.html',
+                    'value': None,
+                },
+            },
+            widget.get_context(name=name, value=None, attrs=None),
+        )
+
+    def test_get_context2(self):
+        choices = [
+            (cell.key, cell) for cell in [
+                EntityCellRegularField.build(FakeContact, 'first_name'),
+                EntityCellRegularField.build(FakeContact, 'last_name'),
+                EntityCellRegularField.build(FakeContact, 'address'),
+                EntityCellRegularField.build(FakeContact, 'address__zipcode'),
+                EntityCellRegularField.build(FakeContact, 'address__city'),
+            ]
+        ]
+        widget = EntityCellRegularFieldsWidget(choices=choices)
+        self.assertListEqual(choices, widget.choices)
+
+        name = 'sub_widget'
+        attrs = {'class': 'regular-fields'}
+        context = widget.get_context(name=name, value=None, attrs=attrs)['widget']
+        self.assertEqual(name, context['name'])
+        self.assertDictEqual(attrs, context['attrs'])
+
+        choices = context['choices']
+        self.assertEqual(3, len(choices))
+
+        lname_label = _('Last name')
+        lname_index = self.assertIndex(
+            ('regular_field-last_name', lname_label, []),
+            choices,
+        )
+
+        fname_label = _('First name')
+        fname_index = self.assertIndex(
+            ('regular_field-first_name', fname_label, []),
+            choices,
+        )
+
+        if lname_label < fname_label:
+            self.assertLess(lname_index, fname_index)
+        else:
+            self.assertLess(fname_index, lname_index)
+
+        indices = {0, 1, 2}
+        indices.discard(fname_index)
+        indices.discard(lname_index)
+        self.assertEqual(1, len(indices))
+
+        address_choice = choices[indices.pop()]
+        self.assertEqual('regular_field-address', address_choice[0])
+        self.assertEqual(_('Billing address'),    address_choice[1])
+        self.assertCountEqual(
+            [
+                ('regular_field-address__zipcode', _('Zip code')),
+                ('regular_field-address__city',    _('City')),
+            ],
+            address_choice[2],
+        )
+
+    # TODO: test render
+
+
+class EntityCellCustomFieldsWidgetTestCase(CremeTestCase):
+    def test_get_context1(self):
+        widget = EntityCellCustomFieldsWidget()
+        self.assertTupleEqual((), widget.choices)
+
+        name = 'my_sub_widget'
+        self.assertDictEqual(
+            {
+                'widget': {
+                    'attrs': {},
+                    'choices': [],
+                    'is_hidden': False,
+                    'name': name,
+                    'required': False,
+                    'template_name': 'creme_core/forms/widgets/entity-cells/custom-fields.html',
+                    'value': None,
+                },
+            },
+            widget.get_context(name=name, value=None, attrs=None),
+        )
+
+    def test_get_context2(self):
+        model = FakeContact
+        create_cfield = partial(CustomField.objects.create, content_type=model)
+        cfield1 = create_cfield(name='Size (cm)',   field_type=CustomField.INT)
+        cfield2 = create_cfield(name='Weight (kg)', field_type=CustomField.FLOAT)
+
+        choices = [
+            (cell.key, cell) for cell in [
+                EntityCellCustomField(customfield=cfield1),
+                EntityCellCustomField(customfield=cfield2),
+            ]
+        ]
+        widget = EntityCellCustomFieldsWidget(choices=choices)
+        self.assertListEqual(choices, widget.choices)
+
+        name = 'sub_widget'
+        attrs = {'class': 'custom-fields'}
+        context = widget.get_context(name=name, value=None, attrs=attrs)['widget']
+        self.assertEqual(name, context['name'])
+        self.assertDictEqual(attrs, context['attrs'])
+        self.assertListEqual(
+            [
+                (f'custom_field-{cfield1.id}', cfield1.name),
+                (f'custom_field-{cfield2.id}', cfield2.name),
+            ],
+            context['choices'],
+        )
+
+    # TODO: test render
+
+
+class EntityCellFunctionFieldsWidgetTestCase(CremeTestCase):
+    def test_get_context1(self):
+        widget = EntityCellFunctionFieldsWidget()
+        self.assertTupleEqual((), widget.choices)
+
+        name = 'my_sub_widget'
+        self.assertDictEqual(
+            {
+                'widget': {
+                    'attrs': {},
+                    'choices': [],
+                    'is_hidden': False,
+                    'name': name,
+                    'required': False,
+                    'template_name': 'creme_core/forms/widgets/entity-cells/function-fields.html',
+                    'value': None,
+                },
+            },
+            widget.get_context(name=name, value=None, attrs=None),
+        )
+
+    def test_get_context2(self):
+        model = FakeContact
+        func_field = function_field_registry.get(model, 'get_pretty_properties')
+
+        cell = EntityCellFunctionField(model=model, func_field=func_field)
+        choices = [(cell.key, cell)]
+        widget = EntityCellFunctionFieldsWidget(choices=choices)
+        self.assertListEqual(choices, widget.choices)
+
+        name = 'sub_widget'
+        attrs = {'class': 'function-fields'}
+        context = widget.get_context(name=name, value=None, attrs=attrs)['widget']
+        self.assertEqual(name, context['name'])
+        self.assertDictEqual(attrs, context['attrs'])
+        self.assertListEqual(
+            [(cell.key, str(cell))],
+            context['choices'],
+        )
+
+    # TODO: test render
+
+
+class EntityCellRelationsWidgetTestCase(CremeTestCase):
+    def test_get_context1(self):
+        widget = EntityCellRelationsWidget()
+        self.assertTupleEqual((), widget.choices)
+
+        name = 'my_sub_widget'
+        self.assertDictEqual(
+            {
+                'widget': {
+                    'attrs': {},
+                    'choices': [],
+                    'is_hidden': False,
+                    'name': name,
+                    'required': False,
+                    'template_name': 'creme_core/forms/widgets/entity-cells/relationships.html',
+                    'value': None,
+                },
+            },
+            widget.get_context(name=name, value=None, attrs=None),
+        )
+
+    def test_get_context2(self):
+        model = FakeContact
+
+        loves = RelationType.objects.smart_update_or_create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by'),
+        )[0]
+        likes = RelationType.objects.smart_update_or_create(
+            ('test-subject_like', 'Is liking'),
+            ('test-object_like',  'Is liked by'),
+        )[0]
+
+        choices = [
+            (cell.key, cell) for cell in [
+                EntityCellRelation(model=model, rtype=loves),
+                EntityCellRelation(model=model, rtype=likes),
+            ]
+        ]
+        widget = EntityCellRelationsWidget(choices=choices)
+        self.assertListEqual(choices, widget.choices)
+
+        name = 'rel_widget'
+        attrs = {'class': 'relationships'}
+        context = widget.get_context(name=name, value=None, attrs=attrs)['widget']
+        self.assertEqual(name, context['name'])
+        self.assertDictEqual(attrs, context['attrs'])
+        self.assertListEqual(
+            [
+                (f'relation-{likes.id}', likes.predicate),
+                (f'relation-{loves.id}', loves.predicate),
+            ],
+            context['choices'],
+        )
+
+    # TODO: test render
+
+
+class EntityCellsWidgetTestCase(CremeTestCase):
+    def test_sub_widgets(self):
+        widget = EntityCellsWidget(model=FakeContact)
+        self.assertListEqual([], [*widget.sub_widgets])
+
+        widget.sub_widgets = [
+            EntityCellRegularFieldsWidget(),
+            EntityCellRelationsWidget(),
+        ]
+        sub_widgets = [*widget.sub_widgets]
+        self.assertEqual(2, len(sub_widgets))
+        self.assertIsInstance(sub_widgets[0], EntityCellRegularFieldsWidget)
+        self.assertIsInstance(sub_widgets[1], EntityCellRelationsWidget)
+
+    def test_context01(self):
+        widget = EntityCellsWidget(model=FakeContact)
+        widget.user = self.get_root_user()
+
+        name = 'my_cells'
+
+        with self.assertNoException():
+            context = widget.get_context(name=name, value=[], attrs=None)['widget']
+
+        self.assertEqual(name, context.get('name'))
+        self.assertIs(False, context.get('is_hidden'))
+        self.assertIsNone(context.get('value', -1))
+        self.assertDictEqual({}, context.get('attrs'))
+        self.assertEqual(
+            'creme_core/forms/widgets/entity-cells/widget.html',
+            context.get('template_name'),
+        )
+        self.assertListEqual([], context.get('samples'))
+
+    def test_context02(self):
+        model = FakeContact
+        loves = RelationType.objects.smart_update_or_create(
+            ('test-subject_love', 'Is loving'),
+            ('test-object_love',  'Is loved by')
+        )[0]
+        cfield = CustomField.objects.create(
+            name='Size (cm)',
+            field_type=CustomField.INT,
+            content_type=model,
+        )
+        ffield = function_field_registry.get(model, 'get_pretty_properties')
+
+        user = self.get_root_user()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        contact1 = create_contact(
+            first_name='Kadode', last_name='Koyama', email='koyama@isobeyan.jp',
+        )
+        contact2 = create_contact(first_name='Oran',   last_name='Nakagawa')
+
+        widget = EntityCellsWidget(model=FakeContact)
+        widget.user = user
+        widget.sub_widgets = [
+            EntityCellRegularFieldsWidget(
+                choices=[
+                    (cell.key, cell) for cell in [
+                        EntityCellRegularField.build(FakeContact, 'first_name'),
+                        EntityCellRegularField.build(FakeContact, 'last_name'),
+                        EntityCellRegularField.build(FakeContact, 'email'),
+                    ]
+                ],
+            ),
+            EntityCellCustomFieldsWidget(
+                choices=[
+                    (cell.key, cell) for cell in [
+                        EntityCellCustomField(customfield=cfield),
+                    ]
+                ],
+            ),
+            EntityCellFunctionFieldsWidget(
+                choices=[
+                    (cell.key, cell) for cell in [
+                        EntityCellFunctionField(model=model, func_field=ffield),
+                    ]
+                ],
+            ),
+            EntityCellRelationsWidget(
+                choices=[
+                    (cell.key, cell) for cell in [
+                        EntityCellRelation(model=model, rtype=loves),
+                    ]
+                ],
+            ),
+        ]
+
+        name = 'my_cells'
+        value = [
+            EntityCellRegularField.build(model, 'last_name'),
+            EntityCellRelation(model=model, rtype=loves),
+            EntityCellCustomField(customfield=cfield),
+            EntityCellFunctionField(model=model, func_field=ffield),
+        ]
+
+        with self.assertNoException():
+            context = widget.get_context(name=name, value=value, attrs=None)['widget']
+
+        self.assertEqual(name, context.get('name'))
+        self.assertIs(False, context.get('is_hidden'))
+
+        value = (
+            f'regular_field-last_name,'
+            f'relation-{loves.id},'
+            f'custom_field-{cfield.id},'
+            f'function_field-{ffield.name}'
+        )
+        self.assertEqual(value, context.get('value'))
+        self.assertDictEqual({}, context.get('attrs'))
+        self.assertEqual(
+            'creme_core/forms/widgets/entity-cells/widget.html',
+            context.get('template_name'),
+        )
+        self.maxDiff = None
+        self.assertListEqual(
+            [
+                {
+                    'regular_field-first_name':      contact2.first_name,
+                    'regular_field-last_name':       contact2.last_name,
+                    'regular_field-email':           '',
+                    f'custom_field-{cfield.id}':     '',
+                    f'function_field-{ffield.name}': '<ul></ul>',
+                    f'relation-{loves.id}':          '',
+                }, {
+                    'regular_field-first_name':      contact1.first_name,
+                    'regular_field-last_name':       contact1.last_name,
+                    'regular_field-email':
+                        f'<a href="mailto:{contact1.email}">{contact1.email}</a>',
+                    f'custom_field-{cfield.id}':     '',
+                    f'function_field-{ffield.name}': '<ul></ul>',
+                    f'relation-{loves.id}':          '',
+                },
+            ],
+            context.get('samples'),
+        )
+
+        rfield_ctxt = context.get('regular_field')
+        self.assertIsInstance(rfield_ctxt, dict)
+        self.assertCountEqual(
+            [
+                ('regular_field-last_name',  _('Last name'),     []),
+                ('regular_field-first_name', _('First name'),    []),
+                ('regular_field-email',      _('Email address'), []),
+            ],
+            rfield_ctxt.pop('choices', ()),
+        )
+        self.assertDictEqual(
+            {
+                'name': name,
+                'is_hidden': False,
+                'required': False,
+                'value': value,
+                'attrs': {},
+                'template_name': 'creme_core/forms/widgets/entity-cells/regular-fields.html',
+                'hide_alone_subfield': True,
+                'only_leaves': False,
+            },
+            rfield_ctxt,
+        )
+
+        self.assertIn('custom_field',   context)
+        self.assertIn('function_field', context)
+        self.assertIn('relation',       context)
+
+    # TODO: test render
 
 
 class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
