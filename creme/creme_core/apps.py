@@ -644,8 +644,18 @@ class CremeCoreConfig(CremeAppConfig):
 
         from creme.creme_config.forms import fields as config_fields
 
-        from .forms.fields import CreatorEntityField, GenericEntityField
+        from .forms import fields as core_fields
         from .models import CremeEntity
+
+        class NotEnumerableFKFallbackField(core_fields.ReadonlyMessageField):
+            def __init__(this, *, label,
+                         initial=(
+                             'The FK is not enumerable, you should define a '
+                             'specific form-field if you want to keep it editable.'
+                         ),
+                         **kwargs
+                         ):
+                super().__init__(label=label, initial=initial)
 
         original_fk_formfield = ForeignKey.formfield
 
@@ -661,12 +671,12 @@ class CremeCoreConfig(CremeAppConfig):
                             'GenericEntityField currently does not manage "q_filter".'
                         )
 
-                    return GenericEntityField(
+                    return core_fields.GenericEntityField(
                         label=self.verbose_name,
                         required=not self.blank,
                     )
 
-                return CreatorEntityField(
+                return core_fields.CreatorEntityField(
                     label=self.verbose_name,
                     model=remote_model,
                     required=not self.blank,
@@ -684,7 +694,8 @@ class CremeCoreConfig(CremeAppConfig):
                 )
 
             return original_fk_formfield(
-                self, **{'form_class': config_fields.CreatorModelChoiceField, **kwargs}
+                # self, **{'form_class': config_fields.CreatorModelChoiceField, **kwargs}
+                self, **{'form_class': NotEnumerableFKFallbackField, **kwargs}
             )
 
         ForeignKey.formfield = new_fk_formfield
