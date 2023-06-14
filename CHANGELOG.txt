@@ -9,14 +9,15 @@
     # A visitor mode has been added; from any list-view, you can visit all the related detail-views the one after the other.
       (button "Enter the exploration mode" in list-views).
     # The link in the list-views selectors are now opened in other tabs automatically.
-    # In entity filter form:
-        - The regular fields with foreign keys are now using the Select2 combobox with lazy loading & search.
-        - The regular fields with static choices (like 'Discount' in billing lines) are now using combobox instead of a text input.
-        - The custom fields of ENUM/MULTI_ENUM type are now using the Select2 combobox with lazy loading & search.
+    # In forms :
+        - The custom fields with ENUM/MULTI_ENUM type are now using the Select2 combobox with lazy loading & search.
+        - In the form for entity-filters :
+            - The regular fields corresponding to foreign keys ('Sector', 'Status', ...) are now using the Select2 combobox with lazy loading & search.
+            - The regular fields with static choices (like 'Discount' in billing lines) are now using combobox instead of a text input.
     # Apps :
         * Creme_config :
             - Each CustomForm can now be reset (to set the fields it would have have after a fresh installation).
-            - In the Users' configuration page:
+            - In the Users' configuration page :
                 - The displayed name of Users can now be customised (per user);
                   each used can change its own displayed name by default (& you can disable this feature).
                 - When creating a new user, usernames which differ only in case are rejected.
@@ -83,33 +84,32 @@
           So, IF YOU DEFINED CUSTOMFORMS for your own models, you SHOULD :
             - create classes inheriting 'CustomFormDefault', and use them when creating your descriptors (argument "default").
             - in your 'Populator', remove the argument "groups_desc" of 'CustomFormConfigItem.objects.create_if_needed()'.
-          The section "CustomForms" of the tutorials has been updated; & you can see how vanilla apps are made of course.
+          The section "CustomForms" of the tutorials has been updated (& you can see how vanilla apps are made of course).
         # Deprecations :
             - In the class 'creme_core.core.entity_cell.EntityCell' (& child classes), the methods
-              'render_html()' & 'render_csv()' are deprecated ; user 'render()' instead.
+              'render_html()' & 'render_csv()' are deprecated; user 'render()' instead.
             - In the class 'creme_core.core.function_field.FunctionFieldResult' (& child classes), the methods
-              'for_html()' & 'for_csv()' are deprecated ; use 'render()' instead.
+              'for_html()' & 'for_csv()' are deprecated; use 'render()' instead.
             - In 'creme_core.forms' :
-                - The method 'base.HookableFormMixin.as_span()' is deprecated ; use 'as_div()'/'as_ul()'/... instead.
-                - The classes 'fields.CremeUserChoiceField' & 'fields.CremeUserChoiceIterator' are deprecated ;
+                - The method 'base.HookableFormMixin.as_span()' is deprecated; use 'as_div()'/'as_ul()'/... instead.
+                - The classes 'fields.CremeUserChoiceField' & 'fields.CremeUserChoiceIterator' are deprecated;
                   use 'CremeUserEnumerableField' instead.
             - In the class 'creme_core.gui.field_printers._FieldPrintersRegistry' :
-                - The method 'register()' is deprecated ; use the method 'register_model_field_type()' instead.
+                - The method 'register()' is deprecated; use the method 'register_model_field_type()' instead.
                   Hint: check if you defined 'register_field_printers()' in your own files "apps.py".
                   (beware: the arguments are now keyword-only) :
                      'field_printers_registry.register_model_field_type(type=CharField, printer=my_print_function)'
-                - The methods 'get_html_field_value()' & 'get_csv_field_value()' are now deprecated ; use 'get_field_value()' instead.
-            - In 'creme_core.templatetags.creme_cells', the argument "output" of '{% cell_render %} is deprecated ;
-              use "tag" instead.
-            - The function 'creme_core.utils.dates.make_aware_dt()' is now deprecated ; use 'django.utils.timezone.make_aware()' instead.
+                - The methods 'get_html_field_value()' & 'get_csv_field_value()' are now deprecated; use 'get_field_value()' instead.
+            - In 'creme_core.templatetags.creme_cells', the argument "output" of '{% cell_render %} is deprecated; use "tag" instead.
+            - The function 'creme_core.utils.dates.make_aware_dt()' is now deprecated; use 'django.utils.timezone.make_aware()' instead.
             - In templates :
-                - In the file "creme_core/base.html", the '{% block extrahead %}' is deprecated ;
+                - In the file "creme_core/base.html", the '{% block extrahead %}' is deprecated;
                   use the new '{% block head %}' with '{{block.super}}' instead.
                 - The file "creme_core/generics/error.html" is deprecated.
             - In the 'creme_core.tests':
                 - In the class 'base._CremeTestCase' :
-                    - The method 'login()' is deprecated ; use the new methods 'login_as_*()'
-                      (plus 'create_user()' & 'get_root_user()' if you need several users) instead.
+                    - The method 'login()' is deprecated;
+                      use the new methods 'login_as_*()' (plus 'create_user()' & 'get_root_user()' if you need several users) instead.
                     - Passing no "user" argument to the method 'build_request()' is deprecated.
                 - Passing no "user" argument to the methods 'views.base.MassImportBaseTestCaseMixin._build_*doc() is deprecated.
             - Apps :
@@ -124,53 +124,49 @@
                     model=Contact, field_name='last_name', printer=my_lastname_printer,
                 )
         # In 'creme_core.forms.enumerable' :
-            - In the class 'EnumerableChoiceSet', the optional property 'url' allows to use any URL instead of only "creme_core__enumerable_choices"
+            - In the class 'EnumerableChoiceSet', the optional property 'url' allows to use any URL instead of only "creme_core__enumerable_choices".
             - A class 'FieldEnumerableChoiceSet' has been added;
               it inherits 'EnumerableChoiceSet' (which is now a base class) and has all its previous features (see the section <Breaking changes>).
             - A new widget class 'EnumerableSelectMultiple' has been added; it supports multiple selection.
-        # In 'creme_core.forms.widgets':
-            - The 'DynamicSelect' widget now accepts 'avoid_empty' constructor argument : when true the 'data-no-empty' attribute is enabled on client side.
+        # In 'creme_core.forms.widgets' :
+            - The 'DynamicSelect' widget now accepts 'avoid_empty' constructor argument: when true the 'data-no-empty' attribute is enabled on client side.
             - Keep the actual behaviour of 'DynamicSelect' within the ChainedSelect widget definitions:
                 - Add avoid_empty=True to all DynamicSelect having a child dependency.
-        # In 'creme_core.gui.button_menu', the rendering of Button has been reworked (see the section <Breaking changes>!) ;
+        # In 'creme_core.gui.button_menu', the rendering of Button has been reworked (see the section <Breaking changes>!);
           the verbose name of the button (often use for the button's label) is now always injected in the context ("{{button.verbose_name}}" to get it).
-        # In 'creme_core.models':
+        # In 'creme_core.models' :
             - In 'CremeEntity' :
                 - A JSON field 'extra_data' has been added; it can be used by third party code to store
                   the data they want, without having to modify the code.
-                - The method 'clone()' now avoids copying 'ManyToManyFields' which are tagged as <clonable=False>
-                  (see '_clone_m2m()').
-            - Some database indexes were added to improve general performance with large volumes of data on:
-                - HistoryLine
-        # In 'creme_core.templatetags' :
-            - In 'creme_widgets', the templatetag '{% widget_entity_hyperlink %}' has a new optional argument "target".
+                - The method 'clone()' now avoids copying 'ManyToManyFields' which are tagged as <clonable=False> (see '_clone_m2m()').
+            - A database index has been added to 'HistoryLine', in order to improve general performance with large volumes.
+        # In 'creme_core.templatetags.creme_widgets', the templatetag '{% widget_entity_hyperlink %}' has a new optional argument "target".
         # In 'creme_core.tests' :
-            - Several assertions are now available: 'assertHasAttr()', 'assertHasProperty()', 'assertHasNoProperty()'.
+            - Several new assertions are now available: 'assertHasAttr()', 'assertHasProperty()', 'assertHasNoProperty()'.
             - An dummy email backend which stores 'args' & 'kwargs' is now used.
-        # In Javascript :
-            - 'creme.form.Select2' now supports the lazy loading of selections :
-               Useful in entity filter polymorphic inputs that do not know the selected options beforehand.
+        # In Javascript, 'creme.form.Select2' now supports the lazy loading of selections ;
+          it's useful in entity filter polymorphic inputs that do not know the selected options beforehand.
 
     Breaking changes :
     ------------------
         # The minimum version of Python has been upgraded to "3.8".
         # Deprecated stuffs which have been removed :
             - In 'creme_core.forms.fields.SelectorList', the constructor's parameter & attribute "enabled" has been removed ;
-              The context variable "clonelast" is not injected anymore.
+              the context variable "clonelast" is not injected anymore.
             - In 'creme_core.gui' :
                 - In 'bricks.BricksManager' :
                     - The attribute '_dependencies_map' has been removed.
                     - The method '_build_dependencies_map()' has been removed.
                     - The property 'used_relationtypes_ids' has been removed.
                 - In the class 'button_menu.Button', the attribute "id" must be filled & used instead of "id_".
-                - In 'field_printers', 'print_date()' & print_datetime() have been removed.
+                - In 'field_printers', the functions 'print_date()' & print_datetime() have been removed.
             - In 'creme_core.models' :
                 - The method 'bricks.RelationBrickItemManager.create_if_needed()' has been removed.
                 - The method 'relation.Relation.populate_real_object_entities()'' has been removed.
                 - The method 'search.SearchConfigItemManager.iter_for_models()' does not return unsaved
                   instances for models without configuration (these models are just ignored).
             - In 'creme_core.utils' :
-                - The function 'find_first()' & 'split_filter()' have been removed.
+                - The functions 'find_first()' & 'split_filter()' have been removed.
                 - The function 'imports.import_object()' has been removed.
             - The JavaScript component 'creme.form.Chosen' has been removed.
             - Apps :
@@ -183,10 +179,10 @@
                         - 'Status.SYNCHRONIZED_SPAM' & 'Status.SYNCHRONIZED_WAITING' have been removed.
                         - 'SYNCHRONIZATION_STATUSES' has been removed.
                 * Graphs :
-                    - The class 'bricks.GraphBarHatBrick' & the template file "graphs/bricks/graph-hat-bar.html" have been removed.
+                    - The class 'bricks.GraphBarHatBrick' & the related template file "graphs/bricks/graph-hat-bar.html" have been removed.
                     - In 'models' :
-                        - The method 'AbstractGraph.generate_png()' has been removed.
-                        - The method 'RootNode.get_relation_types()' has been removed.
+                        - the method 'AbstractGraph.generate_png()' has been removed.
+                        - the method 'RootNode.get_relation_types()' has been removed.
                     - The function-view 'views.graph.dl_png()' has been removed.
                 * Reports :
                     - The templatetag 'reports_graph_ordinate' has been removed.
@@ -212,18 +208,18 @@
                 - The widget class 'enumerable.EnumerableSelectMultiple' is now used
                   for regular-field conditions of EntityFilter instead of 'DynamicSelectMultiple'.
             - In 'enumerable' :
-                - The constructor of class 'EnumerableChoiceSet' has changed; it requires now an 'Enumerator' instead of a model 'Field' and an 'EnumerableRegistry'.
+                - The constructor of class 'EnumerableChoiceSet' has changed;
+                  it requires now an 'Enumerator' instead of a model 'Field' and an 'EnumerableRegistry'.
                 - The 'FieldEnumerableChoiceSet' has a lazy 'url' property that uses the "creme_core__enumerable_choices" provided by the new property 'default_url'.
                 - 'EnumerableChoiceField' has been split into :
-                     - A base class 'EnumerableChoiceField' that accepts an 'EnumerableChoiceSet'
-                     - A new 'EnumerableChoiceModelField' that inherits from 'EnumerableChoiceField' and keeps the previous behaviour.
+                     - a base class 'EnumerableChoiceField' that accepts an 'EnumerableChoiceSet'
+                     - a new 'EnumerableChoiceModelField' that inherits 'EnumerableChoiceField' and keeps the previous behaviour.
             - In 'header_filter', these classes have been renamed :
                 - 'HeaderFilterCreateForm' => 'HeaderFilterCreationForm'.
                 - 'HeaderFilterEditForm' => 'HeaderFilterEditionForm'.
             - In 'mass_import' :
                 - In the class 'RegularFieldExtractorField', the attribute '_can_create' has been removed.
-                - In the method 'RegularFieldExtractor.set_subfield_search()', the argument 'create_if_unfound'
-                  has been replaced by 'creation_form_class'.
+                - In the method 'RegularFieldExtractor.set_subfield_search()', the argument 'create_if_unfound' has been replaced by 'creation_form_class'.
             - In 'relation', these classes have been renamed :
                 - '_RelationsCreateForm' => '_RelationsForm'.
                 - 'RelationCreateForm' => 'RelationsAddingForm'.
@@ -232,7 +228,7 @@
             - In 'bricks' :
                 - In the class 'Brick' (& so, all the child classes you defined), the attribute "id" must be filled & used instead of "id_".
                 - The only argument of '_BrickRegistry.get_brick_4_object()' is now positional only.
-            - In 'button_menu', the rendering of Button has been reworked:
+            - In 'button_menu', the rendering of Button has been reworked :
                 - The method 'render()' has been removed; use 'get_context()' instead.
                 - The method 'has_perm()' has been removed; use 'is_allowed()' instead.
                 - In the related template, the way to get data in the context has changed;
@@ -245,32 +241,36 @@
                     - print_foreignkey_html, print_foreignkey_csv
                     - print_many2many_html, print_many2many_csv
                 - These functions have been removed :
-                  simple_print_csv(), print_decimal_csv(), print_boolean_csv(), print_date_csv(), print_datetime_csv()
+                    - simple_print_csv()
+                    - print_decimal_csv()
+                    - print_boolean_csv()
+                    - print_date_csv()
+                    - print_datetime_csv()
                 - The class 'M2MPrinterForCSV' has been removed.
                 - These methods have been removed :
                     - FKPrinter.print_fk_entity_text()
                     - M2MPrinterForHTML.printer_html(), M2MPrinterForHTML.printer_entity_html()
                     - _FieldPrintersRegistry._build_field_printer()
                 - The signature of the printer functions/methods (i.e. named '[simple_]print_*') has changed :
-                    - The arguments are now keyword-only (because there are lots of arguments).
-                    - The argument "entity" has been renamed "instance" (because printers can be used on non-CremeEntity instances).
-                    - The argument "fval" has been renamed "value".
+                    - the arguments are now keyword-only (because there are lots of arguments).
+                    - the argument "entity" has been renamed "instance" (because printers can be used on non-CremeEntity instances).
+                    - the argument "fval" has been renamed "value".
                 - The methods 'enumerator_*' of the class 'BaseM2MPrinter' have changed :
-                    - The arguments are now keyword-only.
-                    - The argument "entity" has been renamed "instance".
-                    - The argument "fval" has been renamed "manager".
+                    - the arguments are now keyword-only.
+                    - the argument "entity" has been renamed "instance".
+                    - the argument "fval" has been renamed "manager".
                 - The methods 'printer_*' of the classes 'M2MPrinterForHTML' & 'M2MPrinterForCSV' have changed :
-                    - The arguments are now keyword-only.
-                    - The argument "related_entity" has been renamed "related_instance".
-                    - The argument "fval" has been renamed "manager".
+                    - the arguments are now keyword-only.
+                    - the argument "related_entity" has been renamed "related_instance".
+                    - the argument "fval" has been renamed "manager".
                 - In the method 'FileFieldPrinterForHTML._render_download()', the argument "entity" has been renamed "instance".
         # In 'creme_core.models', the only argument of the following methods is now positional only :
             - RelationType.is_compatible()
             - custom_field.CustomFieldManager.compatible()
             - custom_field.CustomFieldManager.get_for_model()
         # In the class 'creme_core.tests.base._CremeTestCase' :
-            - The method 'http_file()' has been removed ; see the note about 'creme_core.utils.test.CremeDiscoverRunner' below.
-            - The method 'create_user()' does not set the password by default anymore ;
+            - The method 'http_file()' has been removed; see the note about 'creme_core.utils.test.CremeDiscoverRunner' below.
+            - The method 'create_user()' does not set the password by default anymore;
               you have to fill the argument "password" explicitly (hint: use <self.USER_PASSWORD> if you want to login with the returned user.
         # In 'creme_core.urls' :
             - The URL 'creme_core__efilter_user_choices' has changed and follows the pattern 'users/{ct_id}/{field}/json[/]?$'
@@ -287,13 +287,16 @@
             - The template "creme_core/templatetags/menu_buttons.html" has been removed.
             - In 'creme_core/header/menu-base.html', {% block accessories %} has moved inside the "<div>" element.
         # In Javascript :
-            - 'creme.widget.DynamicSelect' widget does not select the first option as default behaviour. A new argument 'data-no-empty' is needed.
-            - 'creme.form.Select2' accepts the 'data-no-empty' attribute : select the first option as default if the value is empty.
+            - 'creme.widget.DynamicSelect' widget does not select the first option as default behaviour.
+               A new argument 'data-no-empty' is needed.
+            - 'creme.form.Select2' accepts the 'data-no-empty' attribute: select the first option as default if the value is empty.
         # Apps :
             * Creme_config :
-                - In 'forms':
-                    - Many classes have been renamed in these modules : bricks, button_menu, creme_property_type, fields_config, relation_type, user.
-                    - New 'CreatorCustomEnumerableChoiceField' that requires a CustomField instead of a Model/fieldname. Used as new default form field.
+                - In 'forms' :
+                    - Many classes have been renamed in these modules:
+                      bricks, button_menu, creme_property_type, fields_config, relation_type, user.
+                    - New 'CreatorCustomEnumerableChoiceField' that requires a CustomField instead of a Model/fieldname.
+                      Used as new default form field.
                 - In JavaScript, 'creme.creme_config.MenuContainersController' has been renamed 'creme.MenuContainersController'.
             * Documents :
                 - Some constants have been moved :
@@ -349,8 +352,8 @@
                     - 'poll_form.PollFormSectionEditForm' => 'PollFormSectionEditionForm'.
                     - 'poll_reply.PollRepliesCreationForm' => 'PollRepliesCreationForm'.
                     - 'poll_reply.PollReplyEditForm' => 'PollReplyEditionForm'.
-                - In the template "polls/bricks/preplies.html", the block '{% block poll_replies_extra_rows %}'
-                  has been removed ; use '{{block.super}}' instead.
+                - In the template "polls/bricks/preplies.html", the block '{% block poll_replies_extra_rows %}' has been removed;
+                  use '{{block.super}}' instead.
             * CTI :
                 - The function 'utils.print_phone_html()' has been fixed with the new printers signature.
             * SMS :
