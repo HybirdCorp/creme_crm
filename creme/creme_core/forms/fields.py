@@ -68,7 +68,6 @@ __all__ = (
 )
 
 
-# TODO: factorise with UserEnumerator ?
 class CremeUserChoiceIterator(mforms.ModelChoiceIterator):
     """"Groups the teams & the inactive users in specific groups."""
     def __init__(self, *args, **kwargs):

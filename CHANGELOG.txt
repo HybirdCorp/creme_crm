@@ -113,6 +113,9 @@
                     - Passing no "user" argument to the method 'build_request()' is deprecated.
                 - Passing no "user" argument to the methods 'views.base.MassImportBaseTestCaseMixin._build_*doc() is deprecated.
             - Apps :
+                * Creme_config :
+                    - The class 'forms.fields.CustomEnumChoiceField is deprecated;
+                      use 'CreatorCustomEnumerableChoiceField' instead.
                 * Activities :
                     - In 'constants', 'DEFAULT_CALENDAR_COLOR' & 'COLOR_POOL' are deprecated.
                     - In 'models.calendar' :
@@ -292,11 +295,8 @@
             - 'creme.form.Select2' accepts the 'data-no-empty' attribute: select the first option as default if the value is empty.
         # Apps :
             * Creme_config :
-                - In 'forms' :
-                    - Many classes have been renamed in these modules:
-                      bricks, button_menu, creme_property_type, fields_config, relation_type, user.
-                    - New 'CreatorCustomEnumerableChoiceField' that requires a CustomField instead of a Model/fieldname.
-                      Used as new default form field.
+                - In 'forms', many classes have been renamed in these modules:
+                  bricks, button_menu, creme_property_type, fields_config, relation_type, user.
                 - In JavaScript, 'creme.creme_config.MenuContainersController' has been renamed 'creme.MenuContainersController'.
             * Documents :
                 - Some constants have been moved :

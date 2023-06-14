@@ -595,7 +595,7 @@ class CreatorModelMultipleChoiceFieldTestCase(_ConfigFieldTestCase):
         self.assertTupleEqual((self.ADD_URL, True), field.creation_url_n_allowed)
 
 
-class CustomEnumChoiceFieldTestCase(_ConfigFieldTestCase):
+class CustomEnumChoiceFieldTestCase(_ConfigFieldTestCase):  # DEPRECATED
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
