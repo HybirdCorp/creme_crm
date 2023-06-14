@@ -90,10 +90,12 @@
     margin-right: 5px;
 }
 
+/*
 .list-control-group select {
     margin-left: 10px;
     max-width: 200px;
 }
+*/
 
 .list-control-group a {
     position: relative;
@@ -109,9 +111,11 @@
     cursor: not-allowed;
 }
 
+/*
 .list-control-group select + a {
     margin-left: 20px;
 }
+*/
 
 .list-control-group a img {
     width:  20px;

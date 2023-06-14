@@ -3,27 +3,30 @@
     <div class="legend">
         {% translate 'View of list' as label %}{% widget_icon name='header_filter' label=label size='listview-filter' %}{{label}}
     </div>
-    <select name="hfilter" class="lv-state-field list-views-selector">
-        {% for hfilter in global_header_filters %}
-            <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
-        {% endfor %}
-
-        {% if my_header_filters %}
-            <optgroup label="{% translate 'My views' %}">
-            {% for hfilter in my_header_filters %}
+    <div class="select-wrapper">
+        <select name="hfilter" class="lv-state-field list-views-selector">
+            {% for hfilter in global_header_filters %}
                 <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
             {% endfor %}
-            </optgroup>
-        {% endif %}
 
-         {% for user, hfilters in other_header_filters %}
-            <optgroup label="{% blocktranslate %}Views of {{user}}{% endblocktranslate %}">
-            {% for hfilter in hfilters %}
-               <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
+            {% if my_header_filters %}
+                <optgroup label="{% translate 'My views' %}">
+                {% for hfilter in my_header_filters %}
+                    <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
+                {% endfor %}
+                </optgroup>
+            {% endif %}
+
+             {% for user, hfilters in other_header_filters %}
+                <optgroup label="{% blocktranslate %}Views of {{user}}{% endblocktranslate %}">
+                {% for hfilter in hfilters %}
+                   <option value="{{hfilter.id}}"{% if selected == hfilter %} selected{% endif %}>{{hfilter.name}}</option>
+                {% endfor %}
+                </optgroup>
             {% endfor %}
-            </optgroup>
-        {% endfor %}
-    </select>
+        </select>
+        <div class="select-arrow"></div>
+    </div>
     {% if show_buttons %}{% ctype_for_model model as ctype %}
         <a href="{% url 'creme_core__create_hfilter' ctype.id %}">
             {% widget_icon name='add' label=_('Create a custom view') size='listview-filter-action' %}
