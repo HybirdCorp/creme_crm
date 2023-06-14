@@ -19,6 +19,7 @@
 from collections import defaultdict
 from json import loads as json_load
 
+from django import forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core import checks
@@ -149,8 +150,10 @@ class CremeUserForeignKey(models.ForeignKey):
                 **kwargs
             )
         else:
+            # This case is probably meaningless...
             super().formfield(
-                **{'form_class': core_fields.CremeUserChoiceField, **kwargs}
+                # **{'form_class': core_fields.CremeUserChoiceField, **kwargs}
+                **{'form_class': forms.CharField, **kwargs}
             )
 
     def get_internal_type(self):

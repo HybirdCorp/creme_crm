@@ -65,7 +65,7 @@ from creme.creme_core.utils.date_range import (
 from .base import FieldTestCase
 
 
-class CremeUserChoiceFieldTestCase(FieldTestCase):
+class CremeUserChoiceFieldTestCase(FieldTestCase):  # DEPRECATED
     def test_default(self):
         # user = self.login()
         user = self.login_as_root_and_get()
