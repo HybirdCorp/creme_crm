@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 from collections import defaultdict
 from copy import deepcopy
 from functools import partial
@@ -70,6 +71,10 @@ __all__ = (
 # TODO: factorise with UserEnumerator ?
 class CremeUserChoiceIterator(mforms.ModelChoiceIterator):
     """"Groups the teams & the inactive users in specific groups."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        warnings.warn('CremeUserChoiceIterator is deprecated.', DeprecationWarning)
+
     def __iter__(self):
         regular_choices = []
         sort_key = collator.sort_key
@@ -113,6 +118,10 @@ class CremeUserChoiceField(mforms.ModelChoiceField):
             queryset=get_user_model().objects.all() if queryset is None else queryset,
             empty_label=empty_label,  # NB: generally we avoid empty QuerySets.
             **kwargs
+        )
+        warnings.warn(
+            'CremeUserChoiceField is deprecated ; use CremeUserEnumerableField instead.',
+            DeprecationWarning,
         )
         self.user = user
 
