@@ -413,6 +413,8 @@ class CustomFieldEnum(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
+        # from creme.creme_config.forms.fields import CustomEnumChoiceField
+        # return CustomEnumChoiceField(**kwargs)
         from creme.creme_config.forms.fields import (
             CreatorCustomEnumerableChoiceField,
         )

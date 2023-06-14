@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 from copy import deepcopy
 
 from django.db.models.base import Model
@@ -107,6 +108,7 @@ class CreatorModelChoiceMixin(CreatorChoiceMixin):
         return getattr(self.queryset.model, 'creation_label', self.widget.creation_label)
 
 
+# TODO: only used in 'reports'; prefer CreatorEnumerableModelChoiceField
 class CreatorModelChoiceField(modelforms.ModelChoiceField,
                               CreatorModelChoiceMixin):
     widget = widgets.CreatorModelChoiceWidget
@@ -236,6 +238,12 @@ class CustomEnumChoiceField(CreatorCustomEnumChoiceMixin,
     widget = widgets.CreatorModelChoiceWidget
 
     def __init__(self, *, custom_field=None, user=None, **kwargs):
+        warnings.warn(
+            'CustomEnumChoiceField is deprecated; '
+            'use CreatorCustomEnumerableChoiceField instead.',
+            DeprecationWarning,
+        )
+
         super().__init__(coerce=int, **kwargs)
         self.custom_field = custom_field
         self.user = user
