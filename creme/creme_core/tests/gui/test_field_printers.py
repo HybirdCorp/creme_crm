@@ -43,6 +43,7 @@ from creme.creme_core.gui.field_printers import (
     print_boolean_html,
     print_boolean_text,
     print_choice,
+    print_color_html,
     print_date_html,
     print_date_text,
     print_datetime_html,
@@ -77,6 +78,7 @@ from creme.creme_core.models import (
     FakeProduct,
     FakeReport,
     FakeSector,
+    FakeTicketStatus,
     SetCredentials,
 )
 from creme.creme_core.tests.base import CremeTestCase
@@ -476,6 +478,18 @@ class FieldsPrintersTestCase(CremeTestCase):
             '<a href="http://www.bebop.org">www.bebop.org</a>'
             '</p>',
             p2
+        )
+
+    def test_print_color_html(self):
+        status = FakeTicketStatus()
+        user = self.user
+        field = status._meta.get_field('color')
+        self.assertEqual('', print_color_html(instance=status, value='', user=user, field=field))
+
+        color = '112233'
+        self.assertHTMLEqual(
+            f'<span style="background:#{color};">{color}</span>',
+            print_color_html(instance=status, value=color, user=user, field=field),
         )
 
     def test_print_unsafehtml_html(self):
@@ -1820,5 +1834,4 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual(integer_header,   get_header_css(models.IntegerField))
 
     # TODO: test image_size()
-    # TODO: test print_color_html()
     # TODO: test print_duration()
