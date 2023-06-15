@@ -276,6 +276,8 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
     /* from ui-creme-navigation */
     font-weight: 600;
 
+    text-align: inherit;
+    width: 100%;
     background: none;
     border: none;
     cursor: pointer;
