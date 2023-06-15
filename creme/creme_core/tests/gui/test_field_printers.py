@@ -1785,9 +1785,40 @@ class FieldsPrintersTestCase(CremeTestCase):
             render_field(instance=casca, field_name='image__categories', tag=ViewTag.TEXT_PLAIN),
         )
 
+    @override_settings(
+        CSS_DEFAULT_LISTVIEW='field-default',
+        CSS_NUMBER_LISTVIEW='field-number',
+        CSS_TEXTAREA_LISTVIEW='field-long_text',
+        CSS_DEFAULT_HEADER_LISTVIEW='header-default',
+        CSS_DATE_HEADER_LISTVIEW='header-date',
+    )
+    def test_registry_css(self):
+        registry = _FieldPrintersRegistry()
+        get_css = registry.get_listview_css_class_for_field
+        get_header_css = registry.get_header_listview_css_class_for_field
+
+        self.assertEqual('field-default',   get_css(models.CharField))
+        self.assertEqual('field-number',    get_css(models.IntegerField))
+        self.assertEqual('field-number',    get_css(models.DecimalField))
+        self.assertEqual('field-long_text', get_css(models.TextField))
+
+        self.assertEqual('header-default', get_header_css(models.CharField))
+        self.assertEqual('header-default', get_header_css(models.IntegerField))
+        self.assertEqual('header-date',    get_header_css(models.DateField))
+
+        integer_css = 'field-integer'
+        integer_header = 'header-integer'
+        registry.register_listview_css_class(
+            field=models.IntegerField,
+            css_class=integer_css,
+            header_css_class=integer_header,
+        )
+        self.assertEqual(integer_css,    get_css(models.IntegerField))
+        self.assertEqual('field-number', get_css(models.DecimalField))
+
+        self.assertEqual('header-default', get_header_css(models.CharField))
+        self.assertEqual(integer_header,   get_header_css(models.IntegerField))
+
     # TODO: test image_size()
     # TODO: test print_color_html()
     # TODO: test print_duration()
-    # TODO: test register_listview_css_class()
-    # TODO: test get_listview_css_class_for_field()
-    # TODO: test get_header_listview_css_class_for_field()
