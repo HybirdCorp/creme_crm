@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2019  Hybird
+    Copyright (C) 2019-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -25,11 +25,13 @@ creme.component.FactoryRegistry = creme.component.Component.sub({
     _init_: function(options) {
         options = $.extend({
             strict: false,
+            shadow: false,
             fallback: '_build_',
             builders: {}
         }, options || {});
 
         this._strict = options.strict || false;
+        this._shadow = options.shadow || false;
         this._builders = {};
 
         this.fallback(options.fallback);
@@ -87,7 +89,14 @@ creme.component.FactoryRegistry = creme.component.Component.sub({
 
     register: function(key, builder) {
         if (this._builders[key] !== undefined) {
-            throw new Error('builder "%s" is already registered'.format(key));
+            if (this._shadow) {
+                console.error((
+                    'builder "%s" will be replaced; Probably caused by a registration from a ' +
+                    '<script> tag within a reloaded part of the document body.'
+                ).format(key));
+            } else {
+                throw new Error('builder "%s" is already registered'.format(key));
+            }
         }
 
         if (!Object.isFunc(builder)) {
@@ -105,6 +114,14 @@ creme.component.FactoryRegistry = creme.component.Component.sub({
 
         delete this._builders[key];
         return this;
+    },
+
+    strictMode: function(mode) {
+        return Object.property(this, '_strict', mode);
+    },
+
+    allowShadow: function(mode) {
+        return Object.property(this, '_shadow', mode);
     },
 
     builders: function() {

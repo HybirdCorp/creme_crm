@@ -83,6 +83,9 @@ QUnit.module("creme.component.factory.js", new QUnitMixin(QUnitEventMixin, {
 QUnit.test('creme.component.FactoryRegistry (empty)', function(assert) {
     var registry = new creme.component.FactoryRegistry();
     deepEqual([], registry.builders());
+    equal(false, registry.strictMode());
+    equal(false, registry.allowShadow());
+
     equal(false, registry.has('a'));
 
     equal(undefined, registry.get('a'));
@@ -290,6 +293,25 @@ QUnit.test('creme.component.FactoryRegistry.register (already registered)', func
     equal(this.mockActionA, registry.get('action-A')());
 });
 
+QUnit.test('creme.component.FactoryRegistry.register (already registered, shadow)', function(assert) {
+    var test = this;
+    var registry = new creme.component.FactoryRegistry({shadow: true});
+
+    equal(true, registry.allowShadow());
+
+    registry.register('action-A', function() {
+        return test.mockActionA;
+    });
+
+    registry.register('action-A', function() {
+        return test.mockActionB;
+    });
+
+    deepEqual(['action-A'], registry.builders());
+
+    equal(this.mockActionB, registry.get('action-A')());
+});
+
 QUnit.test('creme.component.FactoryRegistry.registerAll', function(assert) {
     var test = this;
     var registry = new creme.component.FactoryRegistry();
@@ -337,6 +359,40 @@ QUnit.test('creme.component.FactoryRegistry.registerAll (already registered)', f
     }, Error, 'Error: builder "action-B" is already registered');
 
     deepEqual(['action-A', 'action-B'], registry.builders());
+});
+
+QUnit.test('creme.component.FactoryRegistry.registerAll (already registered, shadow)', function(assert) {
+    var test = this;
+    var registry = new creme.component.FactoryRegistry({shadow: true});
+
+    equal(true, registry.allowShadow());
+
+    registry.registerAll({
+        'action-A': function() {
+            return test.mockActionA;
+        },
+        'action-B': function() {
+            return test.mockActionB;
+        }
+    });
+
+    registry.registerAll({
+        'action-C': function() {
+            return test.mockActionA;
+        },
+        'action-D': function() {
+            return test.mockActionB;
+        },
+        'action-B': function() {
+            return test.mockActionDoIt;
+        }
+    });
+
+    deepEqual(['action-A', 'action-B', 'action-C', 'action-D'], registry.builders());
+    equal(this.mockActionA, registry.get('action-A')());
+    equal(this.mockActionDoIt, registry.get('action-B')());
+    equal(this.mockActionA, registry.get('action-C')());
+    equal(this.mockActionB, registry.get('action-D')());
 });
 
 QUnit.test('creme.component.FactoryRegistry.registerAll (invalid)', function(assert) {
