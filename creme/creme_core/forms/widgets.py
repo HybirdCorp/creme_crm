@@ -1428,6 +1428,7 @@ class RelativeDatePeriodWidget(widgets.MultiWidget):
                     choices=relative_choices,
                     attrs={'class': 'relative_dperiod-direction'},
                 ),
+                # TODO: DatePeriodWidget(choices=period_choices)?
                 # widgets.Select(
                 PrettySelect(
                     choices=period_choices,
@@ -1456,13 +1457,19 @@ class RelativeDatePeriodWidget(widgets.MultiWidget):
 
     def decompress(self, value):
         if value:
-            sign, period = value
-            d = period.as_dict()
-            return sign, d['type'], d['value']
+            # sign, period = value
+            # d = period.as_dict()
+            # return sign, d['type'], d['value']
+            d = value.as_dict()
+            return d['sign'], d['type'], d['value']
 
         return None, None, None
 
     def get_context(self, name, value, attrs):
+        # TODO: see value_from_datadict()
+        if isinstance(value, list):
+            value = [value[0], *value[1]]
+
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         # TODO: do we need a system for localized settings (like python in locale/ ) ?
@@ -1486,6 +1493,11 @@ class RelativeDatePeriodWidget(widgets.MultiWidget):
         context['widget']['indices'] = indices
 
         return context
+
+    # TODO: remove this method when we use directly a sub DatePeriodWidget
+    def value_from_datadict(self, data, files, name):
+        values = super().value_from_datadict(data=data, files=files, name=name)
+        return [values[0], values[1:]]
 
 
 class DateRangeWidget(widgets.MultiWidget):

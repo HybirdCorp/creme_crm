@@ -43,7 +43,7 @@ from ..gui import quick_forms
 from ..models import CremeEntity, EntityFilter, Relation, RelationType
 from ..utils.collections import OrderedSet
 from ..utils.content_type import ctype_choices, entity_ctypes
-from ..utils.date_period import date_period_registry
+from ..utils.date_period import DatePeriod, date_period_registry
 from ..utils.date_range import date_range_registry
 from ..utils.serializers import json_encode
 from ..utils.unicode_collation import collator
@@ -1483,15 +1483,19 @@ class DatePeriodField(fields.MultiValueField):
         self._update_choices()
 
     def compress(self, data_list):
-        return (data_list[0], data_list[1]) if data_list else ('', '')
+        # return (data_list[0], data_list[1]) if data_list else ('', '')
+        # NB: data_list = (period_name, period_value)
+        return date_period_registry.get_period(
+            *data_list
+        ) if data_list and all(data_list) else None
 
-    def clean(self, value):
-        period_name, period_value = super().clean(value)
-
-        if not period_value:
-            return None
-
-        return date_period_registry.get_period(period_name, period_value)
+    # def clean(self, value):
+    #     period_name, period_value = super().clean(value)
+    #
+    #     if not period_value:
+    #         return None
+    #
+    #     return date_period_registry.get_period(period_name, period_value)
 
 
 class RelativeDatePeriodField(fields.MultiValueField):
@@ -1499,6 +1503,36 @@ class RelativeDatePeriodField(fields.MultiValueField):
     Hint: see DatePeriodField too.
     """
     widget = core_widgets.RelativeDatePeriodWidget
+
+    # TODO: move to 'utils.date_period'?
+    class RelativeDatePeriod:
+        BEFORE = -1
+        AFTER  = 1
+
+        def __init__(self, sign: int, period: DatePeriod):
+            if sign not in (self.BEFORE, self.AFTER):
+                raise ValueError(f'sign must be in {(self.BEFORE, self.AFTER)}')
+
+            self.sign = sign
+            self.period = period
+
+        def __str__(self):
+            # TODO: localize?
+            return f'{"after" if self.sign == 1 else "before"} {self.period}'
+
+        def __eq__(self, other):
+            return (
+                isinstance(other, type(self))
+                and (self.sign == other.sign)
+                and (self.period == other.period)
+            )
+
+        def as_dict(self) -> dict:
+            "As a jsonifiable dictionary."
+            return {
+                'sign': self.sign,
+                **self.period.as_dict(),
+            }
 
     def __init__(self, *, period_registry=date_period_registry, period_names=None, **kwargs):
         """Constructor.
@@ -1509,7 +1543,9 @@ class RelativeDatePeriodField(fields.MultiValueField):
             (
                 fields.TypedChoiceField(
                     coerce=int,
-                    empty_value=1,  # Hint: use the second value to test emptiness
+                    # empty_value=1,
+                    # Hint: use the second value to test emptiness
+                    empty_value=self.RelativeDatePeriod.AFTER,
                 ),
                 DatePeriodField(period_registry=period_registry),
             ),
@@ -1517,7 +1553,11 @@ class RelativeDatePeriodField(fields.MultiValueField):
         )
 
         self.period_names = period_names
-        self.relative_choices = [(-1, _('Before')), (1, _('After'))]
+        # self.relative_choices = [(-1, _('Before')), (1, _('After'))]
+        self.relative_choices = [
+            (self.RelativeDatePeriod.BEFORE, _('Before')),
+            (self.RelativeDatePeriod.AFTER,  _('After')),
+        ]
 
     @property
     def period_choices(self):
@@ -1554,19 +1594,23 @@ class RelativeDatePeriodField(fields.MultiValueField):
         self.fields[0].choices = self.widget.relative_choices = choices
 
     def compress(self, data_list):
-        return (data_list[0], data_list[1]) if data_list else ()
+        # return (data_list[0], data_list[1]) if data_list else ()
+        return self.RelativeDatePeriod(
+            sign=data_list[0], period=data_list[1],
+        ) if data_list and all(data_list) else None
 
     def validate(self, value):
-        if self.required and value[1] is None:
+        # if self.required and value[1] is None:
+        if self.required and value is None:
             raise ValidationError(self.error_messages['required'], code='required')
 
-    def clean(self, value):
-        if isinstance(value, (list, tuple)) and len(value) == 3:
-            value = [value[0], value[1:]]
-
-        cleaned = super().clean(value)
-
-        return cleaned if (cleaned and cleaned[1]) else ()
+    # def clean(self, value):
+    #     if isinstance(value, (list, tuple)) and len(value) == 3:
+    #         value = [value[0], value[1:]]
+    #
+    #     cleaned = super().clean(value)
+    #
+    #     return cleaned if (cleaned and cleaned[1]) else ()
 
 
 class DateRangeField(fields.MultiValueField):
