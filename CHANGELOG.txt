@@ -12,6 +12,22 @@
     # Apps :
         * Persons :
             - The field 'Organisation.is_managed' is not cloned anymore.
+        * Assistants :
+            - An issue when editing an Alert with a relative date period has been fixed.
+
+  Developers side :
+  -----------------
+
+    Breaking changes :
+    ------------------
+        # The method 'creme_core.forms.fields.RelativeDatePeriodField.clean()' returns now an instance of
+          'RelativeDatePeriodField.RelativeDatePeriod', & not a tuple anymore.
+          The data returned by the related widget changed too.
+        # Apps :
+             * Assistants :
+                - The method 'forms.alert.ModelRelativeDatePeriodField.clean()' returns a now an instance of
+                  'ModelRelativeDatePeriodField.ModelRelativeDatePeriod', & not a tuple anymore.
+                  The data returned by the related widget changed too.
 
 
 == Version 2.4.4 ==

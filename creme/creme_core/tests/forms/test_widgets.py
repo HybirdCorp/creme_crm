@@ -13,19 +13,22 @@ from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
 from django.utils.translation import pgettext
 
+from creme.creme_core.forms.fields import RelativeDatePeriodField
 from creme.creme_core.forms.widgets import (
     ActionButtonList,
     CalendarWidget,
     CremeTextarea,
+    DatePeriodWidget,
     DateRangeSelect,
     DateTimeWidget,
     DynamicSelect,
     EntityCreatorWidget,
     EntitySelector,
+    RelativeDatePeriodWidget,
     UnorderedMultipleChoiceWidget,
     WidgetAction,
 )
-from creme.creme_core.utils import date_range
+from creme.creme_core.utils import date_period, date_range
 from creme.creme_core.utils.url import TemplateURLBuilder
 
 from ..base import CremeTestCase
@@ -249,6 +252,230 @@ class DateRangeSelectTestCase(CremeTestCase):
             f'  </span>'
             f'</span>',
             widget.render(name, value),
+        )
+
+
+class DatePeriodWidgetTestCase(CremeTestCase):
+    @override_language('en')
+    def test_render_en_no_value(self):
+        name = 'date_period'
+        self.assertHTMLEqual(
+            f'<ul class="hbox ui-layout">'
+            f' <li>'
+            f'  <input class="dperiod-value" min="1" name="{name}_1" type="number">'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="dperiod-type" name="{name}_0" />'
+            f'   <div class="select-arrow"/>'
+            f'  </div>'
+            f' </li>'
+            f'</ul>',
+            DatePeriodWidget().render(name=name, value=None),
+        )
+
+    @override_language('en')
+    def test_render_en_list_value(self):
+        widget = DatePeriodWidget()
+        widget.choices = [
+            (period.name, period.verbose_name) for period in [
+                date_period.HoursPeriod,
+                date_period.DaysPeriod,
+                date_period.WeeksPeriod,
+            ]
+        ]
+        name = 'my_date_period'
+        self.assertHTMLEqual(
+            f'<ul class="hbox ui-layout">'
+            f' <li>'
+            f'  <input class="dperiod-value" min="1" name="{name}_1" type="number" value="2">'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="dperiod-type" name="{name}_0">'
+            f'    <option value="hours">Hour(s)</option>'
+            f'    <option value="days">Day(s)</option>'
+            f'    <option value="weeks" selected>Week(s)</option>'
+            f'   </select>'
+            f'   <div class="select-arrow"/>'
+            f'  </div>'
+            f' </li>'
+            f'</ul>',
+            widget.render(name=name, value=['weeks', '2']),
+        )
+
+    @override_language('fr')
+    def test_render_fr(self):
+        widget = DatePeriodWidget()
+        widget.choices = [
+            (period.name, period.verbose_name) for period in [
+                date_period.HoursPeriod,
+                date_period.DaysPeriod,
+                date_period.WeeksPeriod,
+            ]
+        ]
+        name = 'my_period'
+        self.assertHTMLEqual(
+            f'<ul class="hbox ui-layout">'
+            f' <li>'
+            f'  <input class="dperiod-value" min="1" name="{name}_1" type="number" value="1">'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="dperiod-type" name="{name}_0">'
+            f'    <option value="hours">Heure(s)</option>'
+            f'    <option value="days" selected>Jour(s)</option>'
+            f'    <option value="weeks">Semaine(s)</option>'
+            f'   </select>'
+            f'   <div class="select-arrow"/>'
+            f'  </div>'
+            f' </li>'
+            f'</ul>',
+            widget.render(name=name, value=date_period.DaysPeriod(1)),
+        )
+
+    def test_value_from_datadict(self):
+        self.assertListEqual(
+            ['hours', '5'],
+            DatePeriodWidget().value_from_datadict(
+                name='offset',
+                data={
+                    'offset_0': 'hours',
+                    'offset_1': '5',
+                    'whatever': 'foo',
+                },
+                files={},
+            ),
+        )
+
+
+class RelativeDatePeriodWidgetTestCase(CremeTestCase):
+    @override_language('en')
+    def test_render_en_no_value(self):
+        name = 'date_period'
+        self.maxDiff = None
+        self.assertHTMLEqual(
+            f'<ul class="hbox ui-layout">'
+            f' <li>'
+            f'  <input class="relative_dperiod-value" min="1" name="{name}_2" type="number">'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="relative_dperiod-type" name="{name}_1" />'
+            f'   <div class="select-arrow" />'
+            f'  </div>'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="relative_dperiod-direction" name="{name}_0" />'
+            f'   <div class="select-arrow" />'
+            f' </li>'
+            f'</ul>',
+            RelativeDatePeriodWidget().render(name=name, value=None),
+        )
+
+    @override_language('en')
+    def test_render_en_list_value(self):
+        widget = RelativeDatePeriodWidget()
+        widget.period_choices = [
+            (period.name, period.verbose_name) for period in [
+                date_period.HoursPeriod,
+                date_period.DaysPeriod,
+                date_period.WeeksPeriod,
+            ]
+        ]
+        widget.relative_choices = [(-1, 'Before'), (1, 'After')]
+        name = 'my_offset'
+        self.maxDiff = None
+        self.assertHTMLEqual(
+            f'<ul class="hbox ui-layout">'
+            f' <li>'
+            f'  <input class="relative_dperiod-value" min="1" name="{name}_2"'
+            f'         type="number" value="5">'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="relative_dperiod-type" name="{name}_1">'
+            f'    <option value="hours">Hour(s)</option>'
+            f'    <option value="days">Day(s)</option>'
+            f'    <option value="weeks" selected>Week(s)</option>'
+            f'   </select>'
+            f'   <div class="select-arrow"/>'
+            f'  </div>'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="relative_dperiod-direction" name="{name}_0">'
+            f'    <option value="-1">Before</option>'
+            f'    <option value="1" selected>After</option>'
+            f'   </select>'
+            f'   <div class="select-arrow" />'
+            f' </li>'
+            f'</ul>',
+            widget.render(
+                name=name, value=[1, [date_period.WeeksPeriod.name, '5']],
+            ),
+        )
+
+    @override_language('fr')
+    def test_render_fr(self):
+        widget = RelativeDatePeriodWidget()
+        widget.period_choices = [
+            (period.name, period.verbose_name) for period in [
+                date_period.HoursPeriod,
+                date_period.DaysPeriod,
+                date_period.WeeksPeriod,
+            ]
+        ]
+        widget.relative_choices = [(-1, 'Avant'), (1, 'Après')]
+        name = 'my_period'
+        self.maxDiff = None
+        self.assertHTMLEqual(
+            f'<ul class="hbox ui-layout">'
+            f' <li>'
+            f'  <input class="relative_dperiod-value" min="1" name="{name}_2"'
+            f'         type="number" value="2">'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="relative_dperiod-type" name="{name}_1">'
+            f'    <option value="hours">Heure(s)</option>'
+            f'    <option value="days" selected>Jour(s)</option>'
+            f'    <option value="weeks">Semaine(s)</option>'
+            f'   </select>'
+            f'   <div class="select-arrow"/>'
+            f'  </div>'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="relative_dperiod-direction" name="{name}_0">'
+            f'    <option value="-1" selected>Avant</option>'
+            f'    <option value="1">Après</option>'
+            f'   </select>'
+            f'   <div class="select-arrow" />'
+            f' </li>'
+            f'</ul>',
+            widget.render(
+                name=name,
+                value=RelativeDatePeriodField.RelativeDatePeriod(
+                    sign=-1, period=date_period.DaysPeriod(2),
+                ),
+            ),
+        )
+
+    def test_value_from_datadict(self):
+        self.assertListEqual(
+            ['-1', ['hours', '5']],
+            RelativeDatePeriodWidget().value_from_datadict(
+                name='offset',
+                data={
+                    'offset_0': '-1',
+                    'offset_1': 'hours',
+                    'offset_2': '5',
+                    'whatever': 'foo',
+                },
+                files={},
+            ),
         )
 
 

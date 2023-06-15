@@ -338,64 +338,108 @@ class DatePeriodFieldTestCase(FieldTestCase):
 
 
 class RelativeDatePeriodFieldTestCase(FieldTestCase):
+    def test_relative_date_period(self):
+        RPeriod = RelativeDatePeriodField.RelativeDatePeriod
+
+        rperiod1 = RPeriod(sign=1, period=DaysPeriod(1))
+        self.assertEqual(1,             rperiod1.sign)
+        self.assertEqual(DaysPeriod(1), rperiod1.period)
+
+        rperiod2 = RPeriod(sign=-1, period=HoursPeriod(3))
+        self.assertEqual(-1,             rperiod2.sign)
+        self.assertEqual(HoursPeriod(3), rperiod2.period)
+
+        self.assertNotEqual(rperiod1, None)
+        self.assertNotEqual(rperiod1, rperiod2)
+        self.assertNotEqual(RPeriod(sign=-1, period=DaysPeriod(1)), rperiod1)
+        self.assertNotEqual(RPeriod(sign=1,  period=DaysPeriod(2)), rperiod1)
+        self.assertEqual(RPeriod(sign=1, period=DaysPeriod(1)), rperiod1)
+
+        self.assertRaises(ValueError, RPeriod, sign=2, period=DaysPeriod(1))
+
     def test_ok01(self):
         "Days + after."
-        signed_period = RelativeDatePeriodField().clean(['1', DaysPeriod.name, '3'])
-        self.assertIsTuple(signed_period, length=2)
-        self.assertEqual(1, signed_period[0])
+        # signed_period = RelativeDatePeriodField().clean(['1', DaysPeriod.name, '3'])
+        signed_period = RelativeDatePeriodField().clean(['1', [DaysPeriod.name, '3']])
+        # self.assertIsTuple(signed_period, length=2)
+        # self.assertEqual(1, signed_period[0])
 
-        period = signed_period[1]
-        self.assertIsInstance(period, DaysPeriod)
-        self.assertDictEqual({'type': 'days', 'value': 3}, period.as_dict())
+        # period = signed_period[1]
+        # self.assertIsInstance(period, DaysPeriod)
+        # self.assertDictEqual({'type': 'days', 'value': 3}, period.as_dict())
+        self.assertEqual(
+            RelativeDatePeriodField.RelativeDatePeriod(sign=1, period=DaysPeriod(3)),
+            signed_period,
+        )
 
     def test_ok02(self):
         "Minutes + before."
-        sign, period = RelativeDatePeriodField().clean(['-1', MinutesPeriod.name, '5'])
-        self.assertEqual(-1, sign)
-        self.assertIsInstance(period, DatePeriod)
-        self.assertDictEqual({'type': 'minutes', 'value': 5}, period.as_dict())
+        # sign, period = RelativeDatePeriodField().clean(['-1', MinutesPeriod.name, '5'])
+        # self.assertEqual(-1, sign)
+        # self.assertIsInstance(period, DatePeriod)
+        # self.assertDictEqual({'type': 'minutes', 'value': 5}, period.as_dict())
+        signed_period = RelativeDatePeriodField().clean(['-1', [MinutesPeriod.name, '5']])
+        self.assertEqual(
+            RelativeDatePeriodField.RelativeDatePeriod(sign=-1, period=MinutesPeriod(5)),
+            signed_period,
+        )
 
     def test_required(self):
         cls = RelativeDatePeriodField
         field = cls()
         clean = field.clean
         pname = DaysPeriod.name
-        self.assertFieldValidationError(cls, 'required', clean, ['', '', ''])
+        # self.assertFieldValidationError(cls, 'required', clean, ['', '', ''])
+        # self.assertFieldValidationError(cls, 'required', clean, None)
+        # self.assertFieldValidationError(cls, 'required', clean, ['', pname, '2'])
+        # self.assertFieldValidationError(cls, 'required', clean, ['1', pname, ''])
+        self.assertFieldValidationError(cls, 'required', clean, ['', ['', '']])
         self.assertFieldValidationError(cls, 'required', clean, None)
-        self.assertFieldValidationError(cls, 'required', clean, ['', pname, '2'])
-        self.assertFieldValidationError(cls, 'required', clean, ['1', pname, ''])
+        self.assertFieldValidationError(cls, 'required', clean, ['', [pname, '2']])
+        self.assertFieldValidationError(cls, 'required', clean, ['1', [pname, '']])
 
     def test_not_required(self):
         clean = RelativeDatePeriodField(required=False).clean
-        self.assertTupleEqual((), clean(['', '', '']))
-        self.assertTupleEqual((), clean(['', '']))
-        self.assertTupleEqual((), clean(['']))
-        self.assertTupleEqual((), clean([]))
-        self.assertTupleEqual((), clean(None))
-        self.assertTupleEqual((), clean(['1', DaysPeriod.name, '']))
-        self.assertTupleEqual((), clean(['1', '', '2']))
+        # self.assertTupleEqual((), clean(['', '', '']))
+        # self.assertTupleEqual((), clean(['', '']))
+        # self.assertTupleEqual((), clean(['']))
+        # self.assertTupleEqual((), clean([]))
+        # self.assertTupleEqual((), clean(None))
+        # self.assertTupleEqual((), clean(['1', DaysPeriod.name, '']))
+        # self.assertTupleEqual((), clean(['1', '', '2']))
+        self.assertIsNone(clean(['', ['', '']]))
+        self.assertIsNone(clean(['', ['']]))
+        self.assertIsNone(clean(['']))
+        self.assertIsNone(clean([]))
+        self.assertIsNone(clean(None))
+        self.assertIsNone(clean(['1', [DaysPeriod.name, '']]))
+        self.assertIsNone(clean(['1', ['', '2']]))
 
     def test_invalid(self):
         clean = RelativeDatePeriodField().clean
         self.assertFieldValidationError(
             TypedChoiceField, 'invalid_choice', clean,
-            ['notint', YearsPeriod.name, '1'],
+            # ['notint', YearsPeriod.name, '1'],
+            ['notint', [YearsPeriod.name, '1']],
             message_args={'value': 'notint'},
         )
 
         self.assertFieldValidationError(
-            IntegerField, 'invalid', clean, ['1', YearsPeriod.name, 'notint'],
+            # IntegerField, 'invalid', clean, ['1', YearsPeriod.name, 'notint'],
+            IntegerField, 'invalid', clean, ['1', [YearsPeriod.name, 'notint']],
         )
 
         name = 'unknownperiod'
         self.assertFieldValidationError(
-            ChoiceField, 'invalid_choice', clean, ['-1', name, '2'],
+            # ChoiceField, 'invalid_choice', clean, ['-1', name, '2'],
+            ChoiceField, 'invalid_choice', clean, ['-1', [name, '2']],
             message_args={'value': name},
         )
 
     def test_notnull_period(self):
         with self.assertRaises(ValidationError) as cm:
-            RelativeDatePeriodField().clean(['-1', DaysPeriod.name, '0'])
+            # RelativeDatePeriodField().clean(['-1', DaysPeriod.name, '0'])
+            RelativeDatePeriodField().clean(['-1', [DaysPeriod.name, '0']])
 
         self.assertListEqual(
             [

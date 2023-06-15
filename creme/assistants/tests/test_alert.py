@@ -12,6 +12,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django.utils.translation import override as override_language
 
 from creme.creme_core.core.entity_cell import (
     EntityCellFunctionField,
@@ -20,6 +21,7 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.core.function_field import function_field_registry
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
+from creme.creme_core.forms.fields import RelativeDatePeriodField
 from creme.creme_core.forms.listview import TextLVSWidget
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -48,64 +50,310 @@ from ..constants import BRICK_STATE_HIDE_VALIDATED_ALERTS
 from ..forms.alert import (
     AbsoluteOrRelativeDatetimeField,
     ModelRelativeDatePeriodField,
+    ModelRelativeDatePeriodWidget,
 )
 from ..models import Alert
 from .base import AssistantsTestCase
 
 
+class ModelRelativeDatePeriodWidgetTestCase(AssistantsTestCase):
+    @override_language('en')
+    def test_render_en_no_value(self):
+        name = 'date_period'
+        self.maxDiff = None
+        self.assertHTMLEqual(
+            f'<ul class="hbox ui-layout">'
+            f' <li>'
+            f'  <input class="assistants-offset_dperiod-value" min="1"'
+            f'         name="{name}_3" type="number">'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="assistants-offset_dperiod-type" name="{name}_2" />'
+            f'   <div class="select-arrow" />'
+            f'  </div>'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="assistants-offset_dperiod-direction" name="{name}_1" />'
+            f'   <div class="select-arrow" />'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="assistants-offset_dperiod-field" name="{name}_0" />'
+            f'   <div class="select-arrow" />'
+            f'  </div>'
+            f' </li>'
+            f'</ul>',
+            ModelRelativeDatePeriodWidget().render(name=name, value=None),
+        )
+
+    @override_language('en')
+    def test_render_en_list_value(self):
+        name = 'offset'
+        widget = ModelRelativeDatePeriodWidget()
+        widget.period_choices = [
+            (period.name, period.verbose_name) for period in [
+                HoursPeriod,
+                DaysPeriod,
+                WeeksPeriod,
+            ]
+        ]
+        widget.relative_choices = [(-1, 'Before'), (1, 'After')]
+        widget.field_choices = [('created', 'Created'), ('modified', 'Modified')]
+        self.maxDiff = None
+        self.assertHTMLEqual(
+            f'<ul class="hbox ui-layout">'
+            f' <li>'
+            f'  <input class="assistants-offset_dperiod-value" min="1"'
+            f'         name="{name}_3" type="number" value="5">'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="assistants-offset_dperiod-type" name="{name}_2">'
+            f'    <option value="hours">Hour(s)</option>'
+            f'    <option value="days">Day(s)</option>'
+            f'    <option value="weeks" selected>Week(s)</option>'
+            f'   </select>'
+            f'   <div class="select-arrow" />'
+            f'  </div>'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="assistants-offset_dperiod-direction" name="{name}_1">'
+            f'    <option value="-1">Before</option>'
+            f'    <option value="1" selected>After</option>'
+            f'   </select>'
+            f'   <div class="select-arrow" />'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="assistants-offset_dperiod-field" name="{name}_0">'
+            f'    <option value="created">Created</option>'
+            f'    <option value="modified" selected>Modified</option>'
+            f'   </select>'
+            f'   <div class="select-arrow" />'
+            f'  </div>'
+            f' </li>'
+            f'</ul>',
+            widget.render(name=name, value=['modified', ['1', [WeeksPeriod.name, '5']]]),
+        )
+
+    @override_language('fr')
+    def test_render_fr(self):
+        name = 'date_offset'
+        widget = ModelRelativeDatePeriodWidget()
+        widget.period_choices = [
+            (period.name, period.verbose_name) for period in [
+                HoursPeriod,
+                DaysPeriod,
+                WeeksPeriod,
+            ]
+        ]
+        widget.relative_choices = [(-1, 'Avant'), (1, 'Après')]
+        widget.field_choices = [
+            ('created', 'Création'),
+            ('modified', 'Modification'),
+            ('birthday', 'Anniversaire'),
+        ]
+        self.maxDiff = None
+        self.assertHTMLEqual(
+            f'<ul class="hbox ui-layout">'
+            f' <li>'
+            f'  <input class="assistants-offset_dperiod-value" min="1"'
+            f'         name="{name}_3" type="number" value="2">'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="assistants-offset_dperiod-type" name="{name}_2">'
+            f'    <option value="hours">Heure(s)</option>'
+            f'    <option value="days" selected>Jour(s)</option>'
+            f'    <option value="weeks">Semaine(s)</option>'
+            f'   </select>'
+            f'   <div class="select-arrow" />'
+            f'  </div>'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="assistants-offset_dperiod-direction" name="{name}_1">'
+            f'    <option value="-1">Avant</option>'
+            f'    <option value="1" selected>Après</option>'
+            f'   </select>'
+            f'   <div class="select-arrow" />'
+            f' </li>'
+            f' <li>'
+            f'  <div class="select-wrapper">'
+            f'   <select class="assistants-offset_dperiod-field" name="{name}_0">'
+            f'    <option value="created">Création</option>'
+            f'    <option value="modified">Modification</option>'
+            f'    <option value="birthday" selected>Anniversaire</option>'
+            f'   </select>'
+            f'   <div class="select-arrow" />'
+            f'  </div>'
+            f' </li>'
+            f'</ul>',
+            widget.render(
+                name=name,
+                value=ModelRelativeDatePeriodField.ModelRelativeDatePeriod(
+                    field_name='birthday',
+                    relative_period=RelativeDatePeriodField.RelativeDatePeriod(
+                        sign=1, period=DaysPeriod(2),
+                    ),
+                ),
+            ),
+        )
+
+    def test_value_from_datadict(self):
+        self.assertListEqual(
+            ['created', ['-1', ['hours', '5']]],
+            ModelRelativeDatePeriodWidget().value_from_datadict(
+                name='offset',
+                data={
+                    'offset_0': 'created',
+                    'offset_1': '-1',
+                    'offset_2': 'hours',
+                    'offset_3': '5',
+                    'whatever': 'foo',
+                },
+                files={},
+            ),
+        )
+
+
 class ModelRelativeDatePeriodFieldTestCase(FieldTestCase):
+    def test_model_relativedate_period(self):
+        RPeriod = RelativeDatePeriodField.RelativeDatePeriod
+        MRPeriod = ModelRelativeDatePeriodField.ModelRelativeDatePeriod
+
+        mrperiod1 = MRPeriod(
+            field_name='modified',
+            relative_period=RPeriod(sign=1, period=DaysPeriod(1)),
+        )
+        self.assertEqual('modified', mrperiod1.field_name)
+        self.assertEqual(
+            RPeriod(sign=1, period=DaysPeriod(1)),
+            mrperiod1.relative_period,
+        )
+
+        mrperiod2 = MRPeriod(
+            field_name='created',
+            relative_period=RPeriod(sign=-1, period=WeeksPeriod(2)),
+        )
+        self.assertEqual('created', mrperiod2.field_name)
+        self.assertEqual(
+            RPeriod(sign=-1, period=WeeksPeriod(2)),
+            mrperiod2.relative_period,
+        )
+
+        self.assertNotEqual(None, mrperiod1)
+        self.assertNotEqual(mrperiod1, mrperiod2)
+        self.assertNotEqual(
+            MRPeriod(
+                field_name='created',
+                relative_period=RPeriod(sign=1, period=DaysPeriod(1)),
+            ),
+            mrperiod1,
+        )
+        self.assertNotEqual(
+            MRPeriod(
+                field_name='modified',
+                relative_period=RPeriod(sign=1, period=DaysPeriod(2)),
+            ),
+            mrperiod1,
+        )
+        self.assertEqual(
+            MRPeriod(
+                field_name='modified',
+                relative_period=RPeriod(sign=1, period=DaysPeriod(1)),
+            ),
+            mrperiod1,
+        )
+
     def test_ok01(self):
         "Field <FakeOrganisation.creation_date> + days + after."
         field_name = 'creation_date'
         offset = ModelRelativeDatePeriodField(model=FakeOrganisation).clean(
-            [field_name, '1', DaysPeriod.name, '3'],
+            # [field_name, '1', DaysPeriod.name, '3'],
+            [field_name, ['1', [DaysPeriod.name, '3']]],
         )
-        self.assertIsTuple(offset, length=2)
-        self.assertEqual(field_name, offset[0])
-
-        signed_period = offset[1]
-        self.assertIsTuple(signed_period, length=2)
-        self.assertEqual(1, signed_period[0])
-
-        period = signed_period[1]
-        self.assertIsInstance(period, DaysPeriod)
-        self.assertDictEqual({'type': 'days', 'value': 3}, period.as_dict())
+        # self.assertIsTuple(offset, length=2)
+        # self.assertEqual(field_name, offset[0])
+        #
+        # signed_period = offset[1]
+        # self.assertIsTuple(signed_period, length=2)
+        # self.assertEqual(1, signed_period[0])
+        #
+        # period = signed_period[1]
+        # self.assertIsInstance(period, DaysPeriod)
+        # self.assertDictEqual({'type': 'days', 'value': 3}, period.as_dict())
+        self.assertEqual(
+            ModelRelativeDatePeriodField.ModelRelativeDatePeriod(
+                field_name=field_name,
+                relative_period=RelativeDatePeriodField.RelativeDatePeriod(
+                    sign=1, period=DaysPeriod(3),
+                ),
+            ),
+            offset,
+        )
 
     def test_ok02(self):
         "Field <FakeOrganisation.created> + minutes + before."
         field_name = 'created'
         offset = ModelRelativeDatePeriodField(model=FakeOrganisation).clean(
-            [field_name, '-1', MinutesPeriod.name, '5']
+            # [field_name, '-1', MinutesPeriod.name, '5']
+            [field_name, ['-1', [MinutesPeriod.name, '5']]]
         )
-        self.assertEqual(field_name, offset[0])
-
-        sign, period = offset[1]
-        self.assertEqual(-1, sign)
-        self.assertIsInstance(period, MinutesPeriod)
-        self.assertDictEqual({'type': 'minutes', 'value': 5}, period.as_dict())
+        # self.assertEqual(field_name, offset[0])
+        #
+        # sign, period = offset[1]
+        # self.assertEqual(-1, sign)
+        # self.assertIsInstance(period, MinutesPeriod)
+        # self.assertDictEqual({'type': 'minutes', 'value': 5}, period.as_dict())
+        self.assertEqual(
+            ModelRelativeDatePeriodField.ModelRelativeDatePeriod(
+                field_name=field_name,
+                relative_period=RelativeDatePeriodField.RelativeDatePeriod(
+                    sign=-1, period=MinutesPeriod(5),
+                ),
+            ),
+            offset,
+        )
 
     def test_required(self):
         cls = ModelRelativeDatePeriodField
         field = cls(model=FakeOrganisation)
         clean = field.clean
         pname = DaysPeriod.name
-        self.assertFieldValidationError(cls, 'required', clean, ['', '', '', ''])
+        # self.assertFieldValidationError(cls, 'required', clean, ['', '', '', ''])
+        # self.assertFieldValidationError(cls, 'required', clean, None)
+        # self.assertFieldValidationError(cls, 'required', clean, ['', '', pname, '2'])
+        # self.assertFieldValidationError(cls, 'required', clean, ['', '1', pname, ''])
+        # self.assertFieldValidationError(cls, 'required', clean, ['created', '1', pname, ''])
+        self.assertFieldValidationError(cls, 'required', clean, ['', ['', ['', '']]])
         self.assertFieldValidationError(cls, 'required', clean, None)
-        self.assertFieldValidationError(cls, 'required', clean, ['', '', pname, '2'])
-        self.assertFieldValidationError(cls, 'required', clean, ['', '1', pname, ''])
-        self.assertFieldValidationError(cls, 'required', clean, ['created', '1', pname, ''])
+        self.assertFieldValidationError(cls, 'required', clean, ['', ['', [pname, '2']]])
+        self.assertFieldValidationError(cls, 'required', clean, ['', ['1', [pname, '']]])
+        self.assertFieldValidationError(cls, 'required', clean, ['created', ['1', [pname, '']]])
 
     def test_not_required(self):
         clean = ModelRelativeDatePeriodField(required=False).clean
-        empty = ()
-        self.assertTupleEqual(empty, clean([''] * 4))
-        self.assertTupleEqual(empty, clean([''] * 3))
-        self.assertTupleEqual(empty, clean([''] * 2))
-        self.assertTupleEqual(empty, clean(['']))
-        self.assertTupleEqual(empty, clean([]))
-        self.assertTupleEqual(empty, clean(None))
-        self.assertTupleEqual(empty, clean(['created', '1', DaysPeriod.name, '']))
-        self.assertTupleEqual(empty, clean(['', '1', '', '2']))
+        # empty = ()
+        # self.assertTupleEqual(empty, clean([''] * 4))
+        # self.assertTupleEqual(empty, clean([''] * 3))
+        # self.assertTupleEqual(empty, clean([''] * 2))
+        # self.assertTupleEqual(empty, clean(['']))
+        # self.assertTupleEqual(empty, clean([]))
+        # self.assertTupleEqual(empty, clean(None))
+        # self.assertTupleEqual(empty, clean(['created', '1', DaysPeriod.name, '']))
+        # self.assertTupleEqual(empty, clean(['', '1', '', '2']))
+        self.assertIsNone(clean([''] * 4))
+        self.assertIsNone(clean([''] * 3))
+        self.assertIsNone(clean([''] * 2))
+        self.assertIsNone(clean(['']))
+        self.assertIsNone(clean([]))
+        self.assertIsNone(clean(None))
+        self.assertIsNone(clean(['created', ['1', [DaysPeriod.name, '']]]))
+        self.assertIsNone(clean(['', ['1', ['', '2']]]))
 
     def test_invalid(self):
         clean = ModelRelativeDatePeriodField(model=FakeOrganisation).clean
@@ -113,23 +361,27 @@ class ModelRelativeDatePeriodFieldTestCase(FieldTestCase):
         f_name = 'invalid_field'
         self.assertFieldValidationError(
             ChoiceField, 'invalid_choice', clean,
-            [f_name, '-1', YearsPeriod.name, '5'],
+            # [f_name, '-1', YearsPeriod.name, '5'],
+            [f_name, ['-1', [YearsPeriod.name, '5']]],
             message_args={'value': f_name},
         )
 
         self.assertFieldValidationError(
             TypedChoiceField, 'invalid_choice', clean,
-            ['created', 'notint', YearsPeriod.name, '1'],
+            # ['created', 'notint', YearsPeriod.name, '1'],
+            ['created', ['notint', [YearsPeriod.name, '1']]],
             message_args={'value': 'notint'},
         )
         self.assertFieldValidationError(
             IntegerField, 'invalid', clean,
-            ['created', '1', YearsPeriod.name, 'notint'],
+            # ['created', '1', YearsPeriod.name, 'notint'],
+            ['created', ['1', [YearsPeriod.name, 'notint']]],
         )
 
         p_name = 'unknownperiod'
         self.assertFieldValidationError(
-            ChoiceField, 'invalid_choice', clean, ['created', '-1', p_name, '2'],
+            # ChoiceField, 'invalid_choice', clean, ['created', '-1', p_name, '2'],
+            ChoiceField, 'invalid_choice', clean, ['created', ['-1', [p_name, '2']]],
             message_args={'value': p_name},
         )
 
@@ -292,7 +544,8 @@ class AbsoluteOrRelativeDatetimeFieldTestCase(FieldTestCase):
         field_name = 'creation_date'
         sub_values = {
             ABSOLUTE: self.formfield_value_datetime(**dt_kwargs),
-            RELATIVE: [field_name, '1', DaysPeriod.name, '3'],
+            # RELATIVE: [field_name, '1', DaysPeriod.name, '3'],
+            RELATIVE: [field_name, ['1', [DaysPeriod.name, '3']]],
         }
         self.assertTupleEqual(
             (ABSOLUTE, self.create_datetime(**dt_kwargs)),
@@ -304,17 +557,26 @@ class AbsoluteOrRelativeDatetimeFieldTestCase(FieldTestCase):
         self.assertIsTuple(cleaned2, length=2)
         self.assertEqual(RELATIVE, cleaned2[0])
 
-        offset = cleaned2[1]
-        self.assertIsTuple(offset, length=2)
-        self.assertEqual(field_name, offset[0])
-
-        signed_period = offset[1]
-        self.assertIsTuple(signed_period, length=2)
-        self.assertEqual(1, signed_period[0])
-
-        period = signed_period[1]
-        self.assertIsInstance(period, DaysPeriod)
-        self.assertDictEqual({'type': 'days', 'value': 3}, period.as_dict())
+        # offset = cleaned2[1]
+        # self.assertIsTuple(offset, length=2)
+        # self.assertEqual(field_name, offset[0])
+        #
+        # signed_period = offset[1]
+        # self.assertIsTuple(signed_period, length=2)
+        # self.assertEqual(1, signed_period[0])
+        #
+        # period = signed_period[1]
+        # self.assertIsInstance(period, DaysPeriod)
+        # self.assertDictEqual({'type': 'days', 'value': 3}, period.as_dict())
+        self.assertEqual(
+            ModelRelativeDatePeriodField.ModelRelativeDatePeriod(
+                field_name=field_name,
+                relative_period=RelativeDatePeriodField.RelativeDatePeriod(
+                    sign=1, period=DaysPeriod(3),
+                ),
+            ),
+            cleaned2[1],
+        )
 
     def test_non_hiddable_cell(self):
         model = FakeOrganisation
@@ -605,7 +867,15 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertTupleEqual(
             (
                 RELATIVE,
-                {RELATIVE: (field_name, -1, DaysPeriod(1))},
+                # {RELATIVE: (field_name, -1, DaysPeriod(1))},
+                {
+                    RELATIVE: ModelRelativeDatePeriodField.ModelRelativeDatePeriod(
+                        field_name=field_name,
+                        relative_period=RelativeDatePeriodField.RelativeDatePeriod(
+                            sign=-1, period=DaysPeriod(1),
+                        ),
+                    ),
+                },
             ),
             trigger_f.initial,
         )
