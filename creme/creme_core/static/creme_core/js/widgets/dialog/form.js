@@ -160,7 +160,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
                 $(':tabbable:first', content).trigger('focus');
             }
         } else {
-            $(':tabbable', content).blur();
+            $(':tabbable', content).trigger('blur');
         }
 
         content.on('keypress', this._submitKeyCb);
