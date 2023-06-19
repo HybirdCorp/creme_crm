@@ -8,6 +8,7 @@
       A broken login form was displayed inside the popup; now a message & a button (to go to the login page) are displayed.
     # The multi-check-box widget ('UnorderedMultipleChoiceWidget') has been fixed :
       the creation button is now correctly disabled if the user is not allowed to create the resource.
+    # Fix glasspane re-opening issue when the focus comes back from another window.
     # Apps :
         * Persons :
             - The field 'Organisation.is_managed' is not cloned anymore.
