@@ -3,6 +3,7 @@
   Users side :
   ------------
     # Fix UnorderedMultipleChoiceWidget : disable creation button if the user is not allowed to create the resource.
+    # The glass-pane (used by global search) had an issue when it was re-opened and the focus came back from another window.
     # Some small fixes have been made on the multi-checkbox widget.
     # Apps :
         * Persons :

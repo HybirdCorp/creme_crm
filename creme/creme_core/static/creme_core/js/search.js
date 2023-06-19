@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2015-2022  Hybird
+    Copyright (C) 2015-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,8 @@ creme.search.SearchBox = creme.component.Component.sub({
     _init_: function(options) {
         options = $.extend({
             minSearchLength: 3,
-            debounceDelay: 200
+            debounceDelay: 200,
+            focusDebounceDelay: 100
         }, options || {});
 
         this._glasspane = new creme.dialog.GlassPane(/* {debug: true} */);
@@ -57,6 +58,7 @@ creme.search.SearchBox = creme.component.Component.sub({
         this._timestamp = null;
 
         this.debounceDelay = options.debounceDelay;
+        this.focusDebounceDelay = options.focusDebounceDelay;
         this.minSearchLength = options.minSearchLength;
         this.searchUrl = options.searchUrl;
         this.advancedSearchUrl = options.advancedSearchUrl;
@@ -78,9 +80,10 @@ creme.search.SearchBox = creme.component.Component.sub({
         this._element = element;
 
         var _onInput = this._onInput.bind(this);
+        var _onShow = this._onShow.bind(this);
 
         this._input = element.find('input');
-        this._input.on('focus', this._onShow.bind(this))
+        this._input.on('focus', this.focusDebounceDelay ? creme.utils.debounce(_onShow, this.focusDebounceDelay) : _onShow)
                    .on('input paste', this.debounceDelay ? creme.utils.debounce(_onInput, this.debounceDelay) : _onInput)
                    .on('keydown', this._onKeyDown.bind(this));
 
@@ -99,6 +102,10 @@ creme.search.SearchBox = creme.component.Component.sub({
     },
 
     _onShow: function(e) {
+        if (this.isOpened()) {
+            return;
+        }
+
         this._glasspane.open($('.header-menu'));
         this._resultsRoot.addClass('showing');
     },
@@ -106,7 +113,7 @@ creme.search.SearchBox = creme.component.Component.sub({
     _onHide: function(e) {
         this._cancelSearch();
 
-        this._input.blur();
+        this._input.trigger('blur');
         this._resultsRoot.removeClass('showing');
         this._glasspane.close();
     },

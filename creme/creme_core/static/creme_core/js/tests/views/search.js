@@ -180,7 +180,10 @@ QUnit.test('creme.search.SearchBox.search (focus => open popover)', function() {
     equal(0, element.find('.inline-search-results.showing').length);
     equal(0, $('.glasspane').length);
 
-    element.find('input[type="text"]').focus();
+    element.find('input[type="text"]').trigger('focus');
+    element.find('input[type="text"]').trigger('focus');
+    element.find('input[type="text"]').trigger('focus');
+    element.find('input[type="text"]').trigger('focus');
 
     stop(1);
 
@@ -189,7 +192,7 @@ QUnit.test('creme.search.SearchBox.search (focus => open popover)', function() {
         equal(1, element.find('.inline-search-results.showing').length);
         equal(1, $('.glasspane').length);
         start();
-    }, 100);
+    }, 150);
 });
 
 QUnit.test('creme.search.SearchBox.search (click outside => close popover)', function() {
