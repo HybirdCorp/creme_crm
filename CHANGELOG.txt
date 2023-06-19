@@ -3,6 +3,7 @@
   Users side :
   ------------
     # Fix UnorderedMultipleChoiceWidget : disable creation button if the user is not allowed to create the resource.
+    # Fix glasspane re-opening issue when the focus comes back from another window.
     # Some small fixes have been made on the multi-checkbox widget.
     # Apps :
         * Persons :
