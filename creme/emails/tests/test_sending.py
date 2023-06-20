@@ -462,6 +462,33 @@ class SendingConfigFieldTestCase(FieldTestCase):
             password='sp4c3 c0w|3OY',
         )
 
+    def test_configuration_class(self):
+        email1 = 'jet@mydomain.org'
+        conf1 = SendingConfigField.Configuration(item=self.item1, sender=email1)
+        self.assertEqual(self.item1, conf1.item)
+        self.assertEqual(email1,     conf1.sender)
+
+        email2 = 'spike@mydomain.org'
+        conf2 = SendingConfigField.Configuration(item=self.item2, sender=email2)
+        self.assertEqual(self.item2, conf2.item)
+        self.assertEqual(email2,     conf2.sender)
+
+        self.assertTrue(bool(conf1))
+        self.assertNotEqual(conf1, None)
+        self.assertNotEqual(conf1, conf2)
+        self.assertEqual(
+            SendingConfigField.Configuration(item=self.item1, sender=email1),
+            conf1,
+        )
+        self.assertNotEqual(
+            SendingConfigField.Configuration(item=self.item2, sender=email1),
+            conf1,
+        )
+        self.assertNotEqual(
+            SendingConfigField.Configuration(item=self.item1, sender=email2),
+            conf1,
+        )
+
     def test_ok01(self):
         item1 = self.item1
         item2 = self.item2
@@ -476,15 +503,18 @@ class SendingConfigFieldTestCase(FieldTestCase):
         )
 
         sender = 'jet@mydomain.org'
-        self.assertTupleEqual(
-            (item1, sender), field.clean([item1.id, sender]),
+        self.assertEqual(
+            SendingConfigField.Configuration(item=item1, sender=sender),
+            field.clean([item1.id, sender]),
         )
 
     def test_ok02(self):
         sender = 'spike@mydomain.org'
         item = self.item2
-        config = SendingConfigField().clean([item.id, sender])
-        self.assertTupleEqual((item, sender), config)
+        self.assertEqual(
+            SendingConfigField.Configuration(item=item, sender=sender),
+            SendingConfigField().clean([item.id, sender]),
+        )
 
     def test_required(self):
         cls = SendingConfigField
@@ -497,12 +527,12 @@ class SendingConfigFieldTestCase(FieldTestCase):
 
     def test_not_required(self):
         clean = SendingConfigField(required=False).clean
-        self.assertTupleEqual((), clean(['', '']))
-        self.assertTupleEqual((), clean(['']))
-        self.assertTupleEqual((), clean([]))
-        self.assertTupleEqual((), clean(None))
-        self.assertTupleEqual((), clean([self.item1.id, '']))
-        self.assertTupleEqual((), clean(['', 'spike@mydomain.org']))
+        self.assertIsNone(clean(['', '']))
+        self.assertIsNone(clean(['']))
+        self.assertIsNone(clean([]))
+        self.assertIsNone(clean(None))
+        self.assertIsNone(clean([self.item1.id, '']))
+        self.assertIsNone(clean(['', 'spike@mydomain.org']))
 
     def test_invalid_pk(self):
         field = SendingConfigField()
