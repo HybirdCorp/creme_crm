@@ -61,6 +61,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='emailsending',
             name='config_item',
-            field=models.ForeignKey(null=True, on_delete=SET_NULL, to='emails.emailsendingconfigitem'),
+            field=models.ForeignKey(
+                to='emails.emailsendingconfigitem', verbose_name='SMTP server',
+                null=True, on_delete=SET_NULL,
+            ),
         ),
     ]

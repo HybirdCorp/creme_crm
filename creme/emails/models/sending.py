@@ -160,7 +160,10 @@ class EmailSending(CremeModel):
         PLANNED     = 3, pgettext_lazy('emails-sending', 'Planned'),
         ERROR       = 4, _('Error during sending'),
 
-    config_item = models.ForeignKey(EmailSendingConfigItem, null=True, on_delete=models.SET_NULL)
+    config_item = models.ForeignKey(
+        EmailSendingConfigItem,
+        verbose_name=_('SMTP server'), null=True, on_delete=models.SET_NULL,
+    )
     sender = models.EmailField(_('Sender address'), max_length=100)
     campaign = models.ForeignKey(
         settings.EMAILS_CAMPAIGN_MODEL,
