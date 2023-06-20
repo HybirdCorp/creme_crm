@@ -31,7 +31,7 @@ from creme.creme_core.models import fields as core_fields
 #          It needs some data migration for Activity, EntityFilterCondition (other?)
 
 
-# TODO: Rename to ActivityKind ??
+# TODO: rename to ActivityKind ??
 class ActivityType(CremeModel):
     id = models.CharField(
         primary_key=True, max_length=100, editable=False,
@@ -39,9 +39,12 @@ class ActivityType(CremeModel):
 
     name = models.CharField(_('Name'), max_length=100)
 
-    default_day_duration = models.IntegerField(_('Default day duration')).set_tags(viewable=False)
+    # TODO: improve the values in save() (ex: <62 minutes> => <1 hour, 2 minutes>)?
+    default_day_duration = models.IntegerField(
+        _('Default day duration'), default=0,
+    ).set_tags(viewable=False)
     default_hour_duration = core_fields.DurationField(
-        _('Default hour duration'), max_length=15,
+        _('Default hour duration'), max_length=15,  # TODO: default='0:15:0',
     ).set_tags(viewable=False)
 
     # Used by creme_config

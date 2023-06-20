@@ -45,7 +45,9 @@ class PhoneField(models.CharField):
     pass
 
 
-# TODO: Make a real API for this
+# TODO: make a real API for this (accept timedelta as value etc...)
+# TODO: formfield()
+# TODO: IntegerField (number of seconds?)?
 class DurationField(models.CharField):
     pass
 

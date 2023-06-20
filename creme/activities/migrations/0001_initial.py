@@ -36,7 +36,10 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('default_day_duration', models.IntegerField(verbose_name='Default day duration')),
+                (
+                    'default_day_duration',
+                    models.IntegerField(verbose_name='Default day duration', default=0)
+                ),
                 (
                     'default_hour_duration',
                     creme_fields.DurationField(max_length=15, verbose_name='Default hour duration')
