@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,11 @@ class ActivityTypeForm(CremeModelForm):
 
     class Meta(CremeModelForm.Meta):
         model = ActivityType
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.id:
+            self.fields['default_hour_duration'].initial = '0:15:0'
 
     def save(self):  # TODO: *args, **kwargs
         instance = self.instance
@@ -72,7 +77,7 @@ class ActivitySubTypeForm(CremeModelForm):
                 {
                     'value': str(instance.id),
                     'label': str(instance),
-                    'group': str(instance.type)
-                }
-            ]
+                    'group': str(instance.type),
+                },
+            ],
         }
