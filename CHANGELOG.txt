@@ -1,6 +1,6 @@
 == Version 2.4.5 Work in progress (not released -- this is a draft) ==
 
-  TODO compile *.mo (creme_core)
+  TODO compile *.mo (creme_core, creme_config)
 
   Users side :
   ------------
