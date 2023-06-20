@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from dataclasses import dataclass
 from datetime import datetime, time
 from json import dumps as json_dump
 
@@ -104,6 +105,11 @@ class SendingConfigWidget(forms.MultiWidget):
 class SendingConfigField(forms.MultiValueField):
     widget = SendingConfigWidget
 
+    @dataclass(frozen=True)
+    class Configuration:
+        item: EmailSendingConfigItem
+        sender: str
+
     def __init__(self, **kwargs):
         queryset = EmailSendingConfigItem.objects.all()
         items = forms.ModelChoiceField(
@@ -123,11 +129,9 @@ class SendingConfigField(forms.MultiValueField):
         )
 
     def compress(self, data_list):
-        return (data_list[0], data_list[1]) if data_list else ()
-
-    def clean(self, value):
-        cleaned = super().clean(value)
-        return cleaned if (cleaned and all(cleaned)) else ()
+        return self.Configuration(
+            item=data_list[0], sender=data_list[1],
+        ) if data_list and all(data_list) else None
 
 
 # Forms ------------------------------------------------------------------------
@@ -435,7 +439,10 @@ class SendingCreationForm(core_forms.CremeModelForm):
         cleaned_data = self.cleaned_data
 
         instance.campaign = self.campaign
-        instance.config_item, instance.sender = cleaned_data['config']
+
+        config = cleaned_data['config']
+        instance.config_item = config.item
+        instance.sender      = config.sender
 
         template = cleaned_data['template']
         instance.subject   = template.subject
@@ -505,6 +512,8 @@ class SendingEditionForm(core_forms.CremeModelForm):
 
     def save(self):
         instance = self.instance
-        instance.config_item, instance.sender = self.cleaned_data['config']
+        config = self.cleaned_data['config']
+        instance.config_item = config.item
+        instance.sender      = config.sender
 
         return super().save()
