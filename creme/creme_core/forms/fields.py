@@ -1630,9 +1630,10 @@ class DateRangeField(fields.MultiValueField):
     """
     widget = core_widgets.DateRangeWidget
     default_error_messages = {
-        'customized_empty': _(
-            'If you select «customized» you have to specify a start date and/or an end date.'
-        ),
+        # TODO?
+        # 'customized_empty': _(
+        #     'If you select «customized» you have to specify a start date and/or an end date.'
+        # ),
         'customized_invalid': _('Start date has to be before end date.'),
     }
 
@@ -1662,25 +1663,37 @@ class DateRangeField(fields.MultiValueField):
         self.widget.choices = ranges.widget.choices  # Get the CallableChoiceIterator
 
     def compress(self, data_list):
-        return (data_list[0], data_list[1], data_list[2]) if data_list else ('', '', '')
+        # return (data_list[0], data_list[1], data_list[2]) if data_list else ('', '', '')
+        it = itertools.chain(data_list, itertools.repeat(None))
+        return date_range_registry.get_range(name=next(it), start=next(it), end=next(it))
 
-    def clean(self, value):
-        range_name, start, end = super().clean(value)
+    # def clean(self, value):
+    #     range_name, start, end = super().clean(value)
+    #
+    #     if range_name == '':
+    #         if not start and not end and self.required:
+    #             raise ValidationError(
+    #                 self.error_messages['customized_empty'],
+    #                 code='customized_empty',
+    #             )
+    #
+    #         if start and end and start > end:
+    #             raise ValidationError(
+    #                 self.error_messages['customized_invalid'],
+    #                 code='customized_invalid',
+    #             )
+    #
+    #     return date_range_registry.get_range(range_name, start, end)
 
-        if range_name == '':
-            if not start and not end and self.required:
-                raise ValidationError(
-                    self.error_messages['customized_empty'],
-                    code='customized_empty',
-                )
+    def validate(self, value):
+        if not value.name:
+            start, end = value.get_dates(now=None)
 
             if start and end and start > end:
                 raise ValidationError(
                     self.error_messages['customized_invalid'],
                     code='customized_invalid',
                 )
-
-        return date_range_registry.get_range(range_name, start, end)
 
     def widget_attrs(self, widget):
         return {'render_as': self.render_as}
