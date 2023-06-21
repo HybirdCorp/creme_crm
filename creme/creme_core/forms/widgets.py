@@ -1554,7 +1554,11 @@ class DurationWidget(widgets.MultiWidget):
     template_name = 'creme_core/forms/widgets/duration.html'
 
     def __init__(self, attrs=None):
-        super().__init__(widgets=[widgets.TextInput] * 3, attrs=attrs)
+        # super().__init__(widgets=[widgets.TextInput] * 3, attrs=attrs)
+        super().__init__(
+            widgets=[widgets.NumberInput(attrs={'min': 0}) for _i in range(3)],
+            attrs=attrs,
+        )
 
     def decompress(self, value):
         return value.split(':') if value else (None, None, None)
