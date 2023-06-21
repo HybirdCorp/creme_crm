@@ -221,6 +221,10 @@
                 - The method 'DateRangeField.compress()' returns an instance of 'creme_core.utils.date_range.DateRange' (it was a tuple) ;
                   notice that the method 'clean()' already returned a DateRange.
                 - In class 'DurationField', the methods 'compress()' & 'clean()' now return an instance of 'datetime.timedelta' (it was a string until now).
+                - In class 'OptionalField' (and so in child classes 'OptionalChoiceField'/'OptionalModelChoiceField') :
+                    - the methods 'compress()' & 'clean()' now return an instance of 'OptionalField.Optional' (it was a tuple until now).
+                    - the data sub-field is always <required=False>.
+                    - the method '_build_subfield()' only receive keyword arguments.
             - In 'header_filter', these classes have been renamed :
                 - 'HeaderFilterCreateForm' => 'HeaderFilterCreationForm'.
                 - 'HeaderFilterEditForm' => 'HeaderFilterEditionForm'.
@@ -309,9 +313,11 @@
                     - 'UUID_FOLDER_CAT_EMAILS' to the app 'emails'.
                 - In 'gui', the functions 'print_fk_image_html()' & 'print_doc_summary_html' have been fixed with the new printers signature.
             * Activities :
-                - In 'forms.bricks', these classes have been renamed :
-                    - 'ParticipantCreateForm' => 'ParticipantsAddingForm'.
-                    - 'SubjectCreateForm' => 'SubjectsAddingForm'.
+                - In 'forms' :
+                    - In 'bricks', these classes have been renamed :
+                        - 'ParticipantCreateForm' => 'ParticipantsAddingForm'.
+                        - 'SubjectCreateForm' => 'SubjectsAddingForm'.
+                    - The value returned by the method 'fields.UserParticipationField.clean()' has changed (see 'creme_core.forms.fields.OptionalField').
                 - A 'ValueError' is raised when you try to create a not custom 'ActivitySubType' related to a custom 'ActivityType'
                   (in <Creme 2.4> it was just a log).
                 - The class 'utils.PytzToVtimezone' has been removed.

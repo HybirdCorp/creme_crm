@@ -22,10 +22,11 @@ import itertools
 import warnings
 from collections import defaultdict
 from copy import deepcopy
+from dataclasses import dataclass
 from datetime import timedelta
 from functools import partial
 from json import loads as json_load
-from typing import Collection, Sequence
+from typing import Any, Collection, Sequence
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
@@ -1204,20 +1205,30 @@ class OptionalField(fields.MultiValueField):
         'subfield_required': _('Enter a value if you check the box.'),
     }
 
-    def __init__(
-            self,
-            *,
-            widget=None,
-            label=None,
-            initial=None,
-            help_text='',
-            sub_label='',
-            disabled=False,
-            **kwargs):
+    @dataclass(frozen=True)
+    class Option:
+        is_set: bool = False
+        data: Any = None
+
+        def __post_init__(self):
+            if not self.is_set and self.data is not None:
+                raise ValueError('Option: data cannot be set')
+
+    def __init__(self,
+                 *,
+                 required=True,  # Not used because it does not mean anything here
+                 widget=None,
+                 label=None,
+                 initial=None,
+                 help_text='',
+                 sub_label='',
+                 disabled=False,
+                 **kwargs):
         super().__init__(
             fields=(
                 fields.BooleanField(required=False),
-                self._build_subfield(**kwargs),
+                # self._build_subfield(**kwargs),
+                self._build_subfield(required=False, **kwargs),
             ),
             required=False,
             require_all_fields=False,
@@ -1226,39 +1237,56 @@ class OptionalField(fields.MultiValueField):
         )
         self.widget.sub_label = sub_label
 
-    def _build_subfield(self, *args, **kwargs):
-        return self.sub_field(*args, **kwargs)
+    # def _build_subfield(self, *args, **kwargs):
+    #     return self.sub_field(*args, **kwargs)
+    def _build_subfield(self, **kwargs):
+        return self.sub_field(**kwargs)
 
     def compress(self, data_list):
-        return (data_list[0], data_list[1]) if data_list else (False, None)
+        # return (data_list[0], data_list[1]) if data_list else (False, None)
+        if data_list:
+            is_set = data_list[0] if data_list else False
+            data = data_list[1] if (is_set and len(data_list) > 1) else None
+        else:
+            is_set = False
+            data = None
 
-    def clean(self, value):
-        sub_field = self.fields[1]
-        sub_required = sub_field.required
-        if sub_required:
-            sub_field.required = False
+        return self.Option(is_set=is_set, data=data)
 
-        use_value, sub_value = super().clean(value)
+    # def clean(self, value):
+    #     sub_field = self.fields[1]
+    #     sub_required = sub_field.required
+    #     if sub_required:
+    #         sub_field.required = False
+    #
+    #     use_value, sub_value = super().clean(value)
+    #
+    #     if sub_required:
+    #         sub_field.required = True
+    #
+    #         if use_value:
+    #             try:
+    #                 sub_field_value = value[1]
+    #             except IndexError:
+    #                 sub_field_value = None
+    #
+    #             if sub_field_value in self.empty_values:
+    #                 raise ValidationError(
+    #                     self.error_messages['subfield_required'],
+    #                     code='subfield_required',
+    #                 )
+    #
+    #     if not use_value:
+    #         sub_value = None
+    #
+    #     return use_value, sub_value
 
-        if sub_required:
-            sub_field.required = True
-
-            if use_value:
-                try:
-                    sub_field_value = value[1]
-                except IndexError:
-                    sub_field_value = None
-
-                if sub_field_value in self.empty_values:
-                    raise ValidationError(
-                        self.error_messages['subfield_required'],
-                        code='subfield_required',
-                    )
-
-        if not use_value:
-            sub_value = None
-
-        return use_value, sub_value
+    def validate(self, value):
+        if value.is_set and value.data in self.empty_values:
+            raise ValidationError(
+                self.error_messages['subfield_required'],
+                code='subfield_required',
+            )
 
     @property
     def disabled(self):

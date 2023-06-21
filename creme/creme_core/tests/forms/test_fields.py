@@ -33,6 +33,7 @@ from creme.creme_core.forms.fields import (
     MultiCTypeChoiceField,
     MultiEntityCTypeChoiceField,
     OptionalChoiceField,
+    OptionalField,
     OrderedChoiceIterator,
     OrderedMultipleChoiceField,
     ReadonlyMessageField,
@@ -684,12 +685,38 @@ class DurationFieldTestCase(FieldTestCase):
         )
 
 
+class OptionalFieldTestCase(FieldTestCase):
+    def test_option01(self):
+        opt1 = OptionalField.Option(is_set=True, data=1)
+        self.assertIs(opt1.is_set, True)
+        self.assertEqual(1, opt1.data)
+        self.assertTrue(opt1)
+
+        opt2 = OptionalField.Option(is_set=False, data=None)
+        self.assertIs(opt2.is_set, False)
+        self.assertIsNone(opt2.data)
+        self.assertTrue(opt2)
+
+        self.assertEqual(opt1, OptionalField.Option(is_set=True, data=1))
+        self.assertNotEqual(opt1, OptionalField.Option(is_set=False, data=None))
+        self.assertNotEqual(opt1, OptionalField.Option(is_set=True,  data=2))
+
+    def test_option02(self):
+        opt1 = OptionalField.Option(is_set=False)
+        self.assertFalse(opt1.is_set)
+        self.assertIsNone(opt1.data)
+
+        with self.assertRaises(ValueError):
+            OptionalField.Option(is_set=False, data=1)
+
+
 class OptionalChoiceFieldTestCase(FieldTestCase):
     _team = ['Naruto', 'Sakura', 'Sasuke', 'Kakashi']
 
     def test_sub_fields(self):
         choices = [*enumerate(self._team, start=1)]
         field = OptionalChoiceField(choices=choices)
+        self.assertFalse(field.required)
 
         sub_fields = field.fields
         self.assertIsTuple(sub_fields, length=2)
@@ -702,36 +729,52 @@ class OptionalChoiceFieldTestCase(FieldTestCase):
         sub_field2 = sub_fields[1]
         self.assertIsInstance(sub_field2, ChoiceField)
         self.assertListEqual(choices, sub_field2.choices)
-        self.assertTrue(sub_field2.required)
+        # self.assertTrue(sub_field2.required)
+        self.assertFalse(sub_field2.required)
         self.assertFalse(sub_field2.disabled)
 
     def test_ok_choice(self):
         field = OptionalChoiceField(choices=enumerate(self._team, start=1))
-        self.assertEqual((True, '1'), field.clean([True, 1]))
+        # self.assertEqual((True, '1'), field.clean([True, 1]))
+        self.assertEqual(
+            OptionalChoiceField.Option(is_set=True, data='1'),
+            field.clean([True, 1]),
+        )
 
     def test_not_required(self):
-        field = OptionalChoiceField(
+        clean = OptionalChoiceField(
             choices=enumerate(self._team, start=1), required=False,
+        ).clean
+        # expected = (False, None)
+        expected = OptionalChoiceField.Option(is_set=False, data=None)
+        self.assertEqual(expected, clean([False, '']))
+        self.assertEqual(expected, clean(['', '']))
+        self.assertEqual(expected, clean([False, 1]))
+        self.assertEqual(expected, clean([False, None]))
+        self.assertEqual(expected, clean([False]))
+        self.assertEqual(expected, clean([]))
+
+        self.assertFieldValidationError(
+            OptionalChoiceField, 'subfield_required', clean, ['on', None],
         )
-        expected = (False, None)
-        self.assertEqual(expected, field.clean([False, '']))
-        self.assertEqual(expected, field.clean([False, 1]))
-        self.assertEqual(expected, field.clean([False, None]))
-        self.assertEqual(expected, field.clean([False]))
-        self.assertEqual(expected, field.clean([]))
 
     def test_required(self):
         clean = OptionalChoiceField(
             choices=enumerate(self._team, start=1), required=True,
         ).clean
 
-        expected = (False, None)
+        # expected = (False, None)
+        expected = OptionalChoiceField.Option(is_set=False, data=None)
         self.assertEqual(expected, clean([False, None]))
+        self.assertEqual(expected, clean(['', None]))
         self.assertEqual(expected, clean([False]))
         self.assertEqual(expected, clean([]))
 
         self.assertFieldValidationError(
             OptionalChoiceField, 'subfield_required', clean, [True, None],
+        )
+        self.assertFieldValidationError(
+            OptionalChoiceField, 'subfield_required', clean, ['on', None],
         )
         self.assertFieldValidationError(
             OptionalChoiceField, 'subfield_required', clean, [True],
