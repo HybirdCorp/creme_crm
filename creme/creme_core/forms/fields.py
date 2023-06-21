@@ -1711,6 +1711,8 @@ class DurationField(fields.MultiValueField):
 
     def __init__(self, **kwargs):
         IntegerField = fields.IntegerField
+        # TODO: max value?
+        # TODO: pass limits to widget
         self.hours   = IntegerField(min_value=0)
         self.minutes = IntegerField(min_value=0)
         self.seconds = IntegerField(min_value=0)
