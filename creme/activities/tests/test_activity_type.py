@@ -88,7 +88,8 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
 
         atype = self.get_object_or_fail(ActivityType, name=name)
         self.assertEqual(0,        atype.default_day_duration)
-        self.assertEqual('0:15:0', atype.default_hour_duration)
+        # self.assertEqual('0:15:0', atype.default_hour_duration)
+        self.assertEqual('0:15:00', atype.default_hour_duration)
 
     def test_edit_type(self):
         # self.login()
@@ -125,7 +126,8 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         atype = self.refresh(atype)
         self.assertEqual(name, atype.name)
         self.assertEqual(1,       atype.default_day_duration)
-        self.assertEqual('1:0:0', atype.default_hour_duration)
+        # self.assertEqual('1:0:0', atype.default_hour_duration)
+        self.assertEqual('1:00:00', atype.default_hour_duration)
 
     def test_create_subtype(self):
         # self.login()

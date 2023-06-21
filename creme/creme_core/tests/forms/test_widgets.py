@@ -21,6 +21,7 @@ from creme.creme_core.forms.widgets import (
     DatePeriodWidget,
     DateRangeSelect,
     DateTimeWidget,
+    DurationWidget,
     DynamicSelect,
     EntityCreatorWidget,
     EntitySelector,
@@ -1591,4 +1592,30 @@ class CremeTextareaTestCase(CremeTestCase):
           class="my_extra_class ui-creme-autosizedarea ui-creme-widget widget-auto"
           widget="ui-creme-autosizedarea">''',
             widget.render('field', value=''),
+        )
+
+
+class DurationWidgetTestCase(CremeTestCase):
+    @override_language('fr')
+    def test_render_fr(self):
+        name = 'my_duration'
+        self.assertHTMLEqual(
+            f'<span>'
+            f' <input min="0" name="{name}_0" type="number">Heure(s)'
+            f' <input min="0" name="{name}_1" type="number">Minute(s)'
+            f' <input min="0" name="{name}_2" type="number">Seconde(s)'
+            f'</span>',
+            DurationWidget().render(name=name, value=''),
+        )
+
+    @override_language('en')
+    def test_render_en_string_value(self):
+        name = 'duration'
+        self.assertHTMLEqual(
+            f'<span>'
+            f' <input min="0" name="{name}_0" type="number" value="0">Hour(s)'
+            f' <input min="0" name="{name}_1" type="number" value="15">Minute(s)'
+            f' <input min="0" name="{name}_2" type="number" value="00">Second(s)'
+            f'</span>',
+            DurationWidget().render(name=name, value='0:15:00'),
         )

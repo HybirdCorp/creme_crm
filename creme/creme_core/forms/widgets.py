@@ -1560,6 +1560,7 @@ class DurationWidget(widgets.MultiWidget):
             attrs=attrs,
         )
 
+    # TODO: accept timedelta too
     def decompress(self, value):
         return value.split(':') if value else (None, None, None)
 
