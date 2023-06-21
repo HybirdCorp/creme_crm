@@ -626,27 +626,54 @@ class ColorFieldTestCase(FieldTestCase):
 
 
 class DurationFieldTestCase(FieldTestCase):
-    def test_empty01(self):
+    def test_ok(self):
+        clean = DurationField().clean
+        self.assertEqual('10:2:0', clean(['10', '2', '0']))
+        self.assertEqual('10:2:0', clean([10, 2, 0]))
+        self.assertEqual('0:12:30', clean(['0', '12', '30']))
+
+    def test_empty_required(self):
         clean = DurationField().clean
         self.assertFieldValidationError(DurationField, 'required', clean, None)
         self.assertFieldValidationError(DurationField, 'required', clean, '')
         self.assertFieldValidationError(DurationField, 'required', clean, [])
+        self.assertFieldValidationError(DurationField, 'required', clean, ['', '', ''])
 
-    def test_invalid01(self):
-        self.assertFieldValidationError(
-            DurationField, 'invalid', DurationField().clean, ['a', 'b', 'c'],
+    def test_empty_not_required(self):
+        clean = DurationField(required=False).clean
+        self.assertEqual('0:0:0', clean(None))
+        self.assertEqual('0:0:0', clean(''))
+        self.assertEqual('0:0:0', clean([]))
+        self.assertEqual('0:0:0', clean(['', '', '']))
+
+    def test_invalid(self):
+        # self.assertFieldValidationError(
+        #     DurationField, 'invalid', DurationField().clean, ['a', 'b', 'c'],
+        # )
+        with self.assertRaises(ValidationError) as cm:
+            DurationField().clean(['a', 'b', 'c'])
+
+        self.assertEqual(
+            [_('Enter a whole number.')],
+            cm.exception.messages,
         )
 
-    def test_positive01(self):
-        self.assertFieldValidationError(
-            DurationField, 'min_value', DurationField().clean,
-            ['-1', '-1', '-1'], message_args={'limit_value': 0},
-        )
+    def test_positive(self):
+        # self.assertFieldValidationError(
+        #     DurationField, 'min_value', DurationField().clean,
+        #     ['-1', '-1', '-1'], message_args={'limit_value': 0},
+        # )
+        with self.assertRaises(ValidationError) as cm:
+            DurationField().clean(['-1', '-1', '-1'])
 
-    def test_ok01(self):
-        clean = DurationField().clean
-        self.assertEqual('10:2:0', clean(['10', '2', '0']))
-        self.assertEqual('10:2:0', clean([10, 2, 0]))
+        self.assertEqual(
+            [
+                _('Ensure this value is greater than or equal to %(limit_value)s.') % {
+                    'limit_value': 0,
+                },
+            ],
+            cm.exception.messages,
+        )
 
 
 class OptionalChoiceFieldTestCase(FieldTestCase):
