@@ -18,9 +18,11 @@
 
 from __future__ import annotations
 
+import itertools
 import warnings
 from collections import defaultdict
 from copy import deepcopy
+from datetime import timedelta
 from functools import partial
 from json import loads as json_load
 from typing import Collection, Sequence
@@ -1720,15 +1722,18 @@ class DurationField(fields.MultiValueField):
         super().__init__(fields=(self.hours, self.minutes, self.seconds), **kwargs)
 
     def compress(self, data_list):
-        return (
-            data_list[0], data_list[1], data_list[2]
-        ) if data_list else ('', '', '')
+        # return (
+        #     data_list[0], data_list[1], data_list[2]
+        # ) if data_list else ('', '', '')
+        it = itertools.chain(data_list, itertools.repeat(0))
 
-    def clean(self, value):
-        hours, minutes, seconds = super().clean(value)
-        return ':'.join([
-            str(hours or 0), str(minutes or 0), str(seconds or 0)
-        ])
+        return timedelta(hours=next(it), minutes=next(it), seconds=next(it))
+
+    # def clean(self, value):
+    #     hours, minutes, seconds = super().clean(value)
+    #     return ':'.join([
+    #         str(hours or 0), str(minutes or 0), str(seconds or 0)
+    #     ])
 
 
 class ChoiceOrCharField(fields.MultiValueField):

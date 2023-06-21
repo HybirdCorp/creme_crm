@@ -217,6 +217,7 @@
                 - 'EnumerableChoiceField' has been split into :
                      - a base class 'EnumerableChoiceField' that accepts an 'EnumerableChoiceSet'
                      - a new 'EnumerableChoiceModelField' that inherits 'EnumerableChoiceField' and keeps the previous behaviour.
+            - In 'fields.DurationField', the methods 'compress()' & 'clean()' now return an instance of 'datetime.timedelta' (it was a string until now).
             - In 'header_filter', these classes have been renamed :
                 - 'HeaderFilterCreateForm' => 'HeaderFilterCreationForm'.
                 - 'HeaderFilterEditForm' => 'HeaderFilterEditionForm'.

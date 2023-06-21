@@ -1,4 +1,5 @@
 from copy import deepcopy
+from datetime import timedelta
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
@@ -628,9 +629,11 @@ class ColorFieldTestCase(FieldTestCase):
 class DurationFieldTestCase(FieldTestCase):
     def test_ok(self):
         clean = DurationField().clean
-        self.assertEqual('10:2:0', clean(['10', '2', '0']))
-        self.assertEqual('10:2:0', clean([10, 2, 0]))
-        self.assertEqual('0:12:30', clean(['0', '12', '30']))
+        # self.assertEqual('10:2:0', clean(['10', '2', '0']))
+        # self.assertEqual('10:2:0', clean([10, 2, 0]))
+        # self.assertEqual('0:12:30', clean(['0', '12', '30']))
+        self.assertEqual(timedelta(hours=10, minutes=2, seconds=0),  clean(['10', '2', '0']))
+        self.assertEqual(timedelta(hours=8, minutes=12, seconds=25), clean([8, 12, 25]))
 
     def test_empty_required(self):
         clean = DurationField().clean
@@ -641,10 +644,15 @@ class DurationFieldTestCase(FieldTestCase):
 
     def test_empty_not_required(self):
         clean = DurationField(required=False).clean
-        self.assertEqual('0:0:0', clean(None))
-        self.assertEqual('0:0:0', clean(''))
-        self.assertEqual('0:0:0', clean([]))
-        self.assertEqual('0:0:0', clean(['', '', '']))
+        # self.assertEqual('0:0:0', clean(None))
+        # self.assertEqual('0:0:0', clean(''))
+        # self.assertEqual('0:0:0', clean([]))
+        # self.assertEqual('0:0:0', clean(['', '', '']))
+        empty = timedelta()
+        self.assertEqual(empty, clean(None))
+        self.assertEqual(empty, clean(''))
+        self.assertEqual(empty, clean([]))
+        self.assertEqual(empty, clean(['', '', '']))
 
     def test_invalid(self):
         # self.assertFieldValidationError(
