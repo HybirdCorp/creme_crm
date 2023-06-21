@@ -1704,10 +1704,10 @@ class ColorField(fields.CharField):
 
 class DurationField(fields.MultiValueField):
     widget = core_widgets.DurationWidget
-    default_error_messages = {
-        'invalid': _('Enter a whole number.'),
-        'min_value': _('Ensure this value is greater than or equal to %(limit_value)s.'),
-    }
+    # default_error_messages = {
+    #     'invalid': _('Enter a whole number.'),
+    #     'min_value': _('Ensure this value is greater than or equal to %(limit_value)s.'),
+    # }
 
     def __init__(self, **kwargs):
         IntegerField = fields.IntegerField
