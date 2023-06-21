@@ -295,7 +295,11 @@ class UserParticipationFieldTestCase(FieldTestCase):
     def test_clean_empty(self):
         user = self.get_root_user()
         field = UserParticipationField(user=user, required=False)
-        self.assertTupleEqual((False, None), field.clean([]))
+        # self.assertTupleEqual((False, None), field.clean([]))
+        self.assertEqual(
+            UserParticipationField.Option(is_set=False),
+            field.clean([]),
+        )
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_clean(self):
@@ -318,15 +322,24 @@ class UserParticipationFieldTestCase(FieldTestCase):
         )
 
         clean = UserParticipationField(user=user).clean
-        self.assertTupleEqual((True, cal11), clean([True, cal11.id]))
-        self.assertTupleEqual((True, cal12), clean([True, cal12.id]))
+        Option = UserParticipationField.Option
+        # self.assertTupleEqual((True, cal11), clean([True, cal11.id]))
+        self.assertEqual(Option(is_set=True, data=cal11), clean([True, cal11.id]))
+        # self.assertTupleEqual((True, cal12), clean([True, cal12.id]))
+        self.assertEqual(Option(is_set=True, data=cal12), clean([True, cal12.id]))
 
+        # ---
         with self.assertRaises(ValidationError) as cm:
             clean([True, cal2.id])
 
         self.assertEqual(
             [_('Select a valid choice. That choice is not one of the available choices.')],
             cm.exception.messages,
+        )
+
+        # ---
+        self.assertFieldValidationError(
+            UserParticipationField, 'subfield_required', clean, ['on', None],
         )
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)

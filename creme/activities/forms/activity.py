@@ -557,7 +557,8 @@ class BaseCreationCustomForm(BaseCustomForm):
         participants.update(cdata.get(get_key(UsersSubCell), ()))
 
         my_participation = cdata.get(get_key(MyParticipationSubCell))
-        if my_participation and my_participation[0]:
+        # if my_participation and my_participation[0]:
+        if my_participation and my_participation.is_set:
             participants.add(self.user.linked_contact)
 
         participants.update(cdata.get(get_key(OtherParticipantsSubCell), ()))
@@ -603,11 +604,14 @@ class BaseCreationCustomForm(BaseCustomForm):
             ).values()
         ]
 
-        i_participate, my_calendar = cdata.get(
-            get_key(MyParticipationSubCell), (False, None)
-        )
-        if i_participate:
-            calendars.append(my_calendar)
+        # i_participate, my_calendar = cdata.get(
+        #     get_key(MyParticipationSubCell), (False, None)
+        # )
+        # if i_participate:
+        #     calendars.append(my_calendar)
+        my_participation = cdata.get(get_key(MyParticipationSubCell))
+        if my_participation and my_participation.is_set:
+            calendars.append(my_participation.data)
 
         for calendars_chunk in iter_as_chunk(calendars, 256):
             instance.calendars.add(*calendars_chunk)

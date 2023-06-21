@@ -285,7 +285,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         }
 
         # Validation errors ----------
-        response = self.assertPOST200(self._build_import_url(Activity), data=data)
+        response = self.assertPOST200(self._build_import_url(Activity), data=data, follow=True)
         self.assertFormError(
             response.context['form'],
             field='my_participation',

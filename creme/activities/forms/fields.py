@@ -232,14 +232,20 @@ class UserParticipationField(core_fields.OptionalModelChoiceField):
 
             self.widget.sub_widget.choices = calendars_field.choices
 
-    def clean(self, value):
+    # def clean(self, value):
+    #     user = self._user
+    #     assert user is not None
+    #
+    #     value = super().clean(value=value)
+    #     validators.validate_linkable_entity(user.linked_contact, user)
+    #
+    #     return value
+    def validate(self, value):
+        super().validate(value=value)
+
         user = self._user
         assert user is not None
-
-        value = super().clean(value=value)
         validators.validate_linkable_entity(user.linked_contact, user)
-
-        return value
 
 
 class ParticipatingUsersField(forms.ModelMultipleChoiceField):

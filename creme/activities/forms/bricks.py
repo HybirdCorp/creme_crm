@@ -96,7 +96,8 @@ class ParticipantsAddingForm(CremeForm):
     def clean_my_participation(self):
         my_participation = self.cleaned_data['my_participation']
 
-        if my_participation[0]:
+        # if my_participation[0]:
+        if my_participation.is_set:
             self.participants.add(self.user.linked_contact)
 
         return my_participation
@@ -139,7 +140,8 @@ class ParticipantsAddingForm(CremeForm):
                 if user == me:
                     my_participation = self.cleaned_data.get('my_participation')
                     if my_participation:
-                        calendars.append(my_participation[1])
+                        # calendars.append(my_participation[1])
+                        calendars.append(my_participation.data)
                     else:
                         continue  # Avoid an error message about relation uniqueness
                 else:

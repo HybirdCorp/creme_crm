@@ -692,10 +692,14 @@ def get_massimport_form_builder(header_dict, choices):
 
                 instance.calendars.add(calendar)
 
-            i_participate, my_calendar = cdata['my_participation']
-            if i_participate:
+            # i_participate, my_calendar = cdata['my_participation']
+            # if i_participate:
+            #     add_participant(self.user.linked_contact)
+            #     instance.calendars.add(my_calendar)
+            my_participation = cdata['my_participation']
+            if my_participation.is_set:
                 add_participant(self.user.linked_contact)
-                instance.calendars.add(my_calendar)
+                instance.calendars.add(my_participation.data)
 
             for participant in self.user_participants:
                 add_participant(participant)
