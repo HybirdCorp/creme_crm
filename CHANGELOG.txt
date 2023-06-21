@@ -217,7 +217,10 @@
                 - 'EnumerableChoiceField' has been split into :
                      - a base class 'EnumerableChoiceField' that accepts an 'EnumerableChoiceSet'
                      - a new 'EnumerableChoiceModelField' that inherits 'EnumerableChoiceField' and keeps the previous behaviour.
-            - In 'fields.DurationField', the methods 'compress()' & 'clean()' now return an instance of 'datetime.timedelta' (it was a string until now).
+            - In 'fields' :
+                - The method 'DateRangeField.compress()' returns an instance of 'creme_core.utils.date_range.DateRange' (it was a tuple) ;
+                  notice that the method 'clean()' already returned a DateRange.
+                - In class 'DurationField', the methods 'compress()' & 'clean()' now return an instance of 'datetime.timedelta' (it was a string until now).
             - In 'header_filter', these classes have been renamed :
                 - 'HeaderFilterCreateForm' => 'HeaderFilterCreationForm'.
                 - 'HeaderFilterEditForm' => 'HeaderFilterEditionForm'.
