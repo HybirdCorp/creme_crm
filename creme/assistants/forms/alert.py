@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+from dataclasses import dataclass
 
 from django.core.exceptions import ValidationError
 from django.forms import fields, widgets
@@ -147,24 +148,28 @@ class ModelRelativeDatePeriodField(fields.MultiValueField):
     """
     widget = ModelRelativeDatePeriodWidget
 
+    @dataclass(frozen=True)
     class ModelRelativeDatePeriod:
-        def __init__(self,
-                     field_name: str,
-                     relative_period: core_fields.RelativeDatePeriodField.RelativeDatePeriod,
-                     ):
-            self.field_name = field_name
-            self.relative_period = relative_period
+        field_name: str
+        relative_period: core_fields.RelativeDatePeriodField.RelativeDatePeriod
+
+        # def __init__(self,
+        #              field_name: str,
+        #              relative_period: core_fields.RelativeDatePeriodField.RelativeDatePeriod,
+        #              ):
+        #     self.field_name = field_name
+        #     self.relative_period = relative_period
 
         def __str__(self):
             # TODO: localize?
             return f'{self.relative_period} on field "{self.field_name}"'
 
-        def __eq__(self, other):
-            return (
-                isinstance(other, type(self))
-                and (self.field_name == other.field_name)
-                and (self.relative_period == other.relative_period)
-            )
+        # def __eq__(self, other):
+        #     return (
+        #         isinstance(other, type(self))
+        #         and (self.field_name == other.field_name)
+        #         and (self.relative_period == other.relative_period)
+        #     )
 
         def as_dict(self) -> dict:
             "As a jsonifiable dictionary."
