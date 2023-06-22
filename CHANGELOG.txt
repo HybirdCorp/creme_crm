@@ -343,6 +343,8 @@
                     - 'strategy.SegmentCreateForm' => 'SegmentCreationForm'.
                     - 'strategy.SegmentEditForm' => 'SegmentEditionForm'.
                     - 'strategy.SegmentLinkForm' => 'SegmentLinkingForm'.
+            * Assistants :
+                - The class 'forms.alert.ModelRelativeDatePeriodField.ModelRelativeDatePeriod' is now a frozen dataclass.
             * Mobile :
                 - In 'forms', these classes have been renamed :
                     - 'MobileContactCreateForm' => 'MobileContactCreationForm'.
