@@ -243,6 +243,47 @@ class ActivitySubTypeFieldTestCase(FieldTestCase):
 
 
 class DateWithOptionalTimeFieldTestCase(FieldTestCase):
+    def test_result(self):
+        DWOT = DateWithOptionalTimeField.DateWithOptionalTime
+        o1 = DWOT(date=date(year=2023, month=6, day=22), time=time(hour=12, minute=43))
+        self.assertEqual(date(year=2023, month=6, day=22), o1.date)
+        self.assertEqual(time(hour=12, minute=43),         o1.time)
+
+        o2 = DWOT(date=date(year=2024, month=7, day=15), time=time(hour=16, minute=12))
+        self.assertEqual(date(year=2024, month=7, day=15), o2.date)
+        self.assertEqual(time(hour=16, minute=12),         o2.time)
+
+        self.assertIsNone(DWOT(date=date(year=2023, month=1, day=1)).time)
+
+        self.assertEqual(
+            DWOT(date=date(year=2023, month=6, day=22), time=time(hour=12, minute=43)),
+            o1,
+        )
+        self.assertNotEqual(
+            DWOT(date=date(year=2023, month=6, day=23), time=time(hour=12, minute=43)),
+            o1,
+        )
+        self.assertNotEqual(
+            DWOT(date=date(year=2023, month=6, day=22), time=time(hour=12, minute=44)),
+            o1,
+        )
+        self.assertNotEqual(DWOT(date=date(year=2023, month=6, day=22)), o1)
+
+    def test_clean_complete(self):
+        field = DateWithOptionalTimeField()
+
+        # self.assertTupleEqual(
+        #     (date(year=2020, month=12, day=8), time(hour=18, minute=44)),
+        #     field.clean([self.formfield_value_date(2020, 12, 8), '18:44:00']),
+        # )
+        self.assertEqual(
+            field.DateWithOptionalTime(
+                date=date(year=2020, month=12, day=8),
+                time=time(hour=18, minute=44),
+            ),
+            field.clean([self.formfield_value_date(2020, 12, 8), '18:44:00']),
+        )
+
     def test_clean_empty_required(self):
         clean = DateWithOptionalTimeField(required=True).clean
         self.assertFieldValidationError(DateWithOptionalTimeField, 'required', clean, None)
@@ -250,21 +291,19 @@ class DateWithOptionalTimeFieldTestCase(FieldTestCase):
 
     def test_clean_empty_not_required(self):
         field = DateWithOptionalTimeField(required=False)
-        self.assertTupleEqual((None, None), field.clean([]))
-
-    def test_clean_complete(self):
-        field = DateWithOptionalTimeField()
-
-        self.assertTupleEqual(
-            (date(year=2020, month=12, day=8), time(hour=18, minute=44)),
-            field.clean([self.formfield_value_date(2020, 12, 8), '18:44:00']),
-        )
+        # self.assertTupleEqual((None, None), field.clean([]))
+        self.assertIsNone(field.clean([]))
+        self.assertIsNone(field.clean(['']))
+        self.assertIsNone(field.clean(['', '']))
 
     def test_clean_only_date(self):
         field = DateWithOptionalTimeField()
-
-        self.assertTupleEqual(
-            (date(year=2020, month=11, day=9), None),
+        # self.assertTupleEqual(
+        #     (date(year=2020, month=11, day=9), None),
+        #     field.clean([self.formfield_value_date(2020, 11, 9)]),
+        # )
+        self.assertEqual(
+            field.DateWithOptionalTime(date=date(year=2020, month=11, day=9)),
             field.clean([self.formfield_value_date(2020, 11, 9)]),
         )
 
@@ -275,7 +314,8 @@ class DateWithOptionalTimeFieldTestCase(FieldTestCase):
         with self.assertNoException():
             res = field.clean([])
 
-        self.assertTupleEqual((None, None), res)
+        # self.assertTupleEqual((None, None), res)
+        self.assertIsNone(res)
 
     def test_required_property02(self):
         field = DateWithOptionalTimeField(required=False)
@@ -288,7 +328,11 @@ class DateWithOptionalTimeFieldTestCase(FieldTestCase):
         with self.assertNoException():
             res = field.clean([self.formfield_value_date(2020, 11, 9)])
 
-        self.assertTupleEqual((date(year=2020, month=11, day=9), None), res)
+        # self.assertTupleEqual((date(year=2020, month=11, day=9), None), res)
+        self.assertEqual(
+            field.DateWithOptionalTime(date=date(year=2020, month=11, day=9)),
+            res,
+        )
 
 
 class UserParticipationFieldTestCase(FieldTestCase):

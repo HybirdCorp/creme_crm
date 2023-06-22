@@ -317,7 +317,10 @@
                     - In 'bricks', these classes have been renamed :
                         - 'ParticipantCreateForm' => 'ParticipantsAddingForm'.
                         - 'SubjectCreateForm' => 'SubjectsAddingForm'.
-                    - The value returned by the method 'fields.UserParticipationField.clean()' has changed (see 'creme_core.forms.fields.OptionalField').
+                    - The value returned by the method 'bulk_update.ActivityRangeField.clean()' is now an instance of 'ActivityRangeField.DateRange' (it was a list).
+                    - In 'fields' :
+                        - The value returned by the method 'UserParticipationField.clean()' has changed (see 'creme_core.forms.fields.OptionalField').
+                        - The value returned by the method 'DateWithOptionalTimeField.clean()' is now an instance of 'DateWithOptionalTimeField.DateWithOptionalTime' (it was a tuple).
                 - A 'ValueError' is raised when you try to create a not custom 'ActivitySubType' related to a custom 'ActivityType'
                   (in <Creme 2.4> it was just a log).
                 - The class 'utils.PytzToVtimezone' has been removed.
