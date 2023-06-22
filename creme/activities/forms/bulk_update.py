@@ -16,6 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
+from dataclasses import dataclass
 from datetime import datetime, time, timedelta
 
 from django import forms
@@ -54,6 +57,13 @@ class ActivityRangeWidget(forms.MultiWidget):
 class ActivityRangeField(forms.MultiValueField):
     widget = ActivityRangeWidget
 
+    @dataclass(frozen=True)
+    class Range:
+        start: fields.DateWithOptionalTimeField.DateWithOptionalTime | None
+        end: fields.DateWithOptionalTimeField.DateWithOptionalTime | None
+        all_day: bool
+        busy: bool
+
     def __init__(self, *, required=True, **kwargs):
         super().__init__(
             (
@@ -68,7 +78,13 @@ class ActivityRangeField(forms.MultiValueField):
         )
 
     def compress(self, data_list):
-        return data_list[:4] if data_list else [None] * 4
+        # return data_list[:4] if data_list else [None] * 4
+        return self.Range(
+            start=data_list[0],
+            end=data_list[1],
+            all_day=data_list[2],
+            busy=data_list[3],
+        ) if data_list else None
 
 
 class RangeOverrider(FieldOverrider):
@@ -110,7 +126,21 @@ class RangeOverrider(FieldOverrider):
     # TODO: factorise with BaseCustomForm._clean_temporal_data() + error_messages
     def post_clean_instance(self, *, instance, value, form):
         start = end = None
-        (start_date, start_time), (end_date, end_time), is_all_day, busy = value
+        # (start_date, start_time), (end_date, end_time), is_all_day, busy = value
+        if value.start:
+            start_date = value.start.date
+            start_time = value.start.time
+        else:
+            start_date = start_time = None
+
+        if value.end:
+            end_date = value.end.date
+            end_time = value.end.time
+        else:
+            end_date = end_time = None
+
+        is_all_day = value.all_day
+        busy       = value.busy
 
         if not start_date:
             if end_date:

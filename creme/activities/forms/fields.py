@@ -16,8 +16,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 # import warnings
 # from functools import partial
+import datetime
+from dataclasses import dataclass
+
 from django import forms
 from django.contrib.auth import get_user_model
 # from django.core.exceptions import ValidationError
@@ -194,6 +199,11 @@ class DateWithOptionalTimeWidget(widgets.MultiWidget):
 class DateWithOptionalTimeField(forms.MultiValueField):
     widget = DateWithOptionalTimeWidget
 
+    @dataclass(frozen=True)
+    class DateWithOptionalTime:
+        date: datetime.date
+        time: datetime.time | None = None
+
     def __init__(self, *, required=True, **kwargs):
         super().__init__(
             fields=(
@@ -206,7 +216,10 @@ class DateWithOptionalTimeField(forms.MultiValueField):
         )
 
     def compress(self, data_list):
-        return (data_list[0], data_list[1]) if data_list else (None, None)
+        # return (data_list[0], data_list[1]) if data_list else (None, None)
+        return self.DateWithOptionalTime(
+            date=data_list[0], time=data_list[1],
+        ) if data_list else None
 
 
 class UserParticipationField(core_fields.OptionalModelChoiceField):

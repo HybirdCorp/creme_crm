@@ -451,8 +451,21 @@ class BaseCustomForm(core_forms.CremeEntityForm):
         get_key = self.subcell_key
         start = end = None
 
-        start_date, start_time = get_data(get_key(StartSubCell)) or (None, None)
-        end_date,   end_time   = get_data(get_key(EndSubCell))   or (None, None)
+        # start_date, start_time = get_data(get_key(StartSubCell)) or (None, None)
+        # end_date,   end_time   = get_data(get_key(EndSubCell))   or (None, None)
+        start_date_opt_time = get_data(get_key(StartSubCell))
+        if start_date_opt_time:
+            start_date = start_date_opt_time.date
+            start_time = start_date_opt_time.time
+        else:
+            start_date = start_time = None
+
+        end_date_opt_time = get_data(get_key(EndSubCell))
+        if end_date_opt_time:
+            end_date = end_date_opt_time.date
+            end_time = end_date_opt_time.time
+        else:
+            end_date = end_time = None
 
         if not start_date:
             if end_date:

@@ -9,11 +9,42 @@ from creme.creme_core.tests.forms.base import FieldTestCase
 
 from .. import constants
 from ..forms.bulk_update import ActivityRangeField
+from ..forms.fields import DateWithOptionalTimeField
 from ..models import ActivitySubType, ActivityType
 from .base import Activity, _ActivitiesTestCase, skipIfCustomActivity
 
 
 class ActivityRangeFieldTestCase(FieldTestCase):
+    def test_range(self):
+        DWOT = DateWithOptionalTimeField.DateWithOptionalTime
+
+        def build_range(**kwargs):
+            return ActivityRangeField.Range(**{
+                'start': DWOT(date=date(year=2023, month=6, day=22), time=time(hour=14, minute=0)),
+                'end': DWOT(date=date(year=2023, month=6, day=22), time=time(hour=16, minute=30)),
+                'all_day': False,
+                'busy': True,
+                **kwargs
+            })
+
+        act_range = build_range()
+        self.assertEqual(
+            DWOT(date=date(year=2023, month=6, day=22), time=time(hour=14, minute=0)),
+            act_range.start,
+        )
+        self.assertEqual(
+            DWOT(date=date(year=2023, month=6, day=22), time=time(hour=16, minute=30)),
+            act_range.end,
+        )
+        self.assertIs(act_range.all_day, False)
+        self.assertIs(act_range.busy, True)
+
+        self.assertEqual(build_range(), act_range)
+        self.assertNotEqual(None, act_range)
+        self.assertNotEqual(build_range(all_day=True), act_range)
+        self.assertNotEqual(build_range(busy=False),   act_range)
+        self.assertNotEqual(build_range(start=None),   act_range)
+
     def test_clean_empty_required(self):
         clean = ActivityRangeField(required=True).clean
         self.assertFieldValidationError(ActivityRangeField, 'required', clean, None)
@@ -21,18 +52,36 @@ class ActivityRangeFieldTestCase(FieldTestCase):
 
     def test_clean_empty_not_required(self):
         field = ActivityRangeField(required=False)
-        self.assertListEqual([None, None, None, None], field.clean([]))
+        # self.assertListEqual([None, None, None, None], field.clean([]))
+        self.assertIsNone(field.clean([]))
+        self.assertIsNone(field.clean(['']))
+        self.assertIsNone(field.clean(['', '']))
 
     def test_clean_complete(self):
         field = ActivityRangeField()
 
-        self.assertListEqual(
-            [
-                (date(year=2022, month=10, day=20), time(hour=18, minute=30)),
-                (date(year=2022, month=10, day=21), time(hour=12, minute=00)),
-                False,
-                True,
-            ],
+        # self.assertListEqual(
+        #     [
+        #         (date(year=2022, month=10, day=20), time(hour=18, minute=30)),
+        #         (date(year=2022, month=10, day=21), time(hour=12, minute=00)),
+        #         False,
+        #         True,
+        #     ],
+        #     field.clean([
+        #         [self.formfield_value_date(2022, 10, 20), '18:30:00'],
+        #         [self.formfield_value_date(2022, 10, 21), '12:00:00'],
+        #         '',
+        #         'on',
+        #     ]),
+        # )
+        DWOT = DateWithOptionalTimeField.DateWithOptionalTime
+        self.assertEqual(
+            field.Range(
+                start=DWOT(date=date(year=2022, month=10, day=20), time=time(hour=18, minute=30)),
+                end=DWOT(date=date(year=2022, month=10, day=21), time=time(hour=12, minute=00)),
+                all_day=False,
+                busy=True,
+            ),
             field.clean([
                 [self.formfield_value_date(2022, 10, 20), '18:30:00'],
                 [self.formfield_value_date(2022, 10, 21), '12:00:00'],
@@ -41,20 +90,67 @@ class ActivityRangeFieldTestCase(FieldTestCase):
             ]),
         )
 
-    def test_clean_partial(self):
+    def test_clean_partial_datetime(self):
         field = ActivityRangeField()
 
-        self.assertListEqual(
-            [
-                (date(year=2023, month=3, day=15), time(hour=14, minute=45)),
-                (date(year=2023, month=3, day=16), None),
-                True,
-                False,
-            ],
+        # self.assertListEqual(
+        #     [
+        #         (date(year=2023, month=3, day=15), time(hour=14, minute=45)),
+        #         (date(year=2023, month=3, day=16), None),
+        #         True,
+        #         False,
+        #     ],
+        #     field.clean([
+        #         [self.formfield_value_date(2023, 3, 15), '14:45:00'],
+        #         [self.formfield_value_date(2023, 3, 16)],
+        #         'on',
+        #         '',
+        #     ]),
+        # )
+        DWOT = DateWithOptionalTimeField.DateWithOptionalTime
+        self.assertEqual(
+            field.Range(
+                start=DWOT(date=date(year=2023, month=3, day=15), time=time(hour=14, minute=45)),
+                end=DWOT(date=date(year=2023, month=3, day=16)),
+                all_day=True,
+                busy=False,
+            ),
             field.clean([
                 [self.formfield_value_date(2023, 3, 15), '14:45:00'],
                 [self.formfield_value_date(2023, 3, 16)],
                 'on',
+                '',
+            ]),
+        )
+
+    def test_clean_partial_not_required(self):
+        field = ActivityRangeField(required=False)
+        DWOT = DateWithOptionalTimeField.DateWithOptionalTime
+        self.assertEqual(
+            field.Range(
+                start=DWOT(date=date(year=2023, month=3, day=15), time=time(hour=14, minute=45)),
+                end=None,
+                all_day=False,
+                busy=False,
+            ),
+            field.clean([
+                [self.formfield_value_date(2023, 3, 15), '14:45:00'],
+                ['', ''],
+                '',
+                '',
+            ]),
+        )
+        self.assertEqual(
+            field.Range(
+                start=None,
+                end=DWOT(date=date(year=2023, month=3, day=16)),
+                all_day=False,
+                busy=False,
+            ),
+            field.clean([
+                ['', ''],
+                [self.formfield_value_date(2023, 3, 16), ''],
+                '',
                 '',
             ]),
         )
