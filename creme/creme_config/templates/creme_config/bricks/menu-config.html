@@ -5,11 +5,14 @@
 {% block brick_extra_class %}{{block.super}} creme_config-menu-brick{% endblock %}
 
 {% block brick_script %}
-<script type="text/javascript">
+{% has_perm_to admin 'creme_core' as admin_perm %}
+{% if admin_perm %}
+ <script type="text/javascript">
     $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick) {
         new creme.creme_config.MenuContainersController().bind(brick);
     });
  </script>
+{% endif %}
 {% endblock %}
 
 {% block brick_header_title %}
@@ -27,7 +30,7 @@
     <p class="help-instructions">{% translate 'Drag and drop the containers (columns) to order them.' %}</p>
 
   {% for entries_info in entries_per_role %}
-    <div class="menu-config-item">
+    <div class="menu-config-item{% if not admin_perm %} is-disabled{% endif %}">
         <div class="menu-config-item-title">{{entries_info.label}}</div>
 
         <div class="menu-config-container">
