@@ -119,6 +119,14 @@ class MailingListsBrick(_RelatedEntitiesBrick):
     # id_ = QuerysetBrick.generate_id('emails', 'mailing_lists')
     id = QuerysetBrick.generate_id('emails', 'mailing_lists')
     verbose_name = _('Mailing lists')
+    description = _(
+        'Allows to add Mailing lists to the current campaign. '
+        'A campaign needs to be linked a least to one related Mailing list in '
+        'order to send emails.\n'
+        'Note: do not worry, if an email address is contained by several lists, '
+        'only one email will be sent to this address.\n'
+        'App: Emails'
+    )
     dependencies = (MailingList,)
     template_name = 'emails/bricks/mailing-lists.html'
     target_ctypes = (EmailCampaign,)
@@ -241,7 +249,11 @@ class SendingConfigItemsBrick(QuerysetBrick):
 class SendingsBrick(QuerysetBrick):
     # id_ = QuerysetBrick.generate_id('emails', 'sendings')
     id = QuerysetBrick.generate_id('emails', 'sendings')
-    verbose_name = _('Sendings')
+    verbose_name = _('Emails sending')
+    description = _(
+        'Allows to send emails to all the recipients listed in the related Mailing lists.\n'
+        'App: Emails'
+    )
     dependencies = (EmailSending,)
     order_by = '-sending_date'
     template_name = 'emails/bricks/sendings.html'

@@ -1498,7 +1498,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
         self.assertBrickTitleEqual(
             brick_node,
-            count=2, title='{count} Sending', plural_title='{count} Sendings',
+            count=2, title='{count} Sent bundle', plural_title='{count} Sent bundles',
         )
         self.assertBrickHasAction(
             brick_node, url=sending1.get_absolute_url(), action_type='redirect',
