@@ -208,7 +208,6 @@ class _ModelConfig:
         self.deletor = _ModelConfigDeletor(model=model, model_name=model_name)
         self.brick_cls: type[GenericModelBrick] = GenericModelBrick
 
-    # TODO: property with getter/setter
     def brick_class(self, brick_cls: type[GenericModelBrick]) -> _ModelConfig:
         """ Set the Brick class to use ; can be used in a fluent way.
 
