@@ -21,17 +21,24 @@ from itertools import chain
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
+from creme.creme_config.bricks import GenericModelBrick
 from creme.creme_core.gui.bricks import QuerysetBrick, SimpleBrick
 from creme.creme_core.models import CremeEntity, Relation, SettingValue
 
 from . import constants, get_activity_model
-from .models import Calendar
+from .models import ActivityType, Calendar
 from .setting_keys import review_key
 
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 
 Activity = get_activity_model()
+
+
+class ActivityTypeBrick(GenericModelBrick):
+    id = GenericModelBrick.generate_id('activities', 'type_config')
+    template_name = 'activities/bricks/activity-types.html'
+    dependencies = (ActivityType,)
 
 
 class ActivityBarHatBrick(SimpleBrick):
