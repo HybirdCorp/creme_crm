@@ -1,0 +1,12 @@
+{% extends 'creme_config/bricks/configurable-model.html' %}
+{% load creme_bricks creme_date %}
+
+{% block config_fields_headers %}
+    {{block.super}}
+    {% brick_table_column title=_('Default duration') class='configmodel-column' %}
+{% endblock %}
+
+{% block config_fields_contents %}
+    {{block.super}}
+    <td>{{object.as_timedelta|date_timedelta_pprint}}</td>
+{% endblock %}

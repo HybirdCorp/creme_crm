@@ -25,9 +25,11 @@
         {% brick_table_column title='' class='configmodel-column-order' %}
     {% endif %}
 
+    {% block config_fields_headers %}
     {% for field in displayable_fields %}
         {% brick_table_column title=field.verbose_name data_fieldname=field.name class='configmodel-column' %}
     {% endfor %}
+    {% endblock %}
 
     {% brick_table_column title=_('Actions') status='action' colspan=2 %}
 {% endblock %}
@@ -46,9 +48,11 @@
         <tr>
         {% endif %}
 
-        {% for f in displayable_fields %}
+        {% block config_fields_contents %}
+          {% for f in displayable_fields %}
             <td>{% print_field object=object field=f.name as field_content %}{% if field_content %}{{field_content}}{% else %}<span class="empty-field">—</span>{% endif %}</td>
-        {% endfor %}
+          {% endfor %}
+        {% endblock %}
 
             <td {% brick_table_data_status action %}>
             {% block config_edition_action %}
