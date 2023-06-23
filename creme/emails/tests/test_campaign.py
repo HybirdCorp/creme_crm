@@ -35,7 +35,7 @@ class CampaignTestCase(BrickTestCaseMixin, _EmailsTestCase):
         sending_brick_node = self.get_brick_node(
             self.get_html_tree(response3.content), brick=bricks.SendingsBrick,
         )
-        self.assertEqual(_('Sendings'), self.get_brick_title(sending_brick_node))
+        self.assertEqual(_('Emails sending'), self.get_brick_title(sending_brick_node))
 
         ml_brick_node = self.get_brick_node(
             self.get_html_tree(response3.content), brick=bricks.MailingListsBrick,
