@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from parameterized import parameterized
 
 import creme.creme_core.gui.bricks as gui_bricks
@@ -265,19 +266,13 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             response.context.get('bricks_reload_url')
         )
 
-        fmt = 'id="{}"'.format
-        # self.assertContains(response, fmt(bricks.BrickDetailviewLocationsBrick.id_))
-        # self.assertContains(response, fmt(bricks.BrickHomeLocationsBrick.id_))
-        # self.assertContains(response, fmt(bricks.BrickDefaultMypageLocationsBrick.id_))
-        # self.assertContains(response, fmt(bricks.RelationBricksConfigBrick.id_))
-        # self.assertContains(response, fmt(bricks.InstanceBricksConfigBrick.id_))
-        # self.assertContains(response, fmt(bricks.CustomBricksConfigBrick.id_))
-        self.assertContains(response, fmt(bricks.BrickDetailviewLocationsBrick.id))
-        self.assertContains(response, fmt(bricks.BrickHomeLocationsBrick.id))
-        self.assertContains(response, fmt(bricks.BrickDefaultMypageLocationsBrick.id))
-        self.assertContains(response, fmt(bricks.RelationBricksConfigBrick.id))
-        self.assertContains(response, fmt(bricks.InstanceBricksConfigBrick.id))
-        self.assertContains(response, fmt(bricks.CustomBricksConfigBrick.id))
+        tree = self.get_html_tree(response.content)
+        self.get_brick_node(tree, brick=bricks.BrickDetailviewLocationsBrick)
+        self.get_brick_node(tree, brick=bricks.BrickHomeLocationsBrick.id)
+        self.get_brick_node(tree, brick=bricks.BrickDefaultMypageLocationsBrick.id)
+        self.get_brick_node(tree, brick=bricks.RelationBricksConfigBrick.id)
+        self.get_brick_node(tree, brick=bricks.InstanceBricksConfigBrick.id)
+        self.get_brick_node(tree, brick=bricks.CustomBricksConfigBrick.id)
 
     @parameterized.expand([False, True])
     def test_add_detailview(self, superuser):
@@ -2622,3 +2617,127 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertIn(contact_ct, response.context['form'].fields['ctype'].ctypes)
+
+    def test_BrickDetailviewLocationsBrick(self):
+        role = self.role
+
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
+        create_loc = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            model=contact_ct, zone=BrickDetailviewLocation.LEFT,
+        )
+        create_loc(brick=PropertiesBrick, order=1)
+        create_loc(brick=PropertiesBrick, order=1, role='superuser')
+        create_loc(brick=HistoryBrick,    order=2, role='superuser')
+        create_loc(brick=PropertiesBrick, order=3, role=role)
+        create_loc(brick=HistoryBrick,    order=3, role=role)
+        create_loc(brick=RelationsBrick,  order=3, role=role)
+
+        context = self.build_context(user=self.user)
+
+        ContentType.objects.get_for_models(
+            *creme_registry.iter_entity_models()
+        )  # Fill cache
+
+        # Queries:
+        #   - COUNT UserRoles
+        #   - BrickStates
+        #   - SettingValues "is open"/"how empty fields"
+        #   - BrickDetailviewLocations
+        #   - UserRoles
+        #   - COUNT BrickDetailviewLocations for default configuration
+        with self.assertNumQueries(6):
+            render = bricks.BrickDetailviewLocationsBrick().detailview_display(context)
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(render), brick=bricks.BrickDetailviewLocationsBrick,
+        )
+
+        # Default config ---
+        default_group_node = self.get_html_node_or_fail(
+            brick_node, './/div[@class="brickloc-config-group brickloc-config-summary-group"]'
+        )
+        self.assertBrickHasAction(default_group_node, url=self._build_editdetail_url())
+
+        # FakeContact config ---
+        contact_group_node = self.get_html_node_or_fail(
+            brick_node,
+            './/div[@class="'
+            'brick-list-item '
+            'brickloc-config-item '
+            'brickloc-config-item-creme_core-fakecontact'
+            '"]'
+        )
+
+        contact_tbody = self.get_html_node_or_fail(
+            contact_group_node,
+            './/div[@class="brickloc-config-group brick-table"]/table/tbody'
+        )
+        contact_rows = contact_tbody.findall('.//tr')
+        self.assertEqual(3, len(contact_rows))
+
+        # ---
+        contact_def_row = contact_rows[0]
+        self.assertEqual(
+            _('Default configuration for «%(ctype)s»') % {'ctype': 'Test Contact'},
+            self.get_html_node_or_fail(
+                contact_def_row, './/td[@class="brickloc-config-role"]',
+            ).text,
+        )
+        self.assertEqual(
+            ngettext('%(count)s block', '%(count)s blocks', 1) % {'count': 1},
+            self.get_html_node_or_fail(
+                contact_def_row, './/td[@class="brickloc-config-count"]',
+            ).text.strip(),
+        )
+        self.assertBrickHasAction(contact_def_row, url=self._build_editdetail_url(ct=contact_ct))
+
+        # ---
+        contact_super_row = contact_rows[1]
+        self.assertEqual(
+            _('Superuser'),
+            self.get_html_node_or_fail(
+                contact_super_row,
+                './/td[@class="brickloc-config-role brickloc-config-role-superuser"]',
+            ).text,
+        )
+        self.assertEqual(
+            ngettext('%(count)s block', '%(count)s blocks', 2) % {'count': 2},
+            self.get_html_node_or_fail(
+                contact_super_row, './/td[@class="brickloc-config-count"]',
+            ).text.strip(),
+        )
+        self.assertBrickHasAction(
+            contact_super_row,
+            url=self._build_editdetail_url(ct=contact_ct, superuser=True),
+        )
+
+        # ---
+        contact_role_row = contact_rows[2]
+        self.assertEqual(
+            role.name,
+            self.get_html_node_or_fail(
+                contact_role_row,
+                './/td[@class="brickloc-config-role"]',
+            ).text,
+        )
+        self.assertEqual(
+            ngettext('%(count)s block', '%(count)s blocks', 3) % {'count': 3},
+            self.get_html_node_or_fail(
+                contact_role_row, './/td[@class="brickloc-config-count"]',
+            ).text.strip(),
+        )
+        self.assertBrickHasAction(
+            contact_role_row,
+            url=self._build_editdetail_url(ct=contact_ct, role=role),
+        )
+        self.assertBrickHasAction(
+            contact_role_row, url=self.DEL_DETAIL_URL, action_type='delete',
+        )
+
+    # TODO: test
+    #  - bricks.BrickHomeLocationsBrick
+    #  - bricks.BrickDefaultMypageLocationsBrick
+    #  - bricks.RelationBricksConfigBrick
+    #  - bricks.InstanceBricksConfigBrick
+    #  - bricks.CustomBricksConfigBrick
