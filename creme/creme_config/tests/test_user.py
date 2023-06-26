@@ -15,7 +15,7 @@ from creme.creme_core.constants import ROOT_PASSWORD
 from creme.creme_core.core.setting_key import (
     SettingKey,
     UserSettingKey,
-    user_setting_key_registry,
+    user_setting_key_registry, _SettingKeyRegistry,
 )
 from creme.creme_core.models import BrickState, CremeEntity
 from creme.creme_core.models import CremeUser as User
@@ -35,7 +35,12 @@ from creme.persons.tests.base import (
 )
 
 from .. import constants
-from ..bricks import BrickMypageLocationsBrick, TeamsBrick, UsersBrick
+from ..bricks import (
+    BrickMypageLocationsBrick,
+    TeamsBrick,
+    UsersBrick,
+    UserSettingValuesBrick,
+)
 
 
 def skipIfNotCremeUser(test_func):
@@ -1907,3 +1912,54 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.client.post(url)
         self.assertNoFormError(response)
         self.assertIsNone(self.refresh(user).settings.get(sk))
+
+    def test_UserSettingValuesBrick(self):
+        brick = UserSettingValuesBrick()
+
+        core_sk1 = UserSettingKey(
+            'creme_core-test_01',
+            description='Page displayed',
+            app_label='creme_core',
+            type=SettingKey.BOOL, hidden=False,
+        )
+        core_sk2 = UserSettingKey(
+            'creme_core-test_02',
+            description='Page title',
+            app_label='creme_core',
+            type=SettingKey.STRING, hidden=False,
+        )
+
+        doc_sk1 = UserSettingKey(
+            'documents-test_01',
+            description='Size displayed',
+            app_label='documents',
+            type=SettingKey.BOOL, hidden=False,
+        )
+        doc_sk2 = UserSettingKey(
+            'documents-test_02',
+            description='Metadata displayed',
+            app_label='documents',
+            type=SettingKey.BOOL, hidden=True,
+        )
+
+        reg_attname = 'user_setting_key_registry'
+        self.assertHasAttr(brick, reg_attname)
+
+        registry = _SettingKeyRegistry(UserSettingKey)
+        registry.register(core_sk1, core_sk2, doc_sk1, doc_sk2)
+        setattr(brick, reg_attname, registry)
+
+        context = self.build_context(user=self.user)
+
+        # with self.assertNumQueries(6):
+        render = brick.detailview_display(context)
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(render), brick=UserSettingValuesBrick,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=3,
+            title='{count} Setting value',
+            plural_title='{count} Setting values',
+        )

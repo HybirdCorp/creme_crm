@@ -146,7 +146,7 @@ class _SettingKeyRegistry:
     def __iter__(self) -> Iterator[_SettingKey]:
         return iter(self._skeys.values())
 
-    def register(self, *skeys: _SettingKey) -> None:
+    def register(self, *skeys: _SettingKey) -> _SettingKeyRegistry:
         setdefault = self._skeys.setdefault
         key_class = self._key_class
 
@@ -161,7 +161,9 @@ class _SettingKeyRegistry:
                     f"Duplicated setting key's id: {skey.id}"
                 )
 
-    def unregister(self, *skeys: _SettingKey) -> None:
+        return self
+
+    def unregister(self, *skeys: _SettingKey) -> _SettingKeyRegistry:
         pop = self._skeys.pop
 
         for skey in skeys:
@@ -169,6 +171,8 @@ class _SettingKeyRegistry:
                 raise self.RegistrationError(
                     f'This Setting is not registered (already un-registered ?): {skey.id}'
                 )
+
+        return self
 
 
 setting_key_registry = _SettingKeyRegistry(SettingKey)
