@@ -9,8 +9,9 @@
 {% endblock %}
 
 {% block brick_content %}
-    {% for app_vname, app_sv_info in values_per_app %}
-    <div class="brick-list-item setting-values-config-item">
+{#  {% for app_vname, app_sv_info in values_per_app %} #}
+  {% for app_label, app_vname, app_sv_info in values_per_app %}
+    <div class="brick-list-item setting-values-config-item setting-values-config-item-{{app_label}}">
         <div class="setting-values-config-app-name">{{app_vname}}</div>
         <div class="setting-values-config-values brick-table">
             <table class="brick-table-content">
@@ -22,7 +23,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for sv_info in app_sv_info %}
+                  {% for sv_info in app_sv_info %}
                     <tr>
                         <td>{{sv_info.description}}</td>
                         <td>{% if sv_info.not_set %}<em>{% translate 'N/A' %}</em>{% else %}{{sv_info.value}}{% endif %}</td>
@@ -30,10 +31,10 @@
                             {% brick_table_action id='edit' url='creme_config__edit_user_setting'|url:sv_info.key_id label=_('Edit this value') %}
                         </td>
                     </tr>
-                    {% endfor %}
+                  {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-    {% endfor %}
+  {% endfor %}
 {% endblock %}

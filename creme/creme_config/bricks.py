@@ -1114,7 +1114,8 @@ class UserSettingValuesBrick(Brick):
         return self._render(self.get_template_context(
             context,
             values_per_app=[
-                (get_app_config(app_label).verbose_name, svalues)
+                # (get_app_config(app_label).verbose_name, svalues)
+                (app_label, get_app_config(app_label).verbose_name, svalues)
                 for app_label, svalues in sv_info_per_app.items()
             ],
             count=count,

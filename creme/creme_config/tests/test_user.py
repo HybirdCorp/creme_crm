@@ -15,7 +15,8 @@ from creme.creme_core.constants import ROOT_PASSWORD
 from creme.creme_core.core.setting_key import (
     SettingKey,
     UserSettingKey,
-    user_setting_key_registry, _SettingKeyRegistry,
+    _SettingKeyRegistry,
+    user_setting_key_registry,
 )
 from creme.creme_core.models import BrickState, CremeEntity
 from creme.creme_core.models import CremeUser as User
@@ -1945,8 +1946,9 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         reg_attname = 'user_setting_key_registry'
         self.assertHasAttr(brick, reg_attname)
 
-        registry = _SettingKeyRegistry(UserSettingKey)
-        registry.register(core_sk1, core_sk2, doc_sk1, doc_sk2)
+        registry = _SettingKeyRegistry(UserSettingKey).register(
+            core_sk1, core_sk2, doc_sk1, doc_sk2
+        )
         setattr(brick, reg_attname, registry)
 
         context = self.build_context(user=self.user)
@@ -1963,3 +1965,39 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
             title='{count} Setting value',
             plural_title='{count} Setting values',
         )
+
+        # ---
+        core_app_node = self.get_html_node_or_fail(
+            brick_node,
+            './/div[@class="'
+            'brick-list-item '
+            'setting-values-config-item '
+            'setting-values-config-item-creme_core'
+            '"]'
+        )
+        self.assertEqual(
+            _('Core'),
+            self.get_html_node_or_fail(
+                core_app_node, './/div[@class="setting-values-config-app-name"]'
+            ).text,
+        )
+        self.assertBrickHasAction(core_app_node, url=self._build_edit_user_svalue_url(core_sk1))
+        self.assertBrickHasAction(core_app_node, url=self._build_edit_user_svalue_url(core_sk2))
+
+        # ---
+        doc_app_node = self.get_html_node_or_fail(
+            brick_node,
+            './/div[@class="'
+            'brick-list-item '
+            'setting-values-config-item '
+            'setting-values-config-item-documents'
+            '"]'
+        )
+        self.assertEqual(
+            _('Documents'),
+            self.get_html_node_or_fail(
+                doc_app_node, './/div[@class="setting-values-config-app-name"]'
+            ).text,
+        )
+        self.assertBrickHasAction(doc_app_node, url=self._build_edit_user_svalue_url(doc_sk1))
+        self.assertBrickHasNoAction(doc_app_node, url=self._build_edit_user_svalue_url(doc_sk2))
