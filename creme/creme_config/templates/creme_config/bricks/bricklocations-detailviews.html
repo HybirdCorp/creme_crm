@@ -23,7 +23,7 @@
 
     {% for ctw in page.object_list %}
         {% with ctype=ctw.ctype ctype_default_count=ctw.default_count %}
-    <div class="brick-list-item brickloc-config-item">
+    <div class="brick-list-item brickloc-config-item brickloc-config-item-{{ctype.app_label}}-{{ctype.model}}">
         <div class="brickloc-config-group brickloc-config-summary-group">
             <div class="brickloc-config-group-title">{% widget_icon ctype=ctype size='brick-list' class='brickloc-config-type-icon' %} {{ctype}}</div>
             <div class="brickloc-config-group-action">
@@ -55,7 +55,7 @@
                     </tr>
                     {% for role_arg, role_label, role_block_count in ctw.locations_info %}
                     <tr>
-                        <td class="brickloc-config-role {% if role_arg == 'superuser' %}brickloc-config-role-superuser{% endif %}">{{role_label}}</td>
+                        <td class="brickloc-config-role{% if role_arg == 'superuser' %} brickloc-config-role-superuser{% endif %}">{{role_label}}</td>
                         <td class="brickloc-config-count">{% blocktranslate count count=role_block_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktranslate %}</td>
                         <td {% brick_table_data_status action %}>{% url 'creme_config__edit_detailview_bricks' ctype.id role_arg as edit_role_url %}
                             {% brick_table_action id='edit' url=edit_role_url enabled=admin_perm %}
