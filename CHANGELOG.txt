@@ -11,6 +11,7 @@
       A broken login form was displayed inside the popup; now a message & a button (to go to the login page) are displayed.
     # The multi-check-box widget ('UnorderedMultipleChoiceWidget') has been fixed :
       the creation button is now correctly disabled if the user is not allowed to create the resource.
+    # The arrows buttons in merge forms have been reworked (their glyph had to be provided bu the user's system).
     # The glass-pane (used by global search) had an issue when it was re-opened and the focus came back from another window.
     # Apps :
         * Creme_config :
