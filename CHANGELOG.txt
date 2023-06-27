@@ -1,8 +1,13 @@
 == Version 2.3.13 Work in progress (not released -- this is a draft) ==
 
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
   Users side :
   ------------
-    # Fix UnorderedMultipleChoiceWidget : disable creation button if the user is not allowed to create the resource.
+    # The multi-check-box widget ('UnorderedMultipleChoiceWidget') has been fixed :
+      the creation button is now correctly disabled if the user is not allowed to create the resource.
+    # The arrows buttons in merge forms have been reworked (their glyph had to be provided bu the user's system).
     # The glass-pane (used by global search) had an issue when it was re-opened and the focus came back from another window.
     # Some small fixes have been made on the multi-checkbox widget.
     # Apps :

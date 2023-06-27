@@ -43,7 +43,10 @@ ul.ui-layout.hbox li {
     padding-right: 4px;
 }
 /*ul.ui-layout.hbox li button[type="button"] { padding-top: 0px; padding-bottom: 0px; margin: 0px; } */
-ul.ui-layout.hbox li input { margin: 0px 2px; }
+ul.ui-layout.hbox li input,
+ul.ui-layout.hbox li button {
+    margin: 0px 2px;
+}
 
 ul.ui-layout.vbox li { position:relative; display:block; }
 
