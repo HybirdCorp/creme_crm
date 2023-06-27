@@ -460,7 +460,7 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
 
     font-size: 1.6em;
     font-weight: bold;
-    color: #5a92ab;
+    color: #4bb77c;
     text-overflow: ellipsis;
     text-align: center;
 }
@@ -486,7 +486,9 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     text-align: center;
 }
 
-.li_merge_entity1, .li_merge_entity2, .li_merge_result {
+.li_merge_entity1,
+.li_merge_entity2,
+.li_merge_result {
     width: 30%;
 }
 
@@ -529,9 +531,9 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
 
 .form-container .form-block .li_merge_entity1 input,
 .form-container .form-block .li_merge_entity1 textarea {
-    color: #5a92ab;
-    background: #edf9ff;
-    border: 1px solid #bbe0f0;
+    color: #4bb77c;
+    background: #e0fded;
+    border: 1px solid #8ee3b4;
 }
 
 .form-container .form-block .li_merge_entity2 input,
@@ -541,11 +543,53 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     border: 1px solid #f9c9c4;
 }
 
+.form-container .form-block .li_merge_entity1 .ui-creme-entityselector>button[type="button"][disabled],
+.form-container .form-block .li_merge_entity1  .select-wrapper select {
+    background: linear-gradient(#dcffec, #94ffc4);
+
+    border: 1px solid #71c396;
+    border-bottom: 1px solid #4bb77c;
+
+    color: #0f4427;
+}
+
+.form-container .form-block .li_merge_entity2 .ui-creme-entityselector>button[type="button"][disabled],
+.form-container .form-block .li_merge_entity2  .select-wrapper select {
+    background: linear-gradient(#ffedeb, #ffe0dc);
+
+    border: 1px solid #f59d94;
+    border-bottom: 1px solid #eb7a6f;
+
+    color: #760f03;
+}
+
+.form-container .form-block .li_merge_entity1 .select2-container--disabled span.select2-selection {
+    background: linear-gradient(#dcffec, #94ffc4);
+
+    border: 1px solid #71c396;
+    border-bottom: 1px solid #4bb77c;
+}
+.form-container .form-block .li_merge_entity1 .ui-creme-checklistselect .checklist-content .checkbox-label,
+.form-container .form-block .li_merge_entity1 .select2-container--disabled .select2-selection__rendered {
+    color: #03622e;
+}
+
+.form-container .form-block .li_merge_entity2 .select2-container--disabled span.select2-selection {
+    background: linear-gradient(#ffedeb, #ffe0dc);
+
+    border: 1px solid #f59d94;
+    border-bottom: 1px solid #eb7a6f;
+}
+.form-container .form-block .li_merge_entity2 .ui-creme-checklistselect .checklist-content .checkbox-label,
+.form-container .form-block .li_merge_entity2 .select2-container--disabled .select2-selection__rendered {
+    color: #760f03;
+}
+
 .form-container .li_merge_entity1 .help-text,
 .form-container .li_merge_entity1 .help-text-format,
 .form-container .li_merge_entity2 .help-text,
 .form-container .li_merge_entity2 .help-text-format {
-    visibility: hidden; /* Not display:none to keep input aligned */
+    visibility: hidden; /* Not display:none to keep inputs aligned */
 }
 
 /* HEADER FILTER */

@@ -562,11 +562,55 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     border: 1px solid #f9c9c4;
 }
 
+/* .form-container .form-block .li_merge_entity2 button[type="button"].ui-creme-actionbutton[disabled], TODO? */
+.form-container .form-block .li_merge_entity1 .ui-creme-entityselector>button[type="button"][disabled],
+.form-container .form-block .li_merge_entity1  .select-wrapper select {
+    background: linear-gradient(#edf9ff, #cae8f7);
+
+    border: 1px solid #6abee3;
+    border-bottom: 1px solid #62bde5;
+
+    color: #001822;
+}
+
+/* .form-container .form-block .li_merge_entity2 button[type="button"].ui-creme-actionbutton[disabled], TODO? */
+.form-container .form-block .li_merge_entity2 .ui-creme-entityselector>button[type="button"][disabled],
+.form-container .form-block .li_merge_entity2  .select-wrapper select {
+    background: linear-gradient(#ffedeb, #ffe0dc);
+
+    border: 1px solid #f59d94;
+    border-bottom: 1px solid #eb7a6f;
+
+    color: #760f03;
+}
+
+.form-container .form-block .li_merge_entity1 .select2-container--disabled span.select2-selection {
+    background: linear-gradient(#edf9ff, #cae8f7);
+
+    border: 1px solid #6abee3;
+    border-bottom: 1px solid #62bde5;
+}
+.form-container .form-block .li_merge_entity1 .ui-creme-checklistselect .checklist-content .checkbox-label,
+.form-container .form-block .li_merge_entity1 .select2-container--disabled .select2-selection__rendered {
+    color: #032d3e;
+}
+
+.form-container .form-block .li_merge_entity2 .select2-container--disabled span.select2-selection {
+    background: linear-gradient(#ffedeb, #ffe0dc);
+
+    border: 1px solid #f59d94;
+    border-bottom: 1px solid #eb7a6f;
+}
+.form-container .form-block .li_merge_entity2 .ui-creme-checklistselect .checklist-content .checkbox-label,
+.form-container .form-block .li_merge_entity2 .select2-container--disabled .select2-selection__rendered {
+    color: #760f03;
+}
+
 .form-container .li_merge_entity1 .help-text,
 .form-container .li_merge_entity1 .help-text-format,
 .form-container .li_merge_entity2 .help-text,
 .form-container .li_merge_entity2 .help-text-format {
-    visibility: hidden; /* Not display:none to keep input aligned */
+    visibility: hidden; /* Not display:none to keep inputs aligned */
 }
 
 /* HEADER FILTER */
