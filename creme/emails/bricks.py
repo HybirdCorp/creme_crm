@@ -121,7 +121,7 @@ class MailingListsBrick(_RelatedEntitiesBrick):
     verbose_name = _('Mailing lists')
     description = _(
         'Allows to add Mailing lists to the current campaign. '
-        'A campaign needs to be linked a least to one related Mailing list in '
+        'A campaign needs to be linked a least to one Mailing list in '
         'order to send emails.\n'
         'Note: do not worry, if an email address is contained by several lists, '
         'only one email will be sent to this address.\n'
