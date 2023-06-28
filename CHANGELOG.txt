@@ -13,6 +13,8 @@
     # Apps :
         * Persons :
             - The field 'Organisation.is_managed' is not cloned anymore.
+        * Reports :
+            - In preview's filter-form, the fields configured as hidden are now excluded as expected.
 
 
 == Version 2.3.12 ==
