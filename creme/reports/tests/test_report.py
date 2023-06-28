@@ -1023,16 +1023,24 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         report = self._create_contacts_report(user=user, name='My report')
         url = self._build_preview_url(report)
 
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'reports/preview_report.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'reports/preview_report.html')
 
-        context = response.context
-        self.assertEqual(report, context.get('object'))
-        self.assertEqual(25,     context.get('limit_to'))
-        self.assertFalse(context.get('empty_message'))
-        self.assertIsInstance(context.get('form'), ReportExportPreviewFilterForm)
+        context1 = response1.context
+        self.assertEqual(report, context1.get('object'))
+        self.assertEqual(25,     context1.get('limit_to'))
+        self.assertFalse(context1.get('empty_message'))
 
-        columns = context.get('flat_columns')
+        form = context1.get('form')
+        self.assertIsInstance(form, ReportExportPreviewFilterForm)
+
+        with self.assertNoException():
+            field_choices = form.fields['date_field'].choices
+
+        self.assertInChoices(value='created', label=_('Creation date'), choices=field_choices)
+        self.assertInChoices(value='birthday', label=_('Birthday'),     choices=field_choices)
+
+        columns = context1.get('flat_columns')
         self.assertIsList(columns, length=4)
         self.assertIsInstance(columns[0], Field)
         self.assertListEqual(
@@ -1040,10 +1048,11 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             [f.name for f in columns],
         )
 
-        self.assertContains(response, chiyo.last_name)
-        self.assertContains(response, osaka.last_name)
+        self.assertContains(response1, chiyo.last_name)
+        self.assertContains(response1, osaka.last_name)
 
-        response = self.assertGET200(
+        # ---
+        response2 = self.assertGET200(
             url,
             data={
                 'doc_type': 'csv',
@@ -1053,10 +1062,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                 'date_field':    'birthday',
             },
         )
-        self.assertTemplateUsed(response, 'reports/preview_report.html')
-        self.assertNoFormError(response)
-        self.assertContains(response, osaka.last_name)
-        self.assertNotContains(response, chiyo.last_name)
+        self.assertTemplateUsed(response2, 'reports/preview_report.html')
+        self.assertNoFormError(response2)
+        self.assertContains(response2, osaka.last_name)
+        self.assertNotContains(response2, chiyo.last_name)
 
     def test_preview02(self):
         "Empty: no contact."
@@ -1139,6 +1148,26 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         msg = _('No «{model}» matches your date filter').format(model='Test Contact')
         self.assertEqual(msg, response.context.get('empty_message'))
         self.assertContains(response, msg)
+
+    def test_preview06(self):
+        "Hidden field."
+        user = self.login_as_root_and_get()
+
+        hidden = 'birthday'
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(hidden, {FieldsConfig.HIDDEN: True})],
+        )
+
+        report = self._create_contacts_report(user=user, name='My report')
+        response = self.assertGET200(self._build_preview_url(report))
+
+        with self.assertNoException():
+            field_choices = response.context['form'].fields['date_field'].choices
+
+        self.assertInChoices(value='created', label=_('Creation date'),      choices=field_choices)
+        self.assertInChoices(value='modified', label=_('Last modification'), choices=field_choices)
+        self.assertNotInChoices(value='birthday', choices=field_choices)
 
     def test_report_reorder_field01(self):
         # user = self.login()

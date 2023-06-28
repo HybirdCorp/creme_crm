@@ -622,12 +622,15 @@ class ReportExportPreviewFilterForm(CremeForm):
         fields['doc_type'].choices = self._backend_choices()
 
     def _date_field_choices(self, report):
+        model = report.ct.model_class()
+        is_field_hidden = FieldsConfig.objects.get_for_model(model).is_field_hidden
+
         return [
             ('', pgettext_lazy('reports-date_filter', 'None')),
             *(
                 (field.name, field.verbose_name)
-                for field in report.ct.model_class()._meta.fields
-                if is_date_field(field)
+                for field in model._meta.fields
+                if is_date_field(field) and not is_field_hidden(field)
             ),
         ]
 
