@@ -906,10 +906,6 @@
 }
 
 .listview tbody .lv-cell-content ul {
-/*
-    margin: 2px;
-    padding: 0 0 0 15px;
-*/
     margin: 0;
     padding: 0;
     list-style-type: none;

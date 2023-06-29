@@ -37,9 +37,6 @@ def round_to_2(decimal_instance):
         return Decimal()
 
 
-# def print_discount(entity, fval, user, field):
-#     # return _('{} %').format(number_format(fval, use_l10n=True))
-#     return _('{} %').format(number_format(fval))
 def print_discount(*, value, **kwargs):
     # TODO: print 'None' only on detail views => we need this info in printers
     return _('{} %').format(number_format(value))

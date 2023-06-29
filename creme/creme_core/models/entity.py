@@ -103,9 +103,6 @@ class CremeEntity(CremeModel):
         verbose_name = 'Entity'
         verbose_name_plural = 'Entities'
         ordering = ('header_filter_search_field',)  # NB: order by id on a FK can cause a crashes
-        # index_together = [
-        #     ['entity_type', 'is_deleted'],  # Optimise the basic COUNT in list-views
-        # ]
         indexes = [
             # Optimise the basic COUNT in list-views
             models.Index(

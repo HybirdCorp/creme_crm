@@ -58,6 +58,5 @@ class GraphInstanceBricks(generic.RelatedToEntityDetailPopup):
 
     def get_brick_ids(self):
         return (
-            # InstanceBricksInfoBrick.id_,
             InstanceBricksInfoBrick.id,
         )

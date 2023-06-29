@@ -78,11 +78,9 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
     def build_editlineconditions_url(line):
         return reverse('polls__edit_form_line_conditions', args=(line.id,))
 
-    # def create_enum_line(self, choices, qtype=PollLineType.ENUM, del_choices=None):
     def create_enum_line(self, *, user, choices, qtype=PollLineType.ENUM, del_choices=None):
         kwargs = {} if not del_choices else {'del_choices': del_choices}
         create_l = self._get_formline_creator(
-            # PollForm.objects.create(user=self.user, name='Form#1'),
             PollForm.objects.create(user=user, name='Form#1'),
         )
 
@@ -91,9 +89,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
             **kwargs
         )
 
-    # def create_enum_line_from_view(self, choices, qtype=PollLineType.ENUM):
     def create_enum_line_from_view(self, *, user, choices, qtype=PollLineType.ENUM):
-        # pform = PollForm.objects.create(user=self.user, name='Form#1')
         pform = PollForm.objects.create(user=user, name='Form#1')
         response = self.client.post(
             self.build_addline_url(pform),
@@ -110,9 +106,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
         return line
 
-    # def create_3_lines_4_conditions(self):
     def create_3_lines_4_conditions(self, user):
-        # self.pform = pform = PollForm.objects.create(user=self.user, name='Form#1')
         self.pform = pform = PollForm.objects.create(user=user, name='Form#1')
         ENUM = PollLineType.ENUM
         create_l = self._get_formline_creator(pform=pform)
@@ -143,7 +137,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_detailview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -176,7 +169,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_createview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertFalse(PollForm.objects.all())
 
@@ -201,7 +193,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(ptype, pform.type)
 
     def test_editview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         name = 'form#1'
         pform = PollForm.objects.create(user=user, name=name)
@@ -228,7 +219,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(ptype, pform.type)
 
     def test_listview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         create_pform = partial(PollForm.objects.create, user=user)
         pform1 = create_pform(name='Form#1')
@@ -244,7 +234,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         url = pform.get_delete_absolute_url()
@@ -259,7 +248,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview02(self):
-        # self.login()
         user = self.login_as_root_and_get()
         line1, line2, line3 = self.create_3_lines_4_conditions(user=user)
         pform = self.pform
@@ -285,7 +273,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertFalse(PollFormLineCondition.objects.filter(id__in=[cond1.id, cond2.id]))
 
     def test_add_section01(self):  # TODO: uniqueness of name ???
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -322,7 +309,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_add_section02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         PollFormSection.objects.create(pform=pform, name='Name of the Chapter 1', order=1)
@@ -337,7 +323,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(2, section.order)
 
     def test_add_sub_section01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -371,7 +356,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_sub_section02(self):
         "Not super-user"
-        # user = self.login(is_superuser=False, allowed_apps=['polls'])
         user = self.login_as_polls_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -394,7 +378,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_sub_section03(self):
         "CHANGE credentials needed."
-        # user = self.login(is_superuser=False, allowed_apps=['polls'])
         user = self.login_as_polls_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -414,7 +397,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertGET403(reverse('polls__create_child_form_section', args=(section.id,)))
 
     def test_edit_section(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -440,7 +422,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(body, section.body)
 
     def test_delete_section01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         section = PollFormSection.objects.create(pform=pform, name='Introduction', order=1)
@@ -454,7 +435,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_delete_section02(self):
         "Deleted section has a line."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         section = PollFormSection.objects.create(pform=pform, name='Introduction', order=1)
@@ -476,7 +456,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_delete_section03(self):
         "Empty sub-sections are deleted."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -493,8 +472,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertFalse(PollFormSection.objects.filter(pk__in=[section.pk, sub_section.pk]))
 
     def test_delete_section04(self):
-        "Deleted section has a line (indirectly)"
-        # user = self.login()
+        "Deleted section has a line (indirectly)."
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -525,7 +503,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_add_line_string01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -576,7 +553,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_add_line_text01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -601,7 +577,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_int01(self):
         "Integer type."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -631,7 +606,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_int02(self):
         "Lower bound."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -655,7 +629,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_int03(self):
         "Upper bound."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -679,7 +652,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_int04(self):
         "Upper bound & lower bound."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -711,7 +683,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_int05(self):
         "Validation error: upper bound > lower bound."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -736,7 +707,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_bool01(self):
         "Boolean type."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         question = 'Have you ever seen a knight of the Ni ?'
@@ -762,7 +732,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_date01(self):
         "Date type."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         question = 'When did you see a swallow for the last time ?'
@@ -786,7 +755,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_hour01(self):
         "Hour type."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         question = 'Where did you see a swallow for the last time ?'
@@ -809,7 +777,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertIsNone(plt.get_editable_choices())
 
     def test_add_line_choices01(self):
-        # self.login()
         user = self.login_as_root_and_get()
         choices = [[1, 'White'], [2, 'Black'], [3, 'Green']]
         line = self.create_enum_line_from_view(
@@ -827,7 +794,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_add_line_choices02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -850,7 +816,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         post(' ', '  ')
 
     def test_add_line_multichoices01(self):
-        # self.login()
         user = self.login_as_root_and_get()
         line = self.create_enum_line_from_view(
             user=user,
@@ -868,7 +833,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_add_line_multichoices02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -891,7 +855,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         post(' ', '  ')
 
     def test_add_line_freechoice01(self):
-        # self.login()
         user = self.login_as_root_and_get()
         line = self.create_enum_line_from_view(
             user=user,
@@ -911,7 +874,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_add_line_comment01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         question = 'Your next answers must rhyme'
@@ -935,7 +897,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_insert_line01(self):
         "End of section."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         self._get_formline_creator(pform)('What is the matter ?')
@@ -968,7 +929,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_insert_line02(self):
         "Start of section."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         line = self._get_formline_creator(pform)('What is the matter ?')
@@ -986,7 +946,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(2, self.refresh(line).order)
 
     def test_add_line_to_section01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         section = PollFormSection.objects.create(pform=pform, name='Section I')
@@ -1018,7 +977,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_to_section02(self):
         "Orders."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -1059,7 +1017,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_to_section03(self):
         "Order (empty section, but not first line)."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -1093,7 +1050,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_to_section04(self):
         "Not super-user."
-        # user = self.login(is_superuser=False, allowed_apps=['polls'])
         user = self.login_as_polls_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -1114,7 +1070,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_to_section05(self):
         "CHANGE credentials needed."
-        # user = self.login(is_superuser=False, allowed_apps=['polls'])
         user = self.login_as_polls_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -1135,7 +1090,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_insert_line_to_section01(self):
         "Insert a question between 2 other questions"
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         section = PollFormSection.objects.create(pform=pform, name='Section I')
@@ -1179,7 +1133,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(4, self.refresh(line3).order)
 
     def test_edit_line01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         question = 'What is the difference between a swallow'
@@ -1220,8 +1173,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(qtype1,   line.type)  # Not changed !!
 
     def test_edit_line02(self):
-        "Disabled line --> error"
-        # user = self.login()
+        "Disabled line --> error."
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         line = PollFormLine.objects.create(
@@ -1234,8 +1186,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertPOST404(url, data={'question': line.question})
 
     def test_edit_line03(self):
-        "BOOL --> choices are not editable"
-        # user = self.login()
+        "BOOL --> choices are not editable."
         user = self.login_as_root_and_get()
         line = PollFormLine.objects.create(
             pform=PollForm.objects.create(user=user, name='Form#1'),
@@ -1250,8 +1201,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertNotIn('new_choices', fields)
 
     def test_edit_line_choices01(self):
-        "ENUM"
-        # self.login()
+        "ENUM."
         user = self.login_as_root_and_get()
         line = self.create_enum_line(user=user, choices=[[1, 'White'], [2, 'black']])
         url = line.get_edit_absolute_url()
@@ -1285,7 +1235,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_edit_line_choices02(self):
         "Delete some choices."
-        # self.login()
         user = self.login_as_root_and_get()
         line = self.create_enum_line(user=user, choices=[[1, 'White'], [2, 'Black'], [3, 'Red']])
         response = self.client.post(
@@ -1323,8 +1272,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_edit_line_choices03(self):
-        "With removed choices at beginning"
-        # self.login()
+        "With removed choices at beginning."
         user = self.login_as_root_and_get()
         line = self.create_enum_line(
             user=user,
@@ -1355,7 +1303,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_edit_line_choices04(self):
         "Assert choices are not empty."
-        # self.login()
         user = self.login_as_root_and_get()
         line = self.create_enum_line(user=user, choices=[[1, 'White'], [2, 'Black'], [3, 'Red']])
         response = self.assertPOST200(
@@ -1377,7 +1324,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_edit_line_choices05(self):
         "MULTI_ENUM."
-        # self.login()
         user = self.login_as_root_and_get()
         line = self.create_enum_line(
             user=user, choices=[[1, 'White'], [2, 'black']], qtype=PollLineType.MULTI_ENUM,
@@ -1393,7 +1339,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_edit_line_choices06(self):
         "ENUM_OR_STRING."
-        # self.login()
         user = self.login_as_root_and_get()
         line = self.create_enum_line(
             user=user, choices=[[1, 'White'], [2, 'black']], qtype=PollLineType.ENUM_OR_STRING,
@@ -1409,7 +1354,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_edit_line_description01(self):
         "MULTI_ENUM."
-        # self.login()
         user = self.login_as_root_and_get()
         line = self.create_enum_line(
             user=user,
@@ -1427,7 +1371,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_edit_line_description02(self):
         "ENUM_OR_STRING."
-        # self.login()
         user = self.login_as_root_and_get()
         line = self.create_enum_line(
             user=user,
@@ -1445,7 +1388,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_edit_line_choices_with_conditions01(self):
         "Delete some choices (NOT used in conditions)."
-        # self.login()
         user = self.login_as_root_and_get()
         line1, line2, line3 = self.create_3_lines_4_conditions(user=user)
 
@@ -1484,7 +1426,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_edit_line_choices_with_conditions02(self):
         "Delete some choices (NOT used in conditions)."
-        # self.login()
         user = self.login_as_root_and_get()
         line1, line2, line3 = self.create_3_lines_4_conditions(user=user)
 
@@ -1521,7 +1462,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_delete_type(self):
         "Set to NULL."
-        # user = self.login()
         user = self.login_as_root_and_get()
         ptype = PollType.objects.create(name='Political poll')
         pform = PollForm.objects.create(user=user, name='Form#1', type=ptype)
@@ -1540,7 +1480,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertIsNone(pform.type)
 
     def test_section_tree01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -1553,7 +1492,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual([], nodes)
 
     def test_section_tree02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -1595,7 +1533,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual('background-color: #D8E5EB;', poll_node_css(style, nodes[4]))
 
     def test_section_tree03(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -1627,7 +1564,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_section_tree04(self):
         "Section tree: manage disabled lines."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -1639,7 +1575,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertListEqual([1, None, 2], [node.number for node in SectionTree(pform)])
 
     def test_statsview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         response = self.assertGET200(self._build_stats_url(pform))
@@ -1652,7 +1587,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertIsInstance(get('style'), NodeStyle)
 
     def test_statsview02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -1667,7 +1601,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertContains(response, line3.question)
 
     def test_add_line_conditions_enum01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -1703,7 +1636,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_conditions_enum02(self):
         "Several conditions"
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -1736,7 +1668,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_add_line_conditions_not_super_user(self):
-        # user = self.login(is_superuser=False, allowed_apps=['polls'])
         user = self.login_as_polls_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -1755,7 +1686,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_conditions_creds(self):
         "CHANGE credentials needed."
-        # user = self.login(is_superuser=False, allowed_apps=['polls'])
         user = self.login_as_polls_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -1773,7 +1703,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertGET403(self.build_editlineconditions_url(line))
 
     def test_add_line_conditions_multienum(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -1803,7 +1732,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         (2, '2', _('This choice is invalid.')),
     ])
     def test_add_line_conditions_bool(self, choice, raw_answer, error=None):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -1829,7 +1757,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
             self.assertEqual(raw_answer, condition.raw_answer)
 
     def _aux_add_line_conditions_enumorchoice(self, choice, raw_answer):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -1864,7 +1791,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_conditions_error01(self):
         "The source can not be after the destination."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -1890,7 +1816,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_add_line_conditions_error02(self):
         "Line is disabled --> error."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         line = PollFormLine.objects.create(
@@ -1903,7 +1828,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_edit_line_conditions01(self):
         "Add a condition & change the existing one."
-        # self.login()
         user = self.login_as_root_and_get()
         line1, line2, line3 = self.create_3_lines_4_conditions(user=user)
 
@@ -1945,7 +1869,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_edit_line_conditions02(self):
         "Change an existing condition & remove one."
-        # self.login()
         user = self.login_as_root_and_get()
         line1, line2, line3 = self.create_3_lines_4_conditions(user=user)
 
@@ -1971,7 +1894,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_edit_line_conditions03(self):
         "Remove all conditions."
-        # self.login()
         user = self.login_as_root_and_get()
         line1, line2, line3 = self.create_3_lines_4_conditions(user=user)
 
@@ -1990,7 +1912,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_edit_line_conditions04(self):
         "Not super-user."
-        # user = self.login(is_superuser=False, allowed_apps=['polls'])
         user = self.login_as_polls_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -2013,7 +1934,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_edit_line_conditions05(self):
         "CHANGE credentials are needed."
-        # user = self.login(is_superuser=False, allowed_apps=['polls'])
         user = self.login_as_polls_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -2037,7 +1957,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
     # TODO: remove conditions --> update conds_use_or ?? (or remove 'None' feature)
 
     def test_disable_line01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         line = PollFormLine.objects.create(
@@ -2053,7 +1972,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_disable_line02(self):
         "Disabled line depends on other lines."
-        # self.login()
         user = self.login_as_root_and_get()
         line1, line2, line3 = self.create_3_lines_4_conditions(user=user)
 
@@ -2072,7 +1990,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_disable_line03(self):
         "Disabled line has a line that depends on it."
-        # self.login()
         user = self.login_as_root_and_get()
         line2, line3 = self.create_3_lines_4_conditions(user=user)[1:]
         cond = PollFormLineCondition.objects.create(
@@ -2092,7 +2009,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_disable_line04(self):
         "Already disabled."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         line = PollFormLine.objects.create(
@@ -2104,7 +2020,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_disable_line_ajax01(self):
         "Disabled line depends on other lines."
-        # self.login()
         user = self.login_as_root_and_get()
         line1, line2, line3 = self.create_3_lines_4_conditions(user=user)
 
@@ -2122,7 +2037,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_disable_line_ajax02(self):
         "Disabled line has a line that depends on it."
-        # self.login()
         user = self.login_as_root_and_get()
         line2, line3 = self.create_3_lines_4_conditions(user=user)[1:]
         cond = PollFormLineCondition.objects.create(
@@ -2140,7 +2054,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_delete_line01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         line = PollFormLine.objects.create(
@@ -2154,7 +2067,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_delete_line02(self):
         "Deleted line depends on other lines."
-        # self.login()
         user = self.login_as_root_and_get()
         line1, line2, line3 = self.create_3_lines_4_conditions(user=user)
 
@@ -2172,7 +2084,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_delete_line03(self):
         "Deleted line has a line that depends on it."
-        # self.login()
         user = self.login_as_root_and_get()
         line2, line3 = self.create_3_lines_4_conditions(user=user)[1:]
         cond = PollFormLineCondition.objects.create(
@@ -2201,7 +2112,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_delete_line_ajax01(self):
         "Deleted line depends on other lines."
-        # self.login()
         user = self.login_as_root_and_get()
         line1, line2, line3 = self.create_3_lines_4_conditions(user=user)
 
@@ -2219,7 +2129,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_delete_line_ajax02(self):
         "Deleted line has a line that depends on it."
-        # self.login()
         user = self.login_as_root_and_get()
         line2, line3 = self.create_3_lines_4_conditions(user=user)[1:]
         cond = PollFormLineCondition.objects.create(
@@ -2237,8 +2146,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_get_choices01(self):
-        "ENUM"
-        # user = self.login()
+        "ENUM."
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         choices = [[1, 'White'], [2, 'Black'], [3, 'Green']]
@@ -2252,7 +2160,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_get_choices02(self):
         "MULTI_ENUM."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         choices = [
@@ -2268,7 +2175,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_get_choices03(self):
         "ENUM_OR_STRING."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         choices = [[1, 'Cat'], [2, 'Dog'], [3, 'Fish']]
@@ -2281,7 +2187,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_get_choices04(self):
         "BOOL."
-        # user = self.login()
         user = self.login_as_root_and_get()
         line = PollFormLine.objects.create(
             pform=PollForm.objects.create(user=user, name='Form#1'),
@@ -2293,7 +2198,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_get_choices_error01(self):
         "Bad type."
-        # user = self.login()
         user = self.login_as_root_and_get()
         line = PollFormLine.objects.create(
             pform=PollForm.objects.create(user=user, name='Form#1'),
@@ -2304,7 +2208,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     # TODO: use Nullable feature to avoid query
     def test_condition_getters01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         line = PollFormLine.objects.create(
             pform=PollForm.objects.create(user=user, name='Form#1'),
@@ -2321,7 +2224,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertListEqual([], conditions)
 
     def test_condition_getters02(self):
-        # self.login()
         user = self.login_as_root_and_get()
         line1, line2, line3 = self.create_3_lines_4_conditions(user=user)
         line4 = PollFormLine.objects.create(
@@ -2365,7 +2267,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_condition_getters03(self):
         "Use populate_conditions()."
-        # self.login()
         user = self.login_as_root_and_get()
         line1, line2, line3 = self.create_3_lines_4_conditions(user=user)
         line4 = PollFormLine.objects.create(
@@ -2400,7 +2301,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertListEqual([cond1, cond3], conditions)
 
     def test_poll_line_condition(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -2459,7 +2359,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_clone01(self):
         "Cloning a form with multiple sections, lines and conditions."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         create_section = partial(PollFormSection.objects.create, pform=pform)
@@ -2527,7 +2426,6 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
 
     def test_clone02(self):
         "Disabled lines excluded when cloning a form."
-        # user = self.login()
         user = self.login_as_root_and_get()
         pform = PollForm.objects.create(user=user, name='Form#1')
         count_pforms = PollForm.objects.count()

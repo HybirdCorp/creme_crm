@@ -42,13 +42,10 @@ class FunctionFieldTestCase(_BillingTestCase):
         )
         self.today_date = date.today()
 
-    # def create_line(self, related_document, unit_price, quantity):
     def create_line(self, *, user, entity, unit_price, quantity):
         return ProductLine.objects.create(
-            # user=self.user,
             user=user,
             on_the_fly_item='on_the_fly_item',
-            # related_document=related_document,
             related_document=entity,
             unit_price=unit_price,
             quantity=quantity,
@@ -57,7 +54,6 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_get_total_pending01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         create_orga = partial(Organisation.objects.create, user=user)
         target = create_orga(name='Target')
@@ -133,7 +129,6 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_get_total_pending02(self):
         "populate_entities()."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -231,7 +226,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         invoice3 = create_invoice(name='Invoice #3', source=source, target=target)
         set_status(invoice3)
 
-        # invoice3.user = self.other_user
         invoice3.user = self.get_root_user()
         invoice3.save()
         self.assertFalse(user.has_perm_to_view(invoice3))
@@ -278,7 +272,6 @@ class FunctionFieldTestCase(_BillingTestCase):
         invoice3 = create_invoice(name='Invoice #3', source=source, target=target)
         set_status(invoice3)
 
-        # invoice3.user = self.other_user
         invoice3.user = self.get_root_user()
         invoice3.save()
         self.assertFalse(user.has_perm_to_view(invoice3))
@@ -295,7 +288,6 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_get_total_pending05(self):
         "Per-user cache."
-        # user = self.login()
         user = self.login_as_root_and_get()
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice #1')
 
@@ -313,10 +305,6 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         self.assertEqual(number_format('2000.00'), total1)
 
-        # other_user = self.other_user
-        # other_user.is_superuser = True
-        # other_user.role = None
-        # other_user.save()
         other_user = self.create_user()
 
         with self.assertNumQueries(2):
@@ -331,7 +319,6 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_get_total_pending06(self):
         "Per-user cache + populate()."
-        # user = self.login()
         user = self.login_as_root_and_get()
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice #1')
 
@@ -352,10 +339,6 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         self.assertEqual(number_format('2000.00'), total1)
 
-        # other_user = self.other_user
-        # other_user.is_superuser = True
-        # other_user.role = None
-        # other_user.save()
         other_user = self.create_user()
 
         with self.assertNumQueries(2):
@@ -372,7 +355,6 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomProductLine
     def test_get_total_won_quote_last_year01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         def set_date(quote):
@@ -432,7 +414,6 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_get_total_won_quote_last_year02(self):
         "'acceptation_date' is hidden."
-        # user = self.login()
         user = self.login_as_root_and_get()
         quote, source, target = self.create_quote_n_orgas(user=user, name='YOLO')
 
@@ -454,8 +435,7 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomProductLine
     def test_get_total_won_quote_last_year03(self):
-        "'populate_entities()."
-        # user = self.login()
+        "populate_entities()."
         user = self.login_as_root_and_get()
         previous_year = self.today_date - timedelta(days=365)
 
@@ -513,7 +493,6 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_get_total_won_quote_last_year04(self):
         "'acceptation_date' is hidden + populate_entities()."
-        # user = self.login()
         user = self.login_as_root_and_get()
         quote1, source1, target1 = self.create_quote_n_orgas(user=user, name='Quote1')
         quote2, source2, target2 = self.create_quote_n_orgas(user=user, name='Quote2')
@@ -541,7 +520,6 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomProductLine
     def test_get_total_won_quote_this_year01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         def set_date(quote):
@@ -601,7 +579,6 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_get_total_won_quote_this_year02(self):
         "'acceptation_date' is hidden."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         quote, source, target = self.create_quote_n_orgas(user=user, name='Quote #1')
@@ -623,7 +600,6 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_get_total_won_quote_this_year03(self):
         "'populate_entities()."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         def set_date(quote):
@@ -681,7 +657,6 @@ class FunctionFieldTestCase(_BillingTestCase):
     @skipIfCustomProductLine
     def test_get_total_won_quote_this_year04(self):
         "'acceptation_date' is hidden + populate_entities()."
-        # user = self.login()
         user = self.login_as_root_and_get()
         quote1, source1, target1 = self.create_quote_n_orgas(user=user, name='Quote1')
         quote2, source2, target2 = self.create_quote_n_orgas(user=user, name='Quote2')
@@ -708,7 +683,6 @@ class FunctionFieldTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     def test_functionfields(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         quote, source, target = self.create_quote_n_orgas(user=user, name='YOLO')
 

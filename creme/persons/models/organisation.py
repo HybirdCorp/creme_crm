@@ -109,7 +109,6 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
         ordering = ('name',)
         verbose_name = _('Organisation')
         verbose_name_plural = _('Organisations')
-        # index_together = ('name', 'cremeentity_ptr')
         indexes = [
             models.Index(
                 fields=['name', 'cremeentity_ptr'],

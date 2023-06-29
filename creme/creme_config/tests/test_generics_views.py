@@ -1613,7 +1613,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         result = results[0]
         self.assertIsList(result, length=2)
 
-        # brick_id = GenericModelBrick.id_
         brick_id = GenericModelBrick.id
         self.assertEqual(brick_id, result[0])
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)
@@ -1621,10 +1620,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_reload_app_bricks01(self):
         url = reverse('creme_config__reload_app_bricks', args=('creme_core',))
         self.assertGET404(url)
-        # self.assertGET404(url, data={'brick_id': PropertyTypesBrick.id_})
         self.assertGET404(url, data={'brick_id': PropertyTypesBrick.id})
 
-        # response = self.assertGET200(url, data={'brick_id': SettingsBrick.id_})
         response = self.assertGET200(url, data={'brick_id': SettingsBrick.id})
 
         results = response.json()
@@ -1633,7 +1630,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         result = results[0]
         self.assertIsList(result, length=2)
 
-        # brick_id = SettingsBrick.id_
         brick_id = SettingsBrick.id
         self.assertEqual(brick_id, result[0])
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)
@@ -1641,7 +1637,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_reload_app_bricks02(self):
         response = self.assertGET200(
             reverse('creme_config__reload_app_bricks', args=('creme_core',)),
-            # data={'brick_id': FakeAppPortalBrick.id_},
             data={'brick_id': FakeAppPortalBrick.id},
         )
 
@@ -1651,7 +1646,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         result = results[0]
         self.assertIsList(result, length=2)
 
-        # brick_id = FakeAppPortalBrick.id_
         brick_id = FakeAppPortalBrick.id
         self.assertEqual(brick_id, result[0])
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)

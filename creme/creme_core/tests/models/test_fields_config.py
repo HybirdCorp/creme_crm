@@ -416,7 +416,6 @@ class FieldsConfigTestCase(CremeTestCase):
 
     def test_form_update_hidden02(self):
         "In view."
-        # user = self.login()
         self.login_as_root()
         user = self.get_root_user()
         self._create_contact_hidden_conf()
@@ -566,10 +565,6 @@ class FieldsConfigTestCase(CremeTestCase):
         h_field = 'phone'
         fconf = FieldsConfig.objects.create(
             content_type=FakeContact,
-            # raw_descriptions=json_dump([
-            #     (h_field,   {FieldsConfig.HIDDEN: True}),
-            #     ('invalid', {FieldsConfig.HIDDEN: True}),
-            # ]),
             raw_descriptions=[
                 (h_field, {FieldsConfig.HIDDEN: True}),
                 ('invalid', {FieldsConfig.HIDDEN: True}),
@@ -580,7 +575,6 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertEqual(1, len(fconf.descriptions))
 
         fconf = self.refresh(fconf)
-        # self.assertEqual(1, len(json_load(fconf.raw_descriptions)))
         self.assertEqual(1, len(fconf.raw_descriptions))
         self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
 

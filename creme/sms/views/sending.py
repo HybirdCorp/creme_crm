@@ -94,7 +94,6 @@ class Messages(generic.CremeModelDetailPopup):
 
     def get_brick_ids(self):
         return (
-            # MessagesBrick.id_,
             MessagesBrick.id,
         )
 

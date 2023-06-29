@@ -22,13 +22,6 @@ urlpatterns = [
         name='products__remove_image',
     ),
 
-    # # DEPRECATED.
-    # re_path(
-    #     r'^sub_category/(?P<category_id>\d+)/json[/]?$',
-    #     product.get_subcategories,
-    #     name='products__subcategories',
-    # ),
-
     *swap_manager.add_group(
         products.product_model_is_custom,
         Swappable(

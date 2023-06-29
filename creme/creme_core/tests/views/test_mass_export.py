@@ -55,11 +55,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         super().setUpClass()
         cls.ct = ContentType.objects.get_for_model(FakeContact)
 
-    # def _build_hf_n_contacts(self, user=None):
     def _build_hf_n_contacts(self, user):
-        # if user is None:
-        #     user = self.user
-
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         self.organisations = organisations = {
             name: create_orga(name=name)
@@ -149,19 +145,16 @@ class MassExportViewsTestCase(ViewsTestCase):
 
     def test_export_error_invalid_doctype(self):
         "Assert doc_type in ('xls', 'csv')."
-        # self.login()
         self.login_as_root()
         self.assertGET404(self._build_contact_dl_url(doc_type='exe'))
 
     def test_export_error_invalid_ctype(self):
-        # self.login()
         self.login_as_root()
         lv_url = FakeContact.get_lv_absolute_url()
 
         self.assertGET404(self._build_dl_url(ct_or_model=None, list_url=lv_url))
 
     def test_export_error_invalid_hfilter(self):
-        # self.login()
         self.login_as_root()
         lv_url = FakeContact.get_lv_absolute_url()
         build_url = partial(self._build_dl_url, ct_or_model=self.ct, list_url=lv_url)
@@ -190,7 +183,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         private_hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact_test_invalid_hfilter02',
             name='Private contact view', model=FakeContact,
-            # is_custom=True, user=self.other_user, is_private=True,
             is_custom=True, user=self.create_user(), is_private=True,
             cells_desc=[
                 (EntityCellRegularField, {'name': 'last_name'}),
@@ -200,7 +192,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertGET404(build_url(hfilter_id=private_hf.id))
 
     def test_export_error_invalid_efilter(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         build_cell = EntityCellRegularField.build
         HeaderFilter.objects.create_if_needed(
@@ -235,7 +226,6 @@ class MassExportViewsTestCase(ViewsTestCase):
             'test-hf_contact_test_invalid_efilter',
             name='With Contact mail',
             model=FakeContact,
-            # is_custom=True, user=self.other_user, is_private=True,
             is_custom=True, user=self.create_user(), is_private=True,
             conditions=[
                 RegularFieldConditionHandler.build_condition(
@@ -247,7 +237,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertGET404(self._build_contact_dl_url(efilter_id=private_efilter.id,))
 
     def test_list_view_export_header(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         cells = self._build_hf_n_contacts(user=user).cells
         existing_hline_ids = [*HistoryLine.objects.values_list('id', flat=True)]
@@ -261,7 +250,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertFalse(HistoryLine.objects.exclude(id__in=existing_hline_ids))
 
     def test_xls_export_header(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         cells = self._build_hf_n_contacts(user=user).cells
 
@@ -276,7 +264,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertListEqual([hfi.title for hfi in cells], result)
 
     def test_list_view_export_csv(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         hf = self._build_hf_n_contacts(user=user)
         existing_hline_ids = [*HistoryLine.objects.values_list('id', flat=True)]
@@ -322,7 +309,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
 
     def test_list_view_export_scsv(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         cells = self._build_hf_n_contacts(user=user).cells
 
@@ -340,7 +326,6 @@ class MassExportViewsTestCase(ViewsTestCase):
 
     def test_list_view_export_credentials01(self):
         "'export' credential."
-        # self.login(is_superuser=False)
         user = self.login_as_standard()
         self._build_hf_n_contacts(user=user)
 
@@ -352,12 +337,10 @@ class MassExportViewsTestCase(ViewsTestCase):
 
     def test_list_view_export_credentials02(self):
         "Views credential."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
         user.role.exportable_ctypes.set([self.ct])
 
-        # other_user = self.other_user
         other_user = self.get_root_user()
 
         self._build_hf_n_contacts(user=user)
@@ -388,7 +371,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         DATETIME_INPUT_FORMATS=['%d-%m-%Y %H:%M:%S'],
     )
     def test_list_view_export_datetime(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         hf = HeaderFilter.objects.create_if_needed(
@@ -409,21 +391,18 @@ class MassExportViewsTestCase(ViewsTestCase):
             result[1],
             '"{}","{}"'.format(
                 spike.last_name,
-                # date_format(localtime(spike.created), 'DATETIME_FORMAT'),
                 localtime(spike.created).strftime('%d-%m-%Y %H:%M:%S'),
             ),
         )
 
     def test_list_view_export_fk_entity(self):
         "FK field on CremeEntity."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
         user.role.exportable_ctypes.set([self.ct])
 
         create_img = FakeImage.objects.create
         spike_face = create_img(
-            # name='Spike face', user=self.other_user, description="Spike's selfie",
             name='Spike face', user=self.get_root_user(), description="Spike's selfie",
         )
         jet_face = create_img(
@@ -459,7 +438,6 @@ class MassExportViewsTestCase(ViewsTestCase):
 
     def test_list_view_export_m2m_entities(self):
         "M2M field on CremeEntities."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_camp = partial(FakeEmailCampaign.objects.create, user=user)
@@ -492,7 +470,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(result[3], '"Camp#3",""')
 
     def test_list_view_export_fieldsconfig(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self._build_hf_n_contacts(user=user)
 
@@ -514,7 +491,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(next(it), '"","Black","Bebop",""')
 
     def test_extra_filter(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self._build_hf_n_contacts(user=user)
 
@@ -530,7 +506,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertGET(400, self._build_contact_dl_url(extra_q='[123]'))
 
     def test_list_view_export_with_filter01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         hf = self._build_hf_n_contacts(user=user)
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -576,7 +551,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
 
     def test_xls_export01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         cells = self._build_hf_n_contacts(user=user).cells
         existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
@@ -610,7 +584,6 @@ class MassExportViewsTestCase(ViewsTestCase):
     )
     def test_xls_export02(self):
         "Other CT, other type of fields."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -647,7 +620,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertListEqual(next(it), [orga01.name, _('Yes'), ''])
         self.assertListEqual(
             next(it),
-            # [orga02.name, _('No'), date_format(orga02.creation_date, 'DATE_FORMAT')],
             [orga02.name, _('No'), orga02.creation_date.strftime('%d,%m,%Y')],
         )
         with self.assertRaises(StopIteration):
@@ -655,7 +627,6 @@ class MassExportViewsTestCase(ViewsTestCase):
 
     def test_print_integer01(self):
         "No choices."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -682,7 +653,6 @@ class MassExportViewsTestCase(ViewsTestCase):
 
     def test_print_integer02(self):
         "Field with choices."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice = FakeInvoice.objects.create(
@@ -717,7 +687,6 @@ class MassExportViewsTestCase(ViewsTestCase):
 
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_quick_search(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         hf = HeaderFilter.objects.create_if_needed(
@@ -750,7 +719,6 @@ class MassExportViewsTestCase(ViewsTestCase):
 
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_sorting(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         hf = HeaderFilter.objects.create_if_needed(
@@ -785,7 +753,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
 
     def test_distinct(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_camp = partial(FakeEmailCampaign.objects.create, user=user)

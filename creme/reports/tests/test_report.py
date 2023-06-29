@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import smart_str
-from django.utils.formats import get_format, number_format  # date_format
+from django.utils.formats import get_format, number_format
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
@@ -81,18 +81,13 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def assertHeaders(self, names, report):
         self.assertEqual(names, [f.name for f in report.get_children_fields_flat()])
 
-    # def _build_contacts_n_images(self):
     def _build_contacts_n_images(self, user, other_user):
-        # user = self.user
-
         create_img = FakeImage.objects.create
-        # self.ned_face  = create_img(name='Ned face',  user=self.other_user)
         self.ned_face  = create_img(name='Ned face',  user=other_user)
         self.aria_face = create_img(name='Aria face', user=user)
 
         create_contact = partial(FakeContact.objects.create, user=user)
         self.ned  = create_contact(first_name='Eddard', last_name='Stark', image=self.ned_face)
-        # self.robb = create_contact(first_name='Robb',   last_name='Stark', user=self.other_user)
         self.robb = create_contact(first_name='Robb',   last_name='Stark', user=other_user)
         self.aria = create_contact(first_name='Aria',   last_name='Stark', image=self.aria_face)
 
@@ -108,10 +103,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             ],
         )
 
-    # def _build_image_report(self):
     def _build_image_report(self, user):
         img_report = Report.objects.create(
-            # user=self.user, name='Report on images', ct=self.ct_image,
             user=user, name='Report on images', ct=self.ct_image,
         )
 
@@ -124,10 +117,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         return img_report
 
-    # def _build_orga_report(self):
     def _build_orga_report(self, user):
         orga_report = Report.objects.create(
-            # user=self.user, name='Report on organisations', ct=self.ct_orga,
             user=user, name='Report on organisations', ct=self.ct_orga,
         )
 
@@ -160,9 +151,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
     def login_as_basic_user(self, **kwargs):
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=('creme_core', 'reports'),
             **kwargs
         )
@@ -175,7 +164,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         return user
 
     def test_columns(self):
-        # self.login()
         user = self.login_as_root_and_get()
         report = self._build_orga_report(user=user)
         report = self.refresh(report)
@@ -199,7 +187,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(report, f_report)
 
     def test_detailview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = self._create_simple_contacts_report(user=user, name='My report')
@@ -219,7 +206,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_createview01(self):
         "No EntityFilter, no HeaderFilter."
-        # user = self.login()
         user = self.login_as_root_and_get()
         cf = self._create_cf_int()
 
@@ -339,7 +325,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_createview02(self):
         "With EntityFilter & HeaderFilter; other ContentType."
-        # user = self.login()
         user = self.login_as_root_and_get()
         other_user = self.create_user()
 
@@ -477,7 +462,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_createview_error(self):
         "No column selected."
-        # user = self.login()
         user = self.login_as_root_and_get()
         url = self.ADD_URL
 
@@ -512,7 +496,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertFormError(form3, field='columns', errors=_('This field is required.'))
 
     def test_editview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         other_user = self.create_user()
 
@@ -569,9 +552,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         """Cannot edit the 'filter' field when its a private filter which
         belongs to another user.
         """
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         create_efilter = EntityFilter.objects.smart_update_or_create
@@ -601,7 +582,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_editview03(self):
         "Reset filter to None."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -636,9 +616,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     @override_settings(FORM_ENUMERABLE_LIMIT=100)
     def test_report_inneredit_filter01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         FieldsConfig.objects.create(
@@ -702,9 +680,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_inneredit_filter02(self):
         "Private filter to another user -> cannot edit."
-        # self.login()
         self.login_as_root()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -737,7 +713,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(efilter, self.refresh(report).filter)
 
     def test_report_inneredit_filter03(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         field_name = 'filter'
@@ -757,7 +732,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_bulkedit_filter01(self):
         "Reports are related to the same ContentType -> OK."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_ef = partial(EntityFilter.objects.smart_update_or_create, is_custom=True)
@@ -810,7 +784,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_bulkedit_filter02(self):
         "Reports are related to different ContentTypes -> error."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         field_name = 'filter'
@@ -858,9 +831,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_bulkedit_filter03(self):
         "Some filters are not visible (private) -> errors."
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         create_ef = partial(
@@ -914,7 +885,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(efilter2, self.refresh(report3).filter)  # No change
 
     def test_listview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         reports = [
@@ -931,7 +901,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             self.assertIn(report, reports_page.object_list)
 
     def test_listview_actions(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         report = self._create_simple_contacts_report(user=user, name='Report#1')
 
@@ -955,7 +924,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertTrue(export_action.is_visible)
 
     def test_clone(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Mihana family', FakeContact, is_custom=True,
@@ -991,7 +959,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_delete_efilter(self):
         "The filter should not be deleted."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -1010,14 +977,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         # AJAX version
         self.assertPOST(
             409, url, data=data, follow=True,
-            # HTTP_X_REQUESTED_WITH='XMLHttpRequest'
             headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertStillExists(efilter)
         self.assertStillExists(report)
 
     def test_preview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1077,7 +1042,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_preview02(self):
         "Empty: no contact."
-        # user = self.login()
         user = self.login_as_root_and_get()
         report = self._create_simple_contacts_report(user=user, name='My report')
 
@@ -1093,7 +1057,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         user = self.login_as_basic_user(creatable_models=[Report])
 
         FakeContact.objects.create(
-            # user=self.other_user, first_name='Chiyo', last_name='Mihana',
             user=self.get_root_user(), first_name='Chiyo', last_name='Mihana',
         )
 
@@ -1106,7 +1069,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_preview04(self):
         "Empty: no contact after date filtering."
-        # user = self.login()
         user = self.login_as_root_and_get()
         tomo = FakeContact.objects.create(user=user, first_name='Tomo', last_name='Takino')
 
@@ -1134,7 +1096,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_preview05(self):
         "Empty: no contact after date filtering."
-        # user = self.login()
         user = self.login_as_root_and_get()
         report = self._create_simple_contacts_report(user=user, name='My report')
 
@@ -1178,7 +1139,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertNotInChoices(value='birthday', choices=field_choices)
 
     def test_report_reorder_field01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = self._create_contacts_report(user=user, name='trinita')
@@ -1194,7 +1154,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_reorder_field02(self):
         "Report & Field do not match."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report1 = self._create_simple_contacts_report(user=user, name='Hill')
@@ -1207,7 +1166,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
     def test_export_filter_form_customrange(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = self._create_simple_contacts_report(user=user, name='My report')
@@ -1251,7 +1209,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
     def test_export_filter_not_superuser01(self):
-        # user = self.login(is_superuser=False, allowed_apps=['reports'])
         user = self.login_as_standard(allowed_apps=['reports'])
         SetCredentials.objects.create(
             role=user.role,
@@ -1264,14 +1221,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_export_filter_not_superuser02(self):
         "VIEW permission."
-        # user = self.login(is_superuser=False, allowed_apps=['reports'])
         user = self.login_as_standard(allowed_apps=['reports'])
 
         report = Report.objects.create(name='Report', user=user, ct=self.ct_orga)
         self.assertGET403(reverse('reports__export_report_filter', args=(report.id,)))
 
     def test_export_filter_form_missing_doctype(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = self._create_simple_contacts_report(user=user, name='My report')
@@ -1287,7 +1242,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
     def test_export_filter_form_missing_customrange(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = self._create_simple_contacts_report(user=user, name='My report')
@@ -1316,7 +1270,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
     def test_export_filter_form_invalid_filter(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = self._create_simple_contacts_report(user=user, name='My report')
@@ -1340,7 +1293,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
     def test_export_filter_form_no_datefield(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = self._create_simple_contacts_report(user=user, name='My report')
@@ -1368,13 +1320,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_csv01(self):
         "Empty report."
-        # user = self.login()
         user = self.login_as_root_and_get()
-
         self.assertFalse(FakeInvoice.objects.all())
 
         rt = RelationType.objects.get(pk=REL_SUB_HAS)
-
         report = Report.objects.create(
             user=user, name='Report on invoices', ct=FakeInvoice,
         )
@@ -1394,7 +1343,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
     def test_report_csv02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self._create_persons(user=user)
@@ -1423,7 +1371,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_csv03(self):
         "With date filter."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self._create_persons(user=user)
@@ -1447,7 +1394,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_csv04(self):
         "With date filter and registered range."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self._create_persons(user=user)
@@ -1472,7 +1418,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_csv05(self):
         "Errors: invalid GET param."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self._create_persons(user=user)
@@ -1498,7 +1443,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_csv06(self):
         "With FieldsConfig."
-        # self.login()
         user = self.login_as_root_and_get()
 
         hidden_fname1 = 'phone'
@@ -1529,7 +1473,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_csv07(self):
         "With FieldsConfig on sub-field."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         hidden_fname = 'description'
@@ -1553,7 +1496,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_csv08(self):
         "With disabled RelationType."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         rtype = RelationType.objects.smart_update_or_create(
@@ -1579,7 +1521,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_report_xls(self):
         "With date filter."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self._create_persons(user=user)
@@ -1608,7 +1549,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         return reverse('reports__edit_fields', args=(report.id,))
 
     def test_edit_fields01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = self._create_simple_contacts_report(user=user, name='Report #1')
@@ -1652,7 +1592,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_edit_fields02(self):
         "FK, Custom field, aggregate on CustomField; additional old Field deleted."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         cf = self._create_cf_int()
@@ -1708,7 +1647,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_edit_fields03(self):
         "Other types: relationships, function fields."
-        # user = self.login()
         user = self.login_as_root_and_get()
         report = self._create_simple_contacts_report(user=user, name='My beloved Report')
         f_name = 'user__username'
@@ -1755,7 +1693,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_edit_fields04(self):
         "Aggregate on regular fields."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = Report.objects.create(name='Secret report', user=user, ct=self.ct_orga)
@@ -1785,7 +1722,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_edit_fields05(self):
         "Related entity."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = Report.objects.create(
@@ -1818,7 +1754,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_edit_fields06(self):
         "Edit field with sub-report."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_report = partial(Report.objects.create, user=user)
@@ -1870,7 +1805,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_edit_fields07(self):
         "With FieldsConfig."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         valid_fname = 'last_name'
@@ -1917,7 +1851,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_edit_fields08(self):
         "FK with <depth=2>."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = Report.objects.create(name='Docs report', user=user, ct=FakeCoreDocument)
@@ -1941,7 +1874,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_edit_fields09(self):
         "M2M with <depth=2>."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = Report.objects.create(
@@ -1966,7 +1898,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(RFT_FIELD, column.type)
 
     def test_edit_fields_not_super_user01(self):
-        # user = self.login(is_superuser=False, allowed_apps=['reports'])
         user = self.login_as_standard(allowed_apps=['reports'])
         SetCredentials.objects.create(
             role=user.role,
@@ -1979,7 +1910,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_edit_fields_not_super_user02(self):
         "Edition permission on Report are needed."
-        # user = self.login(is_superuser=False, allowed_apps=['reports'])
         user = self.login_as_standard(allowed_apps=['reports'])
         SetCredentials.objects.create(
             role=user.role,
@@ -1991,7 +1921,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertGET403(self._build_editfields_url(report))
 
     def test_edit_fields_errors01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = self._create_simple_contacts_report(user=user)
@@ -2007,7 +1936,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
     def test_edit_fields_errors02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         report = Report.objects.create(user=user, name='Report on docs', ct=FakeReportsDocument)
 
@@ -2023,7 +1951,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
     def test_invalid_hands01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         report = self._create_simple_contacts_report(user=user)
 
@@ -2035,7 +1962,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertDoesNotExist(rfield)
 
     def test_invalid_hands02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         report = Report.objects.create(
             user=user, name='Report on docs', ct=FakeReportsDocument,
@@ -2050,7 +1976,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_link_report_regular(self):
         "RFT_FIELD (FK) field."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         contact_report = Report.objects.create(
@@ -2111,7 +2036,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertFalse(fk_img_field.selected)
 
     def test_link_report_not_superuser01(self):
-        # user = self.login(is_superuser=False, allowed_apps=['reports'])
         user = self.login_as_standard(allowed_apps=['reports'])
         SetCredentials.objects.create(
             role=user.role,
@@ -2128,7 +2052,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_link_report_not_superuser02(self):
         "LINK permission."
-        # user = self.login(is_superuser=False, allowed_apps=['reports'])
         user = self.login_as_standard(allowed_apps=['reports'])
         SetCredentials.objects.create(
             role=user.role,
@@ -2145,7 +2068,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_link_report_relation01(self):
         "RelationType has got constraints on CT."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         contact_report = Report.objects.create(
@@ -2182,7 +2104,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_link_report_relation02(self):
         "RelationType hasn't any constraint on CT."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         contact_report = Report.objects.create(
@@ -2208,13 +2129,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_link_report_related(self):
         "RFT_RELATED field."
-        # user = self.login()
         user = self.login_as_root_and_get()
-
-        # self.assertListEqual(
-        #     [('fakereportsdocument', 'Test (reports) Document')],
-        #     Report.get_related_fields_choices(FakeReportsFolder),
-        # )
 
         folder_report = Report.objects.create(
             name='Report on folders', user=user, ct=self.ct_folder,
@@ -2234,7 +2149,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_link_report_error(self):
         "Cycle error."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         contact_report = Report.objects.create(
@@ -2272,7 +2186,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_link_report_selected(self):
         "selected=True if only one sub-report."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         img_report = self._build_image_report(user=user)
@@ -2307,7 +2220,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
     def test_set_selected01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         img_report = self._build_image_report(user=user)
@@ -2356,7 +2268,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_set_selected02(self):
         "Missing Field ID."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         contact_report = Report.objects.create(
@@ -2373,7 +2284,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_set_selected03(self):
         "Field & report do not match."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         img_report = self._build_image_report(user=user)
@@ -2401,8 +2311,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             create_contacts=True,
             create_relations=True,
             report_4_contact=True):
-        # user = self.user
-
         if create_contacts:
             create_contact = partial(FakeContact.objects.create, user=user)
             self.ned    = create_contact(first_name='Eddard', last_name='Stark')
@@ -2452,7 +2360,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         create_field(report=self.report_orga, name='name', order=1)
 
     def test_fetch_field_01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -2476,7 +2383,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     @override_language('en')
     def test_fetch_field_02(self):
         "FK, date, filter, invalid one."
-        # self.login()
         user = self.login_as_root_and_get()
 
         self._aux_test_fetch_persons(
@@ -2515,7 +2421,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                     starks.name,
                     username,
                     lform.title,
-                    # date_format(starks.creation_date, 'DATE_FORMAT'),
                     starks.creation_date.strftime('%Y-%m-%d'),
                 ],
             ],
@@ -2525,7 +2430,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_fetch_field_03(self):
         "View credentials."
         user = self.login_as_basic_user()
-        # other_user = self.other_user
         other_user = self.get_root_user()
 
         self._aux_test_fetch_persons(
@@ -2565,9 +2469,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         lines[0][1] = settings.HIDDEN_VALUE  # 'lannisters_img' not visible
         self.assertEqual(lines, fetch_all_lines(user=user))
 
-    # def _aux_test_fetch_documents(self, efilter=None, selected=True):
     def _aux_test_fetch_documents(self, *, user, efilter=None, selected=True):
-        # user = self.user
         create_field = partial(
             Field.objects.create, selected=False, sub_report=None, type=RFT_FIELD,
         )
@@ -2596,7 +2498,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_fk_01(self):
         "Sub report: no sub-filter."
-        # self.login()
         user = self.login_as_root_and_get()
 
         self._aux_test_fetch_documents(user=user)
@@ -2614,7 +2515,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_fk_02(self):
         "Sub report: sub-filter."
-        # self.login()
         user = self.login_as_root_and_get()
 
         efilter = EntityFilter.objects.smart_update_or_create(
@@ -2642,7 +2542,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_fk_03(self):
         "Sub report (flattened)."
-        # self.login()
         user = self.login_as_root_and_get()
         self._aux_test_fetch_documents(user=user, selected=False)
 
@@ -2659,7 +2558,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_fk_04(self):
         "Not Entity, no (sub) attribute."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self._aux_test_fetch_persons(
@@ -2690,7 +2588,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_fk_05(self):
         "FK with depth=2."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         cat = FakeFolderCategory.objects.create(name='Maps')
@@ -2724,7 +2621,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_fk_06(self):
         "M2M at <depth=2>."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_cat = FakeImageCategory.objects.create
@@ -2784,7 +2680,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_cf_01(self):
         "Custom fields."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -2836,7 +2731,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         "In FK, credentials."
         user = self.login_as_basic_user()
 
-        # self._build_contacts_n_images()
         self._build_contacts_n_images(user=user, other_user=self.get_root_user())
         ned_face = self.ned_face
         aria_face = self.aria_face
@@ -2882,7 +2776,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_m2m_01(self):
         "No sub report."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = Report.objects.create(
@@ -2912,7 +2805,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
     def _aux_test_fetch_m2m(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -3043,7 +2935,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_m2m_04(self):
         "Not CremeEntity model."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         report = self._build_image_report(user=user)
@@ -3079,7 +2970,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_m2m_05(self):
         "FK at <depth=2>."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_positon = FakePosition.objects.create
@@ -3118,11 +3008,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             report.fetch_all_lines(),
         )
 
-    # def _aux_test_fetch_related(self, select_doc_report=None, invalid_one=False):
     def _aux_test_fetch_related(self, *, user, other_user,
                                 select_doc_report=None, invalid_one=False):
-        # user = self.user
-
         create_report = partial(Report.objects.create, user=user, filter=None)
         self.doc_report = (
             self._create_simple_documents_report(user=user)
@@ -3155,7 +3042,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             title='Doc#1-1', linked_folder=self.folder1, description='Boring !',
         )
         self.doc12 = create_doc(
-            # title='Doc#1-2', linked_folder=self.folder1, user=self.other_user,
             title='Doc#1-2', linked_folder=self.folder1, user=other_user,
         )
         self.doc21 = create_doc(title='Doc#2-1', linked_folder=self.folder2)
@@ -3163,9 +3049,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_fetch_related_01(self):
         user = self.login_as_basic_user()
 
-        # self._aux_test_fetch_related(select_doc_report=None, invalid_one=True)
         self._aux_test_fetch_related(
-            select_doc_report=None, invalid_one=True, user=user, other_user=self.get_root_user()
+            select_doc_report=None, invalid_one=True, user=user, other_user=self.get_root_user(),
         )
 
         report = self.refresh(self.folder_report)
@@ -3187,7 +3072,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         "Sub-report (expanded)."
         user = self.login_as_basic_user()
 
-        # self._aux_test_fetch_related(select_doc_report=True)
         self._aux_test_fetch_related(
             select_doc_report=True, user=user, other_user=self.get_root_user(),
         )
@@ -3212,7 +3096,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         "Sub-report (not expanded)."
         user = self.login_as_basic_user()
 
-        # self._aux_test_fetch_related(select_doc_report=False)
         self._aux_test_fetch_related(
             select_doc_report=False, user=user, other_user=self.get_root_user(),
         )
@@ -3234,7 +3117,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(lines, fetch(user=user))
 
     def test_fetch_funcfield_01(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         self._aux_test_fetch_persons(
@@ -3269,7 +3151,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_fetch_funcfield_02(self):
         user = self.login_as_basic_user()
 
-        # self._build_contacts_n_images()
         self._build_contacts_n_images(user=user, other_user=self.get_root_user())
         ned_face = self.ned_face
         aria_face = self.aria_face
@@ -3321,7 +3202,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         report = self.report_orga
 
         ned = self.ned
-        # ned.user = self.other_user
         ned.user = self.get_root_user()
         ned.save()
 
@@ -3364,7 +3244,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         robb = self.robb
         tyrion = self.tyrion
 
-        # robb.user = self.other_user
         robb.user = self.get_root_user()
         robb.save()
 
@@ -3408,7 +3287,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         robb = self.robb
         tyrion = self.tyrion
 
-        # robb.user = self.other_user
         robb.user = self.get_root_user()
         robb.save()
 
@@ -3443,7 +3321,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_relation_04(self):
         "Sub-report (expanded) with a filter."
-        # self.login()
         user = self.login_as_root_and_get()
         self._aux_test_fetch_persons(user=user)
         tyrion = self.tyrion
@@ -3496,7 +3373,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_relation_05(self):
         "Several expanded sub-reports."
-        # user = self.login()
         user = self.login_as_root_and_get()
         self._aux_test_fetch_persons(user=user)
 
@@ -3547,7 +3423,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
     def _aux_test_fetch_aggregate(self, invalid_ones=False):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self._aux_test_fetch_persons(user=user, create_contacts=False, report_4_contact=False)
 
@@ -3620,7 +3495,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_aggregate_03(self):
         "Aggregate in sub-lines (expanded sub-report)."
-        # user = self.login()
         user = self.login_as_root_and_get()
         self._aux_test_fetch_persons(user=user, create_contacts=False, report_4_contact=False)
 
@@ -3667,7 +3541,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_fetch_aggregate_04(self):
         "Decimal Custom field."
-        # self.login()
         user = self.login_as_root_and_get()
         self._aux_test_fetch_persons(user=user, create_contacts=False, report_4_contact=False)
 
@@ -3691,7 +3564,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         report = self.report_orga
         Field.objects.create(report=report, name=f'{cfield.id}__sum', type=RFT_AGG_CUSTOM, order=2)
 
-        # agg_value = number_format(starks_gold + lannisters_gold, use_l10n=True, decimal_pos=2)
         agg_value = number_format(starks_gold + lannisters_gold, decimal_pos=2)
         self.assertListEqual(
             [

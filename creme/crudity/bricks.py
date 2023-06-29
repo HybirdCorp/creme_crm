@@ -54,7 +54,6 @@ class WaitingActionsBrick(BaseWaitingActionsBrick):
 
     def __init__(self, backend):
         super().__init__(backend=backend)
-        # self.id_ = self.generate_id()
         self.id = self.generate_id()
 
     def generate_id(self):
@@ -102,7 +101,6 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
     def __init__(self, ct):
         super().__init__()
         self.ct = ct
-        # self.id_ = self.generate_id()
         self.id = self.generate_id()
 
     def generate_id(self):

@@ -28,7 +28,6 @@
                     {% if edit_url %}
                        <div class='bar-action'>
                          {% if edit_perm %}
-{#                           <a class="bar-button" href="{{edit_url}}" > #}
                            <a class="bar-button" href="{% url_join edit_url callback_url=request.get_full_path %}" >
                          {% else %}
                            <a class="bar-button forbidden is-disabled">

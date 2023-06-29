@@ -46,11 +46,6 @@ data-type-global-discount="{{object.discount}}"
 
                 <div class="bline-reorder-anchor">{{reorder_icon.render}}</div>
             </div>
-            {% comment %}
-            {% if not forloop.last %}
-            <div class="bline-container-separator"></div>
-            {% endif %}
-            {% endcomment %}
         {% empty %}
             <div class="bline-empty empty_msg_{{ct_id}}">{% block empty_msg %}EMPTY{% endblock %}</div>
         {% endfor %}

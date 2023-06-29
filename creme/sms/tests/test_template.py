@@ -10,7 +10,6 @@ from .base import MessageTemplate, skipIfCustomMessageTemplate
 @skipIfCustomMessageTemplate
 class MessageTemplateTestCase(CremeTestCase):
     def test_createview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = reverse('sms__create_template')
@@ -41,7 +40,6 @@ class MessageTemplateTestCase(CremeTestCase):
 
     def test_createview02(self):
         "Message too long."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = reverse('sms__create_template')
@@ -106,7 +104,6 @@ class MessageTemplateTestCase(CremeTestCase):
         )
 
     def test_editview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         template = MessageTemplate.objects.create(
@@ -140,7 +137,6 @@ class MessageTemplateTestCase(CremeTestCase):
         self.assertEqual(body,    template.body)
 
     def test_listview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         template1 = MessageTemplate.objects.create(
             user=user,

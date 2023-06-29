@@ -29,7 +29,6 @@ class EventBarHatBrick(SimpleBrick):
 
 
 class ResultsBrick(SimpleBrick):
-    # id_ = SimpleBrick.generate_id('events', 'results')
     id = SimpleBrick.generate_id('events', 'results')
     # dependencies  = (Relation,) ??
     verbose_name = _('Results of an event')

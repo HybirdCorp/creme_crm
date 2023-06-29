@@ -90,7 +90,6 @@ class BaseTaskCreationCustomForm(CremeEntityForm):
         return instance
 
 
-# class TaskAddParentForm(CremeForm):
 class TaskParentsAddingForm(CremeForm):
     parents = MultiCreatorEntityField(label=_('Parent tasks'), required=False, model=ProjectTask)
 
@@ -113,7 +112,6 @@ class TaskParentsAddingForm(CremeForm):
             add_parent(parent)
 
 
-# class RelatedActivityEditForm(CremeEntityForm):
 class _RelatedActivityForm(CremeEntityForm):
     resource = CreatorEntityField(label=_('Allocated resource'), model=get_contact_model())
     type_selector = ActivitySubTypeField(label=_('Type'))
@@ -220,7 +218,6 @@ class RelatedActivityEditionForm(_RelatedActivityForm):
     pass
 
 
-# class RelatedActivityCreateForm(RelatedActivityEditForm):
 class RelatedActivityCreationForm(_RelatedActivityForm):
     def __init__(self, entity, *args, **kwargs):
         self._task = entity

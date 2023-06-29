@@ -319,7 +319,6 @@ class EntityFilterUserEnumerator(UserEnumerator):
         return choices[:limit] if limit else choices
 
 
-# class UserChoicesView(ChoicesView):
 class UserChoicesView(FieldChoicesView):
     filter_type_arg = 'filter_type'
 

@@ -157,7 +157,6 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
 
 
 class PropertyTypeInfoBrick(Brick):
-    # id_ = Brick.generate_id('creme_core', 'property_type_info')
     id = Brick.generate_id('creme_core', 'property_type_info')
     dependencies = '*'
     read_only = True
@@ -185,7 +184,6 @@ class TaggedEntitiesBrick(QuerysetBrick):
         super().__init__()
         self.ptype = ptype
         self.ctype = ctype
-        # self.id_ = self.generate_id(
         self.id = self.generate_id(
             'creme_core',
             f'tagged-{ctype.app_label}-{ctype.model}',
@@ -223,7 +221,6 @@ class TaggedEntitiesBrick(QuerysetBrick):
 
 
 class TaggedMiscEntitiesBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('creme_core', 'misc_tagged_entities')
     id = QuerysetBrick.generate_id('creme_core', 'misc_tagged_entities')
     dependencies = (CremeEntity,)
     template_name = 'creme_core/bricks/tagged-entities.html'
@@ -296,10 +293,8 @@ class PropertyTypeBricksReloading(bricks_views.BricksReloading):
         ctypes = ptype.subject_ctypes.all()
 
         for brick_id in self.get_brick_ids():
-            # if brick_id == PropertyTypeInfoBrick.id_:
             if brick_id == PropertyTypeInfoBrick.id:
                 brick = PropertyTypeInfoBrick(ptype, ctypes)
-            # elif brick_id == TaggedMiscEntitiesBrick.id_:
             elif brick_id == TaggedMiscEntitiesBrick.id:
                 brick = TaggedMiscEntitiesBrick(ptype, ctypes)
             else:

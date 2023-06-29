@@ -78,7 +78,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             # unique_together = ('title', 'parent', 'category')
             verbose_name = 'Test Folder'
             verbose_name_plural = 'Test Folders'
@@ -116,7 +115,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test Document'
             verbose_name_plural = 'Test Documents'
             ordering = ('title',)
@@ -483,7 +481,6 @@ else:
             ordering = ('name',)
             verbose_name = 'Test Organisation'
             verbose_name_plural = 'Test Organisations'
-            # index_together = ('name', 'cremeentity_ptr')
             indexes = [
                 models.Index(
                     fields=['name', 'cremeentity_ptr'],

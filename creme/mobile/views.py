@@ -47,7 +47,6 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, EntityCredentials, Relation
 from creme.creme_core.utils import get_from_GET_or_404, get_from_POST_or_404
 from creme.creme_core.utils.chunktools import iter_as_chunk
-# from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.utils.dates import dt_from_ISO8601
 from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.utils import build_cancel_path
@@ -710,9 +709,7 @@ def phonecall_workflow_postponed(request):
 
     tomorrow = now() + timedelta(days=1)
     dt_combine = datetime.combine
-    # postponed.start = make_aware_dt(dt_combine(tomorrow, time(hour=0,  minute=0)))
     postponed.start = make_aware(dt_combine(tomorrow, time(hour=0,  minute=0)))
-    # postponed.end   = make_aware_dt(dt_combine(tomorrow, time(hour=23, minute=59)))
     postponed.end   = make_aware(dt_combine(tomorrow, time(hour=23, minute=59)))
 
     postponed.clone()

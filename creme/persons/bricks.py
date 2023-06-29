@@ -203,7 +203,6 @@ class OrganisationBarHatBrick(SimpleBrick):
 
 
 class ContactCardHatBrick(Brick):
-    # id_ = SimpleBrick._generate_hat_id('persons', 'contact_card')
     id = Brick._generate_hat_id('persons', 'contact_card')
     verbose_name = _('Card header block')
     dependencies = [
@@ -283,7 +282,6 @@ class ContactCardHatBrick(Brick):
 
 
 class OrganisationCardHatBrick(Brick):
-    # id_ = SimpleBrick._generate_hat_id('persons', 'organisation_card')
     id = Brick._generate_hat_id('persons', 'organisation_card')
     verbose_name = _('Card header block')
     dependencies = [
@@ -398,7 +396,6 @@ class _LinkedPeopleBrick(QuerysetBrick):
 
 
 class ManagersBrick(_LinkedPeopleBrick):
-    # id_ = QuerysetBrick.generate_id('persons', 'managers')
     id = _LinkedPeopleBrick.generate_id('persons', 'managers')
     verbose_name = _('Organisation managers')
     description = _(
@@ -419,7 +416,6 @@ class ManagersBrick(_LinkedPeopleBrick):
 
 
 class EmployeesBrick(_LinkedPeopleBrick):
-    # id_ = QuerysetBrick.generate_id('persons', 'employees')
     id = _LinkedPeopleBrick.generate_id('persons', 'employees')
     verbose_name = _('Organisation employees')
     description = _(
@@ -504,7 +500,6 @@ class _AddressesBrick(Brick):
 
 class DetailedAddressesBrick(_AddressesBrick):
     # TODO: rename 'addresses'
-    # id_ = Brick.generate_id('persons', 'address')
     id = _AddressesBrick.generate_id('persons', 'address')
     verbose_name = _('Addresses (detailed)')
     description = _(
@@ -518,7 +513,6 @@ class DetailedAddressesBrick(_AddressesBrick):
 
 
 class PrettyAddressesBrick(_AddressesBrick):
-    # id_ = Brick.generate_id('persons', 'addresses_pretty')
     id = _AddressesBrick.generate_id('persons', 'addresses_pretty')
     verbose_name = _('Addresses (pretty)')
     description = _(
@@ -554,7 +548,6 @@ class _OtherAddressesBrick(QuerysetBrick):
 
 class DetailedOtherAddressesBrick(_OtherAddressesBrick):
     # TODO: rename 'other_addresses'
-    # id_ = QuerysetBrick.generate_id('persons', 'other_address')
     id = _OtherAddressesBrick.generate_id('persons', 'other_address')
     dependencies = (Address,)
     verbose_name = _('Other addresses (detailed)')
@@ -569,7 +562,6 @@ class DetailedOtherAddressesBrick(_OtherAddressesBrick):
 
 
 class PrettyOtherAddressesBrick(_OtherAddressesBrick):
-    # id_ = QuerysetBrick.generate_id('persons', 'other_addresses_pretty')
     id = _OtherAddressesBrick.generate_id('persons', 'other_addresses_pretty')
     verbose_name = _('Other addresses (pretty)')
     description = _(
@@ -582,7 +574,6 @@ class PrettyOtherAddressesBrick(_OtherAddressesBrick):
 
 
 class ManagedOrganisationsBrick(PaginatedBrick):
-    # id_ = Brick.generate_id('persons', 'managed_organisations')
     id = PaginatedBrick.generate_id('persons', 'managed_organisations')
     dependencies = (Organisation,)
     verbose_name = 'Managed organisations'
@@ -608,7 +599,6 @@ brick_classes: list[type[Brick]] = [
 
 if apps.is_installed('creme.activities'):
     class NeglectedOrganisationsBrick(PaginatedBrick):
-        # id_ = PaginatedBrick.generate_id('persons', 'neglected_orgas')
         id = PaginatedBrick.generate_id('persons', 'neglected_orgas')
         verbose_name = _('Neglected organisations')
         description = lazy(

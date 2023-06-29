@@ -89,10 +89,7 @@ class FieldChangeExplainer:
         self._prefetcher = prefetcher
 
     def decorate_field(self, field: Field | CustomField) -> str:
-        return self.field_decorator.format(
-            # field=field if isinstance(field, CustomField) else field.verbose_name,
-            field=self.render_field(field=field),
-        )
+        return self.field_decorator.format(field=self.render_field(field=field))
 
     def decorate_new_value(self, value: str) -> str:
         return self.new_value_decorator.format(value=value)
@@ -107,7 +104,6 @@ class FieldChangeExplainer:
     def render_choice(self, *, user, value):
         # NB: django way for '_get_FIELD_display()' methods
         #       => would a linear search be faster ?
-        # return dict(self._field.flatchoices).get(value, value)
         return force_str(
             dict(make_hashable(self._field.flatchoices)).get(make_hashable(value), value),
             strings_only=True,
@@ -315,9 +311,6 @@ class HTMLForeignKeyFieldChangeExplainer(ForeignKeyExplainerMixin,
 
     def render_value(self, *, user, value):
         return self.render_fk(user=user, value=value)
-
-    # def render(self, user):
-    #     return mark_safe(super().render(user=user))
 
 
 # TODO: prefetcher.order(model=model, pks=values)
@@ -752,9 +745,6 @@ class HistoryRegistry:
             existing_classes[field_cls] = explainer_cls
 
         return self
-
-    # def field_change_explainer(self, field):
-    #     return self._field_explainer_classes[type(field)]
 
     def line_explainers(self,
                         hlines: Iterable[HistoryLine],

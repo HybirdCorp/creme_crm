@@ -38,7 +38,6 @@ from .models import (
 )
 from .setting_keys import orga_approaches_key
 
-# get_ct = ContentType.objects.get_for_model
 Opportunity = get_opportunity_model()
 Act = commercial.get_act_model()
 ActObjectivePattern = commercial.get_pattern_model()
@@ -46,12 +45,10 @@ Strategy = commercial.get_strategy_model()
 
 
 class ApproachesBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('commercial', 'approaches')
     id = QuerysetBrick.generate_id('commercial', 'approaches')
     verbose_name = _('Commercial approaches')
     # description = TODO
     dependencies = (CommercialApproach,)
-    # order_by = 'title'
     order_by = '-creation_date'
     template_name = 'commercial/bricks/approaches.html'
 
@@ -84,7 +81,6 @@ class ApproachesBrick(QuerysetBrick):
 
 
 class SegmentsBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('commercial', 'segments')
     id = QuerysetBrick.generate_id('commercial', 'segments')
     verbose_name = _('Market segments')
     dependencies = (MarketSegment,)
@@ -101,7 +97,6 @@ class SegmentsBrick(QuerysetBrick):
 
 
 class SegmentDescriptionsBrick(PaginatedBrick):
-    # id_ = QuerysetBrick.generate_id('commercial', 'segment_info')
     id = PaginatedBrick.generate_id('commercial', 'segment_info')
     verbose_name = _('Market segment descriptions')
     dependencies = (MarketSegment,)  # MarketSegmentDescription ??
@@ -116,7 +111,6 @@ class SegmentDescriptionsBrick(PaginatedBrick):
 
 
 class AssetsBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('commercial', 'assets')
     id = QuerysetBrick.generate_id('commercial', 'assets')
     verbose_name = _('Commercial assets')
     dependencies = (CommercialAsset,)
@@ -132,7 +126,6 @@ class AssetsBrick(QuerysetBrick):
 
 
 class CharmsBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('commercial', 'charms')
     id = QuerysetBrick.generate_id('commercial', 'charms')
     verbose_name = _('Segment charms')
     dependencies = (MarketSegmentCharm,)
@@ -148,7 +141,6 @@ class CharmsBrick(QuerysetBrick):
 
 
 class EvaluatedOrgasBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('commercial', 'evaluated_orgas')
     id = QuerysetBrick.generate_id('commercial', 'evaluated_orgas')
     verbose_name = _('Evaluated organisations')
     dependencies = (MarketSegmentCharm,)
@@ -165,7 +157,6 @@ class EvaluatedOrgasBrick(QuerysetBrick):
 
 
 class AssetsMatrixBrick(Brick):
-    # id_ = Brick.generate_id('commercial', 'assets_matrix')
     id = Brick.generate_id('commercial', 'assets_matrix')
     verbose_name = _('Assets / Segments matrix')
     # dependencies  = (CommercialAsset,) #useless (custom reload view....)
@@ -186,7 +177,6 @@ class AssetsMatrixBrick(Brick):
 
 
 class CharmsMatrixBrick(Brick):
-    # id_ = Brick.generate_id('commercial', 'charms_matrix')
     id = Brick.generate_id('commercial', 'charms_matrix')
     verbose_name = _('Charms / Segments matrix')
     # dependencies = (MarketSegmentCharm,) #useless (custom reload view....)
@@ -207,7 +197,6 @@ class CharmsMatrixBrick(Brick):
 
 
 class AssetsCharmsMatrixBrick(Brick):
-    # id_ = Brick.generate_id('commercial', 'assets_charms_matrix')
     id = Brick.generate_id('commercial', 'assets_charms_matrix')
     verbose_name = _('Assets / Charms matrix')
     # dependencies = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
@@ -225,7 +214,6 @@ class AssetsCharmsMatrixBrick(Brick):
 
 
 class ActObjectivesBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('commercial', 'objectives')
     id = QuerysetBrick.generate_id('commercial', 'objectives')
     verbose_name = _('Objectives of a Commercial Action')
     # NB: would be cool to add the Relation dependency only if needed
@@ -248,7 +236,6 @@ class ActObjectivesBrick(QuerysetBrick):
 
 
 class RelatedOpportunitiesBrick(PaginatedBrick):
-    # id_ = PaginatedBrick.generate_id('commercial', 'opportunities')
     id = PaginatedBrick.generate_id('commercial', 'opportunities')
     verbose_name = _('Opportunities related to a Commercial Action')
     dependencies = (Relation, Opportunity)
@@ -266,7 +253,6 @@ class RelatedOpportunitiesBrick(PaginatedBrick):
 
 
 class PatternComponentsBrick(Brick):
-    # id_ = Brick.generate_id('commercial', 'pattern_components')
     id = Brick.generate_id('commercial', 'pattern_components')
     verbose_name = _('Components of an Objective Pattern')
     dependencies = (ActObjectivePatternComponent,)

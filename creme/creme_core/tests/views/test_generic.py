@@ -43,7 +43,6 @@ from .base import BrickTestCaseMixin, ViewsTestCase
 
 class MiscTestCase(ViewsTestCase):
     def test_placeholder_view01(self):
-        # self.login()
         self.login_as_root()
         response = self.client.get(reverse('creme_core__fake_removed_view', args=[1]))
         self.assertContains(response, 'Custom error message', status_code=409)
@@ -69,7 +68,6 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
             self.session = sessions[0]
 
     def test_basic(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertFalse(LastViewedItem.get_all(self.FakeRequest(user)))
         self.assertFalse(Imprint.objects.all())
@@ -101,7 +99,6 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.get_brick_node(tree, brick=MODELBRICK_ID)
 
     def test_no_object(self):
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET404(
@@ -110,7 +107,6 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, '404.html')
 
     def test_not_super_user(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
         fox = FakeContact.objects.create(
@@ -119,7 +115,6 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET200(fox.get_absolute_url())
 
     def test_not_logged(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         fox = FakeContact.objects.create(
             user=user, first_name='Fox', last_name='McCloud',
@@ -134,10 +129,8 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_permission01(self):
         "Viewing is not allowed (model credentials)."
-        # self.login(is_superuser=False)
         self.login_as_standard()
         fox = FakeContact.objects.create(
-            # user=self.other_user, first_name='Fox', last_name='McCloud',
             user=self.get_root_user(), first_name='Fox', last_name='McCloud',
         )
 
@@ -156,7 +149,6 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Viewing is not allowed (app credentials)."
         # NB: not need to create an instance, the "app" permission must be
         #     checked before the SQL query.
-        # self.login(is_superuser=False, allowed_apps=['creme_config'])  # Not "creme_core"
         self.login_as_standard(allowed_apps=['creme_config'])  # Not "creme_core"
 
         response = self.client.get(
@@ -171,7 +163,6 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
 
     def test_visitor_invalid(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         fox = FakeContact.objects.create(user=user, first_name='Fox', last_name='McCloud')
         param = {'visitor': '['}
@@ -181,7 +172,6 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
 
 class CreationTestCase(ViewsTestCase):
     def test_entity_creation(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = reverse('creme_core__create_fake_contact')
@@ -217,12 +207,10 @@ class CreationTestCase(ViewsTestCase):
 
     def test_entity_creation_validation_error(self):
         "ValidationError + cancel_url."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = reverse('creme_core__create_fake_contact')
         lv_url = FakeContact.get_lv_absolute_url()
-        # response1 = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
         response1 = self.assertGET200(url, headers={'REFERER': f'http://testserver{lv_url}'})
         self.assertEqual(lv_url, response1.context.get('cancel_url'))
 
@@ -243,7 +231,6 @@ class CreationTestCase(ViewsTestCase):
 
     def test_entity_creation_permission01(self):
         "Not app credentials."
-        # self.login(is_superuser=False, allowed_apps=['creme_config'])
         self.login_as_standard(allowed_apps=['creme_config'])
 
         response = self.client.get(reverse('creme_core__create_fake_contact'))
@@ -257,7 +244,6 @@ class CreationTestCase(ViewsTestCase):
 
     def test_entity_creation_permission02(self):
         "Not creation credentials."
-        # self.login(is_superuser=False, creatable_models=[FakeOrganisation])  # Not FakeContact
         self.login_as_standard(creatable_models=[FakeOrganisation])  # Not FakeContact
 
         response = self.assertGET403(reverse('creme_core__create_fake_contact'))
@@ -269,12 +255,10 @@ class CreationTestCase(ViewsTestCase):
         self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
 
     def test_entity_creation_not_super_user(self):
-        # self.login(is_superuser=False, creatable_models=[FakeContact])
         self.login_as_standard(creatable_models=[FakeContact])
         self.assertGET200(reverse('creme_core__create_fake_contact'))
 
     def test_entity_creation_callback_url01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = reverse('creme_core__create_fake_contact')
@@ -301,7 +285,6 @@ class CreationTestCase(ViewsTestCase):
 
     def test_entity_creation_callback_url02(self):
         "Unsafe URL."
-        # self.login()
         self.login_as_root()
 
         url = reverse('creme_core__create_fake_contact')
@@ -317,7 +300,6 @@ class CreationTestCase(ViewsTestCase):
 
     @override_settings(FORMS_RELATION_FIELDS=True)
     def test_entity_creation_properties(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -378,7 +360,6 @@ class CreationTestCase(ViewsTestCase):
 
     @override_settings(FORMS_RELATION_FIELDS=True)
     def test_entity_creation_relations(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -479,7 +460,6 @@ class CreationTestCase(ViewsTestCase):
 
     @override_settings(FORMS_RELATION_FIELDS=False)
     def test_entity_creation_no_relation_field(self):
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET200(reverse('creme_core__create_fake_contact'))
@@ -493,7 +473,6 @@ class CreationTestCase(ViewsTestCase):
         self.assertNotIn('semifixed_rtypes', fields)
 
     def test_entity_creation_customform01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = reverse('creme_core__create_fake_activity')
@@ -535,7 +514,6 @@ class CreationTestCase(ViewsTestCase):
         )
 
     def test_entity_creation_customform02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         cfci = self.get_object_or_fail(
@@ -602,7 +580,6 @@ class CreationTestCase(ViewsTestCase):
 
     def test_entity_creation_customform03(self):
         "Super-user's form."
-        # self.login()
         self.login_as_root()
 
         cfci = CustomFormConfigItem.objects.create(
@@ -668,7 +645,6 @@ class CreationTestCase(ViewsTestCase):
         )
 
     def test_adding_to_entity01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         url = reverse('creme_core__create_fake_address', args=(nerv.id,))
@@ -703,7 +679,6 @@ class CreationTestCase(ViewsTestCase):
 
 class EditionTestCase(ViewsTestCase):
     def test_entity_edition(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         contact = FakeContact.objects.create(
             user=user, first_name='Spik', last_name='Spiege',
@@ -748,13 +723,11 @@ class EditionTestCase(ViewsTestCase):
 
     def test_entity_edition_no_object(self):
         "Invalid ID."
-        # self.login()
         self.login_as_root()
         self.assertGET404(reverse('creme_core__edit_fake_contact', args=[self.UNUSED_PK]))
 
     def test_entity_edition_validation_error(self):
         "ValidationError + cancel_url."
-        # user = self.login()
         user = self.login_as_root_and_get()
         contact = FakeContact.objects.create(
             user=user, first_name='Spik', last_name='Spiegel',
@@ -762,7 +735,6 @@ class EditionTestCase(ViewsTestCase):
         url = contact.get_edit_absolute_url()
 
         lv_url = FakeContact.get_lv_absolute_url()
-        # response = self.assertGET200(url, HTTP_REFERER='http://testserver' + lv_url)
         response = self.assertGET200(url, headers={'REFERER': f'http://testserver{lv_url}'})
         self.assertEqual(lv_url, response.context.get('cancel_url'))
 
@@ -784,7 +756,6 @@ class EditionTestCase(ViewsTestCase):
 
     def test_entity_edition_permission01(self):
         "Not app credentials."
-        # self.login(is_superuser=False, allowed_apps=['creme_config'])
         self.login_as_standard(allowed_apps=['creme_config'])
 
         response = self.client.get(
@@ -800,7 +771,6 @@ class EditionTestCase(ViewsTestCase):
 
     def test_entity_edition_permission02(self):
         "Not edition credentials."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         SetCredentials.objects.create(
             role=user.role,
@@ -814,7 +784,6 @@ class EditionTestCase(ViewsTestCase):
         )
 
         contact = FakeContact.objects.create(
-            # user=self.other_user, first_name='Spike', last_name='Spiegel',
             user=self.get_root_user(), first_name='Spike', last_name='Spiegel',
         )
 
@@ -827,7 +796,6 @@ class EditionTestCase(ViewsTestCase):
         self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
 
     def test_entity_edition_not_super_user(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
         contact = FakeContact.objects.create(
@@ -836,7 +804,6 @@ class EditionTestCase(ViewsTestCase):
         self.assertGET200(contact.get_edit_absolute_url())
 
     def test_entity_edition_callback_url(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         contact = FakeContact.objects.create(
             user=user, first_name='Spik', last_name='Spiege',
@@ -866,7 +833,6 @@ class EditionTestCase(ViewsTestCase):
         self.assertRedirects(response2, callback_url)
 
     def test_entity_edition_customform(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         atype1, atype2 = FakeActivityType.objects.all()[:2]
@@ -911,7 +877,6 @@ class EditionTestCase(ViewsTestCase):
         )
 
     def test_related_to_entity_edition01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         address = FakeAddress.objects.create(
@@ -940,11 +905,9 @@ class EditionTestCase(ViewsTestCase):
 
     def test_related_to_entity_edition02(self):
         "Edition credentials on related entity needed."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
 
-        # nerv = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
         nerv = FakeOrganisation.objects.create(user=self.get_root_user(), name='Nerv')
         self.assertFalse(user.has_perm_to_change(nerv))
 

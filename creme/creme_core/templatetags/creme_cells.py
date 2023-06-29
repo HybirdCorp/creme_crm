@@ -21,7 +21,6 @@ from __future__ import annotations
 import logging
 import warnings
 
-# from django.utils.safestring import mark_safe
 from django.template import Library
 from django.template import Node as TemplateNode
 from django.template import TemplateSyntaxError
@@ -60,7 +59,6 @@ class RFieldCellNode(TemplateNode):
             context[asvar_name] = cell
             return ''
 
-        # return cell
         return str(cell)
 
 
@@ -249,11 +247,6 @@ def do_render(parser, token):
 
 
 class CellRenderNode(TemplateNode):
-    # RENDER_METHODS = {
-    #     'html': 'render_html',
-    #     'csv':  'render_csv',
-    # }
-
     def __init__(self, cell_var, instance_var, user_var,
                  output_var=None,  # DEPRECATED
                  tag_var=None, asvar_name=None,
@@ -272,15 +265,6 @@ class CellRenderNode(TemplateNode):
     def render(self, context):
         cell = self.cell_var.resolve(context)
 
-        # output_var = self.output_var
-        # output = 'html' if output_var is None else output_var.resolve(context)
-        #
-        # method_name = self.RENDER_METHODS.get(output)
-        # if method_name is None:
-        #     raise ValueError(
-        #         r'{% cell_render %}: '
-        #         f'invalid output "{output}" (must be in {[*self.RENDER_METHODS.keys()]}).'
-        #     )
         tag = ViewTag.HTML_DETAIL
         tag_var = self.tag_var
         if tag_var is None:
@@ -306,10 +290,6 @@ class CellRenderNode(TemplateNode):
             tag = tag_var.resolve(context)
 
         try:
-            # render = getattr(cell, method_name)(
-            #     entity=self.instance_var.resolve(context),
-            #     user=self.user_var.resolve(context),
-            # )
             render = cell.render(
                 entity=self.instance_var.resolve(context),
                 user=self.user_var.resolve(context),
@@ -320,7 +300,6 @@ class CellRenderNode(TemplateNode):
             render = ''
 
         if self.asvar_name:
-            # context[self.asvar_name] = mark_safe(render)
             context[self.asvar_name] = render
             return ''
         else:

@@ -25,7 +25,6 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 import creme.creme_core.models as core_models
-# from creme.creme_core.utils.dates import make_aware_dt
 import creme.creme_core.models.fields as core_fields
 
 
@@ -89,7 +88,6 @@ class Alert(core_models.CremeModel):
 
         if origin:
             if not isinstance(origin, datetime):
-                # origin = make_aware_dt(datetime.combine(origin, time()))
                 origin = make_aware(datetime.combine(origin, time()))
 
             return origin + (sign * period.as_timedelta())

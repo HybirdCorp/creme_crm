@@ -1227,7 +1227,6 @@ class OptionalField(fields.MultiValueField):
         super().__init__(
             fields=(
                 fields.BooleanField(required=False),
-                # self._build_subfield(**kwargs),
                 self._build_subfield(required=False, **kwargs),
             ),
             required=False,
@@ -1237,13 +1236,10 @@ class OptionalField(fields.MultiValueField):
         )
         self.widget.sub_label = sub_label
 
-    # def _build_subfield(self, *args, **kwargs):
-    #     return self.sub_field(*args, **kwargs)
     def _build_subfield(self, **kwargs):
         return self.sub_field(**kwargs)
 
     def compress(self, data_list):
-        # return (data_list[0], data_list[1]) if data_list else (False, None)
         if data_list:
             is_set = data_list[0] if data_list else False
             data = data_list[1] if (is_set and len(data_list) > 1) else None
@@ -1252,34 +1248,6 @@ class OptionalField(fields.MultiValueField):
             data = None
 
         return self.Option(is_set=is_set, data=data)
-
-    # def clean(self, value):
-    #     sub_field = self.fields[1]
-    #     sub_required = sub_field.required
-    #     if sub_required:
-    #         sub_field.required = False
-    #
-    #     use_value, sub_value = super().clean(value)
-    #
-    #     if sub_required:
-    #         sub_field.required = True
-    #
-    #         if use_value:
-    #             try:
-    #                 sub_field_value = value[1]
-    #             except IndexError:
-    #                 sub_field_value = None
-    #
-    #             if sub_field_value in self.empty_values:
-    #                 raise ValidationError(
-    #                     self.error_messages['subfield_required'],
-    #                     code='subfield_required',
-    #                 )
-    #
-    #     if not use_value:
-    #         sub_value = None
-    #
-    #     return use_value, sub_value
 
     def validate(self, value):
         if value.is_set and value.data in self.empty_values:
@@ -1513,19 +1481,10 @@ class DatePeriodField(fields.MultiValueField):
         self._update_choices()
 
     def compress(self, data_list):
-        # return (data_list[0], data_list[1]) if data_list else ('', '')
         # NB: data_list = (period_name, period_value)
         return date_period_registry.get_period(
             *data_list
         ) if data_list and all(data_list) else None
-
-    # def clean(self, value):
-    #     period_name, period_value = super().clean(value)
-    #
-    #     if not period_value:
-    #         return None
-    #
-    #     return date_period_registry.get_period(period_name, period_value)
 
 
 class RelativeDatePeriodField(fields.MultiValueField):
@@ -1583,7 +1542,6 @@ class RelativeDatePeriodField(fields.MultiValueField):
         )
 
         self.period_names = period_names
-        # self.relative_choices = [(-1, _('Before')), (1, _('After'))]
         self.relative_choices = [
             (self.RelativeDatePeriod.BEFORE, _('Before')),
             (self.RelativeDatePeriod.AFTER,  _('After')),
@@ -1624,23 +1582,13 @@ class RelativeDatePeriodField(fields.MultiValueField):
         self.fields[0].choices = self.widget.relative_choices = choices
 
     def compress(self, data_list):
-        # return (data_list[0], data_list[1]) if data_list else ()
         return self.RelativeDatePeriod(
             sign=data_list[0], period=data_list[1],
         ) if data_list and all(data_list) else None
 
     def validate(self, value):
-        # if self.required and value[1] is None:
         if self.required and value is None:
             raise ValidationError(self.error_messages['required'], code='required')
-
-    # def clean(self, value):
-    #     if isinstance(value, (list, tuple)) and len(value) == 3:
-    #         value = [value[0], value[1:]]
-    #
-    #     cleaned = super().clean(value)
-    #
-    #     return cleaned if (cleaned and cleaned[1]) else ()
 
 
 class DateRangeField(fields.MultiValueField):
@@ -1691,27 +1639,8 @@ class DateRangeField(fields.MultiValueField):
         self.widget.choices = ranges.widget.choices  # Get the CallableChoiceIterator
 
     def compress(self, data_list):
-        # return (data_list[0], data_list[1], data_list[2]) if data_list else ('', '', '')
         it = itertools.chain(data_list, itertools.repeat(None))
         return date_range_registry.get_range(name=next(it), start=next(it), end=next(it))
-
-    # def clean(self, value):
-    #     range_name, start, end = super().clean(value)
-    #
-    #     if range_name == '':
-    #         if not start and not end and self.required:
-    #             raise ValidationError(
-    #                 self.error_messages['customized_empty'],
-    #                 code='customized_empty',
-    #             )
-    #
-    #         if start and end and start > end:
-    #             raise ValidationError(
-    #                 self.error_messages['customized_invalid'],
-    #                 code='customized_invalid',
-    #             )
-    #
-    #     return date_range_registry.get_range(range_name, start, end)
 
     def validate(self, value):
         if not value.name:
@@ -1747,10 +1676,6 @@ class ColorField(fields.CharField):
 
 class DurationField(fields.MultiValueField):
     widget = core_widgets.DurationWidget
-    # default_error_messages = {
-    #     'invalid': _('Enter a whole number.'),
-    #     'min_value': _('Ensure this value is greater than or equal to %(limit_value)s.'),
-    # }
 
     def __init__(self, **kwargs):
         IntegerField = fields.IntegerField
@@ -1763,18 +1688,9 @@ class DurationField(fields.MultiValueField):
         super().__init__(fields=(self.hours, self.minutes, self.seconds), **kwargs)
 
     def compress(self, data_list):
-        # return (
-        #     data_list[0], data_list[1], data_list[2]
-        # ) if data_list else ('', '', '')
         it = itertools.chain(data_list, itertools.repeat(0))
 
         return timedelta(hours=next(it), minutes=next(it), seconds=next(it))
-
-    # def clean(self, value):
-    #     hours, minutes, seconds = super().clean(value)
-    #     return ':'.join([
-    #         str(hours or 0), str(minutes or 0), str(seconds or 0)
-    #     ])
 
 
 class ChoiceOrCharField(fields.MultiValueField):

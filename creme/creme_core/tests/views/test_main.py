@@ -46,7 +46,6 @@ class MiscViewsTestCase(ViewsTestCase):
 
     @override_settings(SOFTWARE_LABEL='Creme')
     def test_home01(self):
-        # self.login()
         self.login_as_root()
         response = self.assertGET200(reverse('creme_core__home'))
         self.assertTemplateUsed(response, 'creme_core/home.html')
@@ -61,11 +60,8 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertIsList(bricks, min_length=2)
         self.assertIsInstance(bricks[0], Brick)
 
-        # brick_ids = [b.id_ for b in bricks]
         brick_ids = [b.id for b in bricks]
-        # i1 = self.assertIndex(StatisticsBrick.id_, brick_ids)
         i1 = self.assertIndex(StatisticsBrick.id, brick_ids)
-        # i2 = self.assertIndex(HistoryBrick.id_,    brick_ids)
         i2 = self.assertIndex(HistoryBrick.id,    brick_ids)
         self.assertLess(i1, i2)
 
@@ -74,15 +70,12 @@ class MiscViewsTestCase(ViewsTestCase):
     @override_settings(SOFTWARE_LABEL='My CRM')
     def test_home02(self):
         "Superuser bricks configuration."
-        # self.login()
         self.login_as_root()
 
-        # brick_id = StatisticsBrick.id_
         brick_id = StatisticsBrick.id
         BrickHomeLocation.objects.create(brick_id=brick_id, superuser=True, order=1)
 
         # Should not be used
-        # BrickHomeLocation.objects.create(brick_id=HistoryBrick.id_, role=self.role, order=1)
         BrickHomeLocation.objects.create(
             brick_id=HistoryBrick.id, role=self.create_role(), order=1,
         )
@@ -93,26 +86,21 @@ class MiscViewsTestCase(ViewsTestCase):
 
         brick = bricks[0]
         self.assertIsInstance(brick, StatisticsBrick)
-        # self.assertEqual(brick_id, brick.id_)
         self.assertEqual(brick_id, brick.id)
 
         self.assertContains(response, _('Home') + ' - My CRM', html=True)
 
     def test_home03(self):
         "Superuser bricks configuration"
-        # self.login(is_superuser=False)
         user = self.login_as_standard()
         role2 = self.create_role(name='Viewer')
 
-        # brick_id = StatisticsBrick.id_
         brick_id = StatisticsBrick.id
         create_hbl = BrickHomeLocation.objects.create
         create_hbl(brick_id=brick_id, role=user.role, order=1)
 
         # Should not be used
-        # create_hbl(brick_id=HistoryBrick.id_, superuser=True, order=1)
         create_hbl(brick_id=HistoryBrick.id, superuser=True, order=1)
-        # create_hbl(brick_id=HistoryBrick.id_, role=role2,     order=1)
         create_hbl(brick_id=HistoryBrick.id, role=role2,     order=1)
 
         response = self.assertGET200(reverse('creme_core__home'))
@@ -121,11 +109,9 @@ class MiscViewsTestCase(ViewsTestCase):
 
         brick = bricks[0]
         self.assertIsInstance(brick, StatisticsBrick)
-        # self.assertEqual(brick_id, brick.id_)
         self.assertEqual(brick_id, brick.id)
 
     def test_my_page(self):
-        # self.login()
         self.login_as_root()
         response = self.assertGET200('/my_page')
         self.assertTemplateUsed(response, 'creme_core/my_page.html')
@@ -141,17 +127,14 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertIn(HistoryBrick, {b.__class__ for b in bricks})
 
     def test_about(self):
-        # self.login()
         self.login_as_root()
         response = self.assertGET200('/creme_about')
         self.assertTemplateUsed(response, 'about/about.html')
 
     def test_logout(self):
-        # self.login()
         self.login_as_root()
 
         self.assertIn('_auth_user_id', self.client.session)
-        # response = self.assertGET200(reverse('creme_logout'), follow=True)
         # TODO: with django5.0, test GET does not work
         response = self.assertPOST200(reverse('creme_logout'), follow=True)
         self.assertNotIn('_auth_user_id', self.client.session)
@@ -159,7 +142,6 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertRedirects(response, reverse(settings.LOGIN_URL))
 
     def test_js_view(self):
-        # self.login()
         self.login_as_root()
         factory = RequestFactory()
 
@@ -176,11 +158,9 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertTrue(settings.FORCE_JS_TESTVIEW)
 
     def test_js_widget_view_home__disabled(self):
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET404(reverse('creme_core__test_widget_home'))
-
         self.assertContains(
             response,
             "This is view is only reachable during javascript debug.",
@@ -189,7 +169,6 @@ class MiscViewsTestCase(ViewsTestCase):
 
     @override_settings(FORCE_JS_TESTVIEW=True, TESTS_ON=False)
     def test_js_widget_view_home(self):
-        # self.login()
         self.login_as_root()
         self.assertGET200(reverse('creme_core__test_widget_home'))
 
@@ -215,36 +194,30 @@ class MiscViewsTestCase(ViewsTestCase):
     ])
     @override_settings(FORCE_JS_TESTVIEW=True, TESTS_ON=False)
     def test_js_widget_views(self, widget):
-        # self.login()
         self.login_as_root()
         self.assertGET200(reverse('creme_core__test_widget', args=(widget,)))
 
     def test_400_middleware(self):
-        # self.login()
         self.login_as_root()
         response = self.assertGET(400, '/test_http_response?status=400')
         self.assertEqual(response.content, b'<p>Http Response 400</p>')
 
         response = self.assertGET(
-            # 400, '/test_http_response?status=400', HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             400, '/test_http_response?status=400', headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertEqual(response.content, b'XML Http Response 400')
 
     def test_403_middleware(self):
-        # self.login()
         self.login_as_root()
         response = self.assertGET403('/test_http_response?status=403')
         self.assertContains(response, 'Tests: operation is not allowed', status_code=403)
 
         response = self.assertGET403(
-            # '/test_http_response?status=403', HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             '/test_http_response?status=403', headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertContains(response, 'Tests: operation is not allowed', status_code=403)
 
     def test_404_middleware(self):
-        # self.login()
         self.login_as_root()
         response = self.assertGET404('/test_http_response?status=404')
         self.assertContains(
@@ -254,85 +227,68 @@ class MiscViewsTestCase(ViewsTestCase):
         )
 
         response = self.assertGET404(
-            # '/test_http_response?status=404', HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             '/test_http_response?status=404', headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertContains(response, 'Tests: no such result or unknown url', status_code=404)
 
     def test_409_middleware(self):
-        # self.login()
         self.login_as_root()
         response = self.assertGET409('/test_http_response?status=409')
         self.assertContains(response, 'Tests: conflicting operation', status_code=409)
 
         response = self.assertGET(
-            # 409, '/test_http_response?status=409', HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             409, '/test_http_response?status=409', headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertEqual(response.content, b'Tests: conflicting operation')
 
     def test_500_middleware(self):
-        # self.login()
         self.login_as_root()
 
         with self.assertRaises(Exception):
             self.client.get('/test_http_response?status=500')
 
         response = self.assertGET(
-            # 500, '/test_http_response?status=500', HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             500, '/test_http_response?status=500', headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertEqual(response.content, b'Tests: server internal error')
 
     def test_auth_decorators01(self):
-        # self.login(
         self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['documents'],  # Not 'creme_core'
             creatable_models=[FakeContact],
         )
         self.assertGET403('/tests/contact/add')
 
     def test_auth_decorators02(self):
-        # self.login(
         self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['creme_core'],
             creatable_models=[FakeImage],  # Not FakeContact
         )
         self.assertGET403('/tests/contact/add')
 
     def test_auth_decorators03(self):
-        # self.login(
         self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['creme_core'],
             creatable_models=[FakeContact],
         )
         self.assertGET200('/tests/contact/add')
 
     def test_auth_decorators_multiperm01(self):
-        # self.login(
         self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['documents'],  # Not 'creme_core'
             creatable_models=[FakeOrganisation],
         )
         self.assertGET403('/tests/organisation/add')
 
     def test_auth_decorators_multiperm02(self):
-        # self.login(
         self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['creme_core'],
             creatable_models=[FakeImage],  # Not FakeOrganisation
         )
         self.assertGET403('/tests/organisation/add')
 
     def test_auth_decorators_multiperm03(self):
-        # self.login(
         self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['creme_core'],
             creatable_models=[FakeOrganisation],
         )
@@ -378,7 +334,6 @@ class MiscViewsTestCase(ViewsTestCase):
 class LanguageTestCase(ViewsTestCase):
     def setUp(self):
         super().setUp()
-        # self.login()
         self.login_as_root()
 
     def test_portal(self):
@@ -431,7 +386,6 @@ class LanguageTestCase(ViewsTestCase):
 class CurrencyTestCase(ViewsTestCase):
     def setUp(self):
         super().setUp()
-        # self.login()
         self.login_as_root()
 
     def test_portal(self):

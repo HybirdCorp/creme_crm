@@ -30,7 +30,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
-# from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 
 from mediagenerator.utils import media_url
@@ -38,7 +37,7 @@ from mediagenerator.utils import media_url
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..gui.bricks import PaginatedBrick, brick_registry
-from ..gui.field_printers import (  # print_foreignkey_html print_image_html
+from ..gui.field_printers import (
     print_date_html,
     print_datetime_html,
     print_duration,
@@ -98,19 +97,12 @@ class Dummy:
     def __init__(self, name, user, image_url):
         self.user = user
         self.name = name
-        # self.url = mark_safe(print_url_html(self, image_url, self.user, None))
         self.url = print_url_html(value=image_url)
-        # self.datetime = mark_safe(print_datetime_html(self, now(), user, None))
         self.datetime = print_datetime_html(value=now())
-        # self.date = mark_safe(print_date_html(self, date.today(), user, None))
         self.date = print_date_html(value=date.today())
-        # self.duration = mark_safe(print_duration(
-        #     self, f'{randint(0, 23)}:{randint(0, 59)}:{randint(0, 59)}', user, None
-        # ))
         self.duration = print_duration(
             value=f'{randint(0, 23)}:{randint(0, 59)}:{randint(0, 59)}',
         )
-        # self.foreignkey = mark_safe(print_foreignkey_html(self, user, user, None))
         self.foreignkey = widget_entity_hyperlink(
             CremeEntity.objects.first().get_real_entity(), user,
         )
@@ -126,7 +118,6 @@ class Dummy:
 
 
 class DummyListBrick(PaginatedBrick):
-    # id_ = PaginatedBrick.generate_id('creme_core', 'test_dummy_list')
     id = PaginatedBrick.generate_id('creme_core', 'test_dummy_list')
     verbose_name = 'Dummies'
     dependencies = ()
@@ -171,10 +162,8 @@ def js_testview_or_404(message, error):
 
 def js_testview_context(request, viewname):
     try:
-        # brick_registry[DummyListBrick.id_]
         brick_registry[DummyListBrick.id]
     except KeyError:
-        # logger.info('Register dummy object list block %s', DummyListBrick.id_)
         logger.info('Register dummy object list brick %s', DummyListBrick.id)
         brick_registry.register(DummyListBrick)
 

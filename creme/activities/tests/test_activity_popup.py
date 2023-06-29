@@ -33,7 +33,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         ({'start': '2010-01-01T16:35:00', 'end': 'invalid'}, 404),
     ])
     def test_render_invalid_param(self, data, status_code):
-        # self.login()
         self.login_as_root()
 
         response = self.client.get(self.ACTIVITY_POPUP_CREATION_URL, data=data)
@@ -41,7 +40,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
 
     def test_render_not_superuser(self):
         "Not super-user."
-        # self.login(is_superuser=False, creatable_models=[Activity])
         self.login_as_activities_user(creatable_models=[Activity])
         self.assertGET200(
             self.ACTIVITY_POPUP_CREATION_URL,
@@ -50,7 +48,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
 
     def test_render_not_allowed(self):
         "Creation perm is needed."
-        # self.login(is_superuser=False)
         self.login_as_activities_user()
         self.assertGET403(
             self.ACTIVITY_POPUP_CREATION_URL,
@@ -58,7 +55,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         )
 
     def test_render(self):
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET200(
@@ -88,7 +84,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         ('2010-01-01T00:00:00', date(2010, 1, 1), None),
     ])
     def test_render_start_only(self, start_iso, start_date, start_time):
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET200(
@@ -105,7 +100,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertFalse(get_initial('is_all_day'))
 
     def test_render_start_n_end(self):
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET200(
@@ -128,7 +122,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertFalse(get_initial('is_all_day'))
 
     def test_render_start_all_day(self):
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET200(
@@ -149,7 +142,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
 
     def test_error_no_participant(self):
         "No participant given."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         response = self.assertPOST200(
@@ -169,7 +161,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
 
     def test_error_my_participation_no_calendar(self):
         "Selected myself as participant without calendar."
-        # user = self.login()
         user = self.login_as_root_and_get()
         response = self.assertPOST200(
             self.ACTIVITY_POPUP_CREATION_URL,
@@ -193,7 +184,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         )
 
     def test_my_participation(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         response = self.assertPOST200(
             self.ACTIVITY_POPUP_CREATION_URL,
@@ -224,7 +214,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, activity.sub_type_id)
 
     def test_custom_activity_type(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         custom_type = ActivityType.objects.create(
             id='activities-test_createview_popup3',
@@ -272,7 +261,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
     ])
     def test_DST_transition_allday(self, today):
         "Check that the DST transition works for all-day meetings."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         response = self.assertPOST200(

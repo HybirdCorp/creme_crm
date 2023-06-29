@@ -1,7 +1,6 @@
 import base64
 import urllib
 from functools import partial
-# from os import path as os_path
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from unittest.mock import patch
@@ -24,7 +23,6 @@ from creme.documents.tests.base import _DocumentsTestCase
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 from creme.persons.models import Sector
 
-# from ..forms import vcf as vcf_forms
 from ..vcf_lib import readOne as read_vcf
 from ..vcf_lib.base import ContentLine
 from .base import (
@@ -95,7 +93,6 @@ class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
 
         cls.IMPORT_URL = reverse('vcfs__import')
 
-    # def _post_step0(self, content):
     def _post_step0(self, user, content):
         tmpfile = NamedTemporaryFile()
         tmpfile.write(content.encode())
@@ -125,7 +122,6 @@ class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
         return response
 
     def test_add_vcf(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         self.assertGET200(self.IMPORT_URL)
@@ -140,7 +136,6 @@ class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
 
     def test_parsing_vcf00(self):
         "First & last names not separated."
-        # self.login()
         user = self.login_as_root_and_get()
 
         first_name = 'Yûna'
@@ -163,7 +158,6 @@ class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
 
     def test_parsing_vcf01(self):  # TODO: use BDAY
         "Contact with details & address."
-        # self.login()
         user = self.login_as_root_and_get()
 
         first_name = 'Yûna'
@@ -254,7 +248,6 @@ END:VCARD"""
 
     def test_parsing_vcf02(self):
         "Organisation."
-        # self.login()
         user = self.login_as_root_and_get()
 
         name = 'Negima'
@@ -315,7 +308,6 @@ END:VCARD"""
 
     def test_parsing_vcf03(self):
         "Address without type ; VCF tags are lower case."
-        # self.login()
         user = self.login_as_root_and_get()
 
         box = '852'
@@ -362,7 +354,6 @@ end:vcard"""
     @skipIfCustomOrganisation
     def test_parsing_vcf04(self):
         "Existing Organisation."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'Negima'
@@ -384,7 +375,6 @@ END:VCARD"""
 
     def test_parsing_vcf05(self):
         "Multi line, escape chars."
-        # self.login()
         user = self.login_as_root_and_get()
 
         first_name = 'Fûka'
@@ -425,7 +415,6 @@ END:VCARD"""
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_add_contact_vcf00(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -485,7 +474,6 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -583,7 +571,6 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -644,7 +631,6 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf03(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -716,14 +702,12 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_add_contact_vcf04(self):
         "Related organisation exists & is not updated."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
         orga = Organisation.objects.create(
             user=user, name='Corporate',
             phone='33 33 33 33 33', email='work@work.com',
-            # url_site='www.work.com',
             url_site='https://www.work.com',
         )
         orga_count = Organisation.objects.count()
@@ -792,7 +776,6 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomAddress
     def test_add_contact_vcf05(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -856,7 +839,6 @@ END:VCARD"""
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_add_contact_vcf06(self):
-        # self.login()
         user = self.login_as_root_and_get()
         contact_count = Contact.objects.count()
         address_count = Address.objects.count()
@@ -948,7 +930,6 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf07(self):
-        # self.login()
         user = self.login_as_root_and_get()
         contact_count = Contact.objects.count()
 
@@ -1025,7 +1006,6 @@ END:VCARD"""
 
     @skipIfCustomContact
     def test_add_contact_vcf08(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -1082,7 +1062,6 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf09(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         name = 'Negima'
@@ -1126,7 +1105,6 @@ END:VCARD"""
     @skipIfCustomAddress
     def test_add_contact_vcf10(self):
         "Organisation with existing Address."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'Robotic club'
@@ -1227,7 +1205,6 @@ END:VCARD"""
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_add_contact_vcf11(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'Astronomy club'
@@ -1302,7 +1279,6 @@ END:VCARD"""
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_add_contact_vcf12(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -1393,7 +1369,6 @@ END:VCARD"""
 
     @skipIfCustomContact
     def test_add_contact_vcf13(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -1445,7 +1420,6 @@ END:VCARD"""
     @skipIfCustomAddress
     def test_vcf_with_image01(self):
         "Raw image embedded in the file."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -1500,14 +1474,8 @@ END:VCARD"""
     @override_settings(VCF_IMAGE_MAX_SIZE=10_000_000)
     def test_vcf_with_image02(self):
         "Link to an image."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
-        # url_parts = ['static', 'common', 'images', '500_200.png']
-        # self.assertTrue(os_path.exists(
-        #     os_path.join(settings.CREME_ROOT, *url_parts)
-        # ))
-        # url = self.http_file('/'.join(['creme', *url_parts]))
         img_file = open(
             Path(settings.CREME_ROOT) / 'static' / 'common' / 'images' / '500_200.png',
             mode='rb',
@@ -1537,14 +1505,6 @@ END:VCARD"""
 
         self.assertEqual(url, image_encoded_f.initial)
 
-        # self._post_step1(
-        #     data={
-        #         'user':          user.id,
-        #         'first_name':    first_name,
-        #         'last_name':     last_name,
-        #         'image_encoded': image_encoded_f.initial,
-        #     },
-        # )
         with patch('urllib.request.urlopen', return_value=img_file) as urlopen_mock:
             self._post_step1(
                 data={
@@ -1577,17 +1537,12 @@ END:VCARD"""
     @skipIfCustomContact
     def test_vcf_with_image03(self):
         "Referenced image cannot be found."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
-        # contact_count = Contact.objects.count()
         image_count = Document.objects.count()
 
         first_name = 'Kaede'
         last_name = 'NAGASE'
-        # url = self.http_file(
-        #     '/'.join(['creme', 'static', 'common', 'images', 'unknown.png'])
-        # )
         url = 'http://localhost:8001/photograph/doesnotexist.png'
         response1 = self._post_step0(
             user=user,
@@ -1599,23 +1554,10 @@ END:VCARD"""
             ),
         )
         with self.assertNoException():
-            # encoded_img = response1.context['form'].fields['image_encoded'].initial
             encoded_f = response1.context['form'].fields['image_encoded']
 
         self.assertEqual(url, encoded_f.initial)
 
-        # response2 = self._post_step1(
-        #     data={
-        #         'user':          user.id,
-        #         'first_name':    first_name,
-        #         'last_name':     last_name,
-        #         'image_encoded': encoded_img,
-        #     },
-        #     errors=True
-        # )
-        # # NB: difficult to test the message (it contains the original exception message)
-        # with self.assertNoException():
-        #     response2.context['form'].errors['image_encoded']  # NOQA
         exception = urllib.error.URLError('resource cannot be found')
         with patch('urllib.request.urlopen') as urlopen_mock:
             urlopen_mock.side_effect = exception
@@ -1650,14 +1592,8 @@ END:VCARD"""
     @override_settings(VCF_IMAGE_MAX_SIZE=10240)  # (10 kB)
     def test_vcf_with_image04(self):
         "Referenced image is too large."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
-        # url_parts = ['static', 'common', 'images', '500_200.png']
-        # self.assertTrue(os_path.exists(
-        #     os_path.join(settings.CREME_ROOT, *url_parts)
-        # ))
-        # url = self.http_file('/'.join(['creme', *url_parts]))
         img_file = open(
             Path(settings.CREME_ROOT) / 'static' / 'common' / 'images' / '500_200.png',
             mode='rb',
@@ -1681,22 +1617,11 @@ END:VCARD"""
             ),
         )
 
-        # with self.assertNoException():
-        #     encoded_img = response1.context['form'].fields['image_encoded'].initial
         with self.assertNoException():
             image_encoded_f = response1.context['form'].fields['image_encoded']
 
         self.assertEqual(url, image_encoded_f.initial)
 
-        # response2 = self._post_step1(
-        #     data={
-        #         'user':          user.id,
-        #         'first_name':    first_name,
-        #         'last_name':     last_name,
-        #         'image_encoded': encoded_img,
-        #     },
-        #     errors=True,
-        # )
         with patch('urllib.request.urlopen', return_value=img_file) as urlopen_mock:
             response2 = self._post_step1(
                 data={
@@ -1720,7 +1645,6 @@ END:VCARD"""
 
     def test_vcf_with_image05(self):
         "Invalid base64 data."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         first_name = 'Satomi'
@@ -1750,7 +1674,6 @@ END:VCARD"""
 
     def test_vcf_with_image06(self):
         "Invalid image data."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         first_name = 'Satomi'
@@ -1780,7 +1703,6 @@ END:VCARD"""
     @skipIfCustomContact
     def test_fields_config_hidden01(self):
         "Hide some regular Contact fields."
-        # self.login()
         user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
@@ -1845,7 +1767,6 @@ END:VCARD"""
     @skipIfCustomAddress
     def test_fields_config_hidden02(self):
         "Hide some regular Organisation & Address fields."
-        # self.login()
         user = self.login_as_root_and_get()
 
         create_fc = FieldsConfig.objects.create
@@ -1953,7 +1874,6 @@ END:VCARD"""
     @skipIfCustomAddress
     def test_fields_config_hidden03(self):
         "Hide Contact.billing_address."
-        # self.login()
         user = self.login_as_root_and_get()
 
         create_fc = FieldsConfig.objects.create
@@ -2005,7 +1925,6 @@ ORG:Corporate\nEND:VCARD"""
     @skipIfCustomAddress
     def test_fields_config_hidden04(self):
         "Hide Organisation.billing_address."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_fc = FieldsConfig.objects.create
@@ -2058,7 +1977,6 @@ END:VCARD"""
     @skipIfCustomContact
     def test_fields_config_hidden05(self):
         "Hide <Contact.image>."
-        # user = self.login()
         user = self.login_as_root_and_get()
         image_count = Document.objects.count()
 
@@ -2104,7 +2022,6 @@ END:VCARD"""
 
     @skipIfCustomContact
     def test_fields_config_required_contact(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
@@ -2133,7 +2050,6 @@ END:VCARD"""
     @skipIfCustomContact
     def test_fields_config_required_contact_image01(self):
         "No image data => visible image field."
-        # user = self.login()
         user = self.login_as_root_and_get()
         image = self._create_image(user=user)
 
@@ -2181,7 +2097,6 @@ END:VCARD"""
     @skipIfCustomContact
     def test_fields_config_required_contact_image02(self):
         "Image data => no explicit image field."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
@@ -2245,7 +2160,6 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_fields_config_required_organisation01(self):
         "Field is already in the form; Organisation is created."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         req_fname = 'phone'
@@ -2300,7 +2214,6 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_fields_config_required_organisation02(self):
         "Field is already in the form; Organisation already exists."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         req_fname = 'phone'
@@ -2352,7 +2265,6 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_fields_config_required_organisation03(self):
         "Field not in the base form (must be added); Organisation is created."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         req_fname = 'sector'
@@ -2408,7 +2320,6 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_fields_config_required_organisation04(self):
         "Field not in the base form (must be added); Organisation is updated."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         req_fname = 'sector'
@@ -2467,7 +2378,6 @@ END:VCARD"""
     @skipIfCustomContact
     def test_fields_config_required_address01(self):
         "Addresses not filled."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         req_fname = 'country'
@@ -2516,7 +2426,6 @@ END:VCARD"""
     @skipIfCustomContact
     def test_fields_config_required_address02(self):
         "Addresses are filled (+ field name must be remapped on VCF name)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         req_fname = 'department'
@@ -2572,7 +2481,6 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_fields_config_required_address03(self):
         "Existing organisation without address."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='SAO')
@@ -2644,7 +2552,6 @@ END:VCARD"""
     @skipIfCustomAddress
     def test_fields_config_required_address04(self):
         "Organisation with existing address."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='SAO')
@@ -2724,7 +2631,6 @@ END:VCARD"""
     @skipIfCustomContact
     def test_customfields01(self):
         "Required custom-fields on Contact must be used."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_cfield = partial(
@@ -2782,7 +2688,6 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_customfields02(self):
         "Required custom-fields on Organisations must be used."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_cfield = partial(
@@ -2847,7 +2752,6 @@ END:VCARD"""
     @skipIfCustomOrganisation
     def test_customfields03(self):
         "Required custom-fields on Organisations must be used (organisation already exists."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         cfield = CustomField.objects.create(

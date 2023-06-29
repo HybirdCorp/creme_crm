@@ -65,7 +65,6 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
     @skipIfCustomContact
     def test_mass_import01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         count = Opportunity.objects.count()
@@ -180,7 +179,6 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
     def test_mass_import02(self):
         "SalesPhase creation forbidden by the user."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         count = Opportunity.objects.count()
@@ -244,8 +242,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
         )
 
     def test_mass_import03(self):
-        "SalesPhase is required"
-        # user = self.login()
+        "SalesPhase is required."
         user = self.login_as_root_and_get()
 
         emitter = Organisation.objects.filter(is_managed=True)[0]
@@ -283,7 +280,6 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
 
     def test_mass_import04(self):
         "Creation of Organisation/Contact is not wanted."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         count = Opportunity.objects.count()
@@ -339,9 +335,7 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
     @override_settings(MAX_JOBS_PER_USER=2)
     def test_mass_import05(self):
         "Creation credentials for Organisation & SalesPhase are forbidden."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['persons', 'documents', 'opportunities'],
             creatable_models=[Opportunity, get_document_model()],  # Not Organisation
         )
@@ -415,7 +409,6 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
     @skipIfCustomOrganisation
     def test_mass_import06(self):
         "Update."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         opp1, target1, emitter = self._create_opportunity_n_organisations(user=user)

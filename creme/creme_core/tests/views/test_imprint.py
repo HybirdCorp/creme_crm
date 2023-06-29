@@ -23,11 +23,9 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         BrickDetailviewLocation.objects.create_if_needed(
             brick=ImprintsBrick, order=1, zone=BrickDetailviewLocation.LEFT,
         )
-        # BrickHomeLocation.objects.create(brick_id=ImprintsBrick.id_, order=1)
         BrickHomeLocation.objects.create(brick_id=ImprintsBrick.id, order=1)
 
     def test_detailview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Middle Earth')
         self.assertFalse(Imprint.objects.all())
@@ -43,7 +41,6 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Delay is not passed."
         self.assertEqual(timedelta(hours=2), imprint_manager.get_granularity(FakeOrganisation))
 
-        # user = self.login()
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Middle Earth')
 
@@ -62,7 +59,6 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_brick01(self):
         "Detailview."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga = FakeOrganisation.objects.create(user=user, name='Middle Earth')
@@ -83,7 +79,6 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_brick02(self):
         "Home."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -100,7 +95,6 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_brick03(self):
         "Not visible for regular users."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
 

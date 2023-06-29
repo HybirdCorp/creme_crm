@@ -21,7 +21,6 @@ from creme.creme_core.forms.base import CremeModelForm
 from ..models import PaymentInformation
 
 
-# class PaymentInformationEditForm(CremeModelForm):
 class _PaymentInformationForm(CremeModelForm):
     class Meta:
         model = PaymentInformation
@@ -36,7 +35,6 @@ class PaymentInformationEditionForm(_PaymentInformationForm):
     pass
 
 
-# class PaymentInformationCreateForm(PaymentInformationEditForm):
 class PaymentInformationCreationForm(_PaymentInformationForm):
     def save(self, *args, **kwargs):
         self.instance.organisation = self.entity

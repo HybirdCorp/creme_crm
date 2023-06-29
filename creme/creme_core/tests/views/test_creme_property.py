@@ -40,7 +40,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         return url
 
     def test_add(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -101,7 +100,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
 
     def test_properties_brick(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -125,12 +123,10 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNoInstanceLink(brick_node, ptype03)
 
     def test_add_type01(self):
-        # self.login()
         self.login_as_root()
 
         url = self.ADD_TYPE_URL
         referer_url = reverse('creme_core__my_page')
-        # response1 = self.assertGET200(url, HTTP_REFERER='http://testserver' + referer_url)
         response1 = self.assertGET200(url, headers={'referer': f'http://testserver{referer_url}'})
         self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add.html')
 
@@ -154,7 +150,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_add_type02(self):
         "Constraints on ContentTypes, 'is_copiable'."
-        # self.login()
         self.login_as_root()
 
         get_ct = ContentType.objects.get_for_model
@@ -177,19 +172,16 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_add_type03(self):
         "Not allowed."
-        # self.login(is_superuser=False)
         self.login_as_standard()
         self.assertGET403(self.ADD_TYPE_URL)
 
     def test_add_type04(self):
         "Not super-user."
-        # self.login(is_superuser=False, admin_4_apps=('creme_core',))
         self.login_as_standard(admin_4_apps=('creme_core',))
         self.assertGET200(self.ADD_TYPE_URL)
 
     def test_edit_type01(self):
         "is_custom=False."
-        # self.login()
         self.login_as_root()
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-foobar', text='is beautiful',
@@ -200,7 +192,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET404(ptype.get_edit_absolute_url())
 
     def test_edit_type02(self):
-        # self.login()
         self.login_as_root()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
@@ -210,7 +201,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         url = ptype.get_edit_absolute_url()
         referer_url = reverse('creme_core__my_page')
-        # response1 = self.assertGET200(url, HTTP_REFERER='http://testserver' + referer_url)
         response1 = self.assertGET200(url, headers={'referer': f'http://testserver{referer_url}'})
         self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit.html')
 
@@ -239,7 +229,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_edit_type03(self):
         "Not allowed."
-        # self.login(is_superuser=False)
         self.login_as_standard()
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-foobar', text='is beautiful', is_custom=True,
@@ -248,7 +237,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_edit_type04(self):
         "Not super-user."
-        # self.login(is_superuser=False, admin_4_apps=('creme_core',))
         self.login_as_standard(admin_4_apps=('creme_core',))
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-foobar', text='is beautiful', is_custom=True,
@@ -257,7 +245,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_edit_type05(self):
         "Disabled=True."
-        # self.login()
         self.login_as_root()
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-foobar', text='is beautiful', is_custom=True,
@@ -268,7 +255,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET404(ptype.get_edit_absolute_url())
 
     def test_delete_related01(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
 
@@ -299,15 +285,12 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_delete_related02(self):
         "Not allowed to change the related entity."
-        # self.login(is_superuser=False)
         user = self.login_as_standard()
-        # self._set_all_creds_except_one(EntityCredentials.CHANGE)
         self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_foobar', text='hairy',
         )
-        # entity = FakeContact.objects.create(user=self.other_user, last_name='Vrataski')
         entity = FakeContact.objects.create(user=self.get_root_user(), last_name='Vrataski')
         prop = CremeProperty.objects.create(type=ptype, creme_entity=entity)
         ct = ContentType.objects.get_for_model(CremeProperty)
@@ -318,7 +301,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
 
     def test_delete_from_type(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
@@ -342,7 +324,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertStillExists(prop2)
 
     def test_delete_type01(self):
-        # self.login()
         self.login_as_root()
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-foobar', text='is beautiful', is_custom=False,
@@ -350,7 +331,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertPOST404(ptype.get_delete_absolute_url())
 
     def test_delete_type02(self):
-        # self.login(is_superuser=False, admin_4_apps=['creme_core'])
         self.login_as_standard(admin_4_apps=['creme_core'])
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-foobar', text='is beautiful', is_custom=True,
@@ -361,7 +341,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_delete_type03(self):
         "Not allowed to admin <creme_core>."
-        # self.login(is_superuser=False)
         self.login_as_standard()
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-foobar', text='is beautiful', is_custom=True,
@@ -369,7 +348,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertPOST403(ptype.get_delete_absolute_url(), follow=True)
 
     def test_add_properties_bulk01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -443,10 +421,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             self.assertEntityHasntProperty(ptype03, entity)
 
     def test_add_properties_bulk02(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
-        # other_user = self.other_user
         other_user = self.get_root_user()
 
         create_entity = CremeEntity.objects.create
@@ -507,12 +483,9 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEntityHasProperty(ptype2, entity4)
 
     def test_add_properties_bulk03(self):
-        # self.login(is_superuser=False)
         user = self.login_as_standard()
 
-        # self._set_all_creds_except_one(excluded=EntityCredentials.CHANGE)
         self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
-        # uneditable = CremeEntity.objects.create(user=self.other_user)
         uneditable = CremeEntity.objects.create(user=self.get_root_user())
 
         self.assertTrue(user.has_perm_to_view(uneditable))
@@ -528,7 +501,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(str(uneditable), label.initial)
 
     def test_add_properties_bulk04(self):
-        # user =self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
 
@@ -536,10 +508,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats')
         ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
 
-        # self._set_all_creds_except_one(excluded=EntityCredentials.CHANGE)
         self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
         entity = CremeEntity.objects.create(user=user)
-        # uneditable = CremeEntity.objects.create(user=self.other_user)
         uneditable = CremeEntity.objects.create(user=self.get_root_user())
 
         self.assertGET200(
@@ -565,7 +535,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertListEqual([entity], tagged_entities(ptype02))
 
     def test_not_copiable_properties(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -592,7 +561,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(2, filter_prop(type=ptype02).count())
 
     def test_detailview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_murica', text='is american',
@@ -643,7 +611,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_detailview02(self):
         "Misc brick."
-        # user = self.login()
         user = self.login_as_root_and_get()
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_murica', text='is american',
@@ -675,7 +642,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNoBrick(doc, 'block_creme_core-tagged-creme_core-fakeorganisation')
 
     def test_reload_ptype_bricks01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_murica', text='is american',
@@ -707,7 +673,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_reload_ptype_bricks02(self):
         "Misc brick + info brick."
-        # user = self.login()
         user = self.login_as_root_and_get()
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_murica', text='is american',
@@ -740,7 +705,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_reload_ptype_bricks03(self):
         "Empty brick."
-        # self.login()
         self.login_as_root()
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_murica', text='is american',
@@ -750,7 +714,6 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(
             reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
             data={'brick_id': brick_id},
-            # HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             headers={'X-Requested-With': 'XMLHttpRequest'},
         )
 

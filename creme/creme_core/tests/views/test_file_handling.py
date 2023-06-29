@@ -14,7 +14,6 @@ from .base import ViewsTestCase
 class DownloadViewTestCase(ViewsTestCase):
     def test_download_filefield01(self):
         "Errors."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         folder = FakeFolder.objects.create(user=user, title="Faye's pix")
@@ -32,7 +31,6 @@ class DownloadViewTestCase(ViewsTestCase):
 
     def test_download_filefield02(self):
         "OK."
-        # user = self.login()
         user = self.login_as_root_and_get()
         file_content = 'I am the content'
         path = self.create_uploaded_file(
@@ -68,7 +66,6 @@ class DownloadViewTestCase(ViewsTestCase):
 
     def test_download_filefield03(self):
         "Basename."
-        # user = self.login()
         user = self.login_as_root_and_get()
         path = self.create_uploaded_file(
             file_name='DownloadViewTestCase_test_download_filefield03.txt',
@@ -89,7 +86,6 @@ class DownloadViewTestCase(ViewsTestCase):
 
     def test_download_filefield04(self):
         "Not super-user."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         SetCredentials.objects.create(
             role=user.role,
@@ -104,7 +100,6 @@ class DownloadViewTestCase(ViewsTestCase):
         )
         folder = FakeFolder.objects.create(user=user, title="Faye's pix")
         doc = FakeDocument.objects.create(
-            # user=self.other_user,
             user=self.get_root_user(),
             title='Selfie with RedTail',
             linked_folder=folder,
@@ -121,7 +116,6 @@ class DownloadViewTestCase(ViewsTestCase):
 
     def test_download_filefield05(self):
         "Not super-user."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
         path = self.create_uploaded_file(
@@ -130,7 +124,6 @@ class DownloadViewTestCase(ViewsTestCase):
         )
         folder = FakeFolder.objects.create(user=user, title="Faye's pix")
         doc = FakeDocument.objects.create(
-            # user=self.other_user,
             user=self.get_root_user(),
             title='Selfie with RedTail',
             linked_folder=folder,

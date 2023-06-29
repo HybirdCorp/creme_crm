@@ -54,7 +54,6 @@ class CustomFormConfigItemManager(models.Manager):
             item = self.model(descriptor_id=desc_id, **role_kwargs)
             item.store_groups(FieldGroupList.from_cells(
                 model=descriptor.model,
-                # data=groups_desc,
                 data=groups_desc or descriptor.default_groups_desc,
                 cell_registry=descriptor.build_cell_registry(),
                 allowed_extra_group_classes=(*descriptor.extra_group_classes,),

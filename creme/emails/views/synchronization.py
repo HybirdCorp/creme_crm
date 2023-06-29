@@ -33,7 +33,6 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.serializers import json_encode
 from creme.creme_core.views import generic
 from creme.documents import get_document_model, get_folder_model
-# from creme.documents.constants import UUID_FOLDER_CAT_EMAILS
 from creme.documents.models import FolderCategory
 from creme.emails import get_entityemail_model
 from creme.emails.constants import UUID_FOLDER_CAT_EMAILS

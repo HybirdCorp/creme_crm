@@ -22,14 +22,12 @@ import logging
 from collections import OrderedDict
 from typing import Callable, Iterator
 
-# from django.utils.translation import gettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, QuerySet
 
 from creme.creme_core import models
 from creme.creme_core.core import entity_cell
 from creme.creme_core.core.entity_filter import condition_handler
-# from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.custom_form import (
     FieldGroup,
@@ -37,7 +35,6 @@ from creme.creme_core.gui.custom_form import (
     customform_descriptor_registry,
 )
 
-# from creme.creme_core.utils.unicode_collation import collator
 from .. import constants
 
 logger = logging.getLogger(__name__)
@@ -273,12 +270,6 @@ class CustomBrickConfigItemExporter(CellsExporterMixin, Exporter):
 class BrickExporterMixin:
     brick_registry = brick_registry
 
-    # @staticmethod
-    # def filter_non_exportable_items(qs):
-    #     return qs.filter(
-    #         brick_id__startswith=models.InstanceBrickConfigItem._brick_id_prefix,
-    #     )
-
     def items_to_str(self, items):
         return ', '.join(
             brick.verbose_name
@@ -293,36 +284,7 @@ class BrickDetailviewLocationExporter(BrickExporterMixin, Exporter):
     model = models.BrickDetailviewLocation
 
     def get_queryset(self):
-        qs = self.model._default_manager.all()
-        # cursed_items = self.filter_non_exportable_items(qs)
-        #
-        # if cursed_items:
-        #     ctypes = {bdl.content_type for bdl in cursed_items}
-        #     try:
-        #         ctypes.remove(None)
-        #     except KeyError:
-        #         default_config = False
-        #     else:
-        #         default_config = True
-        #
-        #     ct_labels = sorted((str(ct) for ct in ctypes), key=collator.sort_key)
-        #
-        #     if default_config:
-        #         ct_labels.insert(0, _('Default configuration'))
-        #
-        #     raise ConflictError(
-        #         _(
-        #             'The configuration of blocks for detailed-views cannot be '
-        #             'exported because it contains references to some '
-        #             'instance-blocks ({blocks}), which are not managed, for the '
-        #             'following cases: {models}.'
-        #         ).format(
-        #             blocks=self.items_to_str(cursed_items),
-        #             models=', '.join(ct_labels)
-        #         )
-        #     )
-
-        return qs
+        return self.model._default_manager.all()
 
     def dump_instance(self, instance):
         assert isinstance(instance, models.BrickDetailviewLocation)
@@ -351,19 +313,7 @@ class BrickHomeLocationExporter(BrickExporterMixin, Exporter):
     model = models.BrickHomeLocation
 
     def get_queryset(self):
-        qs = self.model._default_manager.all()
-        # cursed_items = self.filter_non_exportable_items(qs)
-        #
-        # if cursed_items:
-        #     raise ConflictError(
-        #         _(
-        #             'The configuration of blocks for Home cannot be exported '
-        #             'because it contains references to some instance-blocks '
-        #             '({blocks}), which are not managed.'
-        #         ).format(blocks=self.items_to_str(cursed_items))
-        #     )
-
-        return qs
+        return self.model._default_manager.all()
 
     def dump_instance(self, instance):
         assert isinstance(instance, models.BrickHomeLocation)
@@ -388,19 +338,7 @@ class BrickMypageLocationExporter(BrickExporterMixin, Exporter):
     model = models.BrickMypageLocation
 
     def get_queryset(self):
-        qs = self.model._default_manager.filter(user=None)
-        # cursed_items = self.filter_non_exportable_items(qs)
-        #
-        # if cursed_items:
-        #     raise ConflictError(
-        #         _(
-        #             'The configuration of blocks for «My page» cannot be exported '
-        #             'because it contains references to some instance-blocks '
-        #             '({blocks}), which are not managed.'
-        #         ).format(blocks=self.items_to_str(cursed_items))
-        #     )
-
-        return qs
+        return self.model._default_manager.filter(user=None)
 
     def dump_instance(self, instance):
         assert isinstance(instance, models.BrickMypageLocation)

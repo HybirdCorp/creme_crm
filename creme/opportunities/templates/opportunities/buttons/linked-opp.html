@@ -10,18 +10,3 @@
     {{button.verbose_name}}
 </span>
 {% endif %}
-
-{% comment %}
-{% load i18n creme_widgets %}{% load has_perm_to from creme_core_tags %}{% has_perm_to link object as link_perm %}
-{% if has_perm and link_perm %}
-    <a class="menu_button menu-button-icon" href="{% url 'opportunities__create_related_opportunity' object.id %}" title="{% blocktranslate %}Create an opportunity which targets «{{object}}».{% endblocktranslate %}" >
-        {% widget_icon name='opportunity' size='instance-button' label=_('Opportunity') %}
-        {% translate 'Create a linked opportunity' %}
-    </a>
-{% else %}
-    <span class="menu_button menu-button-icon forbidden" title="{% translate 'forbidden' %}">
-        {% widget_icon name='opportunity' size='instance-button' label=_('Opportunity') %}
-        {% translate 'Create a linked opportunity' %}
-    </span>
-{% endif %}
-{% endcomment %}

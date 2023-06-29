@@ -69,7 +69,6 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
         cls.ADD_URL = reverse('recurrents__create_generator')
 
     def _aux_test_create(self, model, status_model, target_has_addresses=False):
-        # user = self.login()
         user = self.login_as_root_and_get()
         url = self.ADD_URL
         self.assertGET200(url)
@@ -83,7 +82,6 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
 
                 '0-user':             user.id,
                 '0-name':             gen_name,
-                # '0-first_generation': '08-07-2014 11:00',
                 '0-first_generation': self.formfield_value_datetime(
                     year=2014, month=7, day=8, hour=11,
                 ),
@@ -225,9 +223,7 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
 
     def test_create_credentials01(self):
         "Creation credentials for generated models."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['persons', 'recurrents'],
             creatable_models=[RecurrentGenerator, Quote],  # Not Invoice
         )
@@ -280,9 +276,7 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
     @skipIfCustomQuote
     def test_create_credentials02(self):
         "App credentials."
-        # self.login(
         self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['persons'],  # Not 'recurrents'
             creatable_models=[RecurrentGenerator, Quote],
         )
@@ -292,9 +286,7 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
     @skipIfCustomQuote
     def test_create_credentials03(self):
         "Creation credentials for generator."
-        # self.login(
         self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['persons', 'recurrents'],
             creatable_models=[Quote],  # Not RecurrentGenerator
         )

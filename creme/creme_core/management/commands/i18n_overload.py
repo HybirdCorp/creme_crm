@@ -23,11 +23,9 @@
 ################################################################################
 
 from collections import defaultdict
-# from datetime import datetime
 from os import listdir, makedirs
 from pathlib import Path
 
-# import pytz
 from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -129,7 +127,6 @@ class Command(BaseCommand):
 
         catalog_dirpath, catalog_path = self._get_catalog_paths(language, file_name)
 
-        # if not exists(catalog_path):
         if not catalog_path.exists():
             raise CommandError(
                 f'no existing overloading {file_name} found in "{catalog_dirpath}".'
@@ -200,9 +197,6 @@ class Command(BaseCommand):
                 'Content-Transfer-Encoding': '8bit',
             }
 
-        # catalog.metadata['POT-Creation-Date'] = pytz.timezone(
-        #     settings.TIME_ZONE
-        # ).localize(datetime.now()).strftime('%Y-%m-%d %H:%M%z')
         catalog.metadata['POT-Creation-Date'] = localtime(now()).strftime('%Y-%m-%d %H:%M%z')
 
         terms = [smart_str(arg) for arg in args]

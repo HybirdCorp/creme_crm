@@ -46,7 +46,6 @@ class _AuxForm(CremeModelForm):
         self.instance.strategy = entity
 
 
-# class SegmentLinkForm(_AuxForm):
 class SegmentLinkingForm(_AuxForm):
     class Meta(_AuxForm.Meta):
         model = MarketSegmentDescription
@@ -118,7 +117,6 @@ class _SegmentForm(_AuxForm):
         return name
 
 
-# class SegmentEditForm(_SegmentForm):
 class SegmentEditionForm(_SegmentForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -141,7 +139,6 @@ class SegmentEditionForm(_SegmentForm):
         return seginfo
 
 
-# class SegmentCreateForm(_SegmentForm):
 class SegmentCreationForm(_SegmentForm):
     def save(self, *args, **kwargs):
         segment_desc = self.instance

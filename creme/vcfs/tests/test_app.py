@@ -9,7 +9,6 @@ from creme.vcfs.actions import GenerateVcfAction
 class VcfsTestCase(CremeTestCase):
     def test_config(self):
         "Should not be available when creating UserRoles."
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET200(reverse('creme_config__create_role'))
@@ -26,7 +25,6 @@ class VcfsTestCase(CremeTestCase):
         self.assertNotInChoices(value='vcfs', choices=app_labels)  # <==
 
     def test_actions(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         contact = user.linked_contact
         action = self.get_alone_element(

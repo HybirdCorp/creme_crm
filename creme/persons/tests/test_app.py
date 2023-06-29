@@ -7,7 +7,6 @@ from django.utils.translation import gettext as _
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.menu import CremeEntry
 from creme.creme_core.models import EntityFilter, HeaderFilter, SetCredentials
-# from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from .. import bricks, constants, workflow
@@ -15,7 +14,6 @@ from ..menu import UserContactEntry
 from .base import Contact, Organisation, _BaseTestCase
 
 
-# class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
 class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
     def test_populate(self):
         self.get_relationtype_or_fail(
@@ -60,7 +58,6 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
         )
 
     def test_config_portal(self):
-        # self.login()
         self.login_as_root()
         response = self.assertGET200(reverse('creme_config__portal'))
         self.get_brick_node(
@@ -69,7 +66,6 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
         )
 
     def test_transform_target_into_prospect01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -84,7 +80,6 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
         self.assertRelationCount(1, target, constants.REL_SUB_PROSPECT, source)
 
     def test_transform_target_into_customer01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -99,7 +94,6 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
         self.assertRelationCount(1, target, constants.REL_SUB_CUSTOMER_SUPPLIER, source)
 
     def test_user_contact_menu_entry01(self):
-        # user = self.login(is_superuser=False, allowed_apps=['persons'])
         user = self.login_as_persons_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -128,7 +122,6 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
             self.fail(f'No user entry found in {creme_children}.')
 
     def test_user_contact_menu_entry02(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
         self.assertHTMLEqual(

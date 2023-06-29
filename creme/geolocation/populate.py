@@ -72,7 +72,6 @@ class Populator(BasePopulator):
             )
 
         BrickMypageLocation.objects.create(
-            # brick_id=bricks.GoogleFilteredMapBrick.id_, order=20, user=None,
             brick_id=bricks.GoogleFilteredMapBrick.id, order=20, user=None,
         )
 
@@ -83,6 +82,5 @@ class Populator(BasePopulator):
                 'Creme core is installed => the block GoogleFilteredMapBrick can be activated'
             )
             BrickMypageLocation.objects.create(
-                # brick_id=bricks.GoogleFilteredMapBrick.id_, order=20, user=root,
                 brick_id=bricks.GoogleFilteredMapBrick.id, order=20, user=root,
             )

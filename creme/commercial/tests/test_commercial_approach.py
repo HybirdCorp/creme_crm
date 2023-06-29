@@ -61,7 +61,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def setUp(self):
         super().setUp()
-        # self.login()
         self.user = self.login_as_root_and_get()
 
     def tearDown(self):
@@ -78,7 +77,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         return {elt.text for elt in brick_node.findall('.//td[@data-table-primary-column]')}
 
     def test_createview(self):
-        # entity = self.other_user.linked_contact
         entity = FakeOrganisation.objects.create(user=self.user, name='NERV')
         url = reverse('commercial__create_approach', args=(entity.id,))
 
@@ -425,7 +423,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_brick02(self):
         "Home."
-        # BrickHomeLocation.objects.create(brick_id=ApproachesBrick.id_, order=100)
         BrickHomeLocation.objects.create(brick_id=ApproachesBrick.id, order=100)
 
         response = self.assertGET200(reverse('creme_core__home'))

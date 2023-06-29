@@ -83,10 +83,6 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         title = 'TITLE'
         body = 'BODY'
         priority = UserMessagePriority.objects.create(title='Important')
-        # user1 = User.objects.create_user(
-        #     'User01',
-        #     email='user01@foobar.com', first_name='User01', last_name='Foo',
-        # )
         user1 = self.create_user(
             username='User01', email='user01@foobar.com', first_name='User01', last_name='Foo',
         )
@@ -175,7 +171,6 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         message = self.get_alone_element(UserMessage.objects.all())
         self.assertIsNone(message.entity_id)
         self.assertIsNone(message.entity_content_type_id)
-        # self.assertIsNone(message.creme_entity)
         self.assertIsNone(message.real_entity)
 
     def test_create04(self):
@@ -215,10 +210,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 body='My body is ready',
                 creation_date=now(),
                 priority=priority,
-                # sender=self.other_user,
                 sender=other_user,
                 recipient=user,
-                # creme_entity=entity,
                 real_entity=entity,
             )
 
@@ -250,7 +243,6 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         # ---
         BrickHomeLocation.objects.get_or_create(
-            # brick_id=UserMessagesBrick.id_, defaults={'order': 50},
             brick_id=UserMessagesBrick.id, defaults={'order': 50},
         )
 
@@ -276,7 +268,6 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_delete(self):
         user = self.user
-        # other_user = self.other_user
         other_user = self.create_user()
 
         priority = UserMessagePriority.objects.create(title='Important')
@@ -318,7 +309,6 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             self.assertEqual(2, len(messages))
 
             for msg in messages:
-                # self.assertEqual(contact01, msg.creme_entity)
                 self.assertEqual(contact01, msg.real_entity)
 
         self.aux_test_merge(creator, assertor, moved_count=0)

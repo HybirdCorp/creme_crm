@@ -66,7 +66,6 @@ class CalendarManager(models.Manager):
             name=name or gettext("{user}'s calendar").format(user=user),
             user=user, is_default=True, is_custom=False,
             is_public=is_public,
-            # color=color or self.new_color(),
             **kwargs
         )
         cal._enable_default_checking = check_for_default
@@ -136,10 +135,7 @@ class CalendarManager(models.Manager):
 
         for user_id, user in users_per_id.items():
             if user_id not in calendars_per_users:
-                default_calendars[user_id] = self.create_default_calendar(
-                    user,
-                    # color=COLOR_POOL[(len(default_calendars) + user_id) % len(COLOR_POOL)],
-                )
+                default_calendars[user_id] = self.create_default_calendar(user)
 
         return default_calendars
 
@@ -205,13 +201,8 @@ class Calendar(CremeModel):
                 def_cal._enable_default_checking = False
                 def_cal.save()
 
-    # def save(self, *args, **kwargs):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         mngr = type(self).objects
-
-        # if not self.color:
-        #     self.color = mngr.new_color()
-
         check = self._enable_default_checking
 
         if (
@@ -223,7 +214,6 @@ class Calendar(CremeModel):
             if update_fields is not None:
                 update_fields = {'is_default', *update_fields}
 
-        # super().save(*args, **kwargs)
         super().save(
             force_insert=force_insert,
             force_update=force_update,

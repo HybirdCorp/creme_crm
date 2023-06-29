@@ -32,7 +32,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_portal01(self):
         "Do not hide deleted fields."
-        # self.login()
         self.login_as_root()
 
         cfield1 = CustomField.objects.create(
@@ -87,10 +86,8 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_portal02(self):
         "Hide deleted fields."
-        # user = self.login()
         self.login_as_root()
         user = self.root
-        # brick_id = bricks.CustomFieldsBrick.id_
         brick_id = bricks.CustomFieldsBrick.id
 
         state = BrickState(user=user, brick_id=brick_id)
@@ -129,7 +126,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_add_ct01(self):
-        # self.login(is_superuser=False, admin_4_apps=('creme_core',))
         self.login_as_standard(admin_4_apps=('creme_core',))
         self.assertFalse(CustomField.objects.all())
 
@@ -185,7 +181,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(ct_orga, ctypes2)
 
     def test_add_ct02(self):
-        # self.login()
         self.login_as_root()
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -208,7 +203,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_ct_error01(self):
         "Empty choice list."
-        # self.login()
         self.login_as_root()
         ct = ContentType.objects.get_for_model(FakeContact)
         self.assertFalse(CustomField.objects.filter(content_type=ct))
@@ -232,7 +226,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_ct_error02(self):
         "Duplicated choices."
-        # self.login()
         self.login_as_root()
         response = self.assertPOST200(
             reverse('creme_config__create_first_ctype_custom_field'),
@@ -250,12 +243,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_add_ct_error03(self):
-        # self.login(is_superuser=False)  # admin_4_apps=('creme_core',)
         self.login_as_standard()  # admin_4_apps=('creme_core',)
         self.assertGET403(reverse('creme_config__create_first_ctype_custom_field'))
 
     def test_add01(self):
-        # self.login(is_superuser=False, admin_4_apps=('creme_core',))
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         get_ct = ContentType.objects.get_for_model
@@ -305,7 +296,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add02(self):
         "content_type + name => unique together."
-        # self.login()
         self.login_as_root()
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -328,7 +318,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add03(self):
         "Empty list of choices."
-        # self.login()
         self.login_as_root()
 
         contact_ct = ContentType.objects.get_for_model(FakeContact)
@@ -350,7 +339,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add04(self):
         "Duplicated choices."
-        # self.login()
         self.login_as_root()
 
         contact_ct = ContentType.objects.get_for_model(FakeContact)
@@ -369,7 +357,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_edit01(self):
-        # self.login(is_superuser=False, admin_4_apps=('creme_core',))
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         name = 'nickname'
@@ -403,7 +390,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit02(self):
         "content_type + name => unique together."
-        # self.login()
         self.login_as_root()
 
         name = 'Nickname'
@@ -426,7 +412,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit03(self):
         "is_deleted == True  => error."
-        # self.login()
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -444,7 +429,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_delete01(self):
-        # user = self.login(is_superuser=False, admin_4_apps=('creme_core',))
         user = self.login_as_standard(admin_4_apps=('creme_core',))
 
         create_cf = partial(CustomField.objects.create, content_type=FakeContact)
@@ -489,7 +473,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete02(self):
         "Try to delete definitely, but related value."
-        # user = self.login(is_superuser=False, admin_4_apps=('creme_core',))
         user = self.login_as_standard(admin_4_apps=('creme_core',))
 
         create_cf = partial(CustomField.objects.create, content_type=FakeContact)
@@ -527,7 +510,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete03(self):
         "Not allowed."
-        # self.login(is_superuser=False)  # admin_4_apps=('creme_core',)
         self.login_as_standard()  # admin_4_apps=('creme_core',)
 
         cfield = CustomField.objects.create(
@@ -542,7 +524,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_restore01(self):
-        # self.login()
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -561,7 +542,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_restore02(self):
         "Not allowed."
-        # self.login(is_superuser=False)  # admin_4_apps=('creme_core',)
         self.login_as_standard()  # admin_4_apps=('creme_core',)
 
         cfield = CustomField.objects.create(
@@ -577,7 +557,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_enum_values_detail(self):
-        # self.login(is_superuser=False, admin_4_apps=('creme_core',))
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -616,7 +595,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_add_enum_values01(self):
-        # self.login(is_superuser=False, admin_4_apps=('creme_core',))
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -651,7 +629,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_enum_values02(self):
         "MULTI_ENUM + duplicated choice."
-        # self.login()
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -691,7 +668,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_enum_values03(self):
         "Not Enum type => error."
-        # self.login()
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -705,7 +681,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_enum_values04(self):
         "Not allowed."
-        # self.login(is_superuser=False)
         self.login_as_standard()
 
         cfield = CustomField.objects.create(
@@ -720,7 +695,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_enum_values05(self):
         "Field is deleted."
-        # self.login()
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -734,7 +708,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_add_enum_value01(self):
-        # self.login(is_superuser=False, admin_4_apps=('creme_core',))
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -779,7 +752,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_enum_value02(self):
         "MULTI_ENUM + duplicated choice."
-        # self.login()
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -804,7 +776,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_enum_value03(self):
         "Not Enum type => error."
-        # self.login()
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -818,7 +789,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_enum_value04(self):
         "Not allowed."
-        # self.login(is_superuser=False)
         self.login_as_standard()
 
         cfield = CustomField.objects.create(
@@ -832,7 +802,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_enum_value05(self):
         "The field is deleted."
-        # self.login()
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -850,7 +819,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_edit_enum_value01(self):
-        # self.login(is_superuser=False, admin_4_apps=('creme_core',))
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         cfield = CustomField.objects.create(
@@ -883,7 +851,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_enum_value02(self):
         "Not allowed."
-        # self.login(is_superuser=False)  # admin_4_apps=('creme_core',)
         self.login_as_standard()  # admin_4_apps=('creme_core',)
 
         cfield = CustomField.objects.create(
@@ -898,7 +865,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_enum_value03(self):
         "Field is deleted."
-        # self.login()
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -918,7 +884,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_enum_value01(self):
         "ENUM not used."
-        # user = self.login(is_superuser=False, admin_4_apps=('creme_core',))
         user = self.login_as_standard(admin_4_apps=('creme_core',))
 
         self.assertIsNone(DeletionCommand.objects.first())
@@ -975,7 +940,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_enum_value02(self):
         "ENUM used + replacing."
-        # user = self.login()
         self.login_as_root()
         user = self.root
 
@@ -1039,7 +1003,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_enum_value03(self):
         "ENUM used + replacing by NULL."
-        # user = self.login()
         self.login_as_root()
         user = self.root
 
@@ -1075,7 +1038,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_enum_value04(self):
         "Not allowed."
-        # self.login(is_superuser=False)  # admin_4_apps=('creme_core',)
         self.login_as_standard()  # admin_4_apps=('creme_core',)
 
         cfield = CustomField.objects.create(
@@ -1094,7 +1056,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_enum_value05(self):
         "Uniqueness."
-        # user = self.login()
         self.login_as_root()
         user = self.root
 
@@ -1147,7 +1108,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_enum_value06(self):
         "Field is deleted."
-        # self.login()
         self.login_as_root()
 
         cfield = CustomField.objects.create(
@@ -1163,7 +1123,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_multi_enum01(self):
         "MULTI_ENUM not used."
-        # self.login(is_superuser=False, admin_4_apps=('creme_core',))
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         cfield = CustomField.objects.create(
@@ -1201,7 +1160,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_multi_enum02(self):
         "MULTI_ENUM used + replacing."
-        # user = self.login()
         self.login_as_root()
         user = self.root
 
@@ -1275,7 +1233,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_reload_enum_brick01(self):
-        # self.login(is_superuser=False, admin_4_apps=('creme_core',))
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         cfield = CustomField.objects.create(
@@ -1299,7 +1256,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         result = results[0]
         self.assertIsList(result, length=2)
 
-        # brick_id = bricks.CustomEnumsBrick.id_
         brick_id = bricks.CustomEnumsBrick.id
         self.assertEqual(brick_id, result[0])
         brick_node = self.get_brick_node(self.get_html_tree(result[1]), brick_id)
@@ -1318,7 +1274,6 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_reload_enum_brick02(self):
         "Not allowed."
-        # self.login(is_superuser=False)  # admin_4_apps=('creme_core',)
         self.login_as_standard()  # admin_4_apps=('creme_core',)
 
         cfield = CustomField.objects.create(
@@ -1331,15 +1286,12 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_brick_hide_deleted_cfields(self):
-        # user = self.login()
         self.login_as_root()
         user = self.root
 
         def get_state():
             return BrickState.objects.get_for_brick_id(
-                user=user,
-                # brick_id=bricks.CustomFieldsBrick.id_,
-                brick_id=bricks.CustomFieldsBrick.id,
+                user=user, brick_id=bricks.CustomFieldsBrick.id,
             )
 
         self.assertIsNone(get_state().pk)

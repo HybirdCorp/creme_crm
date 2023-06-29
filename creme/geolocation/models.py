@@ -188,10 +188,8 @@ class Town(models.Model):
     def __str__(self):
         return f'{self.zipcode} {self.name} {self.country}'
 
-    # def save(self, *args, **kwargs):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.slug = slugify(self.name)
-        # super().save(*args, **kwargs)
         if update_fields is not None:  # TODO: test
             update_fields = {'slug', *update_fields}  # TODO: only if changed?
 

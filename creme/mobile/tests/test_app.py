@@ -37,7 +37,6 @@ class MobileAppTestCase(MobileBaseTestCase):
         self.assertRedirects(response, self.PORTAL_URL)
 
     def test_logout_GET(self):  # DEPRECATED
-        # self.login()
         self.login_as_root()
         response = self.assertGET200(reverse('mobile__logout'), follow=True)
         self.assertRedirects(response, reverse(settings.LOGIN_URL))
@@ -49,7 +48,6 @@ class MobileAppTestCase(MobileBaseTestCase):
 
     @skipIfCustomActivity
     def test_portal(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         contact = user.linked_contact
         now_val = localtime(now())

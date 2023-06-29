@@ -81,7 +81,6 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     def test_with_address(self):
         "Quote -> Invoice ; 2 addresses."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         currency = Currency.objects.create(
@@ -187,7 +186,6 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     def test_disabled_rtype(self):
         "The RelationType 'Quote -> Invoice' is disabled."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -214,7 +212,6 @@ class ConvertTestCase(_BillingTestCase):
     @override_settings(SALESORDER_NUMBER_PREFIX='ORD')
     def test_not_super_user(self):
         "SalesOrder + not superuser."
-        # user = self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'], creatable_models=[Quote, SalesOrder],
         )
@@ -246,7 +243,6 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomSalesOrder
     def test_ajax(self):
         "SalesOrder + not superuser."
-        # user = self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'], creatable_models=[Quote, SalesOrder],
         )
@@ -276,7 +272,6 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomQuote
     def test_creation_forbidden(self):
         "Credentials (creation) errors."
-        # user = self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
             creatable_models=[Quote],  # Not Invoice
@@ -300,7 +295,6 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomQuote
     def test_view_forbidden(self):
         "Credentials (view) errors."
-        # user = self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'], creatable_models=[Quote, Invoice],
         )
@@ -337,7 +331,6 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomServiceLine
     def test_with_lines(self):
         "Quote to Invoice with lines."
-        # user = self.login()
         user = self.login_as_root_and_get()
         quote, source, target = self.create_quote_n_orgas(user=user, name='My Quote')
 
@@ -414,7 +407,6 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomSalesOrder
     def test_status01(self):
         "Quote -> SalesOrder: status id can not be converted (bugfix)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         status = QuoteStatus.objects.create(name='Cashing', order=5)
@@ -433,7 +425,6 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     def test_status02(self):
         "Quote -> Invoice : status id can not be converted (bugfix)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         pk = 12
@@ -453,7 +444,6 @@ class ConvertTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     def test_not_copiable_relations(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertEqual(0, Relation.objects.count())
 
@@ -508,7 +498,6 @@ class ConvertTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     def test_converted_relations(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         from ..registry import relationtype_converter
 
@@ -541,7 +530,6 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomOrganisation
     def test_error_invalid_source(self):
         "Source is not a billing document."
-        # user = self.login()
         user = self.login_as_root_and_get()
         orga = Organisation.objects.create(user=user, name='Arcadia')
         self._convert(409, orga, 'sales_order')
@@ -549,7 +537,6 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomSalesOrder
     def test_error_bad_combination(self):
         "Some combinations are forbidden."
-        # user = self.login()
         user = self.login_as_root_and_get()
         order = self.create_salesorder_n_orgas(user=user, name='Order for Arcadia')[0]
         self._convert(409, order, 'sales_order')
@@ -557,7 +544,6 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomQuote
     def test_convert_deleted_entity(self):
         "Deleted entity."
-        # user = self.login()
         user = self.login_as_root_and_get()
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
         Quote.objects.filter(id=quote.id).update(is_deleted=True)

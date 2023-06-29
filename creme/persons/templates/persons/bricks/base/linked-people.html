@@ -6,7 +6,6 @@
     {% if relation_type.enabled %}
         {% has_perm_to link object as obj_link_perm %}{% has_perm_to link objects_ctype.model_class as contact_link_perm %}{% has_perm_to create objects_ctype as creation_perm %}
         {% url 'persons__create_related_contact' object.id relation_type.id as people_creation_url %}
-{#        {% url_join people_creation_url callback_url=object.get_absolute_url as creation_uri %} #}
         {% url_join people_creation_url callback_url=request.get_full_path as creation_uri %}
 
         {% brick_header_action id='add-relationships' label=_('Link to contacts') icon='link' enabled=obj_link_perm|and_op:contact_link_perm __subject_id=object.id __rtype_id=relation_type.id __ctype_id=objects_ctype.id __multiple=True %}

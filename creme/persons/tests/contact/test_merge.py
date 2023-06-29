@@ -17,7 +17,6 @@ from ..base import (
 class ContactMergeTestCase(_BaseTestCase):
     @skipIfCustomAddress
     def test_merge_addresses01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -176,7 +175,6 @@ class ContactMergeTestCase(_BaseTestCase):
     @skipIfCustomAddress
     def test_merge_addresses02(self):
         "Merging addresses -> empty addresses."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -295,7 +293,6 @@ class ContactMergeTestCase(_BaseTestCase):
     @skipIfCustomAddress
     def test_merge_addresses03(self):
         "FieldsConfig.REQUIRED => validation on not empty addresses only."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         r_field = 'city'
@@ -375,7 +372,6 @@ class ContactMergeTestCase(_BaseTestCase):
 
     def test_merge_user_contact01(self):
         "Merge 1 Contact which represents a user with another Contact."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         contact01 = user.linked_contact
@@ -427,7 +423,6 @@ class ContactMergeTestCase(_BaseTestCase):
 
     def test_merge_user_contact02(self):
         "Merge 1 Contact with another one which represents a user (entity swap)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         first_name1 = 'FAYE'
@@ -496,11 +491,9 @@ class ContactMergeTestCase(_BaseTestCase):
 
     def test_merge_user_contact03(self):
         "Cannot merge 2 Contacts that represent 2 users."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         contact01 = user.linked_contact
-        # contact02 = self.other_user.linked_contact
         contact02 = self.create_user().linked_contact
 
         self.assertGET409(self.build_merge_url(contact01, contact02))

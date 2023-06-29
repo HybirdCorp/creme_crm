@@ -3,7 +3,6 @@ from datetime import date
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
-# from django.utils.translation import gettext as _
 from django.urls import reverse
 
 from creme.creme_config.core.exporters import Exporter, ExportersRegistry
@@ -85,11 +84,8 @@ class ExportingTestCase(TransferBaseTestCase):
         BrickHomeLocation.objects.filter(brick_id__startswith='instanceblock').delete()
         BrickMypageLocation.objects.filter(brick_id__startswith='instanceblock').delete()
 
-        # brick_registry.register_4_instance(ExportingInstanceBrick)
-
     def test_creds(self):
         "Not staff."
-        # self.login()
         self.login_as_root()
         self.assertGET403(self.URL)
 
@@ -213,13 +209,6 @@ class ExportingTestCase(TransferBaseTestCase):
 
     def test_roles(self):
         "Roles."
-        # self.login(
-        #     is_staff=True,
-        #     allowed_apps=('creme_core', 'persons'),
-        #     admin_4_apps=('persons',),
-        #     creatable_models=(FakeContact, FakeOrganisation),
-        # )
-        # role = self.role
         self.login_as_super(is_staff=True)
         role = self.create_role(
             name='Test',
@@ -338,7 +327,6 @@ class ExportingTestCase(TransferBaseTestCase):
             self.fail(f'EntityFilter with id="{efilter.id}" not found.')
 
     def test_relation_bricks(self):
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
         get_ct = ContentType.objects.get_for_model
 
@@ -395,7 +383,6 @@ class ExportingTestCase(TransferBaseTestCase):
             ]
 
         rbi_info02 = self.get_alone_element(all_rbi_info02)
-        # self.assertEqual(rtype_brick_id02, rbi_info02.get('brick_id'))
         self.assertEqual(rbi2.id, rbi_info02.get('id'))
 
         cells_info = rbi_info02.get('cells')
@@ -423,7 +410,6 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_custom_bricks(self):
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         cfield = CustomField.objects.create(
@@ -469,7 +455,6 @@ class ExportingTestCase(TransferBaseTestCase):
 
     def test_detail_bricks01(self):
         "Default detail-views config."
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         existing_default_bricks_data = defaultdict(list)
@@ -533,7 +518,6 @@ class ExportingTestCase(TransferBaseTestCase):
 
     def test_detail_bricks02(self):
         "CT config."
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         self.assertFalse(
@@ -585,7 +569,6 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertListEqual(
             [
                 {
-                    # 'id': bricks.HistoryBrick.id_, 'order': 10, 'zone': RIGHT,
                     'id': bricks.HistoryBrick.id, 'order': 10, 'zone': RIGHT,
                     'ctype': 'creme_core.fakecontact',
                 },
@@ -598,11 +581,9 @@ class ExportingTestCase(TransferBaseTestCase):
                     'id': constants.MODELBRICK_ID,    'order': 5,  'zone': LEFT,
                     'ctype': 'creme_core.fakecontact',
                 }, {
-                    # 'id': bricks.PropertiesBrick.id_, 'order': 10, 'zone': LEFT,
                     'id': bricks.PropertiesBrick.id, 'order': 10, 'zone': LEFT,
                     'ctype': 'creme_core.fakecontact',
                 }, {
-                    # 'id': bricks.RelationsBrick.id_,  'order': 20, 'zone': LEFT,
                     'id': bricks.RelationsBrick.id,  'order': 20, 'zone': LEFT,
                     'ctype': 'creme_core.fakecontact',
                 },
@@ -612,9 +593,7 @@ class ExportingTestCase(TransferBaseTestCase):
 
     def test_detail_bricks03(self):
         "CT config per role."
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
-        # role = self.role
         role = self.create_role(name='Test')
 
         LEFT  = BrickDetailviewLocation.LEFT
@@ -667,7 +646,6 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertListEqual(
             [
                 {
-                    # 'id': bricks.HistoryBrick.id_, 'order': 10, 'zone': RIGHT,
                     'id': bricks.HistoryBrick.id, 'order': 10, 'zone': RIGHT,
                     'ctype': 'creme_core.fakecontact', 'role': role.name,
                 },
@@ -677,7 +655,6 @@ class ExportingTestCase(TransferBaseTestCase):
 
     def test_detail_bricks04(self):
         "CT config for superusers."
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         LEFT = BrickDetailviewLocation.LEFT
@@ -709,7 +686,6 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_home_bricks01(self):
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         existing_locs = [*BrickHomeLocation.objects.all()]
@@ -725,16 +701,12 @@ class ExportingTestCase(TransferBaseTestCase):
 
     def test_home_bricks02(self):
         "Config per role."
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
         norole_brick_ids = {*BrickHomeLocation.objects.values_list('brick_id', flat=True)}
 
-        # role = self.role
         role = self.create_role(name='Test')
         create_bhl = partial(BrickHomeLocation.objects.create, role=role)
-        # create_bhl(brick_id=bricks.HistoryBrick.id_,    order=1)
         create_bhl(brick_id=bricks.HistoryBrick.id,    order=1)
-        # create_bhl(brick_id=bricks.StatisticsBrick.id_, order=2)
         create_bhl(brick_id=bricks.StatisticsBrick.id, order=2)
 
         response = self.assertGET200(self.URL)
@@ -756,21 +728,17 @@ class ExportingTestCase(TransferBaseTestCase):
 
         self.assertFalse(norole_brick_ids)
         self.assertListEqual(
-            # [bricks.HistoryBrick.id_, bricks.StatisticsBrick.id_],
             [bricks.HistoryBrick.id, bricks.StatisticsBrick.id],
             role_brick_ids,
         )
 
     def test_home_bricks03(self):
         "Config for super_user."
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
         nosuper_brick_ids = {*BrickHomeLocation.objects.values_list('brick_id', flat=True)}
 
         create_bhl = partial(BrickHomeLocation.objects.create, superuser=True)
-        # create_bhl(brick_id=bricks.HistoryBrick.id_,    order=1)
         create_bhl(brick_id=bricks.HistoryBrick.id,    order=1)
-        # create_bhl(brick_id=bricks.StatisticsBrick.id_, order=2)
         create_bhl(brick_id=bricks.StatisticsBrick.id, order=2)
 
         response = self.assertGET200(self.URL)
@@ -792,13 +760,11 @@ class ExportingTestCase(TransferBaseTestCase):
 
         self.assertFalse(nosuper_brick_ids)
         self.assertListEqual(
-            # [bricks.HistoryBrick.id_, bricks.StatisticsBrick.id_],
             [bricks.HistoryBrick.id, bricks.StatisticsBrick.id],
             super_brick_ids,
         )
 
     def test_mypage_bricks(self):
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         existing_locs = [*BrickMypageLocation.objects.filter(user=None)]
@@ -814,58 +780,23 @@ class ExportingTestCase(TransferBaseTestCase):
 
     def test_instance_bricks01(self):
         "Detail view."
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         naru = FakeContact.objects.create(
-            # user=self.other_user, first_name='Naru', last_name='Narusegawa',
             user=self.get_root_user(), first_name='Naru', last_name='Narusegawa',
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            # brick_class_id=ExportingInstanceBrick.id_,
             brick_class_id=TransferInstanceBrick.id,
             entity=naru,
             json_extra_data={'foo': 123},
         )
-
-        # ---
-        create_bdl = partial(
-            BrickDetailviewLocation.objects.create_if_needed,
+        BrickDetailviewLocation.objects.create_if_needed(
             zone=BrickDetailviewLocation.RIGHT,
             brick=ibi.brick_id, order=5,
+            model=FakeContact,
         )
-        create_bdl(model=FakeContact)
 
-        # msg_fmt = _(
-        #     'The configuration of blocks for detailed-views cannot be '
-        #     'exported because it contains references to some instance-blocks '
-        #     '({blocks}), which are not managed, for the following cases: {models}.'
-        # )
-        # self.assertContains(
-        #     self.client.get(self.URL),
-        #     msg_fmt.format(
-        #         blocks=ExportingInstanceBrick.verbose_name,
-        #         models=FakeContact._meta.verbose_name,
-        #     ),
-        #     status_code=409,
-        #     html=True,
-        # )
-
-        # ---
-        # create_bdl(model=None)  TODO
-        # self.assertContains(
-        #     self.client.get(self.URL),
-        #     msg_fmt.format(
-        #         blocks=ExportingInstanceBrick.verbose_name,
-        #         models='{}, {}'.format(
-        #             _('Default configuration'),
-        #             FakeContact._meta.verbose_name,
-        #         ),
-        #     ),
-        #     status_code=409,
-        #     html=True,
-        # )
         response = self.assertGET200(self.URL)
         content = response.json()
 
@@ -905,33 +836,18 @@ class ExportingTestCase(TransferBaseTestCase):
 
     def test_instance_bricks02(self):
         "Home view."
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         naru = FakeContact.objects.create(
-            # user=self.other_user, first_name='Naru', last_name='Narusegawa',
             user=self.get_root_user(), first_name='Naru', last_name='Narusegawa',
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            # brick_class_id=ExportingInstanceBrick.id_,
             brick_class_id=TransferInstanceBrick.id,
             entity=naru,
         )
 
         BrickHomeLocation.objects.create(brick_id=ibi.brick_id, order=1, superuser=True)
-        # self.assertContains(
-        #     self.client.get(self.URL),
-        #     _(
-        #         'The configuration of blocks for Home cannot be exported '
-        #         'because it contains references to some instance-blocks '
-        #         '({blocks}), which are not managed.'
-        #     ).format(
-        #         blocks=ExportingInstanceBrick.verbose_name,
-        #     ),
-        #     status_code=409,
-        #     html=True,
-        # )
         response = self.assertGET200(self.URL)
         content = response.json()
 
@@ -967,33 +883,17 @@ class ExportingTestCase(TransferBaseTestCase):
 
     def test_instance_bricks03(self):
         "<My page> view."
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         naru = FakeContact.objects.create(
-            # user=self.other_user, first_name='Naru', last_name='Narusegawa',
             user=self.get_root_user(), first_name='Naru', last_name='Narusegawa',
         )
 
         ibi = InstanceBrickConfigItem.objects.create(
-            # brick_class_id=ExportingInstanceBrick.id_,
             brick_class_id=TransferInstanceBrick.id,
             entity=naru,
         )
-
         BrickMypageLocation.objects.create(brick_id=ibi.brick_id, order=1)
-        # self.assertContains(
-        #     self.client.get(self.URL),
-        #     _(
-        #         'The configuration of blocks for «My page» cannot be exported '
-        #         'because it contains references to some instance-blocks '
-        #         '({blocks}), which are not managed.'
-        #     ).format(
-        #         blocks=ExportingInstanceBrick.verbose_name,
-        #     ),
-        #     status_code=409,
-        #     html=True,
-        # )
         response = self.assertGET200(self.URL)
         content = response.json()
 
@@ -1009,9 +909,7 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_menu(self):
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
-        # role = self.role
         role = self.create_role(name='Test')
 
         creme_item = MenuConfigItem.objects.get(entry_id=CremeEntry.id)
@@ -1110,7 +1008,6 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_buttons(self):
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         default_buttons = [*ButtonMenuItem.objects.filter(content_type=None)]
@@ -1156,9 +1053,7 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_search(self):
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
-        # role = self.role
         role = self.create_role(name='Test')
 
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -1235,7 +1130,6 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_property_types(self):
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         CremePropertyType.objects.create(
@@ -1280,7 +1174,6 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_relations_types(self):
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         self.assertTrue(RelationType.objects.filter(is_custom=False))
@@ -1379,7 +1272,6 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertEqual(['creme_core.fakedocument'], object_ctypes2a)
 
     def test_fields_config(self):
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         fname1 = 'description'
@@ -1414,7 +1306,6 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_customfields(self):
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         self.assertFalse(CustomField.objects.all())
@@ -1463,10 +1354,7 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_headerfilters(self):
-        # self.maxDiff = None
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
-        # other_user = self.other_user
         other_user = self.get_root_user()
 
         self.assertTrue(HeaderFilter.objects.filter(is_custom=False))
@@ -1554,9 +1442,7 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_entityfilters(self):
-        # user = self.login(is_staff=True)
         user = self.login_as_super(is_staff=True)
-        # other_user = self.other_user
         other_user = self.get_root_user()
 
         self.assertTrue(EntityFilter.objects.filter(is_custom=False))
@@ -1741,7 +1627,6 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_customforms01(self):
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         response = self.assertGET200(self.URL)
@@ -1772,9 +1657,7 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_customforms02(self):
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
-        # role = self.role
         role = self.create_role(name='Test')
 
         desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM

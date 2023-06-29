@@ -62,7 +62,6 @@ else:
 
 @skipIfCustomOrganisation
 @skipIfCustomContact
-# class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
     def _get_address_brick_node(self, entity, brick_cls):
         response = self.assertGET200(entity.get_absolute_url())
@@ -151,9 +150,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
     def _assertAction(self, brick_node, url_name, entity):
         self.assertIn(reverse(url_name, args=(entity.id,)), self._get_URLs(brick_node))
 
-    # def _create_contact_n_addresses(self, billing_address=True, shipping_address=True):
     def _create_contact_n_addresses(self, user, billing_address=True, shipping_address=True):
-        # c = Contact.objects.create(user=self.user, first_name='Lawrence', last_name='Kraft')
         c = Contact.objects.create(user=user, first_name='Lawrence', last_name='Kraft')
 
         create_address = partial(Address.objects.create, owner=c)
@@ -180,7 +177,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     @skipIfCustomOpportunity
     def test_contact_hat_card_brick_opp(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         c = Contact.objects.create(user=user, first_name='Lawrence', last_name='Kraft')
 
@@ -209,7 +205,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     @skipIfCustomOpportunity
     def test_orga_hat_card_brick_opp(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -237,7 +232,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     @skipIfCustomAct
     def test_contact_hat_card_brick_commercial(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         c = Contact.objects.create(user=user, first_name='Lawrence', last_name='Kraft')
         orga = Organisation.objects.create(user=user, name='Lenos')
@@ -275,7 +269,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     @skipIfCustomAct
     def test_orga_hat_card_brick_commercial(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         orga = Organisation.objects.create(user=user, name='Lenos')
         c = Contact.objects.create(user=user, first_name='Lawrence', last_name='Kraft')
@@ -312,7 +305,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self.assertInstanceLink(brick_node, act3)
 
     def test_pretty_addresses_brick01(self):
-        # self.login()
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user)
 
@@ -329,7 +321,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_pretty_addresses_brick02(self):
         "No shipping address set."
-        # self.login()
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user, shipping_address=False)
 
@@ -344,7 +335,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_pretty_addresses_brick03(self):
         "No billing address set."
-        # self.login()
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user, billing_address=False)
 
@@ -359,7 +349,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_pretty_addresses_brick04(self):
         "No address set."
-        # self.login()
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(
             user=user, billing_address=False, shipping_address=False,
@@ -372,7 +361,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_pretty_addresses_brick05(self):
         "With field config on sub-field."
-        # self.login()
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Address,
@@ -393,7 +381,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_pretty_addresses_brick06(self):
         "With field config on 'billing_address' FK field."
-        # self.login()
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Contact,
@@ -413,7 +400,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_pretty_addresses_brick07(self):
         "With field config on 'shipping_address' FK field."
-        # self.login()
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Contact,
@@ -429,7 +415,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self._assertAddressNotIn(brick_node, c.shipping_address)
 
     def test_pretty_other_addresses_brick(self):
-        # self.login()
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user)
         address = Address.objects.create(
@@ -446,7 +431,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self._assertAction(brick_node, 'persons__create_address', c)
 
     def test_detailed_addresses_brick01(self):
-        # self.login()
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user)
 
@@ -468,7 +452,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_detailed_addresses_brick02(self):
         "No shipping address set."
-        # self.login()
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user, shipping_address=False)
 
@@ -488,7 +471,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_detailed_addresses_brick03(self):
         "No billing address set."
-        # self.login()
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user, billing_address=False)
 
@@ -508,7 +490,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_detailed_addresses_brick04(self):
         "No address set."
-        # self.login()
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(
             user=user, billing_address=False, shipping_address=False,
@@ -526,7 +507,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_detailed_addresses_brick05(self):
         "With field config on sub-field."
-        # self.login()
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Address,
@@ -552,7 +532,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_detailed_addresses_brick06(self):
         "With field config on 'billing_address' FK field."
-        # self.login()
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Contact,
@@ -577,7 +556,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_detailed_addresses_brick07(self):
         "With field config on 'shipping_address' FK field."
-        # self.login()
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Contact,
@@ -598,7 +576,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self._assertAddressNotIn(brick_node, c.shipping_address)
 
     def test_detailed_other_addresses_brick(self):
-        # self.login()
         user = self.login_as_root_and_get()
         c = self._create_contact_n_addresses(user=user)
         address = Address.objects.create(
@@ -620,7 +597,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self._assertAction(brick_node, 'persons__create_address', c)
 
     def test_managers_brick01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -705,7 +681,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self.assertListEqual([c2.phone], get_phones(get_brick_node()))
 
     def test_managers_brick02(self):
-        # user = self.login(is_superuser=False, allowed_apps=['persons'])
         user = self.login_as_persons_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -714,7 +689,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         )
 
         c = Contact.objects.create(
-            # user=self.other_user,
             user=self.get_root_user(),
             first_name='Lawrence', last_name='Kraft', email='lawrence@kraft.lns',
         )
@@ -742,7 +716,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         )
 
     def test_employees_brick(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(Contact.objects.create, user=user)

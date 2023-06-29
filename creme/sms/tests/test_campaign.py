@@ -22,7 +22,6 @@ class SMSCampaignTestCase(CremeTestCase):
         return reverse('sms__remove_mlist_from_campaign', args=(campaign.id,))
 
     def test_createview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = reverse('sms__create_campaign')
@@ -48,7 +47,6 @@ class SMSCampaignTestCase(CremeTestCase):
     @skipIfCustomMessagingList
     def test_createview02(self):
         "With list."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_ml = partial(MessagingList.objects.create, user=user)
@@ -74,11 +72,8 @@ class SMSCampaignTestCase(CremeTestCase):
 
     @skipIfCustomMessagingList
     def test_edit(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
-
         mlist = MessagingList.objects.create(user=user, name='Ml01')
-
         camp = SMSCampaign.objects.create(user=user, name='My campaign')
 
         url = camp.get_edit_absolute_url()
@@ -102,7 +97,6 @@ class SMSCampaignTestCase(CremeTestCase):
         self.assertFalse([*camp.lists.all()])
 
     def test_listview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         camp1 = SMSCampaign.objects.create(user=user, name='My campaign #1')
         camp2 = SMSCampaign.objects.create(user=user, name='My campaign #2')
@@ -117,7 +111,6 @@ class SMSCampaignTestCase(CremeTestCase):
 
     @skipIfCustomMessagingList
     def test_messaging_list01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         campaign = SMSCampaign.objects.create(user=user, name='camp01')
 
@@ -161,7 +154,6 @@ class SMSCampaignTestCase(CremeTestCase):
     @skipIfCustomMessagingList
     def test_messaging_list02(self):
         "Remove list from campaign."
-        # user = self.login(is_superuser=False, allowed_apps=('sms',))
         user = self.login_as_standard(allowed_apps=('sms',))
         SetCredentials.objects.create(
             role=user.role,
@@ -185,7 +177,6 @@ class SMSCampaignTestCase(CremeTestCase):
     @skipIfCustomMessagingList
     def test_ml_and_campaign03(self):
         "Not allowed to change the campaign."
-        # user = self.login(is_superuser=False, allowed_apps=('sms',))
         user = self.login_as_standard(allowed_apps=('sms',))
         SetCredentials.objects.create(
             role=user.role,

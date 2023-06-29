@@ -442,7 +442,7 @@ class EntityTestCase(CremeTestCase):
 
         self.assertSetEqual(
             {*image1.categories.values_list('pk', flat=True)},
-            {*image2.categories.values_list('pk', flat=True)}
+            {*image2.categories.values_list('pk', flat=True)},
         )
 
     def test_delete01(self):
@@ -509,10 +509,8 @@ class EntityTestCase(CremeTestCase):
             f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a>'
             f'</li><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
             f'</ul>',
-            # result.for_html(),
             result.render(ViewTag.HTML_LIST),
         )
-        # self.assertEqual('Awesome/Wonderful', result.for_csv())
         self.assertEqual('Awesome/Wonderful', result.render(ViewTag.TEXT_PLAIN))
 
     def test_properties_functionfield02(self):  # Prefetch with populate_entities()
@@ -543,12 +541,10 @@ class EntityTestCase(CremeTestCase):
             f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li>'
             f'<li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
             f'</ul>',
-            # result1.for_html(),
             result1.render(ViewTag.HTML_LIST),
         )
         self.assertHTMLEqual(
             f'<ul><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li></ul>',
-            # result2.for_html(),
             result2.render(ViewTag.HTML_LIST),
         )
 

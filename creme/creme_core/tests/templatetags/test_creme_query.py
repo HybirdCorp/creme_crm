@@ -19,7 +19,6 @@ from ..base import CremeTestCase
 class CremeQueryTagsTestCase(CremeTestCase):
     def test_entities_count01(self):
         "Superuser."
-        # user = self.login()
         self.login_as_root()
         user = self.get_root_user()
 
@@ -42,7 +41,6 @@ class CremeQueryTagsTestCase(CremeTestCase):
 
     def test_entities_count02(self):
         "Regular user."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         SetCredentials.objects.create(
             role=user.role,
@@ -52,7 +50,6 @@ class CremeQueryTagsTestCase(CremeTestCase):
 
         create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user, name='O-1')
-        # create_orga(user=self.other_user, name='O-2')
         create_orga(user=self.get_root_user(), name='O-2')
 
         with self.assertLogs(level='DEBUG') as logs_manager:
@@ -78,7 +75,6 @@ class CremeQueryTagsTestCase(CremeTestCase):
 
     def test_entities_count03(self):
         "Regular user + fast count is not possible."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         name = 'Acme'
 
@@ -110,7 +106,6 @@ class CremeQueryTagsTestCase(CremeTestCase):
 
         create_orga = FakeOrganisation.objects.create
         orga1 = create_orga(user=user, name=name)
-        # create_orga(user=self.other_user, name='Other name')
         create_orga(user=self.get_root_user(), name='Other name')
 
         with self.assertLogs(level='DEBUG') as logs_manager:
@@ -149,5 +144,5 @@ class CremeQueryTagsTestCase(CremeTestCase):
             (
                 '{"op":"AND","val":[["name","Foobar"]]}',
                 '{"val":[["name","Foobar"]],"op":"AND"}'
-            )
+            ),
         )

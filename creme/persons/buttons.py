@@ -59,13 +59,6 @@ class CrmButton(Button):
     def get_ctypes(self):
         return Contact, Organisation
 
-    # def render(self, context):
-    #     context['managed_orga'] = self.__managed_orga
-    #     context['verbose_name'] = self.verbose_name
-    #     context['rtype'] = RelationType.objects.get(id=self.relation_type_id)
-    #
-    #     return super().render(context)
-
 
 class BecomeCustomerButton(CrmButton):
     id = Button.generate_id('persons', 'become_customer')
@@ -143,8 +136,3 @@ class AddLinkedContactButton(Button):
 
     def get_ctypes(self):
         return (Organisation,)
-
-    # def render(self, context):
-    #     context['contact_link_perm'] = context['user'].has_perm_to_link(Contact)
-    #
-    #     return super().render(context)

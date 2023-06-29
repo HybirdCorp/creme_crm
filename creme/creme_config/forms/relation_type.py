@@ -50,7 +50,6 @@ _PropertyTypesField = partial(
 )
 
 
-# class RelationTypeCreateForm(CremeForm):
 class _RelationTypeForm(CremeForm):
     error_messages = {
         'property_types_collision':  _(
@@ -197,7 +196,6 @@ class RelationTypeCreationForm(_RelationTypeForm):
     pass
 
 
-# class RelationTypeEditForm(RelationTypeCreateForm):
 class RelationTypeEditionForm(_RelationTypeForm):
     def __init__(self, instance, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -240,7 +238,6 @@ class RelationTypeEditionForm(_RelationTypeForm):
         )
 
 
-# class SemiFixedRelationTypeCreateForm(CremeModelForm):
 class SemiFixedRelationTypeCreationForm(CremeModelForm):
     semi_relation = RelationEntityField(
         label=_('Type and object'), autocomplete=True,
@@ -278,7 +275,6 @@ class SemiFixedRelationTypeCreationForm(CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-# class SemiFixedRelationTypeEditionForm(CremeModelForm):
 class SemiFixedRelationTypeEditionForm(CremeModelForm):
     class Meta:
         model = SemiFixedRelationType

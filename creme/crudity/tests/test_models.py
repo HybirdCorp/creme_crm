@@ -32,7 +32,6 @@ class WaitingActionTestCase(CrudityTestCase):
 
     def test_can_validate_or_delete01(self):
         "Sandbox for everyone."
-        # user = self.login()
         user = self.login_as_root_and_get()
         action = WaitingAction.objects.create(
             user=None, source='unknown',
@@ -40,14 +39,11 @@ class WaitingActionTestCase(CrudityTestCase):
             ct=self.ct_entity,
         )
         self.assertTrue(action.can_validate_or_delete(user)[0])
-        # self.assertTrue(action.can_validate_or_delete(self.other_user)[0])
         self.assertTrue(action.can_validate_or_delete(self.create_user())[0])
 
     def test_can_validate_or_delete02(self):
         "Sandbox by user."
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user(role=self.create_role())
 
         self._set_sandbox_by_user()

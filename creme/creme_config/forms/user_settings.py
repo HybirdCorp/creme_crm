@@ -17,7 +17,6 @@
 ################################################################################
 
 from django.contrib.auth import get_user_model
-# from django.forms.widgets import Select
 from django.urls.base import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -27,7 +26,6 @@ from creme.creme_core.forms.widgets import PrettySelect
 User = get_user_model()
 
 
-# class MenuSetting(Select):
 class MenuSetting(PrettySelect):
     def __init__(self, url, choices=()):
         self.url = url

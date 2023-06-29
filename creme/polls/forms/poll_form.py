@@ -34,7 +34,6 @@ from ..utils import SectionTree
 from .fields import PollFormLineConditionsField
 
 
-# class PollFormSectionEditForm(CremeModelForm):
 class _PollFormSectionForm(CremeModelForm):
     class Meta(CremeModelForm.Meta):
         model = PollFormSection
@@ -48,7 +47,6 @@ class PollFormSectionEditionForm(_PollFormSectionForm):
     pass
 
 
-# class PollFormSectionCreateForm(PollFormSectionEditForm):
 class PollFormSectionCreationForm(_PollFormSectionForm):
     def __init__(self, parent=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -96,7 +94,6 @@ class _PollFormLineForm(CremeModelForm):
 
 
 # TODO: get the fields from PollLineTypes objects ???
-# class PollFormLineCreateForm(_PollFormLineForm):
 class PollFormLineCreationForm(_PollFormLineForm):
     type = forms.TypedChoiceField(
         label=_('Type'),
@@ -234,7 +231,6 @@ class PollFormLineCreationForm(_PollFormLineForm):
         return super().save(*args, **kwargs)
 
 
-# class PollFormLineEditForm(_PollFormLineForm):
 class PollFormLineEditionForm(_PollFormLineForm):
     class Meta(_PollFormLineForm.Meta):
         exclude = ('type',)

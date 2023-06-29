@@ -14,7 +14,6 @@ from creme.creme_core.tests.fake_models import FakeContact
 class AssistantsTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.entity = FakeContact.objects.create(
             user=user, first_name='Ranma', last_name='Saotome',

@@ -68,7 +68,6 @@
         </tr>
         <tr class="lv-columns-header">
           {% block lv_columns_headers %}
-{#            {% if is_selection_multiple %}<th class="choices"><center><input name="select_all" value="all" type="checkbox" title="{% translate 'Select all' %}"/></center></th>{% endif %} #}
             {% if is_selection_multiple %}<th class="choices"><input name="select_all" value="all" type="checkbox" title="{% translate 'Select all' %}"/></th>{% endif %}
             {% for cell in cells %}
                 {% if cell.is_hidden %}

@@ -143,7 +143,6 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             # Go!
             entity_emails_sync_type.execute(job)
 
-        # pop_mock.assert_called_once_with(host=item.host, port=item.port)
         pop_mock.assert_called_once_with(host=item.host)
         pop_instance.user.assert_called_once_with(item.username)
         pop_instance.pass_.assert_called_once_with(item.password)
@@ -266,7 +265,6 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         self.assertEqual(2, len(emails_to_sync))
 
         e2sync1 = emails_to_sync[0]
-        # self.assertEqual(subject1, e2sync1.subject)
         self.assertNotEqual(subject1, e2sync1.subject)
         self.assertStartsWith(
             e2sync1.subject, 'I want a swordfish very very very very very very very',
@@ -540,7 +538,6 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
     @skipIfCustomContact
     def test_job_related_persons01(self):
         "Use sender & receivers to assign retrieve Contacts."
-        # user = self.login(is_superuser=False, allowed_apps=['emails', 'persons'])
         user = self.login_as_emails_user(allowed_apps=['persons'])
 
         SetCredentials.objects.create(
@@ -681,7 +678,6 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
     @skipIfCustomOrganisation
     def test_job_related_persons_credentials01(self, cred):
         "Need VIEW & LINK credentials."
-        # user = self.login(is_superuser=False, allowed_apps=['emails', 'persons'])
         user = self.login_as_emails_user(allowed_apps=['persons'])
 
         SetCredentials.objects.create(
@@ -691,12 +687,10 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         )
         SetCredentials.objects.create(
             role=user.role,
-            # value=EntityCredentials.VIEW | EntityCredentials.LINK,
             value=cred,
             set_type=SetCredentials.ESET_ALL,
         )
 
-        # other_user = self.other_user
         other_user = self.get_root_user()
         contact = Contact.objects.create(
             user=other_user,
@@ -746,9 +740,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
     @skipIfCustomOrganisation
     def test_job_related_persons_credentials02(self):
         "Cache per user."
-        # user = self.login(is_superuser=False, allowed_apps=['emails', 'persons'])
         user = self.login_as_emails_user(allowed_apps=['persons'])
-        # super_user = self.other_user
         super_user = self.get_root_user()
 
         SetCredentials.objects.create(
@@ -1594,7 +1586,6 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
     @skipIfCustomContact
     def test_job_related_persons01(self):
         "Use sender & receivers to assign retrieve Contacts."
-        # user = self.login(is_superuser=False, allowed_apps=['emails', 'persons'])
         user = self.login_as_emails_user(allowed_apps=['persons'])
         SetCredentials.objects.create(
             role=user.role,

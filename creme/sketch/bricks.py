@@ -196,7 +196,6 @@ class DemoGroupBarChartBrick(GroupBarChartBrick):
     """
     Brick that draws a GroupBarChart from random data. Can be used as demo.
     """
-    # id_ = GroupBarChartBrick.generate_id("sketch", "demo_groupbar_chart")
     id = GroupBarChartBrick.generate_id('sketch', 'demo_groupbar_chart')
     verbose_name = "Demo Grouped Bar Chart"
 
@@ -226,7 +225,6 @@ class DemoStackBarChartBrick(StackBarChartBrick):
     """
     Brick that draws a StackBarChart from random data. Can be used as demo.
     """
-    # id_ = StackBarChartBrick.generate_id("sketch", "demo_stackbar_chart")
     id = StackBarChartBrick.generate_id('sketch', 'demo_stackbar_chart')
     verbose_name = "Demo Stacked Bar Chart"
 
@@ -256,7 +254,6 @@ class DemoBarChartBrick(BarChartBrick):
     """
     Brick that draws a BarChart from random data. Can be used as demo.
     """
-    # id_ = BarChartBrick.generate_id("sketch", "demo_bar_chart")
     id = BarChartBrick.generate_id('sketch', 'demo_bar_chart')
     verbose_name = "Demo Bar Chart"
     abscissa_title = "Axis of Abscissas"
@@ -276,7 +273,6 @@ class DemoDonutChartBrick(DonutChartBrick):
     """
     Brick that draws a DonutChart from random data. Can be used as demo.
     """
-    # id_ = DonutChartBrick.generate_id("sketch", "demo_donut_chart")
     id = DonutChartBrick.generate_id('sketch', 'demo_donut_chart')
     verbose_name = "Demo Donut Chart"
 

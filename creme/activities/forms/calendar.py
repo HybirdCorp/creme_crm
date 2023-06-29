@@ -36,12 +36,6 @@ class CalendarForm(base.CremeModelForm):
         model = Calendar
         exclude = ('user',)
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #
-    #     if not self.instance.pk:
-    #         self.fields['color'].initial = Calendar.objects.new_color()
-
     def get_user(self):
         return self.user
 

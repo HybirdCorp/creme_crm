@@ -134,7 +134,6 @@ class MassImportButton(ListViewButton):
         return context
 
 
-# class BatchProcessButton(MassExportButton):
 class BatchProcessButton(ListViewButton):
     template_name = 'creme_core/listview/buttons/batch-process.html'
 

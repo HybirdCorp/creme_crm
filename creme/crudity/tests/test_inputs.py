@@ -41,7 +41,6 @@ else:
 class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCase ?
     def setUp(self):
         super().setUp()
-        # self.login()
         self.user = self.login_as_root_and_get()
 
     def _get_pop_email(
@@ -550,7 +549,6 @@ description3=[[<br>]]
     def test_create_email_input14(self):
         "Text mail un-sandboxed but by user"
         user = self.user
-        # other_user = self.other_user
         other_user = self.create_user()
 
         self._set_sandbox_by_user()
@@ -592,7 +590,6 @@ description3=[[<br>]]
     def test_create_email_input15(self):
         "Text mail sandboxed by user and created later"
         user = self.user
-        # other_user = self.other_user
         other_user = self.create_user()
         self._set_sandbox_by_user()
 
@@ -675,7 +672,6 @@ description3=[[<br>]]
         "The user matches."
         self._set_sandbox_by_user()
         user = self.user
-        # other_user = self.other_user
         other_user = self.create_user()
 
         email_input = self._get_email_input(
@@ -864,7 +860,6 @@ class FileSystemInputTestCase(CrudityTestCase):
 
     def setUp(self):
         super().setUp()
-        # self.login()
         self.user = self.login_as_root_and_get()
 
     @classmethod
@@ -1071,7 +1066,6 @@ class FileSystemInputTestCase(CrudityTestCase):
 
     def test_sandbox_by_user02(self):
         "Unknown username."
-        # other_user = self.other_user
         other_user = self.create_user(index=1)
         self._set_sandbox_by_user()
 

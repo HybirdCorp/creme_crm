@@ -31,7 +31,6 @@ from .task import _link_contact_n_activity
 
 
 # Not CremeEntityForm to avoid Relations/CremeProperties fields
-# class ResourceCreateForm(CremeModelForm):
 class _ResourceForm(CremeModelForm):
     contact = CreatorEntityField(
         label=_('Contact to be assigned to this task'),
@@ -64,12 +63,10 @@ class _ResourceForm(CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-# class ResourceCreateForm(_ResourceForm):
 class ResourceCreationForm(_ResourceForm):
     pass
 
 
-# class ResourceEditForm(ResourceCreateForm):
 class ResourceEditionForm(_ResourceForm):
     keep_participating = BooleanField(
         label=_(

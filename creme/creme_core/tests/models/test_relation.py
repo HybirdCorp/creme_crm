@@ -242,7 +242,6 @@ class RelationsTestCase(CremeTestCase):
             entity2 = CremeEntity.objects.create(user=user)
 
             relation = Relation.objects.create(
-                # user=user, type=rtype1, subject_entity=entity1, object_entity=entity2,
                 user=user, type=rtype1, subject_entity=entity1, real_object=entity2,
             )
 

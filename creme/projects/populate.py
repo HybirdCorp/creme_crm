@@ -24,8 +24,6 @@ from django.utils.translation import gettext as _
 import creme.creme_core.bricks as core_bricks
 from creme.activities import get_activity_model
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-# from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
-# from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
@@ -46,8 +44,6 @@ from . import (
     get_project_model,
     get_task_model,
 )
-# from .forms.project import ProjectLeadersSubCell
-# from .forms.task import ParentTasksSubCell
 from .menu import ProjectsEntry
 from .models import ProjectStatus, TaskStatus
 
@@ -130,134 +126,17 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        # common_groups_desc = [
-        #     {
-        #         'name': _('Description'),
-        #         'layout': LAYOUT_DUAL_SECOND,
-        #         'cells': [
-        #             (EntityCellRegularField, {'name': 'description'}),
-        #         ],
-        #     }, {
-        #         'name': _('Custom fields'),
-        #         'layout': LAYOUT_DUAL_SECOND,
-        #         'cells': [
-        #             (
-        #                 EntityCellCustomFormSpecial,
-        #                 {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
-        #             ),
-        #         ],
-        #     },
-        # ]
-        # only_creation_groups_desc = [
-        #     {
-        #         'name': _('Properties'),
-        #         'cells': [
-        #             (
-        #                 EntityCellCustomFormSpecial,
-        #                 {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
-        #             ),
-        #         ],
-        #     }, {
-        #         'name': _('Relationships'),
-        #         'cells': [
-        #             (
-        #                 EntityCellCustomFormSpecial,
-        #                 {'name': EntityCellCustomFormSpecial.RELATIONS},
-        #             ),
-        #         ],
-        #     },
-        # ]
-
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.PROJECT_CREATION_CFORM,
-            # groups_desc=[
-            #     {
-            #         'name': _('General information'),
-            #         'layout': LAYOUT_DUAL_FIRST,
-            #         'cells': [
-            #             (EntityCellRegularField, {'name': 'user'}),
-            #             (EntityCellRegularField, {'name': 'name'}),
-            #             (EntityCellRegularField, {'name': 'status'}),
-            #             ProjectLeadersSubCell(model=Project).into_cell(),
-            #             (EntityCellRegularField, {'name': 'start_date'}),
-            #             (EntityCellRegularField, {'name': 'end_date'}),
-            #             (EntityCellRegularField, {'name': 'currency'}),
-            #             (
-            #                 EntityCellCustomFormSpecial,
-            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-            #             ),
-            #         ],
-            #     },
-            #     *common_groups_desc,
-            #     *only_creation_groups_desc,
-            # ],
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.PROJECT_EDITION_CFORM,
-            # groups_desc=[
-            #     {
-            #         'name': _('General information'),
-            #         'layout': LAYOUT_DUAL_FIRST,
-            #         'cells': [
-            #             (EntityCellRegularField, {'name': 'user'}),
-            #             (EntityCellRegularField, {'name': 'name'}),
-            #             (EntityCellRegularField, {'name': 'status'}),
-            #             (EntityCellRegularField, {'name': 'start_date'}),
-            #             (EntityCellRegularField, {'name': 'end_date'}),
-            #             (EntityCellRegularField, {'name': 'currency'}),
-            #             (
-            #                 EntityCellCustomFormSpecial,
-            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-            #             ),
-            #         ],
-            #     },
-            #     *common_groups_desc,
-            # ],
         )
-
-        # task_rfields_cells = [
-        #     (EntityCellRegularField, {'name': 'user'}),
-        #     (EntityCellRegularField, {'name': 'title'}),
-        #     (EntityCellRegularField, {'name': 'start'}),
-        #     (EntityCellRegularField, {'name': 'end'}),
-        #     (EntityCellRegularField, {'name': 'duration'}),
-        #     (EntityCellRegularField, {'name': 'tstatus'}),
-        # ]
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.TASK_CREATION_CFORM,
-            # groups_desc=[
-            #     {
-            #         'name': _('General information'),
-            #         'layout': LAYOUT_DUAL_FIRST,
-            #         'cells': [
-            #             *task_rfields_cells,
-            #             ParentTasksSubCell(model=ProjectTask).into_cell(),
-            #             (
-            #                 EntityCellCustomFormSpecial,
-            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-            #             ),
-            #         ],
-            #     },
-            #     *common_groups_desc,
-            #     *only_creation_groups_desc,
-            # ],
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.TASK_EDITION_CFORM,
-            # groups_desc=[
-            #     {
-            #         'name': _('General information'),
-            #         'layout': LAYOUT_DUAL_FIRST,
-            #         'cells': [
-            #             *task_rfields_cells,
-            #             (
-            #                 EntityCellCustomFormSpecial,
-            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-            #             ),
-            #         ],
-            #     },
-            #     *common_groups_desc,
-            # ],
         )
 
         # ---------------------------

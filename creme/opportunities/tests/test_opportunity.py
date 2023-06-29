@@ -154,7 +154,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_createview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = self.ADD_URL
@@ -200,7 +199,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_createview02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         target, emitter = self._create_target_n_emitter(user=user)
@@ -243,7 +241,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     def test_createview03(self):
         "Only contact & orga models are allowed as target."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_camp = partial(FakeEmailCampaign.objects.create, user=user)
@@ -285,9 +282,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_createview04(self):
         "LINK credentials error."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['opportunities'],
             creatable_models=[Opportunity],
         )
@@ -331,7 +326,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_createview05(self):
         "Emitter not managed by Creme."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         target, emitter = self._create_target_n_emitter(user=user, managed=False)
@@ -357,7 +351,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_add_to_orga01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         target, emitter = self._create_target_n_emitter(user=user)
@@ -420,7 +413,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_add_to_orga02(self):
         "Popup version."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         target, emitter = self._create_target_n_emitter(user=user)
@@ -464,9 +456,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     def test_add_to_orga03(self):
         "Try to add with wrong credentials (no link credentials)."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['opportunities'],
             creatable_models=[Opportunity],
         )
@@ -488,9 +478,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     def test_add_to_orga04(self):
         "User must be allowed to created Opportunity."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['persons', 'opportunities'],
             # creatable_models=[Opportunity],
         )
@@ -515,7 +503,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomContact
     def test_add_to_contact01(self):
         "Target is a Contact."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         target, emitter = self._create_target_n_emitter(user=user, contact=True)
@@ -567,7 +554,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomContact
     def test_add_to_contact02(self):
         "Popup version."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         target, emitter = self._create_target_n_emitter(user=user, contact=True)
@@ -601,9 +587,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomContact
     def test_add_to_contact03(self):
         "User can not link to the Contact target"
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['persons', 'opportunities'],
             creatable_models=[Opportunity],
         )
@@ -626,7 +610,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     def test_add_to_something01(self):
         "Target is not a Contact/Organisation."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         target = CremeEntity.objects.create(user=user)
@@ -635,7 +618,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_editview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'opportunity01'
@@ -690,7 +672,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomContact
     def test_editview02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'opportunity01'
@@ -722,7 +703,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_listview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         opp1 = self._create_opportunity_n_organisations(user=user, name='Opp1')[0]
@@ -740,7 +720,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete01(self):
         "Cannot delete the target & the source."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         opp, target, emitter = self._create_opportunity_n_organisations(user=user, name='My Opp')
@@ -761,7 +740,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete02(self):
         "Can delete the Opportunity."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         opp, target, emitter = self._create_opportunity_n_organisations(user=user, name='My Opp')
@@ -773,7 +751,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertStillExists(emitter)
 
     def test_clone(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         opportunity, target, emitter = self._create_opportunity_n_organisations(user=user)
@@ -791,7 +768,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_get_weighted_sales01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         opportunity = self._create_opportunity_n_organisations(user=user)[0]
@@ -800,12 +776,10 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         self.assertIsNone(opportunity.estimated_sales)
         self.assertIsNone(opportunity.chance_to_win)
-        # self.assertEqual(number_format('0.0'), funf(opportunity, user).for_html())
         self.assertEqual(number_format('0.0'), funf(opportunity, user).render(ViewTag.HTML_LIST))
 
         opportunity.estimated_sales = 1000
         opportunity.chance_to_win   = 10
-        # self.assertEqual(number_format('100.0'), funf(opportunity, user).for_html())
         self.assertEqual(
             number_format('100.0'),
             funf(opportunity, user).render(ViewTag.HTML_LIST),
@@ -814,7 +788,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
     @skipIfCustomOrganisation
     def test_get_weighted_sales02(self):
         "With field 'estimated_sales' hidden with FieldsConfig."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
@@ -829,13 +802,11 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         funf = function_field_registry.get(Opportunity, 'get_weighted_sales')
 
         with self.assertNumQueries(0):
-            # w_sales = funf(opportunity, user).for_html()
             w_sales = funf(opportunity, user).render(ViewTag.HTML_LIST)
 
         self.assertEqual(_('Error: «Estimated sales» is hidden'), w_sales)
 
     def test_delete_currency(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         currency = Currency.objects.create(
@@ -862,7 +833,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
     def test_bulk_edit(self):
         "Bulk edit 2 Opportunities."
-        # user = self.login()
         user = self.login_as_root_and_get()
         target, emitter = self._create_target_n_emitter(user=user)
         phase1, phase2, phase3 = SalesPhase.objects.all()[:3]

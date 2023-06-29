@@ -19,7 +19,6 @@
 from collections import defaultdict
 
 from django.forms import Field, ValidationError
-# from django.forms.widgets import Select
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -194,7 +193,6 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
             selected_subcat_id = selected_subcat_choice[0] if selected_subcat_choice else None
 
         widget_cxt['subcat_js_map'] = sub_cat_map
-        # widget_cxt['category_defvalselect'] = Select(
         widget_cxt['category_defvalselect'] = PrettySelect(
             choices=cat_choices,
         ).get_context(
@@ -205,7 +203,6 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
                 'class': 'category-default-value',
             },
         )['widget']
-        # widget_cxt['subcategory_defvalselect'] = Select(
         widget_cxt['subcategory_defvalselect'] = PrettySelect(
             choices=sub_cat_map[selected_cat_id],
         ).get_context(

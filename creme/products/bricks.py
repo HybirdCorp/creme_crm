@@ -27,7 +27,6 @@ Service = products.get_service_model()
 
 
 class ImagesBrick(Brick):
-    # id_ = Brick.generate_id('products', 'images')
     id = Brick.generate_id('products', 'images')
     verbose_name = _('Images of product/service')
     # dependencies  = (Document,) ??

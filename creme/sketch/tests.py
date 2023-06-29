@@ -17,7 +17,6 @@ class ChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertGET200(
             reverse('creme_core__reload_detailview_bricks', args=(entity.id,)),
-            # data={'brick_id': brick_class.id_},
             data={'brick_id': brick_class.id},
         )
 
@@ -64,7 +63,6 @@ class ChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
         ],
     ])
     def test_demo_chart_render(self, chart_class, expected):
-        # user = self.login()
         user = self.login_as_root_and_get()
         content = self.render_brick(user, chart_class)
 

@@ -21,7 +21,6 @@ from creme.creme_core.forms import CremeModelForm
 from ..models import CommercialApproach
 
 
-# class ComAppCreateForm(CremeModelForm):
 class ComAppCreationForm(CremeModelForm):
     class Meta(CremeModelForm.Meta):
         model = CommercialApproach

@@ -8,7 +8,6 @@ from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-# from pytz import timezone
 from django.utils.timezone import is_aware, is_naive, make_aware
 from django.utils.timezone import override as override_tz
 from django.utils.timezone import zoneinfo
@@ -19,7 +18,6 @@ from PIL.Image import open as open_img
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.global_info import clear_global_info
 from creme.creme_core.models import FakeOrganisation, SetCredentials
-# from creme.creme_core.utils import find_first, split_filter
 from creme.creme_core.utils import (
     as_int,
     create_if_needed,
@@ -61,33 +59,6 @@ from ..fake_models import FakeCivility, FakeContact
 
 
 class MiscTestCase(CremeTestCase):
-    # def test_find_first(self):  # DEPRECATED
-    #     class Info:
-    #         def __init__(self, data):
-    #             self.data = data
-    #
-    #     i1, i2, i3, i4 = Info(1), Info(2), Info(2), Info(5)
-    #     list_ = [i1, i2, i3, i4]
-    #
-    #     self.assertIs(find_first(list_, lambda i: i.data == 1), i1)
-    #     self.assertIs(find_first(list_, lambda i: i.data == 2), i2)
-    #     self.assertIs(find_first(list_, lambda i: i.data == 5), i4)
-    #
-    #     self.assertIsNone(find_first(list_, lambda i: i.data == 12, None))
-    #     self.assertRaises(IndexError, find_first, list_, lambda i: i.data == 12)
-
-    # def test_split_filter(self):  # DEPRECATED
-    #     ok, ko = split_filter((lambda x: x % 2), range(5))
-    #     self.assertEqual([1, 3], ok)
-    #     self.assertEqual([0, 2, 4], ko)
-    #
-    #     ok, ko = split_filter(
-    #         (lambda x: 'k' in x),
-    #         ['Naruto', 'Sasuke', 'Sakura', 'Kakashi'],
-    #     )
-    #     self.assertListEqual(['Sasuke', 'Sakura', 'Kakashi'], ok)
-    #     self.assertListEqual(['Naruto'], ko)
-
     def test_truncate_str_01(self):
         s = string.ascii_letters
         self.assertEqual(52, len(s))
@@ -125,7 +96,6 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(title, civ.title)
 
     def test_update_model_instance01(self):
-        # user = self.login()
         user = self.get_root_user()
         first_name = 'punpun'
         last_name = 'punpunyama'
@@ -148,12 +118,9 @@ class MiscTestCase(CremeTestCase):
         )
 
     def test_update_model_instance02(self):
-        # self.login()
-
         first_name = 'punpun'
         last_name = 'punpunyama'
         pupun = FakeContact.objects.create(
-            # user=self.user, first_name=first_name, last_name=last_name,
             user=self.get_root_user(), first_name=first_name, last_name=last_name,
         )
 
@@ -389,7 +356,6 @@ better &amp; lighter than the previous one.
         self.assertEqual(['foo', 'bar', '"baz'], smart_split('foo bar" \\"baz '))
 
     def test_entities_to_str(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
         SetCredentials.objects.create(
@@ -399,7 +365,6 @@ better &amp; lighter than the previous one.
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='Acme#1')
         orga2 = create_orga(name='Acme#2')
-        # orga3 = create_orga(name='Acme#3', user=self.other_user)
         orga3 = create_orga(name='Acme#3', user=self.get_root_user())
 
         self.assertEqual('', entities_to_str([], user))
@@ -529,7 +494,6 @@ class DatesTestCase(CremeTestCase):
                     year=2018, month=2, day=4, hour=19,
                     minute=41, second=25, microsecond=123000,
                 ),
-                # timezone=timezone('Europe/Paris'),  # DST: +1h
                 timezone=zoneinfo.ZoneInfo('Europe/Paris'),  # DST: +1h
             )),
         )
@@ -664,11 +628,6 @@ class DatesTestCase(CremeTestCase):
         )
 
     def test_to_utc(self):
-        # tz = timezone('Europe/Paris')  # +01:00
-        # dt = tz.localize(
-        #     datetime(year=2016, month=11, day=23, hour=18, minute=28),
-        #     is_dst=True,
-        # )
         dt = datetime(
             year=2016, month=11, day=23, hour=18, minute=28,
             tzinfo=zoneinfo.ZoneInfo('Europe/Paris'),  # +01:00
@@ -730,7 +689,6 @@ class DatesTestCase(CremeTestCase):
         self.assertEqual(30,   dt.day)
         self.assertEqual(2,    dt.hour)
         self.assertEqual(30,   dt.minute)
-        # self.assertEqual(timedelta(hours=1), dt.tzinfo.utcoffset(dt))
         self.assertEqual(timedelta(hours=2), dt.tzinfo.utcoffset(dt))
 
 

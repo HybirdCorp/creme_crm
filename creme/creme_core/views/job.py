@@ -20,7 +20,6 @@ from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-# from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -62,15 +61,6 @@ class JobDetail(generic.base.CallbackMixin, generic.CremeModelDetail):
         instance.check_owner_or_die(user)
 
     def get_list_url(self):
-        # request = self.request
-        # list_url = request.GET.get('list_url')
-        # list_url_is_safe = list_url and url_has_allowed_host_and_scheme(
-        #     url=list_url,
-        #     allowed_hosts={request.get_host()},
-        #     require_https=request.is_secure(),
-        # )
-        #
-        # return list_url if list_url_is_safe else reverse('creme_core__my_jobs')
         return self.get_callback_url() or reverse('creme_core__my_jobs')
 
     def get_context_data(self, **kwargs):
@@ -223,7 +213,6 @@ class JobBricksReloading(bricks_views.BricksReloading):
         results_bricks = None
 
         for brick_id in self.get_brick_ids():
-            # if brick_id == JobBrick.id_:
             if brick_id == JobBrick.id:
                 bricks.append(JobBrick())
             else:
@@ -231,7 +220,6 @@ class JobBricksReloading(bricks_views.BricksReloading):
                     results_bricks = job.type.results_bricks
 
                 for err_brick in results_bricks:
-                    # if brick_id == err_brick.id_:
                     if brick_id == err_brick.id:
                         bricks.append(err_brick)
                         break

@@ -27,9 +27,7 @@ from .base import BrickTestCaseMixin, ViewsTestCase
 class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
     LIGHT_URL = reverse('creme_core__light_search')
 
-    # CONTACT_BRICKID = 'block_creme_core-found-creme_core-fakecontact'
     CONTACT_BRICKID = 'block_creme_core-found-creme_core-fakecontact-'
-    # ORGA_BRICKID    = 'block_creme_core-found-creme_core-fakeorganisation'
     ORGA_BRICKID    = 'block_creme_core-found-creme_core-fakeorganisation-'
 
     @classmethod
@@ -76,11 +74,9 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
             ):
                 self.fail(f'A brick unexpectedly found for prefix "{brick_id_prefix}".')
 
-    # def _build_contacts(self, user=None):
     def _build_contacts(self, user):
         sector = FakeSector.objects.create(title='Linux dev')
 
-        # create_contact = partial(FakeContact.objects.create, user=user or self.user)
         create_contact = partial(FakeContact.objects.create, user=user)
         self.linus = create_contact(
             first_name='Linus',  last_name='Torvalds',
@@ -95,7 +91,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
             first_name='Andrew', last_name='Morton', sector=sector,
         )
 
-    # def _setup_contacts(self, disabled=False, user=None):
     def _setup_contacts(self, *, user, disabled=False):
         SearchConfigItem.objects.create_if_needed(
             FakeContact,
@@ -104,11 +99,9 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         )
         self._build_contacts(user=user)
 
-    # def _setup_orgas(self):
     def _setup_orgas(self, user):
         SearchConfigItem.objects.create_if_needed(FakeOrganisation, ['name'])
 
-        # create_orga = partial(FakeOrganisation.objects.create, user=self.user)
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         self.linusfo = create_orga(name='FoobarLinusFoundation')
         self.coxco   = create_orga(name='StuffCoxCorp')
@@ -125,7 +118,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         return self.client.get(reverse('creme_core__search'), data=data)
 
     def test_search(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
 
@@ -153,7 +145,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
         brick = bricks[0]
         self.assertIsInstance(brick, QuerysetBrick)
-        # self.assertIn(self.CONTACT_BRICKID, brick.id_)
         self.assertIn(self.CONTACT_BRICKID, brick.id)
         self.assertEqual(
             'creme_core/bricks/found-entities.html', brick.template_name,
@@ -163,7 +154,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_regular_fields01(self):
         "Find result in field & sub-field; deleted entities are found too."
-        # self.login()
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
 
@@ -175,17 +165,12 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
             brick_id_prefix=self.CONTACT_BRICKID,
         )
 
-        # self.assertContains(response, self.linus.get_absolute_url())
-        # self.assertContains(response, self.linus2.get_absolute_url())  # Deleted
-        # self.assertContains(response, self.andrew.get_absolute_url())  # In sector__title
-        # self.assertNotContains(response, self.alan.get_absolute_url())
         self.assertInstanceLinkNoLabel(brick_node, entity=self.linus)
         self.assertInstanceLinkNoLabel(brick_node, entity=self.linus2)  # Deleted
         self.assertInstanceLinkNoLabel(brick_node, entity=self.andrew)  # In sector__title
         self.assertNoInstanceLink(brick_node, entity=self.alan)
 
     def test_search_regular_fields02(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
         self._setup_orgas(user=user)
@@ -195,19 +180,12 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
         self.assertGreaterEqual(len(context['bricks']), 2)
 
-        # self.assertContains(response, f' id="{self.CONTACT_BRICKID}-')
-        # self.assertContains(response, self.alan.get_absolute_url())
-        # self.assertNotContains(response, self.linus.get_absolute_url())
-        # self.assertNotContains(response, self.linus2.get_absolute_url())
         tree = self.get_html_tree(response.content)
         brick_node1 = self.get_search_brick_node(tree, brick_id_prefix=self.CONTACT_BRICKID)
         self.assertInstanceLinkNoLabel(brick_node1, entity=self.alan)
         self.assertNoInstanceLink(brick_node1, entity=self.linus)
         self.assertNoInstanceLink(brick_node1, entity=self.linus2)
 
-        # self.assertContains(response, f' id="{self.ORGA_BRICKID}-')
-        # self.assertContains(response, self.coxco.get_absolute_url())
-        # self.assertNotContains(response, self.linusfo.get_absolute_url())
         brick_node2 = self.get_search_brick_node(tree, brick_id_prefix=self.ORGA_BRICKID)
         self.assertInstanceLinkNoLabel(brick_node2, entity=self.coxco)
         self.assertNoInstanceLink(brick_node2, entity=self.linusfo)
@@ -218,7 +196,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_regular_fields03(self):
         "Error."
-        # self.login()
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
         self._setup_orgas(user=user)
@@ -231,15 +208,11 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_regular_fields04(self):
         "No config for FakeContact."
-        # self.login()
         user = self.login_as_root_and_get()
         self._build_contacts(user=user)
         self._setup_orgas(user=user)
 
         response = self._search('torvalds', self.contact_ct_id)
-        # self.assertContains(response, self.linus.get_absolute_url())
-        # self.assertNotContains(response, self.linus2.get_absolute_url())
-        # self.assertNotContains(response, self.alan.get_absolute_url())
         self.assertNoSearchBrick(
             self.get_html_tree(response.content),
             brick_id_prefix=self.CONTACT_BRICKID,
@@ -247,7 +220,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_regular_fields05(self):
         "Search only in configured fields if the config exists."
-        # self.login()
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
         self._setup_orgas(user=user)
@@ -257,7 +229,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         linus.save()
 
         response = self._search('very smart', self.contact_ct_id)
-        # self.assertNotContains(response, linus.get_absolute_url())
         brick_node = self.get_search_brick_node(
             self.get_html_tree(response.content),
             brick_id_prefix=self.CONTACT_BRICKID,
@@ -265,7 +236,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertNoInstanceLink(brick_node, entity=linus)
 
     def test_search_disabled(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user, disabled=True)
         self._setup_orgas(user=user)
@@ -273,14 +243,9 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         response = self._search('cox')
         context = response.context
 
-        # self.assertContains(response, f' id="{self.ORGA_BRICKID}-')
-        # self.assertContains(response, self.coxco.get_absolute_url())
-        # self.assertNotContains(response, self.linusfo.get_absolute_url())
         tree = self.get_html_tree(response.content)
         self.assertNoSearchBrick(tree, brick_id_prefix=self.ORGA_BRICKID)
 
-        # self.assertNotContains(response, f' id="{self.CONTACT_BRICKID}-')
-        # self.assertNotContains(response, self.alan.get_absolute_url())
         self.assertNoSearchBrick(tree, brick_id_prefix=self.CONTACT_BRICKID)
 
         vnames = {str(vname) for vname in context['models']}
@@ -289,7 +254,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_for_role(self):
         "Use Role's config if it exists."
-        # user = self.login(is_superuser=False, allowed_apps=['creme_core'])
         user = self.login_as_standard(allowed_apps=['creme_core'])
         self._set_all_perms_on_own(user)
 
@@ -301,9 +265,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         response = self._search('bear', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
 
-        # self.assertNotContains(response, self.linus.get_absolute_url())
-        # self.assertNotContains(response, self.linus2.get_absolute_url())
-        # self.assertContains(response, self.alan.get_absolute_url())
         tree = self.get_html_tree(response.content)
         self.assertNoInstanceLink(tree, entity=self.linus)
         self.assertNoInstanceLink(tree, entity=self.linus2)
@@ -311,7 +272,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_super_user(self):
         "Use Role's config if it exists (super-user)."
-        # self.login()
         user = self.login_as_root_and_get()
 
         SearchConfigItem.objects.create_if_needed(
@@ -322,9 +282,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         response = self._search('bear', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
 
-        # self.assertNotContains(response, self.linus.get_absolute_url())
-        # self.assertNotContains(response, self.linus2.get_absolute_url())
-        # self.assertContains(response, self.alan.get_absolute_url())
         brick_node = self.get_search_brick_node(
             self.get_html_tree(response.content),
             brick_id_prefix=self.CONTACT_BRICKID,
@@ -334,7 +291,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertInstanceLinkNoLabel(brick_node, entity=self.alan)
 
     def test_search_fields_config01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         hidden_fname1 = 'description'
@@ -372,9 +328,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         response = self._search('Linu', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
 
-        # self.assertContains(response, linus.get_absolute_url())
-        # self.assertNotContains(response, alan.get_absolute_url())
-        # self.assertNotContains(response, andrew.get_absolute_url())
         brick_node = self.get_search_brick_node(
             self.get_html_tree(response.content),
             brick_id_prefix=self.CONTACT_BRICKID,
@@ -391,7 +344,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_fields_config02(self):
         "With FieldsConfig: all fields are hidden."
-        # self.login()
         user = self.login_as_root_and_get()
 
         hidden_fname = 'description'
@@ -405,9 +357,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         response = self._search('Cool', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
 
-        # self.assertNotContains(response, self.linus.get_absolute_url())
-        # self.assertNotContains(response, self.alan.get_absolute_url())
-        # self.assertNotContains(response, self.andrew.get_absolute_url())
         brick_node = self.get_search_brick_node(
             self.get_html_tree(response.content),
             brick_id_prefix=self.CONTACT_BRICKID,
@@ -427,7 +376,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_error01(self):
         "Model is not a CremeEntity."
-        # self.login()
         self.login_as_root()
 
         response = self._search('john', ContentType.objects.get_for_model(ContentType).id)
@@ -435,7 +383,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_empty(self):
         "Empty page"
-        # self.login()
         self.login_as_root()
 
         response = self._search(research='', ct_id='')
@@ -444,17 +391,12 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_words01(self):
         "String is split."
-        # self.login()
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
 
         response = self._search('linus torval', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
 
-        # self.assertContains(response, self.linus.get_absolute_url())
-        # self.assertNotContains(response, self.linus2.get_absolute_url())
-        # self.assertNotContains(response, self.andrew.get_absolute_url())
-        # self.assertNotContains(response, self.alan.get_absolute_url())
         brick_node = self.get_search_brick_node(
             self.get_html_tree(response.content),
             brick_id_prefix=self.CONTACT_BRICKID,
@@ -466,7 +408,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_words02(self):
         "Grouped words."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         SearchConfigItem.objects.create_if_needed(FakeOrganisation, ['name'])
@@ -482,9 +423,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         )
         self.assertEqual(200, response.status_code)
 
-        # self.assertContains(response, orga1.get_absolute_url())
-        # self.assertContains(response, orga3.get_absolute_url())
-        # self.assertNotContains(response, orga2.get_absolute_url())
         brick_node = self.get_search_brick_node(
             self.get_html_tree(response.content),
             brick_id_prefix=self.ORGA_BRICKID,
@@ -495,7 +433,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_custom_field01(self):
         "Type <CustomField.STR>."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         ct = ContentType.objects.get_for_model(FakeOrganisation)
@@ -518,9 +455,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         response = self._search('BCD1', ct.id)
         self.assertEqual(200, response.status_code)
 
-        # self.assertContains(response, orga1.get_absolute_url())
-        # self.assertNotContains(response, orga2.get_absolute_url())
-        # self.assertNotContains(response, orga3.get_absolute_url())
         brick_node = self.get_search_brick_node(
             self.get_html_tree(response.content),
             brick_id_prefix=self.ORGA_BRICKID,
@@ -531,7 +465,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_custom_field02(self):
         "Type <CustomField.ENUM>."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         ct = ContentType.objects.get_for_model(FakeOrganisation)
@@ -560,9 +493,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         response = self._search('Smal', ct.id)
         self.assertEqual(200, response.status_code)
 
-        # self.assertContains(response, orga1.get_absolute_url())
-        # self.assertNotContains(response, orga2.get_absolute_url())
-        # self.assertNotContains(response, orga3.get_absolute_url())
         brick_node = self.get_search_brick_node(
             self.get_html_tree(response.content),
             brick_id_prefix=self.ORGA_BRICKID,
@@ -573,7 +503,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_custom_field03(self):
         "Type <CustomField.MULTI_ENUM>."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         ct = ContentType.objects.get_for_model(FakeOrganisation)
@@ -602,9 +531,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         response = self._search('fran', ct.id)
         self.assertEqual(200, response.status_code)
 
-        # self.assertContains(response, orga1.get_absolute_url())
-        # self.assertContains(response, orga2.get_absolute_url())
-        # self.assertNotContains(response, orga3.get_absolute_url())
         brick_node = self.get_search_brick_node(
             self.get_html_tree(response.content),
             brick_id_prefix=self.ORGA_BRICKID,
@@ -615,7 +541,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_search_invalid_cell_type(self):
         "No error."
-        # self.login()
         self.login_as_root()
 
         ct = ContentType.objects.get_for_model(FakeOrganisation)
@@ -628,12 +553,10 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertEqual(200, response.status_code)
 
     def test_reload_brick(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
 
         url = reverse('creme_core__reload_search_brick')
-        # brick_id = self.CONTACT_BRICKID + '-32132154'
         brick_id = self.CONTACT_BRICKID + '32132154'
         self.assertGET404(url, data={'brick_id': brick_id, 'search': 'da'})
 
@@ -651,7 +574,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.get_brick_node(doc, brick_id)
 
     def test_light_search01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
         coxi = FakeContact.objects.create(user=user, first_name='Coxi', last_name='Nail')
@@ -712,7 +634,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_light_search02(self):
         "Credentials."
-        # user = self.login(is_superuser=False, allowed_apps=['creme_core'])
         user = self.login_as_standard(allowed_apps=['creme_core'])
         SetCredentials.objects.create(
             role=user.role,
@@ -720,7 +641,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
             set_type=SetCredentials.ESET_OWN
         )
 
-        # self._setup_contacts(user=self.other_user)
         self._setup_contacts(user=self.get_root_user())
         coxi = FakeContact.objects.create(user=user, first_name='Coxi', last_name='Nail')
 
@@ -758,7 +678,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_light_search03(self):
         "Errors."
-        # self.login()
         self.login_as_root()
 
         url = self.LIGHT_URL
@@ -788,7 +707,6 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_light_search04(self):
         "Deleted entities are ignored."
-        # self.login()
         user = self.login_as_root_and_get()
         self._setup_contacts(user=user)
         response = self.assertGET200(self.LIGHT_URL, data={'value': 'Linu'})

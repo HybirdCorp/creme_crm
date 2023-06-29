@@ -20,29 +20,15 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         )
         self.assertTrue(sub_type.is_custom)
 
-        # with self.assertLogs(level='CRITICAL') as logs_manager1:
         with self.assertNoException():
-            # Trick: there is not 'assertNoLogs()' in Python < 3.10
-            # logging.getLogger('foo').critical('dummy message')
             sub_type.save()
-
-        # self.assertListEqual(logs_manager1.output, ['CRITICAL:foo:dummy message'])
 
         # ---
         sub_type.is_custom = False
 
-        # with self.assertLogs(level='CRITICAL') as logs_manager2:
         with self.assertRaises(ValueError) as cm:
             sub_type.save()
 
-        # self.assertListEqual(
-        #     logs_manager2.output,
-        #     [
-        #         f'CRITICAL:creme.activities.models.other_models:'
-        #         f'the ActivitySubType id="{sub_type.id}" is not custom,'
-        #         f'so the related ActivityType cannot be custom.'
-        #     ],
-        # )
         self.assertEqual(
             f'The ActivitySubType id="{sub_type.id}" is not custom, '
             f'so the related ActivityType cannot be custom.',
@@ -52,15 +38,10 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         # ---
         atype.is_custom = False
 
-        # with self.assertLogs(level='CRITICAL') as logs_manager3:
         with self.assertNoException():
-            # logging.getLogger('foo').critical('dummy message')
             sub_type.save()
 
-        # self.assertListEqual(logs_manager3.output, ['CRITICAL:foo:dummy message'])
-
     def test_create_type(self):
-        # self.login()
         self.login_as_root()
         self.assertGET200(reverse('creme_config__app_portal', args=('activities',)))
         self.assertGET200(reverse(
@@ -86,11 +67,9 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
 
         atype = self.get_object_or_fail(ActivityType, name=name)
         self.assertEqual(0,        atype.default_day_duration)
-        # self.assertEqual('0:15:0', atype.default_hour_duration)
         self.assertEqual('0:15:00', atype.default_hour_duration)
 
     def test_edit_type(self):
-        # self.login()
         self.login_as_root()
 
         type_id = 'test-activity_awesome'
@@ -124,11 +103,9 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         atype = self.refresh(atype)
         self.assertEqual(name, atype.name)
         self.assertEqual(1,       atype.default_day_duration)
-        # self.assertEqual('1:0:0', atype.default_hour_duration)
         self.assertEqual('1:00:00', atype.default_hour_duration)
 
     def test_create_subtype(self):
-        # self.login()
         self.login_as_root()
         self.assertGET200(reverse(
             'creme_config__model_portal',
@@ -156,7 +133,6 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         self.get_object_or_fail(ActivitySubType, name=name, type=atype)
 
     def test_edit_subtype(self):
-        # self.login()
         self.login_as_root()
 
         atype = ActivityType.objects.create(

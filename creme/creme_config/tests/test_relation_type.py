@@ -19,7 +19,6 @@ class RelationTypeTestCase(CremeTestCase):
 
     def setUp(self):  # In CremeConfigTestCase ??
         super().setUp()
-        # self.login()
         self.login_as_root()
 
     @staticmethod
@@ -333,7 +332,6 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
 
     def setUp(self):
         super().setUp()
-        # self.login()
         self.user = self.login_as_root_and_get()
 
         self.loves = RelationType.objects.smart_update_or_create(

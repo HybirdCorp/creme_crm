@@ -48,7 +48,6 @@ class FoundEntitiesBrick(QuerysetBrick):
         self.research = research
         self.user = user
         ctype = ContentType.objects.get_for_model(model)
-        # self.id_ = id or self.generate_id(
         self.id = id or self.generate_id(
             'creme_core',
             # We generate a unique ID for each research, in order
@@ -86,11 +85,7 @@ class FoundEntitiesBrick(QuerysetBrick):
             qs = EntityCredentials.filter(self.user, results)
 
         return self._render(self.get_template_context(
-            context, qs,
-            cells=searcher.get_cells(model),
-            # # If the model is inserted in the context, the template calls it
-            # # and creates an instance...
-            # ctype=self.ctype,
+            context, qs, cells=searcher.get_cells(model),
         ))
 
 

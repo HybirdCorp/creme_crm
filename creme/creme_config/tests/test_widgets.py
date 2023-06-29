@@ -12,7 +12,6 @@ from creme.creme_core.tests.fake_menu import (
     FakeContactsEntry,
 )
 
-# Option = namedtuple('Option', ['id_', 'verbose_name', 'description'])
 Option = namedtuple('Option', ['id', 'verbose_name', 'description'])
 
 
@@ -26,7 +25,6 @@ class ButtonMenuEditionWidgetTestCase(CremeTestCase):
         widget = ButtonMenuEditionWidget()
         option = widget.create_option(
             name='NAME',
-            # button_id=test_button.id_,
             button_id=test_button.id,
             button=test_button,
             selected=True,
@@ -42,7 +40,6 @@ class ButtonMenuEditionWidgetTestCase(CremeTestCase):
 
     def test_create_options(self):
         options = [Option(f'I{i}', f'VN{i}', f'D{i}') for i in range(5)]
-        # choices = ((o.id_, o) for o in options)
         choices = ((o.id, o) for o in options)
         widget = ButtonMenuEditionWidget(choices=choices)
 

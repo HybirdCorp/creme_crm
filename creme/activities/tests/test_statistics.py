@@ -135,7 +135,6 @@ class StatisticsTestCase(CremeTestCase):
                 ngettext(
                     '{count} phone call per month',
                     '{count} phone calls per month',
-                    # 0.5
                     0
                 ).format(count=number_format(0.5, decimal_pos=1)),
             ],

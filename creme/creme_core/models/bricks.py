@@ -19,13 +19,12 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from functools import partial
 from typing import TYPE_CHECKING, Iterable, Iterator, Sequence, TypedDict
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db import models  # IntegrityError
+from django.db import models
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.db.transaction import atomic
@@ -101,7 +100,6 @@ class BrickDetailviewLocationManager(models.Manager):
                 if model is None or isinstance(model, ContentType) else
                 ContentType.objects.get_for_model(model)
             ),
-            # brick_id=brick if isinstance(brick, str) else brick.id_,
             brick_id=brick if isinstance(brick, str) else brick.id,
             defaults={'order': order, 'zone': zone},
             **kwargs
@@ -268,7 +266,6 @@ class BrickHomeLocation(CremeModel):
         )
 
     def __str__(self):
-        # return repr(self)
         # TODO: see remark in BrickDetailviewLocation.__str__
         #  (+ see uses of {% brick_get_by_ids %}
         from ..gui.bricks import brick_registry
@@ -424,46 +421,6 @@ class StoredBrickClassMixin:
 # TODO: remove this class?
 class RelationBrickItemManager(models.Manager):
     pass
-    # def create_if_needed(self, relation_type: RelationType | str) -> RelationBrickItem:
-    #     """Create an instance of RelationBrickItem corresponding to a RelationType
-    #     or return the existing one.
-    #
-    #     @param relation_type: Instance of RelationType, or RelationType ID.
-    #     @return: A saved instance of RelationBrickItem.
-    #     """
-    #     # from creme.creme_core.gui.bricks import SpecificRelationsBrick
-    #     warnings.warn(
-    #         'The method RelationBrickItemManager.create_if_needed() is deprecated ; '
-    #         'use <get_or_create(relation_type=rtype)[0]> instead.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     rtype_id = relation_type.id if isinstance(relation_type, RelationType) else relation_type
-    #
-    #     for _i in range(10):
-    #         try:
-    #             rbi = self.get(relation_type=rtype_id)
-    #         except self.model.DoesNotExist:
-    #             try:
-    #                 rbi = self.create(
-    #                     # brick_id=SpecificRelationsBrick.generate_id('creme_config', rtype_id),
-    #                     relation_type_id=rtype_id,
-    #                 )
-    #             except IntegrityError:
-    #                 logger.exception(
-    #                     'Avoid a RelationBrickItem duplicate: %s ?!',
-    #                     relation_type,
-    #                 )
-    #                 continue
-    #
-    #         break
-    #     else:
-    #         raise RuntimeError(
-    #             f'It seems the RelationBrickItem <{rtype_id}> keeps being '
-    #             f'created & deleted.'
-    #         )
-    #
-    #     return rbi
 
 
 class RelationBrickItem(StoredBrickClassMixin, CremeModel):

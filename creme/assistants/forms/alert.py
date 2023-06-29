@@ -45,17 +45,14 @@ class ModelRelativeDatePeriodWidget(widgets.MultiWidget):
     def __init__(self, period_choices=(), field_choices=(), relative_choices=(), attrs=None):
         super().__init__(
             widgets=(
-                # widgets.Select(
                 PrettySelect(
                     choices=field_choices,
                     attrs={'class': 'assistants-offset_dperiod-field'},
                 ),
-                # widgets.Select(
                 PrettySelect(
                     choices=relative_choices,
                     attrs={'class': 'assistants-offset_dperiod-direction'},
                 ),
-                # widgets.Select(
                 PrettySelect(
                     choices=period_choices,
                     attrs={'class': 'assistants-offset_dperiod-type'},
@@ -93,9 +90,6 @@ class ModelRelativeDatePeriodWidget(widgets.MultiWidget):
 
     def decompress(self, value):
         if value:
-            # field_name, sign, period = value
-            # d = period.as_dict()
-            # return field_name, sign, d['type'], d['value']
             d = value.as_dict()
             return d['field'], d['sign'], d['type'], d['value']
 
@@ -153,23 +147,9 @@ class ModelRelativeDatePeriodField(fields.MultiValueField):
         field_name: str
         relative_period: core_fields.RelativeDatePeriodField.RelativeDatePeriod
 
-        # def __init__(self,
-        #              field_name: str,
-        #              relative_period: core_fields.RelativeDatePeriodField.RelativeDatePeriod,
-        #              ):
-        #     self.field_name = field_name
-        #     self.relative_period = relative_period
-
         def __str__(self):
             # TODO: localize?
             return f'{self.relative_period} on field "{self.field_name}"'
-
-        # def __eq__(self, other):
-        #     return (
-        #         isinstance(other, type(self))
-        #         and (self.field_name == other.field_name)
-        #         and (self.relative_period == other.relative_period)
-        #     )
 
         def as_dict(self) -> dict:
             "As a jsonifiable dictionary."
@@ -290,7 +270,6 @@ class ModelRelativeDatePeriodField(fields.MultiValueField):
         self.fields[1].relative_choices = self.widget.relative_choices = choices
 
     def compress(self, data_list):
-        # return (data_list[0], data_list[1]) if data_list else ()
         return self.ModelRelativeDatePeriod(
             field_name=data_list[0], relative_period=data_list[1],
         ) if data_list and all(data_list) else None
@@ -299,14 +278,6 @@ class ModelRelativeDatePeriodField(fields.MultiValueField):
         # if self.required and not value[1]:
         if self.required and not value:
             raise ValidationError(self.error_messages['required'], code='required')
-
-    # def clean(self, value):
-    #     if isinstance(value, (list, tuple)) and len(value) == 4:
-    #         value = [value[0], value[1:]]
-    #
-    #     cleaned = super().clean(value)
-    #
-    #     return cleaned if (cleaned and cleaned[1]) else ()
 
 
 # TODO: move to creme_core?
@@ -401,11 +372,6 @@ class AlertForm(CremeModelForm):
                 trigger_f.initial = (
                     RELATIVE,
                     {
-                        # RELATIVE: (
-                        #     offset['cell']['value'],
-                        #     offset['sign'],
-                        #     date_period.date_period_registry.deserialize(offset['period']),
-                        # ),
                         RELATIVE: ModelRelativeDatePeriodField.ModelRelativeDatePeriod(
                             field_name=offset['cell']['value'],
                             relative_period=core_fields.RelativeDatePeriodField.RelativeDatePeriod(
@@ -429,10 +395,8 @@ class AlertForm(CremeModelForm):
             instance.trigger_date = trigger_value
             instance.trigger_offset = {}
         else:  # RELATIVE
-            # field_name, (sign, period) = trigger_value
             cell = EntityCellRegularField.build(
                 model=type(instance.real_entity),
-                # name=field_name,
                 name=trigger_value.field_name,
             )
             relative_period = trigger_value.relative_period
@@ -440,7 +404,6 @@ class AlertForm(CremeModelForm):
             period = relative_period.period
             instance.trigger_date = instance.trigger_date_from_offset(
                 cell=cell, sign=sign, period=period,
-                # cell=cell, sign=relative_period.sign, period=relative_period.period,
             )
             instance.trigger_offset = {
                 'cell': cell.to_dict(),

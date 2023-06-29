@@ -1389,7 +1389,6 @@ about this fantastic animation studio."""
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
         todo = FakeTodo.objects.create(title='New logo', creme_entity=gainax)
 
-        # todo = self.refresh(todo)
         todo.categories.add(cat)
 
         hline1 = HistoryLine.objects.order_by('-id').first()

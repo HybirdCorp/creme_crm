@@ -50,7 +50,6 @@ class DocumentBrick(EntityBrick):
 
 
 class FolderDocsBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('documents', 'folder_docs')
     id = QuerysetBrick.generate_id('documents', 'folder_docs')
     verbose_name = _('Contained documents')
     description = _(
@@ -75,7 +74,6 @@ class FolderDocsBrick(QuerysetBrick):
 
 
 class ChildFoldersBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('documents', 'child_folders')
     id = QuerysetBrick.generate_id('documents', 'child_folders')
     verbose_name = _('Child Folders')
     dependencies = (Folder,)
@@ -94,7 +92,6 @@ class ChildFoldersBrick(QuerysetBrick):
 
 
 class LinkedDocsBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('documents', 'linked_docs')
     id = QuerysetBrick.generate_id('documents', 'linked_docs')
     verbose_name = _('Linked documents')
     description = _(

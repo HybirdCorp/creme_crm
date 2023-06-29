@@ -30,7 +30,6 @@ from django.utils.timezone import localtime, make_aware, now
 
 from creme.creme_core.creme_jobs.base import JobType
 from creme.creme_core.models import Job
-# from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.utils.system import (
     enable_exit_handler,
     python_subprocess,
@@ -165,7 +164,6 @@ class JobScheduler:
                     next_wakeup = min(next_wakeup, dyn_next_wakeup)
         else:
             # NB: not <month=12, day=31> to avoid overflow
-            # next_wakeup = make_aware_dt(datetime(year=MAXYEAR, month=1, day=1))
             next_wakeup = make_aware(datetime(year=MAXYEAR, month=1, day=1))
 
         return next_wakeup

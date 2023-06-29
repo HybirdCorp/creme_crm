@@ -165,7 +165,6 @@ class ActionsBricksReloading(PortalBricksMixin, BricksReloading):
 
     def get_bricks(self):
         bricks = []
-        # get_brick = {brick.id_: brick for brick in self.get_portal_bricks()}.get
         get_brick = {brick.id: brick for brick in self.get_portal_bricks()}.get
 
         for brick_id in self.get_brick_ids():

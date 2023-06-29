@@ -25,7 +25,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_set_address_info(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga = create_orga(name='Orga 1', user=user)
@@ -60,7 +59,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_set_address_info_without_geoaddress(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga = create_orga(name='Orga 1', user=user)
@@ -99,7 +97,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         )
 
     def test_set_address_info_missing_address(self):
-        # self.login()
         self.login_as_root()
 
         self.assertFalse(GeoAddress.objects.all())
@@ -117,7 +114,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_set_address_info_missing_argument(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga = create_orga(name='Orga 1', user=user)
@@ -150,7 +146,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_set_address_info_credentials(self):
-        # self.login(is_superuser=False, allowed_apps=('creme_core', 'geolocation', 'persons'))
         user = self.login_as_standard(allowed_apps=('creme_core', 'geolocation', 'persons'))
         SetCredentials.objects.create(
             role=user.role,
@@ -159,7 +154,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        # orga = create_orga(name='Orga 1', user=self.other_user)
         orga = create_orga(name='Orga 1', user=self.get_root_user())
         address = self.create_address(orga)
 
@@ -176,7 +170,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         )
 
         self.client.logout()
-        # self.client.login(username=self.other_user.username, password='test')
         self.login_as_root()
 
         self.assertPOST200(
@@ -197,7 +190,6 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
     GET_ADDRESSES_URL = reverse('geolocation__addresses')
 
     def test_get_addresses_empty_filter(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga1 = create_orga(name='Orga 1', user=user)
@@ -222,7 +214,6 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
 
     @skipIfCustomContact
     def test_get_addresses_priority(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga1 = create_orga(name='Orga 1', user=user)
@@ -251,7 +242,6 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         )
 
     def test_get_addresses_first_other_address(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga = create_orga(name='Orga 1', user=user)
@@ -266,14 +256,12 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         )
 
     def test_get_addresses_invalid_filter(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         orga = create_orga(name='Orga 1', user=user)
         self.create_billing_address(orga, zipcode='13012', town='Marseille')
         self.assertGET404(self.GET_ADDRESSES_URL, data={'id': 'unknown'})
 
     def test_get_addresses_credentials(self):
-        # self.login(is_superuser=False, allowed_apps=('creme_core', 'geolocation', 'persons'))
         user = self.login_as_standard(allowed_apps=('creme_core', 'geolocation', 'persons'))
 
         SetCredentials.objects.create(
@@ -284,7 +272,6 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         )
 
         orga1 = create_orga(name='Orga 1', user=user)
-        # orga2 = create_orga(name='Orga 2', user=self.other_user)
         orga2 = create_orga(name='Orga 2', user=self.get_root_user())
 
         orga1_address = self.create_billing_address(orga1, zipcode='13012', town='Marseille')
@@ -295,7 +282,6 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         self.assertDictEqual(response.json(), {'addresses': [address_as_dict(orga1_address)]})
 
         self.client.logout()
-        # self.client.login(username=self.other_user.username, password='test')
         self.login_as_root()
 
         response = self.assertGET200(url)
@@ -306,7 +292,6 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         )
 
     def test_get_addresses(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga1 = create_orga(name='Orga 1', user=user)
@@ -343,7 +328,6 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
         )
 
     def test_get_addresses_populate(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga1 = create_orga(name='Orga 1', user=user)
@@ -406,7 +390,6 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
     @skipIfCustomAddress
     def test_get_neighbours(self):
         "No filter -> all Contacts & Organisations."
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.populate_addresses(user)
 
@@ -474,7 +457,6 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_get_neighbours_distance(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self.populate_addresses(user)
 
@@ -515,7 +497,6 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_get_neighbours_filtered(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.populate_addresses(user)
 
@@ -584,9 +565,7 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
     def test_get_neighbours_credentials(self):
         self.maxDiff = None
 
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=('creme_core', 'geolocation', 'persons'),
         )
         SetCredentials.objects.create(
@@ -623,7 +602,6 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
 
         # ---
         self.client.logout()
-        # self.client.login(username=self.other_user.username, password='test')
         self.login_as_root()
 
         response2 = self.assertGET200(url, data=GET_data)
@@ -639,7 +617,6 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_get_neighbours_invalid_filter(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.populate_addresses(user)
         self.assertGET404(
@@ -648,6 +625,5 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         )
 
     def test_get_neighbours_missing_address(self):
-        # self.login()
         self.login_as_root()
         self.assertGET404(self.GET_NEIGHBOURS_URL, data={'address_id': self.UNUSED_PK})

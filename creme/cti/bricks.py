@@ -42,7 +42,6 @@ Activity = activities.get_activity_model()
 
 
 class CallersBrick(PaginatedBrick):
-    # id_ = PaginatedBrick.generate_id('cti', 'callers')
     id = PaginatedBrick.generate_id('cti', 'callers')
     verbose_name = _('Potential callers')
     template_name = 'cti/bricks/callers.html'

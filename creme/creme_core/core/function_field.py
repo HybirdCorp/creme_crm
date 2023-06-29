@@ -42,11 +42,9 @@ class FunctionFieldResult:
         self._data: str = str_data
 
     def __str__(self):
-        # return self.for_html()
         return self.render(ViewTag.HTML_DETAIL)
 
     def for_html(self) -> str:
-        # return escape(self._data)
         warnings.warn(
             'FunctionFieldResult.for_html() is deprecated; use render() instead.',
             DeprecationWarning,
@@ -54,7 +52,6 @@ class FunctionFieldResult:
         return self.render(ViewTag.HTML_DETAIL)
 
     def for_csv(self) -> str:
-        # return self._data
         warnings.warn(
             'FunctionFieldResult.for_csv() is deprecated; use render() instead.',
             DeprecationWarning,
@@ -66,11 +63,6 @@ class FunctionFieldResult:
 
 
 class FunctionFieldDecimal(FunctionFieldResult):
-    # def for_html(self) -> str:
-    #     return number_format(self._data, force_grouping=True)
-    #
-    # def for_csv(self) -> str:
-    #     return number_format(self._data)
     def render(self, tag):
         return (
             number_format(self._data)
@@ -87,13 +79,6 @@ class FunctionFieldLink(FunctionFieldResult):
         self._url = url
         self._is_deleted = is_deleted
 
-    # def for_html(self) -> str:
-    #     return format_html(
-    #         '<a href="{}" class="is_deleted">{}</a>'
-    #         if self._is_deleted else
-    #         '<a href="{}">{}</a>',
-    #         self._url, self._data,
-    #     )
     def render(self, tag):
         if tag == ViewTag.TEXT_PLAIN:
             return self._data
@@ -180,17 +165,6 @@ class FunctionFieldResultsList(FunctionFieldResult):
     def __init__(self, iterable: Iterable[FunctionFieldResult]):
         self._data: list[FunctionFieldResult] = [*iterable]  # type: ignore
 
-    # def for_html(self) -> str:
-    #     return format_html(
-    #         '<ul>{}</ul>',
-    #         format_html_join(
-    #             '', '<li>{}</li>',
-    #             ([e.for_html()] for e in self._data)
-    #         )
-    #     )
-    #
-    # def for_csv(self) -> str:
-    #     return '/'.join(e.for_csv() for e in self._data)
     def render(self, tag):
         return (
             '/'.join(e.render(tag) for e in self._data)

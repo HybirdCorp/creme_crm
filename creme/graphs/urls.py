@@ -6,10 +6,6 @@ from . import graph_model_is_custom
 from .views import graph, root_node
 
 urlpatterns = [
-    # re_path(
-    #     r'^graph/(?P<graph_id>\d+)/png[/]?$', graph.dl_png, name='graphs__dl_image',
-    # ),
-
     re_path(
         r'^graph/(?P<graph_id>\d+)/relation_types/add[/]?$',
         graph.RelationTypesAdding.as_view(),

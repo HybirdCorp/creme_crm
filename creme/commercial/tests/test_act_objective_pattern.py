@@ -20,7 +20,6 @@ from .base import (
 class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     def setUp(self):
         super().setUp()
-        # self.login()
         self.user = self.login_as_root_and_get()
 
     @staticmethod

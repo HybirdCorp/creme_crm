@@ -95,12 +95,10 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(order.get_absolute_url())
         self.assertConvertButtons(
             response,
-            # [{'title': _('Convert to Invoice'), 'type': 'invoice', 'disabled': True}],
             [{'title': _('Convert to Invoice'), 'disabled': True}],
         )
 
     def test_createview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertGET200(reverse('billing__create_order'))
 
@@ -118,7 +116,6 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
 
     def test_create_related01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -173,7 +170,6 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_create_related02(self):
         "No redirection after the creation."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -272,7 +268,6 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertGET403(self._build_related_creation_url(target))
 
     def test_editview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'my sales order'
@@ -312,7 +307,6 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(status,                           order.status)
 
     def test_listview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         order1 = self.create_salesorder_n_orgas(user=user, name='Order1')[0]
@@ -327,7 +321,6 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertCountEqual([order1, order2], orders_page.paginator.object_list)
 
     def test_delete_status(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         new_status = SalesOrderStatus.objects.first()
         status2del = SalesOrderStatus.objects.create(name='OK')
@@ -341,7 +334,6 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     def test_mass_import(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_no_total(
             user=user, model=SalesOrder, status_model=SalesOrderStatus,
@@ -349,14 +341,12 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     def test_mass_import_update(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_update(
             user=user, model=SalesOrder, status_model=SalesOrderStatus,
         )
 
     def test_brick(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         BrickDetailviewLocation.objects.create_if_needed(
             brick=ReceivedSalesOrdersBrick, order=600,

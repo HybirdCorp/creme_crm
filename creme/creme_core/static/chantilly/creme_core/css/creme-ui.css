@@ -238,10 +238,6 @@ ul.ui-creme-widget.is-readonly li {
     background-repeat: no-repeat;
     background-position: 50% 50%;
     float: right;
-/*
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-*/
     border-radius: 4px;
 }
 

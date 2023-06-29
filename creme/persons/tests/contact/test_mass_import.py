@@ -54,7 +54,6 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
 
     @skipIfCustomAddress
     def test_simple(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         count = Contact.objects.count()
@@ -89,7 +88,6 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
 
     @skipIfCustomAddress
     def test_address(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -135,7 +133,6 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
     @skipIfCustomAddress
     def test_update(self):
         "Update with address."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         last_name = 'Ayanami'
@@ -191,7 +188,6 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
 
     @skipIfCustomAddress
     def test_address_fields_config(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(
@@ -271,7 +267,6 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
         """Does not update invalid Address
         (i.e. already invalid, because empty values are filtered).
         """
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(

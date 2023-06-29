@@ -55,7 +55,6 @@ class TicketMixin(CremeEntity):
         Priority, verbose_name=_('Priority'), on_delete=CREME_REPLACE,
     )
     criticity = models.ForeignKey(
-        # Criticity, verbose_name=_('Criticity'), on_delete=CREME_REPLACE,
         Criticity, verbose_name=_('Criticality'), on_delete=CREME_REPLACE,
     )
     solution = models.TextField(_('Solution'), blank=True)
@@ -113,7 +112,6 @@ class AbstractTicket(TicketMixin):
         return attrs
 
     @atomic
-    # def save(self, *args, **kwargs):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.pk:
             if self.status.is_closed and self.closing_date is None:
@@ -128,7 +126,6 @@ class AbstractTicket(TicketMixin):
             self.number = number_id
             TicketNumber.objects.filter(id__lt=number_id).delete()
 
-        # super().save(*args, **kwargs)
         super().save(
             force_insert=force_insert,
             force_update=force_update,

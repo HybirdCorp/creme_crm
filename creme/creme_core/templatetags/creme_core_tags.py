@@ -475,7 +475,6 @@ class TemplatizeNode(TemplateNode):
 # TODO: pass the registry in the context? pass the user as argument?
 @register.simple_tag(takes_context=True)
 def print_field(context, *, object, field, tag=ViewTag.HTML_DETAIL):
-    # return field_printers_registry.get_html_field_value(object, field, context['user'])
     return field_printers_registry.get_field_value(
         instance=object,
         field_name=field,

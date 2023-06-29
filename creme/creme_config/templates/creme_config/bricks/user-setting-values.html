@@ -9,7 +9,6 @@
 {% endblock %}
 
 {% block brick_content %}
-{#  {% for app_vname, app_sv_info in values_per_app %} #}
   {% for app_label, app_vname, app_sv_info in values_per_app %}
     <div class="brick-list-item setting-values-config-item setting-values-config-item-{{app_label}}">
         <div class="setting-values-config-app-name">{{app_vname}}</div>

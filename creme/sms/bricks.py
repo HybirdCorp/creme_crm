@@ -43,7 +43,6 @@ class _RelatedEntitesBrick(QuerysetBrick):
 
 
 class MessagingListsBlock(_RelatedEntitesBrick):
-    # id_ = QuerysetBrick.generate_id('sms', 'messaging_lists')
     id = QuerysetBrick.generate_id('sms', 'messaging_lists')
     verbose_name = _('Messaging lists')
     dependencies = (MessagingList,)
@@ -56,7 +55,6 @@ class MessagingListsBlock(_RelatedEntitesBrick):
 
 
 class RecipientsBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('sms', 'recipients')
     id = QuerysetBrick.generate_id('sms', 'recipients')
     verbose_name = _('Not linked recipients')
     description = _(
@@ -79,7 +77,6 @@ class RecipientsBrick(QuerysetBrick):
 
 
 class ContactsBrick(_RelatedEntitesBrick):
-    # id_ = QuerysetBrick.generate_id('sms', 'contacts')
     id = QuerysetBrick.generate_id('sms', 'contacts')
     verbose_name = _('Contact-recipients')
     dependencies = (get_contact_model(),)
@@ -97,7 +94,6 @@ class ContactsBrick(_RelatedEntitesBrick):
 
 
 class MessagesBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('sms', 'messages')
     id = QuerysetBrick.generate_id('sms', 'messages')
     verbose_name = _('Sent messages')
     dependencies = (Message,)
@@ -111,7 +107,6 @@ class MessagesBrick(QuerysetBrick):
 
 
 class SendingsBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('sms', 'sendings')
     id = QuerysetBrick.generate_id('sms', 'sendings')
     verbose_name = _('Sendings')
     dependencies = (Sending,)

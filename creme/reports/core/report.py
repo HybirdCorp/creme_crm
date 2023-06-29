@@ -327,7 +327,6 @@ class RHRegularField(ReportHand):
         self._printer = field_printers_registry.build_field_printer(
             model=model,
             field_name=report_field.name,
-            # output='csv',
             tag=ViewTag.TEXT_PLAIN,
         )
 
@@ -363,7 +362,6 @@ class RHForeignKey(RHRegularField):
                 self._value_extractor = field_printers_registry.build_field_printer(
                     model=field_info[0].remote_field.model,
                     field_name=field_info[1].name,
-                    # output='csv',
                     tag=ViewTag.TEXT_PLAIN,
                 )
             else:
@@ -532,7 +530,6 @@ class RHFunctionField(ReportHand):
         super().__init__(report_field, title=str(funcfield.verbose_name))
 
     def _get_value_single_on_allowed(self, entity, user, scope):
-        # return self._funcfield(entity, user).for_csv()
         return self._funcfield(entity, user).render(tag=ViewTag.TEXT_PLAIN)
 
 

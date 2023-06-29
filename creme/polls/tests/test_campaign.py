@@ -31,7 +31,6 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
         return MarketSegment.objects.create(name=label, property_type=ptype)
 
     def test_detailview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         camp = PollCampaign.objects.create(user=user, name='Camp#1')
         response = self.assertGET200(camp.get_absolute_url())
@@ -47,7 +46,6 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_detailview02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         camp = PollCampaign.objects.create(user=user, name='Camp', expected_count=2)
         pform = PollForm.objects.create(user=user, name='Form')
@@ -82,7 +80,6 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.get_html_node_or_fail(brick_node2, './/td[@class="brick-table-data-valid"]')
 
     def test_createview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertFalse(PollCampaign.objects.all())
 
@@ -118,7 +115,6 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(expected_count, camp.expected_count)
 
     def test_editview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         name = 'camp#1'
         camp = PollCampaign.objects.create(user=user, name=name)
@@ -151,7 +147,6 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(expected_count, camp.expected_count)
 
     def test_listview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         create_camp = partial(PollCampaign.objects.create, user=user)
         camps = [create_camp(name='Camp#%d' % i) for i in range(3)]
@@ -165,9 +160,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
         self.assertEqual(len(camps), camps_page.paginator.count)
         self.assertCountEqual(camps, camps_page.object_list)
 
-    # def _create_pform_n_campaign(self):
     def _create_pform_n_campaign(self, user):
-        # user  = self.user
         camp  = PollCampaign.objects.create(user=user, name='Camp#1')
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -180,8 +173,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
     @skipIfCustomPollForm
     @skipIfCustomPollReply
     def test_create_preply01(self):
-        "Create several replies linked to the campaign"
-        # user = self.login()
+        "Create several replies linked to the campaign."
         user = self.login_as_root_and_get()
         pform, camp = self._create_pform_n_campaign(user=user)
 
@@ -206,8 +198,7 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
     @skipIfCustomPollForm
     @skipIfCustomPollReply
     def test_create_preply_from_campaign01(self):
-        "Create several replies linked to a given campaign"
-        # user = self.login()
+        "Create several replies linked to a given campaign."
         user = self.login_as_root_and_get()
         pform, camp = self._create_pform_n_campaign(user=user)
 
@@ -244,9 +235,6 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
     @skipIfCustomPollReply
     def test_create_preply_from_campaign02(self):
         "Not superuser."
-        # user = self.login(
-        #     is_superuser=False, allowed_apps=['polls'], creatable_models=[PollReply],
-        # )
         user = self.login_as_polls_user(creatable_models=[PollReply])
         SetCredentials.objects.create(
             role=user.role,
@@ -267,10 +255,6 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
     @skipIfCustomPollReply
     def test_create_preply_from_campaign03(self):
         "Creation credentials are needed."
-        # user = self.login(
-        #     is_superuser=False, allowed_apps=['polls'],
-        #     # creatable_models=[PollReply],
-        # )
         user = self.login_as_polls_user()  # creatable_models=[PollReply]
         SetCredentials.objects.create(
             role=user.role,
@@ -292,9 +276,6 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
     @skipIfCustomPollReply
     def test_create_preply_from_campaign04(self):
         "LINK credentials are needed."
-        # user = self.login(
-        #     is_superuser=False, allowed_apps=['polls'], creatable_models=[PollReply],
-        # )
         user = self.login_as_polls_user(creatable_models=[PollReply])
         SetCredentials.objects.create(
             role=user.role,

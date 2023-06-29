@@ -29,8 +29,6 @@ from creme.creme_core.bricks import (
     RelationsBrick,
 )
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-# from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
-# from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
@@ -50,7 +48,6 @@ from . import (
     get_service_model,
     menu,
 )
-# from .forms.base import SubCategorySubCell
 from .models import Category, SubCategory
 
 logger = logging.getLogger(__name__)
@@ -89,132 +86,12 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        # common_groups_desc = [
-        #     {
-        #         'name': _('Description'),
-        #         'layout': LAYOUT_DUAL_SECOND,
-        #         'cells': [
-        #             (EntityCellRegularField, {'name': 'description'}),
-        #         ],
-        #     }, {
-        #         'name': _('Custom fields'),
-        #         'layout': LAYOUT_DUAL_SECOND,
-        #         'cells': [
-        #             (
-        #                 EntityCellCustomFormSpecial,
-        #                 {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
-        #             ),
-        #         ],
-        #     },
-        # ]
-
-        # def build_creation_custom_form_item(descriptor, main_cells_desc):
-        #     CustomFormConfigItem.objects.create_if_needed(
-        #         descriptor=descriptor,
-        #         groups_desc=[
-        #             {
-        #                 'name': _('General information'),
-        #                 'layout': LAYOUT_DUAL_FIRST,
-        #                 'cells': [
-        #                     *main_cells_desc,
-        #                     (
-        #                         EntityCellCustomFormSpecial,
-        #                         {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-        #                     ),
-        #                 ],
-        #             },
-        #             *common_groups_desc,
-        #             {
-        #                 'name': _('Properties'),
-        #                 'cells': [
-        #                     (
-        #                         EntityCellCustomFormSpecial,
-        #                         {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
-        #                     ),
-        #                 ],
-        #             }, {
-        #                 'name': _('Relationships'),
-        #                 'cells': [
-        #                     (
-        #                         EntityCellCustomFormSpecial,
-        #                         {'name': EntityCellCustomFormSpecial.RELATIONS},
-        #                     ),
-        #                 ],
-        #             },
-        #         ],
-        #     )
-
-        # def build_edition_custom_form_item(descriptor, main_cells_desc):
-        #     CustomFormConfigItem.objects.create_if_needed(
-        #         descriptor=descriptor,
-        #         groups_desc=[
-        #             {
-        #                 'name': _('General information'),
-        #                 'layout': LAYOUT_DUAL_FIRST,
-        #                 'cells': [
-        #                     *main_cells_desc,
-        #                     (
-        #                         EntityCellCustomFormSpecial,
-        #                         {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-        #                     ),
-        #                 ],
-        #             },
-        #             *common_groups_desc,
-        #         ],
-        #     )
-
-        # main_product_cells_desc = [
-        #     (EntityCellRegularField, {'name': 'user'}),
-        #     (EntityCellRegularField, {'name': 'name'}),
-        #     (EntityCellRegularField, {'name': 'code'}),
-        #     SubCategorySubCell(model=Product).into_cell(),
-        #     (EntityCellRegularField, {'name': 'unit_price'}),
-        #     (EntityCellRegularField, {'name': 'unit'}),
-        #     (EntityCellRegularField, {'name': 'quantity_per_unit'}),
-        #     (EntityCellRegularField, {'name': 'weight'}),
-        #     (EntityCellRegularField, {'name': 'stock'}),
-        #     (EntityCellRegularField, {'name': 'web_site'}),
-        # ]
-        # build_creation_custom_form_item(
-        #     descriptor=custom_forms.PRODUCT_CREATION_CFORM,
-        #     main_cells_desc=[
-        #         *main_product_cells_desc,
-        #         (EntityCellRegularField, {'name': 'images'}),
-        #     ]
-        # )
-        # build_edition_custom_form_item(
-        #     descriptor=custom_forms.PRODUCT_EDITION_CFORM,
-        #     main_cells_desc=main_product_cells_desc,
-        # )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.PRODUCT_CREATION_CFORM,
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.PRODUCT_EDITION_CFORM,
         )
-
-        # main_service_cells_desc = [
-        #     (EntityCellRegularField, {'name': 'user'}),
-        #     (EntityCellRegularField, {'name': 'name'}),
-        #     (EntityCellRegularField, {'name': 'reference'}),
-        #     SubCategorySubCell(model=Service).into_cell(),
-        #     (EntityCellRegularField, {'name': 'countable'}),
-        #     (EntityCellRegularField, {'name': 'unit'}),
-        #     (EntityCellRegularField, {'name': 'quantity_per_unit'}),
-        #     (EntityCellRegularField, {'name': 'unit_price'}),
-        #     (EntityCellRegularField, {'name': 'web_site'}),
-        # ]
-        # build_creation_custom_form_item(
-        #     descriptor=custom_forms.SERVICE_CREATION_CFORM,
-        #     main_cells_desc=[
-        #         *main_service_cells_desc,
-        #         (EntityCellRegularField, {'name': 'images'}),
-        #     ]
-        # )
-        # build_edition_custom_form_item(
-        #     descriptor=custom_forms.SERVICE_EDITION_CFORM,
-        #     main_cells_desc=main_service_cells_desc,
-        # )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.SERVICE_CREATION_CFORM,
         )

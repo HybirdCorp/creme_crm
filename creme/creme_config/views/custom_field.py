@@ -231,7 +231,6 @@ class CustomEnumBrickReloading(BricksReloading):
         return context
 
     def get_brick_ids(self):
-        # return [bricks.CustomEnumsBrick.id_]
         return [bricks.CustomEnumsBrick.id]
 
 

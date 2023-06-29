@@ -16,13 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 import logging
 
 from django.utils.functional import partition
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.gui.bricks import QuerysetBrick  # Brick
+from creme.creme_core.gui.bricks import QuerysetBrick
 from creme.sketch.bricks import ChartBrick
 
 from . import get_graph_model
@@ -31,34 +30,7 @@ from .models import RootNode
 logger = logging.getLogger(__name__)
 
 
-# class GraphBarHatBrick(Brick):
-#     template_name = 'graphs/bricks/graph-hat-bar.html'
-#
-#     def __init__(self):
-#         super().__init__()
-#         warnings.warn(
-#             'The class graphs.bricks.GraphBarHatBrick is deprecated.',
-#             DeprecationWarning,
-#         )
-#
-#     def detailview_display(self, context):
-#         try:
-#             import pygraphviz  # NOQA
-#         except ImportError:
-#             logger.warning(
-#                 'The package "pygraphviz" is not installed ; '
-#                 'please install creme with the `graphs` flag. '
-#                 'I.E `pip install creme-crm[mysql,graphs]`'
-#             )
-#             dl_button = False
-#         else:
-#             dl_button = True
-#
-#         return self._render(self.get_template_context(context, dl_button=dl_button))
-
-
 class RelationChartBrick(ChartBrick):
-    # id_ = ChartBrick.generate_id('graphs', 'relation_chart')
     id = ChartBrick.generate_id('graphs', 'relation_chart')
     verbose_name = _('Relationship graph')
     dependencies = (RootNode,)
@@ -150,7 +122,6 @@ class RelationChartBrick(ChartBrick):
 
 
 class RootNodesBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('graphs', 'root_nodes')
     id = QuerysetBrick.generate_id('graphs', 'root_nodes')
     verbose_name = _('Root nodes')
     description = _(
@@ -182,7 +153,6 @@ class RootNodesBrick(QuerysetBrick):
 
 
 class OrbitalRelationTypesBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('graphs', 'orbital_rtypes')
     id = QuerysetBrick.generate_id('graphs', 'orbital_rtypes')
     verbose_name = _('Peripheral types of relationship')
     description = _(

@@ -130,7 +130,6 @@ class EntityEmailPopup(generic.EntityDetailPopup):
 
     def get_brick_ids(self):
         return (
-            # bricks.MailPopupBrick.id_,
             bricks.MailPopupBrick.id,
         )
 
@@ -210,7 +209,6 @@ class LightWeightEmailPopup(generic.RelatedToEntityDetailPopup):
 
     def get_brick_ids(self):
         return (
-            # bricks.LwMailPopupBrick.id_,
             bricks.LwMailPopupBrick.id,
         )
 

@@ -131,12 +131,6 @@ class DBTestCase(CremeTestCase):
 
     def test_indexed_ordering01(self):
         "FakeOrganisation."
-        # self.assertEqual(
-        #     (
-        #         ('name', 'cremeentity_ptr'),
-        #     ),
-        #     FakeOrganisation._meta.index_together,
-        # )
         self.assertIn(
             ['name', 'cremeentity_ptr'],
             [index.fields for index in FakeOrganisation._meta.indexes],
@@ -172,12 +166,6 @@ class DBTestCase(CremeTestCase):
 
     def test_indexed_ordering02(self):
         "FakeContact."
-        # self.assertEqual(
-        #     (
-        #         ('last_name', 'first_name', 'cremeentity_ptr'),
-        #     ),
-        #     FakeContact._meta.index_together,
-        # )
         self.assertIn(
             ['last_name', 'first_name', 'cremeentity_ptr'],
             [index.fields for index in FakeContact._meta.indexes],
@@ -288,13 +276,11 @@ class DBTestCase(CremeTestCase):
                 FakeContact, ['last_name', '*', '*', 'cremeentity_ptr_id'],
             )
 
-    # def _create_contacts(self):
     def _create_contacts(self, user=None):
         self.sector1, self.sector2 = FakeSector.objects.all()[:2]
         self.civ1, self.civ2 = FakeCivility.objects.all()[:2]
 
         create_contact = partial(
-            # FakeContact.objects.create, user=self.user, last_name='Simpson',
             FakeContact.objects.create, user=user or self.get_root_user(), last_name='Simpson',
         )
         contacts = [
@@ -308,8 +294,6 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related01(self):
         "One field."
-        # self.login()
-
         with self.assertNoException():
             populate_related([], ['sector'])
 
@@ -330,7 +314,6 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related02(self):
         "Two fields."
-        # self.login()
         contacts = self._create_contacts()
 
         with self.assertNumQueries(2):
@@ -348,8 +331,6 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related03(self):
         "Do not retrieve already cached values."
-        # self.login()
-
         contacts = self._create_contacts()
         contacts[0].sector  # NOQA
         contacts[1].sector  # NOQA
@@ -359,8 +340,6 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related04(self):
         "Partially cached."
-        # self.login()
-
         contacts = self._create_contacts()
         contacts[0].sector  # NOQA
         # __ = contacts[1].sector # Not Cached
@@ -396,7 +375,6 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related06(self):
         "depth = 1."
-        # self.login()
         contacts = self._create_contacts()
 
         with self.assertNumQueries(1):
@@ -446,8 +424,6 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related08(self):
         "Two fields + depth > 1  => instances of level 2 have different models."
-        # user1 = self.login()
-        # user2 = self.other_user
         user1 = self.get_root_user()
         role = self.create_role()
         user2 = self.create_user(role=role)
@@ -506,8 +482,6 @@ class DBTestCase(CremeTestCase):
 
     def test_populate_related09(self):
         "Already cached field (level 2)."
-        # user1 = self.login()
-        # user2 = self.other_user
         user1 = self.get_root_user()
         user2 = self.create_user(role=self.create_role())
 

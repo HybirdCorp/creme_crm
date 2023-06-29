@@ -38,7 +38,6 @@ class SynchronizationModelsTestCase(_EmailsTestCase):
             [
                 f'CRITICAL:'
                 f'creme.emails.models.synchronization:creme.emails.models.synchronization: '
-                # f'bad signature for password of EmailSyncConfigItem with id={item.id}'
                 f'issue with password of EmailSyncConfigItem with id={item.id}: '
                 f'SymmetricEncrypter.decrypt: invalid token'
             ],

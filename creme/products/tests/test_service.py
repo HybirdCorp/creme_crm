@@ -19,7 +19,6 @@ Service = get_service_model()
 @skipIfCustomService
 class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
     def test_detailview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.all()[0]
@@ -46,7 +45,6 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
         )
 
     def test_createview(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self.assertEqual(0, Service.objects.count())
 
@@ -89,7 +87,6 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertTemplateUsed(response, 'products/view_service.html')
 
     def test_editview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'Eva washing'
@@ -126,7 +123,6 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertEqual(Decimal(unit_price), service.unit_price)
 
     def test_listview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         cat = Category.objects.all()[0]
@@ -154,7 +150,6 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertEqual(2, services_page.paginator.count)
         self.assertCountEqual(services, services_page.object_list)
 
-    # def _build_service_cat_subcat(self):
     def _build_service_cat_subcat(self, user):
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
         sub_cat = SubCategory.objects.create(
@@ -170,7 +165,6 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
         return service, cat, sub_cat
 
     def test_delete_subcategory(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         service, cat, sub_cat = self._build_service_cat_subcat(user=user)
@@ -185,7 +179,6 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
         )
 
     def test_delete_category(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         service, cat, sub_cat = self._build_service_cat_subcat(user=user)
@@ -209,7 +202,6 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
         img_1 = create_image(ident=1)
         img_2 = create_image(ident=2)
         img_3 = create_image(ident=3)
-        # img_4 = create_image(ident=4, user=self.other_user)
         img_4 = create_image(ident=4, user=self.get_root_user())
         self.assertTrue(user.has_perm_to_link(img_1))
         self.assertFalse(user.has_perm_to_link(img_4))
@@ -238,9 +230,7 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
             return self.client.post(
                 url,
                 follow=True,
-                data={
-                    'images': self.formfield_value_multi_creator_entity(*images),
-                },
+                data={'images': self.formfield_value_multi_creator_entity(*images)},
             )
 
         response2 = post(img_1, img_4)
@@ -257,7 +247,6 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertCountEqual([img_1, img_2, img_3], service.images.all())
 
     def test_remove_image(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_image = self._create_image
@@ -281,7 +270,6 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     def test_mass_import(self):
         "Categories in CSV ; creation of Category/SubCategory."
-        # user = self.login()
         user = self.login_as_root_and_get()
         count = Service.objects.count()
 

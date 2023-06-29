@@ -49,14 +49,12 @@ class Vat(MinionModel):
         ordering = ('value',)
 
     @atomic
-    # def save(self, *args, **kwargs):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.is_default:
             type(self).objects.update(is_default=False)
         elif not type(self).objects.filter(is_default=True).exclude(pk=self.id).exists():
             self.is_default = True
 
-        # super().save(*args, **kwargs)
         super().save(
             force_insert=force_insert,
             force_update=force_update,

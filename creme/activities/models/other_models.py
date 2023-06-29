@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import logging
 from datetime import timedelta
 
 from django.db import models
@@ -100,11 +99,6 @@ class ActivitySubType(CremeModel):
 
     def save(self, *args, **kwargs):
         if not self.is_custom and self.type.is_custom:
-            # logging.getLogger(__name__).critical(
-            #     'the ActivitySubType id="%s" is not custom,'
-            #     'so the related ActivityType cannot be custom.',
-            #     self.id,
-            # )
             raise ValueError(
                 f'The ActivitySubType id="{self.id}" is not custom, '
                 f'so the related ActivityType cannot be custom.'

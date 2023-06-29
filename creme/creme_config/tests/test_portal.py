@@ -6,7 +6,6 @@ from creme.creme_core.tests.base import CremeTestCase
 
 class PortalTestCase(CremeTestCase):
     def test_portal01(self):
-        # self.login(is_superuser=False, allowed_apps=['creme_config'])
         self.login_as_standard(allowed_apps=['creme_config'])
         response = self.assertGET200(reverse('creme_config__portal'))
         self.assertTemplateUsed(response, 'creme_config/portal.html')
@@ -22,6 +21,5 @@ class PortalTestCase(CremeTestCase):
         self.assertIsList(get('app_bricks'))  # TODO: test better
 
     def test_portal02(self):
-        # self.login(is_superuser=False)  # allowed_apps=['creme_config']
         self.login_as_standard()  # allowed_apps=['creme_config']
         self.assertGET403(reverse('creme_config__portal'))

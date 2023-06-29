@@ -26,7 +26,6 @@ from datetime import date, datetime, timedelta
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _
 
-# from .dates import make_aware_dt
 logger = logging.getLogger(__name__)
 
 _DAY_START = {'hour': 0,  'minute': 0,  'second': 0}
@@ -46,11 +45,9 @@ def get_quarter_dates(year: int, quarter: int):
     month = quarter * 3
 
     return (
-        # make_aware_dt(datetime(
         make_aware(datetime(
             year=year, month=month - 2, day=1,                               **_DAY_START
         )),
-        # make_aware_dt(datetime(
         make_aware(datetime(
             year=year, month=month,     day=get_month_last_day(year, month), **_DAY_END
         ))
@@ -85,13 +82,11 @@ class CustomRange(DateRange):
 
     def __init__(self, start=None, end=None):
         if start and not isinstance(start, datetime):
-            # start = make_aware_dt(datetime(
             start = make_aware(datetime(
                 year=start.year, month=start.month, day=start.day, **_DAY_START
             ))
 
         if end and not isinstance(end, datetime):
-            # end = make_aware_dt(datetime(
             end = make_aware(datetime(
                 year=end.year, month=end.month, day=end.day, **_DAY_END
             ))
@@ -111,9 +106,7 @@ class PreviousYearRange(DateRange):
     def get_dates(now):
         year = now.year - 1
         return (
-            # make_aware_dt(datetime(year=year, month=1,  day=1,  **_DAY_START)),
             make_aware(datetime(year=year, month=1,  day=1,  **_DAY_START)),
-            # make_aware_dt(datetime(year=year, month=12, day=31, **_DAY_END))
             make_aware(datetime(year=year, month=12, day=31, **_DAY_END))
         )
 
@@ -126,9 +119,7 @@ class CurrentYearRange(DateRange):
     def get_dates(now):
         year = now.year
         return (
-            # make_aware_dt(datetime(year=year, month=1,  day=1,  **_DAY_START)),
             make_aware(datetime(year=year, month=1,  day=1,  **_DAY_START)),
-            # make_aware_dt(datetime(year=year, month=12, day=31, **_DAY_END))
             make_aware(datetime(year=year, month=12, day=31, **_DAY_END))
         )
 
@@ -141,9 +132,7 @@ class NextYearRange(DateRange):
     def get_dates(now):
         year = now.year + 1
         return (
-            # make_aware_dt(datetime(year=year, month=1,  day=1,  **_DAY_START)),
             make_aware(datetime(year=year, month=1,  day=1,  **_DAY_START)),
-            # make_aware_dt(datetime(year=year, month=12, day=31, **_DAY_END))
             make_aware(datetime(year=year, month=12, day=31, **_DAY_END))
         )
 

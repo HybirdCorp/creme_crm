@@ -317,7 +317,6 @@ class Base(CremeEntity):
 
         self._address_auto_copy = False
 
-    # def _copy_relations(self, source):
     def _copy_relations(self, source, allowed_internal=()):
         from ..registry import relationtype_converter
 

@@ -154,7 +154,6 @@ class CremeUserForeignKey(models.ForeignKey):
         else:
             # This case is probably meaningless...
             super().formfield(
-                # **{'form_class': core_fields.CremeUserChoiceField, **kwargs}
                 **{'form_class': forms.CharField, **kwargs}
             )
 

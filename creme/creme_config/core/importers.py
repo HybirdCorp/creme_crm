@@ -565,7 +565,6 @@ class MenuConfigImporter(Importer):
 class ButtonsConfigImporter(Importer):
     def load_bmi(self, bmi_info: dict) -> dict:
         data = {
-            # 'id': bmi_info['id'],
             'button_id': bmi_info['button_id'],
             'order': int(bmi_info['order']),
         }
@@ -790,16 +789,8 @@ class RelationTypesImporter(Importer):
 class FieldsConfigImporter(Importer):
     def _validate_section(self, deserialized_section, validated_data):
         def load_fields_config(fconfig_info: dict) -> dict:
-            ctype = load_ct(fconfig_info['ctype'])
-
-            # if FieldsConfig.objects.filter(content_type=ctype).exists():
-            #     raise ValidationError(
-            #         _(
-            #             'There is already a fields configuration for the model «{}».'
-            #         ).format(ctype)
-            #     )
             return {
-                'content_type': ctype,
+                'content_type': load_ct(fconfig_info['ctype']),
                 'descriptions': fconfig_info['descriptions'],
             }
 
@@ -808,12 +799,9 @@ class FieldsConfigImporter(Importer):
     def save(self):
         # TODO: delete existing configuration?
         for data in self._data:
-            # FieldsConfig.objects.create(**data)
             FieldsConfig.objects.update_or_create(
                 content_type=data['content_type'],
-                defaults={
-                    'descriptions': data['descriptions'],
-                },
+                defaults={'descriptions': data['descriptions']},
             )
 
 
@@ -1625,7 +1613,6 @@ class RelationBrickItemsImporter(Importer):
         for info in deserialized_section:
             rtype_id = info['relation_type']
             data.append({
-                # 'brick_id': info['brick_id'],
                 'id': info['id'],
                 'relation_type_id': rtype_id,
                 'cells': [

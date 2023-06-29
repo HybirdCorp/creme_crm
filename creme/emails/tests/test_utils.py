@@ -19,7 +19,6 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
     def test_get_mime_image(self):
         "PNG."
-        # self.login()
         user = self.login_as_root_and_get()
         img = self._create_image(user=user)
 
@@ -41,7 +40,6 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
     def test_signature_renderer(self):
         "With images."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_img = self._create_image
@@ -83,7 +81,6 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
         self.assertEqual(img1, rend_image1.entity)
 
     def test_sender01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertFalse(django_mail.outbox)
 
@@ -120,7 +117,6 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
     def test_sender02(self):
         "Signature (with images)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_img = self._create_image
@@ -154,13 +150,6 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
         alternative = self.get_alone_element(message.alternatives)
         self.assertEqual('text/html', alternative[1])
         self.maxDiff = None
-        # self.assertEqual(
-        #     body_html
-        #     + '\n--\n'
-        #     + signature.body
-        #     + f'<img src="cid:img_{img1.id}" /><br/><img src="cid:img_{img2.id}" /><br/>',
-        #     alternative[0]
-        # )
         self.assertHTMLEqual(
             f'{body_html}'
             f'<div class="creme-emails-signature" id="signature-{signature.id}">'

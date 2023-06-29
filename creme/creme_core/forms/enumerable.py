@@ -75,26 +75,6 @@ class EnumerableChoice:
 
 
 class EnumerableChoiceSet:
-    # def __init__(self, field, *,
-    #              user=None, empty_label=None,
-    #              registry: enumerable._EnumerableRegistry | None = None,
-    #              limit: int | None = None):
-    #     registry = registry or self.enumerable_registry
-    #     limit = limit or get_form_enumerable_limit()
-    #
-    #     self.field = field
-    #     self.user = user
-    #     self.empty_label = empty_label
-    #     self.limit = limit
-    #
-    #     try:
-    #         self.enumerator = registry.enumerator_by_field(field)
-    #     except ValueError:
-    #         logger.debug(
-    #             'Unable to find an enumerator for the field "%s" '
-    #             "(ignore this if it's at startup)", field
-    #         )
-    #         self.enumerator = enumerable.EmptyEnumerator(field)
     def __init__(self, enumerator: enumerable.Enumerator, *,
                  user=None, empty_label=None,
                  limit: int | None = None,

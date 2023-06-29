@@ -70,8 +70,6 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(size, sv.value)
 
     def test_type_bool(self):
-        # self.login()
-
         sk = SettingKey(
             id='activities-test_model_bool', description='Display logo?',
             app_label='activities', type=SettingKey.BOOL,
@@ -100,8 +98,6 @@ class SettingValueTestCase(CremeTestCase):
         )
 
     def test_type_hour(self):
-        # self.login()
-
         sk = SettingKey(
             id='persons-test_model_hour', description='Reminder hour',
             app_label='persons', type=SettingKey.HOUR,
@@ -118,8 +114,6 @@ class SettingValueTestCase(CremeTestCase):
         self.assertEqual(_('{hour}h').format(hour=hour), sv.as_html)
 
     def test_type_email(self):
-        # self.login()
-
         sk = SettingKey(
             id='persons-test_model_email', description='Campaign Sender',
             app_label='emails', type=SettingKey.EMAIL,

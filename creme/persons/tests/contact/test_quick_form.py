@@ -29,7 +29,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
     def test_quickform01(self):
         "1 Contact."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         contact_count = Contact.objects.count()
@@ -73,7 +72,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
     @skipIfCustomOrganisation
     def test_quickform02(self):
         "1 Contact & 1 Organisation created."
-        # user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         count = Contact.objects.count()
 
@@ -87,7 +85,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
         orga_name = 'Bebop'
         self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
         # Not viewable
-        # existing_orga = Organisation.objects.create(user=self.other_user, name=orga_name)
         existing_orga = Organisation.objects.create(user=self.get_root_user(), name=orga_name)
 
         first_name = 'Faye'
@@ -116,7 +113,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
     @skipIfCustomOrganisation
     def test_quickform03(self):
         "1 Contact created and link with an existing Organisation"
-        # user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         count = Contact.objects.count()
 
@@ -131,7 +127,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
         create_orga = partial(Organisation.objects.create, name=orga_name)
         orga1 = create_orga(user=user)
-        # orga2 = create_orga(user=self.other_user)  # This one cannot be seen by user
         orga2 = create_orga(user=self.get_root_user())  # This one cannot be seen by user
 
         first_name = 'Faye'
@@ -158,7 +153,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
     def test_quickform04(self):
         "No permission to create Organisation."
-        # user = self.login(is_superuser=False, creatable_models=[Contact])
         user = self.login_as_persons_user(creatable_models=[Contact])  # <== not 'Organisation'
 
         SetCredentials.objects.create(
@@ -204,7 +198,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
     def test_quickform05(self):
         "No permission to link Organisation"
-        # user = self.login(is_superuser=False, creatable_models=[Contact])
         user = self.login_as_persons_user(creatable_models=[Contact])
 
         create_sc = partial(
@@ -248,7 +241,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
     def test_quickform06(self):
         "No permission to link Contact in general."
-        # self.login(is_superuser=False, creatable_models=[Contact, Organisation])
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
 
         create_sc = partial(
@@ -271,7 +263,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
     def test_quickform07(self):
         "No permission to link Contact with a specific owner."
-        # user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
 
         create_sc = partial(SetCredentials.objects.create, role=user.role)
@@ -320,13 +311,11 @@ class ContactQuickFormTestCase(_BaseTestCase):
     @skipIfCustomOrganisation
     def test_quickform08(self):
         "Multiple Organisations found."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga_name = 'Bebop'
         create_orga = partial(Organisation.objects.create, name=orga_name)
         create_orga(user=user)
-        # create_orga(user=self.other_user)
         create_orga(user=self.create_user())
 
         response = self.client.post(
@@ -347,7 +336,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
     @skipIfCustomOrganisation
     def test_quickform09(self):
         "Multiple Organisations found, only one linkable (so we use it)."
-        # user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
 
         create_sc = partial(SetCredentials.objects.create, role=user.role)
@@ -357,7 +345,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
         orga_name = 'Bebop'
         create_orga = partial(Organisation.objects.create, name=orga_name)
         orga1 = create_orga(user=user)
-        # create_orga(user=self.other_user)  # Cannot be linked by user
         create_orga(user=self.get_root_user())  # Cannot be linked by user
 
         first_name = 'Faye'
@@ -381,7 +368,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
     @skipIfCustomOrganisation
     def test_quickform10(self):
         "Multiple Organisations found, but none of them is linkable."
-        # user = self.login(is_superuser=False, creatable_models=[Contact, Organisation])
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
 
         create_sc = partial(SetCredentials.objects.create, role=user.role)
@@ -389,7 +375,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
 
         orga_name = 'Bebop'
-        # other_user = self.other_user
         other_user = self.get_root_user()
 
         for i in range(2):
@@ -411,7 +396,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
 
     def test_quickform11(self):
         "Have to create an Organisations, but can not link to it."
-        # self.login(is_superuser=False, creatable_models=[Contact, Organisation])
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
 
         create_sc = partial(SetCredentials.objects.create, role=user.role)
@@ -425,7 +409,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
         response = self.client.post(
             self._build_quickform_url(),
             data={
-                # 'user':         self.other_user.id,
                 'user':         self.get_root_user().id,
                 'first_name':   'Faye',
                 'last_name':    'Valentine',
@@ -443,7 +426,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
     @skipIfCustomOrganisation
     def test_quickform12(self):
         "Multiple Organisations found, only one is not deleted (so we use it)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga_name = 'Bebop'
@@ -477,7 +459,6 @@ class ContactNamesEditionTestCase(_BaseTestCase):
         return reverse('persons__edit_contact_names', args=(contact.id,))
 
     def test_edit01(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_persons_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -514,7 +495,6 @@ class ContactNamesEditionTestCase(_BaseTestCase):
 
     def test_edit02(self):
         "No permission."
-        # user = self.login(is_superuser=False)
         user = self.login_as_persons_user()
         SetCredentials.objects.create(
             role=user.role,

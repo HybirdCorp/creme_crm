@@ -360,7 +360,6 @@ class TotalsExtractorField(forms.Field):
 
 
 def get_import_form_builder(header_dict, choices):
-    # class InvoiceMassImportForm(ImportForm4CremeEntity):
     class BillingMassImportForm(ImportForm4CremeEntity):
         source = EntityExtractorField(
             models_info=[(Organisation, 'name')],
@@ -471,5 +470,4 @@ def get_import_form_builder(header_dict, choices):
                 if b_change or s_change:
                     instance.save()
 
-    # return InvoiceMassImportForm
     return BillingMassImportForm

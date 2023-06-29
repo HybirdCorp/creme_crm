@@ -17,19 +17,3 @@
     {{button.verbose_name}}
 </span>
 {% endif %}
-
-{% comment %}
-{% load i18n creme_ctype creme_widgets %}{% load blockjsondata has_perm_to from creme_core_tags %}
-{% has_perm_to link object as link_perm %}{% ctype_for_swappable 'TICKETS_TICKET_MODEL' as ticket_ct %}
-<a class="menu_button menu-button-icon{% if not has_perm or not link_perm or not rtype.enabled %} forbidden is-disabled{% endif %}{% if not rtype.enabled %} menu-button-error{% endif %}"
-   title="{% if not has_perm %}{% translate 'You are not allowed to access to the app «Tickets»' %}{% elif not link_perm %}{% translate 'You are not allowed to link this entity' %}{% elif not rtype.enabled %}{% blocktranslate with predicate=rtype.predicate %}The relationship type «{{predicate}}» is disabled{% endblocktranslate %}{% else %}{{description}}{% endif %}"
-   data-action="creme_core-hatmenubar-addrelationships">
-    {% widget_icon name='ticket' size='instance-button' label=_('Ticket') %}
-    {% translate 'Link to a ticket' %}
-    {% blockjsondata %}{
-        "data": {
-            "subject_id": "{{object.id}}", "rtype_id": "{{rtype.id}}", "ctype_id": "{{ticket_ct.id}}"
-        }
-    }{% endblockjsondata %}
-</a>
-{% endcomment %}

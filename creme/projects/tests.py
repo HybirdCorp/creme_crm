@@ -75,10 +75,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         cls.ADD_PROJECT_URL = reverse('projects__create_project')
 
-    # def login(self, is_superuser=True, allowed_apps=('projects',), *args, **kwargs):
-    #     return super().login(
-    #         is_superuser, allowed_apps=allowed_apps, *args, **kwargs
-    #     )
     def login_as_projects_user(self, *, allowed_apps=(), **kwargs):
         return super().login_as_standard(
             allowed_apps=['projects', *allowed_apps],
@@ -110,7 +106,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             self._build_add_resource_url(task),
             follow=True,
             data={
-                # 'user':        self.user.id,
                 'user':        task.user.id,
                 'contact':     contact.id,
                 'hourly_cost': hourly_cost,
@@ -140,7 +135,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'end':           self.formfield_value_datetime(end),
                 'duration':      duration,
                 'type_selector': sub_type_id,
-                # 'user':          self.user.id,
                 'user':          user.id,
                 'busy':          busy,
             },
@@ -172,13 +166,11 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                        start_date=date(2010, 10, 11), end_date=date(2010, 12, 31),
                        ):
         status = status or ProjectStatus.objects.all()[0]
-        # manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
         manager = Contact.objects.create(user=user, first_name='Gendo', last_name='Ikari')
         currency = Currency.objects.all()[0]
         response = self.client.post(
             self.ADD_PROJECT_URL, follow=True,
             data={
-                # 'user':         self.user.pk,
                 'user':         user.pk,
                 'name':         name,
                 'status':       status.id,
@@ -193,7 +185,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         return self.get_object_or_fail(Project, name=name), manager
 
-    # def create_task(self, project, title,
     def create_task(self, project, title,
                     status=None, sub_type_id=None,
                     ):
@@ -204,7 +195,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.client.post(
             self._build_add_task_url(project), follow=True,
             data={
-                # 'user':          self.user.id,
                 'user':          project.user.id,
                 'title':         title,
                 'start':         self.formfield_value_date(2010, 10, 11),
@@ -219,7 +209,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         return self.get_object_or_fail(ProjectTask, linked_project=project, title=title)
 
     def test_project_detailview01(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         status = ProjectStatus.objects.all()[0]
@@ -250,7 +239,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_project_detailview02(self):
         "With tasks."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         project = Project.objects.create(
@@ -294,9 +282,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLink(task_brick_node, task)
 
     def test_project_createview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
-
         self.assertGET200(self.ADD_PROJECT_URL)
 
         name = 'Eva00'
@@ -317,7 +303,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_project_createview02(self):
         "Credentials error."
-        # user = self.login(is_superuser=False, creatable_models=[Project])
         user = self.login_as_projects_user(creatable_models=[Project])
 
         create_sc = partial(SetCredentials.objects.create, role=user.role)
@@ -367,7 +352,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_project_createview03(self):
         "Validation error with start/end."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         manager = Contact.objects.create(user=user, first_name='Gendo', last_name='Ikari')
@@ -395,7 +379,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_project_listview(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         self.create_project(user=user, name='Eva00')
@@ -403,7 +386,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET200(reverse('projects__list_projects'))
 
     def test_listview_instance_actions(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         project = self.create_project(user=user, name='Eva00')[0]
 
@@ -422,7 +404,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(close_action.is_visible)
 
     def test_listview_instance_actions_closed(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         project = self.create_project(
             user=user, name='Eva00', start_date=date(2012, 2, 16), end_date=date(2012, 3, 26),
@@ -447,7 +428,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(close_action.is_visible)
 
     def test_project_inner_edit01(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(
@@ -466,7 +446,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_project_inner_edit02(self):
         "Validation error."
-        # self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(
@@ -496,7 +475,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_task_createview01(self):
         "Create 2 tasks without collision."
-        # user = self.login()
         user = self.login_as_root_and_get()
         project = self.create_project(user=user, name='Eva01')[0]
 
@@ -579,10 +557,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_task_createview02(self):
         "Can not be parented with task of another project + not super-user."
-        # user = self.login(
         user = self.login_as_projects_user(
-            # is_superuser=False,
-            # allowed_apps=['persons', 'projects'],
             allowed_apps=['persons'],
             creatable_models=[Project, ProjectTask],
         )
@@ -617,9 +592,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_task_createview03(self):
         "Not allowed to create a task."
-        # user = self.login(
         user = self.login_as_projects_user(
-            # is_superuser=False, allowed_apps=['persons', 'projects'],
             allowed_apps=['persons'],
             creatable_models=[Project],  # ProjectTask
         )
@@ -634,7 +607,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomTask
     def test_task_detailview(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva01')[0]
@@ -645,7 +617,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomTask
     def test_task_editview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva01')[0]
@@ -681,7 +652,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_task_editview_popup01(self):
         "Popup version."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva01')[0]
@@ -717,7 +687,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomTask
     def test_task_add_parent01(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva01')[0]
@@ -762,7 +731,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_task_add_parent02(self):
         "Error task that belongs to another project."
-        # self.login()
         user = self.login_as_root_and_get()
 
         project01 = self.create_project(user=user, name='Eva01')[0]
@@ -784,7 +752,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_task_add_parent03(self):
         "Cycle error."
-        # self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva01')[0]
@@ -817,7 +784,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomTask
     def test_duration01(self):
-        # self.login()
         user = self.login_as_root_and_get()
         project = self.create_project(user=user, name='Eva01')[0]
         task = self.create_task(project, 'Title')
@@ -832,7 +798,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomTask
     def test_duration02(self):
-        # self.login()
         user = self.login_as_root_and_get()
         project = self.create_project(user=user, name='Eva01')[0]
 
@@ -850,7 +815,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_resource_n_activity01(self):
         "Creation views."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva02')[0]
@@ -930,9 +894,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_resource_n_activity02(self):
         "Edition views + Calendar."
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         project = self.create_project(user=user, name='Eva02')[0]
@@ -993,7 +955,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_resource_n_activity03(self):
         "Not alive task."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva02')[0]
@@ -1011,7 +972,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_resource_n_activity04(self):
         "Create 2 activities with a collision."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva01')[0]
@@ -1055,9 +1015,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_resource_n_activity05(self):
         "Edition of activity: resource changes."
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         project = self.create_project(user=user, name='Eva02')[0]
@@ -1070,8 +1028,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         data = {
             'resource':      worker1.id,
-            'start':        self.formfield_value_date(2015, 5, 21),
-            'end':          self.formfield_value_date(2015, 5, 22),
+            'start':         self.formfield_value_date(2015, 5, 21),
+            'end':           self.formfield_value_date(2015, 5, 22),
             'duration':      10,
             'user':          user.id,
             'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
@@ -1104,9 +1062,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_resource_n_activity06(self):
         "Edition of activity: resource changes + keep_participating."
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         project = self.create_project(user=user, name='Eva02')[0]
@@ -1154,7 +1110,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_resource_n_activity07(self):
         "Resource must be related to the task."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva01')[0]
@@ -1189,9 +1144,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_resource_n_activity08(self):
         "Creation credentials are needed."
-        # user = self.login(
         user = self.login_as_projects_user(
-            # is_superuser=False, allowed_apps=['persons', 'projects'],
             allowed_apps=['persons'],
             creatable_models=[Project, ProjectTask],
         )
@@ -1214,12 +1167,10 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_resource_n_activity09(self):
         "Posted contacts must be resources."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva02')[0]
         task = self.create_task(project, 'arms')
-        # contact = self.other_user.linked_contact
         contact = self.create_user().linked_contact
         response = self.assertPOST200(
             self._build_add_activity_url(task),
@@ -1242,7 +1193,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_create_resource01(self):
         "Not super-user."
-        # user = self.login(is_superuser=False)
         user = self.login_as_projects_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -1272,7 +1222,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_create_resource02(self):
         "Edition permission needed."
-        # user = self.login(is_superuser=False)
         user = self.login_as_projects_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -1301,9 +1250,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_edit_resource01(self):
         "Related contact participates to activities."
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         project = self.create_project(user=user, name='Eva02')[0]
@@ -1367,9 +1314,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_edit_resource02(self):
         "Related contact participates to activities: old resource continues to participate."
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         project = self.create_project(user=user, name='Eva02')[0]
@@ -1412,7 +1357,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomTask
     def test_project_close(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva01')[0]
@@ -1466,7 +1410,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomTask
     def test_project_clone01(self):
-        # self.login()
         user = self.login_as_root_and_get()
         project = self.create_project(user=user, name='Project')[0]
 
@@ -1508,7 +1451,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomTask
     def test_project_clone02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Project')[0]
@@ -1553,7 +1495,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomTask
     def test_delete_project_status(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         status2 = ProjectStatus.objects.first()
@@ -1577,7 +1518,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomTask
     def test_delete_task_status(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva01')[0]
@@ -1605,7 +1545,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_task_cost_n_duration(self):
         "With several activities."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva02')[0]
@@ -1637,7 +1576,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_activity_title(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva00')[0]
@@ -1659,13 +1597,11 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_delete_resource01(self):
         "No related activity."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva02')[0]
         task1 = self.create_task(project, 'arms')
         task2 = self.create_task(project, 'legs')
-        # worker1 = self.other_user.linked_contact
         worker1 = self.create_user().linked_contact
         worker2 = Contact.objects.create(user=user, first_name='Yui', last_name='Ikari')
 
@@ -1699,12 +1635,10 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_delete_resource02(self):
         "Related activity => 409."
-        # self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva02')[0]
         task = self.create_task(project, 'arms')
-        # worker = self.other_user.linked_contact
         worker = self.create_user().linked_contact
 
         self.create_resource(task, worker)
@@ -1723,9 +1657,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_delete_resource03(self):
         "Not super-user."
-        # user = self.login(
         user = self.login_as_projects_user(
-            # is_superuser=False, allowed_apps=['persons', 'projects'],
             allowed_apps=['persons'],
             creatable_models=[Project, ProjectTask],
         )
@@ -1737,7 +1669,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         project = self.create_project(user=user, name='Eva02')[0]
         task = self.create_task(project, 'arms')
-        # worker = self.other_user.linked_contact
         worker = self.get_root_user().linked_contact
 
         self.create_resource(task, worker)
@@ -1750,9 +1681,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_delete_resource04(self):
         "Not super-user + cannot change the task => error."
-        # user = self.login(
         user = self.login_as_projects_user(
-            # is_superuser=False, allowed_apps=['persons', 'projects'],
             allowed_apps=['persons'],
             creatable_models=[Project, ProjectTask],
         )
@@ -1764,7 +1693,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         project = self.create_project(user=user, name='Eva02')[0]
         task = self.create_task(project, 'arms')
-        # worker = self.other_user.linked_contact
         worker = self.get_root_user().linked_contact
 
         self.create_resource(task, worker)
@@ -1777,7 +1705,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomActivity
     def test_edit_activity_error(self):
         "Activity not related to a project task."
-        # user = self.login()
         user = self.login_as_root_and_get()
         activity = Activity.objects.create(
             user=user, title='My task',
@@ -1790,7 +1717,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete_activity01(self):
         "Activity not related to a project task."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         activity = Activity.objects.create(
@@ -1807,12 +1733,10 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete_activity02(self):
         "Activity is related to a project task."
-        # self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva02')[0]
         task    = self.create_task(project, 'arms')
-        # worker  = self.other_user.linked_contact
         worker  = self.create_user().linked_contact
 
         self.create_resource(task, worker)
@@ -1828,12 +1752,10 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
     def test_delete_activity03(self):
         "Deletion is forbidden."
-        # self.login()
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva02')[0]
         task    = self.create_task(project, 'arms')
-        # worker  = self.other_user.linked_contact
         worker  = self.create_user().linked_contact
 
         self.create_resource(task, worker)
@@ -1858,12 +1780,10 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomTask
     def test_delete_task(self, deletion_allowed):
         with override_settings(ENTITIES_DELETION_ALLOWED=deletion_allowed):
-            # self.login()
             user = self.login_as_root_and_get()
 
             project = self.create_project(user=user, name='Eva02')[0]
             task = self.create_task(project, 'arms')
-            # worker = self.other_user.linked_contact
             worker = self.create_user().linked_contact
 
             self.create_resource(task, worker)

@@ -59,7 +59,6 @@ class CommercialTestCase(CremeTestCase):
     @skipIfCustomContact
     @override_settings(FORMS_RELATION_FIELDS=True)
     def test_salesman_create01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = self.ADD_SALESMAN_URL
@@ -95,7 +94,6 @@ class CommercialTestCase(CremeTestCase):
     @override_settings(FORMS_RELATION_FIELDS=False)
     def test_salesman_create02(self):
         "No <properties> field."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         first_name = 'John'
@@ -120,7 +118,6 @@ class CommercialTestCase(CremeTestCase):
 
     def test_salesman_create03(self):
         "Property type is disabled => error."
-        # self.login()
         self.login_as_root()
 
         ptype = self.get_object_or_fail(CremePropertyType, id=PROP_IS_A_SALESMAN)
@@ -131,7 +128,6 @@ class CommercialTestCase(CremeTestCase):
 
     @skipIfCustomContact
     def test_salesman_listview01(self):
-        # self.login()
         self.login_as_root()
 
         self.assertFalse(Contact.objects.filter(properties__type=PROP_IS_A_SALESMAN).exists())
@@ -147,7 +143,6 @@ class CommercialTestCase(CremeTestCase):
     @skipIfCustomContact
     @override_settings(FORMS_RELATION_FIELDS=False)  # To avoid "properties" POST argument
     def test_salesman_listview02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         def add_salesman(first_name, last_name):

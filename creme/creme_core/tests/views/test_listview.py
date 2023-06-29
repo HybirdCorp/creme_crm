@@ -90,8 +90,6 @@ class ListViewTestCase(ViewsTestCase):
         db_engine = settings.DATABASES['default']['ENGINE']
         if db_engine == 'django.db.backends.mysql':
             trash_sql = (
-                # 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` '
-                # 'WHERE `creme_core_cremeentity`.`is_deleted`'
                 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` '
                 'WHERE `creme_core_cremeentity`.`is_deleted` = 1'
             )
@@ -155,15 +153,6 @@ class ListViewTestCase(ViewsTestCase):
 
         return node
 
-    # def _get_lv_node(self, response):
-    #     page_tree = self.get_html_tree(response.content)
-    #
-    #     node = page_tree.find(
-    #         ".//form[@widget='ui-creme-listview']//table[@data-total-count]"
-    #     )
-    #     self.assertIsNotNone(node, 'The table listview is not found.')
-    #
-    #     return node
     def _get_lv_table_node(self, lv_node):
         node = lv_node.find(".//table[@data-total-count]")
         self.assertIsNotNone(node, "The listview's table is not found.")
@@ -184,7 +173,6 @@ class ListViewTestCase(ViewsTestCase):
                 ),
             }
 
-    # def _get_lv_header_titles(self, lv_node):
     def _get_lv_header_titles(self, lv_table_node):
         thead_node = self.get_html_node_or_fail(lv_table_node, './/thead')
         tr_node = self.get_html_node_or_fail(thead_node, ".//tr[@class='lv-columns-header']")
@@ -196,7 +184,6 @@ class ListViewTestCase(ViewsTestCase):
             )
         ]
 
-    # def _get_lv_header_widget_nodes(self, lv_node, cell_key, input_type='input', count=1):
     def _get_lv_header_widget_nodes(self, lv_table_node, cell_key, input_type='input', count=1):
         thead_node = self.get_html_node_or_fail(lv_table_node, './/thead')
         tr_node = self.get_html_node_or_fail(thead_node, ".//tr[@class='lv-search-header']")
@@ -206,7 +193,6 @@ class ListViewTestCase(ViewsTestCase):
 
         return widget_nodes
 
-    # def _assert_no_lv_header_widget_node(self, lv_node, cell_key):
     def _assert_no_lv_header_widget_node(self, lv_table_node, cell_key):
         tr_node = self.get_html_node_or_fail(
             lv_table_node, ".//thead//tr[@class='lv-search-header']",
@@ -215,7 +201,6 @@ class ListViewTestCase(ViewsTestCase):
         input_node = tr_node.find(f".//*[@name='{cell_key}']")
         self.assertIsNone(input_node)
 
-    # def _get_lv_inputs_content(self, lv_node):
     def _get_lv_inputs_content(self, lv_table_node):
         thead_node = self.get_html_node_or_fail(lv_table_node, './/thead')
         th_node = self.get_html_node_or_fail(thead_node, './/tr/th')
@@ -225,7 +210,6 @@ class ListViewTestCase(ViewsTestCase):
             for input_node in th_node.findall('input')
         ]
 
-    # def _get_lv_content(self, lv_node):
     def _get_lv_cell_contents(self, lv_table_node):
         tbody_node = self.get_html_node_or_fail(lv_table_node, './/tbody')
         content = []
@@ -275,7 +259,6 @@ class ListViewTestCase(ViewsTestCase):
         )
 
     def test_content01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -342,7 +325,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(bebop,     orgas_set)
         self.assertIn(swordfish, orgas_set)
 
-        # lv_node = self._get_lv_node(response)
         table_node = self._get_lv_table_node(self._get_lv_node(response))
         content = self._get_lv_cell_contents(table_node)
         bebop_idx = self.assertIndex(bebop.name, content)
@@ -377,7 +359,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_content02(self):
         "FieldsConfig."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         valid_fname = 'name'
@@ -401,14 +382,12 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_content_template(self):
         "Use reload template (content=1)."
-        # self.login()
         self.login_as_root()
         url = self.url
 
         response = self.assertPOST200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/entities.html')
 
-        # response = self.assertPOST200(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         response = self.assertPOST200(url, headers={'X-Requested-With': 'XMLHttpRequest'})
         self.assertTemplateUsed(response, 'creme_core/generics/entities.html')
 
@@ -416,13 +395,11 @@ class ListViewTestCase(ViewsTestCase):
         self.assertTemplateUsed(response, 'creme_core/listview/content.html')
 
         response = self.assertPOST200(
-            # url, data={'content': 1}, HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             url, data={'content': 1}, headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertTemplateUsed(response, 'creme_core/listview/content.html')
 
     def test_content_popup_template(self):
-        # self.login()
         self.login_as_root()
         ct_id = self.ctype.id
 
@@ -435,7 +412,6 @@ class ListViewTestCase(ViewsTestCase):
         response2 = self.assertPOST200(
             reverse('creme_core__listview_popup'),
             data={'ct_id': ct_id},
-            # HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertTemplateUsed(response2, 'creme_core/generics/entities-popup.html')
@@ -449,13 +425,11 @@ class ListViewTestCase(ViewsTestCase):
         response4 = self.assertPOST200(
             reverse('creme_core__listview_popup'),
             data={'ct_id': ct_id, 'content': 1},
-            # HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertTemplateUsed(response4, 'creme_core/listview/content.html')
 
     def test_content_popup_viewtag(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         ct_id = self.ctype.id
 
@@ -493,7 +467,6 @@ class ListViewTestCase(ViewsTestCase):
         )
 
     def test_selection_single(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -515,7 +488,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertPOST404(self.url, data={'selection': 'unknown'})
 
     def test_selection_single_GET(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -537,7 +509,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertGET404(self.url, data={'selection': 'unknown'})
 
     def test_ordering_regularfield(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -568,9 +539,7 @@ class ListViewTestCase(ViewsTestCase):
         post(bebop, swordfish, sort_key='unknown')  # Invalid value
 
         # ajax POST request
-        # post(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         post(bebop, swordfish, headers={'X-Requested-With': 'XMLHttpRequest'})
-        # post(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         post(swordfish, bebop, 'DESC', headers={'X-Requested-With': 'XMLHttpRequest'})
 
         state = ListViewState.get_state(self.client, url=self.url)
@@ -579,7 +548,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual('DESC', state.sort_order)
 
     def test_ordering_regularfield_invalid_order(self):
-        # self.login()
         self.login_as_root()
         self._build_hf()
 
@@ -593,7 +561,6 @@ class ListViewTestCase(ViewsTestCase):
             )
 
     def test_ordering_regularfield_GET(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -626,9 +593,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIsNone(state)
 
         # ajax GET request
-        # get(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         get(bebop, swordfish, headers={'X-Requested-With': 'XMLHttpRequest'})
-        # get(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         get(swordfish, bebop, 'DESC', headers={'X-Requested-With': 'XMLHttpRequest'})
 
         # state is not saved or update by GET requests.
@@ -636,7 +601,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIsNone(state)
 
     def test_ordering_regularfield_transient(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -670,9 +634,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIsNone(state)
 
         # ajax GET request
-        # post(bebop, swordfish, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         post(bebop, swordfish, headers={'X-Requested-With': 'XMLHttpRequest'})
-        # post(swordfish, bebop, 'DESC', HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         post(swordfish, bebop, 'DESC', headers={'X-Requested-With': 'XMLHttpRequest'})
 
         # state is not saved or update by GET requests.
@@ -706,7 +668,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_ordering_regularfield_fk(self):
         "Sort by ForeignKey."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_civ = FakeCivility.objects.create
@@ -750,7 +711,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertPOST200(url, data={'sort_key': 'regular_field-image'})
 
         # ---------------------------------------------------------------------
-
         def post(sort_key, reverse, *contacts):
             response = self.assertPOST200(
                 url,
@@ -777,7 +737,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_ordering_unsortable_fields(self):
         "Un-sortable fields: ManyToMany, FunctionFields."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         # Bug on ORM with M2M happens only if there is at least one entity
@@ -802,7 +761,6 @@ class ListViewTestCase(ViewsTestCase):
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
     def test_ordering_regularfield_fastmode(self):
         "Ordering = '-fieldname'."
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertTrue('-start', FakeActivity._meta.ordering[0])
 
@@ -843,7 +801,6 @@ class ListViewTestCase(ViewsTestCase):
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
     def test_ordering_default(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertEqual(('last_name', 'first_name'), FakeContact._meta.ordering)
 
@@ -875,7 +832,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_ordering_merge_column_and_default(self):
         self.assertEqual(('last_name', 'first_name'), FakeContact._meta.ordering)
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_civ = FakeCivility.objects.create
@@ -962,7 +918,6 @@ class ListViewTestCase(ViewsTestCase):
         )
 
     def test_ordering_related_column(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self.assertEqual(('last_name', 'first_name'), FakeContact._meta.ordering)
@@ -1019,7 +974,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_ordering_customfield_column(self):
         "Custom field ordering is ignored in current implementation."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1057,7 +1011,6 @@ class ListViewTestCase(ViewsTestCase):
         )
 
     def _aux_test_ordering_fastmode(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -1143,7 +1096,6 @@ class ListViewTestCase(ViewsTestCase):
         )
 
     def test_efilter01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1210,7 +1162,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(2, response.context['page_obj'].paginator.count)
 
     def test_qfilter_GET01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1226,7 +1177,6 @@ class ListViewTestCase(ViewsTestCase):
         # with context:
         response = self.assertGET200(self.url, data={'q_filter': qfilter_json})
 
-        # lv_node = self._get_lv_node(response)
         table_node = self._get_lv_table_node(self._get_lv_node(response))
         inputs_content = self._get_lv_inputs_content(table_node)
         self.assertIn(('q_filter', qfilter_json), inputs_content)
@@ -1242,7 +1192,6 @@ class ListViewTestCase(ViewsTestCase):
         # self._assertNoDistinct(context.captured_sql)
 
     def test_qfilter_GET02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         bebop = FakeOrganisation.objects.create(user=user, name='Bebop')
 
@@ -1255,7 +1204,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertCountOccurrences(bebop.name, content, count=1)
 
     def test_qfilter_POST(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1303,7 +1251,6 @@ class ListViewTestCase(ViewsTestCase):
     #     self.assertIn(dragons.name, content)
 
     def test_header_buttons(self):
-        # self.login()
         self.login_as_root()
         hf = self._build_hf()
         ct_id = self.ctype.id
@@ -1354,7 +1301,6 @@ class ListViewTestCase(ViewsTestCase):
         DEFAULT_PAGE_SIZE_IDX=1,
     )
     def test_search_regularfields01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1432,7 +1378,6 @@ class ListViewTestCase(ViewsTestCase):
         self._assertFastCount(context.captured_sql)
 
     def test_search_regularfields02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1464,7 +1409,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_regularfields03(self):
         "ForeignKey (NULL or not)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_sector = FakeSector.objects.create
@@ -1511,7 +1455,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_regularfields04(self):
         "BooleanField (NULL or not)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1555,7 +1498,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(seele, orgas_set)
 
     def test_search_datefields(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1618,7 +1560,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(dragons.name,   content4)
 
     def test_search_datetimefields(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1680,7 +1621,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name,    content)
 
     def test_search_field_with_choices(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice = FakeInvoice.objects.create(user=user, name='Invoice #1')
@@ -1728,7 +1668,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(line2.item, content2)
 
     def test_search_fk01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_civ = FakeCivility.objects.create
@@ -1822,7 +1761,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_fk02(self):
         "Search on a subfield which is a FK too."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_cat = FakeFolderCategory.objects.create
@@ -1877,7 +1815,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_fk03(self):
         "Search on a subfield which is a FK on CremeEntity."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_folder = partial(FakeFolder.objects.create, user=user)
@@ -1917,7 +1854,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_m2mfields01(self):
         "M2M to CremeEntity model."
-        # user = self.login()
         user = self.login_as_root_and_get()
         build_cell = partial(EntityCellRegularField.build, model=FakeEmailCampaign)
 
@@ -1976,7 +1912,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_m2mfields02(self):
         "M2M to basic model."
-        # user = self.login()
         user = self.login_as_root_and_get()
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_img', name='Image view', model=FakeImage,
@@ -2031,7 +1966,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_m2mfields03(self):
         "M2M to basic model + sub-field."
-        # user = self.login()
         user = self.login_as_root_and_get()
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf_img', name='Image view', model=FakeImage,
@@ -2071,7 +2005,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(img3.name, content)
 
     def test_search_relations01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2131,7 +2064,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_relations02(self):
         "2 searches at the same time."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2183,7 +2115,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_customfield01(self):
         "INT."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2233,7 +2164,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_customfield02(self):
         "INT & STR."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2277,7 +2207,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_customfield03(self):
         "INT & INT."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2324,7 +2253,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_customfield04(self):
         "ENUM."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2394,7 +2322,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_customfield05(self):
         "MULTI_ENUM."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2463,8 +2390,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(dragons,     orgas_set)
 
     def test_search_customfield06(self):
-        "2 x ENUM"
-        # user = self.login()
+        "2 x ENUM."
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2537,7 +2463,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_customfield07(self):
         "2 x MULTI_ENUM"
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2610,7 +2535,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_customfield08(self):
         "DATETIME."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2634,15 +2558,12 @@ class ListViewTestCase(ViewsTestCase):
         # ----------------------------------------------------------------------
         date_value = self.formfield_value_date
 
-        # def post(start, end=''):
         def post(start=None, end=None):
             ckey = cell.key
             response = self.assertPOST200(
                 self.url,
                 data={
                     'hfilter': hf.id,
-                    # f'search-{ckey}-start': start,
-                    # f'search-{ckey}-end': end,
                     f'search-{ckey}-start': date_value(start) if start else '',
                     f'search-{ckey}-end':   date_value(end)   if end   else '',
                 },
@@ -2678,7 +2599,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_customfield09(self):
         "2 x DATETIME."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2756,7 +2676,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_customfield10(self):
         "BOOL."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2825,7 +2744,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_functionfield01(self):
         "PropertiesField."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2872,7 +2790,6 @@ class ListViewTestCase(ViewsTestCase):
 
     def test_search_functionfield02(self):
         "Can not search on this FunctionField."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -2910,7 +2827,6 @@ class ListViewTestCase(ViewsTestCase):
     )
     def test_pagination_slow01(self):
         "Paginator with only OFFSET (small number of lines)."
-        # user = self.login()
         user = self.login_as_root_and_get()
         organisations = self._build_orgas(user=user)
         hf = self._build_hf()
@@ -2972,7 +2888,6 @@ class ListViewTestCase(ViewsTestCase):
     )
     def test_pagination_slow02(self):
         "Page is saved."
-        # user = self.login()
         user = self.login_as_root_and_get()
         organisations = self._build_orgas(user=user)
         hf = self._build_hf()
@@ -3009,7 +2924,6 @@ class ListViewTestCase(ViewsTestCase):
     )
     def test_pagination_fast01(self):
         "Paginator with 'keyset' (big number of lines)."
-        # user = self.login()
         user = self.login_as_root_and_get()
         organisations = self._build_orgas(user=user)
         hf = self._build_hf()
@@ -3064,7 +2978,6 @@ class ListViewTestCase(ViewsTestCase):
     )
     def test_pagination_fast02(self):
         "ContentType = Contact."
-        # user = self.login()
         user = self.login_as_root_and_get()
         rows = 10
         expected_count = rows + 3
@@ -3135,7 +3048,6 @@ class ListViewTestCase(ViewsTestCase):
     )
     def test_pagination_fast03(self):
         "Set an ORDER."
-        # user = self.login()
         user = self.login_as_root_and_get()
         rows = 10
         expected_count = rows + 3
@@ -3201,7 +3113,6 @@ class ListViewTestCase(ViewsTestCase):
     )
     def test_pagination_fast04(self):
         "Field key duplicates => use OFFSET too."
-        # user = self.login()
         user = self.login_as_root_and_get()
         rows = 10
         expected_count = rows + 3
@@ -3255,7 +3166,6 @@ class ListViewTestCase(ViewsTestCase):
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[5, 10])
     def test_pagination_fast05(self):
         "Errors => page 1."
-        # user = self.login()
         user = self.login_as_root_and_get()
         rows = 5
         expected_count = rows + 3
@@ -3309,7 +3219,6 @@ class ListViewTestCase(ViewsTestCase):
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[5, 10])
     def test_pagination_fast06(self):
         "LastPage => last page."
-        # user = self.login()
         user = self.login_as_root_and_get()
         rows = 5
         expected_count = 2 * rows + 3
@@ -3358,7 +3267,6 @@ class ListViewTestCase(ViewsTestCase):
     @override_settings(FAST_QUERY_MODE_THRESHOLD=5, PAGE_SIZES=[10])
     def test_pagination_fast07(self):
         "Page is saved."
-        # user = self.login()
         user = self.login_as_root_and_get()
         organisations = self._build_orgas(user=user)
         hf = self._build_hf()
@@ -3387,7 +3295,6 @@ class ListViewTestCase(ViewsTestCase):
     @override_settings(FAST_QUERY_MODE_THRESHOLD=14, PAGE_SIZES=[10])
     def test_pagination_fast08(self):
         "Change paginator class slow => fast (so saved page info are not compatible)."
-        # user = self.login()
         user = self.login_as_root_and_get()
         self._build_orgas(user=user)
         hf = self._build_hf()
@@ -3411,7 +3318,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertHasAttr(page1_fast, 'next_page_info')  # Means fast mode
 
     def test_listview_popup_GET(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -3445,7 +3351,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(1, response.context['page_obj'].paginator.count)
 
     def test_listview_popup_POST(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -3481,7 +3386,6 @@ class ListViewTestCase(ViewsTestCase):
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_credentials_with_filter01(self):
         "Fast count is not possible."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
 
@@ -3515,7 +3419,6 @@ class ListViewTestCase(ViewsTestCase):
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='Acme')  # OK (belongs to user)
         orga2 = create_orga(name='Foobar incorporated')  # OK: (name passes the Filter)
-        # orga3 = create_orga(name='Genius company', user=self.other_user)
         orga3 = create_orga(name='Genius company', user=self.get_root_user())
 
         hf = self._build_hf()
@@ -3545,7 +3448,6 @@ class ListViewTestCase(ViewsTestCase):
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_credentials_with_filter02(self):
         "Beware of DISTINCT with filter on relationships."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
         pilots = RelationType.objects.smart_update_or_create(
@@ -3583,8 +3485,6 @@ class ListViewTestCase(ViewsTestCase):
         swordfish  = create_orga(name='Swordfish')
         hammerhead = create_orga(name='Hammerhead')
 
-        # # <other_user> because super().login() configures credentials to VIEW our own entities.
-        # create_contact = partial(FakeContact.objects.create, user=self.other_user)
         create_contact = partial(FakeContact.objects.create, user=user)
         spike = create_contact(first_name='Spike',  last_name='Spiegel')
         jet   = create_contact(first_name='Jet',    last_name='Black')
@@ -3611,7 +3511,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertEqual(2, contacts_page.paginator.count)
 
     def test_buttons(self):
-        # self.login()
         self.login_as_root()
 
         response = self.assertPOST200(
@@ -3646,7 +3545,6 @@ class ListViewTestCase(ViewsTestCase):
             self.fail('No mass-import button found.')
 
     def test_visitor_button01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.maxDiff = None
 

@@ -43,7 +43,6 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import DeletionCommand, EntityCredentials, Job
 from creme.creme_core.utils import bool_from_str_extended, get_from_POST_or_404
-# from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views import generic
 
@@ -57,9 +56,7 @@ Activity = get_activity_model()
 
 
 def _js_timestamp_to_datetime(timestamp):
-    # "@raise ValueError."
     # JS gives us milliseconds
-    # return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000))
     return make_aware(datetime.fromtimestamp(float(timestamp) / 1000))
 
 
@@ -255,7 +252,6 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
 
         if timestamp is not None:
             try:
-                # return make_aware_dt(datetime.fromtimestamp(float(timestamp)))
                 return make_aware(datetime.fromtimestamp(float(timestamp)))
             except Exception:
                 logger.exception('ActivitiesData._get_datetime(key=%s)', key)

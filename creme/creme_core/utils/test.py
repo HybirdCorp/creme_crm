@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import os
 import pathlib
 import unittest
 from shutil import rmtree
@@ -28,11 +27,7 @@ from django.core.mail.backends import locmem
 from django.core.management import call_command
 from django.test.runner import DiscoverRunner, ParallelTestSuite, _init_worker
 
-# from ..utils.system import python_subprocess
 from ..management.commands.creme_populate import Command as PopulateCommand
-
-# def http_port():
-#     return getattr(settings, 'TEST_HTTP_SERVER_PORT', '8001')
 
 
 def reset_contenttype_cache():
@@ -73,7 +68,6 @@ def creme_test_populate():
     reset_contenttype_cache()
 
 
-# def creme_init_worker(counter):
 def creme_init_worker(counter,
                       initial_settings=None,
                       serialized_contents=None,
@@ -81,7 +75,6 @@ def creme_init_worker(counter,
                       process_setup_args=None,
                       debug_mode=None,
                       ):
-    # _init_worker(counter)
     _init_worker(
         counter=counter,
         initial_settings=initial_settings,
@@ -159,28 +152,12 @@ class CremeDiscoverRunner(DiscoverRunner):
 
         self._mock_media_path = None
         self._original_media_root = settings.MEDIA_ROOT
-        # self._http_server = None
 
     def setup_test_environment(self, **kwargs):
         super().setup_test_environment(**kwargs)
         self.log('Creating mock media directory...')
         self._mock_media_path = settings.MEDIA_ROOT = mkdtemp(prefix='creme_test_media')
         self.log(f' ... {self._mock_media_path} created.')
-        # script = (
-        #     'import http.server;'
-        #     'import os;'
-        #     'from socketserver import TCPServer;'
-        #     'os.chdir(r"{path}");'
-        #     'TCPServer.allow_reuse_address = True;'
-        #     'httpd = TCPServer(("localhost", {port}), http.server.SimpleHTTPRequestHandler);'
-        #     'print(r"Test HTTP server: serving localhost:{path} at port {port} with process ID:", os.getpid());'  # NOQA
-        #     'httpd.serve_forever()'
-        # ).format(
-        #     path=os.fspath(pathlib.Path(settings.CREME_ROOT).parent),
-        #     port=http_port(),
-        # )
-        #
-        # self._http_server = python_subprocess(script)
         settings.EMAIL_BACKEND = self.EMAIL_BACKEND
 
     def setup_databases(self, **kwargs):
@@ -197,23 +174,14 @@ class CremeDiscoverRunner(DiscoverRunner):
             rmtree(self._mock_media_path)
             self._mock_media_path = None
 
-    # def _clean_http_server(self):
-    #     if self._http_server is not None:
-    #         print('Shutting down HTTP server...')
-    #         self._http_server.terminate()
-    #         self._http_server.wait()
-    #         self._http_server = None
-
     def teardown_test_environment(self, **kwargs):
         super().teardown_test_environment(**kwargs)
         self._clean_mock_media()
-        # self._clean_http_server()
 
     def build_suite(self, *args, **kwargs):
         try:
             return super().build_suite(*args, **kwargs)
         except Exception:
             self._clean_mock_media()
-            # self._clean_http_server()
 
             raise

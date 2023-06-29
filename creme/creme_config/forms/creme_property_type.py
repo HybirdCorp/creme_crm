@@ -42,7 +42,6 @@ class _CremePropertyTypeBaseForm(CremeForm):
         self.instance = instance
 
 
-# class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
 class CremePropertyTypeCreationForm(_CremePropertyTypeBaseForm):
     def save(self):
         get_data = self.cleaned_data.get
@@ -58,7 +57,6 @@ class CremePropertyTypeCreationForm(_CremePropertyTypeBaseForm):
         return ptype
 
 
-# class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
 class CremePropertyTypeEditionForm(_CremePropertyTypeBaseForm):
     def __init__(self, instance, *args, **kwargs):
         super().__init__(instance=instance, *args, **kwargs)

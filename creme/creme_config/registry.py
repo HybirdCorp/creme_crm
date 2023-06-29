@@ -493,7 +493,6 @@ class _ConfigRegistry:
         return iter(self._apps.values())
 
     def _get_brick_id(self, brick_cls: type[Brick]) -> str:
-        # brick_id = brick_cls.id_
         brick_id = brick_cls.id
 
         # TODO: remove in creme 2.6

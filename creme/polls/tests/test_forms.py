@@ -44,7 +44,6 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
         )
 
     def _create_lines(self):
-        # user = self.login()
         user = self.get_root_user()
         self.pform = pform = PollForm.objects.create(user=user, name='Form#1')
 

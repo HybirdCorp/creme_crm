@@ -37,7 +37,6 @@ ProjectTask = projects.get_task_model()
 
 
 class ProjectExtraInfoBrick(SimpleBrick):
-    # id_ = SimpleBrick.generate_id('projects', 'project_extra_info')
     id = SimpleBrick.generate_id('projects', 'project_extra_info')
     dependencies = (ProjectTask,)
     verbose_name = _('Extra project information')
@@ -50,7 +49,6 @@ class ProjectExtraInfoBrick(SimpleBrick):
 
 
 class TaskExtraInfoBrick(SimpleBrick):
-    # id_ = SimpleBrick.generate_id('projects', 'task_extra_info')
     id = SimpleBrick.generate_id('projects', 'task_extra_info')
     dependencies = (Activity,)
     verbose_name = _('Extra project task information')
@@ -63,7 +61,6 @@ class TaskExtraInfoBrick(SimpleBrick):
 
 
 class ParentTasksBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('projects', 'parent_tasks')
     id = QuerysetBrick.generate_id('projects', 'parent_tasks')
     dependencies = (ProjectTask,)
     verbose_name = _('Parents of a task')
@@ -77,7 +74,6 @@ class ParentTasksBrick(QuerysetBrick):
 
 
 class ProjectTasksBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('projects', 'project_tasks')
     id = QuerysetBrick.generate_id('projects', 'project_tasks')
     dependencies = (ProjectTask,)
     verbose_name = _('Tasks of a project')
@@ -91,7 +87,6 @@ class ProjectTasksBrick(QuerysetBrick):
 
 
 class TaskResourcesBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('projects', 'resources')
     id = QuerysetBrick.generate_id('projects', 'resources')
     verbose_name = _('Resources assigned to a task')
     dependencies = (Resource,)
@@ -108,7 +103,6 @@ class TaskResourcesBrick(QuerysetBrick):
 
 
 class TaskActivitiesBrick(PaginatedBrick):
-    # id_ = QuerysetBrick.generate_id('projects', 'task_activities')
     id = QuerysetBrick.generate_id('projects', 'task_activities')
     verbose_name = _('Activities for a task')
     dependencies = (Activity, Resource, Relation)

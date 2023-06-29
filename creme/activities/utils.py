@@ -119,34 +119,6 @@ def check_activity_collisions(
     return collisions
 
 
-# def get_ical_date(date_time):
-#     warnings.warn(
-#         'The function activities.utils.get_ical_date() is deprecated.',
-#         DeprecationWarning
-#     )
-#
-#     dt = localtime(date_time)
-#
-#     return f'{dt.year}{dt.month:02}{dt.day:02}T{dt.hour:02}{dt.minute:02}{dt.second:02}Z'
-
-
-# def get_ical(activities):
-#     """Return a normalized iCalendar string
-#     BEWARE: each parameter has to be separated by \n ONLY no spaces allowed!
-#     Example : BEGIN:VCALENDAR\nVERSION:2.0
-#     """
-#     warnings.warn(
-#         'The function activities.utils.get_ical() is deprecated ; use ICalEncoder instead.',
-#         DeprecationWarning
-#     )
-#
-#     return """BEGIN:VCALENDAR
-# VERSION:2.0
-# PRODID:-//CremeCRM//CremeCRM//EN
-# {}
-# END:VCALENDAR""".format(''.join(a.as_ical_event() for a in activities))
-
-
 def is_auto_orga_subject_enabled():
     return SettingValue.objects.get_4_key(auto_subjects_key, default=False).value
 
@@ -223,11 +195,6 @@ CALSCALE:GREGORIAN
 {vevents}
 END:VCALENDAR""".format(
             product_id=self.product_id,
-            # vtimezone=PytzToVtimezone.generate_vtimezone(
-            #     pytz_timezone=tz,
-            #     date_from=date(year=start_year, month=1, day=1),
-            #     date_to=date(year=end_year, month=12, day=31),
-            # ),
             vtimezone=ZoneinfoToVtimezone.generate_vtimezone(
                 timezone=tz,
                 date_from=datetime(year=start_year, month=1, day=1),
@@ -240,7 +207,7 @@ END:VCALENDAR""".format(
 ################################################################################
 # PUBLIC DOMAIN
 #
-# Based on this snippet by ariannedee:
+# Heavily modified version of this snippet by ariannedee:
 #    https://gist.github.com/ariannedee/582c1e6d355f34bad994011ec4b267d8
 # which was itself based on this snippet by Claus Fischer (claus.fischer@clausfischer.com)
 #    https://www.djangosnippets.org/snippets/10569/
@@ -309,182 +276,6 @@ END:VCALENDAR""".format(
 # specified date range, using multiple STANDARD and DAYLIGHT sub-parts will do.
 # If they share the essential properties, they can be combined by using RDATE.
 #
-# The source code of this class is hereby placed in the public domain.
-# Claus Fischer, 17 September 2022.
-# class PytzToVtimezone:
-#     """Generates RFC5545 compatible VTIMEZONE information for iCalendar files."""
-#     Part = collections.namedtuple(
-#         'Part',
-#         [
-#             'is_daylight',   # DAYLIGHT or STANDARD
-#             'tzoffsetfrom',  # timedelta
-#             'dtstart',       # datetime
-#             'rdatelist',     # list of rdate values
-#             'tzname',        # name string
-#             'tzoffsetto',    # timedelta
-#         ],
-#     )
-#
-#     @classmethod
-#     def _generate_parts(cls, pytz_timezone, date_from: date, date_to: date) -> list[Part] | None:
-#         """Auxiliary function to assemble the raw data of the parts.
-#         Returns None on failure.
-#         """
-#         # Check range consistency
-#         if date_from > date_to:
-#             return None
-#
-#         # The pytz timezone has two internal lists we use:
-#         # - '_utc_transition_times' is a list of datetime.datetime
-#         # - '_transition_info' is a list of tuples (utc_offset, dst_offset, tzname)
-#
-#         ttlist = pytz_timezone._utc_transition_times
-#         tilist = pytz_timezone._transition_info
-#
-#         # Paranoia check: both lists must have the same length
-#         if (
-#             not isinstance(ttlist, list)
-#             or not isinstance(tilist, list)
-#             or len(ttlist) != len(tilist)
-#         ):
-#             return None
-#
-#         parts = []
-#         part = None
-#         tzoffsetfrom = None
-#         previous_dtstart = None
-#         for tt, ti in zip(ttlist, tilist):
-#             # Paranoia checks
-#             if not isinstance(tt, datetime):
-#                 return None
-#             if tt.tzinfo is not None:
-#                 return None
-#             if not isinstance(ti, tuple) or len(ti) != 3:
-#                 return None
-#
-#             utc_offset, dst_offset, tz_name = ti
-#             if not isinstance(utc_offset, timedelta):
-#                 return None
-#             if not isinstance(dst_offset, timedelta):
-#                 return None
-#
-#             if not isinstance(tz_name, str):
-#                 return None
-#
-#             # Set is_daylight and tzoffsetto
-#             is_daylight = (dst_offset.seconds != 0)
-#             tzoffsetto = utc_offset
-#
-#             # Initial tzoffsetfrom is same as tzoffsetto
-#             if tzoffsetfrom is None:
-#                 tzoffsetfrom = tzoffsetto
-#
-#             # The transition time is UTC, dtstart must be local time
-#             try:
-#                 dtstart = tt + tzoffsetfrom
-#             except OverflowError:
-#                 # Added by genglert ; not sure that <continue> is the good way.
-#                 continue
-#
-#             # Paranoia check: pytz entries are sorted
-#             if previous_dtstart is not None and dtstart < previous_dtstart:
-#                 return None
-#
-#             # Check against the target date range
-#             # but delay appending for one round
-#
-#             d = dtstart.date()
-#             if d > date_to:
-#                 break
-#             if d >= date_from and part is not None:
-#                 # This is the delayed appending of the previous round
-#                 parts.append(part)
-#
-#             # Construct the part
-#             part = cls.Part(
-#                 is_daylight,
-#                 tzoffsetfrom,
-#                 dtstart,
-#                 [],  # rdatelist
-#                 tz_name,
-#                 tzoffsetto,
-#             )
-#
-#             # Remember this offset as the offsetfrom for the next part
-#             tzoffsetfrom = tzoffsetto
-#
-#         # Finally the delayed appending of the last part
-#         if part is not None:
-#             parts.append(part)
-#
-#         # Now merge parts that are almost equal
-#         merged_parts = []
-#         previous_part = [None, None]  # non-dst and dst
-#
-#         for part in parts:
-#             # While the Part itself is immutable, its rdatelist can be appended to.
-#             is_daylight = part.is_daylight
-#             ppart = previous_part[is_daylight]
-#
-#             if ppart is None:
-#                 previous_part[is_daylight] = part
-#                 merged_parts.append(part)
-#             else:
-#                 if (
-#                     ppart.is_daylight == part.is_daylight
-#                     and ppart.tzoffsetfrom == part.tzoffsetfrom
-#                     and ppart.tzname == part.tzname
-#                     and ppart.tzoffsetto == part.tzoffsetto
-#                 ):
-#                     # Merge the parts
-#                     ppart.rdatelist.append(part.dtstart)
-#                 else:
-#                     # Start a new history
-#                     previous_part[is_daylight] = part
-#                     merged_parts.append(part)
-#
-#         return merged_parts
-#
-#     @classmethod
-#     def _offset_as_str(cls, offset):
-#         seconds = offset.seconds
-#         hours, remainder = divmod(abs(seconds), 3600)
-#
-#         return '{sign}{hours:02d}{minutes:02d}'.format(
-#             sign='+' if seconds > 0 else '-',
-#             hours=hours,
-#             minutes=remainder // 60,
-#         )
-#
-#     @classmethod
-#     def generate_vtimezone(cls, pytz_timezone, date_from: date, date_to: date) -> str:
-#         """Generate VTIMEZONE as a string."""
-#         parts = cls._generate_parts(pytz_timezone, date_from, date_to)
-#         if not parts:
-#             logger.warning('The VTIMEZONE cannot be generated.')
-#             return ''
-#
-#         lines = ['BEGIN:VTIMEZONE', f'TZID:{pytz_timezone.zone}']
-#
-#         for part in parts:
-#             part_name = 'DAYLIGHT' if part.is_daylight else 'STANDARD'
-#
-#             lines.append(f'BEGIN:{part_name}')
-#             lines.append(f'TZOFFSETFROM:{cls._offset_as_str(part.tzoffsetfrom)}')
-#             lines.append(f'TZOFFSETTO:{cls._offset_as_str(part.tzoffsetto)}')
-#             lines.append(part.dtstart.strftime('DTSTART:%Y%m%dT%S%H%M'))
-#             lines.extend(
-#                 rdate.strftime('RDATE:%Y%m%dT%S%H%M') for rdate in part.rdatelist
-#             )
-#             lines.append(f'TZNAME:{part.tzname}')
-#             lines.append(f'END:{part_name}')
-#
-#         lines.append('END:VTIMEZONE')
-#
-#         # '\r\n' is standard, '\n' is better
-#         return '\n'.join(lines)
-
-
 # NB: search DST transitions through the zoneinfo API ; probably not efficient at
 # all, & we could use the files used by zoneinfo to find the data we want...
 class ZoneinfoToVtimezone:
