@@ -34,7 +34,6 @@ INV_STATUS_MAP = {
     INV_STATUS_REFUSED:     _('Refused the invitation'),
 }
 
-
 # Presence status
 PRES_STATUS_DONT_KNOW = 1
 PRES_STATUS_COME      = 2

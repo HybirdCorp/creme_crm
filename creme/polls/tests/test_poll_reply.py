@@ -295,7 +295,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             self._build_preply_from_pform_url(pform),
             data={
                 # 'user': self.user.id,
-                'user': pform.user.id,   # TDOO: "user" argument?
+                'user': pform.user.id,   # TODO: "user" argument?
                 'name': name,
             },
         ))
@@ -979,7 +979,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def _aux_test_create_from_person(self, person):
         # user = self.user
-        user = person.user  # TDOO: argument "user"
+        user = person.user  # TODO: argument "user"
 
         url = self._build_preply_from_person_url(person)
         response = self.assertGET200(url)

@@ -97,7 +97,7 @@ class _BillingTestCaseMixin:
             self.assertEqual(getattr(address1, f), getattr(address2, f))
 
     # def create_credit_note(self, name, source, target, currency=None,
-    def create_credit_note(self, *usre, name, source, target, currency=None,
+    def create_credit_note(self, *, name, source, target, currency=None,
                            discount=Decimal(), user=None, status=None):
         # user = user or self.user
         status = status or CreditNoteStatus.objects.all()[0]

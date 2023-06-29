@@ -3,7 +3,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core import get_world_settings_model
+from creme.creme_core import constants, get_world_settings_model
 from creme.creme_core.views.auth import PasswordReset
 
 from .base import ViewsTestCase
@@ -50,7 +50,6 @@ class AuthViewsTestCase(ViewsTestCase):
 
         body = message.body
         self.assertIn(user.username, body)
-        # self.assertIn("L'équipe Hybird", body)  # TODO: setting
 
         confirm_url_prefix = 'http://testserver'
         confirm_url_start_index = body.find(confirm_url_prefix)
@@ -149,7 +148,7 @@ class AuthViewsTestCase(ViewsTestCase):
             follow=True,
             data={
                 # 'old_password': self.password,
-                'old_password': 'root',
+                'old_password': constants.ROOT_PASSWORD,
                 'new_password1': new_password,
                 'new_password2': new_password,
             },

@@ -530,8 +530,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     @skipIfCustomContact
     def test_add_participants01(self):
-        # # user = self.login()
-        user = self.login_as_root_and_get()
+        # user = self.login()
         user = self.login_as_root_and_get()
         activity = self._create_meeting(user=user)
 
@@ -713,8 +712,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomOrganisation
     def test_add_participants07(self):
         "Auto-subject."
-        # # user = self.login()
-        user = self.login_as_root_and_get()
+        # user = self.login()
         user = self.login_as_root_and_get()
         activity = self._create_meeting(user=user)
 
@@ -918,8 +916,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     @skipIfCustomOrganisation
     def test_add_subjects01(self):
-        # # user = self.login()
-        user = self.login_as_root_and_get()
+        # user = self.login()
         user = self.login_as_root_and_get()
 
         activity = self._create_meeting(user=user)

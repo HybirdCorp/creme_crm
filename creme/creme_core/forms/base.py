@@ -362,7 +362,7 @@ class FieldBlockManager:
                     )
 
                 field_block.field_names.extend(block_field_names)
-                if block_layout:  # TODO: 'loyout' property with checking?
+                if block_layout:  # TODO: 'layout' property with checking?
                     field_block.layout = block_layout
             else:
                 field_block = _FieldBlock(

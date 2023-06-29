@@ -116,7 +116,6 @@ class MenuTestCase(CremeTestCase):
         with self.assertRaises(AttributeError):
             entry0.children = [MenuEntry(), MenuEntry()]  # NOQA
 
-        # ctxt = self.build_context()
         ctxt = self.build_context()
         self.assertHTMLEqual(
             '<span class="ui-creme-navigation-text-entry"></span>',
@@ -272,7 +271,6 @@ class MenuTestCase(CremeTestCase):
         with self.assertRaises(ValueError):
             entry01.url  # NOQA
 
-        # ctxt = self.build_context()
         ctxt = self.build_context()
         with self.assertRaises(ValueError):
             entry01.render(ctxt)
@@ -322,7 +320,6 @@ class MenuTestCase(CremeTestCase):
         # self.login()
         self.assertIs(ListviewEntry.single_instance, True)
 
-        # ctxt = self.build_context()
         ctxt = self.build_context()
 
         entry01 = ListviewEntry()

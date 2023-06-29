@@ -1221,7 +1221,7 @@ class HeaderFiltersBrick(PaginatedBrick):
                 this.all_users_hfilters = ()
                 this.owned_hfilters = ()
 
-        # # TODO: factorise with SearchConfigBrick ?
+        # TODO: factorise with SearchConfigBrick ?
         get_ct = ContentType.objects.get_for_model
         user = context['user']
         has_perm = user.has_perm_to_access

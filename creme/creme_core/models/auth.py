@@ -213,9 +213,10 @@ class UserRole(models.Model):
         """Can the given user execute an action (VIEW, CHANGE etc..) on this model.
         @param user: User instance ; user that try to do something.
         @param model: Class inheriting CremeEntity
-        @param owner: User instance ; owner of the not-yet-existing instance of 'model'
-                      None means any user that would allows the action (if it exists of course).
-        @param perm: See EntityCredentials.{VIEW, CHANGE, ...}
+        @param owner: User instance; owner of the not-yet-existing instance of 'model'.
+               None means any user that would be allowed to perform the action
+               (if it exists of course).
+        @param perm: See <EntityCredentials.{VIEW, CHANGE, ...}> .
         """
         return SetCredentials._can_do(self._get_setcredentials(), user, model, owner, perm)
 

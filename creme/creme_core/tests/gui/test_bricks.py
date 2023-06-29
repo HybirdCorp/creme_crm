@@ -608,7 +608,7 @@ class BrickRegistryTestCase(CremeTestCase):
         class BaseFakeContactHatBrick(SimpleBrick):
             template_name = 'creme_core/bricks/fake_contact_hat.html'  # (does not exists)
 
-        # id_ is None -----------
+        # id is None -----------
         class FakeContactHatBrick01(BaseFakeContactHatBrick):
             pass
 
@@ -619,7 +619,7 @@ class BrickRegistryTestCase(CremeTestCase):
                 FakeContact, secondary_brick_classes=[FakeContactHatBrick01],
             )
 
-        # Bad id_ type ------------
+        # Bad id type ------------
         class FakeContactHatBrick02(BaseFakeContactHatBrick):
             # id_ = SimpleBrick.generate_id('creme_core', 'test_get_compatible_hat_bricks03_error')
             id = SimpleBrick.generate_id('creme_core', 'test_get_compatible_hat_bricks03_error')
@@ -629,7 +629,7 @@ class BrickRegistryTestCase(CremeTestCase):
                 FakeContact, secondary_brick_classes=[FakeContactHatBrick02],
             )
 
-        # Duplicated id_ -------------
+        # Duplicated id -------------
         class FakeContactHatBrick03(BaseFakeContactHatBrick):
             # id_ = SimpleBrick._generate_hat_id(
             id = SimpleBrick._generate_hat_id(

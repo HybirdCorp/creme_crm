@@ -106,7 +106,7 @@ class ActivitySubType(CremeModel):
             #     self.id,
             # )
             raise ValueError(
-                f'The ActivitySubType id="{self.id}" is not custom,'
+                f'The ActivitySubType id="{self.id}" is not custom, '
                 f'so the related ActivityType cannot be custom.'
             )
 

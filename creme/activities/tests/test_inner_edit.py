@@ -159,8 +159,7 @@ class ActivityRangeFieldTestCase(FieldTestCase):
 @skipIfCustomActivity
 class ActivityInnerEditionTestCase(_ActivitiesTestCase):
     def test_inner_edit_start_n_end(self):
-        # # user = self.login()
-        user = self.login_as_root_and_get()
+        # user = self.login()
         user = self.login_as_root_and_get()
         activity = self._create_meeting(user=user, busy=True)
 
