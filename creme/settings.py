@@ -1154,7 +1154,7 @@ YUICOMPRESSOR_PATH = join(
     dirname(__file__), 'static', 'utils', 'yui', 'yuicompressor-2.4.2.jar',
 )
 CLOSURE_COMPILER_PATH = join(
-    dirname(__file__), 'static', 'utils', 'closure', 'closure-compiler-v20220905.jar',
+    dirname(__file__), 'static', 'utils', 'closure', 'closure-compiler-v20230502.jar',
 )
 
 COPY_MEDIA_FILETYPES = {
