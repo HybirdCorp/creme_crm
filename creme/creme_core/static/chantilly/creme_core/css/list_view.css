@@ -58,6 +58,7 @@
 
     font-size: 14px;
     font-weight: 600;
+    color: #3f7a91;
 }
 
 .list-control-group .legend img {
@@ -116,8 +117,8 @@
     text-decoration: none;
 
     font-size: 12px;
-    font-weight: 600;
-    color: #333;
+    font-weight: 500;
+    color: #34687e;
     white-space: nowrap;
 
     background: linear-gradient(#f6fcff, #e0f1f7);
@@ -134,23 +135,32 @@
 .list-header-buttons a.with-icon img,
 .list-header-buttons button.with-icon img {
     position: absolute;
-    left: 13px;
+    left: 8px;
     top: 3px;
 }
 
 .list-header-buttons a:hover,
 .list-header-buttons button:enabled:hover {
+/*
     background: linear-gradient(#ffffff, #f3f3f3);
     color: #4d4d4d;
+*/
+    background: linear-gradient(#fbfcfd, #f3f9fb);
+    color: #0089c3;
 }
 
 .list-header-buttons a:active,
 .list-header-buttons button:enabled:active {
-    background: linear-gradient(#f9f9f9, #ededed);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
-    border-bottom-color: #d7d7d7;
-    border-top-color: #bdbdbd;
-    color: #1a1a1a;
+    background: linear-gradient(#d4f1fb, #e7f4fb);
+
+    box-shadow: inset 0 2px 2px #19668033;
+
+    border-top-color: #94b6c5;
+    border-left-color: #94b6c5;
+    border-bottom-color: #fff;
+    border-right-color: #fff;
+
+    color: #1c3b48;
 }
 
 .list-header-buttons a.is-disabled,
@@ -170,9 +180,51 @@
     padding: 0px;
 }
 
+/*
 .listview thead .lines_modifiers > th > table {
     width: 100%;
     border: 0;
+}
+*/
+
+.listview thead tr.lv-columns-header th {
+    padding-top:    5px;
+    padding-bottom: 5px;
+}
+
+.listview thead th.lv-column.hd_cl_lv {
+    padding-left:  5px;
+    padding-right: 30px;
+
+    text-align: left;
+}
+
+.listview thead th.lv-column.hd_cl_lv.right_align {
+/*
+    padding-left: 5px !important;
+    padding-right: 20px !important;
+*/
+    text-align: right;
+}
+
+.listview thead tr.lv-search-header .actions {
+    font-weight: 500;
+    font-style: italic;
+    color: hsla(197, 15%, 50%, 1);
+}
+
+.listview thead th.lv-column.hd_cl_lv input,
+.listview thead th.lv-column.hd_cl_lv select {
+    min-width: 150px;
+    max-width: 300px;
+}
+
+/* .listview thead tr.lv-search-header, */
+.listview thead tr.lv-search-header th {
+    padding-top: 5px !important;
+/*    padding-bottom: 5px !important; */
+
+/*    background: white !important; */
 }
 
 .listview .lv-state-form {
@@ -270,6 +322,9 @@
     margin: 2px;
 
     align-self: center;
+
+    color: #768a93;
+    font-weight: 500;
 }
 
 .listview .lv-search-header .lv-search-daterange input {
@@ -309,7 +364,7 @@
     text-transform: uppercase;
     font-size: 11px;
     font-weight: 600;
-    color: #222;
+    color: #598393;
     padding-left: 1px;
 }
 
@@ -338,7 +393,7 @@
 }
 
 .listview thead .sorted .lv-sort-toggle-title {
-    color: #666;
+    color: #3b606e;
     font-weight: 700;
 }
 
@@ -444,14 +499,16 @@
 
     cursor: pointer;
 
-    font-weight: 600;
-    font-size: 13px;
-    color: #333 !important;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 11px;
+/*    color: #333 !important; */
+    color: #3b606e;
 }
 
 .listview .header-actions-trigger > span {
     position: relative;
-    top: 2px;
+    top: 4px;
     left: -4px;
 }
 
@@ -469,7 +526,7 @@
     left: 100%;
     margin-left: 4px;
 
-    color: #777;
+/*    color: #777; */
     border-bottom: 0;
     border-top: 4px solid currentColor;
 }
@@ -497,7 +554,8 @@
     font-weight: 500;
     font-size: 13px;
     font-style: italic;
-    color: #333 !important;
+/*    color: #333 !important; */
+    color: #3b606e;
 
     text-decoration: none;
     cursor: pointer;
@@ -554,6 +612,54 @@
 }
 
 /* Listview - row and header actions - end */
+
+/* Listview - general cell styling */
+
+.listview td.actions,
+.listview th.actions {
+    width: 125px !important;
+/*
+    padding-left: 10px;
+    padding-right: 10px;
+*/
+}
+
+.listview td.actions {
+    padding-top: 3px !important;
+/*    border-left-color: rgba(84, 130, 149, 0.1) !important; */
+}
+
+/*
+.listview td.choices {
+    padding-top: 7px !important;
+}
+*/
+
+.listview td.choices,
+.listview th.choices {
+    width: 19px !important;
+}
+
+/*
+.listview td.lv-cell,
+.listview td.actions,
+.listview td.choices {
+    vertical-align: top;
+}
+*/
+
+/*
+.listview td.lv-cell {
+    padding-top: 7px !important;
+}
+
+.listview-selection-multiple td.lv-cell:not(:first-child),
+.listview td.lv-cell + td.lv-cell {
+    border-left-color: rgba(84, 130, 149, 0.1) !important;
+}
+*/
+
+/* Listview - general cell styling - end */
 
 /*.listview tbody tr:nth-of-type(odd) { CSS3*/
 .listview tbody tr.odd {
@@ -641,15 +747,8 @@
     word-wrap: break-word;
 }
 
-
 .listview .cl_lv ul {
     padding: 0 0 0 15px;
-}
-
-.listview thead th.lv-column.hd_cl_lv input,
-.listview thead th.lv-column.hd_cl_lv select {
-    min-width: 150px;
-    max-width: 300px;
 }
 
 .listview tbody .lv-cell-content {
@@ -879,9 +978,9 @@
 
 .listview .list-footer-stats,
 .listview .list-footer-page-selector label {
-    color: #444;
+    color: #7c9ead;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 11px;
 }
 
 /* mostly copied from bricks pagination */
