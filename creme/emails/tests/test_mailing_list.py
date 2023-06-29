@@ -56,7 +56,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         return reverse('emails__remove_mlist_from_campaign', args=(campaign.id,))
 
     def test_create(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = reverse('emails__create_mlist')
@@ -81,7 +80,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertTemplateUsed(response3, 'emails/view_mailing_list.html')
 
     def test_edit(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'my_mailinglist'
@@ -102,7 +100,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(name, self.refresh(mlist).name)
 
     def test_listview(self):
-        # self.login()
         self.login_as_root()
         response = self.assertGET200(MailingList.get_lv_absolute_url())
 
@@ -110,7 +107,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             response.context['page_obj']  # NOQA
 
     def test_ml_and_campaign01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         campaign = EmailCampaign.objects.create(user=user, name='camp01')
 
@@ -166,7 +162,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_ml_and_campaign02(self):
         "Remove list from campaign."
-        # user = self.login(is_superuser=False)
         user = self.login_as_emails_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -189,7 +184,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_ml_and_campaign03(self):
         "Not allowed to change the campaign."
-        # user = self.login(is_superuser=False)
         user = self.login_as_emails_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -238,7 +232,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual('\r', detect(['abcdeefgij\r', 'klmonp']))
 
     def test_recipients(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         mlist = MailingList.objects.create(user=user, name='ml01')
@@ -297,7 +290,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         '\r',    # Old Mac EOF
     ])
     def test_add_recipients_from_csv(self, end):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         mlist = MailingList.objects.create(user=user, name='ml01')
@@ -323,14 +315,12 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_recipients_error(self):
         "Not a MailingList."
-        # user = self.login()
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(reverse('emails__add_recipients', args=(orga.id,)))
 
     @skipIfCustomContact
     def test_ml_contacts01(self):
-        # user = self.login(is_superuser=False, allowed_apps=('emails', 'persons'))
         user = self.login_as_emails_user(allowed_apps=('persons',))
         SetCredentials.objects.create(
             role=user.role,
@@ -389,7 +379,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     def test_ml_contacts02(self):
         "'email' is hidden."
-        # user = self.login()
         user = self.login_as_root_and_get()
         mlist = MailingList.objects.create(user=user, name='ml01')
 
@@ -401,7 +390,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_ml_contacts03(self):
         "Not a MailingList."
-        # user = self.login()
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(self._build_addcontact_url(orga))
@@ -409,7 +397,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     def test_ml_contacts_filter01(self):
         "'All' filter."
-        # user = self.login()
         user = self.login_as_root_and_get()
         mlist = MailingList.objects.create(user=user, name='ml01')
         url = self._build_addcontactfilter_url(mlist)
@@ -437,7 +424,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     def test_ml_contacts_filter02(self):
         "With a real EntityFilter."
-        # user = self.login()
         user = self.login_as_root_and_get()
         create = partial(Contact.objects.create, user=user)
         recipients = [
@@ -490,7 +476,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     def test_ml_contacts_filter03(self):
         "'email' is hidden."
-        # user = self.login()
         user = self.login_as_root_and_get()
         mlist = MailingList.objects.create(user=user, name='ml01')
         FieldsConfig.objects.create(
@@ -501,7 +486,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_ml_contacts_filter04(self):
         "Not a MailingList."
-        # user = self.login()
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(self._build_addcontactfilter_url(orga))
@@ -509,7 +493,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     def test_ml_contacts_rm(self):
         "Not allowed to change the list."
-        # user = self.login(is_superuser=False, allowed_apps=('emails', 'persons'))
         user = self.login_as_emails_user(allowed_apps=('persons',))
         SetCredentials.objects.create(
             role=user.role,
@@ -531,7 +514,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     @skipIfCustomOrganisation
     def test_ml_orgas01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         mlist = MailingList.objects.create(user=user, name='ml01')
         url = self._build_addorga_url(mlist)
@@ -585,7 +567,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomOrganisation
     def test_ml_orgas02(self):
         "'email' is hidden."
-        # user = self.login()
         user = self.login_as_root_and_get()
         mlist = MailingList.objects.create(user=user, name='ml01')
 
@@ -597,7 +578,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_ml_orgas03(self):
         "Not a MailingList."
-        # user = self.login()
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(self._build_addorga_url(orga))
@@ -605,7 +585,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomOrganisation
     def test_ml_orgas_filter01(self):
         " 'All' filter."
-        # user = self.login()
         user = self.login_as_root_and_get()
         mlist = MailingList.objects.create(user=user, name='ml01')
         url = self._build_addorgafilter_url(mlist)
@@ -632,7 +611,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomOrganisation
     def test_ml_orgas_filter02(self):
         "With a real EntityFilter."
-        # user = self.login()
         user = self.login_as_root_and_get()
         mlist = MailingList.objects.create(user=user, name='ml01')
 
@@ -656,7 +634,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
                 ),
             ],
         )
-        # priv_efilter = create_ef(pk='test-filter_priv', is_private=True, user=self.other_user)
         priv_efilter = create_ef(pk='test-filter_priv', is_private=True, user=self.create_user())
 
         efilter = create_ef(pk='test-filter')
@@ -683,7 +660,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomOrganisation
     def test_ml_orgas_filter03(self):
         "'email' is hidden."
-        # user = self.login()
         user = self.login_as_root_and_get()
         mlist = MailingList.objects.create(user=user, name='ml01')
 
@@ -695,13 +671,11 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_ml_orgas_filter04(self):
         "Not a MailingList."
-        # user = self.login()
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(self._build_addorgafilter_url(orga))
 
     def test_ml_tree01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         create_ml = partial(MailingList.objects.create, user=user)
         mlist01 = create_ml(name='ml01')
@@ -761,7 +735,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertFalse(mlist02.children.exists())
 
     def test_ml_tree02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         create_ml = partial(MailingList.objects.create, user=user)
         mlist01 = create_ml(name='ml01')
@@ -791,7 +764,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_ml_tree03(self):
         "Not a MailingList."
-        # user = self.login()
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='Dojo')
         self.assertGET404(reverse('emails__add_child_mlists', args=(orga.id,)))

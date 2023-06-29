@@ -40,7 +40,6 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def setUp(self):
         super().setUp()
-        # self.login()
         self.login_as_root()
 
     @staticmethod

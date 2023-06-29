@@ -27,8 +27,6 @@ from django.utils.translation import gettext as _
 import creme.creme_core.bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.core.entity_filter import condition_handler, operators
-# from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
-# from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
@@ -50,7 +48,6 @@ from . import (
     get_folder_model,
     menu,
 )
-# from .models import DocumentCategory
 from .models import FolderCategory
 
 logger = logging.getLogger(__name__)
@@ -81,37 +78,6 @@ class Populator(BasePopulator):
                 'is_custom': False,
             },
         )[0]
-
-        # create_folder_cat(
-        #     uuid=constants.UUID_FOLDER_CAT_EMAILS,
-        #     defaults={
-        #         'name': _('Documents received by email'),
-        #         'is_custom': False,
-        #     },
-        # )
-
-        # create_doc_cat = DocumentCategory.objects.get_or_create
-        # create_doc_cat(
-        #     uuid=constants.UUID_DOC_CAT_IMG_PRODUCT,
-        #     defaults={
-        #         'name': _('Product image'),
-        #         'is_custom': False,
-        #     },
-        # )
-        # create_doc_cat(
-        #     uuid=constants.UUID_DOC_CAT_IMG_ORGA,
-        #     defaults={
-        #         'name': _('Organisation logo'),
-        #         'is_custom': False,
-        #     },
-        # )
-        # create_doc_cat(
-        #     uuid=constants.UUID_DOC_CAT_IMG_CONTACT,
-        #     defaults={
-        #         'name': _('Contact photograph'),
-        #         'is_custom': False,
-        #     },
-        # )
 
         # ---------------------------
         user = get_user_model().objects.get_admin()
@@ -173,114 +139,18 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        # common_groups_desc = [
-        #     {
-        #         'name': _('Description'),
-        #         'layout': LAYOUT_DUAL_SECOND,
-        #         'cells': [
-        #             (EntityCellRegularField, {'name': 'description'}),
-        #         ],
-        #     }, {
-        #         'name': _('Custom fields'),
-        #         'layout': LAYOUT_DUAL_SECOND,
-        #         'cells': [
-        #             (
-        #                 EntityCellCustomFormSpecial,
-        #                 {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
-        #             ),
-        #         ],
-        #     },
-        # ]
-        # creation_only_groups_desc = [
-        #     {
-        #         'name': _('Properties'),
-        #         'cells': [
-        #             (
-        #                 EntityCellCustomFormSpecial,
-        #                 {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
-        #             ),
-        #         ],
-        #     }, {
-        #         'name': _('Relationships'),
-        #         'cells': [
-        #             (
-        #                 EntityCellCustomFormSpecial,
-        #                 {'name': EntityCellCustomFormSpecial.RELATIONS},
-        #             ),
-        #         ],
-        #     },
-        # ]
-        # base_folder_groups_desc = [
-        #     {
-        #         'name': _('General information'),
-        #         'layout': LAYOUT_DUAL_FIRST,
-        #         'cells': [
-        #             (EntityCellRegularField, {'name': 'user'}),
-        #             (EntityCellRegularField, {'name': 'title'}),
-        #             (EntityCellRegularField, {'name': 'parent_folder'}),
-        #             (EntityCellRegularField, {'name': 'category'}),
-        #             (
-        #                 EntityCellCustomFormSpecial,
-        #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-        #             ),
-        #         ],
-        #     },
-        #     *common_groups_desc,
-        # ]
-
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.FOLDER_CREATION_CFORM,
-            # groups_desc=[
-            #     *base_folder_groups_desc,
-            #     *creation_only_groups_desc,
-            # ],
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.FOLDER_EDITION_CFORM,
-            # groups_desc=base_folder_groups_desc,
         )
 
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.DOCUMENT_CREATION_CFORM,
-            # groups_desc=[
-            #     {
-            #         'name': _('General information'),
-            #         'layout': LAYOUT_DUAL_FIRST,
-            #         'cells': [
-            #             (EntityCellRegularField, {'name': 'user'}),
-            #             (EntityCellRegularField, {'name': 'title'}),
-            #             (EntityCellRegularField, {'name': 'filedata'}),
-            #             (EntityCellRegularField, {'name': 'linked_folder'}),
-            #             (EntityCellRegularField, {'name': 'categories'}),
-            #             (
-            #                 EntityCellCustomFormSpecial,
-            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-            #             ),
-            #         ],
-            #     },
-            #     *common_groups_desc,
-            #     *creation_only_groups_desc,
-            # ],
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.DOCUMENT_EDITION_CFORM,
-            # groups_desc=[
-            #     {
-            #         'name': _('General information'),
-            #         'layout': LAYOUT_DUAL_FIRST,
-            #         'cells': [
-            #             (EntityCellRegularField, {'name': 'user'}),
-            #             (EntityCellRegularField, {'name': 'title'}),
-            #             (EntityCellRegularField, {'name': 'linked_folder'}),
-            #             (EntityCellRegularField, {'name': 'categories'}),
-            #             (
-            #                 EntityCellCustomFormSpecial,
-            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-            #             ),
-            #         ],
-            #     },
-            #     *common_groups_desc,
-            # ],
         )
 
         # ---------------------------

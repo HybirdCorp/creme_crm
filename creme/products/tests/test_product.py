@@ -52,29 +52,9 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         with self.assertNoException():
             sub_cat.save()
 
-    # def test_subcategories_view(self):
-    #     self.login()
-    #
-    #     self.assertGET404(reverse('products__subcategories', args=(0,)))
-    #
-    #     name1 = 'subcat1'
-    #     name2 = 'subcat2'
-    #     cat = Category.objects.create(name='category', description='description')
-    #
-    #     create_subcat = partial(SubCategory.objects.create, category=cat)
-    #     subcat1 = create_subcat(name=name1, description='description')
-    #     subcat2 = create_subcat(name=name2, description='description')
-    #
-    #     response = self.assertGET200(reverse('products__subcategories', args=(cat.id,)))
-    #     self.assertListEqual(
-    #         [[subcat1.id, name1], [subcat2.id, name2]],
-    #         response.json(),
-    #     )
-
     @skipIfCustomProduct
     def test_detailview01(self):
         "No image."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.all()[0]
@@ -106,7 +86,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
     @skipIfCustomProduct
     def test_detailview02(self):
         "With image."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.all()[0]
@@ -144,7 +123,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     @skipIfCustomProduct
     def test_createview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self.assertEqual(0, Product.objects.count())
@@ -214,7 +192,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         )
         img_1 = create_image(ident=1)
         img_2 = create_image(ident=2)
-        # img_3 = create_image(ident=3, user=self.other_user)
         img_3 = create_image(ident=3, user=self.get_root_user())
 
         self.assertTrue(user.has_perm_to_link(img_1))
@@ -256,7 +233,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     @skipIfCustomProduct
     def test_editview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'Eva00'
@@ -302,7 +278,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     @skipIfCustomProduct
     def test_listview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         cat = Category.objects.all()[0]
@@ -326,7 +301,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertCountEqual(products, products_page.object_list)
 
     def test_delete_category01(self):
-        # self.login()
         self.login_as_root()
 
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
@@ -362,7 +336,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     @skipIfCustomProduct
     def test_delete_category02(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         product, cat, sub_cat = self._build_product_cat_subcat(user=user)
@@ -377,7 +350,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         )
 
     def test_delete_category03(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         product, cat, sub_cat = self._build_product_cat_subcat(user=user)
@@ -392,7 +364,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         )
 
     def test_edit_inner_category(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.order_by('category')[0]
@@ -428,7 +399,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertEqual(next_sub_cat.category, product.category)
 
     def test_update_bulk_category(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.order_by('category')[0]
@@ -472,7 +442,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertEqual(next_sub_cat.category, product2.category)
 
     def test_update_bulk_sub_category(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         sub_cat = SubCategory.objects.order_by('category')[0]
@@ -505,7 +474,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         img_1 = create_image(ident=1)
         img_2 = create_image(ident=2)
         img_3 = create_image(ident=3)
-        # img_4 = create_image(ident=4, user=self.other_user)
         img_4 = create_image(ident=4, user=self.get_root_user())
         self.assertTrue(user.has_perm_to_link(img_1))
         self.assertFalse(user.has_perm_to_link(img_4))
@@ -560,15 +528,12 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     def test_add_images02(self):
         "Related is not a Product."
-        # user = self.login()
         user = self.login_as_root_and_get()
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         self.assertGET404(reverse('products__add_images_to_product', args=(rei.id,)))
 
     def test_remove_image(self):
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['documents', 'products'],
             creatable_models=[get_document_model()],
         )
@@ -611,7 +576,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     def test_mass_import01(self):
         "Categories not in CSV."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         count = Product.objects.count()
@@ -701,8 +665,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self._assertNoResultError(results)
 
     def test_mass_import02(self):
-        "Categories in CSV ; no creation"
-        # user = self.login()
+        "Categories in CSV; no creation."
         user = self.login_as_root_and_get()
         count = Product.objects.count()
 
@@ -850,8 +813,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         )
 
     def test_mass_import03(self):
-        "Categories in CSV ; creation of Category/SubCategory"
-        # user = self.login()
+        "Categories in CSV; creation of Category/SubCategory."
         user = self.login_as_root_and_get()
         count = Product.objects.count()
 
@@ -950,9 +912,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
     def test_mass_import04(self):
         "Categories in CSV; want to create Category but not it is allowed."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['products', 'documents'],
             creatable_models=[Product, get_document_model()],
         )

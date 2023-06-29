@@ -183,9 +183,7 @@ class GraphInstanceBrickForm(CremeModelForm):
         extra_items = dict(fetcher.as_dict_items())
 
         for ibci in InstanceBrickConfigItem.objects.filter(
-            entity=graph.id,
-            # brick_class_id=self.brick_class.id_,
-            brick_class_id=self.brick_class.id,
+            entity=graph.id, brick_class_id=self.brick_class.id,
         ):
             if extra_items == dict(ibci.extra_data_items):
                 raise ValidationError(
@@ -197,7 +195,6 @@ class GraphInstanceBrickForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         ibci: InstanceBrickConfigItem = self.instance
-        # ibci.brick_class_id = self.brick_class.id_
         ibci.brick_class_id = self.brick_class.id
         ibci.entity = self.graph
 

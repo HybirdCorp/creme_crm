@@ -23,7 +23,6 @@ from ..base import CremeTestCase
 # TODO: to be completed
 class CremeListViewTagsTestCase(CremeTestCase):
     def test_listview_pager_slow(self):
-        # user = self.login()
         user = self.get_root_user()
 
         for i in range(1, 20):
@@ -59,7 +58,6 @@ class CremeListViewTagsTestCase(CremeTestCase):
         )
 
     def test_listview_pager_fast(self):
-        # user = self.login()
         user = self.get_root_user()
 
         for i in range(1, 20):
@@ -98,7 +96,6 @@ class CremeListViewTagsTestCase(CremeTestCase):
         )
 
     def test_listview_header_filters01(self):
-        # user = self.login()
         user = self.get_root_user()
 
         ctype = ContentType.objects.get_for_model(FakeMailingList)
@@ -133,9 +130,7 @@ class CremeListViewTagsTestCase(CremeTestCase):
         self.assertFalse([*ctxt.get('other_header_filters')])
 
     def test_listview_header_filters02(self):
-        # user = self.login()
         user = self.get_root_user()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         ctype = ContentType.objects.get_for_model(FakeMailingList)

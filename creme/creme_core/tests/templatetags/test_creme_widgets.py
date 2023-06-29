@@ -112,10 +112,8 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
     def test_widget_entity_hyperlink02(self):
         "Credentials."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
-        # orga = FakeOrganisation.objects.create(user=self.other_user, name='NERV')
         orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='NERV')
         self.assertFalse(user.has_perm_to_view(orga))
 

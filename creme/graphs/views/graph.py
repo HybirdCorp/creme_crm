@@ -16,16 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-# from django.shortcuts import render
-# from django.shortcuts import get_object_or_404
-# from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.auth.decorators import (
-#     login_required,
-#     permission_required,
-# )
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
@@ -34,37 +26,6 @@ from ..constants import DEFAULT_HFILTER_GRAPH
 from ..forms.graph import AddRelationTypesForm
 
 Graph = get_graph_model()
-
-
-# @login_required
-# @permission_required('graphs')
-# def dl_png(request, graph_id):
-#     warnings.warn(
-#         'The view graphs.views.graph.dl_png() is deprecated.', DeprecationWarning,
-#     )
-#
-#     graph = get_object_or_404(Graph, pk=graph_id)
-#     user = request.user
-#
-#     user.has_perm_to_view_or_die(graph)
-#
-#     try:
-#         return graph.generate_png(user)
-#     except ImportError:
-#         return render(
-#             request, 'graphs/graph_error.html',
-#             {
-#                 'error_message': gettext(
-#                     'The package "pygraphviz" is not installed ; '
-#                     'please contact your administrator.'
-#                 ),
-#             },
-#         )
-#     except Graph.GraphException:
-#         return render(
-#             request, 'graphs/graph_error.html',
-#             {'error_message': gettext('This graph is too big!')},
-#         )
 
 
 class RelationTypeRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):

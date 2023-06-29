@@ -30,7 +30,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_persons(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -47,7 +46,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         create_fav(entity=may)
         create_fav(entity=joe)
         create_fav(entity=kof)
-        # create_fav(entity=terry, user=self.other_user)
         create_fav(entity=terry, user=self.create_user())
 
         response = self.assertGET200(self.PERSONS_PORTAL_URL)
@@ -67,7 +65,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_create_contact01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = self.CREATE_CONTACT_URL
@@ -102,7 +99,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_create_contact02(self):
-        # self.login()
         user = self.login_as_root_and_get()
         first_name = 'May'
         last_name = 'Shiranui'
@@ -118,7 +114,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         phone = '111111'
         mobile = '222222'
         email = 'may.shiranui@kof.org'
-        # other_user = self.other_user
         other_user = self.create_user()
         response = self.assertPOST200(
             url,
@@ -156,7 +151,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_create_contact03(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'HP'
@@ -212,7 +206,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
 
     def test_create_contact_error02(self):
         "Not allowed."
-        # self.login(is_superuser=False, creatable_models=[Organisation])
         self.login_as_mobile_user(creatable_models=[Organisation])
 
         response = self.assertGET403(self.CREATE_CONTACT_URL)
@@ -224,13 +217,11 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
 
     def test_create_contact_error03(self):
         "Not super-user."
-        # self.login(is_superuser=False, creatable_models=[Contact])
         self.login_as_mobile_user(creatable_models=[Contact])
         self.assertGET200(self.CREATE_CONTACT_URL)
 
     @skipIfCustomOrganisation
     def test_create_orga01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = self.CREATE_ORGA_URL
@@ -258,10 +249,8 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_create_orga02(self):
-        # self.login()
         user = self.login_as_root_and_get()
         name = 'Fatal Fury Inc.'
-        # other_user = self.other_user
         other_user = self.create_user()
 
         url = self.CREATE_ORGA_URL
@@ -288,7 +277,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_create_orga03(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         cf_name = 'Prize'
@@ -341,7 +329,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         self.assertRedirects(response, '{}?next={}'.format(reverse('mobile__login'), url))
 
     def test_create_orga_error02(self):
-        # self.login(is_superuser=False, creatable_models=[Contact])
         self.login_as_mobile_user(creatable_models=[Contact])
 
         response = self.assertGET403(self.CREATE_ORGA_URL)
@@ -352,7 +339,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         )
 
     def test_search_persons01(self):
-        # self.login()
         self.login_as_root()
         url = self.SEARCH_PERSON_URL
 
@@ -372,7 +358,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
 
     @skipIfCustomContact
     def test_search_persons02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -395,7 +380,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
     @skipIfCustomOrganisation
     def test_search_persons03(self):
         "Search in organisations which employ ('employed by')."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -425,7 +409,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
     @skipIfCustomOrganisation
     def test_search_persons04(self):
         "Search in organisations which employ ('managed by')."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -449,7 +432,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
 
     @skipIfCustomContact
     def test_mark_as_favorite(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         may = Contact.objects.create(
             user=user, first_name='May', last_name='Shiranui',
@@ -466,7 +448,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
 
     @skipIfCustomContact
     def test_unmark_favorite(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         may = Contact.objects.create(
             user=user, first_name='May', last_name='Shiranui',
@@ -481,7 +462,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
 
     @skipIfCustomContact
     def test_favorite_brick01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         may = Contact.objects.create(
             user=user, first_name='May', last_name='Shiranui',
@@ -516,12 +496,10 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
     @skipIfCustomContact
     def test_favorite_brick02(self):
         "Favorite of another user."
-        # user = self.login()
         user = self.login_as_root_and_get()
         may = Contact.objects.create(
             user=user, first_name='May', last_name='Shiranui',
         )
-        # MobileFavorite.objects.create(entity=may, user=self.other_user)
         MobileFavorite.objects.create(entity=may, user=self.create_user())
 
         BrickDetailviewLocation.objects.create_if_needed(
@@ -547,7 +525,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
     @skipIfCustomOrganisation
     def test_favorite_brick03(self):
         "Organisation case."
-        # user = self.login()
         user = self.login_as_root_and_get()
         kof = Organisation.objects.create(user=user, name='KingOfFighters')
         MobileFavorite.objects.create(entity=kof, user=user)

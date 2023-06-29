@@ -10,7 +10,6 @@ from .base import EmailTemplate, _EmailsTestCase, skipIfCustomEmailTemplate
 
 class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_brick(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_emails_user()
 
         signature = EmailSignature.objects.create(
@@ -36,7 +35,6 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
     def test_create(self):
-        # self.login(is_superuser=False)
         user = self.login_as_emails_user()
         self.assertFalse(EmailSignature.objects.count())
 
@@ -55,14 +53,12 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(0,    signature.images.count())
 
     def test_create_not_allowed(self):
-        # self.login(is_superuser=False, allowed_apps=['persons'])
         self.login_as_standard(allowed_apps=['persons'])
         self.assertGET403(reverse('emails__create_signature'))
 
     # TODO: create with images....
 
     def test_edit01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'Funny signature'
@@ -92,22 +88,18 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_edit02(self):
         "'perm' error."
-        # self.login(is_superuser=False)
         self.login_as_emails_user()
 
         signature = EmailSignature.objects.create(
-            # user=self.other_user, name='Funny signature', body='I love you... not',
             user=self.get_root_user(), name='Funny signature', body='I love you... not',
         )
         self.assertGET403(signature.get_edit_absolute_url())
 
     def test_edit03(self):
         "Superuser can edit all signatures."
-        # self.login()
         self.login_as_root()
 
         signature = EmailSignature.objects.create(
-            # user=self.other_user, name='Funny signature', body='I love you... not',
             user=self.create_user(), name='Funny signature', body='I love you... not',
         )
         self.assertGET200(signature.get_edit_absolute_url())
@@ -118,7 +110,6 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
     def test_delete01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         signature = EmailSignature.objects.create(
@@ -129,11 +120,9 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_delete02(self):
         "'perm' error."
-        # self.login(is_superuser=False)
         self.login_as_emails_user()
 
         signature = EmailSignature.objects.create(
-            # user=self.other_user, name="Spike's one", body='See U space cowboy',
             user=self.get_root_user(), name="Spike's one", body='See U space cowboy',
         )
         self.assertEqual(403, self._delete(signature).status_code)
@@ -142,7 +131,6 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomEmailTemplate
     def test_delete03(self):
         "Dependencies problem."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         signature = EmailSignature.objects.create(

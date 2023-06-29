@@ -42,10 +42,3 @@ class Restrict2SuperusersButton(Button):
         context['UUID_SANDBOX_SUPERUSERS'] = UUID_SANDBOX_SUPERUSERS
 
         return context
-
-    # def render(self, context):
-    #     sandbox = context['object'].sandbox
-    #     context['sandbox_uuid'] = str(sandbox.uuid) if sandbox else None
-    #     context['UUID_SANDBOX_SUPERUSERS'] = UUID_SANDBOX_SUPERUSERS
-    #
-    #     return super().render(context)

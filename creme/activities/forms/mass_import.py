@@ -24,7 +24,6 @@ from functools import partial
 from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
 from django.forms import Field
-# from django.forms.widgets import Select
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
@@ -38,7 +37,6 @@ from creme.creme_core.forms.mass_import import (
 from creme.creme_core.forms.widgets import PrettySelect
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils import as_int
-# from creme.creme_core.utils.dates import make_aware_dt
 from creme.persons.models import Civility
 
 from .. import constants
@@ -56,13 +54,6 @@ MODE_SPLITTEDCOLUMN = 2
 # Maximum of CremeEntities that can be retrieved in _one_ search for Participants/Subjects
 # (more means that there is a big problem with the file, & no CremeEntity is created)
 MAX_RELATIONSHIPS = 5
-
-
-# def as_int(value, default=0):
-#     try:
-#         return int(value)
-#     except (ValueError, TypeError):
-#         return default
 
 
 class RelatedExtractor:
@@ -579,10 +570,6 @@ class SubjectsExtractorField(Field):
 # Main -------------------------------------------------------------------------
 def get_massimport_form_builder(header_dict, choices):
     class ActivityMassImportForm(ImportForm4CremeEntity):
-        # type_selector = ActivityTypeField(
-        #     label=_('Type'),
-        #     types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
-        # )
         type_selector = ActivitySubTypeField(
             label=_('Type'), limit_choices_to=~Q(type__id=constants.ACTIVITYTYPE_INDISPO),
         )
@@ -640,8 +627,6 @@ def get_massimport_form_builder(header_dict, choices):
                 null_time = time(0)
 
                 if start.time() == null_time and (not end or end.time() == null_time):
-                    # instance.end = make_aware_dt(
-                    #     datetime.combine(start, time(hour=23, minute=59)))
                     instance.end = make_aware(datetime.combine(start, time(hour=23, minute=59)))
                     instance.floating_type = constants.FLOATING_TIME
                 elif not end:
@@ -692,10 +677,6 @@ def get_massimport_form_builder(header_dict, choices):
 
                 instance.calendars.add(calendar)
 
-            # i_participate, my_calendar = cdata['my_participation']
-            # if i_participate:
-            #     add_participant(self.user.linked_contact)
-            #     instance.calendars.add(my_calendar)
             my_participation = cdata['my_participation']
             if my_participation.is_set:
                 add_participant(self.user.linked_contact)

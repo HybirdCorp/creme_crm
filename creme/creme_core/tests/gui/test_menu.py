@@ -59,7 +59,6 @@ class MenuTestCase(CremeTestCase):
         self.user = None
 
     def _build_context(self, user=None):
-        # user = user or self.user
         user = user or self.get_root_user()
 
         return {
@@ -70,7 +69,6 @@ class MenuTestCase(CremeTestCase):
         }
 
     def test_entry(self):
-        # self.login()
         self.assertEqual('Add an entry', MenuEntry.creation_label)
         self.assertIs(MenuEntry.single_instance, False)
         self.assertIs(MenuEntry.accepts_children, False)
@@ -191,7 +189,6 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_url_entry01(self):
-        # self.login(is_superuser=False)
         user = self.login_as_standard()
         self.assertIs(FixedURLEntry.single_instance, True)
 
@@ -216,7 +213,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_url_entry02(self):
         "With permissions OK."
-        # self.login(is_superuser=False, admin_4_apps=['creme_config'])
         user = self.login_as_standard(admin_4_apps=['creme_config'])
 
         entry_label = 'Home'
@@ -240,7 +236,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_url_entry03(self):
         "With permissions KO."
-        # self.login(is_superuser=False)
         user = self.login_as_standard()
 
         entry_label = 'Home'
@@ -262,7 +257,6 @@ class MenuTestCase(CremeTestCase):
         self.assertHTMLEqual(expected, TestEntry02().render(ctxt))
 
     def test_creation_entry01(self):
-        # self.login()
         self.assertIs(CreationEntry.single_instance, True)
 
         entry01 = CreationEntry()
@@ -294,7 +288,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_creation_entry02(self):
         "Not super-user, but allowed."
-        # self.login(is_superuser=False, creatable_models=[FakeContact])
         user = self.login_as_standard(creatable_models=[FakeContact])
 
         self.assertHTMLEqual(
@@ -306,7 +299,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_creation_entry03(self):
         "Not allowed."
-        # self.login(is_superuser=False)  # creatable_models=[FakeContact]
         user = self.login_as_standard()  # creatable_models=[FakeContact]
 
         self.assertHTMLEqual(
@@ -317,7 +309,6 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_listview_entry01(self):
-        # self.login()
         self.assertIs(ListviewEntry.single_instance, True)
 
         ctxt = self._build_context()
@@ -346,7 +337,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_listview_entry02(self):
         "Not super-user, but allowed."
-        # self.login(is_superuser=False)
         user = self.login_as_standard()
 
         self.assertHTMLEqual(
@@ -356,7 +346,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_listview_entry03(self):
         "Not allowed."
-        # self.login(is_superuser=False, allowed_apps=['creme_config'])
         user = self.login_as_standard(allowed_apps=['creme_config'])
 
         self.assertHTMLEqual(
@@ -367,7 +356,6 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_container_entry01(self):
-        # self.login()
         self.assertIs(ContainerEntry.single_instance, False)
         self.assertIs(ContainerEntry.accepts_children, True)
 
@@ -430,8 +418,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_container_entry02(self):
         "MenuEntrySequence."
-        # self.login()
-
         class SubEntry1(MenuEntry):
             id = 'creme_core-test1'
             label = 'Foo'
@@ -474,7 +460,6 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_separator0_entry(self):
-        # self.login()
         self.assertIs(Separator0Entry.single_instance, False)
 
         entry = Separator0Entry()
@@ -486,7 +471,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_separator1_entry01(self):
         "Empty label."
-        # self.login()
         self.assertEqual(_('Add a separator'), Separator1Entry.creation_label)
         self.assertIs(Separator1Entry.single_instance, False)
 
@@ -500,8 +484,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_separator1_entry02(self):
         "With label."
-        # self.login()
-
         label = 'My group'
         entry = Separator1Entry(data={'label': label})
         self.assertEqual(label, entry.label)
@@ -511,7 +493,6 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_custom_url_entry01(self):
-        # self.login()
         label = 'Python'
         url = 'http://www.python.org'
 
@@ -559,8 +540,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_custom_url_entry02(self):
         "No data."
-        # self.login()
-
         label = 'Python'
         entry = CustomURLEntry(data={'label': label})
         self.assertEqual(label, entry.label)
@@ -574,15 +553,12 @@ class MenuTestCase(CremeTestCase):
 
     def test_custom_url_entry03(self):
         "No url."
-        # self.login()
-
         label = 'Python'
         entry = CustomURLEntry(data={'label': label, 'foo': 'bar'})
         self.assertEqual(label, entry.label)
         self.assertEqual('', entry.url)
 
     def test_home_entry(self):
-        # self.login()
         self.assertTrue(HomeEntry.single_instance)
 
         entry = HomeEntry()
@@ -602,7 +578,6 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_jobs_entry(self):
-        # self.login()
         self.assertTrue(JobsEntry.single_instance)
 
         entry = JobsEntry()
@@ -622,7 +597,6 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_trash_entry(self):
-        # user = self.login()
         user = self.get_root_user()
         self.assertTrue(TrashEntry.single_instance)
 
@@ -651,12 +625,10 @@ class MenuTestCase(CremeTestCase):
             f'{count_label}'
             f'<span class="ui-creme-navigation-punctuation">)</span>'
             f'</a>',
-            # entry.render(self._build_context()),
             entry.render(self._build_context(user=user)),
         )
 
     def test_logout_entry(self):
-        # self.login()
         self.assertTrue(LogoutEntry.single_instance)
 
         entry = LogoutEntry()
@@ -666,7 +638,6 @@ class MenuTestCase(CremeTestCase):
 
     @override_settings(SOFTWARE_LABEL='Creme')
     def test_creme_entry01(self):
-        # self.login()
         self.assertTrue(CremeEntry.single_instance)
 
         label = 'Creme'
@@ -714,12 +685,10 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual('My amazing CRM', CremeEntry().label)
 
     def test_recent_entities_entry01(self):
-        # user = self.login()
         user = self.get_root_user()
         self.assertTrue(RecentEntitiesEntry.single_instance)
 
         contact1 = user.linked_contact
-        # contact2 = self.other_user.linked_contact
         contact2 = FakeContact.objects.create(
             user=user, first_name='Kirika', last_name='Yumura',
         )
@@ -759,7 +728,6 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_recent_entities_entry02(self):
-        # self.login()
         entry = RecentEntitiesEntry()
 
         entry_label = _('Recent entities')
@@ -775,7 +743,6 @@ class MenuTestCase(CremeTestCase):
         )
 
     def test_quick_forms_entries(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
         seq = QuickFormsEntries()
@@ -1345,7 +1312,6 @@ class MenuTestCase(CremeTestCase):
 
     def test_creation_forms_entry07(self):
         "Credentials."
-        # user = self.login(is_superuser=False, creatable_models=[FakeContact])
         user = self.login_as_standard(creatable_models=[FakeContact])
         entry = EntitiesCreationEntry()
         registry = entry.creation_menu_registry = CreationMenuRegistry()

@@ -167,7 +167,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
 
     def test_detailview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         title = 'Test ticket'
@@ -215,12 +214,10 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         )
 
     def test_detailview02(self):
-        # self.login()
         self.login_as_root()
         self.assertGET404(reverse('tickets__view_ticket', args=(self.UNUSED_PK,)))
 
     def test_createview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self.assertEqual(0, Ticket.objects.count())
@@ -260,13 +257,11 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
         self.assertIsNotNone(funf)
-        # self.assertEqual('', funf(ticket, user).for_html())
         self.assertEqual('', funf(ticket, user).render(ViewTag.HTML_LIST))
 
         self.assertRedirects(response, ticket.get_absolute_url())
 
     def test_number(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self.assertFalse(TicketNumber.objects.all())
@@ -288,7 +283,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
 
     def test_get_resolving_duration01(self):
         "Resolving duration with CLOSED_PK + closing_date=None (e.g. CSV import)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         get_status = Status.objects.get
@@ -303,7 +297,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertIsNone(ticket.closing_date)
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
-        # self.assertEqual('', funf(ticket, user).for_html())
         self.assertEqual('', funf(ticket, user).render(ViewTag.HTML_LIST))
 
         ticket.status = get_status(pk=CLOSED_PK)
@@ -311,13 +304,11 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
         self.assertEqual(
             timedelta_pprint(ticket.closing_date - ticket.created),
-            # funf(ticket, user).for_html(),
             funf(ticket, user).render(ViewTag.HTML_LIST),
         )
 
     def test_get_resolving_duration02(self):
         "Resolving duration with CLOSED_PK + closing_date=None (e.g. CSV import)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         ticket = Ticket.objects.create(
@@ -330,11 +321,9 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         )
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
-        # self.assertEqual('?', funf(ticket, user).for_html())
         self.assertEqual('?', funf(ticket, user).render(ViewTag.HTML_LIST))
 
     def test_editview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         ticket = Ticket.objects.create(
@@ -378,7 +367,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertRedirects(response, ticket.get_absolute_url())
 
     def test_editview02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         title = 'Test ticket'
@@ -415,12 +403,10 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertTrue(ticket.closing_date)
 
         ffield = function_field_registry.get(Ticket, 'get_resolving_duration')(ticket, user)
-        # self.assertTrue(ffield.for_html())
         self.assertTrue(ffield.render(ViewTag.HTML_LIST))
 
     def test_editview03(self):
         "Custom closing status."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         status = Status.objects.create(
@@ -456,11 +442,9 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertTrue(ticket.closing_date)
 
         ffield = function_field_registry.get(Ticket, 'get_resolving_duration')(ticket, user)
-        # self.assertTrue(ffield.for_html())
         self.assertTrue(ffield.render(ViewTag.HTML_LIST))
 
     def test_listview01(self):
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET200(Ticket.get_lv_absolute_url())
@@ -472,7 +456,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertFalse(tickets_page.paginator.count)
 
     def test_listview02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         Ticket.objects.create(
@@ -493,7 +476,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         ticket = Ticket.objects.create(
@@ -521,7 +503,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
 
     def test_clone(self):
         "The cloned ticket is open."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         get_status = Status.objects.get
@@ -547,7 +528,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertIsNone(clone.closing_date)
 
     def test_delete_status(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         status2 = Status.objects.first()
@@ -581,7 +561,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertEqual(status2, ticket.status)
 
     def test_delete_priority(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         priority2 = Priority.objects.first()
@@ -616,7 +595,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertEqual(priority2, ticket.priority)
 
     def test_delete_criticity(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         criticity2 = Criticity.objects.first()
@@ -651,7 +629,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertEqual(criticity2, ticket.criticity)
 
     def test_mass_import(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         count = Ticket.objects.count()
@@ -728,7 +705,6 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
 
     @override_settings(TICKETS_COLOR_DELAY=7)
     def test_ticket_color(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         get_status = Status.objects.get
         create_ticket = partial(
@@ -758,12 +734,10 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
 
 @skipIfCustomTicketTemplate
 class TicketTemplateTestCase(CremeTestCase):
-    # def create_template(self, title, description='description', status=None):
     def create_template(self, *, user, title, description='description', status=None):
         status = status or Status.objects.get(pk=OPEN_PK)
 
         return TicketTemplate.objects.create(
-            # user=self.user,
             user=user,
             title=title,
             description=description,
@@ -773,12 +747,10 @@ class TicketTemplateTestCase(CremeTestCase):
         )
 
     def test_detailview(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self.assertGET200(self.create_template(user=user, title='Title').get_absolute_url())
 
     def test_edit(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         title = 'Title'
@@ -814,7 +786,6 @@ class TicketTemplateTestCase(CremeTestCase):
         self.assertEqual(criticity,   template.criticity)
 
     def test_listview(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         self.create_template(user=user, title='Title01')
@@ -823,7 +794,6 @@ class TicketTemplateTestCase(CremeTestCase):
 
     @skipIfCustomTicket
     def test_create_entity01(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         template = self.create_template(
@@ -843,7 +813,6 @@ class TicketTemplateTestCase(CremeTestCase):
     @skipIfCustomTicket
     def test_create_entity02(self):
         "status=CLOSED_PK."
-        # self.login()
         user = self.login_as_root_and_get()
         template = self.create_template(
             user=user, title='Title', status=Status.objects.get(pk=CLOSED_PK),
@@ -862,7 +831,6 @@ class TicketTemplateTestCase(CremeTestCase):
     @skipIfCustomTicket
     def test_create_entity03(self):
         "Several generations -> 'title' column must be unique."
-        # self.login()
         user = self.login_as_root_and_get()
 
         self.assertFalse(Ticket.objects.count())
@@ -878,7 +846,6 @@ class TicketTemplateTestCase(CremeTestCase):
     @skipIfCustomTicket
     def test_create_entity04(self):
         "Custom closing status."
-        # self.login()
         user = self.login_as_root_and_get()
 
         status = Status.objects.create(
@@ -899,7 +866,6 @@ class TicketTemplateTestCase(CremeTestCase):
 
     def test_multi_delete(self):
         "Should not delete."
-        # self.login()
         user = self.login_as_root_and_get()
 
         template01 = self.create_template(user=user, title='Title01')

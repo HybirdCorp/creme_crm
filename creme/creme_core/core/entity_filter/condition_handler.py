@@ -52,7 +52,6 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.models.custom_field import _TABLES
 from creme.creme_core.utils.date_range import date_range_registry
-# from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.utils.dates import date_2_dict
 from creme.creme_core.utils.meta import FieldInfo, is_date_field
 
@@ -465,7 +464,6 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         try:
             # TODO: cast more values (e.g. integers instead of "digit" string)
             values = operator_obj.validate_field_values(
-                # field=finfo[-1], values=values, user=user,
                 field=field, values=values, user=user,
                 efilter_registry=cls.efilter_registry,
             )
@@ -696,7 +694,6 @@ class DateFieldHandlerMixin:
                         f'{cls.__name__}._load_daterange_kwargs() -> '
                         f'invalid data for date ({e})')
                 else:
-                    # kwargs[key] = make_aware_dt(dt)
                     kwargs[key] = make_aware(dt)
 
         return kwargs

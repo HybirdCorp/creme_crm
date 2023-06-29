@@ -27,7 +27,6 @@ from creme.creme_core.gui.fields_config import fields_config_registry
 from creme.creme_core.models import CremeEntity, FieldsConfig
 
 
-# class FieldsConfigAddForm(CremeModelForm):
 class FieldsConfigCreationForm(CremeModelForm):
     ctype = core_fields.CTypeChoiceField(
         label=_('Related resource'),
@@ -103,7 +102,6 @@ class FieldsConfigCreationForm(CremeModelForm):
         return self.instance
 
 
-# class FieldsConfigEditForm(CremeModelForm):
 class FieldsConfigEditionForm(CremeModelForm):
     blocks = FieldBlockManager({
         'id': 'general', 'label': _('Fields to hide or mark as required'), 'fields': '*',

@@ -67,7 +67,6 @@ class _RelatedToOpportunity:
 
 
 class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
-    # id_ = Brick._generate_hat_id('opportunities', 'opportunity_card')
     id = Brick._generate_hat_id('opportunities', 'opportunity_card')
     verbose_name = _('Card header block')
     dependencies = [
@@ -176,7 +175,6 @@ class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
 
 
 class LinkedContactsBrick(_LinkedStuffBrick):
-    # id_ = QuerysetBrick.generate_id('opportunities', 'linked_contacts')
     id = _LinkedStuffBrick.generate_id('opportunities', 'linked_contacts')
     verbose_name = _('Linked Contacts')
     description = _(
@@ -197,7 +195,6 @@ class LinkedContactsBrick(_LinkedStuffBrick):
 
 
 class LinkedProductsBrick(_LinkedStuffBrick):
-    # id_ = QuerysetBrick.generate_id('opportunities', 'linked_products')
     id = _LinkedStuffBrick.generate_id('opportunities', 'linked_products')
     verbose_name = _('Related products')
     description = _(
@@ -212,7 +209,6 @@ class LinkedProductsBrick(_LinkedStuffBrick):
 
 
 class LinkedServicesBrick(_LinkedStuffBrick):
-    # id_ = QuerysetBrick.generate_id('opportunities', 'linked_services')
     id = _LinkedStuffBrick.generate_id('opportunities', 'linked_services')
     verbose_name = _('Related services')
     description = _(
@@ -227,7 +223,6 @@ class LinkedServicesBrick(_LinkedStuffBrick):
 
 
 class BusinessManagersBrick(_LinkedStuffBrick):
-    # id_ = QuerysetBrick.generate_id('opportunities', 'responsibles')
     id = _LinkedStuffBrick.generate_id('opportunities', 'responsibles')
     verbose_name = _('Business managers')
     description = _(
@@ -248,9 +243,7 @@ class BusinessManagersBrick(_LinkedStuffBrick):
     ]
 
 
-# class TargettingOpportunitiesBrick(QuerysetBrick):
 class TargetingOpportunitiesBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('opportunities', 'target_organisations')
     id = _LinkedStuffBrick.generate_id('opportunities', 'target_organisations')
     verbose_name = _('Opportunities which target the Organisation / Contact')
     description = _(
@@ -289,7 +282,6 @@ class TargetingOpportunitiesBrick(QuerysetBrick):
 
 
 class OppTotalBrick(SimpleBrick):
-    # id_ = SimpleBrick.generate_id('opportunities', 'total')
     id = SimpleBrick.generate_id('opportunities', 'total')
     verbose_name = _('Totals')
     description = _(
@@ -304,7 +296,6 @@ class OppTotalBrick(SimpleBrick):
 
 
 class OppTargetBrick(Brick):
-    # id_ = Brick.generate_id('opportunities', 'target')
     id = Brick.generate_id('opportunities', 'target')
     verbose_name = _('Target and source')
     description = _(
@@ -355,7 +346,6 @@ if apps.is_installed('creme.billing'):
     SalesOrder = billing.get_sales_order_model()
 
     class QuotesBrick(_LinkedStuffBrick):
-        # id_ = QuerysetBrick.generate_id('opportunities', 'quotes')
         id = _LinkedStuffBrick.generate_id('opportunities', 'quotes')
         verbose_name = _('Quotes linked to the opportunity')
         description = _(
@@ -372,7 +362,6 @@ if apps.is_installed('creme.billing'):
         exclude_deleted = False
 
     class SalesOrdersBrick(_LinkedStuffBrick):
-        # id_ = QuerysetBrick.generate_id('opportunities', 'sales_orders')
         id = _LinkedStuffBrick.generate_id('opportunities', 'sales_orders')
         verbose_name = _('Salesorders linked to the opportunity')
         dependencies = (Relation, SalesOrder)
@@ -386,7 +375,6 @@ if apps.is_installed('creme.billing'):
         order_by = 'name'
 
     class InvoicesBrick(_LinkedStuffBrick):
-        # id_ = QuerysetBrick.generate_id('opportunities', 'invoices')
         id = _LinkedStuffBrick.generate_id('opportunities', 'invoices')
         verbose_name = _('Invoices linked to the opportunity')
         dependencies = (Relation, Invoice)

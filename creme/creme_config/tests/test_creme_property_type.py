@@ -18,7 +18,6 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         return reverse('creme_config__edit_ptype', args=(ptype.id,))
 
     def test_portal(self):
-        # self.login()
         self.login_as_root()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -49,7 +48,6 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.fail(f'No property <{text}>')
 
     def test_create01(self):
-        # self.login()
         self.login_as_root()
 
         url = self.ADD_URL
@@ -70,7 +68,6 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_create02(self):
         "ContentTypes as constraints + not superuser."
-        # self.login(is_superuser=False, admin_4_apps=['creme_core'])
         self.login_as_standard(admin_4_apps=['creme_core'])
 
         get_ct = ContentType.objects.get_for_model
@@ -90,13 +87,11 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_create03(self):
         "Not allowed."
-        # self.login(is_superuser=False)
         self.login_as_standard()
         self.assertGET403(self.ADD_URL)
 
     def test_edit(self):
         "Edit a custom type."
-        # self.login()
         self.login_as_root()
 
         get_ct = ContentType.objects.get_for_model
@@ -132,7 +127,6 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_error01(self):
         "Edit a not custom type."
-        # self.login()
         self.login_as_root()
 
         get_ct = ContentType.objects.get_for_model
@@ -145,7 +139,6 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_error02(self):
         "Edit a disabled type."
-        # self.login()
         self.login_as_root()
 
         pt = CremePropertyType.objects.smart_update_or_create(
@@ -158,7 +151,6 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET404(self._build_edit_url(pt))
 
     def test_disable(self):
-        # self.login()
         self.login_as_root()
 
         pt = CremePropertyType.objects.smart_update_or_create(
@@ -172,7 +164,6 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(self.refresh(pt).enabled)
 
     def test_enable(self):
-        # self.login()
         self.login_as_root()
 
         pt = CremePropertyType.objects.smart_update_or_create(

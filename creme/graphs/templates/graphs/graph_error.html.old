@@ -1,6 +1,0 @@
-{# {% extends 'creme_core/base.html' %} #}
-{% extends BASE_HTML %}
-
-{% block content %}
-    {% include 'creme_core/generics/error.html' %}
-{% endblock %}

@@ -15,7 +15,6 @@ from parameterized import parameterized
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.creme_jobs import deletor_type
-# from creme.creme_core.models import CremeUser
 from creme.creme_core.models import (
     DeletionCommand,
     Job,
@@ -94,7 +93,6 @@ class CalendarManagerTestCase(_ActivitiesTestCase):
         user = self.create_user()
         self.assertFalse(Calendar.objects.filter(user=user))
 
-        # with self.assertNumQueries(3):
         with self.assertNumQueries(2):
             def_cal = Calendar.objects.get_default_calendar(user)
 
@@ -339,7 +337,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
     def test_calendar_view01(self):
         "No calendars selected ; default calendar exists."
-        # user = self.login()
         user = self.login_as_root_and_get()
         other_user = self.create_user()
         def_cal = self.assertUserHasDefaultCalendar(user)
@@ -364,7 +361,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertListEqual([def_cal], [*my_cals])
 
         self.assertIsList(others_calendars)
-        # self.assertIsNone(dict(others_calendars).get(self.other_user))
         self.assertIsNone(dict(others_calendars).get(other_user))
 
         self.assertIs(enable_calendars_search, False)
@@ -374,21 +370,9 @@ class CalendarTestCase(_ActivitiesTestCase):
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_calendar_view02(self):
         "Some calendars selected ; floating activities."
-        # user = self.login()
         user = self.login_as_super(index=0)
-        # other_user = self.other_user
         other_user = self.create_user(index=1)
-        # staff_user = CremeUser.objects.create_superuser(
-        #     username='staffman', first_name='Richard', last_name='Staffman',
-        #     email='richard@freestaffoundation.org',
-        #     is_staff=True,
-        # )
         staff_user = self.create_user(index=2, is_staff=True)
-        # inactive_user = CremeUser.objects.create(
-        #     username='rip', first_name='Alan', last_name='Ripman',
-        #     email='ripman@unused.org',
-        #     is_active=False,
-        # )
         inactive_user = self.create_user(index=3, is_active=False)
 
         create_cal = Calendar.objects.create
@@ -401,7 +385,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         create_act = partial(
             Activity.objects.create, user=user,
-            # type_id=constants.ACTIVITYTYPE_TASK,
             type_id=constants.ACTIVITYTYPE_PHONECALL,
             sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
             floating_type=constants.FLOATING,
@@ -457,7 +440,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     @skipIfCustomActivity
     def test_calendar_view03(self):
         "Floating activity without calendar (bugfix)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         def create_act(i):
@@ -489,7 +471,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_calendar_view04(self):
         "No calendars selected ; no default calendar => a default calendar is created."
-        # user = self.login()
         user = self.login_as_super()
         self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
 
@@ -505,7 +486,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_calendar_view05(self):
         "No calendar => a default public calendar is created."
-        # user = self.login()
         user = self.login_as_super()
         self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
 
@@ -517,7 +497,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_add_user_calendar01(self):
-        # user = self.login()
         user = self.login_as_super()
         self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
 
@@ -545,7 +524,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_add_user_calendar02(self):
         "Only one default calendar."
-        # user = self.login(is_superuser=False)
         user = self.login_as_activities_user()
         cal1 = Calendar.objects.get_default_calendar(user)
 
@@ -567,12 +545,10 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_add_user_calendar03(self):
         "Not allowed."
-        # self.login(is_superuser=False, allowed_apps=['persons'])
         self.login_as_standard(allowed_apps=['persons'])
         self.assertGET403(self.ADD_URL)
 
     def test_edit_user_calendar01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         cal = Calendar.objects.get_default_calendar(user)
         url = reverse('activities__edit_calendar', args=(cal.id,))
@@ -593,29 +569,24 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_edit_user_calendar02(self):
         "Edit calendar of another user."
-        # self.login()
         self.login_as_root()
-        # cal = Calendar.objects.get_default_calendar(self.other_user)
         cal = Calendar.objects.get_default_calendar(self.create_user())
         self.assertGET403(reverse('activities__edit_calendar', args=(cal.id,)))
 
     def test_edit_user_calendar03(self):
         "Not super-user"
-        # user = self.login(is_superuser=False, allowed_apps=['persons', 'activities'])
         user = self.login_as_activities_user()
         cal = Calendar.objects.get_default_calendar(user)
         self.assertGET200(reverse('activities__edit_calendar', args=(cal.id,)))
 
     def test_edit_user_calendar04(self):
         "App credentials needed."
-        # user = self.login(is_superuser=False, allowed_apps=['persons'])  # 'activities'
         user = self.login_as_standard(allowed_apps=['persons'])  # 'activities'
         cal = Calendar.objects.get_default_calendar(user)
         self.assertGET403(reverse('activities__edit_calendar', args=(cal.id,)))
 
     def test_delete_calendar01(self):
         "Not custom -> error."
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertGET404(reverse('activities__delete_calendar', args=(self.UNUSED_PK,)))
 
@@ -630,7 +601,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.get_object_or_fail(Calendar, pk=cal.pk)
 
     def test_delete_calendar02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         def_cal = Calendar.objects.get_default_calendar(user)
@@ -693,7 +663,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_delete_calendar03(self):
         "Not superuser."
-        # user = self.login(is_superuser=False)
         user = self.login_as_activities_user()
 
         def_cal = Calendar.objects.get_default_calendar(user)
@@ -712,9 +681,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_delete_calendar04(self):
         "Other user's calendar."
-        # self.login(is_superuser=False)
         self.login_as_activities_user()
-        # other_user = self.other_user
         other_user = self.get_root_user()
 
         Calendar.objects.get_default_calendar(other_user)
@@ -728,7 +695,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_delete_calendar05(self):
         "The deleted calendar is the last one (but custom -- should not happen btw)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         cal = Calendar.objects.get_default_calendar(user)
@@ -737,7 +703,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_delete_calendar06(self):
         "Command uniqueness."
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertFalse(DeletionCommand.objects.first())
 
@@ -777,7 +742,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     @skipIfCustomActivity
     def test_change_activity_calendar01(self):
         "Reassign activity calendar."
-        # user = self.login()
         user = self.login_as_root_and_get()
         default_calendar = Calendar.objects.get_default_calendar(user)
 
@@ -813,7 +777,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     @skipIfCustomActivity
     def test_change_activity_calendar02(self):
         "Multiple calendars => error (waiting the right solution)."
-        # user = self.login()
         user = self.login_as_root_and_get()
         default_calendar = Calendar.objects.get_default_calendar(user)
 
@@ -835,7 +798,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     @skipIfCustomActivity
     def test_change_activity_calendar03(self):
         "Credentials: user can always change its calendars"
-        # user = self.login(is_superuser=False)
         user = self.login_as_activities_user()
         default_calendar = Calendar.objects.get_default_calendar(user)
 
@@ -855,7 +817,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
         act = Activity.objects.create(
-            # user=self.other_user, title='Act#1',
             user=self.get_root_user(), title='Act#1',
             type_id=constants.ACTIVITYTYPE_PHONECALL,
             sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
@@ -872,7 +833,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_change_activity_calendar04(self):
         "App credentials needed"
-        # user = self.login(is_superuser=False, allowed_apps=['creme_core'])
         user = self.login_as_standard(allowed_apps=['creme_core'])
         SetCredentials.objects.create(
             role=user.role,
@@ -881,7 +841,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         )
 
         act = Activity.objects.create(
-            # user=self.other_user, title='Act#1',
             user=self.get_root_user(), title='Act#1',
             type_id=constants.ACTIVITYTYPE_MEETING,
             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
@@ -891,7 +850,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_activities_data_one_user_empty(self):
         "One user, no Activity."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         response = self._get_cal_activities([Calendar.objects.get_default_calendar(user)])
@@ -930,7 +888,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     ])
     def test_activities_data_one_user_one_event(
             self, start, end, is_all_day, data_start, data_end):
-        # user = self.login()
         user = self.login_as_root_and_get()
         calendar = Calendar.objects.get_default_calendar(user)
         activity = Activity.objects.create(
@@ -964,7 +921,6 @@ class CalendarTestCase(_ActivitiesTestCase):
                 'color':    f'#{calendar.color}',
                 'url':      reverse('activities__view_activity_popup', args=(activity.id,)),
                 'editable': True,
-                # 'type':     _('Task'),
                 'type':     _('Phone call'),
             }],
             response.json()
@@ -973,7 +929,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     @skipIfCustomActivity
     def test_activities_data_one_user(self):
         "One user, several activities."
-        # user = self.login()
         user = self.login_as_root_and_get()
         cal = Calendar.objects.get_default_calendar(user)
         Calendar.objects.create(user=user, name='Other Cal #1', is_custom=True)
@@ -1025,7 +980,6 @@ class CalendarTestCase(_ActivitiesTestCase):
             user=user, type_id=constants.REL_SUB_PART_2_ACTIVITY,
         )
         create_rel(subject_entity=user.linked_contact,            object_entity=act3)
-        # create_rel(subject_entity=self.other_user.linked_contact, object_entity=act3)
         create_rel(subject_entity=self.create_user().linked_contact, object_entity=act3)
 
         response = self._get_cal_activities(
@@ -1093,9 +1047,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
     def test_activities_data_multiple_users_private_default(self):
         "2 Users, 2 Calendars, Unavailability."
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         cal1 = Calendar.objects.get_default_calendar(user)
@@ -1178,9 +1130,7 @@ class CalendarTestCase(_ActivitiesTestCase):
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
     def test_activities_data_multiple_users_public_default(self):
         "Activity in several Calendars."
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         cal1 = Calendar.objects.get_default_calendar(user)
@@ -1216,9 +1166,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
     def test_selected_calendars_in_session(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         session_before = self.get_alone_element(self._get_user_sessions(user))
@@ -1261,9 +1209,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
     def test_calendars_select(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         session1 = self.get_alone_element(self._get_user_sessions(user))
@@ -1302,14 +1248,12 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @skipIfCustomActivity
     def test_update_activity_date01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         start = self.create_datetime(year=2013, month=4, day=1, hour=9)
         end   = start + timedelta(hours=2)
         act = Activity.objects.create(
             user=user, title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_TASK,
             type_id=constants.ACTIVITYTYPE_MEETING,
             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             start=start, end=end, floating_type=constants.FLOATING,
@@ -1339,13 +1283,11 @@ class CalendarTestCase(_ActivitiesTestCase):
     @skipIfCustomActivity
     def test_update_activity_date02(self):
         "Collision."
-        # user = self.login()
         user = self.login_as_root_and_get()
         contact = user.linked_contact
 
         create_act = partial(
             Activity.objects.create, user=user, busy=True,
-            # type_id=constants.ACTIVITYTYPE_TASK,
             type_id=constants.ACTIVITYTYPE_MEETING,
             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
@@ -1380,7 +1322,6 @@ class CalendarTestCase(_ActivitiesTestCase):
     @skipIfCustomActivity
     def test_update_activity_date03(self):
         "allDay"
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         start = self.create_datetime(year=2013, month=4, day=1, hour=9)
@@ -1410,7 +1351,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_config01(self):
-        # user = self.login()
         user = self.login_as_super()
 
         self.assertGET200(reverse('creme_config__app_portal', args=('activities',)))
@@ -1438,7 +1378,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_config02(self):
         "Only one default."
-        # user = self.login()
         user = self.login_as_root_and_get()
         cal1 = Calendar.objects.get_default_calendar(user)
 
@@ -1463,7 +1402,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     def test_config03(self):
         "Edition"
-        # user = self.login()
         user = self.login_as_root_and_get()
         cal1 = Calendar.objects.get_default_calendar(user)
 
@@ -1509,7 +1447,6 @@ class CalendarTestCase(_ActivitiesTestCase):
                 args=('activities', 'calendar', cal.id),
             )
 
-        # user = self.login()
         user = self.login_as_root_and_get()
         other_user = self.create_user()
 
@@ -1520,7 +1457,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertGET409(get_url(cal2))  # Cannot deleted a not custom Calendar
 
         cal3 = Calendar.objects.create(user=user, name='Cal#3')
-        # Calendar.objects.get_default_calendar(self.other_user)  # Not in choices
         Calendar.objects.get_default_calendar(other_user)  # Not in choices
 
         act = Activity.objects.create(
@@ -1598,7 +1534,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertIn(cal2, [*act.calendars.all()])
 
     def test_colorfield(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         cal = Calendar.objects.get_default_calendar(user)
 
@@ -1613,9 +1548,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         """The User who receives the Calendars from the deleted User should keep
         his default Calendar.
         """
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         cal11 = Calendar.objects.get_default_calendar(user)
@@ -1655,30 +1588,15 @@ class CalendarTestCase(_ActivitiesTestCase):
         ),
     ])
     def test_command_create_default_calendar_creation(self, is_public, verbosity, msg):
-        # create_user = CremeUser.objects.create
-
         with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None):
-            # user1 = create_user(**self.USERS_DATA[0])
             user1 = self.create_user(index=0)
-            # user2 = create_user(**self.USERS_DATA[1])
             user2 = self.create_user(index=1)
-            # user3 = create_user(
-            #     username='altena', email='altena@noir.jp',
-            #     first_name='Altena', last_name='??',
-            #     is_staff=True,
-            # )
             user3 = self.create_user(index=2, is_staff=True)
-            # user4 = create_user(
-            #     username='soldat#42', email='soldat42@noir.jp',
-            #     first_name='Alan', last_name='Ripman',
-            #     is_active=False,
-            # )
             user4 = self.create_user(index=3, is_active=False)
 
         self.assertFalse(Calendar.objects.filter(user__in=[user1, user2, user3, user4]))
 
         with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=is_public):
-            # user5 = create_user(**self.USERS_DATA[2])
             user5 = self.create_user(
                 username='soldat#42', email='soldat42@noir.jp',
                 first_name='John', last_name='Doe',

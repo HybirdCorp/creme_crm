@@ -29,7 +29,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         return reverse('billing__set_default_payment_info', args=(pi.id, invoice.id))
 
     def test_createview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         organisation = Organisation.objects.create(user=user, name='Nintendo')
@@ -64,7 +63,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('', pi.bic)
 
     def test_createview02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         organisation = Organisation.objects.create(user=user, name='Nintendo')
@@ -117,7 +115,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_createview03(self):
         "Related is not an organisation."
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertGET404(self._build_add_url(user.linked_contact))
 
@@ -191,7 +188,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertGET403(self._build_add_related_url(invoice))
 
     def test_editview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         organisation = Organisation.objects.create(user=user, name='Nintendo')
@@ -226,7 +222,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(bic,     pi.bic)
 
     def test_editview02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -273,7 +268,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertIs(True, self.refresh(pi_11).is_default)
 
     def test_orga_brick01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga = Organisation.objects.create(user=user, name='Sony', is_managed=True)
@@ -298,7 +292,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_orga_brick02(self):
         "Organisation is not managed."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self.assertIs(SettingValue.objects.value_4_key(payment_info_key), True)
@@ -309,13 +302,11 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
         response = self.assertGET200(orga.get_absolute_url())
         self.assertNoBrick(
             self.get_html_tree(response.content),
-            # brick_id=PaymentInformationBrick.id_,
             brick_id=PaymentInformationBrick.id,
         )
 
     def test_orga_brick03(self):
         "Organisation is not managed + Setting is False."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         SettingValue.objects.set_4_key(payment_info_key, False)
@@ -331,7 +322,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     def test_billing_brick01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -385,7 +375,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomInvoice
     def test_billing_brick02(self):
         "Field is hidden."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -409,7 +398,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     def test_set_default_in_invoice01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Playstations')
@@ -421,7 +409,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomInvoice
     def test_set_default_in_invoice02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         other = Organisation.objects.create(user=user, name='Sega')
@@ -445,7 +432,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomInvoice
     def test_set_default_in_invoice03(self):
         "Trashed organisation."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice, source = self.create_invoice_n_orgas(user=user, name='Playstations')[:2]
@@ -459,7 +445,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomInvoice
     def test_set_default_in_invoice04(self):
         "'payment_info' is hidden."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice, sony_source = self.create_invoice_n_orgas(user=user, name='Playstations')[:2]

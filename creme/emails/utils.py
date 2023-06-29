@@ -58,28 +58,6 @@ class ImageFromHTMLError(Exception):
         return self._filename
 
 
-# _MIME_IMG_CACHE = '_mime_image_cache'
-#
-# def get_mime_image(image_entity):
-#     try:
-#         mime_image = getattr(image_entity, _MIME_IMG_CACHE)
-#     except AttributeError:
-#         try:
-#             with image_entity.filedata.open() as image_file:
-#                 mime_image = MIMEImage(image_file.read())
-#                 mime_image.add_header(
-#                     'Content-ID', f'<img_{image_entity.id}>',
-#                 )
-#                 mime_image.add_header(
-#                     'Content-Disposition', 'inline', filename=basename(image_file.name),
-#                 )
-#         except OSError as e:
-#             logger.error('Exception when reading image : %s', e)
-#             mime_image = None
-#
-#         setattr(image_entity, _MIME_IMG_CACHE, mime_image)
-#
-#     return mime_image
 def get_mime_image(image_entity: AbstractDocument) -> MIMEImage | None:
     mime_image = None
 
@@ -146,31 +124,6 @@ class SignatureRenderer:
 class EMailSender:
     signature_render_cls = SignatureRenderer
 
-    # def __init__(self, body: str, body_html: str, signature=None, attachments=()):
-    #     mime_images = []
-    #
-    #     if signature:
-    #         signature_body = f'\n--\n{signature.body}'
-    #         body += signature_body
-    #         body_html += signature_body
-    #
-    #         for image_entity in signature.images.all():
-    #             mime_image = get_mime_image(image_entity)
-    #
-    #             if mime_image is None:
-    #                 logger.error(
-    #                     'Error during reading attached image in signature: %s',
-    #                     image_entity,
-    #                 )
-    #             else:
-    #                 mime_images.append(mime_image)
-    #                 body_html += f'<img src="cid:img_{image_entity.id}" /><br/>'
-    #
-    #     self._body = body
-    #     self._body_html = body_html
-    #
-    #     self._attachments = attachments
-    #     self._mime_images = mime_images
     def __init__(self, body: str, body_html: str, signature=None,
                  attachments: Iterable[AbstractDocument] = (),
                  ):
@@ -209,8 +162,6 @@ class EMailSender:
             )
             msg.attach_alternative(body_html, 'text/html')
 
-            # for image in self._mime_images:
-            #     msg.attach(image)
             if self._signature_renderer:
                 for image in self._signature_renderer.images:
                     msg.attach(image.mime)

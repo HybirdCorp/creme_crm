@@ -3,7 +3,6 @@ from functools import partial
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-# from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.db.models.query_utils import Q
@@ -274,19 +273,8 @@ class ModelRelativeDatePeriodFieldTestCase(FieldTestCase):
         "Field <FakeOrganisation.creation_date> + days + after."
         field_name = 'creation_date'
         offset = ModelRelativeDatePeriodField(model=FakeOrganisation).clean(
-            # [field_name, '1', DaysPeriod.name, '3'],
             [field_name, ['1', [DaysPeriod.name, '3']]],
         )
-        # self.assertIsTuple(offset, length=2)
-        # self.assertEqual(field_name, offset[0])
-        #
-        # signed_period = offset[1]
-        # self.assertIsTuple(signed_period, length=2)
-        # self.assertEqual(1, signed_period[0])
-        #
-        # period = signed_period[1]
-        # self.assertIsInstance(period, DaysPeriod)
-        # self.assertDictEqual({'type': 'days', 'value': 3}, period.as_dict())
         self.assertEqual(
             ModelRelativeDatePeriodField.ModelRelativeDatePeriod(
                 field_name=field_name,
@@ -301,15 +289,8 @@ class ModelRelativeDatePeriodFieldTestCase(FieldTestCase):
         "Field <FakeOrganisation.created> + minutes + before."
         field_name = 'created'
         offset = ModelRelativeDatePeriodField(model=FakeOrganisation).clean(
-            # [field_name, '-1', MinutesPeriod.name, '5']
             [field_name, ['-1', [MinutesPeriod.name, '5']]]
         )
-        # self.assertEqual(field_name, offset[0])
-        #
-        # sign, period = offset[1]
-        # self.assertEqual(-1, sign)
-        # self.assertIsInstance(period, MinutesPeriod)
-        # self.assertDictEqual({'type': 'minutes', 'value': 5}, period.as_dict())
         self.assertEqual(
             ModelRelativeDatePeriodField.ModelRelativeDatePeriod(
                 field_name=field_name,
@@ -325,11 +306,6 @@ class ModelRelativeDatePeriodFieldTestCase(FieldTestCase):
         field = cls(model=FakeOrganisation)
         clean = field.clean
         pname = DaysPeriod.name
-        # self.assertFieldValidationError(cls, 'required', clean, ['', '', '', ''])
-        # self.assertFieldValidationError(cls, 'required', clean, None)
-        # self.assertFieldValidationError(cls, 'required', clean, ['', '', pname, '2'])
-        # self.assertFieldValidationError(cls, 'required', clean, ['', '1', pname, ''])
-        # self.assertFieldValidationError(cls, 'required', clean, ['created', '1', pname, ''])
         self.assertFieldValidationError(cls, 'required', clean, ['', ['', ['', '']]])
         self.assertFieldValidationError(cls, 'required', clean, None)
         self.assertFieldValidationError(cls, 'required', clean, ['', ['', [pname, '2']]])
@@ -338,15 +314,6 @@ class ModelRelativeDatePeriodFieldTestCase(FieldTestCase):
 
     def test_not_required(self):
         clean = ModelRelativeDatePeriodField(required=False).clean
-        # empty = ()
-        # self.assertTupleEqual(empty, clean([''] * 4))
-        # self.assertTupleEqual(empty, clean([''] * 3))
-        # self.assertTupleEqual(empty, clean([''] * 2))
-        # self.assertTupleEqual(empty, clean(['']))
-        # self.assertTupleEqual(empty, clean([]))
-        # self.assertTupleEqual(empty, clean(None))
-        # self.assertTupleEqual(empty, clean(['created', '1', DaysPeriod.name, '']))
-        # self.assertTupleEqual(empty, clean(['', '1', '', '2']))
         self.assertIsNone(clean([''] * 4))
         self.assertIsNone(clean([''] * 3))
         self.assertIsNone(clean([''] * 2))
@@ -362,26 +329,22 @@ class ModelRelativeDatePeriodFieldTestCase(FieldTestCase):
         f_name = 'invalid_field'
         self.assertFieldValidationError(
             ChoiceField, 'invalid_choice', clean,
-            # [f_name, '-1', YearsPeriod.name, '5'],
             [f_name, ['-1', [YearsPeriod.name, '5']]],
             message_args={'value': f_name},
         )
 
         self.assertFieldValidationError(
             TypedChoiceField, 'invalid_choice', clean,
-            # ['created', 'notint', YearsPeriod.name, '1'],
             ['created', ['notint', [YearsPeriod.name, '1']]],
             message_args={'value': 'notint'},
         )
         self.assertFieldValidationError(
             IntegerField, 'invalid', clean,
-            # ['created', '1', YearsPeriod.name, 'notint'],
             ['created', ['1', [YearsPeriod.name, 'notint']]],
         )
 
         p_name = 'unknownperiod'
         self.assertFieldValidationError(
-            # ChoiceField, 'invalid_choice', clean, ['created', '-1', p_name, '2'],
             ChoiceField, 'invalid_choice', clean, ['created', ['-1', [p_name, '2']]],
             message_args={'value': p_name},
         )
@@ -545,7 +508,6 @@ class AbsoluteOrRelativeDatetimeFieldTestCase(FieldTestCase):
         field_name = 'creation_date'
         sub_values = {
             ABSOLUTE: self.formfield_value_datetime(**dt_kwargs),
-            # RELATIVE: [field_name, '1', DaysPeriod.name, '3'],
             RELATIVE: [field_name, ['1', [DaysPeriod.name, '3']]],
         }
         self.assertTupleEqual(
@@ -557,18 +519,6 @@ class AbsoluteOrRelativeDatetimeFieldTestCase(FieldTestCase):
         cleaned2 = field.clean((RELATIVE, sub_values))
         self.assertIsTuple(cleaned2, length=2)
         self.assertEqual(RELATIVE, cleaned2[0])
-
-        # offset = cleaned2[1]
-        # self.assertIsTuple(offset, length=2)
-        # self.assertEqual(field_name, offset[0])
-        #
-        # signed_period = offset[1]
-        # self.assertIsTuple(signed_period, length=2)
-        # self.assertEqual(1, signed_period[0])
-        #
-        # period = signed_period[1]
-        # self.assertIsInstance(period, DaysPeriod)
-        # self.assertDictEqual({'type': 'days', 'value': 3}, period.as_dict())
         self.assertEqual(
             ModelRelativeDatePeriodField.ModelRelativeDatePeriod(
                 field_name=field_name,
@@ -620,7 +570,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_create_with_absolute_date(self):
         self.assertFalse(Alert.objects.exists())
-        # other_user = self.other_user
         other_user = self.create_user()
 
         entity = self.entity
@@ -687,7 +636,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         response = self.client.post(
             self._build_add_url(entity),
             data={
-                # 'user':         self.user.pk,
                 'title':        title,
                 'description':  '',
 
@@ -851,7 +799,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertTupleEqual(
             (
                 RELATIVE,
-                # {RELATIVE: (field_name, -1, DaysPeriod(1))},
                 {
                     RELATIVE: ModelRelativeDatePeriodField.ModelRelativeDatePeriod(
                         field_name=field_name,
@@ -1247,7 +1194,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     @override_settings(DEFAULT_TIME_ALERT_REMIND=60)
     def test_reminder3(self):
         "Dynamic user."
-        # other_user = self.other_user
         other_user = self.create_user()
 
         entity = self.entity
@@ -1255,10 +1201,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         entity.save()
 
         reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
-        Alert.objects.create(
-            # user=user
-            real_entity=entity, trigger_date=now(),
-        )
+        Alert.objects.create(real_entity=entity, trigger_date=now())
 
         self.execute_reminder_job(self.get_reminder_job())
         self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
@@ -1313,23 +1256,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         user = self.user
         now_value = now()
 
-        # create_user = get_user_model().objects.create
-        # teammate1 = create_user(
-        #     username='luffy',
-        #     email='luffy@sunny.org', role=self.role,
-        #     first_name='Luffy', last_name='Monkey D.',
-        # )
-        # teammate2 = create_user(
-        #     username='zorro',
-        #     email='zorro@sunny.org', role=self.role,
-        #     first_name='Zorro', last_name='Roronoa',
-        # )
-        #
-        # team1 = create_user(username='Team #1', is_team=True)
-        # team1.teammates = [teammate1, user]
-        #
-        # team2 = create_user(username='Team #2', is_team=True)
-        # team2.teammates = [self.other_user, teammate2]
         other_user = self.create_user(0)
         teammate1 = self.create_user(1)
         teammate2 = self.create_user(2)
@@ -1351,7 +1277,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         user = self.user
         entity1 = self.entity
 
-        # state = BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id_)
         state = BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id)
         state.set_extra_data(key=BRICK_STATE_HIDE_VALIDATED_ALERTS, value=False)
         state.save()
@@ -1399,7 +1324,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         # Home + do not hide ---
         BrickHomeLocation.objects.get_or_create(
-            # brick_id=AlertsBrick.id_, defaults={'order': 50},
             brick_id=AlertsBrick.id, defaults={'order': 50},
         )
 
@@ -1443,7 +1367,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         user = self.user
 
         def get_state():
-            # return BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id_)
             return BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id)
 
         self.assertIsNone(get_state().pk)

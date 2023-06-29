@@ -22,7 +22,6 @@ from django.forms.formsets import BaseFormSet
 from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils.formats import get_format
-# from django.utils.timezone import utc
 from django.utils.timezone import get_current_timezone, make_aware
 
 from ..constants import ROOT_PASSWORD, ROOT_USERNAME
@@ -143,7 +142,6 @@ class _CremeTestCase:
 
         user = CremeUser(**user_data)
 
-        # user.set_password(cls.USER_PASSWORD)
         if password:
             user.set_password(password)
 
@@ -314,7 +312,6 @@ class _CremeTestCase:
 
     def assertGET(self, expected_status, *args, **kwargs):
         response = self.client.get(*args, **kwargs)
-        # self.assertEqual(expected_status, response.status_code)
         code = response.status_code
         if expected_status != code:
             error_msg = response.context.get('exception') if response.context else None
@@ -711,7 +708,6 @@ class _CremeTestCase:
 
             raise self.failureException(f'XML are not equal\n{msg}')
 
-    # def build_filedata(self, content_str, suffix='.txt'):
     @staticmethod
     def build_filedata(content, suffix='.txt'):
         tmpfile = NamedTemporaryFile(suffix=suffix)
@@ -733,7 +729,6 @@ class _CremeTestCase:
     def build_request(self, *, url='/', user=None):
         request = self.request_factory.get(url)
         request.session = SessionBase()
-        # request.user = user or self.user
 
         if user is None:
             warnings.warn(
@@ -1000,14 +995,6 @@ class _CremeTestCase:
             size_px=get_icon_size_px(theme, size),
             label=label,
         )
-
-    # @staticmethod
-    # def http_file(file_path):
-    #     """Get the HTTP URL to retrieve a static file.
-    #     @param file_path: path ('/' separated) relative to "creme/"'s parent.
-    #     """
-    #     from creme.creme_core.utils.test import http_port
-    #     return f'http://localhost:{http_port()}/{file_path}'
 
 
 class CremeTestCase(TestCase, _CremeTestCase):

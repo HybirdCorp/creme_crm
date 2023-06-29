@@ -91,20 +91,6 @@ class DocumentsConfig(CremeAppConfig):
         fields_config_registry.register_models(self.Document, self.Folder)
 
     def register_field_printers(self, field_printers_registry):
-        # from creme.creme_core.gui import field_printers
-        #
-        # from . import gui
-        #
-        # Document = self.Document
-        # field_printers.print_foreignkey_html.register(
-        #     model=Document,
-        #     printer=gui.print_fk_image_html,
-        # )
-        # field_printers.print_many2many_html.register(
-        #     Document,
-        #     printer=gui.print_doc_summary_html,
-        #     enumerator=field_printers.M2MPrinterForHTML.enumerator_entity,
-        # )
         from django.db import models
 
         from . import gui

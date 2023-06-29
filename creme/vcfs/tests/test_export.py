@@ -32,10 +32,8 @@ class VcfExportTestCase(CremeTestCase):
 
         return response
 
-    # def create_contact(self, **kwargs):
     def create_contact(self, user, **kwargs):
         return Contact.objects.create(**{
-            # 'user': self.user,
             'user': user,
             'last_name': 'Abitbol',
             'first_name': 'George',
@@ -60,7 +58,6 @@ class VcfExportTestCase(CremeTestCase):
         )
 
     def test_button(self):
-        # self.login()
         user = self.login_as_root_and_get()
         ButtonMenuItem.objects.create_if_needed(
             model=Contact,
@@ -73,7 +70,6 @@ class VcfExportTestCase(CremeTestCase):
         self.assertTemplateUsed(response, GenerateVcfButton.template_name)
 
     def test_get_empty_vcf(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         response = self._generate_vcf(Contact.objects.create(user=user, last_name='Abitbol'))
         self.assertEqual(
@@ -82,9 +78,7 @@ class VcfExportTestCase(CremeTestCase):
         )
 
     def test_get_vcf_basic_role(self):
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=('creme_core', 'persons', 'vcfs'),
             creatable_models=[Contact],
         )
@@ -100,14 +94,12 @@ class VcfExportTestCase(CremeTestCase):
             set_type=SetCredentials.ESET_ALL
         )
 
-        # contact = Contact.objects.create(user=self.other_user, last_name='Abitbol')
         contact = Contact.objects.create(user=self.get_root_user(), last_name='Abitbol')
         self.assertTrue(user.has_perm_to_change(contact))
         self.assertFalse(user.has_perm_to_view(contact))
         self._generate_vcf(contact, status_code=403)
 
     def test_get_vcf_civility(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         contact = Contact.objects.create(
             user=user,
@@ -123,7 +115,6 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomOrganisation
     def test_get_vcf_org(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         contact = Contact.objects.create(user=user, last_name='Abitbol')
         orga = Organisation.objects.create(user=user, name='ORGNAME')
@@ -142,7 +133,6 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomAddress
     def test_get_vcf_billing_addr(self):
-        # self.login()
         user = self.login_as_root_and_get()
         contact = self.create_contact(user=user, civility=Civility.objects.create(title='Mr'))
         contact.billing_address = self.create_address(contact, 'Org')
@@ -160,7 +150,6 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomAddress
     def test_get_vcf_shipping_addr(self):
-        # self.login()
         user = self.login_as_root_and_get()
         contact = self.create_contact(user=user, civility=Civility.objects.create(title='Mr'))
         contact.shipping_address = self.create_address(contact, 'Org')
@@ -178,7 +167,6 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomAddress
     def test_get_vcf_both_addr(self):
-        # self.login()
         user = self.login_as_root_and_get()
         contact = self.create_contact(user=user, civility=Civility.objects.create(title='Mr'))
         contact.shipping_address = self.create_address(contact, 'shipping')
@@ -200,7 +188,6 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomAddress
     def test_get_vcf_addr_eq(self):
-        # self.login()
         user = self.login_as_root_and_get()
         contact = self.create_contact(user=user, civility=Civility.objects.create(title='Mr'))
         contact.shipping_address = self.create_address(contact, 'Org')
@@ -220,7 +207,6 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomAddress
     def test_person(self):
-        # self.login()
         user = self.login_as_root_and_get()
         contact = self.create_contact(user=user, civility=Civility.objects.create(title='Mr'))
         contact.shipping_address = self.create_address(contact, 'shipping')
@@ -244,7 +230,6 @@ class VcfExportTestCase(CremeTestCase):
 
     @skipIfCustomAddress
     def test_fields_config(self):
-        # self.login()
         user = self.login_as_root_and_get()
         contact = self.create_contact(user=user)
         contact.billing_address = self.create_address(contact, 'billing')

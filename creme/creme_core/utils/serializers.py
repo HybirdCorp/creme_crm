@@ -63,7 +63,6 @@ class CremeJSONEncoder(DjangoJSONEncoder):
 
     def _encode_time(self, value):
         if self.use_utc:
-            # dt_value = datetime.combine(datetime.today(), value)
             dt_value = datetime.combine(self._today(), value)
 
             if is_aware(dt_value):
@@ -73,7 +72,6 @@ class CremeJSONEncoder(DjangoJSONEncoder):
         else:
             # HACK : utcoffset is None for an AWARE datetime.time
             if value.tzinfo is not None:
-                # r = datetime.combine(datetime.today(), value).isoformat(
                 r = datetime.combine(self._today(), value).isoformat(
                     timespec='milliseconds',
                 )[11:]

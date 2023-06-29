@@ -24,7 +24,6 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.gui.history import html_history_registry
-# from creme.creme_core.models import SettingValue
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     FakeOrganisation,
@@ -50,7 +49,6 @@ from ..bricks import (
     SendingHTMLBodyBrick,
     SendingsBrick,
 )
-# from ..constants import SETTING_EMAILCAMPAIGN_SENDER
 from ..creme_jobs import campaign_emails_send_type
 from ..forms.sending import SendingConfigField
 from ..models import (
@@ -339,7 +337,6 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_edition03(self):
         "No admin credentials."
-        # self.login(is_superuser=False)
         self.login_as_emails_user()
 
         item = EmailSendingConfigItem.objects.create(
@@ -598,137 +595,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def _send_mails(self, job=None):
         campaign_emails_send_type.execute(job or self._get_job())
 
-    # def test_sender_setting01(self):
-    #     user = self.login()
-    #     camp = EmailCampaign.objects.create(user=user, name='camp01')
-    #     template = EmailTemplate.objects.create(
-    #         user=user, name='name', subject='SUBJECT', body='BODY',
-    #     )
-    #
-    #     url = self._build_add_url(camp)
-    #     response1 = self.assertGET200(url)
-    #     context1 = response1.context
-    #     self.assertEqual(
-    #         _('New sending for «{entity}»').format(entity=camp),
-    #         context1.get('title'),
-    #     )
-    #     self.assertEqual(EmailSending.save_label, context1.get('submit_label'))
-    #
-    #     with self.assertNoException():
-    #         sender = context1['form'].fields['sender']
-    #     self.assertIsNone(sender.initial)
-    #
-    #     # ---
-    #     sender_email = 'vicious@reddragons.mrs'
-    #     self.assertNoFormError(self.client.post(
-    #         url,
-    #         data={
-    #             'sender':   sender_email,
-    #             'type':     EmailSending.Type.IMMEDIATE,
-    #             'template': template.id,
-    #         },
-    #     ))
-    #
-    #     # --
-    #     response3 = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         sender = response3.context['form'].fields['sender']
-    #
-    #     self.assertEqual(sender_email, sender.initial)
-    #
-    #     # ---
-    #     response4 = self.assertPOST200(
-    #         url,
-    #         data={
-    #             'sender':   'another_email@address.com',
-    #             'type':     EmailSending.Type.IMMEDIATE,
-    #             'template': template.id,
-    #         },
-    #     )
-    #     self.assertFormError(
-    #         response4.context['form'],
-    #         field='sender',
-    #         errors=_(
-    #             'You are not allowed to modify the sender address, '
-    #             'please contact your administrator.'
-    #         ),
-    #     )
-    #
-    # def test_sender_setting02(self):
-    #     user = self.login(is_superuser=False)
-    #     SetCredentials.objects.create(
-    #         role=self.role,
-    #         value=(
-    #             EntityCredentials.VIEW
-    #             | EntityCredentials.DELETE
-    #             | EntityCredentials.LINK
-    #             | EntityCredentials.UNLINK
-    #             | EntityCredentials.CHANGE
-    #         ),
-    #         set_type=SetCredentials.ESET_ALL
-    #     )
-    #
-    #     camp = EmailCampaign.objects.create(user=user, name='camp01')
-    #     template = EmailTemplate.objects.create(
-    #         user=user, name='name', subject='SUBJECT', body='BODY',
-    #     )
-    #
-    #     url = self._build_add_url(camp)
-    #     response1 = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         sender_f1 = response1.context['form'].fields['sender']
-    #
-    #     self.assertEqual(
-    #         _(
-    #             'No sender email address has been configured, '
-    #             'please contact your administrator.'
-    #         ),
-    #         sender_f1.initial,
-    #     )
-    #
-    #     # ---
-    #     sender_email = 'vicious@reddragons.mrs'
-    #     response2 = self.client.post(
-    #         url,
-    #         data={
-    #             'sender': sender_email,
-    #             'type': EmailSending.Type.IMMEDIATE,
-    #             'template': template.id,
-    #         },
-    #     )
-    #     form2 = response2.context['form']
-    #     self.assertFormError(
-    #         form2,
-    #         field='sender',
-    #         errors=_(
-    #             'You are not allowed to modify the sender address, '
-    #             'please contact your administrator.'
-    #         ),
-    #     )
-    #
-    #     # ---
-    #     sender_setting = SettingValue.objects.get(key_id=SETTING_EMAILCAMPAIGN_SENDER)
-    #     sender_setting.value = sender_email
-    #     sender_setting.save()
-    #
-    #     response3 = self.assertGET200(url)
-    #
-    #     with self.assertNoException():
-    #         sender_f3 = response3.context['form'].fields['sender']
-    #
-    #     self.assertEqual(sender_email, sender_f3.initial)
-    #
-    #     self.assertNoFormError(self.client.post(
-    #         url,
-    #         data={
-    #             'sender':   sender_email,
-    #             'type':     EmailSending.Type.IMMEDIATE,
-    #             'template': template.id,
-    #         },
-    #     ))
-
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_create01(self):
@@ -736,7 +602,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         than Contact/Organisation, MailingList that contain the same addresses)
         EmailSending should not contain duplicates.
         """
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         item = EmailSendingConfigItem.objects.create(
@@ -968,7 +833,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     def test_create02(self):
         "Test template."
-        # user = self.login()
         user = self.login_as_root_and_get()
         item = EmailSendingConfigItem.objects.create(
             name='Config #1',
@@ -1115,7 +979,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertIsNone(job.user)
         self.assertIsNone(job.type.next_wakeup(job, now_value))
 
-        # user = self.login()
         user = self.login_as_root_and_get()
         camp = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(
@@ -1204,7 +1067,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_create04(self):
         "Test deferred"
-        # user = self.login()
         user = self.login_as_root_and_get()
         item = EmailSendingConfigItem.objects.create(
             name='Config #1',
@@ -1274,7 +1136,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_create05(self):
         "Test deferred (today)."
-        # user = self.login()
         user = self.login_as_root_and_get()
         item = EmailSendingConfigItem.objects.create(
             name='Config #1',
@@ -1316,7 +1177,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_create06(self):
         "Body with variables."
-        # user = self.login()
         user = self.login_as_root_and_get()
         item = EmailSendingConfigItem.objects.create(
             name='Config #1',
@@ -1363,14 +1223,12 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_create07(self):
         "No related to a campaign => error."
-        # user = self.login()
         user = self.login_as_root_and_get()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
 
         self.assertGET404(self._build_add_url(nerv))
 
     def test_edit01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         item = EmailSendingConfigItem.objects.create(
@@ -1426,7 +1284,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_edit02(self):
         "State is DONE => error."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         camp = EmailCampaign.objects.create(user=user, name='camp01')
@@ -1441,7 +1298,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_view_lw_email01(self):
         "Not super-user"
-        # user = self.login(is_superuser=False)
         user = self.login_as_emails_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -1475,7 +1331,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_view_lw_email02(self):
         "Cannot view the campaign => error."
-        # user = self.login(is_superuser=False)
         user = self.login_as_emails_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -1483,7 +1338,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        # camp = EmailCampaign.objects.create(user=self.other_user, name='Camp#1')
         camp = EmailCampaign.objects.create(user=self.get_root_user(), name='Camp#1')
         self.assertFalse(user.has_perm_to_view(camp))
 
@@ -1501,7 +1355,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertGET403(reverse('emails__view_lw_mail', args=(lw_mail.id,)))
 
     def test_sending_bricks(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         camp = EmailCampaign.objects.create(user=user, name='Camp#1')
@@ -1538,7 +1391,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_reload_sending_bricks01(self):
         "Not super-user."
-        # user = self.login(is_superuser=False)
         user = self.login_as_emails_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -1558,7 +1410,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         url = reverse('emails__reload_sending_bricks', args=(sending.id,))
         self.assertGET404(url)  # No brick ID
 
-        # response = self.assertGET200(url, data={'brick_id': MailsBrick.id_})
         response = self.assertGET200(url, data={'brick_id': MailsBrick.id})
         self.assertEqual('application/json', response['Content-Type'])
 
@@ -1567,16 +1418,13 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         brick_data = content[0]
         self.assertEqual(2, len(brick_data))
-        # self.assertEqual(MailsBrick.id_, brick_data[0])
         self.assertEqual(MailsBrick.id, brick_data[0])
-        # self.assertIn(f' id="{MailsBrick.id_}"', brick_data[1])
         self.assertIn(f' id="{MailsBrick.id}"', brick_data[1])
 
         # TODO: test other bricks
 
     def test_reload_sending_bricks02(self):
         "Can not see the campaign"
-        # self.login(is_superuser=False)
         user = self.login_as_emails_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -1584,7 +1432,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        # camp = EmailCampaign.objects.create(user=self.other_user, name='Camp#1')
         camp = EmailCampaign.objects.create(user=self.get_root_user(), name='Camp#1')
         sending = EmailSending.objects.create(
             sender='vicious@reddragons.mrs',
@@ -1596,7 +1443,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         self.assertGET403(
             reverse('emails__reload_sending_bricks', args=(sending.id,)),
-            # data={'brick_id': MailsBrick.id_}
             data={'brick_id': MailsBrick.id},
         )
 
@@ -1623,7 +1469,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_next_wakeup01(self):
         "Several deferred sendings."
-        # user = self.login()
         user = self.login_as_root_and_get()
         job = self._get_job()
         camp = EmailCampaign.objects.create(user=user, name='camp01')
@@ -1643,7 +1488,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_next_wakeup02(self):
         "A deferred sending with passed sending_date."
-        # self.login()
         user = self.login_as_root_and_get()
         job = self._get_job()
         camp = EmailCampaign.objects.create(user=user, name='camp01')
@@ -1660,7 +1504,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     def test_job01(self):
         "Deleted campaign."
-        # user = self.login()
         user = self.login_as_root_and_get()
         job = self._get_job()
         item = EmailSendingConfigItem.objects.create(
@@ -1705,7 +1548,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     def test_job02(self):
         "Deleted config."
-        # user = self.login()
         user = self.login_as_root_and_get()
         job = self._get_job()
         item = EmailSendingConfigItem.objects.create(
@@ -1753,7 +1595,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_refresh_job01(self):
         "Restore campaign with sending which has to be sent."
-        # user = self.login()
         user = self.login_as_root_and_get()
         job = self._get_job()
         camp = EmailCampaign.objects.create(user=user, name='camp01', is_deleted=True)
@@ -1776,7 +1617,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_refresh_job02(self):
         "Restore campaign with sending which does not have to be sent."
-        # user = self.login()
         user = self.login_as_root_and_get()
         camp = EmailCampaign.objects.create(user=user, name='camp01', is_deleted=True)
 

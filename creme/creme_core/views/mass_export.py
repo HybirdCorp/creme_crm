@@ -243,7 +243,6 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
 
                     for cell in cells:
                         try:
-                            # res = cell.render_csv(entity, user)
                             res = cell.render(entity, user, tag=tag)
                         except Exception as e:
                             logger.debug('Exception in CSV export: %s', e)

@@ -37,7 +37,6 @@
             {% brick_action id='add' url='polls__create_child_form_section'|url:node.id   label=_('New sub-section') class='poll-action' enabled=has_perm %}
         </div>
         {% elif node.disabled %}
-{#        {% with no_deps=node.get_reversed_conditions|length_is:"0" %} #}
         {% with no_deps=node.get_reversed_conditions|length|bool|not_op %}
         <div class="poll-group poll-forbidden">
             <div class="poll-title">
@@ -51,7 +50,6 @@
         </div>
         {% endwith %}
         {% else %}
-{#        {% with number=node.number conditions=node.get_conditions no_deps=node.get_reversed_conditions|length_is:"0" %} #}
         {% with number=node.number conditions=node.get_conditions no_deps=node.get_reversed_conditions|length|bool|not_op %}
         <div class="poll-group">
             <div class="poll-title">

@@ -30,7 +30,6 @@ from ..fake_forms import FakeContactQuickForm, FakeOrganisationQuickForm
 class GuiTestCase(CremeTestCase):
     @override_settings(MAX_LAST_ITEMS=5)
     def test_last_viewed_items(self):
-        # user = self.login()
         self.login_as_root()
         user = self.get_root_user()
 
@@ -448,17 +447,10 @@ class GuiTestCase(CremeTestCase):
 
     def test_button_registry04(self):
         "Permissions."
-        # basic_user = self.login(
-        #     is_superuser=False,
-        #     allowed_apps=['creme_core', 'persons'],
-        #     creatable_models=[FakeContact],
-        # )
         basic_user = self.login_as_standard(
             allowed_apps=['creme_core', 'persons'],
             creatable_models=[FakeContact],
         )
-        # basic_ctxt = {'user': basic_user}
-        # super_ctxt = {'user': self.other_user}
 
         class TestButton01(Button):
             id = Button.generate_id('creme_core', 'test_button_registry04_01')
@@ -476,13 +468,9 @@ class GuiTestCase(CremeTestCase):
             request.user = user
             return request
 
-        basic_ctxt = {'request': create_request(basic_user),      'entity': entity}
-        # super_ctxt = {'request': create_request(self.other_user), 'entity': entity}
+        basic_ctxt = {'request': create_request(basic_user),           'entity': entity}
         super_ctxt = {'request': create_request(self.get_root_user()), 'entity': entity}
 
-        # has_perm1 = TestButton01().has_perm
-        # self.assertIs(has_perm1(super_ctxt), True)
-        # self.assertIs(has_perm1(basic_ctxt), True)
         is_allowed1 = TestButton01().is_allowed
         self.assertIs(is_allowed1(**super_ctxt), True)
         self.assertIs(is_allowed1(**basic_ctxt), True)
@@ -492,9 +480,6 @@ class GuiTestCase(CremeTestCase):
             id = Button.generate_id('creme_core', 'test_button_registry04_02')
             permissions = 'documents'
 
-        # has_perm2 = TestButton02().has_perm
-        # self.assertIs(has_perm2(super_ctxt), True)
-        # self.assertIs(has_perm2(basic_ctxt), False)
         is_allowed2 = TestButton02().is_allowed
         self.assertIs(is_allowed2(**super_ctxt), True)
         self.assertIs(is_allowed2(**basic_ctxt), False)
@@ -508,8 +493,6 @@ class GuiTestCase(CremeTestCase):
             id = Button.generate_id('creme_core', 'test_button_registry04_04')
             permissions = 'creme_core.add_fakeorganisation'
 
-        # self.assertTrue(TestButton03().has_perm(basic_ctxt))
-        # self.assertFalse(TestButton04().has_perm(basic_ctxt))
         self.assertTrue(TestButton03().is_allowed(**basic_ctxt))
         self.assertFalse(TestButton04().is_allowed(**basic_ctxt))
 
@@ -522,8 +505,6 @@ class GuiTestCase(CremeTestCase):
             id = Button.generate_id('creme_core', 'test_button_registry04_06')
             permissions = ['persons', 'creme_core.add_fakeorganisation']
 
-        # self.assertTrue(TestButton05().has_perm(basic_ctxt))
-        # self.assertFalse(TestButton06().has_perm(basic_ctxt))
         self.assertTrue(TestButton05().is_allowed(**basic_ctxt))
         self.assertFalse(TestButton06().is_allowed(**basic_ctxt))
 

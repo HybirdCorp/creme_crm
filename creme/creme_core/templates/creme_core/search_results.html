@@ -1,10 +1,8 @@
-{# {% extends 'creme_core/base.html' %} #}
 {% extends BASE_HTML %}
 {% load i18n creme_widgets creme_bricks creme_search %}
 
 {% block page_title %}{% translate 'Search results' %} - {% endblock %}
 
-{# {% block extrahead %} #}
 {% block head %}
     {{block.super}}
 {% translate 'Search results: %d entity' as singular_msg %}{% translate 'Search results: %d entities' as plural_msg %}
@@ -60,7 +58,6 @@
         {% blocktranslate with types=models|join:', ' asvar help_msg %}Your search: {{research}}
 
 Concerned types: {{types}}{% endblocktranslate %}
-{#        {% widget_help_sign message=help_msg|safe %} #}
         {% widget_help_sign message=help_msg %}
     {% endif %}
 

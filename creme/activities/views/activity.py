@@ -18,7 +18,6 @@
 
 from __future__ import annotations
 
-# import warnings
 from datetime import time
 from functools import partial
 
@@ -35,11 +34,9 @@ from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.gui.listview import CreationButton
-# from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.utils import bool_from_str_extended, get_from_GET_or_404
 from creme.creme_core.views import generic
-# from creme.creme_core.views.generic import base
 from creme.persons import get_contact_model
 
 from .. import constants, custom_forms, get_activity_model
@@ -323,31 +320,3 @@ class ICalExport(generic.CheckedView):
                 'Content-Disposition': f'attachment; filename="{self.attachment_name}"',
             },
         )
-
-
-# class TypeChoices(base.CheckedView):
-#     response_class = CremeJsonResponse
-#     type_id_url_kwarg = 'type_id'
-#
-#     def get_choices(self):
-#         type_id = self.kwargs[self.type_id_url_kwarg]
-#
-#         if not type_id:
-#             return []
-#
-#         get_object_or_404(ActivityType, pk=type_id)
-#
-#         return [
-#             *ActivitySubType.objects.filter(type=type_id).values_list('id', 'name'),
-#         ]
-#
-#     def get(self, request, *args, **kwargs):
-#         warnings.warn(
-#             'The view activities.views.activity.TypeChoices is deprecated.',
-#             DeprecationWarning,
-#         )
-#
-#         return self.response_class(
-#             self.get_choices(),
-#             safe=False,  # Result is not a dictionary
-#         )

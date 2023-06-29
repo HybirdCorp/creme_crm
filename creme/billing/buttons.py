@@ -46,8 +46,6 @@ class GenerateInvoiceNumberButton(Button):
     def get_ctypes(self):
         return (Invoice,)
 
-    # def has_perm(self, context):
-    #     return context['user'].has_perm_to_change(context['object'])
     def is_allowed(self, *, entity, request):
         return super().is_allowed(
             entity=entity, request=request,
@@ -84,30 +82,11 @@ class _AddBillingDocumentButton(Button):
     def get_ctypes(self):
         return persons.get_organisation_model(), persons.get_contact_model()
 
-    # def has_perm(self, context):
-    #     return context['user'].has_perm_to_create(self.model_to_create)
     def is_allowed(self, *, entity, request):
         return (
             super().is_allowed(entity=entity, request=request)
             and request.user.has_perm_to_create(self.model_to_create)
         )
-
-    # def render(self, context):
-    #     context['verbose_name'] = self.verbose_name
-    #     context['url_name'] = self.url_name
-    #
-    #     meta = self.model_to_create._meta
-    #     context['model_vname'] = meta.verbose_name
-    #     context['model_id'] = f'{meta.app_label}.{meta.model_name}'
-    #
-    #     context['rtype_id'] = REL_OBJ_BILL_RECEIVED
-    #
-    #     context['redirect'] = SettingValue.objects.get_4_key(
-    #         button_redirection_key,
-    #         default=True,
-    #     ).value
-    #
-    #     return super().render(context)
 
 
 class AddInvoiceButton(_AddBillingDocumentButton):
@@ -167,13 +146,6 @@ class _ConvertToButton(Button):
     def get_ctypes(self):
         return tuple(get_models_for_conversion(self.target_modelname))
 
-    # def has_perm(self, context):
-    #     user = context['user']
-    #     return (
-    #         user.has_perm_to_create(self.target_model)
-    #         and not user.is_staff
-    #         and not context['object'].is_deleted
-    #     )
     def is_allowed(self, *, entity, request):
         user = request.user
         return (
@@ -181,13 +153,6 @@ class _ConvertToButton(Button):
             and not user.is_staff
             and not entity.is_deleted
         )
-
-    # def render(self, context):
-    #     context['verbose_name'] = self.verbose_name
-    #     context['convert_to'] = self.target_modelname
-    #     context['model_vname'] = self.target_model._meta.verbose_name
-    #
-    #     return super().render(context)
 
 
 class ConvertToInvoiceButton(_ConvertToButton):

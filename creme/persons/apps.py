@@ -116,24 +116,6 @@ class PersonsConfig(CremeAppConfig):
         )
 
     def register_field_printers(self, field_printers_registry):
-        # from django.contrib.auth import get_user_model
-        # from django.utils.html import format_html
-        #
-        # from creme.creme_core.gui.field_printers import print_foreignkey_html
-        #
-        # def print_fk_user_html(entity, fval, user, field) -> str:
-        #     if not fval.is_team:
-        #         contact = fval.linked_contact
-        #         if user.has_perm_to_view(contact):
-        #             return format_html(
-        #                 '<a href="{url}">{label}</a>',
-        #                 url=contact.get_absolute_url(),
-        #                 label=contact,
-        #             )
-        #
-        #     return str(fval)
-        #
-        # print_foreignkey_html.register(get_user_model(), print_fk_user_html)
         from django.contrib.auth import get_user_model
         from django.db import models
         from django.utils.html import format_html
@@ -147,7 +129,6 @@ class PersonsConfig(CremeAppConfig):
                     return format_html(
                         html_fmt,
                         url=contact.get_absolute_url(),
-                        # label=contact,
                         label=value,
                     )
 

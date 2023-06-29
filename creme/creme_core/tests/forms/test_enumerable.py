@@ -16,7 +16,6 @@ from creme.creme_core.forms.enumerable import (
     EnumerableSelect,
     FieldEnumerableChoiceSet,
 )
-# from creme.creme_core.models import CremeUser
 from creme.creme_core.models import (
     Currency,
     FakeContact,
@@ -79,7 +78,6 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         )
 
     def test_choices(self):
-        # user = CremeUser.objects.first()
         user = self.get_root_user()
         enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('user'))
 
@@ -91,7 +89,6 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         )
 
     def test_choices__empty_label(self):
-        # user = CremeUser.objects.first()
         user = self.get_root_user()
         enumerable = FieldEnumerableChoiceSet(
             FakeContact._meta.get_field('user'),
@@ -115,7 +112,6 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         (2, True)
     ])
     def test_choices__more(self, limit, has_more):
-        # fulbert = CremeUser.objects.order_by('pk').first()
         fulbert = self.get_root_user()
         kirika = self.create_user(0)
         mireille = self.create_user(1)
@@ -200,7 +196,6 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         The current language of forced to english to prevent some group ordering
         issues depending on the test runner configuration
         """
-        # fulbert = CremeUser.objects.order_by('pk').first()
         fulbert = self.get_root_user()
         kirika = self.create_user(index=0)
         mireille = self.create_user(index=1)
@@ -251,7 +246,6 @@ class FieldEnumerableChoiceSetTestCase(CremeTestCase):
         The current language of forced to english to prevent some group ordering
         issues depending on the test runner configuration.
         """
-        # fulbert = CremeUser.objects.order_by('pk').first()
         fulbert = self.get_root_user()
         kirika = self.create_user(index=0)
         mireille = self.create_user(index=1)

@@ -28,7 +28,6 @@ from django.utils.timezone import localtime, make_aware
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
-# from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.gui.bulk_update import FieldOverrider
 
 from .. import constants
@@ -78,7 +77,6 @@ class ActivityRangeField(forms.MultiValueField):
         )
 
     def compress(self, data_list):
-        # return data_list[:4] if data_list else [None] * 4
         return self.Range(
             start=data_list[0],
             end=data_list[1],
@@ -126,7 +124,6 @@ class RangeOverrider(FieldOverrider):
     # TODO: factorise with BaseCustomForm._clean_temporal_data() + error_messages
     def post_clean_instance(self, *, instance, value, form):
         start = end = None
-        # (start_date, start_time), (end_date, end_time), is_all_day, busy = value
         if value.start:
             start_date = value.start.date
             start_time = value.start.time
@@ -161,14 +158,11 @@ class RangeOverrider(FieldOverrider):
                     code='floating_cannot_busy',
                 )
 
-            # start = make_aware_dt(datetime.combine(start_date, start_time or time()))
             start = make_aware(datetime.combine(start_date, start_time or time()))
 
             if end_date:
-                # end = make_aware_dt(datetime.combine(end_date, end_time or time()))
                 end = make_aware(datetime.combine(end_date, end_time or time()))
             elif end_time is not None:
-                # end = make_aware_dt(datetime.combine(start_date, end_time))
                 end = make_aware(datetime.combine(start_date, end_time))
             else:
                 tdelta = instance.type.as_timedelta()
@@ -186,9 +180,7 @@ class RangeOverrider(FieldOverrider):
                 end = start + tdelta
 
             if is_all_day or floating_type == constants.FLOATING_TIME:
-                # start = make_aware_dt(datetime.combine(start, time(hour=0, minute=0)))
                 start = make_aware(datetime.combine(start, time(hour=0, minute=0)))
-                # end   = make_aware_dt(datetime.combine(end,   time(hour=23, minute=59)))
                 end   = make_aware(datetime.combine(end,   time(hour=23, minute=59)))
 
             if start > end:
@@ -236,7 +228,6 @@ class TypeOverrider(FieldOverrider):
         if unavailability_count:
             if unavailability_count == len(instances):
                 # All entities are Unavailability, so we propose to change the subtype.
-                # field.types = ActivityType.objects.filter(pk=constants.ACTIVITYTYPE_INDISPO)
                 field.limit_choices_to = Q(type__id=constants.ACTIVITYTYPE_INDISPO)
             else:
                 self._mixed_unavailability = True

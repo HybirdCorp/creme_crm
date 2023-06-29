@@ -191,8 +191,3 @@ class EmailsConfig(CremeAppConfig):
         ).add_link(
             'emails-create_template', self.EmailTemplate, priority=20,
         )
-
-    # def register_setting_keys(self, setting_key_registry):
-    #     from . import setting_keys
-    #
-    #     setting_key_registry.register(setting_keys.emailcampaign_sender)

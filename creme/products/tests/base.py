@@ -25,10 +25,6 @@ class _ProductsTestCase(_DocumentsTestCase, MassImportBaseTestCaseMixin):
     EXTRA_CATEGORY_KEY = 'cform_extra-products_subcategory'
 
     def login_as_basic_user(self, creatable_model):
-        # user = self.login(
-        #     is_superuser=False, allowed_apps=['products', 'documents'],
-        #     creatable_models=[creatable_model, get_document_model()],
-        # )
         user = self.login_as_standard(
             allowed_apps=['products', 'documents'],
             creatable_models=[creatable_model, get_document_model()],

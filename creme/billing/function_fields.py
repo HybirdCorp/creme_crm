@@ -69,7 +69,6 @@ class TemplateBaseVerboseStatusField(FunctionField):
 
             cache[e_id] = status
 
-        # return self.result_type(status.name)
         return self.result_type(label=status.name, color=status.color)
 
     # TODO

@@ -87,7 +87,6 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(brick_node2, ptype2)
 
     def test_relations_brick01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -144,9 +143,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         """With A SpecificRelationBrick; but the concerned relationship is minimal_display=False
         (so there is no RelationType to exclude).
         """
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # rbrick_id = RelationsBrick.id_
         rbrick_id = RelationsBrick.id
 
         create_rtype = RelationType.objects.smart_update_or_create
@@ -361,7 +358,6 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_history_brick01(self):
         "Detail-view."
-        # user = self.login()
         user = self.login_as_root_and_get()
         atom = FakeContact.objects.create(
             user=user, first_name='Atom', last_name='Tenma', phone='123456',
@@ -414,7 +410,6 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_history_brick02(self):
         "Home."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         HistoryLine.objects.all().delete()
@@ -457,7 +452,6 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLink(brick_node2, tenma)
 
     def test_statistics_brick01(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
         s_id1 = 'creme_core-fake_contacts'

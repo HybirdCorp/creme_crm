@@ -347,7 +347,6 @@ class ReportHandTestCase(CremeTestCase):
         value = Decimal('235.50')
         cfield.value_class.objects.create(custom_field=cfield, entity=aria, value=value)
         self.assertEqual(
-            # number_format(value, use_l10n=True),
             number_format(value),
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )

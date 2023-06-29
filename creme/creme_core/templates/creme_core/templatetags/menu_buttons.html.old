@@ -1,3 +1,0 @@
-{% for button in buttons %}
-    <li>{{button}}</li>
-{% endfor %}

@@ -116,7 +116,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             response,
             [
                 {'title': _('Convert to Salesorder'), 'type': 'sales_order', 'disabled': False},
-                # {'title': _('Convert to Invoice'),    'type': 'invoice',     'disabled': True},
                 {'title': _('Convert to Invoice'), 'disabled': True},
             ],
         )
@@ -124,7 +123,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(SOFTWARE_LABEL='My CRM')
     def test_createview01(self):
         "Source is not managed + no number given."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         managed_orga = self.get_alone_element(Organisation.objects.filter_managed_by_creme())
@@ -166,7 +164,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_createview02(self):
         "Source is managed + no number given."
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertGET200(reverse('billing__create_quote'))
 
@@ -203,7 +200,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_createview03(self):
         "Source is not managed + a number is given."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         number = 'Q123'
@@ -214,7 +210,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_createview04(self):
         "The field 'number' is not in the form."
-        # self.login()
         self.login_as_root()
 
         cfci = CustomFormConfigItem.objects.get(
@@ -252,7 +247,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotIn('number', fields)
 
     def test_create_related01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -378,7 +372,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_editview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'my quote'
@@ -452,7 +445,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         quote, source1, target1 = self.create_quote_n_orgas(user=user, name='My quote')
 
-        # unlinkable_source, unlinkable_target = self.create_orgas(user=self.other_user)
         unlinkable_source, unlinkable_target = self.create_orgas(user=self.get_root_user())
         self.assertFalse(user.has_perm_to_link(unlinkable_source))
         self.assertFalse(user.has_perm_to_link(unlinkable_target))
@@ -512,7 +504,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         quote, source, target = self.create_quote_n_orgas(user=user, name='My quote')
 
-        # source.user = target.user = self.other_user
         source.user = target.user = self.get_root_user()
         source.save()
         target.save()
@@ -539,7 +530,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
 
     def test_listview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         quote1 = self.create_quote_n_orgas(user=user, name='Quote1')[0]
@@ -554,7 +544,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertCountEqual([quote1, quote2], quotes_page.paginator.object_list)
 
     def test_listview_actions(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         quote = self.create_quote_n_orgas(user=user, name='Quote #1')[0]
 
@@ -570,9 +559,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertTrue(export_action.is_enabled)
         self.assertTrue(export_action.is_visible)
 
-    # def test_delete_status01(self):
     def test_delete_status(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         new_status = QuoteStatus.objects.first()
         status2del = QuoteStatus.objects.create(name='OK')
@@ -588,13 +575,11 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     def test_mass_import_no_total01(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_no_total(user=user, model=Quote, status_model=QuoteStatus)
 
     def test_mass_import_no_total02(self):
         "Source is managed."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         count = Quote.objects.count()
@@ -691,7 +676,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNotEqual(number1, number2)
 
     def test_mass_import_total_no_vat_n_vat(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_total_no_vat_n_vat(
             user=user, model=Quote, status_model=QuoteStatus,
@@ -701,7 +685,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_clone01(self):
         "Organisation not managed => number is set to '0'."
-        # user = self.login()
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
 
@@ -751,7 +734,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_clone02(self):
         "Organisation is managed => number is generated (but only once BUGFIX)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -770,7 +752,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         from django.db import DEFAULT_DB_ALIAS, connections
         from django.test.utils import CaptureQueriesContext
 
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         # NB: we do not use assertNumQueries, because external
@@ -796,7 +777,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.assertNotIn('billing_serviceline', query)
 
     def test_brick01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
 
@@ -841,7 +821,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_brick02(self):
         "Field 'expiration_date' is hidden."
-        # user = self.login()
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
 

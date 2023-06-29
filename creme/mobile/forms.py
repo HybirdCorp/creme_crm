@@ -70,7 +70,6 @@ class MobilePersonCreationFormMixin:
         ]
 
 
-# class MobileContactCreateForm(MobilePersonCreationFormMixin,
 class MobileContactCreationForm(MobilePersonCreationFormMixin,
                                 quick.ContactQuickForm):
     is_favorite = BooleanField(
@@ -97,7 +96,6 @@ class MobileContactCreationForm(MobilePersonCreationFormMixin,
         return contact
 
 
-# class MobileOrganisationCreateForm(MobilePersonCreationFormMixin,
 class MobileOrganisationCreationForm(MobilePersonCreationFormMixin,
                                      quick.OrganisationQuickForm):
     is_favorite = BooleanField(label=pgettext_lazy('mobile-orga', 'Is favorite'), required=False)

@@ -49,7 +49,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     @override_settings(FILTERS_INITIAL_PRIVATE=False)
     def test_create01(self):
-        # self.login()
         self.login_as_root()
 
         ct = ContentType.objects.get_for_model(FakeMailingList)
@@ -98,7 +97,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(hfilter.id, context['list_view_state'].header_filter_id)
 
     def test_create02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         lv_url = FakeContact.get_lv_absolute_url()
@@ -205,7 +203,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_create03(self):
         "Check app credentials."
-        # user = self.login(is_superuser=False, allowed_apps=['documents'])
         user = self.login_as_standard(allowed_apps=['documents'])
 
         uri = self._build_add_url(self.contact_ct)
@@ -219,9 +216,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_create04(self):
         "Cannot create a private filter for another user (but OK with one of our teams)."
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         my_team = self.create_team('TeamTitan', user, other_user)
@@ -254,7 +249,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_create05(self):
         "Use cancel_url for redirection."
-        # self.login()
         self.login_as_root()
 
         callback = FakeOrganisation.get_lv_absolute_url()
@@ -272,7 +266,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_create06(self):
         "A staff user can create a private filter for another user."
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         name = 'DefaultHeaderFilter'
@@ -281,7 +274,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             follow=True,
             data={
                 'name': name,
-                # 'user': self.other_user.id,
                 'user': self.get_root_user().id,
                 'is_private': 'on',
                 'cells': 'regular_field-first_name',
@@ -292,13 +284,11 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_create_error01(self):
         "Not an Entity type."
-        # self.login()
         self.login_as_root()
         self.assertGET409(self._build_add_url(ContentType.objects.get_for_model(RelationType)))
 
     def test_create_error02(self):
         "FieldsConfig: hidden field."
-        # self.login()
         self.login_as_root()
 
         hidden_fname = 'phone'
@@ -319,7 +309,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_create_error03(self):
         "Disabled RelationType."
-        # self.login()
         self.login_as_root()
 
         disabled_rtype = RelationType.objects.smart_update_or_create(
@@ -342,7 +331,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     @override_settings(FILTERS_INITIAL_PRIVATE=True)
     def test_create_settings(self):
         "Use FILTERS_INITIAL_PRIVATE."
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET200(self._build_add_url(self.contact_ct))
@@ -353,7 +341,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         with self.assertRaises(AttributeError):
             FakeProduct.get_lv_absolute_url()
 
-        # self.login()
         self.login_as_root()
 
         ct = ContentType.objects.get_for_model(FakeProduct)
@@ -373,7 +360,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertRedirects(response, '/')
 
     def test_edit01(self):
-        # self.login()
         self.login_as_root()
 
         field1 = 'first_name'
@@ -425,7 +411,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_edit02(self):
         "Not custom -> can be still edited."
-        # self.login()
         self.login_as_root()
 
         name = 'Contact view'
@@ -464,19 +449,16 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_edit03(self):
         "Cannot edit HeaderFilter that belongs to another user."
-        # self.login(is_superuser=False)
         self.login_as_standard()
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='tests-hf_contact', name='Contact view',
-            # model=FakeContact, is_custom=True, user=self.other_user,
             model=FakeContact, is_custom=True, user=self.get_root_user(),
         )
         self.assertGET403(hf.get_edit_absolute_url())
 
     def test_edit04(self):
         "User do not have the app credentials"
-        # user = self.login(is_superuser=False, allowed_apps=['documents'])
         user = self.login_as_standard(allowed_apps=['documents'])
 
         hf = HeaderFilter.objects.create_if_needed(
@@ -487,7 +469,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_edit05(self):
         "User belongs to the team -> OK."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         my_team = self.create_team('TeamTitan', user)
 
@@ -499,7 +480,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_edit06(self):
         "User does not belong to the team -> error."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
         my_team = self.create_team('TeamTitan')  # 'user' is not a teammate
@@ -513,26 +493,22 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_edit07(self):
         "Private filter -> cannot be edited by another user (even a super-user)."
-        # self.login()
         self.login_as_root()
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='tests-hf_contact', name='Contact view',
             model=FakeContact, is_custom=True,
-            # is_private=True, user=self.other_user,
             is_private=True, user=self.create_user(),
         )
         self.assertGET403(hf.get_edit_absolute_url())
 
     def test_edit08(self):
         "Staff users can edit all HeaderFilters + private filters must be assigned."
-        # self.login(is_staff=True)
         self.login_as_super(is_staff=True)
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='tests-hf_contact', name='Contact view',
             model=FakeContact, is_custom=True,
-            # is_private=True, user=self.other_user,
             is_private=True, user=self.get_root_user(),
         )
         url = hf.get_edit_absolute_url()
@@ -556,7 +532,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_edit09(self):
         "Not custom filter cannot be private + callback URL."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         hf = HeaderFilter.objects.create_if_needed(
@@ -583,7 +558,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertRedirects(response, callback)
 
     def test_edit_hidden_fields(self):
-        # self.login()
         self.login_as_root()
 
         valid_fname = 'last_name'
@@ -629,7 +603,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response2)
 
     def test_edit_disabled_rtypes(self):
-        # self.login()
         self.login_as_root()
 
         create_rtype = RelationType.objects.smart_update_or_create
@@ -683,7 +656,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response2)
 
     def test_delete01(self):
-        # self.login()
         self.login_as_root()
 
         hf = HeaderFilter.objects.create_if_needed(
@@ -696,7 +668,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_delete02(self):
         "Not custom -> not deletable."
-        # self.login()
         self.login_as_root()
 
         hf = HeaderFilter.objects.create_if_needed(
@@ -708,12 +679,10 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_delete03(self):
         "Belongs to another user."
-        # self.login(is_superuser=False)
         self.login_as_standard()
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='tests-hf_contact', name='Contact view',
-            # model=FakeContact, is_custom=True, user=self.other_user,
             model=FakeContact, is_custom=True, user=self.get_root_user(),
         )
         self.client.post(self.DELETE_URL, data={'id': hf.id})
@@ -721,7 +690,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_delete04(self):
         "The user belongs to the owner team -> OK."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         my_team = self.create_team('TeamTitan', user)
 
@@ -734,7 +702,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_delete05(self):
         "Belongs to a team (not mine) -> KO."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
         a_team = self.create_team('TeamTitan', self.get_root_user())
@@ -749,19 +716,16 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_delete06(self):
         "Logged as superuser."
-        # self.login()
         self.login_as_root()
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='tests-hf_contact', name='Contact view',
-            # model=FakeContact, is_custom=True, user=self.other_user,
             model=FakeContact, is_custom=True, user=self.create_user(),
         )
         self.client.post(self.DELETE_URL, data={'id': hf.id})
         self.assertDoesNotExist(hf)
 
     def test_hfilters_for_ctype01(self):
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET200(
@@ -770,7 +734,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertListEqual([], response.json())
 
     def test_hfilters_for_ctype02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_hf = HeaderFilter.objects.create_if_needed
@@ -793,7 +756,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         )
         create_hf(
             pk=pk_fmt(4), name='Private', model=FakeMailingList, is_custom=True,
-            # is_private=True, user=self.other_user,
             is_private=True, user=self.create_user(),
         )
 
@@ -807,6 +769,5 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_hfilters_for_ctype03(self):
         "No app credentials."
-        # self.login(is_superuser=False, allowed_apps=['documents'])
         self.login_as_standard(allowed_apps=['documents'])
         self.assertGET403(self._build_get4ctype_url(self.contact_ct))

@@ -16,19 +16,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
-# from os import remove as delete_file
-# from os.path import basename
 from django.conf import settings
 from django.db import models
-# from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 import creme.creme_core.models.fields as core_fields
-# from creme.creme_core.models import FileRef
-# from creme.creme_core.utils.file_handling import FileCreator
 from creme.creme_core.models import (
     CremeEntity,
     CremeModel,
@@ -266,10 +260,3 @@ class RootNode(CremeModel):
 
     def get_related_entity(self):  # For generic views (edit_related_to_entity)
         return self.graph
-
-    # def get_relation_types(self):
-    #     warnings.warn(
-    #         'The method RootNode.get_relation_types() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #     return self.relation_types.select_related('symmetric_type')

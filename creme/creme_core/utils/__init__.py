@@ -27,8 +27,7 @@ from __future__ import annotations
 import logging
 import sys
 import traceback
-# import warnings
-from typing import Iterable  # TypeVar Callable
+from typing import Iterable
 
 from django.http import Http404
 from django.utils.safestring import mark_safe
@@ -37,7 +36,6 @@ from django.utils.translation import gettext as _
 from ..signals import pre_replace_related
 
 logger = logging.getLogger(__name__)
-# T = TypeVar('T')
 
 
 def create_if_needed(model, get_dict, **attrs):
@@ -134,54 +132,6 @@ def get_from_GET_or_404(GET, key, cast=None, **kwargs):
 
 def get_from_POST_or_404(POST, key, cast=None, **kwargs):
     return _get_from_request_or_404(POST, 'POST', key, cast, **kwargs)
-
-
-# def find_first(iterable, function, *default):
-#     """Returns the first element of an iterable which corresponds to a constraint.
-#     @param function: Callable which takes one argument (an element form "iterable")
-#            & returns a value used as a boolean ('True' to accept the element).
-#     @param default: Optional argument ; if given, it is returned if no element is found.
-#     @raise IndexError.
-#     """
-#     warnings.warn(
-#         'creme_core.utils.find_first() is deprecated ; use next() instead.',
-#         DeprecationWarning
-#     )
-#
-#     for elt in iterable:
-#         if function(elt):
-#             return elt
-#
-#     if default:
-#         return default[0]
-#
-#     raise IndexError
-
-
-# def split_filter(predicate: Callable[[T], bool],
-#                  iterable: Iterable[T],
-#                  ) -> tuple[list[T], list[T]]:
-#     """Split an iterable into 2 lists : accepted elements & rejected elements
-#     @param predicate: A callable which takes one argument (an element from "iterable")
-#            & returns a value used as a boolean ('True' to accept the element).
-#     @return: 2 lists (accepted then rejected).
-#     """
-#     warnings.warn(
-#         'The function creme_core.utils.split_filter() is deprecated ; '
-#         'use django.utils.functional.partition() instead (beware the lists '
-#         'are returned in the reverse order).',
-#         DeprecationWarning
-#     )
-#     ok = []
-#     ko = []
-#
-#     for x in iterable:
-#         if predicate(x):
-#             ok.append(x)
-#         else:
-#             ko.append(x)
-#
-#     return ok, ko
 
 
 def entities_to_str(entities: Iterable, user) -> str:

@@ -160,7 +160,6 @@ class HistoryRenderTestCase(CremeTestCase):
                 mod2=self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{_("Capital")}</span>',
                     value=f'<span class="field-change-new_value">'
-                          # f'{number_format(orga.capital, use_l10n=True, force_grouping=True)}'
                           f'{number_format(orga.capital, force_grouping=True)}'
                           f'</span>',
                 ),
@@ -419,7 +418,6 @@ class HistoryRenderTestCase(CremeTestCase):
                 _('{field} emptied (it was {oldvalue})').format(
                     field=f'<span class="field-change-field_name">{_("Capital")}</span>',
                     oldvalue=f'<span class="field-change-old_value">'
-                             # f'{number_format(old_capital, use_l10n=True, force_grouping=True)}'
                              f'{number_format(old_capital, force_grouping=True)}'
                              f'</span>',
                 ),
@@ -428,7 +426,6 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_edition_fk01(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         SetCredentials.objects.create(
             role=user.role,
@@ -505,7 +502,6 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_edition_fk02(self):
         "Not allowed to see."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         SetCredentials.objects.create(
             role=user.role,
@@ -516,7 +512,6 @@ class HistoryRenderTestCase(CremeTestCase):
         hayao = FakeContact.objects.create(
             user=user, first_name='Hayao', last_name='Miyazaki',
         )
-        # img = FakeImage.objects.create(user=self.other_user, name='Grumpy Hayao')
         img = FakeImage.objects.create(user=self.get_root_user(), name='Grumpy Hayao')
 
         hayao = self.refresh(hayao)
@@ -640,7 +635,6 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_edition_m2m03(self):
         "M2M to entities."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         SetCredentials.objects.create(
             role=user.role,
@@ -690,7 +684,6 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
         # Credentials ---
-        # ml.user = self.other_user
         ml.user = self.get_root_user()
         ml.save()
         self.assertHTMLEqual(

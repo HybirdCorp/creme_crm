@@ -379,7 +379,6 @@ class MenuEntriesField(fields.JSONField):
     def to_python(self, value):
         decoded_value = super().to_python(value)
         entries = []
-        # user = self.user
 
         if decoded_value:
             if not isinstance(decoded_value, list):

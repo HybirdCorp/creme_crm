@@ -410,7 +410,6 @@ class CustomFieldExtractorTestCase(CremeTestCase):
 
 class ExtractorFieldTestCase(CremeTestCase):
     def test_attributes(self):
-        # user = self.login()
         user = self.get_root_user()
 
         first_name_field = FakeContact._meta.get_field('first_name')
@@ -510,7 +509,6 @@ class ExtractorFieldTestCase(CremeTestCase):
 
 class CustomfieldExtractorFieldTestCase(CremeTestCase):
     def test_attributes(self):
-        # user = self.login()
         user = self.get_root_user()
 
         cfield = CustomField.objects.create(
@@ -538,7 +536,6 @@ class CustomfieldExtractorFieldTestCase(CremeTestCase):
         self.assertIsInstance(widget.default_value_widget, TextInput)
 
     def test_errors(self):
-        # user = self.login()
         user = self.get_root_user()
 
         cfield = CustomField.objects.create(
@@ -574,7 +571,6 @@ class CustomfieldExtractorFieldTestCase(CremeTestCase):
         self.assertEqual('invalid', cm4.exception.args[1])
 
     def test_clean(self):
-        # user = self.login()
         user = self.get_root_user()
 
         cfield = CustomField.objects.create(

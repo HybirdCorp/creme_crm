@@ -694,7 +694,6 @@ class CremeCoreConfig(CremeAppConfig):
                 )
 
             return original_fk_formfield(
-                # self, **{'form_class': config_fields.CreatorModelChoiceField, **kwargs}
                 self, **{'form_class': NotEnumerableFKFallbackField, **kwargs}
             )
 
@@ -792,12 +791,6 @@ class CremeCoreConfig(CremeAppConfig):
 
         forms.MultipleChoiceField.widget = forms.ModelMultipleChoiceField.widget = \
             widgets.UnorderedMultipleChoiceWidget
-
-    # @staticmethod
-    # def hook_select_template():
-    #     from django.forms.widgets import Select
-    #
-    #     Select.template_name = 'creme_core/forms/widgets/select.html'
 
     @staticmethod
     def hook_nullboolean_widget():

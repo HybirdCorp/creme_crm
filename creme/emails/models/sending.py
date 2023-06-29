@@ -247,13 +247,6 @@ class EmailSending(CremeModel):
 
             return self.State.ERROR
 
-        # connection = get_connection(
-        #     host=settings.EMAILCAMPAIGN_HOST,
-        #     port=settings.EMAILCAMPAIGN_PORT,
-        #     username=settings.EMAILCAMPAIGN_HOST_USER,
-        #     password=settings.EMAILCAMPAIGN_PASSWORD,
-        #     use_tls=settings.EMAILCAMPAIGN_USE_TLS,
-        # )
         connection = get_connection(
             host=config_item.host,
             port=config_item.port,

@@ -9,10 +9,6 @@ from .base import Opportunity, Organisation, skipIfCustomOpportunity
 
 
 class OriginTestCase(CremeTestCase):
-    # def setUp(self):
-    #     super().setUp()
-    #     self.login()
-
     @skipIfCustomOpportunity
     def test_delete01(self):
         "Set to NULL."

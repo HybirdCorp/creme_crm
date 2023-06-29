@@ -28,7 +28,6 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
 
     def test_current_year02(self):
         "Several managed organisation + only won."
-        # user = self.login()
         user = self.login_as_root_and_get()
         statf = CurrentYearStatistics(Opportunity, Organisation)
 

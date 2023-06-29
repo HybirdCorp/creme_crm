@@ -13,7 +13,6 @@ from .base import Document, _DocumentsTestCase
 class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
     def setUp(self):
         super().setUp()
-        # self.login()
         self.user = self.login_as_root_and_get()
 
     def test_init01(self):
@@ -81,7 +80,6 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         # Clean
         img1 = self._create_image(title='Icon#1', ident=1)
         self.assertFieldValidationError(
-            # ImageEntityField, 'doesnotexist', field.clean, str(img1.id),
             ImageEntityField, 'isexcluded', field.clean, str(img1.id),
             message_args={'entity': str(img1)},
         )
@@ -153,7 +151,6 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         # Clean
         img1 = self._create_image(title='Icon#1')
         self.assertFieldValidationError(
-            # ImageEntityField, 'doesnotexist', field.clean, str(img1.id),
             ImageEntityField, 'isexcluded', field.clean, str(img1.id),
             message_args={'entity': str(img1)},
         )
@@ -204,7 +201,6 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
     def setUp(self):
         super().setUp()
-        # self.login()
         self.user = self.login_as_root_and_get()
 
     @staticmethod

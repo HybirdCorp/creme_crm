@@ -10,7 +10,6 @@ from .base import EmailCampaign, _EmailsTestCase, skipIfCustomEmailCampaign
 @skipIfCustomEmailCampaign
 class CampaignTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_create(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = reverse('emails__create_campaign')
@@ -43,7 +42,6 @@ class CampaignTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(_('Mailing lists'), self.get_brick_title(ml_brick_node))
 
     def test_edit(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'my_campaign'
@@ -65,7 +63,6 @@ class CampaignTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(name, self.refresh(camp).name)
 
     def test_list(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         camp = EmailCampaign.objects.create(user=user, name='my_campaign')
 

@@ -31,12 +31,6 @@ from django.db.models import Model
 from django.http import Http404
 
 
-# def as_ctype(ct_or_model_or_instance) -> ContentType:
-#     return (
-#         ct_or_model_or_instance
-#         if isinstance(ct_or_model_or_instance, ContentType) else
-#         ContentType.objects.get_for_model(ct_or_model_or_instance)
-#     )
 def as_ctype(value: ContentType | type[Model] | Model, /) -> ContentType:
     return (
         value

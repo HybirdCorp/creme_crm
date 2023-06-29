@@ -71,7 +71,6 @@ class _BrickLocationsForm(base.CremeForm):
         bricks = self.fields[field_name]
         choices = [
             {
-                # 'value': brick.id_,
                 'value': brick.id,
                 'label': str(brick.verbose_name),
                 'help': str(brick.description),
@@ -149,7 +148,6 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
         model = ctype.model_class() if ctype else None
 
         self.choices = choices = [
-            # (brick.id_, brick)
             (brick.id, brick)
             for brick in gui_bricks.brick_registry.get_compatible_bricks(model=model)
         ]
@@ -164,7 +162,6 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
 
         if len(hat_bricks) > 1:
             hat_f = self.fields['hat']
-            # hat_f.choices = [(brick.id_, brick.verbose_name) for brick in hat_bricks]
             hat_f.choices = [(brick.id, brick.verbose_name) for brick in hat_bricks]
         else:
             del self.fields['hat']
@@ -188,7 +185,6 @@ class _BrickDetailviewLocationsForm(_BrickLocationsForm):
         )
 
 
-# class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
 class BrickDetailviewLocationsCreationForm(_BrickDetailviewLocationsForm):
     role = forms.ModelChoiceField(
         label=_('Role'), queryset=UserRole.objects.none(),
@@ -232,7 +228,6 @@ class BrickDetailviewLocationsCreationForm(_BrickDetailviewLocationsForm):
         super().save(*args, **kwargs)
 
 
-# class BrickDetailviewLocationsEditForm(_BrickDetailviewLocationsForm):
 class BrickDetailviewLocationsEditionForm(_BrickDetailviewLocationsForm):
     def __init__(self, role, superuser, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -345,7 +340,6 @@ class BrickMypageLocationsForm(_BrickLocationsForm):
         )
 
 
-# class RTypeBrickAddForm(base.CremeModelForm):
 class RTypeBrickCreationForm(base.CremeModelForm):
     # TODO: do no define manually the whole field?
     relation_type = forms.ModelChoiceField(
@@ -365,7 +359,6 @@ class RTypeBrickCreationForm(base.CremeModelForm):
         ).filter(enabled=True)
 
 
-# class RTypeBrickItemAddCtypeForm(base.CremeModelForm):
 class RTypeBrickItemCtypeAddingForm(base.CremeModelForm):
     ctype = core_fields.EntityCTypeChoiceField(
         label=_('Customised resource'),
@@ -397,7 +390,6 @@ class RTypeBrickItemCtypeAddingForm(base.CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-# class RTypeBrickItemEditCtypeForm(base.CremeModelForm):
 class RTypeBrickItemCtypeEditionForm(base.CremeModelForm):
     cells = EntityCellsField(label=_('Columns'))
 
@@ -477,7 +469,6 @@ class _CustomBrickConfigItemBaseForm(base.CremeModelForm):
         return instance
 
 
-# class CustomBrickConfigItemCreateForm(_CustomBrickConfigItemBaseForm):
 class CustomBrickConfigItemCreationForm(_CustomBrickConfigItemBaseForm):
     ctype = core_fields.EntityCTypeChoiceField(
         label=_('Related resource'),
@@ -503,7 +494,6 @@ class CustomBrickConfigItemCreationForm(_CustomBrickConfigItemBaseForm):
         return cdata
 
 
-# class CustomBrickConfigItemEditForm(_CustomBrickConfigItemBaseForm):
 class CustomBrickConfigItemEditionForm(_CustomBrickConfigItemBaseForm):
     cells = EntityCellsField(label=_('Lines'))
 

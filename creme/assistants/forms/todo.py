@@ -24,7 +24,6 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
-# from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.forms.widgets import CalendarWidget
 
 from ..models import ToDo
@@ -84,7 +83,6 @@ class ToDoForm(CremeModelForm):
                         _('The hour is required if you set a date.'),
                     )
                 else:
-                    # cdata['deadline'] = make_aware_dt(
                     cdata['deadline'] = make_aware(
                         datetime.combine(deadline, time(deadline_hour))
                     )

@@ -26,7 +26,6 @@ from creme.creme_core.tests.fake_menu import (
     FakeContactsEntry,
     FakeOrganisationCreationEntry,
 )
-# from creme.creme_core.utils import split_filter
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from ..bricks import MenuBrick
@@ -188,7 +187,6 @@ class MenuEntriesTestCase(CremeTestCase):
         self.assertEqual('creme_config',                 entry.permissions)
 
     def test_current_app_entry01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         entry = CurrentAppConfigEntry()
@@ -219,7 +217,6 @@ class MenuEntriesTestCase(CremeTestCase):
     @skipIfCustomContact
     def test_current_app_entry02(self):
         "Other app."
-        # user = self.login(is_superuser=False, admin_4_apps=('persons',))
         user = self.login_as_standard(admin_4_apps=('persons',))
 
         contact = get_contact_model().objects.create(user=user, last_name='Doe')
@@ -245,7 +242,6 @@ class MenuEntriesTestCase(CremeTestCase):
     @skipIfCustomContact
     def test_current_app_entry03(self):
         "Not allowed"
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
         contact = get_contact_model().objects.create(user=user, last_name='Doe')
@@ -266,7 +262,6 @@ class MenuEntriesTestCase(CremeTestCase):
         "View without model."
         from creme.activities.views.calendar import CalendarView
 
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         view = CalendarView()
@@ -283,7 +278,6 @@ class MenuEntriesTestCase(CremeTestCase):
 
     def test_current_app_entry05(self):
         "creme_config's view."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self.assertFalse(
@@ -291,7 +285,6 @@ class MenuEntriesTestCase(CremeTestCase):
         )
 
     def test_config_entry(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         entry = CremeConfigEntry()
@@ -458,7 +451,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_portal01(self):
         "Only default menu."
-        # self.login()
         self.login_as_root()
         self._build_simple_menu()
 
@@ -483,7 +475,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_portal02(self):
-        # self.login()
         self.login_as_root()
         role1 = self.role
 
@@ -506,7 +497,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_special_level1_entry01(self):
         "Separator1."
-        # self.login()
         self.login_as_root()
 
         entry_id = Separator1Entry.id
@@ -540,7 +530,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_special_level1_entry02(self):
         "Custom URL."
-        # self.login()
         self.login_as_root()
 
         entry_id = CustomURLEntry.id
@@ -579,7 +568,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_special_level1_entry03(self):
         "Invalid entries."
-        # self.login()
         self.login_as_root()
 
         build_url = self._build_special_level1_url
@@ -589,10 +577,8 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_container01(self):
         "Default configuration."
-        # self.login()
         self.login_as_root()
 
-        # url = self.ADD_URL
         url = self._build_add_container_url()
         response1 = self.assertGET200(url)
         ctxt1 = response1.context
@@ -651,7 +637,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_container02(self):
         "There are already containers."
-        # self.login()
         self.login_as_root()
         role = self.role
 
@@ -738,7 +723,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_container03(self):
         "Superuser configuration."
-        # self.login()
         self.login_as_root()
 
         label = 'Fake Directory'
@@ -772,7 +756,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_container04(self):
         "Role configuration."
-        # self.login()
         self.login_as_root()
 
         role = self.role
@@ -807,10 +790,8 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_special_level0_entry01(self):
         "Add CremeEntry (one instance max)."
-        # self.login()
         self.login_as_root()
 
-        # url = reverse('creme_config__add_menu_special_level0')
         url = self._build_special_level0_url()
         ctxt1 = self.assertGET200(url).context
         self.assertEqual(_('Add a special root entry'), ctxt1['title'])
@@ -854,7 +835,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_special_level0_entry02(self):
         "With existing items."
-        # self.login()
         self.login_as_root()
 
         url = self._build_special_level0_url()
@@ -890,7 +870,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_special_level0_entry03(self):
         "Separator0 can have several instances."
-        # self.login()
         self.login_as_root()
         MenuConfigItem.objects.create(entry_id=Separator0Entry.id, order=1)
 
@@ -906,7 +885,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_special_level0_entry04(self):
         "Superuser configuration."
-        # self.login()
         self.login_as_root()
 
         url = self._build_special_level0_url(superuser=True)
@@ -942,7 +920,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_special_level0_entry05(self):
         "Superuser configuration."
-        # self.login()
         self.login_as_root()
         role = self.role
         url = self._build_special_level0_url(role=role)
@@ -978,7 +955,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_container01(self):
         "New items added."
-        # self.login()
         self.login_as_root()
         role = self.role
 
@@ -1076,7 +1052,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_container02(self):
         "Some items removed, some changed."
-        # self.login()
         self.login_as_root()
 
         label = 'My contacts'
@@ -1108,7 +1083,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_container03(self):
         "Items with label/data."
-        # self.login()
         self.login_as_root()
 
         label = 'My contacts'
@@ -1149,7 +1123,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_edit_container_error(self):
-        # self.login()
         self.login_as_root()
 
         create_item = MenuConfigItem.objects.create
@@ -1160,7 +1133,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET404(self._build_edit_container_url(item02))
 
     def test_remove_container01(self):
-        # self.login()
         self.login_as_root()
 
         create_item = MenuConfigItem.objects.create
@@ -1179,7 +1151,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(sub_item2)
 
     def test_remove_container02(self):
-        # self.login()
         self.login_as_root()
 
         item = MenuConfigItem.objects.create(entry_id=RecentEntitiesEntry.id, order=0)
@@ -1187,7 +1158,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(item)
 
     def test_remove_container_errors(self):
-        # self.login()
         self.login_as_root()
 
         create_item = MenuConfigItem.objects.create
@@ -1203,7 +1173,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_reorder_level0_entry01(self):
         "Default configuration."
-        # self.login(is_superuser=False, admin_4_apps=['creme_core'])
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         create_item = MenuConfigItem.objects.create
@@ -1244,7 +1213,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_reorder_level0_entry02(self):
         "Not allowed."
-        # self.login(is_superuser=False)  # admin_4_apps=['creme_core']
         self.login_as_standard()  # admin_4_apps=['creme_core']
 
         create_item = MenuConfigItem.objects.create
@@ -1258,7 +1226,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_reorder_level0_entry03(self):
         "Superuser configuration."
-        # self.login(is_superuser=False, admin_4_apps=['creme_core'])
         self.login_as_standard(admin_4_apps=('creme_core',))
 
         create_item = partial(MenuConfigItem.objects.create, superuser=True)
@@ -1278,9 +1245,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_reorder_level0_entry04(self):
         "Role configuration."
-        # self.login(is_superuser=False, admin_4_apps=['creme_core'])
         user = self.login_as_standard(admin_4_apps=['creme_core'])
-        # role = self.role
         role = user.role
 
         create_item = partial(MenuConfigItem.objects.create, role=role)
@@ -1300,9 +1265,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_clone01(self):
         "For super-user."
-        # self.login(is_superuser=False, admin_4_apps=['creme_core'])
         user = self.login_as_standard(admin_4_apps=['creme_core'])
-        # role1 = self.role
         role1 = user.role
         role2 = self.create_role(name='Salesman')
 
@@ -1358,9 +1321,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_clone02(self):
         "For role."
-        # self.login(is_superuser=False, admin_4_apps=['creme_core'])
         user = self.login_as_standard(admin_4_apps=('creme_core',))
-        # role1 = self.role
         role1 = user.role
 
         self._build_simple_menu()
@@ -1407,9 +1368,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_delete_menu(self):
-        # self.login(is_superuser=False, admin_4_apps=['creme_core'])
         user = self.login_as_standard(admin_4_apps=('creme_core',))
-        # role1 = self.role
         role1 = user.role
         role2 = self.create_role(name='Salesman')
 

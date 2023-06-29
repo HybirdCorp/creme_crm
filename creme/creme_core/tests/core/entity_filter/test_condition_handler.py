@@ -491,7 +491,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_accept_operand(self):
         "Use operand resolving."
-        # user = self.login()
         user = self.get_root_user()
         handler = RegularFieldConditionHandler(
             model=FakeOrganisation,
@@ -504,7 +503,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         o1 = create_orga(name='Evil Corp', user=user)
         self.assertIs(handler.accept(entity=o1, user=user), True)
 
-        # o2 = create_orga(name='Genius incorporated', user=self.other_user)
         o2 = create_orga(name='Genius incorporated', user=self.create_user())
         self.assertIs(handler.accept(entity=o2, user=user), False)
 
@@ -765,7 +763,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         with self.assertRaises(FilterConditionHandler.ValueError) as cm:
             build(operator=operators.EQUALS, values=['misato'])
         self.assertEqual(
-            # "['{}']".format(_('Enter a valid email address.')),
             _('Condition on field «{field}»: {error}').format(
                 field=_('Email address'),
                 error=_('Enter a valid email address.'),
@@ -795,7 +792,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         with self.assertRaises(FilterConditionHandler.ValueError) as cm:
             build(operator=operators.EQUALS, values=['misato'])
         self.assertEqual(
-            # "['{}']".format(_('Enter a valid URL.')),
             _('Condition on field «{field}»: {error}').format(
                 field=_('Web Site'),
                 error=_('Enter a valid URL.'),
@@ -815,9 +811,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_condition_credentials(self):
         "Credentials for entity FK."
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user(role=self.create_role())
 
         create_folder = FakeFolder.objects.create
@@ -936,7 +930,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_description04(self):
         "ForeignKey to CremeEntity."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         SetCredentials.objects.create(
             role=user.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
@@ -945,7 +938,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         create_folder = partial(FakeFolder.objects.create, user=user)
         folder1 = create_folder(title='Pix')
         folder2 = create_folder(title='Music')
-        # folder3 = create_folder(title='ZZZ',  user=self.other_user)
         folder3 = create_folder(title='ZZZ',  user=self.get_root_user())
 
         handler = RegularFieldConditionHandler(
@@ -1939,7 +1931,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 custom_field=cf_int, operator=operators.CONTAINS, values=['not an int'],
             )
         self.assertEqual(
-            # "['{}']".format(_('Enter a whole number.')),
             _('Condition on field «{field}»: {error}').format(
                 field=cf_int.name,
                 error=_('Enter a whole number.'),
@@ -2963,7 +2954,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler4.accept(entity=asuka,  user=user), False)
 
     def test_relation_description01(self):
-        # user = self.login()
         user = self.get_root_user()
 
         rtype = RelationType.objects.smart_update_or_create(
@@ -3011,7 +3001,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
     def test_relation_description02(self):
-        # user = self.login()
         user = self.get_root_user()
 
         rtype = RelationType.objects.smart_update_or_create(
@@ -3063,7 +3052,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_relation_description03(self):
         "Credentials."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
         rtype = RelationType.objects.smart_update_or_create(
@@ -3091,7 +3079,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_relation_description04(self):
         "Errors."
-        # user = self.login()
         user = self.get_root_user()
 
         handler1 = RelationConditionHandler(
@@ -3979,7 +3966,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual('???', handler.description(user))
 
     def test_operand_currentuser(self):
-        # user = self.login()
         user1 = self.get_root_user()
         user2 = self.create_user(index=0)
         user3 = self.create_user(index=1)

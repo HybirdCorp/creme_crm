@@ -261,7 +261,6 @@ class _RGHRegularField(ReportGraphHand):
         build_url = self._listview_url_builder(extra_q=extra_q)
 
         field_name = _physical_field_name(self._field.model._meta.db_table, abscissa)
-        # x_value_key = connection.ops.date_trunc_sql(kind, field_name)
         x_sql, x_params = connection.ops.date_trunc_sql(
             lookup_type=kind, sql=field_name, params=(),
         )
@@ -306,7 +305,6 @@ class RGHDay(_RGHRegularField):
                 month_key: date.month,
                 day_key:   date.day,
             },
-            # date_format='%d/%m/%Y',
             date_format=_generate_date_format(year=True, month=True, day=True),
             order=order,
             extra_q=extra_q,
@@ -329,14 +327,12 @@ class RGHMonth(_RGHRegularField):
                 year_key:  date.year,
                 month_key: date.month,
             },
-            # date_format='%m/%Y',
             date_format=_generate_date_format(year=True, month=True),
             order=order,
             extra_q=extra_q,
         )
 
 
-# @RGRAPH_HANDS_MAP(constants.RGT_YEAR)
 @RGRAPH_HANDS_MAP(AbscissaGroup.YEAR)
 class RGHYear(_RGHRegularField):
     verbose_name = _('By years')
@@ -348,7 +344,6 @@ class RGHYear(_RGHRegularField):
             entities=entities,
             abscissa=abscissa, kind='year',
             qdict_builder=lambda date: {f'{abscissa}__year': date.year},
-            # date_format='%Y',
             date_format=_generate_date_format(year=True),
             order=order,
             extra_q=extra_q,
@@ -659,7 +654,6 @@ class _RGHCustomField(ReportGraphHand):
         entities = entities.filter(**{cfield_q_key: cfield})
 
         field_name = _physical_field_name(value_meta.db_table, 'value')
-        # x_value_key = connection.ops.date_trunc_sql(kind, field_name)
         # TODO: factorise
         x_sql, x_params = connection.ops.date_trunc_sql(
             lookup_type=kind, sql=field_name, params=(),

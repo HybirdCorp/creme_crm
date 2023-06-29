@@ -102,7 +102,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'pdf'))
     def test_createview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self.assertFalse(Document.objects.exists())
@@ -163,7 +162,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'png', 'py'))
     def test_createview02(self):
         "Forbidden extension."
-        # self.login()
         user = self.login_as_root_and_get()
 
         ext = 'php'
@@ -191,7 +189,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'png', 'py'))
     def test_createview03(self):
         "Double extension (bugfix)."
-        # self.login()
         user = self.login_as_root_and_get()
 
         ext = 'php'
@@ -217,7 +214,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
     def test_createview04(self):
         "No extension."
-        # self.login()
         user = self.login_as_root_and_get()
 
         title = 'My doc'
@@ -240,7 +236,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
     def test_createview05(self):
         "No title."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         ext = settings.ALLOWED_EXTENSIONS[0]
@@ -268,7 +263,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
     @override_settings(ALLOWED_EXTENSIONS=('txt', 'png'))
     def test_createview06(self):
         "Upload image + capital extension (bugfix)."
-        # self.login()
         user = self.login_as_root_and_get()
 
         with open(
@@ -293,7 +287,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertTupleEqual((22, 22), size)
 
     def test_detailview(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         create_cat = DocumentCategory.objects.create
@@ -324,7 +317,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
 
     def test_editview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         title = 'Test doc'
@@ -370,7 +362,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertRedirects(response, doc.get_absolute_url())
 
     def test_add_related_document01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         root_folder = self.get_object_or_fail(Folder, uuid=UUID_FOLDER_RELATED2ENTITIES)
 
@@ -436,7 +427,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
     def test_add_related_document02(self):
         "Creation credentials."
-        # user = self.login(is_superuser=False, allowed_apps=['documents', 'creme_core'])
         user = self.login_as_standard(allowed_apps=['documents', 'creme_core'])
         SetCredentials.objects.create(
             role=user.role,
@@ -455,9 +445,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
     def test_add_related_document03(self):
         "Link credentials."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['documents', 'creme_core'],
             creatable_models=[Document],
         )
@@ -493,7 +481,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         response = self.assertPOST200(
             url, follow=True,
             data={
-                # 'user': self.other_user.pk,
                 'user': self.get_root_user().pk,
                 'title': 'Title',
                 'description': 'Test description',
@@ -512,9 +499,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
     def test_add_related_document04(self):
         "Link credentials with related entity are needed."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['documents', 'creme_core'],
             creatable_models=[Document],
         )
@@ -552,9 +537,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
     def test_add_related_document05(self):
         "View credentials."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['documents', 'creme_core'],
             creatable_models=[Document],
         )
@@ -570,7 +553,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
-        # orga = FakeOrganisation.objects.create(user=self.other_user, name='NERV')
         orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='NERV')
         self.assertTrue(user.has_perm_to_link(orga))
         self.assertFalse(user.has_perm_to_view(orga))
@@ -578,7 +560,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
     def test_add_related_document06(self):
         "The Folder containing all the Documents related to the entity has a too long name."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         MAX_LEN = 100
@@ -615,7 +596,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
     def test_add_related_document07(self):
         "Collision with Folder titles."
-        # user = self.login()
         user = self.login_as_root_and_get()
         entity = CremeEntity.objects.create(user=user)
         root_folder = self.get_object_or_fail(Folder, uuid=UUID_FOLDER_RELATED2ENTITIES)
@@ -655,7 +635,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(root_folder, ct_folder.parent_folder)
 
     def test_listview(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         create_doc = partial(self._create_doc, user=user)
@@ -671,7 +650,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertIn(doc2, docs)
 
     def test_listview_actions(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         doc1 = self._create_doc(user=user, title='Test doc #1')
 
@@ -691,7 +669,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
     def test_delete_category(self):
         "Set to null."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         cat = FolderCategory.objects.create(name='Manga')
@@ -713,7 +690,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
     @skipIfCustomContact
     def test_field_printers_fk01(self):
         "Field printer with FK on Image."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         image = self._create_image(user=user)
@@ -751,16 +727,13 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         "Field printer with FK on Image + credentials."
         Contact = get_contact_model()
 
-        # user = self.login(allowed_apps=['creme_core', 'persons', 'documents'])
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         role = self.create_role(
             allowed_apps=['creme_core', 'persons', 'documents'],
             exportable_models=[Contact],
         )
         other_user = self.create_user(role=role)
 
-        # role = self.role
         SetCredentials.objects.create(
             role=role,
             value=(
@@ -895,7 +868,6 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         })
 
     def test_create(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self.assertFalse(Document.objects.exists())
@@ -933,7 +905,6 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
 @skipIfCustomFolder
 class DocumentQuickWidgetTestCase(_DocumentsTestCase):
     def test_add_csv_doc01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self.assertFalse(Document.objects.exists())
@@ -978,23 +949,16 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
     def test_add_csv_doc02(self):
         "Not super-user."
-        # self.login(is_superuser=False, allowed_apps=['documents'], creatable_models=[Document])
         self.login_as_standard(allowed_apps=['documents'], creatable_models=[Document])
         self.assertGET200(reverse('documents__create_document_from_widget'))
 
     def test_add_csv_doc03(self):
         "Creation permission needed."
-        # self.login(
-        self.login_as_standard(
-            # is_superuser=False,
-            allowed_apps=['documents'],
-            # creatable_models=[Document],
-        )
+        self.login_as_standard(allowed_apps=['documents'])
         self.assertGET403(reverse('documents__create_document_from_widget'))
 
     @override_settings(ALLOWED_EXTENSIONS=('png', 'pdf'))
     def test_add_image_doc01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = reverse('documents__create_image_popup')
@@ -1043,7 +1007,6 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
     @override_settings(ALLOWED_EXTENSIONS=('png', 'pdf'))
     def test_add_image_doc02(self):
         "Not an image file."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         folder = Folder.objects.all()[0]

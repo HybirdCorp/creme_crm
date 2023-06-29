@@ -69,9 +69,7 @@ from .base import FieldTestCase
 
 class CremeUserChoiceFieldTestCase(FieldTestCase):  # DEPRECATED
     def test_default(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user(role=self.create_role())
         staff = CremeUser.objects.create(username='deunan', is_staff=True)
 
@@ -128,9 +126,7 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):  # DEPRECATED
         self.assertEqual(other_user, clean(str(other_user.id)))
 
     def test_queryset(self):
-        # user = self.login()
         user = self.get_root_user()
-        # other_user = self.other_user
         other_user = self.create_user()
         staff = CremeUser.objects.create(username='deunan', is_staff=True)
 
@@ -145,17 +141,13 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):  # DEPRECATED
         self.assertNotInChoices(value=staff.id, choices=active_choices)
 
     def test_initial(self):
-        # self.login()
-        # other_id = self.other_user.id
         other_id = self.create_user().id
 
         field = CremeUserChoiceField(initial=other_id)
         self.assertEqual(other_id, field.initial)
 
     def test_inactive_users(self):
-        # user = self.login()
         user = self.get_root_user()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         create_inactive_user = partial(CremeUser.objects.create, is_active=False)
@@ -192,9 +184,7 @@ class CremeUserChoiceFieldTestCase(FieldTestCase):  # DEPRECATED
         )
 
     def test_teams(self):
-        # user = self.login()
         user = self.get_root_user()
-        # other_user = self.other_user
         other_user = self.create_user()
         team = self.create_team('Team#1', user, other_user)
 
@@ -361,14 +351,7 @@ class RelativeDatePeriodFieldTestCase(FieldTestCase):
 
     def test_ok01(self):
         "Days + after."
-        # signed_period = RelativeDatePeriodField().clean(['1', DaysPeriod.name, '3'])
         signed_period = RelativeDatePeriodField().clean(['1', [DaysPeriod.name, '3']])
-        # self.assertIsTuple(signed_period, length=2)
-        # self.assertEqual(1, signed_period[0])
-
-        # period = signed_period[1]
-        # self.assertIsInstance(period, DaysPeriod)
-        # self.assertDictEqual({'type': 'days', 'value': 3}, period.as_dict())
         self.assertEqual(
             RelativeDatePeriodField.RelativeDatePeriod(sign=1, period=DaysPeriod(3)),
             signed_period,
@@ -376,10 +359,6 @@ class RelativeDatePeriodFieldTestCase(FieldTestCase):
 
     def test_ok02(self):
         "Minutes + before."
-        # sign, period = RelativeDatePeriodField().clean(['-1', MinutesPeriod.name, '5'])
-        # self.assertEqual(-1, sign)
-        # self.assertIsInstance(period, DatePeriod)
-        # self.assertDictEqual({'type': 'minutes', 'value': 5}, period.as_dict())
         signed_period = RelativeDatePeriodField().clean(['-1', [MinutesPeriod.name, '5']])
         self.assertEqual(
             RelativeDatePeriodField.RelativeDatePeriod(sign=-1, period=MinutesPeriod(5)),
@@ -391,10 +370,6 @@ class RelativeDatePeriodFieldTestCase(FieldTestCase):
         field = cls()
         clean = field.clean
         pname = DaysPeriod.name
-        # self.assertFieldValidationError(cls, 'required', clean, ['', '', ''])
-        # self.assertFieldValidationError(cls, 'required', clean, None)
-        # self.assertFieldValidationError(cls, 'required', clean, ['', pname, '2'])
-        # self.assertFieldValidationError(cls, 'required', clean, ['1', pname, ''])
         self.assertFieldValidationError(cls, 'required', clean, ['', ['', '']])
         self.assertFieldValidationError(cls, 'required', clean, None)
         self.assertFieldValidationError(cls, 'required', clean, ['', [pname, '2']])
@@ -402,13 +377,6 @@ class RelativeDatePeriodFieldTestCase(FieldTestCase):
 
     def test_not_required(self):
         clean = RelativeDatePeriodField(required=False).clean
-        # self.assertTupleEqual((), clean(['', '', '']))
-        # self.assertTupleEqual((), clean(['', '']))
-        # self.assertTupleEqual((), clean(['']))
-        # self.assertTupleEqual((), clean([]))
-        # self.assertTupleEqual((), clean(None))
-        # self.assertTupleEqual((), clean(['1', DaysPeriod.name, '']))
-        # self.assertTupleEqual((), clean(['1', '', '2']))
         self.assertIsNone(clean(['', ['', '']]))
         self.assertIsNone(clean(['', ['']]))
         self.assertIsNone(clean(['']))
@@ -421,26 +389,22 @@ class RelativeDatePeriodFieldTestCase(FieldTestCase):
         clean = RelativeDatePeriodField().clean
         self.assertFieldValidationError(
             TypedChoiceField, 'invalid_choice', clean,
-            # ['notint', YearsPeriod.name, '1'],
             ['notint', [YearsPeriod.name, '1']],
             message_args={'value': 'notint'},
         )
 
         self.assertFieldValidationError(
-            # IntegerField, 'invalid', clean, ['1', YearsPeriod.name, 'notint'],
             IntegerField, 'invalid', clean, ['1', [YearsPeriod.name, 'notint']],
         )
 
         name = 'unknownperiod'
         self.assertFieldValidationError(
-            # ChoiceField, 'invalid_choice', clean, ['-1', name, '2'],
             ChoiceField, 'invalid_choice', clean, ['-1', [name, '2']],
             message_args={'value': name},
         )
 
     def test_notnull_period(self):
         with self.assertRaises(ValidationError) as cm:
-            # RelativeDatePeriodField().clean(['-1', DaysPeriod.name, '0'])
             RelativeDatePeriodField().clean(['-1', [DaysPeriod.name, '0']])
 
         self.assertListEqual(
@@ -519,12 +483,10 @@ class DateRangeFieldTestCase(FieldTestCase):
         date_value = self.formfield_value_date
         self.assertFieldValidationError(
             DateRangeField, 'customized_invalid',
-            # DateRangeField().clean, ['', '2011-05-16', '2011-05-15'],
             DateRangeField().clean, ['', date_value(2011, 5, 16), date_value(2011, 5, 15)],
         )
 
     def _aux_test_ok(self):
-        # drange = DateRangeField().clean(['', '2013-05-29', '2013-06-16'])
         date_value = self.formfield_value_date
         drange = DateRangeField().clean(['', date_value(2013, 5, 29), date_value(2013, 6, 16)])
         dt = self.create_datetime
@@ -630,9 +592,6 @@ class ColorFieldTestCase(FieldTestCase):
 class DurationFieldTestCase(FieldTestCase):
     def test_ok(self):
         clean = DurationField().clean
-        # self.assertEqual('10:2:0', clean(['10', '2', '0']))
-        # self.assertEqual('10:2:0', clean([10, 2, 0]))
-        # self.assertEqual('0:12:30', clean(['0', '12', '30']))
         self.assertEqual(timedelta(hours=10, minutes=2, seconds=0),  clean(['10', '2', '0']))
         self.assertEqual(timedelta(hours=8, minutes=12, seconds=25), clean([8, 12, 25]))
 
@@ -645,10 +604,6 @@ class DurationFieldTestCase(FieldTestCase):
 
     def test_empty_not_required(self):
         clean = DurationField(required=False).clean
-        # self.assertEqual('0:0:0', clean(None))
-        # self.assertEqual('0:0:0', clean(''))
-        # self.assertEqual('0:0:0', clean([]))
-        # self.assertEqual('0:0:0', clean(['', '', '']))
         empty = timedelta()
         self.assertEqual(empty, clean(None))
         self.assertEqual(empty, clean(''))
@@ -656,9 +611,6 @@ class DurationFieldTestCase(FieldTestCase):
         self.assertEqual(empty, clean(['', '', '']))
 
     def test_invalid(self):
-        # self.assertFieldValidationError(
-        #     DurationField, 'invalid', DurationField().clean, ['a', 'b', 'c'],
-        # )
         with self.assertRaises(ValidationError) as cm:
             DurationField().clean(['a', 'b', 'c'])
 
@@ -668,10 +620,6 @@ class DurationFieldTestCase(FieldTestCase):
         )
 
     def test_positive(self):
-        # self.assertFieldValidationError(
-        #     DurationField, 'min_value', DurationField().clean,
-        #     ['-1', '-1', '-1'], message_args={'limit_value': 0},
-        # )
         with self.assertRaises(ValidationError) as cm:
             DurationField().clean(['-1', '-1', '-1'])
 
@@ -729,13 +677,11 @@ class OptionalChoiceFieldTestCase(FieldTestCase):
         sub_field2 = sub_fields[1]
         self.assertIsInstance(sub_field2, ChoiceField)
         self.assertListEqual(choices, sub_field2.choices)
-        # self.assertTrue(sub_field2.required)
         self.assertFalse(sub_field2.required)
         self.assertFalse(sub_field2.disabled)
 
     def test_ok_choice(self):
         field = OptionalChoiceField(choices=enumerate(self._team, start=1))
-        # self.assertEqual((True, '1'), field.clean([True, 1]))
         self.assertEqual(
             OptionalChoiceField.Option(is_set=True, data='1'),
             field.clean([True, 1]),
@@ -745,7 +691,6 @@ class OptionalChoiceFieldTestCase(FieldTestCase):
         clean = OptionalChoiceField(
             choices=enumerate(self._team, start=1), required=False,
         ).clean
-        # expected = (False, None)
         expected = OptionalChoiceField.Option(is_set=False, data=None)
         self.assertEqual(expected, clean([False, '']))
         self.assertEqual(expected, clean(['', '']))
@@ -763,7 +708,6 @@ class OptionalChoiceFieldTestCase(FieldTestCase):
             choices=enumerate(self._team, start=1), required=True,
         ).clean
 
-        # expected = (False, None)
         expected = OptionalChoiceField.Option(is_set=False, data=None)
         self.assertEqual(expected, clean([False, None]))
         self.assertEqual(expected, clean(['', None]))

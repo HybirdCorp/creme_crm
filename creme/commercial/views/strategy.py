@@ -292,9 +292,6 @@ class MatrixBricksReloading(bricks_views.BricksReloading):
     strategy_id_url_kwarg = 'strategy_id'
     orga_id_url_kwarg     = 'orga_id'
     allowed_bricks = {
-        # com_bricks.AssetsMatrixBrick.id_:       com_bricks.AssetsMatrixBrick,
-        # com_bricks.CharmsMatrixBrick.id_:       com_bricks.CharmsMatrixBrick,
-        # com_bricks.AssetsCharmsMatrixBrick.id_: com_bricks.AssetsCharmsMatrixBrick,
         com_bricks.AssetsMatrixBrick.id:       com_bricks.AssetsMatrixBrick,
         com_bricks.CharmsMatrixBrick.id:       com_bricks.CharmsMatrixBrick,
         com_bricks.AssetsCharmsMatrixBrick.id: com_bricks.AssetsCharmsMatrixBrick,

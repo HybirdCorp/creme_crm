@@ -21,7 +21,6 @@ from __future__ import annotations
 import copy
 import json
 import logging
-# import warnings
 from datetime import date
 from functools import partial
 from types import GeneratorType
@@ -518,31 +517,8 @@ class SelectorList(widgets.TextInput):
         super().__init__(attrs)
         self.selector = selector
 
-        # self._enabled = True  # DEPRECATED
-        # if kwargs:
-        #     self.enabled = kwargs.pop('enabled')
-        #     assert not kwargs, 'Invalid attribute'
-
         self.actions = [self.action_class(name='add', label=gettext_lazy('Add'), icon='add')]
         self.from_python = None  # TODO: remove this hack ?
-
-    # @property
-    # def enabled(self):
-    #     warnings.warn(
-    #         'SelectorList: the attribute <enabled> is deprecated (read) ; '
-    #         'use <attrs={"disabled": True}> to disable instead.',
-    #         DeprecationWarning
-    #     )
-    #     return self._enabled
-    #
-    # @enabled.setter
-    # def enabled(self, value):
-    #     warnings.warn(
-    #         'SelectorList: the attribute <enabled> is deprecated (write) ; '
-    #         'use <attrs={"disabled": True}> to disable instead.',
-    #         DeprecationWarning
-    #     )
-    #     self._enabled = value
 
     def add_action(self, name, label, enabled=True, icon: str | None = None, **attrs):
         self.actions.append(self.action_class(
@@ -562,13 +538,6 @@ class SelectorList(widgets.TextInput):
         context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
         final_attrs = widget_cxt['attrs']
-
-        # # DEPRECATED
-        # if not self._enabled:
-        #     final_attrs['disabled'] = True
-        # widget_cxt['enabled'] = self._enabled
-
-        # widget_cxt['clonelast'] = 'clonelast' in final_attrs  # DEPRECATED
 
         final_attrs['class'] = (
             f"ui-creme-widget widget-auto {widget_type} "
@@ -1067,7 +1036,6 @@ class OptionalWidget(widgets.MultiWidget):
 
 class OptionalSelect(OptionalWidget):
     def __init__(self, choices=(), *args, **kwargs):
-        # super().__init__(widgets.Select(choices=choices), *args, **kwargs)
         super().__init__(PrettySelect(choices=choices), *args, **kwargs)
 
 
@@ -1370,7 +1338,6 @@ class DatePeriodWidget(widgets.MultiWidget):
     def __init__(self, choices=(), attrs=None):
         super().__init__(
             widgets=(
-                # widgets.Select(choices=choices, attrs={'class': 'dperiod-type'}),
                 PrettySelect(choices=choices, attrs={'class': 'dperiod-type'}),
                 widgets.NumberInput(attrs={'class': 'dperiod-value', 'min': 1}),
             ),
@@ -1423,13 +1390,11 @@ class RelativeDatePeriodWidget(widgets.MultiWidget):
     def __init__(self, period_choices=(), relative_choices=(), attrs=None):
         super().__init__(
             widgets=(
-                # widgets.Select(
                 PrettySelect(
                     choices=relative_choices,
                     attrs={'class': 'relative_dperiod-direction'},
                 ),
                 # TODO: DatePeriodWidget(choices=period_choices)?
-                # widgets.Select(
                 PrettySelect(
                     choices=period_choices,
                     attrs={'class': 'relative_dperiod-type'},
@@ -1457,9 +1422,6 @@ class RelativeDatePeriodWidget(widgets.MultiWidget):
 
     def decompress(self, value):
         if value:
-            # sign, period = value
-            # d = period.as_dict()
-            # return sign, d['type'], d['value']
             d = value.as_dict()
             return d['sign'], d['type'], d['value']
 
@@ -1508,7 +1470,6 @@ class DateRangeWidget(widgets.MultiWidget):
 
         super().__init__(
             widgets=(
-                # Select(choices=choices, attrs={'data-daterange-type': True}),
                 PrettySelect(choices=choices, attrs={'data-daterange-type': True}),
                 CalendarWidget(attrs={'data-daterange-field': 'start'}),
                 CalendarWidget(attrs={'data-daterange-field': 'end'}),
@@ -1554,7 +1515,6 @@ class DurationWidget(widgets.MultiWidget):
     template_name = 'creme_core/forms/widgets/duration.html'
 
     def __init__(self, attrs=None):
-        # super().__init__(widgets=[widgets.TextInput] * 3, attrs=attrs)
         super().__init__(
             widgets=[widgets.NumberInput(attrs={'min': 0}) for _i in range(3)],
             attrs=attrs,
@@ -1571,7 +1531,6 @@ class ChoiceOrCharWidget(widgets.MultiWidget):
     def __init__(self, attrs=None, choices=()):
         super().__init__(
             widgets=(
-                # widgets.Select(choices=choices),
                 PrettySelect(choices=choices),
                 widgets.TextInput(attrs={
                     'placeholder': _('Value not in the choices? Fill it here!'),

@@ -92,15 +92,11 @@ class _BaseEventEntityCellVolatile(EntityCellVolatile):
             ),
         )
 
-    # def render_csv(self, entity, user):
-    #     return 'Unused'
-
 
 class EntityCellVolatileInvitation(_BaseEventEntityCellVolatile):
     def __init__(self, event, value='invitation_management', **kwargs):
         super().__init__(event=event, value=value, **kwargs)
 
-    # def render_html(self, entity, user):
     def render(self, entity, user, tag):
         has_relation = self.has_relation
 
@@ -129,7 +125,6 @@ class EntityCellVolatilePresence(_BaseEventEntityCellVolatile):
     def __init__(self, event, value='presence_management', **kwargs):
         super().__init__(event=event, value=value, **kwargs)
 
-    # def render_html(self, entity, user):
     def render(self, entity, user, tag):
         has_relation = self.has_relation
 

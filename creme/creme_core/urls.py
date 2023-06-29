@@ -348,7 +348,6 @@ enumerable_patterns = [
     ),
     re_path(
         r'^custom/(?P<cf_id>\d+)/json[/]?$',
-        # enumerable.CustomFieldEnumsView.as_view(),
         enumerable.CustomFieldChoicesView.as_view(),
         name='creme_core__cfield_enums',
     ),

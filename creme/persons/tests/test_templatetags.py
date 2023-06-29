@@ -7,7 +7,6 @@ from creme import persons
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.models import Relation, SetCredentials
-# from creme.creme_core.tests.base import CremeTestCase
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 from creme.persons.models import Civility
 
@@ -18,7 +17,6 @@ Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 
 
-# class PersonsTagsTestCase(CremeTestCase):
 class PersonsTagsTestCase(_BaseTestCase):
     def test_persons_pretty_address01(self):
         "<address> & <po_box> fields."
@@ -208,9 +206,7 @@ class PersonsTagsTestCase(_BaseTestCase):
 
     def test_persons_contact_first_employer03(self):
         "Not viewable organisations."
-        # user = self.login(is_superuser=False, allowed_apps=['persons'])
         user = self.login_as_persons_user()
-        # other_user = self.other_user
         other_user = self.get_root_user()
         contact = Contact.objects.create(user=user, first_name='Homer', last_name='Simpson')
 

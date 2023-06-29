@@ -95,7 +95,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_source_n_target01(self):
         "Creation."
-        # user = self.login()
         user = self.login_as_root_and_get()
         name = 'Invoice001'
         source, target = self.create_orgas(user=user)
@@ -228,7 +227,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_createview01(self):
         "Source is not managed."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         response = self.assertGET200(reverse('billing__create_invoice'))
@@ -289,7 +287,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_createview02(self):
         "Source is managed => no number anyway."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         source, target = self.create_orgas(user=user)
@@ -300,7 +297,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     def test_createview_with_address(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'Invoice001'
@@ -414,7 +410,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        # other_user = self.other_user
         other_user = self.get_root_user()
         source = Organisation.objects.create(user=other_user, name='Source Orga')
         self.assertFalse(user.has_perm_to_link(source))
@@ -461,7 +456,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_createview_payment_info01(self):
         "One PaymentInformation in the source => used automatically."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -475,7 +469,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_createview_payment_info02(self):
         "Several PaymentInformation in the source => default one is used."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -494,7 +487,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(pi2, invoice.payment_info)
 
     def test_create_related01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
         url = reverse('billing__create_related_invoice', args=(target.id,))
@@ -617,7 +609,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_listview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -639,7 +630,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_listview_export_actions(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice #1')[0]
 
@@ -659,7 +649,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertTrue(export_action.is_visible)
 
     def test_listview_generate_number_actions(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice #1')[0]
 
@@ -686,7 +675,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         }, number_action.action_data)
 
     def test_listview_generate_number_actions_disabled(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice #1')[0]
         invoice.number = 'J03'
@@ -708,7 +696,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertTrue(number_action.is_visible)
 
     def test_editview01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'Invoice001'
@@ -767,13 +754,9 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomServiceLine
     def test_editview02(self):
         "User changes => lines user changes."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         # Simpler to test with 2 superusers (do not have to create SetCredentials etc...)
-        # other_user = self.other_user
-        # other_user.superuser = True
-        # other_user.save()
         other_user = self.create_user()
 
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')
@@ -824,7 +807,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_editview03(self):
         "Error on discount."
-        # user = self.login()
         user = self.login_as_root_and_get()
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')
         url = invoice.get_edit_absolute_url()
@@ -851,7 +833,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFormError(post('-10'), field='discount', errors=msg)
 
     def test_editview_payment_info01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         source2 = Organisation.objects.create(user=user, name='Sega')
@@ -884,7 +865,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_editview_payment_info02(self):
         "One PaymentInformation in the source => used automatically."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')
@@ -911,7 +891,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_editview_payment_info03(self):
         "Several PaymentInformation in the source => default one is used."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')
@@ -940,7 +919,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(pi2, invoice.payment_info)
 
     def test_inner_edit01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'invoice001'
@@ -962,7 +940,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_inner_edit02(self):
         "Discount."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
@@ -978,7 +955,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_generate_number01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
@@ -1006,7 +982,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(status_id, invoice.status_id)
 
     def test_generate_number02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
@@ -1021,7 +996,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_generate_number03(self):
         "Managed organisation."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')
@@ -1036,7 +1010,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     def test_get_lines01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         self.assertFalse(invoice.get_lines(ProductLine))
@@ -1058,7 +1031,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     def test_get_lines02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         kwargs = {'user': user, 'related_document': invoice}
@@ -1085,7 +1057,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     def test_iter_all_lines(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
 
@@ -1101,7 +1072,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     def test_total_vat(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
@@ -1159,7 +1129,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     def test_clone(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -1252,7 +1221,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_clone_source_n_target(self):
         "Internal relation-types should not be cloned."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice, source, target = self.create_invoice_n_orgas(user=user, name='Invoice001')
@@ -1267,7 +1235,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
     def test_discounts(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=10)[0]
@@ -1292,7 +1259,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             unit_price=Decimal('20.00'), quantity=10,
             discount=Decimal('100.00'),
             discount_unit=Line.Discount.LINE_AMOUNT,
-            # vat_value=Vat.get_default_vat(),
             vat_value=Vat.objects.default(),
             **kwargs
         )
@@ -1303,7 +1269,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(1710, invoice.total_no_vat)
 
     def test_delete_status(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         new_status = InvoiceStatus.objects.first()
@@ -1321,7 +1286,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_delete_paymentterms(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self.assertGET200(
@@ -1348,7 +1312,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertIsNone(invoice.payment_terms)
 
     def test_delete_currency(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         currency = Currency.objects.create(
@@ -1370,7 +1333,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(currency, invoice.currency)
 
     def test_delete_additional_info(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         info = AdditionalInformation.objects.create(name='Agreement')
@@ -1393,14 +1355,12 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     def test_mass_import_no_total(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_no_total(
             user=user, model=Invoice, status_model=InvoiceStatus, number_help_text=False,
         )
 
     def test_mass_import_total_no_vat_n_vat(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_total_no_vat_n_vat(
             user=user, model=Invoice, status_model=InvoiceStatus,
@@ -1408,7 +1368,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     def test_mass_import_update01(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_update(
             user=user,
@@ -1419,7 +1378,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     def test_mass_import_update02(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_update(
             user=user,
@@ -1430,7 +1388,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     def test_mass_import_update03(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_update(
             user=user,
@@ -1441,7 +1398,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomAddress
     def test_mass_import_update_total01(self):
-        # self.login()
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_no_total(
             user=user,
@@ -1451,7 +1407,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_mass_import_update_total02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         doc = self._build_csv_doc([('Bill #1', 'Nerv', 'Acme', '300', '15')], user=user)
         response = self.assertPOST200(
@@ -1510,7 +1465,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     def test_brick01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
 
@@ -1578,7 +1532,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_brick02(self):
         "Field 'expiration_date' is hidden."
-        # user = self.login()
         user = self.login_as_root_and_get()
         source, target = self.create_orgas(user=user)
 
@@ -1628,7 +1581,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         source, target = self.create_orgas(user=user)
 
         Invoice.objects.create(
-            # user=self.other_user, name='My Quote',
             user=self.get_root_user(), name='My Quote',
             status=InvoiceStatus.objects.all()[0],
             source=source, target=target,
@@ -1658,7 +1610,6 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
     def setUp(self):  # setUpClass does not work here
         super().setUp()
         self.populate('creme_core', 'creme_config', 'billing')
-        # self.login()
         self.user = self.login_as_root_and_get()
 
         # NB: we need pk=1 for the default instances created by formset for detail-view.

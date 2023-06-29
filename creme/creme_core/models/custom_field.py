@@ -47,12 +47,10 @@ __all__ = (
 
 class CustomFieldManager(models.Manager):
     # TODO: exclude deleted fields?
-    # def compatible(self, ct_or_model):
     def compatible(self, ct_or_model, /):
         return self.filter(content_type=as_ctype(ct_or_model))
 
     # TODO: exclude deleted fields?
-    # def get_for_model(self, ct_or_model) -> dict[int, CustomField]:
     def get_for_model(self, ct_or_model, /) -> dict[int, CustomField]:
         ct = as_ctype(ct_or_model)
         cache = get_per_request_cache()
@@ -413,8 +411,6 @@ class CustomFieldEnum(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
-        # from creme.creme_config.forms.fields import CustomEnumChoiceField
-        # return CustomEnumChoiceField(**kwargs)
         from creme.creme_config.forms.fields import (
             CreatorCustomEnumerableChoiceField,
         )
@@ -428,12 +424,6 @@ class CustomFieldEnum(CustomFieldValue):
 
     @staticmethod
     def _build_formfield(custom_field, formfield, user=None):
-        # formfield.choices = [
-        #     ('', '-------'),
-        #     *CustomFieldEnumValue.objects
-        #                          .filter(custom_field=custom_field)
-        #                          .values_list('id', 'value'),
-        # ]
         formfield.user = user
         formfield.custom_field = custom_field
 

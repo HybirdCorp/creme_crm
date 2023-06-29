@@ -25,7 +25,6 @@ from .. import get_messagetemplate_model
 from ..models.message import MESSAGE_STATUS_NOTSENT, Message, Sending
 
 
-# class SendingCreateForm(CremeModelForm):
 class SendingCreationForm(CremeModelForm):
     template = CreatorEntityField(label=_('Message template'), model=get_messagetemplate_model())
 

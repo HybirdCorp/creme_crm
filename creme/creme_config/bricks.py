@@ -87,7 +87,6 @@ logger = logging.getLogger(__name__)
 
 
 class ExportButtonBrick(Brick):
-    # id_ = Brick.generate_id('creme_config', 'transfer_buttons')
     id = Brick.generate_id('creme_config', 'transfer_buttons')
     verbose_name = _('Export & import configuration')
     template_name = 'creme_config/bricks/transfer-buttons.html'
@@ -98,7 +97,6 @@ class ExportButtonBrick(Brick):
 
 
 class GenericModelBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('creme_config', 'model_config')
     id = QuerysetBrick.generate_id('creme_config', 'model_config')
     verbose_name = 'Model configuration'
     dependencies = (CremeModel,)
@@ -151,7 +149,6 @@ class GenericModelBrick(QuerysetBrick):
 
 
 class SettingsBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('creme_config', 'settings')
     id = QuerysetBrick.generate_id('creme_config', 'settings')
     verbose_name = 'App settings'
     dependencies = (SettingValue,)
@@ -178,7 +175,6 @@ class SettingsBrick(QuerysetBrick):
 
 
 class WorldSettingsBrick(Brick):
-    # id_ = QuerysetBrick.generate_id('creme_config', 'world_settings')
     id = QuerysetBrick.generate_id('creme_config', 'world_settings')
     verbose_name = _('Instance settings')
     dependencies = (WorldSettings,)
@@ -200,7 +196,6 @@ class _ConfigAdminBrick(QuerysetBrick):
 
 
 class PropertyTypesBrick(_ConfigAdminBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'property_types')
     id = _ConfigAdminBrick.generate_id('creme_config', 'property_types')
     verbose_name = _('Types of property')
     dependencies = (CremePropertyType,)
@@ -217,7 +212,6 @@ class PropertyTypesBrick(_ConfigAdminBrick):
 
 
 class _RelationTypesBrick(_ConfigAdminBrick):
-    # id = _ConfigAdminBrick.generate_id(...)
     # verbose_name = 'Types of relation'
     dependencies = (RelationType,)
     template_name = 'creme_config/bricks/relation-types.html'
@@ -248,13 +242,11 @@ class _RelationTypesBrick(_ConfigAdminBrick):
 
 
 class RelationTypesBrick(_RelationTypesBrick):
-    # id_ = _RelationTypesBrick.generate_id('creme_config', 'relation_types')
     id = _RelationTypesBrick.generate_id('creme_config', 'relation_types')
     verbose_name = _('Standard types of relation')
 
 
 class CustomRelationTypesBrick(_RelationTypesBrick):
-    # id_ = _RelationTypesBrick.generate_id('creme_config', 'custom_relation_types')
     id = _RelationTypesBrick.generate_id('creme_config', 'custom_relation_types')
     verbose_name = _('Custom types of relation')
 
@@ -262,7 +254,6 @@ class CustomRelationTypesBrick(_RelationTypesBrick):
 
 
 class SemiFixedRelationTypesBrick(_ConfigAdminBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'semifixed_relation_types')
     id = _ConfigAdminBrick.generate_id('creme_config', 'semifixed_relation_types')
     verbose_name = _('Semi-fixed types of relationship')
     dependencies = (RelationType, SemiFixedRelationType,)
@@ -278,7 +269,6 @@ class SemiFixedRelationTypesBrick(_ConfigAdminBrick):
 
 
 class FieldsConfigsBrick(PaginatedBrick):
-    # id_ = PaginatedBrick.generate_id('creme_config', 'fields_configs')
     id = PaginatedBrick.generate_id('creme_config', 'fields_configs')
     verbose_name = 'Fields configuration'
     dependencies = (FieldsConfig,)
@@ -323,7 +313,6 @@ class FieldsConfigsBrick(PaginatedBrick):
 
 
 class CustomFieldsBrick(Brick):
-    # id_ = Brick.generate_id('creme_config', 'custom_fields')
     id = Brick.generate_id('creme_config', 'custom_fields')
     verbose_name = 'Configuration of custom fields'
     dependencies = (CustomField,)
@@ -346,7 +335,6 @@ class CustomFieldsBrick(Brick):
         )
 
         hide_deleted = BricksManager.get(context).get_state(
-            # brick_id=self.id_,
             brick_id=self.id,
             user=context['user'],
         ).get_extra_data(constants.BRICK_STATE_HIDE_DELETED_CFIELDS)
@@ -376,7 +364,6 @@ class CustomFieldsBrick(Brick):
 
 
 class CustomEnumsBrick(_ConfigAdminBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'custom_enums')
     id = _ConfigAdminBrick.generate_id('creme_config', 'custom_enums')
     verbose_name = 'Custom-field choices'
     dependencies = (CustomFieldEnumValue,)
@@ -391,7 +378,6 @@ class CustomEnumsBrick(_ConfigAdminBrick):
 
 
 class CustomFormsBrick(PaginatedBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'custom_forms')
     id = _ConfigAdminBrick.generate_id('creme_config', 'custom_forms')
     verbose_name = 'Custom forms'
     dependencies = (CustomFormConfigItem,)
@@ -531,7 +517,6 @@ class CustomFormsBrick(PaginatedBrick):
         user = context['user']
 
         expanded_info = BricksManager.get(context).get_state(
-            # brick_id=self.id_, user=user,
             brick_id=self.id, user=user,
         ).get_extra_data(constants.BRICK_STATE_SHOW_CFORMS_DETAILS) or {}
 
@@ -552,7 +537,6 @@ class CustomFormsBrick(PaginatedBrick):
 
 
 class UsersBrick(_ConfigAdminBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'users')
     id = _ConfigAdminBrick.generate_id('creme_config', 'users')
     verbose_name = _('Users')
     dependencies = (User,)
@@ -607,7 +591,6 @@ class UsersBrick(_ConfigAdminBrick):
 
 
 class TeamsBrick(_ConfigAdminBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'teams')
     id = _ConfigAdminBrick.generate_id('creme_config', 'teams')
     verbose_name = _('Teams')
     dependencies = (User,)
@@ -621,7 +604,6 @@ class TeamsBrick(_ConfigAdminBrick):
 
 
 class BrickDetailviewLocationsBrick(PaginatedBrick):
-    # id_ = PaginatedBrick.generate_id('creme_config', 'blocks_dv_locations')
     id = PaginatedBrick.generate_id('creme_config', 'blocks_dv_locations')
     verbose_name = 'Blocks locations on detailed views'
     dependencies = (BrickDetailviewLocation,)
@@ -709,7 +691,6 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
 
 
 class BrickHomeLocationsBrick(_ConfigAdminBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'blocks_home_locations')
     id = _ConfigAdminBrick.generate_id('creme_config', 'blocks_home_locations')
     verbose_name = _('Blocks on home')
     dependencies = (BrickHomeLocation,)
@@ -750,7 +731,6 @@ class BrickHomeLocationsBrick(_ConfigAdminBrick):
 
 
 class BrickDefaultMypageLocationsBrick(_ConfigAdminBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'blocks_default_mypage_locations')
     id = _ConfigAdminBrick.generate_id('creme_config', 'blocks_default_mypage_locations')
     verbose_name = _('Blocks on default «My page»')
     dependencies = (BrickMypageLocation,)
@@ -764,7 +744,6 @@ class BrickDefaultMypageLocationsBrick(_ConfigAdminBrick):
 
 
 class BrickMypageLocationsBrick(_ConfigAdminBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'blocks_mypage_locations')
     id = _ConfigAdminBrick.generate_id('creme_config', 'blocks_mypage_locations')
     verbose_name = _('Blocks on «My page»')
     dependencies = (BrickMypageLocation,)
@@ -778,7 +757,6 @@ class BrickMypageLocationsBrick(_ConfigAdminBrick):
 
 
 class RelationBricksConfigBrick(_ConfigAdminBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'relation_blocks_config')
     id = _ConfigAdminBrick.generate_id('creme_config', 'relation_blocks_config')
     verbose_name = 'Relation blocks configuration'
     dependencies = (RelationBrickItem, BrickDetailviewLocation)
@@ -793,7 +771,6 @@ class RelationBricksConfigBrick(_ConfigAdminBrick):
 
 
 class InstanceBricksConfigBrick(_ConfigAdminBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'instance_blocks_config')
     id = _ConfigAdminBrick.generate_id('creme_config', 'instance_blocks_config')
     verbose_name = _("Instances' blocks")
     dependencies = (InstanceBrickConfigItem,)
@@ -813,7 +790,6 @@ class InstanceBricksConfigBrick(_ConfigAdminBrick):
 
 
 class CustomBricksConfigBrick(PaginatedBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'custom_blocks_config')
     id = _ConfigAdminBrick.generate_id('creme_config', 'custom_blocks_config')
     verbose_name = _('Custom blocks')
     dependencies = (CustomBrickConfigItem,)
@@ -859,7 +835,6 @@ class CustomBricksConfigBrick(PaginatedBrick):
 
 
 class MenuBrick(_ConfigAdminBrick):
-    # id_ = Brick.generate_id('creme_config', 'menu')
     id = Brick.generate_id('creme_config', 'menu')
     verbose_name = _('Menu configuration')
     dependencies = (MenuConfigItem,)
@@ -939,7 +914,6 @@ class MenuBrick(_ConfigAdminBrick):
 
 
 class ButtonMenuBrick(Brick):
-    # id_ = Brick.generate_id('creme_config', 'button_menu')
     id = Brick.generate_id('creme_config', 'button_menu')
     verbose_name = 'Button menu configuration'
     dependencies = (ButtonMenuItem,)
@@ -983,7 +957,6 @@ class ButtonMenuBrick(Brick):
 
 
 class SearchConfigBrick(PaginatedBrick):
-    # id_ = PaginatedBrick.generate_id('creme_config', 'searchconfig')
     id = PaginatedBrick.generate_id('creme_config', 'searchconfig')
     verbose_name = 'Search configuration'
     dependencies = (SearchConfigItem,)
@@ -1035,7 +1008,6 @@ class SearchConfigBrick(PaginatedBrick):
             )
 
             if not sc_items or not sc_items[0].is_default:  # No default config -> we build it
-                # SearchConfigItem.objects.create(content_type=ctype)
                 logger.warning(
                     'No search config for model <%s>; we create a disabled one.',
                     ctype,
@@ -1048,7 +1020,6 @@ class SearchConfigBrick(PaginatedBrick):
 
 
 class HistoryConfigBrick(_ConfigAdminBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'historyconfig')
     id = _ConfigAdminBrick.generate_id('creme_config', 'historyconfig')
     verbose_name = 'History configuration'
     dependencies = (HistoryConfigItem,)
@@ -1066,7 +1037,6 @@ class HistoryConfigBrick(_ConfigAdminBrick):
 
 
 class UserRolesBrick(_ConfigAdminBrick):
-    # id_ = _ConfigAdminBrick.generate_id('creme_config', 'user_roles')
     id = _ConfigAdminBrick.generate_id('creme_config', 'user_roles')
     verbose_name = _('Roles')
     dependencies = (UserRole,)
@@ -1078,7 +1048,6 @@ class UserRolesBrick(_ConfigAdminBrick):
 
 
 class UserSettingValuesBrick(Brick):
-    # id_ = QuerysetBrick.generate_id('creme_config', 'user_setting_values')
     id = QuerysetBrick.generate_id('creme_config', 'user_setting_values')
     verbose_name = _('Setting values')
     # dependencies  = (User,) ??
@@ -1123,7 +1092,6 @@ class UserSettingValuesBrick(Brick):
 
 
 class EntityFiltersBrick(PaginatedBrick):
-    # id_ = PaginatedBrick.generate_id('creme_config', 'entity_filters')
     id = PaginatedBrick.generate_id('creme_config', 'entity_filters')
     verbose_name = 'All entity filters'
     dependencies = (EntityFilter,)
@@ -1201,7 +1169,6 @@ class EntityFiltersBrick(PaginatedBrick):
 
 # TODO: factorise
 class HeaderFiltersBrick(PaginatedBrick):
-    # id_ = PaginatedBrick.generate_id('creme_config', 'header_filters')
     id = PaginatedBrick.generate_id('creme_config', 'header_filters')
     verbose_name = 'All views of list'
     dependencies = (HeaderFilter,)

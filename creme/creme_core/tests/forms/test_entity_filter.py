@@ -243,10 +243,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                 'value':    'unknown',
             }))
 
-        # self.assertEqual(
-        #     str([_('Select a valid choice. That choice is not one of the available choices.')]),
-        #     cm.exception.messages[0],
-        # )
         self.assertListEqual(
             [_('Condition on field «{field}»: {error}').format(
                 field=_('Civility'),
@@ -269,14 +265,6 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                 'value':    'unknown',
             }))
 
-        # self.assertEqual(
-        #     str([
-        #         _('Select a valid choice. %(value)s is not one of the available choices.') % {
-        #             'value': 'unknown',
-        #         },
-        #     ]),
-        #     cm.exception.messages[0],
-        # )
         self.assertListEqual(
             [_('Condition on field «{field}»: {error}').format(
                 field=_('Discount Unit'),
@@ -301,20 +289,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
                 'value':    f'{value}',
             }))
 
-        # self.assertEqual(
-        #     str([
-        #         _('Select a valid choice. %(value)s is not one of the available choices.') % {
-        #             'value': 12445,
-        #         },
-        #     ]),
-        #     cm.exception.messages[0],
-        # )
         self.assertListEqual(
-            # str([
-            #     _('Select a valid choice. %(value)s is not one of the available choices.') % {
-            #         'value': 12445,
-            #     },
-            # ]),
             [_('Condition on field «{field}»: {error}').format(
                 field=_('Spoken language(s)'),
                 error=_(
@@ -1428,10 +1403,6 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
 class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     # TODO: factorise?
     @staticmethod
-    # def build_data(field, operator, value):
-    #     return json_dump([
-    #         {'field': {'id': str(field)}, 'operator': {'id': str(operator)}, 'value': value}
-    #     ])
     def build_data(*conditions):
         return json_dump([
             {
@@ -1921,13 +1892,6 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
                 },
             ))
 
-        # self.assertListEqual(
-        #     [_('Condition on field «{field}»: {error}').format(
-        #         field=cfield.name,
-        #         error=_('Enter a whole number.'),
-        #     )],
-        #     cm.exception.messages,
-        # )
         error_fmt = _('Condition on field «{field}»: {error}').format
         self.assertListEqual(
             [

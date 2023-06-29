@@ -67,7 +67,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         super().tearDown()
         BulkUpdate.bulk_update_registry = self._original_bulk_update_registry
 
-    # def create_2_contacts_n_url(self, mario_kwargs=None, luigi_kwargs=None, field='first_name'):
     def create_2_contacts_n_url(self,
                                 user,
                                 mario_kwargs=None,
@@ -75,7 +74,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                                 field='first_name',
                                 ):
         create_contact = partial(
-            # FakeContact.objects.create, user=self.user, last_name='Bros',
             FakeContact.objects.create, user=user, last_name='Bros',
         )
         mario = create_contact(first_name='Mario', **(mario_kwargs or {}))
@@ -90,7 +88,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
     def test_not_registered_model(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         BulkUpdate.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
         registry.register(FakeOrganisation)  # Not FakeContact
@@ -100,7 +97,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
     def test_regular_field_invalid_field(self):
-        # self.login()
         self.login_as_root()
         self.assertContains(
             self.client.get(self.build_bulkupdate_uri(model=FakeContact, field='unknown')),
@@ -109,7 +105,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
     def test_no_field_given(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         uri = self.build_bulkupdate_uri(model=FakeContact, entities=[user.linked_contact])
@@ -150,13 +145,11 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertEqual(build_url(field=other_field), choices_f.initial)
 
     def test_regular_field_not_entity_model(self):
-        # self.login()
         self.login_as_root()
         self.assertGET409(self.build_bulkupdate_uri(model=FakeSector))
         self.assertGET409(self.build_bulkupdate_uri(model=FakeSector, field='title'))
 
     def test_regular_field_1_entity(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         mario = FakeContact.objects.create(user=user, first_name='Mario', last_name='Bros')
@@ -202,7 +195,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': [mario.pk],
-                # 'field_value': first_name,
                 field_name: first_name,
             },
         )
@@ -232,7 +224,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
     def test_regular_field_2_entities(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user, last_name='Bros')
@@ -289,7 +280,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
     def test_regular_field_not_super_user01(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
 
@@ -313,12 +303,10 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
     def test_regular_field_not_super_user02(self):
         "No entity is allowed to be changed."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
 
         old_first_name = 'Mario'
         mario = FakeContact.objects.create(
-            # user=self.other_user,
             user=self.get_root_user(),
             first_name=old_first_name,
             last_name='Bros',
@@ -339,7 +327,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertEqual(old_first_name, getattr(self.refresh(mario), field_name))
 
     def test_regular_field_fk(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         create_pos = FakePosition.objects.create
@@ -368,7 +355,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertEqual(unemployed, getattr(self.refresh(luigi), field_name))
 
     def test_regular_field_ignore_missing(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_sector = FakeSector.objects.create
@@ -401,7 +387,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertEqual(games, getattr(self.refresh(nintendo), field_name))
 
     def test_regular_field_not_editable(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         field_name = 'position'
@@ -419,7 +404,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
     def test_regular_field_required_empty(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         field_name = 'last_name'
@@ -437,7 +421,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
     def test_regular_field_empty(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         field_name = 'description'
@@ -459,7 +442,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertEqual('', getattr(self.refresh(luigi), field_name))
 
     def test_regular_field_unique(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         BulkUpdate.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
@@ -482,10 +464,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertGET404(url)
 
     def test_regular_field_ignore_forbidden_entity(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
-        # other_user = self.other_user
         other_user = self.get_root_user()
 
         field_name = 'description'
@@ -532,7 +512,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
     @override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y'])
     def test_regular_field_date(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         field_name = 'birthday'
@@ -563,10 +542,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertEqual(birthday, getattr(self.refresh(luigi), field_name))
 
     def test_regular_field_ignore_forbidden_field(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
-        # other_user = self.other_user
         other_user = self.get_root_user()
 
         create_bros = partial(FakeContact.objects.create, last_name='Bros')
@@ -594,7 +571,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
     def test_regular_field_overrider(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         field_name = 'birthday'
@@ -648,7 +624,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         """Fix a bug with the field list when bulk editing user
         (i.e. a field of the parent class CremeEntity).
         """
-        # self.login()
         self.login_as_root()
 
         build_url = partial(self.build_bulkupdate_uri, model=FakeContact)
@@ -667,7 +642,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
     def test_regular_field_file01(self):
         "FileFields are excluded."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         BulkUpdate.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
@@ -709,7 +683,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
     #     self.assertNotIn('file1', field_urls)
 
     def test_regular_field_many2many(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         categories = [FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
@@ -735,7 +708,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertListEqual([*getattr(image2, m2m_name).all()], expected)
 
     def test_regular_field_many2many_invalid(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         categories = [FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')]
@@ -767,7 +739,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertListEqual([*image2.categories.all()], categories[:1])
 
     def test_regular_field_subfield(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_contact = partial(FakeContact.objects.create, user=user, last_name='Bros')
@@ -784,7 +755,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         ))
 
     def test_regular_field_fields_config_hidden(self):
-        # self.login()
         self.login_as_root()
 
         hidden_fname = 'phone'
@@ -806,7 +776,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         # self.assertGET(404, build_uri(field='address__' + hidden_subfname))
 
     def test_regular_field_fields_config_required(self):
-        # self.login()
         self.login_as_root()
 
         model = FakeContact
@@ -840,7 +809,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertNotIn(field_name2, fields2)
 
     def test_custom_field_error01(self):
-        # self.login()
         self.login_as_root()
 
         cell_key = 'custom_field-44500124'
@@ -860,7 +828,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
     def test_custom_field_integer(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         cf_int = CustomField.objects.create(
@@ -911,7 +878,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertRaises(DoesNotExist, self.get_cf_values, cf_int, self.refresh(luigi))
 
     def test_custom_field_decimal(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         cf_decimal = CustomField.objects.create(
@@ -948,18 +914,13 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertRaises(DoesNotExist, self.get_cf_values, cf_decimal, self.refresh(luigi))
 
     def test_custom_field_boolean(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         cf_bool = CustomField.objects.create(
             name='bool', content_type=FakeContact,
             field_type=CustomField.BOOL,
         )
-        mario, luigi, url = self.create_2_contacts_n_url(
-            user=user,
-            # field=_CUSTOMFIELD_FORMAT.format(cf_bool.id),
-            field=cf_bool,
-        )
+        mario, luigi, url = self.create_2_contacts_n_url(user=user, field=cf_bool)
 
         # Bool
         formfield_name = f'custom_field-{cf_bool.id}'
@@ -1002,7 +963,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertRaises(DoesNotExist, self.get_cf_values, cf_bool, self.refresh(luigi))
 
     def test_custom_field_string(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         cf_str = CustomField.objects.create(
@@ -1041,7 +1001,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
     @override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y %H:%M:%S'])
     def test_custom_field_datetime(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         get_cf_values = self.get_cf_values
@@ -1081,7 +1040,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertRaises(DoesNotExist, get_cf_values, cf_date, self.refresh(luigi))
 
     def test_custom_field_enum(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         get_cf_values = self.get_cf_values
 
@@ -1132,7 +1090,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertRaises(DoesNotExist, get_cf_values, cf_enum, self.refresh(luigi))
 
     def test_custom_field_enum_multiple(self):
-        # self.login()
         user = self.login_as_root_and_get()
         get_cf_values = self.get_cf_values
 
@@ -1185,7 +1142,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertRaises(DoesNotExist, get_cf_values, cf_multi_enum, self.refresh(luigi))
 
     def test_custom_field_deleted(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         cfield = CustomField.objects.create(
@@ -1196,7 +1152,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertGET404(url)
 
     def test_other_field_validation_error_1_entity(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         empty_user1 = self.create_user(
@@ -1221,7 +1176,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
     def test_other_field_validation_error_several_entities(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         create_empty_user = partial(
             self.create_user, first_name='', last_name='', email='',
@@ -1272,18 +1226,13 @@ class InnerEditTestCase(_BulkEditTestCase):
         super().tearDown()
         InnerEdition.bulk_update_registry = self._original_bulk_update_registry
 
-    # def create_contact(self):
-    #     return FakeContact.objects.create(user=self.user, first_name='Mario', last_name='Bros')
     def create_contact(self, user):
         return FakeContact.objects.create(user=user, first_name='Mario', last_name='Bros')
 
-    # def create_orga(self):
-    #     return FakeOrganisation.objects.create(user=self.user, name='Mushroom kingdom')
     def create_orga(self, user):
         return FakeOrganisation.objects.create(user=user, name='Mushroom kingdom')
 
     def test_callback_url(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         mario = self.create_contact(user=user)
@@ -1300,7 +1249,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         )
 
     def test_regular_field(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         mario = self.create_contact(user=user)
@@ -1324,7 +1272,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertEqual(first_name, self.refresh(mario).first_name)
 
     def test_regular_field_validation(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         mario = self.create_contact(user=user)
@@ -1340,13 +1287,10 @@ class InnerEditTestCase(_BulkEditTestCase):
 
     def test_regular_field_not_allowed(self):
         "No permission."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             creatable_models=[FakeContact],
             allowed_apps=['documents'],
         )
-        # self._set_all_creds_except_one(EntityCredentials.CHANGE)
         self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
 
         mario = self.create_contact(user=user)
@@ -1354,7 +1298,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET403(self.build_inneredit_uri(mario, 'first_name'))
 
     def test_regular_field_required(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         mario = self.create_contact(user=user)
@@ -1369,7 +1312,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         )
 
     def test_regular_field_not_editable(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         mario = self.create_contact(user=user)
@@ -1378,7 +1320,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         build_uri = self.build_inneredit_uri
         uri = build_uri(mario, 'is_user')
         self.assertGET404(uri)
-        # self.assertPOST404(uri, data={'is_user': self.other_user.id})
         self.assertPOST404(uri, data={'is_user': self.create_user().id})
 
         # Fields without form-field
@@ -1386,7 +1327,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET404(build_uri(mario, 'cremeentity_ptr'))
 
     def test_regular_field_fields_config_hidden(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         hidden_fname = 'phone'
@@ -1414,7 +1354,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET404(build_uri('address__' + hidden_subfname))
 
     def test_regular_field_fields_config_required01(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         field_name = 'phone'
@@ -1446,7 +1385,6 @@ class InnerEditTestCase(_BulkEditTestCase):
 
     def test_regular_field_fields_config_required02(self):
         "The required field is not edited & is not filled."
-        # self.login()
         user = self.login_as_root_and_get()
 
         field_name1 = 'phone'
@@ -1504,7 +1442,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         # self.assertEqual(value2, getattr(mario, field_name2))
 
     def test_regular_field_many2many(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_cat = FakeImageCategory.objects.create
@@ -1535,7 +1472,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertListEqual([*image.categories.all()], [categories[0], categories[2]])
 
     def test_regular_field_many2many_invalid(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_cat = FakeImageCategory.objects.create
@@ -1562,7 +1498,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertCountEqual(categories, self.refresh(image).categories.all())
 
     def test_regular_field_unique(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         InnerEdition.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
@@ -1582,7 +1517,6 @@ class InnerEditTestCase(_BulkEditTestCase):
 
     def test_regular_field_invalid_model(self):
         "Neither an entity & neither related to an entity."
-        # self.login()
         self.login_as_root()
 
         sector = FakeSector.objects.all()[0]
@@ -1593,7 +1527,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         )
 
     def test_regular_field_overrider(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         field_name = 'last_name'
@@ -1620,7 +1553,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertEqual('LUIGI', self.refresh(mario).last_name)
 
     def test_regular_field_overrider_validation_error(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         field_name = 'last_name'
@@ -1651,7 +1583,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         )
 
     def test_regular_field_file01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         InnerEdition.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
@@ -1708,7 +1639,6 @@ class InnerEditTestCase(_BulkEditTestCase):
     #     self.assertEqual('', self.refresh(comp).filedata.name)
 
     def test_custom_field01(self):
-        # self.login()
         user = self.login_as_root_and_get()
         mario = self.create_contact(user=user)
         old_created = mario.created - timedelta(days=1)
@@ -1741,7 +1671,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertDatetimesAlmostEqual(now(), mario.modified)
 
     def test_custom_field02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         mario = self.create_contact(user=user)
         cfield = CustomField.objects.create(
@@ -1759,7 +1688,6 @@ class InnerEditTestCase(_BulkEditTestCase):
 
     def test_custom_field03(self):
         "Deleted CustomField => error."
-        # self.login()
         user = self.login_as_root_and_get()
         mario = self.create_contact(user=user)
         cfield = CustomField.objects.create(
@@ -1770,23 +1698,11 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET404(self.build_inneredit_uri(mario, cfield))
 
     def test_related_subfield(self):
-        # self.login()
         user = self.login_as_root_and_get()
         orga = self.create_orga(user=user)
-        # orga.address = FakeAddress.objects.create(entity=orga, value='address 1')
-        # orga.save()
-
-        # url = self.build_inneredit_url(orga, 'address__city')
-        # self.assertGET200(url)
         self.assertGET404(self.build_inneredit_uri(orga, 'address__city'))
 
-        # city = 'Marseille'
-        # response = self.client.post(url, data={'field_value': city})
-        # self.assertNoFormError(response)
-        # self.assertEqual(city, self.refresh(orga).address.city)
-
     def test_related_field(self):
-        # self.login()
         user = self.login_as_root_and_get()
         orga = self.create_orga(user=user)
         orga.address = FakeAddress.objects.create(entity=orga, value='address 1')
@@ -1795,7 +1711,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertGET404(self.build_inneredit_uri(orga, 'address'))
 
     def test_other_field_validation_error(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         empty_user = self.create_user(
             username='empty', first_name='', last_name='', email='',
@@ -1816,7 +1731,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         )
 
     def test_both_edited_field_and_field_validation_error(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         empty_user = self.create_user(
             username='empty', first_name='', last_name='', email='',
@@ -1837,7 +1751,6 @@ class InnerEditTestCase(_BulkEditTestCase):
 
     def test_multi_fields(self):
         "2 regular fields + 1 CustomField."
-        # self.login()
         user = self.login_as_root_and_get()
 
         mario = self.create_contact(user=user)
@@ -1878,7 +1791,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         )
 
     def test_multi_fields_errors01(self):
-        # self.login()
         user = self.login_as_root_and_get()
 
         mario = self.create_contact(user=user)
@@ -1887,7 +1799,6 @@ class InnerEditTestCase(_BulkEditTestCase):
 
     def test_multi_fields_errors02(self):
         "Hidden field given."
-        # self.login()
         user = self.login_as_root_and_get()
 
         mario = self.create_contact(user=user)

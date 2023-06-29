@@ -2,7 +2,6 @@ from datetime import date, timedelta
 from functools import partial
 
 from django.conf import settings
-# from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import now
@@ -226,9 +225,7 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         # ---
         create_home = BrickHomeLocation.objects.get_or_create
-        # create_home(brick_id=ActionsOnTimeBrick.id_,    defaults={'order': 50})
         create_home(brick_id=ActionsOnTimeBrick.id,    defaults={'order': 50})
-        # create_home(brick_id=ActionsNotOnTimeBrick.id_, defaults={'order': 51})
         create_home(brick_id=ActionsNotOnTimeBrick.id, defaults={'order': 51})
 
         response2 = self.assertGET200(reverse('creme_core__home'))
@@ -298,17 +295,6 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         user = self.user
         now_value = now()
 
-        # create_user = get_user_model().objects.create
-        # teammate1 = create_user(
-        #     username='luffy',
-        #     email='luffy@sunny.org', role=self.role,
-        #     first_name='Luffy', last_name='Monkey D.',
-        # )
-        # teammate2 = create_user(
-        #     username='zorro',
-        #     email='zorro@sunny.org', role=self.role,
-        #     first_name='Zorro', last_name='Roronoa',
-        # )
         other_user = self.create_user(0)
         teammate1 = self.create_user(1)
         teammate2 = self.create_user(2)

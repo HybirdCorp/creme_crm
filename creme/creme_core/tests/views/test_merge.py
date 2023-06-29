@@ -39,7 +39,6 @@ class MergeViewsTestCase(ViewsTestCase):
         entity.__class__.objects.filter(pk=entity.pk).update(modified=mdate)
 
     def test_select_entity_for_merge01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         form_factory = merge_form_registry.get(FakeOrganisation)
@@ -63,31 +62,22 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_select_entity_for_merge02(self):
         "View credentials."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
 
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
-        # orga = FakeOrganisation.objects.create(user=self.other_user, name='Genshiken')
         orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='Genshiken')
         self.assertFalse(user.has_perm_to_view(orga))
         self.assertGET403(self._build_select_url(orga))
 
     def test_select_entity_for_merge03(self):
         "Edit credentials."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
-
         SetCredentials.objects.create(
             role=user.role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_ALL,
         )
-        # orga = FakeOrganisation.objects.create(user=self.other_user, name='Genshiken')
+
         orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='Genshiken')
         self.assertTrue(user.has_perm_to_view(orga))
         self.assertFalse(user.has_perm_to_change(orga))
@@ -95,7 +85,6 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_select_entity_for_merge04(self):
         "Unregistered model."
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertIsNone(merge_form_registry.get(FakeImage))
 
@@ -104,7 +93,6 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_merge01(self):
         "2 (fake) Organisations, some relationships duplicates."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_rtype = RelationType.objects.smart_update_or_create
@@ -330,8 +318,7 @@ class MergeViewsTestCase(ViewsTestCase):
             self.assertIsNone(refreshed_hline.entity)
 
     def test_merge02(self):
-        "2 Contacts, M2M, foreign key to CremeEntities"
-        # user = self.login()
+        "2 Contacts, M2M, foreign key to CremeEntities."
         user = self.login_as_root_and_get()
 
         create_img = partial(FakeImage.objects.create, user=user)
@@ -398,7 +385,6 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_merge03(self):
         "Initial values come in priority from the last edited entity."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -421,7 +407,6 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_merge04(self):
         "Nullable foreign key to CremeEntities."
-        # user = self.login()
         user = self.login_as_root_and_get()
         image = FakeImage.objects.create(user=user, name='Kosaka face')
 
@@ -439,7 +424,6 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_merge05(self):
         "Unregistered model."
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertIsNone(merge_form_registry.get(FakeImage))
 
@@ -451,7 +435,6 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_merge_relations(self):
         "No relationships duplicates."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_rtype = RelationType.objects.smart_update_or_create
@@ -512,7 +495,6 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(contact02.id,  sym_rel2.object_entity_id)
 
     def test_merge_customfields(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_cf = partial(
@@ -623,7 +605,6 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_error01(self):
         "Try to merge 2 entities with different types."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga = FakeOrganisation.objects.create(user=user, name='Genshiken')
@@ -633,7 +614,6 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_error02(self):
         "Required fields."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -673,14 +653,12 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_error03(self):
         "Try to merge an entity with itself (by forging the URL)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         orga = FakeOrganisation.objects.create(user=user, name='Genshiken')
         self.assertGET409(self.build_merge_url(orga, orga))
 
     def test_perm01(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         SetCredentials.objects.create(
             role=user.role,
@@ -704,7 +682,6 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertGET403(self.build_merge_url(orga02, orga01))
 
     def test_fields_config_hidden(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         hidden_fname = 'phone'
@@ -750,7 +727,6 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(contact01.last_name,  new_contact01.last_name)
 
     def test_fields_config_required(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         fname = 'phone'

@@ -23,7 +23,6 @@ class EntityViewsTestCase(ViewsTestCase):
     RESTRICT_URL = reverse('creme_core__restrict_entity_2_superusers')
 
     def test_json_entity_get01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -47,18 +46,14 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertGET403(url, data={'fields': ['id', 'unknown']})
 
     def test_json_entity_get02(self):
-        # self.login(is_superuser=False)
         self.login_as_standard()
 
-        # nerv = FakeOrganisation.objects.create(user=self.other_user, name='Nerv')
         nerv = FakeOrganisation.objects.create(user=self.get_root_user(), name='Nerv')
         self.assertGET(400, reverse('creme_core__entity_as_json', args=(nerv.id,)))
 
     def test_json_entity_get03(self):
         "No credentials for the basic CremeEntity, but real entity is viewable."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['creme_config'],  # Not 'creme_core'
             creatable_models=[FakeConfigEntity],
         )
@@ -77,7 +72,6 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertListEqual([[str(e)]], response.json())
 
     def test_get_creme_entities_repr01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         with self.assertNoException():
@@ -98,14 +92,12 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_get_creme_entities_repr02(self):
         "Several entities, several ContentTypes, credentials."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
 
         create_c = FakeContact.objects.create
-        rei   = create_c(user=user,            first_name='Rei',   last_name='Ayanami')
-        asuka = create_c(user=user,            first_name='Asuka', last_name='Langley')
-        # mari  = create_c(user=self.other_user, first_name='Mari',  last_name='Makinami')
+        rei   = create_c(user=user,                 first_name='Rei',   last_name='Ayanami')
+        asuka = create_c(user=user,                 first_name='Asuka', last_name='Langley')
         mari  = create_c(user=self.get_root_user(), first_name='Mari',  last_name='Makinami')
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -132,7 +124,6 @@ class EntityViewsTestCase(ViewsTestCase):
         )
 
     def test_get_sanitized_html_field(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
 
@@ -154,7 +145,6 @@ class EntityViewsTestCase(ViewsTestCase):
         return reverse('creme_core__entity_info_fields', args=(ct.id,))
 
     def test_get_info_fields01(self):
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET200(self._build_test_get_info_fields_url(FakeContact))
@@ -179,7 +169,6 @@ class EntityViewsTestCase(ViewsTestCase):
         )
 
     def test_get_info_fields02(self):
-        # self.login()
         self.login_as_root()
 
         response = self.client.get(self._build_test_get_info_fields_url(FakeOrganisation))
@@ -201,7 +190,6 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_get_info_fields03(self):
         "With FieldsConfig."
-        # self.login()
         self.login_as_root()
 
         FieldsConfig.objects.create(
@@ -220,7 +208,6 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(len(names), len(json_data))
 
     def test_clone01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         url = self.CLONE_URL
 
@@ -262,7 +249,6 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_clone03(self):
         "Not superuser with right credentials."
-        # user = self.login(is_superuser=False, creatable_models=[FakeContact])
         user = self.login_as_standard(creatable_models=[FakeContact])
         self._set_all_creds_except_one(user=user, excluded=None)
 
@@ -271,12 +257,10 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_clone04(self):
         "Not superuser without creation credentials => error."
-        # self.login(is_superuser=False)
         user = self.login_as_standard()
         self._set_all_creds_except_one(user=user, excluded=None)
 
         mario = FakeContact.objects.create(
-            # user=self.other_user, first_name='Mario', last_name='Bros',
             user=self.get_root_user(), first_name='Mario', last_name='Bros',
         )
         count = FakeContact.objects.count()
@@ -285,12 +269,10 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_clone05(self):
         "Not superuser without VIEW credentials => error."
-        # self.login(is_superuser=False, creatable_models=[FakeContact])
         user = self.login_as_standard(creatable_models=[FakeContact])
         self._set_all_creds_except_one(user=user, excluded=EntityCredentials.VIEW)
 
         mario = FakeContact.objects.create(
-            # user=self.other_user, first_name='Mario', last_name='Bros',
             user=self.get_root_user(), first_name='Mario', last_name='Bros',
         )
         count = FakeContact.objects.count()
@@ -299,7 +281,6 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_clone06(self):
         """Not clonable entity type."""
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         image = FakeImage.objects.create(user=user, name='Img1')
@@ -309,7 +290,6 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_clone07(self):
         "Ajax query."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         first_name = 'Mario'
@@ -321,7 +301,6 @@ class EntityViewsTestCase(ViewsTestCase):
         response = self.assertPOST200(
             self.CLONE_URL,
             data={'id': mario.id}, follow=True,
-            # HTTP_X_REQUESTED_WITH='XMLHttpRequest',
             headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertEqual(count + 1, FakeContact.objects.count())
@@ -335,7 +314,6 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(oiram.get_absolute_url(), response.content.decode())
 
     def test_restrict_entity_2_superusers01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         contact = FakeContact.objects.create(
             user=user, first_name='Eikichi', last_name='Onizuka',
@@ -356,7 +334,6 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_restrict_entity_2_superusers02(self):
         "Entity already in a sandbox."
-        # user = self.login()
         user = self.login_as_root_and_get()
         sandbox = Sandbox.objects.create(type_id='creme_core-dont_care', user=user)
         contact = FakeContact.objects.create(
@@ -372,7 +349,6 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_restrict_entity_2_superusers03(self):
         "Unset entity with no sandbox."
-        # user = self.login()
         user = self.login_as_root_and_get()
         contact = FakeContact.objects.create(
             user=user, first_name='Eikichi', last_name='Onizuka',
@@ -381,7 +357,6 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_restrict_entity_2_superusers04(self):
         "Not super-user."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         contact = FakeContact.objects.create(
             user=user, first_name='Eikichi', last_name='Onizuka',

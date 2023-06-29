@@ -321,7 +321,7 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertEqual(LAYOUT_REGULAR, group1.layout)
         self.assertListEqual(
             [EntityCellRegularField.build(model=FakeOrganisation, name='name')],
-            [*group1.cells]
+            [*group1.cells],
         )
 
         group2 = fields_groups[1]

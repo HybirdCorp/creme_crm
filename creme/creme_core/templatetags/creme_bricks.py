@@ -734,15 +734,11 @@ def brick_tile_for_cell(cell, instance, user):
         'key':   cell.key,
         'label': cell.title,
 
-        # 'content':   mark_safe(content),
         'content':   content,
         'data_type': cell.data_type,
         'multiline': cell.is_multiline,
 
         # TODO: pass the registry in context?
-        # 'edit_url':  bulk_update.bulk_update_registry.inner_uri(
-        #     cell=cell, instance=instance, user=user,
-        # ),
         'edit_url': bulk_update.bulk_update_registry.inner_uri(
             instance=instance, cells=[cell],
         ),
@@ -899,7 +895,6 @@ def brick_import(context, app=None, name=None, object=None):
 
         brick = bricks.brick_registry[Brick.generate_id(app, name)]()
 
-    # BricksManager.get(context).add_group(brick.id_, brick)
     BricksManager.get(context).add_group(brick.id, brick)
 
     return brick
@@ -949,10 +944,8 @@ def brick_declare(context, *bricks):
 
         if hasattr(brick_or_seq, '__iter__'):
             for brick in brick_or_seq:
-                # add_group(brick.id_, brick)
                 add_group(brick.id, brick)
         else:
-            # add_group(brick_or_seq.id_, brick_or_seq)
             add_group(brick_or_seq.id, brick_or_seq)
 
     return ''
@@ -1027,7 +1020,6 @@ def brick_display(context, *bricks, **kwargs):
 
         logger.warning(
             'Brick without %s(): %s (id=%s)',
-            # brick_render_method, brick.__class__, brick.id_,
             brick_render_method, brick.__class__, brick.id,
         )
 
@@ -1051,11 +1043,9 @@ def brick_display(context, *bricks, **kwargs):
         # We avoid generator, because we need to iterate twice (import & display)
         if isinstance(brick_or_seq, (list, tuple)):
             for brick in brick_or_seq:
-                # pop_group(brick.id_)
                 pop_group(brick.id)
                 bricks_to_render.append(brick)
         else:
-            # pop_group(brick_or_seq.id_)
             pop_group(brick_or_seq.id)
             bricks_to_render.append(brick_or_seq)
 

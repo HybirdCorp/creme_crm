@@ -1,13 +1,10 @@
 from functools import partial
-# from pathlib import Path
 from unittest import skipIf
 
-# from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.models import FileRef
 from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
@@ -29,13 +26,6 @@ from .models import RootNode
 skip_graph_tests = graph_model_is_custom()
 Graph = get_graph_model()
 
-# try:
-#     import pygraphviz  # NOQA
-# except ImportError:
-#     skip_graphviz_tests = True
-# else:
-#     skip_graphviz_tests = False
-
 
 def skipIfCustomGraph(test_func):
     return skipIf(skip_graph_tests, 'Custom Graph model in use')(test_func)
@@ -43,9 +33,6 @@ def skipIfCustomGraph(test_func):
 
 @skipIfCustomGraph
 class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
-    # def login(self, allowed_apps=('graphs',), *args, **kwargs):
-    #     return super().login(allowed_apps=allowed_apps, *args, **kwargs)
-
     def login_as_graphs_user(self, *, allowed_apps=(), **kwargs):
         return super().login_as_standard(
             allowed_apps=['graphs', *allowed_apps],
@@ -53,7 +40,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_graph_create(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         url = reverse('graphs__create_graph')
@@ -69,14 +55,11 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(1,    len(graphs))
         self.assertEqual(name, graphs[0].name)
 
-        # self.assertTemplateUsed(response, 'graphs/bricks/graph-hat-bar.html')
-
         tree = self.get_html_tree(response.content)
         self.get_brick_node(tree, brick=RootNodesBrick)
         self.get_brick_node(tree, brick=OrbitalRelationTypesBrick)
 
     def test_graph_edit(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'Nodz-a-lapalooza'
@@ -93,7 +76,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(name, self.refresh(graph).name)
 
     def test_listview(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_graph = partial(Graph.objects.create, user=user)
@@ -109,7 +91,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(graph2, graphs)
 
     def test_relation_types01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         graph = Graph.objects.create(user=user, name='Graph01')
@@ -171,10 +152,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_relation_types02(self):
-        # self.login(is_superuser=False)
         self.login_as_graphs_user()
 
-        # graph = Graph.objects.create(user=self.other_user, name='Graph01')
         graph = Graph.objects.create(user=self.get_root_user(), name='Graph01')
         self.assertGET403(reverse('graphs__add_rtypes', args=(graph.id,)))
 
@@ -189,75 +168,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
             follow=True,
         )
 
-    # @skipIf(skip_graphviz_tests, 'Pygraphviz is not installed (are you under Wind*ws ??')
-    # def test_download01(self):
-    #     user = self.login()
-    #
-    #     contact = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-    #     orga = FakeOrganisation.objects.create(user=user, name='NERV')
-    #
-    #     # Tests an encoding error, pygraphviz supports unicode...
-    #     rtype = RelationType.objects.smart_update_or_create(
-    #         ('test-subject_hate', 'déteste'),
-    #         ('test-object_hate',  'est détesté par'),
-    #     )[0]
-    #     Relation.objects.create(
-    #         user=user,
-    #         subject_entity=contact,
-    #         type=rtype,
-    #         object_entity=orga,
-    #     )
-    #
-    #     graph = Graph.objects.create(user=user, name='Graph01')
-    #     url = reverse('graphs__add_roots', args=(graph.id,))
-    #     self.assertGET200(url)
-    #
-    #     response = self.client.post(
-    #         url,
-    #         data={
-    #             'entities': self.formfield_value_multi_generic_entity(
-    #                 contact, orga,
-    #             ),
-    #             'relation_types': [rtype.id],
-    #         },
-    #     )
-    #     self.assertNoFormError(response)
-    #
-    #     url = reverse('graphs__add_rtypes', args=(graph.id,))
-    #     self.assertGET200(url)
-    #     self.assertNoFormError(
-    #         self.client.post(url, data={'relation_types': [rtype.id]}),
-    #     )
-    #
-    #     existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
-    #
-    #     response = self.assertGET200(
-    #         reverse('graphs__dl_image', args=(graph.id,)),
-    #         follow=True,
-    #     )
-    #     self.assertEqual('image/png', response['Content-Type'])
-    #
-    #     filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
-    #     self.assertEqual(1, len(filerefs))
-    #
-    #     fileref = filerefs[0]
-    #     self.assertTrue(fileref.temporary)
-    #     self.assertEqual(f'graph_{graph.id}.png', fileref.basename)
-    #     self.assertEqual(user, fileref.user)
-    #
-    #     fullpath = Path(fileref.filedata.path)
-    #     self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists ?!')
-    #     self.assertEqual(Path(settings.MEDIA_ROOT, 'graphs'), fullpath.parent)
-    #     self.assertEqual(
-    #         f'attachment; filename="{fullpath.name}"',
-    #         response['Content-Disposition'],
-    #     )
-    #
-    #     # Consume stream to avoid error message "ResourceWarning: unclosed file..."
-    #     _ = [*response.streaming_content]
-
     def test_add_rootnode(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         contact = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
@@ -341,7 +252,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(rnode)
 
     def test_edit_rootnode01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
@@ -391,7 +301,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_rootnode02(self):
         "Disabled relation types are already selected => still proposed."
-        # user = self.login()
         user = self.login_as_root_and_get()
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
@@ -422,7 +331,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_rootnode01(self):
         "Not superuser."
-        # user = self.login(is_superuser=False)
         user = self.login_as_graphs_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -443,7 +351,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_rootnode02(self):
         "Not superuser + cannot change Graph => error."
-        # user = self.login(is_superuser=False)
         user = self.login_as_graphs_user()
         SetCredentials.objects.create(
             role=user.role,
@@ -452,7 +359,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
-        # graph = Graph.objects.create(user=self.other_user, name='Graph01')
         graph = Graph.objects.create(user=self.get_root_user(), name='Graph01')
         rnode = RootNode.objects.create(graph=graph, real_entity=orga)
 
@@ -482,7 +388,6 @@ class RelationChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_chart_data(self):
         self.maxDiff = None
 
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         is_employee, has_employee = RelationType.objects.smart_update_or_create(
@@ -556,7 +461,6 @@ class RelationChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_chart_data_multiple_roots(self):
         self.maxDiff = None
 
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         is_employee, has_employee = RelationType.objects.smart_update_or_create(
@@ -675,7 +579,6 @@ class RelationChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_chart_data_orbital_relations(self):
         self.maxDiff = None
 
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         is_employee, has_employee = RelationType.objects.smart_update_or_create(

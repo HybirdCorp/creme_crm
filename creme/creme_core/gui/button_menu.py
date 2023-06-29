@@ -58,11 +58,6 @@ class Button:
         """Helper used to create the value of the class attribute 'id'."""
         return f'button_{app_name}-{name}'
 
-    # def render(self, context) -> str:
-    #     context['has_perm'] = self.has_perm(context)
-    #     context['description'] = self.description
-    #
-    #     return get_template(self.template_name).render(context)
     def get_context(self, *, entity: CremeEntity, request) -> dict:
         """Context used by the template system to render the button."""
         return {
@@ -82,16 +77,6 @@ class Button:
         """
         return ()
 
-    # def has_perm(self, context) -> bool:
-    #     permissions = self.permissions
-    #     if not permissions:
-    #         return False
-    #
-    #     return (
-    #         context['user'].has_perm(permissions)
-    #         if isinstance(permissions, str) else
-    #         context['user'].has_perms(permissions)
-    #     )
     def is_allowed(self, *, entity, request) -> bool:
         """Indicate if the button has to be disabled.
         The value is injected in the context (see get_context()).

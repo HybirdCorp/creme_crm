@@ -40,7 +40,6 @@ class TemplateBaseTestCase(_BillingTestCase):
 
     def setUp(self):
         super().setUp()
-        # user = self.login()
         self.user = user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)

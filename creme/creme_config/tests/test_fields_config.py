@@ -45,7 +45,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         ])
 
     def test_portal01(self):
-        # self.login()
         self.login_as_root()
         self._create_fconf()
 
@@ -69,14 +68,12 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_portal02(self):
         "All CTypes are already configured."
         self._configure_all_models()
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET200(reverse('creme_config__fields'))
         self.assertNotContains(response, self.WIZARD_URL)
 
     def test_portal_errors(self):
-        # self.login()
         self.login_as_root()
 
         self._create_fconf(FakeSector)
@@ -97,7 +94,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_edit01(self):
-        # self.login()
         self.login_as_root()
 
         get_field = FakeContact._meta.get_field
@@ -189,7 +185,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit02(self):
         "Not super-user."
-        # self.login(is_superuser=False)
         user = self.login_as_standard()
 
         fconf = self._create_fconf()
@@ -197,7 +192,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET403(url)
 
         # ---
-        # role = self.role
         role = user.role
         role.admin_4_apps = ['creme_core']
         role.save()
@@ -205,7 +199,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit03(self):
         "Model not registered."
-        # self.login()
         self.login_as_root()
 
         self.assertFalse(fields_config_registry.is_model_registered(FakeActivity))
@@ -214,7 +207,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET409(self._build_edit_url(fconf))
 
     def test_delete(self):
-        # self.login()
         self.login_as_root()
         fconf = self._create_fconf()
 
@@ -222,7 +214,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(fconf)
 
     def test_wizard_model_step(self):
-        # self.login()
         self.login_as_root()
 
         contact_ct = self.ct
@@ -253,7 +244,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(FieldsConfig.objects.filter(content_type=contact_ct))
 
     def test_wizard_model_step_invalid(self):
-        # self.login()
         self.login_as_root()
 
         ctype = self.ct
@@ -279,7 +269,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
 
     def test_wizard_config_step(self):
-        # self.login()
         self.login_as_root()
 
         ctype = self.ct
@@ -330,7 +319,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_wizard_go_back(self):
-        # self.login()
         self.login_as_root()
 
         ctype = self.ct
@@ -362,12 +350,10 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_wizard_409(self):
         "All CTypes are already configured."
         self._configure_all_models()
-        # self.login()
         self.login_as_root()
         self.assertGET409(self.WIZARD_URL)
 
     def test_wizard_403(self):
         "Perm is 'creme_core.can_admin'."
-        # self.login(is_superuser=False, allowed_apps=('creme_core',))
         self.login_as_standard(allowed_apps=('creme_core',))
         self.assertGET403(self.WIZARD_URL)

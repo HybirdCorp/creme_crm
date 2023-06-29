@@ -1,4 +1,3 @@
-{# {% extends 'creme_core/base.html' %} #}
 {% extends BASE_HTML %}
 {% load i18n %}
 
@@ -8,11 +7,9 @@
 {% translate 'Filter' context 'creme_core-noun' as icon_label %}
     {% if not form.instance.pk %}
         {% blocktranslate with ctype=form.instance.entity_type asvar form_title %}Create a filter for «{{ctype}}»{% endblocktranslate %}
-{#        {% include 'creme_core/generics/blockform/base.html' with icon_name='filter' icon_label=icon_label title=form_title|safe %} #}
         {% include 'creme_core/generics/blockform/base.html' with icon_name='filter' icon_label=icon_label title=form_title %}
     {% else %}
         {% blocktranslate with filter=form.instance asvar form_title %}Edit the filter «{{filter}}»{% endblocktranslate %}
-{#        {% include 'creme_core/generics/blockform/base.html' with icon_name='filter' icon_label=icon_label title=form_title|safe %} #}
         {% include 'creme_core/generics/blockform/base.html' with icon_name='filter' icon_label=icon_label title=form_title %}
     {% endif %}
 {% endblock %}

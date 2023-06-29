@@ -1,8 +1,6 @@
-# from datetime import date, datetime, time, timezone
 from datetime import date, datetime, time
 from decimal import Decimal
 
-# from pytz import timezone as get_timezone
 from django.utils.timezone import timezone, zoneinfo
 from django.utils.translation import gettext, gettext_lazy
 
@@ -29,35 +27,20 @@ class SerializerTestCase(CremeTestCase):
         self.assertEqual(
             '"08:12:25.012"', json_encode(time(8, 12, 25, 12345))
         )
-
         self.assertEqual(
             '"08:12:25.012Z"',
             json_encode(time(8, 12, 25, 12345, tzinfo=timezone.utc))
         )
-
-        # # "normalize" pytz timezone information to get "05:00" and not "04:56"
-        # # see https://stackoverflow.com/questions/26264897/time-zone-field-in-isoformat
-        # tzinfo = get_timezone('US/Eastern').localize(
-        #     datetime(2018, 1, 12, 8, 12, 25, 12345),
-        # ).tzinfo
         self.assertEqual(
             '"13:12:25.012Z"',
-            # json_encode(time(8, 12, 25, 12345, tzinfo=tzinfo))
             json_encode(
                 time(8, 12, 25, 12345, tzinfo=zoneinfo.ZoneInfo('US/Eastern')),
                 cls=TestEncoder,
             )
         )
-
-        # # "normalize" pytz timezone information to get "08:00" and not "08:06"
-        # # see https://stackoverflow.com/questions/26264897/time-zone-field-in-isoformat
-        # tzinfo = get_timezone('Asia/Shanghai').localize(
-        #     datetime(2018, 1, 12, 8, 12, 25, 12345),
-        # ).tzinfo
         self.assertEqual(
             '"00:12:25.012Z"',
-            # json_encode(time(8, 12, 25, 12345, tzinfo=tzinfo))
-            json_encode(time(8, 12, 25, 12345, tzinfo=zoneinfo.ZoneInfo('Asia/Shanghai')))
+            json_encode(time(8, 12, 25, 12345, tzinfo=zoneinfo.ZoneInfo('Asia/Shanghai'))),
         )
 
     def test_encode_time(self):
@@ -67,37 +50,22 @@ class SerializerTestCase(CremeTestCase):
 
         self.assertEqual(
             '"08:12:25.012"',
-            json_encode(time(8, 12, 25, 12345), use_utc=False)
+            json_encode(time(8, 12, 25, 12345), use_utc=False),
         )
-
         self.assertEqual(
             '"08:12:25.012Z"',
-            json_encode(time(8, 12, 25, 12345, tzinfo=timezone.utc), use_utc=False)
+            json_encode(time(8, 12, 25, 12345, tzinfo=timezone.utc), use_utc=False),
         )
-
-        # # "normalize" pytz timezone information to get "05:00" and not "04:56"
-        # # see https://stackoverflow.com/questions/26264897/time-zone-field-in-isoformat
-        # tzinfo = get_timezone('US/Eastern').localize(
-        #     datetime(2018, 1, 12, 8, 12, 25, 12345),
-        # ).tzinfo
         self.assertEqual(
             '"08:12:25.012-05:00"',
-            # json_encode(time(8, 12, 25, 12345, tzinfo=tzinfo), use_utc=False)
             json_encode(
                 time(8, 12, 25, 12345, tzinfo=zoneinfo.ZoneInfo('US/Eastern')),
                 cls=TestEncoder,
                 use_utc=False,
             ),
         )
-
-        # # "normalize" pytz timezone information to get "08:00" and not "08:06"
-        # # see https://stackoverflow.com/questions/26264897/time-zone-field-in-isoformat
-        # tzinfo = get_timezone('Asia/Shanghai').localize(
-        #     datetime(2018, 1, 12, 8, 12, 25, 12345),
-        # ).tzinfo
         self.assertEqual(
             '"08:12:25.012+08:00"',
-            # json_encode(time(8, 12, 25, 12345, tzinfo=tzinfo), use_utc=False)
             json_encode(
                 time(8, 12, 25, 12345, tzinfo=zoneinfo.ZoneInfo('Asia/Shanghai')),
                 use_utc=False,
@@ -107,19 +75,16 @@ class SerializerTestCase(CremeTestCase):
     def test_encode_datetime__use_utc(self):
         self.assertEqual(
             '"2018-01-12T08:12:25.012"',
-            json_encode(datetime(2018, 1, 12, 8, 12, 25, 12345))
+            json_encode(datetime(2018, 1, 12, 8, 12, 25, 12345)),
         )
 
         self.assertEqual(
             '"2018-01-12T08:12:25.012Z"',
-            json_encode(datetime(2018, 1, 12, 8, 12, 25, 12345, tzinfo=timezone.utc))
+            json_encode(datetime(2018, 1, 12, 8, 12, 25, 12345, tzinfo=timezone.utc)),
         )
 
         self.assertEqual(
             '"2018-01-12T13:12:25.012Z"',
-            # json_encode(get_timezone('US/Eastern').localize(
-            #     datetime(2018, 1, 12, 8, 12, 25, 12345))
-            # ),
             json_encode(
                 datetime(2018, 1, 12, 8, 12, 25, 12345, tzinfo=zoneinfo.ZoneInfo('US/Eastern'))
             ),
@@ -127,9 +92,6 @@ class SerializerTestCase(CremeTestCase):
 
         self.assertEqual(
             '"2018-01-12T00:12:25.012Z"',
-            # json_encode(get_timezone('Asia/Shanghai').localize(
-            #     datetime(2018, 1, 12, 8, 12, 25, 12345))
-            # ),
             json_encode(
                 datetime(2018, 1, 12, 8, 12, 25, 12345, tzinfo=zoneinfo.ZoneInfo('Asia/Shanghai'))
             ),
@@ -140,7 +102,6 @@ class SerializerTestCase(CremeTestCase):
             '"2018-01-12T08:12:25.012"',
             json_encode(datetime(2018, 1, 12, 8, 12, 25, 12345), use_utc=False),
         )
-
         self.assertEqual(
             '"2018-01-12T08:12:25.012Z"',
             json_encode(
@@ -148,24 +109,16 @@ class SerializerTestCase(CremeTestCase):
                 use_utc=False,
             ),
         )
-
         self.assertEqual(
             '"2018-01-12T08:12:25.012-05:00"',
             json_encode(
-                # get_timezone('US/Eastern').localize(
-                #     datetime(2018, 1, 12, 8, 12, 25, 12345)
-                # ),
                 datetime(2018, 1, 12, 8, 12, 25, 12345, tzinfo=zoneinfo.ZoneInfo('US/Eastern')),
                 use_utc=False,
             ),
         )
-
         self.assertEqual(
             '"2018-01-12T08:12:25.012+08:00"',
             json_encode(
-                # get_timezone('Asia/Shanghai').localize(
-                #     datetime(2018, 1, 12, 8, 12, 25, 12345)
-                # ),
                 datetime(2018, 1, 12, 8, 12, 25, 12345, tzinfo=zoneinfo.ZoneInfo('Asia/Shanghai')),
                 use_utc=False,
             ),
@@ -183,5 +136,4 @@ class SerializerTestCase(CremeTestCase):
 
     def test_encode_none(self):
         self.assertEqual('null', json_encode(None))
-        # self.assertEqual('{"a":null}', json_encode({'a': None}))
         self.assertEqual('{"a":null,"b":12}', json_encode({'a': None, 'b': 12}))

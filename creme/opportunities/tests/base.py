@@ -16,9 +16,7 @@ def skipIfCustomOpportunity(test_func):
 
 
 class OpportunitiesBaseTestCase(CremeTestCase):
-    # def _create_target_n_emitter(self, managed=True, contact=False):
     def _create_target_n_emitter(self, *, user, managed=True, contact=False):
-        # user = self.user
         create_orga = Organisation.objects.create
         emitter = create_orga(user=user, name='My society', is_managed=managed)
         target = (
@@ -29,15 +27,12 @@ class OpportunitiesBaseTestCase(CremeTestCase):
 
         return target, emitter
 
-    # def _create_opportunity_n_organisations(self, name='Opp', managed=True, contact=False):
     def _create_opportunity_n_organisations(self, *,
                                             user, name='Opp', managed=True, contact=False):
-        # target, emitter = self._create_target_n_emitter(managed=managed, contact=contact)
         target, emitter = self._create_target_n_emitter(
             user=user, managed=managed, contact=contact,
         )
         opp = Opportunity.objects.create(
-            # user=self.user, name=name,
             user=user, name=name,
             sales_phase=SalesPhase.objects.all()[0],
             emitter=emitter, target=target,

@@ -179,7 +179,6 @@ class UserActivation(generic.CheckedView):
             if user_to_activate.is_staff and not request.user.is_staff:
                 return HttpResponse(
                     gettext("You can't activate a staff user."),
-                    # status=400,
                     status=409,
                 )
 

@@ -227,8 +227,6 @@ class CSVPopulatorTestCase(CremeTestCase):
     def test_populate_from_http(self):
         populator = MockCSVPopulator(['name', 'code'])
 
-        # with self.assertNoException():
-        #     populator.populate(self.http_file('creme/geolocation/tests/data/valid.csv'))
         csv_file = open(
             Path(settings.CREME_ROOT) / 'geolocation' / 'tests' / 'data' / 'valid.csv',
             mode='rb',
@@ -254,8 +252,6 @@ class CSVPopulatorTestCase(CremeTestCase):
     def test_populate_from_http_zip(self):
         populator = MockCSVPopulator(['name', 'code'])
 
-        # with self.assertNoException():
-        #     populator.populate(self.http_file('creme/geolocation/tests/data/valid.csv.zip'))
         zip_file = open(
             Path(settings.CREME_ROOT) / 'geolocation' / 'tests' / 'data' / 'valid.csv.zip',
             mode='rb',
@@ -284,8 +280,6 @@ class CSVPopulatorTestCase(CremeTestCase):
     def test_http_error(self):
         populator = MockCSVPopulator(['name', 'code'])
 
-        # with self.assertRaises(MockCSVPopulator.ReadError):
-        #     populator.populate(self.http_file('creme/geolocation/tests/data/doesnotexist.csv'))
         url = 'http://localhost:8001/geolocation/data/doesnotexist.csv'
 
         exception = urllib.error.URLError('page cannot be found')
@@ -398,7 +392,6 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_create_geoaddress_no_town(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self.assertEqual(0, GeoAddress.objects.count())
@@ -440,7 +433,6 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_create_geoaddress_with_town(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.command.import_town_database(
             [self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET],
@@ -482,7 +474,6 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
     @skipIfCustomAddress
     def test_populate_empty(self):
         "No zipcode, no city."
-        # user = self.login()
         user = self.login_as_root_and_get()
         self.command.import_town_database(
             [self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET],

@@ -122,11 +122,6 @@ class FilterSubCell(CustomFormExtraSubCell):
 
 
 class _ReportOnlyEntityCell(entity_cell.EntityCell):
-    # def render_html(self, entity, user):
-    #     return _('(preview not available)')
-    #
-    # def render_csv(self, entity, user):
-    #     return ''
     def render(self, entity, user, tag):
         return _('(preview not available)')
 

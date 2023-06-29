@@ -18,7 +18,6 @@
 
 import logging
 
-# from django.core import signing
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -85,19 +84,6 @@ class EmailSyncConfigItem(core_models.CremeModel):
 
     @property
     def password(self) -> str:
-        # try:
-        #     return signing.loads(
-        #         self.encoded_password,
-        #         salt=self.password_salt,
-        #         # serializer=self.serializer
-        #     )
-        # except signing.BadSignature:
-        #     logger.critical(
-        #         'creme.emails.models.synchronization: '
-        #         'bad signature for password of EmailSyncConfigItem with id=%s',
-        #         self.id
-        #     )
-        #     return ''
         try:
             return self._password_encrypter().decrypt(
                 self.encoded_password.encode()
@@ -112,12 +98,6 @@ class EmailSyncConfigItem(core_models.CremeModel):
 
     @password.setter
     def password(self, password: str):
-        # self.encoded_password = signing.dumps(
-        #     password,
-        #     salt=self.password_salt,
-        #     # serializer=self.serializer,
-        #     # compress=True,
-        # )
         self.encoded_password = self._password_encrypter().encrypt(
             password.encode()
         ).decode()
@@ -167,7 +147,7 @@ class EmailToSyncPerson(core_models.CremeModel):
     entity = models.ForeignKey(
         core_models.CremeEntity,
         null=True, on_delete=models.SET_NULL, related_name='+', editable=False,
-    )  # .set_tags(viewable=False)
+    )
     person = core_fields.RealEntityForeignKey(
         ct_field='entity_ctype', fk_field='entity',
     )

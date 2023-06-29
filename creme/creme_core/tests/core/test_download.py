@@ -81,9 +81,7 @@ class DownloadTestCase(CremeTestCase):
 
     def test_filefield_download03(self):
         "Entity credentials."
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
-        # super_user = self.other_user
         super_user = self.get_root_user()
 
         folder = FakeFolder.objects.create(user=user, title="Faye's pix")
@@ -104,7 +102,6 @@ class DownloadTestCase(CremeTestCase):
 
     def test_filefield_download04(self):
         "Unregister + multi register + not CremeEntity."
-        # user = self.login()
         user = self.get_root_user()
 
         folder = FakeFolder.objects.create(user=user, title="Faye's pix")
@@ -153,7 +150,6 @@ class DownloadTestCase(CremeTestCase):
 
     def test_filefield_download05(self):
         "Not CremeEntity + credentials."
-        # user = self.login(is_superuser=False, allowed_apps=('documents',))
         user = self.login_as_standard(allowed_apps=('documents',))
 
         fcomp = FakeFileComponent.objects.create()
@@ -167,7 +163,6 @@ class DownloadTestCase(CremeTestCase):
 
     def test_filefield_download06(self):
         "FieldsConfig."
-        # user = self.login()
         user = self.get_root_user()
 
         FieldsConfig.objects.create(
@@ -191,7 +186,6 @@ class DownloadTestCase(CremeTestCase):
 
     def test_filefield_download07(self):
         "FileRef."
-        # user = self.login()
         user = self.get_root_user()
 
         temp_file = FileRef.objects.create(
@@ -210,10 +204,8 @@ class DownloadTestCase(CremeTestCase):
 
     def test_filefield_download08(self):
         "TempFile belongs to another user."
-        # user = self.login()
         user = self.get_root_user()
         temp_file = FileRef.objects.create(
-            # user=self.other_user,
             user=self.create_user(),
             filedata=self._create_file_for_tempfile(
                 'DownloadTestCase_test_filefield_download08.txt'
@@ -229,7 +221,6 @@ class DownloadTestCase(CremeTestCase):
 
     def test_filefield_download09(self):
         "Custom permission check."
-        # user = self.login()
         user = self.get_root_user()
         temp_file = FileRef.objects.create(
             user=None,
@@ -257,7 +248,6 @@ class DownloadTestCase(CremeTestCase):
 
     def test_filefield_download10(self):
         "Basename."
-        # user = self.login()
         user = self.get_root_user()
         abs_path, rel_path = self._create_file_for_tempfile(
             'DownloadTestCase_test_filefield_download10.txt'

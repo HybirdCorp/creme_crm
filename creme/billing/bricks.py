@@ -118,7 +118,6 @@ class _LinesBrick(SimpleBrick):
 
 
 class ProductLinesBrick(_LinesBrick):
-    # id_ = SimpleBrick.generate_id('billing', 'product_lines')
     id = _LinesBrick.generate_id('billing', 'product_lines')
     verbose_name = _('Product lines')
     template_name = 'billing/bricks/product-lines.html'
@@ -126,7 +125,6 @@ class ProductLinesBrick(_LinesBrick):
 
 
 class ServiceLinesBrick(_LinesBrick):
-    # id_ = SimpleBrick.generate_id('billing', 'service_lines')
     id = _LinesBrick.generate_id('billing', 'service_lines')
     verbose_name = _('Service lines')
     template_name = 'billing/bricks/service-lines.html'
@@ -134,7 +132,6 @@ class ServiceLinesBrick(_LinesBrick):
 
 
 class CreditNotesBrick(PaginatedBrick):
-    # id_ = PaginatedBrick.generate_id('billing', 'credit_notes')
     id = PaginatedBrick.generate_id('billing', 'credit_notes')
     verbose_name = _('Related Credit Notes')
     description = _(
@@ -165,7 +162,6 @@ class CreditNotesBrick(PaginatedBrick):
 
 
 class TotalBrick(Brick):
-    # id_ = Brick.generate_id('billing', 'total')
     id = Brick.generate_id('billing', 'total')
     dependencies = (
         ProductLine, ServiceLine,
@@ -185,7 +181,6 @@ class TotalBrick(Brick):
 
 
 class TargetBrick(SimpleBrick):
-    # id_ = SimpleBrick.generate_id('billing', 'target')
     id = SimpleBrick.generate_id('billing', 'target')
     dependencies = (Invoice, CreditNote, SalesOrder, Quote, TemplateBase)
     verbose_name = _('Target and source')
@@ -194,7 +189,6 @@ class TargetBrick(SimpleBrick):
 
 
 class ReceivedInvoicesBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('billing', 'received_invoices')
     id = QuerysetBrick.generate_id('billing', 'received_invoices')
     dependencies = (Relation, Invoice)
     relation_type_deps = (constants.REL_OBJ_BILL_RECEIVED, )
@@ -252,7 +246,6 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
 
 
 class ReceivedQuotesBrick(_ReceivedBillingDocumentsBrick):
-    # id_ = QuerysetBrick.generate_id('billing', 'received_quotes')
     id = _ReceivedBillingDocumentsBrick.generate_id('billing', 'received_quotes')
     dependencies = (Relation, Quote)
     verbose_name = _('Received quotes')
@@ -267,7 +260,6 @@ class ReceivedQuotesBrick(_ReceivedBillingDocumentsBrick):
 
 
 class ReceivedSalesOrdersBrick(_ReceivedBillingDocumentsBrick):
-    # id_ = QuerysetBrick.generate_id('billing', 'received_sales_orders')
     id = _ReceivedBillingDocumentsBrick.generate_id('billing', 'received_sales_orders')
     dependencies = (Relation, SalesOrder)
     verbose_name = _('Received sales orders')
@@ -282,7 +274,6 @@ class ReceivedSalesOrdersBrick(_ReceivedBillingDocumentsBrick):
 
 
 class ReceivedCreditNotesBrick(_ReceivedBillingDocumentsBrick):
-    # id_ = QuerysetBrick.generate_id('billing', 'received_credit_notes')
     id = _ReceivedBillingDocumentsBrick.generate_id('billing', 'received_credit_notes')
     dependencies = (Relation, CreditNote)
     verbose_name = _('Received credit notes')
@@ -297,7 +288,6 @@ class ReceivedCreditNotesBrick(_ReceivedBillingDocumentsBrick):
 
 
 class PaymentInformationBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('billing', 'payment_information')
     id = QuerysetBrick.generate_id('billing', 'payment_information')
     verbose_name = _('Payment information')
     description = _(
@@ -323,7 +313,6 @@ class PaymentInformationBrick(QuerysetBrick):
 
 
 class BillingPaymentInformationBrick(QuerysetBrick):
-    # id_ = QuerysetBrick.generate_id('billing', 'billing_payment_information')
     id = QuerysetBrick.generate_id('billing', 'billing_payment_information')
     verbose_name = _('Default payment information')
     description = _(
@@ -360,19 +349,16 @@ class BillingPaymentInformationBrick(QuerysetBrick):
 
 class BillingDetailedAddressBrick(persons_bricks.DetailedAddressesBrick):
     # TODO: renames 'addresses'
-    # id_ = persons_bricks.DetailedAddressesBrick.generate_id('billing', 'address')
     id = persons_bricks.DetailedAddressesBrick.generate_id('billing', 'address')
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
 
 
 class BillingPrettyAddressBrick(persons_bricks.PrettyAddressesBrick):
-    # id_ = persons_bricks.PrettyAddressesBrick.generate_id('billing', 'addresses_pretty')
     id = persons_bricks.PrettyAddressesBrick.generate_id('billing', 'addresses_pretty')
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
 
 
 class BillingExportersBrick(Brick):
-    # id_ = Brick.generate_id('billing', 'exporters')
     id = Brick.generate_id('billing', 'exporters')
     verbose_name = _('Exporters')
     template_name = 'billing/bricks/exporters.html'
@@ -402,7 +388,6 @@ class BillingExportersBrick(Brick):
 
 
 class PersonsStatisticsBrick(Brick):
-    # id_ = Brick.generate_id('billing', 'persons__statistics')
     id = Brick.generate_id('billing', 'persons__statistics')
     verbose_name = _('Billing statistics')
     description = _(

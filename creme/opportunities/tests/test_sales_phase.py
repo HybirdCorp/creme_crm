@@ -52,7 +52,6 @@ class SalesPhaseTestCase(CremeTestCase):
         self.assertNotEqual(color1, SalesPhase(name='KO').color)
 
     def test_creme_config_brick(self):
-        # self.login()
         self.login_as_root()
         self.assertGET200(reverse('creme_config__app_portal', args=('opportunities',)))
 
@@ -72,7 +71,6 @@ class SalesPhaseTestCase(CremeTestCase):
         self.assertLess(sp2_index, sp1_index)  # order_by('order')
 
     def test_creme_config_brick_reordering(self):
-        # self.login()
         self.login_as_root()
 
         create_phase = SalesPhase.objects.create
@@ -90,7 +88,6 @@ class SalesPhaseTestCase(CremeTestCase):
         self.assertEqual(4, refresh(sp4).order)
 
     def test_delete01(self):
-        # self.login()
         self.login_as_root()
 
         sp = SalesPhase.objects.create(name='Forthcoming', order=1)
@@ -105,7 +102,6 @@ class SalesPhaseTestCase(CremeTestCase):
 
     @skipIfCustomOpportunity
     def test_delete02(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         sp = SalesPhase.objects.create(name='Forthcoming', order=1)

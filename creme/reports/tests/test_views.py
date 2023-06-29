@@ -24,7 +24,6 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
         )
 
     def test_update_settings__missing_id(self):
-        # self.login()
         self.login_as_root()
         self.assertPOST404(
             path=reverse('reports__update_graph_fetch_settings', args=(99999,)),
@@ -33,7 +32,6 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
 
     def test_update_settings__not_allowed(self):
         """Edition on reports is needed to update the settings."""
-        # self.login(is_superuser=False, allowed_apps=['reports'])
         user = self.login_as_standard(allowed_apps=['reports'])
         SetCredentials.objects.create(
             role=user.role,
@@ -41,7 +39,6 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        # graph = self._create_documents_rgraph(user=self.other_user)
         graph = self._create_documents_rgraph(user=self.get_root_user())
         self.assertEqual(graph.asc, True)
         self.assertEqual(graph.chart, None)
@@ -78,7 +75,6 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
         )),
     ])
     def test_update_settings__invalid_argument(self, data, expected):
-        # user = self.login()
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
 
@@ -91,7 +87,6 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
         self.assertEqual(response.content.decode(), expected)
 
     def test_update_settings(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
 
@@ -113,7 +108,6 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
         self.assertEqual(graph.chart, 'fakepie')
 
     def test_update_instance_settings__missing_id(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         self.assertPOST404(
@@ -157,7 +151,6 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
         )),
     ])
     def test_update_instance_settings__invalid_argument(self, data, expected):
-        # user = self.login()
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
         config = self._create_graph_instance_brick(graph)
@@ -173,7 +166,6 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
         self.assertEqual(response.content.decode(), expected)
 
     def test_update_instance_settings(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
         config = self._create_graph_instance_brick(graph)
@@ -188,7 +180,7 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
             data={
                 "sort": "DESC",
                 "chart": 'fakepie',
-            }
+            },
         )
 
         self.assertJSONEqual(response.content, {"sort": "DESC", "chart": "fakepie"})

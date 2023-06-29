@@ -187,7 +187,6 @@ class _RelationsForm(base.CremeForm):
         )
 
 
-# class RelationCreateForm(_RelationsCreateForm):
 class RelationsAddingForm(_RelationsForm):
     def __init__(self, subject, relations_types=None, *args, **kwargs):
         super().__init__(
@@ -197,7 +196,6 @@ class RelationsAddingForm(_RelationsForm):
         )
 
 
-# class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
 class RelationsBulkAddingForm(_RelationsForm):
     entities_lbl = core_fields.ReadonlyMessageField(label=_('Related entities'))
 

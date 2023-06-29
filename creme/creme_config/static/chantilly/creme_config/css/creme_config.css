@@ -27,23 +27,6 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     margin-top: 5px;
 }
 
-/*
-.theme_picker,
-.tz_picker,
-.language_picker,
-.displayed_name_form {
-    display: inline-block;
-    margin-bottom: 15px;
-    margin-top: 5px;
-}
-
-.tz_picker,
-.language_picker,
-.displayed_name_form {
-    margin-left: 20px;
-}
-*/
-
 .theme_picker label,
 .tz_picker label,
 .language_picker label,

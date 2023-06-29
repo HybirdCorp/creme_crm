@@ -59,8 +59,3 @@ class EntityEmailLinkButton(Button):
         return super().is_allowed(
             entity=entity, request=request,
         ) and request.user.has_perm_to_link(entity)
-
-    # def render(self, context):
-    #     context['rtypes'] = self.rtype_ids
-    #
-    #     return super().render(context)

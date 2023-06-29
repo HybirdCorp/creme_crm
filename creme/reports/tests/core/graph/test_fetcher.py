@@ -221,7 +221,6 @@ class GraphFetcherTestCase(CremeTestCase):
     def test_create_brick_config_item(self):
         "Other brick class."
         class OtherReportGraphBrick(ReportGraphChartInstanceBrick):
-            # id_ = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
             id = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
 
         user = self.get_root_user()
@@ -235,5 +234,4 @@ class GraphFetcherTestCase(CremeTestCase):
         ibci = SimpleGraphFetcher(graph=graph).create_brick_config_item(
             brick_class=OtherReportGraphBrick,
         )
-        # self.assertEqual(OtherReportGraphBrick.id_, ibci.brick_class_id)
         self.assertEqual(OtherReportGraphBrick.id, ibci.brick_class_id)

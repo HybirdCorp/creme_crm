@@ -40,8 +40,3 @@ class Linked2TicketButton(Button):
         context['rtype'] = RelationType.objects.get(id=REL_SUB_LINKED_2_TICKET)
 
         return context
-
-    # def render(self, context):
-    #     context['rtype'] = RelationType.objects.get(id=REL_SUB_LINKED_2_TICKET)
-    #
-    #     return super().render(context)

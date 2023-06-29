@@ -31,7 +31,6 @@ from creme.creme_core.utils.unicode_collation import collator
 from .widgets import ButtonMenuEditionWidget
 
 
-# class ButtonMenuAddForm(CremeForm):
 class ButtonMenuCreationForm(CremeForm):
     ctype = EntityCTypeChoiceField(
         label=_('Related resource'),
@@ -63,7 +62,6 @@ class ButtonMenuCreationForm(CremeForm):
         return bmi
 
 
-# class ButtonMenuEditForm(CremeForm):
 class ButtonMenuEditionForm(CremeForm):
     button_ids = MultipleChoiceField(
         label=_('Buttons to display'), required=False,

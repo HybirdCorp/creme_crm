@@ -41,7 +41,6 @@ class QSerializerTestCase(CremeTestCase):
 
     def _assertQIsOK(self, q, entities, model=None):
         model = model or entities[0].__class__
-        # self.assertQuerysetEqual(
         self.assertQuerySetEqual(
             model.objects.filter(q), entities, transform=lambda e: e,
         )
@@ -56,7 +55,6 @@ class QSerializerTestCase(CremeTestCase):
         self.boxer   = create_pos(title='Boxer')
         self.fighter = create_pos(title='Fighter')
 
-        # create_contact = partial(FakeContact.objects.create, user=self.user)
         create_contact = partial(FakeContact.objects.create, user=self.get_root_user())
         self.adrian = create_contact(
             first_name='Adrian', last_name='Velba',
@@ -74,7 +72,6 @@ class QSerializerTestCase(CremeTestCase):
         )
 
     def test_simple_charfield(self):
-        # self.login()
         self._create_contacts()
 
         q1 = Q(last_name=self.adrian.last_name)
@@ -107,7 +104,6 @@ class QSerializerTestCase(CremeTestCase):
         self._assertQEqual(FakeContact, q1, q2)
 
     def test_and(self):
-        # self.login()
         self._create_contacts()
 
         q = Q(last_name=self.adrian.last_name) & Q(first_name__startswith='Ad')
@@ -117,7 +113,6 @@ class QSerializerTestCase(CremeTestCase):
         self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
     def test_or(self):
-        # self.login()
         self._create_contacts()
 
         q = Q(first_name=self.adrian.first_name) | Q(first_name__startswith='Ric')
@@ -127,7 +122,6 @@ class QSerializerTestCase(CremeTestCase):
         self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
     def test_not(self):
-        # self.login()
         self._create_contacts()
 
         q = ~Q(first_name=self.adrian.first_name) & Q(last_name=self.adrian.last_name)
@@ -137,7 +131,6 @@ class QSerializerTestCase(CremeTestCase):
         self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
     def _aux_test_date_field(self):
-        # self.login()
         self._create_contacts()
 
         q = Q(birthday__gt=date(year=2000, month=1, day=1))
@@ -243,7 +236,6 @@ class QSerializerTestCase(CremeTestCase):
 
     def test_fk(self):
         "Value is a model instance."
-        # self.login()
         self._create_contacts()
 
         q = Q(position=self.baker)
@@ -255,7 +247,6 @@ class QSerializerTestCase(CremeTestCase):
 
     def test_range_fk(self):
         "__in=[...] + model instance."
-        # self.login()
         self._create_contacts()
 
         q = Q(position__in=[self.boxer, self.fighter])
@@ -267,7 +258,6 @@ class QSerializerTestCase(CremeTestCase):
 
     def test_error_subqueryset(self):
         "__in=QuerySet -> error."
-        # self.login()
         self._create_contacts()
 
         q = Q(position__in=FakePosition.objects.filter(title__startswith='B'))

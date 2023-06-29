@@ -158,14 +158,12 @@ class AbstractFolder(CremeEntity):
 
         return parents
 
-    # def save(self, *args, **kwargs):
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if not self.category and self.parent_folder:
             self.category = self.parent_folder.category
             if update_fields is not None:
                 update_fields = {'category', *update_fields}
 
-        # super().save(*args, **kwargs)
         super().save(
             force_insert=force_insert,
             force_update=force_update,

@@ -30,7 +30,6 @@ from .. import constants, get_credit_note_model
 CreditNote = get_credit_note_model()
 
 
-# class CreditNotePopupEditForm(base.CremeModelForm):
 class CreditNotePopupEditionForm(base.CremeModelForm):
     class Meta:
         model = CreditNote

@@ -54,7 +54,6 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
 
     @skipIfCustomAddress
     def test_mass_import01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name1 = 'Nerv'
@@ -117,7 +116,6 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
     @skipIfCustomAddress
     def test_mass_import02(self):
         "Update (with address)."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         name = 'Bebop'
@@ -174,7 +172,6 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
     @skipIfCustomAddress
     def test_mass_import03(self):
         "FieldsConfig on Address sub-field."
-        # user = self.login()
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Address,
@@ -208,7 +205,6 @@ class OrganisationMassImportTestCase(MassImportBaseTestCaseMixin,
     @skipIfCustomAddress
     def test_mass_import04(self):
         "FieldsConfig on 'billing_address' FK field."
-        # user = self.login()
         user = self.login_as_root_and_get()
         FieldsConfig.objects.create(
             content_type=Organisation,

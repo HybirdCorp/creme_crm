@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from collections import defaultdict
 from typing import Iterable
 
@@ -573,7 +572,6 @@ class Relation(CremeModel):
         self._clean_subject_forbidden_properties(property_types=property_types)
 
     def clean(self):
-        # super().clean()
         self.clean_subject_entity()
 
         # TODO: factorise with save()
@@ -584,7 +582,6 @@ class Relation(CremeModel):
             subject_entity=self.object_entity,
             real_object=self.subject_entity,
         )
-        # CremeModel.clean(sym_relation)
         sym_relation.clean_subject_entity()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
@@ -623,24 +620,6 @@ class Relation(CremeModel):
                 using=using, force_insert=False,
                 update_fields=['symmetric_relation'],
             )
-
-    # @staticmethod
-    # def populate_real_object_entities(relations: Iterable[Relation]) -> None:
-    #     """Faster than call get_real_entity() on each relation.object_entity.
-    #     @param relations: Iterable of Relation objects.
-    #
-    #     Tips: better if object_entity attribute is already populated
-    #     (e.g. by using select_related('object_entity') on the queryset).
-    #     """
-    #     warnings.warn(
-    #         'Relation.populate_real_object_entities() is deprecated ; '
-    #         'use Relation.objects.prefetch_related("real_object") instead.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     CremeEntity.populate_real_entities([
-    #         relation.object_entity for relation in relations
-    #     ])
 
 
 class SemiFixedRelationType(CremeModel):

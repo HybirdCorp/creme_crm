@@ -103,7 +103,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         ordering = ('last_name', 'first_name')
         verbose_name = _('Contact')
         verbose_name_plural = _('Contacts')
-        # index_together = ('last_name', 'first_name', 'cremeentity_ptr')
         indexes = [
             models.Index(
                 fields=['last_name', 'first_name', 'cremeentity_ptr'],

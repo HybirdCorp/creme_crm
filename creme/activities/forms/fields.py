@@ -18,16 +18,12 @@
 
 from __future__ import annotations
 
-# import warnings
-# from functools import partial
 import datetime
 from dataclasses import dataclass
 
 from django import forms
 from django.contrib.auth import get_user_model
-# from django.core.exceptions import ValidationError
 from django.forms import widgets
-# from django.forms.fields import CallableChoiceIterator
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms.fields as core_fields
@@ -35,123 +31,10 @@ import creme.creme_core.forms.widgets as core_widgets
 from creme.creme_config.forms.fields import CreatorEnumerableModelChoiceField
 from creme.creme_core.forms import validators
 from creme.creme_core.forms.enumerable import NO_LIMIT
-# from creme.creme_core.utils.url import TemplateURLBuilder
 from creme.persons import get_contact_model
 
 from .. import get_activity_model
-# from ..models import ActivitySubType, ActivityType
 from ..models import Calendar
-
-# class ActivityTypeWidget(core_widgets.ChainedInput):
-#     def __init__(self, types=(), attrs=None, creation_allowed=True):
-#         warnings.warn(
-#             'The widget activities.forms.fields.ActivityTypeWidget is deprecated',
-#             DeprecationWarning,
-#         )
-#
-#         super().__init__(attrs)
-#         self.creation_allowed = creation_allowed
-#         self.types = types
-#
-#     def get_context(self, name, value, attrs):
-#         add_dselect = partial(self.add_dselect, attrs={'auto': False})
-#         add_dselect('type', options=self.types)
-#         add_dselect(
-#             'sub_type',
-#             options=TemplateURLBuilder(
-#                 type_id=(TemplateURLBuilder.Word, '${type}'),
-#             ).resolve('activities__get_types'),
-#         )
-#
-#         return super().get_context(name=name, value=value, attrs=attrs)
-
-
-# class ActivityTypeField(core_fields.JSONField):
-#     widget = ActivityTypeWidget  # Should have a 'types' attribute
-#     default_error_messages = {
-#         'typenotallowed':  _('This type causes constraint error.'),
-#         'subtyperequired': _('Sub-type is required.'),
-#     }
-#     value_type = dict
-#
-#     def __init__(self, *,
-#                  types=ActivityType.objects.all(),
-#                  empty_label='---------',
-#                  **kwargs):
-#         warnings.warn(
-#             'The field activities.forms.fields.ActivityTypeField is deprecated ; '
-#             'use ActivitySubTypeField instead.',
-#             DeprecationWarning,
-#         )
-#
-#         self.empty_label = empty_label
-#
-#         super().__init__(**kwargs)
-#         self.types = types
-#
-#     def __deepcopy__(self, memo):
-#         result = super().__deepcopy__(memo)
-#
-#         # Need to force a fresh iterator to be created.
-#         result.types = result.types
-#
-#         return result
-#
-#     def widget_attrs(self, widget):  # See Field.widget_attrs()
-#         return {'reset': not self.required}
-#
-#     def _value_to_jsonifiable(self, value):
-#         if isinstance(value, ActivitySubType):
-#             type_id = value.type_id
-#             subtype_id = value.id
-#         else:
-#             type_id, subtype_id = value
-#
-#         return {'type': type_id, 'sub_type': subtype_id}
-#
-#     def _value_from_unjsonfied(self, data):
-#         clean = self.clean_value
-#         type_pk  = clean(data, 'type', str)
-#         subtype_pk = clean(data, 'sub_type', str, required=False)
-#
-#         if not type_pk and self.required:
-#             raise ValidationError(self.error_messages['required'], code='required')
-#
-#         try:
-#             atype = self.types.get(pk=type_pk)
-#         except ActivityType.DoesNotExist as e:
-#             raise ValidationError(
-#                 self.error_messages['typenotallowed'],
-#                 code='typenotallowed',
-#             ) from e
-#
-#         try:
-#             subtype = ActivitySubType.objects.filter(type=atype).get(pk=subtype_pk)
-#         except ActivitySubType.DoesNotExist as e:
-#             raise ValidationError(
-#                 self.error_messages['subtyperequired'],
-#                 code='subtyperequired',
-#             ) from e
-#
-#         return atype, subtype
-#
-#     @property
-#     def types(self):
-#         return self._types.all()
-#
-#     @types.setter
-#     def types(self, types):
-#         self._types = types
-#         self.widget.types = CallableChoiceIterator(self._get_types_options)
-#
-#     def _get_types_options(self):
-#         types = self._types
-#
-#         if len(types) > 1 or not self.required:
-#             yield None, self.empty_label
-#
-#         for instance in types:
-#             yield instance.id, str(instance)
 
 
 class ActivitySubTypeField(CreatorEnumerableModelChoiceField):
@@ -216,7 +99,6 @@ class DateWithOptionalTimeField(forms.MultiValueField):
         )
 
     def compress(self, data_list):
-        # return (data_list[0], data_list[1]) if data_list else (None, None)
         return self.DateWithOptionalTime(
             date=data_list[0], time=data_list[1],
         ) if data_list else None
@@ -245,14 +127,6 @@ class UserParticipationField(core_fields.OptionalModelChoiceField):
 
             self.widget.sub_widget.choices = calendars_field.choices
 
-    # def clean(self, value):
-    #     user = self._user
-    #     assert user is not None
-    #
-    #     value = super().clean(value=value)
-    #     validators.validate_linkable_entity(user.linked_contact, user)
-    #
-    #     return value
     def validate(self, value):
         super().validate(value=value)
 

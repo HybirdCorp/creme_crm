@@ -299,16 +299,6 @@ class RegularFieldsConditionsField(_ConditionsField):
         errors = []
         self._get_fields()  # Build self._fields
 
-        # try:
-        #     for entry in data:
-        #         operator, values = clean_operator_n_values(entry)
-        #         conditions.append(build_condition(
-        #             field_name=clean_fieldname(entry),
-        #             operator=operator,
-        #             values=values,
-        #         ))
-        # except condition_handler.FilterConditionHandler.ValueError as e:
-        #     raise ValidationError(str(e)) from e
         for entry in data:
             try:
                 operator, values = clean_operator_n_values(entry)
@@ -492,15 +482,6 @@ class DateFieldsConditionsField(_ConditionsField):
         conditions = []
         errors = []
 
-        # try:
-        #     for entry in data:
-        #         date_range, start, end = clean_date_range(entry)
-        #         conditions.append(build_condition(
-        #             field_name=clean_field_name(entry),
-        #             date_range=date_range, start=start, end=end
-        #         ))
-        # except condition_handler.FilterConditionHandler.ValueError as e:
-        #     raise ValidationError(str(e)) from e
         for entry in data:
             try:
                 date_range, start, end = clean_date_range(entry)
@@ -660,16 +641,6 @@ class CustomFieldsConditionsField(_ConditionsField):
         conditions = []
         errors = []
 
-        # try:
-        #     for entry in data:
-        #         operator, values = clean_operator_n_values(entry)
-        #         conditions.append(build_condition(
-        #             custom_field=clean_cfield(entry),
-        #             operator=operator,
-        #             values=values,
-        #         ))
-        # except condition_handler.FilterConditionHandler.ValueError as e:
-        #     raise ValidationError(str(e)) from e
         for entry in data:
             try:
                 operator, values = clean_operator_n_values(entry)
@@ -762,15 +733,6 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         conditions = []
         errors = []
 
-        # try:
-        #     for entry in data:
-        #         date_range, start, end = clean_date_range(entry)
-        #         conditions.append(build_condition(
-        #             custom_field=clean_cfield(entry),
-        #             date_range=date_range, start=start, end=end,
-        #         ))
-        # except condition_handler.FilterConditionHandler.ValueError as e:
-        #     raise ValidationError(str(e)) from e
         for entry in data:
             try:
                 date_range, start, end = clean_date_range(entry)

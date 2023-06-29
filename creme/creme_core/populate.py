@@ -207,15 +207,11 @@ class Populator(BasePopulator):
             )
 
             create_bhl = BrickHomeLocation.objects.create
-            # create_bhl(brick_id=bricks.StatisticsBrick.id_, order=8)
             create_bhl(brick_id=bricks.StatisticsBrick.id, order=8)
-            # create_bhl(brick_id=bricks.HistoryBrick.id_,    order=10)
             create_bhl(brick_id=bricks.HistoryBrick.id,    order=10)
 
             create_bml = BrickMypageLocation.objects.create
-            # create_bml(brick_id=bricks.HistoryBrick.id_, order=8, user=None)
             create_bml(brick_id=bricks.HistoryBrick.id, order=8, user=None)
-            # create_bml(brick_id=bricks.HistoryBrick.id_, order=8, user=root)
             create_bml(brick_id=bricks.HistoryBrick.id, order=8, user=root)
 
             # ---------------------------

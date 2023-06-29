@@ -34,7 +34,6 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
 
     def test_create_related_contact01(self):
         "Not employed by the target Organisation."
-        # user = self.login()
         user = self.login_as_root_and_get()
         opp, target, emitter = self._create_opportunity_n_organisations(user=user)
 
@@ -79,7 +78,6 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
 
     def test_create_related_contact02(self):
         "Employed by the target Organisation."
-        # user = self.login()
         user = self.login_as_root_and_get()
         opp, target, emitter = self._create_opportunity_n_organisations(user=user)
 
@@ -106,7 +104,6 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
 
     def test_create_related_contact03(self):
         "Target is a Contact."
-        # user = self.login()
         user = self.login_as_root_and_get()
         opp, target, emitter = self._create_opportunity_n_organisations(user=user, contact=True)
 
@@ -140,9 +137,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
 
     def test_create_related_contact04(self):
         "No credentials to create the Contact."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=('persons', 'opportunities'),
             creatable_models=[Organisation, Opportunity],
         )
@@ -168,9 +163,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
     ])
     def test_create_related_contact_no_link(self, allowed_models, error_403):
         "No credentials to link the Organisation."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=('persons', 'opportunities'),
             creatable_models=[Organisation, Contact, Opportunity],
         )
@@ -206,7 +199,6 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
 
     def test_create_related_contact_customfields(self):
         "Required CustomFields."
-        # user = self.login()
         user = self.login_as_root_and_get()
 
         create_cf = partial(
@@ -229,7 +221,6 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
 
     def test_create_related_contact_error(self):
         "The relation type is disabled."
-        # user = self.login()
         user = self.login_as_root_and_get()
         opp = self._create_opportunity_n_organisations(user=user)[0]
 

@@ -694,7 +694,6 @@ class SetCredentials(models.Model):
             ct_id = get_for_model(model).id
             model_ct_ids = {None, ct_id}   # <None> means <CremeEntity>
 
-            # forbidden, allowed = split_filter(
             allowed, forbidden = partition(
                 lambda sc: sc.forbidden,
                 (
@@ -931,7 +930,6 @@ class CremeUser(AbstractBaseUser):
 
     time_zone = models.CharField(
         _('Time zone'), max_length=50, default=settings.TIME_ZONE,
-        # choices=[(tz, tz) for tz in pytz.common_timezones],
         # TODO: (note from Python's doc)
         #   These values are not designed to be exposed to end-users; for user facing elements,
         #   applications should use something like CLDR (the Unicode Common Locale Data Repository)

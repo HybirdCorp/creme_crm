@@ -195,7 +195,6 @@ class EntityCellsWidget(Widget):
 
             for choice_id, cell in cells:
                 try:
-                    # value = str(cell.render_html(entity, user))
                     # TODO: add a "tag" attribute?
                     value = str(cell.render(entity, user, tag=ViewTag.HTML_LIST))
                 except Exception as e:
@@ -656,7 +655,6 @@ class _HeaderFilterForm(CremeModelForm):
         return cdata
 
 
-# class HeaderFilterCreateForm(_HeaderFilterForm):
 class HeaderFilterCreationForm(_HeaderFilterForm):
     def __init__(self,
                  ctype: 'ContentType',
@@ -686,7 +684,6 @@ class HeaderFilterCreationForm(_HeaderFilterForm):
         return instance
 
 
-# class HeaderFilterEditForm(_HeaderFilterForm):
 class HeaderFilterEditionForm(_HeaderFilterForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -366,7 +366,6 @@ class CellSorterRegistry(AbstractCellSorter):
     )
 
     def __init__(self, to_register=DEFAULT_REGISTRIES):
-        # self._registries = OrderedDict()
         self._registries = {}
 
         for cell_id, registry_class in to_register:
@@ -379,8 +378,6 @@ class CellSorterRegistry(AbstractCellSorter):
         try:
             field_name = self._registries[cell.type_id].get_field_name(cell)
         except KeyError:
-            # logger.warning('QuerySorterRegistry: can not sort with cell "%s".', cell)
-
             field_name = None
 
         return field_name

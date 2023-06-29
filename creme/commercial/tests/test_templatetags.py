@@ -16,7 +16,6 @@ from .base import (
 @skipIfCustomStrategy
 class CommercialTagsTestCase(CommercialBaseTestCase):
     def test_segments_for_category(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
 
@@ -75,7 +74,6 @@ class CommercialTagsTestCase(CommercialBaseTestCase):
         )
 
     def test_widget_asset_score(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         industry = self._create_segment_desc(strategy, 'Industry')
@@ -116,7 +114,6 @@ class CommercialTagsTestCase(CommercialBaseTestCase):
         )
 
         # ---
-        # ctxt['user'] = self.other_user
         ctxt['user'] = self.create_user(role=self.create_role())
         with self.assertNoException():
             render2 = template.render(ctxt)
@@ -132,7 +129,6 @@ class CommercialTagsTestCase(CommercialBaseTestCase):
         )
 
     def test_widget_charm_score(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         industry = self._create_segment_desc(strategy, 'Industry')
@@ -173,7 +169,6 @@ class CommercialTagsTestCase(CommercialBaseTestCase):
         )
 
         # ---
-        # ctxt['user'] = self.other_user
         ctxt['user'] = self.create_user(role=self.create_role())
         with self.assertNoException():
             render2 = template.render(ctxt)

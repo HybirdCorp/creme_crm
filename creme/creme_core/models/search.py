@@ -122,8 +122,6 @@ class SearchConfigItemManager(models.Manager):
 
             if sc_items:
                 yield next((item for item in sc_items if filter_func(item)), sc_items[0])
-            # else:
-            #     yield self.model(content_type=ctype)
 
 
 class SearchConfigItem(CremeModel):

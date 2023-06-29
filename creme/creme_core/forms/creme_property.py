@@ -26,7 +26,6 @@ from .base import CremeForm
 from .fields import ReadonlyMessageField
 
 
-# class _AddPropertiesForm(CremeForm):
 class _PropertiesForm(CremeForm):
     types = ModelMultipleChoiceField(
         label=_('Type of property'),
@@ -34,7 +33,6 @@ class _PropertiesForm(CremeForm):
     )
 
 
-# class AddPropertiesForm(_AddPropertiesForm):
 class PropertiesAddingForm(_PropertiesForm):
     def __init__(self, entity, *args, **kwargs):
         # We need this entity in super constructor when post_init_callback is called.
@@ -56,7 +54,6 @@ class PropertiesAddingForm(_PropertiesForm):
             create(creme_entity=self.entity, type=ptype)
 
 
-# class AddPropertiesBulkForm(_AddPropertiesForm):
 class PropertiesBulkAddingForm(_PropertiesForm):
     entities_lbl = ReadonlyMessageField(label=_('Related entities'))
 

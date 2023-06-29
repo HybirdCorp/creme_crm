@@ -28,10 +28,6 @@ def skipIfCustomOrganisation(test_func):
 
 
 class _BaseTestCase(_DocumentsTestCase):
-    # def login(self, is_superuser=True, allowed_apps=('persons',), **kwargs):
-    #     self.fail('fail')
-    #     return super().login(is_superuser=is_superuser, allowed_apps=allowed_apps, **kwargs)
-
     def login_as_persons_user(self, *, allowed_apps=(), **kwargs):
         return super().login_as_standard(allowed_apps=['persons', *allowed_apps], **kwargs)
 

@@ -5,16 +5,13 @@ from unittest.case import skipIf
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-# from django.contrib.sessions.backends.base import SessionBase
 from django.db.models.query_utils import Q
-# from django.test.client import RequestFactory
 from django.urls.base import reverse
 from django.utils.timezone import datetime, make_aware
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.gui.bricks import BricksManager
 from creme.creme_core.models.auth import SetCredentials
 from creme.creme_core.models.bricks import (
     BrickDetailviewLocation,
@@ -50,30 +47,6 @@ from creme.reports.tests.fake_models import (
 )
 
 from .base import Report, ReportGraph, skipIfCustomReport, skipIfCustomRGraph
-
-# def detailview_display_context(entity, user):
-#     request = RequestFactory().get(entity.get_absolute_url())
-#     request.session = SessionBase()
-#     request.user = user
-#
-#     return {
-#         'object': entity,
-#         'request': request,
-#         'user': user,
-#         BricksManager.var_name: BricksManager(),
-#     }
-
-
-# def home_display_context(user):
-#     request = RequestFactory().get(reverse('creme_core__home'))
-#     request.session = SessionBase()
-#     request.user = user
-#
-#     return {
-#         'request': request,
-#         'user': user,
-#         BricksManager.var_name: BricksManager(),
-#     }
 
 
 def create_fake_docs(user):
@@ -124,7 +97,6 @@ class D3ReportGraphChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         user = self.get_root_user()
         graph = self._create_documents_rgraph(user=user)
 
-        # context = detailview_display_context(graph, user)
         context = self.build_context(user=user, instance=graph)
 
         brick = ReportGraphChartBrick()
@@ -149,7 +121,6 @@ class D3ReportGraphChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         create_fake_docs(user)
 
-        # context = detailview_display_context(graph, user)
         context = self.build_context(user=user, instance=graph)
         data = [
             {
@@ -205,7 +176,6 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
         user = self.get_root_user()
         report = self._create_simple_documents_report(user=user)
 
-        # context = detailview_display_context(report, user)
         context = self.build_context(user=user, instance=report)
 
         brick = ReportGraphChartListBrick()
@@ -226,7 +196,6 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
         report = self._create_simple_documents_report(user=user)
         graph_by_year, graph_by_month = self._create_report_graphs(report)
 
-        # context = detailview_display_context(report, user)
         context = self.build_context(user=user, instance=report)
 
         brick = ReportGraphChartListBrick()
@@ -277,7 +246,6 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
         create_fake_docs(user)
 
         brick = ReportGraphChartListBrick()
-        # brick.detailview_display(detailview_display_context(report, user))
         brick.detailview_display(self.build_context(user=user, instance=report))
 
         graph_by_year_data = [
@@ -355,12 +323,10 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
 @mock.patch('creme.reports.bricks.ReportGraphChartInstanceBrick._render')
 class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_detailview_display__no_data(self, mock_brick_render):
-        # user = self.login()
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
         instance = self._create_graph_instance_brick(graph)
 
-        # context = detailview_display_context(graph, user)
         context = self.build_context(user=user, instance=graph)
 
         brick = ReportGraphChartInstanceBrick(instance)
@@ -381,14 +347,12 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
         })
 
     def test_detailview_display(self, mock_brick_render):
-        # user = self.login()
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
         instance = self._create_graph_instance_brick(graph)
 
         create_fake_docs(user)
 
-        # context = detailview_display_context(graph, user)
         context = self.build_context(user=user, instance=graph)
         data = [
             {
@@ -418,12 +382,10 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
         })
 
     def test_home_display__no_data(self, mock_brick_render):
-        # user = self.login()
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
         instance = self._create_graph_instance_brick(graph)
 
-        # context = home_display_context(user)
         context = self.build_context(user=user)
 
         brick = ReportGraphChartInstanceBrick(instance)
@@ -444,14 +406,12 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
         })
 
     def test_home_display(self, mock_brick_render):
-        # user = self.login()
         user = self.login_as_root_and_get()
         graph = self._create_documents_rgraph(user=user)
         instance = self._create_graph_instance_brick(graph)
 
         create_fake_docs(user)
 
-        # context = home_display_context(user)
         context = self.build_context(user=user)
         data = [
             {
@@ -505,7 +465,6 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         return uri
 
     def test_fetchfrombrick_save_settings(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         folder = FakeReportsFolder.objects.create(title='my Folder', user=user)
         rgraph = self._create_documents_rgraph(user=user)
@@ -542,7 +501,6 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         self.assertFalse(rgraph.asc)
 
     def test_add_graph_instance_brick01(self):
-        # user = self.login()
         user = self.login_as_root_and_get()
         rgraph = self._create_invoice_report_n_graph(user=user)
         self.assertFalse(
@@ -691,7 +649,6 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_add_graph_instance_brick02(self):
         "Volatile column (RGF_FK)."
-        # user = self.login()
         user = self.login_as_root_and_get()
         rgraph = self._create_documents_rgraph(user=user)
 
@@ -769,16 +726,13 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_add_graph_instance_brick_not_superuser01(self):
         apps = ['reports']
-        # user = self.login(is_superuser=False, allowed_apps=apps, admin_4_apps=apps)
         user = self.login_as_standard(allowed_apps=apps, admin_4_apps=apps)
         rgraph = self._create_invoice_report_n_graph(user=user)
         self.assertGET200(self._build_add_brick_url(rgraph))
 
     def test_add_graph_instance_brick_not_superuser02(self):
         "Admin permission needed."
-        # user = self.login(
         user = self.login_as_standard(
-            # is_superuser=False,
             allowed_apps=['reports'],  # admin_4_apps=['reports'],
         )
         rgraph = self._create_invoice_report_n_graph(user=user)
@@ -786,7 +740,6 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_add_graph_instance_brick02_error01(self):
         "Volatile column (RFT_FIELD): invalid field."
-        # user = self.login()
         user = self.login_as_root_and_get()
         rgraph = self._create_documents_rgraph(user=user)
 
@@ -794,7 +747,6 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         fname = 'invalid'
         ibci = InstanceBrickConfigItem.objects.create(
             entity=rgraph,
-            # brick_class_id=ReportGraphChartInstanceBrick.id_,
             brick_class_id=ReportGraphChartInstanceBrick.id,
         )
         ibci.set_extra_data(key='type',  value=RGF_FK)
@@ -814,16 +766,13 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_add_graph_instance_brick02_error02(self):
         "Volatile column (RFT_FIELD): field is not a FK to CremeEntity."
-        # user = self.login()
         user = self.login_as_root_and_get()
         rgraph = self._create_documents_rgraph(user=user)
 
         # We create voluntarily an invalid item
         fname = 'description'
         ibci = InstanceBrickConfigItem(
-            entity=rgraph,
-            # brick_class_id=ReportGraphChartInstanceBrick.id_,
-            brick_class_id=ReportGraphChartInstanceBrick.id,
+            entity=rgraph, brick_class_id=ReportGraphChartInstanceBrick.id,
         )
         ibci.set_extra_data(key='type',  value=RGF_FK)
         ibci.set_extra_data(key='value', value=fname)
@@ -840,7 +789,6 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_add_graph_instance_brick02_error03(self):
         "Volatile column (RGF_FK): field is not a FK to the given Entity type."
-        # user = self.login()
         user = self.login_as_root_and_get()
         rgraph = self._create_documents_rgraph(user=user)
 
@@ -857,7 +805,6 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_add_graph_instance_brick03(self):
         "Volatile column (RGF_RELATION)."
-        # user = self.login()
         user = self.login_as_root_and_get()
         report = self._create_simple_contacts_report(user=user)
         rtype = RelationType.objects.get(pk=fake_constants.FAKE_REL_SUB_EMPLOYED_BY)
@@ -948,16 +895,13 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_add_graph_instance_brick03_error(self):
         "Volatile column (RFT_RELATION): invalid relation type."
-        # user = self.login()
         user = self.login_as_root_and_get()
         rgraph = self._create_documents_rgraph(user=user)
 
         # We create voluntarily an invalid item
         rtype_id = 'invalid'
         ibci = InstanceBrickConfigItem.objects.create(
-            entity=rgraph,
-            # brick_class_id=ReportGraphChartInstanceBrick.id_,
-            brick_class_id=ReportGraphChartInstanceBrick.id,
+            entity=rgraph, brick_class_id=ReportGraphChartInstanceBrick.id,
         )
         ibci.set_extra_data(key='type',  value=RGF_RELATION)
         ibci.set_extra_data(key='value', value=rtype_id)
@@ -971,14 +915,11 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_get_fetcher_from_instance_brick(self):
         "Invalid type."
-        # self.login()
         user = self.login_as_root_and_get()
         rgraph = self._create_documents_rgraph(user=user)
 
         ibci = InstanceBrickConfigItem.objects.create(
-            # brick_class_id=ReportGraphChartInstanceBrick.id_,
-            brick_class_id=ReportGraphChartInstanceBrick.id,
-            entity=rgraph,
+            brick_class_id=ReportGraphChartInstanceBrick.id, entity=rgraph,
         )
 
         # No extra data
@@ -995,7 +936,6 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
 
     def test_fetch_with_credentials(self):
         "Filter retrieved entities with permission (brick + regular field version)."
-        # user = self.login(is_superuser=False, allowed_apps=['creme_core', 'reports'])
         user = self.login_as_standard(allowed_apps=['creme_core', 'reports'])
         SetCredentials.objects.create(
             role=user.role,
@@ -1009,7 +949,6 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         doc1 = create_doc(title='Doc#1', user=user)
         create_doc(title='Doc#2', user=user)
         # Cannot be seen => should not be used to compute aggregate
-        # doc3 = create_doc(title='Doc#3', user=self.other_user)
         doc3 = create_doc(title='Doc#3', user=self.get_root_user())
         self.assertEqual(doc1.created.year, doc3.created.year)
 

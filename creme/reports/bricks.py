@@ -40,7 +40,6 @@ class ReportBarHatBrick(core_bricks.SimpleBrick):
 
 
 class ReportFieldsBrick(core_bricks.Brick):
-    # id_ = core_bricks.Brick.generate_id('reports', 'fields')
     id = core_bricks.Brick.generate_id('reports', 'fields')
     verbose_name = _('Columns of the report')
     description = _(
@@ -64,7 +63,6 @@ class ReportFieldsBrick(core_bricks.Brick):
 
 if settings.USE_JQPLOT:
     class ReportGraphChartListBrick(core_bricks.QuerysetBrick):
-        # id_ = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
         id = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
         verbose_name = _("Report's graphs")
         description = _(
@@ -100,7 +98,6 @@ if settings.USE_JQPLOT:
             return self._render(btc)
 
     class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
-        # id_ = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
         id = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
         dependencies = (ReportGraph,)
         verbose_name = "Report's graph"  # Overloaded by __init__()
@@ -172,7 +169,6 @@ if settings.USE_JQPLOT:
             return self.fetcher.linked_models
 else:
     class ReportGraphChartListBrick(core_bricks.QuerysetBrick):
-        # id_ = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
         id = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
         verbose_name = _("Report's graphs")
         description = _(
@@ -231,7 +227,6 @@ else:
             return self._render(context)
 
     class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
-        # id_ = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
         id = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
         dependencies = (ReportGraph,)
         verbose_name = "Report's graph"
@@ -327,7 +322,6 @@ else:
 
 
 class ReportGraphChartBrick(core_bricks.Brick):
-    # id_ = core_bricks.Brick.generate_id('reports', 'graph-chart')
     id = core_bricks.Brick.generate_id('reports', 'graph-chart')
     dependencies = (ReportGraph,)
     verbose_name = _("Report's graph")
@@ -363,7 +357,6 @@ class ReportGraphChartBrick(core_bricks.Brick):
 
 
 class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
-    # id_ = core_bricks.QuerysetBrick.generate_id('reports', 'instance_bricks_info')
     id = core_bricks.QuerysetBrick.generate_id('reports', 'instance_bricks_info')
     verbose_name = _('Blocks')
     dependencies = (InstanceBrickConfigItem,)
@@ -374,7 +367,6 @@ class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             InstanceBrickConfigItem.objects.filter(
-                # brick_class_id=ReportGraphChartInstanceBrick.id_,
                 brick_class_id=ReportGraphChartInstanceBrick.id,
                 entity=context['object'].id,
             ),

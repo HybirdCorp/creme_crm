@@ -18,12 +18,10 @@ from ..views.base import BrickTestCaseMixin
 class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_brick_import_n_display01(self):
         "Named Brick."
-        # self.login()
         brick_str = '<div>FOOBAR</div>'
         name = 'CremeBricksTagsTestCase__test_brick_import_n_display01'
 
         class FooBrick(Brick):
-            # id_ = Brick.generate_id('creme_core', name)
             id = Brick.generate_id('creme_core', name)
             verbose_name = 'Testing purpose'
 
@@ -38,7 +36,6 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
                 f"{{% brick_import app='creme_core' name='{name}' as my_brick %}}"
                 f"{{% brick_display my_brick %}}"
             )
-            # render = template.render(RequestContext(self.build_request()))
             render = template.render(
                 RequestContext(self.build_request(user=self.get_root_user()))
             )
@@ -47,7 +44,6 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_brick_import_n_display02(self):
         "Object Brick (generic brick)"
-        # user = self.login()
         user = self.get_root_user()
         motoko = FakeContact.objects.create(
             user=user, first_name='Motoko', last_name='Kusanagi', phone='123489',
@@ -59,7 +55,6 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
                 '{% brick_import object=object as my_brick %}'
                 '{% brick_display my_brick %}'
             )
-            # render = template.render(RequestContext(self.build_request(), {'object': motoko}))
             render = template.render(
                 RequestContext(self.build_request(user=user), {'object': motoko})
             )
@@ -76,8 +71,6 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_brick_declare_n_display01(self):
         "Named Brick."
-        # self.login()
-
         class _FooBrick(Brick):
             verbose_name = 'Testing purpose'
             brick_str = 'OVERLOAD ME'
@@ -88,23 +81,19 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         prefix = 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display01'
 
         class FooBrick1(_FooBrick):
-            # id_ = _FooBrick.generate_id('creme_core', f'{prefix}_01')
             id = _FooBrick.generate_id('creme_core', f'{prefix}_01')
             brick_str = '<div>FOOBARBAZ #1</div>'
 
         class FooBrick2(_FooBrick):
-            # id_ = _FooBrick.generate_id('creme_core', f'{prefix}_02')
             id = _FooBrick.generate_id('creme_core', f'{prefix}_02')
             brick_str = '<div>FOOBARBAZ #2</div>'
 
         class FooBrick3(_FooBrick):
-            # id_ = _FooBrick.generate_id('creme_core', f'{prefix}_03')
             id = _FooBrick.generate_id('creme_core', f'{prefix}_03')
             verbose_name = 'Testing purpose'
             brick_str = '<div>FOOBARBAZ #3</div>'
 
         context = RequestContext(
-            # self.build_request(),
             self.build_request(user=self.get_root_user()),
             {
                 'my_brick1': FooBrick1(),
@@ -134,7 +123,6 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_brick_declare_n_display02(self):
         "Invalid Brick => no crash please"
-        # self.login()
         class InvalidBrick(Brick):
             id_ = Brick.generate_id(
                 'creme_core',
@@ -142,7 +130,6 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             )
             verbose_name = 'Testing purpose'
 
-        # context = RequestContext(self.build_request(), {'my_brick': InvalidBrick()})
         context = RequestContext(
             self.build_request(user=self.get_root_user()),
             {'my_brick': InvalidBrick()},
@@ -158,10 +145,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(render.strip())
 
     def test_brick_end(self):
-        # self.login()
-
         class FooBrick(Brick):
-            # id_ = Brick.generate_id('creme_core', 'CremeBricksTagsTestCase__test_brick_end')
             id = Brick.generate_id('creme_core', 'CremeBricksTagsTestCase__brick_test_brick_end')
             verbose_name = 'Testing purpose'
             brick_str = '<div>FOO</div>'
@@ -169,7 +153,6 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
             def detailview_display(this, context):
                 return this.brick_str
 
-        # context = RequestContext(self.build_request(), {'my_brick': FooBrick()})
         context = RequestContext(
             self.build_request(user=self.get_root_user()), {'my_brick': FooBrick()}
         )
@@ -197,13 +180,10 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(msg, render.strip())
 
     def test_brick_table_data_status(self):
-        # self.login()
-
         with self.assertNoException():
             render = Template(
                 '{% load creme_bricks %}'
                 '{% brick_table_data_status foo bar %}'
-                # ).render(RequestContext(self.build_request()))
             ).render(RequestContext(self.build_request(user=self.get_root_user())))
 
         self.assertEqual(
@@ -212,9 +192,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_brick_get_by_ids01(self):
-        # self.login()
         rtype = RelationType.objects.get(id=REL_SUB_HAS)
-        # rbi = RelationBrickItem.objects.create_if_needed(rtype)
         rbi = RelationBrickItem.objects.create(relation_type=rtype)
 
         with self.assertNoException():
@@ -223,10 +201,8 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
                 '{% brick_get_by_ids brick_id1 brick_id2 as bricks %}'
                 '{{bricks.0.verbose_name}}##{{bricks.1.config_item.brick_id}}'
             ).render(RequestContext(
-                # self.build_request(),
                 self.build_request(user=self.get_root_user()),
                 {
-                    # 'brick_id1': HistoryBrick.id_,
                     'brick_id1': HistoryBrick.id,
                     'brick_id2': rbi.brick_id,
                 },
@@ -239,7 +215,6 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_brick_get_by_ids02(self):
         "'entity' argument."
-        # user = self.login()
         user = self.get_root_user()
         motoko = FakeContact.objects.create(
             user=user, first_name='Motoko', last_name='Kusanagi',
@@ -251,10 +226,8 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
                 '{% brick_get_by_ids brick_id1 brick_id2 entity=motoko as bricks %}'
                 '{{bricks.0.verbose_name}}##{{bricks.1.verbose_name}}'
             ).render(RequestContext(
-                # self.build_request(),
                 self.build_request(user=user),
                 {
-                    # 'brick_id1': HistoryBrick.id_,
                     'brick_id1': HistoryBrick.id,
                     'brick_id2': MODELBRICK_ID,
                     'motoko': motoko,

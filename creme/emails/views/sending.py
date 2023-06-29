@@ -132,9 +132,6 @@ class SendingBricksReloading(bricks_views.BricksReloading):
     check_bricks_permission = False
     sending_id_url_kwarg = 'sending_id'
     allowed_bricks = {
-        # bricks.SendingBrick.id_:         bricks.SendingBrick,
-        # bricks.SendingHTMLBodyBrick.id_: bricks.SendingHTMLBodyBrick,
-        # bricks.MailsBrick.id_:           bricks.MailsBrick,
         bricks.SendingBrick.id:         bricks.SendingBrick,
         bricks.SendingHTMLBodyBrick.id: bricks.SendingHTMLBodyBrick,
         bricks.MailsBrick.id:           bricks.MailsBrick,

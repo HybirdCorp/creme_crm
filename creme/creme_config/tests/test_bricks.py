@@ -55,52 +55,43 @@ class _BaseCompleteBrick(Brick):
     verbose_name = 'Testing purpose'
 
     def detailview_display(self, context):
-        # return f'<table id="{self.id_}"></table>'
         return f'<table id="{self.id}"></table>'
 
     def home_display(self, context):
-        # return f'<table id="{self.id_}"></table>'
         return f'<table id="{self.id}"></table>'
 
 
 class CompleteBrick1(_BaseCompleteBrick):
-    # id_ = Brick.generate_id('creme_config', 'testbrickconfig_complete_1')
     id = Brick.generate_id('creme_config', 'testbrickconfig_complete_1')
     verbose_name = 'Complete brick #1'
 
 
 class CompleteBrick2(_BaseCompleteBrick):
-    # id_ = Brick.generate_id('creme_config', 'testbrickconfig_complete_2')
     id = Brick.generate_id('creme_config', 'testbrickconfig_complete_2')
     verbose_name = 'Complete brick #2'
 
 
 class CompleteBrick3(_BaseCompleteBrick):
-    # id_ = Brick.generate_id('creme_config', 'testbrickconfig_complete_3')
     id = Brick.generate_id('creme_config', 'testbrickconfig_complete_3')
     verbose_name = 'Complete brick #3'
 
 
 class CompleteBrick4(_BaseCompleteBrick):
-    # id_ = Brick.generate_id('creme_config', 'testbrickconfig_complete_4')
     id = Brick.generate_id('creme_config', 'testbrickconfig_complete_4')
     verbose_name = 'Complete brick #4'
 
 
 class HomeOnlyBrick1(Brick):
-    # id_ = Brick.generate_id('creme_config', 'testbrickconfig_home_only_1')
     id = Brick.generate_id('creme_config', 'testbrickconfig_home_only_1')
     verbose_name = 'Home only brick #1'
 
     # def detailview_display(self, context): NO
 
     def home_display(self, context):
-        # return f'<table id="{self.id_}"></table>'
         return f'<table id="{self.id}"></table>'
 
 
 class HomeOnlyBrick2(Brick):
-    # id_ = Brick.generate_id('creme_config', 'testbrickconfig_home_only_2')
     id = Brick.generate_id('creme_config', 'testbrickconfig_home_only_2')
     verbose_name = 'Home only brick #2'
     configurable = False  # <----
@@ -108,17 +99,14 @@ class HomeOnlyBrick2(Brick):
     # def detailview_display(self, context): NO
 
     def home_display(self, context):
-        # return f'<table id="{self.id_}"></table>'
         return f'<table id="{self.id}"></table>'
 
 
 class DetailviewInstanceBrick(InstanceBrick):
-    # id_ = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_detail_instance')
     id = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_detail_instance')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.verbose_name = f'Instance brick #{self.id_} for detail-view'
         self.verbose_name = f'Instance brick #{self.id} for detail-view'
 
     def detailview_display(self, context):
@@ -126,13 +114,11 @@ class DetailviewInstanceBrick(InstanceBrick):
 
 
 class HomeInstanceBrick(InstanceBrick):
-    # id_ = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_home_instance')
     id = InstanceBrickConfigItem.generate_base_id('creme_config', 'test_home_instance')
     verbose_name = 'Testing purpose'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.verbose_name = f'Instance brick #{self.id_} for home'
         self.verbose_name = f'Instance brick #{self.id} for home'
 
     def home_display(self, context):
@@ -140,12 +126,10 @@ class HomeInstanceBrick(InstanceBrick):
 
 
 class FakeContactHatBrick(Brick):
-    # id_ = Brick._generate_hat_id('creme_core', 'test_hat_brick')
     id = Brick._generate_hat_id('creme_core', 'test_hat_brick')
     verbose_name = 'Fake contact header brick'
 
     def detailview_display(self, context):
-        # return f'<table id="{self.id_}"></table>'
         return f'<table id="{self.id}"></table>'
 
 
@@ -256,7 +240,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         ))
 
     def test_portal(self):
-        # self.login()
         self.login_as_root()
 
         response = self.assertGET200(reverse('creme_config__bricks'))
@@ -276,8 +259,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @parameterized.expand([False, True])
     def test_add_detailview(self, superuser):
-        # self.login(is_superuser=superuser, admin_4_apps=['creme_core'])
-        # role = None if superuser else self.role
         if superuser:
             self.login_as_root()
             role = None
@@ -304,7 +285,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         bricks = [*self.brick_registry.get_compatible_bricks(model)]
         self.assertGreaterEqual(len(bricks), 5)
-        # self.assertIn(CompleteBrick1.id_, locations_choices)
         self.assertIn(CompleteBrick1.id, locations_choices)
 
         brick_top1   = bricks[0]
@@ -314,12 +294,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         brick_right  = bricks[3]
         brick_bottom = bricks[4]
 
-        # self.assertIn(brick_top1.id_, locations_choices)
-        # self.assertIn(brick_top2.id_, locations_choices)
-        # self.assertIn(brick_left1.id_, locations_choices)
-        # self.assertIn(brick_left2.id_, locations_choices)
-        # self.assertIn(brick_right.id_, locations_choices)
-        # self.assertIn(brick_bottom.id_, locations_choices)
         self.assertIn(brick_top1.id,   locations_choices)
         self.assertIn(brick_top2.id,   locations_choices)
         self.assertIn(brick_left1.id,  locations_choices)
@@ -328,10 +302,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(brick_bottom.id, locations_choices)
 
         locations_data = {
-            # 'top': [brick_top1.id_, brick_top2.id_],
-            # 'left': [brick_left1.id_, brick_left2.id_],
-            # 'right': [brick_right.id_],
-            # 'bottom': [brick_bottom.id_],
             'top':    [brick_top1.id, brick_top2.id],
             'left':   [brick_left1.id, brick_left2.id],
             'right':  [brick_right.id],
@@ -378,7 +348,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_detailview_ignore_used_roles(self):
         "Used roles are not proposed anymore."
-        # self.login()
         self.login_as_root()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
@@ -403,10 +372,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGreaterEqual(len(bricks), 5, bricks)
 
         create_loc = partial(BrickDetailviewLocation.objects.create, content_type=ct, order=1)
-        # create_loc(role=role1, brick_id=bricks[0].id_, zone=BrickDetailviewLocation.TOP)
-        # create_loc(role=role1, brick_id=bricks[1].id_, zone=BrickDetailviewLocation.LEFT)
-        # create_loc(role=role1, brick_id=bricks[2].id_, zone=BrickDetailviewLocation.RIGHT)
-        # create_loc(role=role1, brick_id=bricks[3].id_, zone=BrickDetailviewLocation.BOTTOM)
         create_loc(role=role1, brick_id=bricks[0].id, zone=BrickDetailviewLocation.TOP)
         create_loc(role=role1, brick_id=bricks[1].id, zone=BrickDetailviewLocation.LEFT)
         create_loc(role=role1, brick_id=bricks[2].id, zone=BrickDetailviewLocation.RIGHT)
@@ -418,10 +383,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotInChoices(value=role1.id, choices=choices)
 
         # Superuser ------------
-        # create_loc(superuser=True, brick_id=bricks[0].id_, zone=BrickDetailviewLocation.TOP)
-        # create_loc(superuser=True, brick_id=bricks[1].id_, zone=BrickDetailviewLocation.LEFT)
-        # create_loc(superuser=True, brick_id=bricks[2].id_, zone=BrickDetailviewLocation.RIGHT)
-        # create_loc(superuser=True, brick_id=bricks[3].id_, zone=BrickDetailviewLocation.BOTTOM)
         create_loc(superuser=True, brick_id=bricks[0].id, zone=BrickDetailviewLocation.TOP)
         create_loc(superuser=True, brick_id=bricks[1].id, zone=BrickDetailviewLocation.LEFT)
         create_loc(superuser=True, brick_id=bricks[2].id, zone=BrickDetailviewLocation.RIGHT)
@@ -434,7 +395,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_detailview04(self):
         "Un-configurable models"
-        # self.login()
         self.login_as_root()
         get_ct = ContentType.objects.get_for_model
 
@@ -447,7 +407,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_detailview05(self):
         "Extra HatBrick."
-        # self.login()
         self.login_as_root()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
@@ -474,7 +433,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(0, generic_index)
 
         hat_index = self.assertInChoices(
-            # value=FakeContactHatBrick.id_,
             value=FakeContactHatBrick.id,
             label=FakeContactHatBrick.verbose_name,
             choices=hat_choices,
@@ -483,15 +441,12 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertEqual(generic_brick_id, hat_f.initial)
 
-        # self.assertIn(CompleteBrick1.id_, locations_choices)
         self.assertIn(CompleteBrick1.id, locations_choices)
         response = self.client.post(
             url,
             data={
-                # 'hat': FakeContactHatBrick.id_,
                 'hat': FakeContactHatBrick.id,
-                # 'locations': json_dump({'top': [CompleteBrick1.id_]})
-                'locations': json_dump({'top': [CompleteBrick1.id]})
+                'locations': json_dump({'top': [CompleteBrick1.id]}),
             },
         )
         self.assertNoFormError(response)
@@ -503,7 +458,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         top_locations = filter_locs(BrickDetailviewLocation.TOP)
         self.assertEqual(1, len(top_locations))
-        # self.assertEqual(CompleteBrick1.id_, top_locations[0].brick_id)
         self.assertEqual(CompleteBrick1.id, top_locations[0].brick_id)
 
         self.assertListEqual(
@@ -521,12 +475,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         hat_locations = filter_locs(BrickDetailviewLocation.HAT)
         self.assertEqual(1, len(hat_locations))
-        # self.assertEqual(FakeContactHatBrick.id_, hat_locations[0].brick_id)
         self.assertEqual(FakeContactHatBrick.id, hat_locations[0].brick_id)
 
     def test_add_detailview06(self):
         "Admin credentials are needed."
-        # self.login(is_superuser=False)
         self.login_as_standard()
         self.assertGET403(
             self._build_adddetail_url(self.contact_ct)
@@ -551,8 +503,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         bricks = [*self.brick_registry.get_compatible_bricks(model)]
         self.assertGreaterEqual(len(bricks), 5)
-        # self.assertIn(CompleteBrick1.id_, locations_choices)
-        # self.assertNotIn(HomeOnlyBrick1.id_, locations_choices)
         self.assertIn(CompleteBrick1.id, locations_choices)
         self.assertNotIn(HomeOnlyBrick1.id, locations_choices)
 
@@ -613,7 +563,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_detailview01(self):
         "Default configuration of a ContentType."
-        # self.login()
         self.login_as_root()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
@@ -643,7 +592,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_detailview02(self):
         "Configuration for a role."
-        # self.login()
         self.login_as_root()
         self._aux_test_edit_detailview(
             role=self.role, superuser=False,
@@ -655,7 +603,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_detailview03(self):
         "Configuration for superusers."
-        # self.login()
         self.login_as_root()
         self._aux_test_edit_detailview(
             role=None, superuser=True,
@@ -666,7 +613,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_detailview04(self):
         "When no block -> fake block."
-        # self.login()
         self.login_as_root()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
@@ -725,7 +671,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_detailview05(self):
         "Default conf + no empty configuration."
-        # self.login()
         self.login_as_root()
         self.assertGET404(self._build_editdetail_url(ct=None, role=self.role))
 
@@ -764,7 +709,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_detailview06(self):
         "Post one block several times -> validation error."
-        # self.login()
         self.login_as_root()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
@@ -810,7 +754,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_detailview07(self):
         "Instance brick, RelationType brick."
-        # user = self.login()
         self.login_as_root()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
@@ -838,7 +781,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_detailview08(self):
         "Invalid models."
-        # self.login()
         self.login_as_root()
         build_url = self._build_editdetail_url
         get_ct = ContentType.objects.get_for_model
@@ -847,7 +789,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_detailview09(self):
         "Extra HatBrick."
-        # self.login()
         self.login_as_root()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
@@ -933,7 +874,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     ])
     def test_edit_detailview__location_required(self, data):
         "Invalid data provided to the locations field."
-        # self.login()
         self.login_as_root()
 
         url = self._build_editdetail_url(ct=None)
@@ -945,7 +885,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_detailview__invalid_json(self):
         "Invalid data provided to the locations field."
-        # self.login()
         self.login_as_root()
 
         url = self._build_editdetail_url(ct=None)
@@ -963,7 +902,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     ])
     def test_edit_detailview__invalid_formats(self, payload):
         "Invalid data provided to the locations field."
-        # self.login()
         self.login_as_root()
 
         url = self._build_editdetail_url(ct=None)
@@ -975,13 +913,11 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_detailview01(self):
         "Can not delete default configuration."
-        # self.login()
         self.login_as_root()
         self.assertPOST404(self.DEL_DETAIL_URL, data={'id': 0})
 
     def test_delete_detailview02(self):
         "Default ContentType configuration."
-        # self.login()
         self.login_as_root()
         get_ct = ContentType.objects.get_for_model
         ct = get_ct(FakeContact)
@@ -1015,7 +951,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_detailview03(self):
         "Role configuration."
-        # self.login()
         self.login_as_root()
         ct = self.contact_ct
         role = self.role
@@ -1052,7 +987,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_detailview04(self):
         "Superuser configuration."
-        # self.login()
         self.login_as_root()
         ct = self.orga_ct
 
@@ -1089,8 +1023,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @parameterized.expand([False, True])
     def test_add_home(self, superuser):
-        # self.login(is_superuser=superuser, admin_4_apps=['creme_core'])
-        # role = None if superuser else self.role
         if superuser:
             self.login_as_root()
             role = None
@@ -1147,7 +1079,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_home_ignore_used_roles(self):
         "Used roles are not proposed anymore."
-        # self.login()
         self.login_as_root()
         url = reverse('creme_config__create_home_bricks')
 
@@ -1187,7 +1118,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_home01(self):
         "Default configuration."
-        # user = self.login()
         self.login_as_root()
 
         already_chosen = HistoryBrick
@@ -1226,13 +1156,11 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotIn(not_already_chosen1.id, initial)
         self.assertNotIn(not_already_chosen2.id, initial)
 
-        # index2 = self.assertInChoices(
         self.assertInChoices(
             value=already_chosen.id,
             label=already_chosen.verbose_name,
             choices=choices,
         )
-        # index1 = self.assertInChoices(
         self.assertInChoices(
             value=not_already_chosen1.id,
             label=not_already_chosen1.verbose_name,
@@ -1269,7 +1197,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_home02(self):
         "Role."
-        # self.login()
         self.login_as_root()
         role = self.role
 
@@ -1332,7 +1259,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_home03(self):
         "Superuser."
-        # self.login()
         self.login_as_root()
         role = self.role
 
@@ -1394,7 +1320,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_home01(self):
         "Role."
-        # self.login()
         self.login_as_root()
         role = self.role
         bricks = [
@@ -1422,7 +1347,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_home02(self):
         "Superuser."
-        # self.login()
         self.login_as_root()
         role = self.role
         bricks = [
@@ -1445,7 +1369,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(bhl03)
 
     def test_home_config_brick(self):
-        # self.login()
         self.login_as_root()
         self.assertFalse(BrickHomeLocation.objects.filter(
             Q(role__isnull=False) | Q(superuser=False)
@@ -1520,7 +1443,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         # TODO: test paginator count (title)
 
     def test_edit_default_mypage(self):
-        # self.login()
         self.login_as_root()
         url = reverse('creme_config__edit_default_mypage_bricks')
         response = self.assertGET200(url)
@@ -1565,7 +1487,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(2, self._find_location(CompleteBrick1.id, b_locs).order)
 
     def test_edit_mypage01(self):
-        # user = self.login()
         self.login_as_root()
         url = reverse('creme_config__edit_mypage_bricks')
         response = self.assertGET200(url)
@@ -1614,12 +1535,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_mypage02(self):
         "Not super-user."
-        # self.login(is_superuser=False)
         self.login_as_standard()
         self.assertGET200(reverse('creme_config__edit_mypage_bricks'))
 
     def test_delete_default_mypage01(self):
-        # self.login()
         self.login_as_root()
         loc = BrickMypageLocation.objects.create(
             user=None, brick_id=HistoryBrick.id, order=1,
@@ -1632,7 +1551,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_default_mypage02(self):
         "'user' must be 'None'"
-        # user = self.login()
         self.login_as_root()
         loc = BrickMypageLocation.objects.create(
             user=self.user, brick_id=HistoryBrick.id, order=1,
@@ -1644,7 +1562,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(loc)
 
     def test_delete_mypage01(self):
-        # user = self.login()
         self.login_as_root()
         loc = BrickMypageLocation.objects.create(
             user=self.user, brick_id=HistoryBrick.id, order=1,
@@ -1656,7 +1573,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_mypage02(self):
         "BlockMypageLocation must belong to the user."
-        # self.login()
         self.login_as_root()
         loc = BrickMypageLocation.objects.create(
             user=self.create_user(), brick_id=HistoryBrick.id, order=1,
@@ -1668,7 +1584,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(loc)
 
     def test_add_relationbrick(self):
-        # self.login()
         self.login_as_root()
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
@@ -1703,7 +1618,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNone(rb_item.get_cells(self.contact_ct))
 
     def test_relationbrick_add_cells01(self):
-        # self.login()
         self.login_as_root()
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'Subject predicate'),
@@ -1799,7 +1713,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_relationbrick_add_cells02(self):
         "ContentType constraint."
-        # self.login()
         self.login_as_root()
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate', [FakeContact]),
@@ -1833,7 +1746,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_relationbrick_add_cells03(self):
         "Go back."
-        # self.login()
         self.login_as_root()
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate', [FakeOrganisation]),
@@ -1867,7 +1779,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_relationbrick_add_cells04(self):
         "Relation type is disabled => error."
-        # self.login()
         self.login_as_root()
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'Subject predicate'),
@@ -1880,7 +1791,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET409(self._build_rbrick_addctypes_wizard_url(rb_item))
 
     def test_relationbrick_edit_cells01(self):
-        # self.login()
         self.login_as_root()
         ct = self.contact_ct
         rt = RelationType.objects.smart_update_or_create(
@@ -1934,7 +1844,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_relationbrick_edit_cells02(self):
         "Validation errors with URLField & ForeignKey."
-        # self.login()
         self.login_as_root()
         rb_item = RelationBrickItem(
             relation_type=RelationType.objects.smart_update_or_create(
@@ -1970,7 +1879,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_relationbrick_edit_cells03(self):
         "Validation errors with M2M"
-        # self.login()
         self.login_as_root()
         rb_item = RelationBrickItem(
             relation_type=RelationType.objects.smart_update_or_create(
@@ -1999,7 +1907,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_relationbrick_edit_cells04(self):
         "Validation errors with Relation."
-        # self.login()
         self.login_as_root()
         create_rtype = RelationType.objects.smart_update_or_create
         rt1 = create_rtype(
@@ -2027,7 +1934,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_relationbrick_edit_cells05(self):
         "With FieldsConfig."
-        # self.login()
         self.login_as_root()
         ct = self.contact_ct
         rt = RelationType.objects.smart_update_or_create(
@@ -2079,7 +1985,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_relationbrick_edit_cells06(self):
         "Relation type is disabled => errors."
-        # self.login()
         self.login_as_root()
 
         rt = RelationType.objects.smart_update_or_create(
@@ -2098,7 +2003,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_relationbrick_delete_cells(self):
-        # self.login()
         self.login_as_root()
 
         ct = self.contact_ct
@@ -2121,7 +2025,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNone(self.refresh(rb_item).get_cells(ct))
 
     def test_delete_relationbrick01(self):
-        # user = self.login()
         self.login_as_root()
 
         rt = RelationType.objects.smart_update_or_create(
@@ -2129,7 +2032,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-objfoo', 'object_predicate'),
             is_custom=False,
         )[0]
-        # rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
         rbi = RelationBrickItem.objects.create(relation_type=rt)
 
         create_state = partial(BrickState.objects.create, user=self.user)
@@ -2146,7 +2048,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_relationbrick02(self):
         "Cannot delete because it is used."
-        # self.login()
         self.login_as_root()
 
         rt = RelationType.objects.smart_update_or_create(
@@ -2177,7 +2078,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_delete_instancebrick01(self):
-        # user = self.login()
         self.login_as_root()
         user = self.user
         naru = FakeContact.objects.create(
@@ -2203,7 +2103,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_instancebrick02(self):
         "Cannot delete because it is used in configuration."
-        # user = self.login()
         self.login_as_root()
         naru = FakeContact.objects.create(
             user=self.user, first_name='Naru', last_name='Narusegawa',
@@ -2232,7 +2131,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_edit_custombrick01(self):
-        # self.login()
         self.login_as_root()
         ct = self.contact_ct
 
@@ -2302,7 +2200,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_custombrick02(self):
         "With FieldsConfig."
-        # self.login()
         self.login_as_root()
         ct = self.contact_ct
 
@@ -2378,7 +2275,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_custombrick03(self):
         "With FieldsConfig + field in the blocks becomes hidden => still proposed in the form."
-        # self.login()
         self.login_as_root()
         ct = self.contact_ct
 
@@ -2449,7 +2345,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_delete_custombrick01(self):
-        # self.login()
         self.login_as_root()
 
         cbci = CustomBrickConfigItem.objects.create(content_type=self.contact_ct, name='Info')
@@ -2461,7 +2356,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_custombrick02(self):
         "Cannot delete because it is used."
-        # self.login()
         self.login_as_root()
 
         cbci = CustomBrickConfigItem.objects.create(content_type=self.contact_ct, name='Info')
@@ -2487,7 +2381,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(loc)
 
     def test_custombrick_wizard_model_step(self):
-        # self.login()
         self.login_as_root()
 
         contact_ct = self.contact_ct
@@ -2516,7 +2409,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
     def test_custombrick_wizard_model_step_invalid(self):
-        # self.login()
         self.login_as_root()
 
         contact_ct = self.contact_ct
@@ -2541,7 +2433,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
     def test_custombrick_wizard_config_step(self):
-        # self.login()
         self.login_as_root()
 
         contact_ct = self.contact_ct
@@ -2589,7 +2480,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_custombrick_wizard_go_back(self):
-        # self.login()
         self.login_as_root()
 
         contact_ct = self.contact_ct

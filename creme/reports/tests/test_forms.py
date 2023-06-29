@@ -976,7 +976,6 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
     def test_clean_cfield_enum02(self):
         "Field is deleted."
         model = FakeContact
-        # graph_type = constants.RGT_CUSTOM_FK
         graph_type = ReportGraph.Group.CUSTOM_FK
         cfield = CustomField.objects.create(
             content_type=model,
@@ -1373,7 +1372,6 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
             ('test-object_likes',  'is liked by'),
         )[0]
 
-        # graph_type = constants.RGT_RELATION
         graph_type = ReportGraph.Group.RELATION
 
         abs_info = field.clean(self.formfield_value_abscissa(
@@ -1460,7 +1458,6 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         )
         rtype = RelationType.objects.get(id=REL_SUB_HAS)
         cell = EntityCellRelation(model=FakeOrganisation, rtype=rtype)
-        # graph_type = constants.RGT_RELATION
         graph_type = ReportGraph.Group.RELATION
         self.assertDictEqual(
             {
@@ -2295,7 +2292,6 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
         graph = self._create_documents_rgraph(user)
 
         class OtherReportGraphBrick(ReportGraphChartInstanceBrick):
-            # id_ = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
             id = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
 
         fk_name = 'linked_folder'

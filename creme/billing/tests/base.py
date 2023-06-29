@@ -80,13 +80,6 @@ class _BillingTestCaseMixin:
     SOURCE_KEY = 'cform_extra-billing_source'
     TARGET_KEY = 'cform_extra-billing_target'
 
-    # def login(self, is_superuser=True, allowed_apps=None, *args, **kwargs):
-    #     return super().login(
-    #         is_superuser,
-    #         allowed_apps=allowed_apps or ['billing'],
-    #         *args, **kwargs
-    #     )
-
     def assertAddressContentEqual(self, address1, address2):  # TODO: move in persons ??
         self.assertIsInstance(address1, Address)
         self.assertIsInstance(address2, Address)
@@ -96,10 +89,8 @@ class _BillingTestCaseMixin:
         ):
             self.assertEqual(getattr(address1, f), getattr(address2, f))
 
-    # def create_credit_note(self, name, source, target, currency=None,
     def create_credit_note(self, *, name, source, target, currency=None,
                            discount=Decimal(), user=None, status=None):
-        # user = user or self.user
         status = status or CreditNoteStatus.objects.all()[0]
         currency = currency or Currency.objects.all()[0]
         response = self.client.post(
@@ -126,9 +117,7 @@ class _BillingTestCaseMixin:
 
         return credit_note
 
-    # def create_credit_note_n_orgas(self, name, user=None, status=None, **kwargs):
     def create_credit_note_n_orgas(self, *, user, name, status=None, **kwargs):
-        # user = user or self.user
         create_orga = partial(Organisation.objects.create, user=user)
         source = create_orga(name='Source Orga')
         target = create_orga(name='Target Orga')
@@ -140,13 +129,9 @@ class _BillingTestCaseMixin:
 
         return credit_note, source, target
 
-    # def create_invoice(self, name, source, target,
-    #                    currency=None, discount=Decimal(), user=None,
-    #                    **kwargs):
     def create_invoice(self, *, user, name, source, target,
                        currency=None, discount=Decimal(),
                        **kwargs):
-        # user = user or self.user
         currency = currency or Currency.objects.all()[0]
         response = self.client.post(
             reverse('billing__create_invoice'), follow=True,
@@ -174,9 +159,7 @@ class _BillingTestCaseMixin:
 
         return invoice
 
-    # def create_orgas(self, user=None, index=1):
     def create_orgas(self, user, index=1):
-        # create_orga = partial(Organisation.objects.create, user=user or self.user)
         create_orga = partial(Organisation.objects.create, user=user)
 
         return (
@@ -185,10 +168,8 @@ class _BillingTestCaseMixin:
         )
 
     def create_invoice_n_orgas(self,
-                               # name, user=None, discount=Decimal(), currency=None,
                                *, user, name, discount=Decimal(), currency=None,
                                **kwargs):
-        # source, target = self.create_orgas()
         source, target = self.create_orgas(user=user)
         invoice = self.create_invoice(
             name=name, source=source, target=target,
@@ -198,7 +179,6 @@ class _BillingTestCaseMixin:
 
         return invoice, source, target
 
-    # def create_quote(self, name, source, target, currency=None, status=None, **kwargs):
     def create_quote(self, *, user, name, source, target, currency=None, status=None, **kwargs):
         status = status or QuoteStatus.objects.all()[0]
         currency = currency or Currency.objects.all()[0]
@@ -231,11 +211,8 @@ class _BillingTestCaseMixin:
 
         return quote
 
-    # def create_quote_n_orgas(self, name, currency=None, status=None, **kwargs):
     def create_quote_n_orgas(self, *, user, name, currency=None, status=None, **kwargs):
-        # source, target = self.create_orgas()
         source, target = self.create_orgas(user=user)
-        # quote = self.create_quote(name, source, target, currency, status, **kwargs)
         quote = self.create_quote(
             user=user, name=name,
             source=source, target=target,
@@ -253,37 +230,31 @@ class _BillingTestCaseMixin:
 
         return cat, subcat
 
-    # def create_product(self, name='Red eye', unit_price=None):
     def create_product(self, *, user, name='Red eye', unit_price=None):
         cat, subcat = self.create_cat_n_subcat()
 
         return Product.objects.create(
-            # user=self.user, name=name, code='465',
             user=user, name=name, code='465',
             unit_price=unit_price or Decimal('1.0'),
             description='Drug',
             category=cat, sub_category=subcat,
         )
 
-    # def create_service(self):
     def create_service(self, user):
         cat, subcat = self.create_cat_n_subcat()
 
         return Service.objects.create(
-            # user=self.user, name='Mushroom hunting',
             user=user, name='Mushroom hunting',
             unit_price=Decimal('6'),
             category=cat, sub_category=subcat,
         )
 
     # TODO inline (used once)
-    # def create_salesorder(self, name, source, target, currency=None, status=None):
     def create_salesorder(self, *, user, name, source, target, currency=None, status=None):
         currency = currency or Currency.objects.all()[0]
         response = self.client.post(
             reverse('billing__create_order'), follow=True,
             data={
-                # 'user':    self.user.pk,
                 'user':    user.pk,
                 'name':    name,
                 'status': status.id if status else 1,
@@ -302,9 +273,7 @@ class _BillingTestCaseMixin:
 
         return self.get_object_or_fail(SalesOrder, name=name)
 
-    # def create_salesorder_n_orgas(self, name, currency=None, status=None):
     def create_salesorder_n_orgas(self, *, user, name, currency=None, status=None):
-        # source, target = self.create_orgas()
         source, target = self.create_orgas(user=user)
         order = self.create_salesorder(
             user=user, name=name, source=source, target=target, currency=currency, status=status,
@@ -343,13 +312,9 @@ class _BillingTestCase(_BillingTestCaseMixin,
                        base.MassImportBaseTestCaseMixin,
                        CremeTestCase):
     @override_settings(SOFTWARE_LABEL='My CRM')
-    # def _aux_test_csv_import_no_total(self, model, status_model,
-    #                                   update=False, number_help_text=True):
     def _aux_test_csv_import_no_total(self, *, user, model, status_model,
                                       update=False, number_help_text=True):
         count = model.objects.count()
-        # create_orga = partial(Organisation.objects.create, user=self.user)
-        # create_contact = partial(Contact.objects.create, user=self.user)
         create_orga = partial(Organisation.objects.create, user=user)
         create_contact = partial(Contact.objects.create, user=user)
 
@@ -538,7 +503,6 @@ class _BillingTestCase(_BillingTestCaseMixin,
             billing_doc = self.get_object_or_fail(model, name=names[i])
             billing_docs.append(billing_doc)
 
-            # self.assertEqual(self.user,        billing_doc.user)
             self.assertEqual(user,             billing_doc.user)
             self.assertEqual(numbers[i],       billing_doc.number)
             self.assertEqual(issuing_dates[i], billing_doc.issuing_date)
@@ -596,11 +560,9 @@ class _BillingTestCase(_BillingTestCaseMixin,
         target4 = self.get_object_or_fail(Contact, last_name=target4_last_name)
         self.assertEqual(imp_target4.get_real_entity(), target4)
 
-    # def _aux_test_csv_import_total_no_vat_n_vat(self, model, status_model):
     def _aux_test_csv_import_total_no_vat_n_vat(self, *, user, model, status_model):
         count = model.objects.count()
 
-        # create_orga = partial(Organisation.objects.create, user=self.user)
         create_orga = partial(Organisation.objects.create, user=user)
         src = create_orga(name='Nerv')
         tgt = create_orga(name='Acme')
@@ -713,12 +675,10 @@ class _BillingTestCase(_BillingTestCaseMixin,
             jr_error3.messages,
         )
 
-    # def _aux_test_csv_import_update(self, model, status_model,
     def _aux_test_csv_import_update(self, *, user, model, status_model,
                                     target_billing_address=True,
                                     override_billing_addr=False,
                                     override_shipping_addr=False):
-        # user = self.user
         create_orga = partial(Organisation.objects.create, user=user)
 
         source1 = create_orga(name='Nerv')
@@ -847,16 +807,7 @@ class _BillingTestCase(_BillingTestCaseMixin,
 
         for button_node in self.iter_instance_button_nodes(
             self.get_instance_buttons_node(self.get_html_tree(response.content)),
-            # data_action='billing-hatmenubar-convert',
         ):
-            # title, json_data = filter(None, (txt.strip() for txt in button_node.itertext()))
-            # found.append(
-            #     (
-            #         title,
-            #         json_data,
-            #         ('is-disabled' in button_node.attrib.get('class').split()),
-            #     )
-            # )
             if button_node.tag == 'a':
                 label, json_data = filter(None, (txt.strip() for txt in button_node.itertext()))
                 found.append({
@@ -871,22 +822,9 @@ class _BillingTestCase(_BillingTestCaseMixin,
                     'label': self.get_alone_element(
                         filter(None, (txt.strip() for txt in button_node.itertext()))
                     ),
-                    # 'json_data': json_data,
                     'disabled': True,
                 })
 
-        # for item in expected:
-        #     title = item['title']
-        #     btype = item['type']
-        #     disabled = item['disabled']
-        #
-        #     for f in found:
-        #         if f[0] == title:
-        #             self.assertIn(f'"type": "{btype}"', f[1])
-        #             self.assertEqual(disabled, f[2])
-        #             break
-        #     else:
-        #         self.fail(f'The conversion button with title="{title}" has not been found.')
         for item in expected:
             label = item['title']
 

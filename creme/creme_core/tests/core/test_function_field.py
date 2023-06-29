@@ -303,7 +303,6 @@ class FunctionFieldsTestCase(CremeTestCase):
             result1 = ffield(entity1, user)
 
         self.assertIsInstance(result1, FunctionFieldResultsList)
-        # self.assertEqual(f'{ptype1.text}/{ptype2.text}', result1.for_csv())
         self.assertEqual(
             f'{ptype2.text}/{ptype3.text}/{ptype1.text}',
             result1.for_csv(),

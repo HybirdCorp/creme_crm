@@ -32,10 +32,6 @@ from .base import (
 
 @skipIfCustomAddress
 class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
-    # def login(self, create_orga=True, *args, **kwargs):
-    #     super().login(*args, **kwargs)
-    #     if create_orga:
-    #         return Organisation.objects.create(user=self.user, name='Nerv')
     def login_n_create_orga(self):
         user = self.login_as_root_and_get()
 
@@ -86,7 +82,6 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_empty_fields(self):
-        # orga = self.login()
         orga = self.login_n_create_orga()
 
         with self.assertNoException():
@@ -103,7 +98,6 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomOrganisation
     def test_createview(self):
-        # orga = self.login()
         orga = self.login_n_create_orga()
         self.assertFalse(Address.objects.filter(object_id=orga.id).exists())
 
@@ -152,7 +146,6 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomOrganisation
     def test_create_billing01(self):
-        # orga = self.login()
         orga = self.login_n_create_orga()
 
         url = reverse('persons__create_billing_address', args=(orga.id,))
@@ -192,7 +185,6 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomOrganisation
     def test_create_billing02(self):
         "FK is hidden"
-        # orga = self.login()
         orga = self.login_n_create_orga()
 
         FieldsConfig.objects.create(
@@ -203,7 +195,6 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomOrganisation
     def test_create_shipping(self):
-        # orga = self.login()
         orga = self.login_n_create_orga()
         url = reverse('persons__create_shipping_address', args=(orga.id,))
 
@@ -234,7 +225,6 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomOrganisation
     def test_editview01(self):
-        # orga = self.login()
         orga = self.login_n_create_orga()
 
         name = 'Address#1'
@@ -284,7 +274,6 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomOrganisation
     def test_editview02(self):
         "Billing address"
-        # orga = self.login()
         orga = self.login_n_create_orga()
 
         name = 'Address#1'
@@ -322,7 +311,6 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomOrganisation
     def test_editview03(self):
         "Shipping address"
-        # orga = self.login()
         orga = self.login_n_create_orga()
 
         name = 'Address#1'
@@ -359,7 +347,6 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomOrganisation
     def test_deleteview(self):
-        # orga = self.login()
         orga = self.login_n_create_orga()
 
         self._create_address(
@@ -458,7 +445,6 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomOrganisation
     def test_delete_orga(self):
         "Addresses are deleted when the related Organisation is deleted."
-        # orga = self.login()
         orga = self.login_n_create_orga()
 
         create_address = Address.objects.create
@@ -483,7 +469,6 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomContact
     def test_delete_contact(self):
         "Addresses are deleted when the related Contact is deleted."
-        # self.login(create_orga=False)
         user = self.login_as_root_and_get()
 
         contact = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
@@ -506,9 +491,7 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomContact
     def test_history(self):
         "Address is auxiliary + double save() because of addresses caused problems."
-        # user = self.login(create_orga=False)
         user = self.login_as_root_and_get()
-        # other_user = self.other_user
         other_user = self.create_user()
 
         old_count = HistoryLine.objects.count()
@@ -624,7 +607,6 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
     #            )
     #     )
     def test_search_field01(self):
-        # self.login(create_orga=False)
         user = self.login_as_root_and_get()
 
         field = AddressFKField(
@@ -665,7 +647,6 @@ class AddressTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_search_field02(self):
         "Ignore hidden fields."
-        # self.login(create_orga=False)
         user = self.login_as_root_and_get()
 
         FieldsConfig.objects.create(

@@ -149,7 +149,6 @@ class EnumerableTestCase(CremeTestCase):
         ], limited_enum.choices(user))
 
     def test_basic_choices_fk(self):
-        # user = self.login()
         user = self.user
         registry = _EnumerableRegistry()
         self.assertEqual('_EnumerableRegistry:', str(registry))
@@ -235,7 +234,6 @@ class EnumerableTestCase(CremeTestCase):
         )
 
     def test_basic_choices_m2m(self):
-        # user = self.login()
         user = self.user
         registry = _EnumerableRegistry()
 
@@ -289,7 +287,6 @@ class EnumerableTestCase(CremeTestCase):
         )
 
     def test_basic_choices_limited_choices_to(self):
-        # user = self.login()
         user = self.user
         registry = _EnumerableRegistry()
 
@@ -545,17 +542,13 @@ class EnumerableTestCase(CremeTestCase):
         )
 
     def test_user_enumerator(self):
-        # user = self.login()
         user = self.user
-        # other_user = self.other_user
         other_user = self.create_user()
 
         # Alphabetically-first user (__str__, not username)
-        # first_user = CremeUser.objects.create_user(
         first_user = self.create_user(
             username='noir', email='chloe@noir.jp',
             first_name='Chloe', last_name='Noir',
-            # password='uselesspw',
         )
         self.assertGreater(str(user), str(first_user))
 
@@ -613,15 +606,12 @@ class EnumerableTestCase(CremeTestCase):
         )
 
     def test_user_enumerator__limit(self):
-        # user = self.login()
         user = self.user
 
         # Alphabetically-first user (__str__, not username)
-        # user2 = CremeUser.objects.create_user(
         user2 = self.create_user(
             username='noir', email='chloe@noir.jp',
             first_name='Chloe', last_name='Noir',
-            # password='uselesspw',
         )
         self.assertLess(str(user2), str(user))
 
@@ -633,7 +623,6 @@ class EnumerableTestCase(CremeTestCase):
         self.assertListEqual(all_choices, enum.choices(user, limit=100))
 
     def test_user_enumerator__only(self):
-        # user = self.login()
         user = self.user
         user2 = self.create_user()
 
@@ -645,15 +634,12 @@ class EnumerableTestCase(CremeTestCase):
         )
 
     def test_user_enumerator__term(self):
-        # user = self.login()
         user = self.user
 
         # Alphabetically-first user (__str__, not username)
-        # first_user = CremeUser.objects.create_user(
         first_user = self.create_user(
             username='noir', email='chloe@noir.jp',
             first_name='Chloe', last_name='Noir',
-            # password='uselesspw',
         )
         self.assertLess(str(first_user), str(user))
 
@@ -664,16 +650,10 @@ class EnumerableTestCase(CremeTestCase):
         )
         self.assertListEqual(
             [str(user)],
-            # [c['label'] for c in enum.choices(user, term='kirika')]
             [c['label'] for c in enum.choices(user, term=user.username)]
         )
 
     def test_efilter_enumerator(self):
-        # user = CremeUser.objects.create_user(
-        #     username='Kanna', email='kanna@century.jp',
-        #     first_name='Kanna', last_name='Gendou',
-        #     password='uselesspw',
-        # )
         user = self.user
 
         create_filter = EntityFilter.objects.create
@@ -732,11 +712,6 @@ class EnumerableTestCase(CremeTestCase):
         )
 
     def test_efilter_enumerator__only(self):
-        # user = CremeUser.objects.create_user(
-        #     username='Kanna', email='kanna@century.jp',
-        #     first_name='Kanna', last_name='Gendou',
-        #     password='uselesspw',
-        # )
         user = self.user
 
         create_filter = partial(
@@ -775,11 +750,6 @@ class EnumerableTestCase(CremeTestCase):
         ], enum.choices(user, only=['test-filter01', 'test-filter03']))
 
     def test_efilter_enumerator__limit(self):
-        # user = CremeUser.objects.create_user(
-        #     username='Kanna', email='kanna@century.jp',
-        #     first_name='Kanna', last_name='Gendou',
-        #     password='uselesspw',
-        # )
         user = self.user
 
         create_filter = EntityFilter.objects.create
@@ -809,11 +779,6 @@ class EnumerableTestCase(CremeTestCase):
         self.assertListEqual(all_choices, enum.choices(user, limit=100))
 
     def test_efilter_enumerator__term(self):
-        # user = CremeUser.objects.create_user(
-        #     username='Kanna', email='kanna@century.jp',
-        #     first_name='Kanna', last_name='Gendou',
-        #     password='uselesspw',
-        # )
         user = self.user
 
         create_filter = EntityFilter.objects.create

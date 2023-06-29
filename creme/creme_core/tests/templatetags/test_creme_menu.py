@@ -3,7 +3,6 @@ from copy import deepcopy
 from django.conf import settings
 from django.template import Context, Template
 from django.test import RequestFactory
-# from django.utils.safestring import mark_safe
 from django.test.utils import override_settings
 
 from creme.creme_core.gui import button_menu
@@ -203,10 +202,6 @@ class _TestButton(Button):
     action_id = 'creme_core-tests-??'
     template_name = 'creme_core/tests/unit/buttons/test_ttag_creme_menu.html'
 
-    # def render(self, context):
-    #     return mark_safe(
-    #         f' <a class="menu_button" data-action="{self.action_id}" href="#"></a>'
-    #     )
     def get_context(self, *, entity, request):
         context = super().get_context(entity=entity, request=request)
         context['action_id'] = self.action_id
@@ -289,7 +284,6 @@ class MenuButtonsDisplayTestCase(CremeTestCase):
                 r'{% load creme_menu %}'
                 r'{% menu_buttons_display %}'
             )
-            # render = template.render(Context({'user': user, 'object': orga}))
             render = template.render(
                 Context({'request': request, 'user': user, 'object': orga})
             )
@@ -334,7 +328,6 @@ class MenuButtonsDisplayTestCase(CremeTestCase):
                 r'{% load creme_menu %}'
                 r'{% menu_buttons_display %}'
             )
-            # render = template.render(Context({'user': user, 'object': orga}))
             render = template.render(
                 Context({'request': request, 'user': user, 'object': orga})
             )

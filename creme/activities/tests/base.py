@@ -45,15 +45,6 @@ class _ActivitiesTestCase(CremeTestCase):
     EXTRA_ALERTPERIOD_KEY = 'cform_extra-activities_alert_period'
     EXTRA_MESSAGES_KEY    = 'cform_extra-activities_user_messages'
 
-    # def login(self, is_superuser=True, is_staff=False,
-    #           allowed_apps=('activities', 'persons'), *args, **kwargs):
-    #     return super().login(
-    #         is_superuser=is_superuser,
-    #         is_staff=is_staff,
-    #         allowed_apps=allowed_apps,
-    #         *args, **kwargs
-    #     )
-
     def login_as_activities_user(self, *, allowed_apps=(), **kwargs):
         return self.login_as_standard(
             allowed_apps=['persons', 'activities', *allowed_apps],
@@ -67,9 +58,7 @@ class _ActivitiesTestCase(CremeTestCase):
     def assertUserHasDefaultCalendar(self, user):
         return self.get_object_or_fail(Calendar, is_default=True, user=user)
 
-    # def _build_nolink_setcreds(self):
     def _build_nolink_setcreds(self, user):
-        # create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc = partial(SetCredentials.objects.create, role=user.role)
         create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
         create_sc(
@@ -87,8 +76,6 @@ class _ActivitiesTestCase(CremeTestCase):
                                  title='My task',
                                  subtype_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
                                  **kwargs):
-        # user = self.login()
-
         data = {
             'user': user.pk,
             'title': title,
@@ -115,7 +102,6 @@ class _ActivitiesTestCase(CremeTestCase):
                         ):
         create_dt = self.create_datetime
         return Activity.objects.create(
-            # user=self.user,
             user=user,
             title=title,
             type_id=ACTIVITYTYPE_MEETING, sub_type_id=subtype_id,

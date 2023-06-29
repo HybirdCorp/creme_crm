@@ -16,23 +16,6 @@ from ..base import CremeTestCase
 
 
 class ViewsTestCase(CremeTestCase):
-    # def login(self, is_superuser=True, *args, **kwargs):
-    #     user = super().login(is_superuser, *args, **kwargs)
-    #
-    #     SetCredentials.objects.create(
-    #         role=self.role,
-    #         value=(
-    #             EntityCredentials.VIEW
-    #             | EntityCredentials.CHANGE
-    #             | EntityCredentials.DELETE
-    #             | EntityCredentials.LINK
-    #             | EntityCredentials.UNLINK
-    #         ),
-    #         set_type=SetCredentials.ESET_OWN,
-    #     )
-    #
-    #     return user
-
     # TODO: in CremeTestCase ?
     def _set_all_perms_on_own(self, user):
         SetCredentials.objects.create(
@@ -48,7 +31,6 @@ class ViewsTestCase(CremeTestCase):
         )
 
     # TODO: in CremeTestCase ?
-    # def _set_all_creds_except_one(self, excluded):
     def _set_all_creds_except_one(self, *, user, excluded):
         value = EntityCredentials.NONE
 
@@ -63,16 +45,13 @@ class ViewsTestCase(CremeTestCase):
                 value |= cred
 
         SetCredentials.objects.create(
-            # role=self.user.role, value=value,
             role=user.role, value=value,
             set_type=SetCredentials.ESET_ALL,
         )
 
 
 class BrickTestCaseMixin:
-    # def get_brick_node(self, tree, brick_id):
     def get_brick_node(self, tree, brick):
-        # brick_id = getattr(brick, 'id_', brick)
         brick_id = getattr(brick, 'id', brick)
 
         brick_node = tree.find(f".//div[@id='{brick_id}']")
@@ -283,7 +262,6 @@ class MassImportBaseTestCaseMixin:
 
         return doc
 
-    # def _build_csv_doc(self, lines, separator=',', extension='csv'):
     def _build_csv_doc(self, lines, *, user=None, separator=',', extension='csv'):
         content = '\n'.join(
             separator.join(f'"{item}"' for item in line) for line in lines
@@ -292,7 +270,6 @@ class MassImportBaseTestCaseMixin:
 
         return self._build_doc(tmpfile, user=user)
 
-    # def _build_xls_doc(self, lines, extension='xls'):
     def _build_xls_doc(self, lines, *, user=None, extension='xls'):
         tmpfile = self._build_file(b'', extension)
         wb = XlwtWriter()

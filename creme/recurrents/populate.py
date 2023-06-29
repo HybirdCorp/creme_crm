@@ -20,7 +20,6 @@ from django.conf import settings
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-# from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
@@ -33,7 +32,6 @@ from creme.creme_core.models import (
 
 from . import constants, custom_forms, get_rgenerator_model
 from .creme_jobs import recurrents_gendocs_type
-# from .forms.recurrentgenerator import GeneratorCTypeSubCell
 from .menu import RecurrentGeneratorsEntry
 
 
@@ -62,78 +60,11 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        # common_groups_desc = [
-        #     {
-        #         'name': _('Description'),
-        #         'cells': [
-        #             (EntityCellRegularField, {'name': 'description'}),
-        #         ],
-        #     }, {
-        #         'name': _('Custom fields'),
-        #         'cells': [
-        #             (
-        #                 EntityCellCustomFormSpecial,
-        #                 {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
-        #             ),
-        #         ],
-        #     }
-        # ]
-
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.GENERATOR_CREATION_CFORM,
-            # groups_desc=[
-            #     {
-            #         'name': _('General information'),
-            #         'cells': [
-            #             (EntityCellRegularField, {'name': 'user'}),
-            #             (EntityCellRegularField, {'name': 'name'}),
-            #             GeneratorCTypeSubCell(model=RecurrentGenerator).into_cell(),
-            #             (EntityCellRegularField, {'name': 'first_generation'}),
-            #             (EntityCellRegularField, {'name': 'periodicity'}),
-            #             (
-            #                 EntityCellCustomFormSpecial,
-            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-            #             ),
-            #         ],
-            #     },
-            #     *common_groups_desc,
-            #     {
-            #         'name': _('Properties'),
-            #         'cells': [
-            #             (
-            #                 EntityCellCustomFormSpecial,
-            #                 {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
-            #             ),
-            #         ],
-            #     }, {
-            #         'name': _('Relationships'),
-            #         'cells': [
-            #             (
-            #                 EntityCellCustomFormSpecial,
-            #                 {'name': EntityCellCustomFormSpecial.RELATIONS},
-            #             ),
-            #         ],
-            #     },
-            # ],
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.GENERATOR_EDITION_CFORM,
-            # groups_desc=[
-            #     {
-            #         'name': _('General information'),
-            #         'cells': [
-            #             (EntityCellRegularField, {'name': 'user'}),
-            #             (EntityCellRegularField, {'name': 'name'}),
-            #             (EntityCellRegularField, {'name': 'first_generation'}),
-            #             (EntityCellRegularField, {'name': 'periodicity'}),
-            #             (
-            #                 EntityCellCustomFormSpecial,
-            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-            #             ),
-            #         ],
-            #     },
-            #     *common_groups_desc,
-            # ],
         )
 
         # ---------------------------
