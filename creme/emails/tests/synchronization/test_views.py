@@ -666,13 +666,13 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             allowed_apps=['persons'],  # <===
         )
         e2s = EmailToSync.objects.create(user=user, subject='I want a swordfish II')
-        recipent = EmailToSyncPerson.objects.create(
+        recipient = EmailToSyncPerson.objects.create(
             email_to_sync=e2s, email='spike@bebop.mrs',
             type=EmailToSyncPerson.Type.RECIPIENT,
         )
         self.assertPOST403(
             reverse('emails__mark_email_to_sync_recipient', args=(e2s.id,)),
-            data={'id': recipent.id},
+            data={'id': recipient.id},
         )
 
     def test_mark_recipient04(self):

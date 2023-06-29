@@ -1,4 +1,4 @@
-import logging
+# import logging
 
 from django.urls import reverse
 
@@ -20,14 +20,13 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         )
         self.assertTrue(sub_type.is_custom)
 
-        # with self.assertNoException():  # TODO: creme2.5
-        with self.assertLogs(level='CRITICAL') as logs_manager1:
+        # with self.assertLogs(level='CRITICAL') as logs_manager1:
+        with self.assertNoException():
             # Trick: there is not 'assertNoLogs()' in Python < 3.10
-            logging.getLogger('foo').critical('dummy message')
-
+            # logging.getLogger('foo').critical('dummy message')
             sub_type.save()
 
-        self.assertListEqual(logs_manager1.output, ['CRITICAL:foo:dummy message'])
+        # self.assertListEqual(logs_manager1.output, ['CRITICAL:foo:dummy message'])
 
         # ---
         sub_type.is_custom = False
@@ -45,7 +44,7 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         #     ],
         # )
         self.assertEqual(
-            f'The ActivitySubType id="{sub_type.id}" is not custom,'
+            f'The ActivitySubType id="{sub_type.id}" is not custom, '
             f'so the related ActivityType cannot be custom.',
             str(cm.exception),
         )
@@ -53,13 +52,12 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         # ---
         atype.is_custom = False
 
-        # with self.assertNoException():  # TODO: creme2.5
-        with self.assertLogs(level='CRITICAL') as logs_manager3:
-            logging.getLogger('foo').critical('dummy message')
-
+        # with self.assertLogs(level='CRITICAL') as logs_manager3:
+        with self.assertNoException():
+            # logging.getLogger('foo').critical('dummy message')
             sub_type.save()
 
-        self.assertListEqual(logs_manager3.output, ['CRITICAL:foo:dummy message'])
+        # self.assertListEqual(logs_manager3.output, ['CRITICAL:foo:dummy message'])
 
     def test_create_type(self):
         # self.login()

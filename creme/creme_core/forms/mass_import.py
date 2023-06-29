@@ -1284,7 +1284,7 @@ class ImportForm(CremeModelForm):
     choices = [
         (0, 'Not in the file'),
         *((i, f'Column {i}') for i in range(1, 21)),
-    ]  # Overloaded by factory
+    ]  # Overridden by factory
     header_dict: dict[str, int] = {}  # Idem
 
     blocks = FieldBlockManager(

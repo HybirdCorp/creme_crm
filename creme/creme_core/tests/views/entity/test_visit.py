@@ -216,7 +216,6 @@ class VisitTestCase(ViewsTestCase):
         )
 
     def test_view_credentials(self):
-        # user = self.login(is_superuser=False)
         user = self.login_as_standard()
         SetCredentials.objects.create(
             role=user.role,
@@ -225,7 +224,6 @@ class VisitTestCase(ViewsTestCase):
         )
 
         create_orga = FakeOrganisation.objects.create
-        # create_orga(user=self.other_user, name='AAA')
         create_orga(user=self.get_root_user(), name='AAA')
         allowed = create_orga(user=user, name='AAAA')
 
@@ -641,7 +639,6 @@ class VisitTestCase(ViewsTestCase):
         self.assertEqual(orgas[2], ctxt3['object'])
 
     def test_page_errors(self):
-        # self.login()
         self.login_as_root()
 
         build_uri = partial(
@@ -747,7 +744,6 @@ class VisitTestCase(ViewsTestCase):
         )
 
     def test_extra_q_errors(self):
-        # self.login()
         self.login_as_root()
         self.assertGET(
             400,

@@ -220,7 +220,7 @@ class EntitiesCreationEntry(menu.MenuEntry):
         """ Build JSON-ifiable information  used by JavaScript to render the grid of links.
 
         @param user: Current user (CremeUser instance).
-        @return: list of list of dictionaries.
+        @return: list of lists of dictionaries.
         """
         # TODO: cache some results ?
         groups = [*self.creation_menu_registry]

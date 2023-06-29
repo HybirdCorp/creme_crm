@@ -90,8 +90,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
     def test_not_registered_model(self):
-        # # user = self.login()
-        user = self.login_as_root_and_get()
+        # user = self.login()
         user = self.login_as_root_and_get()
         BulkUpdate.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
         registry.register(FakeOrganisation)  # Not FakeContact

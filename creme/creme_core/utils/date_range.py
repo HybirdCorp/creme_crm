@@ -58,8 +58,8 @@ def get_quarter_dates(year: int, quarter: int):
 
 
 class DateRange:
-    name: str = 'base_date_range'  # Overload
-    verbose_name = 'Date range'  # Overload
+    name: str = 'base_date_range'  # Override in child classes
+    verbose_name = 'Date range'  # Override in child classes
 
     def __str__(self):
         return str(self.verbose_name)

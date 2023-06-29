@@ -448,7 +448,7 @@ class ExtractorFieldTestCase(CremeTestCase):
         )
 
         # TODO: improve assertFieldValidationError()
-        #       (it needs a default cosntructor for the error messages)
+        #       (it needs a default constructor for the error messages)
         # self.assertFieldValidationError(ExtractorField, 'invalid', field.clean,
         #                                 'notadict'
         #                                )

@@ -802,8 +802,7 @@ class ListViewTestCase(ViewsTestCase):
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
     def test_ordering_regularfield_fastmode(self):
         "Ordering = '-fieldname'."
-        # # user = self.login()
-        user = self.login_as_root_and_get()
+        # user = self.login()
         user = self.login_as_root_and_get()
         self.assertTrue('-start', FakeActivity._meta.ordering[0])
 

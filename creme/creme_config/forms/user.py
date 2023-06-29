@@ -122,7 +122,7 @@ class UserCreationForm(CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-# TODO: factorise with UserAddForm
+# TODO: factorise with UserCreationForm
 # class UserEditForm(CremeModelForm):
 class UserEditionForm(CremeModelForm):
     role = ModelChoiceField(

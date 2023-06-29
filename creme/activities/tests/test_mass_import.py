@@ -1020,8 +1020,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     # @skipIfCustomOrganisation
     # def test_import_duplicated_subjects(self):
     #     "Dynamic & fixed subjects are duplicated in creation."
-    #     # user = self.login()
-        user = self.login_as_root_and_get()
+    #     user = self.login_as_root_and_get()
     #
     #     participant = Contact.objects.create(user=user, first_name='Tatsumi', last_name='Oga')
     #     subject = Organisation.objects.create(user=user, name='Ishiyama')

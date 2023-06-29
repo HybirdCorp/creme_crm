@@ -1026,8 +1026,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     # TODO?
     # def test_inneredit_segmentdesc(self):
-    #     # user = self.login()
-        user = self.login_as_root_and_get()
+    #     user = self.login_as_root_and_get()
     #     strategy = Strategy.objects.create(user=user, name='Strat#1')
     #     segment_desc = self._create_segment_desc(strategy, 'Industry', product='green powder')
     #

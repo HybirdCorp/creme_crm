@@ -1122,7 +1122,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         "Concatenate old & new minutes."
         # user = self.login()
         user = self.login_as_root_and_get()
-        user = self.login_as_root_and_get()
         contact = user.linked_contact
 
         pcall = self._create_pcall(
