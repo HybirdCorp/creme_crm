@@ -401,7 +401,7 @@ class CremeEntity(CremeModel):
             update_fields=update_fields,
         )
         logger.debug(
-            'CremeEntity.save(force_insert=%, force_update=%s, using=%s, update_fields=%s)',
+            'CremeEntity.save(force_insert=%s, force_update=%s, using=%s, update_fields=%s)',
             force_insert, force_update, using, update_fields,
         )
 
