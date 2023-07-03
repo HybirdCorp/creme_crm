@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.models import (
@@ -417,4 +418,37 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertIn(
             f"""tileMapAttribution: '&copy; <a href="{cright_url}">{cright_title}</a>'""",
             script_node.text,
+        )
+
+    @skipIfCustomAddress
+    @parameterized.expand([
+        OpenStreetMapNeighboursMapBrick,
+        OpenStreetMapDetailMapBrick,
+        GoogleNeighboursMapBrick,
+        GoogleDetailMapBrick,
+    ])
+    def test_disabled_bricks(self, brick_class):
+        # user = self._simple_login()
+        user = self.login_as_root_and_get()
+
+        contact = Contact.objects.create(last_name='Contact 1', user=user)
+
+        context = self.build_context(user=user, instance=contact)
+
+        render = brick_class().detailview_display(context)
+        brick_node = self.get_brick_node(self.get_html_tree(render), brick_class)
+
+        self.assertEqual(
+            _("No address defined for now"),
+            brick_node.find('.//div[@class="geolocation-empty-brick"]').text
+        )
+
+        contact.trash()
+
+        render = brick_class().detailview_display(context)
+        brick_node = self.get_brick_node(self.get_html_tree(render), brick_class)
+
+        self.assertEqual(
+            _("The geolocation feature is disabled for the entities in the trash"),
+            brick_node.find('.//div[@class="geolocation-empty-brick"]').text
         )
