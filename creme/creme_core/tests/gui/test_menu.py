@@ -58,7 +58,7 @@ class MenuTestCase(CremeTestCase):
         self.maxDiff = None
         self.user = None
 
-    def build_context(self, user=None):
+    def _build_context(self, user=None):
         # user = user or self.user
         user = user or self.get_root_user()
 
@@ -116,7 +116,7 @@ class MenuTestCase(CremeTestCase):
         with self.assertRaises(AttributeError):
             entry0.children = [MenuEntry(), MenuEntry()]  # NOQA
 
-        ctxt = self.build_context()
+        ctxt = self._build_context()
         self.assertHTMLEqual(
             '<span class="ui-creme-navigation-text-entry"></span>',
             entry0.render(ctxt),
@@ -211,7 +211,7 @@ class MenuTestCase(CremeTestCase):
 
         self.assertHTMLEqual(
             f'<a href="{reverse(entry_url_name)}">{entry_label}</a>',
-            TestEntry().render(self.build_context(user=user)),
+            TestEntry().render(self._build_context(user=user)),
         )
 
     def test_url_entry02(self):
@@ -229,7 +229,7 @@ class MenuTestCase(CremeTestCase):
             permissions = 'creme_core'
 
         expected = f'<a href="{reverse(entry_url_name)}">{entry_label}</a>'
-        ctxt = self.build_context(user=user)
+        ctxt = self._build_context(user=user)
         self.assertHTMLEqual(expected, TestEntry01().render(ctxt))
 
         # ----
@@ -252,7 +252,7 @@ class MenuTestCase(CremeTestCase):
             permissions = 'creme_config'  # <===
 
         expected = f'<span class="ui-creme-navigation-text-entry forbidden">{entry_label}</span>'
-        ctxt = self.build_context(user=user)
+        ctxt = self._build_context(user=user)
         self.assertHTMLEqual(expected, TestEntry01().render(ctxt))
 
         # ----
@@ -271,7 +271,7 @@ class MenuTestCase(CremeTestCase):
         with self.assertRaises(ValueError):
             entry01.url  # NOQA
 
-        ctxt = self.build_context()
+        ctxt = self._build_context()
         with self.assertRaises(ValueError):
             entry01.render(ctxt)
 
@@ -301,7 +301,7 @@ class MenuTestCase(CremeTestCase):
             f'<a href="{reverse("creme_core__create_fake_contact")}">'
             f'{_("Create a contact")}'
             f'</a>',
-            FakeContactCreationEntry().render(self.build_context(user=user)),
+            FakeContactCreationEntry().render(self._build_context(user=user)),
         )
 
     def test_creation_entry03(self):
@@ -313,14 +313,14 @@ class MenuTestCase(CremeTestCase):
             f'<span class="ui-creme-navigation-text-entry forbidden">'
             f'{_("Create a contact")}'
             f'</span>',
-            FakeContactCreationEntry().render(self.build_context(user=user)),
+            FakeContactCreationEntry().render(self._build_context(user=user)),
         )
 
     def test_listview_entry01(self):
         # self.login()
         self.assertIs(ListviewEntry.single_instance, True)
 
-        ctxt = self.build_context()
+        ctxt = self._build_context()
 
         entry01 = ListviewEntry()
         self.assertEqual('Entities', entry01.label)
@@ -351,7 +351,7 @@ class MenuTestCase(CremeTestCase):
 
         self.assertHTMLEqual(
             f'<a href="{reverse("creme_core__list_fake_contacts")}">Test Contacts</a>',
-            FakeContactsEntry().render(self.build_context(user=user)),
+            FakeContactsEntry().render(self._build_context(user=user)),
         )
 
     def test_listview_entry03(self):
@@ -363,7 +363,7 @@ class MenuTestCase(CremeTestCase):
             '<span class="ui-creme-navigation-text-entry forbidden">'
             'Test Contacts'
             '</span>',
-            FakeContactsEntry().render(self.build_context(user=user)),
+            FakeContactsEntry().render(self._build_context(user=user)),
         )
 
     def test_container_entry01(self):
@@ -393,7 +393,7 @@ class MenuTestCase(CremeTestCase):
         )
 
         # ---
-        ctxt = self.build_context()
+        ctxt = self._build_context()
 
         entry01 = ContainerEntry(data={'label': label})
         self.assertEqual('creme_core-container', entry01.id)
@@ -450,7 +450,7 @@ class MenuTestCase(CremeTestCase):
         sequence = MyEntrySequence(data={'label': seq_label})
         self.assertEqual(seq_label, sequence.label)
 
-        ctxt = self.build_context()
+        ctxt = self._build_context()
         with self.assertRaises(TypeError):
             sequence.render(ctxt)
 
@@ -482,7 +482,7 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(_('Separator'),          entry.label)
         self.assertEqual(0,                       entry.level)
 
-        self.assertEqual('', entry.render(self.build_context()))
+        self.assertEqual('', entry.render(self._build_context()))
 
     def test_separator1_entry01(self):
         "Empty label."
@@ -496,7 +496,7 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual('', entry.label)
         self.assertEqual(1,  entry.level)
 
-        self.assertEqual('', entry.render(self.build_context()))
+        self.assertEqual('', entry.render(self._build_context()))
 
     def test_separator1_entry02(self):
         "With label."
@@ -507,7 +507,7 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(label, entry.label)
         self.assertHTMLEqual(
             f'<span class="ui-creme-navigation-title">{label}</span>',
-            entry.render(self.build_context()),
+            entry.render(self._build_context()),
         )
 
     def test_custom_url_entry01(self):
@@ -554,7 +554,7 @@ class MenuTestCase(CremeTestCase):
         self.assertDictEqual({'label': label, 'url': url}, entry.data)
         self.assertHTMLEqual(
             f'<a href="{url}">{label}</a>',
-            entry.render(self.build_context()),
+            entry.render(self._build_context()),
         )
 
     def test_custom_url_entry02(self):
@@ -569,7 +569,7 @@ class MenuTestCase(CremeTestCase):
             '<span class="ui-creme-navigation-text-entry forbidden">{}</span>'.format(
                 _('{label} (broken configuration)').format(label=label),
             ),
-            entry.render(self.build_context()),
+            entry.render(self._build_context()),
         )
 
     def test_custom_url_entry03(self):
@@ -598,7 +598,7 @@ class MenuTestCase(CremeTestCase):
 
         self.assertHTMLEqual(
             f'<a href="{entry_url}">{entry_label}</a>',
-            entry.render(self.build_context()),
+            entry.render(self._build_context()),
         )
 
     def test_jobs_entry(self):
@@ -618,7 +618,7 @@ class MenuTestCase(CremeTestCase):
 
         self.assertHTMLEqual(
             f'<a href="{entry_url}">{entry_label}</a>',
-            entry.render(self.build_context()),
+            entry.render(self._build_context()),
         )
 
     def test_trash_entry(self):
@@ -651,8 +651,8 @@ class MenuTestCase(CremeTestCase):
             f'{count_label}'
             f'<span class="ui-creme-navigation-punctuation">)</span>'
             f'</a>',
-            # entry.render(self.build_context()),
-            entry.render(self.build_context(user=user)),
+            # entry.render(self._build_context()),
+            entry.render(self._build_context(user=user)),
         )
 
     def test_logout_entry(self):
@@ -692,7 +692,7 @@ class MenuTestCase(CremeTestCase):
         assertInChildren(MyJobsEntry)
         assertInChildren(LogoutEntry)
 
-        render = entry.render(self.build_context())
+        render = entry.render(self._build_context())
         self.assertStartsWith(render, label)
 
         tree = self.get_html_tree(render[len(label):])
@@ -724,7 +724,7 @@ class MenuTestCase(CremeTestCase):
             user=user, first_name='Kirika', last_name='Yumura',
         )
 
-        ctxt = self.build_context()
+        ctxt = self._build_context()
         request = ctxt['request']
         LastViewedItem(request, contact1)
         LastViewedItem(request, contact2)
@@ -765,7 +765,7 @@ class MenuTestCase(CremeTestCase):
         entry_label = _('Recent entities')
         self.assertEqual(entry_label, entry.label)
 
-        render = entry.render(self.build_context())
+        render = entry.render(self._build_context())
         self.assertStartsWith(render, entry_label)
         self.assertHTMLEqual(
             '<ul>'
@@ -821,7 +821,7 @@ class MenuTestCase(CremeTestCase):
         self.assertFalse(user.has_perm_to_create(FakeContact))
         self.assertHTMLEqual(
             '<span class="ui-creme-navigation-text-entry forbidden">Test Contact</span>',
-            entry21.render(self.build_context(user=user)),
+            entry21.render(self._build_context(user=user)),
         )
 
         user.role.creatable_ctypes.set([contact_ctype])
@@ -829,7 +829,7 @@ class MenuTestCase(CremeTestCase):
         self.assertTrue(user.has_perm_to_create(FakeContact))
         self.assertHTMLEqual(
             f'<a href="#" data-href="{url1}" class="quickform-menu-link">{label1}</a>',
-            entry21.render(self.build_context(user=user)),
+            entry21.render(self._build_context(user=user)),
         )
 
         self.assertEqual(FakeOrganisation, entries2[1].model)
