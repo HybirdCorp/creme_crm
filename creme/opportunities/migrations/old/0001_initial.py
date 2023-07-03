@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
 
@@ -6,7 +8,13 @@ from creme.creme_core.models import CREME_REPLACE_NULL
 
 
 class Migration(migrations.Migration):
-    # Memo: last migration is '0010_v2_1__move_description_to_entity_3'
+    # replaces = [
+    #     ('opportunities', '0001_initial'),
+    #     ('opportunities', '0011_v2_4__minion_models01'),
+    #     ('opportunities', '0012_v2_4__minion_models02'),
+    #     ('opportunities', '0013_v2_4__minion_models03'),
+    #     ('opportunities', '0014_v2_4__fix_edition_cforms'),
+    # ]
 
     initial = True
     dependencies = [
@@ -19,6 +27,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Origin')),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('is_custom', models.BooleanField(default=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -32,9 +43,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                # ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('won', models.BooleanField(default=False, verbose_name='Won')),
                 ('lost', models.BooleanField(default=False, verbose_name='Lost')),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('is_custom', models.BooleanField(default=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -46,9 +61,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Opportunity',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        to='creme_core.CremeEntity', primary_key=True,
+                        parent_link=True, auto_created=True, serialize=False,
+                        on_delete=CASCADE,
+                    )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the opportunity')),
                 ('reference', models.CharField(max_length=100, verbose_name='Reference', blank=True)),
@@ -57,7 +76,6 @@ class Migration(migrations.Migration):
                 ('chance_to_win', models.PositiveIntegerField(null=True, verbose_name='% of chance to win', blank=True)),
                 ('expected_closing_date', models.DateField(null=True, verbose_name='Expected closing date', blank=True)),
                 ('closing_date', models.DateField(null=True, verbose_name='Actual closing date', blank=True)),
-                # ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('first_action_date', models.DateField(null=True, verbose_name='Date of the first action', blank=True)),
                 ('currency', models.ForeignKey(on_delete=PROTECT, default=1, verbose_name='Currency', to='creme_core.Currency')),
                 ('origin', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Origin', blank=True, to='opportunities.Origin', null=True)),

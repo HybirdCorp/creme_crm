@@ -10,9 +10,8 @@ from creme.creme_core.models import CREME_REPLACE
 class Migration(migrations.Migration):
     # replaces = [
     #     ('tickets', '0001_initial'),
-    #     ('tickets', '0010_v2_4__minion_models01'),
-    #     ('tickets', '0011_v2_4__minion_models02'),
-    #     ('tickets', '0012_v2_4__minion_models03'),
+    #     ('tickets', '0013_v2_5__status_color01'),
+    #     ('tickets', '0014_v2_5__status_color02'),
     # ]
 
     initial = True
@@ -26,7 +25,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
-                # ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True)),
@@ -44,7 +42,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
-                # ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True)),
@@ -63,7 +60,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
                 ('is_custom', models.BooleanField(default=True)),
-                # ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 (
                     'is_closed',
@@ -74,6 +70,13 @@ class Migration(migrations.Migration):
                             'If you set as closed, existing tickets which use this status will '
                             'not be updated automatically (i.e. closing dates will not be set).'
                         ),
+                    )
+                ),
+                (
+                    'color',
+                    core_fields.ColorField(
+                        verbose_name='Color',
+                        default=core_fields.ColorField.random, max_length=6,
                     )
                 ),
                 ('extra_data', models.JSONField(default=dict, editable=False)),

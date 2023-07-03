@@ -2,7 +2,7 @@ from django.db import migrations
 
 
 def generate_line_ordering(apps, schema_editor):
-    from ..constants import REL_OBJ_HAS_LINE
+    from creme.billing.constants import REL_OBJ_HAS_LINE
 
     doc_models = [
         apps.get_model('billing', name)
