@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Geolocation 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-15 19:13+0100\n"
+"POT-Creation-Date: 2023-07-03 09:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -158,6 +158,9 @@ msgstr "Clé API Google Maps ® (optionnelle)"
 
 msgid "Map"
 msgstr "Carte"
+
+msgid "The geolocation feature is disabled for the entities in the trash"
+msgstr "La géolocalisation est désactivée pour les fiches dans la corbeille"
 
 msgid "No address defined for now"
 msgstr "Aucune adresse enregistrée pour le moment"

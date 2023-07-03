@@ -14,7 +14,9 @@
 {% endblock %}
 
 {% block brick_content %}
-    {% if not ref_addresses %}
+    {% if object.is_deleted %}
+    <div class="geolocation-empty-brick">{% translate 'The geolocation feature is disabled for the entities in the trash' %}</div>
+    {% elif not ref_addresses %}
     <div class="geolocation-empty-brick">{% translate 'No address defined for now' %}</div>
     {% else %}
     <div class="geolocation-brick-header">
