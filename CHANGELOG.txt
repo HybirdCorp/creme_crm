@@ -22,6 +22,8 @@
             - An issue when editing an Alert with a relative date period has been fixed.
         * Reports :
             - In preview's filter-form, the fields configured as hidden are now excluded as expected.
+        * Geolocation :
+            - Disable map bricks when the entity is in the trash.
 
   Developers side :
   -----------------
