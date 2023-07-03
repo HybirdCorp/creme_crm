@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
@@ -9,7 +11,11 @@ from creme.creme_core.models import CREME_REPLACE_NULL
 class Migration(migrations.Migration):
     # replaces = [
     #     ('activities', '0001_initial'),
-    #     ('activities', '0014_v2_3__rm_svalue_for_usermessages'),
+    #     ('activities', '0015_v2_4__minion_models01'),
+    #     ('activities', '0016_v2_4__minion_models02'),
+    #     ('activities', '0017_v2_4__minion_models03'),
+    #     ('activities', '0018_v2_4__not_null_subtype01'),
+    #     ('activities', '0019_v2_4__not_null_subtype02'),
     # ]
 
     initial = True
@@ -30,12 +36,16 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('default_day_duration', models.IntegerField(verbose_name='Default day duration')),
+                (
+                    'default_day_duration',
+                    models.IntegerField(verbose_name='Default day duration', default=0)
+                ),
                 (
                     'default_hour_duration',
                     creme_fields.DurationField(max_length=15, verbose_name='Default hour duration')
                 ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
                 'ordering': ('name',),
@@ -62,6 +72,7 @@ class Migration(migrations.Migration):
                         on_delete=CASCADE,
                     )
                 ),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
                 'ordering': ('name',),
@@ -82,6 +93,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('description', models.TextField(verbose_name='Description')),
                 ('is_custom', models.BooleanField(default=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -123,6 +136,7 @@ class Migration(migrations.Migration):
                     creme_fields.ColorField(
                         max_length=6, verbose_name='Color',
                         help_text='It is used on the calendar view to colorize Activities.',
+                        default=creme_fields.ColorField.random,
                     )
                 ),
                 (
@@ -185,9 +199,14 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'sub_type',
+                    # models.ForeignKey(
+                    #     verbose_name='Activity sub-type', to='activities.ActivitySubType',
+                    #     blank=True, null=True, on_delete=SET_NULL,
+                    # ),
                     models.ForeignKey(
-                        verbose_name='Activity sub-type', to='activities.ActivitySubType',
-                        blank=True, null=True, on_delete=SET_NULL,
+                        to='activities.activitysubtype',
+                        verbose_name='Activity sub-type',
+                        on_delete=PROTECT,
                     ),
                 ),
                 (
