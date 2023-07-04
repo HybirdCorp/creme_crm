@@ -108,7 +108,7 @@ class Migration(migrations.Migration):
                 ('closing_date', models.DateTimeField(verbose_name='Closing date', null=True, editable=False, blank=True)),
                 (
                     'criticity',
-                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticity', to='tickets.Criticity')
+                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticality', to='tickets.Criticity')
                 ),
                 (
                     'priority',
@@ -141,7 +141,7 @@ class Migration(migrations.Migration):
                 ('solution', models.TextField(verbose_name='Solution', blank=True)),
                 (
                     'criticity',
-                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticity', to='tickets.Criticity')
+                    models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticality', to='tickets.Criticity')
                 ),
                 (
                     'priority',
