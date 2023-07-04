@@ -86,10 +86,11 @@
             - in your 'Populator', remove the argument "groups_desc" of 'CustomFormConfigItem.objects.create_if_needed()'.
           The section "CustomForms" of the tutorials has been updated (& you can see how vanilla apps are made of course).
         # Deprecations :
-            - In the class 'creme_core.core.entity_cell.EntityCell' (& child classes), the methods
-              'render_html()' & 'render_csv()' are deprecated; user 'render()' instead.
-            - In the class 'creme_core.core.function_field.FunctionFieldResult' (& child classes), the methods
-              'for_html()' & 'for_csv()' are deprecated; use 'render()' instead.
+            - In 'creme_core.core' :
+                - In the class 'entity_cell.EntityCell' (& child classes), the methods
+                  'render_html()' & 'render_csv()' are deprecated; use 'render()' instead.
+                - In the class 'function_field.FunctionFieldResult' (& child classes), the methods
+                  'for_html()' & 'for_csv()' are deprecated; use 'render()' instead.
             - In 'creme_core.forms' :
                 - The method 'base.HookableFormMixin.as_span()' is deprecated; use 'as_div()'/'as_ul()'/... instead.
                 - The classes 'fields.CremeUserChoiceField' & 'fields.CremeUserChoiceIterator' are deprecated;
