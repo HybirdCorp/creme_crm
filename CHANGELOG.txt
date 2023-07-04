@@ -298,6 +298,7 @@
         # In templates :
             - The template "creme_core/templatetags/menu_buttons.html" has been removed.
             - In 'creme_core/header/menu-base.html', {% block accessories %} has moved inside the "<div>" element.
+        # The method 'creme_core.tests.base._CremeTestCase.build_request()' takes now its arguments as keywords only.
         # In Javascript :
             - 'creme.widget.DynamicSelect' widget does not select the first option as default behaviour.
                A new argument 'data-no-empty' is needed.
