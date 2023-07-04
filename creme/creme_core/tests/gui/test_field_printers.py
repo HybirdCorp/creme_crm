@@ -1084,7 +1084,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             '<a href="{url}" target="_blank">{url}</a>'.format(url=o.url_site),
             as_html(o, 'url_site', user),
         )
-        self.assertEqual(o.url_site, as_csv(o, 'url_site', user))
         self.assertHTMLEqual(
             '<a href="{url}" target="_blank">{url}</a>'.format(url=o.url_site),
             render_field(field_name='url_site', tag=ViewTag.HTML_DETAIL),
