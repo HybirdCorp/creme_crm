@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-import warnings
+# import warnings
 from typing import TYPE_CHECKING, Iterable, Iterator
 
 from django.db.models import Model
@@ -44,19 +44,19 @@ class FunctionFieldResult:
     def __str__(self):
         return self.render(ViewTag.HTML_DETAIL)
 
-    def for_html(self) -> str:
-        warnings.warn(
-            'FunctionFieldResult.for_html() is deprecated; use render() instead.',
-            DeprecationWarning,
-        )
-        return self.render(ViewTag.HTML_DETAIL)
+    # def for_html(self) -> str:
+    #     warnings.warn(
+    #         'FunctionFieldResult.for_html() is deprecated; use render() instead.',
+    #         DeprecationWarning,
+    #     )
+    #     return self.render(ViewTag.HTML_DETAIL)
 
-    def for_csv(self) -> str:
-        warnings.warn(
-            'FunctionFieldResult.for_csv() is deprecated; use render() instead.',
-            DeprecationWarning,
-        )
-        return self.render(ViewTag.TEXT_PLAIN)
+    # def for_csv(self) -> str:
+    #     warnings.warn(
+    #         'FunctionFieldResult.for_csv() is deprecated; use render() instead.',
+    #         DeprecationWarning,
+    #     )
+    #     return self.render(ViewTag.TEXT_PLAIN)
 
     def render(self, tag: ViewTag):
         return self._data if tag == ViewTag.TEXT_PLAIN else escape(self._data)

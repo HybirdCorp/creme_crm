@@ -1,4 +1,4 @@
-import warnings
+# import warnings
 from tempfile import NamedTemporaryFile
 
 from django.contrib.contenttypes.models import ContentType
@@ -226,15 +226,16 @@ class MassImportBaseTestCaseMixin:
 
         return tmpfile
 
-    def _build_doc(self, tmpfile, user=None):
-        if user is None:
-            warnings.warn(
-                f'Passing no "user" argument to the methods '
-                f'{type(self).__name__}._build_*doc() is deprecated.',
-                DeprecationWarning
-            )
-
-            user = self.user
+    # def _build_doc(self, tmpfile, user=None):
+    def _build_doc(self, tmpfile, user):
+        # if user is None:
+        #     warnings.warn(
+        #         f'Passing no "user" argument to the methods '
+        #         f'{type(self).__name__}._build_*doc() is deprecated.',
+        #         DeprecationWarning
+        #     )
+        #
+        #     user = self.user
 
         tmpfile.file.seek(0)
         category = FolderCategory.objects.create(id=10, name='Test category')
@@ -262,7 +263,8 @@ class MassImportBaseTestCaseMixin:
 
         return doc
 
-    def _build_csv_doc(self, lines, *, user=None, separator=',', extension='csv'):
+    # def _build_csv_doc(self, lines, *, user=None, separator=',', extension='csv'):
+    def _build_csv_doc(self, lines, *, user, separator=',', extension='csv'):
         content = '\n'.join(
             separator.join(f'"{item}"' for item in line) for line in lines
         )
@@ -270,7 +272,8 @@ class MassImportBaseTestCaseMixin:
 
         return self._build_doc(tmpfile, user=user)
 
-    def _build_xls_doc(self, lines, *, user=None, extension='xls'):
+    # def _build_xls_doc(self, lines, *, user=None, extension='xls'):
+    def _build_xls_doc(self, lines, *, user, extension='xls'):
         tmpfile = self._build_file(b'', extension)
         wb = XlwtWriter()
         for line in lines:

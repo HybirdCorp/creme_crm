@@ -1,5 +1,51 @@
 == Version 2.6 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Breaking changes :
+    ------------------
+        # Deprecated stuffs which have been removed :
+            - In 'creme_core.core'
+                - In the class 'entity_cell.EntityCell' (& child classes), the methods
+                  'render_html()' & 'render_csv()' have been removed.
+                - In the class 'function_field.FunctionFieldResult' (& child classes), the methods
+                  'for_html()' & 'for_csv()' have been removed.
+            - In 'creme_core.forms' :
+                - The method 'base.HookableFormMixin.as_span()' has been removed.
+                - The classes 'fields.CremeUserChoiceField' & 'fields.CremeUserChoiceIterator' have been removed.
+            - In 'creme_core.gui' :
+                - In 'bricks.Brick', the attribute "id" must be filled & used instead of "id_".
+                - In the class 'field_printers._FieldPrintersRegistry', these method have been removed :
+                    - 'register()'
+                    - 'get_html_field_value()'
+                    - 'get_csv_field_value()'
+            - In 'creme_core.templatetags.creme_cells', the argument "output" of '{% cell_render %} has been removed.
+            - The function 'creme_core.utils.dates.make_aware_dt()' has been removed.
+            - In templates :
+                - In the file "creme_core/base.html", the '{% block extrahead %}' has been removed.
+                - The file "creme_core/generics/error.html" has been deleted.
+            - In the 'creme_core.tests':
+                - In the class 'base._CremeTestCase' :
+                    - The method 'login()' has been removed.
+                    - In the method 'build_request()', the argument "user" is now mandatory.
+                - In the the methods 'views.base.MassImportBaseTestCaseMixin._build_*doc(), the argument "user" is now mandatory.
+            - Apps :
+                * Creme_config :
+                    - The class 'forms.fields.CustomEnumChoiceField has been removed.
+                * Activities :
+                    - In 'constants', 'DEFAULT_CALENDAR_COLOR' & 'COLOR_POOL' have been removed.
+                    - In 'models.calendar', these methods have been removed :
+                        - 'CalendarManager.new_color()'
+                        - 'Calendar.get_color()'
+                * Emails :
+                    - These variables (in 'settings.py') have been removed:
+                        - EMAILCAMPAIGN_HOST
+                        - EMAILCAMPAIGN_HOST_USER
+                        - EMAILCAMPAIGN_PASSWORD
+                        - EMAILCAMPAIGN_PORT
+                        - EMAILCAMPAIGN_USE_TLS
+
 
 == Version 2.5 ==
 

@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections import defaultdict
 from typing import DefaultDict, Iterable, Sequence
 
@@ -217,20 +217,19 @@ class EntityCell:
         """
         pass
 
-    def render_html(self, entity: CremeEntity, user) -> str:
-        # raise NotImplementedError
-        warnings.warn(
-            'EntityCell.render_html() is deprecated ; use render() instead.',
-            DeprecationWarning
-        )
-        return self.render(entity, user, ViewTag.HTML_DETAIL)
+    # def render_html(self, entity: CremeEntity, user) -> str:
+    #     warnings.warn(
+    #         'EntityCell.render_html() is deprecated ; use render() instead.',
+    #         DeprecationWarning
+    #     )
+    #     return self.render(entity, user, ViewTag.HTML_DETAIL)
 
-    def render_csv(self, entity: CremeEntity, user) -> str:
-        warnings.warn(
-            'EntityCell.render_csv() is deprecated ; use render() instead.',
-            DeprecationWarning
-        )
-        return self.render(entity, user, ViewTag.TEXT_PLAIN)
+    # def render_csv(self, entity: CremeEntity, user) -> str:
+    #     warnings.warn(
+    #         'EntityCell.render_csv() is deprecated ; use render() instead.',
+    #         DeprecationWarning
+    #     )
+    #     return self.render(entity, user, ViewTag.TEXT_PLAIN)
 
     def render(self, entity: CremeEntity, user, tag: ViewTag) -> str:
         raise NotImplementedError

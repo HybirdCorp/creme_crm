@@ -23,7 +23,7 @@
 
 from __future__ import annotations
 
-import warnings
+# import warnings
 from datetime import date, datetime, timedelta, timezone
 from time import strptime as time_strptime
 
@@ -109,21 +109,21 @@ def date_from_str(d_str: str) -> date | None:
     return None
 
 
-def make_aware_dt(dt: datetime, is_dst: bool | None = False) -> datetime:
-    """Returns an aware datetime in the current time-zone.
-    @param dt: A (naive) datetime instance.
-    @param is_dst: If there is an ambiguity on DST transition
-           False => force the post-DST side of the DST transition [default].
-           True => force the pre-DST side.
-           None => raise an exception.
-    @return A (aware) datetime.
-    """
-    warnings.warn(
-        'creme_core.utils.dates.make_aware_dt() is deprecated ; '
-        'use django.utils.timezone.make_aware() instead.',
-        DeprecationWarning
-    )
-    return make_aware(dt, is_dst=is_dst)
+# def make_aware_dt(dt: datetime, is_dst: bool | None = False) -> datetime:
+#     """Returns an aware datetime in the current time-zone.
+#     @param dt: A (naive) datetime instance.
+#     @param is_dst: If there is an ambiguity on DST transition
+#            False => force the post-DST side of the DST transition [default].
+#            True => force the pre-DST side.
+#            None => raise an exception.
+#     @return A (aware) datetime.
+#     """
+#     warnings.warn(
+#         'creme_core.utils.dates.make_aware_dt() is deprecated ; '
+#         'use django.utils.timezone.make_aware() instead.',
+#         DeprecationWarning
+#     )
+#     return make_aware(dt, is_dst=is_dst)
 
 
 def to_utc(dt: datetime) -> datetime:

@@ -1311,15 +1311,6 @@ EMAILS_TEMPLATE_FORCE_NOT_CUSTOM = False
 EMAILS_EMAIL_FORCE_NOT_CUSTOM    = False
 EMAILS_MLIST_FORCE_NOT_CUSTOM    = False
 
-# Emails campaigns sent to the customers
-# NOT USED ANYMORE (SMTP servers are now configured with the GUI);
-# will be removed with Creme 2.6
-EMAILCAMPAIGN_HOST      = 'localhost'
-EMAILCAMPAIGN_HOST_USER = ''
-EMAILCAMPAIGN_PASSWORD  = ''
-EMAILCAMPAIGN_PORT      = 25
-EMAILCAMPAIGN_USE_TLS   = True
-
 # Emails are sent by chunks, and sleep between 2 chunks.
 EMAILCAMPAIGN_SIZE = 40
 EMAILCAMPAIGN_SLEEP_TIME = 2

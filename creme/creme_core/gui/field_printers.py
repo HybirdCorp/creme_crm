@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-import warnings
+# import warnings
 from functools import partial
 from os.path import splitext
 from typing import TYPE_CHECKING, Iterable
@@ -705,20 +705,20 @@ class _FieldPrintersRegistry:
             default=css_default_header,
         )
 
-    def register(self, field, printer, output='html'):
-        warnings.warn(
-            'The method _FieldPrintersRegistry.register() is deprecated ; '
-            'use register_model_field_type() instead.',
-            DeprecationWarning,
-        )
-        if output == 'html':
-            tag = 'html*'
-        elif output == 'csv':
-            tag = ViewTag.TEXT_PLAIN
-        else:
-            raise KeyError(f'Invalid output value: "{output}"')
-
-        return self.register_model_field_type(type=field, printer=printer, tags=tag)
+    # def register(self, field, printer, output='html'):
+    #     warnings.warn(
+    #         'The method _FieldPrintersRegistry.register() is deprecated ; '
+    #         'use register_model_field_type() instead.',
+    #         DeprecationWarning,
+    #     )
+    #     if output == 'html':
+    #         tag = 'html*'
+    #     elif output == 'csv':
+    #         tag = ViewTag.TEXT_PLAIN
+    #     else:
+    #         raise KeyError(f'Invalid output value: "{output}"')
+    #
+    #     return self.register_model_field_type(type=field, printer=printer, tags=tag)
 
     def register_model_field_type(self, *,
                                   type: type[models.Field],
@@ -807,35 +807,35 @@ class _FieldPrintersRegistry:
             field_info=FieldInfo(model, field_name),
         )
 
-    def get_html_field_value(self,
-                             obj: models.Model,
-                             field_name: str,
-                             user: CremeUser,
-                             ) -> str:
-        warnings.warn(
-            'The method _FieldPrintersRegistry.get_html_field_value() is deprecated ; '
-            'use get_field_value() instead.',
-            DeprecationWarning
-        )
+    # def get_html_field_value(self,
+    #                          obj: models.Model,
+    #                          field_name: str,
+    #                          user: CremeUser,
+    #                          ) -> str:
+    #     warnings.warn(
+    #         'The method _FieldPrintersRegistry.get_html_field_value() is deprecated ; '
+    #         'use get_field_value() instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     return self.build_field_printer(
+    #         model=obj.__class__, field_name=field_name, tag=ViewTag.HTML_DETAIL,
+    #     )(obj, user)
 
-        return self.build_field_printer(
-            model=obj.__class__, field_name=field_name, tag=ViewTag.HTML_DETAIL,
-        )(obj, user)
-
-    def get_csv_field_value(self,
-                            obj: models.Model,
-                            field_name: str,
-                            user: CremeUser,
-                            ) -> str:
-        warnings.warn(
-            'The method _FieldPrintersRegistry.get_csv_field_value() is deprecated ; '
-            'use get_field_value() instead.',
-            DeprecationWarning
-        )
-
-        return self.build_field_printer(
-            model=obj.__class__, field_name=field_name, tag=ViewTag.TEXT_PLAIN,
-        )(obj, user)
+    # def get_csv_field_value(self,
+    #                         obj: models.Model,
+    #                         field_name: str,
+    #                         user: CremeUser,
+    #                         ) -> str:
+    #     warnings.warn(
+    #         'The method _FieldPrintersRegistry.get_csv_field_value() is deprecated ; '
+    #         'use get_field_value() instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     return self.build_field_printer(
+    #         model=obj.__class__, field_name=field_name, tag=ViewTag.TEXT_PLAIN,
+    #     )(obj, user)
 
     def get_field_value(self, *,
                         instance: models.Model,

@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections import OrderedDict
 from copy import copy
 from functools import partial
@@ -442,24 +442,24 @@ class HookableFormMixin:
         for callback in self._creme_post_save_callbacks:
             callback(self)
 
-    def as_span(self) -> str:
-        """Returns this form rendered as HTML <span>s."""
-        warnings.warn(
-            'The method HookableFormMixin.as_span() is deprecated ; '
-            'use as_div()/as_ul()/... instead.',
-            DeprecationWarning
-        )
-
-        assert isinstance(self, forms.BaseForm), \
-               f'HookableFormMixin has not been used as Form mixin: {type(self)}.'
-
-        return self._html_output(
-            normal_row='<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
-            error_row='%s',
-            row_ender='</span>',
-            help_text_html=' <span class="helptext">%s</span>',
-            errors_on_separate_row=False,
-        )
+    # def as_span(self) -> str:
+    #     """Returns this form rendered as HTML <span>s."""
+    #     warnings.warn(
+    #         'The method HookableFormMixin.as_span() is deprecated ; '
+    #         'use as_div()/as_ul()/... instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     assert isinstance(self, forms.BaseForm), \
+    #            f'HookableFormMixin has not been used as Form mixin: {type(self)}.'
+    #
+    #     return self._html_output(
+    #         normal_row='<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
+    #         error_row='%s',
+    #         row_ender='</span>',
+    #         help_text_html=' <span class="helptext">%s</span>',
+    #         errors_on_separate_row=False,
+    #     )
 
 
 # class SpanRenderableFormMixin:
