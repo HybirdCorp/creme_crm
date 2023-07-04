@@ -729,7 +729,8 @@ class _CremeTestCase:
     def build_merge_url(entity1, entity2):
         return reverse('creme_core__merge_entities') + f'?id1={entity1.id}&id2={entity2.id}'
 
-    def build_request(self, url='/', user=None):
+    # def build_request(self, url='/', user=None):
+    def build_request(self, *, url='/', user=None):
         request = self.request_factory.get(url)
         request.session = SessionBase()
         # request.user = user or self.user
