@@ -16,7 +16,7 @@
         * Reports :
             - In preview's filter-form, the fields configured as hidden are now excluded as expected.
         * Geolocation :
-            - Disable map bricks when the entity is in the trash.
+            - The bricks are disabled when the entity is in the trash.
 
 
 == Version 2.3.12 ==
