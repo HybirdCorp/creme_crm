@@ -495,18 +495,17 @@ class _ConfigRegistry:
     def _get_brick_id(self, brick_cls: type[Brick]) -> str:
         brick_id = brick_cls.id
 
-        # TODO: remove in creme 2.6
-        if not brick_id:
-            try:
-                brick_id = brick_cls.id_
-            except AttributeError:
-                pass
-            else:
-                logger.critical(
-                    'The brick class %s uses the old "id_" attribute; '
-                    'use an attribute "id" instead (brick is ignored).',
-                    brick_cls,
-                )
+        # if not brick_id:
+        #     try:
+        #         brick_id = brick_cls.id_
+        #     except AttributeError:
+        #         pass
+        #     else:
+        #         logger.critical(
+        #             'The brick class %s uses the old "id_" attribute; '
+        #             'use an attribute "id" instead (brick is ignored).',
+        #             brick_cls,
+        #         )
 
         if not hasattr(brick_cls, 'detailview_display'):
             raise ValueError(

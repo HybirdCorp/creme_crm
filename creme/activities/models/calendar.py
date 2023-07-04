@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-import warnings
+# import warnings
 from collections import defaultdict
 
 from django.db import models
@@ -30,14 +30,14 @@ from creme.creme_core.models import CremeModel
 
 
 class CalendarManager(models.Manager):
-    def new_color(self):
-        warnings.warn(
-            'CalendarManager.new_color() is deprecated.',
-            DeprecationWarning,
-        )
-        from ..constants import COLOR_POOL
-
-        return COLOR_POOL[self.count() % len(COLOR_POOL)]
+    # def new_color(self):
+    #     warnings.warn(
+    #         'CalendarManager.new_color() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #     from ..constants import COLOR_POOL
+    #
+    #     return COLOR_POOL[self.count() % len(COLOR_POOL)]
 
     def create_default_calendar(self,
                                 user, *,
@@ -181,15 +181,15 @@ class Calendar(CremeModel):
     def __str__(self):
         return self.name
 
-    @property
-    def get_color(self):
-        warnings.warn(
-            'Calendar.get_color() is deprecated; use Calendar.color instead.',
-            DeprecationWarning,
-        )
-        from ..constants import DEFAULT_CALENDAR_COLOR
-
-        return self.color or DEFAULT_CALENDAR_COLOR
+    # @property
+    # def get_color(self):
+    #     warnings.warn(
+    #         'Calendar.get_color() is deprecated; use Calendar.color instead.',
+    #         DeprecationWarning,
+    #     )
+    #     from ..constants import DEFAULT_CALENDAR_COLOR
+    #
+    #     return self.color or DEFAULT_CALENDAR_COLOR
 
     def delete(self, using=None, keep_parents=False):
         super().delete(using=using, keep_parents=keep_parents)

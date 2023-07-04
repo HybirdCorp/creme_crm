@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import itertools
-import warnings
+# import warnings
 from collections import defaultdict
 from copy import deepcopy
 from dataclasses import dataclass
@@ -29,7 +29,7 @@ from json import loads as json_load
 from typing import Any, Collection, Sequence
 
 from django.apps import apps
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db.models.query import Q, QuerySet, prefetch_related_objects
@@ -55,7 +55,7 @@ from . import validators as f_validators
 from . import widgets as core_widgets
 
 __all__ = (
-    'CremeUserChoiceField',
+    # 'CremeUserChoiceField',
     'GenericEntityField', 'MultiGenericEntityField',
     'RelationEntityField', 'MultiRelationEntityField',
     'CreatorEntityField', 'MultiCreatorEntityField',
@@ -71,76 +71,76 @@ __all__ = (
 )
 
 
-class CremeUserChoiceIterator(mforms.ModelChoiceIterator):
-    """"Groups the teams & the inactive users in specific groups."""
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        warnings.warn('CremeUserChoiceIterator is deprecated.', DeprecationWarning)
+# class CremeUserChoiceIterator(mforms.ModelChoiceIterator):
+#     """"Groups the teams & the inactive users in specific groups."""
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         warnings.warn('CremeUserChoiceIterator is deprecated.', DeprecationWarning)
+#
+#     def __iter__(self):
+#         regular_choices = []
+#         sort_key = collator.sort_key
+#
+#         def user_key(c):
+#             return sort_key(c[1])
+#
+#         queryset = self.queryset
+#         choice = self.choice
+#         regular_choices.extend(
+#             choice(u) for u in queryset if u.is_active and not u.is_team
+#         )
+#         regular_choices.sort(key=user_key)
+#
+#         if self.field.empty_label is not None:
+#             regular_choices.insert(0, ('', self.field.empty_label))
+#
+#         yield '', regular_choices
+#         del regular_choices
+#
+#         team_choices = [choice(u) for u in queryset if u.is_team]
+#         if team_choices:
+#             yield _('Teams'), team_choices
+#         del team_choices
+#
+#         inactive_choices = [choice(u) for u in queryset if not u.is_active]
+#         if inactive_choices:
+#             inactive_choices.sort(key=user_key)
+#             yield _('Inactive users'), inactive_choices
 
-    def __iter__(self):
-        regular_choices = []
-        sort_key = collator.sort_key
 
-        def user_key(c):
-            return sort_key(c[1])
-
-        queryset = self.queryset
-        choice = self.choice
-        regular_choices.extend(
-            choice(u) for u in queryset if u.is_active and not u.is_team
-        )
-        regular_choices.sort(key=user_key)
-
-        if self.field.empty_label is not None:
-            regular_choices.insert(0, ('', self.field.empty_label))
-
-        yield '', regular_choices
-        del regular_choices
-
-        team_choices = [choice(u) for u in queryset if u.is_team]
-        if team_choices:
-            yield _('Teams'), team_choices
-        del team_choices
-
-        inactive_choices = [choice(u) for u in queryset if not u.is_active]
-        if inactive_choices:
-            inactive_choices.sort(key=user_key)
-            yield _('Inactive users'), inactive_choices
-
-
-class CremeUserChoiceField(mforms.ModelChoiceField):
-    """Specialization of ModelChoiceField the User model.
-    The user set by the form (see CremeForm/CremeModelForm) is used as initial
-    choice by default.
-    """
-    iterator = CremeUserChoiceIterator
-
-    def __init__(self, queryset=None, *, user=None, empty_label=None, **kwargs):
-        super().__init__(
-            queryset=get_user_model().objects.all() if queryset is None else queryset,
-            empty_label=empty_label,  # NB: generally we avoid empty QuerySets.
-            **kwargs
-        )
-        warnings.warn(
-            'CremeUserChoiceField is deprecated ; use CremeUserEnumerableField instead.',
-            DeprecationWarning,
-        )
-        self.user = user
-
-    @property
-    def user(self):
-        return self._user
-
-    @user.setter
-    def user(self, user):
-        self._user = user
-        if self.initial is None:
-            self.initial = None if user is None else user.id
-
-    def label_from_instance(self, obj):
-        # NB: we avoid the " (team)" suffix, because CremeUserChoiceIterator
-        #     already creates an <optgroup> for teams.
-        return str(obj) if not obj.is_team else obj.username
+# class CremeUserChoiceField(mforms.ModelChoiceField):
+#     """Specialization of ModelChoiceField the User model.
+#     The user set by the form (see CremeForm/CremeModelForm) is used as initial
+#     choice by default.
+#     """
+#     iterator = CremeUserChoiceIterator
+#
+#     def __init__(self, queryset=None, *, user=None, empty_label=None, **kwargs):
+#         super().__init__(
+#             queryset=get_user_model().objects.all() if queryset is None else queryset,
+#             empty_label=empty_label,  # NB: generally we avoid empty QuerySets.
+#             **kwargs
+#         )
+#         warnings.warn(
+#             'CremeUserChoiceField is deprecated ; use CremeUserEnumerableField instead.',
+#             DeprecationWarning,
+#         )
+#         self.user = user
+#
+#     @property
+#     def user(self):
+#         return self._user
+#
+#     @user.setter
+#     def user(self, user):
+#         self._user = user
+#         if self.initial is None:
+#             self.initial = None if user is None else user.id
+#
+#     def label_from_instance(self, obj):
+#         # NB: we avoid the " (team)" suffix, because CremeUserChoiceIterator
+#         #     already creates an <optgroup> for teams.
+#         return str(obj) if not obj.is_team else obj.username
 
 
 class CremeUserEnumerableField(enum_fields.EnumerableModelChoiceField):

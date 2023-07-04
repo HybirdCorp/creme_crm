@@ -281,15 +281,14 @@ class EntityCellTestCase(CremeTestCase):
             DATE_FORMAT='j F Y',
             DATE_INPUT_FORMATS=[date_input_format],
         ):
-            self.assertEqual(
-                date_format(birthday, 'DATE_FORMAT'),
-                cell.render_html(entity=yoko, user=user),
-            )
-            self.assertEqual(
-                birthday.strftime(date_input_format),
-                cell.render_csv(entity=yoko, user=user),
-            )
-
+            # self.assertEqual(
+            #     date_format(birthday, 'DATE_FORMAT'),
+            #     cell.render_html(entity=yoko, user=user),
+            # )
+            # self.assertEqual(
+            #     birthday.strftime(date_input_format),
+            #     cell.render_csv(entity=yoko, user=user),
+            # )
             self.assertEqual(
                 date_format(birthday, 'DATE_FORMAT'),
                 cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
@@ -384,13 +383,13 @@ class EntityCellTestCase(CremeTestCase):
         # Render ---
         user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
-        self.assertEqual('', cell.render_html(entity=yoko, user=user))
+        # self.assertEqual('', cell.render_html(entity=yoko, user=user))
         self.assertEqual('', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
 
         customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=152)
         yoko = self.refresh(yoko)  # Reset caches
-        self.assertEqual('152', cell.render_html(entity=yoko, user=user))
-        self.assertEqual('152', cell.render_csv(entity=yoko, user=user))
+        # self.assertEqual('152', cell.render_html(entity=yoko, user=user))
+        # self.assertEqual('152', cell.render_csv(entity=yoko, user=user))
         self.assertEqual('152', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
         self.assertEqual('152', cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 

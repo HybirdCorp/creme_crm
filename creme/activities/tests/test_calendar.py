@@ -34,28 +34,28 @@ Activity = get_activity_model()
 
 
 class CalendarManagerTestCase(_ActivitiesTestCase):
-    def test_deprecated_constants(self):
-        with self.assertWarnsMessage(
-            expected_warning=DeprecationWarning,
-            expected_message='DEFAULT_CALENDAR_COLOR is deprecated.'
-        ):
-            from ..constants import DEFAULT_CALENDAR_COLOR
-
-        self.assertEqual('C1D9EC', DEFAULT_CALENDAR_COLOR)
-
-        # ---
-        with self.assertWarnsMessage(
-            expected_warning=DeprecationWarning,
-            expected_message='COLOR_POOL is deprecated.'
-        ):
-            from ..constants import COLOR_POOL
-
-        self.assertIsInstance(COLOR_POOL, tuple)
-        self.assertIn('c1d9ec', COLOR_POOL)
-
-        # ---
-        with self.assertRaises(ImportError):
-            from ..constants import UNKNOWN  # NOQA
+    # def test_deprecated_constants(self):
+    #     with self.assertWarnsMessage(
+    #         expected_warning=DeprecationWarning,
+    #         expected_message='DEFAULT_CALENDAR_COLOR is deprecated.'
+    #     ):
+    #         from ..constants import DEFAULT_CALENDAR_COLOR
+    #
+    #     self.assertEqual('C1D9EC', DEFAULT_CALENDAR_COLOR)
+    #
+    #     # ---
+    #     with self.assertWarnsMessage(
+    #         expected_warning=DeprecationWarning,
+    #         expected_message='COLOR_POOL is deprecated.'
+    #     ):
+    #         from ..constants import COLOR_POOL
+    #
+    #     self.assertIsInstance(COLOR_POOL, tuple)
+    #     self.assertIn('c1d9ec', COLOR_POOL)
+    #
+    #     # ---
+    #     with self.assertRaises(ImportError):
+    #         from ..constants import UNKNOWN  # NOQA
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_mngr_create_default_calendar01(self):

@@ -227,46 +227,46 @@ class _CremeTestCase:
 
         return user
 
-    def login(self, is_superuser=True, is_staff=False, allowed_apps=('creme_core',),
-              creatable_models=None, admin_4_apps=()):
-        warnings.warn(
-            f'The method {type(self).__name__}.login() is deprecated;'
-            f'use the methods login_as_*() instead.',
-            DeprecationWarning
-        )
-        self.password = password = 'test'
-
-        superuser = self.create_user(
-            index=0,
-            is_staff=is_staff,
-        )
-
-        role = UserRole(name='Basic')
-        role.allowed_apps = allowed_apps
-        role.admin_4_apps = admin_4_apps
-        role.save()
-
-        if creatable_models is not None:
-            get_ct = ContentType.objects.get_for_model
-            role.creatable_ctypes.set([get_ct(model) for model in creatable_models])
-
-        self.role = role
-
-        basic_user = self.create_user(
-            index=1,
-            role=role,
-        )
-
-        self.user, self.other_user = (
-            superuser, basic_user,
-        ) if is_superuser else (
-            basic_user, superuser,
-        )
-
-        logged = self.client.login(username=self.user.username, password=password)
-        self.assertTrue(logged, 'Not logged in')
-
-        return self.user
+    # def login(self, is_superuser=True, is_staff=False, allowed_apps=('creme_core',),
+    #           creatable_models=None, admin_4_apps=()):
+    #     warnings.warn(
+    #         f'The method {type(self).__name__}.login() is deprecated;'
+    #         f'use the methods login_as_*() instead.',
+    #         DeprecationWarning
+    #     )
+    #     self.password = password = 'test'
+    #
+    #     superuser = self.create_user(
+    #         index=0,
+    #         is_staff=is_staff,
+    #     )
+    #
+    #     role = UserRole(name='Basic')
+    #     role.allowed_apps = allowed_apps
+    #     role.admin_4_apps = admin_4_apps
+    #     role.save()
+    #
+    #     if creatable_models is not None:
+    #         get_ct = ContentType.objects.get_for_model
+    #         role.creatable_ctypes.set([get_ct(model) for model in creatable_models])
+    #
+    #     self.role = role
+    #
+    #     basic_user = self.create_user(
+    #         index=1,
+    #         role=role,
+    #     )
+    #
+    #     self.user, self.other_user = (
+    #         superuser, basic_user,
+    #     ) if is_superuser else (
+    #         basic_user, superuser,
+    #     )
+    #
+    #     logged = self.client.login(username=self.user.username, password=password)
+    #     self.assertTrue(logged, 'Not logged in')
+    #
+    #     return self.user
 
     def assertCountOccurrences(self, member, container, count, msg=None):
         """Like <self.assertEqual(count, container.count(member))>
@@ -725,20 +725,21 @@ class _CremeTestCase:
     def build_merge_url(entity1, entity2):
         return reverse('creme_core__merge_entities') + f'?id1={entity1.id}&id2={entity2.id}'
 
-    # def build_request(self, url='/', user=None):
-    def build_request(self, *, url='/', user=None):
+    # def build_request(self, *, url='/', user=None):
+    def build_request(self, *, user, url='/'):
         request = self.request_factory.get(url)
         request.session = SessionBase()
 
-        if user is None:
-            warnings.warn(
-                f'Passing no "user" argument to the method '
-                f'{type(self).__name__}.build_request() is deprecated.',
-                DeprecationWarning
-            )
-            request.user = self.user
-        else:
-            request.user = user
+        # if user is None:
+        #     warnings.warn(
+        #         f'Passing no "user" argument to the method '
+        #         f'{type(self).__name__}.build_request() is deprecated.',
+        #         DeprecationWarning
+        #     )
+        #     request.user = self.user
+        # else:
+        #     request.user = user
+        request.user = user
 
         return request
 

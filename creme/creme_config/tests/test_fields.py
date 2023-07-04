@@ -35,12 +35,12 @@ from creme.creme_core.tests.fake_menu import (
 )
 from creme.creme_core.tests.forms.base import FieldTestCase
 
+# from ..forms.fields import CustomEnumChoiceField
 from ..forms.fields import (
     BricksConfigField,
     CreatorEnumerableModelChoiceField,
     CreatorModelChoiceField,
     CreatorModelMultipleChoiceField,
-    CustomEnumChoiceField,
     CustomMultiEnumChoiceField,
     MenuEntriesField,
 )
@@ -564,150 +564,150 @@ class CreatorModelMultipleChoiceFieldTestCase(_ConfigFieldTestCase):
         self.assertTupleEqual((self.ADD_URL, True), field.creation_url_n_allowed)
 
 
-class CustomEnumChoiceFieldTestCase(_ConfigFieldTestCase):  # DEPRECATED
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.admin = cls.create_admin()
-
-    @staticmethod
-    def _build_url(cfield):
-        return reverse('creme_config__add_custom_enum', args=(cfield.id,))
-
-    def test_ok(self):
-        cfield = CustomField.objects.create(
-            name='Programming languages',
-            content_type=FakeContact,
-            field_type=CustomField.ENUM,
-        )
-
-        create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
-        cfeval01 = create_evalue(value='C')
-        cfeval02 = create_evalue(value='Python')
-
-        admin = self.admin
-        field = CustomEnumChoiceField(
-            custom_field=cfield,
-            user=admin,
-            choices=[
-                ('', '-------'),
-                (cfeval01.id, cfeval01.value),
-                (cfeval02.id, cfeval02.value),
-            ],
-            required=False,
-        )
-        self.assertEqual(cfield, field.custom_field)
-        self.assertEqual(admin, field.user)
-
-        url = self._build_url(cfield)
-
-        widget = field.widget
-        self.assertIs(widget.creation_allowed, True)
-        self.assertEqual(url, widget.creation_url)
-
-        expected_label = _('Create a choice')
-        self.assertEqual(expected_label, widget.creation_label)
-
-        name = f'cfield_{cfield.id}'
-        render_str = field.widget.render(name, None)
-        self.assertIn(url, render_str)
-        self.assertIn(expected_label, render_str)
-
-        self.assertEqual(cfeval01.id, field.clean(str(cfeval01.id)))
-        self.assertEqual(cfeval02.id, field.clean(str(cfeval02.id)))
-        self.assertEqual('',          field.clean(''))
-
-    def test_user_property(self):
-        cfield = CustomField.objects.create(
-            name='Programming languages',
-            content_type=FakeContact,
-            field_type=CustomField.ENUM,
-        )
-        field = CustomEnumChoiceField(custom_field=cfield)
-        self.assertIsNone(field.user)
-
-        widget = field.widget
-        self.assertIs(widget.creation_allowed, False)
-        self.assertEqual('', widget.creation_url)
-        self.assertEqual(_('Create a choice'), widget.creation_label)
-
-        # ---
-        field.user = self.admin
-        self.assertTrue(widget.creation_allowed)
-        self.assertEqual(self._build_url(cfield), widget.creation_url)
-
-        # ---
-        field.user = None
-        self.assertFalse(widget.creation_allowed)
-
-    def test_custom_field_property(self):
-        cfield = CustomField.objects.create(
-            name='Programming languages',
-            content_type=FakeContact,
-            field_type=CustomField.ENUM,
-        )
-        field = CustomEnumChoiceField(user=self.admin)
-        self.assertIsNone(field.custom_field)
-
-        widget = field.widget
-        self.assertIs(widget.creation_allowed, False)
-        self.assertEqual('', widget.creation_url)
-        self.assertEqual(_('Create a choice'), widget.creation_label)
-
-        # ---
-        field.custom_field = cfield
-        self.assertTrue(widget.creation_allowed)
-        self.assertEqual(self._build_url(cfield), widget.creation_url)
-
-        # ---
-        field.custom_field = None
-        self.assertFalse(widget.creation_allowed)
-
-    def test_permission(self):
-        user = self.create_user(
-            index=1, role=self.create_role(name='Not admin', allowed_apps=['creme_core']),
-        )
-        cfield = CustomField.objects.create(
-            name='Programming languages',
-            content_type=FakeContact,
-            field_type=CustomField.ENUM,
-        )
-        field = CustomEnumChoiceField(custom_field=cfield, user=user)
-
-        self.assertFalse(field.widget.creation_allowed)
-
-    def test_create_action_url_property(self):
-        cfield = CustomField.objects.create(
-            name='Programming languages',
-            content_type=FakeContact,
-            field_type=CustomField.ENUM,
-        )
-        field = CustomEnumChoiceField(custom_field=cfield)
-
-        self.assertEqual('', field.create_action_url)
-        self.assertTupleEqual(('', False), field.creation_url_n_allowed)
-
-        field.create_action_url = url = f'this/is/an/url/{cfield.id}'
-        self.assertTupleEqual((url, False), field.creation_url_n_allowed)
-
-        field.user = self.admin
-        self.assertTupleEqual((url, True), field.creation_url_n_allowed)
-
-    def test_creation_url_n_allowed(self):
-        cfield = CustomField.objects.create(
-            name='Programming languages',
-            content_type=FakeContact,
-            field_type=CustomField.ENUM,
-        )
-        field = CustomEnumChoiceField(custom_field=cfield)
-
-        self.assertTupleEqual(('', False), field.creation_url_n_allowed)
-
-        field.user = self.admin
-        self.assertTupleEqual(
-            (reverse('creme_config__add_custom_enum', args=(cfield.id,)), True),
-            field.creation_url_n_allowed
-        )
+# class CustomEnumChoiceFieldTestCase(_ConfigFieldTestCase):
+#     @classmethod
+#     def setUpClass(cls):
+#         super().setUpClass()
+#         cls.admin = cls.create_admin()
+#
+#     @staticmethod
+#     def _build_url(cfield):
+#         return reverse('creme_config__add_custom_enum', args=(cfield.id,))
+#
+#     def test_ok(self):
+#         cfield = CustomField.objects.create(
+#             name='Programming languages',
+#             content_type=FakeContact,
+#             field_type=CustomField.ENUM,
+#         )
+#
+#         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
+#         cfeval01 = create_evalue(value='C')
+#         cfeval02 = create_evalue(value='Python')
+#
+#         admin = self.admin
+#         field = CustomEnumChoiceField(
+#             custom_field=cfield,
+#             user=admin,
+#             choices=[
+#                 ('', '-------'),
+#                 (cfeval01.id, cfeval01.value),
+#                 (cfeval02.id, cfeval02.value),
+#             ],
+#             required=False,
+#         )
+#         self.assertEqual(cfield, field.custom_field)
+#         self.assertEqual(admin, field.user)
+#
+#         url = self._build_url(cfield)
+#
+#         widget = field.widget
+#         self.assertIs(widget.creation_allowed, True)
+#         self.assertEqual(url, widget.creation_url)
+#
+#         expected_label = _('Create a choice')
+#         self.assertEqual(expected_label, widget.creation_label)
+#
+#         name = f'cfield_{cfield.id}'
+#         render_str = field.widget.render(name, None)
+#         self.assertIn(url, render_str)
+#         self.assertIn(expected_label, render_str)
+#
+#         self.assertEqual(cfeval01.id, field.clean(str(cfeval01.id)))
+#         self.assertEqual(cfeval02.id, field.clean(str(cfeval02.id)))
+#         self.assertEqual('',          field.clean(''))
+#
+#     def test_user_property(self):
+#         cfield = CustomField.objects.create(
+#             name='Programming languages',
+#             content_type=FakeContact,
+#             field_type=CustomField.ENUM,
+#         )
+#         field = CustomEnumChoiceField(custom_field=cfield)
+#         self.assertIsNone(field.user)
+#
+#         widget = field.widget
+#         self.assertIs(widget.creation_allowed, False)
+#         self.assertEqual('', widget.creation_url)
+#         self.assertEqual(_('Create a choice'), widget.creation_label)
+#
+#         # ---
+#         field.user = self.admin
+#         self.assertTrue(widget.creation_allowed)
+#         self.assertEqual(self._build_url(cfield), widget.creation_url)
+#
+#         # ---
+#         field.user = None
+#         self.assertFalse(widget.creation_allowed)
+#
+#     def test_custom_field_property(self):
+#         cfield = CustomField.objects.create(
+#             name='Programming languages',
+#             content_type=FakeContact,
+#             field_type=CustomField.ENUM,
+#         )
+#         field = CustomEnumChoiceField(user=self.admin)
+#         self.assertIsNone(field.custom_field)
+#
+#         widget = field.widget
+#         self.assertIs(widget.creation_allowed, False)
+#         self.assertEqual('', widget.creation_url)
+#         self.assertEqual(_('Create a choice'), widget.creation_label)
+#
+#         # ---
+#         field.custom_field = cfield
+#         self.assertTrue(widget.creation_allowed)
+#         self.assertEqual(self._build_url(cfield), widget.creation_url)
+#
+#         # ---
+#         field.custom_field = None
+#         self.assertFalse(widget.creation_allowed)
+#
+#     def test_permission(self):
+#         user = self.create_user(
+#             index=1, role=self.create_role(name='Not admin', allowed_apps=['creme_core']),
+#         )
+#         cfield = CustomField.objects.create(
+#             name='Programming languages',
+#             content_type=FakeContact,
+#             field_type=CustomField.ENUM,
+#         )
+#         field = CustomEnumChoiceField(custom_field=cfield, user=user)
+#
+#         self.assertFalse(field.widget.creation_allowed)
+#
+#     def test_create_action_url_property(self):
+#         cfield = CustomField.objects.create(
+#             name='Programming languages',
+#             content_type=FakeContact,
+#             field_type=CustomField.ENUM,
+#         )
+#         field = CustomEnumChoiceField(custom_field=cfield)
+#
+#         self.assertEqual('', field.create_action_url)
+#         self.assertTupleEqual(('', False), field.creation_url_n_allowed)
+#
+#         field.create_action_url = url = f'this/is/an/url/{cfield.id}'
+#         self.assertTupleEqual((url, False), field.creation_url_n_allowed)
+#
+#         field.user = self.admin
+#         self.assertTupleEqual((url, True), field.creation_url_n_allowed)
+#
+#     def test_creation_url_n_allowed(self):
+#         cfield = CustomField.objects.create(
+#             name='Programming languages',
+#             content_type=FakeContact,
+#             field_type=CustomField.ENUM,
+#         )
+#         field = CustomEnumChoiceField(custom_field=cfield)
+#
+#         self.assertTupleEqual(('', False), field.creation_url_n_allowed)
+#
+#         field.user = self.admin
+#         self.assertTupleEqual(
+#             (reverse('creme_config__add_custom_enum', args=(cfield.id,)), True),
+#             field.creation_url_n_allowed
+#         )
 
 
 class CustomMultiEnumChoiceFieldTestCase(_ConfigFieldTestCase):

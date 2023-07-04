@@ -938,8 +938,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         user = self.get_root_user()
 
         registry = _FieldPrintersRegistry()
-        as_html = registry.get_html_field_value  # DEPRECATED
-        as_csv = registry.get_csv_field_value  # DEPRECATED
+        # as_html = registry.get_html_field_value  # DEPRECATED
+        # as_csv = registry.get_csv_field_value  # DEPRECATED
 
         sector = FakeSector.objects.all()[0]
         img = FakeImage.objects.create(user=user, name='Mars pix')
@@ -950,29 +950,29 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         render_field = partial(registry.get_field_value, instance=o, user=user)
 
-        self.assertEqual(o.name, as_html(o, 'name', user))
-        self.assertEqual(o.name, as_csv(o, 'name', user))
+        # self.assertEqual(o.name, as_html(o, 'name', user))
+        # self.assertEqual(o.name, as_csv(o, 'name', user))
         self.assertEqual(o.name, render_field(field_name='name', tag=ViewTag.HTML_DETAIL))
         self.assertEqual(o.name, render_field(field_name='name', tag=ViewTag.TEXT_PLAIN))
 
-        self.assertHTMLEqual(
-            '<a href="{url}" target="_blank">{url}</a>'.format(url=o.url_site),
-            as_html(o, 'url_site', user),
-        )
+        # self.assertHTMLEqual(
+        #     '<a href="{url}" target="_blank">{url}</a>'.format(url=o.url_site),
+        #     as_html(o, 'url_site', user),
+        # )
         self.assertHTMLEqual(
             '<a href="{url}" target="_blank">{url}</a>'.format(url=o.url_site),
             render_field(field_name='url_site', tag=ViewTag.HTML_DETAIL),
         )
-        self.assertEqual(o.url_site, as_csv(o, 'url_site', user))
+        # self.assertEqual(o.url_site, as_csv(o, 'url_site', user))
         self.assertEqual(o.url_site, render_field(field_name='url_site', tag=ViewTag.TEXT_PLAIN))
 
-        self.assertEqual(sector.title, as_html(o, 'sector', user))
-        self.assertEqual(sector.title, as_csv(o, 'sector', user))
+        # self.assertEqual(sector.title, as_html(o, 'sector', user))
+        # self.assertEqual(sector.title, as_csv(o, 'sector', user))
         self.assertEqual(sector.title, render_field(field_name='sector', tag=ViewTag.HTML_DETAIL))
         self.assertEqual(sector.title, render_field(field_name='sector', tag=ViewTag.TEXT_PLAIN))
 
-        self.assertEqual(sector.title, as_html(o, 'sector__title', user))
-        self.assertEqual(sector.title, as_csv(o, 'sector__title', user))
+        # self.assertEqual(sector.title, as_html(o, 'sector__title', user))
+        # self.assertEqual(sector.title, as_csv(o, 'sector__title', user))
         self.assertEqual(
             sector.title, render_field(field_name='sector__title', tag=ViewTag.HTML_DETAIL),
         )
@@ -1031,8 +1031,8 @@ class FieldsPrintersTestCase(CremeTestCase):
             return f'<span data-type="integer">{value}</span>'
 
         registry: _FieldPrintersRegistry = _FieldPrintersRegistry(
-        ).register(  # DEPRECATED
-            models.CharField, print_charfield_html
+        ).register_model_field_type(
+            type=models.CharField, printer=print_charfield_html, tags='html*',
         ).register_model_field_type(
             type=models.CharField, printer=print_charfield_csv, tags='text*',
         ).register_model_field_type(
