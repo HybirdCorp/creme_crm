@@ -1,7 +1,5 @@
 == Version 2.4.5 Work in progress (not released -- this is a draft) ==
 
-  TODO compile *.mo (creme_core, creme_config)
-
   UPGRADE NOTE :
     - You should re-generate the media files (creme generatemedia --settings=[...]).
 
@@ -23,7 +21,7 @@
         * Reports :
             - In preview's filter-form, the fields configured as hidden are now excluded as expected.
         * Geolocation :
-            - Disable map bricks when the entity is in the trash.
+            - The bricks are disabled when the entity is in the trash.
 
   Developers side :
   -----------------
