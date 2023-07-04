@@ -3,22 +3,18 @@ from django.db import migrations
 
 def generate_line_ordering(apps, schema_editor):
     from creme.creme_core.core.paginator import FlowPaginator
-    from creme.creme_core.models import CremeModel
 
     from ..constants import REL_OBJ_HAS_LINE
 
     doc_models = [
-        apps.get_model('billing', name) for name in (
-            'Invoice', 'Quote', 'CreditNote', 'SalesOrder'
-        )
+        apps.get_model('billing', name)
+        for name in ('Invoice', 'Quote', 'CreditNote', 'SalesOrder')
     ]
 
     line_models = [
-        apps.get_model('billing', name) for name in (
-            'ProductLine', 'ServiceLine'
-        )
+        apps.get_model('billing', name)
+        for name in ('ProductLine', 'ServiceLine')
     ]
-
 
     for doc_model in doc_models:
         paginator = FlowPaginator(
@@ -39,7 +35,6 @@ def generate_line_ordering(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('billing', '0030_v2_5__lines_order'),
     ]
