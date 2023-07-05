@@ -1,16 +1,22 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sessions.backends.base import SessionBase
+from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.creme_core.core.entity_filter import condition_handler, operators
+from creme.creme_core.gui.bricks import BricksManager
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
     EntityFilter,
 )
+from creme.creme_core.models.relation import Relation
 from creme.creme_core.tests.base import OverrideSettingValueContext
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.constants import FILTER_CONTACT_ME, FILTER_MANAGED_ORGA
@@ -387,4 +393,49 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertIn(
             f"""tileMapAttribution: '&copy; <a href="{cright_url}">{cright_title}</a>'""",
             script_node.text,
+        )
+
+    def build_context(self, instance, user):
+        request = RequestFactory().get(instance.get_absolute_url())
+        request.session = SessionBase()
+        request.user = user
+
+        ContentType.objects.get_for_model(Relation)  # Fill cache
+
+        return {
+            'object': instance,
+            'request': request,
+            'user': user,
+            BricksManager.var_name: BricksManager(),
+        }
+
+    @skipIfCustomAddress
+    @parameterized.expand([
+        (OpenStreetMapNeighboursMapBrick,),
+        (OpenStreetMapDetailMapBrick,),
+        (GoogleNeighboursMapBrick,),
+        (GoogleDetailMapBrick,),
+    ])
+    def test_disabled_bricks(self, brick_class):
+        user = self.user
+        contact = Contact.objects.create(last_name='Contact 1', user=user)
+
+        context = self.build_context(user=user, instance=contact)
+
+        render = brick_class().detailview_display(context)
+        brick_node = self.get_brick_node(self.get_html_tree(render), brick_class.id_)
+
+        self.assertEqual(
+            _("No address defined for now"),
+            brick_node.find('.//div[@class="geolocation-empty-brick"]').text
+        )
+
+        contact.trash()
+
+        render = brick_class().detailview_display(context)
+        brick_node = self.get_brick_node(self.get_html_tree(render), brick_class.id_)
+
+        self.assertEqual(
+            _("The geolocation feature is disabled for the entities in the trash"),
+            brick_node.find('.//div[@class="geolocation-empty-brick"]').text
         )

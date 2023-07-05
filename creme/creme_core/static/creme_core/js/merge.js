@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -54,7 +54,8 @@ creme.merge.initializeMergeForm = function(form) {
     };
 
     form.each(function() {
-        var button_html = '<input type="button" />';
+//        var button_html = '<input type="button" />';
+        var button_html = '<button type="button">';
         var li_html = '<li class="li_merge_button"></li>';
 
         $(this).find('.merge_entity_field').each(function() {
@@ -66,12 +67,29 @@ creme.merge.initializeMergeForm = function(form) {
             var $source_B = $('[name="' + name + '_2"]', this);
 
             // jquery 1.9x migration : avoid attr('value') for inputs.
+            // TODO: use an icon font (like "foundation")?
+/*
             $result_li.before($(li_html).append($(button_html).val('⏵').on('click', function() {
                 copyTo($source_A, $merged);
             })));
             $result_li.after($(li_html).append($(button_html).val('⏴').on('click', function() {
                 copyTo($source_B, $merged);
             })));
+*/
+            $result_li.before(
+                $(li_html).append(
+                    $(button_html).on('click', function() {
+                        copyTo($source_A, $merged);
+                    }).append('<div class="merge-right-arrow" />')
+                )
+            );
+            $result_li.after(
+                $(li_html).append(
+                    $(button_html).on('click', function() {
+                        copyTo($source_B, $merged);
+                    }).append('<div class="merge-left-arrow" />')
+                )
+            );
         });
     });
 };

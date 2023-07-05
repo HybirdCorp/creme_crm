@@ -494,14 +494,13 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
     <div class="checklist-header">
         <a type="button" class="checklist-check-all hidden">{check_all}</a>
         <a type="button" class="checklist-check-none hidden">{check_none}</a>
-        <a type="button" class="checklist-create" disabled href="{create_url}">{create_lbl}</a>
+        <a type="button" class="checklist-create is-disabled">{create_lbl}</a>
     </div>
     <div class="checklist-body"><ul class="checklist-content"></ul></div>
 </div>'''.format(
             name=name,
             check_all=_('Check all'),
             check_none=_('Check none'),
-            create_url='/add',
             create_lbl=_('Create'),
         )
         self.assertHTMLEqual(html, select.render(name, ()))

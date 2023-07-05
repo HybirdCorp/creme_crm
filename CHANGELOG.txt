@@ -1,3 +1,24 @@
+== Version 2.3.13 ==
+
+  UPGRADE NOTE :
+    - You should upgrade the minor version of Django 3.2 (3.2.20 or more).
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+    # The multi-check-box widget ('UnorderedMultipleChoiceWidget') has been fixed :
+      the creation button is now correctly disabled if the user is not allowed to create the resource.
+    # The arrows buttons in merge forms have been reworked (their glyph had to be provided bu the user's system).
+    # The glass-pane (used by global search) had an issue when it was re-opened and the focus came back from another window.
+    # Apps :
+        * Persons :
+            - The field 'Organisation.is_managed' is not cloned anymore.
+        * Reports :
+            - In preview's filter-form, the fields configured as hidden are now excluded as expected.
+        * Geolocation :
+            - The bricks are disabled when the entity is in the trash.
+
+
 == Version 2.3.12 ==
 
   Users side :

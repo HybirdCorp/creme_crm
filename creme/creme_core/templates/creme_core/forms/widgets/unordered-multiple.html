@@ -15,7 +15,11 @@
         {% endif %}
 
         {% if creation_url %}
-        <a type="button" class="checklist-create" href="{{creation_url}}"{% if not creation_allowed %} disabled{% endif %}>{{widget.creation_label}}</a>
+            {% if creation_allowed %}
+            <a type="button" class="checklist-create" href="{{creation_url}}">{{widget.creation_label}}</a>
+            {% else %}
+            <a type="button" class="checklist-create is-disabled">{{widget.creation_label}}</a>
+            {% endif %}
         {% endif %}
 
         {% if widget.filter_type %}
