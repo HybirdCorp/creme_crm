@@ -425,7 +425,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     margin-right: 2px;
 }
 
-.creme_config-menu-brick .menu-config-entry0-header {
+.creme_config-menu-brick .menu-config-item .menu-config-entry0-header {
     display: flex;
     align-items: center;
 
@@ -441,7 +441,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     color: #646464;
 }
 
-.creme_config-menu-brick .menu-config-entry0-content {
+.creme_config-menu-brick .menu-config-item .menu-config-entry0-content {
     padding: 3px;
 
     background: #414141;
@@ -451,6 +451,11 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     color: #ebebeb;
     font-size: 13px;
     font-weight: 600;
+}
+
+.creme_config-menu-brick .menu-config-item.is-disabled .menu-config-entry0-header,
+.creme_config-menu-brick .menu-config-item.is-disabled .menu-config-entry0-content {
+    cursor: not-allowed;
 }
 
 .creme_config-menu-brick .menu-config-entry0-content ul {

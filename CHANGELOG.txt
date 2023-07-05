@@ -1,3 +1,44 @@
+== Version 2.4.5 ==
+
+  UPGRADE NOTE :
+    - You should upgrade the minor version of Django 3.2 (3.2.20 or more).
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+    # Inner-popups have been improved when you are logged out.
+      A broken login form was displayed inside the popup; now a message & a button (to go to the login page) are displayed.
+    # The multi-check-box widget ('UnorderedMultipleChoiceWidget') has been fixed :
+      the creation button is now correctly disabled if the user is not allowed to create the resource.
+    # The arrows buttons in merge forms have been reworked (their glyph had to be provided bu the user's system).
+    # The glass-pane (used by global search) had an issue when it was re-opened and the focus came back from another window.
+    # Apps :
+        * Creme_config :
+            - In menu configuration, "drag'n drop" is disabled when the edition is not allowed.
+        * Persons :
+            - The field 'Organisation.is_managed' is not cloned anymore.
+        * Assistants :
+            - An issue when editing an Alert with a relative date period has been fixed.
+        * Reports :
+            - In preview's filter-form, the fields configured as hidden are now excluded as expected.
+        * Geolocation :
+            - The bricks are disabled when the entity is in the trash.
+
+  Developers side :
+  -----------------
+
+    Breaking changes :
+    ------------------
+        # The method 'creme_core.forms.fields.RelativeDatePeriodField.clean()' returns now an instance of
+          'RelativeDatePeriodField.RelativeDatePeriod', & not a tuple anymore.
+          The data returned by the related widget changed too.
+        # Apps :
+             * Assistants :
+                - The method 'forms.alert.ModelRelativeDatePeriodField.clean()' returns a now an instance of
+                  'ModelRelativeDatePeriodField.ModelRelativeDatePeriod', & not a tuple anymore.
+                  The data returned by the related widget changed too.
+
+
 == Version 2.4.4 ==
 
   UPGRADE NOTE :

@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2022 Hybird
+# Copyright (C) 2023 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" -i "templates/creme_core/tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-17 10:20+0200\n"
+"POT-Creation-Date: 2023-06-27 17:41+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2377,6 +2377,9 @@ msgstr "Ligne d'historique"
 msgid "Lines of history"
 msgstr "Lignes d'historique"
 
+msgid "Create a language"
+msgstr "Créer une langue"
+
 msgid "Languages"
 msgstr "Langues"
 
@@ -3763,6 +3766,9 @@ msgstr ""
 
 msgid "You are not allowed to access this view."
 msgstr "Vous n'avez pas la permission d'accéder à cette page."
+
+msgid "It seems you logged out."
+msgstr "Vous semblez vous être déconnecté(e)."
 
 #, python-brace-format
 msgid ""

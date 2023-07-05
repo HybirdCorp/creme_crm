@@ -42,7 +42,10 @@ ul.ui-layout.hbox li {
     vertical-align: middle;
     padding-right: 4px;
 }
-ul.ui-layout.hbox li input { margin: 0px 2px; }
+ul.ui-layout.hbox li input,
+ul.ui-layout.hbox li button {
+    margin: 0px 2px;
+}
 
 ul.ui-layout.vbox li { position:relative; display:block; }
 
@@ -454,6 +457,15 @@ input:disabled + .ui-datepicker-trigger {
 
 .ui-creme-checklistselect .checklist-header a.hidden {
     display: none;
+}
+
+.ui-creme-checklistselect .checklist-header a.is-disabled {
+    opacity: 0.5;
+}
+
+.ui-creme-checklistselect .checklist-header a.is-disabled:hover {
+    text-decoration: none;
+    cursor: default;
 }
 
 .ui-creme-checklistselect .checklist-header .checklist-filter {
