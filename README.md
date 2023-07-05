@@ -89,13 +89,13 @@ virtual env, in order to keep the old one working).
 Installation with 'pip':
  - You should probably use "virtualenv".
  - To install Creme itself :
-   - You can just install from pyPI: 'pip install creme-crm==2.4'
+   - You can just install from pyPI: 'pip install creme-crm==2.5'
    - If you retrieved the source, you can use the following command at the source's root: 'pip install -e .'
  - About DB server :
    - If you use MySQL/MariaDB, you must add the 'mysql' flag :
-     'pip install creme-crm[mysql]==2.4' (or 'pip install -e .[mysql]' with the source).
+     'pip install creme-crm[mysql]==2.5' (or 'pip install -e .[mysql]' with the source).
    - For PostGreSQL,  you must add the 'pgsql' flag :
-     'pip install creme-crm[pgsql]==2.4' (or 'pip install -e .[pgsql]' with the source).
+     'pip install creme-crm[pgsql]==2.5' (or 'pip install -e .[pgsql]' with the source).
    - SQLite doesn't require a specific flag (see RECOMMENDATIONS).
  - Notice some of these Python packages need system libraries to be installed.
    For example, here a list of Debian/Ubuntu packages you'll have to install before:
