@@ -1,10 +1,12 @@
+from django.utils.translation import gettext as _
+
 from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
 
 from ..base import CremeTestCase
 
 
 class SettingKeyTestCase(CremeTestCase):
-    def test_register(self):
+    def test_registry_register(self):
         sk1 = SettingKey(
             'creme_core-test_sk_string',
             description='Page title',
@@ -61,7 +63,7 @@ class SettingKeyTestCase(CremeTestCase):
         with self.assertRaises(registry.RegistrationError):
             registry.unregister(sk3)
 
-    def test_duplicate(self):
+    def test_registry_register_with_duplicate(self):
         sk1 = SettingKey(
             'creme_core-test_sk_string',
             description='Page title',
@@ -120,3 +122,87 @@ class SettingKeyTestCase(CremeTestCase):
             'and boring description<br/>',
             sk.description_html,
         )
+
+    def test_string(self):
+        sk = SettingKey(
+            'creme_core-test_sk_string',
+            description='Short description',
+            app_label='creme_core',
+            type=SettingKey.STRING,
+        )
+        value1 = 'foobar'
+        self.assertEqual(value1, sk.cast(value1))
+        self.assertEqual(value1, sk.value_as_html(value1))
+
+        value2 = 'baz'
+        self.assertEqual(value2, sk.cast(value2))
+        self.assertEqual(value2, sk.value_as_html(value2))
+
+    def test_int(self):
+        sk = SettingKey(
+            'creme_core-test_sk_int',
+            description='Short description',
+            app_label='creme_core',
+            type=SettingKey.INT,
+        )
+        self.assertEqual(123, sk.cast('123'))
+        self.assertEqual(456, sk.cast('456'))
+
+        self.assertRaises(ValueError, sk.cast, 'nan')
+
+        self.assertEqual('789', sk.value_as_html(789))
+        self.assertEqual('42',  sk.value_as_html(42))
+
+    def test_bool(self):
+        sk = SettingKey(
+            'creme_core-test_sk_bool',
+            description='Short description',
+            app_label='creme_core',
+            type=SettingKey.BOOL,
+        )
+        self.assertIs(sk.cast('true'),  True)
+        self.assertIs(sk.cast('false'), False)
+
+        self.assertRaises(ValueError, sk.cast, '1')
+
+        self.assertEqual(
+            f'<input type="checkbox" checked disabled/>{_("Yes")}',
+            sk.value_as_html('true'),
+        )
+
+    def test_hour(self):
+        sk = SettingKey(
+            'creme_core-test_sk_hour',
+            description='Short description',
+            app_label='creme_core',
+            type=SettingKey.HOUR,
+        )
+        self.assertEqual(8, sk.cast('8'))
+        self.assertEqual(22, sk.cast('22'))
+
+        self.assertRaises(ValueError, sk.cast, 'nan')
+        # self.assertRaises(ValueError, sk.cast, '24')  # TODO?
+
+        self.assertEqual(
+            _('{hour}h').format(hour=8),
+            sk.value_as_html('8'),
+        )
+
+    def test_email(self):
+        sk = SettingKey(
+            'creme_core-test_sk_email',
+            description='Short description',
+            app_label='creme_core',
+            type=SettingKey.EMAIL,
+        )
+        value1 = 'foo@bar.com'
+        self.assertEqual(value1, sk.cast(value1))
+
+        value2 = 'baz@stuuf.org'
+        self.assertEqual(value2, sk.cast(value2))
+
+        # self.assertRaises(ValueError, sk.cast, 'not_email')  # TODO?
+
+        self.assertEqual(value1, sk.value_as_html(value1))
+
+# TODO: test unregister
