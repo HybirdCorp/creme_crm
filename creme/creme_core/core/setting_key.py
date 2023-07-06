@@ -50,7 +50,7 @@ class _SettingKey:
         INT:    int,
         BOOL:   bool_from_str,
         HOUR:   int,  # TODO: validate 0 =< x =< 23  ??
-        EMAIL:  str,
+        EMAIL:  str,  # TODO: validate email?
     }
 
     HTML_PRINTERS: dict[int, Callable[[Any], str]] = {
@@ -69,15 +69,16 @@ class _SettingKey:
                  app_label: str,
                  type: int = STRING,
                  hidden: bool = False,
-                 blank: bool = False):
+                 blank: bool = False,
+                 ):
         """Constructor.
-        @param id: Unique String. Use something like 'my_app-key_name'
+        @param id: Unique String. Use something like "my_app-key_name".
         @param description: Used in the configuration GUI ;
                use a gettext_lazy() instance ('' is OK if hidden==True).
-        @param app_label: Eg: 'creme_core'
-        @param type: Integer ; see: _SettingKey.STRING, _SettingKey.INT ...
-        @param hidden: Boolean. If True, it can not be seen in the configuration GUI.
-        @param blank: Boolean. If True, the value is not required in the configuration GUI.
+        @param app_label: Eg: "creme_core".
+        @param see: _SettingKey.STRING, _SettingKey.INT ...
+        @param hidden: If True, it can not be seen in the configuration GUI.
+        @param blank: If True, the value is not required in the configuration GUI.
         """
         self.id          = id
         self.description = description
@@ -110,11 +111,9 @@ class _SettingKey:
         ))
 
     def value_as_html(self, value) -> str:
-        printer = self.HTML_PRINTERS.get(self.type)
-        if printer is not None:
-            value = printer(value)
+        printer = self.HTML_PRINTERS.get(self.type, str)
 
-        return value
+        return printer(value)
 
 
 class SettingKey(_SettingKey):

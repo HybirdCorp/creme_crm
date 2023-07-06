@@ -62,7 +62,7 @@ class SettingValueTestCase(CremeTestCase):
 
         sv = self.refresh(sv)
         self.assertEqual(size, sv.value)
-        self.assertEqual(size, sv.as_html)
+        self.assertEqual(f'{size}', sv.as_html)
 
         # ---
         size += 1
