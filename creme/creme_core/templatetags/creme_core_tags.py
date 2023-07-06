@@ -181,7 +181,7 @@ def _bool(object1):
     return bool(object1)
 
 
-# NB: seems unused...
+# NB: shortcut for stringformat:'s'
 @register.filter(name='str')
 def _str(object1):
     return str(object1)
