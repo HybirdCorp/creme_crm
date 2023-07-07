@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,23 +16,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import BooleanField, CharField, EmailField, IntegerField
-from django.forms.widgets import Textarea
-from django.utils.translation import gettext
+# from django.forms import BooleanField, CharField, EmailField, IntegerField
+from django.forms import CharField
+# from django.forms.widgets import Textarea
+# from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.core.setting_key import SettingKey
+# from creme.creme_core.core.setting_key import SettingKey
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.models import SettingValue
 
-_FIELDS = {
-    SettingKey.STRING: lambda label: CharField(label=label, widget=Textarea),
-    SettingKey.INT:    IntegerField,
-    SettingKey.BOOL:   lambda label: BooleanField(label=label, required=False),
-    # TODO: an HourField inheriting ChoiceField ?? (+factorise with 'polls')
-    SettingKey.HOUR:   lambda label: IntegerField(label=label, min_value=0, max_value=23),
-    SettingKey.EMAIL:  EmailField,
-}
+# _FIELDS = {
+#     SettingKey.STRING: lambda label: CharField(label=label, widget=Textarea),
+#     SettingKey.INT:    IntegerField,
+#     SettingKey.BOOL:   lambda label: BooleanField(label=label, required=False),
+#     SettingKey.HOUR:   lambda label: IntegerField(label=label, min_value=0, max_value=23),
+#     SettingKey.EMAIL:  EmailField,
+# }
 
 
 class SettingForm(CremeModelForm):
@@ -44,20 +44,22 @@ class SettingForm(CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        fields = self.fields
+        # fields = self.fields
+        # svalue = self.instance
+        #
+        # field_class = _FIELDS.get(svalue.key.type)
+        #
+        # if field_class:
+        #     fields['value'] = field_class(label=gettext('Value'))
+        #
+        # value_f = fields['value']
+        # value_f.initial = svalue.value
+        #
+        # if svalue.key.blank:
+        #     value_f.required = value_f.widget.is_required = False
         svalue = self.instance
-
-        field_class = _FIELDS.get(svalue.key.type)
-
-        if field_class:
-            fields['value'] = field_class(label=gettext('Value'))
-
-        value_f = fields['value']
+        self.fields['value'] = value_f = svalue.key.formfield()
         value_f.initial = svalue.value
-
-        # We avoid "value_f.required = not svalue.key.blank" because BooleanField is never required
-        if svalue.key.blank:
-            value_f.required = value_f.widget.is_required = False
 
     def save(self, *args, **kwargs):
         self.instance.value = self.cleaned_data['value']
@@ -70,23 +72,29 @@ class UserSettingForm(CremeForm):
 
     def __init__(self, skey, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # self.skey = skey
+        # fields = self.fields
+        # field_class = _FIELDS.get(skey.type)
+        #
+        # if field_class:
+        #     fields['value'] = field_class(label=gettext('Value'))
+        #
+        # value_f = fields['value']
+        #
+        # try:
+        #     value_f.initial = self.user.settings[skey]
+        # except KeyError:
+        #     pass
+        #
+        # if skey.blank:
+        #     value_f.required = value_f.widget.is_required = False
         self.skey = skey
-        fields = self.fields
-        field_class = _FIELDS.get(skey.type)
-
-        if field_class:
-            fields['value'] = field_class(label=gettext('Value'))
-
-        value_f = fields['value']
+        self.fields['value'] = value_f = skey.formfield()
 
         try:
             value_f.initial = self.user.settings[skey]
         except KeyError:
             pass
-
-        # We avoid "value_f.required = not svalue.key.blank" because BooleanField is never required
-        if skey.blank:
-            value_f.required = value_f.widget.is_required = False
 
     def save(self, *args, **kwargs):
         c_value = self.cleaned_data['value']

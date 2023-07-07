@@ -1,3 +1,4 @@
+from django import forms
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -27,12 +28,19 @@ class SettingTestCase(CremeTestCase):
         sv.save()
 
         url = self._build_edit_url(sv)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
 
-        get_ctxt = response.context.get
-        self.assertEqual(_('Edit «{key}»').format(key=sk.description), get_ctxt('title'))
-        self.assertEqual(_('Save the modifications'),                  get_ctxt('submit_label'))
+        ctxt1 = response1.context
+        self.assertEqual(_('Edit «{key}»').format(key=sk.description), ctxt1.get('title'))
+        self.assertEqual(_('Save the modifications'),                  ctxt1.get('submit_label'))
+
+        with self.assertNoException():
+            value_f1 = ctxt1['form'].fields['value']
+
+        self.assertIsInstance(value_f1, forms.CharField)
+        self.assertIsInstance(value_f1.widget, forms.Textarea)
+        self.assertEqual(title, value_f1.initial)
 
         # ---
         title = title.upper()

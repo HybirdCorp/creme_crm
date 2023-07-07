@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 15-05-2023 pour la version 2.5 de Creme
+:Version: 12-09-2023 pour la version 2.6 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3014,6 +3014,29 @@ Et pour utiliser la valeur dans votre code : ::
 
     if SettingValue.objects.get(key_id=BEAVER_KEY_ID).value:
         [...]
+
+
+**Un peu plus loin** : vous pouvez donner à votre ``SettingKey`` le champ de
+formulaire à utiliser pour remplir la ``SettingValue`` associée. Voilà un
+exemple où notre valeur sera un nombre entier parmi un choix restreint, et
+l'utilisateur choisit parmi quelques labels : ::
+
+    from django import forms
+    from django.utils.translation import gettext_lazy as _
+
+    [...]
+
+    beaver_key = SettingKey(
+        id=constants.ANOTHER_KEY_ID,
+        description=_('*Set a description here*'),
+        app_label='beavers',
+        type=SettingKey.INT,
+        formfield_class=partial(
+            forms.TypedChoiceField,
+            choices=[('1', 'One'), ('2', 'Two'), ('3', 'Three')],
+            coerce=int,
+        ),
+    )
 
 
 Réglages par utilisateur
