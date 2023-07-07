@@ -1,4 +1,5 @@
 from django.utils.translation import gettext as _
+from django.utils.translation import override as override_language
 
 from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
 
@@ -150,8 +151,15 @@ class SettingKeyTestCase(CremeTestCase):
 
         self.assertRaises(ValueError, sk.cast, 'nan')
 
-        self.assertEqual('789', sk.value_as_html(789))
-        self.assertEqual('42',  sk.value_as_html(42))
+        with override_language('en'):
+            self.assertEqual('789',   sk.value_as_html(789))
+            self.assertEqual('42',    sk.value_as_html(42))
+            self.assertEqual('1,234', sk.value_as_html(1234))
+
+        with override_language('fr'):
+            self.assertEqual('789', sk.value_as_html(789))
+            self.assertEqual('42',  sk.value_as_html(42))
+            self.assertEqual('1 234', sk.value_as_html(1234))
 
     def test_bool(self):
         sk = SettingKey(

@@ -19,10 +19,12 @@
 from __future__ import annotations
 
 import logging
+from functools import partial
 from json import loads as json_load
 from typing import Any, Callable, Iterator
 
 from django.db.models import Model, TextField
+from django.utils.formats import number_format
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -54,6 +56,7 @@ class _SettingKey:
     }
 
     HTML_PRINTERS: dict[int, Callable[[Any], str]] = {
+        INT:    partial(number_format, force_grouping=True),
         BOOL:   bool_as_html,
         HOUR:   print_hour,
     }
