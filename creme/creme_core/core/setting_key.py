@@ -63,7 +63,7 @@ class _SettingKey:
     type: int
     hidden: bool
 
-    def __init__(self,
+    def __init__(self, *,
                  id: str,
                  description: str,
                  app_label: str,

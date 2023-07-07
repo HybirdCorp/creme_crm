@@ -8,20 +8,20 @@ from ..base import CremeTestCase
 class SettingKeyTestCase(CremeTestCase):
     def test_registry_register(self):
         sk1 = SettingKey(
-            'creme_core-test_sk_string',
+            id='creme_core-test_sk_string',
             description='Page title',
             app_label='creme_core',
             type=SettingKey.STRING,
             blank=True,
         )
         sk2 = SettingKey(
-            'creme_core-test_sk_int',
+            id='creme_core-test_sk_int',
             description='Page size',
             app_label='creme_core',
             type=SettingKey.INT, hidden=False,
         )
         sk3 = SettingKey(
-            'creme_core-test_sk_bool',
+            id='creme_core-test_sk_bool',
             description='Page hidden',
             app_label='creme_core',
             type=SettingKey.BOOL,
@@ -65,14 +65,14 @@ class SettingKeyTestCase(CremeTestCase):
 
     def test_registry_register_with_duplicate(self):
         sk1 = SettingKey(
-            'creme_core-test_sk_string',
+            id='creme_core-test_sk_string',
             description='Page title',
             app_label='creme_core',
             type=SettingKey.STRING,
             blank=True,
         )
         sk2 = SettingKey(
-            sk1.id,  # <===
+            id=sk1.id,  # <===
             description='Page size',
             app_label='creme_core',
             type=SettingKey.INT,
@@ -87,7 +87,7 @@ class SettingKeyTestCase(CremeTestCase):
 
     def test_description(self):
         sk = SettingKey(
-            'creme_core-test_sk_string',
+            id='creme_core-test_sk_string',
             description='Short description',
             app_label='creme_core',
             type=SettingKey.STRING,
@@ -97,7 +97,7 @@ class SettingKeyTestCase(CremeTestCase):
         self.assertEqual('Short description', sk.description_html)
 
         sk = SettingKey(
-            'creme_core-test_sk_string',
+            id='creme_core-test_sk_string',
             description=(
                 'This is a long,\n'
                 'multiline,\n'
@@ -125,7 +125,7 @@ class SettingKeyTestCase(CremeTestCase):
 
     def test_string(self):
         sk = SettingKey(
-            'creme_core-test_sk_string',
+            id='creme_core-test_sk_string',
             description='Short description',
             app_label='creme_core',
             type=SettingKey.STRING,
@@ -140,7 +140,7 @@ class SettingKeyTestCase(CremeTestCase):
 
     def test_int(self):
         sk = SettingKey(
-            'creme_core-test_sk_int',
+            id='creme_core-test_sk_int',
             description='Short description',
             app_label='creme_core',
             type=SettingKey.INT,
@@ -155,7 +155,7 @@ class SettingKeyTestCase(CremeTestCase):
 
     def test_bool(self):
         sk = SettingKey(
-            'creme_core-test_sk_bool',
+            id='creme_core-test_sk_bool',
             description='Short description',
             app_label='creme_core',
             type=SettingKey.BOOL,
@@ -172,7 +172,7 @@ class SettingKeyTestCase(CremeTestCase):
 
     def test_hour(self):
         sk = SettingKey(
-            'creme_core-test_sk_hour',
+            id='creme_core-test_sk_hour',
             description='Short description',
             app_label='creme_core',
             type=SettingKey.HOUR,
@@ -190,7 +190,7 @@ class SettingKeyTestCase(CremeTestCase):
 
     def test_email(self):
         sk = SettingKey(
-            'creme_core-test_sk_email',
+            id='creme_core-test_sk_email',
             description='Short description',
             app_label='creme_core',
             type=SettingKey.EMAIL,
