@@ -23,6 +23,7 @@ from functools import partial
 from json import loads as json_load
 from typing import Any, Callable, Iterator
 
+from django import forms
 from django.db.models import Model, TextField
 from django.utils.formats import number_format
 from django.utils.html import escape
@@ -38,6 +39,12 @@ logger = logging.getLogger(__name__)
 # TODO: move to utils ? rename hour_to_str() ?
 def print_hour(value) -> str:
     return _('{hour}h').format(hour=value)
+
+
+class _NeverRequiredBooleanField(forms.BooleanField):
+    def __init__(self, **kwargs):
+        kwargs['required'] = False
+        super().__init__(**kwargs)
 
 
 class _SettingKey:
@@ -61,6 +68,15 @@ class _SettingKey:
         HOUR:   print_hour,
     }
 
+    FORM_FIELDS = {
+        STRING: partial(forms.CharField, widget=forms.Textarea),
+        INT:    forms.IntegerField,
+        BOOL:   _NeverRequiredBooleanField,
+        # TODO: an HourField inheriting ChoiceField ?? (+factorise with 'polls')
+        HOUR:   partial(forms.IntegerField, min_value=0, max_value=23),
+        EMAIL:  forms.EmailField,
+    }
+
     id: str
     app_label: str
     type: int
@@ -73,6 +89,7 @@ class _SettingKey:
                  type: int = STRING,
                  hidden: bool = False,
                  blank: bool = False,
+                 formfield_class: type[forms.Field] | None = None,
                  ):
         """Constructor.
         @param id: Unique String. Use something like "my_app-key_name".
@@ -83,12 +100,13 @@ class _SettingKey:
         @param hidden: If True, it can not be seen in the configuration GUI.
         @param blank: If True, the value is not required in the configuration GUI.
         """
-        self.id          = id
+        self.id = id
         self.description = description
-        self.app_label   = app_label
-        self.type        = type
-        self.hidden      = hidden
-        self.blank       = blank
+        self.app_label = app_label
+        self.type = type
+        self.hidden = hidden
+        self.blank = blank
+        self.formfield_class = formfield_class
 
         self._castor = self._CASTORS[type]
 
@@ -100,7 +118,8 @@ class _SettingKey:
             f'app_label="{self.app_label}", '
             f'type={self.type}, '
             f'hidden={self.hidden}, '
-            f'blank={self.blank}'
+            f'blank={self.blank}, '
+            f'formfield_class={self.formfield_class}'
             f')'
         )
 
@@ -112,6 +131,11 @@ class _SettingKey:
         return mark_safe('<br/>'.join(
             escape(d) for d in self.description.split('\n')
         ))
+
+    def formfield(self):
+        form_cls = self.formfield_class or self.FORM_FIELDS.get(self.type, forms.CharField)
+
+        return form_cls(label=_('Value'), required=not self.blank)
 
     def value_as_html(self, value) -> str:
         printer = self.HTML_PRINTERS.get(self.type, str)

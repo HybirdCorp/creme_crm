@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Core 2.5\n"
+"Project-Id-Version: Creme Creme-Core 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-26 18:25+0200\n"
+"POT-Creation-Date: 2023-09-12 10:19+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -307,6 +307,12 @@ msgstr "Sous-filtres"
 msgid "Condition on field «{field}»: {error}"
 msgstr "Condition sur le champ «{field}» : {error}"
 
+msgid "True"
+msgstr "Vrai"
+
+msgid "False"
+msgstr "Faux"
+
 msgid "On regular fields"
 msgstr "Sur les champs normaux"
 
@@ -590,6 +596,9 @@ msgstr "Erreur originale : {}"
 msgid "{hour}h"
 msgstr "{hour}h"
 
+msgid "Value"
+msgstr "Valeur"
+
 msgid "Enter a valid HTML color."
 msgstr "Saisissez une couleur HTML valide."
 
@@ -867,12 +876,6 @@ msgstr "Conditions"
 
 msgid "All users"
 msgstr "Tous les utilisateurs"
-
-msgid "True"
-msgstr "Vrai"
-
-msgid "False"
-msgstr "Faux"
 
 msgid "Has the property"
 msgstr "A la propriété"
@@ -3677,8 +3680,8 @@ msgid ""
 "chose a column in the list header then try to enter in the mode again)."
 msgstr ""
 "Le mode exploration ne peut pas être utilisé car votre liste n'est pas "
-"ordonnée (astuce : choisissez une colonne dans l'entête de liste puis essayez "
-"à nouveau de rentrer dans le mode)."
+"ordonnée (astuce : choisissez une colonne dans l'entête de liste puis "
+"essayez à nouveau de rentrer dans le mode)."
 
 msgid "The exploration is over"
 msgstr "L'exploration est finie"
@@ -4217,9 +4220,6 @@ msgstr "Recherche vide…"
 
 #~ msgid "Entities to update"
 #~ msgstr "Fiches à mettre à jour"
-
-#~ msgid "Value"
-#~ msgstr "Valeur"
 
 #~ msgid "Select a valid field."
 #~ msgstr "Sélectionnez un champ valide"

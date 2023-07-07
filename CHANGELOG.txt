@@ -9,6 +9,7 @@
             - The module 'creme_core.tests.forms.base' is deprecated.
               Use these new methods of 'CremeTestCase' instead: assertFormfieldError() & assertValidationError().
               Then stop using the base class 'FieldTestCase' & 'FieldTestCaseMixin'.
+        # You can now pass a custom form-field class to 'core.setting_key.SettingKey'.
 
     Breaking changes :
     ------------------
@@ -52,6 +53,10 @@
                         - EMAILCAMPAIGN_PASSWORD
                         - EMAILCAMPAIGN_PORT
                         - EMAILCAMPAIGN_USE_TLS
+        # Apps :
+            * Creme_config :
+                - The global dictionary 'forms.setting._FIELDS' has been removed;
+                  see the new class attribute 'creme_core.core.setting_key._SettingKey.FORM_FIELDS' instead.
 
 
 == Version 2.5 ==

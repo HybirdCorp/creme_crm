@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 15-05-2023 for Creme 2.5
+:Version: 12-09-2023 for Creme 2.6
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2890,6 +2890,28 @@ And to use the value in your code: ::
 
     if SettingValue.objects.get(key_id=BEAVER_KEY_ID).value:
         [...]
+
+**A bit further** : you can pass to your ``SettingKey`` the form-field to be
+used when setting the related ``SettingValue``. Here an example where our value
+will be an integer among some restricted choices, and the user choses among
+some labels: ::
+
+    from django import forms
+    from django.utils.translation import gettext_lazy as _
+
+    [...]
+
+    beaver_key = SettingKey(
+        id=constants.ANOTHER_KEY_ID,
+        description=_('*Set a description here*'),
+        app_label='beavers',
+        type=SettingKey.INT,
+        formfield_class=partial(
+            forms.TypedChoiceField,
+            choices=[('1', 'One'), ('2', 'Two'), ('3', 'Three')],
+            coerce=int,
+        ),
+    )
 
 
 User's settings
