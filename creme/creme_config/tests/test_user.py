@@ -1806,7 +1806,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_edit_user_setting_value01(self):
         user = self.user
         sk = UserSettingKey(
-            'creme_config-test_edit_user_setting_value01',
+            id='creme_config-test_edit_user_setting_value01',
             description='Page displayed',
             app_label='creme_core',
             type=SettingKey.BOOL, hidden=False,
@@ -1834,7 +1834,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_edit_user_setting_value02(self):
         "hidden=True => error."
         sk = UserSettingKey(
-            'creme_config-test_edit_user_setting_value02',
+            id='creme_config-test_edit_user_setting_value02',
             description='Page displayed',
             app_label='creme_core',
             type=SettingKey.BOOL, hidden=True,
@@ -1846,7 +1846,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_edit_user_setting_value03(self):
         "Not blank + STRING."
         sk = UserSettingKey(
-            'creme_config-test_edit_user_setting_value03',
+            id='creme_config-test_edit_user_setting_value03',
             description='API key',
             app_label='creme_core',
             type=SettingKey.STRING,
@@ -1864,7 +1864,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         "Blank + STRING."
         user = self.user
         sk = UserSettingKey(
-            'creme_config-test_edit_user_setting_value04',
+            id='creme_config-test_edit_user_setting_value04',
             description='API key',
             app_label='creme_core',
             type=SettingKey.STRING,
@@ -1889,7 +1889,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         "Blank + INT."
         user = self.user
         sk = UserSettingKey(
-            'creme_config-test_edit_user_setting_value05',
+            id='creme_config-test_edit_user_setting_value05',
             description='API key',
             app_label='creme_core',
             type=SettingKey.INT,
@@ -1918,26 +1918,26 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         brick = UserSettingValuesBrick()
 
         core_sk1 = UserSettingKey(
-            'creme_core-test_01',
+            id='creme_core-test_01',
             description='Page displayed',
             app_label='creme_core',
             type=SettingKey.BOOL, hidden=False,
         )
         core_sk2 = UserSettingKey(
-            'creme_core-test_02',
+            id='creme_core-test_02',
             description='Page title',
             app_label='creme_core',
             type=SettingKey.STRING, hidden=False,
         )
 
         doc_sk1 = UserSettingKey(
-            'documents-test_01',
+            id='documents-test_01',
             description='Size displayed',
             app_label='documents',
             type=SettingKey.BOOL, hidden=False,
         )
         doc_sk2 = UserSettingKey(
-            'documents-test_02',
+            id='documents-test_02',
             description='Metadata displayed',
             app_label='documents',
             type=SettingKey.BOOL, hidden=True,

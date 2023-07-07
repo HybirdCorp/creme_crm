@@ -195,11 +195,13 @@
                     - The function-view 'views.product.get_subcategories()' (URL named "products__subcategories") has been removed.
         # In 'creme_core.apps', the method 'CremeCoreConfig.hook_select_template()' has been removed.
           It means that the template of 'Select' is not overriden by default anymore (you can use the new class 'creme_core.forms.widgets.PrettySelect').
-        # In 'creme_core.core.entity_cell' :
-            - In the class 'EntityCellRegularField', the attributes '_printer_html' & '_printer_csv' have been removed.
-            - In the class 'EntityCellCustomField' :
-                - The class attribute '_EXTRA_RENDERERS' has been reworked.
-                - The method '_get_renderer()' has been removed.
+        # In 'creme_core.core' :
+            - In 'entity_cell' :
+                - In the class 'EntityCellRegularField', the attributes '_printer_html' & '_printer_csv' have been removed.
+                - In the class 'EntityCellCustomField' :
+                    - The class attribute '_EXTRA_RENDERERS' has been reworked.
+                    - The method '_get_renderer()' has been removed.
+            - In 'setting_key', the constructor of '_SettingKey' (& so 'SettingKey' & 'UserSettingKey') takes now its arguments with keywords only.
         # In 'creme_core.forms' :
             - In 'creme_property', these classes have been renamed :
                 - '_AddPropertiesForm' => '_PropertiesForm'.

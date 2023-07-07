@@ -554,21 +554,21 @@ class RegistryTestCase(CremeTestCase):
     def test_app_registry_is_empty03(self):
         "Use SettingKeys."
         sk1 = SettingKey(
-            'creme_core-test_sk_string',
+            id='creme_core-test_sk_string',
             description='Page title',
             app_label='documents',  # <== not 'creme_core'
             type=SettingKey.STRING,
             blank=True,
         )
         sk2 = SettingKey(
-            'creme_core-test_sk_int',
+            id='creme_core-test_sk_int',
             description='Page size',
             app_label='creme_core',
             type=SettingKey.INT,
             hidden=True,  # <==
         )
         sk3 = SettingKey(
-            'creme_core-test_sk_bool',
+            id='creme_core-test_sk_bool',
             description='Page hidden',
             app_label='creme_core',
             type=SettingKey.BOOL,

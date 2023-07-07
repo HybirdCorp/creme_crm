@@ -32,7 +32,7 @@ class SettingValueTestCase(CremeTestCase):
 
     def test_type_string(self):
         sk = SettingKey(
-            'creme_core-test_model_string',
+            id='creme_core-test_model_string',
             description='Page title',
             app_label='creme_core', type=SettingKey.STRING, hidden=False,
         )
@@ -137,7 +137,7 @@ class SettingValueTestCase(CremeTestCase):
 
     def test_blank(self):
         sk = SettingKey(
-            'creme_core-test_model_blank',
+            id='creme_core-test_model_blank',
             description='API key',
             app_label='creme_core',
             type=SettingKey.STRING,
@@ -159,7 +159,7 @@ class SettingValueTestCase(CremeTestCase):
 
     def test_not_blank(self):
         sk = SettingKey(
-            'creme_core-test_model_not_blank',
+            id='creme_core-test_model_not_blank',
             description='API key',
             app_label='creme_core',
             type=SettingKey.STRING,
@@ -525,7 +525,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.get_root_user()
 
         sk = UserSettingKey(
-            'creme_core-test_model_string',
+            id='creme_core-test_model_string',
             description='Page title',
             app_label='creme_core',
             type=SettingKey.STRING, hidden=False,
@@ -558,7 +558,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.get_root_user()
 
         sk = UserSettingKey(
-            'creme_core-test_model_string',
+            id='creme_core-test_model_string',
             description='Page title',
             app_label='creme_core',
             type=SettingKey.STRING, hidden=False,
@@ -591,7 +591,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.get_root_user()
 
         sk = UserSettingKey(
-            'creme_core-test_model_int',
+            id='creme_core-test_model_int',
             description='Page size',
             app_label='creme_core',
             type=SettingKey.INT, hidden=False,
@@ -615,7 +615,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.get_root_user()
 
         sk = UserSettingKey(
-            'creme_core-test_model_bool',
+            id='creme_core-test_model_bool',
             description='Page displayed',
             app_label='creme_core',
             type=SettingKey.BOOL, hidden=False,
@@ -640,8 +640,8 @@ class UserSettingValueTestCase(CremeTestCase):
         build_key = partial(
             UserSettingKey, app_label='creme_core', type=SettingKey.INT, hidden=False,
         )
-        sk1 = build_key('creme_core-test_model_int1', description='Page width')
-        sk2 = build_key('creme_core-test_model_int2', description='Page height')
+        sk1 = build_key(id='creme_core-test_model_int1', description='Page width')
+        sk2 = build_key(id='creme_core-test_model_int2', description='Page height')
         self._register_key(sk1, sk2)
 
         width = 142
@@ -666,7 +666,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.get_root_user()
 
         sk = UserSettingKey(
-            'creme_core-test_model_int',
+            id='creme_core-test_model_int',
             description='Page size',
             app_label='creme_core',
             type=SettingKey.INT, hidden=False,
@@ -719,7 +719,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.get_root_user()
 
         sk = UserSettingKey(
-            'creme_core-test_model_int',
+            id='creme_core-test_model_int',
             description='Page size',
             app_label='creme_core',
             type=SettingKey.INT, hidden=False,
@@ -746,7 +746,7 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.get_root_user()
 
         sk = UserSettingKey(
-            'creme_core-test_model_bool',
+            id='creme_core-test_model_bool',
             description='Page displayed',
             app_label='creme_core',
             type=SettingKey.BOOL, hidden=False,
@@ -781,13 +781,13 @@ class UserSettingValueTestCase(CremeTestCase):
         user = self.get_root_user()
 
         sk1 = UserSettingKey(
-            'creme_core-test_model_bool',
+            id='creme_core-test_model_bool',
             description='Page displayed',
             app_label='creme_core',
             type=SettingKey.BOOL, hidden=False,
         )
         sk2 = UserSettingKey(
-            'creme_core-test_model_str',
+            id='creme_core-test_model_str',
             description='Page size',
             app_label='creme_core',
             type=SettingKey.STRING, hidden=False,
