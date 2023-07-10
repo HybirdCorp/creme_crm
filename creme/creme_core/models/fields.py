@@ -148,7 +148,7 @@ class CremeUserForeignKey(models.ForeignKey):
                 model=self.model,
                 field_name=self.name,
                 required=not self.blank,
-                empty_label=_('Select a user…'),
+                empty_label=_('No user') if self.blank else _('Select a user…'),
                 **kwargs
             )
         else:
