@@ -1100,7 +1100,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         extra_q = Q(first_name__startswith='B')
         x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
 
-        lord_count, lord_url = y_xtra[x_asc.index(lord.title)]
+        lord_count, lord_url = y_xtra[x_xtra.index(lord.title)]
         self.assertEqual(1, lord_count)
         self.assertListviewURL(
             url=lord_url, model=FakeOrganisation,
