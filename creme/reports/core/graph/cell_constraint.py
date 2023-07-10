@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2022  Hybird
+#    Copyright (C) 2020-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -137,6 +137,16 @@ class GHCCRegularFK(GHCCRegularField):
             return field.get_tag(FieldTag.ENUMERABLE)
 
         return False
+
+
+class GHCCRegularChoices(GHCCRegularField):
+    type_id = 'regular_choices'
+
+    def _accept_field(self, field, not_hiddable_cell_keys):
+        return (
+            super()._accept_field(field, not_hiddable_cell_keys)  # TODO: test
+            and field.choices is not None
+        )
 
 
 class GHCCRegularDate(GHCCRegularField):
@@ -277,6 +287,9 @@ abscissa_constraints = GraphHandConstraintsRegistry(
 ).register_cell_constraint(
     constraint_class=GHCCRegularFK,
     rgraph_types=[AbscissaGroup.FK],
+).register_cell_constraint(
+    constraint_class=GHCCRegularChoices,
+    rgraph_types=[AbscissaGroup.CHOICES],
 ).register_cell_constraint(
     constraint_class=GHCCRegularDate,
     rgraph_types=[

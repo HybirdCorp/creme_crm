@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Reports 2.5\n"
+"Project-Id-Version: Creme Reports 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-14 10:00+0100\n"
+"POT-Creation-Date: 2023-09-12 13:40+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -105,11 +105,14 @@ msgstr "Par années"
 msgid "By X days"
 msgstr "Par X jours"
 
-msgid "By values"
-msgstr "Par valeurs"
+msgid "By values (configurable)"
+msgstr "Par valeurs (configurable)"
 
 msgid "By values (of related entities)"
 msgstr "Par valeurs (des fiches liées)"
+
+msgid "By values (not configurable)"
+msgstr "Par valeurs (non configurable)"
 
 msgid "By days (custom field)"
 msgstr "Par jours (champ personnalisé)"
@@ -192,6 +195,9 @@ msgstr "Le type de relation est incompatible avec «{}»."
 #, python-brace-format
 msgid "{rtype} (Relationship)"
 msgstr "{rtype} (Relation)"
+
+msgid "By values"
+msgstr "Par valeurs"
 
 msgid "this field cannot be used as abscissa."
 msgstr "ce champ ne peut pas être utilisé comme abscisse."

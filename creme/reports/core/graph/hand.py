@@ -545,6 +545,37 @@ class RGHForeignKey(_RGHRegularField):
             )
 
 
+@RGRAPH_HANDS_MAP(AbscissaGroup.CHOICES)
+class RGHChoices(_RGHRegularField):
+    verbose_name = _('By values')  # TODO: "not configurable"?
+
+    def __init__(self, graph):
+        super().__init__(graph=graph)
+
+        if self._field.choices is None:
+            self.abscissa_error = _('this field cannot be used as abscissa.')
+
+    def _fetch(self, *, entities, order, user, extra_q):
+        abscissa = self._field.name
+        build_url = self._listview_url_builder(extra_q=extra_q)
+        entities_filter = entities.filter
+        y_value_func = self._y_calculator.aggregate
+        choices = self._field.choices
+
+        if order == 'DESC':
+            choices.reverse()
+
+        for value, label in choices:
+            kwargs = {abscissa: value}
+            yield (
+                label,
+                [
+                    y_value_func(entities_filter(**kwargs)),
+                    build_url(kwargs),
+                ],
+            )
+
+
 @RGRAPH_HANDS_MAP(AbscissaGroup.RELATION)
 class RGHRelation(ReportGraphHand):
     verbose_name = _('By values (of related entities)')

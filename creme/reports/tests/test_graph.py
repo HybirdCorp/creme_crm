@@ -25,6 +25,7 @@ from creme.creme_core.models import (
     CustomFieldInteger,
     EntityFilter,
     FakeContact,
+    FakeEmailCampaign,
     FakeInvoice,
     FakeOrganisation,
     FakePosition,
@@ -288,18 +289,55 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(_('Maximum'), hand.ordinate.verbose_name)
         self.assertEqual(_('Capital'), str(hand.ordinate.cell))
 
+    def test_createview_with_choices(self):
+        "Group.CHOICES."
+        user = self.login_as_root_and_get()
+        report = Report.objects.create(user=user, name='Campaigns', ct=FakeEmailCampaign)
+
+        name = 'My campaign graph'
+        abscissa = 'type'
+        gtype = ReportGraph.Group.CHOICES
+        chart = 'barchart'
+        self.assertNoFormError(
+            self.client.post(
+                self._build_add_graph_url(report),
+                data={
+                    'user': user.pk,
+                    'name': name,
+
+                    'abscissa': self.formfield_value_abscissa(
+                        abscissa=FakeEmailCampaign._meta.get_field(abscissa),
+                        graph_type=gtype,
+                    ),
+
+                    'ordinate': self.formfield_value_ordinate(
+                        aggr_id=ReportGraph.Aggregator.COUNT,
+                    ),
+
+                    'chart': chart,
+                },
+            )
+        )
+
+        rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
+        self.assertEqual(user,      rgraph.user)
+        self.assertEqual(abscissa,  rgraph.abscissa_cell_value)
+        self.assertEqual(ReportGraph.Aggregator.COUNT, rgraph.ordinate_type)
+        self.assertEqual('',        rgraph.ordinate_cell_key)
+
+        self.assertEqual('Type', rgraph.hand.verbose_abscissa)
+
     def test_createview_with_relation(self):
         "Group.RELATION."
         user = self.login_as_root_and_get()
         report = self._create_simple_organisations_report(user=user)
-        url = self._build_add_graph_url(report)
 
         name = 'My Graph #1'
         gtype = ReportGraph.Group.RELATION
         rtype_id = fake_constants.FAKE_REL_OBJ_EMPLOYED_BY
         rtype = RelationType.objects.get(id=rtype_id)
         self.assertNoFormError(self.client.post(
-            url,
+            self._build_add_graph_url(report),
             data={
                 'user': user.pk,
                 'name': name,
@@ -1317,6 +1355,84 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(_('Billing address'), hand.verbose_abscissa)
         self.assertEqual(
             _('this field cannot be used as abscissa.'), hand.abscissa_error
+        )
+
+    def test_fetch_with_choices_01(self):
+        "Count."
+        user = self.login_as_root_and_get()
+
+        create_camp = partial(FakeEmailCampaign.objects.create, user=user)
+        create_camp(name='Old campaign #1', type=FakeEmailCampaign.Type.INTERNAL)
+        create_camp(name='Old campaign #2', type=FakeEmailCampaign.Type.EXTERNAL)
+        create_camp(name='New campaign #1', type=FakeEmailCampaign.Type.EXTERNAL)
+        create_camp(name='Camp #4')
+
+        report = Report.objects.create(user=user, name='Campaigns', ct=FakeEmailCampaign)
+        rgraph = ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='Campaigns by type',
+            abscissa_cell_value='type', abscissa_type=ReportGraph.Group.CHOICES,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
+        )
+
+        with self.assertNoException():
+            x_asc, y_asc = rgraph.fetch(user)
+
+        int_label = FakeEmailCampaign.Type.INTERNAL.label
+        ext_label = FakeEmailCampaign.Type.EXTERNAL.label
+        self.assertListEqual([int_label, ext_label], x_asc)
+
+        self.assertIsList(y_asc, length=len(x_asc))
+
+        def fmt(type_value):
+            return '/tests/e_campaigns?q_filter={q_filter}'.format(
+                q_filter=self._serialize_qfilter(type=type_value),
+            )
+
+        self.assertListEqual(
+            [1, fmt(FakeEmailCampaign.Type.INTERNAL)], y_asc[x_asc.index(int_label)],
+        )
+        self.assertListEqual(
+            [2, fmt(FakeEmailCampaign.Type.EXTERNAL)], y_asc[x_asc.index(ext_label)],
+        )
+
+        # DESC ----------------------------------------------------------------
+        x_desc, y_desc = rgraph.fetch(order='DESC', user=user)
+        self.assertListEqual([*reversed(x_asc)], x_desc)
+        self.assertListEqual(
+            [1, fmt(FakeEmailCampaign.Type.INTERNAL)], y_desc[x_desc.index(int_label)],
+        )
+
+        # Extra Q --------------------------------------------------------------
+        extra_q = Q(name__startswith='New')
+        x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
+
+        external_count, external_url = y_xtra[x_xtra.index(ext_label)]
+        self.assertEqual(1, external_count)
+        self.assertListviewURL(
+            url=external_url, model=FakeOrganisation,
+            expected_q=extra_q & Q(type=FakeEmailCampaign.Type.EXTERNAL),
+        )
+
+    def test_fetch_with_choices_02(self):
+        "Invalid field (no choices)."
+        user = self.login_as_root_and_get()
+        report = self._create_simple_contacts_report(user=user)
+        rgraph = ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='Contact count per address',
+            abscissa_cell_value='sector', abscissa_type=ReportGraph.Group.CHOICES,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
+        )
+
+        x_asc, y_asc = rgraph.fetch(user)
+        self.assertListEqual([], x_asc)
+        self.assertListEqual([], y_asc)
+
+        hand = rgraph.hand
+        self.assertEqual(_('Line of business'), hand.verbose_abscissa)
+        self.assertEqual(
+            _('this field cannot be used as abscissa.'), hand.abscissa_error,
         )
 
     def test_fetch_with_date_range01(self):
