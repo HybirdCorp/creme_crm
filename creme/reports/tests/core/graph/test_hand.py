@@ -5,6 +5,7 @@ from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.models import (
     CustomField,
     FakeContact,
+    FakeEmailCampaign,
     FakeOrganisation,
     FieldsConfig,
     RelationType,
@@ -14,6 +15,7 @@ from creme.creme_core.tests.fake_constants import FAKE_REL_OBJ_EMPLOYED_BY
 from creme.reports.core.graph.aggregator import RGACount, RGASum
 from creme.reports.core.graph.hand import (
     ReportGraphHandRegistry,
+    RGHChoices,
     RGHCustomDay,
     RGHCustomFK,
     RGHCustomMonth,
@@ -151,6 +153,20 @@ class ReportGraphHandTestCase(CremeTestCase):
         hand = RGHForeignKey(graph)
         self.assertEqual(ReportGraph.Group.FK, hand.hand_id)
         self.assertEqual(_('By values'),       hand.verbose_name)
+        self.assertIsNone(hand.abscissa_error)
+
+    def test_regular_field_choices(self):
+        user = self.get_root_user()
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeEmailCampaign)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value='type', abscissa_type=ReportGraph.Group.CHOICES,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
+        )
+
+        hand = RGHChoices(graph)
+        self.assertEqual(ReportGraph.Group.CHOICES, hand.hand_id)
+        self.assertEqual(_('By values'),            hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
 
     def test_regular_field_error01(self):

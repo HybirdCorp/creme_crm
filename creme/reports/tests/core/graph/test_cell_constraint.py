@@ -10,6 +10,7 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.models import (
     CustomField,
     FakeContact,
+    FakeEmailCampaign,
     FakeOrganisation,
     FieldsConfig,
     RelationType,
@@ -19,6 +20,7 @@ from creme.reports.constants import AbscissaGroup
 from creme.reports.core.graph.cell_constraint import (
     GHCCCustomDate,
     GHCCCustomEnum,
+    GHCCRegularChoices,
     GHCCRegularDate,
     GHCCRegularFK,
     GHCCRelation,
@@ -121,6 +123,32 @@ class GraphHandConstraintsTestCase(CremeTestCase):
             ),
             EntityCellRegularField
         )
+
+    def test_regular_choices(self):
+        model = FakeEmailCampaign
+        constraint = GHCCRegularChoices(model=model)
+
+        build_cell = EntityCellRegularField.build
+        self.assertIs(constraint.check_cell(build_cell(model, 'type')),    True)
+        self.assertIs(constraint.check_cell(build_cell(model, 'name')),    False)
+        self.assertIs(constraint.check_cell(build_cell(model, 'created')), False)
+
+        # ---
+        cell1 = constraint.get_cell(cell_key='regular_field-type')
+        self.assertIsInstance(cell1, EntityCellRegularField)
+        finfo = cell1.field_info
+        self.assertEqual(1, len(finfo))
+        self.assertEqual('type', finfo[0].name)
+
+        self.assertIsNone(constraint.get_cell(cell_key='regular_field-created'))
+
+        # ---
+        cells = [*constraint.cells()]
+        self.assertEqual(2, len(cells))
+        self.assertIsInstance(cells[0], EntityCellRegularField)
+
+        self.find_rfield_cell(cells, 'type')
+        self.find_rfield_cell(cells, 'status')
 
     def test_regular_date01(self):
         constraint = GHCCRegularDate(model=FakeOrganisation)

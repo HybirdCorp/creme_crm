@@ -6,6 +6,7 @@
         * Reports :
             - The date fields of referenced models can be used for temporal filtering in the Reports
               (e.g. in a report on Contacts, Photograph's fields are available).
+            - The fields with 'choices' (e.g. status of EntityEmails) can now be used as Graphes' abscissa.
 
   Developers side :
   -----------------
