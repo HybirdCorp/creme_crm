@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-27 17:41+0200\n"
+"POT-Creation-Date: 2023-07-10 14:22+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2285,6 +2285,9 @@ msgstr "Couleur HTML"
 
 msgid "Color"
 msgstr "Couleur"
+
+msgid "No user"
+msgstr "Pas d'utilisateur"
 
 msgid "Select a user…"
 msgstr "Sélectionnez un utilisateur…"
