@@ -968,7 +968,7 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
         with self.assertRaises(ValidationError) as cm:
-            field.clean(field.clean(self.build_data(contact, orga)))
+            field.clean(self.build_data(contact, orga))
 
         exception = cm.exception
         self.assertEqual('linknotallowed', exception.code)
