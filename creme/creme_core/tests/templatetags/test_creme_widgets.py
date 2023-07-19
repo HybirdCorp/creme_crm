@@ -539,3 +539,26 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             ),
             render,
         )
+
+    def test_widget_help_sign_with_another_icon(self):
+        theme = 'icecream'
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_help_sign message=help_msg icon="cancel" %}'
+            ).render(Context({
+                'THEME_NAME': theme,
+                'help_msg': 'Be careful:\ndo not duplicate entities!',
+            }))
+
+        self.assertHTMLEqual(
+            '<div class="help-sign">'
+            '<img src="{}" title="" alt="" width="16px"><p>'
+            'Be careful:<br>do not duplicate entities!'
+            '</p>'
+            '</div>'.format(
+                get_creme_media_url(theme, 'images/cancel_16.png'),
+            ),
+            render,
+        )
