@@ -1,5 +1,12 @@
 == Version 2.4.6 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The templatetag {% widget_help_sign %} (from the module 'creme_widgets') did not use the icon passed as argument.
+
 
 == Version 2.4.5 ==
 
