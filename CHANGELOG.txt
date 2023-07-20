@@ -6,6 +6,8 @@
   ------------
     # In blocks related to a specific relationship type, when columns were given, deleted entities were not marked as deleted.
     # Apps :
+        * Reports :
+            - Private filters of others users could be selected in the edition form.
         * Creme_config :
             - A label in the form to create a relationship block has been fixed.
 

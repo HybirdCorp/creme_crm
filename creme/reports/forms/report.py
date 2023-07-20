@@ -92,7 +92,8 @@ class FilterSubCell(CustomFormExtraSubCell):
         mfield = type(instance)._meta.get_field(field_name)
 
         # choice_field = mfield.formfield()
-        # TODO : Use legacy form field because of filtering issues with the EnumeratorChoiceField
+        # NB: we use legacy form field because of filtering issues with the EnumeratorChoiceField
+        # TODO: use EnumeratorChoiceField
         choice_field = CreatorModelChoiceField(
             queryset=mfield.related_model.objects.all(),
             empty_label=pgettext_lazy('creme_core-filter', 'All'),
@@ -103,7 +104,7 @@ class FilterSubCell(CustomFormExtraSubCell):
             help_text=mfield.help_text
         )
 
-        choice_field.queryset = choice_field.queryset.filter(
+        choice_field.queryset = mfield.related_model.objects.filter_by_user(user).filter(
             entity_type=getattr(instance, self.ctype_field_name),
         )
         choice_field.initial = efilter
