@@ -2,6 +2,12 @@
 
   TODO: compile .mo files (billing)
 
+  Users side :
+  ------------
+    # Apps :
+        * Creme_config :
+            - A label in the form to create a relationship block has been fixed.
+
   Developers side :
   -----------------
 
