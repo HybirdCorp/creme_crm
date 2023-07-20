@@ -5,6 +5,8 @@
   Users side :
   ------------
     # Apps :
+        * Reports :
+            - Private filters of others users could be selected in the edition form.
         * Creme_config :
             - A label in the form to create a relationship block has been fixed.
 
