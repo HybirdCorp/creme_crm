@@ -77,7 +77,7 @@
                             {% if forloop.first %}
                             <td {% brick_table_data_status primary %} {% if cell.data_type %}data-type="{{cell.data_type}}"{% endif %}>
                                 {% cell_render cell=cell instance=entity_obj user=user output='csv' as cell_content %}
-                                <a href="{{entity_obj.get_absolute_url}}"{% if entity.is_deleted %} class="is_deleted"{% endif %}>{% if cell_content %}{{cell_content}}{% else %}<span class="empty-field">{% translate '(empty)' %}</span>{% endif %}</a>
+                                <a href="{{entity_obj.get_absolute_url}}"{% if entity_obj.is_deleted %} class="is_deleted"{% endif %}>{% if cell_content %}{{cell_content}}{% else %}<span class="empty-field">{% translate '(empty)' %}</span>{% endif %}</a>
                             {% else %}
                             <td {% if cell.data_type %}data-type="{{cell.data_type}}"{% endif %}>
                                 {% cell_render cell=cell instance=entity_obj user=user as cell_content %}
