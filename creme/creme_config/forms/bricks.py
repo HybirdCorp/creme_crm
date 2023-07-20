@@ -347,8 +347,11 @@ class BrickMypageLocationsForm(_BrickLocationsForm):
 
 # class RTypeBrickAddForm(base.CremeModelForm):
 class RTypeBrickCreationForm(base.CremeModelForm):
+    # TODO: do no define manually the whole field?
     relation_type = forms.ModelChoiceField(
-        RelationType.objects.none(), empty_label=None,
+        RelationType.objects.none(),
+        label=RelationBrickItem._meta.get_field('relation_type').verbose_name,
+        empty_label=None,
         widget=core_widgets.DynamicSelect(attrs={'autocomplete': True}),
     )
 
