@@ -38,6 +38,7 @@ from creme.creme_core.models import (
     FieldsConfig,
     FileRef,
     HeaderFilter,
+    Language,
     Relation,
     RelationType,
 )
@@ -742,7 +743,6 @@ class MassExportViewsTestCase(ViewsTestCase):
             sort_order='DESC',
             **{'search-regular_field-phone': '123'}
         ))
-
         self.assertListEqual(
             [
                 '"123233","Spiegel","Spike"',
@@ -794,9 +794,16 @@ class MassExportViewsTestCase(ViewsTestCase):
     def test_no_order(self):
         user = self.login_as_root_and_get()
 
-        FakeContact.objects.create(
-            user=user, first_name='Spike', last_name='Spiegel', phone='123233',
-        )
+        create_contact = partial(FakeContact.objects.create, user=user)
+        c1 = create_contact(first_name='Spike', last_name='Spiegel', phone='123233')
+        c2 = create_contact(first_name='Jet',   last_name='Black',   phone='123455')
+
+        create_language = Language.objects.create
+        l1 = create_language(name='English')  # code='EN'
+        l2 = create_language(name='Japanese')  # code='JP'
+
+        c1.languages.set([l1])
+        c2.languages.set([l2])
 
         hf = HeaderFilter.objects.create_if_needed(
             pk='test_hf', name='Not orderable view', model=FakeContact,
@@ -804,16 +811,22 @@ class MassExportViewsTestCase(ViewsTestCase):
                 (EntityCellRegularField, {'name': 'languages'}),
             ],
         )
-        response = self.client.get(self._build_contact_dl_url(
+        # response = self.client.get(self._build_contact_dl_url(
+        response = self.assertGET200(self._build_contact_dl_url(
             hfilter_id=hf.id,
             # sort_key='regular_field-...',
             sort_order='ASC',
+            **{'search-regular_field-phone': '123'}
         ))
-        self.assertContains(
-            response,
-            _(
-                'The file cannot be generated because your list is not ordered '
-                '(hint: chose a column in the list header then try to download the file again).'
-            ),
-            status_code=409, html=True,
+        # self.assertContains(
+        #     response,
+        #     _(
+        #         'The file cannot be generated because your list is not ordered '
+        #         '(hint: chose a column in the list header then try to download the file again).'
+        #     ),
+        #     status_code=409, html=True,
+        # )
+        self.assertListEqual(
+            [f'"{l1.name}"', f'"{l2.name}"'],
+            [force_str(line) for line in response.content.splitlines()[1:]],
         )

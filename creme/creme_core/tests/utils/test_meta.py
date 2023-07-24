@@ -13,6 +13,7 @@ from creme.creme_core.models import (
     FakeContact,
     FakeEmailCampaign,
     FakeImage,
+    FakeMailingList,
     FakeOrganisation,
     Language,
 )
@@ -53,31 +54,36 @@ class MiscTestCase(CremeTestCase):
 
 
 class FieldInfoTestCase(CremeTestCase):
-    def test_field_info01(self):
+    def test_one_field(self):
         "Simple field."
-        fi = meta.FieldInfo(FakeContact, 'first_name')
+        fi1 = meta.FieldInfo(FakeContact, 'first_name')
 
-        self.assertEqual(FakeContact, fi.model)
-        self.assertEqual(1, len(fi))
-        self.assertIs(True, bool(fi))
+        self.assertEqual(FakeContact, fi1.model)
+        self.assertEqual(1, len(fi1))
+        self.assertIs(True, bool(fi1))
 
         with self.assertNoException():
-            base_field = fi[0]
+            base_field = fi1[0]
 
         self.assertEqual(FakeContact._meta.get_field('first_name'), base_field)
 
-        self.assertEqual(
-            FakeOrganisation._meta.get_field('name'),
-            meta.FieldInfo(FakeOrganisation, 'name')[0],
-        )
+        self.assertEqual('first_name', fi1.attname(0))
 
-        # FK
+        with self.assertRaises(IndexError):
+            fi1.attname(1)
+
+        # Other field ---
+        fi2 = meta.FieldInfo(FakeOrganisation, 'name')
+        self.assertEqual(FakeOrganisation._meta.get_field('name'), fi2[0])
+        self.assertEqual('name', fi2.attname(0))
+
+        # FK ---
         self.assertEqual(
             FakeContact._meta.get_field('image'),
             meta.FieldInfo(FakeContact, 'image')[0],
         )
 
-    def test_field_info02(self):
+    def test_sub_field(self):
         "depth > 1"
         fi = meta.FieldInfo(FakeContact, 'image__name')
 
@@ -96,11 +102,13 @@ class FieldInfoTestCase(CremeTestCase):
                 FakeImage._meta.get_field('user'),
                 get_user_model()._meta.get_field('username'),
             ],
-            fi_as_list
+            fi_as_list,
         )
 
-    def test_field_info03(self):
-        "Invalid fields."
+        self.assertEqual('image', fi.attname(0))
+        self.assertEqual('name',  fi.attname(1))
+
+    def test_invalid_fields(self):
         with self.assertRaises(FieldDoesNotExist):
             meta.FieldInfo(FakeContact, 'invalid')
 
@@ -110,8 +118,11 @@ class FieldInfoTestCase(CremeTestCase):
         with self.assertRaises(FieldDoesNotExist):
             meta.FieldInfo(FakeContact, 'invalid__invalidtoo')
 
-    def test_field_info_slice01(self):
-        "Start"
+        with self.assertRaises(FieldDoesNotExist):
+            meta.FieldInfo(FakeContact, 'image_id__name')
+
+    def test_slice01(self):
+        "Start."
         fi = meta.FieldInfo(FakeContact, 'image__user__username')
 
         with self.assertNoException():
@@ -128,7 +139,7 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(0, len(empty_sub_fi))
         self.assertIs(False, bool(empty_sub_fi))
 
-    def test_field_info_slice02(self):
+    def test_slice02(self):
         "Stop (no start)."
         fi = meta.FieldInfo(FakeContact, 'image__user__username')
 
@@ -141,7 +152,7 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(FakeContact._meta.get_field('image'), sub_fi[0])
         self.assertEqual(FakeImage._meta.get_field('user'), sub_fi[1])
 
-    def test_field_info_slice03(self):
+    def test_slice03(self):
         "Negative start."
         fi = meta.FieldInfo(FakeContact, 'image__user__username')
 
@@ -153,7 +164,7 @@ class FieldInfoTestCase(CremeTestCase):
         sub_field = self.get_alone_element(sub_fi)
         self.assertEqual(User._meta.get_field('username'), sub_field)
 
-    def test_field_info_slice04(self):
+    def test_slice04(self):
         "'very' negative start."
         fi = meta.FieldInfo(FakeContact, 'image__user__username')
 
@@ -166,8 +177,8 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(FakeImage._meta.get_field('user'), sub_fi[1])
         self.assertEqual(get_user_model()._meta.get_field('username'), sub_fi[2])
 
-    def test_field_info_slice05(self):
-        "Big start"
+    def test_slice05(self):
+        "Big start."
         fi = meta.FieldInfo(FakeContact, 'image__user')
 
         with self.assertNoException():
@@ -176,8 +187,8 @@ class FieldInfoTestCase(CremeTestCase):
         self.assertEqual(FakeContact, sub_fi.model)
         self.assertFalse(sub_fi)
 
-    def test_field_info_slice06(self):
-        "Step is forbidden"
+    def test_slice06(self):
+        "Step is forbidden."
         fi = meta.FieldInfo(FakeContact, 'image__user')
 
         with self.assertRaises(ValueError):
@@ -186,7 +197,7 @@ class FieldInfoTestCase(CremeTestCase):
         with self.assertRaises(ValueError):
             _ = fi[::2]
 
-    def test_field_info_get_value01(self):
+    def test_get_value(self):
         FieldInfo = meta.FieldInfo
 
         user = self.get_root_user()
@@ -197,6 +208,8 @@ class FieldInfoTestCase(CremeTestCase):
             FieldInfo(FakeContact, 'first_name').value_from(al),
         )
         self.assertEqual(user, FieldInfo(FakeContact, 'user').value_from(al))
+        # self.assertEqual(user, FieldInfo(FakeContact, 'user_id').value_from(al))
+        self.assertEqual(user.id, FieldInfo(FakeContact, 'user_id').value_from(al))
         self.assertEqual(
             user.username,
             FieldInfo(FakeContact, 'user__username').value_from(al),
@@ -218,9 +231,22 @@ class FieldInfoTestCase(CremeTestCase):
             FieldInfo(CremeProperty, 'type__text').value_from(al)  # 'al' is not a CremeProperty
 
         self.assertIsNone(FieldInfo(FakeContact, 'sector').value_from(al))
+        self.assertIsNone(FieldInfo(FakeContact, 'sector_id').value_from(al))
         self.assertIsNone(FieldInfo(FakeContact, 'sector__title').value_from(al))
 
-    def test_field_info_get_value02(self):
+        # Parent link
+        self.assertIsInstance(
+            FieldInfo(FakeContact, 'cremeentity_ptr').value_from(al),
+            CremeEntity,
+        )
+        # self.assertIsInstance(
+        #     FieldInfo(FakeContact, 'cremeentity_ptr_id').value_from(al),
+        #     CremeEntity,
+        # )
+        self.assertIsInstance(al.pk, int)
+        self.assertEqual(al.pk, FieldInfo(FakeContact, 'cremeentity_ptr_id').value_from(al))
+
+    def test_get_value_m2m01(self):
         "ManyToManyField."
         FieldInfo = meta.FieldInfo
 
@@ -245,6 +271,64 @@ class FieldInfoTestCase(CremeTestCase):
             [l1.name, l3.name],
             FieldInfo(FakeContact, 'languages__name').value_from(al),
         )
+
+    def test_get_value_m2m02(self):
+        "ManyToManyField + FK."
+        FieldInfo = meta.FieldInfo
+
+        user1 = self.get_root_user()
+        user2 = self.create_user()
+        camp = FakeEmailCampaign.objects.create(user=user1, name='Camp#1')
+
+        self.assertEqual(
+            [], FieldInfo(FakeEmailCampaign, 'mailing_lists').value_from(camp),
+        )
+        self.assertEqual(
+            [], FieldInfo(FakeEmailCampaign, 'mailing_lists__user').value_from(camp),
+        )
+        self.assertEqual(
+            [], FieldInfo(FakeEmailCampaign, 'mailing_lists__user_id').value_from(camp),
+        )
+
+        # ----
+        mlist1 = FakeMailingList.objects.create(user=user1, name='ML#1')
+        mlist2 = FakeMailingList.objects.create(user=user2, name='ML#2')
+        camp.mailing_lists.set([mlist1, mlist2])
+
+        self.assertListEqual(
+            [mlist1, mlist2],
+            FieldInfo(FakeEmailCampaign, 'mailing_lists').value_from(camp),
+        )
+        self.assertListEqual(
+            [mlist1, mlist2],
+            FieldInfo(FakeEmailCampaign, 'mailing_lists').value_from(camp),
+        )
+        self.assertListEqual(
+            [user1, user2],
+            FieldInfo(FakeEmailCampaign, 'mailing_lists__user').value_from(camp),
+        )
+        self.assertListEqual(
+            [user1.id, user2.id],
+            FieldInfo(FakeEmailCampaign, 'mailing_lists__user_id').value_from(camp),
+        )
+
+    def test_get_value_slice(self):
+        "After a slice."
+        FieldInfo = meta.FieldInfo
+
+        user1 = self.get_root_user()
+        user2 = self.create_user()
+        img = FakeImage.objects.create(user=user1, name='Al Elric')
+        al = FakeContact.objects.create(
+            user=user2, first_name='Alphonse', last_name='Elric', image=img,
+        )
+
+        self.assertEqual(user2, FieldInfo(FakeContact, 'user').value_from(al))
+        self.assertEqual(img, FieldInfo(FakeContact, 'image').value_from(al))
+        self.assertEqual(user1, FieldInfo(FakeContact, 'image__user').value_from(al))
+        self.assertEqual(user1.id, FieldInfo(FakeContact, 'image__user_id').value_from(al))
+
+        self.assertEqual(user1.id, FieldInfo(FakeContact, 'image__user_id')[1:].value_from(img))
 
     # TODO: test mtom1__mtom2
 

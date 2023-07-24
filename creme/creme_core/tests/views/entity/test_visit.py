@@ -35,6 +35,9 @@ class VisitTestCase(ViewsTestCase):
         except AttributeError:
             self.fail('Not a redirection')
 
+        if not chain:
+            self.fail('The redirection chain is empty')
+
         if len(chain) != 1:
             self.fail(f'The redirection chain is too long: {chain}')
 
@@ -72,7 +75,7 @@ class VisitTestCase(ViewsTestCase):
 
     def assertVisitEnds(self, response, *,
                         lv_url='',
-                        sort_cell,
+                        sort_key,
                         sort_order='ASC',
                         hfilter,
                         efilter=None,
@@ -100,7 +103,7 @@ class VisitTestCase(ViewsTestCase):
 
         lv_data = {
             'hfilter': [hfilter.pk],
-            'sort_key': [sort_cell.key],
+            'sort_key': [sort_key if isinstance(sort_key, str) else sort_key.key],
             'sort_order': [sort_order],
             **{k: [v] for k, v in search.items()},
         }
@@ -155,7 +158,7 @@ class VisitTestCase(ViewsTestCase):
         response2 = self.assertGET200(self._build_visit_uri(
             FakeOrganisation, sort=cell.key, hfilter=hfilter.pk,
         ))
-        self.assertVisitEnds(response2, sort_cell=cell, hfilter=hfilter)
+        self.assertVisitEnds(response2, sort_key=cell, hfilter=hfilter)
 
     def test_simple(self):
         "No filter, search..."
@@ -326,11 +329,14 @@ class VisitTestCase(ViewsTestCase):
             visitor_desc3 = response_desc3.context['visitor']
 
         response_desc4 = self.assertGET200(visitor_desc3.uri)
-        self.assertVisitEnds(response_desc4, hfilter=hfilter, sort_cell=cell, sort_order='DESC')
+        self.assertVisitEnds(response_desc4, hfilter=hfilter, sort_key=cell, sort_order='DESC')
 
     def test_no_sort(self):
         user = self.login_as_root_and_get()
-        FakeContact.objects.create(user=user, first_name='John', last_name='Doe')
+
+        create_orga = partial(FakeContact.objects.create, user=user)
+        first  = create_orga(first_name='Spike', last_name='Spiegel')
+        second = create_orga(first_name='Jet',   last_name='Black')
 
         hfilter = HeaderFilter.objects.create_if_needed(
             pk='creme_core-visit_no_order',
@@ -340,17 +346,30 @@ class VisitTestCase(ViewsTestCase):
                 (EntityCellRegularField, {'name': 'languages'}),
             ],
         )
-        response = self.client.get(
+        response1 = self.client.get(
             self._build_visit_uri(FakeContact, sort='', hfilter=hfilter.pk),
             follow=True,
         )
-        self.assertContains(
-            response,
-            _(
-                'The exploration mode cannot be used because your list is not ordered '
-                '(hint: chose a column in the list header then try to enter in the mode again).'
-            ),
-            status_code=409, html=True,
+        # self.assertContains(
+        #     response1,
+        #     _(
+        #         'The exploration mode cannot be used because your list is not ordered '
+        #         '(hint: chose a column in the list header then try to enter in the mode again).'
+        #     ),
+        #     status_code=409, html=True,
+        # )
+        self.assertVisitRedirects(
+            response1, entity=first, hfilter=hfilter, sort='', index=0,
+        )
+
+        response2 = self.assertGET200(response1.context['visitor'].uri, follow=True)
+        self.assertVisitRedirects(
+            response2, entity=second, hfilter=hfilter, sort='', index=1,
+        )
+
+        response3 = self.assertGET200(response2.context['visitor'].uri)
+        self.assertVisitEnds(
+            response3, lv_url=FakeContact.get_lv_absolute_url(), hfilter=hfilter, sort_key='',
         )
 
     def test_callback_url(self):
@@ -377,7 +396,7 @@ class VisitTestCase(ViewsTestCase):
             visitor1 = response1.context['visitor']
 
         response2 = self.assertGET200(visitor1.uri)
-        self.assertVisitEnds(response2, lv_url=lv_url, hfilter=hfilter, sort_cell=cell)
+        self.assertVisitEnds(response2, lv_url=lv_url, hfilter=hfilter, sort_key=cell)
 
     def test_callback_url_error(self):
         self.login_as_root_and_get()
@@ -453,7 +472,7 @@ class VisitTestCase(ViewsTestCase):
             visitor2 = response2.context['visitor']
 
         response3 = self.assertGET200(visitor2.uri)
-        self.assertVisitEnds(response3, hfilter=hfilter, sort_cell=cell, efilter=efilter)
+        self.assertVisitEnds(response3, hfilter=hfilter, sort_key=cell, efilter=efilter)
 
     def test_efilter_distinct(self):
         user = self.login_as_root_and_get()
@@ -559,7 +578,7 @@ class VisitTestCase(ViewsTestCase):
 
         response3 = self.assertGET200(visitor2.uri)
         self.assertVisitEnds(
-            response3, hfilter=hfilter, sort_cell=cell, q_filter=serialized_q,
+            response3, hfilter=hfilter, sort_key=cell, q_filter=serialized_q,
         )
 
     def test_requested_q_distinct(self):
@@ -657,7 +676,7 @@ class VisitTestCase(ViewsTestCase):
             visitor2 = response2.context['visitor']
 
         response3 = self.assertGET200(visitor2.uri)
-        self.assertVisitEnds(response3, hfilter=hfilter, sort_cell=cell)  # not q_filter
+        self.assertVisitEnds(response3, hfilter=hfilter, sort_key=cell)  # not q_filter
 
     def test_quick_search(self):
         user = self.login_as_root_and_get()
@@ -704,7 +723,7 @@ class VisitTestCase(ViewsTestCase):
             visitor2 = response2.context['visitor']
 
         response3 = self.assertGET200(visitor2.uri)
-        self.assertVisitEnds(response3, hfilter=hfilter, sort_cell=cell, **search)
+        self.assertVisitEnds(response3, hfilter=hfilter, sort_key=cell, **search)
 
     def test_complete_visit01(self):
         "Even number of entities."
@@ -754,7 +773,7 @@ class VisitTestCase(ViewsTestCase):
         # Next => end of visit
         response5 = self.assertGET200(visitor4.uri)
         self.assertVisitEnds(
-            response5, hfilter=hfilter, sort_cell=cell, q_filter=serialized_q,
+            response5, hfilter=hfilter, sort_key=cell, q_filter=serialized_q,
         )
 
     def test_complete_visit02(self):
@@ -811,7 +830,7 @@ class VisitTestCase(ViewsTestCase):
         # Next => end of visit
         response6 = self.assertGET200(visitor5.uri)
         self.assertVisitEnds(
-            response6, hfilter=hfilter, sort_cell=cell, q_filter=serialized_q,
+            response6, hfilter=hfilter, sort_key=cell, q_filter=serialized_q,
         )
 
     def test_visit_duplicates(self):

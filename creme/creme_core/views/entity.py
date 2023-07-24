@@ -334,12 +334,11 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
         )
 
     def get_paginator(self, *, queryset, ordering: Sequence[str]) -> FlowPaginator:
-        # TODO: fix FlowPaginator to manage correctly this case
-        if ordering == ('cremeentity_ptr_id',):
-            raise ConflictError(_(
-                'The exploration mode cannot be used because your list is not ordered '
-                '(hint: chose a column in the list header then try to enter in the mode again).'
-            ))
+        # if ordering == ('cremeentity_ptr_id',):
+        #     raise ConflictError(_(
+        #         'The exploration mode cannot be used because your list is not ordered '
+        #         '(hint: chose a column in the list header then try to enter in the mode again).'
+        #     ))
 
         # NB: we use the smartness of FlowPaginator to retrieve only 3 entities
         #  (page size + 1), instead of juste using an index + whole queryset.
@@ -529,7 +528,7 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
             return self.get_end_response(
                 callback_url=callback_url,
                 header_filter=hf,
-                sort_cell_key=sort_info.main_cell_key,
+                sort_cell_key=sort_info.main_cell_key or '',
                 sort_order=sort_info.main_order,
                 entity_filter=efilter,
                 search_form=search_form,
@@ -575,7 +574,8 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
                 model=model,
                 callback_url=callback_url,
                 hfilter_id=hf.pk,
-                sort=f'{sort_info.main_order.prefix}{sort_info.main_cell_key}',
+                sort=f'{sort_info.main_order.prefix}{sort_info.main_cell_key}'
+                     if sort_info.main_cell_key else '',
                 efilter_id=efilter.pk if efilter else None,
                 internal_q=serialized_internal_q or '',
                 requested_q=serialized_requested_q or '',

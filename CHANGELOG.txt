@@ -2,6 +2,8 @@
 
   Users side :
   ------------
+    # The list-views with a big number of entities & no explicit sort now works correctly (i.e. not duplicate).
+      The mass-export & the exploration mode now accept to be used in this case.
     # Apps :
         * Activities :
             - Upgrade to FullCalendar "5.11.4":
@@ -77,6 +79,8 @@
                         - EMAILCAMPAIGN_PASSWORD
                         - EMAILCAMPAIGN_PORT
                         - EMAILCAMPAIGN_USE_TLS
+        # The class 'creme_core.core.paginator.FlowPaginator' does not accept ForeignKeys as key anymore;
+          pass the corresponding "low-level" attribute (e.g. "user_id") or a sub-field (e.g. "user__username").
         # In 'creme_core.models' :
             - The field 'HeaderFilter.json_cells' is now a 'JSONField';
               you won't have to change your code if you use the property 'cells' as advised.
@@ -93,6 +97,10 @@
             - "li_merge_result" => "merge-field-result".
             - "li_merge_button" => "merge-field-button".
         #  The attribute 'creme_core.gui.listview.state.ListViewState.extra_q' has been removed.
+        # The behaviour of the method 'creme_core.utils.meta.FieldInfo.value_from()' has changed with "low-level" attributes
+          related to ForeignKeys; now it return the low-level value (e.g. integer, string...), not the related model instance anymore.
+          Example: 'FieldInfo(Contact, 'user_id').value_from(my_contact)' returns an integer, not a CremeUser instance.
+                   'FieldInfo(Contact, 'user').value_from(my_contact)' still returns a CremeUser instance.
         # Apps :
             * Creme_config :
                 - The global dictionary 'forms.setting._FIELDS' has been removed;
