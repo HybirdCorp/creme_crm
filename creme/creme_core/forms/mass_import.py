@@ -1626,7 +1626,7 @@ class ImportForm4CremeEntity(ImportForm):
 def extractorfield_factory(modelfield, header_dict, choices, **kwargs):
     formfield = modelfield.formfield()
 
-    if not formfield:  # Happens for crementity_ptr (OneToOneField)
+    if not formfield:  # Happens for 'cremeentity_ptr' (OneToOneField)
         return None
 
     selected_column = header_dict.get(slugify(modelfield.verbose_name))

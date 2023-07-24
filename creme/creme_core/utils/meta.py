@@ -68,7 +68,8 @@ class FieldInfo:
     so naturally the fields which can have "sub-fields" are fields like
     ForeignKeys or ManyToManyFields.
     """
-    __slots__ = ('_model', '__fields')
+    # __slots__ = ('_model', '__fields')
+    __slots__ = ('_model', '__fields', '__attnames')
 
     def __init__(self, model: type[Model], field_name: str):
         """ Constructor.
@@ -81,7 +82,8 @@ class FieldInfo:
 
         self.__fields = fields
         self._model: type[Model] = model
-        subfield_names = field_name.split('__')
+        # subfield_names = field_name.split('__')
+        self.__attnames = subfield_names = field_name.split('__')
 
         for subfield_name in subfield_names[:-1]:
             field = model._meta.get_field(subfield_name)
@@ -90,6 +92,12 @@ class FieldInfo:
             if remote_field is None:
                 raise FieldDoesNotExist(
                     f'"{subfield_name}" is not a ForeignKey/ManyToManyField, '
+                    f'so it cannot have a sub-field.'
+                )
+
+            if field.name != subfield_name:
+                raise FieldDoesNotExist(
+                    f'"{subfield_name}" will retrieve the low-level value of a ForeignKey, '
                     f'so it cannot have a sub-field.'
                 )
 
@@ -108,6 +116,7 @@ class FieldInfo:
             fi = FieldInfo.__new__(FieldInfo)
             fi._model = self._model
             fi.__fields = new_fields = self.__fields[idx]
+            fi.__attnames = self.__attnames[idx]
 
             if new_fields and idx.start:
                 try:
@@ -131,8 +140,12 @@ class FieldInfo:
     def __repr__(self):
         return 'FieldInfo(model={}, field_name="{}")'.format(
             self._model.__name__,
-            '__'.join(f.name for f in self.__fields),
+            # '__'.join(f.name for f in self.__fields),
+            '__'.join(self.__attnames),
         )
+
+    def attname(self, index):
+        return self.__attnames[index]
 
     @property
     def model(self) -> type[Model]:
@@ -151,14 +164,17 @@ class FieldInfo:
 
         result = instance
 
-        for subfield in self:
+        # for subfield in self:
+        for attname, subfield in zip(self.__attnames, self.__fields):
             if result is None:
                 break
 
             if isinstance(result, list):
-                result = [getattr(elt, subfield.name) for elt in result]
+                # result = [getattr(elt, subfield.name) for elt in result]
+                result = [getattr(elt, attname) for elt in result]
             else:
-                result = getattr(result, subfield.name)
+                # result = getattr(result, subfield.name)
+                result = getattr(result, attname)
 
                 if subfield.many_to_many:
                     result = [*result.all()]

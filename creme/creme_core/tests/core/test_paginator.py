@@ -4,6 +4,7 @@ from functools import partial
 from random import shuffle
 
 from django.core.exceptions import FieldDoesNotExist
+from parameterized import parameterized
 
 from creme.creme_core.core.paginator import (
     FirstPage,
@@ -85,10 +86,11 @@ class FlowPaginatorTestCase(CremeTestCase):
             contact.save()
 
     def _build_contacts(self, **counts):
+        "@param counts: 'c2=3' => create 3 identical contacts at order 2."
         create_contact = partial(FakeContact.objects.create, user=self.user)
 
-        for c_id, first_name, last_name in self.CONTACTS_DATA:
-            for _i in range(counts.get(f'c{c_id}', 1)):
+        for order, first_name, last_name in self.CONTACTS_DATA:
+            for _i in range(counts.get(f'c{order}', 1)):
                 create_contact(first_name=first_name, last_name=last_name)
 
     def test_all(self):
@@ -1387,80 +1389,90 @@ class FlowPaginatorTestCase(CremeTestCase):
             contact.sector = sector
             contact.save()
 
-    def test_fk01(self):
+    def test_fk_raw(self):
         "Key: 'sector'."
         self._build_contacts()
         self._add_sectors()
 
         key = 'sector'
         qs = FakeContact.objects.order_by(key, 'id')
-        self.assertRegex(
-            self._get_sql(qs),
-            r'ORDER BY '
-            r'.creme_core_fakesector.\..order. ASC( NULLS FIRST)?\, '
-            r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$',
-        )
-
+        # self.assertRegex(
+        #     self._get_sql(qs),
+        #     r'ORDER BY '
+        #     r'.creme_core_fakesector.\..order. ASC( NULLS FIRST)?\, '
+        #     r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?$',
+        # )
+        #
         contacts = [*qs]
-        self.assertListEqual(
-            contacts, [*FakeContact.objects.order_by('sector__order', 'id')],
-        )
-        self.assertNotEqual(
-            contacts, [*FakeContact.objects.order_by('sector__pk', 'id')],
-        )
+        # self.assertListEqual(
+        #     contacts, [*FakeContact.objects.order_by('sector__order', 'id')],
+        # )
+        # self.assertNotEqual(
+        #     contacts, [*FakeContact.objects.order_by('sector__pk', 'id')],
+        # )
+        #
+        # paginator = FlowPaginator(qs, key=key, per_page=2, count=len(contacts))
 
-        paginator = FlowPaginator(qs, key=key, per_page=2, count=len(contacts))
-        page1 = paginator.page()
-        self.assertListEqual(contacts[:2], [*page1.object_list])
+        with self.assertRaises(ValueError) as cm:
+            FlowPaginator(qs, key=key, per_page=2, count=len(contacts))
 
-        with self.assertNumQueries(1):
-            info2 = page1.next_page_info()
-
-        self.assertDictEqual(
-            {
-                'type': 'forward',
-                'value': 1,  # == s2.order
-                'key': key,
-                'offset': 1,
-            },
-            info2,
+        self.assertStartsWith(
+            str(cm.exception),
+            'Invalid key: last sub-field "creme_core.FakeContact.sector" seems '
+            'to be a ForeignKey',
         )
 
-        page2 = paginator.page(info2)
-        self.assertListEqual(contacts[2:4], [*page2.object_list])
-        self.assertTrue(page2.has_next())
+        # page1 = paginator.page()
+        # self.assertListEqual(contacts[:2], [*page1.object_list])
+        #
+        # with self.assertNumQueries(1):
+        #     info2 = page1.next_page_info()
+        #
+        # self.assertDictEqual(
+        #     {
+        #         'type': 'forward',
+        #         'value': 1,  # == s2.order
+        #         'key': key,
+        #         'offset': 1,
+        #     },
+        #     info2,
+        # )
+        #
+        # page2 = paginator.page(info2)
+        # self.assertListEqual(contacts[2:4], [*page2.object_list])
+        # self.assertTrue(page2.has_next())
+        #
+        # page3 = paginator.page(page2.next_page_info())
+        # self.assertListEqual(contacts[4:6], [*page3.object_list])
+        # self.assertTrue(page3.has_next())
+        # self.assertTrue(page3.has_previous())
+        #
+        # page4 = paginator.page(page3.next_page_info())
+        # self.assertListEqual(contacts[6:], [*page4.object_list])
+        # self.assertFalse(page4.has_next())
+        #
+        # # Previous -----------
+        # info2a = page3.previous_page_info()
+        # self.assertDictEqual(
+        #     {
+        #         'type': 'backward',
+        #         'value': 2,
+        #         'key': key,
+        #         'offset': 1,
+        #     },
+        #     info2a,
+        # )
+        # self.assertListEqual(contacts[2:4], [*paginator.page(info2a).object_list])
+        #
+        # # Info() -------------
+        # info3a = page3.info()
+        # self.assertDictEqual(
+        #     {'type': 'forward', 'value': 2, 'key': key},
+        #     info3a,
+        # )
+        # self.assertListEqual(contacts[4:6], [*paginator.page(info3a).object_list])
 
-        page3 = paginator.page(page2.next_page_info())
-        self.assertListEqual(contacts[4:6], [*page3.object_list])
-        self.assertTrue(page3.has_next())
-        self.assertTrue(page3.has_previous())
-
-        page4 = paginator.page(page3.next_page_info())
-        self.assertListEqual(contacts[6:], [*page4.object_list])
-        self.assertFalse(page4.has_next())
-
-        # Previous -----------
-        info2a = page3.previous_page_info()
-        self.assertDictEqual(
-            {
-                'type': 'backward',
-                'value': 2,
-                'key': key,
-                'offset': 1,
-            },
-            info2a,
-        )
-        self.assertListEqual(contacts[2:4], [*paginator.page(info2a).object_list])
-
-        # Info() -------------
-        info3a = page3.info()
-        self.assertDictEqual(
-            {'type': 'forward', 'value': 2, 'key': key},
-            info3a,
-        )
-        self.assertListEqual(contacts[4:6], [*paginator.page(info3a).object_list])
-
-    def test_fk02(self):
+    def test_fk_sub_field01(self):
         "Key: 'sector__order'."
         self._build_contacts()
         self._add_sectors()
@@ -1502,12 +1514,50 @@ class FlowPaginatorTestCase(CremeTestCase):
         info3a = page3.info()
         self.assertListEqual(contacts[4:6], [*paginator.page(info3a).object_list])
 
-    def test_fk03(self):
-        "Key: 'sector__id'."
+    @parameterized.expand([
+        'sector__id',
+        'sector_id',
+    ])
+    def test_fk_id(self, key):
+        # "Key: 'sector__id'."
         self._build_contacts()
         self._add_sectors()
 
-        key = 'sector__id'
+        # key = 'sector__id'
+        qs = FakeContact.objects.order_by(key, 'id')
+        contacts = [*qs]
+        paginator = FlowPaginator(qs, key=key, per_page=2, count=len(contacts))
+
+        page1 = paginator.page()
+        self.assertListEqual(contacts[:2], [*page1.object_list])
+
+        page2 = paginator.page(page1.next_page_info())
+        self.assertListEqual(contacts[2:4], [*page2.object_list])
+
+        page3 = paginator.page(page2.next_page_info())
+        self.assertListEqual(contacts[4:6], [*page3.object_list])
+
+        page4 = paginator.page(page3.next_page_info())
+        self.assertListEqual(contacts[6:], [*page4.object_list])
+        self.assertFalse(page4.has_next())
+
+        # Previous
+        with self.assertNumQueries(0):
+            pp_info3 = page3.previous_page_info()
+
+        page2a = paginator.page(pp_info3)
+        self.assertListEqual(contacts[2:4], [*page2a.object_list])
+
+        # Info()
+        info3a = page3.info()
+        self.assertListEqual(contacts[4:6], [*paginator.page(info3a).object_list])
+
+    def test_fk_id_desc(self):
+        "Key: '-sector_id'."
+        self._build_contacts()
+        self._add_sectors()
+
+        key = '-sector_id'
         qs = FakeContact.objects.order_by(key, 'id')
         contacts = [*qs]
         paginator = FlowPaginator(qs, key=key, per_page=2, count=len(contacts))
@@ -1533,7 +1583,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         info3a = page3.info()
         self.assertListEqual(contacts[4:6], [*paginator.page(info3a).object_list])
 
-    def test_fk04(self):
+    def test_fk_raw_desc(self):
         "Key: '-sector'."
         self._build_contacts()
         self._add_sectors()
@@ -1541,30 +1591,39 @@ class FlowPaginatorTestCase(CremeTestCase):
         key = '-sector'
         qs = FakeContact.objects.order_by(key, 'id')
         contacts = [*qs]
-        paginator = FlowPaginator(qs, key=key, per_page=2, count=len(contacts))
+        # paginator = FlowPaginator(qs, key=key, per_page=2, count=len(contacts))
 
-        page1 = paginator.page()
-        self.assertListEqual(contacts[:2], [*page1.object_list])
+        with self.assertRaises(ValueError) as cm:
+            FlowPaginator(qs, key=key, per_page=2, count=len(contacts))
 
-        page2 = paginator.page(page1.next_page_info())
-        self.assertListEqual(contacts[2:4], [*page2.object_list])
+        self.assertStartsWith(
+            str(cm.exception),
+            'Invalid key: last sub-field "creme_core.FakeContact.sector" seems '
+            'to be a ForeignKey',
+        )
 
-        page3 = paginator.page(page2.next_page_info())
-        self.assertListEqual(contacts[4:6], [*page3.object_list])
+        # page1 = paginator.page()
+        # self.assertListEqual(contacts[:2], [*page1.object_list])
+        #
+        # page2 = paginator.page(page1.next_page_info())
+        # self.assertListEqual(contacts[2:4], [*page2.object_list])
+        #
+        # page3 = paginator.page(page2.next_page_info())
+        # self.assertListEqual(contacts[4:6], [*page3.object_list])
+        #
+        # page4 = paginator.page(page3.next_page_info())
+        # self.assertListEqual(contacts[6:], [*page4.object_list])
+        # self.assertFalse(page4.has_next())
+        #
+        # # Previous
+        # page2a = paginator.page(page3.previous_page_info())
+        # self.assertListEqual(contacts[2:4], [*page2a.object_list])
+        #
+        # # Info()
+        # info3a = page3.info()
+        # self.assertListEqual(contacts[4:6], [*paginator.page(info3a).object_list])
 
-        page4 = paginator.page(page3.next_page_info())
-        self.assertListEqual(contacts[6:], [*page4.object_list])
-        self.assertFalse(page4.has_next())
-
-        # Previous
-        page2a = paginator.page(page3.previous_page_info())
-        self.assertListEqual(contacts[2:4], [*page2a.object_list])
-
-        # Info()
-        info3a = page3.info()
-        self.assertListEqual(contacts[4:6], [*paginator.page(info3a).object_list])
-
-    def test_fk05(self):
+    def test_fk_sub_field_fk01(self):
         "Key: pk1__pk2 (2 nullable ForeignKeys)."
         user = self.user
 
@@ -1587,7 +1646,8 @@ class FlowPaginatorTestCase(CremeTestCase):
         create_doc(title='Money!!.jpg',      linked_folder=folder4)
         create_doc(title='selfie.jpg',       linked_folder=folder4)
 
-        key = 'linked_folder__category'
+        # key = 'linked_folder__category'
+        key = 'linked_folder__category__name'
         qs = FakeDocument.objects.order_by(key, 'id')
         docs = [*qs]
         self.assertListEqual(
@@ -1598,6 +1658,9 @@ class FlowPaginatorTestCase(CremeTestCase):
             docs,
             [*FakeDocument.objects.order_by('linked_folder__category__pk', 'id')]
         )
+
+        with self.assertRaises(ValueError):
+            FlowPaginator(qs, key='linked_folder__category', per_page=2, count=len(docs))
 
         paginator = FlowPaginator(qs, key=key, per_page=2, count=len(docs))
         page1 = paginator.page()
@@ -1626,7 +1689,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertEqual(docs[6:], [*page4.object_list])
         self.assertFalse(page4.has_next())
 
-    def test_fk06(self):
+    def test_fk_sub_field_fk02(self):
         "Key: pk1__pk2__foobar (pk1 not nullable) + ASC."
         self._build_contacts()
 
@@ -1654,7 +1717,7 @@ class FlowPaginatorTestCase(CremeTestCase):
         self.assertListEqual(contacts[6:], [*page4.object_list])
         self.assertFalse(page4.has_next())
 
-    def test_fk07(self):
+    def test_fk_sub_field_fk03(self):
         "Key: pk1__pk2__foobar (pk1 not nullable) + DESC."
         self._build_contacts()
 
@@ -1681,19 +1744,62 @@ class FlowPaginatorTestCase(CremeTestCase):
         with self.assertRaises(FirstPage):
             paginator.page(page2.previous_page_info())
 
-    def test_fk08(self):
-        "Populate FK for previous_info()."
-        self._build_contacts()
-        self._add_sectors()
+    # def test_fk_populated(self):
+    #     "Populate FK for previous_info()."
+    #     self._build_contacts()
+    #     self._add_sectors()
+    #
+    #     key = 'sector'
+    #     qs = FakeContact.objects.order_by(key, 'id')
+    #
+    #     paginator = FlowPaginator(qs, key=key, per_page=2, count=len(qs))
+    #     last_page = paginator.last_page()
+    #
+    #     with self.assertNumQueries(1):
+    #         last_page.previous_page_info()
 
-        key = 'sector'
-        qs = FakeContact.objects.order_by(key, 'id')
+    def test_one2one_raw(self):
+        "Key: 'cremeentity_ptr_id'."
+        create_contact = partial(FakeContact.objects.create, user=self.user)
 
-        paginator = FlowPaginator(qs, key=key, per_page=2, count=len(qs))
-        last_page = paginator.last_page()
+        for first_name, last_name in [
+            ('Rei', 'Ichido'),
+            ('Gô', 'Reietsu'),
+            ('Gô', 'Reietsu'),  # Duplicate
+            ('Jin', 'Daima'),
+            ('Kiyoshi', 'Shusse'),
+        ]:
+            create_contact(first_name=first_name, last_name=last_name)
 
-        with self.assertNumQueries(1):
-            last_page.previous_page_info()
+        key = 'cremeentity_ptr_id'
+        qs = FakeContact.objects.order_by(key)
+        contacts = [*qs]
+        self.assertNotEqual(
+            contacts,
+            [*FakeContact.objects.order_by('cremeentity_ptr__header_filter_search_field')]
+        )
+
+        with self.assertRaises(ValueError) as cm:
+            FlowPaginator(qs, key='cremeentity_ptr', per_page=2, count=len(contacts))
+        self.assertStartsWith(
+            str(cm.exception),
+            'Invalid key: last sub-field "creme_core.FakeContact.cremeentity_ptr" '
+            'seems to be a ForeignKey ',
+        )
+
+        paginator = FlowPaginator(qs, key=key, per_page=2, count=len(contacts))
+
+        page1 = paginator.page()
+        self.assertListEqual(contacts[:2], [*page1.object_list])
+
+        page2 = paginator.page(page1.next_page_info())
+        self.assertListEqual(contacts[2:4], [*page2.object_list])
+
+        page3 = paginator.page(page2.next_page_info())
+        self.assertListEqual(contacts[4:6], [*page3.object_list])
+        self.assertFalse(page3.has_next())
+
+        # TODO: desc?
 
     def test_pages01(self):
         self._build_contacts()

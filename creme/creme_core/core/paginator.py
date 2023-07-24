@@ -62,7 +62,7 @@ class FlowPaginator:
 
     Beware: if you use a nullable key, NULL values must be ordered as the lowest values
             (i.e. first in ASC order, last in DESC order).
-            Tip: you can use creme.models.manager.LowNullsQuerySet.
+            Tip: you can use 'creme.models.manager.LowNullsQuerySet'.
     """
     queryset: QuerySet
 
@@ -84,12 +84,14 @@ class FlowPaginator:
                 the methods 'values()' & 'values_list()').
         @param key: Name of the field used as key (i.e. first ordering field).
                It can be a composed field name like 'user__username'.
-               ManyToManyFields are not managed ; ForeignKeys must reference
-               models with a Meta option 'ordering'.
+               For ForeignKeys, you must use:
+                - the low-level attribute (e.g. 'myfk' => 'myfk_id').
+                - an order-able subfield's name (e.g. 'myfk__title).
+               ManyToManyFields are not managed.
         @param per_page: Number of entities.
         @param count: Total number of entities (ie should be equal to object_list.count())
                (so no additional query is performed to get it).
-               The default value _should_ be overridden with the correct value ;
+               The default value _should_ be overridden with the correct value;
                it is only useful when a whole queryset is iterated with pages()
                (because count is not used).
         @raise ValueError: If key is invalid.
@@ -101,7 +103,7 @@ class FlowPaginator:
         self.count = count
         self._num_pages: int | None = None
 
-        self._attr_name: str = ''
+        self._attr_name: str = ''  # TODO: rename "attr_nameS"?
         self._reverse_order: bool = False
         self.key = key
 
@@ -144,18 +146,29 @@ class FlowPaginator:
         # TODO: if related_model is not None ?
         last_field = field_info[-1]
 
-        if last_field.is_relation:
-            subfield_model = last_field.remote_field.model
-            subfield_ordering = subfield_model._meta.ordering
+        # if last_field.is_relation:
+        #     subfield_model = last_field.remote_field.model
+        #     subfield_ordering = subfield_model._meta.ordering
+        #
+        #     if not subfield_ordering:
+        #         raise ValueError(
+        #             f'Invalid key: related field model "{subfield_model}" '
+        #             f'should have Meta.ordering'
+        #         )
+        #
+        #     attr_name += '__' + subfield_ordering[0]
+        #     field_info = FieldInfo(self.queryset.model, attr_name)
 
-            if not subfield_ordering:
-                raise ValueError(
-                    f'Invalid key: related field model "{subfield_model}" '
-                    f'should have Meta.ordering'
-                )
-
-            attr_name += '__' + subfield_ordering[0]
-            field_info = FieldInfo(self.queryset.model, attr_name)
+        # TODO: other check?
+        # NB: if the attribute name is different, it means the user talks
+        #     about the low-level value "stuff_id", not the ForeignKey "stuff".
+        # TODO: make a better API for that in FieldInfo?
+        if last_field.is_relation and last_field.name == field_info.attname(-1):
+            raise ValueError(
+                f'Invalid key: last sub-field "{last_field}" seems to be a '
+                f'ForeignKey & cannot be used as key (not order-able). '
+                f'Hint: use a the raw field ("myfk_id") or a subfield ("myfk__name").'
+            )
 
         self._attr_name = attr_name
         self._key_field_info = field_info
