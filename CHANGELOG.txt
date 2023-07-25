@@ -1,9 +1,11 @@
 == Version 2.3.14 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .mo files (billing)
+  TODO: compile .mo files (billing, creme_core)
 
   Users side :
   ------------
+    # The mass-export now raises an error when trying to export without any order columns is chosen
+      (it avoids the generated file to contain duplicated data).
     # Apps :
         * Reports :
             - Private filters of others users could be selected in the edition form.
