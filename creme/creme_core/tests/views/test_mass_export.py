@@ -706,6 +706,8 @@ class MassExportViewsTestCase(ViewsTestCase):
                 FakeInvoiceLine,
                 list_url=FakeInvoiceLine.get_lv_absolute_url(),
                 hfilter_id=hf.id,
+                sort_key='regular_field-item',
+                sort_order='ASC',
             ),
             follow=True,
         )
@@ -843,3 +845,30 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2
         self.assertCountOccurrences(camp2.name, content, count=1)
         self.assertNotIn(camp3.name, content)
+
+    def test_no_order(self):
+        user = self.login()
+
+        FakeContact.objects.create(
+            user=user, first_name='Spike', last_name='Spiegel', phone='123233',
+        )
+
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test_hf', name='Not orderable view', model=FakeContact,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'languages'}),
+            ],
+        )
+        response = self.client.get(self._build_contact_dl_url(
+            hfilter_id=hf.id,
+            # sort_key='regular_field-...',
+            sort_order='ASC',
+        ))
+        self.assertContains(
+            response,
+            _(
+                'The file cannot be generated because your list is not ordered '
+                '(hint: chose a column in the list header then try to download the file again).'
+            ),
+            status_code=409, html=True,
+        )
