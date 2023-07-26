@@ -17,6 +17,7 @@
     Non breaking changes :
     ----------------------
         # The templatetag {% widget_help_sign %} (from the module 'creme_widgets') did not use the icon passed as argument.
+        # The context of list-views when there is no sorting key is now cleaner (no more "None" string).
 
 
 == Version 2.4.5 ==
