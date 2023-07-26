@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022  Hybird
+    Copyright (C) 2022-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -21,20 +21,23 @@
 
 creme.D3BarChart = creme.D3Chart.sub({
     defaultProps: {
-        xAxisSize: 20,
+        xAxisSize: 25,
         xAxisTitle: '',
         yAxisSize: 30,
         yAxisTitle: '',
-        yAxisTickFormat: d3.format("~s"),
+        yAxisTickFormat: null,
+        barMinWidth: 60,
         barColor: "#4682b4",
         barHilighted: "#66a2d4",
         barSelected: "#d6c2f4",
         barTextColor: "#fff",
-        barTextFormat: d3.format(".0f"),
+        barTextFormat: null,
         limits: [],
         margin: 0,
         transition: true,
-        visible: true
+        visible: true,
+        xScroll: null,
+        overflow: false
     },
 
     _init_: function(options) {
@@ -65,10 +68,25 @@ creme.D3BarChart = creme.D3Chart.sub({
         });
     },
 
+    exportOptions: function(data, options, props) {
+        if (props.overflow) {
+            var margin = props.margin ? props.margin.left + props.margin.right : 0;
+            var width = (data.length * props.barMinWidth) + props.yAxisSize + margin;
+
+            return {
+                width: Math.max(width, options.width || 0)
+            };
+        }
+
+        return {};
+    },
+
     exportProps: function() {
         return {
             transition: false,
-            drawOnResize: false
+            drawOnResize: false,
+            xScroll: false,
+            overflow: true
         };
     },
 
@@ -78,14 +96,8 @@ creme.D3BarChart = creme.D3Chart.sub({
         var chart = svg.select(".bar-chart");
 
         if (chart.size() === 0) {
-            chart = svg.append('g')
-                           .attr('class', 'bar-chart d3-chart');
-
-            chart.append('g').attr('class', 'x axis');
-            chart.append("g").attr("class", "y axis");
-
-            chart.append('g').attr('class', 'bars');
-            chart.append('g').attr('class', 'limits');
+            chart = svg.append('g').attr('class', 'bar-chart d3-chart');
+            this._setupChart(sketch, chart, props);
         }
 
         chart.classed('not-visible', !props.visible);
@@ -104,15 +116,29 @@ creme.D3BarChart = creme.D3Chart.sub({
         });
     },
 
+    _setupChart: function(sketch, chart, props) {
+        var body = chart.append('g').attr('class', 'x-scroll-body');
+        body.append('g').attr('class', 'x axis');
+        body.append('g').attr('class', 'bars');
+
+        chart.append('g').attr('class', 'limits');
+        chart.append("g").attr("class", "y axis");
+
+        this.scroll = creme.d3Scroll().target(body);
+    },
+
     _updateChart: function(sketch, chart, data, props) {
-        var xscale = d3.scaleBand().padding(0.1);
-        var yscale = d3.scaleLinear();
         var bounds = creme.svgBounds(sketch.size(), props.margin);
+        var xScroll = props.xScroll;
+        var overflow = props.overflow;
 
         data = this.chartData(data);
+        var yDataInfo = creme.d3NumericDataInfo(data, function(d) { return d.y; });
 
-        var ymax = d3.max(data, function(d) { return d.y; }) || 1;
+        var ymax = yDataInfo.max || 1;
         var yAxisFontSize = creme.d3FontSize(chart.select('.y.axis'));
+        var barTextFormat = props.barTextFormat || creme.d3NumericFormat(yDataInfo);
+        var yAxisTickFormat = props.yAxisTickFormat || creme.d3NumericAxisFormat(yDataInfo);
 
         // 2em height for the title
         var yAxisTitleHeight = yAxisFontSize * 2;
@@ -128,8 +154,19 @@ creme.D3BarChart = creme.D3Chart.sub({
 
         bounds = creme.svgBounds(bounds, {left: yAxisSize});
 
+        // Guess if scrolling is needed : min bar width * bar number > bounds
+        if (xScroll === null) {
+            xScroll = Boolean(props.barMinWidth * data.length > bounds.width);
+            overflow = xScroll;
+        }
+
+        var xAxisWidth = overflow ? Math.max(props.barMinWidth * data.length, bounds.width) : bounds.width;
+
+        chart.classed('x-scroll', xScroll);
+
+        var xscale = d3.scaleBand().padding(0.1);
         xscale.domain(data.map(function(d) { return d.x; }))
-              .range([0, bounds.width], 0.1);
+              .range([0, xAxisWidth], 0.1);
 
         chart.select('.x.axis')
                 .call(creme.d3BottomAxis()
@@ -152,14 +189,17 @@ creme.D3BarChart = creme.D3Chart.sub({
             top: yAxisTitleHeight
         });
 
+        var yscale = d3.scaleLinear();
         yscale.domain([0, ymax])
               .range([bounds.height, 0]);
 
         chart.selectAll('.y.axis')
                   .attr('transform', creme.svgTransform().translate(yAxisSize, yAxisTitleHeight))
                   .call(creme.d3LeftAxis()
+                                  .fill('#fff')
                                   .scale(yscale)
-                                  .tickFormat(props.yAxisTickFormat)
+                                  .tickFormat(yAxisTickFormat)
+                                  .ticks(yDataInfo.integer ? Math.min(yDataInfo.gap, 8) : 8)
                                   .label(props.yAxisTitle));
 
         var items = chart.select('.bars')
@@ -172,7 +212,7 @@ creme.D3BarChart = creme.D3Chart.sub({
             colorScale: colorScale,
             xscale: xscale,
             yscale: yscale,
-            textformat: props.barTextFormat
+            textformat: barTextFormat
         };
 
         this._enterBar(items.enter(), context);
@@ -187,6 +227,12 @@ creme.D3BarChart = creme.D3Chart.sub({
 
             chart.select('.limits').call(limits);
         }
+
+        this.scroll.bounds(bounds)
+                   .disabled(!xScroll)
+                   .innerSize({width: xAxisWidth});
+
+        sketch.svg().call(this.scroll);
 
         return chart;
     },

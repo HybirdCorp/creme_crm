@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022  Hybird
+    Copyright (C) 2022-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -262,11 +262,78 @@ creme.d3ColorRange = function(colors) {
     }
 };
 
+creme.d3NumericDataInfo = function(data, getter) {
+    data = data || [];
+    getter = getter || function (d) { return d; };
+
+    if (data.length === 0) {
+        return {
+            integer: true,
+            min: 0,
+            max: 0,
+            gap: 0,
+            average: 0
+        };
+    }
+
+    var min = 0, max = 0, onlyInt = true, sum = 0;
+
+    data.forEach(function(d) {
+        var value = parseFloat(getter(d));
+        onlyInt = onlyInt && Number.isInteger(value);
+        min = isNaN(value) ? min : Math.min(min, value);
+        max = isNaN(value) ? max : Math.max(max, value);
+        sum += isNaN(value) ? 0 : value;
+    });
+
+    return {
+        min: min,
+        max: max,
+        gap: Math.abs(max - min),
+        average: sum / data.length,
+        integer: onlyInt
+    };
+};
+
+creme.d3NumericFormat = function(info) {
+    if (info.integer) {
+        if (info.gap < 10000) {
+            return d3.format('~s');
+        } else {
+            return d3.format('.3s');
+        }
+    } else {
+        if (info.gap < 100) {
+            return d3.formatPrefix('.2', 1);
+        } else if (info.gap < 10000) {
+            return d3.format('~s');
+        } else {
+            return d3.format('.3s');
+        }
+    }
+};
+
+creme.d3NumericAxisFormat = function(info) {
+    if (info.integer) {
+        if (info.gap < 1000) {
+            return d3.format('~s');
+        } else {
+            return d3.format('.2s');
+        }
+    } else {
+        if (info.gap < 100) {
+            return d3.formatPrefix('.2', 1);
+        } else {
+            return d3.format('.2s');
+        }
+    }
+};
+
 creme.d3Map = function(select, func) {
     var res = [];
 
-    select.each(function(d) {
-        res.push(func.apply(this, [d]));
+    select.each(function(datum, i, nodes) {
+        res.push(func.apply(this, [datum, i, nodes]));
     });
 
     return res;

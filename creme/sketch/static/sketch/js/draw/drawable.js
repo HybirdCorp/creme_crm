@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022  Hybird
+    Copyright (C) 2022-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ creme.D3Drawable = creme.component.Component.sub({
     drawAll: function(selection) {
         var self = this;
 
-        return selection.each(function(datum, i, nodes) {
+        creme.d3Map(selection, function(datum, i, nodes) {
             self.draw(this, datum, i, nodes);
         });
     },
@@ -60,7 +60,8 @@ creme.D3Drawable = creme.component.Component.sub({
 creme.d3Drawable = function(options) {
     options = options || {};
 
-    var props = options.props || [];
+    var props = new Set(options.props || []);
+    var methods = new Set(options.methods || []);
     var instance = options.instance;
 
     Assert.is(instance, creme.D3Drawable, 'Must be a creme.D3Drawable');
@@ -83,6 +84,19 @@ creme.d3Drawable = function(options) {
         renderer[name] = function(value) {
             var res = instance.prop(name, value);
             return value === undefined ? res : this;
+        };
+    });
+
+    methods.forEach(function(name) {
+        Assert.that(
+            renderer[name] === undefined,
+            'A property "${name}" already exists for this renderer.'.template({name: name})
+        );
+
+        renderer[name] = function(selection) {
+            return creme.d3Map(selection, function(datum, i, nodes) {
+                instance[name].apply(instance, [this, datum, i, nodes]);
+            });
         };
     });
 

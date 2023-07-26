@@ -122,6 +122,19 @@
                     - In 'models.calendar' :
                         - The method 'CalendarManager.new_color()' is deprecated.
                         - The method 'Calendar.get_color()' is deprecated; use 'Calendar.color' instead.
+                * Sketch:
+                    - Add 'creme.d3NumericDataInfo' that create stats from data : min, max, only integers, value range, average.
+                    - Add 'creme.d3NumericFormat' & 'creme.d3NumericAxisFormat' to find the best format from data information.
+                    - Add 'creme.d3Scroll' renderer to handle horizontal or vertical scrolling of an svg node
+                    - creme.D3BarChart: Horizontal scrolling if a minimum bar width is reached.
+                    - creme.D3DonutChart:
+                        - Vertical scrolling of legend on overflow.
+                        - Slice text is visible only on mouse hover if it is too small.
+                    - Fix an issue in 'creme.d3LegendRow' renderer visible in D3TubeChart (legend without labels).
+                * Reports:
+                    - creme.D3TubeChart:
+                        - Horizontal scrollog of legend & textwrap.
+                        - Bar text is visible only on mouse hover if it is too small.
         # You can now register a field-printer for a specific field. Example (in your "apps.py") :
             def register_field_printers(self, field_printers_registry):
                 field_printers_registry.register_model_field(
@@ -148,8 +161,10 @@
         # In 'creme_core.tests' :
             - Several new assertions are now available: 'assertHasAttr()', 'assertHasProperty()', 'assertHasNoProperty()'.
             - An dummy email backend which stores 'args' & 'kwargs' is now used.
-        # In Javascript, 'creme.form.Select2' now supports the lazy loading of selections ;
-          it's useful in entity filter polymorphic inputs that do not know the selected options beforehand.
+        # In Javascript:
+            - 'creme.form.Select2' now supports the lazy loading of selections ;
+              it's useful in entity filter polymorphic inputs that do not know the selected options beforehand.
+            - New 'RGBColor.rgb()' method to handle CSS format : 'rgb(int, int, int)'
 
     Breaking changes :
     ------------------
