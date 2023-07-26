@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022  Hybird
+    Copyright (C) 2022-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -24,9 +24,14 @@ creme.D3DonutChart = creme.D3Chart.sub({
         band: 60,
         margin: 0,
         colors: null,
+        textRadius: 0.8,
+        textFormat: null,
+        textVisibleMinAngle: Math.PI / 12,
         showLegend: true,
         transition: true,
-        visible: true
+        visible: true,
+        scrollLegend: null,
+        legendItemHeight: 25
     },
 
     _init_: function(options) {
@@ -39,17 +44,22 @@ creme.D3DonutChart = creme.D3Chart.sub({
         var chart = svg.select(".donut-chart");
 
         if (chart.size() === 0) {
-            chart = svg.append("g")
-                           .attr('class', 'donut-chart d3-chart');
-
-            chart.append('g').attr('class', 'slices');
-            chart.append('g').attr('class', 'legend');
+            chart = svg.append("g").attr('class', 'donut-chart d3-chart');
+            this._setupChart(sketch, chart, props);
         }
 
         chart.classed('not-visible', !props.visible);
 
         this._updateChart(sketch, chart, data, props);
         return this;
+    },
+
+    exportProps: function() {
+        return {
+            transition: false,
+            drawOnResize: false,
+            scrollLegend: false
+        };
     },
 
     chartData: function(data) {
@@ -64,11 +74,23 @@ creme.D3DonutChart = creme.D3Chart.sub({
         });
     },
 
+    _setupChart: function(sketch, chart, props) {
+        chart.append('g').attr('class', 'slices');
+        chart.append('g').attr('class', 'legend');
+
+        this.scroll = creme.d3Scroll();
+    },
+
     _updateChart: function(sketch, chart, data, props) {
+        var scrollLegend = props.scrollLegend;
         var bounds = creme.svgBounds(sketch.size(), props.margin);
         var colors = props.colors || d3.quantize(function(t) {
             return d3.interpolateSpectral(t * 0.8 + 0.1);
         }, Math.max(data.length, 2));  // we must quantize at least TWO colors or it will be black
+
+        var textFormat = props.textFormat || creme.d3NumericFormat(
+            creme.d3NumericDataInfo(data, function(d) { return d.y; })
+        );
 
         data = this.chartData(data);
 
@@ -85,7 +107,7 @@ creme.D3DonutChart = creme.D3Chart.sub({
         if (props.showLegend) {
             var legends = creme.d3LegendColumn()
                                     .swatchColor(colorScale)
-                                    .swatchSize({width: 20, height: 25})
+                                    .swatchSize({width: 20, height: props.legendItemHeight})
                                     .spacing(0)
                                     .data(xkeys.sort());
 
@@ -97,6 +119,12 @@ creme.D3DonutChart = creme.D3Chart.sub({
              bounds = creme.svgBounds(bounds, {
                  left: chart.select('.legend').node().getBBox().width
              });
+
+             if (scrollLegend === null) {
+                 scrollLegend = Boolean(props.legendItemHeight * data.length > bounds.height);
+             }
+
+             chart.select('.legend').classed('legend-scroll', scrollLegend);
         }
 
         var radius = creme.svgBoundsRadius(bounds);
@@ -104,6 +132,10 @@ creme.D3DonutChart = creme.D3Chart.sub({
         var arcpath = d3.arc()
                         .innerRadius(props.band > 0 ? Math.max(0, radius - props.band) : 0)
                         .outerRadius(radius);
+
+        var textArc = d3.arc()
+                        .innerRadius(radius * props.textRadius)
+                        .outerRadius(radius * props.textRadius);
 
         chart.select('.slices')
              .attr("transform", creme.svgTransform().translate(
@@ -119,14 +151,32 @@ creme.D3DonutChart = creme.D3Chart.sub({
 
         var context = {
             arcpath: arcpath,
+            textArc: textArc,
+            textVisibleMinAngle: props.textVisibleMinAngle,
             colorScale: colorScale,
-            formatValue: d3.format(',.0f'),
+            formatValue: textFormat,
             transition: props.transition
         };
 
         this._enterItem(items.enter(), context);
         this._updateItem(props.transition ? items.transition() : items, context);
         items.exit().remove();
+
+        if (props.showLegend && scrollLegend) {
+            var legend = chart.select('.legend');
+            var legendHeight = legend.node().getBBox().height;
+
+            this.scroll.bounds(bounds)
+                       .disabled(false)
+                       .innerSize({height: legendHeight})
+                       .wheelScrollDelta(function(e, props) {
+                           return {x: 0, y: -e.deltaY * props.wheelScale};
+                       });
+
+            legend.call(this.scroll);
+        } else {
+            this.scroll.disabled(true);
+        }
 
         return chart;
     },
@@ -137,6 +187,7 @@ creme.D3DonutChart = creme.D3Chart.sub({
         var arcpath = context.arcpath;
         var colorScale = context.colorScale;
         var formatValue = context.formatValue;
+        var textArc = context.textArc;
 
         var arc = item.append('g')
                          .attr('class', 'slice')
@@ -152,8 +203,14 @@ creme.D3DonutChart = creme.D3Chart.sub({
                .style("text-anchor", "middle")
                .text(function(d) { return formatValue(d.data.y); })
                .attr("transform", function(d) {
-                    var pos = arcpath.centroid(d);
+                    var pos = textArc.centroid(d);
                     return creme.svgTransform().translate(pos[0], pos[1]);
+                })
+               .attr('class', function(d) {
+                    return Math.abs(d.startAngle - d.endAngle) < context.textVisibleMinAngle ? 'hidden-label' : '';
+                })
+               .attr('fill', function(d) {
+                    return new RGBColor(colorScale(d.data.x)).foreground();
                 });
     },
 
@@ -161,6 +218,7 @@ creme.D3DonutChart = creme.D3Chart.sub({
         var arcpath = context.arcpath;
         var colorScale = context.colorScale;
         var formatValue = context.formatValue;
+        var textArc = context.textArc;
 
         function arcTween(d) {
             this._current = this._current || d;
@@ -185,9 +243,12 @@ creme.D3DonutChart = creme.D3Chart.sub({
         item.select("text")
                 .text(function(d) { return formatValue(d.data.y); })
                 .attr("transform", function(d) {
-                    var pos = arcpath.centroid(d);
-                    return creme.svgTransform().translate(pos[0], pos[1]);
-                });
+                     var pos = textArc.centroid(d);
+                     return creme.svgTransform().translate(pos[0], pos[1]);
+                 })
+                 .attr('fill', function(d) {
+                     return new RGBColor(colorScale(d.data.x)).foreground();
+                 });
     }
 });
 

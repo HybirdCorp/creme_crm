@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022  Hybird
+    Copyright (C) 2022-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -139,9 +139,12 @@ creme.D3Chart = creme.component.Component.sub({
 
     saveAs: function(done, filename, options) {
         var data = this.model() ? this.model().all() : [];
+        var props = $.extend(this.props(), this.exportProps());
+
+        options = $.extend(options || {}, this.exportOptions(data, options, props));
 
         this._withShadowSketch(options, function(sketch) {
-            this._export(sketch, data);
+            this._export(sketch, data, props);
             sketch.saveAs(done, filename, options);
         });
 
@@ -150,11 +153,18 @@ creme.D3Chart = creme.component.Component.sub({
 
     asImage: function(done, options) {
         var data = this.model() ? this.model().all() : [];
+        var props = $.extend(this.props(), this.exportProps());
+
+        options = $.extend(options || {}, this.exportOptions(data, options, props));
 
         return this._withShadowSketch(options, function(sketch) {
-            this._export(sketch, data);
+            this._export(sketch, data, props);
             return sketch.asImage(done);
         });
+    },
+
+    exportOptions: function(data, options, props) {
+        return {};
     },
 
     exportStyle: function(props) {
@@ -198,8 +208,7 @@ creme.D3Chart = creme.component.Component.sub({
         }
     },
 
-    _export: function(sketch, data) {
-        var props = $.extend(this.props(), this.exportProps());
+    _export: function(sketch, data, props) {
         var style = this.exportStyle(props);
 
         sketch.svg().append('style').text(Object.isString(style) ? style : creme.svgRulesAsCSS(style));

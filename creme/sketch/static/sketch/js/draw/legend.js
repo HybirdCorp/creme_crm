@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022  Hybird
+    Copyright (C) 2022-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,12 @@ creme.D3LegendRow = creme.D3Drawable.sub({
         ]),
         spacing: 0,
         data: [],
-        text: function(d, i) { return d; }
+        text: function(d, i) { return d; },
+        help: null,
+        textWrap: {
+            breakAll: true,
+            lineHeight: '1.1em'
+        }
     },
 
     draw: function(node, datum, i) {
@@ -37,6 +42,7 @@ creme.D3LegendRow = creme.D3Drawable.sub({
             return creme.svgTransform().translate((interval / 2) + i * interval, 0);
         };
 
+        var textWrapper = Object.isFunc(props.textWrapper) ? props.textWrapper : creme.d3TextWrap().maxWidth(interval).props(props.textWrap);
         var legend = d3.select(node);
         var items = legend.selectAll('.legend-item').data(props.data || []);
 
@@ -48,36 +54,33 @@ creme.D3LegendRow = creme.D3Drawable.sub({
         newItem.append("rect")
                    .attr("width", props.swatchSize.width)
                    .attr("height", props.swatchSize.height)
-                   .attr('title', props.help)
+                   .attr('title', props.help || props.text)
                    .attr("fill", props.swatchColor);
 
         newItem.append("text")
                    .attr("y", props.swatchSize.height * 1.5)
                    .attr("dx", props.swatchSize.width / 2)
                    .attr("dy", "0.35em")
-                   .attr('text-anchor', 'middle');
+                   .attr('text-anchor', 'middle')
+                   .text(props.text)
+                   .call(textWrapper);
 
-        var item = items.attr("transform", position);
-
-        item.select("rect")
+        items.attr("transform", position);
+        items.select('text')
+                .text(props.text)
+                .call(textWrapper);
+        items.select("rect")
                 .attr('title', props.help || props.text)
                 .attr("fill", props.swatchColor);
 
-        item.select("text").text(props.text);
-
         items.exit().remove();
-
-        legend.selectAll('.legend-item text')
-                  .call(creme.d3TextWrap().maxWidth(interval)
-                                          .breakAll(true)
-                                          .lineHeight('1.1em'));
     }
 });
 
 creme.d3LegendRow = function(options) {
     return creme.d3Drawable({
         instance: new creme.D3LegendRow(options),
-        props: ['swatchSize', 'swatchColor', 'spacing', 'data', 'text', 'interval']
+        props: ['swatchSize', 'swatchColor', 'spacing', 'data', 'text', 'interval', 'helpText', 'textWrap']
     });
 };
 
@@ -108,7 +111,7 @@ creme.D3LegendColumn = creme.D3Drawable.sub({
         newItem.append("rect")
                    .attr("width", props.swatchSize.width)
                    .attr("height", props.swatchSize.height)
-                   .attr('title', props.help)
+                   .attr('title', props.help || props.text)
                    .attr("fill", props.swatchColor);
 
         newItem.append("text")
@@ -119,13 +122,13 @@ creme.D3LegendColumn = creme.D3Drawable.sub({
                    .attr("dx", "0.31em")
                    .text(props.text);
 
-        var item = items.attr("transform", position);
+        items.attr("transform", position);
 
-        item.select("rect")
+        items.select("rect")
                 .attr('title', props.help || props.text)
                 .attr("fill", props.swatchColor);
 
-        item.select("text").text(props.text);
+        items.select("text").text(props.text);
 
         items.exit().remove();
     }

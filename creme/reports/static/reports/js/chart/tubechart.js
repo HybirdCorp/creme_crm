@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022  Hybird
+    Copyright (C) 2022-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -23,13 +23,17 @@ creme.D3TubeChart = creme.D3Chart.sub({
     defaultProps: {
         xAxisSize: 20,
         xAxisTitle: '',
-        xAxisTickFormat: d3.format("~s"),
-        barTextFormat: d3.format("~s"),
+        xAxisTickFormat: null,
+        barTextFormat: null,
+        barTextAlignmentRatio: 0.5,
+        barTextVisibleMinSize: 30,
         colors: ["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"],
         margin: 5,
         showLegend: true,
         transition: true,
-        visible: true
+        visible: true,
+        scrollLegend: null,
+        legendItemMinWidth: 60
     },
 
     exportStyle: function(props) {
@@ -45,16 +49,18 @@ creme.D3TubeChart = creme.D3Chart.sub({
                 fill: props.barSelected
             },
             ".tube-chart .bar text": {
-                "text-anchor": "middle"
-            },
-            ".tube-chart .bar text.inner": {
-                fill: props.barTextColor
-            },
-            ".tube-chart .limit": {
-                stroke: "#f6c2d4",
-                "z-index": 1
+                "text-anchor": "middle",
+                "font-weight": "bold"
             }
         });
+    },
+
+    exportProps: function() {
+        return {
+            transition: false,
+            drawOnResize: false,
+            scrollLegend: false
+        };
     },
 
     _draw: function(sketch, data, props) {
@@ -64,21 +70,25 @@ creme.D3TubeChart = creme.D3Chart.sub({
 
         if (chart.size() === 0) {
             chart = svg.append('g').attr('class', 'tube-chart d3-chart');
-
-            chart.append('g').attr('class', 'x axis');
-
-            chart.append('g').attr('class', 'bars');
-            chart.append('g').attr('class', 'legend');
+            this._setupChart(sketch, chart, props);
         }
 
         chart.classed('not-visible', !props.visible);
+        this._updateChart(sketch, chart, data, props);
+    },
 
-        if (props.visible) {
-            this._updateChart(sketch, chart, data, props);
-        }
+    _setupChart: function(sketch, chart, props) {
+        chart.append('g').attr('class', 'x axis');
+
+        chart.append('g').attr('class', 'bars');
+
+        var legend = chart.append('g').attr('class', 'legend');
+
+        this.scroll = creme.d3Scroll().target(legend);
     },
 
     _updateChart: function(sketch, chart, data, props) {
+        var scrollLegend = props.scrollLegend;
         var bounds = creme.svgBounds(sketch.size(), props.margin);
         var color = d3.scaleOrdinal().range(creme.d3ColorRange(props.colors));
 
@@ -89,33 +99,49 @@ creme.D3TubeChart = creme.D3Chart.sub({
             return d.y > 0;
         }));
 
-        var ymax = d3.max(data, function(d) { return d.endX; }) || 1;
+        var yDataInfo = creme.d3NumericDataInfo(data, function(d) { return d.endX; });
+        var barTextFormat = props.barTextFormat || creme.d3NumericFormat(yDataInfo);
+        var xAxisTickFormat = props.xAxisTickFormat || creme.d3NumericAxisFormat(yDataInfo);
+
+        var ymax = yDataInfo.max || 1;
         var legendHeight = 0;
 
         chart.attr('transform', creme.svgTransform().translate(bounds.left, bounds.top));
 
+        if (scrollLegend === null) {
+            scrollLegend = Boolean(props.legendItemMinWidth * data.length > bounds.width);
+        }
+
+        var legendWidth = scrollLegend ? Math.max(props.legendItemMinWidth * data.length, bounds.width) : bounds.width;
+
         if (props.showLegend) {
-            var legends = creme.d3LegendRow()
+            var legend = chart.select('.legend');
+            var itemMaxWidth = Math.ceil(legendWidth / xkeys.length);
+            var legendRow = creme.d3LegendRow()
                                     .swatchColor(color)
                                     .swatchSize({width: 16, height: 16})
-                                    .interval(Math.ceil(bounds.width / xkeys.length))
+                                    .interval(itemMaxWidth)
                                     .data(xkeys.sort());
 
-            chart.select('.legend').call(legends);
+            legend.call(legendRow);
 
             // Re-calculate bounds with the legend width AFTER text wrap
-            legendHeight = Math.ceil(chart.select('.legend').node().getBBox().height);
+            legendHeight = Math.ceil(legend.node().getBBox().height);
+            legend.classed('legend-scroll', scrollLegend);
         }
 
         xscale.domain([0, ymax])
               .range([0, bounds.width], 0.1);
 
+        var xAxisTicks = yDataInfo.integer ? Math.min(yDataInfo.gap, 8) : 8;
+
         chart.select('.x.axis')
                   .call(creme.d3BottomAxis()
                                   .scale(xscale)
-                                  .tickFormat(props.xAxisTickFormat)
+                                  .tickFormat(xAxisTickFormat)
                                   .minHeight(props.xAxisSize)
-                                  .tickWrapWidth(bounds.width / 10)
+                                  .tickWrapWidth(bounds.width / xAxisTicks)
+                                  .ticks(xAxisTicks)
                                   .label(props.xAxisTitle))
                   .attr('transform', function() {
                       return creme.svgTransform().translate(
@@ -141,13 +167,25 @@ creme.D3TubeChart = creme.D3Chart.sub({
             bounds: bounds,
             xscale: xscale,
             color: color,
-            textformat: props.barTextFormat,
+            textformat: barTextFormat,
+            textAlignRatio: props.barTextAlignmentRatio,
+            textMinVisibleSize: props.barTextVisibleMinSize,
             transition: props.transition
         };
 
         this._enterStack(items.enter(), context);
         this._updateStack(props.transition ? items.transition() : items, context);
         items.exit().remove();
+
+        if (props.showLegend && scrollLegend) {
+            this.scroll.bounds(bounds)
+                       .disabled(false)
+                       .innerSize({width: legendWidth});
+
+            legend.call(this.scroll);
+        } else {
+            this.scroll.disabled(true);
+        }
 
         return chart;
     },
@@ -176,6 +214,8 @@ creme.D3TubeChart = creme.D3Chart.sub({
         var xscale = context.xscale;
         var color = context.color;
         var textformat = context.textformat;
+        var textAlignRatio = context.textAlignRatio;
+        var textVisibleMinSize = context.textVisibleMinSize;
         var bounds = context.bounds;
 
         var bar = enter.append('g')
@@ -195,7 +235,10 @@ creme.D3TubeChart = creme.D3Chart.sub({
         bar.append('text')
                .attr('dy', '.75em')
                .attr('y', Math.ceil(bounds.height / 2))
-               .attr('x', function(d) { return (bounds.width - xscale(d.y)) > 15 ? 6 : -12; })
+               // .attr('x', function(d) { return (bounds.width - xscale(d.y)) > 15 ? 6 : -12; })
+               .attr('x', function(d) { return xscale(d.y) * textAlignRatio; })
+               .attr('class', function(d) { return xscale(d.y) < textVisibleMinSize ? 'hidden-label' : ''; })
+               .attr('fill', function(d) { return new RGBColor(color(d.x)).foreground(); })
                .text(function(d) { return textformat(d.y); });
     },
 
@@ -203,6 +246,8 @@ creme.D3TubeChart = creme.D3Chart.sub({
         var xscale = context.xscale;
         var color = context.color;
         var textformat = context.textformat;
+        var textAlignRatio = context.textAlignRatio;
+        var textVisibleMinSize = context.textVisibleMinSize;
         var bounds = context.bounds;
 
         update.selection()
@@ -219,7 +264,9 @@ creme.D3TubeChart = creme.D3Chart.sub({
 
         update.select('text')
                 .attr('y', Math.ceil(bounds.height / 2))
-                .attr('x', function(d) { return (bounds.width - xscale(d.y)) > 15 ? 6 : -12; })
+                .attr('x', function(d) { return xscale(d.y) * textAlignRatio; })
+                .attr('class', function(d) { return xscale(d.y) < textVisibleMinSize ? 'hidden-label' : ''; })
+                .attr('fill', function(d) { return new RGBColor(color(d.x)).foreground(); })
                 .text(function(d) { return textformat(d.y); });
     }
 });
