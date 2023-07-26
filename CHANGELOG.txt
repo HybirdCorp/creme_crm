@@ -7,6 +7,7 @@
     # The mass-export now raises an error when trying to export without any order columns is chosen
       (it avoids the generated file to contain duplicated data).
     # In blocks related to a specific relationship type, when columns were given, deleted entities were not marked as deleted.
+    # The description for filter conditions on boolean values is now better (value is translated).
     # Apps :
         * Reports :
             - Private filters of others users could be selected in the edition form.
