@@ -269,6 +269,31 @@ class VisitTestCase(ViewsTestCase):
             response2, entity=third, hfilter=hfilter, sort=sort, index=0,
         )
 
+    def test_no_sort(self):
+        user = self.login_as_root_and_get()
+        FakeContact.objects.create(user=user, first_name='John', last_name='Doe')
+
+        hfilter = HeaderFilter.objects.create_if_needed(
+            pk='creme_core-visit_no_order',
+            model=FakeContact,
+            name='No order view',
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'languages'}),
+            ],
+        )
+        response = self.client.get(
+            self._build_visit_uri(FakeContact, sort='', hfilter=hfilter.pk),
+            follow=True,
+        )
+        self.assertContains(
+            response,
+            _(
+                'The exploration mode cannot be used because your list is not ordered '
+                '(hint: chose a column in the list header then try to enter in the mode again).'
+            ),
+            status_code=409, html=True,
+        )
+
     def test_efilter(self):
         user = self.login_as_root_and_get()
 

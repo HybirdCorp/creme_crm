@@ -3646,22 +3646,46 @@ class ListViewTestCase(ViewsTestCase):
         FakeContact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
         response2 = self.assertPOST200(lv_url, data=data)
         lv_node2 = self._get_lv_node(response2)
+        visit_url = reverse(
+            'creme_core__visit_next_entity',
+            args=(ContentType.objects.get_for_model(FakeContact).id,),
+        )
         for button_info in self._get_lv_header_buttons(lv_node2):
             if button_info['label'] == label:
                 parameters = {
                     'hfilter': hfilter_id,
                     'sort': 'regular_field-last_name',
                 }
-                url = reverse(
-                    'creme_core__visit_next_entity',
-                    args=(ContentType.objects.get_for_model(FakeContact).id,),
-                )
                 self.assertURLEqual(
-                    f'{url}?{urlencode(parameters)}',
+                    f'{visit_url}?{urlencode(parameters)}',
                     button_info['url'],
                 )
                 break
         else:
             self.fail('No exploration button found.')
+
+        # No order -------------------------------------------------------------
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='test-hf_contact_no_order', name='Only details', model=FakeContact,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'phone'}),
+                (EntityCellRegularField, {'name': 'mobile'}),
+            ],
+        )
+        response3 = self.assertPOST200(lv_url, data={'hfilter': hf.id})
+        lv_node3 = self._get_lv_node(response3)
+        for button_info in self._get_lv_header_buttons(lv_node3):
+            if button_info['label'] == label:
+                parameters = {
+                    'hfilter': hf.id,
+                    'sort': '',
+                }
+                self.assertURLEqual(
+                    f'{visit_url}?{urlencode(parameters)}',
+                    button_info['url'],
+                )
+                break
+        else:
+            self.fail('No exploration button found (no order case).')
 
     # TODO: test other buttons

@@ -319,6 +319,13 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
         )
 
     def get_paginator(self, *, queryset, ordering: Sequence[str]) -> FlowPaginator:
+        # TODO: fix FlowPaginator to manage correctly this case
+        if ordering == ('cremeentity_ptr_id',):
+            raise ConflictError(_(
+                'The exploration mode cannot be used because your list is not ordered '
+                '(hint: chose a column in the list header then try to enter in the mode again).'
+            ))
+
         # NB: we use the smartness of FlowPaginator to retrieve only 3 entities
         #  (page size + 1), instead of juste using an index + whole queryset.
         #  it retrieves the value of the key field, & it takes cares about
