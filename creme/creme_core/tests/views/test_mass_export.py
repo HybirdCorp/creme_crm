@@ -715,33 +715,6 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertIn(f'''"Bebop","{_('Percent')}"''',    lines)
         self.assertIn(f'''"Swordfish","{_('Amount')}"''', lines)
 
-    # TODO: factorise with ListViewTestCase
-    def _get_lv_content(self, response):
-        page_tree = self.get_html_tree(response.content)
-
-        content_node = page_tree.find(
-            ".//form[@widget='ui-creme-listview']//table[@data-total-count]"
-        )
-        self.assertIsNotNone(content_node, 'The table listviews is not found.')
-
-        tbody = self.get_html_node_or_fail(content_node, './/tbody')
-        content = []
-
-        for tr_node in tbody.findall('tr'):
-            for td_node in tr_node.findall('td'):
-                class_attr = td_node.attrib.get('class')
-
-                if class_attr:
-                    classes = class_attr.split()
-
-                    if 'lv-cell-content' in classes:
-                        div_node = td_node.find('.//div')
-
-                        if div_node is not None:
-                            content.append(div_node.text.strip())
-
-        return content
-
     @override_settings(PAGE_SIZES=[10], DEFAULT_PAGE_SIZE_IDX=0)
     def test_quick_search(self):
         # user = self.login()
@@ -818,7 +791,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         create_camp = partial(FakeEmailCampaign.objects.create, user=user)
         camp1 = create_camp(name='Camp#1')
         camp2 = create_camp(name='Camp#2')
-        camp3 = create_camp(name='Camp#3')
+        create_camp(name='Camp#3')
 
         create_ml = partial(FakeMailingList.objects.create, user=user)
 
@@ -828,7 +801,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         camp1.mailing_lists.set([ml1, ml2])
         camp2.mailing_lists.set([ml1])
 
-        HeaderFilter.objects.create_if_needed(
+        hf = HeaderFilter.objects.create_if_needed(
             pk='test_hf', name='Campaign view', model=FakeEmailCampaign,
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
@@ -836,17 +809,20 @@ class MassExportViewsTestCase(ViewsTestCase):
             ],
         )
 
-        # Set the current list view state, with the quick search
-        lv_url = FakeEmailCampaign.get_lv_absolute_url()
-        response = self.assertPOST200(
-            lv_url,
-            data={'search-regular_field-mailing_lists': 'staff'},
+        response = self.assertGET200(self._build_dl_url(
+            FakeEmailCampaign,
+            hfilter_id=hf.id,
+            sort_key='regular_field-name',
+            **{'search-regular_field-mailing_lists': 'staff'}
+        ))
+        self.assertListEqual(
+            [
+                f'"{camp1.name}","{ml1.name}/{ml2.name}"',  # Only once
+                f'"{camp2.name}","{ml1.name}"',
+            ],
+            # NB: slice to remove the header
+            [force_str(line) for line in response.content.splitlines()[1:]],
         )
-        content = self._get_lv_content(response)
-
-        self.assertCountOccurrences(camp1.name, content, count=1)  # Not 2
-        self.assertCountOccurrences(camp2.name, content, count=1)
-        self.assertNotIn(camp3.name, content)
 
     def test_no_order(self):
         user = self.login_as_root_and_get()
