@@ -1,4 +1,4 @@
-/* globals QUnitSketchMixin */
+/* globals QUnitSketchMixin, WheelEvent */
 (function($) {
 
 QUnit.module("creme.D3Drawable", new QUnitMixin(QUnitSketchMixin));
@@ -25,7 +25,7 @@ QUnit.test('creme.D3Drawable (props)', function(assert) {
     deepEqual(new FakeDrawable().props({c: true, b: 8}).props(), {a: 12, b: 8, c: true});
 });
 
-QUnit.test('creme.D3Drawable (props)', function(assert) {
+QUnit.test('creme.d3Drawable (props)', function(assert) {
     var drawable = creme.d3Drawable({
         instance: new creme.D3Drawable({a: 12, b: 'text'}),
         props: ['a', 'b', 'c']
@@ -49,6 +49,78 @@ QUnit.test('creme.D3Drawable (props)', function(assert) {
 
     drawable.a(17.5).b('othertext');
     deepEqual(drawable.props(), {a: 17.5, b: 'othertext', c: true});
+});
+
+QUnit.test('creme.d3Drawable (methods)', function(assert) {
+    var FakeDrawable = creme.D3Drawable.sub({
+        defaultProps: {
+            a: 12, b: 'text', label: 'Called : ${label}'
+        },
+
+        funcA: function(node, datum, i) {
+            d3.select(node).append('text')
+                               .attr('class', 'func-a a-${0}'.template([i]))
+                               .attr('title', this.prop('label').template({label: datum}));
+        },
+
+        funcB: function(node, datum, i) {
+            console.log(node, datum, i);
+            d3.select(node).classed('func-b b-${0}'.template([i]), true);
+        }
+    });
+
+    var drawable = creme.d3Drawable({
+        instance: new FakeDrawable(),
+        props: ['a', 'b'],
+        methods: ['funcA', 'funcB']
+    });
+
+    equal(true, Object.isFunc(drawable.funcA));
+    equal(true, Object.isFunc(drawable.funcB));
+
+    var output = d3.select(document.createElement('g'));
+
+    this.assertD3Nodes(output, {
+        '.func-a': 0,
+        '.func-b': 0
+    });
+
+    var items = output.selectAll('.func-a')
+                      .data(['A1', 'A2']);
+
+    items.enter().call(drawable.funcA);
+
+    this.assertD3Nodes(output, {
+        '.a-0': {'class': 'func-a a-0', 'title': 'Called : A1'},
+        '.a-1': {'class': 'func-a a-1', 'title': 'Called : A2'}
+    });
+
+    output.selectAll('.func-a').call(drawable.funcB);
+
+    this.assertD3Nodes(output, {
+        '.a-0': {'class': 'func-a a-0 func-b b-0', 'title': 'Called : A1'},
+        '.a-1': {'class': 'func-a a-1 func-b b-1', 'title': 'Called : A2'}
+    });
+});
+
+QUnit.test('creme.d3Drawable (methods, duplicate)', function(assert) {
+    var FakeDrawable = creme.D3Drawable.sub({
+        defaultProps: {
+            title: 'Fake'
+        },
+
+        title: function(node, datum, i) {
+            d3.select(node).text(this.prop('title'));
+        }
+    });
+
+    this.assertRaises(function() {
+        creme.d3Drawable({
+            instance: new FakeDrawable(),
+            props: ['title'],
+            methods: ['title']
+        });
+    }, Error, 'Error: A property "title" already exists for this renderer.');
 });
 
 QUnit.test('creme.d3Drawable (not implemented)', function(assert) {
@@ -193,7 +265,7 @@ QUnit.parametrize('creme.d3TextWrap (word-break)', [
 
     // Wraps text on 10th character
     node.call(creme.d3TextWrap()
-                        .maxWidth(text10Width)
+                        .maxWidth(text10Width + 1)  // adds some pixels for errors depending of system fonts.
                         .lineHeight('1.73em'));
 
     this.assertD3Nodes(sketch.svg(), expected);
@@ -251,11 +323,44 @@ QUnit.parametrize('creme.d3TextWrap (all-break)', [
 
     // Wraps text and split words on 10th character
     node.call(creme.d3TextWrap()
-                        .maxWidth(text10Width)
+                        .maxWidth(text10Width + 1)  // adds some pixels for errors depending of system fonts.
                         .breakAll(true)
                         .lineHeight('1.73em'));
 
     this.assertD3Nodes(sketch.svg(), expected);
 });
 
+QUnit.test('creme.d3Scroll', function(assert) {
+    var sketch = new creme.D3Sketch().bind($('<div>'));
+    var chart = sketch.svg().append('g');
+    var body = chart.append('g');
+
+    chart.attr('width', 300)
+         .attr('height', 200);
+
+    body.attr('class', 'x-scroll')
+        .attr('width', 500)
+        .attr('height', 200);
+
+    var scroll = creme.d3Scroll()
+                          .target(body)
+                          .innerSize({width: 500});
+
+    chart.call(scroll);
+
+    this.assertD3Nodes(sketch.svg(), {
+        '.x-scroll': {transform: 'translate(0,0)'}
+    });
+
+    body.node().dispatchEvent(new WheelEvent('wheel', {
+        deltaY: 250,
+        deltaMode: 1
+    }));
+
+    this.assertD3Nodes(sketch.svg(), {
+        '.x-scroll': {transform: 'translate(-25,0)'}
+    });
+});
+
 }(jQuery));
+

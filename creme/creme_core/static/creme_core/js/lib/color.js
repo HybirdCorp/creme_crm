@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2020  Hybird
+    Copyright (C) 2009-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -34,9 +34,15 @@ var clamp = function(value, min, max) {
 
 window.RGBColor = function(value) {
     if (Object.isString(value)) {
-        this.hex(value);
+        if (value.startsWith('#')) {
+            this.hex(value);
+        } else {
+            this.rgb(value);
+        }
     } else if (isFinite(value)) {
         this.decimal(value);
+    } else if (Array.isArray(value)) {
+        this.rgb(value);
     } else if (value instanceof RGBColor) {
         this.set(value);
     } else {
@@ -62,6 +68,28 @@ RGBColor.prototype = {
 
     toString: function() {
         return '#' + this.hex();
+    },
+
+    rgb: function(value) {
+        if (value === undefined) {
+            return 'rgb(' + [this.r, this.g, this.b].join(',') + ')';
+        }
+
+        if (Object.isString(value)) {
+            value = value.toLowerCase();
+
+            if (value.startsWith('rgb(')) {
+                return this.rgb(value.slice(4, value.length - 1).split(',').map(parseFloat));
+            } else {
+                throw new Error('"${0}" is not a RGB css value'.template([value]));
+            }
+        } else if (Array.isArray(value)) {
+            this.set({r: value[0], g: value[1], b: value[2]});
+        } else {
+            throw new Error('"${0}" is not a RGB css value'.template([value]));
+        }
+
+        return this;
     },
 
     hex: function(value) {

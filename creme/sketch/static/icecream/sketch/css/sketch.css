@@ -33,6 +33,28 @@
     display: none;
 }
 
+.bar-chart.x-scroll .x-scroll-body {
+    pointer-events: bounding-box;
+}
+
+.bar-chart.x-scroll .x-scroll-body:hover {
+    cursor: ew-resize;
+}
+
+.bar-chart .x-scroll-after.x-scroll-end {
+    opacity: 0;
+}
+
+.bar-chart .x-scroll-before.x-scroll-start {
+    opacity: 0;
+}
+
+.bar-chart .x-scroll-side rect {
+    width: 30px;
+    height: 100%;
+    fill: #fff;
+}
+
 .bar-chart .bar rect {
     shape-rendering: crispEdges;
 }
@@ -68,6 +90,23 @@
 
 .donut-chart .arc path {
     stroke: #fff;
+}
+
+.donut-chart .slice:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+.donut-chart .legend.legend-scroll {
+    pointer-events: bounding-box;
+}
+
+.donut-chart .legend.legend-scroll:hover {
+    cursor: ns-resize;
+}
+
+.donut-chart .slice:not(:hover) .hidden-label {
+    visibility: hidden;
 }
 
 .area-chart .area {

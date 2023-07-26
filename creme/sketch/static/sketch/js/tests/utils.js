@@ -271,4 +271,51 @@ QUnit.parametrize('creme.d3PreventResizeObserverLoop', [
     stop(1);
 });
 
+QUnit.parametrize('creme.d3NumericDataInfo', [
+    [[], {min: 0, max: 0, integer: true, gap: 0, average: 0}],
+    [[0, 10, 2, 3], {min: 0, max: 10, integer: true, gap: 10, average: 3.75}],
+    [[-53, 10, 2, 3], {min: -53, max: 10, integer: true, gap: 63, average: -9.5}],
+    [[-53, 10.75, 10.749, 3], {min: -53, max: 10.75, integer: false, gap: 63.75, average: -7.13}]
+], function(data, expected) {
+    var info = creme.d3NumericDataInfo(data);
+
+    deepEqual({
+        min: info.min,
+        max: info.max,
+        integer: info.integer,
+        gap: info.gap,
+        average: parseFloat(info.average.toFixed(2))
+    }, expected);
+});
+
+QUnit.parametrize('creme.d3NumericFormat', [
+    [[0, 10, 2, 3], ['0', '10', '2', '3']],
+    [[0, 100, 25, 3], ['0', '100', '25', '3']],
+    [[350, 1520, 25, 4], ['350', '1.52k', '25', '4']],
+    [[1350, 10520, 25, 4], ['1.35k', '10.5k', '25.0', '4.00']],
+
+    [[0, 0.5, 0.75, 1], ['0.00', '0.50', '0.75', '1.00']],
+    [[30.78, 5.5, 2.75, 1], ['30.78', '5.50', '2.75', '1.00']],
+    [[237.87, 43.5, 7.75, 104.85], ['237.87', '43.5', '7.75', '104.85']],
+    [[237.87, 10043.5, 7.75, 104.85], ['238', '10.0k', '7.75', '105']]
+], function(data, expected) {
+    var format = creme.d3NumericFormat(creme.d3NumericDataInfo(data));
+    deepEqual(data.map(format), expected);
+});
+
+QUnit.parametrize('creme.d3NumericAxisFormat', [
+    [[0, 10, 2, 3], ['0', '10', '2', '3']],
+    [[0, 100, 25, 3], ['0', '100', '25', '3']],
+    [[350, 1520, 25, 4], ['350', '1.5k', '25', '4.0']],
+    [[1350, 10520, 25, 4], ['1.4k', '11k', '25', '4.0']],
+
+    [[0, 0.5, 0.75, 1], ['0.00', '0.50', '0.75', '1.00']],
+    [[30.78, 5.5, 2.75, 1], ['30.78', '5.50', '2.75', '1.00']],
+    [[237.87, 43.5, 7.75, 104.85], ['240', '44', '7.8', '100']],
+    [[237.87, 10043.5, 7.75, 104.85], ['240', '10k', '7.8', '100']]
+], function(data, expected) {
+    var format = creme.d3NumericAxisFormat(creme.d3NumericDataInfo(data));
+    deepEqual(data.map(format), expected);
+});
+
 }(jQuery));

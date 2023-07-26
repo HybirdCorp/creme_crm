@@ -16,7 +16,7 @@ QUnit.test('color.RGBColor', function(assert) {
 QUnit.test('color.RGBColor (hex)', function(assert) {
     this.assertRaises(function() {
         return new RGBColor('');
-    }, Error, 'Error: "" is not a RGB hexadecimal value');
+    }, Error, 'Error: "" is not a RGB css value');
 
     this.assertRaises(function() {
         return new RGBColor('#gggggg');
@@ -77,6 +77,17 @@ QUnit.test('color.RGBColor (decimal)', function(assert) {
 QUnit.test('color.RGBColor (rgb)', function(assert) {
     equal('#FF12FD', new RGBColor({r: 0xff, g: 0x12, b: 0xfd}).toString());
     equal('#001200', new RGBColor({g: 0x12, b: 0}).toString());
+
+    equal('#FF12FD', new RGBColor([255, 18, 253]).toString());
+    equal('#FF12FD', new RGBColor('rgb(255, 18, 253)').toString());
+
+    this.assertRaises(function() {
+        return new RGBColor().rgb('#aa12fd');
+    }, Error, 'Error: "#aa12fd" is not a RGB css value');
+
+    this.assertRaises(function() {
+        return new RGBColor().rgb('hls(1.0, 0.0, 0.0)');
+    }, Error, 'Error: "hls(1.0, 0.0, 0.0)" is not a RGB css value');
 });
 
 QUnit.test('color.RGBColor (set / clone)', function(assert) {
