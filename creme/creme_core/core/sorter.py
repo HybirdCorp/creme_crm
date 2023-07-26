@@ -62,7 +62,7 @@ class QuerySortInfo:
     def __repr__(self):
         return (
             f'<QuerySortInfo('
-            f'cell_key="{self.main_cell_key}", '
+            f'cell_key={self.main_cell_key!r}, '
             f'order={self.main_order!r}, '
             f'field_names={self.field_names}'
             f')>'
@@ -428,7 +428,8 @@ class QuerySorter:
                         cells_dict: dict[str, EntityCell],
                         cell_key: str | None,
                         ) -> str | None:
-        if cell_key is None:
+        # if cell_key is None:
+        if not cell_key:
             return None
 
         cell = cells_dict.get(cell_key)
