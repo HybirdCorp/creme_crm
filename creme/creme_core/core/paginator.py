@@ -75,10 +75,13 @@ class FlowPaginator:
 
     def __init__(self, queryset: QuerySet, key: str, per_page: int, count: int = sys.maxsize):
         """Constructor.
-        @param queryset: QuerySet instance. Beware: lines must have always the
-               same order when sub-set queries are performed, or the paginated
-               content won't be consistent.
-               Tip: use the 'PK' as the (last) ordering field.
+        @param queryset: QuerySet instance.
+               Beware #1: lines must have always the same order when sub-set
+                queries are performed, or the paginated content won't be consistent.
+                Tip: use the 'PK' as the (last) ordering field.
+               Beware #2: the Queryset must contain real instances, not tuples
+                or dicts (i.e. it is not compatible with QuerySets returned by
+                the methods 'values()' & 'values_list()').
         @param key: Name of the field used as key (i.e. first ordering field).
                It can be a composed field name like 'user__username'.
                ManyToManyFields are not managed ; ForeignKeys must reference
