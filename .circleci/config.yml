@@ -139,7 +139,8 @@ commands:
 
 
 orbs:
-  browser-tools: circleci/browser-tools@1.2.5
+#  browser-tools: circleci/browser-tools@1.2.5
+  browser-tools: circleci/browser-tools@1.4.3
 
 
 jobs:
