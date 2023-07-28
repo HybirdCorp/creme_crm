@@ -14,15 +14,24 @@
         {% widget_icon name='search' size='form-widget' label=search_label %}
         <input type="search" class="creme_config-users-brick-search-input" placeholder="{{search_label}}" title="{% blocktranslate with fields=search_fields|join:', ' %}Filter the displayed users. Fields used: {{fields}}.{% endblocktranslate %}" />
     </div>
-    <script type="text/javascript">
+    <script type="text/javascript">{# TODO: use debounce & launch the research after a given delay #}
         $(document).ready(function() {
             $('.creme_config-users-brick-search-input').each(function() {
                 var input = $(this);
                 var previousSearch = null;
 
-                /* "search" event triggered when Enter is typed, or the input cleared with the X button  */
-                input.on('search', function(e) {
+                /* "search" event triggered when Enter is typed, or the input cleared with the X button.
+                   This event is not triggered on FireFox (experienced with FF v115, july 2023), so
+                   we use "keydown" too.
+                */
+                /* input.on('search', function(e) { */
+                input.on('search keydown', function(e) {
                     e.stopPropagation();
+
+                    /* NB: 13 is ENTER */
+                    if (e.type === 'keydown' && e.keyCode !== 13) {
+                        return e;
+                    }
 
                     var newSearch = input.val();
                     if (newSearch !== previousSearch) {
