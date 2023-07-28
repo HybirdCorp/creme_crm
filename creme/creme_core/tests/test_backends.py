@@ -2,6 +2,8 @@ from creme.creme_core.backends import _BackendRegistry, base
 from creme.creme_core.backends.csv_import import CSVImportBackend
 from creme.creme_core.backends.xls_import import XLSImportBackend
 
+from ..backends.xls_export import XLSExportBackend
+from ..core.exceptions import ConflictError
 from .base import CremeTestCase
 
 
@@ -56,3 +58,14 @@ class BackendsTestCase(CremeTestCase):
 
         with self.assertRaises(registry.InvalidClass):
             registry.get_backend_class(CSVImportBackend.id)
+
+
+class XLSExportBackendTestCase(CremeTestCase):
+    def test_validate_total_count__lte_max(self):
+        backend = XLSExportBackend()
+        backend.validate(total_count=XLSExportBackend.max_row_index)
+
+    def test_validate_total_count__gt_max(self):
+        backend = XLSExportBackend()
+        with self.assertRaises(ConflictError):
+            backend.validate(total_count=XLSExportBackend.max_row_index + 1)

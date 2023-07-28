@@ -75,6 +75,13 @@ msgstr ""
 msgid "XLS File"
 msgstr "Fichier XLS"
 
+#, python-brace-format
+msgid ""
+"The Microsoft Excel 97–2003 Workbook (.xls) format has a limit of {count} "
+"rows. Use a CSV format instead."
+msgstr "Le format Microsoft Excel 97–2003 Workbook (.xls) est limité à {count} lignes. "
+"Utilisez un format CSV à la place."
+
 msgid ""
 "XLS is a file extension for a spreadsheet file format created by Microsoft "
 "for use with Microsoft Excel (Excel 97-2003 Workbook)."

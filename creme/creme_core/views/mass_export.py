@@ -61,6 +61,8 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
     search_field_registry = search_field_registry
     search_form_class     = ListViewSearchForm
 
+    backend_registry = export_backend_registry
+
     def check_related_ctype(self, ctype):
         super().check_related_ctype(ctype=ctype)
 
@@ -69,7 +71,7 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
     def get_backend_class(self):
         doc_type = get_from_GET_or_404(self.request.GET, self.doc_type_arg)
 
-        backend_class = export_backend_registry.get_backend_class(doc_type)
+        backend_class = self.backend_registry.get_backend_class(doc_type)
         if backend_class is None:
             raise Http404(f'No such exporter for extension "{doc_type}"')
 
@@ -226,6 +228,8 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
 
             if use_distinct:
                 entities_qs = entities_qs.distinct()
+
+            writer.validate(total_count=entities_qs.count())
 
             paginator = self.get_paginator(queryset=entities_qs, ordering=ordering)
 
