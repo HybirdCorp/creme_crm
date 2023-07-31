@@ -112,6 +112,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         )
         self.assertNoFormError(response)
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         response = self.client.post(
             url, follow=True,
             data={
@@ -120,7 +121,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 'user': user.id,
                 'start_colselect': 2,
                 'end_colselect': 3,
-                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+                'type_selector': sub_type.id,
 
                 # Should not be used
                 'busy_colselect': 0,
@@ -135,8 +137,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertEqual(len(lines), len(results))
 
         act1 = self.get_object_or_fail(Activity, title=title1)
-        self.assertEqual(constants.ACTIVITYTYPE_MEETING, act1.type_id)
-        self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_OTHER, act1.sub_type_id)
+        # self.assertEqual(constants.ACTIVITYTYPE_MEETING, act1.type_id)
+        # self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_OTHER, act1.sub_type_id)
+        self.assertEqual(sub_type.type_id, act1.type_id)
+        self.assertEqual(sub_type.id,      act1.sub_type_id)
         self.assertIsNone(act1.start)
         self.assertIsNone(act1.end)
         self.assertEqual(constants.FLOATING, act1.floating_type)
@@ -265,11 +269,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         )
 
         doc = self._build_csv_doc(lines, user=user)
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK)
         data = {
             **self.lv_import_data,
             'document': doc.id,
             'user': other_user.id,
-            'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            'type_selector': sub_type.id,
 
             'my_participation_0': True,
             'participating_users': [other_user.id, team.id],
@@ -312,8 +318,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         act1 = self.get_object_or_fail(Activity, title=title1)
         self.assertEqual(other_user, act1.user)
-        self.assertEqual(constants.ACTIVITYTYPE_MEETING, act1.type_id)
-        self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, act1.sub_type_id)
+        # self.assertEqual(constants.ACTIVITYTYPE_MEETING, act1.type_id)
+        # self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, act1.sub_type_id)
+        self.assertEqual(sub_type.type_id, act1.type_id)
+        self.assertEqual(sub_type.id,      act1.sub_type_id)
 
         REL_OBJ_PART_2_ACTIVITY = constants.REL_OBJ_PART_2_ACTIVITY
         self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, user_contact)
@@ -417,7 +425,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK).id,
 
                 'participants_mode': '2',  # Search with pattern
                 'participants_separator': '/',
@@ -494,7 +503,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             **self.lv_import_data,
             'document': doc.id,
             'user': user.id,
-            'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK).id,
 
             'participants_mode': 2,  # Search with pattern
             'participants_separator': '/',
@@ -535,7 +545,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+                # 'type_selector': constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+                'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_OUTGOING).id,
 
                 'participants_mode': 1,  # Search with 1 or 2 columns
                 'participants_first_name_colselect': 2,
@@ -573,7 +584,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+                'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING).id,
 
                 'participants_mode': 2,  # Search with pattern
                 'participants_separator': '#',
@@ -615,7 +627,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
+                # 'type_selector': constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
+                'type_selector': self._get_sub_type(
+                    constants.UUID_SUBTYPE_PHONECALL_CONFERENCE,
+                ).id,
 
                 'participants_mode': 1,  # Search with 1 or 2 columns
                 'participants_first_name_colselect': 2,
@@ -645,7 +660,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                'type_selector': self._get_sub_type(
+                    constants.UUID_SUBTYPE_MEETING_QUALIFICATION
+                ).id,
 
                 'property_types': [ptype.id],
             },
@@ -687,7 +705,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK).id,
 
                 'my_participation_0': True,
                 'my_participation_1': my_calendar.pk,
@@ -750,7 +769,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+                'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER).id,
 
                 'subjects_colselect': 2,
                 'subjects_separator': '/',
@@ -830,7 +850,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+                'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER).id,
 
                 'subjects_colselect': 2,
                 'subjects_create': True,
@@ -864,7 +885,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+                'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER).id,
 
                 'subjects_colselect': 2,
                 'subjects_create': True,  # Should not be used
@@ -902,7 +924,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+                'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER).id,
 
                 'subjects_colselect': 2,
             },
@@ -928,11 +951,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         subject = Organisation.objects.create(user=user, name='Ishiyama')
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK)
         create_act = partial(
             Activity.objects.create,
             user=user,
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            type_id=sub_type.type_id, sub_type=sub_type,
         )
         act1 = create_act(title='Fight against demons#1')
         act2 = create_act(title='Fight against demons#2')
@@ -964,7 +989,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 'user': user.id,
                 'key_fields': ['title'],
 
-                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK).id,
 
                 'participants_mode': 1,  # Search with 1 or 2 columns
                 'participants_first_name_colselect': 2,
@@ -1240,7 +1266,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         searched = 'Aoi Kunieda'
         contacts, err_msg = ext.extract_value([searched], user)
         self.assertFalse(contacts)
-        self.assertEqual(
+        self.assertListEqual(
             [_('The participant «{}» cannot be found').format(searched)],
             err_msg,
         )

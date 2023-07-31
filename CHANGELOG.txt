@@ -106,10 +106,26 @@
                 - The global dictionary 'forms.setting._FIELDS' has been removed;
                   see the new class attribute 'creme_core.core.setting_key._SettingKey.FORM_FIELDS' instead.
             * Activities :
+                - The models 'ActivityType' & 'ActivitySubType' use now regular 'AutoField' (i.e. integer) for primary key,
+                  & get an 'UUIDField' (they used custom 'CharField' as primary key).
+                  The constant strings which allow to retrieve types by their ID have been replaced by constants UUID:
+                    e.g. use 'UUID_TYPE_MEETING' instead of 'ACTIVITYTYPE_MEETING'.
+                  Hint: see the files "migrations/002?_v2_6__types_uuid0?.py" to understand how to write your own migrations if you reference these types in your own models.
+                - The class 'buttons.AddRelatedActivityButton' has been rework to use 'ActivityType.uuid';
+                  e.g. the class attribute "activity_type" has been replaced by "activity_type_uuid".
+                - In 'views' :
+                    - In 'activity', the class-view 'ActivityCreation' has been reworked to use 'ActivityType.uuid';
+                      e.g. the method 'get_type_id()' has been replaced by 'get_type_uuid()'.
+                      Notice that the GET argument to fix the type must be a UUID now (if you use these URLS in your template for example).
+                    - In 'calendar', the function '_js_timestamp_to_datetime' has been removed and replaced by 'fromRFC3339()' & 'toRFC3339()'.
+                - The class 'statistics.AveragePerMonthStatistics' has been reworked to use 'ActivityType.uuid';
+                  e.g. in the class attribute 'items', the keys "type_id" have been replaced by "type_uuid".
                 - Upgrade FullCalendar : Refactor of 'creme.activities.CalendarController' renamed as 'creme.ActivityCalendar'
                     - Calendar view changes are stored in url hash (e.g: #week & #month)
                     - Use ISO8601 format WITH timezone for queries on backend views (e.g 2023-04-14T10:38:30+01:00)
-                - In 'views.calendar' the method '_js_timestamp_to_datetime' has been removed and replaced by 'fromRFC3339' & 'toRFC3339'
+            * Mobile:
+                - The CSS classes referencing 'ActivityType' IDs have been renamed;
+                  e.g. "activity-type-activities-activitytype_meeting" became "activity-type-meeting".
 
 
 == Version 2.5 ==

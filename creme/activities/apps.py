@@ -155,8 +155,13 @@ class ActivitiesConfig(CremeAppConfig):
     def register_icons(self, icon_registry):
         Activity = self.Activity
         get_icon = constants.ICONS.get
-        icon_registry.register(Activity, 'images/calendar_%(size)s.png') \
-                     .register_4_instance(Activity, lambda instance: get_icon(instance.type_id))
+        # icon_registry.register(Activity, 'images/calendar_%(size)s.png') \
+        #              .register_4_instance(Activity, lambda instance: get_icon(instance.type_id))
+        icon_registry.register(
+            Activity, 'images/calendar_%(size)s.png'
+        ).register_4_instance(
+            Activity, lambda instance: get_icon(str(instance.type.uuid)),
+        )
 
     def register_mass_import(self, import_form_registry):
         from .forms import mass_import

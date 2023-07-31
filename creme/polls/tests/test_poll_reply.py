@@ -285,13 +285,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def _create_activity(self, user):
         atype = ActivityType.objects.create(
-            pk='polls-test-type', name="Queen's blade",
+            # pk='polls-test-type',
+            name="Queen's blade",
             default_day_duration=7, default_hour_duration="00:00:00",
             is_custom=True,
         )
         sub_type = ActivitySubType.objects.create(
-            pk='polls-test-sub_type', name='Pool',
-            type=atype, is_custom=True,
+            # pk='polls-test-sub_type',
+            name='Pool', type=atype, is_custom=True,
         )
 
         return Activity.objects.create(user=user, type=atype, sub_type=sub_type)

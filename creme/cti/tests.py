@@ -79,7 +79,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
     def test_add_phonecall01(self):
         user = self.login_as_root_and_get()
 
-        atype = self.get_object_or_fail(ActivityType, pk=a_constants.ACTIVITYTYPE_PHONECALL)
+        # atype = self.get_object_or_fail(ActivityType, pk=a_constants.ACTIVITYTYPE_PHONECALL)
+        atype = self.get_object_or_fail(ActivityType, uuid=a_constants.UUID_TYPE_PHONECALL)
         self.assertTrue(ActivitySubType.objects.filter(type=atype).exists())
         self.assertFalse(Activity.objects.filter(type=atype).exists())
 
@@ -90,7 +91,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(user, pcall.user)
         self.assertIn(str(contact), pcall.title)
         self.assertTrue(pcall.description)
-        self.assertEqual(a_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type.id)
+        # self.assertEqual(a_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type.id)
+        self.assertEqual(a_constants.UUID_SUBTYPE_PHONECALL_OUTGOING, str(pcall.sub_type.uuid))
         self.assertEqual(a_constants.STATUS_IN_PROGRESS, pcall.status.id)
         self.assertDatetimesAlmostEqual(now(), pcall.start)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
@@ -109,7 +111,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_as_root()
 
         self.assertPOST404(self.ADD_PCALL_URL, data={'entity_id': str(self.UNUSED_PK)})
-        self.assertFalse(Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL))
+        # self.assertFalse(Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL))
+        self.assertFalse(Activity.objects.filter(type__uuid=a_constants.UUID_TYPE_PHONECALL))
 
     @skipIfCustomOrganisation
     def test_add_phonecall03(self):
@@ -120,7 +123,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertPOST200(self.ADD_PCALL_URL, data={'entity_id': orga.id})
 
         pcall = self.get_alone_element(
-            Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL)
+            # Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL)
+            Activity.objects.filter(type__uuid=a_constants.UUID_TYPE_PHONECALL)
         )
         self.assertRelationCount(0, orga, a_constants.REL_SUB_PART_2_ACTIVITY,   pcall)
         self.assertRelationCount(1, orga, a_constants.REL_SUB_LINKED_2_ACTIVITY, pcall)
@@ -291,13 +295,15 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertPOST(302, self._build_add_pcall_url(contact))
 
         pcall = self.get_alone_element(
-            Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL)
+            # Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL)
+            Activity.objects.filter(type__uuid=a_constants.UUID_TYPE_PHONECALL)
         )
         self.assertEqual(user, pcall.user)
         self.assertIn(str(contact), pcall.title)
         self.assertTrue(pcall.description)
-        self.assertEqual(a_constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING, pcall.sub_type.id)
-        self.assertEqual(a_constants.STATUS_IN_PROGRESS,                 pcall.status.id)
+        # self.assertEqual(a_constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING, pcall.sub_type.id)
+        self.assertEqual(a_constants.UUID_SUBTYPE_PHONECALL_INCOMING, str(pcall.sub_type.uuid))
+        self.assertEqual(a_constants.STATUS_IN_PROGRESS,              pcall.status.id)
         self.assertDatetimesAlmostEqual(now(), pcall.start)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 

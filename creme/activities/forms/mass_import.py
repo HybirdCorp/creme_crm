@@ -571,7 +571,8 @@ class SubjectsExtractorField(Field):
 def get_massimport_form_builder(header_dict, choices):
     class ActivityMassImportForm(ImportForm4CremeEntity):
         type_selector = ActivitySubTypeField(
-            label=_('Type'), limit_choices_to=~Q(type__id=constants.ACTIVITYTYPE_INDISPO),
+            # label=_('Type'), limit_choices_to=~Q(type__id=constants.ACTIVITYTYPE_INDISPO),
+            label=_('Type'), limit_choices_to=~Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY),
         )
 
         my_participation = act_fields.UserParticipationField(

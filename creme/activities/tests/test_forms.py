@@ -21,56 +21,79 @@ from ..forms.fields import (
     UserParticipationField,
 )
 from ..models import ActivitySubType, ActivityType, Calendar
+from .base import _ActivitiesTestCase
 
 
 # class ActivitySubTypeFieldTestCase(FieldTestCase):
-class ActivitySubTypeFieldTestCase(CremeTestCase):
+class ActivitySubTypeFieldTestCase(_ActivitiesTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
         cls.atype = ActivityType.objects.create(
-            id='meeting', name='Meeting',
+            # id='meeting',
+            name='Meeting',
             default_day_duration=0,
             default_hour_duration='01:00:00',
         )
         cls.subtype = ActivitySubType.objects.create(
-            id='rendezvous', name='Rendez-vous', type=cls.atype,
+            # id='rendezvous', name='Rendez-vous', type=cls.atype,
+            name='Rendez-vous', type=cls.atype,
         )
 
     def test_choices(self):
         field = ActivitySubTypeField()
         self.assertEqual(Activity._meta.get_field('sub_type'), field.enum.field)
         self.assertEqual(NO_LIMIT, field.limit)
-        self.assertListEqual(
-            sorted([
+        # self.assertListEqual(
+        #     sorted([
+        #         ('', field.empty_label, None),
+        #         *(
+        #             (c.pk, str(c), str(c.type))
+        #             for c in ActivitySubType.objects.all()
+        #         ),
+        #     ]),
+        #     sorted((c.value, c.label, c.group) for c in field.choices),
+        # )
+        self.assertCountEqual(
+            [
                 ('', field.empty_label, None),
-                *(
-                    (c.pk, str(c), str(c.type))
-                    for c in ActivitySubType.objects.all()
-                ),
-            ]),
-            sorted((c.value, c.label, c.group) for c in field.choices),
+                *((c.pk, str(c), str(c.type)) for c in ActivitySubType.objects.all()),
+            ],
+            [(c.value, c.label, c.group) for c in field.choices],
         )
 
     def test_limit_choices_to(self):
         field = ActivitySubTypeField(
             model=Activity, field_name='sub_type',
-            limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO)
+            # limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO)
+            limit_choices_to=Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY)
         )
 
         self.assertEqual(field.limit, NO_LIMIT)
-        self.assertListEqual(
-            sorted([
+        # self.assertListEqual(
+        #     sorted([
+        #         ('', field.empty_label, None),
+        #         *(
+        #             (c.pk, str(c), str(c.type))
+        #             for c in ActivitySubType.objects.filter(
+        #                 type_id=constants.ACTIVITYTYPE_INDISPO,
+        #             )
+        #         ),
+        #     ]),
+        #     sorted((c.value, c.label, c.group) for c in field.choices),
+        # )
+        self.assertCountEqual(
+            [
                 ('', field.empty_label, None),
                 *(
                     (c.pk, str(c), str(c.type))
                     for c in ActivitySubType.objects.filter(
-                        type_id=constants.ACTIVITYTYPE_INDISPO,
+                        type__uuid=constants.UUID_TYPE_UNAVAILABILITY,
                     )
                 ),
-            ]),
-            sorted((c.value, c.label, c.group) for c in field.choices),
+            ],
+            [(c.value, c.label, c.group) for c in field.choices],
         )
 
     def test_clean(self):
@@ -87,16 +110,26 @@ class ActivitySubTypeFieldTestCase(CremeTestCase):
         self.assertIsNone(field.clean(None))
 
     def test_clean__limit_choices_to(self):
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_UNAVAILABILITY)
         field = ActivitySubTypeField(
-            limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO),
+            # limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO),
+            limit_choices_to=Q(type_id=sub_type.type_id),
         )
+
+        # self.assertEqual(
+        #     ActivitySubType.objects.get(pk=constants.ACTIVITYSUBTYPE_UNAVAILABILITY),
+        #     field.clean(constants.ACTIVITYSUBTYPE_UNAVAILABILITY),
+        # )
         self.assertEqual(
-            ActivitySubType.objects.get(pk=constants.ACTIVITYSUBTYPE_UNAVAILABILITY),
-            field.clean(constants.ACTIVITYSUBTYPE_UNAVAILABILITY),
+            sub_type,
+            field.clean(sub_type.id),
         )
+
+        # with self.assertRaises(ValidationError):
+        #     field.clean(constants.ACTIVITYSUBTYPE_MEETING_MEETING)
         self.assertFormfieldError(
             field=field,
-            value=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+            value=self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING).id,
             messages=_(
                 'Select a valid choice. That choice is not one of the available choices.'
             ),

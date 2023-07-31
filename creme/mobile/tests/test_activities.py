@@ -8,10 +8,12 @@ from django.urls import reverse
 from django.utils.timezone import localtime, make_aware, now
 from django.utils.translation import gettext as _
 
+# from creme.activities.constants import (
+#     ACTIVITYTYPE_PHONECALL,
+#     ACTIVITYSUBTYPE_PHONECALL_FAILED,
+#     ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+# )
 from creme.activities.constants import (
-    ACTIVITYSUBTYPE_PHONECALL_FAILED,
-    ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-    ACTIVITYTYPE_PHONECALL,
     FLOATING_TIME,
     NARROW,
     REL_SUB_ACTIVITY_SUBJECT,
@@ -20,6 +22,9 @@ from creme.activities.constants import (
     STATUS_DONE,
     STATUS_IN_PROGRESS,
     STATUS_PLANNED,
+    UUID_SUBTYPE_PHONECALL_FAILED,
+    UUID_SUBTYPE_PHONECALL_OUTGOING,
+    UUID_TYPE_PHONECALL,
 )
 from creme.activities.models import Calendar
 from creme.activities.tests.base import skipIfCustomActivity
@@ -53,15 +58,19 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     @staticmethod
     def _existing_pcall_ids():
         return [
+            # *Activity.objects
+            #          .filter(type=ACTIVITYTYPE_PHONECALL)
+            #          .values_list('id', flat=True),
             *Activity.objects
-                     .filter(type=ACTIVITYTYPE_PHONECALL)
+                     .filter(type__uuid=UUID_TYPE_PHONECALL)
                      .values_list('id', flat=True),
         ]
 
     def _get_created_pcalls(self, existing_pcall_ids):
         with self.assertNoException():
             return Activity.objects.filter(
-                type=ACTIVITYTYPE_PHONECALL,
+                # type=ACTIVITYTYPE_PHONECALL,
+                type__uuid=UUID_TYPE_PHONECALL,
             ).exclude(id__in=existing_pcall_ids)
 
     def _get_created_pcall(self, existing_pcall_ids):
@@ -408,14 +417,14 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         with self.assertNoException():
             context = response.context
-            type_id    = context['type_id']
+            # type_id    = context['type_id']
             call_start = context['call_start']
             contact    = context['called_contact']
             number     = context['number']
             contacts   = context['participant_contacts']
             user_contact_id = context['user_contact_id']
 
-        self.assertEqual(ACTIVITYTYPE_PHONECALL, type_id)
+        # self.assertEqual(ACTIVITYTYPE_PHONECALL, type_id)
         self.assertEqual(
             self.create_datetime(
                 utc=True,
@@ -634,9 +643,10 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self.refresh(pcall)
-        self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
-        self.assertEqual(STATUS_DONE,                      pcall.status_id)
-        self.assertEqual(minutes,                          pcall.minutes)
+        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
+        self.assertEqual(UUID_SUBTYPE_PHONECALL_FAILED, str(pcall.sub_type.uuid))
+        self.assertEqual(STATUS_DONE,                   pcall.status_id)
+        self.assertEqual(minutes,                       pcall.minutes)
 
         start = self.create_datetime(
             utc=True, year=2014, month=4, day=22, hour=16, minute=34, second=28,
@@ -675,9 +685,10 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self._get_created_pcall(pcall_ids)
-        self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
-        self.assertEqual(STATUS_DONE,                      pcall.status_id)
-        self.assertEqual(minutes,                          pcall.minutes)
+        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
+        self.assertEqual(UUID_SUBTYPE_PHONECALL_FAILED, str(pcall.sub_type.uuid))
+        self.assertEqual(STATUS_DONE,                   pcall.status_id)
+        self.assertEqual(minutes,                       pcall.minutes)
         self.assertSetEqual(
             {user.linked_contact, other_contact},
             {r.real_object for r in pcall.get_participant_relations()},
@@ -766,9 +777,10 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self.refresh(pcall)
-        self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
-        self.assertEqual(STATUS_DONE,                      pcall.status_id)
-        self.assertEqual(NARROW,                           pcall.floating_type)
+        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
+        self.assertEqual(UUID_SUBTYPE_PHONECALL_FAILED, str(pcall.sub_type.uuid))
+        self.assertEqual(STATUS_DONE,                   pcall.status_id)
+        self.assertEqual(NARROW,                        pcall.floating_type)
 
         start = self.create_datetime(
             utc=True, year=2014, month=4, day=22, hour=16, minute=17, second=28,
@@ -818,9 +830,10 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(2, len(pcalls))
 
         failed_pcall = pcalls[0]
-        self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, failed_pcall.sub_type_id)
-        self.assertEqual(STATUS_DONE,                      failed_pcall.status_id)
-        self.assertEqual(NARROW,                           failed_pcall.floating_type)
+        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, failed_pcall.sub_type_id)
+        self.assertEqual(UUID_SUBTYPE_PHONECALL_FAILED, str(failed_pcall.sub_type.uuid))
+        self.assertEqual(STATUS_DONE,                   failed_pcall.status_id)
+        self.assertEqual(NARROW,                        failed_pcall.floating_type)
         self.assertSetEqual(
             participants,
             {
@@ -845,8 +858,9 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(start, failed_pcall.end)
 
         pp_pcall = pcalls[1]
-        self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pp_pcall.sub_type_id)
-        self.assertEqual(FLOATING_TIME,                      pp_pcall.floating_type)
+        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pp_pcall.sub_type_id)
+        self.assertEqual(UUID_SUBTYPE_PHONECALL_OUTGOING, str(pp_pcall.sub_type.uuid))
+        self.assertEqual(FLOATING_TIME,                   pp_pcall.floating_type)
         self.assertIsNone(pp_pcall.status_id)
         self.assertSetEqual(
             participants,
@@ -938,7 +952,8 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self._get_created_pcall(pcall_ids)
-        self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type_id)
+        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type_id)
+        self.assertEqual(UUID_SUBTYPE_PHONECALL_OUTGOING, str(pcall.sub_type.uuid))
         self.assertEqual(STATUS_DONE, pcall.status_id)
         self.assertEqual(minutes, pcall.minutes)
         self.assertSetEqual(
@@ -1054,7 +1069,8 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self._get_created_pcall(pcall_ids)
-        self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type_id)
+        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type_id)
+        self.assertEqual(UUID_SUBTYPE_PHONECALL_OUTGOING, str(pcall.sub_type.uuid))
         self.assertEqual(STATUS_DONE, pcall.status_id)
         self.assertSetEqual(
             {user.linked_contact, other_contact},

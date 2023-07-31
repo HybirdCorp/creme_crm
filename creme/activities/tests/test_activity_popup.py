@@ -21,7 +21,10 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         return {
             'user': user.pk,
             'title': self.TITLE,
-            self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            self.EXTRA_SUBTYPE_KEY: self._get_sub_type(
+                constants.UUID_SUBTYPE_MEETING_NETWORK,
+            ).id,
             **kwargs
         }
 
@@ -210,20 +213,22 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         create_dt = partial(self.create_datetime, year=2010, month=1, day=10)
         self.assertEqual(create_dt(hour=9, minute=30), activity.start)
         self.assertEqual(create_dt(hour=15), activity.end)
-        self.assertEqual(constants.ACTIVITYTYPE_MEETING, activity.type_id)
-        self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, activity.sub_type_id)
+        # self.assertEqual(constants.ACTIVITYTYPE_MEETING, activity.type_id)
+        # self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, activity.sub_type_id)
+        self.assertEqual(constants.UUID_TYPE_MEETING,            str(activity.type.uuid))
+        self.assertEqual(constants.UUID_SUBTYPE_MEETING_NETWORK, str(activity.sub_type.uuid))
 
     def test_custom_activity_type(self):
         user = self.login_as_root_and_get()
         custom_type = ActivityType.objects.create(
-            id='activities-test_createview_popup3',
+            # id='activities-test_createview_popup3',
             name='Karate session',
             default_day_duration=0,
             default_hour_duration='00:15:00',
             is_custom=True,
         )
         custom_sub_type = ActivitySubType.objects.create(
-            id='activities-test_createview_popup3',
+            # id='activities-test_createview_popup3',
             name='Kick session',
             type=custom_type,
             is_custom=True,
@@ -237,7 +242,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
                     f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
                     f'{self.EXTRA_START_KEY}_1': '09:30:00',
 
-                    self.EXTRA_SUBTYPE_KEY: custom_type.id,
+                    self.EXTRA_SUBTYPE_KEY: custom_sub_type.id,
 
                     f'{self.EXTRA_MYPART_KEY}_0': True,
                     f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,

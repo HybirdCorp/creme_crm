@@ -61,11 +61,16 @@ class ActivitySubTypeSubCell(CustomFormExtraSubCell):
     def formfield(self, instance, user, **kwargs):
         type_id = instance.type_id
 
-        if type_id and (instance.pk is None or type_id == constants.ACTIVITYTYPE_INDISPO):
+        # if type_id and (instance.pk is None or type_id == constants.ACTIVITYTYPE_INDISPO):
+        if type_id and (
+            instance.pk is None
+            or str(instance.type.uuid) == constants.UUID_TYPE_UNAVAILABILITY
+        ):
             # TODO: improve help_text of end (we know the type default duration)
             limit_choices_to = Q(type_id=type_id)
         else:
-            limit_choices_to = ~Q(type_id=constants.ACTIVITYTYPE_INDISPO)
+            # limit_choices_to = ~Q(type_id=constants.ACTIVITYTYPE_INDISPO)
+            limit_choices_to = ~Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY)
 
         return ActivitySubTypeField(
             model=type(instance),
@@ -91,7 +96,8 @@ class UnavailabilityTypeSubCell(CustomFormExtraSubCell):
             user=user,
             label=self.verbose_name,
             required=True,
-            limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO),
+            # limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO),
+            limit_choices_to=Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY),
         )
 
 

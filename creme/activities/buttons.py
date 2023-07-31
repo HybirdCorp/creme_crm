@@ -39,13 +39,17 @@ class AddRelatedActivityButton(Button):
         'The current entity is pre-selected to be linked to the created activity.\n'
         'App: Activities'
     )
-    activity_type: str | None = None  # None means type is not fixed
+    # activity_type: str | None = None
+    activity_type_uuid: str | None = None  # None means type is not fixed
 
     def get_context(self, *, entity, request):
         context = super().get_context(entity=entity, request=request)
-        context['activity_type'] = self.activity_type
+        # context['activity_type'] = self.activity_type
+        type_uuid = self.activity_type_uuid
+        context['type_uuid'] = type_uuid
 
-        icon_info = constants.ICONS.get(self.activity_type)
+        # icon_info = constants.ICONS.get(self.activity_type)
+        icon_info = constants.ICONS.get(type_uuid)
         if icon_info:
             name, label = icon_info
         else:
@@ -69,7 +73,8 @@ class AddMeetingButton(AddRelatedActivityButton):
         'The current entity is pre-selected to be linked to the created meeting.\n'
         'App: Activities'
     )
-    activity_type = constants.ACTIVITYTYPE_MEETING
+    # activity_type = constants.ACTIVITYTYPE_MEETING
+    activity_type_uuid = constants.UUID_TYPE_MEETING
 
 
 class AddPhoneCallButton(AddRelatedActivityButton):
@@ -80,7 +85,8 @@ class AddPhoneCallButton(AddRelatedActivityButton):
         'The current entity is pre-selected to be linked to the created phone call.\n'
         'App: Activities'
     )
-    activity_type = constants.ACTIVITYTYPE_PHONECALL
+    # activity_type = constants.ACTIVITYTYPE_PHONECALL
+    activity_type_uuid = constants.UUID_TYPE_PHONECALL
 
 
 class AddTaskButton(AddRelatedActivityButton):
@@ -91,4 +97,5 @@ class AddTaskButton(AddRelatedActivityButton):
         'The current entity is pre-selected to be linked to the created task.\n'
         'App: Activities'
     )
-    activity_type = constants.ACTIVITYTYPE_TASK
+    # activity_type = constants.ACTIVITYTYPE_TASK
+    activity_type = constants.UUID_TYPE_TASK

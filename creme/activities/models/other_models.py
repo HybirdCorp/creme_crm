@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import uuid
 from datetime import timedelta
 
 from django.db import models
@@ -25,15 +26,15 @@ from django.utils.translation import pgettext_lazy
 from creme.creme_core.models import CremeModel, MinionModel
 from creme.creme_core.models import fields as core_fields
 
-# TODO: use MinionModel for ActivityType & ActivitySubType
-#       => convert "id" from strings to integers, add constants for UUIDs
-#          It needs some data migration for Activity, EntityFilterCondition (other?)
 
-
+# TODO: inherit MinionModel (initial of creme 2.7?)
 # TODO: rename to ActivityKind ??
 class ActivityType(CremeModel):
-    id = models.CharField(
-        primary_key=True, max_length=100, editable=False,
+    # id = models.CharField(
+    #     primary_key=True, max_length=100, editable=False,
+    # ).set_tags(viewable=False)
+    uuid = models.UUIDField(
+        unique=True, editable=False, default=uuid.uuid4,
     ).set_tags(viewable=False)
 
     name = models.CharField(_('Name'), max_length=100)
@@ -71,9 +72,13 @@ class ActivityType(CremeModel):
         )
 
 
+# TODO: inherit MinionModel (initial of creme 2.7?)
 class ActivitySubType(CremeModel):
-    id = models.CharField(
-        primary_key=True, max_length=100, editable=False,
+    # id = models.CharField(
+    #     primary_key=True, max_length=100, editable=False,
+    # ).set_tags(viewable=False)
+    uuid = models.UUIDField(
+        unique=True, editable=False, default=uuid.uuid4,
     ).set_tags(viewable=False)
 
     name = models.CharField(_('Name'), max_length=100)
