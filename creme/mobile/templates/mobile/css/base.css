@@ -397,13 +397,13 @@ html.ios .contact-last-name {
   border-left: 3px solid #7c7c7c;
 }
 
-/*.activity-type-meeting {*/
-.activity-type-activities-activitytype_meeting {
+/* .activity-type-activities-activitytype_meeting { */
+.activity-type-meeting {
   border-left: 3px solid #356A94;
 }
 
-/*.activity-type-call {*/
-.activity-type-activities-activitytype_phonecall {
+/* .activity-type-activities-activitytype_phonecall { */
+.activity-type-phonecall {
   border-left: 3px solid #94bcff;
 }
 
@@ -498,8 +498,10 @@ html.ios .activity-actions-minutes .activity-minutes::-webkit-input-placeholder 
 
 /* à voir pour factoriser ça ds une autre classe html comme 'activity-with-icon' */
 .activity-floating .activity-summary::before,
-.activity-type-activities-activitytype_phonecall .activity-summary::before,
-.activity-type-activities-activitytype_meeting .activity-summary::before {
+/* .activity-type-activities-activitytype_phonecall .activity-summary::before, */
+.activity-type-phonecall .activity-summary::before,
+/* .activity-type-activities-activitytype_meeting .activity-summary::before { */
+.activity-type-meeting .activity-summary::before {
   content: '';
   height: 16px;
   width: 16px;
@@ -512,11 +514,13 @@ html.ios .activity-actions-minutes .activity-minutes::-webkit-input-placeholder 
   background-position: 0 -32px;
 }
 
-.activity-type-activities-activitytype_phonecall .activity-summary::before {
+/* .activity-type-activities-activitytype_phonecall .activity-summary::before { */
+.activity-type-phonecall .activity-summary::before {
   background-position: 0 -48px;
 }
 
-.activity-type-activities-activitytype_meeting .activity-summary::before {
+/* .activity-type-activities-activitytype_meeting .activity-summary::before { */
+.activity-type-meeting .activity-summary::before {
   background-position: 0 -64px;
 }
 
@@ -554,11 +558,13 @@ only screen and (                min-resolution: 192dpi) {
     background-image: url({% media_url 'mobile/sprites_32.png' %});
   }
 
-  .activity-type-activities-activitytype_phonecall .activity-summary::before {
+/*  .activity-type-activities-activitytype_phonecall .activity-summary::before { */
+  .activity-type-phonecall .activity-summary::before {
     background-image: url({% media_url 'mobile/sprites_32.png' %});
   }
 
-  .activity-type-activities-activitytype_meeting .activity-summary::before {
+/*  .activity-type-activities-activitytype_meeting .activity-summary::before { */
+  .activity-type-meeting .activity-summary::before {
     background-image: url({% media_url 'mobile/sprites_32.png' %});
   }
 

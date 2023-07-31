@@ -32,7 +32,7 @@ from .base import (
 
 if apps.is_installed('creme.activities'):
     import creme.activities.constants as act_constants
-    from creme.activities.models import Activity
+    from creme.activities.models import Activity, ActivitySubType
     from creme.activities.tests.base import skipIfCustomActivity
 
     def skipIfActivitiesIsNotInstalled(test_func):
@@ -813,6 +813,11 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         create_rel(subject_entity=customer02, object_entity=mng_orga, type=rtype_customer)
         self.assertEqual(2, len(self._get_neglected_orgas()))
 
+    def _get_meeting_subtype(self):
+        return self.get_object_or_fail(
+            ActivitySubType, uuid=act_constants.UUID_SUBTYPE_MEETING_OTHER,
+        )
+
     @skipIfCustomActivity
     def test_neglected_brick02(self):
         user = self.user
@@ -824,10 +829,12 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         self.assertEqual(2, len(self._get_neglected_orgas()))
 
         tomorrow = now() + timedelta(days=1)  # So in the future
+        sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            type_id=act_constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=act_constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01', start=tomorrow,
             end=tomorrow + timedelta(hours=2),
         )
@@ -860,10 +867,12 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
 
         yesterday = now() - timedelta(days=1)  # So in the past
+        sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            type_id=act_constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=act_constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01', start=yesterday,
             end=yesterday + timedelta(hours=2),
         )
@@ -884,10 +893,12 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         customer = self._build_customer_orga(mng_orga, 'Suna')
 
         tomorrow = now() + timedelta(days=1)  # So in the future
+        sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            type_id=act_constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=act_constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01', start=tomorrow,
             end=tomorrow + timedelta(hours=2),
         )
@@ -928,16 +939,22 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
         tomorrow = now() + timedelta(days=1)  # So in the future
         create_activity = partial(Activity.objects.create, user=user, start=tomorrow)
+        sub_type1 = self._get_meeting_subtype()
         meeting = create_activity(
             title='meet01',
-            type_id=act_constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=act_constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type1.type_id, sub_type=sub_type1,
             end=tomorrow + timedelta(hours=2),
+        )
+        sub_type2 = self.get_object_or_fail(
+            ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
         )
         phonecall = create_activity(
             title='call01',
-            type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-            sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+            # sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            type_id=sub_type2.type_id, sub_type=sub_type2,
             end=tomorrow + timedelta(minutes=15),
         )
 
@@ -985,10 +1002,12 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         competitor = Organisation.objects.create(user=user, name='Akatsuki')
 
         tomorrow = now() + timedelta(days=1)  # So in the future
+        sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            type_id=act_constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+            # type_id=act_constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+            type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01', start=tomorrow,
             end=tomorrow + timedelta(hours=2),
         )
@@ -1053,10 +1072,12 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
         now_value = now()
         one_month_ago = now_value - timedelta(days=30)
+        sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            type_id=act_constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=act_constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01',
             start=one_month_ago,
             end=one_month_ago + timedelta(hours=2),
@@ -1082,10 +1103,12 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
         now_value = now()
         one_week_ago = now_value - timedelta(days=7)
+        sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            type_id=act_constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=act_constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01',
             start=one_week_ago,
             end=one_week_ago + timedelta(hours=2),
@@ -1108,10 +1131,12 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
         now_value = now()
         one_month_ago = now_value - timedelta(days=30)
+        sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            type_id=act_constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=act_constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01',
             start=one_month_ago,
             end=one_month_ago + timedelta(hours=2),

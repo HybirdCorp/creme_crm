@@ -385,16 +385,21 @@ class CalendarTestCase(_ActivitiesTestCase):
         create_cal(user=staff_user,    name='Cal #5', is_public=True)  # Should not be used
         create_cal(user=inactive_user, name='Cal #6', is_public=True)  # Should not be used
 
+        sub_type1 = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_OUTGOING)
+        sub_type2 = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_QUALIFICATION)
         create_act = partial(
             Activity.objects.create, user=user,
-            type_id=constants.ACTIVITYTYPE_PHONECALL,
-            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            # type_id=constants.ACTIVITYTYPE_PHONECALL,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            type_id=sub_type1.type_id, sub_type=sub_type1,
             floating_type=constants.FLOATING,
         )
         act1 = create_act(title='Act#1')
         act2 = create_act(
-            title='Act#2', type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+            title='Act#2',
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+            type_id=sub_type2.type_id, sub_type=sub_type2,
         )
         act3 = create_act(title='Act#3', is_deleted=True)
         act4 = create_act(title='Act#4', user=other_user)
@@ -444,11 +449,15 @@ class CalendarTestCase(_ActivitiesTestCase):
         "Floating activity without calendar (bugfix)."
         user = self.login_as_root_and_get()
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
+
         def create_act(i):
             act = Activity.objects.create(
                 user=user, title=f'Floating Act#{i}',
-                type_id=constants.ACTIVITYTYPE_MEETING,
-                sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+                # type_id=constants.ACTIVITYTYPE_MEETING,
+                # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+                type_id=sub_type.type_id,
+                sub_type=sub_type,
                 floating_type=constants.FLOATING,
             )
             Relation.objects.create(
@@ -608,10 +617,12 @@ class CalendarTestCase(_ActivitiesTestCase):
         def_cal = Calendar.objects.get_default_calendar(user)
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         act = Activity.objects.create(
             user=user, title='Act#1',
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type.type_id, sub_type=sub_type,
         )
         act.calendars.add(cal)
 
@@ -748,10 +759,12 @@ class CalendarTestCase(_ActivitiesTestCase):
         default_calendar = Calendar.objects.get_default_calendar(user)
 
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK)
         act = Activity.objects.create(
             user=user, title='Act#1',
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            type_id=sub_type.type_id, sub_type=sub_type,
         )
         act.calendars.add(default_calendar)
         self.assertListEqual([default_calendar], [*act.calendars.all()])
@@ -786,10 +799,12 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal1 = create_cal(name='Cal #1')
         cal2 = create_cal(name='Cal #2')
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_QUALIFICATION)
         act = Activity.objects.create(
             user=user, title='Act#1',
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+            type_id=sub_type.type_id, sub_type=sub_type,
         )
         act.calendars.set([default_calendar, cal1])
 
@@ -818,10 +833,12 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_CONFERENCE)
         act = Activity.objects.create(
             user=self.get_root_user(), title='Act#1',
-            type_id=constants.ACTIVITYTYPE_PHONECALL,
-            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
+            # type_id=constants.ACTIVITYTYPE_PHONECALL,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
+            type_id=sub_type.type_id, sub_type=sub_type,
         )
         self.assertFalse(user.has_perm_to_change(act))
         self.assertFalse(user.has_perm_to_link(act))
@@ -842,10 +859,12 @@ class CalendarTestCase(_ActivitiesTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         act = Activity.objects.create(
             user=self.get_root_user(), title='Act#1',
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type.type_id, sub_type=sub_type,
         )
         act.calendars.add(Calendar.objects.get_default_calendar(user))
         self.assertGET403(self.build_link_url(act.id))
@@ -904,6 +923,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self, tzname, start, end, is_all_day, data_start, data_end
     ):
         user = self.login_as_root_and_get()
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_OUTGOING)
 
         with override_tz(zoneinfo.ZoneInfo(tzname)):
             start = CremeTestCase.create_datetime(*start)
@@ -913,8 +933,10 @@ class CalendarTestCase(_ActivitiesTestCase):
             activity = Activity.objects.create(
                 title='Act#1',
                 user=user,
-                type_id=constants.ACTIVITYTYPE_PHONECALL,
-                sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+                # type_id=constants.ACTIVITYTYPE_PHONECALL,
+                # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+                type_id=sub_type.type_id,
+                sub_type=sub_type,
                 start=start,
                 end=end,
                 is_all_day=is_all_day,
@@ -960,11 +982,14 @@ class CalendarTestCase(_ActivitiesTestCase):
         start = create_dt(year=2013, month=3, day=1)
         end   = create_dt(year=2013, month=3, day=31, hour=23, minute=59)
 
+        sub_type1 = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_INCOMING)
         create = partial(
             Activity.objects.create,
             user=user,
-            type_id=constants.ACTIVITYTYPE_PHONECALL,
-            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+            # type_id=constants.ACTIVITYTYPE_PHONECALL,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+            type_id=sub_type1.type_id,
+            sub_type=sub_type1,
         )
         act0 = create(title='Act#0', start=start, end=start)
         act1 = create(
@@ -977,12 +1002,15 @@ class CalendarTestCase(_ActivitiesTestCase):
             start=start + timedelta(days=1), end=start + timedelta(days=2),
         )
         # Start OK
+        sub_type3 = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_QUALIFICATION)
         act3 = create(
             title='Act#3',
             start=start + timedelta(days=2), end=end + timedelta(days=1),
             is_all_day=True,
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+            type_id=sub_type3.type_id,
+            sub_type=sub_type3,
         )
         # End OK
         act4 = create(
@@ -1083,11 +1111,13 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         start = self.create_datetime(year=2013, month=4, day=1)
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
         create = partial(
             Activity.objects.create,
             user=user,
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+            type_id=sub_type.type_id, sub_type=sub_type,
         )
         act1 = create(
             title='Act#1', start=start + timedelta(days=1), end=start + timedelta(days=2),
@@ -1109,20 +1139,22 @@ class CalendarTestCase(_ActivitiesTestCase):
         act3.calendars.set([cal3])
         act4.calendars.set([cal3])
 
-        create_ind = partial(
+        unav_stype = self._get_sub_type(constants.UUID_SUBTYPE_UNAVAILABILITY)
+        create_unav = partial(
             Activity.objects.create,
             user=user,
-            type_id=constants.ACTIVITYTYPE_INDISPO,
-            sub_type_id=constants.ACTIVITYSUBTYPE_UNAVAILABILITY,
+            # type_id=constants.ACTIVITYTYPE_INDISPO,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_UNAVAILABILITY,
+            type_id=unav_stype.type_id, sub_type=unav_stype,
         )
-        act6 = create_ind(
+        act6 = create_unav(
             title='Ind#1', start=start + timedelta(days=5), end=start + timedelta(days=6),
         )
         # Not linked
-        create_ind(
+        create_unav(
             title='Ind#2', start=start + timedelta(days=7), end=start + timedelta(days=8),
         )
-        act8 = create_ind(
+        act8 = create_unav(
             title='Ind#3', start=start + timedelta(days=9), end=start + timedelta(days=10),
         )
 
@@ -1161,11 +1193,14 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         start = self.create_datetime(year=2013, month=4, day=1)
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_OUTGOING)
         create = partial(
             Activity.objects.create,
             user=user,
-            type_id=constants.ACTIVITYTYPE_PHONECALL,
-            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            # type_id=constants.ACTIVITYTYPE_PHONECALL,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            type_id=sub_type.type_id,
+            sub_type=sub_type,
         )
         act1 = create(
             title='Act#1', start=start + timedelta(days=1),  end=start + timedelta(days=2),
@@ -1275,10 +1310,12 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         start = self.create_datetime(year=2013, month=4, day=1, hour=9)
         end   = start + timedelta(hours=2)
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         act = Activity.objects.create(
             user=user, title='Act#1',
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type.type_id, sub_type=sub_type,
             start=start, end=end, floating_type=constants.FLOATING,
         )
 
@@ -1309,10 +1346,12 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.login_as_root_and_get()
         contact = user.linked_contact
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         create_act = partial(
             Activity.objects.create, user=user, busy=True,
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type.type_id, sub_type=sub_type,
         )
         create_dt = self.create_datetime
         act1 = create_act(
@@ -1349,10 +1388,12 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         start = self.create_datetime(year=2013, month=4, day=1, hour=9)
         end   = start + timedelta(hours=2)
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         act = Activity.objects.create(
             user=user, title='Act#1', start=start, end=end,
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type.type_id, sub_type=sub_type,
         )
 
         url = self.UPDATE_URL
@@ -1482,10 +1523,12 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal3 = Calendar.objects.create(user=user, name='Cal#3')
         Calendar.objects.get_default_calendar(other_user)  # Not in choices
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         act = Activity.objects.create(
             user=user, title='Act#1',
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type.type_id, sub_type=sub_type,
         )
         act.calendars.add(cal3)
 

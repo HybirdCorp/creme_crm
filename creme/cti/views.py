@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@ from datetime import timedelta
 from functools import partial
 
 from django.db.transaction import atomic
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.timezone import now
@@ -28,7 +28,7 @@ from django.utils.translation import gettext as _
 
 import creme.activities.constants as act_constants
 from creme import activities, persons
-from creme.activities.models import Calendar
+from creme.activities.models import ActivitySubType, Calendar
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import Relation, RelationType
@@ -107,7 +107,8 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
                         generic.CheckedView):
     permissions = ['activities', cperm(Activity)]
     phonecall_status_id = act_constants.STATUS_IN_PROGRESS
-    phonecall_subtype_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING
+    # phonecall_subtype_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING
+    phonecall_subtype_uuid = act_constants.UUID_SUBTYPE_PHONECALL_INCOMING
     title = _('Call to {entity}')  # Phone Call title
 
     def check_related_entity_permissions(self, entity, user):
@@ -115,13 +116,16 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
 
     def build_phonecall(self):
         now_value = now()
+        sub_type = get_object_or_404(ActivitySubType, uuid=self.get_phonecall_subtype_uuid())
         return Activity(
             user=self.request.user,
             title=self.get_title(),
             description=_('Automatically created by CTI'),
             status_id=self.get_phonecall_status_id(),
-            type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-            sub_type_id=self.get_phonecall_subtype_id(),
+            # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+            # sub_type_id=self.get_phonecall_subtype_id(),
+            type_id=sub_type.type_id,
+            sub_type=sub_type,
             start=now_value,
             # TODO: attribute ? ActivityType.default_hour_duration ?
             end=now_value + timedelta(minutes=5),
@@ -162,8 +166,10 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
     def get_phonecall_status_id(self) -> int:
         return self.phonecall_status_id
 
-    def get_phonecall_subtype_id(self) -> str:
-        return self.phonecall_subtype_id
+    # def get_phonecall_subtype_id(self) -> str:
+    #     return self.phonecall_subtype_id
+    def get_phonecall_subtype_uuid(self) -> str:
+        return self.phonecall_subtype_uuid
 
     def get_title_format_data(self):
         return {'entity': self.get_related_entity()}
@@ -176,7 +182,8 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
 class AsCallerPhoneCallCreation(PhoneCallCreation):
     response_class = CremeJsonResponse
     entity_id_arg = 'entity_id'
-    phonecall_subtype_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING
+    # phonecall_subtype_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING
+    phonecall_subtype_uuid = act_constants.UUID_SUBTYPE_PHONECALL_OUTGOING
 
     def get_related_entity_id(self):
         return get_from_POST_or_404(self.request.POST, self.entity_id_arg)

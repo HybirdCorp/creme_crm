@@ -10,13 +10,13 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
+# ACTIVITYSUBTYPE_MEETING_QUALIFICATION, ACTIVITYTYPE_MEETING,
 from creme.activities.constants import (
-    ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-    ACTIVITYTYPE_MEETING,
     REL_SUB_PART_2_ACTIVITY,
+    UUID_SUBTYPE_MEETING_QUALIFICATION,
 )
 from creme.activities.custom_forms import ACTIVITY_CREATION_CFORM
-from creme.activities.models import Calendar, Status
+from creme.activities.models import ActivitySubType, Calendar, Status
 from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.forms import LAYOUT_REGULAR
 from creme.creme_core.gui.custom_form import FieldGroup, FieldGroupList
@@ -187,6 +187,9 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         # ---
         title = 'Meeting #01'
         my_calendar = Calendar.objects.get_default_calendar(user)
+        sub_type = self.get_object_or_fail(
+            ActivitySubType, uuid=UUID_SUBTYPE_MEETING_QUALIFICATION,
+        )
         response2 = self.client.post(
             url,
             follow=True,
@@ -198,7 +201,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                 # 'cform_extra-activities_start_0': '2011-5-18',
                 'cform_extra-activities_start_0': self.formfield_value_date(2011, 5, 18),
 
-                'cform_extra-activities_subtype': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                # 'cform_extra-activities_subtype': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                'cform_extra-activities_subtype': sub_type.id,
 
                 'cform_extra-activities_my_participation_0': True,
                 'cform_extra-activities_my_participation_1': my_calendar.id,
@@ -207,7 +211,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertNoFormError(response2)
-        self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
+        # self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
+        self.get_object_or_fail(Activity, sub_type_id=sub_type.id, title=title)
         self.assertFalse(CommercialApproach.objects.all())
 
     @skipIfCustomOrganisation
@@ -227,6 +232,9 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         title = 'Meeting #01'
         description = 'Stuffs about the fighting'
         my_calendar = Calendar.objects.get_default_calendar(user)
+        sub_type = self.get_object_or_fail(
+            ActivitySubType, uuid=UUID_SUBTYPE_MEETING_QUALIFICATION,
+        )
         response = self.client.post(
             reverse('activities__create_activity'),
             follow=True,
@@ -238,7 +246,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
                 'cform_extra-activities_start_0': self.formfield_value_date(2011, 5, 18),
 
-                'cform_extra-activities_subtype': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                # 'cform_extra-activities_subtype': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                'cform_extra-activities_subtype': sub_type.id,
 
                 'cform_extra-activities_my_participation_0': True,
                 'cform_extra-activities_my_participation_1': my_calendar.id,
@@ -255,7 +264,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        meeting = self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
+        # meeting = self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
+        meeting = self.get_object_or_fail(Activity, sub_type=sub_type, title=title)
 
         comapps = CommercialApproach.objects.filter(related_activity=meeting)
         self.assertCountEqual(
@@ -278,10 +288,15 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         title = 'meeting #01'
         description = 'Stuffs about the fighting'
         create_dt = self.create_datetime
+        sub_type = self.get_object_or_fail(
+            ActivitySubType, uuid=UUID_SUBTYPE_MEETING_QUALIFICATION,
+        )
         meeting = Activity.objects.create(
             user=user, title=title, description=description,
-            type_id=ACTIVITYTYPE_MEETING,
-            sub_type_id=ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+            # type_id=ACTIVITYTYPE_MEETING,
+            # sub_type_id=ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+            type_id=sub_type.type_id,
+            sub_type=sub_type,
             start=create_dt(year=2011, month=5, day=18, hour=14, minute=0),
             end=create_dt(year=2011,   month=6, day=1,  hour=15, minute=0),
         )

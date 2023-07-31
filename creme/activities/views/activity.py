@@ -55,55 +55,84 @@ class ActivityCreation(generic.EntityCreation):
     type_name_url_kwarg = 'act_type'
 
     allowed_activity_types = {
-        'meeting':   constants.ACTIVITYTYPE_MEETING,
-        'phonecall': constants.ACTIVITYTYPE_PHONECALL,
-        'task':      constants.ACTIVITYTYPE_TASK,
+        # 'meeting':   constants.ACTIVITYTYPE_MEETING,
+        # 'phonecall': constants.ACTIVITYTYPE_PHONECALL,
+        # 'task':      constants.ACTIVITYTYPE_TASK,
+        'meeting':   constants.UUID_TYPE_MEETING,
+        'phonecall': constants.UUID_TYPE_PHONECALL,
+        'task':      constants.UUID_TYPE_TASK,
     }
     # TODO: add a field <ActivitySubType.is_default> instead.
     default_activity_subtypes = {
-        constants.ACTIVITYTYPE_MEETING:   constants.ACTIVITYSUBTYPE_MEETING_MEETING,
-        constants.ACTIVITYTYPE_PHONECALL: constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+        # constants.ACTIVITYTYPE_MEETING:   constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+        # constants.ACTIVITYTYPE_PHONECALL: constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+        constants.UUID_TYPE_MEETING:   constants.UUID_SUBTYPE_MEETING_MEETING,
+        constants.UUID_TYPE_PHONECALL: constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
     }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.type_id = None
+        # self.type_id = None
+        self.type_uuid = None
 
     def get(self, request, *args, **kwargs):
-        self.type_id = self.get_type_id()
+        # self.type_id = self.get_type_id()
+        self.type_uuid = self.get_type_uuid()
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self.type_id = self.get_type_id()
+        # self.type_id = self.get_type_id()
+        self.type_uuid = self.get_type_uuid()
         return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
-        type_id = self.type_id
-        if type_id:
-            subtype_id = self.default_activity_subtypes.get(type_id)
-            kwargs['sub_type'] = get_object_or_404(
-                ActivitySubType, id=subtype_id,
-            ) if subtype_id else ActivitySubType.objects.filter(type=type_id).first()
+        # type_id = self.type_id
+        # if type_id:
+        #     subtype_id = self.default_activity_subtypes.get(type_id)
+        #     kwargs['sub_type'] = get_object_or_404(
+        #         ActivitySubType, id=subtype_id,
+        #     ) if subtype_id else ActivitySubType.objects.filter(type=type_id).first()
+        type_uuid = self.type_uuid
+        if type_uuid:
+            subtype_uuid = self.default_activity_subtypes.get(type_uuid)
+            kwargs['sub_type'] = (
+                get_object_or_404(ActivitySubType, uuid=subtype_uuid)
+                if subtype_uuid else
+                ActivitySubType.objects.filter(type__uuid=type_uuid).first()
+            )
 
         return kwargs
 
-    def get_type_id(self):
+    # def get_type_id(self):
+    #     act_type = self.kwargs.get(self.type_name_url_kwarg)
+    #
+    #     if act_type is None:
+    #         type_id = None
+    #     else:
+    #         type_id = self.allowed_activity_types.get(act_type)
+    #
+    #         if not type_id:
+    #             raise Http404(f'No activity type matches with: {act_type}')
+    #
+    #     return type_id
+    def get_type_uuid(self):
         act_type = self.kwargs.get(self.type_name_url_kwarg)
 
         if act_type is None:
-            type_id = None
+            type_uuid = None
         else:
-            type_id = self.allowed_activity_types.get(act_type)
+            type_uuid = self.allowed_activity_types.get(act_type)
 
-            if not type_id:
+            if not type_uuid:
                 raise Http404(f'No activity type matches with: {act_type}')
 
-        return type_id
+        return type_uuid
 
     def get_title(self):
-        return Activity.get_creation_title(self.type_id)
+        # return Activity.get_creation_title(self.type_id)
+        return Activity.get_creation_title(self.type_uuid)
 
 
 class ActivityCreationPopup(generic.EntityCreationPopup):
@@ -158,8 +187,10 @@ class ActivityCreationPopup(generic.EntityCreationPopup):
 class UnavailabilityCreation(ActivityCreation):
     form_class = custom_forms.UNAVAILABILITY_CREATION_CFORM
 
-    def get_type_id(self):
-        return constants.ACTIVITYTYPE_INDISPO
+    # def get_type_id(self):
+    #     return constants.ACTIVITYTYPE_INDISPO
+    def get_type_uuid(self):
+        return constants.UUID_TYPE_UNAVAILABILITY
 
 
 class RelatedActivityCreation(ActivityCreation):
@@ -228,13 +259,20 @@ class RelatedActivityCreation(ActivityCreation):
 
         return rtype_id
 
-    def get_type_id(self):
-        type_id = self.request.GET.get('activity_type')  # TODO: attribute
+    # def get_type_id(self):
+    #     type_id = self.request.GET.get('activity_type')
+    #
+    #     if type_id:
+    #         get_object_or_404(ActivityType, pk=type_id)
+    #
+    #     return type_id
+    def get_type_uuid(self):
+        type_uuid = self.request.GET.get('activity_type')  # TODO: attribute
 
-        if type_id:
-            get_object_or_404(ActivityType, pk=type_id)
+        if type_uuid:
+            get_object_or_404(ActivityType, uuid=type_uuid)
 
-        return type_id
+        return type_uuid
 
 
 class ActivityDetail(generic.EntityDetail):
@@ -281,14 +319,16 @@ class PhoneCallsList(TypedActivitiesList):
     title = _('List of phone calls')
     creation_label = _('Create a phone call')
     creation_url = reverse_lazy('activities__create_activity', args=('phonecall',))
-    internal_q = Q(type=constants.ACTIVITYTYPE_PHONECALL)
+    # internal_q = Q(type=constants.ACTIVITYTYPE_PHONECALL)
+    internal_q = Q(type__uuid=constants.UUID_TYPE_PHONECALL)
 
 
 class MeetingsList(TypedActivitiesList):
     title = _('List of meetings')
     creation_label = _('Create a meeting')
     creation_url = reverse_lazy('activities__create_activity', args=('meeting',))
-    internal_q = Q(type=constants.ACTIVITYTYPE_MEETING)
+    # internal_q = Q(type=constants.ACTIVITYTYPE_MEETING)
+    internal_q = Q(type__uuid=constants.UUID_TYPE_MEETING)
 
 
 class ICalExport(generic.CheckedView):

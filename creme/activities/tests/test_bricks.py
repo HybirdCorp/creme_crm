@@ -32,15 +32,19 @@ from ..bricks import (
     SubjectsBrick,
     UserCalendarsBrick,
 )
+# from ..constants import (
+#     ACTIVITYSUBTYPE_MEETING_NETWORK,
+#     ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+#     ACTIVITYTYPE_MEETING,
+#     ACTIVITYTYPE_PHONECALL,
+# )
 from ..constants import (
-    ACTIVITYSUBTYPE_MEETING_NETWORK,
-    ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-    ACTIVITYTYPE_MEETING,
-    ACTIVITYTYPE_PHONECALL,
     FLOATING,
     REL_SUB_ACTIVITY_SUBJECT,
     REL_SUB_LINKED_2_ACTIVITY,
     REL_SUB_PART_2_ACTIVITY,
+    UUID_SUBTYPE_MEETING_NETWORK,
+    UUID_SUBTYPE_PHONECALL_OUTGOING,
 )
 from ..models import Calendar
 from ..setting_keys import review_key
@@ -221,11 +225,14 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         tomorrow = today8 + one_day
         yesterday = today8 - one_day
 
+        sub_type = self._get_sub_type(UUID_SUBTYPE_MEETING_NETWORK)
         create_activity = partial(
             Activity.objects.create,
             user=user,
-            type_id=ACTIVITYTYPE_MEETING,
-            sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+            # type_id=ACTIVITYTYPE_MEETING,
+            # sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+            type_id=sub_type.type_id,
+            sub_type=sub_type,
         )
 
         future = [
@@ -342,9 +349,11 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         tomorrow = today8 + one_day
         yesterday = today8 - one_day
 
+        sub_type = self._get_sub_type(UUID_SUBTYPE_MEETING_NETWORK)
         create_activity = partial(
             Activity.objects.create,
-            user=user, type_id=ACTIVITYTYPE_MEETING, sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+            # user=user, type_id=ACTIVITYTYPE_MEETING, sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+            user=user, type_id=sub_type.type_id, sub_type=sub_type,
         )
 
         future = [
@@ -447,9 +456,11 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         tomorrow = today8 + one_day
         yesterday = today8 - one_day
 
+        sub_type = self._get_sub_type(UUID_SUBTYPE_MEETING_NETWORK)
         create_activity = partial(
             Activity.objects.create,
-            user=user, type_id=ACTIVITYTYPE_MEETING, sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+            # user=user, type_id=ACTIVITYTYPE_MEETING, sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+            user=user, type_id=sub_type.type_id, sub_type=sub_type,
         )
 
         future = [
@@ -763,11 +774,13 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         contact3 = Contact.objects.create(user=user, first_name='Roy', last_name='Mustang')
 
         dt_now = now()
+        sub_type = self._get_sub_type(UUID_SUBTYPE_PHONECALL_OUTGOING)
         phone_call = Activity.objects.create(
-            title='A random activity',
+            # title='A random activity',
             start=dt_now, end=dt_now,
             user=user,
-            type_id=ACTIVITYTYPE_PHONECALL, sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            # type_id=ACTIVITYTYPE_PHONECALL, sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            type_id=sub_type.type_id, sub_type=sub_type,
         )
 
         self.assertPOST200(
@@ -836,10 +849,12 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         contact = self.get_root_user().linked_contact
         self.assertFalse(user.has_perm_to_unlink(contact))
 
+        sub_type = self._get_sub_type(UUID_SUBTYPE_PHONECALL_OUTGOING)
         phone_call = Activity.objects.create(
             title='A random activity',
             user=user,
-            type_id=ACTIVITYTYPE_PHONECALL, sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            # type_id=ACTIVITYTYPE_PHONECALL, sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            type_id=sub_type.type_id, sub_type=sub_type,
         )
         self.assertTrue(user.has_perm_to_unlink(phone_call))
 
@@ -873,10 +888,12 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         contact = user.linked_contact
         self.assertTrue(user.has_perm_to_unlink(contact))
 
+        sub_type = self._get_sub_type(UUID_SUBTYPE_PHONECALL_OUTGOING)
         phone_call = Activity.objects.create(
             title='A random activity',
             user=self.get_root_user(),
-            type_id=ACTIVITYTYPE_PHONECALL, sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            # type_id=ACTIVITYTYPE_PHONECALL, sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            type_id=sub_type.type_id, sub_type=sub_type,
         )
         self.assertFalse(user.has_perm_to_unlink(phone_call))
 

@@ -7,10 +7,12 @@ from django.apps import apps
 from django.db.models.query_utils import Q
 from django.test.utils import override_settings
 
-from creme.activities.constants import (
-    ACTIVITYSUBTYPE_MEETING_MEETING,
-    ACTIVITYTYPE_MEETING,
-)
+# from creme.activities.constants import (
+#     ACTIVITYSUBTYPE_MEETING_MEETING,
+#     ACTIVITYTYPE_MEETING,
+# )
+from creme.activities.constants import UUID_SUBTYPE_MEETING_MEETING
+from creme.activities.models import ActivitySubType
 from creme.creme_core.models import FakeContact
 from creme.persons.tests.base import skipIfCustomContact
 
@@ -788,6 +790,7 @@ description3=[[<br>]]
 
         user = self.user
         subject = 'create_activity'
+        sub_type = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_MEETING_MEETING)
         email_input = self._get_email_input(
             ActivityFakeBackend,
             password='creme',
@@ -795,8 +798,10 @@ description3=[[<br>]]
             body_map={
                 'user_id':     user.id,
                 'title':       '',
-                'type_id':     ACTIVITYTYPE_MEETING,
-                'sub_type_id': ACTIVITYSUBTYPE_MEETING_MEETING,
+                # 'type_id':     ACTIVITYTYPE_MEETING,
+                # 'sub_type_id': ACTIVITYSUBTYPE_MEETING_MEETING,
+                'type_id':     sub_type.type_id,
+                'sub_type_id': sub_type.id,
                 'start':       '',
                 'end':         '',
             },
@@ -826,10 +831,12 @@ description3=[[<br>]]
         self.assertIsInstance(activity, Activity)
 
         activity = self.refresh(activity)
-        self.assertEqual(user,                            activity.user)
-        self.assertEqual(title,                           activity.title)
-        self.assertEqual(ACTIVITYTYPE_MEETING,            activity.type.id)
-        self.assertEqual(ACTIVITYSUBTYPE_MEETING_MEETING, activity.sub_type.id)
+        self.assertEqual(user,             activity.user)
+        self.assertEqual(title,            activity.title)
+        # self.assertEqual(ACTIVITYTYPE_MEETING,            activity.type.id)
+        # self.assertEqual(ACTIVITYSUBTYPE_MEETING_MEETING, activity.sub_type.id)
+        self.assertEqual(sub_type.type_id, activity.type.id)
+        self.assertEqual(sub_type.id,      activity.sub_type.id)
 
         create_dt = self.create_datetime
         self.assertEqual(

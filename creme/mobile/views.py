@@ -41,7 +41,7 @@ import creme.activities.constants as act_constants
 import creme.persons.constants as persons_constants
 from creme import persons
 from creme.activities import get_activity_model
-from creme.activities.models import Calendar
+from creme.activities.models import ActivitySubType, Calendar
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, EntityCredentials, Relation
@@ -168,7 +168,9 @@ def portal(request):
                         act_constants.STATUS_DONE,
                         act_constants.STATUS_CANCELLED,
                     ),
-                ).order_by('start')
+                ).order_by(
+                    'start'
+                ).select_related('type')  # see tag mobile_activity_card
     )
 
     # TODO: an activity which starts before now, & ends before now too, with status != PROGRESS
@@ -371,10 +373,11 @@ def activities_portal(request):
         relations__object_entity=user.linked_contact,
     ).exclude(
         status__in=(act_constants.STATUS_DONE, act_constants.STATUS_CANCELLED),
-    ).order_by('start')
+    ).order_by('start').select_related('type')  # select_related() => see tag mobile_activity_card
 
     phone_calls = cred_filter(activities.filter(
-        type=act_constants.ACTIVITYTYPE_PHONECALL,
+        # type=act_constants.ACTIVITYTYPE_PHONECALL,
+        type__uuid=act_constants.UUID_TYPE_PHONECALL,
         start__lte=now_val,
     ))[:10]
 
@@ -436,7 +439,7 @@ def phonecall_panel(request):
     number = get_from_GET_or_404(GET, 'number')
 
     context = {
-        'type_id':         act_constants.ACTIVITYTYPE_PHONECALL,
+        # 'type_id':         act_constants.ACTIVITYTYPE_PHONECALL,
         'call_start':      call_start,
         'number':          number,
         'user_contact_id': user.linked_contact.id,
@@ -448,7 +451,8 @@ def phonecall_panel(request):
         context['phone_call'] = pcall = get_object_or_404(
             Activity,
             id=pcall_id,
-            type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+            # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+            type__uuid=act_constants.UUID_TYPE_PHONECALL,
         )
         user.has_perm_to_view_or_die(pcall)
 
@@ -485,7 +489,8 @@ def _get_pcall(request):
     pcall = get_object_or_404(
         Activity.objects.select_for_update(),
         id=pcall_id,
-        type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+        # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+        type__uuid=act_constants.UUID_TYPE_PHONECALL,
     )
 
     request.user.has_perm_to_change_or_die(pcall)  # TODO: test
@@ -498,7 +503,8 @@ def _get_pcall(request):
 def phonecall_workflow_done(request, pcall_id):
     pcall = get_object_or_404(
         Activity,
-        type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+        # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+        type__uuid=act_constants.UUID_TYPE_PHONECALL,
         id=pcall_id,
     )
 
@@ -597,6 +603,9 @@ def _phonecall_workflow_set_end(request, end_function):
 
         me, person = _get_participants(user, POST)
 
+        sub_type = get_object_or_404(
+            ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
+        )
         pcall = done_activity_creator(
             user=user,
             title=_('{status} call to {person} from {software} Mobile').format(
@@ -604,8 +613,10 @@ def _phonecall_workflow_set_end(request, end_function):
                 person=person,
                 software=settings.SOFTWARE_LABEL,
             ),
-            type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-            sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+            # sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            type_id=sub_type.type_id,
+            sub_type=sub_type,
             status_id=act_constants.STATUS_DONE,
             start=start,
             end=end,
@@ -636,6 +647,9 @@ def _create_failed_pcall(request):
 
     me, person = _get_participants(user, POST)
 
+    sub_type = get_object_or_404(
+        ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_FAILED,
+    )
     pcall = failed_activity_creator(
         user=user,
         title=_('{status} call to {person} from {software} Mobile').format(
@@ -643,8 +657,10 @@ def _create_failed_pcall(request):
             person=person,
             software=settings.SOFTWARE_LABEL,
         ),
-        type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-        sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,
+        # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+        # sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,
+        type_id=sub_type.type_id,
+        sub_type=sub_type,
         status_id=act_constants.STATUS_DONE,
         start=start,
         end=start,
@@ -658,7 +674,10 @@ def _create_failed_pcall(request):
 def _set_pcall_as_failed(pcall, request):
     POST = request.POST
 
-    pcall.sub_type_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED
+    # pcall.sub_type_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED
+    pcall.sub_type = get_object_or_404(
+        ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_FAILED,
+    )
     pcall.status_id = act_constants.STATUS_DONE
     pcall.floating_type = act_constants.NARROW
     pcall.start = pcall.end = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))
@@ -702,7 +721,10 @@ def phonecall_workflow_postponed(request):
         postponed.title = _('Call to {person} from {software} Mobile').format(
             person=person, software=settings.SOFTWARE_LABEL,
         )
-        postponed.sub_type_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING
+        # postponed.sub_type_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING
+        postponed.sub_type = get_object_or_404(
+            ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
+        )
         postponed.status = None
 
     postponed.floating_type = act_constants.FLOATING_TIME

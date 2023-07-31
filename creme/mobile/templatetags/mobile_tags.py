@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2022  Hybird
+#    Copyright (C) 2014-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,11 +22,14 @@ from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.template import Library
 
+# from creme.activities.constants import ACTIVITYTYPE_PHONECALL
 from creme.activities.constants import (
-    ACTIVITYTYPE_PHONECALL,
     NARROW,
     REL_SUB_ACTIVITY_SUBJECT,
     STATUS_IN_PROGRESS,
+    UUID_TYPE_MEETING,
+    UUID_TYPE_PHONECALL,
+    UUID_TYPE_TASK,
 )
 from creme.creme_core.models import SettingValue
 from creme.mobile import setting_keys
@@ -53,6 +56,7 @@ def mobile_location_map_url(address):
     return url.format(**data)
 
 
+# ------------------------------------------------------------------------------
 # TODO: move to creme_core ??
 @register.simple_tag(takes_context=True)
 def mobile_prepare_fields(context, instance, *field_names):
@@ -65,6 +69,7 @@ def mobile_prepare_fields(context, instance, *field_names):
     return ''
 
 
+# ------------------------------------------------------------------------------
 _DOCUMENT_CLASSES = [
     (re.compile('Android',          re.I), 'android'),
     (re.compile('iPhone|iPad|iPod', re.I), 'ios'),
@@ -83,6 +88,7 @@ def mobile_document_class(request):
     return 'all'
 
 
+# ------------------------------------------------------------------------------
 # TODO: remove when Organisations can participate
 @register.filter
 def mobile_organisation_subjects(activity):
@@ -92,6 +98,21 @@ def mobile_organisation_subjects(activity):
     )
 
 
+# ------------------------------------------------------------------------------
+ACTIVITY_TYPES_AS_STR = {
+    UUID_TYPE_MEETING:   'meeting',
+    UUID_TYPE_PHONECALL: 'phonecall',
+    UUID_TYPE_TASK:      'task',  # currently not used...
+}
+
+
+# TODO: move to app 'activities'?
+@register.filter
+def mobile_activity_type_str(activity):
+    return ACTIVITY_TYPES_AS_STR.get(str(activity.type.uuid), 'misc')
+
+
+# ------------------------------------------------------------------------------
 START_STOP_BUTTONS  = 'start-stop'
 NO_BUTTON           = 'no-button'
 
@@ -111,7 +132,8 @@ def mobile_activity_card(context, activity,
                          ):
     extra_classes = ''
 
-    if activity.type_id == ACTIVITYTYPE_PHONECALL:
+    # if activity.type_id == ACTIVITYTYPE_PHONECALL:
+    if str(activity.type.uuid) == UUID_TYPE_PHONECALL:
         if button_panel == START_STOP_BUTTONS:
             button_panel = NO_BUTTON
 
@@ -134,6 +156,7 @@ def mobile_activity_card(context, activity,
     }
 
 
+# ------------------------------------------------------------------------------
 @register.inclusion_tag('mobile/templatetags/footer.html')
 def mobile_footer(show_delog=True):
     return {

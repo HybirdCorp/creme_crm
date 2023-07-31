@@ -10,42 +10,77 @@ REL_OBJ_ACTIVITY_SUBJECT = 'activities-object_activity_subject'
 REL_SUB_PART_2_ACTIVITY = 'activities-subject_participates_to_activity'
 REL_OBJ_PART_2_ACTIVITY = 'activities-object_participates_to_activity'
 
-ACTIVITYTYPE_INDISPO   = 'activities-activitytype_indispo'  # TODO: rename
-ACTIVITYTYPE_TASK      = 'activities-activitytype_task'
-ACTIVITYTYPE_MEETING   = 'activities-activitytype_meeting'
-ACTIVITYTYPE_PHONECALL = 'activities-activitytype_phonecall'
-ACTIVITYTYPE_GATHERING = 'activities-activitytype_gathering'
-ACTIVITYTYPE_SHOW      = 'activities-activitytype_show'
-ACTIVITYTYPE_DEMO      = 'activities-activitytype_demo'
+# TYPES ------------------------------------------------------------------------
+# ACTIVITYTYPE_INDISPO   = 'activities-activitytype_indispo'
+# ACTIVITYTYPE_TASK      = 'activities-activitytype_task'
+# ACTIVITYTYPE_MEETING   = 'activities-activitytype_meeting'
+# ACTIVITYTYPE_PHONECALL = 'activities-activitytype_phonecall'
+# ACTIVITYTYPE_GATHERING = 'activities-activitytype_gathering'
+# ACTIVITYTYPE_SHOW      = 'activities-activitytype_show'
+# ACTIVITYTYPE_DEMO      = 'activities-activitytype_demo'
+
+UUID_TYPE_UNAVAILABILITY = '1cd1de3d-1fad-4eb6-82a8-93059f1b5ea3'
+UUID_TYPE_TASK           = '7fda7c3f-f0e8-47f9-9d90-7931293fdff9'
+UUID_TYPE_MEETING        = '5943b787-441f-453d-a96a-ff436fd37f2f'
+UUID_TYPE_PHONECALL      = '86934e63-1ba5-4b19-b2a5-43f9412fddc3'
+UUID_TYPE_GATHERING      = 'a8295a0b-7823-4cce-9ea0-307640eaf4a3'
+UUID_TYPE_SHOW           = '59772b5c-e034-4499-a9cd-7f32d7ede8de'
+UUID_TYPE_DEMO           = 'a9a13fc8-cf00-46e4-b2dc-8e98c086c186'
 
 CREATION_LABELS = {
-    ACTIVITYTYPE_TASK:       _('Create a task'),
-    ACTIVITYTYPE_MEETING:    _('Create a meeting'),
-    ACTIVITYTYPE_PHONECALL:  _('Create a phone call'),
-    ACTIVITYTYPE_GATHERING:  _('Create a gathering'),
-    ACTIVITYTYPE_SHOW:       _('Create a show'),
-    ACTIVITYTYPE_DEMO:       _('Create a demo'),
-    ACTIVITYTYPE_INDISPO:    _('Create an unavailability'),
+    # ACTIVITYTYPE_TASK:       _('Create a task'),
+    # ACTIVITYTYPE_MEETING:    _('Create a meeting'),
+    # ACTIVITYTYPE_PHONECALL:  _('Create a phone call'),
+    # ACTIVITYTYPE_GATHERING:  _('Create a gathering'),
+    # ACTIVITYTYPE_SHOW:       _('Create a show'),
+    # ACTIVITYTYPE_DEMO:       _('Create a demo'),
+    # ACTIVITYTYPE_INDISPO:    _('Create an unavailability'),
+    UUID_TYPE_UNAVAILABILITY: _('Create an unavailability'),
+    UUID_TYPE_TASK:           _('Create a task'),
+    UUID_TYPE_MEETING:        _('Create a meeting'),
+    UUID_TYPE_PHONECALL:      _('Create a phone call'),
+    UUID_TYPE_GATHERING:      _('Create a gathering'),
+    UUID_TYPE_SHOW:           _('Create a show'),
+    UUID_TYPE_DEMO:           _('Create a demo'),
 }
 ICONS = {
-    ACTIVITYTYPE_MEETING:   ('meeting', _('Meeting')),
-    ACTIVITYTYPE_PHONECALL: ('phone',   _('Phone call')),
-    ACTIVITYTYPE_TASK:      ('task',    _('Task')),
+    # ACTIVITYTYPE_MEETING:   ('meeting', _('Meeting')),
+    # ACTIVITYTYPE_PHONECALL: ('phone',   _('Phone call')),
+    # ACTIVITYTYPE_TASK:      ('task',    _('Task')),
+    UUID_TYPE_MEETING:   ('meeting', _('Meeting')),
+    UUID_TYPE_PHONECALL: ('phone',   _('Phone call')),
+    UUID_TYPE_TASK:      ('task',    _('Task')),
 }
 
-ACTIVITYSUBTYPE_UNAVAILABILITY = 'activities-activitysubtype_unavailability'
+# SUB-TYPES --------------------------------------------------------------------
+# ACTIVITYSUBTYPE_UNAVAILABILITY = 'activities-activitysubtype_unavailability'
 
-ACTIVITYSUBTYPE_MEETING_MEETING       = 'activities-activitysubtype_meeting'
-ACTIVITYSUBTYPE_MEETING_QUALIFICATION = 'activities-activitysubtype_qualification'
-ACTIVITYSUBTYPE_MEETING_REVIVAL       = 'activities-activitysubtype_revival'
-ACTIVITYSUBTYPE_MEETING_NETWORK       = 'activities-activitysubtype_network'
-ACTIVITYSUBTYPE_MEETING_OTHER         = 'activities-activitysubtype_other'
+# ACTIVITYSUBTYPE_MEETING_MEETING       = 'activities-activitysubtype_meeting'
+# ACTIVITYSUBTYPE_MEETING_QUALIFICATION = 'activities-activitysubtype_qualification'
+# ACTIVITYSUBTYPE_MEETING_REVIVAL       = 'activities-activitysubtype_revival'
+# ACTIVITYSUBTYPE_MEETING_NETWORK       = 'activities-activitysubtype_network'
+# ACTIVITYSUBTYPE_MEETING_OTHER         = 'activities-activitysubtype_other'
 
-ACTIVITYSUBTYPE_PHONECALL_INCOMING   = 'activities-activitysubtype_incoming'
-ACTIVITYSUBTYPE_PHONECALL_OUTGOING   = 'activities-activitysubtype_outgoing'
-ACTIVITYSUBTYPE_PHONECALL_CONFERENCE = 'activities-activitysubtype_conference'
-ACTIVITYSUBTYPE_PHONECALL_FAILED     = 'activities-activitysubtype_failed'
+UUID_SUBTYPE_UNAVAILABILITY = 'cf5d1b51-e949-43cb-a347-99a8992f6030'
 
+UUID_SUBTYPE_MEETING_MEETING       = 'e129154e-0d33-4f1e-9d2f-2ece81688e31'
+UUID_SUBTYPE_MEETING_QUALIFICATION = 'f6db7626-8138-4529-b2c6-530387da10a7'
+UUID_SUBTYPE_MEETING_REVIVAL       = '9d65111b-767a-41d2-b03b-81bc9ca0c7a5'
+UUID_SUBTYPE_MEETING_NETWORK       = '7a42a5a2-e554-44fa-8d10-84ac0ef6ebda'
+UUID_SUBTYPE_MEETING_OTHER         = 'ad81256c-dac8-4d33-b0b6-79b0f142496b'
+
+# ACTIVITYSUBTYPE_PHONECALL_INCOMING   = 'activities-activitysubtype_incoming'
+# ACTIVITYSUBTYPE_PHONECALL_OUTGOING   = 'activities-activitysubtype_outgoing'
+# ACTIVITYSUBTYPE_PHONECALL_CONFERENCE = 'activities-activitysubtype_conference'
+# ACTIVITYSUBTYPE_PHONECALL_FAILED     = 'activities-activitysubtype_failed'
+
+UUID_SUBTYPE_PHONECALL_INCOMING   = '49b2ce30-fe7b-409b-b4ef-4749400b88c7'
+UUID_SUBTYPE_PHONECALL_OUTGOING   = '38729b63-8133-4244-84c4-082364846638'
+UUID_SUBTYPE_PHONECALL_CONFERENCE = '55aebf7f-ef4f-4c1c-a3c6-1a68ba330d7d'
+UUID_SUBTYPE_PHONECALL_FAILED     = 'e0cf04b0-b407-413e-b6d4-8946ea815041'
+
+# ------------------------------------------------------------------------------
+# TODO: UUIDs instead ?
 STATUS_PLANNED     = 1
 STATUS_IN_PROGRESS = 2
 STATUS_DONE        = 3

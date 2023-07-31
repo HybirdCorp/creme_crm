@@ -74,19 +74,23 @@ class UtilsTestCase(_ActivitiesTestCase):
     def test_collision01(self):
         user = self.login_as_root_and_get()
 
+        sub_type1 = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
+        sub_type2 = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_INCOMING)
         create_activity = partial(
             Activity.objects.create,
             user=user,
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+            type_id=sub_type1.type_id, sub_type=sub_type1,
         )
         create_dt = self.create_datetime
 
         with self.assertNoException():
             act01 = create_activity(
                 title='call01',
-                type_id=constants.ACTIVITYTYPE_PHONECALL,
-                sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+                # type_id=constants.ACTIVITYTYPE_PHONECALL,
+                # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+                type_id=sub_type2.type_id, sub_type=sub_type2,
                 start=create_dt(year=2010, month=10, day=1, hour=12, minute=0),
                 end=create_dt(year=2010, month=10, day=1, hour=13, minute=0),
             )
@@ -200,12 +204,14 @@ class ICalEncoderTestCase(_ActivitiesTestCase):
         user = self.get_root_user()
         create_dt = self.create_datetime
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
         activity = Activity.objects.create(
             user=user,
             title='Act#1',
             # busy=True,  # TODO ?
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+            type_id=sub_type.type_id, sub_type=sub_type,
             start=create_dt(year=2023, month=1, day=17, hour=9),
             end=create_dt(year=2023, month=1, day=17, hour=10),
         )
@@ -232,11 +238,14 @@ class ICalEncoderTestCase(_ActivitiesTestCase):
         user = self.get_root_user()
         create_dt = self.create_datetime
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_OUTGOING)
         activity = Activity.objects.create(
             user=user,
             title='My Activity',
-            type_id=constants.ACTIVITYTYPE_PHONECALL,
-            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            # type_id=constants.ACTIVITYTYPE_PHONECALL,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            type_id=sub_type.type_id,
+            sub_type=sub_type,
             start=create_dt(year=2023, month=3, day=26, hour=14, minute=30),
             end=create_dt(year=2023, month=3, day=26, hour=16),
             place='Tour Eiffel',
@@ -341,11 +350,14 @@ END:VTIMEZONE""",
     def test_encode(self):
         user = self.get_root_user()
 
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
         create_act = partial(
             Activity.objects.create,
             user=user, busy=True,
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+            # type_id=constants.ACTIVITYTYPE_MEETING,
+            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+            type_id=sub_type.type_id,
+            sub_type=sub_type,
         )
         create_dt = self.create_datetime
         act1 = create_act(

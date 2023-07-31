@@ -11,12 +11,16 @@ from django.utils.translation import gettext as _
 from parameterized import parameterized
 
 import creme.projects.bricks as proj_bricks
+# from creme.activities.constants import (
+#     ACTIVITYSUBTYPE_MEETING_MEETING,
+#     ACTIVITYTYPE_MEETING,
+#     ACTIVITYTYPE_TASK,
+# )
 from creme.activities.constants import (
-    ACTIVITYSUBTYPE_MEETING_MEETING,
-    ACTIVITYTYPE_MEETING,
-    ACTIVITYTYPE_TASK,
     NARROW,
     REL_SUB_PART_2_ACTIVITY,
+    UUID_SUBTYPE_MEETING_MEETING,
+    UUID_TYPE_TASK,
 )
 from creme.activities.models import Activity, ActivitySubType, Calendar
 from creme.activities.tests.base import skipIfCustomActivity
@@ -124,7 +128,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                         duration='8', sub_type_id=None, busy='', errors=False,
                         ):
         if not sub_type_id:
-            sub_type_id = ActivitySubType.objects.filter(type=ACTIVITYTYPE_TASK).first().id
+            # sub_type_id = ActivitySubType.objects.filter(type=ACTIVITYTYPE_TASK).first().id
+            sub_type_id = ActivitySubType.objects.filter(type__uuid=UUID_TYPE_TASK).first().id
 
         response = self.client.post(
             self._build_add_activity_url(resource.task),
@@ -189,7 +194,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                     status=None, sub_type_id=None,
                     ):
         if not sub_type_id:
-            sub_type_id = ActivitySubType.objects.filter(type=ACTIVITYTYPE_TASK).first().id
+            # sub_type_id = ActivitySubType.objects.filter(type=ACTIVITYTYPE_TASK).first().id
+            sub_type_id = ActivitySubType.objects.filter(type__uuid=UUID_TYPE_TASK).first().id
 
         status = status or TaskStatus.objects.get(pk=NOT_STARTED_PK)
         response = self.client.post(
@@ -840,14 +846,17 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertEqual(Activity.save_label, context.get('submit_label'))
 
-        atype = ACTIVITYTYPE_MEETING
-        stype = ACTIVITYSUBTYPE_MEETING_MEETING
-        self.create_activity(user=user, resource=resource, duration='8', sub_type_id=stype)
+        # atype = ACTIVITYTYPE_MEETING
+        # stype = ACTIVITYSUBTYPE_MEETING_MEETING
+        stype = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_MEETING_MEETING)
+        # self.create_activity(user=user, resource=resource, duration='8', sub_type_id=stype)
+        self.create_activity(user=user, resource=resource, duration='8', sub_type_id=stype.id)
 
         activity = self.get_object_or_fail(Activity, title='Eva02 - legs - 001')
 
-        self.assertEqual(atype, activity.type_id)
-        self.assertEqual(stype, activity.sub_type_id)
+        # self.assertEqual(atype, activity.type_id)
+        self.assertEqual(stype.type_id, activity.type_id)
+        self.assertEqual(stype.id,      activity.sub_type_id)
         self.assertEqual(NARROW, activity.floating_type)
         self.assertEqual(8, activity.duration)
         self.assertFalse(activity.busy)
@@ -1026,13 +1035,15 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.create_resource(task, worker1)
         self.create_resource(task, worker2)
 
+        stype = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_MEETING_MEETING)
         data = {
             'resource':      worker1.id,
             'start':         self.formfield_value_date(2015, 5, 21),
             'end':           self.formfield_value_date(2015, 5, 22),
             'duration':      10,
             'user':          user.id,
-            'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
+            # 'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
+            'type_selector': stype.id,
         }
         self.client.post(self._build_add_activity_url(task), follow=True, data=data)
 
@@ -1073,13 +1084,15 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.create_resource(task, worker1)
         self.create_resource(task, worker2)
 
+        stype = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_MEETING_MEETING)
         data = {
             'resource':      worker1.id,
             'start':         self.formfield_value_date(2015, 5, 21),
             'end':           self.formfield_value_date(2015, 5, 22),
             'duration':      10,
             'user':          user.id,
-            'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
+            # 'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
+            'type_selector': stype.id,
         }
         self.client.post(self._build_add_activity_url(task), follow=True, data=data)
         activity = self.get_alone_element(task.related_activities)
@@ -1123,6 +1136,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         resources = [*task1.resources_set.all()]
         self.assertEqual(1, len(resources))
 
+        stype = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_MEETING_MEETING)
         response = self.assertPOST200(
             self._build_add_activity_url(task2), follow=True,
             data={
@@ -1130,7 +1144,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'start':         self.formfield_value_date(2016, 5, 19),
                 'end':           self.formfield_value_date(2016, 6,  3),
                 'duration':      8,
-                'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
+                # 'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
+                'type_selector': stype.id,
                 'user':          user.id,
             },
         )
@@ -1172,6 +1187,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         project = self.create_project(user=user, name='Eva02')[0]
         task = self.create_task(project, 'arms')
         contact = self.create_user().linked_contact
+        stype = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_MEETING_MEETING)
         response = self.assertPOST200(
             self._build_add_activity_url(task),
             follow=True,
@@ -1181,7 +1197,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'end':           self.formfield_value_date(2020, 12, 31),
                 'duration':      100,
                 'user':          user.id,
-                'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
+                # 'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
+                'type_selector': stype.id,
             },
         )
         self.assertFormError(
@@ -1706,10 +1723,13 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_edit_activity_error(self):
         "Activity not related to a project task."
         user = self.login_as_root_and_get()
+        # sub_type = ActivitySubType.objects.filter(type_id=ACTIVITYTYPE_TASK).first()
+        sub_type = ActivitySubType.objects.filter(type__uuid=UUID_TYPE_TASK).first()
         activity = Activity.objects.create(
             user=user, title='My task',
-            type_id=ACTIVITYTYPE_TASK,
-            sub_type=ActivitySubType.objects.filter(type_id=ACTIVITYTYPE_TASK).first(),
+            # type_id=ACTIVITYTYPE_TASK,
+            type_id=sub_type.type_id,
+            sub_type=sub_type,
         )
         self.assertGET409(self._build_edit_activity_url(activity))
 
@@ -1719,9 +1739,13 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         "Activity not related to a project task."
         user = self.login_as_root_and_get()
 
+        # sub_type = ActivitySubType.objects.filter(type_id=ACTIVITYTYPE_TASK).first()
+        sub_type = ActivitySubType.objects.filter(type__uuid=UUID_TYPE_TASK).first()
         activity = Activity.objects.create(
-            user=user, title='My task', type_id=ACTIVITYTYPE_TASK,
-            sub_type=ActivitySubType.objects.filter(type_id=ACTIVITYTYPE_TASK).first(),
+            user=user, title='My task',
+            # type_id=ACTIVITYTYPE_TASK,
+            type_id=sub_type.type_id,
+            sub_type=sub_type,
         )
         url = self.DELETE_ACTIVITY_URL
         data = {'id': activity.id}

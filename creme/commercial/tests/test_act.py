@@ -5,11 +5,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+# ACTIVITYSUBTYPE_MEETING_OTHER, ACTIVITYTYPE_MEETING,
 from creme.activities.constants import (
-    ACTIVITYSUBTYPE_MEETING_OTHER,
-    ACTIVITYTYPE_MEETING,
     REL_SUB_ACTIVITY_SUBJECT,
+    UUID_SUBTYPE_MEETING_OTHER,
 )
+from creme.activities.models import ActivitySubType
 from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
@@ -1162,10 +1163,13 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         create_rel(type_id=REL_SUB_COMPLETE_GOAL, object_entity=act2)
 
         create_dt = self.create_datetime
+        sub_type = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_MEETING_OTHER)
         meeting = Activity.objects.create(
             user=user, title='Meeting #01',
-            type_id=ACTIVITYTYPE_MEETING,
-            sub_type_id=ACTIVITYSUBTYPE_MEETING_OTHER,
+            # type_id=ACTIVITYTYPE_MEETING,
+            # sub_type_id=ACTIVITYSUBTYPE_MEETING_OTHER,
+            type_id=sub_type.type_id,
+            sub_type=sub_type,
             start=create_dt(year=2011, month=5, day=20, hour=14, minute=0),
             end=create_dt(year=2011,   month=6, day=1,  hour=15, minute=0),
         )

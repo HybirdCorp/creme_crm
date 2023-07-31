@@ -1,7 +1,8 @@
-{% load i18n mobile_tags %}{# TODO: remove mobile_tags if orga can participate #}
+{% load i18n mobile_tags %}
 {% load and_op has_perm_to from creme_core_tags %}{% has_perm_to change activity as edit_perm %}
 {% with participant_relations=activity.get_participant_relations organisations=activity|mobile_organisation_subjects has_button=buttons_template|and_op:edit_perm start=activity.start %}
-<div class="card card-activity {{extra_classes}} activity-type-{{activity.type_id}}{% if is_floating %} activity-floating{% endif %}{% if activity.is_all_day %} activity-all-day{% endif %}{% if has_button %} activity-with-actions{% endif %}{% if not participant_relations and not organisations %} activity-without-participants{% endif %}"
+{# <div class="card card-activity {{extra_classes}} activity-type-{{activity.type_id}}{% if is_floating %} activity-floating{% endif %}{% if activity.is_all_day %} activity-all-day{% endif %}{% if has_button %} activity-with-actions{% endif %}{% if not participant_relations and not organisations %} activity-without-participants{% endif %}" #}
+<div class="card card-activity {{extra_classes}} activity-type-{{activity|mobile_activity_type_str}}{% if is_floating %} activity-floating{% endif %}{% if activity.is_all_day %} activity-all-day{% endif %}{% if has_button %} activity-with-actions{% endif %}{% if not participant_relations and not organisations %} activity-without-participants{% endif %}"
      id="activity_{{activity.id}}" data-activity-id="{{activity.id}}"
      {% if shortcut and not is_floating %}data-shortcut="{{start|date:'H'}}"{% endif %}>
   <div class="activity-summary card-component">

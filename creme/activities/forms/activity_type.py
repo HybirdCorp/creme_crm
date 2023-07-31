@@ -19,8 +19,8 @@
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms.fields as core_fields
+# from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
 from ..models import ActivitySubType, ActivityType
 
@@ -36,37 +36,37 @@ class ActivityTypeForm(CremeModelForm):
         if not self.instance.id:
             self.fields['default_hour_duration'].initial = '0:15:0'
 
-    def save(self):  # TODO: *args, **kwargs
-        instance = self.instance
-
-        if not instance.id:
-            super().save(commit=False)
-            generate_string_id_and_save(
-                ActivityType, [instance], 'creme_config-useractivitytype',
-            )
-        else:
-            super().save()
-
-        return instance
+    # def save(self):
+    #     instance = self.instance
+    #
+    #     if not instance.id:
+    #         super().save(commit=False)
+    #         generate_string_id_and_save(
+    #             ActivityType, [instance], 'creme_config-useractivitytype',
+    #         )
+    #     else:
+    #         super().save()
+    #
+    #     return instance
 
 
 class ActivitySubTypeForm(CremeModelForm):
     class Meta(CremeModelForm.Meta):
         model = ActivitySubType
 
-    def save(self, *args, **kwargs):
-        instance = self.instance
-
-        if not instance.id:
-            super().save(commit=False, *args, **kwargs)
-            generate_string_id_and_save(
-                ActivitySubType, [instance],
-                'creme_config-useractivitydetailesubtype',
-            )
-        else:
-            super().save(*args, **kwargs)
-
-        return instance
+    # def save(self, *args, **kwargs):
+    #     instance = self.instance
+    #
+    #     if not instance.id:
+    #         super().save(commit=False, *args, **kwargs)
+    #         generate_string_id_and_save(
+    #             ActivitySubType, [instance],
+    #             'creme_config-useractivitydetailesubtype',
+    #         )
+    #     else:
+    #         super().save(*args, **kwargs)
+    #
+    #     return instance
 
     def update_from_widget_response_data(self):
         instance = self.instance
