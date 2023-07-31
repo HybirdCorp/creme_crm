@@ -105,33 +105,48 @@ class SendingConfigWidget(forms.MultiWidget):
 class SendingConfigField(forms.MultiValueField):
     widget = SendingConfigWidget
 
+    model = EmailSendingConfigItem
+
     @dataclass(frozen=True)
     class Configuration:
         item: EmailSendingConfigItem
         sender: str
 
     def __init__(self, **kwargs):
-        queryset = EmailSendingConfigItem.objects.all()
-        items = forms.ModelChoiceField(
-            queryset=queryset,
-            empty_label=None,
-        )
+        items = forms.ModelChoiceField(queryset=self.model.objects.none(), empty_label=None)
         super().__init__((items, forms.EmailField()), **kwargs)
+        self.queryset = self.model.objects.all()
 
+    def __deepcopy__(self, memo):
+        result = super().__deepcopy__(memo)
+
+        # Need to force a new CallableChoiceIterator to be created.
+        result.queryset = self.queryset
+
+        return result
+
+    def compress(self, data_list):
+        return self.Configuration(
+            item=data_list[0], sender=data_list[1],
+        ) if data_list and all(data_list) else None
+
+    @property
+    def queryset(self):
+        return self.fields[0].queryset
+
+    @queryset.setter
+    def queryset(self, value):
+        qs = value.all()
+        self.fields[0].queryset = qs
         self.widget.choices = CallableChoiceIterator(
             lambda: (
                 (
                     str(item.id),
                     item.name,
                     {'default_sender': item.default_sender}
-                ) for item in queryset
+                ) for item in qs
             )
         )
-
-    def compress(self, data_list):
-        return self.Configuration(
-            item=data_list[0], sender=data_list[1],
-        ) if data_list and all(data_list) else None
 
 
 # Forms ------------------------------------------------------------------------

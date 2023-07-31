@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import timedelta
 from functools import partial
 
@@ -553,6 +554,34 @@ class SendingConfigFieldTestCase(FieldTestCase):
             field.clean([self.item1.id, 'not an email'])
 
         self.assertListEqual([EmailValidator.message], cm.exception.messages)
+
+    def test_widget(self):
+        field1 = SendingConfigField()
+        item1 = self.item1
+        item2 = self.item2
+        expected = [
+            (str(item1.id), item1.name, {'default_sender': item1.default_sender}),
+            (str(item2.id), item2.name, {'default_sender': item2.default_sender}),
+        ]
+        self.assertListEqual(expected, [*field1.widget.choices])
+        self.assertEqual(2, len(field1.queryset))  # We force the evaluation of the queryset
+
+        field2 = deepcopy(field1)
+        item3 = EmailSendingConfigItem.objects.create(
+            name='Config #3',
+            host='smtp2.mydomain.org',
+            username='faye',
+            password='c0w|3OY B3b0P',
+            default_sender='faye@mydomain.org',
+        )
+        self.assertEqual(3, len(field2.queryset))
+        self.assertListEqual(
+            [
+                *expected,
+                (str(item3.id), item3.name, {'default_sender': item3.default_sender}),
+            ],
+            [*field2.widget.choices],
+        )
 
 
 @skipIfCustomEmailCampaign
