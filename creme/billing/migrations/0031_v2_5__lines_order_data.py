@@ -14,7 +14,7 @@ def generate_line_ordering(apps, schema_editor):
     ]
 
     for doc_model in doc_models:
-        for doc_id in doc_model.objects.values_list('pk'):
+        for doc_id in doc_model.objects.values_list('pk', flat=True):
             for line_model in line_models:
                 for order, line in enumerate(line_model.objects.filter(
                     relations__type=REL_OBJ_HAS_LINE,
