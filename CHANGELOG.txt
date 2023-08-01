@@ -1,3 +1,26 @@
+== Version 2.4.6 ==
+
+  Users side :
+  ------------
+    # The mass-export now raises an error when trying to export without any order columns is chosen
+      (it avoids the generated file to contain duplicated data).
+    # In blocks related to a specific relationship type, when columns were given, deleted entities were not marked as deleted.
+    # The description for filter conditions on boolean values is now better (value is translated).
+    # Apps :
+        * Reports :
+            - Private filters of others users could be selected in the edition form.
+        * Creme_config :
+            - A label in the form to create a relationship block has been fixed.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The templatetag {% widget_help_sign %} (from the module 'creme_widgets') did not use the icon passed as argument.
+        # The context of list-views when there is no sorting key is now cleaner (no more "None" string).
+
+
 == Version 2.4.5 ==
 
   UPGRADE NOTE :

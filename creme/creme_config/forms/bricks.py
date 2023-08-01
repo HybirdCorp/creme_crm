@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -350,8 +350,11 @@ class BrickMypageLocationsForm(_BrickLocationsForm):
 
 
 class RTypeBrickAddForm(base.CremeModelForm):
+    # TODO: do no define manually the whole field?
     relation_type = forms.ModelChoiceField(
-        RelationType.objects.none(), empty_label=None,
+        RelationType.objects.none(),
+        label=RelationBrickItem._meta.get_field('relation_type').verbose_name,
+        empty_label=None,
         widget=core_widgets.DynamicSelect(attrs={'autocomplete': True}),
     )
 

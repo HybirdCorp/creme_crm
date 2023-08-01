@@ -508,20 +508,26 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_editview01(self):
         user = self.login()
+        other_user = self.other_user
 
         name = 'my report'
         report = self._create_simple_contacts_report(name)
 
         name = name.title()
-        efilter = EntityFilter.objects.smart_update_or_create(
-            'test-filter', 'Filter', FakeContact,
-            is_custom=True, is_private=True, user=user,
+        create_ef = partial(EntityFilter.objects.smart_update_or_create, is_custom=True)
+        efilter = create_ef(
+            'test-filter1', 'Filter', FakeContact,
+            is_private=True, user=user,
         )
         system_efilter = EntityFilter.objects.create(
-            id='test-filter02',
+            id='test-filter2',
             name='Agencies',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
+        )
+        orga_efilter = create_ef('test-filter3', 'Mihana house', FakeOrganisation)
+        private_filter = create_ef(
+            'test-filter4', 'XXX', FakeContact, is_private=True, user=other_user,
         )
 
         # GET ---
@@ -535,6 +541,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         self.assertInChoices(value=efilter.id, label=str(efilter), choices=filter_choices)
         self.assertNotInChoices(value=system_efilter.id, choices=filter_choices)
+        self.assertNotInChoices(value=orga_efilter.id,   choices=filter_choices)
+        self.assertNotInChoices(value=private_filter.id, choices=filter_choices)
 
         # POST ---
         response = self.client.post(

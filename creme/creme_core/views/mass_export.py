@@ -22,9 +22,11 @@ from django.core.exceptions import BadRequest
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import smart_str
+from django.utils.translation import gettext as _
 
 from ..backends import export_backend_registry
 from ..core import sorter
+from ..core.exceptions import ConflictError
 from ..core.paginator import FlowPaginator
 from ..forms.listview import ListViewSearchForm
 from ..gui.listview import search_field_registry
@@ -111,6 +113,13 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
         )
 
     def get_paginator(self, *, queryset, ordering):
+        # TODO: fix FlowPaginator to manage correctly this case
+        if ordering == ('cremeentity_ptr_id',):
+            raise ConflictError(_(
+                'The file cannot be generated because your list is not ordered '
+                '(hint: chose a column in the list header then try to download the file again).'
+            ))
+
         return FlowPaginator(
             queryset=queryset.order_by(*ordering),
             key=ordering[0],
