@@ -183,52 +183,6 @@ class Populator(BasePopulator):
             pk=constants.ACTIVITYSUBTYPE_UNAVAILABILITY, name=_('Unavailability'),
         )
 
-        # TODO: move to "if not already_populated:" section in creme 2.5
-        create_subtype(
-            unav_t, pk='activities-activitysubtype_holidays', name=_('Holidays'), is_custom=True,
-        )
-        create_subtype(
-            unav_t, pk='activities-activitysubtype_ill', name=_('Ill'), is_custom=True,
-        )
-
-        create_subtype(
-            act_types[constants.ACTIVITYTYPE_TASK],
-            pk='activities-activitysubtype_task', name=_('Task'), is_custom=True,
-        )
-
-        gathering_t = act_types[constants.ACTIVITYTYPE_GATHERING]
-        for pk, name in [
-            ('activities-activitysubtype_gathering', _('Gathering')),
-            (
-                'activities-activitysubtype_gathering_team',
-                pgettext('activities-gathering', 'Team')
-            ),
-            (
-                'activities-activitysubtype_gathering_internal',
-                pgettext('activities-gathering', 'Internal')
-            ),
-            ('activities-activitysubtype_gathering_on_site',  _('On the site')),
-            ('activities-activitysubtype_gathering_remote',   _('Remote')),
-            ('activities-activitysubtype_gathering_outside',  _('Outside')),
-        ]:
-            create_subtype(gathering_t, pk, name, is_custom=True)
-
-        show_t = act_types[constants.ACTIVITYTYPE_SHOW]
-        for pk, name in [
-            ('activities-activitysubtype_show_exhibitor', _('Exhibitor')),
-            ('activities-activitysubtype_show_visitor',   _('Visitor')),
-        ]:
-            create_subtype(show_t, pk, name, is_custom=True)
-
-        demo_t = act_types[constants.ACTIVITYTYPE_DEMO]
-        for pk, name in [
-            ('activities-activitysubtype_demo',                 _('Demonstration')),
-            ('activities-activitysubtype_demo_on_site',         _('On the site')),
-            ('activities-activitysubtype_demo_outside',         _('Outside')),
-            ('activities-activitysubtype_demo_videoconference', _('Videoconference')),
-        ]:
-            create_subtype(demo_t, pk, name, is_custom=True)
-
         # ---------------------------
         HeaderFilter.objects.create_if_needed(
             pk=constants.DEFAULT_HFILTER_ACTIVITY,
@@ -476,6 +430,55 @@ class Populator(BasePopulator):
 
         # ---------------------------
         if not already_populated:
+            create_subtype(
+                atype=unav_t, name=_('Holidays'), is_custom=True,
+                pk='activities-activitysubtype_holidays',
+            )
+            create_subtype(
+                atype=unav_t, name=_('Ill'), is_custom=True,
+                pk='activities-activitysubtype_ill',
+            )
+
+            create_subtype(
+                atype=act_types[constants.ACTIVITYTYPE_TASK],
+                name=_('Task'), is_custom=True,
+                pk='activities-activitysubtype_task',
+            )
+
+            gathering_t = act_types[constants.ACTIVITYTYPE_GATHERING]
+            for pk, name in [
+                ('activities-activitysubtype_gathering', _('Gathering')),
+                (
+                    'activities-activitysubtype_gathering_team',
+                    pgettext('activities-gathering', 'Team')
+                ),
+                (
+                    'activities-activitysubtype_gathering_internal',
+                    pgettext('activities-gathering', 'Internal')
+                ),
+                ('activities-activitysubtype_gathering_on_site', _('On the site')),
+                ('activities-activitysubtype_gathering_remote',  _('Remote')),
+                ('activities-activitysubtype_gathering_outside', _('Outside')),
+            ]:
+                create_subtype(atype=gathering_t, pk=pk, name=name, is_custom=True)
+
+            show_t = act_types[constants.ACTIVITYTYPE_SHOW]
+            for pk, name in [
+                ('activities-activitysubtype_show_exhibitor', _('Exhibitor')),
+                ('activities-activitysubtype_show_visitor',   _('Visitor')),
+            ]:
+                create_subtype(atype=show_t, pk=pk, name=name, is_custom=True)
+
+            demo_t = act_types[constants.ACTIVITYTYPE_DEMO]
+            for pk, name in [
+                ('activities-activitysubtype_demo',                 _('Demonstration')),
+                ('activities-activitysubtype_demo_on_site',         _('On the site')),
+                ('activities-activitysubtype_demo_outside',         _('Outside')),
+                ('activities-activitysubtype_demo_videoconference', _('Videoconference')),
+            ]:
+                create_subtype(atype=demo_t, pk=pk, name=name, is_custom=True)
+
+            # ---------------------------
             create_mitem = MenuConfigItem.objects.create
             menu_container = create_mitem(
                 entry_id=ContainerEntry.id,
