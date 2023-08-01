@@ -1,10 +1,7 @@
 == Version 2.3.14 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .mo files (billing, creme_core)
-
   Users side :
   ------------
-<<<<<<< HEAD
     # The mass-export now raises an error when trying to export without any order columns is chosen
       (it avoids the generated file to contain duplicated data).
     # In blocks related to a specific relationship type, when columns were given, deleted entities were not marked as deleted.
