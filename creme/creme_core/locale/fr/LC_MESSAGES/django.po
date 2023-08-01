@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2022 Hybird
+# Copyright (C) 2023 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" -i "templates/creme_core/tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-05 10:00+0100\n"
+"POT-Creation-Date: 2023-07-25 15:41+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3603,6 +3603,14 @@ msgstr "Type de job inconnu({}). Veuillez contacter votre administrateur."
 #, python-brace-format
 msgid "Edit the job «{object}»"
 msgstr "Modifier le job «{object}»"
+
+msgid ""
+"The file cannot be generated because your list is not ordered (hint: chose a "
+"column in the list header then try to download the file again)."
+msgstr ""
+"Le fichier ne peut pas être généré car votre liste n'est pas ordonnée "
+"(astuce : choisissez une colonne dans l'entête de liste puis essayez à nouveau "
+"de télécharger le fichier)."
 
 msgid "Save the entities"
 msgstr "Enregistrer les fiches"

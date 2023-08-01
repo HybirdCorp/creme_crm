@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -132,7 +132,11 @@ class CremeUserForeignKey(models.ForeignKey):
     def formfield(self, **kwargs):
         from ..forms.fields import CremeUserChoiceField
 
-        return super().formfield(**{'form_class': CremeUserChoiceField, **kwargs})
+        return super().formfield(**{
+            'form_class': CremeUserChoiceField,
+            'empty_label': '---------' if self.blank else None,
+            **kwargs
+        })
 
     def get_internal_type(self):
         return 'ForeignKey'
@@ -501,7 +505,7 @@ class BasicAutoField(models.PositiveIntegerField):
 ################################################################################
 #  Copyright (c) 2007  Michael Trier
 #  Copyright (C) 2014  http://trbs.net
-#  Copyright (C) 2009-2022  Hybird
+#  Copyright (C) 2009-2023  Hybird
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal

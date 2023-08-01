@@ -1020,6 +1020,39 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             handler.description(user),
         )
 
+    def test_regularfield_description07(self):
+        "BooleanField."
+        user = self.create_user()
+
+        handler1 = RegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='is_a_nerd',
+            operator_id=operators.EQUALS,
+            values=[True],
+        )
+        self.assertEqual(
+            _('«{field}» is {values}').format(
+                field=_('Is a Nerd'),
+                values=_('«{enum_value}»').format(enum_value=_('True')),
+            ),
+            handler1.description(user),
+        )
+
+        # ----
+        handler2 = RegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='is_a_nerd',
+            operator_id=operators.EQUALS,
+            values=[False],
+        )
+        self.assertEqual(
+            _('«{field}» is {values}').format(
+                field=_('Is a Nerd'),
+                values=_('«{enum_value}»').format(enum_value=_('False')),
+            ),
+            handler2.description(user),
+        )
+
     def test_dateregularfield_init(self):
         fname = 'created'
         range_name = 'previous_year'

@@ -93,7 +93,7 @@ class FilterSubCell(CustomFormExtraSubCell):
 
         choice_field = mfield.formfield()
         choice_field.empty_label = pgettext_lazy('creme_core-filter', 'All')
-        choice_field.queryset = choice_field.queryset.filter(
+        choice_field.queryset = mfield.related_model.objects.filter_by_user(user).filter(
             entity_type=getattr(instance, self.ctype_field_name),
         )
         choice_field.initial = efilter

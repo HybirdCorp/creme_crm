@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2022 Hybird
+# Copyright (c) 2009-2023 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -90,7 +90,7 @@ class FieldInfo:
             if remote_field is None:
                 raise FieldDoesNotExist(
                     f'"{subfield_name}" is not a ForeignKey/ManyToManyField, '
-                    f'so it can have a sub-field'
+                    f'so it cannot have a sub-field.'
                 )
 
             model = remote_field.model

@@ -496,7 +496,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
                         pks.append(value)
 
                 # NB: invalid ID are ignored (deleted instances do not cause
-                #     the deletion of condition yet, like with Relation/CremeProperty.
+                #     the deletion of condition yet, like with Relation/CremeProperty).
                 related_model = last_field.remote_field.model
 
                 try:
@@ -520,6 +520,10 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
                 values = [
                     get_choice(make_hashable(value), value) for value in self._values
                 ]
+            # TODO: add an extensible system to render verbose values?
+            # TODO: IntegerField etc...?
+            elif isinstance(last_field, BooleanField):
+                values = [_('True') if value else _('False') for value in self._values]
             else:
                 # TODO: operand too...
                 # TODO: copy to be consistent with other cases?
