@@ -68,9 +68,12 @@ class MassExportViewsTestCase(ViewsTestCase):
             ('test-object_pilots',  'is piloted by'),
         )[0]
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype_beautiful = create_ptype(str_pk='test-prop_beautiful', text='is beautiful')
-        ptype_girl      = create_ptype(str_pk='test-prop_girl',      text='is a girl')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype_beautiful = create_ptype(str_pk='test-prop_beautiful', text='is beautiful')
+        # ptype_girl      = create_ptype(str_pk='test-prop_girl',      text='is a girl')
+        create_ptype = CremePropertyType.objects.create
+        ptype_beautiful = create_ptype(text='is beautiful')
+        ptype_girl      = create_ptype(text='is a girl')
 
         create_contact = partial(FakeContact.objects.create, user=user)
         self.contacts = contacts = {

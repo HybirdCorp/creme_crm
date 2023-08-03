@@ -810,10 +810,12 @@ class EntityCellTestCase(CremeTestCase):
         )
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(
-            pk='creme_core-test_functionfield01_1', text='Is a pilot',
+            # pk='creme_core-test_functionfield01_1',
+            text='Is a pilot',
         )
         ptype2 = create_ptype(
-            pk='creme_core-test_functionfield01_2', text='Is a clone',
+            # pk='creme_core-test_functionfield01_2',
+            text='Is a clone',
         )
         create_prop = partial(CremeProperty.objects.create, creme_entity=contact)
         create_prop(type=ptype1)

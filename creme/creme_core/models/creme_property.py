@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import uuid
 from typing import Iterable
 
 from django.contrib.contenttypes.models import ContentType
@@ -44,45 +45,65 @@ class CremePropertyTypeManager(models.Manager):
             | Q(subject_ctypes__isnull=True)
         )
 
-    # TODO: split into 2 methods (smart_create & smart_update_or_create) ?
+    # TODO: split into 2 methods (smart_create & smart_update_or_create)?
     #       avoid retrieving the instance again in CremePropertyTypeEditForm.save()
-    #       (use a True model-form + improve CremePropertyType.save() ?) ?
+    #       (use a True model-form + improve CremePropertyType.save() ?)?
+    # TODO: add a method CremePropertyType.set_subjects_models()? (& remove this method)?
     def smart_update_or_create(
         self, *,
-        str_pk: str,
-        generate_pk: bool = False,
+        # str_pk: str,
+        # generate_pk: bool = False,
+        uuid: str = '',
         text: str,
+        app_label: str = '',
         subject_ctypes: Iterable[ContentType | CremeEntity] = (),
         is_custom: bool = False,
         is_copiable: bool = True,
     ) -> CremePropertyType:
         """Helps the creation of new CremePropertyType instance.
-        @param str_pk: Used as ID value (or it's prefix -- see generate_pk).
-        @param generate_pk: If True, 'str_pk' argument is used as prefix to
-               generate the Primary Key.
+        @param uuid: Used to fill <CremePropertyType.uuid> ;
+               if you pass an empty string, a UUID will be generated.
         @param text: Used to fill <CremePropertyType.text>.
+        @param app_label: Used to fill <CremePropertyType.app_label>.
         @param subject_ctypes: Used to fill <CremePropertyType.subject_ctypes>.
         @param is_custom: Used to fill <CremePropertyType.is_custom>.
         @param is_copiable: Used to fill <CremePropertyType.is_copiable>.
         """
-        if not generate_pk:
+        # if not generate_pk:
+        #     property_type = self.update_or_create(
+        #         id=str_pk,
+        #         defaults={
+        #             'text': text,
+        #             'is_custom': is_custom,
+        #             'is_copiable': is_copiable,
+        #         },
+        #     )[0]
+        # else:
+        #     from creme.creme_core.utils.id_generator import (
+        #         generate_string_id_and_save,
+        #     )
+        #
+        #     property_type = self.model(
+        #         text=text, is_custom=is_custom, is_copiable=is_copiable,
+        #     )
+        #     generate_string_id_and_save(CremePropertyType, [property_type], str_pk)
+        if uuid:
             property_type = self.update_or_create(
-                id=str_pk,
+                uuid=uuid,
                 defaults={
                     'text': text,
                     'is_custom': is_custom,
                     'is_copiable': is_copiable,
+                    'app_label': app_label,
                 },
             )[0]
         else:
-            from creme.creme_core.utils.id_generator import (
-                generate_string_id_and_save,
+            property_type = self.create(
+                text=text,
+                is_custom=is_custom,
+                is_copiable=is_copiable,
+                app_label=app_label,
             )
-
-            property_type = self.model(
-                text=text, is_custom=is_custom, is_copiable=is_copiable,
-            )
-            generate_string_id_and_save(CremePropertyType, [property_type], str_pk)
 
         get_ct = ContentType.objects.get_for_model
         property_type.subject_ctypes.set([
@@ -192,19 +213,34 @@ class CremePropertyManager(models.Manager):
 
 
 class CremePropertyType(CremeModel):
-    id = models.CharField(primary_key=True, max_length=100)
-    text = models.CharField(_('Text'), max_length=200, unique=True)
+    # id = models.CharField(primary_key=True, max_length=100)
+    uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
+    # The label is used by the command "creme_uninstall".
+    # Empty string means <type created by a user>.
+    app_label = models.CharField(
+        _('Created by the app'), max_length=40, default='', editable=False,
+    )
+
+    text = models.CharField(
+        _('Text'), max_length=200, unique=True,
+        help_text=_("For example: 'is pretty'"),
+    )
 
     subject_ctypes = models.ManyToManyField(
         ContentType, blank=True,
-        verbose_name=_('Applies on entities with following types'),
+        # verbose_name=_('Applies on entities with following types'),
+        verbose_name=_('Related to types of entities'),
         related_name='subject_ctypes_creme_property_set',  # TODO: '+'
+        help_text=_('No selected type means that all types are accepted'),
     )
     is_custom = models.BooleanField(default=False, editable=False)
 
-    # If True, the properties with this type can be copied
-    # (i.e. when cloning or converting an entity).
-    is_copiable = models.BooleanField(_('Is copiable'), default=True)
+    is_copiable = models.BooleanField(
+        _('Is copiable'), default=True,
+        help_text=_(
+            'Are the properties with this type copied when an entity is cloned?'
+        ),
+    )
 
     # A disabled type should not be proposed for adding (and a property with
     # this type should be visually marked as disabled in the UI).

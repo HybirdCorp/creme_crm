@@ -814,6 +814,7 @@ class EntityFilterCondition(models.Model):
     # NB: see core.entity_filter.condition_handler.FilterConditionHandler.type_id
     type = models.PositiveSmallIntegerField()
 
+    # TODO: we could probably reduce the length (UUID=>32, what about "deep" field name?)
     name = models.CharField(max_length=100)
     # raw_value = models.TextField()
     value = models.JSONField(default=dict)

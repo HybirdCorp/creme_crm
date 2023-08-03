@@ -279,9 +279,12 @@ class ListViewTestCase(ViewsTestCase):
         )
 
         # Property
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_red',  text='is red')
-        ptype2 = create_ptype(str_pk='test-prop_fast', text='is fast')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_red',  text='is red')
+        # ptype2 = create_ptype(str_pk='test-prop_fast', text='is fast')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='is red')
+        ptype2 = create_ptype(text='is fast')
         CremeProperty.objects.create(type=ptype1, creme_entity=swordfish)
 
         # CustomField
@@ -2752,9 +2755,12 @@ class ListViewTestCase(ViewsTestCase):
         eva01     = create_orga(name='Eva01')
         eva02     = create_orga(name='Eva02')
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        is_red  = create_ptype(str_pk='test-prop_red',  text='is red')
-        is_fast = create_ptype(str_pk='test-prop_fast', text='is fast')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # is_red  = create_ptype(str_pk='test-prop_red',  text='is red')
+        # is_fast = create_ptype(str_pk='test-prop_fast', text='is fast')
+        create_ptype = CremePropertyType.objects.create
+        is_red  = create_ptype(text='is red')
+        is_fast = create_ptype(text='is fast')
 
         create_prop = CremeProperty.objects.create
         create_prop(type=is_red, creme_entity=swordfish)

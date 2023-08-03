@@ -38,10 +38,11 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         name = 'Industry'
         segment = self._create_segment(name)
 
+        ptype = segment.property_type
         self.assertEqual(
-            _('is in the segment «{}»').format(name),
-            segment.property_type.text,
+            _('is in the segment «{}»').format(name), ptype.text,
         )
+        self.assertEqual('commercial', ptype.app_label)
 
     def test_create02(self):
         "A segment with the same name already exists."
@@ -64,9 +65,10 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         name = 'Industry'
         pname = _('is in the segment «{}»').format(name)
-        CremePropertyType.objects.smart_update_or_create(
-            str_pk='commercial-marketsegmenttestcase01', text=pname,
-        )
+        # CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='commercial-marketsegmenttestcase01', text=pname,
+        # )
+        CremePropertyType.objects.create(text=pname)
 
         response = self.assertPOST200(self.ADD_SEGMENT_URL, data={'name': name})
         self.assertFormError(
@@ -159,9 +161,10 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         name = 'Industry'
         pname = _('is in the segment «{}»').format(name)
-        CremePropertyType.objects.smart_update_or_create(
-            str_pk='commercial-marketsegmenttestcase01', text=pname,
-        )
+        # CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='commercial-marketsegmenttestcase01', text=pname,
+        # )
+        CremePropertyType.objects.create(text=pname)
 
         response = self.assertPOST200(
             segment.get_edit_absolute_url(), data={'name': name},
@@ -221,7 +224,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.login_as_standard()  # allowed_apps=['commercial']
 
         ptype = CremePropertyType.objects.create(
-            pk='commercial-test_market_segment_test_edit_07',
+            # pk='commercial-test_market_segment_test_edit_07',
             text='Is an otaku',
         )
         segment = MarketSegment.objects.create(name='Otakus', property_type=ptype)

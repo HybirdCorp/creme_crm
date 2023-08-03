@@ -83,23 +83,36 @@
                         - EMAILCAMPAIGN_PASSWORD
                         - EMAILCAMPAIGN_PORT
                         - EMAILCAMPAIGN_USE_TLS
-        # The class 'creme_core.core.paginator.FlowPaginator' does not accept ForeignKeys as key anymore;
-          pass the corresponding "low-level" attribute (e.g. "user_id") or a sub-field (e.g. "user__username").
+        # In 'creme_core.core' :
+            - The class 'entity_filter.condition_handler.PropertyConditionHandler' takes now the UUID
+              of the related 'CremePropertyType' instance instead of its ID (see 'creme_core.models' section) ;
+              the related field 'EntityFilterCondition.name' stores now the UUID of the CremePropertyType instance.
+              The attribute "_ptype_id" has been replaced by "_ptype_uuid".
+            - The class 'paginator.FlowPaginator' does not accept ForeignKeys as key anymore;
+              pass the corresponding "low-level" attribute (e.g. "user_id") or a sub-field (e.g. "user__username").
         # In 'creme_core.models' :
+            - The model 'CremePropertyType' uses now a classical AutoField (i.e. integers) for primary key, and get an UUIDField.
+              A CharField "app_label" has been added too (the app label was given is the previous string primary key).
+              The parameters of the method 'CremePropertyTypeManager.smart_update_or_create()' have changed ;
+              "str_pk" & "generate_pk" have been replaced bu "uuid". Notice that this method is now mainly useful to set the ContentType constraints
+              (because you can pass model, not only ContentType instances) ; use 'CremePropertyType.objects.create()' or
+              'CremePropertyType.objects.update_or_create()' in the other cases.
             - The field 'HeaderFilter.json_cells' is now a 'JSONField';
               you won't have to change your code if you use the property 'cells' as advised.
             - The field 'EntityFilterCondition.raw_value' has been renamed "value" & is now a 'JSONField';
               it'll only affect direct access to the field (e.g. QuerySet), because the property (getter/setter) "value" has just been replaced.
               The JSON data should always be a dictionary, so the data changed for conditions on CremeProperties
               (example: 'true' became '{"has":true}' ; see 'creme_core.core.entity_filter.condition_handler.PropertyConditionHandler').
-        # In 'creme_core.forms.merge', the CSS classes related to 'EntitiesHeaderWidget' & 'MergeWidget' has been renamed
-          (the templates & 'creme_core/js/merge.js' have been reworked of course) :
-            - "merge_entity_field" => "merge-field".
-            - "li_merge_entity_header*" => "merge-field-header-*".
-            - "li_merge_result_header" => "merge-field-header-result".
-            - "li_merge_entity*" => "merge-field-*".
-            - "li_merge_result" => "merge-field-result".
-            - "li_merge_button" => "merge-field-button".
+        # In 'creme_core.forms' :
+            - The attribute 'entity_filter.fields.PropertiesConditionsField_non_disabled_ptype_ids' has been replaced by "_non_disabled_ptype_uuids".
+            - In 'merge', the CSS classes related to 'EntitiesHeaderWidget' & 'MergeWidget' has been renamed
+              (the templates & 'creme_core/js/merge.js' have been reworked of course) :
+                - "merge_entity_field" => "merge-field".
+                - "li_merge_entity_header*" => "merge-field-header-*".
+                - "li_merge_result_header" => "merge-field-header-result".
+                - "li_merge_entity*" => "merge-field-*".
+                - "li_merge_result" => "merge-field-result".
+                - "li_merge_button" => "merge-field-button".
         #  The attribute 'creme_core.gui.listview.state.ListViewState.extra_q' has been removed.
         # The behaviour of the method 'creme_core.utils.meta.FieldInfo.value_from()' has changed with "low-level" attributes
           related to ForeignKeys; now it return the low-level value (e.g. integer, string...), not the related model instance anymore.
@@ -107,8 +120,13 @@
                    'FieldInfo(Contact, 'user').value_from(my_contact)' still returns a CremeUser instance.
         # Apps :
             * Creme_config :
-                - The global dictionary 'forms.setting._FIELDS' has been removed;
-                  see the new class attribute 'creme_core.core.setting_key._SettingKey.FORM_FIELDS' instead.
+                - In 'forms' :
+                    - In 'creme_property_type', these classes have been removed :
+                        - _CremePropertyTypeBaseForm
+                        - CremePropertyTypeCreationForm
+                        - CremePropertyTypeEditionForm
+                    - The global dictionary 'forms.setting._FIELDS' has been removed;
+                      see the new class attribute 'creme_core.core.setting_key._SettingKey.FORM_FIELDS' instead.
             * Persons :
                 - The hat-card bricks have been reworked to facilitate the modification of small summaries (activities, acts, opportunities).
                   A base class 'CardSummary' has been introduced. The classes 'ContactCardHatBrick' & 'OrganisationCardHatBrick' get
@@ -141,6 +159,8 @@
             * Opportunities :
                 - The class 'OpportunityCardHatBrick' (& the related template) has been reworked to follow the changes in app "persons".
                   A new class 'ContactsSummary' has been introduced, and the class variable "displayed_contacts_number" has been move into it.
+            * Commercial :
+                - The value 'constants.PROP_IS_A_SALESMAN' has been replaced by 'UUID_PROP_IS_A_SALESMAN'.
             * Mobile :
                 - The CSS classes referencing 'ActivityType' IDs have been renamed;
                   e.g. "activity-type-activities-activitytype_meeting" became "activity-type-meeting".

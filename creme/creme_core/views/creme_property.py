@@ -92,14 +92,16 @@ class PropertiesAdding(generic.RelatedToEntityFormPopup):
 
 class PropertyTypeCreation(generic.CremeModelCreation):
     model = CremePropertyType
-    form_class = ptype_forms.CremePropertyTypeCreationForm
+    # form_class = ptype_forms.CremePropertyTypeCreationForm
+    form_class = ptype_forms.CremePropertyForm
     permissions = 'creme_core.can_admin'
 
 
 class PropertyTypeEdition(generic.CremeModelEdition):
     # model = CremePropertyType
     queryset = CremePropertyType.objects.filter(is_custom=True, enabled=True)
-    form_class = ptype_forms.CremePropertyTypeEditionForm
+    # form_class = ptype_forms.CremePropertyTypeEditionForm
+    form_class = ptype_forms.CremePropertyForm
     pk_url_kwarg = 'ptype_id'
     permissions = 'creme_core.can_admin'
 

@@ -381,17 +381,21 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype01 = create_ptype(
-            str_pk='test-prop_spirit', text='Haunted by a spirit',
+            # str_pk='test-prop_spirit',
+            text='Haunted by a spirit',
         )
         ptype02 = create_ptype(
-            str_pk='test-prop_bakemono', text='Cursed by a bakemono',
+            # str_pk='test-prop_bakemono',
+            text='Cursed by a bakemono',
         )
         ptype03 = create_ptype(
-            str_pk='test-prop_see', text='See the yokai',
+            # str_pk='test-prop_see',
+            text='See the yokai',
             subject_ctypes=[FakeContact],
         )
         ptype04 = create_ptype(
-            str_pk='test-prop_license', text='Has a license',
+            # str_pk='test-prop_license',
+            text='Has a license',
             subject_ctypes=[FakeOrganisation],
         )
 
@@ -446,13 +450,16 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype01 = create_ptype(
-            str_pk='test-prop_spirit',   text='Haunted by a spirit',
+            # str_pk='test-prop_spirit',
+            text='Haunted by a spirit',
         )
         ptype02 = create_ptype(
-            str_pk='test-prop_bakemono', text='Cursed by a bakemono',
+            # str_pk='test-prop_bakemono',
+            text='Cursed by a bakemono',
         )
         ptype03 = create_ptype(
-            str_pk='test-prop_see', text='See the yokai', subject_ctypes=[FakeContact],
+            # str_pk='test-prop_see',
+            text='See the yokai', subject_ctypes=[FakeContact],
         )
 
         form = FakeContactForm(user=user, forced_ptypes=[ptype02.id])
@@ -474,13 +481,16 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype01 = create_ptype(
-            str_pk='test-prop_spirit',   text='Haunted by a spirit',
+            # str_pk='test-prop_spirit',
+            text='Haunted by a spirit',
         )
         ptype02 = create_ptype(
-            str_pk='test-prop_bakemono', text='Cursed by a bakemono',
+            # str_pk='test-prop_bakemono',
+            text='Cursed by a bakemono',
         )
         ptype03 = create_ptype(
-            str_pk='test-prop_see', text='See the yokai', subject_ctypes=[FakeContact],
+            # str_pk='test-prop_see',
+            text='See the yokai', subject_ctypes=[FakeContact],
         )
 
         form = FakeContactForm(user=user, forced_ptypes=[ptype02])
@@ -501,9 +511,10 @@ class CremeEntityFormTestCase(CremeTestCase):
         "Forced CremePropertyTypes + no <properties> field."
         user = self.get_root_user()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_spirit', text='Haunted by a spirit',
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_spirit', text='Haunted by a spirit',
+        # )
+        ptype = CremePropertyType.objects.create(text='Haunted by a spirit')
 
         form = FakeContactForm(
             user=user, forced_ptypes=[ptype.id],
@@ -1117,9 +1128,12 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Bebop')
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
-        ptype2 = create_ptype(str_pk='test-prop_strong',  text='Is strong')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
+        # ptype2 = create_ptype(str_pk='test-prop_strong',  text='Is strong')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is a captain')
+        ptype2 = create_ptype(text='Is strong')
 
         create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
@@ -1241,9 +1255,12 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Bebop')
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
-        ptype2 = create_ptype(str_pk='test-prop_doctor',  text='Is a doctor')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
+        # ptype2 = create_ptype(str_pk='test-prop_doctor',  text='Is a doctor')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is a captain')
+        ptype2 = create_ptype(text='Is a doctor')
 
         create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
@@ -1345,10 +1362,14 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Bebop')
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
-        ptype2 = create_ptype(str_pk='test-prop_strong',  text='Is strong')
-        ptype3 = create_ptype(str_pk='test-prop_weak',    text='Is weak')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
+        # ptype2 = create_ptype(str_pk='test-prop_strong',  text='Is strong')
+        # ptype3 = create_ptype(str_pk='test-prop_weak',    text='Is weak')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is a captain')
+        ptype2 = create_ptype(text='Is strong')
+        ptype3 = create_ptype(text='Is weak')
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_leads', 'leads',   [FakeContact], [ptype1, ptype2], [ptype3]),

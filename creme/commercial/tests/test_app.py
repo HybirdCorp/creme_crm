@@ -11,12 +11,12 @@ from creme.creme_core.models import (
 from creme.creme_core.tests.base import CremeTestCase
 from creme.persons.tests.base import skipIfCustomContact
 
-from ..constants import (
-    PROP_IS_A_SALESMAN,
+from ..constants import (  # PROP_IS_A_SALESMAN,
     REL_OBJ_COMPLETE_GOAL,
     REL_OBJ_SOLD,
     REL_SUB_COMPLETE_GOAL,
     REL_SUB_SOLD,
+    UUID_PROP_IS_A_SALESMAN,
 )
 from ..models import ActType, MarketSegment
 from .base import Act, Contact, Organisation, Product, Service
@@ -50,7 +50,8 @@ class CommercialTestCase(CremeTestCase):
             self.assertNotIn(billing.get_service_line_model(),  subject_models)
             self.assertNotIn(billing.get_template_base_model(), subject_models)
 
-        self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [Contact])
+        # self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [Contact])
+        self.get_propertytype_or_fail(UUID_PROP_IS_A_SALESMAN, [Contact])
 
         self.assertEqual(3, ActType.objects.count())
 
@@ -85,7 +86,8 @@ class CommercialTestCase(CremeTestCase):
             Contact, first_name=first_name, last_name=last_name,
         )
         self.get_object_or_fail(
-            CremeProperty, type=PROP_IS_A_SALESMAN, creme_entity=salesman.id,
+            # CremeProperty, type=PROP_IS_A_SALESMAN, creme_entity=salesman.id,
+            CremeProperty, type__uuid=UUID_PROP_IS_A_SALESMAN, creme_entity=salesman.id,
         )
 
         self.assertRedirects(response, salesman.get_absolute_url())
@@ -113,14 +115,16 @@ class CommercialTestCase(CremeTestCase):
             Contact, first_name=first_name, last_name=last_name,
         )
         self.get_object_or_fail(
-            CremeProperty, type=PROP_IS_A_SALESMAN, creme_entity=salesman.id,
+            # CremeProperty, type=PROP_IS_A_SALESMAN, creme_entity=salesman.id,
+            CremeProperty, type__uuid=UUID_PROP_IS_A_SALESMAN, creme_entity=salesman.id,
         )
 
     def test_salesman_create03(self):
         "Property type is disabled => error."
         self.login_as_root()
 
-        ptype = self.get_object_or_fail(CremePropertyType, id=PROP_IS_A_SALESMAN)
+        # ptype = self.get_object_or_fail(CremePropertyType, id=PROP_IS_A_SALESMAN)
+        ptype = self.get_object_or_fail(CremePropertyType, uuid=UUID_PROP_IS_A_SALESMAN)
         ptype.enabled = False
         ptype.save()
 
@@ -130,7 +134,10 @@ class CommercialTestCase(CremeTestCase):
     def test_salesman_listview01(self):
         self.login_as_root()
 
-        self.assertFalse(Contact.objects.filter(properties__type=PROP_IS_A_SALESMAN).exists())
+        # self.assertFalse(Contact.objects.filter(properties__type=PROP_IS_A_SALESMAN).exists())
+        self.assertFalse(
+            Contact.objects.filter(properties__type__uuid=UUID_PROP_IS_A_SALESMAN).exists()
+        )
 
         response = self.assertGET200(self.SALESMEN_URL)
 
@@ -157,7 +164,8 @@ class CommercialTestCase(CremeTestCase):
 
         add_salesman('first_name1', 'last_name1')
         add_salesman('first_name2', 'last_name2')
-        salesmen = Contact.objects.filter(properties__type=PROP_IS_A_SALESMAN)
+        # salesmen = Contact.objects.filter(properties__type=PROP_IS_A_SALESMAN)
+        salesmen = Contact.objects.filter(properties__type__uuid=UUID_PROP_IS_A_SALESMAN)
         self.assertEqual(2, len(salesmen))
 
         response = self.assertGET200(self.SALESMEN_URL)

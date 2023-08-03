@@ -156,10 +156,10 @@ class RelationsTestCase(CremeTestCase):
 
     def test_type_manager_smart_update_or_create03(self):
         "CremeProperty constraints."
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-ptype01', text='Test01')
-        ptype2 = create_ptype(str_pk='test-ptype02', text='Test02')
-        ptype3 = create_ptype(str_pk='test-ptype03', text='Test03')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Test01')
+        ptype2 = create_ptype(text='Test02')
+        ptype3 = create_ptype(text='Test03')
 
         with self.assertNoException():
             rtype1, rtype2 = RelationType.objects.smart_update_or_create(
@@ -199,10 +199,10 @@ class RelationsTestCase(CremeTestCase):
 
     def test_type_manager_smart_update_or_create04(self):
         "CremeProperty constraints."
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-ptype01', text='Test01')
-        ptype2 = create_ptype(str_pk='test-ptype02', text='Test02')
-        ptype3 = create_ptype(str_pk='test-ptype03', text='Test03')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Test01')
+        ptype2 = create_ptype(text='Test02')
+        ptype3 = create_ptype(text='Test03')
 
         with self.assertNoException():
             rtype1, rtype2 = RelationType.objects.smart_update_or_create(
@@ -817,10 +817,10 @@ class RelationsTestCase(CremeTestCase):
 
     def test_clean03(self):
         "Mandatory CremeProperties constraints."
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
-        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
-        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is strong')
+        ptype2 = create_ptype(text='Is cute')
+        ptype3 = create_ptype(text='Is smart')
 
         create_rtype = RelationType.objects.smart_update_or_create
         rtype, sym_rtype = create_rtype(
@@ -882,10 +882,10 @@ class RelationsTestCase(CremeTestCase):
 
     def test_clean04(self):
         "Forbidden CremeProperties constraints."
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
-        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
-        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is strong')
+        ptype2 = create_ptype(text='Is cute')
+        ptype3 = create_ptype(text='Is smart')
 
         create_rtype = RelationType.objects.smart_update_or_create
         rtype, sym_rtype = create_rtype(
@@ -945,9 +945,7 @@ class RelationsTestCase(CremeTestCase):
 
     def test_clean_subject_entity01(self):
         "Mandatory Property + argument 'property_types'."
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_cute', text='Is cute',
-        )
+        ptype = CremePropertyType.objects.create(text='Is cute')
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_loved', 'is loved by', [], [ptype]),
             ('test-object_loved',  'loves'),
@@ -982,9 +980,7 @@ class RelationsTestCase(CremeTestCase):
 
     def test_clean_subject_entity02(self):
         "Forbidden Property + argument 'property_types'."
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_not_cute', text='Is not cute',
-        )
+        ptype = CremePropertyType.objects.create(text='Is not cute')
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_loved', 'is loved by', [], [], [ptype]),
             ('test-object_loved',  'loves'),

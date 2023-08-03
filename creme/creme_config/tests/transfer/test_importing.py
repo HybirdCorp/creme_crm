@@ -911,15 +911,20 @@ class ImportingTestCase(TransferBaseTestCase):
     def test_property_types01(self):
         self.login_as_super(is_staff=True)
 
-        pk_fmt = 'creme_config-test_import_property_type01_{}'.format
-        pk1 = pk_fmt(1)
-        pk2 = pk_fmt(2)
-        pk3 = pk_fmt(3)
+        # pk_fmt = 'creme_config-test_import_property_type01_{}'.format
+        # pk1 = pk_fmt(1)
+        # pk2 = pk_fmt(2)
+        # pk3 = pk_fmt(3)
+        def uid():
+            return str(uuid4())
 
-        ptype3_data = {'id': pk3, 'text': 'Is cool', 'is_copiable': True}
+        # ptype3_data = {'id': pk3, 'text': 'Is cool', 'is_copiable': True}
+        ptype3_data = {'uuid': uid(), 'text': 'Is cool', 'is_copiable': True}
         ptypes_data = [
-            {'id': pk1, 'text': 'Is important', 'is_copiable': True},
-            {'id': pk2, 'text': 'Is funny',     'is_copiable': False},
+            # {'id': pk1, 'text': 'Is important', 'is_copiable': True},
+            {'uuid': uid(), 'text': 'Is important', 'is_copiable': True},
+            # {'id': pk2, 'text': 'Is funny',     'is_copiable': False},
+            {'uuid': uid(), 'text': 'Is funny',     'is_copiable': False},
             {
                 **ptype3_data,
                 'subject_ctypes': ['creme_core.fakecontact', 'creme_core.fakeorganisation'],
@@ -946,11 +951,14 @@ class ImportingTestCase(TransferBaseTestCase):
         "Uniqueness of text."
         self.login_as_super(is_staff=True)
 
-        pk = 'creme_config-test_import_property_type02'
+        # pk = 'creme_config-test_import_property_type02'
+        uid = str(uuid4())
 
         ptypes_data = [
-            {'id': pk, 'text': 'Is important', 'is_copiable': True},
-            {'id': pk, 'text': 'Is funny',     'is_copiable': False},
+            # {'id': pk, 'text': 'Is important', 'is_copiable': True},
+            # {'id': pk, 'text': 'Is funny',     'is_copiable': False},
+            {'uuid': uid, 'text': 'Is important', 'is_copiable': True},
+            {'uuid': uid, 'text': 'Is funny', 'is_copiable': False},
         ]
 
         json_file = StringIO(json_dump({'version': self.VERSION, 'property_types': ptypes_data}))
@@ -964,11 +972,13 @@ class ImportingTestCase(TransferBaseTestCase):
         "Do no override a not custom ptype."
         self.login_as_super(is_staff=True)
 
-        ptype = CremePropertyType.objects.create(
-            pk='creme_config-test_import_property_types03', text='Sugoi !',
-        )
+        # ptype = CremePropertyType.objects.create(
+        #     pk='creme_config-test_import_property_types03', text='Sugoi !',
+        # )
+        ptype = CremePropertyType.objects.create(text='Sugoi!')
 
-        ptypes_data = [{'id': ptype.id, 'text': 'Is important', 'is_copiable': True}]
+        # ptypes_data = [{'id': ptype.id, 'text': 'Is important', 'is_copiable': True}]
+        ptypes_data = [{'uuid': str(ptype.uuid), 'text': 'Is important', 'is_copiable': True}]
         json_file = StringIO(json_dump({'version': self.VERSION, 'property_types': ptypes_data}))
         json_file.name = 'config-25-10-2017.csv'
 
@@ -982,13 +992,19 @@ class ImportingTestCase(TransferBaseTestCase):
     def test_relations_types01(self):
         self.login_as_super(is_staff=True)
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        pt_id_fmt = 'creme_config-test_import_relation_types01_{}'.format
-        ptype1 = create_ptype(str_pk=pt_id_fmt(1), text='Is very important')
-        ptype2 = create_ptype(str_pk=pt_id_fmt(2), text='Is important', is_custom=True)
-        ptype3 = create_ptype(str_pk=pt_id_fmt(3), text='Is hot',       is_custom=True)
-        ptype4 = create_ptype(str_pk=pt_id_fmt(4), text='Is bad',       is_custom=True)
-        ptype5 = create_ptype(str_pk=pt_id_fmt(5), text='Is nasty',     is_custom=True)
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # pt_id_fmt = 'creme_config-test_import_relation_types01_{}'.format
+        # ptype1 = create_ptype(str_pk=pt_id_fmt(1), text='Is very important')
+        # ptype2 = create_ptype(str_pk=pt_id_fmt(2), text='Is important', is_custom=True)
+        # ptype3 = create_ptype(str_pk=pt_id_fmt(3), text='Is hot',       is_custom=True)
+        # ptype4 = create_ptype(str_pk=pt_id_fmt(4), text='Is bad',       is_custom=True)
+        # ptype5 = create_ptype(str_pk=pt_id_fmt(5), text='Is nasty',     is_custom=True)
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is very important')
+        ptype2 = create_ptype(text='Is important', is_custom=True)
+        ptype3 = create_ptype(text='Is hot',       is_custom=True)
+        ptype4 = create_ptype(text='Is bad',       is_custom=True)
+        ptype5 = create_ptype(text='Is nasty',     is_custom=True)
 
         pk_fmt = 'creme_config-subject_test_import_relations_types01_{}'.format
         pk1a = pk_fmt(1)
@@ -999,11 +1015,15 @@ class ImportingTestCase(TransferBaseTestCase):
                 'id':          pk1a, 'predicate':       'loves',
                 'is_copiable': True, 'minimal_display': False,
 
-                'subject_properties': [ptype1.id, ptype2.id],
-                'object_properties':  [ptype3.id],
+                # 'subject_properties': [ptype1.id, ptype2.id],
+                # 'object_properties':  [ptype3.id],
+                'subject_properties': [str(ptype1.uuid), str(ptype2.uuid)],
+                'object_properties': [str(ptype3.uuid)],
 
-                'subject_forbidden_properties': [ptype4.id],
-                'object_forbidden_properties':  [ptype5.id],
+                # 'subject_forbidden_properties': [ptype4.id],
+                # 'object_forbidden_properties':  [ptype5.id],
+                'subject_forbidden_properties': [str(ptype4.uuid)],
+                'object_forbidden_properties': [str(ptype5.uuid)],
 
                 'symmetric': {
                     'predicate': 'is loved by', 'is_copiable': False,
@@ -1128,14 +1148,16 @@ class ImportingTestCase(TransferBaseTestCase):
         "Invalid property types."
         self.login_as_super(is_staff=True)
 
-        ptype_pk = 'creme_config-test_import_relation_types_04_doesnotexist'
+        # ptype_pk = 'creme_config-test_import_relation_types_04_doesnotexist'
+        ptype_uuid = uuid4()
         rtypes_data = [{
             'id':         'creme_config-subject_test_import_relations_types04',
             'predicate':  'loves',
             'is_copiable': True,
             'minimal_display': False,
 
-            'subject_properties': [ptype_pk],
+            # 'subject_properties': [ptype_pk],
+            'subject_properties': [str(ptype_uuid)],
 
             'symmetric':   {
                 'predicate': 'is loved by', 'is_copiable': False, 'minimal_display': True,
@@ -1149,18 +1171,21 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertFormError(
             response.context['form'],
             field='config',
-            errors=_('This property type PKs are invalid: {}.').format(ptype_pk),
+            # errors=_('This property type PKs are invalid: {}.').format(ptype_pk),
+            errors=_('This property type UUIDs are invalid: {}.').format(ptype_uuid),
         )
 
     def test_relations_types05(self):
         "A related property types is imported"
         self.login_as_super(is_staff=True)
 
-        ptype1 = CremePropertyType.objects.smart_update_or_create(
-            str_pk='creme_config-test_import_relation_types05_1',
-            text='Is very important',
-        )
-        ptype2_id = 'creme_config-test_import_relations_types05_2'
+        # ptype1 = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='creme_config-test_import_relation_types05_1',
+        #     text='Is very important',
+        # )
+        # ptype2_id = 'creme_config-test_import_relations_types05_2'
+        ptype1 = CremePropertyType.objects.create(text='Is very important')
+        ptype2_uuid = str(uuid4())
 
         rtypes_data = [{
             'id':         'creme_config-subject_test_import_relations_types05',
@@ -1168,7 +1193,8 @@ class ImportingTestCase(TransferBaseTestCase):
             'is_copiable': True,
             'minimal_display': False,
 
-            'subject_properties': [ptype1.id, ptype2_id],
+            # 'subject_properties': [ptype1.id, ptype2_id],
+            'subject_properties': [str(ptype1.uuid), ptype2_uuid],
 
             'symmetric': {
                 'predicate': 'is loved by', 'is_copiable': False, 'minimal_display': True,
@@ -1177,7 +1203,8 @@ class ImportingTestCase(TransferBaseTestCase):
         data = {
             'version': self.VERSION,
             'property_types': [
-                {'id': ptype2_id, 'text': 'Is important', 'is_copiable': True},
+                # {'id': ptype2_id, 'text': 'Is important', 'is_copiable': True},
+                {'uuid': ptype2_uuid, 'text': 'Is important', 'is_copiable': True},
             ],
             'relation_types': rtypes_data,
         }
@@ -1193,7 +1220,8 @@ class ImportingTestCase(TransferBaseTestCase):
             RelationType,
             is_custom=True, id=rtype_data['id'], predicate=rtype_data['predicate'],
         )
-        ptype2 = self.get_object_or_fail(CremePropertyType, id=ptype2_id)
+        # ptype2 = self.get_object_or_fail(CremePropertyType, id=ptype2_id)
+        ptype2 = self.get_object_or_fail(CremePropertyType, uuid=ptype2_uuid)
         self.assertCountEqual([ptype1, ptype2], rtype.subject_properties.all())
 
     def test_fields_config01(self):
@@ -1810,12 +1838,14 @@ class ImportingTestCase(TransferBaseTestCase):
         cf_uuid2 = str(uuid4())
 
         rtype_id1 = 'creme_config-subject_test_import_entityfilter01'
-        ptype_id1 = 'creme_config-test_import_entityfilter01'
+        # ptype_id1 = 'creme_config-test_import_entityfilter01'
+        ptype_uuid1 = str(uuid4())
 
-        ptype2 = CremePropertyType.objects.smart_update_or_create(
-            str_pk='creme_config-test_import_entityfilter01_1',
-            text='Is very important',
-        )
+        # ptype2 = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='creme_config-test_import_entityfilter01_1',
+        #     text='Is very important',
+        # )
+        ptype2 = CremePropertyType.objects.create(text='Is very important')
 
         rtype2 = RelationType.objects.filter(is_internal=False).first()
         self.assertIsNotNone(rtype2)
@@ -1843,11 +1873,13 @@ class ImportingTestCase(TransferBaseTestCase):
                         'value': {'has': True},
                     }, {
                         'type':  PropertyConditionHandler.type_id,
-                        'name':  ptype_id1,
+                        # 'name':  ptype_id1,
+                        'name':  ptype_uuid1,
                         'value': True,
                     }, {
                         'type': PropertyConditionHandler.type_id,
-                        'name':  ptype2.id,
+                        # 'name':  ptype2.id,
+                        'name':  str(ptype2.uuid),
                         'value': False,
                     },
                 ],
@@ -1949,7 +1981,8 @@ class ImportingTestCase(TransferBaseTestCase):
                 },
             ],
             'property_types': [
-                {'id': ptype_id1, 'text': 'Is important', 'is_copiable': True},
+                # {'id': ptype_id1, 'text': 'Is important', 'is_copiable': True},
+                {'uuid': ptype_uuid1, 'text': 'Is important', 'is_copiable': True},
             ],
         }
 
@@ -1998,12 +2031,14 @@ class ImportingTestCase(TransferBaseTestCase):
 
         condition1_4 = conditions1[3]
         self.assertEqual(PropertyConditionHandler.type_id, condition1_4.type)
-        self.assertEqual(ptype_id1, condition1_4.name)
+        # self.assertEqual(ptype_id1, condition1_4.name)
+        self.assertEqual(ptype_uuid1, condition1_4.name)
         # self.assertEqual(True, condition1_4.value)
         self.assertEqual({'has': True}, condition1_4.value)
 
         condition1_5 = conditions1[4]
-        self.assertEqual(ptype2.id, condition1_5.name)
+        # self.assertEqual(ptype2.id, condition1_5.name)
+        self.assertEqual(str(ptype2.uuid), condition1_5.name)
         # self.assertEqual(False, condition1_5.value)
         self.assertEqual({'has': False}, condition1_5.value)
 
@@ -2390,7 +2425,8 @@ class ImportingTestCase(TransferBaseTestCase):
         "Invalid condition: property."
         self.login_as_super(is_staff=True)
 
-        ptype_id = 'creme_config-test_import_entityfilter03'  # does not exist/not imported
+        # ptype_id = 'creme_config-test_import_entityfilter03'  # does not exist/not imported
+        ptype_uuid = str(uuid4())  # does not exist/not imported
         ef_id = 'creme_config-test_import_entityfilters_error03'
         efilters_data = [{
             'id':         ef_id,
@@ -2398,7 +2434,8 @@ class ImportingTestCase(TransferBaseTestCase):
             'ctype':      'creme_core.fakecontact',
             'conditions': [{
                 'type':  PropertyConditionHandler.type_id,
-                'name':  ptype_id,
+                # 'name':  ptype_id,
+                'name':  ptype_uuid,
                 'value': True,
             }],
         }]
@@ -2410,10 +2447,14 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertFormError(
             response.context['form'],
             field='config',
+            # errors=_(
+            #     'The condition on property-type="{ptype}" is invalid '
+            #     'in the filter id="{id}".'
+            # ).format(ptype=ptype_id, id=ef_id),
             errors=_(
                 'The condition on property-type="{ptype}" is invalid '
                 'in the filter id="{id}".'
-            ).format(ptype=ptype_id, id=ef_id),
+            ).format(ptype=ptype_uuid, id=ef_id),
         )
 
     def test_entityfilters_error04_a(self):

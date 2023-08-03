@@ -476,13 +476,9 @@ END:VCARD"""
     def test_add_contact_vcf01(self):
         user = self.login_as_root_and_get()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(
-            str_pk='test-prop_fighter', text='Is a fighter',
-        )
-        ptype02 = create_ptype(
-            str_pk='test-prop_bigcorp', text='Is big corp',
-        )
+        create_ptype = CremePropertyType.objects.create
+        ptype01 = create_ptype(text='Is a fighter')
+        ptype02 = create_ptype(text='Is big corp')
 
         create_rtype = RelationType.objects.smart_update_or_create
         rtype = create_rtype(

@@ -279,18 +279,21 @@ class FunctionFieldsTestCase(CremeTestCase):
         user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_foo', text='Foo')
+        # ptype1 = create_ptype(str_pk='test-prop_foo', text='Foo')
+        ptype1 = create_ptype(text='Foo')
         ptype2 = create_ptype(
-            str_pk='test-prop_bar', text='Bar',
-            subject_ctypes=[FakeContact, FakeOrganisation],
+            # str_pk='test-prop_bar',
+            text='Bar', subject_ctypes=[FakeContact, FakeOrganisation],
         )
 
-        ptype3 = create_ptype(str_pk='test-prop_del', text='Deleted')
-        ptype3.enabled = False
-        ptype3.save()
+        # ptype3 = create_ptype(str_pk='test-prop_del', text='Deleted')
+        # ptype3.enabled = False
+        # ptype3.save()
+        ptype3 = CremePropertyType.objects.create(text='Deleted', enabled=False)
 
         ptype4 = create_ptype(
-            str_pk='test-prop_baz', text='Baz', subject_ctypes=[FakeOrganisation],
+            # str_pk='test-prop_baz',
+            text='Baz', subject_ctypes=[FakeOrganisation],
         )
 
         # --
@@ -357,7 +360,7 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertIsInstance(field.widget, SelectLVSWidget)
 
         choices = field.widget.choices
-        self.assertIn({'value': 'NULL',    'label': _('* no property *')}, choices)
+        self.assertIn({'value': 'NULL', 'label': _('* no property *')}, choices)
 
         index1 = self.assertIndex({'value': ptype1.id, 'label': ptype1.text}, choices)
         index2 = self.assertIndex({'value': ptype2.id, 'label': ptype2.text}, choices)
@@ -371,6 +374,7 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertQEqual(Q(), to_python(value=''))
 
         value = ptype1.id
-        self.assertQEqual(Q(properties__type=value), to_python(value=value))
+        # self.assertQEqual(Q(properties__type=value), to_python(value=value))
+        self.assertQEqual(Q(properties__type=value), to_python(value=str(value)))
 
         self.assertQEqual(Q(properties__isnull=True), to_python(value='NULL'))

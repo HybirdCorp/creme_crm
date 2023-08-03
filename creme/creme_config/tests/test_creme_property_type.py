@@ -20,9 +20,12 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_portal(self):
         self.login_as_root()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_hairy', text='is hairy')
-        ptype2 = create_ptype(str_pk='test-prop_beard', text='is bearded')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_hairy', text='is hairy')
+        # ptype2 = create_ptype(str_pk='test-prop_beard', text='is bearded')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='is hairy')
+        ptype2 = create_ptype(text='is bearded')
 
         url = CremePropertyType.get_lv_absolute_url()
         self.assertEqual(reverse('creme_config__ptypes'), url)
@@ -96,7 +99,8 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
 
         get_ct = ContentType.objects.get_for_model
         pt = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful',
+            # str_pk='test-foobar',
+            text='is beautiful',
             subject_ctypes=[get_ct(FakeContact)], is_custom=True,
         )
         url = self._build_edit_url(pt)
@@ -131,7 +135,8 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
 
         get_ct = ContentType.objects.get_for_model
         pt = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful',
+            # str_pk='test-foobar',
+            text='is beautiful',
             subject_ctypes=[get_ct(FakeContact)], is_custom=False,
         )
 
@@ -141,21 +146,23 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         "Edit a disabled type."
         self.login_as_root()
 
-        pt = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful', is_custom=True,
+        # pt = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-foobar', text='is beautiful', is_custom=True,
+        # )
+        # pt.enabled = False
+        # pt.save()
+        pt = CremePropertyType.objects.create(
+            text='is beautiful', is_custom=True, enabled=False,
         )
-
-        pt.enabled = False
-        pt.save()
-
         self.assertGET404(self._build_edit_url(pt))
 
     def test_disable(self):
         self.login_as_root()
 
-        pt = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful', is_custom=True,
-        )
+        # pt = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-foobar', text='is beautiful', is_custom=True,
+        # )
+        pt = CremePropertyType.objects.create(text='is beautiful', is_custom=True)
 
         url = reverse('creme_config__disable_ptype', args=(pt.id,))
         self.assertGET405(url)
@@ -166,11 +173,14 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_enable(self):
         self.login_as_root()
 
-        pt = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful', is_custom=True,
+        # pt = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-foobar', text='is beautiful', is_custom=True,
+        # )
+        # pt.enabled = False
+        # pt.save()
+        pt = CremePropertyType.objects.create(
+            text='is beautiful', is_custom=True, enabled=False,
         )
-        pt.enabled = False
-        pt.save()
 
         url = reverse('creme_config__enable_ptype', args=(pt.id,))
         self.assertGET405(url)

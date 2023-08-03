@@ -35,14 +35,16 @@ class Portal(generic.BricksView):
 
 class PropertyTypeCreation(base.ConfigModelCreation):
     model = CremePropertyType
-    form_class = ptype_forms.CremePropertyTypeCreationForm
+    # form_class = ptype_forms.CremePropertyTypeCreationForm
+    form_class = ptype_forms.CremePropertyForm
     title = _('New custom type of property')
 
 
 class PropertyTypeEdition(base.ConfigModelEdition):
     # model = CremePropertyType
     queryset = CremePropertyType.objects.filter(is_custom=True, enabled=True)
-    form_class = ptype_forms.CremePropertyTypeEditionForm
+    # form_class = ptype_forms.CremePropertyTypeEditionForm
+    form_class = ptype_forms.CremePropertyForm
     pk_url_kwarg = 'ptype_id'
     title = pgettext_lazy('creme_config-property', 'Edit the type «{object}»')
 

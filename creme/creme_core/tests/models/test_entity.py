@@ -223,9 +223,12 @@ class EntityTestCase(CremeTestCase):
             is_internal=True,
         )
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        self.ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats')
-        self.ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # self.ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats')
+        # self.ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
+        create_ptype = CremePropertyType.objects.create
+        self.ptype01 = create_ptype(text='wears strange hats')
+        self.ptype02 = create_ptype(text='wears strange pants')
 
     def test_fieldtags_clonable(self):
         user = self.get_root_user()
@@ -493,11 +496,14 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual(_('Properties'), str(pp_ff.verbose_name))
         self.assertFalse(pp_ff.is_hidden)
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_awesome', text='Awesome')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        create_ptype = CremePropertyType.objects.create
+        # ptype1 = create_ptype(str_pk='test-prop_awesome', text='Awesome')
+        ptype1 = create_ptype(text='Awesome')
         CremeProperty.objects.create(type=ptype1, creme_entity=entity)
 
-        ptype2 = create_ptype(str_pk='test-prop_wonderful', text='Wonderful')
+        # ptype2 = create_ptype(str_pk='test-prop_wonderful', text='Wonderful')
+        ptype2 = create_ptype(text='Wonderful')
         CremeProperty.objects.create(type=ptype2, creme_entity=entity)
 
         with self.assertNumQueries(1):
@@ -521,9 +527,12 @@ class EntityTestCase(CremeTestCase):
 
         pp_ff = function_field_registry.get(CremeEntity, 'get_pretty_properties')
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_awesome',   text='Awesome')
-        ptype2 = create_ptype(str_pk='test-prop_wonderful', text='Wonderful')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_awesome',   text='Awesome')
+        # ptype2 = create_ptype(str_pk='test-prop_wonderful', text='Wonderful')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Awesome')
+        ptype2 = create_ptype(text='Wonderful')
 
         create_prop = CremeProperty.objects.create
         create_prop(type=ptype1, creme_entity=entity1)

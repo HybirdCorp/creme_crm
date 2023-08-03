@@ -368,9 +368,10 @@ class EntityFiltersTestCase(CremeTestCase):
             [build_cond(operator=operators.CONTAINS)],
         ))
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_kawaii', text='Kawaii',
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_kawaii', text='Kawaii',
+        # )
+        ptype = CremePropertyType.objects.create(text='Kawaii')
         hates = RelationType.objects.smart_update_or_create(
             ('test-subject_hate', 'Is hating'),
             ('test-object_hate',  'Is hated by'),
@@ -1849,9 +1850,10 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
 
     def test_properties01(self):
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_kawaii', text='Kawaii',
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_kawaii', text='Kawaii',
+        # )
+        ptype = CremePropertyType.objects.create(text='Kawaii')
         cute_ones = ('faye', 'rei', 'misato', 'asuka')
 
         for fn in cute_ones:
@@ -1875,9 +1877,12 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_properties02(self):
         "Several conditions on properties."
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_pretty',    text='Pretty')
-        ptype2 = create_ptype(str_pk='test-prop_beautiful', text='Beautiful')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_pretty',    text='Pretty')
+        # ptype2 = create_ptype(str_pk='test-prop_beautiful', text='Beautiful')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Pretty')
+        ptype2 = create_ptype(text='Beautiful')
 
         pretty_ones    = ('rei', 'asuka')
         beautiful_ones = ('asuka', 'misato')
@@ -1903,9 +1908,12 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_property_deletion01(self):
         "Delete CremePropertyType => delete related conditions."
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_pretty',    text='Pretty')
-        ptype2 = create_ptype(str_pk='test-prop_beautiful', text='Beautiful')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_pretty',    text='Pretty')
+        # ptype2 = create_ptype(str_pk='test-prop_beautiful', text='Beautiful')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Pretty')
+        ptype2 = create_ptype(text='Beautiful')
 
         # We want a condition with the same name as the one for ptype1
         subfilter = EntityFilter.objects.create(
@@ -1928,7 +1936,8 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertCountEqual(
             [
                 (SubFilterConditionHandler.type_id, str(subfilter.id)),
-                (PropertyConditionHandler.type_id,  ptype2.id),
+                # (PropertyConditionHandler.type_id,  ptype2.id),
+                (PropertyConditionHandler.type_id, str(ptype2.uuid)),
             ],
             efilter.conditions.values_list('type', 'name'),
         )

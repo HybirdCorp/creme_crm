@@ -22,6 +22,7 @@ import logging
 from datetime import datetime
 from decimal import Decimal
 from functools import partial
+from uuid import UUID
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
@@ -1543,30 +1544,38 @@ class PropertyConditionHandler(FilterConditionHandler):
         True:  _('The entities have no property «{}»'),
     }
 
-    def __init__(self, *, model, ptype, exclude=False):
+    def __init__(self, *,
+                 model: type[CremeEntity],
+                 ptype: CremePropertyType | UUID | str,
+                 exclude=False,
+                 ):
         """Constructor.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
-        @param ptype: <creme_core.models.CremePropertyType> instance or ID (string).
+        @param ptype: CremeProperty type. Can be passed on the form of its UUID.
         @param exclude: Boolean ; the retrieved CremeProperties have to be
                included (True) or excluded (False).
         """
         super().__init__(model=model)
         if isinstance(ptype, CremePropertyType):
-            self._ptype_id = ptype.id
+            # self._ptype_id = ptype.id
+            self._ptype_uuid = ptype.uuid
             self._ptype = ptype
         else:
-            self._ptype_id = ptype
+            # self._ptype_id = ptype
+            self._ptype_uuid = ptype if isinstance(ptype, UUID) else UUID(ptype)
             self._ptype = None
 
         self._exclude = exclude
 
     def accept(self, *, entity, user):
-        ptype_id = self._ptype_id
+        # ptype_id = self._ptype_id
+        ptype_uuid = self._ptype_uuid
         # NB: we use get_properties() in order to get a cached result, & so avoid
         #     additional queries when calling several times this method.
         # TODO: add a system to populate properties when checking several entities
-        accepted = any(prop.type_id == ptype_id for prop in entity.get_properties())
+        # accepted = any(prop.type_id == ptype_id for prop in entity.get_properties())
+        accepted = any(prop.type.uuid == ptype_uuid for prop in entity.get_properties())
 
         return not accepted if self._exclude else accepted
 
@@ -1594,7 +1603,8 @@ class PropertyConditionHandler(FilterConditionHandler):
     @classmethod
     def build_condition(cls, *, model, ptype, has=True,
                         filter_type=EF_USER,
-                        condition_cls=EntityFilterCondition):
+                        condition_cls=EntityFilterCondition,
+                        ):
         """Build an (unsaved) EntityFilterCondition.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
@@ -1608,7 +1618,8 @@ class PropertyConditionHandler(FilterConditionHandler):
             filter_type=filter_type,
             model=model,
             type=cls.type_id,
-            name=ptype.id,
+            # name=ptype.id,
+            name=str(ptype.uuid),
             # value=bool(has),
             value={'has': bool(has)},
         )
@@ -1625,9 +1636,14 @@ class PropertyConditionHandler(FilterConditionHandler):
 
     # TODO: see remark on RelationConditionHandler._get_q()
     def get_q(self, user):
+        # query = Q(
+        #     pk__in=CremeProperty.objects
+        #                         .filter(type=self._ptype_id)
+        #                         .values_list('creme_entity_id', flat=True),
+        # )
         query = Q(
             pk__in=CremeProperty.objects
-                                .filter(type=self._ptype_id)
+                                .filter(type__uuid=self._ptype_uuid)
                                 .values_list('creme_entity_id', flat=True),
         )
 
@@ -1642,16 +1658,21 @@ class PropertyConditionHandler(FilterConditionHandler):
         ptype = self._ptype
         if ptype is None:
             self._ptype = ptype = CremePropertyType.objects.filter(
-                id=self._ptype_id,
+                # id=self._ptype_id,
+                uuid=self._ptype_uuid,
             ).first() or False
 
         return ptype
 
     @classmethod
     def query_for_related_conditions(cls, instance):
+        # return Q(
+        #     type=cls.type_id,
+        #     name=instance.id,
+        # ) if isinstance(instance, CremePropertyType) else Q()
         return Q(
             type=cls.type_id,
-            name=instance.id,
+            name=instance.uuid,
         ) if isinstance(instance, CremePropertyType) else Q()
 
 

@@ -1313,13 +1313,17 @@ class FieldGroupListTestCase(CremeTestCase):
         model = FakeContact
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(str_pk='test-prop_smokes',  text='Smokes')
-        ptype02 = create_ptype(str_pk='test-prop_glasses', text='Wears glasses')
+        # ptype01 = create_ptype(str_pk='test-prop_smokes',  text='Smokes')
+        ptype01 = create_ptype(text='Smokes')
+        # ptype02 = create_ptype(str_pk='test-prop_glasses', text='Wears glasses')
+        ptype02 = create_ptype(text='Wears glasses')
         ptype03 = create_ptype(
-            str_pk='test-prop_gun', text='Has a gun', subject_ctypes=[model],
+            # str_pk='test-prop_gun',
+            text='Has a gun', subject_ctypes=[model],
         )
         ptype04 = create_ptype(
-            str_pk='test-prop_ship', text='Is a ship', subject_ctypes=[FakeOrganisation],
+            # str_pk='test-prop_ship',
+            text='Is a ship', subject_ctypes=[FakeOrganisation],
         )
 
         group_name1 = 'Main fields'
@@ -1648,9 +1652,7 @@ class FieldGroupListTestCase(CremeTestCase):
         "Properties constraints."
         user = self.get_root_user()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_bad',  text='Is bad',
-        )
+        ptype = CremePropertyType.objects.create(text='Is bad')
 
         orga = FakeOrganisation.objects.create(user=user, name='Technodrome')
         rtype = RelationType.objects.smart_update_or_create(

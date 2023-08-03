@@ -101,7 +101,9 @@ class Populator(BasePopulator):
 
         # ---------------------------
         CremePropertyType.objects.smart_update_or_create(
-            str_pk=constants.PROP_IS_A_SALESMAN,
+            # str_pk=constants.PROP_IS_A_SALESMAN,
+            uuid=constants.UUID_PROP_IS_A_SALESMAN,
+            app_label='commercial',
             text=_('is a salesman'),
             subject_ctypes=[Contact],
         )

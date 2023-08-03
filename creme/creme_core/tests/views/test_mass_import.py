@@ -262,20 +262,24 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(
-            str_pk='test-prop_cute', text='Really cute in her suit',
+            # str_pk='test-prop_cute',
+            text='Really cute in her suit',
         )
         ptype2 = create_ptype(
-            str_pk='test-prop_accurate', text='Great accuracy',
+            # str_pk='test-prop_accurate',
+            text='Great accuracy',
             subject_ctypes=[FakeContact],
         )
         ptype3 = create_ptype(
-            str_pk='test-prop_international', text='International',
+            # str_pk='test-prop_international',
+            text='International',
             subject_ctypes=[FakeOrganisation],
         )
 
-        ptype4 = create_ptype(str_pk='test-prop_disabled', text='Disabled')
-        ptype4.enabled = False
-        ptype4.save()
+        # ptype4 = create_ptype(str_pk='test-prop_disabled', text='Disabled')
+        # ptype4.enabled = False
+        # ptype4.save()
+        ptype4 = CremePropertyType.objects.create(text='Disabled', enabled=False)
 
         create_rtype = RelationType.objects.smart_update_or_create
         employed = create_rtype(
@@ -568,9 +572,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         "Constraint on object."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_rich', text='Is rich',
-        )
+        ptype = CremePropertyType.objects.create(text='Is rich')
         employed, employs = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'employed by', [FakeContact]),
             ('test-object_employed_by',  'employs',     [FakeOrganisation], [ptype]),
@@ -656,9 +658,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         "Constraint on object (forbidden property type)."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_bankrupt', text='Went bankrupt',
-        )
+        ptype = CremePropertyType.objects.create(text='Went bankrupt')
         employed, employs = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'employed by', [FakeContact]),
             ('test-object_employed_by',  'employs',     [FakeOrganisation], [], [ptype]),
@@ -744,9 +744,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         "Constraint on subject: fixed relationships + error."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_pilot', text='Is a pilot',
-        )
+        ptype = CremePropertyType.objects.create(text='Is a pilot')
         employed = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'employed by', [FakeContact], [ptype]),
             ('test-object_employed_by',  'employs',     [FakeOrganisation]),
@@ -789,9 +787,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         "Constraint on subject: fixed relationships (OK)."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_pilot', text='Is a pilot',
-        )
+        ptype = CremePropertyType.objects.create(text='Is a pilot')
         employed = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'employed by', [FakeContact], [ptype]),
             ('test-object_employed_by',  'employs',     [FakeOrganisation]),
@@ -824,9 +820,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         "Constraint on subject: dynamic relationships + error."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_pilot', text='Is a pilot',
-        )
+        ptype = CremePropertyType.objects.create(text='Is a pilot')
         employed = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'employed by', [FakeContact], [ptype]),
             ('test-object_employed_by',  'employs',     [FakeOrganisation]),
@@ -872,9 +866,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         "Constraint on subject: dynamic relationships (OK)."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_pilot', text='Is a pilot',
-        )
+        ptype = CremePropertyType.objects.create(text='Is a pilot')
         employed = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'employed by', [FakeContact], [ptype]),
             ('test-object_employed_by',  'employs',     [FakeOrganisation]),
@@ -906,9 +898,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         "Fixed relationships + error."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_robotophobia', text='Hates big robots',
-        )
+        ptype = CremePropertyType.objects.create(text='Hates big robots')
         employed = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'employed by', [FakeContact], [], [ptype]),
             ('test-object_employed_by',  'employs',     [FakeOrganisation]),
@@ -949,13 +939,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         "Fixed relationships (OK)."
         user = self.login_as_root_and_get()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(
-            str_pk='test-prop_robotophobia', text='Hates big robots',
-        )
-        ptype2 = create_ptype(
-            str_pk='test-prop_pilot', text='Is a pilot',
-        )
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Hates big robots')
+        ptype2 = create_ptype(text='Is a pilot')
 
         employed = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'employed by', [FakeContact], [], [ptype1]),
@@ -986,9 +972,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         "Dynamic relationships + error."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_robotophobia', text='Hates big robots',
-        )
+        ptype = CremePropertyType.objects.create(text='Hates big robots')
         employed = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'employed by', [FakeContact], [], [ptype]),
             ('test-object_employed_by',  'employs',     [FakeOrganisation]),
@@ -1033,13 +1017,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         "Constraint on subject: dynamic relationships (OK)."
         user = self.login_as_root_and_get()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(
-            str_pk='test-prop_robotophobia', text='Hates big robots',
-        )
-        ptype2 = create_ptype(
-            str_pk='test-prop_pilot', text='Is a pilot',
-        )
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Hates big robots')
+        ptype2 = create_ptype(text='Is a pilot')
 
         employed = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'employed by', [FakeContact], [], [ptype1]),
@@ -1780,9 +1760,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ('test-object_loving',  'is loved by'),
         )[0]
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_cute',   text='Really cute in her suit')
-        ptype2 = create_ptype(str_pk='test-blue_haired', text='Has blue hairs')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Really cute in her suit')
+        ptype2 = create_ptype(text='Has blue hairs')
 
         rei_info = {
             'first_name': 'Rei',   'last_name': 'Ayanami', 'phone': '111111', 'email': '\t ',

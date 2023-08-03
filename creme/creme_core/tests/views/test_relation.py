@@ -368,10 +368,10 @@ class RelationViewsTestCase(ViewsTestCase):
         subject = self._create_contact(user=user)
         object1 = self._create_organisation(user=user)
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_string', text='Is strong')
-        ptype2 = create_ptype(str_pk='test-prop_cool',   text='Is cool')
-        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is strong')
+        ptype2 = create_ptype(text='Is cool')
+        ptype3 = create_ptype(text='Is smart')
 
         # NB: not ptype3
         create_prop = partial(CremeProperty.objects.create, creme_entity=subject)
@@ -446,9 +446,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
         subject = self._create_contact(user=user)
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_cool', text='Is cool')
-        ptype2 = create_ptype(str_pk='test-prop_weak', text='Is weak')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is cool')
+        ptype2 = create_ptype(text='Is weak')
 
         create_prop = partial(CremeProperty.objects.create, creme_entity=subject)
         create_prop(type=ptype1)
@@ -502,10 +502,10 @@ class RelationViewsTestCase(ViewsTestCase):
         subject = self._create_organisation(user=user)
         rel_object = self._create_contact(user=user)
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
-        ptype2 = create_ptype(str_pk='test-prop_cool',   text='Is cool')
-        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is strong')
+        ptype2 = create_ptype(text='Is cool')
+        ptype3 = create_ptype(text='Is smart')
 
         # NB: not ptype3
         create_prop = partial(CremeProperty.objects.create, creme_entity=rel_object)
@@ -775,9 +775,9 @@ class RelationViewsTestCase(ViewsTestCase):
         subject = self._create_contact(user=user)
         object1, object2 = self._create_organisations(user=user)
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
-        ptype2 = create_ptype(str_pk='test-prop_cool', text='Is cool')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is strong')
+        ptype2 = create_ptype(text='Is cool')
 
         CremeProperty.objects.create(type=ptype2, creme_entity=subject)
 
@@ -825,9 +825,9 @@ class RelationViewsTestCase(ViewsTestCase):
         subject1, subject2 = self._create_contacts(user=user)
         object1 = self._create_organisation(user=user)
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_weak',   text='Is weak')
-        ptype2 = create_ptype(str_pk='test-prop_string', text='Is strong')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is weak')
+        ptype2 = create_ptype(text='Is strong')
 
         create_prop = CremeProperty.objects.create
         create_prop(type=ptype1, creme_entity=subject1)
@@ -1008,10 +1008,10 @@ class RelationViewsTestCase(ViewsTestCase):
         "CremeProperty constraints."
         user = self.login_as_root_and_get()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_realm',  text='Is a realm')
-        ptype2 = create_ptype(str_pk='test-prop_gentle', text='Is gentle')
-        ptype3 = create_ptype(str_pk='test-prop_nasty',  text='Is nasty')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is a realm')
+        ptype2 = create_ptype(text='Is gentle')
+        ptype3 = create_ptype(text='Is nasty')
 
         subject = self._create_organisation(user=user)
 
@@ -1043,9 +1043,7 @@ class RelationViewsTestCase(ViewsTestCase):
         "Forbidden CremeProperty."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_nasty',  text='Is nasty',
-        )
+        ptype = CremePropertyType.objects.create(text='Is nasty')
 
         subject = self._create_organisation(user=user)
         CremeProperty.objects.create(creme_entity=subject, type=ptype)
@@ -1244,9 +1242,9 @@ class RelationViewsTestCase(ViewsTestCase):
         subject = self._create_contact(user=user)
         object1 = self._create_organisation(user=user)
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_string', text='Is strong')
-        ptype2 = create_ptype(str_pk='test-prop_cool',   text='Is cool')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is strong')
+        ptype2 = create_ptype(text='Is cool')
 
         CremeProperty.objects.create(creme_entity=subject, type=ptype1)
 
@@ -1431,9 +1429,9 @@ class RelationViewsTestCase(ViewsTestCase):
         "Mandatory properties."
         self._aux_relation_objects_to_link_selection()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Is lovable')
-        ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Is a girl')
+        create_ptype = CremePropertyType.objects.create
+        ptype01 = create_ptype(text='Is lovable')
+        ptype02 = create_ptype(text='Is a girl')
 
         contact04 = FakeContact.objects.create(
             user=self.user, first_name='Flonne', last_name='Angel',
@@ -1468,9 +1466,7 @@ class RelationViewsTestCase(ViewsTestCase):
         "Forbidden properties."
         self._aux_relation_objects_to_link_selection()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_bad', text='Is bad'
-        )
+        ptype = CremePropertyType.objects.create(text='Is bad')
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_loving', 'is loving',   [FakeContact]),
             ('test-object_loving',  'is loved by', [FakeContact], [], [ptype]),
@@ -1734,11 +1730,11 @@ class RelationViewsTestCase(ViewsTestCase):
         "Property constraints."
         user = self.login_as_root_and_get()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        subject_ptype1 = create_ptype(str_pk='test-prop_subj1', text='Subject property #1')
-        subject_ptype2 = create_ptype(str_pk='test-prop_subj2', text='Subject property #2')
-        object_ptype1  = create_ptype(str_pk='test-prop_obj1',  text='Contact property #1')
-        object_ptype2  = create_ptype(str_pk='test-prop_obj2',  text='Contact property #2')
+        create_ptype = CremePropertyType.objects.create
+        subject_ptype1 = create_ptype(text='Subject property #1')
+        subject_ptype2 = create_ptype(text='Subject property #2')
+        object_ptype1  = create_ptype(text='Contact property #1')
+        object_ptype2  = create_ptype(text='Contact property #2')
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         bad_subject1  = create_entity(description='Bad subject #1')
@@ -1795,9 +1791,9 @@ class RelationViewsTestCase(ViewsTestCase):
         "Forbidden property constraints."
         user = self.login_as_root_and_get()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        subject_forb_ptype = create_ptype(str_pk='test-prop_foobar01', text='Subject property')
-        object_forb_ptype  = create_ptype(str_pk='test-prop_foobar02', text='Contact property')
+        create_ptype = CremePropertyType.objects.create
+        subject_forb_ptype = create_ptype(text='Subject property')
+        object_forb_ptype  = create_ptype(text='Contact property')
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         bad_subject  = create_entity(description='Bad subject')

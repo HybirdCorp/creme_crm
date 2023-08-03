@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,13 +21,13 @@ from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import CremeModel, CremePropertyType
+from creme.creme_core import models as core_models
 
 
-class MarketSegment(CremeModel):
+class MarketSegment(core_models.CremeModel):
     name = models.CharField(_('Name'), max_length=100)  # TODO: unique ?
     property_type = models.ForeignKey(
-        CremePropertyType, null=True, editable=False, on_delete=models.CASCADE,
+        core_models.CremePropertyType, null=True, editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
 
     creation_label = _('Create a market segment')

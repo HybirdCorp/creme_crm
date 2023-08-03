@@ -303,18 +303,11 @@ class CreationTestCase(ViewsTestCase):
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(str_pk='test-prop_smokes',  text='Smokes')
-        ptype02 = create_ptype(str_pk='test-prop_glasses', text='Wears glasses')
-        ptype03 = create_ptype(
-            str_pk='test-prop_gun', text='Has a gun', subject_ctypes=[FakeContact],
-        )
-        ptype04 = create_ptype(
-            str_pk='test-prop_ship', text='Is a ship', subject_ctypes=[FakeOrganisation],
-        )
-
-        ptype05 = create_ptype(str_pk='test-prop_disabled', text='Disabled')
-        ptype05.enabled = False
-        ptype05.save()
+        ptype01 = create_ptype(text='Smokes')
+        ptype02 = create_ptype(text='Wears glasses')
+        ptype03 = create_ptype(text='Has a gun', subject_ctypes=[FakeContact])
+        ptype04 = create_ptype(text='Is a ship', subject_ctypes=[FakeOrganisation])
+        ptype05 = CremePropertyType.objects.create(text='Disabled', enabled=False)
 
         url = reverse('creme_core__create_fake_contact')
 
