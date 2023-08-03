@@ -1285,10 +1285,14 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_properties_constraint_error(self):
         user = self.get_root_user()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
-        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
-        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
+        # ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+        # ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is strong')
+        ptype2 = create_ptype(text='Is cute')
+        ptype3 = create_ptype(text='Is smart')
 
         rtype, sym_rtype = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))
 
@@ -1311,10 +1315,14 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_properties_constraint(self):
         user = self.get_root_user()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
-        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
-        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
+        # ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+        # ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is strong')
+        ptype2 = create_ptype(text='Is cute')
+        ptype3 = create_ptype(text='Is smart')
 
         rtype = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))[0]
 
@@ -1330,9 +1338,10 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_forbidden_properties_constraint_error(self):
         user = self.get_root_user()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_strong', text='Is not kind',
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_strong', text='Is not kind',
+        # )
+        ptype = CremePropertyType.objects.create(text='Is not kind')
 
         rtype, sym_rtype = self.create_loves_rtype(object_forbidden_ptypes=ptype)
         # contact = self.create_contact(ptypes=ptype)
@@ -1354,9 +1363,12 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_forbidden_properties_constraint(self):
         user = self.get_root_user()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is not kind')
-        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_strong', text='Is not kind')
+        # ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is not kind')
+        ptype2 = create_ptype(text='Is cute')
 
         rtype = self.create_loves_rtype(object_forbidden_ptypes=ptype1)[0]
 
@@ -1748,10 +1760,14 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_properties_constraint_error(self):
         user = self.get_root_user()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
-        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
-        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
+        # ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+        # ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is strong')
+        ptype2 = create_ptype(text='Is cute')
+        ptype3 = create_ptype(text='Is smart')
 
         rtype_constr    = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))[0]
         rtype_no_constr = self.create_hates_rtype()[0]
@@ -1779,10 +1795,14 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_properties_constraint(self):
         user = self.get_root_user()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
-        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
-        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
+        # ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+        # ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is strong')
+        ptype2 = create_ptype(text='Is cute')
+        ptype3 = create_ptype(text='Is smart')
 
         rtype_constr    = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))[0]
         rtype_no_constr = self.create_hates_rtype()[0]
@@ -1804,9 +1824,10 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_forbidden_properties_constraint_error(self):
         user = self.get_root_user()
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_strong', text='Is not kind',
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_strong', text='Is not kind',
+        # )
+        ptype = CremePropertyType.objects.create(text='Is not kind')
 
         rtype_constr    = self.create_loves_rtype(object_forbidden_ptypes=[ptype])[0]
         rtype_no_constr = self.create_hates_rtype()[0]
@@ -1831,9 +1852,9 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_forbidden_properties_constraint(self):
         user = self.get_root_user()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is not kind')
-        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is not kind')
+        ptype2 = create_ptype(text='Is cute')
 
         rtype_constr    = self.create_loves_rtype(object_forbidden_ptypes=ptype1)[0]
         rtype_no_constr = self.create_hates_rtype()[0]

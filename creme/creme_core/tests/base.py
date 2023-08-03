@@ -958,11 +958,14 @@ class _CremeTestCase:
 
         return rt
 
-    def get_propertytype_or_fail(self, pk, models=()):
+    # def get_propertytype_or_fail(self, pk, models=()):
+    def get_propertytype_or_fail(self, uid, models=()):
         try:
-            pt = CremePropertyType.objects.get(pk=pk)
+            # pt = CremePropertyType.objects.get(pk=pk)
+            pt = CremePropertyType.objects.get(uuid=uid)
         except CremePropertyType.DoesNotExist:
-            self.fail(f'Bad populate: unfoundable CremePropertyType with pk={pk}')
+            # self.fail(f'Bad populate: unfoundable CremePropertyType with pk={pk}')
+            self.fail(f'Bad populate: unfoundable CremePropertyType with uuid={uid}')
 
         get_ct = ContentType.objects.get_for_model
         self.assertCountEqual(

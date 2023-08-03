@@ -2882,9 +2882,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def _aux_test_fetch_m2m(self):
         user = self.login_as_root_and_get()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        self.ptype1 = create_ptype(str_pk='test-prop_important',    text='Important')
-        self.ptype2 = create_ptype(str_pk='test-prop_notimportant', text='Not important')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # self.ptype1 = create_ptype(str_pk='test-prop_important',    text='Important')
+        # self.ptype2 = create_ptype(str_pk='test-prop_notimportant', text='Not important')
+        create_ptype = CremePropertyType.objects.create
+        self.ptype1 = create_ptype(text='Important')
+        self.ptype2 = create_ptype(text='Not important')
 
         self.report_camp = report_camp = Report.objects.create(
             user=user,
@@ -3199,7 +3202,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
         ptype = CremePropertyType.objects.create(
-            pk='reports-test_fetch_funcfield_01', text='I am not dead !',
+            # pk='reports-test_fetch_funcfield_01',
+            text='I am not dead !',
         )
         CremeProperty.objects.create(type=ptype, creme_entity=self.starks)
 
@@ -3250,7 +3254,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
         ptype = CremePropertyType.objects.create(
-            pk='reports-test_fetch_funcfield_02', text='I am waiting the winter',
+            # pk='reports-test_fetch_funcfield_02',
+            text='I am waiting the winter',
         )
 
         create_prop = partial(CremeProperty.objects.create, type=ptype)
@@ -3337,9 +3342,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         user = self.login_as_basic_user()
         self._aux_test_fetch_persons(user=user)
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_dwarf', text='Dwarf',
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_dwarf', text='Dwarf',
+        # )
+        ptype = CremePropertyType.objects.create(text='Dwarf')
         CremeProperty.objects.create(type=ptype, creme_entity=self.tyrion)
 
         report_contact = self.report_contact
@@ -3404,9 +3410,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         tyrion.image = tyrion_face
         tyrion.save()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_dwarf', text='Is a dwarf',
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_dwarf', text='Is a dwarf',
+        # )
+        ptype = CremePropertyType.objects.create(text='Is a dwarf')
         CremeProperty.objects.create(type=ptype, creme_entity=self.tyrion)
 
         dwarves_filter = EntityFilter.objects.smart_update_or_create(

@@ -117,7 +117,10 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(place,     description.place)
         self.assertEqual(price,     description.price)
         self.assertEqual(promotion, description.promotion)
-        self.assertIn(name, description.segment.property_type.text)
+        # self.assertIn(name, description.segment.property_type.text)
+        ptype = description.segment.property_type
+        self.assertEqual(_('is in the segment «{}»').format(name), ptype.text)
+        self.assertEqual('commercial',                             ptype.app_label)
 
         # ---
         response3 = self.assertGET200(strategy.get_absolute_url())
@@ -177,9 +180,10 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         name = 'Industry'
         pname = _('is in the segment «{}»').format(name)
-        CremePropertyType.objects.smart_update_or_create(
-            str_pk='commercial-test_segment_create02', text=pname,
-        )
+        # CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='commercial-test_segment_create02', text=pname,
+        # )
+        CremePropertyType.objects.create(text=pname)
 
         response = self.assertPOST200(
             self._build_add_segmentdesc_url(strategy), data={'name': name},

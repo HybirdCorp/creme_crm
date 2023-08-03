@@ -441,7 +441,8 @@ class CremePropertyTypeExporter(Exporter):
         assert isinstance(instance, models.CremePropertyType)
 
         data = {
-            'id': instance.id,
+            # 'id': instance.id,
+            'uuid': str(instance.uuid),
             'text': instance.text,
             'is_copiable': instance.is_copiable,
         }
@@ -490,23 +491,37 @@ class RelationTypeExporter(Exporter):
         if object_ctypes:
             data['object_ctypes'] = [*map(dump_ct, object_ctypes)]
 
-        subject_properties = instance.subject_properties.values_list('id', flat=True)
-        if subject_properties:
-            data['subject_properties'] = [*subject_properties]
+        # subject_properties = instance.subject_properties.values_list('id', flat=True)
+        # if subject_properties:
+        #     data['subject_properties'] = [*subject_properties]
+        subject_prop_uuids = instance.subject_properties.values_list('uuid', flat=True)
+        if subject_prop_uuids:
+            data['subject_properties'] = [*map(str, subject_prop_uuids)]
 
-        subject_forbidden_properties = instance.subject_forbidden_properties\
-                                               .values_list('id', flat=True)
-        if subject_forbidden_properties:
-            data['subject_forbidden_properties'] = [*subject_forbidden_properties]
+        # subject_forbidden_properties = instance.subject_forbidden_properties\
+        #                                        .values_list('id', flat=True)
+        # if subject_forbidden_properties:
+        #     data['subject_forbidden_properties'] = [*subject_forbidden_properties]
+        subject_forbidden_prop_uuids = instance.subject_forbidden_properties\
+                                               .values_list('uuid', flat=True)
+        if subject_forbidden_prop_uuids:
+            data['subject_forbidden_properties'] = [*map(str, subject_forbidden_prop_uuids)]
 
-        object_properties = instance.object_properties.values_list('id', flat=True)
-        if object_properties:
-            data['object_properties'] = [*object_properties]
+        # object_properties = instance.object_properties.values_list('id', flat=True)
+        # if object_properties:
+        #     data['object_properties'] = [*object_properties]
+        object_prop_uuids = instance.object_properties.values_list('uuid', flat=True)
+        if object_prop_uuids:
+            data['object_properties'] = [*map(str, object_prop_uuids)]
 
-        object_forbidden_properties = instance.object_forbidden_properties\
-                                              .values_list('id', flat=True)
-        if object_forbidden_properties:
-            data['object_forbidden_properties'] = [*object_forbidden_properties]
+        # object_forbidden_properties = instance.object_forbidden_properties\
+        #                                       .values_list('id', flat=True)
+        # if object_forbidden_properties:
+        #     data['object_forbidden_properties'] = [*object_forbidden_properties]
+        object_forbidden_pro_uuids = instance.object_forbidden_properties\
+                                             .values_list('uuid', flat=True)
+        if object_forbidden_pro_uuids:
+            data['object_forbidden_properties'] = [*map(str, object_forbidden_pro_uuids)]
 
         return data
 

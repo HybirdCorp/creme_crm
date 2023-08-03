@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-06 13:44+0200\n"
+"POT-Creation-Date: 2023-10-10 18:22+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -22,10 +22,8 @@ msgstr "Configuration générale"
 #, python-format
 msgid "The password must contain at least %(min_length)d character."
 msgid_plural "The password must contain at least %(min_length)d characters."
-msgstr[0] ""
-"Le mot de passe doit contenir au minimum %(min_length)d caractère."
-msgstr[1] ""
-"Le mot de passe doit contenir au minimum %(min_length)d caractères."
+msgstr[0] "Le mot de passe doit contenir au minimum %(min_length)d caractère."
+msgstr[1] "Le mot de passe doit contenir au minimum %(min_length)d caractères."
 
 msgid "The password can’t be too similar to the other personal information."
 msgstr ""
@@ -33,8 +31,7 @@ msgstr ""
 "personnelles."
 
 msgid "The password can’t be a commonly used password."
-msgstr ""
-"Le mot de passe ne peut pas être un mot de passe couramment utilisé."
+msgstr "Le mot de passe ne peut pas être un mot de passe couramment utilisé."
 
 msgid "The password can’t be entirely numeric."
 msgstr "Le mot de passe ne peut pas être entièrement numérique."
@@ -154,8 +151,8 @@ msgstr "configuration de recherche du modèle=\"{model}\""
 msgid "This property type cannot be overridden: «{}»."
 msgstr "Ce type de propriété ne peut pas être écrasé : «{}»."
 
-msgid "This property type PKs are invalid: {}."
-msgstr "Ces clés primaires de type de propriété sont invalides : {}."
+msgid "This property type UUIDs are invalid: {}."
+msgstr "Ces UUIDs de type de propriété sont invalides : {}."
 
 msgid "This relation type PK is invalid: «{}»."
 msgstr "Cette clé primaire de type de relation est invalide : «{}»."
@@ -321,20 +318,6 @@ msgstr ""
 "disponibles et celle des boutons sélectionnés pour activer ou désactiver des "
 "boutons, ou au sein de la section des boutons sélectionnés afin d'en changer "
 "l'ordre."
-
-msgid "Text"
-msgstr "Texte"
-
-msgid "For example: 'is pretty'"
-msgstr "Par exemple: 'est joli'"
-
-msgid "Is copiable"
-msgstr "Est copiable"
-
-msgid "Are the properties with this type copied when an entity is cloned?"
-msgstr ""
-"Est-ce que les propriétés avec ce type sont copiées quand une fiche est "
-"clonée ?"
 
 msgid "Related to types of entities"
 msgstr "S'applique aux types de fiches"
@@ -2488,6 +2471,20 @@ msgstr "Vous n'avez pas la permission de modifier votre nom affiché"
 
 msgid "Edit the instance's settings"
 msgstr "Modifier la configuration de l'instance"
+
+#~ msgid "Text"
+#~ msgstr "Texte"
+
+#~ msgid "For example: 'is pretty'"
+#~ msgstr "Par exemple: 'est joli'"
+
+#~ msgid "Is copiable"
+#~ msgstr "Est copiable"
+
+#~ msgid "Are the properties with this type copied when an entity is cloned?"
+#~ msgstr ""
+#~ "Est-ce que les propriétés avec ce type sont copiées quand une fiche est "
+#~ "clonée ?"
 
 #~ msgid "There is already a fields configuration for the model «{}»."
 #~ msgstr "Il y a déjà une configuration de champs pour le modèle «{}»"

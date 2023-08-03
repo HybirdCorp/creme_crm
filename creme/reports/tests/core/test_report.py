@@ -454,8 +454,10 @@ class ReportHandTestCase(CremeTestCase):
         self.assertIsNone(hand.get_linkable_ctypes())
 
         create_ptype = CremePropertyType.objects.create
-        ptype1 = create_ptype(id='creme_core-sword',   text='Knows sword')
-        ptype2 = create_ptype(id='creme_core-costume', text='Knows costume')
+        # ptype1 = create_ptype(id='creme_core-sword',   text='Knows sword')
+        # ptype2 = create_ptype(id='creme_core-costume', text='Knows costume')
+        ptype1 = create_ptype(text='Knows sword')
+        ptype2 = create_ptype(text='Knows costume')
 
         aria = FakeContact.objects.create(
             user=user, first_name='Aria', last_name='Stark',

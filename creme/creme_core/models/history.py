@@ -541,6 +541,7 @@ class _HLTPropertyCreation(_HistoryLineType):
     def create_line(cls, prop: CremeProperty):
         HistoryLine._create_line_4_instance(
             prop.creme_entity, cls.type_id, modifs=[prop.type_id],
+            # prop.creme_entity, cls.type_id, modifs=[str(prop.type.uuid)], TODO?
         )
 
 

@@ -44,21 +44,27 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def test_add(self):
         user = self.login_as_root_and_get()
 
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Wears strange gloves')
+        # ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Wears strange glasses')
+        # ptype03 = create_ptype(
+        #     str_pk='test-prop_foobar03', text='Wears strange hats',
+        #     subject_ctypes=[FakeContact],
+        # )
+        # ptype04 = create_ptype(
+        #     str_pk='test-prop_foobar04', text='Is a fundation',
+        #     subject_ctypes=[FakeOrganisation],
+        # )
+        #
+        # ptype05 = create_ptype(str_pk='test-prop_disabled', text='Disabled')
+        # ptype05.enabled = False
+        # ptype05.save()
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Wears strange gloves')
-        ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Wears strange glasses')
-        ptype03 = create_ptype(
-            str_pk='test-prop_foobar03', text='Wears strange hats',
-            subject_ctypes=[FakeContact],
-        )
-        ptype04 = create_ptype(
-            str_pk='test-prop_foobar04', text='Is a fundation',
-            subject_ctypes=[FakeOrganisation],
-        )
-
-        ptype05 = create_ptype(str_pk='test-prop_disabled', text='Disabled')
-        ptype05.enabled = False
-        ptype05.save()
+        ptype01 = create_ptype(text='Wears strange gloves')
+        ptype02 = create_ptype(text='Wears strange glasses')
+        ptype03 = create_ptype(text='Wears strange hats', subject_ctypes=[FakeContact])
+        ptype04 = create_ptype(text='Is a foundation', subject_ctypes=[FakeOrganisation])
+        ptype05 = CremePropertyType.objects.create(text='Disabled', enabled=False)
 
         entity = FakeContact.objects.create(
             user=user, first_name='Spike', last_name='Spiegel',
@@ -104,10 +110,14 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def test_properties_brick(self):
         user = self.login_as_root_and_get()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Uses guns')
-        ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Uses blades')
-        ptype03 = create_ptype(str_pk='test-prop_foobar03', text='Uses drugs')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Uses guns')
+        # ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Uses blades')
+        # ptype03 = create_ptype(str_pk='test-prop_foobar03', text='Uses drugs')
+        create_ptype = CremePropertyType.objects.create
+        ptype01 = create_ptype(text='Uses guns')
+        ptype02 = create_ptype(text='Uses blades')
+        ptype03 = create_ptype(text='Uses drugs')
 
         rita = FakeContact.objects.create(
             user=user, last_name='Vrataski', first_name='Rita',
@@ -186,7 +196,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "is_custom=False."
         self.login_as_root()
         ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful',
+            # str_pk='test-foobar',
+            text='is beautiful',
             subject_ctypes=[FakeContact],
             is_custom=False,
         )
@@ -197,8 +208,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login_as_root()
 
         ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful',
-            subject_ctypes=[FakeContact], is_custom=True,
+            # str_pk='test-foobar',
+            text='is beautiful', subject_ctypes=[FakeContact], is_custom=True,
         )
 
         url = ptype.get_edit_absolute_url()
@@ -232,37 +243,42 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def test_edit_type03(self):
         "Not allowed."
         self.login_as_standard()
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful', is_custom=True,
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-foobar', text='is beautiful', is_custom=True,
+        # )
+        ptype = CremePropertyType.objects.create(text='is beautiful', is_custom=True)
         self.assertGET403(ptype.get_edit_absolute_url())
 
     def test_edit_type04(self):
         "Not super-user."
         self.login_as_standard(admin_4_apps=('creme_core',))
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful', is_custom=True,
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-foobar', text='is beautiful', is_custom=True,
+        # )
+        ptype = CremePropertyType.objects.create(text='is beautiful', is_custom=True)
         self.assertGET200(ptype.get_edit_absolute_url())
 
     def test_edit_type05(self):
         "Disabled=True."
         self.login_as_root()
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful', is_custom=True,
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-foobar', text='is beautiful', is_custom=True,
+        # )
+        # ptype.enabled = False
+        # ptype.save()
+        ptype = CremePropertyType.objects.create(
+            text='is beautiful', is_custom=True, enabled=False,
         )
-        ptype.enabled = False
-        ptype.save()
-
         self.assertGET404(ptype.get_edit_absolute_url())
 
     def test_delete_related_to_entity01(self):
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_foobar', text='hairy',
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_foobar', text='hairy',
+        # )
+        ptype = CremePropertyType.objects.create(text='hairy')
         entity = FakeContact.objects.create(user=user, last_name='Vrataski')
         prop = CremeProperty.objects.create(type=ptype, creme_entity=entity)
         get_ct = ContentType.objects.get_for_model
@@ -290,9 +306,10 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         user = self.login_as_standard()
         self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_foobar', text='hairy',
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_foobar', text='hairy',
+        # )
+        ptype = CremePropertyType.objects.create(text='hairy')
         entity = FakeContact.objects.create(user=self.get_root_user(), last_name='Vrataski')
         prop = CremeProperty.objects.create(type=ptype, creme_entity=entity)
         ct = ContentType.objects.get_for_model(CremeProperty)
@@ -305,9 +322,10 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def test_delete_from_type(self):
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_foobar', text='hairy',
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_foobar', text='hairy',
+        # )
+        ptype = CremePropertyType.objects.create(text='hairy')
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         entity1 = create_entity()
@@ -334,9 +352,12 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
         root = self.get_root_user()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_cool',       text='Is cool')
-        ptype2 = create_ptype(str_pk='test-prop_super_cool', text='Is super cool')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_cool',       text='Is cool')
+        # ptype2 = create_ptype(str_pk='test-prop_super_cool', text='Is super cool')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is cool')
+        ptype2 = create_ptype(text='Is super cool')
 
         create_contact = partial(FakeContact.objects.create, user=user)
         contact1 = create_contact(last_name='Vrataski', first_name='Rita')
@@ -374,16 +395,12 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_delete_type01(self):
         self.login_as_root()
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful', is_custom=False,
-        )
+        ptype = CremePropertyType.objects.create(text='is beautiful', is_custom=False)
         self.assertPOST404(ptype.get_delete_absolute_url())
 
     def test_delete_type02(self):
         self.login_as_standard(admin_4_apps=['creme_core'])
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful', is_custom=True,
-        )
+        ptype = CremePropertyType.objects.create(text='is beautiful', is_custom=True)
         response = self.assertPOST200(ptype.get_delete_absolute_url(), follow=True)
         self.assertDoesNotExist(ptype)
         self.assertRedirects(response, CremePropertyType.get_lv_absolute_url())
@@ -391,27 +408,30 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def test_delete_type03(self):
         "Not allowed to admin <creme_core>."
         self.login_as_standard()
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful', is_custom=True,
-        )
+        ptype = CremePropertyType.objects.create(text='is beautiful', is_custom=True)
         self.assertPOST403(ptype.get_delete_absolute_url(), follow=True)
 
     def test_add_properties_bulk01(self):
         user = self.login_as_root_and_get()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(str_pk='test-prop_blip', text='Makes BLIPs')
-        ptype02 = create_ptype(str_pk='test-prop_holo', text='Projects holograms')
-        ptype03 = create_ptype(
-            str_pk='test-prop_droid', text='Is a droid', subject_ctypes=[FakeContact],
-        )
-        ptype04 = create_ptype(
-            str_pk='test-prop_ship', text='Is a ship', subject_ctypes=[FakeOrganisation],
-        )
-
-        ptype05 = create_ptype(str_pk='test-prop_disabled', text='Disabled')
-        ptype05.enabled = False
-        ptype05.save()
+        # ptype01 = create_ptype(str_pk='test-prop_blip', text='Makes BLIPs')
+        # ptype02 = create_ptype(str_pk='test-prop_holo', text='Projects holograms')
+        # ptype03 = create_ptype(
+        #     str_pk='test-prop_droid', text='Is a droid', subject_ctypes=[FakeContact],
+        # )
+        # ptype04 = create_ptype(
+        #     str_pk='test-prop_ship', text='Is a ship', subject_ctypes=[FakeOrganisation],
+        # )
+        #
+        # ptype05 = create_ptype(str_pk='test-prop_disabled', text='Disabled')
+        # ptype05.enabled = False
+        # ptype05.save()
+        ptype01 = create_ptype(text='Makes BLIPs')
+        ptype02 = create_ptype(text='Projects holograms')
+        ptype03 = create_ptype(text='Is a droid', subject_ctypes=[FakeContact])
+        ptype04 = create_ptype(text='Is a ship', subject_ctypes=[FakeOrganisation])
+        ptype05 = CremePropertyType.objects.create(text='Disabled', enabled=False)
 
         create_contact = partial(FakeContact.objects.create, user=user)
         entities = [
@@ -480,9 +500,9 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity3 = create_entity(user=user)
         entity4 = create_entity(user=user)
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_foobar1', text='wears strange hats')
-        ptype2 = create_ptype(str_pk='test-prop_foobar2', text='wears strange pants')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='wears strange hats')
+        ptype2 = create_ptype(text='wears strange pants')
 
         has_perm = user.has_perm_to_change
         self.assertFalse(has_perm(entity1))
@@ -553,9 +573,9 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats')
-        ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
+        create_ptype = CremePropertyType.objects.create
+        ptype01 = create_ptype(text='wears strange hats')
+        ptype02 = create_ptype(text='wears strange pants')
 
         self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
         entity = CremeEntity.objects.create(user=user)
@@ -586,13 +606,9 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def test_not_copiable_properties(self):
         user = self.login_as_root_and_get()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(
-            str_pk='test-prop_foobar01', text='wears strange hats', is_copiable=False,
-        )
-        ptype02 = create_ptype(
-            str_pk='test-prop_foobar02', text='wears strange pants',
-        )
+        create_ptype = CremePropertyType.objects.create
+        ptype01 = create_ptype(text='wears strange hats', is_copiable=False)
+        ptype02 = create_ptype(text='wears strange pants')
 
         entity = CremeEntity.objects.create(user=user)
 
@@ -611,9 +627,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_detailview01(self):
         user = self.login_as_root_and_get()
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_murica', text='is american',
-        )
+        ptype = CremePropertyType.objects.create(text='is american')
 
         create_contact = partial(FakeContact.objects.create, user=user)
         tagged_contact   = create_contact(last_name='Vrataski', first_name='Rita')
@@ -662,8 +676,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Misc brick."
         user = self.login_as_root_and_get()
         ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_murica', text='is american',
-            subject_ctypes=[FakeContact],
+            text='is american', subject_ctypes=[FakeContact],
         )
 
         rita = FakeContact.objects.create(
@@ -692,9 +705,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_reload_ptype_bricks01(self):
         user = self.login_as_root_and_get()
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_murica', text='is american',
-        )
+        ptype = CremePropertyType.objects.create(text='is american')
 
         rita = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
         CremeProperty.objects.create(type=ptype, creme_entity=rita)
@@ -724,8 +735,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Misc brick + info brick."
         user = self.login_as_root_and_get()
         ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_murica', text='is american',
-            subject_ctypes=[FakeOrganisation],
+            text='is american', subject_ctypes=[FakeOrganisation],
         )
 
         rita = FakeContact.objects.create(
@@ -755,9 +765,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def test_reload_ptype_bricks03(self):
         "Empty brick."
         self.login_as_root()
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_murica', text='is american',
-        )
+        ptype = CremePropertyType.objects.create(text='is american')
 
         brick_id = 'block_creme_core-tagged-persons-contact'
         response = self.assertGET200(

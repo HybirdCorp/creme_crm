@@ -170,7 +170,8 @@ def _uninstall_jobs(sender, **kwargs):
 @receiver(post_uninstall_flush)
 @uninstall_handler('Deleting property types...')
 def _uninstall_property_types(sender, **kwargs):
-    CremePropertyType.objects.filter(id__startswith=f'{sender.label}-').delete()
+    # CremePropertyType.objects.filter(id__startswith=f'{sender.label}-').delete()
+    CremePropertyType.objects.filter(app_label=sender.label).delete()
 
 
 @receiver(post_uninstall_flush)

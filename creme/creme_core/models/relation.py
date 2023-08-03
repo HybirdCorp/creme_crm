@@ -294,7 +294,7 @@ class RelationType(CremeModel):
     following information :
       - The <predicate>, a string which describes the relation between the
         "subject" & the "object".
-         Eg: "employs", "is a customer of"
+        Eg: "employs", "is a customer of"
       - List of ContentTypes which are allowed for the subjects & for the objects
         (attributes <subject_ctypes> & <object_ctypes>).
         Eg: the type "employs" accepts Organisations as subject, but not Invoice.

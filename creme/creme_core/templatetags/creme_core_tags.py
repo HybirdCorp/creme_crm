@@ -21,6 +21,7 @@ from itertools import zip_longest
 from re import compile as compile_re
 from urllib.parse import urlencode, urlsplit
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.template import Library
@@ -50,6 +51,19 @@ from ..utils.unicode_collation import collator
 
 logger = logging.getLogger(__name__)
 register = Library()
+
+
+@register.filter
+def app_verbose_name(app_label, default='?'):
+    get_app = apps.get_app_config
+
+    try:
+        app = get_app(app_label)
+    except LookupError:
+        logger.warning('The app "%s" seems not registered.', app_label)
+        return default
+
+    return app.verbose_name
 
 
 @register.filter(name='print_boolean')

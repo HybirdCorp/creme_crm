@@ -1038,8 +1038,9 @@ class HistoryRenderTestCase(CremeTestCase):
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
 
         text = 'Make <i>anime</i> series'
-        ptype_id = 'test-prop_make_anime'
-        ptype = CremePropertyType.objects.smart_update_or_create(str_pk=ptype_id, text=text)
+        # ptype_id = 'test-prop_make_anime'
+        # ptype = CremePropertyType.objects.smart_update_or_create(str_pk=ptype_id, text=text)
+        ptype = CremePropertyType.objects.create(text=text)
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
 
         hline = self.get_hline()
@@ -1053,10 +1054,12 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
         # ---
+        ptype_id = ptype.id
         prop.delete()
         ptype.delete()
         self.assertHTMLEqual(
             html_format_str.format(_('%(property_text)s added') % {
+                # TODO: "?? (id=XX)"
                 'property_text': f'<span class="property-text">{ptype_id}</span>',
             }),
             self.render_line(hline, user),
@@ -1067,8 +1070,9 @@ class HistoryRenderTestCase(CremeTestCase):
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
 
         text = 'Make <i>anime</i> series'
-        ptype_id = 'test-prop_make_anime'
-        ptype = CremePropertyType.objects.smart_update_or_create(str_pk=ptype_id, text=text)
+        # ptype_id = 'test-prop_make_anime'
+        # ptype = CremePropertyType.objects.smart_update_or_create(str_pk=ptype_id, text=text)
+        ptype = CremePropertyType.objects.create(text=text)
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
 
         prop.delete()
@@ -1085,6 +1089,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
         # ---
+        ptype_id = ptype.id
         ptype.delete()
         self.assertHTMLEqual(
             html_format_str.format(_('%(property_text)s removed') % {
@@ -1097,9 +1102,12 @@ class HistoryRenderTestCase(CremeTestCase):
         user = self.get_root_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_make_anime', text='Makes anime series')
-        ptype2 = create_ptype(str_pk='test-prop_make_film', text='Makes film')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(str_pk='test-prop_make_anime', text='Makes anime series')
+        # ptype2 = create_ptype(str_pk='test-prop_make_film', text='Makes film')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Makes anime series')
+        ptype2 = create_ptype(text='Makes film')
 
         create_prop = partial(CremeProperty.objects.create, creme_entity=gainax)
         prop1 = create_prop(type=ptype1)

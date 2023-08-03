@@ -2240,14 +2240,18 @@ class PropertiesConditionsFieldTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
 
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # self.ptype01 = create_ptype(str_pk='test-prop_active', text='Is active')
+        # self.ptype02 = create_ptype(
+        #     str_pk='test-prop_cute', text='Is cute', subject_ctypes=[FakeContact],
+        # )
+        # self.ptype03 = create_ptype(
+        #     str_pk='test-prop_evil', text='Is evil', subject_ctypes=[FakeOrganisation],
+        # )
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        self.ptype01 = create_ptype(str_pk='test-prop_active', text='Is active')
-        self.ptype02 = create_ptype(
-            str_pk='test-prop_cute', text='Is cute', subject_ctypes=[FakeContact],
-        )
-        self.ptype03 = create_ptype(
-            str_pk='test-prop_evil', text='Is evil', subject_ctypes=[FakeOrganisation],
-        )
+        self.ptype01 = create_ptype(text='Is active')
+        self.ptype02 = create_ptype(text='Is cute', subject_ctypes=[FakeContact])
+        self.ptype03 = create_ptype(text='Is evil', subject_ctypes=[FakeOrganisation])
 
     def test_clean_empty_required(self):
         with self.assertNumQueries(0):
@@ -2310,13 +2314,15 @@ class PropertiesConditionsFieldTestCase(CremeTestCase):
         type_id = PropertyConditionHandler.type_id
         condition1 = conditions[0]
         self.assertEqual(type_id,         condition1.type)
-        self.assertEqual(self.ptype01.id, condition1.name)
+        # self.assertEqual(self.ptype01.id, condition1.name)
+        self.assertEqual(str(self.ptype01.uuid), condition1.name)
         # self.assertIs(condition1.value, True)
         self.assertDictEqual({'has': True}, condition1.value)
 
         condition2 = conditions[1]
         self.assertEqual(type_id,         condition2.type)
-        self.assertEqual(self.ptype02.id, condition2.name)
+        # self.assertEqual(self.ptype02.id, condition2.name)
+        self.assertEqual(str(self.ptype02.uuid), condition2.name)
         self.assertEqual(EF_USER,         condition2.filter_type)
         # self.assertIs(condition2.value, False)
         self.assertDictEqual({'has': False}, condition2.value)
@@ -2332,7 +2338,8 @@ class PropertiesConditionsFieldTestCase(CremeTestCase):
             field.clean(json_dump([{'ptype': ptype.id, 'has': True}]))
         )
         self.assertEqual(PropertyConditionHandler.type_id, condition.type)
-        self.assertEqual(ptype.id,                         condition.name)
+        # self.assertEqual(ptype.id,                         condition.name)
+        self.assertEqual(str(ptype.uuid),                  condition.name)
         self.assertEqual(EF_CREDENTIALS,                   condition.filter_type)
 
     def test_disabled_ptype01(self):
@@ -2367,7 +2374,8 @@ class PropertiesConditionsFieldTestCase(CremeTestCase):
         condition = self.get_alone_element(
             field.clean(json_dump([{'ptype': ptype.id, 'has': True}]))
         )
-        self.assertEqual(ptype.id, condition.name)
+        # self.assertEqual(ptype.id, condition.name)
+        self.assertEqual(str(ptype.uuid), condition.name)
         # self.assertIs(condition.value, True)
         self.assertDictEqual({'has': True}, condition.value)
 

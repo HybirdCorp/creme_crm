@@ -1,6 +1,7 @@
 from datetime import date
 from decimal import Decimal
 from functools import partial
+from uuid import UUID
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
@@ -3696,20 +3697,23 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
     def test_property_init01(self):
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_kawaii', text='Kawaii',
-        )
+        "Pass a UUID instance."
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_kawaii', text='Kawaii',
+        # )
+        ptype = CremePropertyType.objects.create(text='Kawaii')
 
         handler = PropertyConditionHandler(
             model=FakeOrganisation,
-            ptype=ptype.id,
+            ptype=ptype.uuid,
             exclude=False,
         )
 
         self.assertEqual(FakeOrganisation, handler.model)
         self.assertIsNone(handler.subfilter_id)
         self.assertIs(handler.subfilter, False)
-        self.assertEqual(ptype.id, handler._ptype_id)
+        # self.assertEqual(ptype.id, handler._ptype_id)
+        self.assertEqual(ptype.uuid, handler._ptype_uuid)
         self.assertIs(handler._exclude, False)
 
         self.assertIsNone(handler.error)
@@ -3731,9 +3735,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_property_init02(self):
         "Pass a CremePropertyType instance."
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_kawaii', text='Kawaii',
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_kawaii', text='Kawaii',
+        # )
+        ptype = CremePropertyType.objects.create(text='Kawaii')
 
         handler = PropertyConditionHandler(
             model=FakeContact,
@@ -3742,7 +3747,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
         self.assertEqual(FakeContact, handler.model)
-        self.assertEqual(ptype.id, handler._ptype_id)
+        # self.assertEqual(ptype.id, handler._ptype_id)
+        self.assertEqual(ptype.uuid, handler._ptype_uuid)
         self.assertIs(handler._exclude, True)
 
         # ---
@@ -3751,29 +3757,47 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         self.assertEqual(ptype, ptype2)
 
+    def test_property_init03(self):
+        "Pass a string for uuid."
+        ptype = CremePropertyType.objects.create(text='Kawaii')
+
+        handler = PropertyConditionHandler(
+            model=FakeContact,
+            ptype=str(ptype.uuid),
+            exclude=True,
+        )
+
+        self.assertEqual(ptype.uuid, handler._ptype_uuid)
+
     def test_property_build01(self):
-        ptype_id1 = 'creme_core-test1'
+        # ptype_id1 = 'creme_core-test1'
+        ptype_uuid1 = '5fc20397-ab37-43a8-8abc-42a7218e89d0'
         handler1 = PropertyConditionHandler.build(
             model=FakeOrganisation,
-            name=ptype_id1,
+            # name=ptype_id1,
+            name=ptype_uuid1,
             # data=True,
             data={'has': True},
         )
         self.assertEqual(FakeOrganisation, handler1.model)
         self.assertIsNone(handler1.subfilter_id)
-        self.assertEqual(ptype_id1, handler1._ptype_id)
+        # self.assertEqual(ptype_id1, handler1._ptype_id)
+        self.assertEqual(UUID(ptype_uuid1), handler1._ptype_uuid)
         self.assertFalse(handler1._exclude)
 
         # --
-        ptype_id2 = 'creme_core-test2'
+        # ptype_id2 = 'creme_core-test2'
+        ptype_uuid2 = 'd8acaa7b-7c9f-465c-8200-02c5540e5959'
         handler2 = PropertyConditionHandler.build(
             model=FakeContact,
-            name=ptype_id2,
+            # name=ptype_id2,
+            name=ptype_uuid2,
             # data=False,
             data={'has': False},
         )
         self.assertEqual(FakeContact, handler2.model)
-        self.assertEqual(ptype_id2,   handler2._ptype_id)
+        # self.assertEqual(ptype_id2,   handler2._ptype_id)
+        self.assertEqual(UUID(ptype_uuid2), handler2._ptype_uuid)
         self.assertTrue(handler2._exclude)
 
     def test_property_build02(self):
@@ -3805,9 +3829,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_property_condition(self):
         "Build condition."
-        ptype1 = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_kawaii', text='Kawaii',
-        )
+        # ptype1 = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_kawaii', text='Kawaii',
+        # )
+        ptype1 = CremePropertyType.objects.create(text='Kawaii')
 
         condition1 = PropertyConditionHandler.build_condition(
             model=FakeContact, ptype=ptype1, has=True,
@@ -3816,7 +3841,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsNone(condition1.pk)
         self.assertEqual(EF_USER,                          condition1.filter_type)
         self.assertEqual(PropertyConditionHandler.type_id, condition1.type)
-        self.assertEqual(ptype1.id,                        condition1.name)
+        # self.assertEqual(ptype1.id,                        condition1.name)
+        self.assertEqual(str(ptype1.uuid), condition1.name)
         # self.assertEqual(True,                             condition1.value)
         self.assertDictEqual({'has': True}, condition1.value)
 
@@ -3829,19 +3855,22 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(FakeContact, handler1.model)
         self.assertIsNone(handler1.subfilter_id)
         self.assertIs(handler1.subfilter, False)
-        self.assertEqual(ptype1.id, handler1._ptype_id)
+        # self.assertEqual(ptype1.id, handler1._ptype_id)
+        self.assertEqual(ptype1.uuid, handler1._ptype_uuid)
         self.assertIs(handler1._exclude, False)
 
         # ---
-        ptype2 = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_cute', text='Cute',
-        )
+        # ptype2 = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_cute', text='Cute',
+        # )
+        ptype2 = CremePropertyType.objects.create(text='Cute')
         condition2 = PropertyConditionHandler.build_condition(
             model=FakeContact, ptype=ptype2, has=False,
             filter_type=EF_CREDENTIALS,
         )
         self.assertEqual(EF_CREDENTIALS, condition2.filter_type)
-        self.assertEqual(ptype2.id,      condition2.name)
+        # self.assertEqual(ptype2.id,      condition2.name)
+        self.assertEqual(str(ptype2.uuid), condition2.name)
         # self.assertIs(condition2.value, False)
         self.assertDictEqual({'has': False}, condition2.value)
 
@@ -3850,16 +3879,20 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             name=condition2.name,
             data=condition2.value,
         )
-        self.assertEqual(ptype2.id, handler2._ptype_id)
+        # self.assertEqual(ptype2.id, handler2._ptype_id)
+        self.assertEqual(ptype2.uuid, handler2._ptype_uuid)
         self.assertIs(handler2._exclude, True)
 
     def test_property_get_q(self):
         "get_q() not empty."
         user = self.get_root_user()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        cute  = create_ptype(str_pk='test-prop_cute',  text='Cute')
-        pilot = create_ptype(str_pk='test-prop_pilot', text='Pilot')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # cute  = create_ptype(str_pk='test-prop_cute',  text='Cute')
+        # pilot = create_ptype(str_pk='test-prop_pilot', text='Pilot')
+        create_ptype = CremePropertyType.objects.create
+        cute  = create_ptype(text='Cute')
+        pilot = create_ptype(text='Pilot')
 
         create_contact = partial(FakeContact.objects.create, user=user)
         contacts = {
@@ -3877,35 +3910,31 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             create_prop(creme_entity=contacts['shinji'], type=pilot),
         ]
 
-        handler1 = PropertyConditionHandler(
-            model=FakeContact,
-            ptype=cute.id,
-        )
+        handler1 = PropertyConditionHandler(model=FakeContact, ptype=cute)
         self.assertQEqual(
             Q(pk__in=CremeProperty.objects
                                   .filter(id__in=[properties[0].id, properties[2].id])
                                   .values_list('creme_entity_id', flat=True)),
-            handler1.get_q(user=user)
+            handler1.get_q(user=user),
         )
 
         # Exclude ---
-        handler2 = PropertyConditionHandler(
-            model=FakeContact,
-            ptype=cute.id,
-            exclude=True,
-        )
+        handler2 = PropertyConditionHandler(model=FakeContact, ptype=cute, exclude=True)
         self.assertQEqual(
             ~Q(pk__in=CremeProperty.objects
                                    .filter(id__in=[properties[0].id, properties[2].id])
                                    .values_list('creme_entity_id', flat=True)),
-            handler2.get_q(user=user)
+            handler2.get_q(user=user),
         )
 
     def test_property_accept(self):
         user = self.get_root_user()
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        cute = create_ptype(str_pk='test-prop_cute',  text='Cute')
-        pilot = create_ptype(str_pk='test-prop_pilot', text='Pilot')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # cute = create_ptype(str_pk='test-prop_cute',  text='Cute')
+        # pilot = create_ptype(str_pk='test-prop_pilot', text='Pilot')
+        create_ptype = CremePropertyType.objects.create
+        cute  = create_ptype(text='Cute')
+        pilot = create_ptype(text='Pilot')
 
         create_contact = partial(FakeContact.objects.create, user=user)
         shinji = create_contact(last_name='Ikari',     first_name='Shinji')
@@ -3916,26 +3945,23 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         create_prop(creme_entity=rei,    type=cute)
         create_prop(creme_entity=shinji, type=pilot)
 
-        handler1 = PropertyConditionHandler(model=FakeContact, ptype=cute.id)
+        handler1 = PropertyConditionHandler(model=FakeContact, ptype=cute)
         self.assertIs(handler1.accept(entity=rei,    user=user), True)
         self.assertIs(handler1.accept(entity=shinji, user=user), False)
         self.assertIs(handler1.accept(entity=misato, user=user), False)
 
         # Exclude ---
-        handler2 = PropertyConditionHandler(
-            model=FakeContact,
-            ptype=cute.id,
-            exclude=True,
-        )
+        handler2 = PropertyConditionHandler(model=FakeContact, ptype=cute, exclude=True)
         self.assertIs(handler2.accept(entity=rei,    user=user), False)
         self.assertIs(handler2.accept(entity=shinji, user=user), True)
         self.assertIs(handler2.accept(entity=misato, user=user), True)
 
     def test_property_description01(self):
         user = self.get_root_user()
-        cute = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_cute', text='Cute',
-        )
+        # cute = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_cute', text='Cute',
+        # )
+        cute = CremePropertyType.objects.create(text='Cute')
         handler = PropertyConditionHandler(
             model=FakeOrganisation,
             ptype=cute,
@@ -3948,9 +3974,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_property_description02(self):
         user = self.get_root_user()
-        cute = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_kawaii', text='Kawaii',
-        )
+        # cute = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_kawaii', text='Kawaii',
+        # )
+        cute = CremePropertyType.objects.create(text='Kawaii')
         handler = PropertyConditionHandler(
             model=FakeOrganisation,
             ptype=cute,
@@ -3966,7 +3993,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         user = self.get_root_user()
         handler = PropertyConditionHandler(
             model=FakeOrganisation,
-            ptype='doesnotexist',
+            # ptype='doesnotexist',
+            ptype=UUID('e61782ee-cc12-4239-9274-bd464c21f473'),
         )
         self.assertEqual('???', handler.description(user))
 

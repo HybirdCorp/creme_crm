@@ -1081,9 +1081,7 @@ better &amp; lighter than the previous one.
         "Incompatible relation types (property types constraints)."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_important', text='Is important',
-        )
+        ptype = CremePropertyType.objects.create(text='Is important')
 
         url = self._build_link_emails_url(
             Contact.objects.create(user=user, first_name='John', last_name='Doe')

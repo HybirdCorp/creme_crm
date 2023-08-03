@@ -757,9 +757,7 @@ class ContactTestCase(_BaseTestCase):
         "Mandatory object's properties."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_mandatory', text='Is mandatory',
-        )
+        ptype = CremePropertyType.objects.create(text='Is mandatory')
         rtype = RelationType.objects.smart_update_or_create(
             ('persons-subject_test_rtype', 'RType',     [Contact]),
             ('persons-object_test_rtype',  'Rtype sym', [Organisation], [ptype]),
@@ -791,9 +789,7 @@ class ContactTestCase(_BaseTestCase):
         "Mandatory subject's properties."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_mandatory', text='Is mandatory',
-        )
+        ptype = CremePropertyType.objects.create(text='Is mandatory')
         rtype = RelationType.objects.smart_update_or_create(
             ('persons-subject_test_rtype', 'RType',     [Contact], [ptype]),
             ('persons-object_test_rtype',  'Rtype sym', [Organisation]),
@@ -829,9 +825,7 @@ class ContactTestCase(_BaseTestCase):
         "Forbidden object's properties."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_forbidden', text='Is forbidden',
-        )
+        ptype = CremePropertyType.objects.create(text='Is forbidden')
         rtype = RelationType.objects.smart_update_or_create(
             ('persons-subject_test_rtype', 'RType',     [Contact]),
             ('persons-object_test_rtype',  'Rtype sym', [Organisation], [], [ptype]),
@@ -1033,13 +1027,9 @@ class ContactTestCase(_BaseTestCase):
         "Mandatory properties."
         user = self.login_as_root_and_get()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(
-            str_pk='test-prop_mandatory', text='Is mandatory',
-        )
-        ptype2 = create_ptype(
-            str_pk='test-prop_optional', text='Is optional',
-        )
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Is mandatory')
+        ptype2 = create_ptype(text='Is optional')
 
         create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
@@ -1108,9 +1098,7 @@ class ContactTestCase(_BaseTestCase):
         "Forbidden properties (object constraint)."
         user = self.login_as_root_and_get()
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_forbidden', text='Is forbidden',
-        )
+        ptype = CremePropertyType.objects.create(text='Is forbidden')
         rtype = RelationType.objects.smart_update_or_create(
             ('persons-subject_test_rtype1', 'RType #1',     [Contact]),
             ('persons-object_test_rtype1',  'Rtype sym #1', [Organisation], [], [ptype]),

@@ -6,7 +6,7 @@ from json import loads as json_load
 from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template, TemplateSyntaxError
 from django.urls import reverse
-from django.utils.translation import gettext, gettext_lazy
+from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -22,6 +22,20 @@ from ..base import CremeTestCase
 
 
 class CremeCoreTagsTestCase(CremeTestCase):
+    def test_app_verbose_name(self):
+        with self.assertNoException():
+            render = Template(
+                '{% load creme_core_tags %}'
+                '{{"creme_core"|app_verbose_name}}#'
+                '{{"creme_config"|app_verbose_name}}#'
+                '{{"unknown"|app_verbose_name}}#'
+                '{{"unknown"|app_verbose_name:"???"}}'
+            ).render(Context())
+
+        self.assertEqual(
+            '#'.join([_('Core'), _('General configuration'), '?', '???']),
+            render.strip())
+
     def test_get_by_index(self):
         with self.assertNoException():
             render = Template(
@@ -482,7 +496,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             {
                 'a': 12,
                 'b': 0.47,
-                'c': gettext('User'),
+                'c': _('User'),
                 'd': '2018-01-12',
                 'e': '08:12:25.012Z',
                 'f': '2018-01-12T08:12:25.012Z',
@@ -490,7 +504,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             {
                 'a': 12,
                 'b': Decimal('0.47'),
-                'c': gettext_lazy('User'),
+                'c': _('User'),
                 'd': now.date(),
                 'e': now.time().replace(tzinfo=timezone.utc),
                 'f': now,
@@ -551,9 +565,9 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self._assertJsonscriptTag(
             r'<script type="application/json"><!-- '
-            + escapejson('{"a":12,"b":0.47,"c":"%s"}' % gettext('User'))
+            + escapejson('{"a":12,"b":0.47,"c":"%s"}' % _('User'))
             + r' --></script>',
-            {'a': 12, 'b': Decimal('0.47'), 'c': gettext('User')},
+            {'a': 12, 'b': Decimal('0.47'), 'c': _('User')},
         )
 
         self._assertJsonscriptTag(

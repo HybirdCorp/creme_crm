@@ -641,16 +641,19 @@ class SearchConfigImporter(Importer):
 @IMPORTERS.register(data_id=constants.ID_PROPERTY_TYPES)
 class PropertyTypesImporter(Importer):
     def load_ptype(self, ptype_info: dict) -> dict:
-        ptype_id = ptype_info['id']
+        # ptype_id = ptype_info['id']
+        ptype_uuid = ptype_info['uuid']
 
-        ptype = CremePropertyType.objects.filter(id=ptype_id, is_custom=False).first()
+        # ptype = CremePropertyType.objects.filter(id=ptype_id, is_custom=False).first()
+        ptype = CremePropertyType.objects.filter(uuid=ptype_uuid, is_custom=False).first()
         if ptype is not None:
             raise ValidationError(
                 _('This property type cannot be overridden: «{}».').format(ptype)
             )
 
         return {
-            'id': ptype_id,
+            # 'id': ptype_id,
+            'uuid': ptype_uuid,
             'text': ptype_info['text'],
             'is_copiable': bool(ptype_info['is_copiable']),
             'subject_ctypes': [
@@ -660,13 +663,16 @@ class PropertyTypesImporter(Importer):
 
     def _validate_section(self, deserialized_section, validated_data):
         self._data = [*map(self.load_ptype, deserialized_section)]
-        validated_data[CremePropertyType].update(d['id'] for d in self._data)
+        # validated_data[CremePropertyType].update(d['id'] for d in self._data)
+        validated_data[CremePropertyType].update(d['uuid'] for d in self._data)
 
     def save(self):
         for data in self._data:
-            ptype_id       = data.pop('id')
+            # ptype_id       = data.pop('id')
+            ptype_uuid       = data.pop('uuid')
             subject_ctypes = data.pop('subject_ctypes')
-            ptype = CremePropertyType.objects.update_or_create(id=ptype_id, defaults=data)[0]
+            # ptype = CremePropertyType.objects.update_or_create(id=ptype_id, defaults=data)[0]
+            ptype = CremePropertyType.objects.update_or_create(uuid=ptype_uuid, defaults=data)[0]
             ptype.subject_ctypes.set(subject_ctypes)
 
 
@@ -675,38 +681,71 @@ class RelationTypesImporter(Importer):
     dependencies = [constants.ID_PROPERTY_TYPES]
 
     def _validate_section(self, deserialized_section, validated_data):
-        created_ptype_ids = {*validated_data[CremePropertyType]}
+        # created_ptype_ids = {*validated_data[CremePropertyType]}
+        created_ptype_uuids = {*validated_data[CremePropertyType]}
 
-        def load_ptypes(ptype_ids):
-            if not isinstance(ptype_ids, list) or \
-               not all(isinstance(pt_id, str) for pt_id in ptype_ids):
+        # def load_ptypes(ptype_ids):
+        #     if not isinstance(ptype_ids, list) or \
+        #        not all(isinstance(pt_id, str) for pt_id in ptype_ids):
+        #         raise ValueError(
+        #             f'RelationTypesImporter: '
+        #             f'*_ptypes values must be list of strings: {ptype_ids}'
+        #         )
+        #
+        #     ptypes = [
+        #         *CremePropertyType.objects.filter(pk__in=ptype_ids),
+        #     ] if ptype_ids else []
+        #
+        #     if len(ptypes) != len(ptype_ids):
+        #         non_existings_ids = {*ptype_ids} - {pt.id for pt in ptypes}
+        #         imported_ids = [
+        #             pt_id
+        #             for pt_id in non_existings_ids
+        #             if pt_id in created_ptype_ids
+        #         ]
+        #
+        #         non_existings_ids.difference_update(imported_ids)
+        #
+        #         if non_existings_ids:
+        #             raise ValidationError(
+        #                 _('This property type PKs are invalid: {}.').format(
+        #                     ', '.join(non_existings_ids)
+        #                 )
+        #             )
+        #
+        #         ptypes.extend(imported_ids)
+        #
+        #     return ptypes
+        def load_ptypes(ptype_uuids):
+            # TODO: try to cast in UUIDs ?
+            if not isinstance(ptype_uuids, list) or \
+               not all(isinstance(pt_uuid, str) for pt_uuid in ptype_uuids):
                 raise ValueError(
                     f'RelationTypesImporter: '
-                    f'*_ptypes values must be list of strings: {ptype_ids}'
+                    f'*_ptypes values must be list of strings: {ptype_uuids}'
                 )
 
             ptypes = [
-                *CremePropertyType.objects.filter(pk__in=ptype_ids),
-            ] if ptype_ids else []
+                *CremePropertyType.objects.filter(uuid__in=ptype_uuids),
+            ] if ptype_uuids else []
 
-            if len(ptypes) != len(ptype_ids):
-                non_existings_ids = {*ptype_ids} - {pt.id for pt in ptypes}
-                imported_ids = [
-                    pt_id
-                    for pt_id in non_existings_ids
-                    if pt_id in created_ptype_ids
+            if len(ptypes) != len(ptype_uuids):
+                non_existing_uuids = {*ptype_uuids} - {str(pt.uuid) for pt in ptypes}
+                imported_uuids = [
+                    pt_uuid
+                    for pt_uuid in non_existing_uuids
+                    if pt_uuid in created_ptype_uuids
                 ]
 
-                non_existings_ids.difference_update(imported_ids)
-
-                if non_existings_ids:
+                non_existing_uuids.difference_update(imported_uuids)
+                if non_existing_uuids:
                     raise ValidationError(
-                        _('This property type PKs are invalid: {}.').format(
-                            ', '.join(non_existings_ids)
+                        _('This property type UUIDs are invalid: {}.').format(
+                            ', '.join(non_existing_uuids),
                         )
                     )
 
-                ptypes.extend(imported_ids)
+                ptypes.extend(imported_uuids)
 
             return ptypes
 
@@ -762,6 +801,14 @@ class RelationTypesImporter(Importer):
         validated_rtype_ids.update(d['symmetric']['id'] for d in data)
 
     def save(self):
+        def get_ptypes(ptypes_data):
+            get_ptype = CremePropertyType.objects.get
+
+            return [
+                pt_data if isinstance(pt_data, CremePropertyType) else get_ptype(uuid=pt_data)
+                for pt_data in ptypes_data
+            ]
+
         for data in self._data:
             sym_data = data['symmetric']
             RelationType.objects.smart_update_or_create(
@@ -769,15 +816,19 @@ class RelationTypesImporter(Importer):
                     data['id'],
                     data['predicate'],
                     data.get('subject_models'),
-                    data.get('subject_ptypes'),
-                    data.get('subject_forbidden_ptypes'),
+                    # data.get('subject_ptypes'),
+                    get_ptypes(data.get('subject_ptypes')),
+                    # data.get('subject_forbidden_ptypes'),
+                    get_ptypes(data.get('subject_forbidden_ptypes')),
                 ),
                 (
                     sym_data['id'],
                     sym_data['predicate'],
                     data.get('object_models'),
-                    data.get('object_ptypes'),
-                    data.get('object_forbidden_ptypes'),
+                    # data.get('object_ptypes'),
+                    get_ptypes(data.get('object_ptypes')),
+                    # data.get('object_forbidden_ptypes'),
+                    get_ptypes(data.get('object_forbidden_ptypes')),
                 ),
                 is_custom=True,
                 is_copiable=(data['is_copiable'], sym_data['is_copiable']),
@@ -1230,22 +1281,34 @@ class ConditionProxyProperty(ConditionProxy):
         self.has = bool(self.value)
         self.ptype = None
 
-        ptype_id = self.name
-        if ptype_id not in validated_data[CremePropertyType]:
-            self.ptype = ptype = CremePropertyType.objects.filter(id=ptype_id).first()
+        # ptype_id = self.name
+        # if ptype_id not in validated_data[CremePropertyType]:
+        #     self.ptype = ptype = CremePropertyType.objects.filter(id=ptype_id).first()
+        #
+        #     if ptype is None:
+        #         raise ValidationError(
+        #             _(
+        #                 'The condition on property-type="{ptype}" is invalid in '
+        #                 'the filter id="{id}".'
+        #             ).format(ptype=ptype_id, id=self.efilter_id)
+        #         )
+        ptype_uuid = self.name
+        if ptype_uuid not in validated_data[CremePropertyType]:
+            self.ptype = ptype = CremePropertyType.objects.filter(uuid=ptype_uuid).first()
 
             if ptype is None:
                 raise ValidationError(
                     _(
                         'The condition on property-type="{ptype}" is invalid in '
                         'the filter id="{id}".'
-                    ).format(ptype=ptype_id, id=self.efilter_id)
+                    ).format(ptype=ptype_uuid, id=self.efilter_id)
                 )
 
     def build_condition(self):
         return PropertyConditionHandler.build_condition(
             model=self.model,
-            ptype=self.ptype or CremePropertyType.objects.get(id=self.name),
+            # ptype=self.ptype or CremePropertyType.objects.get(id=self.name),
+            ptype=self.ptype or CremePropertyType.objects.get(uuid=self.name),
             has=self.has,
         )
 

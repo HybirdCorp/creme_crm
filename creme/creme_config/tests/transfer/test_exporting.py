@@ -1133,19 +1133,23 @@ class ExportingTestCase(TransferBaseTestCase):
         self.login_as_super(is_staff=True)
 
         CremePropertyType.objects.create(
-            pk='creme_config_export-test_export_entityfilters', text='Sugoi !',
+            # pk='creme_config_export-test_export_entityfilters',
+            text='Sugoi!',
         )
 
         self.assertTrue(CremePropertyType.objects.filter(is_custom=False))
 
-        pk_fmt = 'creme_config_export-test_export_property_types{}'.format
+        # pk_fmt = 'creme_config_export-test_export_property_types{}'.format
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk=pk_fmt(1), text='Is important', is_custom=True)
+        # ptype1 = create_ptype(str_pk=pk_fmt(1), text='Is important', is_custom=True)
+        ptype1 = create_ptype(text='Is important', is_custom=True)
         ptype2 = create_ptype(
-            str_pk=pk_fmt(2), text='Is funny', is_custom=True, is_copiable=False,
+            # str_pk=pk_fmt(2),
+            text='Is funny', is_custom=True, is_copiable=False,
         )
         ptype3 = create_ptype(
-            str_pk=pk_fmt(3), text='Is cool', is_custom=True,
+            # str_pk=pk_fmt(3),
+            text='Is cool', is_custom=True,
             subject_ctypes=[FakeContact, FakeOrganisation],
         )
 
@@ -1153,20 +1157,26 @@ class ExportingTestCase(TransferBaseTestCase):
         content = response.json()
 
         with self.assertNoException():
-            loaded_ptypes = {d['id']: d for d in content.get('property_types')}
+            # loaded_ptypes = {d['id']: d for d in content.get('property_types')}
+            loaded_ptypes = {d['uuid']: d for d in content.get('property_types')}
 
         self.assertEqual(3, len(loaded_ptypes))
         self.assertDictEqual(
-            {'id': ptype1.id, 'text': ptype1.text, 'is_copiable': True},
-            loaded_ptypes.get(ptype1.id),
+            # {'id': ptype1.id, 'text': ptype1.text, 'is_copiable': True},
+            {'uuid': str(ptype1.uuid), 'text': ptype1.text, 'is_copiable': True},
+            # loaded_ptypes.get(ptype1.id),
+            loaded_ptypes.get(str(ptype1.uuid)),
         )
         self.assertDictEqual(
-            {'id': ptype2.id, 'text': ptype2.text, 'is_copiable': False},
-            loaded_ptypes.get(ptype2.id),
+            # {'id': ptype2.id, 'text': ptype2.text, 'is_copiable': False},
+            {'uuid': str(ptype2.uuid), 'text': ptype2.text, 'is_copiable': False},
+            # loaded_ptypes.get(ptype2.id),
+            loaded_ptypes.get(str(ptype2.uuid)),
         )
 
         with self.assertNoException():
-            subject_ctypes = {*loaded_ptypes.get(ptype3.id)['subject_ctypes']}
+            # subject_ctypes = {*loaded_ptypes.get(ptype3.id)['subject_ctypes']}
+            subject_ctypes = {*loaded_ptypes[str(ptype3.uuid)]['subject_ctypes']}
 
         self.assertSetEqual(
             {'creme_core.fakecontact', 'creme_core.fakeorganisation'},
@@ -1178,12 +1188,17 @@ class ExportingTestCase(TransferBaseTestCase):
 
         self.assertTrue(RelationType.objects.filter(is_custom=False))
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        pt_id_fmt = 'creme_config_export-test_export_relation_types_{}'.format
-        ptype1 = create_ptype(str_pk=pt_id_fmt(1), text='Sugoi!')
-        ptype2 = create_ptype(str_pk=pt_id_fmt(2), text='Is important', is_custom=True)
-        ptype3 = create_ptype(str_pk=pt_id_fmt(3), text='Nope')
-        ptype4 = create_ptype(str_pk=pt_id_fmt(3), text='Never')
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # pt_id_fmt = 'creme_config_export-test_export_relation_types_{}'.format
+        # ptype1 = create_ptype(str_pk=pt_id_fmt(1), text='Sugoi!')
+        # ptype2 = create_ptype(str_pk=pt_id_fmt(2), text='Is important', is_custom=True)
+        # ptype3 = create_ptype(str_pk=pt_id_fmt(3), text='Nope')
+        # ptype4 = create_ptype(str_pk=pt_id_fmt(3), text='Never')
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Sugoi!')
+        ptype2 = create_ptype(text='Is important', is_custom=True)
+        ptype3 = create_ptype(text='Nope')
+        ptype4 = create_ptype(text='Never')
 
         s_pk_fmt = 'creme_config_export-subject_test_export_relations_types_{}'.format
         o_pk_fmt = 'creme_config_export-object_test_export_relations_types_{}'.format
@@ -1242,10 +1257,14 @@ class ExportingTestCase(TransferBaseTestCase):
             },
             rtype1_data,
         )
-        self.assertEqual([ptype1.id], subject_ptypes1a)
-        self.assertEqual([ptype2.id], object_ptypes1a)
-        self.assertEqual([ptype3.id], subject_forbidden_ptypes1a)
-        self.assertEqual([ptype4.id], object_forbidden_ptypes1a)
+        # self.assertEqual([ptype1.id], subject_ptypes1a)
+        # self.assertEqual([ptype2.id], object_ptypes1a)
+        # self.assertEqual([ptype3.id], subject_forbidden_ptypes1a)
+        # self.assertEqual([ptype4.id], object_forbidden_ptypes1a)
+        self.assertEqual([str(ptype1.uuid)], subject_ptypes1a)
+        self.assertEqual([str(ptype2.uuid)], object_ptypes1a)
+        self.assertEqual([str(ptype3.uuid)], subject_forbidden_ptypes1a)
+        self.assertEqual([str(ptype4.uuid)], object_forbidden_ptypes1a)
 
         # --
         rtype2_data = loaded_rtypes.get(rtype2a.id)
@@ -1455,9 +1474,10 @@ class ExportingTestCase(TransferBaseTestCase):
         cfield1 = create_cfield(name='Rating', field_type=CustomField.INT)
         cfield2 = create_cfield(name='Party',  field_type=CustomField.DATETIME)
 
-        ptype = CremePropertyType.objects.create(
-            pk='creme_config_export-test_export_entityfilters', text='Sugoi !',
-        )
+        # ptype = CremePropertyType.objects.create(
+        #     pk='creme_config_export-test_export_entityfilters', text='Sugoi !',
+        # )
+        ptype = CremePropertyType.objects.create(text='Sugoi!')
         rtype = RelationType.objects.filter(is_internal=False).first()
 
         create_efilter = EntityFilter.objects.smart_update_or_create
@@ -1576,7 +1596,8 @@ class ExportingTestCase(TransferBaseTestCase):
                 'conditions': [
                     {
                         'type':  PropertyConditionHandler.type_id,
-                        'name':  ptype.id,
+                        # 'name':  ptype.id,
+                        'name': str(ptype.uuid),
                         # 'value': True,
                         'value': {'has': True},
                     }, {

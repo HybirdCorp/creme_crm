@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
 {% load i18n creme_bricks creme_widgets %}
-{% load and_op has_perm_to print_field uca_sort url from creme_core_tags %}
+{% load and_op app_verbose_name has_perm_to print_field uca_sort url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-property-types-brick{% endblock %}
 
@@ -16,6 +16,7 @@
 {% block brick_table_columns %}
     {% brick_table_column_for_field ctype=objects_ctype field='text'           status='primary nowrap' %}
     {% brick_table_column_for_field ctype=objects_ctype field='subject_ctypes' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='app_label' %}
     {% brick_table_column_for_field ctype=objects_ctype field='is_copiable'    status='nowrap' %}
     {% brick_table_column title=_('Statistics') %}
     {% brick_table_column title=_('Actions') status='action' colspan=3 %}
@@ -29,6 +30,7 @@
         <td class="property-subjects">
             {% widget_enumerator prop_type.subject_ctypes.all|uca_sort threshold=8 empty=_('No related type of resource') summary=_('{count} types of resource') %}
         </td>
+        <td class="property-app_label">{% if prop_type.app_label %}{{prop_type.app_label|app_verbose_name:HIDDEN_VALUE}}{% else %}—{% endif %}</td>
         <td class="property-copiable">{% print_field object=prop_type field='is_copiable' %}</td>
         <td class="property-count">
             {% blocktranslate count count=prop_type.stats %}{{count}} entity with this property{% plural %}{{count}} entities with this property{% endblocktranslate %}

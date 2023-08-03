@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-02 19:01+0200\n"
+"POT-Creation-Date: 2023-10-10 19:50+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2000,14 +2000,28 @@ msgstr "Boutons à afficher"
 msgid "Deprecated button"
 msgstr "Bouton obsolète"
 
+msgid "Created by the app"
+msgstr "Crée par l'app"
+
 msgid "Text"
 msgstr "Texte"
 
-msgid "Applies on entities with following types"
-msgstr "S'applique aux fiches des types suivants"
+msgid "For example: 'is pretty'"
+msgstr "Par exemple: 'est joli'"
+
+msgid "Related to types of entities"
+msgstr "S'applique aux types de fiches"
+
+msgid "No selected type means that all types are accepted"
+msgstr "Aucun type sélectionné signifiera que tous les types sont acceptés"
 
 msgid "Is copiable"
 msgstr "Est copiable"
+
+msgid "Are the properties with this type copied when an entity is cloned?"
+msgstr ""
+"Est-ce que les propriétés avec ce type sont copiées quand une fiche est "
+"clonée ?"
 
 msgid "Enabled?"
 msgstr "Activé?"
@@ -2903,6 +2917,9 @@ msgstr "Enlever cette propriété"
 
 msgid "No property for the moment"
 msgstr "Aucune propriété pour le moment"
+
+msgid "Applies on entities with following types"
+msgstr "S'applique aux fiches des types suivants"
 
 msgid "No related type of resource"
 msgstr "Pas de type de ressource associé"

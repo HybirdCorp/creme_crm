@@ -217,9 +217,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_kawaii', text='Kawaii',
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_kawaii', text='Kawaii',
+        # )
+        ptype = CremePropertyType.objects.create(text='Kawaii')
 
         create_cf = partial(CustomField.objects.create, content_type=ct)
         custom_field = create_cf(name='Profits',        field_type=CustomField.INT)
@@ -345,7 +346,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         condition = next(iter_conds)
         self.assertEqual(PropertyConditionHandler.type_id, condition.type)
-        self.assertEqual(ptype.id,                         condition.name)
+        # self.assertEqual(ptype.id,                         condition.name)
+        self.assertEqual(str(ptype.uuid), condition.name)
         # self.assertIs(condition.value, True)
         self.assertDictEqual({'has': True}, condition.value)
 
@@ -955,9 +957,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by')
         )
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-prop_kawaii', text='Kawaii',
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     str_pk='test-prop_kawaii', text='Kawaii',
+        # )
+        ptype = CremePropertyType.objects.create(text='Kawaii')
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct_contact)
         custom_field = create_cf(name='Nickname',      field_type=CustomField.STR)
@@ -1146,7 +1149,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         condition = next(iter_conds)
         self.assertEqual(PropertyConditionHandler.type_id, condition.type)
-        self.assertEqual(ptype.id,                         condition.name)
+        # self.assertEqual(ptype.id,                         condition.name)
+        self.assertEqual(str(ptype.uuid), condition.name)
         # self.assertIs(condition.value, False)
         self.assertDictEqual({'has': False}, condition.value)
 
