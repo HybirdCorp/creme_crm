@@ -241,7 +241,7 @@ class Line(CremeEntity):
     def save(self, *args, **kwargs):
         if not self.pk:  # Creation
             assert self._related_document, 'Line.related_document is required'
-            assert bool(self._related_item) ^ bool(self.on_the_fly_item),\
+            assert bool(self._related_item) ^ bool(self.on_the_fly_item), \
                 'Line.related_item or Line.on_the_fly_item is required'
 
             self.user = self._related_document.user

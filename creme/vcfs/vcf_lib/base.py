@@ -281,12 +281,14 @@ class ContentLine(VBase):
         which are legal in IANA tokens.
         """
         if name.endswith('_param'):
-            if type(value) == list:
+            # if type(value) == list:
+            if isinstance(value, list):
                 self.params[toVName(name, 6, True)] = value
             else:
                 self.params[toVName(name, 6, True)] = [value]
         elif name.endswith('_paramlist'):
-            if type(value) == list:
+            # if type(value) == list:
+            if isinstance(value, list):
                 self.params[toVName(name, 10, True)] = value
             else:
                 raise VObjectError("Parameter list set to a non-list")
