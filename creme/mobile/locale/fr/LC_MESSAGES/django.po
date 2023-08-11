@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-15 19:13+0100\n"
+"POT-Creation-Date: 2023-09-04 10:10+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -173,7 +173,7 @@ msgid "This organisation is a favorite for {count} users"
 msgstr "Cette société est une favorite pour {count} utilisateurs"
 
 msgid "Favorite organisations"
-msgstr "Aucune société favorite"
+msgstr "Sociétés favorites"
 
 #, python-brace-format
 msgid "This entity is a favorite for {count} user"
