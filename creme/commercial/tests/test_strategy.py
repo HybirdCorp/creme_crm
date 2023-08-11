@@ -480,7 +480,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             _('New organisation(s) for «{entity}»').format(entity=strategy),
             context.get('title'),
         )
-        self.assertEqual(_('Link the organisation(s)'), context.get('submit_label'))
+        self.assertEqual(_('Link the organisations'), context.get('submit_label'))
 
         # ---
         self.assertNoFormError(self.client.post(
