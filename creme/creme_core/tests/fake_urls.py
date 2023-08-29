@@ -48,6 +48,11 @@ urlpatterns = [
         name='creme_core__list_fake_organisations',
     ),
     re_path(
+        r'^tests/organisations/with_email[/]?$',
+        fake_views.FakeOrganisationsWithEmail.as_view(),
+        name='creme_core__list_fake_organisations_with_email',
+    ),
+    re_path(
         r'^tests/organisation/add[/]?$',
         fake_views.FakeOrganisationCreation.as_view(),
         name='creme_core__create_fake_organisation',

@@ -1,5 +1,5 @@
+import json
 from functools import partial
-from json import dumps as json_dump
 from urllib.parse import parse_qs, urlencode, urlparse
 
 from django.contrib.contenttypes.models import ContentType
@@ -27,7 +27,8 @@ from creme.creme_core.views.generic.detailview import EntityVisitor
 class VisitTestCase(ViewsTestCase):
     def assertVisitRedirects(self, response, *,
                              entity, sort, index, hfilter,
-                             page=None, efilter=None, extra_q='', search=None,
+                             lv_url='', page=None, efilter=None, search=None,
+                             requested_q='', internal_q='',
                              ):
         try:
             chain = response.redirect_chain
@@ -45,25 +46,81 @@ class VisitTestCase(ViewsTestCase):
             'sort': sort if isinstance(sort, str) else sort.key,
             'page': page or {'type': 'first'},
             'index': index,
+            'callback': lv_url or entity.get_lv_absolute_url(),
         }
         if efilter:
             visitor_data['efilter'] = efilter.pk
-        if extra_q:
-            visitor_data['extra_q'] = extra_q
+        if internal_q:
+            visitor_data['internal_q'] = internal_q
+        if requested_q:
+            visitor_data['requested_q'] = requested_q
         if search:
             visitor_data['search'] = search
 
+        params = parse_qs(parsed_uri.query, keep_blank_values=True, strict_parsing=True)
+        self.assertIsDict(params, length=1)
+
+        param = params.get('visitor')
+        self.assertIsList(param, length=1)
+
+        try:
+            deserialized_data = json.loads(param[0])
+        except json.JSONDecodeError:
+            self.fail('GET parameter "visitor" is not valid JSON.')
+
+        self.assertDictEqual(visitor_data, deserialized_data)
+
+    def assertVisitEnds(self, response, *,
+                        lv_url='',
+                        sort_cell,
+                        sort_order='ASC',
+                        hfilter,
+                        efilter=None,
+                        extra_q='',
+                        **search,
+                        ):
+        self.assertTemplateUsed(response, 'creme_core/visit-end.html')
+
+        html = self.get_html_tree(response.content)
+        title_node = self.get_html_node_or_fail(html, './/div[@class="bar-title"]//h1')
+        self.assertEqual(_('The exploration is over'), title_node.text)
+
+        content_node = self.get_html_node_or_fail(html, './/div[@class="buttons-list"]')
+        button_node = self.get_html_node_or_fail(content_node, './/a')
+        self.assertIn(
+            _('Back to the list'),
+            (txt.strip() for txt in button_node.itertext()),
+        )
+
+        parsed_uri = urlparse(button_node.attrib.get('href'))
+        self.assertEqual(
+            lv_url or FakeOrganisation.get_lv_absolute_url(),
+            parsed_uri.path,
+        )
+
+        lv_data = {
+            'hfilter': [hfilter.pk],
+            'sort_key': [sort_cell.key],
+            'sort_order': [sort_order],
+            **{k: [v] for k, v in search.items()},
+        }
+        if efilter:
+            lv_data['filter'] = [efilter.pk]
+        if extra_q:
+            lv_data['q_filter'] = [extra_q]
+
+        self.assertTrue(parsed_uri.query)
         self.assertDictEqual(
-            {'visitor': [json_dump(visitor_data)]},
-            parse_qs(
-                parsed_uri.query, keep_blank_values=True, strict_parsing=True,
-            ),
+            lv_data,
+            parse_qs(parsed_uri.query, keep_blank_values=True, strict_parsing=True),
         )
 
     @staticmethod
-    def _build_visit_uri(model, page=None, **kwargs):
+    def _build_visit_uri(model, page=None, lv_url=None, **kwargs):
+        kwargs['callback'] = lv_url if lv_url is not None else model.get_lv_absolute_url()
+
         if page:
-            kwargs['page'] = page if isinstance(page, str) else json_dump(page)
+            kwargs['page'] = page if isinstance(page, str) else json.dumps(page)
 
         url = reverse(
             'creme_core__visit_next_entity',
@@ -98,22 +155,7 @@ class VisitTestCase(ViewsTestCase):
         response2 = self.assertGET200(self._build_visit_uri(
             FakeOrganisation, sort=cell.key, hfilter=hfilter.pk,
         ))
-        self.assertTemplateUsed(response2, 'creme_core/visit-end.html')
-
-        html = self.get_html_tree(response2.content)
-        title_node = self.get_html_node_or_fail(html, './/div[@class="bar-title"]//h1')
-        self.assertEqual(_('The exploration is over'), title_node.text)
-
-        content_node = self.get_html_node_or_fail(html, './/div[@class="buttons-list"]')
-        button_node = self.get_html_node_or_fail(content_node, './/a')
-        self.assertIn(
-            _('Back to the list'),
-            (txt.strip() for txt in button_node.itertext()),
-        )
-        self.assertEqual(
-            FakeOrganisation.get_lv_absolute_url(),
-            button_node.attrib.get('href'),
-        )
+        self.assertVisitEnds(response2, sort_cell=cell, hfilter=hfilter)
 
     def test_simple(self):
         "No filter, search..."
@@ -246,28 +288,45 @@ class VisitTestCase(ViewsTestCase):
         third  = create_orga(name='Nerv',  phone='3333')
         self.assertListEqual(
             [first, second, third],
-            [*FakeOrganisation.objects.order_by('phone')[:3]],
+            [*FakeOrganisation.objects.order_by('phone')],
         )
 
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='phone')
         hfilter = self._create_orga_hfilter()
-        response1 = self.assertGET200(
+        response_asc = self.assertGET200(
             self._build_visit_uri(FakeOrganisation, sort=cell.key, hfilter=hfilter.pk),
             follow=True,
         )
         self.assertVisitRedirects(
-            response1, entity=first, hfilter=hfilter, sort=cell, index=0,
+            response_asc, entity=first, hfilter=hfilter, sort=cell, index=0,
         )
 
-        # DESC ---
+        # DESC -----------------------------------------------------------------
         sort = f'-{cell.key}'
-        response2 = self.assertGET200(
+        response_desc1 = self.assertGET200(
             self._build_visit_uri(FakeOrganisation, sort=sort, hfilter=hfilter.pk),
             follow=True,
         )
         self.assertVisitRedirects(
-            response2, entity=third, hfilter=hfilter, sort=sort, index=0,
+            response_desc1, entity=third, hfilter=hfilter, sort=sort, index=0,
         )
+
+        # ---
+        with self.assertNoException():
+            visitor_desc1 = response_desc1.context['visitor']
+        response_desc2 = self.assertGET200(visitor_desc1.uri, follow=True)
+
+        # ---
+        with self.assertNoException():
+            visitor_desc2 = response_desc2.context['visitor']
+        response_desc3 = self.assertGET200(visitor_desc2.uri, follow=True)
+
+        # ---
+        with self.assertNoException():
+            visitor_desc3 = response_desc3.context['visitor']
+
+        response_desc4 = self.assertGET200(visitor_desc3.uri)
+        self.assertVisitEnds(response_desc4, hfilter=hfilter, sort_cell=cell, sort_order='DESC')
 
     def test_no_sort(self):
         user = self.login_as_root_and_get()
@@ -293,6 +352,45 @@ class VisitTestCase(ViewsTestCase):
             ),
             status_code=409, html=True,
         )
+
+    def test_callback_url(self):
+        user = self.login_as_root_and_get()
+
+        lv_url = reverse('creme_core__list_fake_organisations_with_email')
+        first  = FakeOrganisation.objects.create(
+            user=user, name='Seele', email='contact@seele.jp',
+        )
+        cell = EntityCellRegularField.build(model=FakeOrganisation, name='phone')
+        hfilter = self._create_orga_hfilter()
+        response1 = self.assertGET200(
+            self._build_visit_uri(
+                FakeOrganisation, sort=cell.key, hfilter=hfilter.pk, lv_url=lv_url,
+            ),
+            follow=True,
+        )
+        self.assertVisitRedirects(
+            response1, entity=first, hfilter=hfilter, sort=cell, index=0, lv_url=lv_url,
+        )
+
+        # ---
+        with self.assertNoException():
+            visitor1 = response1.context['visitor']
+
+        response2 = self.assertGET200(visitor1.uri)
+        self.assertVisitEnds(response2, lv_url=lv_url, hfilter=hfilter, sort_cell=cell)
+
+    def test_callback_url_error(self):
+        self.login_as_root_and_get()
+
+        cb_url = 'www.not-my-creme-instance.com'
+        cell = EntityCellRegularField.build(model=FakeOrganisation, name='name')
+        hfilter = self._create_orga_hfilter()
+        self.assertGET404(self._build_visit_uri(
+            FakeOrganisation, sort=cell.key, hfilter=hfilter.pk, lv_url='',
+        ))
+        self.assertGET409(self._build_visit_uri(
+            FakeOrganisation, sort=cell.key, hfilter=hfilter.pk, lv_url=cb_url,
+        ))
 
     def test_efilter(self):
         user = self.login_as_root_and_get()
@@ -349,6 +447,13 @@ class VisitTestCase(ViewsTestCase):
             response2,
             entity=orgas[2], hfilter=hfilter, sort=cell, efilter=efilter, index=1,
         )
+
+        # ---
+        with self.assertNoException():
+            visitor2 = response2.context['visitor']
+
+        response3 = self.assertGET200(visitor2.uri)
+        self.assertVisitEnds(response3, hfilter=hfilter, sort_cell=cell, efilter=efilter)
 
     def test_efilter_distinct(self):
         user = self.login_as_root_and_get()
@@ -407,7 +512,7 @@ class VisitTestCase(ViewsTestCase):
             entity=orgas[2], hfilter=hfilter, sort=cell, efilter=efilter, index=1,
         )
 
-    def test_extra_q(self):
+    def test_requested_q(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -419,30 +524,45 @@ class VisitTestCase(ViewsTestCase):
 
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='name')
         hfilter = self._create_orga_hfilter()
-        serialized_extra_q = QSerializer().dumps(Q(name__contains='inc.'))
-        response = self.assertGET200(
+        serialized_q = QSerializer().dumps(Q(name__contains='inc.'))
+        response1 = self.assertGET200(
             self._build_visit_uri(
-                FakeOrganisation,
-                sort=cell.key, hfilter=hfilter.pk, extra_q=serialized_extra_q,
+                FakeOrganisation, sort=cell.key, hfilter=hfilter.pk, requested_q=serialized_q,
             ),
             follow=True,
         )
         self.assertVisitRedirects(
-            response,
-            entity=orgas[1], hfilter=hfilter, sort=cell, extra_q=serialized_extra_q, index=0,
+            response1,
+            entity=orgas[1], hfilter=hfilter, sort=cell, requested_q=serialized_q, index=0,
         )
 
-        visitor = response.context.get('visitor')
-        self.assertEqual(serialized_extra_q, visitor.serialized_extra_q)
+        visitor1 = response1.context.get('visitor')
+        self.assertEqual(serialized_q, visitor1.serialized_requested_q)
 
         url2 = self._build_visit_uri(
             FakeOrganisation,
-            hfilter=hfilter.pk, sort=cell.key, extra_q=serialized_extra_q,
+            hfilter=hfilter.pk, sort=cell.key, requested_q=serialized_q,
             page={'type': 'first'}, index=0,
         )
-        self.assertURLEqual(url2, visitor.uri)
+        self.assertURLEqual(url2, visitor1.uri)
 
-    def test_extra_q_distinct(self):
+        # ---
+        response2 = self.assertGET200(url2, follow=True)
+        self.assertVisitRedirects(
+            response2,
+            entity=orgas[2], hfilter=hfilter, sort=cell, requested_q=serialized_q, index=1,
+        )
+
+        # ---
+        with self.assertNoException():
+            visitor2 = response2.context['visitor']
+
+        response3 = self.assertGET200(visitor2.uri)
+        self.assertVisitEnds(
+            response3, hfilter=hfilter, sort_cell=cell, q_filter=serialized_q,
+        )
+
+    def test_requested_q_distinct(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -467,17 +587,17 @@ class VisitTestCase(ViewsTestCase):
         create_rel(subject_entity=orgas[2], object_entity=jet)
 
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='name')
-        serialized_extra_q = QSerializer().dumps(Q(relations__type=piloted.id))
+        serialized_q = QSerializer().dumps(Q(relations__type=piloted.id))
         hfilter = self._create_orga_hfilter()
         response1 = self.assertGET200(
             self._build_visit_uri(
-                FakeOrganisation, sort=cell.key, hfilter=hfilter.pk, extra_q=serialized_extra_q,
+                FakeOrganisation, sort=cell.key, hfilter=hfilter.pk, requested_q=serialized_q,
             ),
             follow=True,
         )
         self.assertVisitRedirects(
             response1,
-            entity=orgas[1], hfilter=hfilter, sort=cell, extra_q=serialized_extra_q, index=0,
+            entity=orgas[1], hfilter=hfilter, sort=cell, requested_q=serialized_q, index=0,
         )
 
         visitor1 = response1.context.get('visitor')
@@ -487,8 +607,57 @@ class VisitTestCase(ViewsTestCase):
         )
         self.assertVisitRedirects(
             response2,
-            entity=orgas[2], hfilter=hfilter, sort=cell, extra_q=serialized_extra_q, index=1,
+            entity=orgas[2], hfilter=hfilter, sort=cell, requested_q=serialized_q, index=1,
         )
+
+    def test_internal_q(self):
+        user = self.login_as_root_and_get()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        orgas  = [
+            create_orga(name='AAA', email='aaa@exemple.com'),
+            create_orga(name='AAB'),
+            create_orga(name='AAC', email='aac@exemple.com'),
+        ]
+
+        cell = EntityCellRegularField.build(model=FakeOrganisation, name='name')
+        hfilter = self._create_orga_hfilter()
+        serialized_q = QSerializer().dumps(~Q(email=''))
+        response1 = self.assertGET200(
+            self._build_visit_uri(
+                FakeOrganisation,
+                sort=cell.key, hfilter=hfilter.pk, internal_q=serialized_q,
+            ),
+            follow=True,
+        )
+        self.assertVisitRedirects(
+            response1,
+            entity=orgas[0], hfilter=hfilter, sort=cell, internal_q=serialized_q, index=0,
+        )
+
+        visitor1 = response1.context.get('visitor')
+        self.assertEqual(serialized_q, visitor1.serialized_internal_q)
+
+        url2 = self._build_visit_uri(
+            FakeOrganisation,
+            hfilter=hfilter.pk, sort=cell.key, internal_q=serialized_q,
+            page={'type': 'first'}, index=0,
+        )
+        self.assertURLEqual(url2, visitor1.uri)
+
+        # ---
+        response2 = self.assertGET200(url2, follow=True)
+        self.assertVisitRedirects(
+            response2,
+            entity=orgas[2], hfilter=hfilter, sort=cell, internal_q=serialized_q, index=1,
+        )
+
+        # ---
+        with self.assertNoException():
+            visitor2 = response2.context['visitor']
+
+        response3 = self.assertGET200(visitor2.uri)
+        self.assertVisitEnds(response3, hfilter=hfilter, sort_cell=cell)  # not q_filter
 
     def test_quick_search(self):
         user = self.login_as_root_and_get()
@@ -503,17 +672,17 @@ class VisitTestCase(ViewsTestCase):
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='name')
         hfilter = self._create_orga_hfilter()
         search = {f'search-{cell.key}': 'inc.'}
-        response = self.assertGET200(
+        response1 = self.assertGET200(
             self._build_visit_uri(FakeOrganisation, sort=cell.key, hfilter=hfilter.pk, **search),
             follow=True,
         )
         self.assertVisitRedirects(
-            response,
+            response1,
             entity=orgas[1], sort=cell, hfilter=hfilter, index=0, search=search,
         )
 
-        visitor = response.context.get('visitor')
-        self.assertEqual(search, visitor.search_dict)
+        visitor1 = response1.context.get('visitor')
+        self.assertEqual(search, visitor1.search_dict)
 
         url2 = self._build_visit_uri(
             FakeOrganisation,
@@ -521,7 +690,21 @@ class VisitTestCase(ViewsTestCase):
             page={'type': 'first'}, index=0,
             **search
         )
-        self.assertURLEqual(url2, visitor.uri)
+        self.assertURLEqual(url2, visitor1.uri)
+
+        # ---
+        response2 = self.assertGET200(url2, follow=True)
+        self.assertVisitRedirects(
+            response2,
+            entity=orgas[2], hfilter=hfilter, sort=cell, index=1, search=search,
+        )
+
+        # ---
+        with self.assertNoException():
+            visitor2 = response2.context['visitor']
+
+        response3 = self.assertGET200(visitor2.uri)
+        self.assertVisitEnds(response3, hfilter=hfilter, sort_cell=cell, **search)
 
     def test_complete_visit01(self):
         "Even number of entities."
@@ -537,12 +720,12 @@ class VisitTestCase(ViewsTestCase):
 
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='name')
         hfilter = self._create_orga_hfilter()
-        serialized_extra_q = QSerializer().dumps(Q(phone__startswith='11'))
+        serialized_q = QSerializer().dumps(Q(phone__startswith='11'))
 
         ctxt1 = self.assertGET200(
             self._build_visit_uri(
                 FakeOrganisation,
-                hfilter=hfilter.pk, sort=cell.key, extra_q=serialized_extra_q,
+                hfilter=hfilter.pk, sort=cell.key, requested_q=serialized_q,
             ),
             follow=True,
         ).context
@@ -570,7 +753,9 @@ class VisitTestCase(ViewsTestCase):
 
         # Next => end of visit
         response5 = self.assertGET200(visitor4.uri)
-        self.assertTemplateUsed(response5, 'creme_core/visit-end.html')
+        self.assertVisitEnds(
+            response5, hfilter=hfilter, sort_cell=cell, q_filter=serialized_q,
+        )
 
     def test_complete_visit02(self):
         "Odd number of entities."
@@ -587,12 +772,11 @@ class VisitTestCase(ViewsTestCase):
 
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='name')
         hfilter = self._create_orga_hfilter()
-        serialized_extra_q = QSerializer().dumps(Q(phone__startswith='11'))
+        serialized_q = QSerializer().dumps(Q(phone__startswith='11'))
 
         ctxt1 = self.assertGET200(
             self._build_visit_uri(
-                FakeOrganisation,
-                hfilter=hfilter.pk, sort=cell.key, extra_q=serialized_extra_q,
+                FakeOrganisation, hfilter=hfilter.pk, sort=cell.key, requested_q=serialized_q,
             ),
             follow=True,
         ).context
@@ -626,7 +810,9 @@ class VisitTestCase(ViewsTestCase):
 
         # Next => end of visit
         response6 = self.assertGET200(visitor5.uri)
-        self.assertTemplateUsed(response6, 'creme_core/visit-end.html')
+        self.assertVisitEnds(
+            response6, hfilter=hfilter, sort_cell=cell, q_filter=serialized_q,
+        )
 
     def test_visit_duplicates(self):
         user = self.login_as_root_and_get()
@@ -770,15 +956,14 @@ class VisitTestCase(ViewsTestCase):
 
     def test_extra_q_errors(self):
         self.login_as_root()
-        self.assertGET(
-            400,
-            self._build_visit_uri(
-                model=FakeOrganisation,
-                hfilter=self._create_orga_hfilter().id,
-                sort=EntityCellRegularField.build(model=FakeOrganisation, name='name').key,
-                extra_q='[]',  # <===
-            ),
-        )
+
+        kwargs = {
+            'model':   FakeOrganisation,
+            'hfilter': self._create_orga_hfilter().id,
+            'sort':    EntityCellRegularField.build(model=FakeOrganisation, name='name').key,
+        }
+        self.assertGET(400, self._build_visit_uri(requested_q='[]', **kwargs))
+        self.assertGET(400, self._build_visit_uri(internal_q='[]', **kwargs))
 
     def test_quick_search_errors(self):
         user = self.login_as_root_and_get()

@@ -150,13 +150,16 @@ class VisitorModeButton(ListViewButton):
             state = lv_context['list_view_state']
             sort_order = Order.from_string(state.sort_order)  # TODO: <Order> in ListViewState?
             sort_cell_key = state.sort_cell_key
+            extra_q = lv_context['extra_q']
             visitor = EntityVisitor(
                 model=lv_context['model'],
                 sort=f'{sort_order.prefix}{sort_cell_key}' if sort_cell_key else '',
                 hfilter_id=state.header_filter_id,
                 efilter_id=state.entity_filter_id,
-                extra_q=state.extra_q if state.extra_q else '',
+                internal_q=extra_q['internal'] or '',
+                requested_q=extra_q['requested'] or '',
                 search_dict=state.search,
+                callback_url=request.path,
             )
 
         context['visitor'] = visitor

@@ -263,10 +263,14 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
     #   sort_cellkey_arg = 'sort_key'
     #   sort_order_arg = 'sort_order'
     sort_arg = 'sort'
-    extra_q_arg = 'extra_q'
+
+    internal_q_arg = 'internal_q'
+    requested_q_arg = 'requested_q'
 
     page_arg = 'page'
     index_arg = 'index'
+
+    callback_url_arg = 'callback'
 
     cell_sorter_registry = sorter.cell_sorter_registry
     query_sorter_class   = sorter.QuerySorter
@@ -276,6 +280,17 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
 
     end_template_name = 'creme_core/visit-end.html'
     detail_view = detailview.EntityDetail
+
+    def get_callback_url(self):
+        cb_url = self.request.GET.get(self.callback_url_arg)
+
+        if not cb_url:
+            raise Http404('Missing callback URL for exploration mode.')
+
+        if not cb_url.startswith('/') or cb_url.startswith('//'):
+            raise ConflictError('The callback URL for exploration mode must be an internal URL.')
+
+        return cb_url
 
     def get_cells(self, header_filter) -> list[EntityCell]:
         return header_filter.filtered_cells
@@ -409,19 +424,42 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
             fast_mode=True,
         )
 
-    def get_end_response(self, model: type[CremeEntity]) -> HttpResponse:
+    def get_end_response(self, *,
+                         callback_url: str,
+                         header_filter: HeaderFilter,
+                         sort_order: Order,
+                         sort_cell_key: str,
+                         entity_filter: EntityFilter | None = None,
+                         search_form: ListViewSearchForm,
+                         serialized_requested_q=None,
+                         ) -> HttpResponse:
+        lv = listview.EntitiesList
+        params = {
+            lv.sort_order_arg:       str(sort_order),
+            lv.sort_cellkey_arg:     sort_cell_key,
+            lv.header_filter_id_arg: header_filter.id,
+            **search_form.filtered_data,
+        }
+
+        if entity_filter:
+            params[lv.entity_filter_id_arg] = entity_filter.id
+
+        if serialized_requested_q:
+            params[lv.requested_q_arg] = serialized_requested_q
+
         return render(
             self.request,
             template_name=self.end_template_name,
             context={
                 'title': _('The exploration is over'),
-                'model': model,
+                'lv_url': f'{callback_url}?{urlencode(params, doseq=True)}',
             },
         )
 
     def get(self, request, *args, **kwargs):
         ct = self.get_ctype()
         model = ct.model_class()
+        callback_url = self.get_callback_url()
         index, page_info = self.get_index_n_page_info()
         hf = self.get_header_filter()
         cells = self.get_cells(header_filter=hf)
@@ -435,15 +473,25 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
             entities_qs = efilter.filter(entities_qs)
 
         # ----
-        extra_q = None
-        serialized_extra_q = request.GET.get(self.extra_q_arg)
-        if serialized_extra_q is not None:
+        serialized_internal_q = request.GET.get(self.internal_q_arg)
+        if serialized_internal_q is not None:
             try:
-                extra_q = QSerializer().loads(serialized_extra_q)
+                internal_q = QSerializer().loads(serialized_internal_q)
             except Exception as e:
-                raise BadRequest(f'Invalid extra Q: {e}')
+                raise BadRequest(f'Invalid internal Q: {e}')
 
-            entities_qs = entities_qs.filter(extra_q)
+            entities_qs = entities_qs.filter(internal_q)
+            # use_distinct = True  # todo: test + only if needed
+
+        # TODO: factorise
+        serialized_requested_q = request.GET.get(self.requested_q_arg)
+        if serialized_requested_q is not None:
+            try:
+                requested_q = QSerializer().loads(serialized_requested_q)
+            except Exception as e:
+                raise BadRequest(f'Invalid requested Q: {e}')
+
+            entities_qs = entities_qs.filter(requested_q)
             # use_distinct = True  # todo: test + only if needed
 
         # ----
@@ -464,7 +512,7 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
             #     use_distinct = True  # todo: test + only if needed
 
         # ----
-        entities_qs = EntityCredentials.filter(self.request.user, entities_qs)
+        entities_qs = EntityCredentials.filter(request.user, entities_qs)
 
         # TODO: <if use_distinct:>
         entities_qs = entities_qs.distinct()
@@ -477,6 +525,17 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
         paginator = self.get_paginator(queryset=entities_qs, ordering=ordering)
         current_page = paginator.get_page(page_info)
 
+        def build_end_response():
+            return self.get_end_response(
+                callback_url=callback_url,
+                header_filter=hf,
+                sort_cell_key=sort_info.main_cell_key,
+                sort_order=sort_info.main_order,
+                entity_filter=efilter,
+                search_form=search_form,
+                serialized_requested_q=serialized_requested_q,
+            )
+
         if index < paginator.per_page:
             page = current_page
             fixed_index = index  # No need to fix the index (see below)
@@ -486,7 +545,7 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
 
             # No next page
             if not current_page.has_next():
-                return self.get_end_response(model=model)
+                return build_end_response()
 
             # There's a next page; we reset the index to get the first entity
             # & take the next page.
@@ -508,16 +567,18 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
         try:
             entity = page.object_list[index]
         except IndexError:
-            return self.get_end_response(model=model)
+            return build_end_response()
 
         # TODO: check length of the URI? (4096 limit in HTTP)
         uri_param = {
             self.detail_view.visitor_mode_arg: self.detail_view.visitor_cls(
                 model=model,
+                callback_url=callback_url,
                 hfilter_id=hf.pk,
                 sort=f'{sort_info.main_order.prefix}{sort_info.main_cell_key}',
                 efilter_id=efilter.pk if efilter else None,
-                extra_q=extra_q or '',
+                internal_q=serialized_internal_q or '',
+                requested_q=serialized_requested_q or '',
                 search_dict=search_form.filtered_data if search_q else None,
                 page_info=page.info(),
                 index=fixed_index,
