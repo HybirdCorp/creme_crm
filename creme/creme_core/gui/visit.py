@@ -44,20 +44,26 @@ class EntityVisitor:
 
     def __init__(self, *, model: type[CremeEntity], hfilter_id: str, sort: str,
                  efilter_id: str | None = None,
-                 extra_q: Q | str = '',
+                 internal_q: Q | str = '',
+                 requested_q: Q | str = '',
                  search_dict: dict | None = None,
                  page_info: dict | None = None,
                  index: int | None = None,
+                 callback_url: str = '',
                  ):
         "@raise <EntityVisitor.Error> if only one argument in {page_info, index} is given."
         self.model = model
         self.hfilter_id = hfilter_id
         self.efilter_id = efilter_id
         self.sort = sort
-        self.serialized_extra_q = (
-            extra_q if isinstance(extra_q, str) else QSerializer().dumps(extra_q)
+        self.serialized_internal_q = (
+            internal_q if isinstance(internal_q, str) else QSerializer().dumps(internal_q)
+        )
+        self.serialized_requested_q = (
+            requested_q if isinstance(requested_q, str) else QSerializer().dumps(requested_q)
         )
         self.search_dict = search_dict
+        self.callback_url = callback_url or model.get_lv_absolute_url()
 
         if (index is None) ^ (page_info is None):
             raise self.Error(
@@ -104,10 +110,12 @@ class EntityVisitor:
         try:
             return cls(
                 model=model,
+                callback_url=extract(key='callback'),
                 hfilter_id=extract(key='hfilter'),
                 sort=extract(key='sort'),
                 efilter_id=extract(key='efilter', default=None),
-                extra_q=extract(key='extra_q', default=''),
+                internal_q=extract(key='internal_q', default=''),
+                requested_q=extract(key='requested_q', default=''),
                 search_dict=extract(key='search', default=None, exp_type=dict),
                 page_info=extract(key='page', default=None, exp_type=dict),
                 index=extract(key='index', default=None, exp_type=int),
@@ -116,7 +124,11 @@ class EntityVisitor:
             raise cls.Error(str(e)) from e
 
     def to_json(self):
-        visitor_dict = {'hfilter': self.hfilter_id, 'sort': self.sort}
+        visitor_dict = {
+            'hfilter': self.hfilter_id,
+            'sort': self.sort,
+            'callback': self.callback_url,
+        }
 
         if self.page_info:
             visitor_dict['page'] = self.page_info
@@ -125,8 +137,10 @@ class EntityVisitor:
         if self.efilter_id:
             visitor_dict['efilter'] = self.efilter_id
 
-        if self.serialized_extra_q:
-            visitor_dict['extra_q'] = self.serialized_extra_q
+        if self.serialized_internal_q:
+            visitor_dict['internal_q'] = self.serialized_internal_q
+        if self.serialized_requested_q:
+            visitor_dict['requested_q'] = self.serialized_requested_q
 
         if self.search_dict:
             visitor_dict['search'] = self.search_dict
@@ -136,9 +150,11 @@ class EntityVisitor:
     @property
     def uri(self) -> str:
         """Returns the URI of the "visit" view."""
+        # TODO: get params names from <creme_core.views.entity.NextEntityVisiting>
         parameters = {
             'hfilter': self.hfilter_id,
             'sort': self.sort,
+            'callback': self.callback_url,
         }
 
         if self.index is not None:
@@ -147,8 +163,10 @@ class EntityVisitor:
             parameters['page'] = json.dumps(self.page_info)
         if self.efilter_id:
             parameters['efilter'] = self.efilter_id
-        if self.serialized_extra_q:
-            parameters['extra_q'] = self.serialized_extra_q
+        if self.serialized_internal_q:
+            parameters['internal_q'] = self.serialized_internal_q
+        if self.serialized_requested_q:
+            parameters['requested_q'] = self.serialized_requested_q
         if self.search_dict:
             parameters.update(self.search_dict)
 

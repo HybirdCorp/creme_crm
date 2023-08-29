@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from creme.creme_core.views import generic
 
 from ..tests import fake_forms, fake_models
@@ -58,6 +60,10 @@ class FakeOrganisationDetail(generic.EntityDetail):
 
 class FakeOrganisationsList(generic.EntitiesList):
     model = fake_models.FakeOrganisation
+
+
+class FakeOrganisationsWithEmail(FakeOrganisationsList):
+    internal_q = ~Q(email='')
 
 
 class FakeAddressCreation(generic.AddingInstanceToEntityPopup):

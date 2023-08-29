@@ -15,7 +15,9 @@ from ..base import CremeTestCase
 
 class VisitTestCase(CremeTestCase):
     @staticmethod
-    def _build_visit_uri(model, page=None, **kwargs):
+    def _build_visit_uri(model, page=None, lv_url='', **kwargs):
+        kwargs['callback'] = lv_url or model.get_lv_absolute_url()
+
         if page:
             kwargs['page'] = json.dumps(page)
 
@@ -36,10 +38,12 @@ class VisitTestCase(CremeTestCase):
         self.assertEqual(sort,        visitor.sort)
         self.assertEqual(hfilter_id,  visitor.hfilter_id)
         self.assertIsNone(visitor.efilter_id)
-        self.assertEqual('', visitor.serialized_extra_q)
+        self.assertEqual('', visitor.serialized_internal_q)
+        self.assertEqual('', visitor.serialized_requested_q)
         self.assertIsNone(visitor.search_dict)
         self.assertIsNone(visitor.page_info)
         self.assertIsNone(visitor.index)
+        self.assertURLEqual(FakeContact.get_lv_absolute_url(), visitor.callback_url)
 
         self.assertURLEqual(
             self._build_visit_uri(FakeContact, sort=sort, hfilter=hfilter_id),
@@ -50,34 +54,46 @@ class VisitTestCase(CremeTestCase):
         sort = '-regular_field-name'
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_ORGA
         efilter_id = 'creme_core-whatever'
-        serialized_extra_q = QSerializer().dumps(Q(name__startswith='Acme'))
         search_dict = {'search-phone': '11'}
         page_info = {'type': 'last'}
+        lv_url = reverse('creme_core__list_fake_organisations_with_email')
+
+        dump_q = QSerializer().dumps
+        s_internal_q = dump_q(Q(name__startswith='Acme'))
+        s_requested_q = dump_q(Q(phone__startswith='07'))
+
         visitor = EntityVisitor(
             model=FakeOrganisation, sort=sort, hfilter_id=hfilter_id,
             efilter_id=efilter_id,
-            extra_q=serialized_extra_q,
+            internal_q=s_internal_q,
+            requested_q=s_requested_q,
             search_dict=search_dict,
             page_info=page_info,
             index=2,
+            callback_url=lv_url,
         )
-        self.assertEqual(FakeOrganisation,   visitor.model)
-        self.assertEqual(sort,               visitor.sort)
-        self.assertEqual(hfilter_id,         visitor.hfilter_id)
-        self.assertEqual(efilter_id,         visitor.efilter_id)
-        self.assertEqual(serialized_extra_q, visitor.serialized_extra_q)
-        self.assertEqual(search_dict,        visitor.search_dict)
-        self.assertEqual(page_info,          visitor.page_info)
-        self.assertEqual(2,                  visitor.index)
+        self.assertEqual(FakeOrganisation, visitor.model)
+        self.assertEqual(sort,             visitor.sort)
+        self.assertEqual(hfilter_id,       visitor.hfilter_id)
+        self.assertEqual(efilter_id,       visitor.efilter_id)
+        self.assertEqual(s_internal_q,     visitor.serialized_internal_q)
+        self.assertEqual(s_requested_q,    visitor.serialized_requested_q)
+        self.assertEqual(search_dict,      visitor.search_dict)
+        self.assertEqual(page_info,        visitor.page_info)
+        self.assertEqual(2,                visitor.index)
+        self.assertEqual(lv_url,           visitor.callback_url)
 
+        self.maxDiff = None
         self.assertURLEqual(
             self._build_visit_uri(
                 FakeOrganisation,
                 sort=sort, hfilter=hfilter_id,
                 efilter=efilter_id,
-                extra_q=serialized_extra_q,
+                internal_q=s_internal_q,
+                requested_q=s_requested_q,
                 page=page_info,
                 index=2,
+                lv_url=lv_url,
                 **search_dict
             ),
             visitor.uri,
@@ -85,14 +101,18 @@ class VisitTestCase(CremeTestCase):
 
     def test_visitor_init03(self):
         "Q instance."
-        extra_q = Q(name__startswith='Acme')
+        internal_q = Q(name__startswith='Acme')
+        requested_q = Q(phone__startswith='08')
         visitor = EntityVisitor(
             model=FakeOrganisation,
             sort='-regular_field-name',
             hfilter_id=fake_constants.DEFAULT_HFILTER_FAKE_ORGA,
-            extra_q=extra_q,
+            internal_q=internal_q,
+            requested_q=requested_q,
         )
-        self.assertEqual(QSerializer().dumps(extra_q), visitor.serialized_extra_q)
+        dump_q = QSerializer().dumps
+        self.assertEqual(dump_q(internal_q),  visitor.serialized_internal_q)
+        self.assertEqual(dump_q(requested_q), visitor.serialized_requested_q)
 
     def test_visitor_init_errors(self):
         "Page-info & index must be both given or both ignored."
@@ -116,18 +136,24 @@ class VisitTestCase(CremeTestCase):
             )
 
     def test_visitor_from_json01(self):
+        lv_url = reverse('creme_core__list_fake_organisations_with_email')
         sort = '-regular_field-name'
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_ORGA
         efilter_id = 'creme_core-whatever'
-        serialized_extra_q = QSerializer().dumps(Q(name__startswith='Acme'))
         search_dict = {'search-phone': '11'}
         page_info = {'type': 'last'}
 
+        dump_q = QSerializer().dumps
+        s_internal_q = dump_q(Q(name__startswith='Acme'))
+        s_requested_q = dump_q(Q(phone__startswith='06'))
+
         json_data = json.dumps({
+            'callback': lv_url,
             'sort': sort,
             'hfilter': hfilter_id,
             'efilter': efilter_id,
-            'extra_q': serialized_extra_q,
+            'internal_q': s_internal_q,
+            'requested_q': s_requested_q,
             'search': search_dict,
             'page': page_info,
             'index': 1,
@@ -136,20 +162,24 @@ class VisitTestCase(CremeTestCase):
         with self.assertNoException():
             visitor = EntityVisitor.from_json(FakeOrganisation, json_data)
 
-        self.assertEqual(FakeOrganisation,   visitor.model)
-        self.assertEqual(sort,               visitor.sort)
-        self.assertEqual(hfilter_id,         visitor.hfilter_id)
-        self.assertEqual(efilter_id,         visitor.efilter_id)
-        self.assertEqual(serialized_extra_q, visitor.serialized_extra_q)
-        self.assertEqual(search_dict,        visitor.search_dict)
-        self.assertEqual(page_info,          visitor.page_info)
-        self.assertEqual(1,                  visitor.index)
+        self.assertEqual(FakeOrganisation, visitor.model)
+        self.assertEqual(lv_url,           visitor.callback_url)
+        self.assertEqual(sort,             visitor.sort)
+        self.assertEqual(hfilter_id,       visitor.hfilter_id)
+        self.assertEqual(efilter_id,       visitor.efilter_id)
+        self.assertEqual(s_internal_q,     visitor.serialized_internal_q)
+        self.assertEqual(s_requested_q,    visitor.serialized_requested_q)
+        self.assertEqual(search_dict,      visitor.search_dict)
+        self.assertEqual(page_info,        visitor.page_info)
+        self.assertEqual(1,                visitor.index)
 
     def test_visitor_from_json02(self):
+        lv_url = FakeOrganisation.get_lv_absolute_url()
         sort = '-regular_field-name'
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_ORGA
 
         json_data = json.dumps({
+            'callback': lv_url,
             'sort': sort,
             'hfilter': hfilter_id,
         })
@@ -162,7 +192,8 @@ class VisitTestCase(CremeTestCase):
         self.assertEqual(hfilter_id,         visitor.hfilter_id)
 
         self.assertIsNone(visitor.efilter_id)
-        self.assertEqual('', visitor.serialized_extra_q)
+        self.assertEqual('', visitor.serialized_internal_q)
+        self.assertEqual('', visitor.serialized_requested_q)
         self.assertIsNone(visitor.search_dict)
         self.assertIsNone(visitor.page_info)
         self.assertIsNone(visitor.index)
@@ -189,6 +220,7 @@ class VisitTestCase(CremeTestCase):
         page_info = {'type': 'last'}
 
         data = {
+            'callback': FakeOrganisation.get_lv_absolute_url(),
             'sort': sort,
             'hfilter': hfilter_id,
             'efilter': efilter_id,
@@ -256,6 +288,14 @@ class VisitTestCase(CremeTestCase):
                 json.dumps({**data, 'page': 1})
             )
 
+        # ---
+        with self.assertRaises(EntityVisitor.Error) as cm6:
+            EntityVisitor.from_json(
+                FakeOrganisation,
+                json.dumps(no_key(data, 'callback'))
+            )
+        self.assertIn('"callback"', str(cm6.exception))
+
     def test_visitor_to_json01(self):
         sort = 'regular_field-name'
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_ORGA
@@ -271,29 +311,37 @@ class VisitTestCase(CremeTestCase):
                 'sort': sort,
                 'index': 1,
                 'page': page_info,
+                'callback': FakeOrganisation.get_lv_absolute_url(),
             }),
             visitor.to_json(),
         )
 
     def test_visitor_to_json02(self):
+        lv_url = reverse('creme_core__list_fake_organisations_with_email')
         sort = '-regular_field-email'
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_CONTACT
         efilter_id = 'creme_core-whatever'
-        extra_q = Q(last_name__startswith='Spieg')
+        internal_q = Q(last_name__startswith='Spieg')
+        requested_q = Q(first_name__startswith='Spik')
         search_dict = {'search-first_name': 'Jet'}
         visitor = EntityVisitor(
             model=FakeContact, sort=sort, hfilter_id=hfilter_id,
             efilter_id=efilter_id,
-            extra_q=extra_q,
+            internal_q=internal_q,
+            requested_q=requested_q,
             search_dict=search_dict,
+            callback_url=lv_url,
         )
+        dump_q = QSerializer().dumps
         self.assertJSONEqual(
             json.dumps({
                 'hfilter': hfilter_id,
                 'sort': sort,
                 'efilter': efilter_id,
                 'search': search_dict,
-                'extra_q': QSerializer().dumps(extra_q),
+                'internal_q': dump_q(internal_q),
+                'requested_q': dump_q(requested_q),
+                'callback': lv_url,
             }),
             visitor.to_json(),
         )

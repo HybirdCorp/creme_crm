@@ -1189,6 +1189,26 @@ class ListViewTestCase(ViewsTestCase):
         self.assertCountOccurrences(redtail.name, content2, count=1)
         self.assertCountOccurrences(dragons.name, content2, count=1)
 
+    def test_internal_q(self):
+        user = self.login_as_root_and_get()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        bebop   = create_orga(name='Bebop', email='bebop@bigshot.mrs')
+        redtail = create_orga(name='Redtail')
+        dragons = create_orga(name='Red Dragons', email='contact@reddragons.mrs')
+
+        self._build_hf()
+
+        response = self.assertGET200(reverse('creme_core__list_fake_organisations_with_email'))
+
+        table_node = self._get_lv_table_node(self._get_lv_node(response))
+        content = self._get_lv_cell_contents(table_node)
+        self.assertCountOccurrences(bebop.name, content, count=1)
+        self.assertNotIn(redtail.name, content)
+        self.assertCountOccurrences(dragons.name, content, count=1)
+
+        self.assertEqual(2, response.context['page_obj'].paginator.count)
+
     def test_qfilter_GET01(self):
         # user = self.login()
         user = self.login_as_root_and_get()
@@ -3625,9 +3645,10 @@ class ListViewTestCase(ViewsTestCase):
         else:
             self.fail('No mass-import button found.')
 
-    def test_visitor_button(self):
+    def test_visitor_button01(self):
         # user = self.login()
         user = self.login_as_root_and_get()
+        self.maxDiff = None
 
         lv_url = FakeContact.get_lv_absolute_url()
         hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_CONTACT
@@ -3643,49 +3664,111 @@ class ListViewTestCase(ViewsTestCase):
                 self.fail('Exploration button found in empty list.')
 
         # ---
-        FakeContact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
-        response2 = self.assertPOST200(lv_url, data=data)
-        lv_node2 = self._get_lv_node(response2)
         visit_url = reverse(
             'creme_core__visit_next_entity',
             args=(ContentType.objects.get_for_model(FakeContact).id,),
         )
-        for button_info in self._get_lv_header_buttons(lv_node2):
-            if button_info['label'] == label:
-                parameters = {
-                    'hfilter': hfilter_id,
-                    'sort': 'regular_field-last_name',
-                }
-                self.assertURLEqual(
-                    f'{visit_url}?{urlencode(parameters)}',
-                    button_info['url'],
-                )
-                break
-        else:
-            self.fail('No exploration button found.')
+
+        def assert_button_url(response, parameters):
+            lv_node = self._get_lv_node(response)
+
+            for button_info in self._get_lv_header_buttons(lv_node):
+                if button_info['label'] == label:
+                    self.assertURLEqual(
+                        f'{visit_url}?{urlencode(parameters)}',
+                        button_info['url'],
+                    )
+                    break
+            else:
+                self.fail('No exploration button found.')
+
+        contact = FakeContact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
+        response2 = self.assertPOST200(lv_url, data=data)
+        assert_button_url(
+            response2,
+            {
+                'hfilter': hfilter_id,
+                'sort': 'regular_field-last_name',
+                'callback': lv_url,
+            },
+        )
 
         # No order -------------------------------------------------------------
-        hf = HeaderFilter.objects.create_if_needed(
+        hf2 = HeaderFilter.objects.create_if_needed(
             pk='test-hf_contact_no_order', name='Only details', model=FakeContact,
             cells_desc=[
                 (EntityCellRegularField, {'name': 'phone'}),
                 (EntityCellRegularField, {'name': 'mobile'}),
             ],
         )
-        response3 = self.assertPOST200(lv_url, data={'hfilter': hf.id})
-        lv_node3 = self._get_lv_node(response3)
-        for button_info in self._get_lv_header_buttons(lv_node3):
+        response3 = self.assertPOST200(lv_url, data={'hfilter': hf2.id})
+        assert_button_url(
+            response3,
+            {'hfilter': hf2.id, 'sort': '', 'callback': lv_url},
+        )
+
+        # Filter, search -------------------------------------------------------
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-test_visitor_button01', 'Spiegels', FakeContact,
+            user=user, is_custom=False,
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact, field_name='last_name',
+                    operator=operators.ISTARTSWITH, values=[contact.last_name],
+                ),
+            ],
+        )
+        serialized_q = QSerializer().dumps(Q(first_name__startswith='Spik'))
+        response4 = self.assertPOST200(
+            lv_url, data={
+                'hfilter': hfilter_id,
+                'filter': efilter.id,
+                'q_filter': serialized_q,
+                'search-regular_field-first_name': contact.first_name,
+            },
+        )
+        assert_button_url(
+            response4,
+            {
+                'hfilter': hfilter_id,
+                'sort': 'regular_field-last_name',
+                'callback': lv_url,
+
+                'efilter': efilter.id,
+                'search-regular_field-first_name': contact.first_name,
+                'requested_q': serialized_q,
+            },
+        )
+
+    def test_visitor_button02(self):
+        "Custom list-view."
+        user = self.login_as_root_and_get()
+
+        lv_url = reverse('creme_core__list_fake_organisations_with_email')
+        hfilter_id = fake_constants.DEFAULT_HFILTER_FAKE_ORGA
+        data = {'hfilter': hfilter_id}
+
+        FakeOrganisation.objects.create(user=user, name='Bebop', email='contact@bebop.mrs')
+        response = self.assertPOST200(lv_url, data=data)
+        lv_node = self._get_lv_node(response)
+        visit_url = reverse(
+            'creme_core__visit_next_entity',
+            args=(ContentType.objects.get_for_model(FakeOrganisation).id,),
+        )
+        label = _('Enter the exploration mode')
+        for button_info in self._get_lv_header_buttons(lv_node):
             if button_info['label'] == label:
                 parameters = {
-                    'hfilter': hf.id,
-                    'sort': '',
+                    'hfilter': hfilter_id,
+                    'sort': 'regular_field-name',
+                    'callback': lv_url,
+                    'internal_q': QSerializer().dumps(~Q(email='')),
                 }
                 self.assertURLEqual(
-                    f'{visit_url}?{urlencode(parameters)}',
-                    button_info['url'],
+                    f'{visit_url}?{urlencode(parameters)}', button_info['url'],
                 )
                 break
         else:
-            self.fail('No exploration button found (no order case).')
+            self.fail('No exploration button found.')
 
     # TODO: test other buttons

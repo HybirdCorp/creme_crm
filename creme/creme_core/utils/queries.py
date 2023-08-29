@@ -3,7 +3,7 @@
 
 ################################################################################
 # Copyright (c)  2013  asfaltboy
-# Copyright (c)  2015-2022  Hybird
+# Copyright (c)  2015-2023  Hybird
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -90,8 +90,12 @@ class QSerializer:
 
     def deserialize(self, d: dict) -> Q:
         query = Q()
+        # NB: we re-build a tuple because deserialization gives us lists;
+        #     it works, but it's not the natural type we get when instancing a Q
+        #     & so it makes unit testing more difficult.
         query.children = [
-            self.deserialize(child) if isinstance(child, dict) else child
+            # self.deserialize(child) if isinstance(child, dict) else child
+            self.deserialize(child) if isinstance(child, dict) else tuple(child)
             for child in d['val']
         ]
 
