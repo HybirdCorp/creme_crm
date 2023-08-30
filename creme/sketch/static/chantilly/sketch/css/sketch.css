@@ -80,7 +80,7 @@
 }
 
 .bar-chart .bar text.inner {
-    fill: #fff;
+    font-weight: 600;
 }
 
 .bar-chart .limit {
@@ -92,7 +92,7 @@
     stroke: #fff;
 }
 
-.donut-chart .slice path:hover {
+.donut-chart .slice:hover {
     opacity: 0.8;
     cursor: pointer;
 }

@@ -148,7 +148,7 @@ creme.D3BarChart = creme.D3Chart.sub({
 
         var colorScale = d3.scaleOrdinal()
                                .domain([0, data.length])
-                               .range(creme.d3ColorRange(props.barColor));
+                               .range(creme.d3ColorRange(props.barColor, {size: data.length}));
 
         chart.attr('transform', creme.svgTransform().translate(bounds.left, bounds.top));
 
@@ -242,8 +242,13 @@ creme.D3BarChart = creme.D3Chart.sub({
 
         var xscale = context.xscale;
         var yscale = context.yscale;
+        var colorScale = context.colorScale;
         var textformat = context.textformat;
         var bounds = context.bounds;
+
+        function isInnerText(d) {
+            return (bounds.height - yscale(d.y)) > 15;
+        }
 
         var bar = enter.append('g')
                           .attr('class', 'bar')
@@ -256,13 +261,14 @@ creme.D3BarChart = creme.D3Chart.sub({
                .attr('x', 1)
                .attr('width', xscale.bandwidth())
                .attr('height', function(d) { return bounds.height - yscale(d.y); })
-               .attr("fill", function(d) { return context.colorScale(d.x); })
+               .attr("fill", function(d) { return colorScale(d.x); })
                .on('click', function(e, d) { selection.select(d.index); });
 
         bar.append('text')
                .attr('dy', '.75em')
-               .attr('class', function(d) { return (bounds.height - yscale(d.y)) > 15 ? 'inner' : 'outer'; })
-               .attr('y', function(d) { return (bounds.height - yscale(d.y)) > 15 ? 6 : -12; })
+               .attr('class', function(d) { return isInnerText(d) ? 'inner' : 'outer'; })
+               .attr('fill', function(d) { return isInnerText(d) ? new RGBColor(colorScale(d.x)).foreground() : 'black'; })
+               .attr('y', function(d) { return isInnerText(d) ? 6 : -12; })
                .attr('x', Math.ceil(xscale.bandwidth() / 2))
                .text(function(d) { return textformat(d.y); });
     },
@@ -270,8 +276,13 @@ creme.D3BarChart = creme.D3Chart.sub({
     _updateBar: function(update, context) {
         var xscale = context.xscale;
         var yscale = context.yscale;
+        var colorScale = context.colorScale;
         var textformat = context.textformat;
         var bounds = context.bounds;
+
+        function isInnerText(d) {
+            return (bounds.height - yscale(d.y)) > 15;
+        }
 
         update.selection().classed('selected', function(d) { return d.data.selected; });
 
@@ -280,13 +291,14 @@ creme.D3BarChart = creme.D3Chart.sub({
               });
 
         update.select('rect')
-                .attr("fill", function(d) { return context.colorScale(d.x); })
+                .attr("fill", function(d) { return colorScale(d.x); })
                 .attr('width', xscale.bandwidth())
                 .attr('height', function(d) { return bounds.height - yscale(d.y); });
 
         update.select('text')
-                .attr('class', function(d) { return (bounds.height - yscale(d.y)) > 15 ? 'inner' : 'outer'; })
-                .attr('y', function(d) { return (bounds.height - yscale(d.y)) > 15 ? 6 : -12; })
+                .attr('class', function(d) { return isInnerText(d) ? 'inner' : 'outer'; })
+                .attr('fill', function(d) { return isInnerText(d) ? new RGBColor(colorScale(d.x)).foreground() : 'black'; })
+                .attr('y', function(d) { return isInnerText(d) ? 6 : -12; })
                 .attr('x', Math.ceil(xscale.bandwidth() / 2))
                 .text(function(d) { return textformat(d.y); });
     }
