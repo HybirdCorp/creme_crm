@@ -245,3 +245,28 @@ button.reports-chart-selectors-refresh {
 .reports-graph-brick .brick-d3-content {
     min-height: 300px;
 }
+
+.tube-chart .legend {
+    pointer-events: bounding-box;
+}
+
+.tube-chart .legend.legend-scroll:hover {
+    cursor: ew-resize;
+}
+
+.tube-chart .bar text {
+    text-anchor: middle;
+    font-weight: bold;
+}
+
+.tube-chart .bar:hover {
+    cursor: pointer;
+}
+
+.tube-chart .bar rect:hover {
+    opacity: 0.8;
+}
+
+.tube-chart .bar:not(:hover) .hidden-label {
+    visibility: hidden;
+}
