@@ -23,7 +23,7 @@ creme.D3DonutChart = creme.D3Chart.sub({
     defaultProps: {
         band: 60,
         margin: 0,
-        colors: null,
+        colors: creme.d3SpectralColors,
         textRadius: 0.8,
         textFormat: null,
         textVisibleMinAngle: Math.PI / 12,
@@ -84,9 +84,7 @@ creme.D3DonutChart = creme.D3Chart.sub({
     _updateChart: function(sketch, chart, data, props) {
         var scrollLegend = props.scrollLegend;
         var bounds = creme.svgBounds(sketch.size(), props.margin);
-        var colors = props.colors || d3.quantize(function(t) {
-            return d3.interpolateSpectral(t * 0.8 + 0.1);
-        }, Math.max(data.length, 2));  // we must quantize at least TWO colors or it will be black
+        var colors = creme.d3ColorRange(props.colors, {size: data.length});
 
         var textFormat = props.textFormat || creme.d3NumericFormat(
             creme.d3NumericDataInfo(data, function(d) { return d.y; })
@@ -109,7 +107,7 @@ creme.D3DonutChart = creme.D3Chart.sub({
                                     .swatchColor(colorScale)
                                     .swatchSize({width: 20, height: props.legendItemHeight})
                                     .spacing(0)
-                                    .data(xkeys.sort());
+                                    .data(xkeys);
 
             chart.select('.legend')
                      .attr("transform", creme.svgTransform().translate(bounds.left, bounds.top))
