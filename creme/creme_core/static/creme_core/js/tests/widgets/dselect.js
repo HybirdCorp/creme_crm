@@ -850,6 +850,9 @@ QUnit.parametrize('creme.widget.DynamicSelect.val (static, multiple)', [
     widget.val(3);
     deepEqual(['3'], widget.val());
 
+    widget.val(5);
+    deepEqual(['5'], widget.val());
+
     widget.val(null);
     deepEqual([], widget.val());
 
