@@ -31,6 +31,7 @@
         # In Javascript :
             - 'creme.form.Select2' now supports the lazy loading of selections :
                Useful in entity filter polymorphic inputs that do not know the selected options beforehand.
+            - Fix a conversion issue in DynamicSelect.val() for a multiple combobox with a single value
 
     Breaking changes :
     ------------------

@@ -325,9 +325,11 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
                 var values = value.split(',');
                 selected = isJSON ? creme.utils.JSON.clean(value, values) : values;
             } else {
-                /* Can be an Object or an Array -> convert to Array */
-                selected = Array.isArray(value) ? value : [value];
+                selected = value;
             }
+
+            /* Can be an Object or an Array -> convert to Array */
+            selected = Array.isArray(selected) ? selected : [selected];
         } else {
             selected = [value];
         }
