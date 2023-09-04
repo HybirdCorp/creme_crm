@@ -21,6 +21,14 @@
 
 creme.widget = creme.widget || {};
 
+function datatypeConverter(datatype) {
+    if (datatype === 'json') {
+        return function(data) {
+            return creme.widget.cleanval(data, null);
+        };
+    }
+}
+
 creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     options: {
         backend: undefined, // new creme.ajax.Backend({dataType:'json', sync:true}),
@@ -65,7 +73,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
     _initModel: function(element, options) {
         var self = this;
-        var converter = this._converter = options.datatype === 'json' ? function(data) { return creme.widget.cleanval(data, null); } : undefined;
+        var converter = this._converter = datatypeConverter(options.datatype);
         var initial = creme.model.ChoiceGroupRenderer.parse(element, converter);
 
         this._model = new creme.model.AjaxArray(this._backend, initial);
