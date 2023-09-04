@@ -1124,27 +1124,6 @@ class UnionWidget(widgets.Widget):
         return selected, sub_values
 
 
-class TinyMCEEditor(widgets.Textarea):
-    def get_context(self, name, value, attrs):
-        context = super().get_context(name=name, value=value, attrs=attrs)
-        if not attrs.get('disabled'):
-            widget_type = 'ui-creme-editor'
-
-            final_attrs = context['widget']['attrs']
-            base_css = (
-                'ui-creme-input ui-creme-widget widget-auto'
-                if final_attrs.pop('auto', True) else
-                'ui-creme-input ui-creme-widget'
-            )
-            final_attrs['class'] = (
-                f"{base_css} {widget_type} {final_attrs.get('class', '')}"
-            ).strip()
-            final_attrs['widget'] = widget_type
-            final_attrs['basepath'] = 'tiny_mce'  # See root urls.py
-
-        return context
-
-
 class CKEditor(widgets.Textarea):
     template_name = 'creme_core/forms/widgets/ckeditor.html'
     TOOLBARS = {'full', 'simple'}

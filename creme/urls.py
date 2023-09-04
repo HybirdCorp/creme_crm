@@ -1,12 +1,10 @@
 import logging
-from pathlib import Path
 
 from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import render
 from django.urls import include, re_path
-from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.static import serve
 
 from creme.creme_core.apps import creme_app_configs
@@ -50,12 +48,6 @@ urlpatterns = [
         render,
         {'template_name': 'about/about.html'},
         name='creme_about',
-    ),
-
-    # TODO: remove this line when the Rich Text Editor is generated like other static media
-    re_path(
-        r'^tiny_mce/(?P<path>.*)$', xframe_options_sameorigin(serve),
-        {'document_root': Path(__file__).resolve().parent / 'media' / 'tiny_mce'},
     ),
 
     # NB: in production, you can configure your web server to statically serve

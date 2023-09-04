@@ -796,7 +796,6 @@ CREME_LIB_JS = [
     'creme_core/js/lib/momentjs/moment-2.29.4.js',
     'creme_core/js/lib/momentjs/locale/en-us.js',
     'creme_core/js/lib/momentjs/locale/fr-fr.js',
-    'creme_core/js/lib/editor/tinymce.3.4.9.js',
     'creme_core/js/lib/editor/ckeditor5-37.1.0.js',
     'creme_core/js/lib/Sortable/Sortable-1.15.0.js',
     'creme_core/js/lib/select2/select2-4.0.13.full.js',
