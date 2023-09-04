@@ -28,6 +28,8 @@
             - The 'DynamicSelect' widget now accepts 'avoid_empty' constructor argument : when true the 'data-no-empty' attribute is enabled on client side.
             - Keep the actual behaviour of 'DynamicSelect' within the ChainedSelect widget definitions:
                 - Add avoid_empty=True to all DynamicSelect having a child dependency.
+        # In 'creme_core.forms.entity_filter':
+            - ModelRelatedField can have string pk and this will not work with the default datatype 'json' used in entityfilter widget.
         # In Javascript :
             - 'creme.form.Select2' now supports the lazy loading of selections :
                Useful in entity filter polymorphic inputs that do not know the selected options beforehand.

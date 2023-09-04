@@ -155,6 +155,10 @@ class FieldConditionSelector(ChainedInput):
         EQUALS_OPS = f'{operators.EQUALS}|{operators.EQUALS_NOT}'
         add_input = pinput.add_input
 
+        # json datatype will consider pk strings as an invalid value and replaced
+        # by "null"
+        enum_field_attrs = {**field_attrs, 'datatype': 'string'}
+
         def is_enumerable_field(field):
             return isinstance(field, ModelRelatedField) and (
                 not issubclass(field.remote_field.model, (CremeEntity, get_user_model()))
@@ -171,13 +175,13 @@ class FieldConditionSelector(ChainedInput):
             if is_enumerable_field(field):
                 add_input(
                     f'^enum(__null)?.({EQUALS_OPS}).{name}$',
-                    widget=FieldEnumerableSelect, attrs=field_attrs,
+                    widget=FieldEnumerableSelect, attrs=enum_field_attrs,
                     field=field,
                 )
             elif is_choices_field(field):
                 add_input(
                     f'^choices(__null)?.({EQUALS_OPS}).{name}$',
-                    widget=DynamicSelectMultiple, attrs=field_attrs,
+                    widget=DynamicSelectMultiple, attrs=enum_field_attrs,
                     options=field.choices,
                 )
 
@@ -306,6 +310,7 @@ class FieldConditionSelector(ChainedInput):
         return 'string'
 
     def get_context(self, name, value, attrs):
+        # TODO : the default datatype should be "json" only for JSONField.
         field_attrs = {'auto': False, 'datatype': 'json'}
 
         if self.autocomplete:
