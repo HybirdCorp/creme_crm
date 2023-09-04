@@ -44,15 +44,15 @@
         * Opportunities :
             - A color field has been added to SalesPhase.
         * Reports :
-            - Horizontal Stacked Bar chart (creme.D3TubeChart):
-                - Horizontal scrolling of legend when the list is wider than the canvas
-                - Add textwrap for legend text.
-                - Bar text is visible only on mouse hover if it is too small.
+            - The horizontal stacked bar chart (creme.D3TubeChart) has been improved :
+                - The horizontal scrolling of legend is enabled when the list is wider than the canvas.
+                - The text wrapping for legend text has been added.
+                - The bar's text is visible only on mouse hover if it is too small.
         * Sketch :
-            - creme.D3BarChart : Horizontal scrolling when the bars are wider than the canvas.
-            - creme.D3DonutChart :
-                - Vertical scrolling of legend when the list is taller than the canvas.
-                - Slice text is visible only on mouse hover if it is too small.
+            - In the bar char (creme.D3BarChart), the horizontal scrolling is enabled when the bars are wider than the canvas.
+            - In the donut chat (creme.D3DonutChart) :
+                - The vertical scrolling of legend is enabled when the list is taller than the canvas.
+                - The slice text is visible only on mouse hover if it is too small.
         * Tickets :
             - A color field has been added to Status.
 
@@ -164,11 +164,12 @@
             - New 'RGBColor.rgb()' method to handle CSS format : 'rgb(int, int, int)'
         # Apps :
             * Sketch :
-                - Add 'creme.d3NumericDataInfo' that create stats from data : min, max, only integers, value range, average.
-                - Add 'creme.d3NumericFormat' & 'creme.d3NumericAxisFormat' to find the best format from data information.
-                - Add 'creme.d3Scroll' renderer to handle horizontal or vertical scrolling of an svg node
-                - Fix an issue in 'creme.d3LegendRow' renderer visible in D3TubeChart (legend without labels).
-                - creme.d3ColorRange now accept a function. Useful for computed ranges.
+                - A function 'creme.d3NumericDataInfo()' which creates the following stats from data has been added :
+                  min, max, only integers, value range, average.
+                - The functions 'creme.d3NumericFormat()' & 'creme.d3NumericAxisFormat()' have been added to find the best format from data information.
+                - A render function 'creme.d3Scroll()' has been added to handle horizontal or vertical scrolling of an SVG node.
+                - An issue in the renderer 'creme.d3LegendRow', which is visible in D3TubeChart (legend without labels), has been fixed.
+                - The function 'creme.d3ColorRange()' now accepts a function; it's useful for computed ranges.
 
     Breaking changes :
     ------------------
