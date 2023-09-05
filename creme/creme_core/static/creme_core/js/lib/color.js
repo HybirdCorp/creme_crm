@@ -204,8 +204,12 @@ RGBColor.prototype = {
         return clamp(scaleround(c, 3), 1, 21);
     },
 
+    isDark: function(gamma) {
+        return this.contrast(0, gamma) < 10;
+    },
+
     foreground: function(gamma) {
-        return this.contrast(0, gamma) < 10 ? new RGBColor(0xFFFFFF) : new RGBColor(0x000000);
+        return this.isDark(gamma) ? new RGBColor(0xFFFFFF) : new RGBColor(0x000000);
     }
 };
 

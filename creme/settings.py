@@ -930,6 +930,7 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.creme_config',  'creme_config/js/settings-menu.js'),
 
     ('creme.sketch',        'sketch/js/utils.js'),
+    ('creme.sketch',        'sketch/js/color.js'),
     ('creme.sketch',        'sketch/js/sketch.js'),
     ('creme.sketch',        'sketch/js/chart.js'),
     ('creme.sketch',        'sketch/js/bricks.js'),

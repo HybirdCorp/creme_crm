@@ -254,28 +254,6 @@ creme.d3FontSize = function(select) {
     }
 };
 
-creme.d3ColorRange = function(colors, options) {
-    if (Array.isArray(colors)) {
-        return colors;
-    } else if (Object.isFunc(colors)) {
-        return colors(options);
-    } else {
-        return [colors];
-    }
-};
-
-creme.d3SpectralColors = function(options) {
-    options = $.extend({
-        start: 0.1,
-        step: 0.8,
-        size: 2
-    }, options || {});
-
-    return d3.quantize(function(t) {
-        return d3.interpolateSpectral(t * options.step + options.start);
-    }, Math.max(options.size, 2));
-};
-
 creme.d3NumericDataInfo = function(data, getter) {
     data = data || [];
     getter = getter || function (d) { return d; };
