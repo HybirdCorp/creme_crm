@@ -27,10 +27,7 @@ creme.D3BarChart = creme.D3Chart.sub({
         yAxisTitle: '',
         yAxisTickFormat: null,
         barMinWidth: 60,
-        barColor: "#4682b4",
-        barHilighted: "#66a2d4",
-        barSelected: "#d6c2f4",
-        barTextColor: "#fff",
+        colors: "#4682b4",
         barTextFormat: null,
         limits: [],
         margin: 0,
@@ -50,7 +47,7 @@ creme.D3BarChart = creme.D3Chart.sub({
                 font: "10px sans-serif"
             },
             ".bar-chart .bar rect": {
-                "shape-rendering": "crispEdges"
+                "shape-rendering": "crispedges"
             },
             ".bar-chart .bar.selected rect": {
                 "opacity": "0.8"
@@ -58,8 +55,8 @@ creme.D3BarChart = creme.D3Chart.sub({
             ".bar-chart .bar text": {
                 "text-anchor": "middle"
             },
-            ".bar-chart .bar text.inner": {
-                fill: props.barTextColor
+            ".bar-chart .bar text.inner.dark-bg": {
+                "font-weight": 600
             },
             ".bar-chart .limit": {
                 stroke: "#f6c2d4",
@@ -111,6 +108,7 @@ creme.D3BarChart = creme.D3Chart.sub({
                 index: i,
                 x: d.x,
                 y: d.y,
+                color: d.color,
                 data: d
             };
         });
@@ -146,9 +144,12 @@ creme.D3BarChart = creme.D3Chart.sub({
         // 6px tick line + 3em width for the label
         var yAxisSize = Math.max(props.yAxisSize, 6 + (yAxisFontSize * 3));
 
-        var colorScale = d3.scaleOrdinal()
-                               .domain([0, data.length])
-                               .range(creme.d3ColorRange(props.barColor, {size: data.length}));
+        var colorize = creme.d3Colorize()
+                                .scale(d3.scaleOrdinal()
+                                             .domain([0, data.length])
+                                             .range(creme.d3ColorRange(props.colors, {size: data.length})));
+
+        data = colorize(data);
 
         chart.attr('transform', creme.svgTransform().translate(bounds.left, bounds.top));
 
@@ -209,7 +210,6 @@ creme.D3BarChart = creme.D3Chart.sub({
 
         var context = {
             bounds: bounds,
-            colorScale: colorScale,
             xscale: xscale,
             yscale: yscale,
             textformat: barTextFormat
@@ -242,7 +242,6 @@ creme.D3BarChart = creme.D3Chart.sub({
 
         var xscale = context.xscale;
         var yscale = context.yscale;
-        var colorScale = context.colorScale;
         var textformat = context.textformat;
         var bounds = context.bounds;
 
@@ -261,13 +260,16 @@ creme.D3BarChart = creme.D3Chart.sub({
                .attr('x', 1)
                .attr('width', xscale.bandwidth())
                .attr('height', function(d) { return bounds.height - yscale(d.y); })
-               .attr("fill", function(d) { return colorScale(d.x); })
+               .attr("fill", function(d) { return d.color; })
                .on('click', function(e, d) { selection.select(d.index); });
 
         bar.append('text')
+               .classed('dark-bg', function(d) { return d.isDarkColor; })
                .attr('dy', '.75em')
-               .attr('class', function(d) { return isInnerText(d) ? 'inner' : 'outer'; })
-               .attr('fill', function(d) { return isInnerText(d) ? new RGBColor(colorScale(d.x)).foreground() : 'black'; })
+               .attr('class', function(d) {
+                   return isInnerText(d) ? (d.isDarkColor ? 'inner dark-bg' : 'inner') : 'outer';
+               })
+               .attr('fill', function(d) { return d.textColor; })
                .attr('y', function(d) { return isInnerText(d) ? 6 : -12; })
                .attr('x', Math.ceil(xscale.bandwidth() / 2))
                .text(function(d) { return textformat(d.y); });
@@ -276,7 +278,6 @@ creme.D3BarChart = creme.D3Chart.sub({
     _updateBar: function(update, context) {
         var xscale = context.xscale;
         var yscale = context.yscale;
-        var colorScale = context.colorScale;
         var textformat = context.textformat;
         var bounds = context.bounds;
 
@@ -291,13 +292,15 @@ creme.D3BarChart = creme.D3Chart.sub({
               });
 
         update.select('rect')
-                .attr("fill", function(d) { return colorScale(d.x); })
+                .attr("fill", function(d) { return d.color; })
                 .attr('width', xscale.bandwidth())
                 .attr('height', function(d) { return bounds.height - yscale(d.y); });
 
         update.select('text')
-                .attr('class', function(d) { return isInnerText(d) ? 'inner' : 'outer'; })
-                .attr('fill', function(d) { return isInnerText(d) ? new RGBColor(colorScale(d.x)).foreground() : 'black'; })
+                .attr('class', function(d) {
+                    return isInnerText(d) ? (d.isDarkColor ? 'inner dark-bg' : 'inner') : 'outer';
+                })
+                .attr('fill', function(d) { return d.textColor; })
                 .attr('y', function(d) { return isInnerText(d) ? 6 : -12; })
                 .attr('x', Math.ceil(xscale.bandwidth() / 2))
                 .text(function(d) { return textformat(d.y); });

@@ -79,7 +79,7 @@
     text-anchor: middle;
 }
 
-.bar-chart .bar text.inner {
+.bar-chart .bar text.inner.dark-bg {
     font-weight: 600;
 }
 
@@ -107,6 +107,10 @@
 
 .donut-chart .slice:not(:hover) .hidden-label {
     visibility: hidden;
+}
+
+.donut-chart .slice text.dark-bg {
+    font-weight: 600;
 }
 
 .area-chart .area {

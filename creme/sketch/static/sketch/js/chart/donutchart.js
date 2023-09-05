@@ -62,6 +62,23 @@ creme.D3DonutChart = creme.D3Chart.sub({
         };
     },
 
+    exportStyle: function(props) {
+        return creme.svgRulesAsCSS({
+            ".donut-chart": {
+                font: "10px sans-serif"
+            },
+            ".donut-chart .arc path": {
+                stroke: "#fff"
+            },
+            ".donut-chart .slice .hidden-label": {
+                visibility: "visible"
+            },
+            ".donut-chart .slice text.dark-bg": {
+                "font-weight": 600
+            }
+        });
+    },
+
     chartData: function(data) {
         return data.map(function(d, i) {
             return {
@@ -69,6 +86,7 @@ creme.D3DonutChart = creme.D3Chart.sub({
                 x: d.x,
                 y: d.y,
                 selected: d.selected,
+                color: d.color,
                 data: d
             };
         });
@@ -97,6 +115,8 @@ creme.D3DonutChart = creme.D3Chart.sub({
         var colorScale = d3.scaleOrdinal()
                                .domain([0, data.length])
                                .range(creme.d3ColorRange(colors));
+
+        var colorize = creme.d3Colorize().scale(colorScale);
 
         var pielayout = d3.pie()
                           .sort(null)
@@ -141,17 +161,18 @@ creme.D3DonutChart = creme.D3Chart.sub({
                  bounds.top + (bounds.height / 2)
              ));
 
+        // pre-compute colors
+        data = colorize(data);
+        data = pielayout(data.filter(function(d) { return d.y > 0; }));
+
         var items = chart.select('.slices')
                              .selectAll('.slice')
-                             .data(pielayout(data.filter(function(d) {
-                                 return d.y > 0;
-                             })));
+                             .data(data);
 
         var context = {
             arcpath: arcpath,
             textArc: textArc,
             textVisibleMinAngle: props.textVisibleMinAngle,
-            colorScale: colorScale,
             formatValue: textFormat,
             transition: props.transition
         };
@@ -179,11 +200,25 @@ creme.D3DonutChart = creme.D3Chart.sub({
         return chart;
     },
 
+    itemClasses: function(d, context) {
+        var classes = [];
+
+        if (Math.abs(d.startAngle - d.endAngle) < context.textVisibleMinAngle) {
+            classes.push('hidden-label');
+        }
+
+        if (d.data.isDarkColor) {
+            classes.push('dark-bg');
+        }
+
+        return classes.join(' ');
+    },
+
     _enterItem: function(item, context) {
+        var self = this;
         var selection = this.selection();
 
         var arcpath = context.arcpath;
-        var colorScale = context.colorScale;
         var formatValue = context.formatValue;
         var textArc = context.textArc;
 
@@ -193,7 +228,7 @@ creme.D3DonutChart = creme.D3Chart.sub({
 
         arc.append("path")
                .attr('d', arcpath)
-               .attr("fill", function(d) { return colorScale(d.data.x); })
+               .attr("fill", function(d) { return d.data.color; })
                .on('click', function(e, d) { selection.select(d.data.index); });
 
         arc.append("text")
@@ -205,16 +240,15 @@ creme.D3DonutChart = creme.D3Chart.sub({
                     return creme.svgTransform().translate(pos[0], pos[1]);
                 })
                .attr('class', function(d) {
-                    return Math.abs(d.startAngle - d.endAngle) < context.textVisibleMinAngle ? 'hidden-label' : '';
+                    return self.itemClasses(d, context);
                 })
-               .attr('fill', function(d) {
-                    return new RGBColor(colorScale(d.data.x)).foreground();
-                });
+               .attr('fill', function(d) { return d.data.textColor; })
+               .classed('dark-bg', function(d) { return d.data.isDarkColor; });
     },
 
     _updateItem: function(item, context) {
+        var self = this;
         var arcpath = context.arcpath;
-        var colorScale = context.colorScale;
         var formatValue = context.formatValue;
         var textArc = context.textArc;
 
@@ -236,7 +270,7 @@ creme.D3DonutChart = creme.D3Chart.sub({
         }
 
         item.select('path')
-                .attr("fill", function(d) { return colorScale(d.data.x); });
+                .attr("fill", function(d) { return d.data.color; });
 
         item.select("text")
                 .text(function(d) { return formatValue(d.data.y); })
@@ -244,9 +278,10 @@ creme.D3DonutChart = creme.D3Chart.sub({
                      var pos = textArc.centroid(d);
                      return creme.svgTransform().translate(pos[0], pos[1]);
                  })
-                 .attr('fill', function(d) {
-                     return new RGBColor(colorScale(d.data.x)).foreground();
-                 });
+                .attr('fill', function(d) { return d.data.textColor; })
+                .attr('class', function(d) {
+                    return self.itemClasses(d, context);
+                });
     }
 });
 
