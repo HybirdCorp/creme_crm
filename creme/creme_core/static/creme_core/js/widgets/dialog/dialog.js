@@ -117,6 +117,10 @@ creme.dialog.Dialog = creme.component.Component.sub({
         }
 
         this._events.trigger('frame-activated', [this.frame()], this);
+
+        if (this.options.closeOnEscape) {
+            this.resetFocus();
+        }
     },
 
     _dialogBackground: function() {
@@ -171,7 +175,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         // HACK : force focus in order to enable escape handling.
         if (options.closeOnEscape && !options.autoFocus) {
-            this.focus();
+            this.resetFocus();
         }
 
         if (options.scrollbackOnClose) {
@@ -476,8 +480,25 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return this._dialog;
     },
 
+    resetFocus: function() {
+        // When ui.dialog takes focus on a tabbable element, the element is stored in _focusedElement,
+        // but if the element disappear (removed button, frame update, ..) we cannot get the focus
+        // back without a mousedown event at the right place or... this little hack.
+        if (this.isOpened()) {
+            var instance = this._dialog.dialog("instance");
+            instance._focusedElement = null;
+            instance._focusTabbable();
+        }
+
+        return this;
+    },
+
     focus: function() {
-        this._dialogContainer().trigger('focus');
+        if (this.isOpened()) {
+            var instance = this._dialog.dialog("instance");
+            instance._focusTabbable();
+        }
+
         return this;
     },
 
