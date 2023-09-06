@@ -1044,10 +1044,25 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         # GET ---
         response1 = self.assertGET200(url)
         self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
+
+        context1 = response1.context
         self.assertEqual(
             _('Change password for «{object}»').format(object=other_user),
-            response1.context.get('title'),
+            context1.get('title'),
         )
+
+        with self.assertNoException():
+            fields = context1['form'].fields
+            old_password_f = fields['old_password']
+            password1_f = fields['password_1']
+            password2_f = fields['password_2']
+
+        self.assertEqual(_('Your password'), old_password_f.label)
+        self.assertEqual(
+            _('New password for «{user}»').format(user=other_user),
+            password1_f.label,
+        )
+        self.assertEqual(_('New password confirmation'), password2_f.label)
 
         # POST (error) ---
         new_password = 'password'
@@ -1082,6 +1097,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     def test_change_password02(self):
+        "Not administrator."
         self.login_as_config_admin()
 
         other_user = User.objects.create(username='deunan')
@@ -1125,8 +1141,19 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         other_user = User.objects.create(username='deunan')
         url = self._build_edit_url(other_user.id, password=True)
-        self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
+        with self.assertNoException():
+            password1_f = response1.context['form'].fields['password_1']
+
+        msg = ngettext(
+            "The password must contain at least %(min_length)d character.",
+            "The password must contain at least %(min_length)d characters.",
+            8,
+        ) % {"min_length": 8}
+        self.assertHTMLEqual(f'<ul><li>{msg}</li></ul>', password1_f.help_text)
+
+        # ---
         password = 'pass'
         response = self.assertPOST200(
             url, data={'password_1': password, 'password_2': password}
@@ -1140,6 +1167,58 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                 8
             ) % {'min_length': 8},
         )
+
+    @skipIfNotCremeUser
+    def test_change_own_password(self):
+        user = self.login_as_root_and_get()
+
+        url = self._build_edit_url(user.id, password=True)
+
+        # GET ---
+        response1 = self.assertGET200(url)
+
+        context1 = response1.context
+        self.assertEqual(_('Change your password'), context1.get('title'))
+
+        with self.assertNoException():
+            fields = context1['form'].fields
+            old_password_f = fields['old_password']
+            password1_f = fields['password_1']
+            password2_f = fields['password_2']
+
+        self.assertEqual(_('Your old password'), old_password_f.label)
+        self.assertEqual(_('New password'), password1_f.label)
+        self.assertEqual(_('New password confirmation'), password2_f.label)
+
+        # POST (error) ---
+        new_password = 'password'
+        response2 = self.assertPOST200(
+            url,
+            follow=True,
+            data={
+                'old_password': 'mismatch',
+                'password_1': new_password,
+                'password_2': new_password,
+            },
+        )
+        self.assertFormError(
+            response2.context['form'],
+            field='old_password',
+            errors=_('Your old password was entered incorrectly. Please enter it again.'),
+        )
+
+        # POST ---
+        response3 = self.client.post(
+            url,
+            follow=True,
+            data={
+                'old_password': ROOT_PASSWORD,
+                'password_1': new_password,
+                'password_2': new_password,
+            },
+        )
+        self.assertNoFormError(response3)
+        self.assertTrue(self.refresh(user).check_password(new_password))
 
     @skipIfNotCremeUser
     def test_user_activation(self):
