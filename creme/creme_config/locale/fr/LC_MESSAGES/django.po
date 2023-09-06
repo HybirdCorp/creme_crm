@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-20 10:12+0200\n"
+"POT-Creation-Date: 2023-09-06 13:44+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -18,6 +18,26 @@ msgstr ""
 
 msgid "General configuration"
 msgstr "Configuration générale"
+
+#, python-format
+msgid "The password must contain at least %(min_length)d character."
+msgid_plural "The password must contain at least %(min_length)d characters."
+msgstr[0] ""
+"Le mot de passe doit contenir au minimum %(min_length)d caractère."
+msgstr[1] ""
+"Le mot de passe doit contenir au minimum %(min_length)d caractères."
+
+msgid "The password can’t be too similar to the other personal information."
+msgstr ""
+"Le mot de passe ne peut pas trop ressembler aux autres informations "
+"personnelles."
+
+msgid "The password can’t be a commonly used password."
+msgstr ""
+"Le mot de passe ne peut pas être un mot de passe couramment utilisé."
+
+msgid "The password can’t be entirely numeric."
+msgstr "Le mot de passe ne peut pas être entièrement numérique."
 
 msgid "Export & import configuration"
 msgstr "Exporter & importer la configuration"
@@ -734,9 +754,8 @@ msgstr "Confirmation du mot de passe"
 msgid "Enter the same password as before, for verification."
 msgstr ""
 
-# Already translated in django.auth
-msgid "Old password"
-msgstr ""
+msgid "Your old password"
+msgstr "Votre ancien mot de passe"
 
 # Already translated in django.auth
 msgid "New password"
@@ -745,6 +764,13 @@ msgstr ""
 # Already translated in django.auth
 msgid "New password confirmation"
 msgstr ""
+
+msgid "Your password"
+msgstr "Votre mot de passe"
+
+#, python-brace-format
+msgid "New password for «{user}»"
+msgstr "Nouveau mot de passe pour «{user}»"
 
 msgid "Teammates"
 msgstr "Coéquipiers"
@@ -2396,6 +2422,9 @@ msgstr "Importer"
 #, python-brace-format
 msgid "Change password for «{object}»"
 msgstr "Changer le mot de passe pour «{object}»"
+
+msgid "Change your password"
+msgstr "Changer votre mot de passe"
 
 msgid "Save the team"
 msgstr "Enregistrer l'équipe"
