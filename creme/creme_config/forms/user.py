@@ -159,7 +159,8 @@ class UserPasswordChangeForm(CremeForm):
     }
 
     old_password = CharField(
-        label=_('Old password'),
+        # label=_('Old password'),
+        label=_('Your old password'),
         strip=False,
         widget=PasswordInput(attrs={'autocomplete': 'current-password', 'autofocus': True}),
     )
@@ -177,8 +178,15 @@ class UserPasswordChangeForm(CremeForm):
     )
 
     def __init__(self, *args, **kwargs):
-        self.user2edit = kwargs.pop('instance')
+        self.user2edit = user2edit = kwargs.pop('instance')
         super().__init__(*args, **kwargs)
+
+        if self.user != user2edit:
+            fields = self.fields
+            fields['old_password'].label = _('Your password')
+            fields['password_1'].label = gettext(
+                'New password for «{user}»'
+            ).format(user=user2edit)
 
     def clean_old_password(self):
         old_password = self.cleaned_data["old_password"]

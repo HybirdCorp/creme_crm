@@ -49,10 +49,16 @@ class PasswordChange(generic.CremeModelEditionPopup):
     pk_url_kwarg = 'user_id'
     permissions = SUPERUSER_PERM
     title = _('Change password for «{object}»')
+    title_for_own = _('Change your password')
 
     @method_decorator(sensitive_post_parameters())
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+
+    def get_title(self) -> str:
+        title = self.title_for_own if self.get_object() == self.request.user else self.title
+
+        return title.format(**self.get_title_format_data())
 
 
 class BaseUserCreation(generic.CremeModelCreationPopup):
