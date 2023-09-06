@@ -2,6 +2,10 @@
 
 TODO: compile .po (commercial, mobile)
 
+  Users side :
+  ------------
+    # Fix an issue with the form dialog "close on escape" feature when the form is empty.
+
 
 == Version 2.4.6 ==
 
