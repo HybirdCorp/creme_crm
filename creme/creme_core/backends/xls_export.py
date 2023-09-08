@@ -21,8 +21,10 @@ from os.path import basename, join
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import slugify
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from ..core.exceptions import ConflictError
 from ..models import FileRef
 from ..utils.file_handling import FileCreator
 from ..utils.xlwt_utils import XlwtWriter
@@ -34,6 +36,7 @@ class XLSExportBackend(ExportBackend):
     verbose_name = _('XLS File')
     help_text = ''
     dir_parts = ('xls',)  # Sub-directory under settings.MEDIA_ROOT
+    max_row_index = 65535
 
     def __init__(self, encoding='utf-8'):
         super().__init__()
@@ -56,3 +59,12 @@ class XLSExportBackend(ExportBackend):
 
     def writerow(self, row):
         self.writer.writerow(row)
+
+    def validate(self, *, total_count=None):
+        if total_count is not None and total_count > self.max_row_index:
+            raise ConflictError(
+                gettext(
+                    "The Microsoft Excel 97–2003 Workbook (.xls) format has a limit of"
+                    " {count} rows. Use a CSV format instead.".format(count=self.max_row_index)
+                )
+            )

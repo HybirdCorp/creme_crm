@@ -9,6 +9,7 @@
     # A visitor mode has been added; from any list-view, you can visit all the related detail-views the one after the other.
       (button "Enter the exploration mode" in list-views).
     # The link in the list-views selectors are now opened in other tabs automatically.
+    # The .XLS file export now displays an error when its maximum number of rows is exceeded.
     # In forms :
         - The custom fields with ENUM/MULTI_ENUM type are now using the Select2 combobox with lazy loading & search.
         - In the form for entity-filters :

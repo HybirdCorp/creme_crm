@@ -14,6 +14,8 @@ from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
+from creme.creme_core.backends import _BackendRegistry
+from creme.creme_core.backends.base import ExportBackend
 from creme.creme_core.core.entity_cell import (
     EntityCellFunctionField,
     EntityCellRegularField,
@@ -23,6 +25,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RegularFieldConditionHandler,
 )
 from creme.creme_core.core.entity_filter.operators import ISTARTSWITH
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.history import html_history_registry
 from creme.creme_core.models import (
     CremeProperty,
@@ -45,15 +48,40 @@ from creme.creme_core.models.history import TYPE_EXPORT, HistoryLine
 from creme.creme_core.utils.content_type import as_ctype
 from creme.creme_core.utils.queries import QSerializer
 from creme.creme_core.utils.xlrd_utils import XlrdReader
+from creme.creme_core.views.mass_export import MassExport
 
 from .base import ViewsTestCase
 
 
+class TestExportBackend(ExportBackend):
+    id: str = 'test_backend_validator'
+    verbose_name: str = 'test_backend_validator'
+    help_text: str = 'test_backend_validator'
+
+    def writerow(self, row):
+        pass
+
+    def validate(self, **kwargs):
+        raise ConflictError("TestExportBackend.validate fail")
+
+
 class MassExportViewsTestCase(ViewsTestCase):
+    backup_mass_export_backend_registry = None
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.ct = ContentType.objects.get_for_model(FakeContact)
+
+        cls.backup_mass_export_backend_registry = MassExport.backend_registry
+        MassExport.backend_registry = _BackendRegistry(ExportBackend, [
+            *settings.EXPORT_BACKENDS,
+            "creme.creme_core.tests.views.test_mass_export.TestExportBackend"
+        ])
+
+    @classmethod
+    def tearDownClass(cls):
+        MassExport.backend_registry = cls.backup_mass_export_backend_registry
 
     # def _build_hf_n_contacts(self, user=None):
     def _build_hf_n_contacts(self, user):
@@ -528,6 +556,11 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         # Error
         self.assertGET(400, self._build_contact_dl_url(extra_q='[123]'))
+
+    def test_backend_validator(self):
+        self.login_as_root()
+        response = self.assertGET409(self._build_contact_dl_url(doc_type=TestExportBackend.id))
+        self.assertContains(response, 'TestExportBackend.validate fail', status_code=409)
 
     def test_list_view_export_with_filter01(self):
         # user = self.login()

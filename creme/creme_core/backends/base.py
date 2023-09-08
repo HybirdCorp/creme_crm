@@ -71,3 +71,6 @@ class ExportBackend:
               instance of <django.contrib.auth.get_user_model()>.
         """
         raise NotImplementedError
+
+    def validate(self, *, total_count=None):
+        pass
