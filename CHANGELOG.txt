@@ -1,8 +1,8 @@
-== Version 2.4.7 Work in progress (not released -- this is a draft) ==
+== Version 2.4.7 ==
 
   Users side :
   ------------
-    # Fix an issue with the form dialog "close on escape" feature when the form is empty.
+    # The form dialog did not close on <Escape> when the form was empty.
     # Apps :
         * Creme_config :
             - The labels in the form to change password have been improved
