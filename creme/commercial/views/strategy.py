@@ -99,7 +99,7 @@ class EvaluatedOrgaAdding(generic.RelatedToEntityFormPopup):
     form_class = forms.AddOrganisationForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     title = _('New organisation(s) for «{entity}»')
-    submit_label = _('Link the organisation(s)')
+    submit_label = _('Link the organisations')
     entity_id_url_kwarg = 'strategy_id'
     entity_classes = Strategy
 

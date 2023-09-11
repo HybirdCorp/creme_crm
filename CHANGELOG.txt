@@ -1,3 +1,14 @@
+== Version 2.4.7 ==
+
+  Users side :
+  ------------
+    # The form dialog did not close on <Escape> when the form was empty.
+    # Apps :
+        * Creme_config :
+            - The labels in the form to change password have been improved
+              (they were confusing when you change password for another user).
+
+
 == Version 2.4.6 ==
 
   Users side :
