@@ -242,6 +242,15 @@ creme.svgAsImage = function(done, svg, options) {
     return image;
 };
 
+creme.svgScreenCTMatrix = function(node) {
+    // Get parent node with screen matrix
+    while (node.getScreenCTM == null && node.parentNode != null) {
+        node = node.parentNode;
+    }
+
+    return node.getScreenCTM();
+};
+
 creme.d3FontSize = function(select) {
     if (select.size() > 1) {
         return creme.d3Map(select, function(d) {

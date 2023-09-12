@@ -27,6 +27,16 @@ class ChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
             bricks.BarChartBrick,
             {'limits': [], 'transition': True, 'xAxisTitle': None, 'yAxisTitle': None},
         ],
+        [
+            bricks.LineChartBrick,
+            {
+                'limits': [],
+                'transition': True,
+                'xAxisTitle': None,
+                'yAxisTitle': None,
+                'showTooltip': True,
+            },
+        ],
         [bricks.DonutChartBrick, {'band': 60, 'transition': True}],
         [bricks.GroupBarChartBrick, {'limits': [], 'transition': True, 'showLegend': True}],
         [bricks.StackBarChartBrick, {'limits': [], 'transition': True, 'showLegend': True}],
@@ -50,6 +60,16 @@ class ChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
                 'transition': True,
                 'xAxisTitle': "Axis of Abscissas",
                 'yAxisTitle': "Axis of Ordinates",
+            },
+        ],
+        [
+            bricks.DemoLineChartBrick,
+            {
+                'limits': [],
+                'transition': True,
+                'xAxisTitle': "Axis of Abscissas",
+                'yAxisTitle': "Axis of Ordinates",
+                'showTooltip': True,
             },
         ],
         [bricks.DemoDonutChartBrick, {'band': 60, 'transition': True}],

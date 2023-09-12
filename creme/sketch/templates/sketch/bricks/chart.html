@@ -11,6 +11,9 @@
 
 {% block brick_header_actions %}
     {% brick_header_action id='refresh' label=_('Reload') icon='reload' %}
+    {% if data %}
+    {% brick_header_action id='sketch-download' label=_('Download') icon='download' %}
+    {% endif %}
 {% endblock %}
 
 {% block brick_content_extra_class %}{% if not data %} is-empty{% endif %}{% endblock %}

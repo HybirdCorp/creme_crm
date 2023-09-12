@@ -1,4 +1,4 @@
-/* globals QUnitSketchMixin */
+/* globals QUnitSketchMixin, MouseEvent */
 
 (function($) {
 
@@ -9,7 +9,8 @@ QUnit.parametrize('creme.D3Chart (demo, empty)', {
     donutchart: new creme.D3DonutChart(),
     areachart: new creme.D3AreaChart(),
     groupbarchart: new creme.D3GroupBarChart(),
-    stackbarchart: new creme.D3StackBarChart()
+    stackbarchart: new creme.D3StackBarChart(),
+    linechart: new creme.D3LineChart()
 }, function(chart, assert) {
     var sketch = new creme.D3Sketch().bind($('<div>'));
 
@@ -33,7 +34,8 @@ QUnit.parametrize('creme.D3Chart (demo, asImage, empty)', {
     donutchart: new creme.D3DonutChart(),
     areachart: new creme.D3AreaChart(),
     groupbarchart: new creme.D3GroupBarChart(),
-    stackbarchart: new creme.D3StackBarChart()
+    stackbarchart: new creme.D3StackBarChart(),
+    linechart: new creme.D3LineChart()
 }, function(chart, assert) {
     var sketch = new creme.D3Sketch().bind($('<div>'));
 
@@ -55,7 +57,8 @@ QUnit.parametrize('creme.D3Chart (demo, visible)', {
     donutchart: new creme.D3DonutChart(),
     areachart: new creme.D3AreaChart(),
     groupbarchart: new creme.D3GroupBarChart(),
-    stackbarchart: new creme.D3StackBarChart()
+    stackbarchart: new creme.D3StackBarChart(),
+    linechart: new creme.D3LineChart()
 }, function(chart, assert) {
     var sketch = new creme.D3Sketch().bind($('<div>'));
 
@@ -80,7 +83,8 @@ QUnit.parametrize('creme.D3Chart (demo, transition)', [
     donutchart: new creme.D3DonutChart(),
     areachart: new creme.D3AreaChart(),
     groupbarchart: new creme.D3GroupBarChart(),
-    stackbarchart: new creme.D3StackBarChart()
+    stackbarchart: new creme.D3StackBarChart(),
+    linechart: new creme.D3LineChart()
 }, function(transition, chart, assert) {
     var sketch = new creme.D3Sketch().bind($('<div>'));
 
@@ -508,6 +512,127 @@ QUnit.test('creme.D3StackBarChart (select)', function(assert) {
     sketch.svg().select('.stack-bar-chart rect').dispatch('click');
 
     deepEqual([{x: 'A', y: 0, group: 'Group A', selected: true}], chart.selection().selected());
+});
+
+QUnit.parametrize('creme.D3LineChart (draw)', [
+    [[{x: 'A', y: 0}], {}, {
+        '.line-chart .line': 1
+    }],
+    [[{x: 'A', y: 0}, {x: 'B', y: 0}, {x: 'C', y: 0}, {x: 'D', y: 0}], {}, {
+        '.line-chart .line': 1
+    }]
+], function(data, options, expected, assert) {
+    var chart = new creme.D3LineChart(options);
+    var sketch = new creme.D3Sketch().bind($('<div>'));
+
+    chart.sketch(sketch);
+    chart.model(data);
+
+    equal(0, sketch.svg().select('.d3-chart').size());
+
+    chart.draw();
+
+    equal(1, sketch.svg().select('.d3-chart').size());
+
+    this.assertD3Nodes(sketch.svg(), expected);
+});
+
+QUnit.parameterize('creme.D3LineChart (dot)', [
+    [false, 'always', {
+        '.line-chart .dot': 0
+    }],
+    [true, 'always', {
+        '.line-chart .dot.dot-always': 4
+    }],
+    [true, 'hover', {
+        '.line-chart .dot.dot-hover': 4
+    }]
+], function(showDots, dotVisibility, expected, assert) {
+    var data = [{x: 'A', y: 0}, {x: 'B', y: 0}, {x: 'C', y: 0}, {x: 'D', y: 0}];
+    var chart = new creme.D3LineChart({
+        transition: false,
+        showDots: showDots,
+        dotVisibility: dotVisibility
+    });
+    var sketch = new creme.D3Sketch().bind($('<div style="width: 400px; height: 150px">'));
+
+    chart.sketch(sketch);
+    chart.model(data);
+
+    equal(0, sketch.svg().select('.d3-chart').size());
+
+    chart.draw();
+
+    this.assertD3Nodes(sketch.svg(), {'.line-chart .line': 1});
+    this.assertD3Nodes(sketch.svg(), expected);
+});
+
+QUnit.test('creme.D3LineChart (dot-unit)', function(assert) {
+    var data = [{x: 'A', y: 0}, {x: 'B', y: 0}, {x: 'C', y: 0}, {x: 'D', y: 0}];
+    var chart = new creme.D3LineChart({
+        transition: false,
+        showDots: true,
+        dotVisibility: 'unit'
+    });
+    var sketch = new creme.D3Sketch().bind($('<div style="width: 400px; height: 150px">'));
+
+    chart.sketch(sketch);
+    chart.model(data);
+
+    equal(0, sketch.svg().select('.d3-chart').size());
+
+    chart.draw();
+
+    this.assertD3Nodes(sketch.svg(), {'.line-chart .line': 1});
+    this.assertD3Nodes(sketch.svg(), {'.line-chart .line .dot': 4});
+    this.assertD3Nodes(sketch.svg(), {'.line-chart .line .dot.dot-unit-hilight': 0});
+
+    sketch.svg().select('.lines').node().dispatchEvent(new MouseEvent('mousemove', {
+        clientX: 0
+    }));
+
+    this.assertD3Nodes(sketch.svg(), {'.line-chart .line .dot.dot-unit-hilight': 1});
+
+    sketch.svg().select('.lines').node().dispatchEvent(new MouseEvent('mousemove', {
+        clientX: 200
+    }));
+
+    this.assertD3Nodes(sketch.svg(), {'.line-chart .line .dot.dot-unit-hilight': 1});
+
+    sketch.svg().select('.lines').node().dispatchEvent(new MouseEvent('mouseleave', {
+        clientX: 200
+    }));
+
+    this.assertD3Nodes(sketch.svg(), {'.line-chart .line .dot.dot-unit-hilight': 0});
+});
+
+QUnit.test('creme.D3LineChart (tooltip)', function(assert) {
+    var data = [{x: 'A', y: 1}, {x: 'B', y: 5}, {x: 'C', y: 12}, {x: 'D', y: 31}];
+    var chart = new creme.D3LineChart({
+        showTooltips: true,
+        showDots: true
+    });
+    var sketch = new creme.D3Sketch().bind($('<div style="width: 400px; height: 150px">'));
+
+    chart.sketch(sketch);
+    chart.model(data);
+
+    chart.draw();
+
+    this.assertD3Nodes(sketch.svg(), {'.line-chart .line .dot': 4});
+
+    equal(0, $('.d3-sketch-tooltip.tip-n').length);
+
+    var dot = sketch.svg().selectAll('.dot').nodes()[2];
+
+    dot.dispatchEvent(new MouseEvent('mouseenter'));
+
+    equal(1, $('.d3-sketch-tooltip.tip-n').length);
+    equal($('.d3-sketch-tooltip.tip-n').text(), '12');
+
+    dot.dispatchEvent(new MouseEvent('mouseleave'));
+
+    equal(0, $('.d3-sketch-tooltip.tip-n').length);
 });
 
 }(jQuery));

@@ -931,6 +931,8 @@ CREME_OPT_JS = [  # OPTIONAL APPS
 
     ('creme.sketch',        'sketch/js/utils.js'),
     ('creme.sketch',        'sketch/js/color.js'),
+    ('creme.sketch',        'sketch/js/tooltip.js'),
+    ('creme.sketch',        'sketch/js/invert.js'),
     ('creme.sketch',        'sketch/js/sketch.js'),
     ('creme.sketch',        'sketch/js/chart.js'),
     ('creme.sketch',        'sketch/js/bricks.js'),
@@ -943,6 +945,7 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.sketch',        'sketch/js/chart/areachart.js'),
     ('creme.sketch',        'sketch/js/chart/barchart.js'),
     ('creme.sketch',        'sketch/js/chart/donutchart.js'),
+    ('creme.sketch',        'sketch/js/chart/linechart.js'),
     ('creme.sketch',        'sketch/js/chart/groupbarchart.js'),
     ('creme.sketch',        'sketch/js/chart/stackbarchart.js'),
 
@@ -1108,6 +1111,7 @@ TEST_CREME_OPT_JS = [
     ('creme.sketch',        'sketch/js/tests/drawable.js'),
     ('creme.sketch',        'sketch/js/tests/bricks.js'),
     ('creme.sketch',        'sketch/js/tests/demo.js'),
+    ('creme.sketch',        'sketch/js/tests/invert.js'),
     ('creme.crudity',       'crudity/js/tests/crudity-actions.js'),
     ('creme.cti',           'cti/js/tests/cti-actions.js'),
     ('creme.emails',        'emails/js/tests/emails-actions.js'),

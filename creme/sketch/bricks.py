@@ -171,7 +171,7 @@ class DonutChartBrick(ChartBrick):
     """
     template_name = "sketch/bricks/donut-chart.html"
 
-    # Draw limit lines on the Y axis
+    # Enable animations when the data are updated
     enable_transition = True
     # Donut stroke size
     band_size = 60
@@ -190,6 +190,38 @@ class DonutChartBrick(ChartBrick):
             props['colors'] = self.color_range
 
         return props
+
+
+class LineChartBrick(ChartBrick):
+    """
+    Base brick that draws LineChart.
+    Expects a list of dict with x (sequential) & y (numeric) :
+    ```
+        [{x: "A", y: 12.5}, ...]
+    ```
+    The X value is displayed in the legend (if shown) and Y in the slices.
+    """
+    template_name = "sketch/bricks/line-chart.html"
+
+    # Draw limit lines on the Y axis
+    limits = []
+    # Enable animations when the data are updated
+    enable_transition = True
+    # Title of the horizontal axis
+    abscissa_title = None
+    # Title of the vertical axis
+    ordinate_title = None
+
+    enable_tooltip = True
+
+    def get_chart_props(self, context):
+        return {
+            "limits": self.limits,
+            "transition": self.enable_transition,
+            "xAxisTitle": self.abscissa_title,
+            "yAxisTitle": self.ordinate_title,
+            "showTooltip": self.enable_tooltip,
+        }
 
 
 class DemoGroupBarChartBrick(GroupBarChartBrick):
@@ -278,6 +310,25 @@ class DemoDonutChartBrick(DonutChartBrick):
 
     def get_chart_data(self, context):
         return [{"x": f"A {i}", "y": randint(1, 100)} for i in range(1, randint(5, 10))]
+
+    def detailview_display(self, context):
+        return self._render_chart(context)
+
+    def home_display(self, context):
+        return self._render_chart(context)
+
+
+class DemoLineChartBrick(LineChartBrick):
+    """
+    Brick that draws a LineChart from random data. Can be used as demo.
+    """
+    id = DonutChartBrick.generate_id('sketch', 'demo_line_chart')
+    verbose_name = "Demo Line Chart"
+    abscissa_title = "Axis of Abscissas"
+    ordinate_title = "Axis of Ordinates"
+
+    def get_chart_data(self, context):
+        return [{"x": f"Line Dot {i}", "y": randint(1, 1500)} for i in range(1, randint(5, 40))]
 
     def detailview_display(self, context):
         return self._render_chart(context)

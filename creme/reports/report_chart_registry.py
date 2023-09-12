@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,6 +34,14 @@ class ReportChart:
 class ReportBarChart(ReportChart):
     template = 'reports/plot/barchart.json'
 
+    def props(self, graph, data):
+        return {
+            "xAxisTitle": graph.verbose_abscissa(),
+            "yAxisTitle": graph.verbose_ordinate(),
+        }
+
+
+class ReportLineChart(ReportChart):
     def props(self, graph, data):
         return {
             "xAxisTitle": graph.verbose_abscissa(),
