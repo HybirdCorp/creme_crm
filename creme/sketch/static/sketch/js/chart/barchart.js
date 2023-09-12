@@ -168,9 +168,10 @@ creme.D3BarChart = creme.D3Chart.sub({
 
         chart.classed('x-scroll', xScroll);
 
-        var xscale = d3.scaleBand().padding(0.1);
-        xscale.domain(data.map(function(d) { return d.x; }))
-              .range([0, xAxisWidth], 0.1);
+        var xscale = d3.scaleBand()
+                            .domain(data.map(function(d) { return d.x; }))
+                            .range([0, xAxisWidth], 0.1)
+                            .padding(0.1);
 
         chart.select('.x.axis')
                 .call(creme.d3BottomAxis()

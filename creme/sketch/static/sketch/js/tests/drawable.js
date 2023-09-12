@@ -362,5 +362,42 @@ QUnit.test('creme.d3Scroll', function(assert) {
     });
 });
 
+QUnit.parametrize('creme.d3Tooltip', [
+    'c', 'n', 'ne', 'nw', 's', 'se', 'sw', 'e', 'w'
+], function(direction, assert) {
+    var element = $('<div>').appendTo(this.qunitFixture());
+    var sketch = new creme.D3Sketch().bind(element);
+
+    var chart = sketch.svg().append('g');
+    var target = chart.append('circle');
+
+    chart.attr('width', 300)
+         .attr('height', 200);
+
+    target.attr('cx', 150)
+          .attr('cy', 100)
+          .attr('r', 14);
+
+    var tooltip = creme.d3Tooltip()
+                           .transition(false)
+                           .direction(direction)
+                           .html(function(d) { return '<h5>${text}</h5>'.template(d); })
+                           .root(element.get(0));
+
+    equal(element.find('.d3-sketch-tooltip').length, 0);
+
+    tooltip.show.bind(target.node())({text: 'Tip a Toe !'});
+
+    var container = element.find('.d3-sketch-tooltip');
+
+    equal(container.length, 1);
+    equal(container.html(), '<h5>Tip a Toe !</h5>');
+    equal(container.css('opacity'), 1);
+    equal(container.is('.tip-' + direction), true);
+
+    tooltip.hide();
+    equal(container.css('opacity'), 0);
+});
+
 }(jQuery));
 
