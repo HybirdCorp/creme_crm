@@ -991,18 +991,16 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         except Exception as e:
             raise cls.ValueError(str(e)) from e
 
-        value = {
-            'operator': operator_id,
-            'values':   value,
-            'rname':    cf_value_class.get_related_name(),
-        }
-
         return condition_cls(
             filter_type=filter_type,
             model=custom_field.content_type.model_class(),
             type=cls.type_id,
             name=str(custom_field.id),
-            value=value,
+            value={
+                'operator': operator_id,
+                'values':   value,
+                'rname':    cf_value_class.get_related_name(),
+            },
         )
 
     def description(self, user):
@@ -1578,12 +1576,20 @@ class PropertyConditionHandler(FilterConditionHandler):
 
     @classmethod
     def build(cls, *, model, name, data):
-        if not isinstance(data, bool):
-            raise cls.DataError(
-                f'{cls.__name__}.build(): invalid data (not boolean)'
-            )
+        # if not isinstance(data, bool):
+        #     raise cls.DataError(
+        #         f'{cls.__name__}.build(): invalid data (not boolean)'
+        #     )
+        # return cls(model=model, ptype=name, exclude=not data)
+        try:
+            has = data['has']
+        except (TypeError, KeyError) as e:
+            raise cls.DataError(f'{cls.__name__}.build(): invalid data ({e})')
 
-        return cls(model=model, ptype=name, exclude=not data)
+        if not isinstance(has, bool):
+            raise cls.DataError(f'{cls.__name__}.build(): "has" is not a boolean')
+
+        return cls(model=model, ptype=name, exclude=(not has))
 
     @classmethod
     def build_condition(cls, *, model, ptype, has=True,
@@ -1603,7 +1609,8 @@ class PropertyConditionHandler(FilterConditionHandler):
             model=model,
             type=cls.type_id,
             name=ptype.id,
-            value=bool(has),
+            # value=bool(has),
+            value={'has': bool(has)},
         )
 
     def description(self, user):

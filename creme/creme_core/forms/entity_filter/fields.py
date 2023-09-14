@@ -996,7 +996,8 @@ class PropertiesConditionsField(_ConditionsField):
         return [
             {
                 'ptype': condition.name,
-                'has':   boolean_str(condition.value),
+                # 'has':   boolean_str(condition.value),
+                'has':   boolean_str(condition.value['has']),
             } for condition in value
         ]
 

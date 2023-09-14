@@ -2311,13 +2311,15 @@ class PropertiesConditionsFieldTestCase(CremeTestCase):
         condition1 = conditions[0]
         self.assertEqual(type_id,         condition1.type)
         self.assertEqual(self.ptype01.id, condition1.name)
-        self.assertIs(condition1.value, True)
+        # self.assertIs(condition1.value, True)
+        self.assertDictEqual({'has': True}, condition1.value)
 
         condition2 = conditions[1]
         self.assertEqual(type_id,         condition2.type)
         self.assertEqual(self.ptype02.id, condition2.name)
         self.assertEqual(EF_USER,         condition2.filter_type)
-        self.assertIs(condition2.value, False)
+        # self.assertIs(condition2.value, False)
+        self.assertDictEqual({'has': False}, condition2.value)
 
     def test_ok02(self):
         ptype = self.ptype01
@@ -2366,7 +2368,8 @@ class PropertiesConditionsFieldTestCase(CremeTestCase):
             field.clean(json_dump([{'ptype': ptype.id, 'has': True}]))
         )
         self.assertEqual(ptype.id, condition.name)
-        self.assertIs(condition.value, True)
+        # self.assertIs(condition.value, True)
+        self.assertDictEqual({'has': True}, condition.value)
 
 
 # class RelationsConditionsFieldTestCase(FieldTestCase):

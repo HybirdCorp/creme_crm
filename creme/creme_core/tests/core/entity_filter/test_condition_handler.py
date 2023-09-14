@@ -3272,8 +3272,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(EF_USER,                           condition1.filter_type)
         self.assertEqual(SubFilterConditionHandler.type_id, condition1.type)
         self.assertEqual(sub_efilter.id,                    condition1.name)
-        self.assertEqual('',                                condition1.raw_value)
-        self.assertIsNone(condition1.value)
+        # self.assertEqual('',                                condition1.raw_value)
+        # self.assertIsNone(condition1.value)
+        self.assertDictEqual({}, condition1.value)
 
         handler1 = SubFilterConditionHandler.build(
             model=FakeContact,
@@ -3755,7 +3756,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         handler1 = PropertyConditionHandler.build(
             model=FakeOrganisation,
             name=ptype_id1,
-            data=True,
+            # data=True,
+            data={'has': True},
         )
         self.assertEqual(FakeOrganisation, handler1.model)
         self.assertIsNone(handler1.subfilter_id)
@@ -3767,7 +3769,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         handler2 = PropertyConditionHandler.build(
             model=FakeContact,
             name=ptype_id2,
-            data=False,
+            # data=False,
+            data={'has': False},
         )
         self.assertEqual(FakeContact, handler2.model)
         self.assertEqual(ptype_id2,   handler2._ptype_id)
@@ -3814,7 +3817,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(EF_USER,                          condition1.filter_type)
         self.assertEqual(PropertyConditionHandler.type_id, condition1.type)
         self.assertEqual(ptype1.id,                        condition1.name)
-        self.assertEqual(True,                             condition1.value)
+        # self.assertEqual(True,                             condition1.value)
+        self.assertDictEqual({'has': True}, condition1.value)
 
         handler1 = PropertyConditionHandler.build(
             model=FakeContact,
@@ -3838,7 +3842,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertEqual(EF_CREDENTIALS, condition2.filter_type)
         self.assertEqual(ptype2.id,      condition2.name)
-        self.assertIs(condition2.value, False)
+        # self.assertIs(condition2.value, False)
+        self.assertDictEqual({'has': False}, condition2.value)
 
         handler2 = PropertyConditionHandler.build(
             model=FakeContact,

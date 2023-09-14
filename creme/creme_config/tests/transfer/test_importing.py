@@ -1999,11 +1999,13 @@ class ImportingTestCase(TransferBaseTestCase):
         condition1_4 = conditions1[3]
         self.assertEqual(PropertyConditionHandler.type_id, condition1_4.type)
         self.assertEqual(ptype_id1, condition1_4.name)
-        self.assertEqual(True, condition1_4.value)
+        # self.assertEqual(True, condition1_4.value)
+        self.assertEqual({'has': True}, condition1_4.value)
 
         condition1_5 = conditions1[4]
         self.assertEqual(ptype2.id, condition1_5.name)
-        self.assertEqual(False, condition1_5.value)
+        # self.assertEqual(False, condition1_5.value)
+        self.assertEqual({'has': False}, condition1_5.value)
 
         # --
         efilter_data2 = efilters_data[1]
