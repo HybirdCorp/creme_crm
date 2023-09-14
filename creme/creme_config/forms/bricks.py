@@ -341,7 +341,7 @@ class BrickMypageLocationsForm(_BrickLocationsForm):
 
 
 class RTypeBrickCreationForm(base.CremeModelForm):
-    # TODO: do no define manually the whole field?
+    # NB: RelationType is not enumerable, so we have to define the field.
     relation_type = forms.ModelChoiceField(
         RelationType.objects.none(),
         label=RelationBrickItem._meta.get_field('relation_type').verbose_name,

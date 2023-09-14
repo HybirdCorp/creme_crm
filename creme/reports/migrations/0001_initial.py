@@ -114,7 +114,9 @@ class Migration(migrations.Migration):
                         verbose_name='X axis (grouping)', editable=False,
                         choices=[
                             (1, 'By days'), (2, 'By months'), (3, 'By years'), (4, 'By X days'),
-                            (5, 'By values'), (6, 'By values (of related entities)'),
+                            (5, 'By values (configurable)'),
+                            (6, 'By values (of related entities)'),
+                            (7, 'By values (not configurable)'),
                             (11, 'By days (custom field)'), (12, 'By months (custom field)'),
                             (13, 'By years (custom field)'), (14, 'By X days (custom field)'),
                             (15, 'By values (of custom choices)'),
