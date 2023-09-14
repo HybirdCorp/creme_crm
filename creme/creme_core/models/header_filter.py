@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from json import loads as json_load
+# from json import loads as json_load
 from typing import TYPE_CHECKING, Iterable
 
 from django.contrib.contenttypes.models import ContentType
@@ -30,7 +30,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from ..utils.serializers import json_encode
+# from ..utils.serializers import json_encode
 from . import CremeEntity
 from . import fields as core_fields
 
@@ -171,9 +171,9 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
         pgettext_lazy('creme_core-header_filter', 'Is private?'), default=False,
     )
 
-    # TODO: JSONField ? CellsField ?
-    # TODO: default == '[]' ?
-    json_cells = models.TextField(editable=False, null=True)
+    # TODO: CellsField? (what about auto saving on invalid cells?)
+    # json_cells = models.TextField(editable=False, null=True)
+    json_cells = models.JSONField(editable=False, default=list)
 
     objects = HeaderFilterManager()
 
@@ -233,7 +233,8 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
         return self.can_edit(user)
 
     def _dump_cells(self, cells: Iterable[EntityCell]):
-        self.json_cells = json_encode([cell.to_dict() for cell in cells])
+        # self.json_cells = json_encode([cell.to_dict() for cell in cells])
+        self.json_cells = [cell.to_dict() for cell in cells]
 
     @property
     def cells(self) -> list[EntityCell]:
@@ -244,7 +245,8 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
             cells, errors = CELLS_MAP.build_cells_from_dicts(
                 model=self.entity_type.model_class(),
-                dicts=json_load(self.json_cells),
+                # dicts=json_load(self.json_cells),
+                dicts=self.json_cells,
             )
 
             if errors:

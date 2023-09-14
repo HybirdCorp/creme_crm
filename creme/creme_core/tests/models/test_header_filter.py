@@ -1,6 +1,6 @@
+# from json import dumps as json_dump
+# from json import loads as json_load
 from functools import partial
-from json import dumps as json_dump
-from json import loads as json_load
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -45,7 +45,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(self.contact_ct, hf.entity_type)
         self.assertIs(hf.is_custom, True)
         self.assertIs(hf.is_private, False)
-        self.assertEqual('[]', hf.json_cells)
+        # self.assertEqual('[]', hf.json_cells)
+        self.assertListEqual([], hf.json_cells)
         self.assertFalse(hf.cells)
         self.assertListEqual([], hf.filtered_cells)
 
@@ -56,7 +57,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(1, len(hf.cells))
 
         with self.assertNoException():
-            deserialized = json_load(hf.json_cells)
+            # deserialized = json_load(hf.json_cells)
+            deserialized = hf.json_cells
 
         self.assertListEqual(
             [{'type': 'regular_field', 'value': 'first_name'}],
@@ -214,48 +216,63 @@ class HeaderFiltersTestCase(CremeTestCase):
             ],
         )
 
-        json_data = hf.json_cells
+        # json_data = hf.json_cells
 
         with self.assertNoException():
-            deserialized = json_load(json_data)
+            # deserialized = json_load(json_data)
+            deserialized1 = hf.json_cells
 
         self.assertListEqual(
             [
                 {'type': 'function_field', 'value': ffield_name},
                 {'type': 'regular_field',  'value': rfield_name},
             ],
-            deserialized,
+            # deserialized,
+            deserialized1,
         )
 
-        # We use update() in order to bypass the checkings by HeaderFilter
-        # methods and inject errors : it simulates an human that modifies
+        # We use update() in order to bypass the checking by HeaderFilter
+        # methods and inject errors : it simulates a human that modifies
         # directly the DB column.
         HeaderFilter.objects.filter(id=hf.id).update(
-            json_cells=json_data.replace('function_field', 'invalid_type'),
+            # json_cells=json_data.replace('function_field', 'invalid_type'),
+            json_cells=[
+                {
+                    'type': 'invalid_type',  # <===
+                    'value': ffield_name,
+                },
+                {'type': 'regular_field', 'value': rfield_name},
+            ],
         )
 
         hf = self.refresh(hf)
         valid_cells = [EntityCellRegularField.build(model=FakeContact, name=rfield_name)]
         self.assertListEqual(valid_cells, hf.cells)
 
-        json_data = hf.json_cells
+        # json_data = hf.json_cells
 
         with self.assertNoException():
-            deserialized = json_load(json_data)
+            # deserialized = json_load(json_data)
+            deserialized2 = hf.json_cells
 
         self.assertListEqual(
             [{'type': 'regular_field',  'value': rfield_name}],
-            deserialized,
+            # deserialized,
+            deserialized2,
         )
 
         # ---------------------------------------------------------------------
         HeaderFilter.objects.filter(
             id=hf.id,
         ).update(
-            json_cells=json_dump([
+            # json_cells=json_dump([
+            #     {'type': 'function_field'},
+            #     {'type': 'regular_field', 'value': rfield_name},
+            # ]),
+            json_cells=[
                 {'type': 'function_field'},
                 {'type': 'regular_field', 'value': rfield_name},
-            ]),
+            ],
         )
         self.assertListEqual(valid_cells, self.refresh(hf).cells)
 
@@ -263,10 +280,14 @@ class HeaderFiltersTestCase(CremeTestCase):
         HeaderFilter.objects.filter(
             id=hf.id,
         ).update(
-            json_cells=json_dump([
+            # json_cells=json_dump([
+            #     {'type': 'function_field'},  # Not 'value' key
+            #     {'type': 'regular_field', 'value': rfield_name},
+            # ]),
+            json_cells=[
                 {'type': 'function_field'},  # Not 'value' key
                 {'type': 'regular_field', 'value': rfield_name},
-            ]),
+            ],
         )
         self.assertListEqual(valid_cells, self.refresh(hf).cells)
 
@@ -274,19 +295,25 @@ class HeaderFiltersTestCase(CremeTestCase):
         HeaderFilter.objects.filter(
             id=hf.id,
         ).update(
-            json_cells=json_dump([
+            # json_cells=json_dump([
+            #     {},  # No 'type' key
+            #     {'type': 'regular_field', 'value': rfield_name},
+            # ]),
+            json_cells=[
                 {},  # No 'type' key
                 {'type': 'regular_field', 'value': rfield_name},
-            ]),
+            ],
         )
         self.assertListEqual(valid_cells, self.refresh(hf).cells)
 
         # ---------------------------------------------------------------------
-        HeaderFilter.objects.filter(id=hf.id).update(json_cells=json_dump([1]))  # Not a dict
+        # HeaderFilter.objects.filter(id=hf.id).update(json_cells=json_dump([1]))  # Not a dict
+        HeaderFilter.objects.filter(id=hf.id).update(json_cells=[1])  # Not a dict
         self.assertFalse(self.refresh(hf).cells)
 
         # ---------------------------------------------------------------------
-        HeaderFilter.objects.filter(id=hf.id).update(json_cells=json_dump(1))  # Not a list
+        # HeaderFilter.objects.filter(id=hf.id).update(json_cells=json_dump(1))  # Not a list
+        HeaderFilter.objects.filter(id=hf.id).update(json_cells=1)  # Not a list
         self.assertFalse(self.refresh(hf).cells)
 
     def test_filtered_cells(self):
@@ -398,7 +425,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertListEqual([cell1], new_cells)
 
         with self.assertNoException():
-            deserialized = json_load(hf.json_cells)
+            # deserialized = json_load(hf.json_cells)
+            deserialized = hf.json_cells
 
         self.assertListEqual(
             [{'type': 'regular_field', 'value': 'last_name'}],

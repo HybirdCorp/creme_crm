@@ -61,6 +61,9 @@
                         - EMAILCAMPAIGN_PASSWORD
                         - EMAILCAMPAIGN_PORT
                         - EMAILCAMPAIGN_USE_TLS
+        # In 'creme_core.models' :
+            - The field 'HeaderFilter.json_cells' is now a 'JSONField';
+              you won't have to change your code if you use the property 'cells' as advised.
         # Apps :
             * Creme_config :
                 - The global dictionary 'forms.setting._FIELDS' has been removed;
