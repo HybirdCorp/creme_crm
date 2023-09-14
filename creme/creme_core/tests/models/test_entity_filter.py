@@ -391,20 +391,23 @@ class EntityFiltersTestCase(CremeTestCase):
             model=FakeContact,
             type=type_id,
             name='first_name',
-            raw_value='{"operator": 1, "values": ["Ikari"]}',
+            # raw_value='{"operator": 1, "values": ["Ikari"]}',
+            value={'operator': 1, 'values': ['Ikari']},
         )
         cond2 = EntityFilterCondition(
             model=FakeContact,
             type=type_id,
             name='first_name',
-            raw_value='{"operator": 1, "values": ["Ikari"]}',
+            # raw_value='{"operator": 1, "values": ["Ikari"]}',
+            value={'operator': 1, 'values': ['Ikari']},
         )
         cond3 = EntityFilterCondition(
             model=FakeContact,
             type=type_id,
             name='first_name',
             # Different strings, but same JSONified dict....
-            raw_value='{"values": ["Ikari"], "operator": 1}',
+            # raw_value='{"values": ["Ikari"], "operator": 1}',
+            value={'values': ['Ikari'], 'operator': 1},
         )
         self.assertTrue(equal([cond1], [cond2]))
         self.assertTrue(equal([cond1], [cond3]))
@@ -1659,7 +1662,8 @@ class EntityFiltersTestCase(CremeTestCase):
         condition1.save()
 
         condition2 = self.get_alone_element(self.refresh(efilter).get_conditions())
-        EntityFilterCondition.objects.filter(id=condition2.id).update(raw_value='[]')
+        # EntityFilterCondition.objects.filter(id=condition2.id).update(raw_value='[]')
+        EntityFilterCondition.objects.filter(id=condition2.id).update(value=[])
         self.assertFalse(self.refresh(efilter).get_conditions())
 
     def test_multi_conditions_and01(self):

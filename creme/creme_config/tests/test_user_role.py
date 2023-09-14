@@ -970,7 +970,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             condition3.type,
         )
         self.assertEqual(ptype.id, condition3.name)
-        self.assertIs(condition3.value, True)
+        # self.assertIs(condition3.value, True)
+        self.assertDictEqual({'has': True}, condition3.value)
 
     def test_add_credentials_with_filter03(self):
         "Filter without specific ContentType."
@@ -1445,7 +1446,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             condition3.type,
         )
         self.assertEqual(ptype.id, condition3.name)
-        self.assertIs(condition3.value, True)
+        # self.assertIs(condition3.value, True)
+        self.assertEqual({'has': True}, condition3.value)
 
     def test_edit_credentials_with_filter03(self):
         "Change existing ctype & filter + conditions on CustomField/Relation/CremeProperty."
@@ -1549,7 +1551,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             condition.type,
         )
         self.assertEqual(ptype.id, condition.name)
-        self.assertIs(condition.value, True)
+        # self.assertIs(condition.value, True)
+        self.assertEqual({'has': True}, condition.value)
 
     def test_edit_credentials_with_filter04(self):
         "Remove filter if no more needed."
@@ -1718,7 +1721,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             condition.type,
         )
         self.assertEqual(ptype.id, condition.name)
-        self.assertIs(condition.value, True)
+        # self.assertIs(condition.value, True)
+        self.assertEqual({'has': True}, condition.value)
 
     def test_edit_credentials_with_filter06(self):
         "Add filter to CremeEntity."

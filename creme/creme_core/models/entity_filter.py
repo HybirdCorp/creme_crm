@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,9 @@
 from __future__ import annotations
 
 import logging
+from copy import deepcopy
 from itertools import zip_longest
-from json import loads as json_load
+# from json import loads as json_load
 from re import compile as compile_re
 from typing import TYPE_CHECKING, Iterable, Iterator
 
@@ -43,7 +44,7 @@ from ..core.entity_filter import (
 from ..global_info import get_global_info
 from ..utils import update_model_instance
 from ..utils.id_generator import generate_string_id_and_save
-from ..utils.serializers import json_encode
+# from ..utils.serializers import json_encode
 from . import CremeEntity
 from . import fields as core_fields
 
@@ -814,7 +815,8 @@ class EntityFilterCondition(models.Model):
     type = models.PositiveSmallIntegerField()
 
     name = models.CharField(max_length=100)
-    raw_value = models.TextField()  # TODO: use a JSONField ?
+    # raw_value = models.TextField()
+    value = models.JSONField(default=dict)
 
     _handler = None  # Cache for FilterConditionHandler instance.
     _model = None
@@ -888,7 +890,8 @@ class EntityFilterCondition(models.Model):
             filter=efilter,
             type=self.type,
             name=self.name,
-            raw_value=self.raw_value,
+            # raw_value=self.raw_value,
+            value=deepcopy(self.value),
         )
 
     def description(self, user):
@@ -955,14 +958,14 @@ class EntityFilterCondition(models.Model):
 
         return changed
 
-    @property
-    def value(self):
-        raw_value = self.raw_value
-        return json_load(raw_value) if raw_value else None
-
-    @value.setter
-    def value(self, raw_value) -> None:
-        self.raw_value = json_encode(raw_value)
+    # @property
+    # def value(self):
+    #     raw_value = self.raw_value
+    #     return json_load(raw_value) if raw_value else None
+    #
+    # @value.setter
+    # def value(self, raw_value) -> None:
+    #     self.raw_value = json_encode(raw_value)
 
 
 # TODO: manage also deletion of:

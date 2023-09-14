@@ -346,7 +346,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         condition = next(iter_conds)
         self.assertEqual(PropertyConditionHandler.type_id, condition.type)
         self.assertEqual(ptype.id,                         condition.name)
-        self.assertIs(condition.value, True)
+        # self.assertIs(condition.value, True)
+        self.assertDictEqual({'has': True}, condition.value)
 
         condition = next(iter_conds)
         self.assertEqual(SubFilterConditionHandler.type_id, condition.type)
@@ -1146,7 +1147,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         condition = next(iter_conds)
         self.assertEqual(PropertyConditionHandler.type_id, condition.type)
         self.assertEqual(ptype.id,                         condition.name)
-        self.assertIs(condition.value, False)
+        # self.assertIs(condition.value, False)
+        self.assertDictEqual({'has': False}, condition.value)
 
         condition = next(iter_conds)
         self.assertEqual(SubFilterConditionHandler.type_id, condition.type)

@@ -1577,7 +1577,8 @@ class ExportingTestCase(TransferBaseTestCase):
                     {
                         'type':  PropertyConditionHandler.type_id,
                         'name':  ptype.id,
-                        'value': True,
+                        # 'value': True,
+                        'value': {'has': True},
                     }, {
                         'type':  RelationConditionHandler.type_id,
                         'name':  rtype.id,
