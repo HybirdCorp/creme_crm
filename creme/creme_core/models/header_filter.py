@@ -186,11 +186,10 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
         app_label = 'creme_core'
         ordering = ('name',)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # TODO: a true CellsField ??
-        if self.json_cells is None:
-            self.cells = []
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     if self.json_cells is None:
+    #         self.cells = []
 
     def __str__(self):
         return self.name
