@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
+from django.utils.translation import pgettext
 
 from creme.creme_core.core.entity_cell import (
     EntityCellFunctionField,
@@ -501,7 +502,11 @@ class ModelRelativeDatePeriodFieldTestCase(AssistantsTestCase):
     def test_relative_choices_1(self):
         "Default choices."
         field = ModelRelativeDatePeriodField(model=FakeContact)
-        expected_choices = [(-1, _('Before')), (1, _('After'))]
+        # expected_choices = [(-1, _('Before')), (1, _('After'))]
+        expected_choices = [
+            (-1, pgettext('creme_core-date_period', 'Before')),
+            (1,  pgettext('creme_core-date_period', 'After')),
+        ]
         self.assertListEqual(expected_choices, [*field.fields[1].relative_choices])
         self.assertListEqual(expected_choices, [*field.relative_choices])
         self.assertListEqual(expected_choices, [*field.widget.relative_choices])

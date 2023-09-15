@@ -15,6 +15,7 @@ from django.forms import (
 from django.test.utils import override_settings
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 import creme.creme_core.forms.widgets as core_widgets
 # from creme.creme_core.forms.fields import CremeUserChoiceField
@@ -465,7 +466,11 @@ class RelativeDatePeriodFieldTestCase(CremeTestCase):
     def test_relative_choices_1(self):
         "Default choices."
         field = RelativeDatePeriodField(period_names=(MinutesPeriod.name,))
-        expected_choices = [(-1, _('Before')), (1, _('After'))]
+        # expected_choices = [(-1, _('Before')), (1, _('After'))]
+        expected_choices = [
+            (-1, pgettext('creme_core-date_period', 'Before')),
+            (1,  pgettext('creme_core-date_period', 'After')),
+        ]
         self.assertListEqual(expected_choices, [*field.fields[0].choices])
         self.assertListEqual(expected_choices, [*field.relative_choices])
         self.assertListEqual(expected_choices, [*field.widget.relative_choices])

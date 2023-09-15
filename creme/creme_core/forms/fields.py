@@ -1525,6 +1525,13 @@ class RelativeDatePeriodField(fields.MultiValueField):
                 **self.period.as_dict(),
             }
 
+        @classmethod
+        def choices(cls):
+            return [
+                (cls.BEFORE, pgettext_lazy('creme_core-date_period', 'Before')),
+                (cls.AFTER,  pgettext_lazy('creme_core-date_period', 'After')),
+            ]
+
     def __init__(self, *, period_registry=date_period_registry, period_names=None, **kwargs):
         """Constructor.
         @param period_registry: See DatePeriodField.
@@ -1544,10 +1551,11 @@ class RelativeDatePeriodField(fields.MultiValueField):
         )
 
         self.period_names = period_names
-        self.relative_choices = [
-            (self.RelativeDatePeriod.BEFORE, _('Before')),
-            (self.RelativeDatePeriod.AFTER,  _('After')),
-        ]
+        # self.relative_choices = [
+        #     (self.RelativeDatePeriod.BEFORE, _('Before')),
+        #     (self.RelativeDatePeriod.AFTER,  _('After')),
+        # ]
+        self.relative_choices = self.RelativeDatePeriod.choices()
 
     @property
     def period_choices(self):
