@@ -959,6 +959,14 @@
     font-size: 11px;
 }
 
+.listview .list-footer-page-selector .select-wrapper select {
+    width: 60px;
+}
+
+.listview .list-footer-page-selector .select-wrapper .select-arrow {
+    left: 40px;
+}
+
 /* mostly copied from bricks pagination */
 .listview .list-footer-container .listview-pagination {
     display: inline-flex;
