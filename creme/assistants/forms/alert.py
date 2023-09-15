@@ -164,16 +164,18 @@ class ModelRelativeDatePeriodField(fields.MultiValueField):
                  period_registry=date_period.date_period_registry,
                  period_names=None,
                  **kwargs):
+        RelativeDatePeriodField = core_fields.RelativeDatePeriodField
         super().__init__(
             (
                 fields.ChoiceField(),
-                core_fields.RelativeDatePeriodField(period_registry=period_registry),
+                RelativeDatePeriodField(period_registry=period_registry),
             ),
             **kwargs
         )
 
         self.period_names = period_names
-        self.relative_choices = [(-1, _('Before')), (1, _('After'))]
+        # self.relative_choices = [(-1, _('Before')), (1, _('After'))]
+        self.relative_choices = RelativeDatePeriodField.RelativeDatePeriod.choices()
         self.model = model
         self.non_hiddable_cell = non_hiddable_cell
 
