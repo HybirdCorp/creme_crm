@@ -463,7 +463,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     def get_unordered_queryset_n_count(self) -> tuple[QuerySet, int]:
         # Cannot use this because it uses get_ordering() too early
         qs = self.model._default_manager.filter(is_deleted=False)
-        state = self.state
+        # state = self.state
 
         filtered = False
         use_distinct = False
@@ -490,7 +490,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
                 filtered = True
                 use_distinct = True
 
-        state.extra_q = extra_q   # TODO: only if valid ? no write in state HERE ?
+        # state.extra_q = extra_q
 
         # ----
         search_q = self.search_form.search_q

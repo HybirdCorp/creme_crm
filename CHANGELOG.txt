@@ -82,6 +82,7 @@
               it'll only affect direct access to the field (e.g. QuerySet), because the property (getter/setter) "value" has just been replaced.
               The JSON data should always be a dictionary, so the data changed for conditions on CremeProperties
               (example: 'true' became '{"has":true}' ; see 'creme_core.core.entity_filter.condition_handler.PropertyConditionHandler').
+        #  The attribute 'creme_core.gui.listview.state.ListViewState.extra_q' has been removed.
         # Apps :
             * Creme_config :
                 - The global dictionary 'forms.setting._FIELDS' has been removed;
