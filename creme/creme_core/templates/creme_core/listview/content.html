@@ -165,12 +165,15 @@
                     {% if paginator.num_pages > 1 %}{% listview_pager page_obj %}{% else %}<div class='listview-pagination'></div>{% endif %}
 
                     <div class='list-footer-page-selector'>
-                        <label >{% translate 'Nb / Page' %} :
-                        <select name="rows" class="lv-state-field list-pagesize-selector">
-                        {% with rows=paginator.per_page %}
-                            {% for size_option in page_sizes %}<option value="{{size_option}}"{% if rows == size_option %} selected{% endif %}>{{size_option}}</option>{% endfor %}
-                        {% endwith %}
-                        </select>
+                        <label>{% translate 'Nb / Page:' %}
+                            <div class="select-wrapper">
+                                <select name="rows" class="lv-state-field list-pagesize-selector">
+                                {% with rows=paginator.per_page %}
+                                    {% for size_option in page_sizes %}<option value="{{size_option}}"{% if rows == size_option %} selected{% endif %}>{{size_option}}</option>{% endfor %}
+                                {% endwith %}
+                                </select>
+                                <div class="select-arrow"></div>
+                            </div>
                         </label>
                     </div>
                   {% endblock %}
