@@ -24,11 +24,11 @@ from creme.creme_core.models.entity_filter import (
     EntityFilter,
     EntityFilterList,
 )
+# from creme.creme_core.utils.queries import QSerializer
 from creme.creme_core.models.header_filter import (
     HeaderFilter,
     HeaderFilterList,
 )
-from creme.creme_core.utils.queries import QSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class ListViewState:
         self.sort_cell_key = get_arg('sort_cell_key')
         self.url = get_arg('url')
         self.search = {}
-        self.extra_q = None
+        # self.extra_q = None
 
     def __repr__(self):
         return (
@@ -59,19 +59,20 @@ class ListViewState:
             f'rows={self.rows}, '
             f'sort={self.sort_order}{self.sort_cell_key}, '
             f'url={self.url}, '
-            f'search={self.search}, '
-            f'extra_q={self.extra_q}'
+            # f'search={self.search}, '
+            f'search={self.search}'
+            # f'extra_q={self.extra_q}'
             f')>'
         )
 
     def register_in_session(self, request) -> None:
-        serialized = {**self.__dict__}
-
-        # TODO: if self.extra_q:  (NB: Q() is evaluated as False...)
-        if self.extra_q is not None:
-            serialized['extra_q'] = QSerializer().dumps(self.extra_q)
-
-        request.session[self.url] = serialized
+        # serialized = {**self.__dict__}
+        #
+        # if self.extra_q is not None:
+        #     serialized['extra_q'] = QSerializer().dumps(self.extra_q)
+        #
+        # request.session[self.url] = serialized
+        request.session[self.url] = self.__dict__
 
     @classmethod
     def get_state(cls, request, url=None) -> ListViewState | None:
@@ -84,8 +85,8 @@ class ListViewState:
             for k, v in data.items():
                 setattr(lvs, k, v)
 
-            if lvs.extra_q is not None:
-                lvs.extra_q = QSerializer().loads(lvs.extra_q)
+            # if lvs.extra_q is not None:
+            #     lvs.extra_q = QSerializer().loads(lvs.extra_q)
 
         return lvs
 
