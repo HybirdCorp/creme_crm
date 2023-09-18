@@ -275,4 +275,17 @@ class SettingKeyTestCase(CremeTestCase):
         self.assertEqual(choices, ffield.choices)
         self.assertEqual(2, ffield.clean('2'))
 
+    def test_custom_renderer(self):
+        choices = {'1': 'One', '2': 'Two'}
+        sk = SettingKey(
+            id='creme_core-test_sk_int',
+            description='Short description',
+            app_label='creme_core',
+            type=SettingKey.INT,
+            html_printer=lambda value: choices.get(value, '??'),
+        )
+        self.assertEqual('One', sk.value_as_html('1'))
+        self.assertEqual('Two', sk.value_as_html('2'))
+        self.assertEqual('??',  sk.value_as_html('3'))
+
 # TODO: test unregister
