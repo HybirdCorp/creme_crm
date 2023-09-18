@@ -90,6 +90,7 @@ class _SettingKey:
                  hidden: bool = False,
                  blank: bool = False,
                  formfield_class: type[forms.Field] | None = None,
+                 html_printer: Callable | None = None,
                  ):
         """Constructor.
         @param id: Unique String. Use something like "my_app-key_name".
@@ -99,6 +100,9 @@ class _SettingKey:
         @param see: _SettingKey.STRING, _SettingKey.INT ...
         @param hidden: If True, it can not be seen in the configuration GUI.
         @param blank: If True, the value is not required in the configuration GUI.
+        @param formfield_class: Field to use in the form to set the related value.
+        @param html_printer: Function to render the related value as HTML;
+               it must take one argument (the string value).
         """
         self.id = id
         self.description = description
@@ -107,6 +111,7 @@ class _SettingKey:
         self.hidden = hidden
         self.blank = blank
         self.formfield_class = formfield_class
+        self.html_printer = html_printer
 
         self._castor = self._CASTORS[type]
 
@@ -138,7 +143,7 @@ class _SettingKey:
         return form_cls(label=_('Value'), required=not self.blank)
 
     def value_as_html(self, value) -> str:
-        printer = self.HTML_PRINTERS.get(self.type, str)
+        printer = self.html_printer or self.HTML_PRINTERS.get(self.type, str)
 
         return printer(value)
 

@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 12-09-2023 pour la version 2.6 de Creme
+:Version: 18-09-2023 pour la version 2.6 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3017,15 +3017,19 @@ Et pour utiliser la valeur dans votre code : ::
 
 
 **Un peu plus loin** : vous pouvez donner à votre ``SettingKey`` le champ de
-formulaire à utiliser pour remplir la ``SettingValue`` associée. Voilà un
-exemple où notre valeur sera un nombre entier parmi un choix restreint, et
-l'utilisateur choisit parmi quelques labels : ::
+formulaire à utiliser pour remplir la ``SettingValue`` associée via le
+paramètre ``formfield_class``. Voilà un exemple où notre valeur sera un nombre
+entier parmi un choix restreint, et l'utilisateur choisit parmi quelques
+labels : ::
+
+    from functools import partial
 
     from django import forms
     from django.utils.translation import gettext_lazy as _
 
     [...]
 
+    _choices = {'1': 'One', '2': 'Two', '3': 'Three'}
     beaver_key = SettingKey(
         id=constants.ANOTHER_KEY_ID,
         description=_('*Set a description here*'),
@@ -3033,10 +3037,14 @@ l'utilisateur choisit parmi quelques labels : ::
         type=SettingKey.INT,
         formfield_class=partial(
             forms.TypedChoiceField,
-            choices=[('1', 'One'), ('2', 'Two'), ('3', 'Three')],
-            coerce=int,
+            choices=_choices.items(), coerce=int,
         ),
+        html_printer=lambda value: _choices.get(value, '??'),
     )
+
+Notez que nous avons aussi fourni une fonction qui permet d'afficher
+correctement la valeur dans le bloc de configuration des ``SettingValue`` avec
+le paramètre ``html_printer``.
 
 
 Réglages par utilisateur

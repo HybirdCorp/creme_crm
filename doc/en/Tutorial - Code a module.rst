@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 12-09-2023 for Creme 2.6
+:Version: 18-09-2023 for Creme 2.6
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2896,11 +2896,14 @@ used when setting the related ``SettingValue``. Here an example where our value
 will be an integer among some restricted choices, and the user choses among
 some labels: ::
 
+    from functools import partial
+
     from django import forms
     from django.utils.translation import gettext_lazy as _
 
     [...]
 
+    _choices = {'1': 'One', '2': 'Two', '3': 'Three'}
     beaver_key = SettingKey(
         id=constants.ANOTHER_KEY_ID,
         description=_('*Set a description here*'),
@@ -2908,10 +2911,14 @@ some labels: ::
         type=SettingKey.INT,
         formfield_class=partial(
             forms.TypedChoiceField,
-            choices=[('1', 'One'), ('2', 'Two'), ('3', 'Three')],
-            coerce=int,
+            choices=_choices.items(), coerce=int,
         ),
+        html_printer=lambda value: _choices.get(value, '??'),
     )
+
+Notice that we also provided a function which allows to correctly display
+the value in the configuration block for ``SettingValue`` with the parameter
+``html_printer``.
 
 
 User's settings
