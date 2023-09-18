@@ -84,6 +84,14 @@
               it'll only affect direct access to the field (e.g. QuerySet), because the property (getter/setter) "value" has just been replaced.
               The JSON data should always be a dictionary, so the data changed for conditions on CremeProperties
               (example: 'true' became '{"has":true}' ; see 'creme_core.core.entity_filter.condition_handler.PropertyConditionHandler').
+        # In 'creme_core.forms.merge', the CSS classes related to 'EntitiesHeaderWidget' & 'MergeWidget' has been renamed
+          (the templates & 'creme_core/js/merge.js' have been reworked of course) :
+            - "merge_entity_field" => "merge-field".
+            - "li_merge_entity_header*" => "merge-field-header-*".
+            - "li_merge_result_header" => "merge-field-header-result".
+            - "li_merge_entity*" => "merge-field-*".
+            - "li_merge_result" => "merge-field-result".
+            - "li_merge_button" => "merge-field-button".
         #  The attribute 'creme_core.gui.listview.state.ListViewState.extra_q' has been removed.
         # Apps :
             * Creme_config :
