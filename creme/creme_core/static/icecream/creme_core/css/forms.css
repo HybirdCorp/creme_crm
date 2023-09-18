@@ -474,7 +474,8 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
 }
 
 /* MERGE TOOL */
-.li_merge_entity_header1 {
+/* .li_merge_entity_header1 { */
+.merge-field-header-1 {
     display: inline;
     width: 33%;
 
@@ -485,7 +486,8 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     text-align: center;
 }
 
-.li_merge_entity_header2 {
+/* .li_merge_entity_header2 { */
+.merge-field-header-2 {
     display: inline;
     width: 33%;
 
@@ -496,7 +498,8 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     text-align: center;
 }
 
-.li_merge_result_header {
+/* .li_merge_result_header { */
+.merge-field-header-result {
     display: inline;
     width: 32%;
 
@@ -506,17 +509,22 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     text-align: center;
 }
 
-.li_merge_entity1,
+/* .li_merge_entity1,
 .li_merge_entity2,
-.li_merge_result {
+.li_merge_result { */
+.merge-field-1,
+.merge-field-2,
+.merge-field-result {
     width: 30%;
 }
 
-.li_merge_button {
+/* .li_merge_button { */
+.merge-field-button {
     max-width: 5%;
 }
 
-.li_merge_button > button {
+/* .li_merge_button > button { */
+.merge-field-button > button {
     padding: 9px 5px;
     background: linear-gradient(#fcfcfc, #f0f0f0);
 
@@ -528,8 +536,10 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     cursor: pointer;
 }
 
-.li_merge_button .merge-right-arrow,
-.li_merge_button .merge-left-arrow {
+/*.li_merge_button .merge-right-arrow,
+.li_merge_button .merge-left-arrow { */
+.merge-field-button .merge-right-arrow,
+.merge-field-button .merge-left-arrow {
     width: 0;
     height: 0;
 
@@ -539,31 +549,39 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     pointer-events: none;
 }
 
-.li_merge_button .merge-right-arrow {
+/* .li_merge_button .merge-right-arrow { */
+.merge-field-button .merge-right-arrow {
     border-left: 5px solid #00000063;
 }
 
-.li_merge_button .merge-left-arrow {
+/* .li_merge_button .merge-left-arrow { */
+.merge-field-button .merge-left-arrow {
     border-right: 5px solid #00000063;
 }
 
-.form-container .form-block .li_merge_entity1 input,
-.form-container .form-block .li_merge_entity1 textarea {
+/* .form-container .form-block .li_merge_entity1 input,
+.form-container .form-block .li_merge_entity1 textarea { */
+.form-container .form-block .merge-field-1 input,
+.form-container .form-block .merge-field-1 textarea {
     color: #5a92ab;
     background: #edf9ff;
     border: 1px solid #bbe0f0;
 }
 
-.form-container .form-block .li_merge_entity2 input,
-.form-container .form-block .li_merge_entity2 textarea {
+/* .form-container .form-block .li_merge_entity2 input,
+.form-container .form-block .li_merge_entity2 textarea { */
+.form-container .form-block .merge-field-2 input,
+.form-container .form-block .merge-field-2 textarea {
     color: #d87d72;
     background: #ffedeb;
     border: 1px solid #f9c9c4;
 }
 
 /* .form-container .form-block .li_merge_entity2 button[type="button"].ui-creme-actionbutton[disabled], TODO? */
-.form-container .form-block .li_merge_entity1 .ui-creme-entityselector>button[type="button"][disabled],
-.form-container .form-block .li_merge_entity1  .select-wrapper select {
+/* .form-container .form-block .li_merge_entity1 .ui-creme-entityselector>button[type="button"][disabled],
+.form-container .form-block .li_merge_entity1 .select-wrapper select { */
+.form-container .form-block .merge-field-1 .ui-creme-entityselector>button[type="button"][disabled],
+.form-container .form-block .merge-field-1 .select-wrapper select {
     background: linear-gradient(#edf9ff, #cae8f7);
 
     border: 1px solid #6abee3;
@@ -573,8 +591,10 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
 }
 
 /* .form-container .form-block .li_merge_entity2 button[type="button"].ui-creme-actionbutton[disabled], TODO? */
-.form-container .form-block .li_merge_entity2 .ui-creme-entityselector>button[type="button"][disabled],
-.form-container .form-block .li_merge_entity2  .select-wrapper select {
+/* .form-container .form-block .li_merge_entity2 .ui-creme-entityselector>button[type="button"][disabled],
+.form-container .form-block .li_merge_entity2 .select-wrapper select { */
+.form-container .form-block .merge-field-2 .ui-creme-entityselector>button[type="button"][disabled],
+.form-container .form-block .merge-field-2 .select-wrapper select {
     background: linear-gradient(#ffedeb, #ffe0dc);
 
     border: 1px solid #f59d94;
@@ -583,32 +603,42 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     color: #760f03;
 }
 
-.form-container .form-block .li_merge_entity1 .select2-container--disabled span.select2-selection {
+/* .form-container .form-block .li_merge_entity1 .select2-container--disabled span.select2-selection { */
+.form-container .form-block .merge-field-1 .select2-container--disabled span.select2-selection {
     background: linear-gradient(#edf9ff, #cae8f7);
 
     border: 1px solid #6abee3;
     border-bottom: 1px solid #62bde5;
 }
-.form-container .form-block .li_merge_entity1 .ui-creme-checklistselect .checklist-content .checkbox-label,
-.form-container .form-block .li_merge_entity1 .select2-container--disabled .select2-selection__rendered {
+/*.form-container .form-block .li_merge_entity1 .ui-creme-checklistselect .checklist-content .checkbox-label,
+.form-container .form-block .li_merge_entity1 .select2-container--disabled .select2-selection__rendered { */
+.form-container .form-block .merge-field-1 .ui-creme-checklistselect .checklist-content .checkbox-label,
+.form-container .form-block .merge-field-1 .select2-container--disabled .select2-selection__rendered {
     color: #032d3e;
 }
 
-.form-container .form-block .li_merge_entity2 .select2-container--disabled span.select2-selection {
+/* .form-container .form-block .li_merge_entity2 .select2-container--disabled span.select2-selection { */
+.form-container .form-block .merge-field-2 .select2-container--disabled span.select2-selection {
     background: linear-gradient(#ffedeb, #ffe0dc);
 
     border: 1px solid #f59d94;
     border-bottom: 1px solid #eb7a6f;
 }
-.form-container .form-block .li_merge_entity2 .ui-creme-checklistselect .checklist-content .checkbox-label,
-.form-container .form-block .li_merge_entity2 .select2-container--disabled .select2-selection__rendered {
+/* .form-container .form-block .li_merge_entity2 .ui-creme-checklistselect .checklist-content .checkbox-label,
+.form-container .form-block .li_merge_entity2 .select2-container--disabled .select2-selection__rendered { */
+.form-container .form-block .merge-field-2 .ui-creme-checklistselect .checklist-content .checkbox-label,
+.form-container .form-block .merge-field-2 .select2-container--disabled .select2-selection__rendered {
     color: #760f03;
 }
 
-.form-container .li_merge_entity1 .help-text,
+/* .form-container .li_merge_entity1 .help-text,
 .form-container .li_merge_entity1 .help-text-format,
 .form-container .li_merge_entity2 .help-text,
-.form-container .li_merge_entity2 .help-text-format {
+.form-container .li_merge_entity2 .help-text-format { */
+.form-container .merge-field-1 .help-text,
+.form-container .merge-field-1 .help-text-format,
+.form-container .merge-field-2 .help-text,
+.form-container .merge-field-2 .help-text-format {
     visibility: hidden; /* Not display:none to keep inputs aligned */
 }
 

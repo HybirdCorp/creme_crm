@@ -53,12 +53,14 @@ creme.merge.initializeMergeForm = function(form) {
     };
 
     form.each(function() {
-//        var button_html = '<input type="button" />';
         var button_html = '<button type="button">';
-        var li_html = '<li class="li_merge_button"></li>';
+//        var li_html = '<li class="li_merge_button"></li>';
+        var li_html = '<li class="merge-field-button"></li>';
 
-        $(this).find('.merge_entity_field').each(function() {
-            var $result_li = $('.li_merge_result', this);
+//        $(this).find('.merge_entity_field').each(function() {
+        $(this).find('.merge-field').each(function() {
+//            var $result_li = $('.li_merge_result', this);
+            var $result_li = $('.merge-field-result', this);
             var name = $(this).attr('name');
 
             var $merged = $('[name="' + name + '_merged"]', this);
