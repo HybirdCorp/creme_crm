@@ -3,6 +3,9 @@
   Users side :
   ------------
     # The command "creme_uninstall" was crashing.
+    # Apps :
+        * Creme_config :
+            - The style of disabled users in users' configuration block was broken (in theme "icecream" & "chantilly").
 
 
 == Version 2.4.7 ==
