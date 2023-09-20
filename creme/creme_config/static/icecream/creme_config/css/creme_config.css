@@ -146,7 +146,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     white-space: nowrap;
 }
 
-.creme_config-users-brick .user-disabled {
+.creme_config-users-brick .brick-table-content>tbody>tr.user-disabled {
     background: #ebebeb;
     color: grey;
 }
