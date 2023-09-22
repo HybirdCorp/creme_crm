@@ -50,7 +50,10 @@ class ConfigExport(generic.CheckedView):
         # 2.3: 1.1/1.2 the models for search & custom-forms have changed.
         # 2.4: 1.3 RelationBrickItem.brick_id has been removed (use 'id' now).
         # 2.5: 1.4 InstanceBrickConfigItems are exported and imported if possible.
-        # 2.6: 1.5 Use UUID for CremePropertyType instead of ID.
+        # 2.6: 1.5
+        #    - Use UUID for CremePropertyType instead of ID.
+        #    - Changes in the data for EntityFilterCondition of Relation
+        #      (CT uses natural-key, the key "entity_uuid" became just "entity").
         info[ID_VERSION] = '1.5'
         info.update((e_id, exporter()) for e_id, exporter in self.registry)
 

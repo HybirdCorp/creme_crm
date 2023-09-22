@@ -1648,7 +1648,8 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
             }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(self.cfield_int.id),             condition.name)
+        # self.assertEqual(str(self.cfield_int.id),             condition.name)
+        self.assertEqual(str(self.cfield_int.uuid),           condition.name)
         self.assertEqual(EF_USER,                             condition.filter_type)
         self.assertDictEqual(
             {
@@ -1679,7 +1680,8 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
             }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(cfield.id),                      condition.name)
+        # self.assertEqual(str(cfield.id),                      condition.name)
+        self.assertEqual(str(cfield.uuid),                    condition.name)
         self.assertEqual(EF_CREDENTIALS,                      condition.filter_type)
         self.assertDictEqual(
             {
@@ -1728,7 +1730,8 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
             }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(self.cfield_enum.id),            condition.name)
+        # self.assertEqual(str(self.cfield_enum.id),            condition.name)
+        self.assertEqual(str(self.cfield_enum.uuid),          condition.name)
         self.assertDictEqual(
             {
                 'operator': operator,
@@ -1752,7 +1755,8 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
             }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(self.cfield_enum.id),            condition.name)
+        # self.assertEqual(str(self.cfield_enum.id),            condition.name)
+        self.assertEqual(str(self.cfield_enum.uuid),          condition.name)
         self.assertDictEqual(
             {
                 'operator': operator,
@@ -1779,7 +1783,8 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
             }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(self.cfield_enum.id),            condition.name)
+        # self.assertEqual(str(self.cfield_enum.id),            condition.name)
+        self.assertEqual(str(self.cfield_enum.uuid),          condition.name)
         self.assertDictEqual(
             {
                 'operator': operator,
@@ -1806,7 +1811,8 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
             }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(self.cfield_multienum.id),       condition.name)
+        # self.assertEqual(str(self.cfield_multienum.id),       condition.name)
+        self.assertEqual(str(self.cfield_multienum.uuid),     condition.name)
         self.assertDictEqual(
             {
                 'operator': operator,
@@ -1829,7 +1835,8 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
             }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(self.cfield_multienum.id),       condition.name)
+        # self.assertEqual(str(self.cfield_multienum.id),       condition.name)
+        self.assertEqual(str(self.cfield_multienum.uuid),     condition.name)
         self.assertDictEqual(
             {
                 'operator': operator,
@@ -1859,7 +1866,8 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
             }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(cfield.id),                      condition.name)
+        # self.assertEqual(str(cfield.id),                      condition.name)
+        self.assertEqual(str(cfield.uuid),                    condition.name)
         self.assertDictEqual(
             {
                 'operator': operator,
@@ -1885,7 +1893,8 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
             }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(self.cfield_str.id),             condition.name)
+        # self.assertEqual(str(self.cfield_str.id),             condition.name)
+        self.assertEqual(str(self.cfield_str.uuid),           condition.name)
         self.assertDictEqual(
             {'operator': operator, 'rname': 'customfieldstring', 'values': []},
             condition.value,
@@ -1937,7 +1946,8 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
             }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(cfield.id),                      condition.name)
+        # self.assertEqual(str(cfield.id),                      condition.name)
+        self.assertEqual(str(cfield.uuid),                    condition.name)
         self.assertDictEqual(
             {'operator': operator, 'rname': 'customfieldboolean', 'values': ['False']},
             condition.value,
@@ -2012,7 +2022,8 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
             }))
         )
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(cfield_str.id),                  condition.name)
+        # self.assertEqual(str(cfield_str.id),                  condition.name)
+        self.assertEqual(str(cfield_str.uuid),                condition.name)
         self.assertDictEqual(
             {
                 'operator': operator,
@@ -2114,17 +2125,19 @@ class DateCustomFieldsConditionsFieldTestCase(CremeTestCase):
 
         type_id = DateCustomFieldConditionHandler.type_id
         condition1 = conditions[0]
-        self.assertEqual(type_id,          condition1.type)
-        self.assertEqual(str(cfield01.id), condition1.name)
-        self.assertEqual(EF_USER,          condition1.filter_type)
+        self.assertEqual(type_id,            condition1.type)
+        # self.assertEqual(str(cfield01.id), condition1.name)
+        self.assertEqual(str(cfield01.uuid), condition1.name)
+        self.assertEqual(EF_USER,            condition1.filter_type)
         self.assertDictEqual(
             {'rname': 'customfielddatetime', 'name': range_type},
             condition1.value,
         )
 
         condition2 = conditions[1]
-        self.assertEqual(type_id,          condition2.type)
-        self.assertEqual(str(cfield02.id), condition2.name)
+        self.assertEqual(type_id,            condition2.type)
+        # self.assertEqual(str(cfield02.id), condition2.name)
+        self.assertEqual(str(cfield02.uuid), condition2.name)
         self.assertDictEqual(
             {
                 'rname': 'customfielddatetime',
@@ -2134,8 +2147,9 @@ class DateCustomFieldsConditionsFieldTestCase(CremeTestCase):
         )
 
         condition3 = conditions[2]
-        self.assertEqual(type_id,          condition3.type)
-        self.assertEqual(str(cfield01.id), condition3.name)
+        self.assertEqual(type_id,            condition3.type)
+        # self.assertEqual(str(cfield01.id), condition3.name)
+        self.assertEqual(str(cfield01.uuid), condition3.name)
         self.assertDictEqual(
             {
                 'rname': 'customfielddatetime',
@@ -2145,8 +2159,9 @@ class DateCustomFieldsConditionsFieldTestCase(CremeTestCase):
         )
 
         condition4 = conditions[3]
-        self.assertEqual(type_id,          condition4.type)
-        self.assertEqual(str(cfield02.id), condition4.name)
+        self.assertEqual(type_id,            condition4.type)
+        # self.assertEqual(str(cfield02.id), condition4.name)
+        self.assertEqual(str(cfield02.uuid), condition4.name)
         self.assertDictEqual(
             {
                 'rname': 'customfielddatetime',
@@ -2170,17 +2185,19 @@ class DateCustomFieldsConditionsFieldTestCase(CremeTestCase):
 
         type_id = DateCustomFieldConditionHandler.type_id
         condition = conditions[0]
-        self.assertEqual(type_id,               condition.type)
-        self.assertEqual(str(self.cfield01.id), condition.name)
-        self.assertEqual(EF_CREDENTIALS,        condition.filter_type)
+        self.assertEqual(type_id,                 condition.type)
+        # self.assertEqual(str(self.cfield01.id), condition.name)
+        self.assertEqual(str(self.cfield01.uuid), condition.name)
+        self.assertEqual(EF_CREDENTIALS,          condition.filter_type)
         self.assertDictEqual(
             {'rname': 'customfielddatetime', 'name': 'empty'},
             condition.value,
         )
 
         condition = conditions[1]
-        self.assertEqual(type_id,               condition.type)
-        self.assertEqual(str(self.cfield02.id), condition.name)
+        self.assertEqual(type_id,                 condition.type)
+        # self.assertEqual(str(self.cfield02.id), condition.name)
+        self.assertEqual(str(self.cfield02.uuid), condition.name)
         self.assertDictEqual(
             {'rname': 'customfielddatetime', 'name': 'not_empty'},
             condition.value,
@@ -2232,7 +2249,8 @@ class DateCustomFieldsConditionsFieldTestCase(CremeTestCase):
             ]))
         )
         self.assertEqual(DateCustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(cfield.id),                          condition.name)
+        # self.assertEqual(str(cfield.id),                          condition.name)
+        self.assertEqual(str(cfield.uuid),                        condition.name)
 
 
 # class PropertiesConditionsFieldTestCase(FieldTestCase):
@@ -2531,12 +2549,14 @@ class RelationsConditionsFieldTestCase(CremeTestCase):
         self.assertEqual(type_id,        condition1.type)
         self.assertEqual(rtype1.id,      condition1.name)
         self.assertEqual(EF_CREDENTIALS, condition1.filter_type)
-        self.assertDictEqual({'has': True, 'ct_id': ct_id}, condition1.value)
+        # self.assertDictEqual({'has': True, 'ct_id': ct_id}, condition1.value)
+        self.assertDictEqual({'has': True, 'ct': 'creme_core.fakecontact'}, condition1.value)
 
         condition2 = conditions[1]
         self.assertEqual(type_id,   condition2.type)
         self.assertEqual(rtype2.id, condition2.name)
-        self.assertDictEqual({'has': False, 'ct_id': ct_id}, condition2.value)
+        # self.assertDictEqual({'has': False, 'ct_id': ct_id}, condition2.value)
+        self.assertDictEqual({'has': False, 'ct': 'creme_core.fakecontact'}, condition2.value)
 
         # ---
         self.assertListEqual(
@@ -2572,7 +2592,8 @@ class RelationsConditionsFieldTestCase(CremeTestCase):
         condition = conditions[0]
         self.assertEqual(RelationConditionHandler.type_id, condition.type)
         self.assertEqual(rtype.id,                         condition.name)
-        self.assertDictEqual({'has': True, 'entity_id': naru.id}, condition.value)
+        # self.assertDictEqual({'has': True, 'entity_id': naru.id}, condition.value)
+        self.assertDictEqual({'has': True, 'entity': str(naru.uuid)}, condition.value)
 
         # ---
         self.assertListEqual(
@@ -2603,12 +2624,14 @@ class RelationsConditionsFieldTestCase(CremeTestCase):
         condition = conditions[0]
         self.assertEqual(type_id,   condition.type)
         self.assertEqual(rtype1.id, condition.name)
-        self.assertDictEqual({'has': True, 'ct_id': ct_id}, condition.value)
+        # self.assertDictEqual({'has': True, 'ct_id': ct_id}, condition.value)
+        self.assertDictEqual({'has': True, 'ct': 'creme_core.fakecontact'}, condition.value)
 
         condition = conditions[1]
         self.assertEqual(type_id,   condition.type)
         self.assertEqual(rtype2.id, condition.name)
-        self.assertDictEqual({'has': False, 'entity_id': naru.id}, condition.value)
+        # self.assertDictEqual({'has': False, 'entity_id': naru.id}, condition.value)
+        self.assertDictEqual({'has': False, 'entity': str(naru.uuid)}, condition.value)
 
     def test_ok05(self):
         "Wanted entity is deleted."

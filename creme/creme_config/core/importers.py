@@ -1173,7 +1173,8 @@ class ConditionProxyRelation(ConditionProxy):
         self.has = bool(value['has'])
         self.entity = None
 
-        entity_uuid = value.get('entity_uuid')
+        # entity_uuid = value.get('entity_uuid')
+        entity_uuid = value.get('entity')
         if entity_uuid:
             self.entity = entity = CremeEntity.objects.filter(uuid=entity_uuid).first()
 

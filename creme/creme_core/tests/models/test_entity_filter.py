@@ -2812,7 +2812,8 @@ class EntityFiltersTestCase(CremeTestCase):
                 EntityFilterCondition(
                     type=20,
                     model=FakeContact,
-                    name=str(custom_field.id),
+                    # name=str(custom_field.id),
+                    name=str(custom_field.uuid),
                     value={
                         'operator': operators.EQUALS,
                         'values': ['False'],
@@ -2905,7 +2906,8 @@ class EntityFiltersTestCase(CremeTestCase):
 
         # We want a condition with the same name as the one for custom_field01
         subfilter = EntityFilter.objects.create(
-            id=str(custom_field01.id),
+            # id=str(custom_field01.id),
+            id=str(custom_field01.uuid),
             name='Do not delete me please',
             entity_type=FakeContact,
         )
@@ -2927,7 +2929,8 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertCountEqual(
             [
                 (SubFilterConditionHandler.type_id,   str(subfilter.id)),
-                (CustomFieldConditionHandler.type_id, str(custom_field02.id)),
+                # (CustomFieldConditionHandler.type_id, str(custom_field02.id)),
+                (CustomFieldConditionHandler.type_id, str(custom_field02.uuid)),
             ],
             efilter.conditions.values_list('type', 'name'),
         )
@@ -2957,7 +2960,8 @@ class EntityFiltersTestCase(CremeTestCase):
 
         custom_field01.delete()
         self.assertListEqual(
-            [str(custom_field02.id)],
+            # [str(custom_field02.id)],
+            [str(custom_field02.uuid)],
             [*efilter.conditions.values_list('name', flat=True)],
         )
 

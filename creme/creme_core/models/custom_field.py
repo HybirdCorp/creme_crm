@@ -50,6 +50,7 @@ class CustomFieldManager(models.Manager):
     def compatible(self, ct_or_model, /):
         return self.filter(content_type=as_ctype(ct_or_model))
 
+    # TODO: use UUIDs as keys instead of IDs?
     # TODO: exclude deleted fields?
     def get_for_model(self, ct_or_model, /) -> dict[int, CustomField]:
         ct = as_ctype(ct_or_model)
