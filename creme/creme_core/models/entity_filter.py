@@ -791,6 +791,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
             yield cond.description(user)
 
 
+# TODO: store in EntityFilter as a JSON list of dictionaries?
 class EntityFilterCondition(models.Model):
     """Component of EntityFilter containing of data for conditions.
 

@@ -1611,7 +1611,8 @@ class ExportingTestCase(TransferBaseTestCase):
                     }, {
                         'type':  RelationConditionHandler.type_id,
                         'name':  rtype.id,
-                        'value': {'has': True, 'entity_uuid': str(contact.uuid)},
+                        # 'value': {'has': True, 'entity_uuid': str(contact.uuid)},
+                        'value': {'has': True, 'entity': str(contact.uuid)},
                     },
                 ],
             },

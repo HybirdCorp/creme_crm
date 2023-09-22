@@ -313,7 +313,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         condition = next(iter_conds)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(custom_field.id),                condition.name)
+        # self.assertEqual(str(custom_field.id),                condition.name)
+        self.assertEqual(str(custom_field.uuid),              condition.name)
         self.assertDictEqual(
             {
                 'operator': cfield_operator,
@@ -325,7 +326,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         condition = next(iter_conds)
         self.assertEqual(DateCustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(datecfield.id),                      condition.name)
+        # self.assertEqual(str(datecfield.id),                      condition.name)
+        self.assertEqual(str(datecfield.uuid),                    condition.name)
         self.assertDictEqual(
             {'rname': 'customfielddatetime', 'name': datecfield_rtype},
             condition.value,
@@ -1116,7 +1118,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         condition = next(iter_conds)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(custom_field.id),                condition.name)
+        # self.assertEqual(str(custom_field.id),                condition.name)
+        self.assertEqual(str(custom_field.uuid),              condition.name)
         self.assertDictEqual(
             {
                 'operator': cfield_operator,
@@ -1128,7 +1131,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         condition = next(iter_conds)
         self.assertEqual(DateCustomFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(str(datecfield.id),                      condition.name)
+        # self.assertEqual(str(datecfield.id),                      condition.name)
+        self.assertEqual(str(datecfield.uuid),                    condition.name)
         self.assertDictEqual(
             {'rname': 'customfielddatetime', 'name': datecfield_rtype},
             condition.value,

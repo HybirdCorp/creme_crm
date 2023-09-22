@@ -1909,7 +1909,8 @@ class ImportingTestCase(TransferBaseTestCase):
                     }, {
                         'type': RelationConditionHandler.type_id,
                         'name':  rtype2.id,
-                        'value': {'has': True, 'entity_uuid': str(contact.uuid)},
+                        # 'value': {'has': True, 'entity_uuid': str(contact.uuid)},
+                        'value': {'has': True, 'entity': str(contact.uuid)},
                     },
                 ],
             }, {
@@ -2072,14 +2073,16 @@ class ImportingTestCase(TransferBaseTestCase):
         condition2_4 = conditions2[3]
         self.assertEqual(rtype2.id, condition2_4.name)
         self.assertDictEqual(
-            {'has': False, 'ct_id': ct_contact.id},
+            # {'has': False, 'ct_id': ct_contact.id},
+            {'has': False, 'ct': 'creme_core.fakecontact'},
             condition2_4.value,
         )
 
         condition2_5 = conditions2[4]
         self.assertEqual(rtype2.id, condition2_5.name)
         self.assertDictEqual(
-            {'has': True, 'entity_id': contact.id},
+            # {'has': True, 'entity_id': contact.id},
+            {'has': True, 'entity': str(contact.uuid)},
             condition2_5.value,
         )
 
@@ -2098,7 +2101,8 @@ class ImportingTestCase(TransferBaseTestCase):
 
         cfield1 = self.get_object_or_fail(CustomField, uuid=cf_uuid1)
         condition3_1 = conditions3[0]
-        self.assertEqual(str(cfield1.id), condition3_1.name)
+        # self.assertEqual(str(cfield1.id), condition3_1.name)
+        self.assertEqual(str(cfield1.uuid), condition3_1.name)
         self.assertDictEqual(
             {
                 'operator': 10,
@@ -2114,7 +2118,8 @@ class ImportingTestCase(TransferBaseTestCase):
             DateCustomFieldConditionHandler.type_id,
             condition3_2.type,
         )
-        self.assertEqual(str(cfield2.id), condition3_2.name)
+        # self.assertEqual(str(cfield2.id), condition3_2.name)
+        self.assertEqual(str(cfield2.uuid), condition3_2.name)
         self.assertDictEqual(
             {
                 'rname': 'customfielddatetime',
@@ -2506,7 +2511,8 @@ class ImportingTestCase(TransferBaseTestCase):
             'conditions': [{
                 'type':  RelationConditionHandler.type_id,
                 'name':  rtype.id,
-                'value': {'has': True, 'entity_uuid': uuid_str},
+                # 'value': {'has': True, 'entity_uuid': uuid_str},
+                'value': {'has': True, 'entity': uuid_str},
             }],
         }]
 

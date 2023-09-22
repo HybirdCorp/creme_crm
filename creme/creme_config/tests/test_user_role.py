@@ -947,7 +947,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             condition_handler.CustomFieldConditionHandler.type_id,
             condition1.type,
         )
-        self.assertEqual(str(custom_field.id), condition1.name)
+        # self.assertEqual(str(custom_field.id), condition1.name)
+        self.assertEqual(str(custom_field.uuid), condition1.name)
         self.assertDictEqual(
             {
                 'operator': cfield_operator,
@@ -1425,7 +1426,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             condition_handler.CustomFieldConditionHandler.type_id,
             condition1.type
         )
-        self.assertEqual(str(custom_field.id), condition1.name)
+        # self.assertEqual(str(custom_field.id), condition1.name)
+        self.assertEqual(str(custom_field.uuid), condition1.name)
         self.assertDictEqual(
             {
                 'operator': cfield_operator,

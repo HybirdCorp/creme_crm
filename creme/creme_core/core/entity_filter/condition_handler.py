@@ -22,6 +22,7 @@ import logging
 from datetime import datetime
 from decimal import Decimal
 from functools import partial
+from typing import Literal
 from uuid import UUID
 
 from django.contrib.contenttypes.models import ContentType
@@ -785,16 +786,19 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
 
         @param model: Class inheriting <creme_core.models.CremeEntity>
                (ignored if an EntityFilter instance is passed for "custom_field" -- see below).
-        @param custom_field: <creme_core.models.CustomField> instance or ID (int).
+        @param custom_field: <creme_core.models.CustomField> instance or UUID.
         @param related_name: Related name (django's way) corresponding to the
                used CustomField.
         """
         if isinstance(custom_field, CustomField):
             super().__init__(model=custom_field.content_type.model_class())
-            self._custom_field_id = custom_field.id
-            self._custom_field    = custom_field
+            # self._custom_field_id = custom_field.id
+            self._custom_field_uuid = custom_field.uuid
+            self._custom_field = custom_field
             self._related_name = custom_field.value_class.get_related_name()
         else:
+            assert isinstance(custom_field, UUID)  # TODO: cast if string ?
+
             if model is None:
                 raise TypeError(
                     'The argument "model" must be passed if a CustomField ID is passed.'
@@ -805,7 +809,8 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
                 )
 
             super().__init__(model=model)
-            self._custom_field_id = custom_field
+            # self._custom_field_id = custom_field
+            self._custom_field_uuid = custom_field
             self._custom_field = None
             self._related_name = related_name
 
@@ -817,9 +822,17 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
     def custom_field(self) -> CustomField | bool:
         cfield = self._custom_field
         if cfield is None:
-            self._custom_field = cfield = CustomField.objects.get_for_model(
-                self.model
-            ).get(self._custom_field_id, False)
+            # self._custom_field = cfield = CustomField.objects.get_for_model(
+            #     self.model
+            # ).get(self._custom_field_id, False)
+            self._custom_field = cfield = next(
+                (
+                    cfield
+                    for cfield in CustomField.objects.get_for_model(self.model).values()
+                    if cfield.uuid == self._custom_field_uuid
+                ),
+                False
+            )
 
         return cfield
 
@@ -835,7 +848,8 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
     def query_for_related_conditions(cls, instance):
         return Q(
             type=cls.type_id,
-            name=str(instance.id),
+            # name=str(instance.id),
+            name=str(instance.uuid),
         ) if isinstance(instance, CustomField) else Q()
 
 
@@ -904,7 +918,8 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
     @classmethod
     def build(cls, *, model, name, data):
         try:
-            cf_id = int(name)
+            # cf_id = int(name)
+            cf_uuid = UUID(name)
             kwargs = {
                 'operator_id':  int(data['operator']),
                 'related_name': data['rname'],  # NB: we could remove it...
@@ -915,7 +930,8 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
                 f'{cls.__name__}.build(): invalid data ({e})'
             )
 
-        return cls(model=model, custom_field=cf_id, **kwargs)
+        # return cls(model=model, custom_field=cf_id, **kwargs)
+        return cls(model=model, custom_field=cf_uuid, **kwargs)
 
     @classmethod
     def build_condition(cls, *, custom_field, operator, values,
@@ -996,7 +1012,8 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             filter_type=filter_type,
             model=custom_field.content_type.model_class(),
             type=cls.type_id,
-            name=str(custom_field.id),
+            # name=str(custom_field.id),
+            name=str(custom_field.uuid),
             value={
                 'operator': operator_id,
                 'values':   value,
@@ -1056,7 +1073,8 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         if isinstance(operator, operators.IsEmptyOperator):
             query = Q(**{f'{related_name}__isnull': resolved_values[0]})
         else:
-            query = Q(**{f'{related_name}__custom_field': self._custom_field_id})
+            # query = Q(**{f'{related_name}__custom_field': self._custom_field_id})
+            query = Q(**{f'{related_name}__custom_field': self.custom_field})
             key = operator.key_pattern.format(fname)
             value_q = Q()
 
@@ -1102,7 +1120,8 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
     def build(cls, *, model, name, data):
         kwargs = cls._load_daterange_kwargs(data)  # It tests if it's a dict too
         try:
-            cf_id = int(name)
+            # cf_id = int(name)
+            cf_id = UUID(name)
             rname = data['rname']
         except (KeyError, ValueError) as e:
             raise cls.DataError(
@@ -1143,7 +1162,8 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
             filter_type=filter_type,
             model=custom_field.content_type.model_class(),
             type=cls.type_id,
-            name=str(custom_field.id),
+            # name=str(custom_field.id),
+            name=str(custom_field.uuid),
             value=value,
         )
 
@@ -1167,7 +1187,8 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
         fname = f'{related_name}__value'
 
         q_dict = self._get_date_range().get_q_dict(field=fname, now=now())
-        q_dict[f'{related_name}__custom_field'] = self._custom_field_id
+        # q_dict[f'{related_name}__custom_field'] = self._custom_field_id
+        q_dict[f'{related_name}__custom_field'] = self.custom_field
 
         return Q(
             pk__in=self._model
@@ -1231,17 +1252,25 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         },
     }
 
-    def __init__(self, *, model, rtype, exclude=False, ctype=None, entity=None):
+    def __init__(self, *, model, rtype,
+                 exclude=False,
+                 ctype: ContentType | tuple[str, str] | None = None,
+                 entity: UUID | None = None,
+                 ):
         super().__init__(model=model, rtype=rtype, exclude=exclude)
 
         if isinstance(entity, CremeEntity):
-            self._entity_id = entity.id
+            # self._entity_id = entity.id
+            self._entity_uuid = entity.uuid
             self._entity = entity
-            self._ct_id = None
+            # self._ct_id = None
+            self._ct_key = None
         else:
-            self._entity_id = entity
+            # self._entity_id = entity
+            self._entity_uuid = entity
             self._entity = None
-            self._ct_id = ctype.id if isinstance(ctype, ContentType) else ctype
+            # self._ct_id = ctype.id if isinstance(ctype, ContentType) else ctype
+            self._ct_key = ctype.natural_key() if isinstance(ctype, ContentType) else ctype
 
     def accept(self, *, entity, user):
         # NB: we use get_relations() in order to get a cached result, & so avoid
@@ -1249,11 +1278,17 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         # TODO: add a system to populate relations when checking several entities
         relations = entity.get_relations(relation_type_id=self._rtype_id)
 
-        if self._entity_id:
-            entity_id = self._entity_id
+        # if self._entity_id:
+        if self._entity_uuid:
+            # entity_id = self.entity_id
+            entity = self.entity
+            entity_id = entity.id if entity else None
             found = any(r.object_entity_id == entity_id for r in relations)
-        elif self._ct_id:
-            ct_id = self._ct_id
+        # elif self._ct_id:
+        elif self._ct_key:
+            # ct_id = self._ct_id
+            ct = self.content_type
+            ct_id = ct.id if ct else None
             # TODO: get_relations() with real_obj_entities==False does not select_related()
             #       => real_obj_entities = True ?
             #          select_related() even if real_obj_entities==False ?
@@ -1266,28 +1301,59 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
     @classmethod
     def build(cls, *, model, name, data):
+        # try:
+        #     has = data['has']
+        #
+        #     ct_id = data.get('ct_id')
+        #     if ct_id is not None:
+        #         ct_id = int(ct_id)
+        #
+        #     entity_id = data.get('entity_id')
+        #     if entity_id is not None:
+        #         entity_id = int(entity_id)
+        # except (TypeError, KeyError, ValueError) as e:
+        #     raise cls.DataError(f'{cls.__name__}.build(): invalid data ({e})')
+        if not isinstance(data, dict):
+            raise cls.DataError(f'{cls.__name__}.build(): data must be a dictionary')
+
         try:
             has = data['has']
-
-            ct_id = data.get('ct_id')
-            if ct_id is not None:
-                ct_id = int(ct_id)
-
-            entity_id = data.get('entity_id')
-            if entity_id is not None:
-                entity_id = int(entity_id)
-        except (TypeError, KeyError, ValueError) as e:
-            raise cls.DataError(f'{cls.__name__}.build(): invalid data ({e})')
+        except KeyError as e:
+            raise cls.DataError(f'{cls.__name__}.build(): missing value "has"') from e
 
         if not isinstance(has, bool):
             raise cls.DataError(f'{cls.__name__}.build(): "has" is not a boolean')
+
+        # ---
+        ct_key = data.get('ct')
+        if ct_key is not None:
+            # TODO: separated function?
+            if not isinstance(ct_key, str):
+                raise cls.DataError(f'{cls.__name__}.build(): "ct" is not a string')
+
+            ct_key = ct_key.split('.', 1)
+
+            if len(ct_key) != 2:
+                raise cls.DataError(f'{cls.__name__}.build(): "ct" is not a valid key')
+
+        # ---
+        entity_uuid = data.get('entity')
+        if entity_uuid is not None:
+            try:
+                entity_uuid = UUID(entity_uuid)
+            except ValueError as e:
+                raise cls.DataError(
+                    f'{cls.__name__}.build(): "entity" is not a valid uuid ({e})'
+                ) from e
 
         return cls(
             model=model,
             rtype=name,
             exclude=not has,
-            ctype=ct_id,
-            entity=entity_id,
+            # ctype=ct_id,
+            ctype=ct_key,
+            # entity=entity_id,
+            entity=entity_uuid,
         )
 
     @classmethod
@@ -1313,9 +1379,12 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         value = {'has': bool(has)}
 
         if entity:
-            value['entity_id'] = entity.id
+            # value['entity_id'] = entity.id
+            value['entity'] = str(entity.uuid)
         elif ct:
-            value['ct_id'] = ct.id
+            # value['ct_id'] = ct.id
+            # TODO: factorise with creme_config exporter?
+            value['ct'] = '.'.join(ct.natural_key())
 
         return condition_cls(
             filter_type=filter_type,
@@ -1327,9 +1396,11 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
     @property
     def content_type(self) -> ContentType | None | bool:
-        ct_id = self._ct_id
+        # ct_id = self._ct_id
+        ct_key = self._ct_key
         try:
-            return ContentType.objects.get_for_id(ct_id) if ct_id else None
+            # return ContentType.objects.get_for_id(ct_id) if ct_id else None
+            return ContentType.objects.get_by_natural_key(*ct_key) if ct_key else None
         except ContentType.DoesNotExist:
             return False
 
@@ -1360,13 +1431,15 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         return self.DESCRIPTION_FORMATS[str_key][self._exclude].format(**fmt_kwargs)
 
     @property
-    def entity(self) -> CremeEntity | None | bool:
-        if self._entity_id is None:
+    def entity(self) -> CremeEntity | None | Literal[False]:
+        # if self._entity_id is None:
+        if self._entity_uuid is None:
             return None
 
         entity = self._entity
         if entity is None:
-            e = CremeEntity.objects.filter(id=self._entity_id).first()
+            # e = CremeEntity.objects.filter(id=self._entity_id).first()
+            e = CremeEntity.objects.filter(uuid=self._entity_uuid).first()
             self._entity = entity = e.get_real_entity() if e is not None else False
 
         return entity
@@ -1387,10 +1460,14 @@ class RelationConditionHandler(BaseRelationConditionHandler):
     def get_q(self, user):
         kwargs = {'type': self._rtype_id}
 
-        if self._entity_id:
-            kwargs['object_entity'] = self._entity_id
-        elif self._ct_id:
-            kwargs['object_entity__entity_type'] = self._ct_id
+        # if self._entity_id:
+        if self._entity_uuid:
+            # kwargs['object_entity'] = self._entity_id
+            kwargs['object_entity'] = self.entity.id if self.entity else 0
+        # elif self._ct_id:
+        elif self._ct_key:
+            # kwargs['object_entity__entity_type'] = self._ct_id
+            kwargs['object_entity__entity_type'] = self.content_type
 
         query = Q(
             pk__in=Relation.objects

@@ -516,7 +516,8 @@ class CustomFieldsConditionsField(_ConditionsField):
     }
 
     _NOT_ACCEPTED_TYPES = frozenset((CustomField.DATETIME,))  # TODO: "!= DATE" instead
-    _non_hiddable_cfield_ids = ()
+    # _non_hiddable_cfield_ids = ()
+    _non_hiddable_cfield_uuids = ()
 
     @_ConditionsField.model.setter
     def model(self, model):
@@ -531,7 +532,8 @@ class CustomFieldsConditionsField(_ConditionsField):
         ).exclude(
             field_type__in=self._NOT_ACCEPTED_TYPES,
         ).filter(
-            Q(is_deleted=False) | Q(id__in=self._non_hiddable_cfield_ids)
+            # Q(is_deleted=False) | Q(id__in=self._non_hiddable_cfield_ids)
+            Q(is_deleted=False) | Q(uuid__in=self._non_hiddable_cfield_uuids)
         )
 
     def _value_to_jsonifiable(self, value):
@@ -546,7 +548,8 @@ class CustomFieldsConditionsField(_ConditionsField):
             operator = get_op(operator_id)
 
             field_type = customfield_rname_choicetype(search_info['rname'])
-            field_entry = {'id': int(condition.name), 'type': field_type}
+            # field_entry = {'id': int(condition.name), 'type': field_type}
+            field_entry = {'id': condition.handler.custom_field.id, 'type': field_type}
 
             value = ','.join(str(v) for v in search_info['values'])
 
@@ -664,7 +667,8 @@ class CustomFieldsConditionsField(_ConditionsField):
         filtered_conds = [c for c in conditions if c.type == type_id]
         if filtered_conds:
             self.initial = filtered_conds
-            self._non_hiddable_cfield_ids = {int(c.name) for c in filtered_conds}
+            # self._non_hiddable_cfield_ids = {int(c.name) for c in filtered_conds}
+            self._non_hiddable_cfield_uuids = {c.name for c in filtered_conds}
 
 
 class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsConditionsField):
@@ -687,7 +691,8 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         ).filter(
             field_type=CustomField.DATETIME,
         ).filter(
-            Q(is_deleted=False) | Q(id__in=self._non_hiddable_cfield_ids)
+            # Q(is_deleted=False) | Q(id__in=self._non_hiddable_cfield_ids)
+            Q(is_deleted=False) | Q(uuid__in=self._non_hiddable_cfield_uuids)
         )
 
     def _value_to_jsonifiable(self, value):
@@ -698,7 +703,8 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
             get = condition.value.get
 
             dicts.append({
-                'field': int(condition.name),
+                # 'field': int(condition.name),
+                'field': condition.handler.custom_field.id,
                 'range': {
                     'type':  get('name', ''),
                     'start': fmt(get('start')),
@@ -758,7 +764,8 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         filtered_conds = [c for c in conditions if c.type == type_id]
         if filtered_conds:
             self.initial = filtered_conds
-            self._non_hiddable_cfield_ids = {int(c.name) for c in filtered_conds}
+            # self._non_hiddable_cfield_ids = {int(c.name) for c in filtered_conds}
+            self._non_hiddable_cfield_uuids = {c.name for c in filtered_conds}
 
 
 class RelationsConditionsField(_ConditionsField):
@@ -787,17 +794,25 @@ class RelationsConditionsField(_ConditionsField):
 
     def _condition_to_dict(self, condition):
         value = condition.value
-        ctype_id = value.get('ct_id', 0)
+        # ctype_id = value.get('ct_id', 0)
+        ctype = condition.handler.content_type
+        ctype_id = ctype.id if ctype else 0
 
         # TODO: regroup queries....
-        entity_id = value.get('entity_id')
-        if entity_id:
-            try:
-                entity = CremeEntity.objects.get(pk=entity_id)
-            except CremeEntity.DoesNotExist:
-                entity_id = None
-            else:
-                ctype_id = entity.entity_type_id
+        # entity_id = value.get('entity_id')
+        # if entity_id:
+        #     try:
+        #         entity = CremeEntity.objects.get(pk=entity_id)
+        #     except CremeEntity.DoesNotExist:
+        #         entity_id = None
+        #     else:
+        #         ctype_id = entity.entity_type_id
+        entity = condition.handler.entity
+        if entity:
+            entity_id = entity.id
+            ctype_id = entity.entity_type_id
+        else:
+            entity_id = None
 
         return {
             'rtype':  condition.name,

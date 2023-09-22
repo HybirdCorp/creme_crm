@@ -596,25 +596,25 @@ class HeaderFilterExporter(CellsExporterMixin, Exporter):
         return data
 
 
-def _export_efc_relation(cond: models.EntityFilterCondition) -> dict:
-    value = cond.value
-
-    dumped_value = {'has': value['has']}
-
-    entity_id = value.get('entity_id')
-    if entity_id:
-        dumped_value['entity_uuid'] = str(
-            models.CremeEntity.objects.filter(id=entity_id).values_list('uuid', flat=True)[0]
-        )
-    else:
-        ct_id = value.get('ct_id')
-        if ct_id:
-            dumped_value['ct'] = dump_ct(ContentType.objects.get_for_id(ct_id))
-
-    return {
-        'name': cond.name,
-        'value': dumped_value,
-    }
+# def _export_efc_relation(cond: models.EntityFilterCondition) -> dict:
+#     value = cond.value
+#
+#     dumped_value = {'has': value['has']}
+#
+#     entity_id = value.get('entity_id')
+#     if entity_id:
+#         dumped_value['entity_uuid'] = str(
+#             models.CremeEntity.objects.filter(id=entity_id).values_list('uuid', flat=True)[0]
+#         )
+#     else:
+#         ct_id = value.get('ct_id')
+#         if ct_id:
+#             dumped_value['ct'] = dump_ct(ContentType.objects.get_for_id(ct_id))
+#
+#     return {
+#         'name': cond.name,
+#         'value': dumped_value,
+#     }
 
 
 def _export_efc_customfield(cond: models.EntityFilterCondition) -> dict:
@@ -623,8 +623,8 @@ def _export_efc_customfield(cond: models.EntityFilterCondition) -> dict:
 
     return {
         # TODO: 'uuid' key instead of 'name' to avoid confusion ??
-        # TODO: better error message than the get()'s one...
-        'name': str(models.CustomField.objects.get(id=cond.name).uuid),
+        # 'name': str(models.CustomField.objects.get(id=cond.name).uuid),
+        'name': cond.name,
         'value': value,
     }
 
@@ -635,8 +635,8 @@ def _export_efc_datecustomfield(cond: models.EntityFilterCondition) -> dict:
 
     return {
         # TODO: 'uuid' key instead of 'name' to avoid confusion ??
-        # TODO: better error message than the get()'s one...
-        'name': str(models.CustomField.objects.get(id=cond.name).uuid),
+        # 'name': str(models.CustomField.objects.get(id=cond.name).uuid),
+        'name': cond.name,
         'value': value,
     }
 
@@ -646,7 +646,7 @@ class EntityFilterExporter(Exporter):
     model = models.EntityFilter
 
     condition_exporters: dict[int, Callable[[models.EntityFilterCondition], dict]] = {
-        condition_handler.RelationConditionHandler.type_id:        _export_efc_relation,
+        # condition_handler.RelationConditionHandler.type_id:        _export_efc_relation,
         condition_handler.CustomFieldConditionHandler.type_id:     _export_efc_customfield,
         condition_handler.DateCustomFieldConditionHandler.type_id: _export_efc_datecustomfield,
     }

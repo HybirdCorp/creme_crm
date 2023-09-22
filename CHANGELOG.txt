@@ -104,13 +104,20 @@
               'CremePropertyType.objects.update_or_create()' in the other cases.
             - The field 'HeaderFilter.json_cells' is now a 'JSONField';
               you won't have to change your code if you use the property 'cells' as advised.
-            - The field 'EntityFilterCondition.raw_value' has been renamed "value" & is now a 'JSONField';
-              it'll only affect direct access to the field (e.g. QuerySet), because the property (getter/setter) "value" has just been replaced.
-              The JSON data should always be a dictionary, so the data changed for conditions on CremeProperties
-              (example: 'true' became '{"has":true}' ; see 'creme_core.core.entity_filter.condition_handler.PropertyConditionHandler').
+            - In 'EntityFilterCondition' :
+                - The field 'name' contains now the UUID of 'CremePropertyType' & 'CustomField' when it's relevant.
+                - The field 'raw_value' has been renamed "value" & is now a 'JSONField';
+                  it'll only affect direct access to the field (e.g. QuerySet), because the property (getter/setter) "value" has just been replaced.
+                  The JSON data should always be a dictionary, so the data changed for conditions on CremeProperties
+                  (example: 'true' became '{"has":true}' ; see 'creme_core.core.entity_filter.condition_handler.PropertyConditionHandler').
+                - In conditions related to 'Relation', the format of the stored JSOn has changed :
+                  - The related 'ContentType' is now stored with the key "ct" (instead of "ct_id"), and the value is the natural-key (instead of the ID).
+                  - The related 'CremeEntity' is now stored with the key "entity" (instead of "entity_id") and the value is the UUID (instead of the ID).
             - The method 'FieldsConfig._get_hidden_field_names()' has been replaced by the property "hidden_field_names".
         # In 'creme_core.forms' :
-            - The attribute 'entity_filter.fields.PropertiesConditionsField_non_disabled_ptype_ids' has been replaced by "_non_disabled_ptype_uuids".
+            - In 'entity_filter.fields' :
+                - The attribute 'CustomFieldsConditionsField._non_hiddable_cfield_ids' has been replaced by "_non_hiddable_cfield_uuids".
+                - The attribute 'PropertiesConditionsField._non_disabled_ptype_ids' has been replaced by "_non_disabled_ptype_uuids".
             - In 'merge', the CSS classes related to 'EntitiesHeaderWidget' & 'MergeWidget' has been renamed
               (the templates & 'creme_core/js/merge.js' have been reworked of course) :
                 - "merge_entity_field" => "merge-field".
@@ -177,6 +184,11 @@
     ---------------------------
     (they should not cause problem if you have not deeply modified the source code of Creme)
 
+        # In 'creme_core.core.entity_filter.condition_handler' :
+            - The attribute 'BaseCustomFieldConditionHandler._custom_field_id', has been replaced by '_custom_field_uuid'.
+            - In the class 'RelationConditionHandler', these attributes have been replaced :
+                - _entity_id => _entity_uuid
+                - _ct_id => _ct_key
         # In the model 'creme_core.models.fields_config.FieldsConfig', the attributes "_excluded_fnames" & "_required_fnames" have been removed.
 
 
