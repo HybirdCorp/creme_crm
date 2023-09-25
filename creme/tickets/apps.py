@@ -58,7 +58,8 @@ class TicketsConfig(CremeAppConfig):
         register_model = config_registry.register_model
         register_model(models.Status,    'status')
         register_model(models.Priority,  'priority')
-        register_model(models.Criticity, 'criticity')
+        # register_model(models.Criticity, 'criticity')
+        register_model(models.Criticality, 'criticality')
 
     def register_custom_forms(self, cform_registry):
         from . import custom_forms

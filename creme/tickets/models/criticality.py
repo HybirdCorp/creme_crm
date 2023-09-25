@@ -25,7 +25,7 @@ from creme.creme_core.models.fields import BasicAutoField
 
 
 # TODO: rename criticality
-class Criticity(MinionModel):
+class Criticality(MinionModel):
     """Criticality of a ticket: critical, not important etc..."""
     name = CharField(_('Name'), max_length=100, unique=True)
     order = BasicAutoField()  # Used by creme_config

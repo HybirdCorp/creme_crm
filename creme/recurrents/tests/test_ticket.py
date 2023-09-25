@@ -16,7 +16,7 @@ from .base import RecurrentGenerator, RecurrentsTestCase, skipIfCustomGenerator
 
 if apps.is_installed('creme.tickets'):
     from creme.tickets import get_ticket_model, get_tickettemplate_model
-    from creme.tickets.models import Criticity, Priority, Status
+    from creme.tickets.models import Criticality, Priority, Status
     from creme.tickets.tests import (
         skipIfCustomTicket,
         skipIfCustomTicketTemplate,
@@ -53,7 +53,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
             title=title,
             status=Status.objects.all()[0],
             priority=Priority.objects.all()[0],
-            criticity=Criticity.objects.all()[0],
+            criticity=Criticality.objects.all()[0],
         )
 
     @staticmethod
@@ -101,7 +101,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
         desc = "blablabla"
         status = Status.objects.all()[0]
         priority = Priority.objects.all()[0]
-        criticity = Criticity.objects.all()[0]
+        criticity = Criticality.objects.all()[0]
         response = self.client.post(
             url,
             follow=True,

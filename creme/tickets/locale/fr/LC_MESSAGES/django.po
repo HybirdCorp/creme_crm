@@ -235,14 +235,5 @@ msgstr "Vous n'avez pas accès à l'application «Tickets»"
 #~ msgid "Copy"
 #~ msgstr "Copie"
 
-#~ msgid "Status - Name"
-#~ msgstr "Statut - Nom"
-
-#~ msgid "Priority - Name"
-#~ msgstr "Priorité - Nom"
-
-#~ msgid "Criticity - Name"
-#~ msgstr "Criticité - Nom"
-
 #~ msgid "Deletable"
 #~ msgstr "Supprimable"

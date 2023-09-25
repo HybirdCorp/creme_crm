@@ -45,7 +45,7 @@ from . import (
     get_tickettemplate_model,
 )
 from .menu import TicketsEntry
-from .models import Criticity, Priority, Status
+from .models import Criticality, Priority, Status
 from .models.status import BASE_STATUS
 
 logger = logging.getLogger(__name__)
@@ -99,7 +99,8 @@ class Populator(BasePopulator):
                 (EntityCellRegularField, {'name': 'title'}),
                 (EntityCellRegularField, {'name': 'status'}),
                 (EntityCellRegularField, {'name': 'priority'}),
-                (EntityCellRegularField, {'name': 'criticity'}),
+                # (EntityCellRegularField, {'name': 'criticity'}),
+                (EntityCellRegularField, {'name': 'criticality'}),
                 (EntityCellRegularField, {'name': 'closing_date'}),
             ],
         )
@@ -111,7 +112,8 @@ class Populator(BasePopulator):
                 (EntityCellRegularField, {'name': 'title'}),
                 (EntityCellRegularField, {'name': 'status'}),
                 (EntityCellRegularField, {'name': 'priority'}),
-                (EntityCellRegularField, {'name': 'criticity'}),
+                # (EntityCellRegularField, {'name': 'criticity'}),
+                (EntityCellRegularField, {'name': 'criticality'}),
             ],
         )
 
@@ -138,7 +140,8 @@ class Populator(BasePopulator):
                 'description',
                 'status__name',
                 'priority__name',
-                'criticity__name',
+                # 'criticity__name',
+                'criticality__name',
             ],
         )
 
@@ -164,7 +167,7 @@ class Populator(BasePopulator):
                 ],
                 start=1,
             ):
-                create_if_needed(Criticity, {'pk': i}, name=name, order=i)
+                create_if_needed(Criticality, {'pk': i}, name=name, order=i)
 
             # ---------------------------
             menu_container = MenuConfigItem.objects.get_or_create(

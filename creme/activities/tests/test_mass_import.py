@@ -1433,7 +1433,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     @skipIfNotInstalled('creme.tickets')
     def test_subjects_extractor03(self):
         "Other ContentType."
-        from creme.tickets.models import Criticity, Priority, Ticket
+        from creme.tickets.models import Criticality, Priority, Ticket
 
         rtype = self.get_object_or_fail(RelationType, pk=constants.REL_OBJ_ACTIVITY_SUBJECT)
         self.assertIn(Ticket, (ct.model_class() for ct in rtype.object_ctypes.all()))
@@ -1443,7 +1443,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         ticket = Ticket.objects.create(
             user=user, title=f"{last_name}'s ticket",
             priority=Priority.objects.all()[0],
-            criticity=Criticity.objects.all()[0],
+            criticity=Criticality.objects.all()[0],
         )
 
         ext = SubjectsExtractor(1, '/')

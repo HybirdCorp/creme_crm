@@ -14,11 +14,11 @@ TicketTemplate = tickets.get_tickettemplate_model()
 
 # ------------------------------------------------------------------------------
 class TicketCreationFormDefault(CustomFormDefault):
-    main_fields = ['user', 'title', 'priority', 'criticity', 'solution']
+    main_fields = ['user', 'title', 'priority', 'criticality', 'solution']
 
 
 class TicketEditionFormDefault(CustomFormDefault):
-    main_fields = ['user', 'title', 'status', 'priority', 'criticity', 'solution']
+    main_fields = ['user', 'title', 'status', 'priority', 'criticality', 'solution']
 
 
 TICKET_CREATION_CFORM = CustomFormDescriptor(
@@ -39,7 +39,7 @@ TICKET_EDITION_CFORM = CustomFormDescriptor(
 
 # ------------------------------------------------------------------------------
 class TicketTemplateFormDefault(CustomFormDefault):
-    main_fields = ['title', 'status', 'priority', 'criticity', 'solution']
+    main_fields = ['title', 'status', 'priority', 'criticality', 'solution']
 
 
 TTEMPLATE_CREATION_CFORM = CustomFormDescriptor(

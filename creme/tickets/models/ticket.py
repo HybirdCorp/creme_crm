@@ -28,7 +28,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CREME_REPLACE, CremeEntity
 
-from .criticity import Criticity
+from .criticality import Criticality
 from .priority import Priority
 from .status import OPEN_PK, Status
 
@@ -54,8 +54,9 @@ class TicketMixin(CremeEntity):
     priority = models.ForeignKey(
         Priority, verbose_name=_('Priority'), on_delete=CREME_REPLACE,
     )
-    criticity = models.ForeignKey(
-        Criticity, verbose_name=_('Criticality'), on_delete=CREME_REPLACE,
+    # criticity = models.ForeignKey(
+    criticality = models.ForeignKey(
+        Criticality, verbose_name=_('Criticality'), on_delete=CREME_REPLACE,
     )
     solution = models.TextField(_('Solution'), blank=True)
 
@@ -185,7 +186,8 @@ class AbstractTicketTemplate(TicketMixin):
             description=self.description,
             status_id=self.status_id,
             priority_id=self.priority_id,
-            criticity_id=self.criticity_id,
+            # criticity_id=self.criticity_id,
+            criticality_id=self.criticality_id,
             solution=self.solution,
             closing_date=(now_value if self.status.is_closed else None),
         )

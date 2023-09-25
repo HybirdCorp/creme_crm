@@ -1,4 +1,4 @@
-from .criticity import Criticity  # NOQA
+from .criticality import Criticality  # NOQA
 from .priority import Priority  # NOQA
 from .status import Status  # NOQA
 from .ticket import (  # NOQA
