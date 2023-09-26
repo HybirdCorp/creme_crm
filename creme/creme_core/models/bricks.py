@@ -231,10 +231,14 @@ class BrickDetailviewLocation(CremeModel):
                 'Block configuration for detail-views of «{model}» uses «{block}»'
             )
 
+        model = ct.model_class() if ct else CremeEntity
+        brick = next(
+            (brick_registry.get_bricks(brick_ids=(self.brick_id,), entity=model())),
+            None
+        )
+
         return msg.format(
-            model=ct,
-            role=role,
-            block=next(brick_registry.get_bricks((self.brick_id,))).verbose_name,
+            model=ct, role=role, block='??' if brick is None else brick.verbose_name,
         )
 
 
