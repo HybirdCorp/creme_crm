@@ -33,6 +33,7 @@ from creme.creme_core.models import (
 )
 
 from ..base import CremeTestCase
+from ..fake_bricks import FakeOrganisationCardHatBrick
 
 
 class BrickTestCase(CremeTestCase):
@@ -417,6 +418,31 @@ class BrickTestCase(CremeTestCase):
                 block='BLOCK',
             ),
             str(loc5),
+        )
+
+        # Hat brick (generic)
+        loc6 = BrickDetailviewLocation.objects.create_if_needed(
+            brick=Brick.GENERIC_HAT_BRICK_ID,
+            order=1, zone=BrickDetailviewLocation.HAT, model=FakeOrganisation,
+        )
+        self.assertEqual(
+            _('Block configuration for detail-views of «{model}» uses «{block}»').format(
+                model='Test Organisation', block=_('Title bar'),
+            ),
+            str(loc6),
+        )
+
+        # Hat brick (specific)
+        loc7 = BrickDetailviewLocation.objects.create_if_needed(
+            brick=FakeOrganisationCardHatBrick,
+            order=1, zone=BrickDetailviewLocation.HAT, model=FakeOrganisation,
+        )
+        self.assertEqual(
+            _('Block configuration for detail-views of «{model}» uses «{block}»').format(
+                model='Test Organisation',
+                block=FakeOrganisationCardHatBrick.verbose_name,
+            ),
+            str(loc7),
         )
 
     def test_home_str(self):

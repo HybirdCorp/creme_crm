@@ -27,13 +27,13 @@ def ready():
     from ..models import CremeEntity
     from ..registry import creme_registry
     from . import (
+        fake_bricks,
         fake_custom_forms,
         fake_forms,
         fake_function_fields,
         fake_menu,
         fake_models,
     )
-    from .fake_bricks import FakeAppPortalBrick
     from .fake_constants import FAKE_REL_SUB_EMPLOYED_BY
 
     creme_registry.register_entity_models(
@@ -90,9 +90,13 @@ def ready():
     )
 
     brick_registry.register(
-        FakeAppPortalBrick,
+        fake_bricks.FakeAppPortalBrick,
     ).register_invalid_models(
         fake_models.FakeInvoiceLine,  # See creme_config tests
+    ).register_hat(
+        fake_models.FakeOrganisation,
+        main_brick_cls=fake_bricks.FakeOrganisationBarHatBrick,
+        secondary_brick_classes=[fake_bricks.FakeOrganisationCardHatBrick],
     )
 
     bulk_update_registry.register(fake_models.FakeContact)
