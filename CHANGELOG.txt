@@ -7,6 +7,13 @@
             * Creme_config :
                 - The style of disabled users in users' configuration block was broken (in theme "icecream" & "chantilly").
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The method 'BrickDetailviewLocation.__str__()' crashed with hat bricks.
+
 
 == Version 2.5 ==
 

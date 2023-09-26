@@ -1410,7 +1410,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
 class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
     """Filter entities which are have (or have not) certain Relations.
-    with entities filtered by a a sub EntityFilter.
+    with entities filtered by a sub EntityFilter.
     """
     type_id = 11
 
