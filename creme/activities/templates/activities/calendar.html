@@ -1,21 +1,50 @@
 {% extends BASE_HTML %}
-{% load i18n activities_tags %}
+{% load i18n tz activities_tags %}
+{% load jsondata from creme_core_tags %}
+
+{% get_current_timezone as TIME_ZONE %}
 
 {% block page_title %}{% translate 'Calendars' %} - {% endblock %}
 
 {% block head %}
     {{block.super}}
+    {% block calendar_setup_script %}
     <script type='text/javascript'>
         $(document).ready(function() {
+            var settings = JSON.parse(creme.utils.JSON.readScriptText($('#calendar-settings-data')));
+            var extra = settings.extra_data || {};
+
+            if (Array.isArray(extra) || _.isString(extra) || _.isNumber(extra)) {
+                console.warn('Ignore the extra_data field that must be a plain object :', extra);
+                extra = {};
+            }
+
             return new creme.ActivityCalendar($('.calendar-main'), {
                 owner: "{{user_username}}",
                 eventSelectUrl: '{% url "activities__select_calendars" %}',
                 eventUpdateUrl: '{% url "activities__set_activity_dates" %}',
                 eventCreateUrl: '{% url "activities__create_activity_popup" %}',
-                eventFetchUrl: '{% url "activities__calendars_activities" %}'
+                eventFetchUrl: '{% url "activities__calendars_activities" %}',
+                keepState: Boolean(settings.allow_keep_state),
+                defaultView: settings.view || 'month',
+                timezoneOffset: settings.utc_offset,
+                allowEventMove: Boolean(settings.allow_event_move),
+                fullCalendarOptions: $.extend(extra, {
+                    slotDuration: settings.slot_duration,
+                    businessHours: {
+                        daysOfWeek: settings.week_days,
+                        startTime: settings.day_start,
+                        endTime: settings.day_end
+                    },
+                    firstDay: settings.week_start
+                })
             });
         });
     </script>
+    {% endblock %}
+    {% block calendar_setup_data %}
+        {% jsondata calendar_settings id='calendar-settings-data' %}
+    {% endblock %}
 {% endblock %}
 
 {% block content %}

@@ -442,3 +442,9 @@
 }
 
 /* Activity popup - end */
+
+.calendar-config-default,
+.calendar-config-superuser {
+    color: hsla(197, 42%, 20%, 1);
+    font-style: italic;
+}

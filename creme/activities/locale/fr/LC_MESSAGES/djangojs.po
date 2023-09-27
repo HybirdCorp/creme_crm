@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-15 19:13+0100\n"
+"POT-Creation-Date: 2023-10-12 15:48+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -93,6 +93,18 @@ msgstr "Vous n'avez pas la permission, les changements ne seront pas sauvés."
 
 msgid "Error, please reload the page."
 msgstr "Erreur, veuillez recharger la page."
+
+msgid "Year"
+msgstr "Année"
+
+msgid "Calendar"
+msgstr "Calendrier"
+
+msgid "More"
+msgstr "Plus"
+
+msgid "No event to display"
+msgstr "Aucun évènement à afficher"
 
 msgid "Please select at least a line in order to export."
 msgstr "Veuillez sélectionner au moins une ligne pour pouvoir exporter."

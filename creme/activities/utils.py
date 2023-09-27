@@ -55,6 +55,11 @@ def get_last_day_of_a_month(date):
     return last_day
 
 
+def get_current_utc_offset():
+    tz = get_current_timezone()
+    return int(tz.utcoffset(now()).total_seconds() / 60)
+
+
 def check_activity_collisions(
         activity_start,
         activity_end,

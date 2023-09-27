@@ -55,6 +55,7 @@ class ActivitiesConfig(CremeAppConfig):
             bricks.PastActivitiesBrick,
             bricks.UserCalendarsBrick,
             bricks.RelatedCalendarBrick,
+            bricks.CalendarConfigItemsBrick,
         ).register_hat(
             self.Activity,
             main_brick_cls=bricks.ActivityBarHatBrick,
@@ -115,6 +116,10 @@ class ActivitiesConfig(CremeAppConfig):
         )
 
         config_registry.register_user_bricks(bricks.UserCalendarsBrick)
+        config_registry.register_app_bricks(
+            'activities',
+            bricks.CalendarConfigItemsBrick,
+        )
 
     def register_custom_forms(self, cform_registry):
         from . import custom_forms

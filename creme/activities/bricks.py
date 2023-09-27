@@ -22,11 +22,12 @@ from django.utils.translation import gettext_lazy as _
 
 from creme import persons
 from creme.creme_config.bricks import GenericModelBrick
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import QuerysetBrick, SimpleBrick
 from creme.creme_core.models import CremeEntity, Relation, SettingValue
 
 from . import constants, get_activity_model
-from .models import ActivityType, Calendar
+from .models import ActivityType, Calendar, CalendarConfigItem
 from .setting_keys import review_key
 
 Contact      = persons.get_contact_model()
@@ -251,3 +252,44 @@ class RelatedCalendarBrick(QuerysetBrick):
             context,
             activity.calendars.filter(user=user),
         ))
+
+
+class CalendarConfigItemsBrick(QuerysetBrick):
+    id = QuerysetBrick.generate_id('activities', 'calendar_view_config')
+    verbose_name = 'Calendar view configuration'
+    dependencies = (CalendarConfigItem,)
+    template_name = 'activities/bricks/calendar-config.html'
+    configurable = False
+
+    def detailview_display(self, context):
+        user = context['user']
+        configs = CalendarConfigItem.objects.filter(
+            role__isnull=False, superuser=False
+        ).order_by('role__name')
+
+        brick_context = self.get_template_context(
+            context,
+            configs,
+            has_app_perm=user.has_perm('activities'),
+        )
+
+        page = brick_context['page']
+
+        try:
+            default = CalendarConfigItem.objects.get_default()
+        except ConflictError as e:
+            brick_context['error'] = e
+            return self._render(brick_context)
+
+        if page.number < 2:
+            superuser = CalendarConfigItem.objects.filter(role=None, superuser=True).first()
+
+            brick_context['default'] = default
+            brick_context['superuser'] = superuser
+
+            # Little hack to force display of default & superuser even without any role
+            # configuration
+            paginator = page.paginator
+            paginator.count += 2 if superuser else 1
+
+        return self._render(brick_context)
