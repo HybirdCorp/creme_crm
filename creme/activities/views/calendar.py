@@ -28,12 +28,17 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch, Q
 from django.db.transaction import atomic
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.timezone import get_current_timezone, make_naive, now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.views.base import (
+    ConfigDeletion,
+    ConfigModelCreation,
+    ConfigModelEdition,
+)
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import DeletionCommand, EntityCredentials, Job
@@ -43,8 +48,13 @@ from creme.creme_core.views import generic
 
 from .. import constants, get_activity_model
 from ..forms import calendar as calendar_forms
-from ..models import Calendar
-from ..utils import check_activity_collisions, get_last_day_of_a_month
+from ..forms import config as config_forms
+from ..models import Calendar, CalendarConfigItem
+from ..utils import (
+    check_activity_collisions,
+    get_current_utc_offset,
+    get_last_day_of_a_month,
+)
 
 logger = logging.getLogger(__name__)
 Activity = get_activity_model()
@@ -189,6 +199,11 @@ class CalendarView(generic.CheckedTemplateView):
         context['enable_floating_activities_search'] = (
             len(f_activities) >= self.floating_activities_search_threshold
         )  # TODO: unit test for <True> case
+
+        context['calendar_settings'] = {
+            "utc_offset": get_current_utc_offset(),
+            **CalendarConfigItem.objects.for_user(user).as_dict(),
+        }
 
         return context
 
@@ -495,3 +510,38 @@ class CalendarLinking(generic.CremeModelEditionPopup):
     permissions = 'activities'
     pk_url_kwarg = 'activity_id'
     title = _('Change calendar of «{object}»')
+
+
+class CalendarConfigItemEdition(ConfigModelEdition):
+    model = CalendarConfigItem
+    form_class = config_forms.CalendarConfigItemEditForm
+    pk_url_kwarg = 'item_id'
+    title = _('Edit calendar view configuration')
+
+
+class CalendarConfigItemCreation(ConfigModelCreation):
+    form_class = config_forms.CalendarConfigItemCreateForm
+    title = _('Create calendar configuration for a role')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        kwargs['instance'] = instance = CalendarConfigItem.objects.get_default()
+        instance.pk = None
+
+        return kwargs
+
+
+class CalendarConfigItemDeletion(ConfigDeletion):
+    id_arg = 'id'
+
+    def perform_deletion(self, request):
+        config = get_object_or_404(
+            CalendarConfigItem,
+            pk=get_from_POST_or_404(request.POST, self.id_arg),
+        )
+
+        if config.role is None and not config.superuser:
+            raise ConflictError("Unable to remove default calendar configuration")
+
+        config.delete()

@@ -674,13 +674,16 @@ QUnit.test('creme.ActivityCalendar (fetch)', function(assert) {
     ]);
 });
 
-QUnit.test('creme.ActivityCalendar.rendering (month view)', function(assert) {
+QUnit.parameterize('creme.ActivityCalendar.rendering (month view)', [
+    true, false
+], function(allowEventMove, assert) {
     var element = $(this.createDefaultCalendarHtml({
         options: {debounceDelay: 0}
     })).appendTo(this.qunitFixture());
     var controller = new creme.ActivityCalendar(element, {
                          eventFetchUrl: 'mock/calendar/events',
-                         initialDate: '2023-03-20'
+                         initialDate: '2023-03-20',
+                         allowEventMove: allowEventMove
                      });
     var view = controller.fullCalendar().view;
     var hex2rgb = function(color) {
@@ -694,37 +697,43 @@ QUnit.test('creme.ActivityCalendar.rendering (month view)', function(assert) {
             title: "Event #20-3 (all day)",
             typename: '<div class="fc-event-type">Meeting</div>',
             color: hex2rgb('#fc0000'),
-            isSmall: false
+            isSmall: false,
+            isEditable: allowEventMove
         }, {
             timestamp: '8h00',
             title: "Event #1",
             typename: '<div class="fc-event-type">Call</div>',
             color: hex2rgb('#fcfcfc'),
-            isSmall: false
+            isSmall: false,
+            isEditable: allowEventMove
         }, {
             timestamp: '9h00',
             title: "Event #2",
             typename: '<div class="fc-event-type">Call</div>',
             color: hex2rgb('#fcfcfc'),
-            isSmall: false
+            isSmall: false,
+            isEditable: allowEventMove
         }, {
             timestamp: '10h30',
             title: "Event #10-1",
             typename: '<div class="fc-event-type">Meeting</div>',
             color: hex2rgb('#fc00fc'),
-            isSmall: false
+            isSmall: false,
+            isEditable: allowEventMove
         }, {
             timestamp: '14h30',
             title: "Event #20-1 (small)",
             typename: '<div class="fc-event-type">Meeting</div>',
             color: hex2rgb('#fc0000'),
-            isSmall: false
+            isSmall: false,
+            isEditable: allowEventMove
         }, {
             timestamp: '16h30',
             title: "Event #20-2",
             typename: '<div class="fc-event-type">Meeting</div>',
             color: hex2rgb('#fc0000'),
-            isSmall: false
+            isSmall: false,
+            isEditable: allowEventMove
         }
     ], element.find('.calendar .fc-event').map(function() {
         return {
@@ -732,9 +741,33 @@ QUnit.test('creme.ActivityCalendar.rendering (month view)', function(assert) {
             title: $(this).find('.fc-event-title').text(),
             typename: $(this).find('.fc-event-type').prop('outerHTML'),
             color: $(this).is('.fc-daygrid-dot-event') ? $(this).find('.fc-daygrid-event-dot').css('border-color') : $(this).css('background-color'),
-            isSmall: $(this).find('.fc-small').length > 0
+            isSmall: $(this).find('.fc-small').length > 0,
+            isEditable: $(this).is('.fc-event-draggable')
         };
     }).get());
+});
+
+
+QUnit.parameterize('creme.ActivityCalendar.timezoneOffset', [
+    0, 120, -120
+], function(offset, assert) {
+    var element = $(this.createDefaultCalendarHtml({
+        options: {debounceDelay: 0}
+    })).appendTo(this.qunitFixture());
+    var controller = new creme.ActivityCalendar(element, {
+                         eventFetchUrl: 'mock/calendar/events',
+                         initialDate: '2023-03-20',
+                         timezoneOffset: offset
+                     });
+    var view = controller.fullCalendar().view;
+
+    equal(view.type, 'month');
+    equal(controller.timezoneOffset(), offset);
+
+    var now = controller.fullCalendar().getOption('now')();
+    var expected = moment.utc().add(offset, 'm').milliseconds(0);
+
+    equal(now, expected.toISOString(true));
 });
 
 // SWITCHING TO 'week' DO NOT WORK WITH FULLCALENDAR 5.x

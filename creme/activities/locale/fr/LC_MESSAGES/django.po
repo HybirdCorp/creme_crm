@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-11 20:11+0200\n"
+"POT-Creation-Date: 2023-10-16 15:48+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -339,6 +339,19 @@ msgstr ""
 msgid "Calendar"
 msgstr "Calendrier"
 
+msgid "Days of the week"
+msgstr "Jours de la semaine"
+
+#, python-brace-format
+msgid "Start ({start}) must be before end ({end})."
+msgstr "Le début ({start}) doit être avant la fin ({end})."
+
+msgid "Settings"
+msgstr "Paramètres"
+
+msgid "Superuser"
+msgstr "Super-Utilisateur"
+
 msgid "Appears on the calendar:"
 msgstr "Apparaît sur le calendrier :"
 
@@ -471,11 +484,62 @@ msgstr "Créer un calendrier"
 msgid "Save the calendar"
 msgstr "Enregistrer le calendrier"
 
+msgid "Monday"
+msgstr "Lundi"
+
+msgid "Tuesday"
+msgstr "Mardi"
+
+msgid "Wednesday"
+msgstr "Mercredi"
+
+msgid "Thursday"
+msgstr "Jeudi"
+
+msgid "Friday"
+msgstr "Vendredi"
+
+msgid "Saturday"
+msgstr "Samedi"
+
+msgid "Sunday"
+msgstr "Dimanche"
+
+msgid "Month"
+msgstr "Mois"
+
+msgid "Week"
+msgstr "Semaine"
+
+msgid "Default view mode"
+msgstr "Vue par défaut"
+
+msgid "First day of the week"
+msgstr "Premier jour de la semaine"
+
+msgid "Slot duration"
+msgstr "Durée d'un intervalle de temps"
+
+msgid "Allow drag-n-drop"
+msgstr "Déplacer"
+
+msgid "Keep navigation state"
+msgstr "Conserver la navigation"
+
+msgid "Calendar display configuration"
+msgstr "Configuration du calendrier"
+
+msgid "Calendar display configurations"
+msgstr "Configurations du calendrier"
+
 msgid "Default day duration"
 msgstr "Durée en jours par défaut"
 
 msgid "Default hour duration"
 msgstr "Durée en heures/minutes/secondes par défaut"
+
+msgid "The default configuration for calendar is not populated."
+msgstr "La configuration par défaut du calendrier n'existe pas."
 
 msgctxt "activities-type"
 msgid "Create a type"
@@ -694,6 +758,39 @@ msgid_plural "%(counter)s Are related to"
 msgstr[0] "%(counter)s est reliée à"
 msgstr[1] "%(counter)s sont reliées à"
 
+msgid "{count} Configured calendar view"
+msgstr "{count} Configuration de calendrier"
+
+msgid "{count} Configured calendar views"
+msgstr "{count} Configurations de calendrier"
+
+msgid "Create for a role"
+msgstr "Créer pour un rôle"
+
+msgid "Business Days"
+msgstr "Journées de travail"
+
+msgid "Business Hours"
+msgstr "Heures de travail"
+
+msgid "Action"
+msgstr ""
+
+msgid "Default configuration"
+msgstr "Configuration par défaut"
+
+msgid "Edit this configuration"
+msgstr "Modifier cette configuration"
+
+msgid "Superuser configuration"
+msgstr "Configuration Super-Utilisateur"
+
+msgid "Delete this configuration"
+msgstr "Supprimer cette configuration"
+
+msgid "No configuration for the moment"
+msgstr "Aucune configuration pour le moment"
+
 #, python-brace-format
 msgid "{count} Future activity for me"
 msgstr "{count} Activité future pour moi"
@@ -793,9 +890,6 @@ msgstr "{count} Calendriers"
 
 msgid "New calendar"
 msgstr "Nouveau calendrier"
-
-msgid "Actions"
-msgstr ""
 
 msgid "Edit this calendar"
 msgstr "Modifier ce calendrier"
@@ -918,6 +1012,12 @@ msgstr ""
 #, python-brace-format
 msgid "Change calendar of «{object}»"
 msgstr "Changer le calendrier de «{object}»"
+
+msgid "Edit calendar view configuration"
+msgstr "Modifier la configuration du calendrier"
+
+msgid "Create calendar configuration for a role"
+msgstr "Créer une configuration de calendrier pour un rôle"
 
 #~ msgid "forbidden"
 #~ msgstr "interdit"
@@ -1089,9 +1189,6 @@ msgstr "Changer le calendrier de «{object}»"
 #~ msgid "Day"
 #~ msgstr "Jour"
 
-#~ msgid "Week"
-#~ msgstr "Semaine"
-
 #~ msgid "Add an activity"
 #~ msgstr "Ajouter une activité"
 
@@ -1122,9 +1219,6 @@ msgstr "Changer le calendrier de «{object}»"
 
 #~ msgid "Today"
 #~ msgstr "Aujourd'hui"
-
-#~ msgid "Month"
-#~ msgstr "Mois"
 
 #~ msgid "January"
 #~ msgstr "Janvier"
@@ -1161,27 +1255,6 @@ msgstr "Changer le calendrier de «{object}»"
 
 #~ msgid "December"
 #~ msgstr "Décembre"
-
-#~ msgid "Sunday"
-#~ msgstr "Dimanche"
-
-#~ msgid "Monday"
-#~ msgstr "Lundi"
-
-#~ msgid "Tuesday"
-#~ msgstr "Mardi"
-
-#~ msgid "Wednesday"
-#~ msgstr "Mercredi"
-
-#~ msgid "Thursday"
-#~ msgstr "Jeudi"
-
-#~ msgid "Friday"
-#~ msgstr "Vendredi"
-
-#~ msgid "Saturday"
-#~ msgstr "Samedi"
 
 #~ msgid "Show the users list"
 #~ msgstr "Afficher la liste des utilisateurs"

@@ -302,6 +302,12 @@
     overflow: inherit;
 }
 
+.fc-creme .fc-timegrid-now-indicator-container .fc-timegrid-now-timezone {
+    text-align: right;
+    top: -0.1em;
+    color: var(--fc-now-indicator-color, red);
+}
+
 .fc-creme .fc-timegrid-now-indicator-line:before {
     content: "●";
     top: -0.85em;

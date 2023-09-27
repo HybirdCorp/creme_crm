@@ -205,6 +205,8 @@ creme.ActivityCalendar = creme.component.Component.sub({
             defaultView: 'month',
             keepState: false,
             showWeekNumber: true,
+            showTimezoneInfo: false,
+            allowEventMove: true,
             fullCalendarOptions: {}
         }, options || {});
 
@@ -221,6 +223,9 @@ creme.ActivityCalendar = creme.component.Component.sub({
         this.eventFetchUrl(options.eventFetchUrl || '');
         this.keepState(options.keepState);
         this.showWeekNumber(options.showWeekNumber);
+        this.showTimezoneInfo(options.showTimezoneInfo);
+        this.allowEventMove(options.allowEventMove);
+        this.timezoneOffset(options.timezoneOffset);
 
         this._bindFilterInputs(element, '.floating-event-filter input', this._filterCalendarEvents.bind(this));
         this._bindFilterInputs(element, '.calendar-menu-filter input', this._filterCalendars.bind(this));
@@ -250,6 +255,14 @@ creme.ActivityCalendar = creme.component.Component.sub({
         return Object.property(this, '_eventFetchUrl', url);
     },
 
+    allowEventMove: function(state) {
+        return Object.property(this, '_allowEventMove', state);
+    },
+
+    timezoneOffset: function(offset) {
+        return Object.property(this, '_timezoneOffset', offset);
+    },
+
     defaultView: function(view) {
         return Object.property(this, '_defaultView', view);
     },
@@ -264,6 +277,10 @@ creme.ActivityCalendar = creme.component.Component.sub({
 
     showWeekNumber: function(state) {
         return Object.property(this, '_showWeekNumber', state);
+    },
+
+    showTimezoneInfo: function(state) {
+        return Object.property(this, '_showTimezoneInfo', state);
     },
 
     calendarElement: function() {
@@ -615,6 +632,8 @@ creme.ActivityCalendar = creme.component.Component.sub({
             end: this.toMoment(info.end, calendar)
         });
 
+        var isEditable = this.allowEventMove();
+
         this._query({
                 url: this.eventFetchUrl(),
                 backend: {dataType: 'json'}
@@ -626,6 +645,7 @@ creme.ActivityCalendar = creme.component.Component.sub({
             .onDone(function(event, data) {
                 successCb(data.map(function(item) {
                     item.textColor = new RGBColor(item.color).foreground().toString();
+                    item.editable = item.editable && isEditable;
                     return item;
                 }));
              })
@@ -887,6 +907,21 @@ creme.ActivityCalendar = creme.component.Component.sub({
                 },
                 eventOverlap: function(still, moving) {
                     return self._onCalendarEventOverlap(calendar, still, moving);
+                },
+                nowIndicatorContent: function(info, createElement) {
+                    if (self.showTimezoneInfo()) {
+                        var text = moment.utc().utcOffset(self.timezoneOffset()).format('Z');
+                        return createElement('div', {className: 'fc-timegrid-now-timezone'}, 'UTC' + text);
+                    }
+                },
+                now: function() {
+                    var now = moment().milliseconds(0);
+                    var offset = self.timezoneOffset();
+
+                    offset = isNaN(offset) ? now.utcOffset() : offset;
+                    now = now.utc().add(offset, 'm');
+
+                    return now.toISOString(true);
                 }
             })
         );

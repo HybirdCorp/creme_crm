@@ -1,6 +1,7 @@
 from datetime import timedelta
 from functools import partial
 from io import StringIO
+from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.models import Session
@@ -14,6 +15,7 @@ from django.utils.timezone import zoneinfo
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
+from creme.activities.models.config import CalendarConfigItem
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.models import (
@@ -505,6 +507,40 @@ class CalendarTestCase(_ActivitiesTestCase):
 
             def_cal = self.assertUserHasDefaultCalendar(user)
             self.assertTrue(def_cal.is_public)
+
+    @parameterized.expand([
+        ('Europe/London', 0, 60),  # UTC / UTC+1:00
+        ('Europe/Paris', 60, 120),  # UTC+1:00 / UTC+2:00
+        ('America/New_York', -5 * 60, -4 * 60),  # UTC-5:00 / UTC-4:00
+    ])
+    def test_calendar_view__utc_offset(self, timezone_name, without_dst, with_dst):
+        user = self.login_as_super()
+        config = CalendarConfigItem.objects.for_user(user)
+
+        with override_tz(timezone_name):
+            dst_date = self.create_datetime(2023, 8, 1)
+            no_dst_date = self.create_datetime(2023, 12, 1)
+
+            self.assertTrue(dst_date.tzinfo.dst(dst_date).total_seconds() != 0)
+            self.assertTrue(no_dst_date.tzinfo.dst(no_dst_date).total_seconds() == 0)
+
+            with patch('creme.activities.utils.now', return_value=dst_date):
+                response = self.assertGET200(self.CALENDAR_URL)
+                settings = response.context['calendar_settings']
+
+                self.assertEqual({
+                    **config.as_dict(),
+                    "utc_offset": with_dst
+                }, settings)
+
+            with patch('creme.activities.utils.now', return_value=no_dst_date):
+                response = self.assertGET200(self.CALENDAR_URL)
+                settings = response.context['calendar_settings']
+
+                self.assertEqual({
+                    **config.as_dict(),
+                    "utc_offset": without_dst
+                }, settings)
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_add_user_calendar01(self):

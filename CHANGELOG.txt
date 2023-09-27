@@ -12,6 +12,7 @@
                 - New calendar look-n-feel.
                 - Week/month view change are now in browsing history and refresh will stay on the same view.
                 - Forbid collisions between events from the same creme calendar.
+            - New configuration mechanism for calendar view per role.
         * Reports :
             - The date fields of referenced models can be used for temporal filtering in the Reports
               (e.g. in a report on Contacts, Photograph's fields are available).
@@ -45,6 +46,8 @@
                          - activities__calendars_activities
                          - activities__set_activity_dates
                     - Display "busy" events (no collision) with a stripped background.
+                    - Support timezone provided by the user information instead of browser.
+
 
     Breaking changes :
     ------------------

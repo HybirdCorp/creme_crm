@@ -55,7 +55,7 @@ from . import (
     menu,
     setting_keys,
 )
-from .models import ActivitySubType, ActivityType, Status
+from .models import ActivitySubType, ActivityType, CalendarConfigItem, Status
 
 logger = logging.getLogger(__name__)
 
@@ -338,6 +338,11 @@ class Populator(BasePopulator):
         create_svalue = SettingValue.objects.get_or_create
         create_svalue(key_id=setting_keys.review_key.id,        defaults={'value': True})
         create_svalue(key_id=setting_keys.auto_subjects_key.id, defaults={'value': True})
+
+        # Create default calendar configuration
+        CalendarConfigItem.objects.get_or_create(
+            role=None, superuser=False
+        )
 
         # ---------------------------
         if not already_populated:
