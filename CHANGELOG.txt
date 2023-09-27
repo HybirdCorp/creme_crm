@@ -5,7 +5,9 @@
     # The command "creme_uninstall" was crashing.
         # Apps :
             * Creme_config :
-                - The style of disabled users in users' configuration block was broken (in theme "icecream" & "chantilly").
+                - In the users' configuration :
+                    - An error happened in the edition form when transforming a superuser into a regular one.
+                    - The style of disabled users was broken (in theme "icecream" & "chantilly").
 
   Developers side :
   -----------------
