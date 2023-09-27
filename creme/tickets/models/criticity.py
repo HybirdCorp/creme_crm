@@ -37,6 +37,6 @@ class Criticity(MinionModel):
 
     class Meta:
         app_label = 'tickets'
-        verbose_name = _('Ticket criticality')
-        verbose_name_plural = _('Ticket criticalities')
+        verbose_name = pgettext_lazy('tickets-singular', 'Ticket criticality')
+        verbose_name_plural = pgettext_lazy('tickets-plural', 'Ticket criticality')
         ordering = ('order',)

@@ -5,9 +5,9 @@
 # > django-admin makemessages -l fr -i tests.py --no-location
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Tickets 2.5\n"
+"Project-Id-Version: Creme Tickets 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-30 15:29+0100\n"
+"POT-Creation-Date: 2023-09-27 18:28+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -61,10 +61,12 @@ msgctxt "tickets-criticality"
 msgid "Create a criticality"
 msgstr "Créer une criticité"
 
+msgctxt "tickets-singular"
 msgid "Ticket criticality"
 msgstr "Criticité de ticket"
 
-msgid "Ticket criticalities"
+msgctxt "tickets-plural"
+msgid "Ticket criticality"
 msgstr "Criticités de ticket"
 
 msgctxt "tickets-priority"
