@@ -956,6 +956,27 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         ))
 
     @skipIfNotCremeUser
+    def test_edit_super_user(self):
+        "Transform into regular user (bug-fix)."
+        self.login_as_root()
+
+        other_user = self.create_user()
+        self.assertTrue(other_user.is_superuser)
+        self.assertIsNone(other_user.role)
+
+        role = self.create_role(name='Basic')
+
+        self.assertNoFormError(self.client.post(
+            self._build_edit_url(other_user.id),
+            data={
+                'first_name': other_user.first_name,
+                'last_name': other_user.last_name,
+                'role': role.id,
+                'email': other_user.email,
+            },
+        ))
+
+    @skipIfNotCremeUser
     def test_change_password01(self):
         self.login_as_root()
 
