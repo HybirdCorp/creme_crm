@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # The disabled RelationTypes were still proposed in the popup-form of the Relationships' brick.
     # The command "creme_uninstall" was crashing.
     # Apps :
         * Creme_config :
