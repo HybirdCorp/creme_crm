@@ -546,15 +546,35 @@ class RelationViewsTestCase(ViewsTestCase):
 
         subject = self._create_contact(user=user)
         rtype1, rtype2 = self._create_rtypes()
+
+        rtype3 = RelationType.objects.smart_update_or_create(
+            ('test-subject_disabled', 'is disabled'),
+            ('test-object_disabled',  'whatever'),
+        )[0]
+        rtype3.enabled = False
+        rtype3.save()
+
+        object_orga = self._create_organisation(user=user)
+
+        create_sfrt = partial(SemiFixedRelationType.objects.create, real_object=object_orga)
+        create_sfrt(predicate=f'Relation #1 to "{object_orga}"', relation_type=rtype1)
+        sfrt2 = create_sfrt(predicate=f'Relation #2 to "{object_orga}"', relation_type=rtype2)
+        create_sfrt(predicate=f'Relation #3 to "{object_orga}"', relation_type=rtype3)
+
         response = self.client.get(
             self._build_add_url(subject), data={'exclude': [rtype1.id]},
         )
 
         with self.assertNoException():
-            rtypes = response.context['form'].fields['relations'].allowed_rtypes
+            fields = response.context['form'].fields
+            rtypes = fields['relations'].allowed_rtypes
+            semifixed_choices = [*fields['semifixed_rtypes'].choices]
 
         self.assertIn(rtype2, rtypes)
         self.assertNotIn(rtype1, rtypes)
+        self.assertNotIn(rtype3, rtypes)
+
+        self.assertListEqual([(sfrt2.id, sfrt2.predicate)], semifixed_choices)
 
     def test_add_relations_with_semi_fixed01(self):
         "Only semi fixed."
