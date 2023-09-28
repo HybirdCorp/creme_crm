@@ -185,6 +185,7 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
                 # so it's not a problem to only excluded them only in GET part.
                 rtypes = RelationType.objects\
                                      .compatible(subject_ctype) \
+                                     .filter(enabled=True) \
                                      .exclude(id__in=excluded_rtype_ids)
 
         return rtypes
