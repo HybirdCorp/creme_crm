@@ -16,6 +16,8 @@
     {% endif %}
 {% endblock %}
 
+{% block brick_table_head %}{% endblock %}
+
 {% block brick_table_rows %}
 {% url 'creme_core__remove_property' as rm_url %}
     {% for entity in page.object_list %}
