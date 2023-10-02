@@ -61,26 +61,31 @@ class Populator(BasePopulator):
                 defaults={'model': model},
                 data=[
                     {
-                        'brick': bricks.GoogleDetailMapBrick, 'order': 70,
+                        # 'brick': bricks.GoogleDetailMapBrick, 'order': 70,
+                        'brick': bricks.OpenStreetMapDetailMapBrick, 'order': 70,
                         'zone': BrickDetailviewLocation.LEFT,
                     },
                     {
-                        'brick': bricks.GoogleNeighboursMapBrick, 'order': 600,
+                        # 'brick': bricks.GoogleNeighboursMapBrick, 'order': 600,
+                        'brick': bricks.OpenStreetMapNeighboursMapBrick, 'order': 600,
                         'zone': BrickDetailviewLocation.BOTTOM,
                     },
                 ],
             )
 
         BrickMypageLocation.objects.create(
-            brick_id=bricks.GoogleFilteredMapBrick.id, order=20, user=None,
+            # brick_id=bricks.GoogleFilteredMapBrick.id, order=20, user=None,
+            brick_id=bricks.OpenStreetMapFilteredMapBrick.id, order=20, user=None,
         )
 
         # Add this block only if the root user exists (creme_core populated)
         root = get_user_model().objects.filter(pk=1).first()
         if root:
             logger.info(
-                'Creme core is installed => the block GoogleFilteredMapBrick can be activated'
+                # 'Creme core is installed => the block GoogleFilteredMapBrick can be activated'
+                'The block OpenStreetMapFilteredMapBrick is set on the page of "root" user.'
             )
             BrickMypageLocation.objects.create(
-                brick_id=bricks.GoogleFilteredMapBrick.id, order=20, user=root,
+                # brick_id=bricks.GoogleFilteredMapBrick.id, order=20, user=root,
+                brick_id=bricks.OpenStreetMapFilteredMapBrick.id, order=20, user=root,
             )
