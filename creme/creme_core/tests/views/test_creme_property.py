@@ -10,6 +10,8 @@ from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
+    SetCredentials,
+    history,
 )
 
 from ..fake_models import FakeContact, FakeOrganisation
@@ -254,7 +256,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self.assertGET404(ptype.get_edit_absolute_url())
 
-    def test_delete_related01(self):
+    def test_delete_related_to_entity01(self):
         user = self.login_as_standard()
         self._set_all_perms_on_own(user)
 
@@ -283,7 +285,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             follow=True, data={'id': ptype.id},
         )
 
-    def test_delete_related02(self):
+    def test_delete_related_to_entity02(self):
         "Not allowed to change the related entity."
         user = self.login_as_standard()
         self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
@@ -322,6 +324,53 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertRedirects(response, ptype.get_absolute_url())
         self.assertDoesNotExist(prop1)
         self.assertStillExists(prop2)
+
+    def test_delete_from_content_type(self):
+        user = self.login_as_standard()
+        SetCredentials.objects.create(
+            role=user.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+            set_type=SetCredentials.ESET_OWN,
+        )
+        root = self.get_root_user()
+
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-prop_cool',       text='Is cool')
+        ptype2 = create_ptype(str_pk='test-prop_super_cool', text='Is super cool')
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        contact1 = create_contact(last_name='Vrataski', first_name='Rita')
+        contact2 = create_contact(last_name='Kiriya',   first_name='Keiji')
+        contact3 = create_contact(last_name='Doe',      first_name='John', user=root)
+        contact4 = create_contact(last_name='Deleted',  is_deleted=True)
+
+        orga = FakeOrganisation.objects.create(user=user, name='US Defense Force')
+
+        create_prop = partial(CremeProperty.objects.create, type=ptype1)
+        prop11 = create_prop(creme_entity=contact1)
+        prop12 = create_prop(creme_entity=contact1, type=ptype2)
+        prop2 = create_prop(creme_entity=contact2)
+        prop3 = create_prop(creme_entity=contact3)
+        prop4 = create_prop(creme_entity=contact4)
+        prop_orga = create_prop(creme_entity=orga)
+
+        response = self.assertPOST200(
+            reverse('creme_core__remove_properties'), follow=True,
+            data={'ptype_id': ptype1.id, 'ct_id': contact1.entity_type_id},
+        )
+        self.assertRedirects(response, ptype1.get_absolute_url())
+        self.assertDoesNotExist(prop11)
+        self.assertDoesNotExist(prop2)
+        self.assertStillExists(prop12)
+        self.assertStillExists(prop3)
+        self.assertStillExists(prop4)
+        self.assertStillExists(prop_orga)
+
+        hlines = history.HistoryLine.objects.filter(entity=contact1.id).order_by('id')
+        self.assertEqual(4, len(hlines))  # Creation, properties adding x 2, property deletion
+        hline = hlines[3]
+        self.assertEqual(history.TYPE_PROP_DEL, hline.type)
+        self.assertListEqual([ptype1.id], hline.modifications)
 
     def test_delete_type01(self):
         self.login_as_root()

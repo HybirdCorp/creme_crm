@@ -4,6 +4,8 @@
   ------------
     # The list-views with a big number of entities & no explicit sort now works correctly (i.e. not duplicate).
       The mass-export & the exploration mode now accept to be used in this case.
+    # In the detail-view for property type, a button to delete all the properties with this type
+      (and related to a given entity type) has been added.
     # Apps :
         * Activities :
             - Upgrade to FullCalendar "5.11.4":

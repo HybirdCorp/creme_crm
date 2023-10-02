@@ -111,7 +111,10 @@ def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
 
     if value is None:
         if 'default' not in kwargs:
-            raise Http404(f'No {method_name} argument with this key: "{key}".')
+            msg = f'No {method_name} argument with this key: "{key}".'
+            logger.warning(msg)
+
+            raise Http404(msg)
 
         value = kwargs['default']
 
@@ -119,9 +122,10 @@ def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
         try:
             value = cast(value)
         except Exception as e:
-            raise Http404(
-                f'Problem with argument "{key}" : it can not be coerced ({e})'
-            ) from e
+            msg = f'Problem with argument "{key}": it can not be coerced ({e})'
+            logger.warning(msg)
+
+            raise Http404(msg) from e
 
     return value
 

@@ -1120,10 +1120,10 @@ about this fantastic animation studio."""
         self.assertEqual(old_count + 2, len(hlines))
 
         hline = hlines[-1]
-        self.assertEqual(gainax.id,       hline.entity.id)
-        self.assertEqual(str(gainax), hline.entity_repr)
-        self.assertEqual(TYPE_PROP_DEL,   hline.type)
-        self.assertListEqual([ptype.id],      hline.modifications)
+        self.assertEqual(gainax.id,     hline.entity.id)
+        self.assertEqual(str(gainax),   hline.entity_repr)
+        self.assertEqual(TYPE_PROP_DEL, hline.type)
+        self.assertListEqual([ptype.id], hline.modifications)
         self.assertIs(hline.line_type.is_about_relation, False)
         self.assertGreater(hline.date, gainax.modified)
 
