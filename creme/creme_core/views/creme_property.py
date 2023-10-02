@@ -17,6 +17,7 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.transaction import atomic
 from django.http import Http404
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django.urls import reverse
@@ -25,6 +26,8 @@ from django.utils.translation import gettext_lazy as _
 # TODO: move them to creme_core ?
 import creme.creme_config.forms.creme_property_type as ptype_forms
 
+from ..auth import EntityCredentials
+from ..core.paginator import FlowPaginator
 from ..forms import creme_property as prop_forms
 from ..gui.bricks import Brick, QuerysetBrick
 from ..models import CremeEntity, CremeProperty, CremePropertyType
@@ -137,6 +140,50 @@ class PropertyFromFieldsDeletion(generic.base.EntityRelatedMixin,
     def get_success_url(self):
         # TODO: callback_url?
         return self.get_property_type().get_absolute_url()
+
+
+class CTypePropertiesDeletion(generic.base.EntityCTypeRelatedMixin,
+                              generic.CremeDeletion):
+    ptype_id_arg = 'ptype_id'
+    ctype_id_arg: str = 'ct_id'
+
+    def get_ctype_id(self):
+        return get_from_POST_or_404(self.request.POST, self.ctype_id_arg, cast=int)
+
+    def get_ptype_id(self):
+        # TODO: cast=int when CremePropertyType has been reworked
+        return get_from_POST_or_404(self.request.POST, self.ptype_id_arg)
+
+    def get_success_url(self):
+        return reverse('creme_core__ptype', args=(self.get_ptype_id(),))
+
+    def perform_deletion(self, request):
+        ctype = self.get_ctype()
+        ptype_id = self.get_ptype_id()
+
+        key = 'cremeentity_ptr_id'
+        # NB: CremeUser.has_perm_to_change() returns False for deleted entities,
+        #     but EntityCredentials.filter(perm=EntityCredentials.CHANGE, ...)
+        #     does not exclude them => is this a problem??
+        qs = EntityCredentials.filter(
+            user=self.request.user,
+            queryset=ctype.model_class()
+                          .objects
+                          .order_by(key)
+                          .filter(properties__type=ptype_id, is_deleted=False),
+            perm=EntityCredentials.CHANGE,
+        )
+        for page in FlowPaginator(
+            queryset=qs,
+            key=key,
+            per_page=256,
+            count=qs.count(),
+        ).pages():
+            with atomic():
+                CremeProperty.objects.filter(
+                    type_id=ptype_id,
+                    creme_entity_id__in=[e.id for e in page.object_list],
+                ).delete()
 
 
 class PropertyTypeDeletion(generic.CremeModelDeletion):

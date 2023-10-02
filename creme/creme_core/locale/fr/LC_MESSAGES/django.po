@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-20 14:53+0200\n"
+"POT-Creation-Date: 2023-10-02 19:01+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2989,6 +2989,17 @@ msgstr "{count} Autre fiche"
 #, python-brace-format
 msgid "{count} Other entities"
 msgstr "{count} Autres fiches"
+
+#, python-format
+msgid ""
+"Remove all the properties related to the «%(models)s» which you are allowed "
+"to edit"
+msgstr ""
+"Enlever toutes les propriétés liées aux «%(models)s» que vous avoir la "
+"permission de modifier"
+
+msgid "Remove these properties"
+msgstr "Enlever les propriétés"
 
 msgid "Remove the property"
 msgstr "Enlever la propriété"
