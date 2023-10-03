@@ -5,6 +5,8 @@
     # Apps :
         * Creme_config :
             - The style of disabled users in users' configuration block was broken (in theme "icecream" & "chantilly").
+        * Persons :
+            - The summary's title for Opportunities in "card" hat-bricks was not always displaying the number of Opportunities.
 
 
 == Version 2.3.14 ==
