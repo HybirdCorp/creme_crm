@@ -48,6 +48,18 @@ Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 
 
+# TODO: move to creme core?
+class CardSummary:
+    dependencies: list[type[CremeEntity]] = []
+    relation_type_deps: list[str] = []
+    template_name = ''
+
+    def get_context(self, *, entity: CremeEntity, brick_context: dict) -> dict:
+        """Context used by the template system to render the summary."""
+        template_name = self.template_name
+        return {'template_name': template_name} if template_name else {}
+
+
 if apps.is_installed('creme.activities'):
     from datetime import timedelta
 
@@ -57,7 +69,34 @@ if apps.is_installed('creme.activities'):
 
     Activity = get_activity_model()
 
-    class Activities4Card:
+    # class Activities4Card:
+    #     dependencies = [Activity]
+    #     relation_type_deps = [
+    #         activities_constants.REL_SUB_PART_2_ACTIVITY,
+    #         activities_constants.REL_SUB_ACTIVITY_SUBJECT,
+    #         activities_constants.REL_SUB_LINKED_2_ACTIVITY,
+    #     ]
+    #
+    #     @staticmethod
+    #     def get(context, entity):
+    #         now = context['today']
+    #         user = context['user']
+    #
+    #         if isinstance(entity, Organisation):
+    #             past = Activity.objects.past_linked_to_organisation
+    #             future = Activity.objects.future_linked_to_organisation
+    #         else:
+    #             past = Activity.objects.past_linked
+    #             future = Activity.objects.future_linked
+    #
+    #         return {
+    #             'last': EntityCredentials.filter(user, past(entity, now)).first(),
+    #             'next': EntityCredentials.filter(user, future(entity, now)).first(),
+    #             # NB: we avoid a templatetag from activities, because dynamic
+    #             #     {% load %} is not possible.
+    #             'NARROW': NARROW,
+    #         }
+    class _ActivitySummary(CardSummary):
         dependencies = [Activity]
         # TODO: what if one RelationType.enable == False?
         relation_type_deps = [
@@ -66,25 +105,41 @@ if apps.is_installed('creme.activities'):
             activities_constants.REL_SUB_LINKED_2_ACTIVITY,
         ]
 
-        @staticmethod
-        def get(context, entity):
-            now = context['today']
-            user = context['user']
+    class LastActivityIntroSummary(_ActivitySummary):
+        template_name = 'persons/bricks/frags/card-last-activity.html'
 
-            if isinstance(entity, Organisation):
-                past = Activity.objects.past_linked_to_organisation
-                future = Activity.objects.future_linked_to_organisation
-            else:
-                past = Activity.objects.past_linked
-                future = Activity.objects.future_linked
+        def get_context(self, *, entity, brick_context):
+            context = super().get_context(entity=entity, brick_context=brick_context)
+            past = (
+                Activity.objects.past_linked_to_organisation
+                if isinstance(entity, Organisation) else
+                Activity.objects.past_linked
+            )
+            context['activity'] = EntityCredentials.filter(
+                user=brick_context['user'],
+                queryset=past(entity, brick_context['today']),
+            ).first()
 
-            return {
-                'last': EntityCredentials.filter(user, past(entity, now)).first(),
-                'next': EntityCredentials.filter(user, future(entity, now)).first(),
-                # NB: we avoid a templatetag from activities, because dynamic
-                #     {% load %} is not possible.
-                'NARROW': NARROW,
-            }
+            return context
+
+    class NextActivitySummary(_ActivitySummary):
+        template_name = 'persons/bricks/frags/card-summary-next-activity.html'
+
+        def get_context(self, *, entity, brick_context):
+            context = super().get_context(entity=entity, brick_context=brick_context)
+            future = (
+                Activity.objects.future_linked_to_organisation
+                if isinstance(entity, Organisation) else
+                Activity.objects.future_linked
+            )
+            context['activity'] = EntityCredentials.filter(
+                user=brick_context['user'],
+                queryset=future(entity, brick_context['today']),
+            ).first()
+            # TODO: templatetag from activities? Activity method is_narrow()?
+            context['NARROW'] = NARROW
+
+            return context
 
     class NeglectedContactIndicator:
         delta = timedelta(days=15)
@@ -95,7 +150,6 @@ if apps.is_installed('creme.activities'):
             self.context = context
             self.contact = contact
 
-        # @property
         @cached_property
         def label(self):
             contact = self.contact
@@ -116,13 +170,18 @@ else:
         def label(self):
             return ''
 
-    class Activities4Card:
-        dependencies: list[type[CremeEntity]] = []
-        relation_type_deps: list[str] = []
+    # class Activities4Card:
+    #     dependencies: list[type[CremeEntity]] = []
+    #     relation_type_deps: list[str] = []
+    #
+    #     @staticmethod
+    #     def get(context, entity):
+    #         return {}
+    class LastActivityIntroSummary(CardSummary):
+        pass
 
-        @staticmethod
-        def get(context, entity):
-            return {}
+    class NextActivitySummary(CardSummary):
+        pass
 
 if apps.is_installed('creme.opportunities'):
     import creme.opportunities.constants as opp_constants
@@ -130,15 +189,34 @@ if apps.is_installed('creme.opportunities'):
 
     Opportunity = get_opportunity_model()
 
-    class Opportunities4Card:
+    # class Opportunities4Card:
+    #     dependencies = [Opportunity]
+    #     relation_type_deps = [opp_constants.REL_OBJ_TARGETS]
+    #
+    #     @staticmethod
+    #     def get(context, entity):
+    #         return EntityCredentials.filter(
+    #             context['user'],
+    #             Opportunity.objects.annotate(
+    #                 relations_w_person=FilteredRelation(
+    #                     'relations',
+    #                     condition=Q(relations__object_entity=entity.id),
+    #                 ),
+    #             ).filter(
+    #                 is_deleted=False,
+    #                 relations_w_person__type=opp_constants.REL_SUB_TARGETS,
+    #             )
+    #         )
+    class OpportunitiesSummary(CardSummary):
         dependencies = [Opportunity]
         relation_type_deps = [opp_constants.REL_OBJ_TARGETS]
+        template_name = 'persons/bricks/frags/card-summary-opportunities.html'
 
-        @staticmethod
-        def get(context, entity):
-            return EntityCredentials.filter(
-                context['user'],
-                Opportunity.objects.annotate(
+        def get_context(self, *, entity, brick_context):
+            context = super().get_context(entity=entity, brick_context=brick_context)
+            context['opportunities'] = EntityCredentials.filter(
+                user=brick_context['user'],
+                queryset=Opportunity.objects.annotate(
                     relations_w_person=FilteredRelation(
                         'relations',
                         condition=Q(relations__object_entity=entity.id),
@@ -146,16 +224,20 @@ if apps.is_installed('creme.opportunities'):
                 ).filter(
                     is_deleted=False,
                     relations_w_person__type=opp_constants.REL_SUB_TARGETS,
-                )
+                ),
             )
-else:
-    class Opportunities4Card:
-        dependencies: list[type[CremeEntity]] = []
-        relation_type_deps: list[str] = []
 
-        @staticmethod
-        def get(context, entity):
-            return None
+            return context
+else:
+    # class Opportunities4Card:
+    #     dependencies: list[type[CremeEntity]] = []
+    #     relation_type_deps: list[str] = []
+    #
+    #     @staticmethod
+    #     def get(context, entity):
+    #         return None
+    class OpportunitiesSummary(CardSummary):
+        pass
 
 if apps.is_installed('creme.commercial'):
     import creme.commercial.constants as commercial_constants
@@ -163,16 +245,35 @@ if apps.is_installed('creme.commercial'):
 
     Act = get_act_model()
 
-    class CommercialActs4Card:
+    # class CommercialActs4Card:
+    #     dependencies = [Act]
+    #     relation_type_deps = [commercial_constants.REL_SUB_COMPLETE_GOAL]
+    #
+    #     @staticmethod
+    #     def get(context, entity):
+    #         return EntityCredentials.filter(
+    #             context['user'],
+    #             Act.objects.annotate(
+    #                 relations_w_person=FilteredRelation(
+    #                     'relations',
+    #                     condition=Q(relations__object_entity=entity.id),
+    #                 ),
+    #             ).filter(
+    #                 is_deleted=False,
+    #                 relations_w_person__type=commercial_constants.REL_OBJ_COMPLETE_GOAL,
+    #             )
+    #         )
+    class CommercialActsSummary(CardSummary):
         dependencies = [Act]
         # TODO: what if RelationType.enable == False?
         relation_type_deps = [commercial_constants.REL_SUB_COMPLETE_GOAL]
+        template_name = 'persons/bricks/frags/card-summary-acts.html'
 
-        @staticmethod
-        def get(context, entity):
-            return EntityCredentials.filter(
-                context['user'],
-                Act.objects.annotate(
+        def get_context(self, *, entity, brick_context):
+            context = super().get_context(entity=entity, brick_context=brick_context)
+            context['acts'] = EntityCredentials.filter(
+                user=brick_context['user'],
+                queryset=Act.objects.annotate(
                     relations_w_person=FilteredRelation(
                         'relations',
                         condition=Q(relations__object_entity=entity.id),
@@ -180,16 +281,20 @@ if apps.is_installed('creme.commercial'):
                 ).filter(
                     is_deleted=False,
                     relations_w_person__type=commercial_constants.REL_OBJ_COMPLETE_GOAL,
-                )
+                ),
             )
-else:
-    class CommercialActs4Card:
-        dependencies: list[type[CremeEntity]] = []
-        relation_type_deps: list[str] = []
 
-        @staticmethod
-        def get(context, entity):
-            return None
+            return context
+else:
+    # class CommercialActs4Card:
+    #     dependencies: list[type[CremeEntity]] = []
+    #     relation_type_deps: list[str] = []
+    #
+    #     @staticmethod
+    #     def get(context, entity):
+    #         return None
+    class CommercialActsSummary(CardSummary):
+        pass
 
 
 class ContactBarHatBrick(SimpleBrick):
@@ -202,21 +307,59 @@ class OrganisationBarHatBrick(SimpleBrick):
     template_name = 'persons/bricks/organisation-hat-bar.html'
 
 
-class ContactCardHatBrick(Brick):
-    id = Brick._generate_hat_id('persons', 'contact_card')
+# TODO: move to core ?
+class _PersonsCardHatBrick(Brick):
+    intro_summary = LastActivityIntroSummary  # TODO: accept several summaries?
+    summaries = [
+        CommercialActsSummary,
+        OpportunitiesSummary,
+        NextActivitySummary,
+    ]
+
+    def __init__(self):
+        super().__init__()
+        # NB: we use sets to avoid duplicates
+        all_summaries = [*self.summaries, self.intro_summary]
+        self.dependencies = [*{
+            *self.dependencies,
+            *(model for summary in all_summaries for model in summary.dependencies),
+        }]
+        self.relation_type_deps = [*{
+            *self.relation_type_deps,
+            *(rtype_id for summary in all_summaries for rtype_id in summary.relation_type_deps),
+        }]
+
+    def get_template_context(self, context, **extra_kwargs):
+        context = super().get_template_context(context, **extra_kwargs)
+        entity = context['object']
+        context['intro_summary'] = self.intro_summary().get_context(
+            entity=entity, brick_context=context,
+        )
+        context['summaries'] = [
+            summary_cls().get_context(entity=entity, brick_context=context)
+            for summary_cls in self.summaries
+        ]
+
+        return context
+
+
+# class ContactCardHatBrick(Brick):
+class ContactCardHatBrick(_PersonsCardHatBrick):
+    # id = Brick._generate_hat_id('persons', 'contact_card')
+    id = _PersonsCardHatBrick._generate_hat_id('persons', 'contact_card')
     verbose_name = _('Card header block')
     dependencies = [
         Contact, Organisation, Relation,
-        *Activities4Card.dependencies,
-        *Opportunities4Card.dependencies,
-        *CommercialActs4Card.dependencies
+        # *Activities4Card.dependencies,
+        # *Opportunities4Card.dependencies,
+        # *CommercialActs4Card.dependencies
     ]
     relation_type_deps = [
         constants.REL_SUB_EMPLOYED_BY,
         constants.REL_SUB_MANAGES,
-        *Activities4Card.relation_type_deps,
-        *Opportunities4Card.relation_type_deps,
-        *CommercialActs4Card.relation_type_deps,
+        # *Activities4Card.relation_type_deps,
+        # *Opportunities4Card.relation_type_deps,
+        # *CommercialActs4Card.relation_type_deps,
     ]
     template_name = 'persons/bricks/contact-hat-card.html'
 
@@ -274,21 +417,24 @@ class ContactCardHatBrick(Brick):
                 relations__object_entity=contact.id,
             ).exists(),
 
-            activities=Activities4Card.get(context, contact),
             neglected_indicator=NeglectedContactIndicator(context, contact),
-            opportunities=Opportunities4Card.get(context, contact),
-            acts=CommercialActs4Card.get(context, contact),
+
+            # activities=Activities4Card.get(context, contact),
+            # opportunities=Opportunities4Card.get(context, contact),
+            # acts=CommercialActs4Card.get(context, contact),
         ))
 
 
-class OrganisationCardHatBrick(Brick):
-    id = Brick._generate_hat_id('persons', 'organisation_card')
+# class OrganisationCardHatBrick(Brick):
+class OrganisationCardHatBrick(_PersonsCardHatBrick):
+    # id = Brick._generate_hat_id('persons', 'organisation_card')
+    id = _PersonsCardHatBrick._generate_hat_id('persons', 'organisation_card')
     verbose_name = _('Card header block')
     dependencies = [
         Organisation, Contact, Address, Relation,
-        *Activities4Card.dependencies,
-        *Opportunities4Card.dependencies,
-        *CommercialActs4Card.dependencies,
+        # *Activities4Card.dependencies,
+        # *Opportunities4Card.dependencies,
+        # *CommercialActs4Card.dependencies,
     ]
     # TODO: what if RelationType.enable == False?
     relation_type_deps = [
@@ -296,9 +442,9 @@ class OrganisationCardHatBrick(Brick):
         constants.REL_SUB_CUSTOMER_SUPPLIER,
         constants.REL_OBJ_MANAGES,
         constants.REL_OBJ_EMPLOYED_BY,
-        *Activities4Card.relation_type_deps,
-        *Opportunities4Card.relation_type_deps,
-        *CommercialActs4Card.relation_type_deps,
+        # *Activities4Card.relation_type_deps,
+        # *Opportunities4Card.relation_type_deps,
+        # *CommercialActs4Card.relation_type_deps,
     ]
     template_name = 'persons/bricks/organisation-hat-card.html'
 
@@ -352,9 +498,9 @@ class OrganisationCardHatBrick(Brick):
             employees_count=employees_count,
             REL_SUB_EMPLOYED_BY=constants.REL_SUB_EMPLOYED_BY,
 
-            activities=Activities4Card.get(context, organisation),
-            opportunities=Opportunities4Card.get(context, organisation),
-            acts=CommercialActs4Card.get(context, organisation)
+            # activities=Activities4Card.get(context, organisation),
+            # opportunities=Opportunities4Card.get(context, organisation),
+            # acts=CommercialActs4Card.get(context, organisation)
         ))
 
 

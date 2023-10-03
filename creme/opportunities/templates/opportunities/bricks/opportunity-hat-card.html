@@ -5,7 +5,8 @@
 {% block brick_extra_class %}{{block.super}} opportunities-card-brick{% endblock %}
 
 {% block card_intro_content %}
-{% include 'persons/bricks/frags/card-last-activity.html' %}
+{# {% include 'persons/bricks/frags/card-last-activity.html' %} #}
+    {% if intro_summary.template_name %}{% include intro_summary.template_name with summary=intro_summary %}{% endif %}
 {% endblock %}
 
 {% block card_title %}
@@ -81,6 +82,7 @@
 {% endblock %}
 
 {% block card_summary %}
+{% comment %}
     {% include 'persons/bricks/frags/card-summary-acts.html' %}
     {% with paginator=contacts.paginator %}
         <div class="card-info-field">
@@ -100,4 +102,8 @@
         </div>
     {% endwith %}
     {% include 'persons/bricks/frags/card-summary-next-activity.html' %}
+{% endcomment %}
+  {% for summary_ctxt in summaries %}
+    {% if summary_ctxt.template_name %}{% include summary_ctxt.template_name with summary=summary_ctxt %}{% endif %}
+  {% endfor %}
 {% endblock %}

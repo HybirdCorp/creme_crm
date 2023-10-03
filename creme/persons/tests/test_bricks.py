@@ -21,6 +21,7 @@ from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from .. import bricks, constants
+from ..templatetags.persons_tags import persons_pretty_contact
 from .base import (
     Address,
     Contact,
@@ -175,6 +176,276 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
         return c
 
+    def test_contact_hat_card_brick(self):
+        user = self.login_as_root_and_get()
+        c = Contact.objects.create(user=user, first_name='Lawrence', last_name='Kraft')
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        managed = create_orga(name='Lenos')
+        employer = create_orga(name='Yorentz')
+
+        create_relation = partial(Relation.objects.create, user=user, subject_entity=c)
+        create_relation(type_id=constants.REL_SUB_MANAGES,     object_entity=managed)
+        create_relation(type_id=constants.REL_SUB_EMPLOYED_BY, object_entity=employer)
+
+        response = self.assertGET200(c.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick=bricks.ContactCardHatBrick,
+        )
+
+        name_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-name"]')
+        self.assertEqual(persons_pretty_contact(c), name_node.text.strip())
+
+        jobs_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-jobs"]')
+
+        job_nodes = jobs_node.findall('.//div[@class="card-job"]')
+        self.assertEqual(2, len(job_nodes))
+
+        job_node1 = job_nodes[0]
+        job_name_node1 = self.get_html_node_or_fail(job_node1, './/span[@class="card-function"]')
+        self.assertEqual(_('Manager'), job_name_node1.text.strip())
+        self.assertInstanceLink(job_node1, managed)
+
+        job_node2 = job_nodes[1]
+        job_name_node2 = self.get_html_node_or_fail(job_node2, './/span[@class="card-function"]')
+        self.assertEqual(_('Employee'), job_name_node2.text.strip())
+        self.assertInstanceLink(job_node2, employer)
+
+        # TODO: complete:
+        #  - max relation count reached
+        #  - customer/supplier indicator
+        #  - neglected indicator
+
+    @skipIfCustomActivity
+    def test_contact_hat_card_brick_activities01(self):
+        "Empty."
+        user = self.login_as_root_and_get()
+        c = Contact.objects.create(user=user, first_name='Lawrence', last_name='Kraft')
+        now_value = now()
+
+        # ----
+        summary = bricks.NextActivitySummary()
+        sum_ctxt1 = summary.get_context(
+            entity=c, brick_context={'user': user, 'today': now_value},
+        )
+        self.assertIsDict(sum_ctxt1, length=3)
+        self.assertEqual(
+            'persons/bricks/frags/card-summary-next-activity.html',
+            sum_ctxt1.get('template_name'),
+        )
+        self.assertEqual(act_constants.NARROW, sum_ctxt1.get('NARROW'))
+        self.assertIsNone(sum_ctxt1.get('activity', -1))
+
+        # ----
+        intro_summary = bricks.LastActivityIntroSummary()
+        intro_ctxt1 = intro_summary.get_context(
+            entity=c, brick_context={'user': user, 'today': now_value},
+        )
+        self.assertIsDict(intro_ctxt1, length=2)
+        self.assertEqual(
+            'persons/bricks/frags/card-last-activity.html',
+            intro_ctxt1.get('template_name'),
+        )
+        self.assertIsNone(intro_ctxt1.get('activity', -1))
+
+        # ---
+        response = self.assertGET200(c.get_absolute_url())
+        self.get_brick_node(
+            self.get_html_tree(response.content), brick=bricks.ContactCardHatBrick,
+        )
+        # TODO: test empty?
+
+    def _get_meeting_subtype(self):
+        return self.get_object_or_fail(
+            ActivitySubType, uuid=act_constants.UUID_SUBTYPE_MEETING_OTHER,
+        )
+
+    @skipIfCustomActivity
+    def test_contact_hat_card_brick_activities02(self):
+        user = self.login_as_standard(allowed_apps=['persons', 'activities'])
+        SetCredentials.objects.create(
+            role=user.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        root = self.get_root_user()
+        c = Contact.objects.create(user=user, first_name='Lawrence', last_name='Kraft')
+        now_value = now()
+
+        sub_type = self._get_meeting_subtype()
+        create_meeting = partial(
+            Activity.objects.create, user=user, type_id=sub_type.type_id, sub_type=sub_type,
+        )
+        future_meetings = [
+            create_meeting(
+                title='Future meeting #1',
+                start=now_value + timedelta(days=1),
+                end=now_value + timedelta(days=1, hours=1),
+            ),
+            create_meeting(
+                title='Future meeting #2',
+                start=now_value + timedelta(days=2),
+                end=now_value + timedelta(days=2, hours=1),
+            ),
+            create_meeting(  # Not viewable
+                user=root,
+                title='Future meeting #3',
+                start=now_value + timedelta(hours=12),
+                end=now_value + timedelta(hours=13),
+            ),
+        ]
+
+        past_meetings = [
+            create_meeting(
+                title='Past meeting #1',
+                start=now_value - timedelta(days=1),
+                end=now_value - timedelta(days=1, hours=1),
+            ),
+            create_meeting(
+                title='Past meeting #2',
+                start=now_value - timedelta(days=2),
+                end=now_value - timedelta(days=2, hours=1),
+            ),
+            create_meeting(  # Not viewable
+                user=root,
+                title='Past meeting #3',
+                start=now_value - timedelta(hours=12),
+                end=now_value - timedelta(hours=11),
+            ),
+        ]
+
+        create_rel = partial(
+            Relation.objects.create,
+            user=user,
+            type=self.get_object_or_fail(RelationType, pk=act_constants.REL_SUB_PART_2_ACTIVITY),
+        )
+        for activity in [*future_meetings, *past_meetings]:
+            create_rel(subject_entity=c, object_entity=activity)
+
+        # ----
+        summary = bricks.NextActivitySummary()
+        sum_ctxt1 = summary.get_context(
+            entity=c, brick_context={'user': user, 'today': now_value},
+        )
+        self.assertEqual(future_meetings[0], sum_ctxt1.get('activity'))
+
+        # ----
+        intro_summary = bricks.LastActivityIntroSummary()
+        intro_ctxt = intro_summary.get_context(
+            entity=c, brick_context={'user': user, 'today': now_value},
+        )
+        self.assertEqual(past_meetings[0], intro_ctxt.get('activity'))
+
+        # ---
+        response = self.assertGET200(c.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick=bricks.ContactCardHatBrick,
+        )
+
+        summaries_node = self.get_html_node_or_fail(
+            brick_node, './/div[@class="card-info-summary"]',
+        )
+        self.assertInstanceLink(summaries_node, future_meetings[0], check_text=False)
+
+        intro_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-intro"]')
+        self.assertInstanceLink(intro_node, past_meetings[0], check_text=False)
+
+    @skipIfCustomActivity
+    def test_orga_hat_card_brick_activities(self):
+        user = self.login_as_standard(allowed_apps=['persons', 'activities'])
+        SetCredentials.objects.create(
+            role=user.role,
+            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        root = self.get_root_user()
+        orga = Organisation.objects.create(user=user, name='Lenos')
+        employee = Contact.objects.create(user=user, first_name='Lawrence', last_name='Kraft')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(
+            subject_entity=employee,
+            type=self.get_object_or_fail(RelationType, pk=constants.REL_SUB_EMPLOYED_BY),
+            object_entity=orga,
+        )
+
+        now_value = now()
+        sub_type = self._get_meeting_subtype()
+        create_meeting = partial(
+            Activity.objects.create, user=user, type_id=sub_type.type_id, sub_type=sub_type,
+        )
+        future_meetings = [
+            create_meeting(
+                title='Future meeting #1',
+                start=now_value + timedelta(days=1),
+                end=now_value + timedelta(days=1, hours=1),
+            ),
+            create_meeting(
+                title='Future meeting #2',
+                start=now_value + timedelta(days=2),
+                end=now_value + timedelta(days=2, hours=1),
+            ),
+            create_meeting(  # Not viewable
+                user=root,
+                title='Future meeting #3',
+                start=now_value + timedelta(hours=12),
+                end=now_value + timedelta(hours=13),
+            ),
+        ]
+
+        past_meetings = [
+            create_meeting(
+                title='Past meeting #1',
+                start=now_value - timedelta(days=1),
+                end=now_value - timedelta(days=1, hours=1),
+            ),
+            create_meeting(
+                title='Past meeting #2',
+                start=now_value - timedelta(days=2),
+                end=now_value - timedelta(days=2, hours=1),
+            ),
+            create_meeting(  # Not viewable
+                user=root,
+                title='Past meeting #3',
+                start=now_value - timedelta(hours=12),
+                end=now_value - timedelta(hours=11),
+            ),
+        ]
+
+        rtype = self.get_object_or_fail(RelationType, pk=act_constants.REL_SUB_PART_2_ACTIVITY)
+        for activity in [*future_meetings, *past_meetings]:
+            create_rel(subject_entity=employee, type=rtype, object_entity=activity)
+
+        # ----
+        summary = bricks.NextActivitySummary()
+        sum_ctxt1 = summary.get_context(
+            entity=orga, brick_context={'user': user, 'today': now_value},
+        )
+        self.assertEqual(future_meetings[0], sum_ctxt1.get('activity'))
+
+        # ----
+        intro_summary = bricks.LastActivityIntroSummary()
+        intro_ctxt = intro_summary.get_context(
+            entity=orga, brick_context={'user': user, 'today': now_value},
+        )
+        self.assertEqual(past_meetings[0], intro_ctxt.get('activity'))
+
+        # ---
+        response = self.assertGET200(orga.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick=bricks.OrganisationCardHatBrick,
+        )
+
+        summaries_node = self.get_html_node_or_fail(
+            brick_node, './/div[@class="card-info-summary"]',
+        )
+        self.assertInstanceLink(summaries_node, future_meetings[0], check_text=False)
+
+        intro_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-intro"]')
+        self.assertInstanceLink(intro_node, past_meetings[0], check_text=False)
+
     @skipIfCustomOpportunity
     def test_contact_hat_card_brick_opp(self):
         user = self.login_as_root_and_get()
@@ -194,6 +465,17 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         opp2 = create_opp(name='Opp#02', target=target_orga)
         opp3 = create_opp(name='Opp#03', target=c)
 
+        # ----
+        summary = bricks.OpportunitiesSummary()
+        sum_ctxt = summary.get_context(entity=c, brick_context={'user': user})
+        self.assertIsDict(sum_ctxt, length=2)
+        self.assertEqual(
+            'persons/bricks/frags/card-summary-opportunities.html',
+            sum_ctxt.get('template_name'),
+        )
+        self.assertListEqual([opp1, opp3], [*sum_ctxt['opportunities']])
+
+        # ----
         response = self.assertGET200(c.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content), brick=bricks.ContactCardHatBrick,
@@ -258,6 +540,17 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         act2 = create_act('Act #02', orga)
         act3 = create_act('Act #02', c)
 
+        # ---
+        summary = bricks.CommercialActsSummary()
+        sum_ctxt = summary.get_context(entity=c, brick_context={'user': user})
+        self.assertIsDict(sum_ctxt, length=2)
+        self.assertEqual(
+            'persons/bricks/frags/card-summary-acts.html',
+            sum_ctxt.get('template_name'),
+        )
+        self.assertListEqual([act1, act3], [*sum_ctxt['acts']])
+
+        # ---
         response = self.assertGET200(c.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content), brick=bricks.ContactCardHatBrick,

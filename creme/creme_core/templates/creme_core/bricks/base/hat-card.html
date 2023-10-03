@@ -12,28 +12,28 @@
             <div class='business-card-container'>
                 <div class='business-card'>
                     <div class="card-icon">
-                        {% block card_icon %}
+                      {% block card_icon %}
                         <div>{% widget_icon instance=object size='brick-hat-card' %}</div>
-                        {% endblock %}
+                      {% endblock %}
                     </div>
                     <div class="card-content">
-                        {% block card_intro %}
+                      {% block card_intro %}
                         <div class="card-intro">
                             <span class="card-type">{% block card_intro_name %}{{object.entity_type}}{% endblock %}</span>
                             <div class="card-info-field">
-                                {% block card_intro_content %}{# OVERRIDE !! --------------------------------- #}
-                                    <span class='card-info-key'>Last action</span>
-                                    <span class='card-info-value'>
-                                        {# {% widget_icon instance=last_activity size='brick-hat-card-intro' %} #} Foobar
-                                        <a href="" class='last-action-link'>
-                                            <span class="history-info-value">31-12-2000</span> at <span class="history-info-value">12:36</span>
-                                        </a> by <span class="history-info-value"><a href=''>Fulbert C.</a></span>
-                                    </span>
-                                {% endblock %}{# OVERRIDE !! [end] -------------------------------- #}
+                              {% block card_intro_content %}{# OVERRIDE !! --------------------------------- #}
+                                <span class='card-info-key'>Last action</span>
+                                <span class='card-info-value'>
+                                    {# {% widget_icon instance=last_activity size='brick-hat-card-intro' %} #} Foobar
+                                    <a href="" class='last-action-link'>
+                                        <span class="history-info-value">31-12-2000</span> at <span class="history-info-value">12:36</span>
+                                    </a> by <span class="history-info-value"><a href=''>Fulbert C.</a></span>
+                                </span>
+                              {% endblock %}{# OVERRIDE !! [end] -------------------------------- #}
                             </div>
                         </div>
-                        {% endblock %}
-                        {% block card_main %}
+                      {% endblock %}
+                      {% block card_main %}
                         <div class='card-main'>
                             <div class="card-name">
                                 {% block card_title %}{{object}}{% endblock %}
@@ -45,12 +45,12 @@
                                 {% endblock %}{# OVERRIDE !! [end] -------------------------------- #}
                             </div>
                         </div>
-                        {% endblock %}
-                        {% block card_secondary %}{# OVERRIDE !! --------------------------------- #}
-                            <div class="card-FOO">
-                                <span class="card-BAR">Related to</span><a href=''>An important other entity</a>
-                            </div>
-                        {% endblock %}{# OVERRIDE !! [end] -------------------------------- #}
+                      {% endblock %}
+                      {% block card_secondary %}{# OVERRIDE !! --------------------------------- #}
+                        <div class="card-FOO">
+                            <span class="card-BAR">Related to</span><a href=''>An important other entity</a>
+                        </div>
+                      {% endblock %}{# OVERRIDE !! [end] -------------------------------- #}
                     </div>
                 </div>
             </div>
@@ -58,27 +58,27 @@
                 <div class='card-info-fields'>
                     <span class="card-info-title">{% block card_fields_title %}{% translate 'Fields' %}{% endblock %}</span>
                     {% block card_fields %}{# OVERRIDE !! --------------------------------- #}
-                        <div class="card-info-field">
-                            <span class='card-info-key'>Field #1</span>
-                            <span class='card-info-value'>Blablabla</span>
-                        </div>
-                        <div class="card-info-field">
-                            <span class='card-info-key'>Field #2</span>
-                            <span class='card-info-value'>—</span>
-                        </div>
+                      <div class="card-info-field">
+                          <span class='card-info-key'>Field #1</span>
+                          <span class='card-info-value'>Blablabla</span>
+                      </div>
+                      <div class="card-info-field">
+                          <span class='card-info-key'>Field #2</span>
+                          <span class='card-info-value'>—</span>
+                      </div>
                     {% endblock %}{# OVERRIDE !! [end] -------------------------------- #}
                 </div>
                 <div class='card-info-summary'>
                     <span class="card-info-title">{% block card_summary_title %}{% translate 'Strategic summary' %}{% endblock %}</span>
                     {% block card_summary %}{# OVERRIDE !! --------------------------------- #}
-                        <div class="card-info-field">
-                            <span class='card-info-key'>Next action</span>
-                            <span class='card-info-value next-action-value'>
-                                {# {% widget_icon instance=next_activity size='brick-hat-card-summary' %} #}
-                                <span class="next-action-type">Meeting</span>
-                                <a href=""><span class="history-info-value">01-01-2040</span> at <span class="history-info-value">13:25</span></a>
-                            </span>
-                        </div>
+                      <div class="card-info-field">
+                          <span class='card-info-key'>Next action</span>
+                          <span class='card-info-value next-action-value'>
+                              {# {% widget_icon instance=next_activity size='brick-hat-card-summary' %} #}
+                              <span class="next-action-type">Meeting</span>
+                              <a href=""><span class="history-info-value">01-01-2040</span> at <span class="history-info-value">13:25</span></a>
+                          </span>
+                      </div>
                     {% endblock %}{# OVERRIDE !! [end] -------------------------------- #}
                 </div>
             </div>
