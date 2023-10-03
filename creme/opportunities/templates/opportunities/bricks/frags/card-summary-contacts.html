@@ -1,0 +1,18 @@
+{% load i18n creme_widgets %}
+{% with paginator=summary.contacts.paginator %}
+<div class="card-info-field">
+    <div class="card-info-field">
+        <span class='card-info-key'>
+          {% if paginator.count == 0 %}
+            {% translate 'Linked contacts' %}
+          {% else %}
+            {% blocktranslate count count=paginator.count %}{{count}} Linked contact{% plural %}{{count}} Linked contacts{% endblocktranslate %}
+          {% endif %}
+        </span>
+        <span class='card-info-value'>
+            {% for contact in summary.contacts.object_list %}{% widget_join %}{% widget_entity_hyperlink contact user %}{% end_widget_join %}{% empty %}—{% endfor %}
+            {% if paginator.num_pages > 1 %}…{% endif %}
+        </span>
+    </div>
+</div>
+{% endwith %}

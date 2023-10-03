@@ -109,6 +109,17 @@
             * Creme_config :
                 - The global dictionary 'forms.setting._FIELDS' has been removed;
                   see the new class attribute 'creme_core.core.setting_key._SettingKey.FORM_FIELDS' instead.
+            * Persons :
+                - The hat-card bricks have been reworked to facilitate the modification of small summaries (activities, acts, opportunities).
+                  A base class 'CardSummary' has been introduced. The classes 'ContactCardHatBrick' & 'OrganisationCardHatBrick' get
+                  new attributes "intro_summary" & "summaries"; so its easier to change summaries from external code (the dependencies of the bricks
+                  are automatically computed, summaries indicate which template to use etc...).
+                    - The class 'Activities4Card' has been replaced by 'LastActivityIntroSummary' & 'NextActivitySummary'.
+                    - The class 'Opportunities4Card' has been replaced by 'OpportunitiesSummary'.
+                    - The class 'CommercialActs4Card' has been replaced by 'CommercialActsSummary'.
+                  The related templates have changed :
+                    - "persons/bricks/*-hat-card.html"
+                    - "persons/bricks/frags/card-*.html"
             * Activities :
                 - The models 'ActivityType' & 'ActivitySubType' use now regular 'AutoField' (i.e. integer) for primary key,
                   & get an 'UUIDField' (they used custom 'CharField' as primary key).
@@ -127,7 +138,10 @@
                 - Upgrade FullCalendar : Refactor of 'creme.activities.CalendarController' renamed as 'creme.ActivityCalendar'
                     - Calendar view changes are stored in url hash (e.g: #week & #month)
                     - Use ISO8601 format WITH timezone for queries on backend views (e.g 2023-04-14T10:38:30+01:00)
-            * Mobile:
+            * Opportunities :
+                - The class 'OpportunityCardHatBrick' (& the related template) has been reworked to follow the changes in app "persons".
+                  A new class 'ContactsSummary' has been introduced, and the class variable "displayed_contacts_number" has been move into it.
+            * Mobile :
                 - The CSS classes referencing 'ActivityType' IDs have been renamed;
                   e.g. "activity-type-activities-activitytype_meeting" became "activity-type-meeting".
 

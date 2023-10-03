@@ -93,37 +93,52 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         user = self.login_as_root_and_get()
 
         brick_cls = bricks.OpportunityCardHatBrick
-        self.assertEqual(5, brick_cls.displayed_contacts_number)
+        # self.assertEqual(5, brick_cls.displayed_contacts_number)
+        self.assertEqual(5, bricks.ContactsSummary.displayed_contacts_number)
 
-        opp01, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
-        opp02 = Opportunity.objects.create(
-            user=user, name='Opp#2', sales_phase=opp01.sales_phase,
+        opp1, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
+        opp2 = Opportunity.objects.create(
+            user=user, name='Opp#2', sales_phase=opp1.sales_phase,
             emitter=emitter, target=target,
         )
 
         create_contact = partial(get_contact_model().objects.create, user=user)
-        contact01 = create_contact(first_name='Revy',  last_name='??')
-        contact02 = create_contact(first_name='Rock',  last_name='??')
-        contact03 = create_contact(first_name='Benny', last_name='??')
-        contact04 = create_contact(first_name='Dutch', last_name='??')
-        contact05 = create_contact(first_name='Balalaika', last_name='??', is_deleted=True)
+        contact1 = create_contact(first_name='Revy',  last_name='??')
+        contact2 = create_contact(first_name='Rock',  last_name='??')
+        contact3 = create_contact(first_name='Benny', last_name='??')
+        contact4 = create_contact(first_name='Dutch', last_name='??')
+        contact5 = create_contact(first_name='Balalaika', last_name='??', is_deleted=True)
 
         create_rel = partial(
             Relation.objects.create, user=user, type_id=constants.REL_OBJ_LINKED_CONTACT,
         )
-        create_rel(subject_entity=opp01, object_entity=contact01)
-        create_rel(subject_entity=opp01, object_entity=contact02)
-        create_rel(subject_entity=opp02, object_entity=contact04)
-        create_rel(subject_entity=opp01, object_entity=contact05)
+        create_rel(subject_entity=opp1, object_entity=contact1)
+        create_rel(subject_entity=opp1, object_entity=contact2)
+        create_rel(subject_entity=opp2, object_entity=contact4)
+        create_rel(subject_entity=opp1, object_entity=contact5)
 
-        response = self.assertGET200(opp01.get_absolute_url())
+        # ---
+        summary = bricks.ContactsSummary()
+        sum_ctxt = summary.get_context(entity=opp1, brick_context={'user': user})
+        self.assertIsDict(sum_ctxt, length=2)
+        self.assertEqual(
+            'opportunities/bricks/frags/card-summary-contacts.html',
+            sum_ctxt.get('template_name'),
+        )
+        self.assertCountEqual(
+            [contact1, contact2],
+            sum_ctxt.get('contacts').object_list,
+        )
+
+        # ---
+        response = self.assertGET200(opp1.get_absolute_url())
         tree = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(tree, brick=brick_cls)
-        self.assertInstanceLink(brick_node, contact01)
-        self.assertInstanceLink(brick_node, contact02)
-        self.assertNoInstanceLink(brick_node, contact03)
-        self.assertNoInstanceLink(brick_node, contact04)
-        self.assertNoInstanceLink(brick_node, contact05)
+        self.assertInstanceLink(brick_node, contact1)
+        self.assertInstanceLink(brick_node, contact2)
+        self.assertNoInstanceLink(brick_node, contact3)
+        self.assertNoInstanceLink(brick_node, contact4)
+        self.assertNoInstanceLink(brick_node, contact5)
 
     @skipIfCustomContact
     def test_hat_card02(self):
@@ -131,26 +146,41 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         user = self.login_as_root_and_get()
 
         brick_cls = bricks.OpportunityCardHatBrick
-        brick_cls.displayed_contacts_number = 1
+        # brick_cls.displayed_contacts_number = 1
 
-        opp = self._create_opportunity_n_organisations(user=user, name='Opp#1')[0]
+        old_contacts_number = bricks.ContactsSummary.displayed_contacts_number
+        try:
+            bricks.ContactsSummary.displayed_contacts_number = 1
 
-        create_contact = partial(get_contact_model().objects.create, user=user)
-        contact01 = create_contact(first_name='Revy',  last_name='??')
-        contact02 = create_contact(first_name='Rock',  last_name='??')
+            opp = self._create_opportunity_n_organisations(user=user, name='Opp#1')[0]
 
-        create_rel = partial(
-            Relation.objects.create,
-            user=user, subject_entity=opp, type_id=constants.REL_OBJ_LINKED_CONTACT,
-        )
-        create_rel(object_entity=contact01)
-        create_rel(object_entity=contact02)
+            create_contact = partial(get_contact_model().objects.create, user=user)
+            contact1 = create_contact(first_name='Revy',  last_name='??')
+            contact2 = create_contact(first_name='Rock',  last_name='??')
 
-        response = self.assertGET200(opp.get_absolute_url())
-        tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, brick=brick_cls)
-        self.assertInstanceLink(brick_node, contact01)
-        self.assertNoInstanceLink(brick_node, contact02)
+            create_rel = partial(
+                Relation.objects.create,
+                user=user, subject_entity=opp, type_id=constants.REL_OBJ_LINKED_CONTACT,
+            )
+            create_rel(object_entity=contact1)
+            create_rel(object_entity=contact2)
+
+            # ---
+            summary = bricks.ContactsSummary()
+            sum_ctxt = summary.get_context(entity=opp, brick_context={'user': user})
+            self.assertCountEqual(
+                [contact1],
+                sum_ctxt.get('contacts').object_list,
+            )
+
+            # ---
+            response = self.assertGET200(opp.get_absolute_url())
+            tree = self.get_html_tree(response.content)
+            brick_node = self.get_brick_node(tree, brick=brick_cls)
+            self.assertInstanceLink(brick_node, contact1)
+            self.assertNoInstanceLink(brick_node, contact2)
+        finally:
+            bricks.ContactsSummary.displayed_contacts_number = old_contacts_number
 
     @skipIfCustomProduct
     def test_linked_products(self):
@@ -158,9 +188,9 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         brick_cls.page_size = max(5, settings.BLOCK_SIZE)
 
         user = self.login_as_root_and_get()
-        opp01, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
-        opp02 = Opportunity.objects.create(
-            user=user, name='Opp#2', sales_phase=opp01.sales_phase,
+        opp1, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
+        opp2 = Opportunity.objects.create(
+            user=user, name='Opp#2', sales_phase=opp1.sales_phase,
             emitter=emitter, target=target,
         )
 
@@ -170,28 +200,28 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
             user=user, unit_price=Decimal('1.23'),
             category=sub_cat.category, sub_category=sub_cat,
         )
-        product01 = create_product(name='Eva00')
-        product02 = create_product(name='Eva01')
-        product03 = create_product(name='Eva02')
-        product04 = create_product(name='Eva03')
-        product05 = create_product(name='Eva04', is_deleted=True)
+        product1 = create_product(name='Eva-00')
+        product2 = create_product(name='Eva-01')
+        product3 = create_product(name='Eva-02')
+        product4 = create_product(name='Eva-03')
+        product5 = create_product(name='Eva-04', is_deleted=True)
 
         create_rel = partial(
             Relation.objects.create, user=user, type_id=constants.REL_OBJ_LINKED_PRODUCT,
         )
-        create_rel(subject_entity=opp01, object_entity=product01)
-        create_rel(subject_entity=opp01, object_entity=product02)
-        create_rel(subject_entity=opp02, object_entity=product04)
-        create_rel(subject_entity=opp01, object_entity=product05)
+        create_rel(subject_entity=opp1, object_entity=product1)
+        create_rel(subject_entity=opp1, object_entity=product2)
+        create_rel(subject_entity=opp2, object_entity=product4)
+        create_rel(subject_entity=opp1, object_entity=product5)
 
-        response = self.assertGET200(opp01.get_absolute_url())
+        response = self.assertGET200(opp1.get_absolute_url())
         tree = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(tree, brick=brick_cls)
-        self.assertInstanceLink(brick_node, product01)
-        self.assertInstanceLink(brick_node, product02)
-        self.assertNoInstanceLink(brick_node, product03)
-        self.assertNoInstanceLink(brick_node, product04)
-        self.assertNoInstanceLink(brick_node, product05)
+        self.assertInstanceLink(brick_node, product1)
+        self.assertInstanceLink(brick_node, product2)
+        self.assertNoInstanceLink(brick_node, product3)
+        self.assertNoInstanceLink(brick_node, product4)
+        self.assertNoInstanceLink(brick_node, product5)
 
     @skipIfCustomService
     def test_linked_services(self):
@@ -199,9 +229,9 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         brick_cls.page_size = max(5, settings.BLOCK_SIZE)
 
         user = self.login_as_root_and_get()
-        opp01, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
-        opp02 = Opportunity.objects.create(
-            user=user, name='Opp#2', sales_phase=opp01.sales_phase,
+        opp1, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
+        opp2 = Opportunity.objects.create(
+            user=user, name='Opp#2', sales_phase=opp1.sales_phase,
             emitter=emitter, target=target,
         )
 
@@ -211,28 +241,28 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
             user=user, unit_price=Decimal('1.23'),
             category=sub_cat.category, sub_category=sub_cat,
         )
-        service01 = create_service(name='Eva00 support')
-        service02 = create_service(name='Eva01 support')
-        service03 = create_service(name='Eva02 support')
-        service04 = create_service(name='Eva03 support')
-        service05 = create_service(name='Eva04 support', is_deleted=True)
+        service1 = create_service(name='Eva-00 support')
+        service2 = create_service(name='Eva-01 support')
+        service3 = create_service(name='Eva-02 support')
+        service4 = create_service(name='Eva-03 support')
+        service5 = create_service(name='Eva-04 support', is_deleted=True)
 
         create_rel = partial(
             Relation.objects.create, user=user, type_id=constants.REL_OBJ_LINKED_SERVICE,
         )
-        create_rel(subject_entity=opp01, object_entity=service01)
-        create_rel(subject_entity=opp01, object_entity=service02)
-        create_rel(subject_entity=opp02, object_entity=service04)
-        create_rel(subject_entity=opp01, object_entity=service05)
+        create_rel(subject_entity=opp1, object_entity=service1)
+        create_rel(subject_entity=opp1, object_entity=service2)
+        create_rel(subject_entity=opp2, object_entity=service4)
+        create_rel(subject_entity=opp1, object_entity=service5)
 
-        response = self.assertGET200(opp01.get_absolute_url())
+        response = self.assertGET200(opp1.get_absolute_url())
         tree = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(tree, brick=brick_cls)
-        self.assertInstanceLink(brick_node, service01)
-        self.assertInstanceLink(brick_node, service02)
-        self.assertNoInstanceLink(brick_node, service03)
-        self.assertNoInstanceLink(brick_node, service04)
-        self.assertNoInstanceLink(brick_node, service05)
+        self.assertInstanceLink(brick_node, service1)
+        self.assertInstanceLink(brick_node, service2)
+        self.assertNoInstanceLink(brick_node, service3)
+        self.assertNoInstanceLink(brick_node, service4)
+        self.assertNoInstanceLink(brick_node, service5)
 
     @skipIfCustomContact
     @parameterized.expand([
@@ -243,41 +273,41 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         brick_cls.page_size = max(5, settings.BLOCK_SIZE)
 
         user = self.login_as_root_and_get()
-        opp01, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
-        opp02 = Opportunity.objects.create(
-            user=user, name='Opp#2', sales_phase=opp01.sales_phase,
+        opp1, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
+        opp2 = Opportunity.objects.create(
+            user=user, name='Opp#2', sales_phase=opp1.sales_phase,
             emitter=emitter, target=target,
         )
 
         create_contact = partial(get_contact_model().objects.create, user=user)
-        contact01 = create_contact(first_name='Revy',  last_name='??')
-        contact02 = create_contact(first_name='Rock',  last_name='??')
-        contact03 = create_contact(first_name='Benny', last_name='??')
-        contact04 = create_contact(first_name='Dutch', last_name='??')
-        contact05 = create_contact(first_name='Balalaika', last_name='??', is_deleted=True)
+        contact1 = create_contact(first_name='Revy',  last_name='??')
+        contact2 = create_contact(first_name='Rock',  last_name='??')
+        contact3 = create_contact(first_name='Benny', last_name='??')
+        contact4 = create_contact(first_name='Dutch', last_name='??')
+        contact5 = create_contact(first_name='Balalaika', last_name='??', is_deleted=True)
 
         create_rel = partial(Relation.objects.create, user=user, type_id=rtype_id)
-        create_rel(subject_entity=opp01, object_entity=contact01)
-        create_rel(subject_entity=opp01, object_entity=contact02)
-        create_rel(subject_entity=opp02, object_entity=contact04)
-        create_rel(subject_entity=opp01, object_entity=contact05)
+        create_rel(subject_entity=opp1, object_entity=contact1)
+        create_rel(subject_entity=opp1, object_entity=contact2)
+        create_rel(subject_entity=opp2, object_entity=contact4)
+        create_rel(subject_entity=opp1, object_entity=contact5)
 
-        response = self.assertGET200(opp01.get_absolute_url())
+        response = self.assertGET200(opp1.get_absolute_url())
         tree = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(tree, brick=brick_cls)
-        self.assertInstanceLink(brick_node, contact01)
-        self.assertInstanceLink(brick_node, contact02)
-        self.assertNoInstanceLink(brick_node, contact03)
-        self.assertNoInstanceLink(brick_node, contact04)
-        self.assertNoInstanceLink(brick_node, contact05)
+        self.assertInstanceLink(brick_node, contact1)
+        self.assertInstanceLink(brick_node, contact2)
+        self.assertNoInstanceLink(brick_node, contact3)
+        self.assertNoInstanceLink(brick_node, contact4)
+        self.assertNoInstanceLink(brick_node, contact5)
 
     # TODO: test title (several cases)
     def test_targeting01(self):
         user = self.login_as_root_and_get()
 
-        opp01, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
+        opp1, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
         Opportunity.objects.create(
-            user=user, name='Opp#2', sales_phase=opp01.sales_phase,
+            user=user, name='Opp#2', sales_phase=opp1.sales_phase,
             emitter=emitter, target=target,
         )
 

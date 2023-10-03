@@ -77,11 +77,14 @@ class BrickTestCaseMixin:
                 f'The brick id="{brick_id}" has been unexpectedly found.'
             )
 
-    def assertInstanceLink(self, brick_node, entity):
+    def assertInstanceLink(self, brick_node, entity, check_text=True):
         link_node = self.get_html_node_or_fail(
             brick_node, f".//a[@href='{entity.get_absolute_url()}']"
         )
-        self.assertEqual(str(entity), link_node.text)
+        if check_text:
+            self.assertEqual(str(entity), link_node.text)
+
+        return link_node
 
     def assertNoInstanceLink(self, brick_node, entity):
         self.assertIsNone(brick_node.find(f".//a[@href='{entity.get_absolute_url()}']"))

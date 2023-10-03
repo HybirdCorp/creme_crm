@@ -35,7 +35,8 @@ from creme.creme_core.gui.bricks import (
     SimpleBrick,
 )
 from creme.creme_core.models import Relation, RelationType
-from creme.persons.bricks import Activities4Card, CommercialActs4Card
+# from creme.persons.bricks import Activities4Card, CommercialActs4Card
+from creme.persons import bricks as persons_bricks
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
 from . import constants, get_opportunity_model
@@ -66,30 +67,63 @@ class _RelatedToOpportunity:
         return qs
 
 
-class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
-    id = Brick._generate_hat_id('opportunities', 'opportunity_card')
+# TODO: unit test
+class ContactsSummary(_RelatedToOpportunity, persons_bricks.CardSummary):
+    dependencies = [Contact]
+    # TODO: what if RelationType.enable == False?
+    relation_type_deps = []
+    template_name = 'opportunities/bricks/frags/card-summary-contacts.html'
+
+    displayed_contacts_number = 5
+
+    def get_context(self, *, entity, brick_context):
+        context = super().get_context(entity=entity, brick_context=brick_context)
+        context['contacts'] = Paginator(
+            self.get_related_queryset(
+                opportunity=entity,
+                model=Contact,
+                # TODO: get the relation type id from the dependencies
+                #       (wait for RelationTypes cache)
+                rtype_id=constants.REL_SUB_LINKED_CONTACT,
+            ),
+            per_page=self.displayed_contacts_number,
+        ).page(1)
+
+        return context
+
+
+# class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
+class OpportunityCardHatBrick(_RelatedToOpportunity, persons_bricks._PersonsCardHatBrick):
+    # id = Brick._generate_hat_id('opportunities', 'opportunity_card')
+    id = persons_bricks._PersonsCardHatBrick._generate_hat_id('opportunities', 'opportunity_card')
     verbose_name = _('Card header block')
     dependencies = [
         Opportunity,
         Organisation, Contact,
         Relation,
-        *Activities4Card.dependencies,
-        *CommercialActs4Card.dependencies,
+        # *Activities4Card.dependencies,
+        # *CommercialActs4Card.dependencies,
     ]
     relation_type_deps = [
         REL_SUB_EMPLOYED_BY,
         constants.REL_OBJ_LINKED_CONTACT,
-        *Activities4Card.relation_type_deps,
-        *CommercialActs4Card.relation_type_deps
+        # *Activities4Card.relation_type_deps,
+        # *CommercialActs4Card.relation_type_deps,
     ]
     template_name = 'opportunities/bricks/opportunity-hat-card.html'
 
-    displayed_contacts_number = 5
+    # displayed_contacts_number = 5  # deleted; see ContactsSummary now.
+    summaries = [
+        persons_bricks.NextActivitySummary,
+        ContactsSummary,
+        persons_bricks.CommercialActsSummary,
+    ]
 
     def detailview_display(self, context):
         opportunity = context['object']
         is_hidden = context['fields_configs'].get_for_model(Opportunity).is_fieldname_hidden
 
+        # TODO: extract indicator
         if apps.is_installed('creme.activities'):
             from creme.activities import get_activity_model
 
@@ -112,18 +146,16 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
             is_neglected=is_neglected,
             target=target,
             target_is_organisation=isinstance(target, Organisation),
-            contacts=Paginator(
-                self.get_related_queryset(
-                    opportunity=opportunity,
-                    model=Contact,
-                    # TODO: get the relation type id from the dependencies
-                    #       (wait for RelationTypes cache)
-                    rtype_id=constants.REL_SUB_LINKED_CONTACT,
-                ),
-                per_page=self.displayed_contacts_number,
-            ).page(1),
-            activities=Activities4Card.get(context, opportunity),
-            acts=CommercialActs4Card.get(context, opportunity),
+            # contacts=Paginator(
+            #     self.get_related_queryset(
+            #         opportunity=opportunity,
+            #         model=Contact,
+            #         rtype_id=constants.REL_SUB_LINKED_CONTACT,
+            #     ),
+            #     per_page=self.displayed_contacts_number,
+            # ).page(1),
+            # activities=Activities4Card.get(context, opportunity),
+            # acts=CommercialActs4Card.get(context, opportunity),
         ))
 
 
