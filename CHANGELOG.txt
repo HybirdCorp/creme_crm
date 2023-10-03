@@ -11,6 +11,8 @@
             - In the users' configuration :
                 - An error happened in the edition form when transforming a superuser into a regular one.
                 - The style of disabled users was broken (in theme "icecream" & "chantilly").
+        * Persons :
+            - The summary's title for Opportunities in "card" hat-bricks was not always displaying the number of Opportunities.
 
   Developers side :
   -----------------
