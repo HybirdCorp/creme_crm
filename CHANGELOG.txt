@@ -1,7 +1,5 @@
 == Version 2.5.1 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .mo (activities)
-
   Users side :
   ------------
     # The disabled RelationTypes were still proposed in the popup-form of the Relationships' brick.
