@@ -139,14 +139,24 @@ class UserEditionForm(CremeModelForm):
         # NB: browser can ignore <em> tag in <option>...
         self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
 
-    def save(self, *args, **kwargs):
-        instance = self.instance
-        # NB: needed with django 1.8 when we reset to 'None'
-        #     (the value seems skipped) => is it a bug ??
-        instance.role = role = self.cleaned_data['role']
-        instance.is_superuser = (role is None)
+    def clean(self):
+        cdata = super().clean()
 
-        return super().save(*args, **kwargs)
+        if not self._errors:
+            instance = self.instance
+            instance.role = role = cdata['role']
+            instance.is_superuser = (role is None)
+
+        return cdata
+
+    # def save(self, *args, **kwargs):
+    #     instance = self.instance
+    #     # NB: needed with django 1.8 when we reset to 'None'
+    #     #     (the value seems skipped) => is it a bug ??
+    #     instance.role = role = self.cleaned_data['role']
+    #     instance.is_superuser = (role is None)
+    #
+    #     return super().save(*args, **kwargs)
 
 
 # NB: we cannot use django.contrib.auth.forms.AdminPasswordChangeForm, because it defines a 'user'
