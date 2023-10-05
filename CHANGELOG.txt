@@ -1,3 +1,23 @@
+== Version 2.4.8 ==
+
+  Users side :
+  ------------
+    # The disabled RelationTypes were still proposed in the popup-form of the Relationships' brick.
+    # The command "creme_uninstall" was crashing.
+    # Apps :
+        * Creme_config :
+            - The style of disabled users in users' configuration block was broken (in theme "icecream" & "chantilly").
+        * Persons :
+            - The summary's title for Opportunities in "card" hat-bricks was not always displaying the number of Opportunities.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The method 'BrickDetailviewLocation.__str__()' crashed with hat bricks.
+
+
 == Version 2.4.7 ==
 
   Users side :

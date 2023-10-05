@@ -658,7 +658,7 @@ def _export_efc_customfield(cond: models.EntityFilterCondition) -> dict:
 
     return {
         # TODO: 'uuid' key instead of 'name' to avoid confusion ??
-        # TODO: better error message tah the get()'s one...
+        # TODO: better error message than the get()'s one...
         'name': str(models.CustomField.objects.get(id=cond.name).uuid),
         'value': value,
     }
@@ -670,7 +670,7 @@ def _export_efc_datecustomfield(cond: models.EntityFilterCondition) -> dict:
 
     return {
         # TODO: 'uuid' key instead of 'name' to avoid confusion ??
-        # TODO: better error message tah the get()'s one...
+        # TODO: better error message than the get()'s one...
         'name': str(models.CustomField.objects.get(id=cond.name).uuid),
         'value': value,
     }
