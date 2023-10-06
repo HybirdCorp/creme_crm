@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Persons 2.5\n"
+"Project-Id-Version: Creme Persons 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-16 15:28+0100\n"
+"POT-Creation-Date: 2023-10-06 16:00+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -822,6 +822,9 @@ msgid "%(count)s Opportunity"
 msgid_plural "%(count)s Opportunities"
 msgstr[0] "%(count)s Opportunité"
 msgstr[1] "%(count)s Opportunités"
+
+msgid "See details"
+msgstr "Voir les détails"
 
 msgid "Creme user"
 msgstr "Utilisateur Creme associé"
