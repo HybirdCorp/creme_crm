@@ -24,6 +24,7 @@ from typing import Sequence
 
 from django.apps import apps
 from django.conf import settings
+from django.core.paginator import Paginator
 from django.db.models.query_utils import FilteredRelation, Q
 from django.utils.functional import cached_property, lazy
 from django.utils.translation import gettext
@@ -212,20 +213,24 @@ if apps.is_installed('creme.opportunities'):
         relation_type_deps = [opp_constants.REL_OBJ_TARGETS]
         template_name = 'persons/bricks/frags/card-summary-opportunities.html'
 
+        displayed_opportunities_number = 5
+
         def get_context(self, *, entity, brick_context):
             context = super().get_context(entity=entity, brick_context=brick_context)
-            context['opportunities'] = EntityCredentials.filter(
-                user=brick_context['user'],
-                queryset=Opportunity.objects.annotate(
-                    relations_w_person=FilteredRelation(
-                        'relations',
-                        condition=Q(relations__object_entity=entity.id),
-                    ),
-                ).filter(
-                    is_deleted=False,
-                    relations_w_person__type=opp_constants.REL_SUB_TARGETS,
+            rtype_id = opp_constants.REL_SUB_TARGETS
+            context['REL_SUB_TARGETS'] = rtype_id
+            context['opportunities'] = Paginator(
+                EntityCredentials.filter(
+                    user=brick_context['user'],
+                    queryset=Opportunity.objects.annotate(
+                        relations_w_person=FilteredRelation(
+                            'relations',
+                            condition=Q(relations__object_entity=entity.id),
+                        ),
+                    ).filter(is_deleted=False, relations_w_person__type=rtype_id),
                 ),
-            )
+                per_page=self.displayed_opportunities_number,
+            ).page(1)
 
             return context
 else:
