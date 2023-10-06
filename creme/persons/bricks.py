@@ -272,22 +272,30 @@ if apps.is_installed('creme.commercial'):
         dependencies = [Act]
         # TODO: what if RelationType.enable == False?
         relation_type_deps = [commercial_constants.REL_SUB_COMPLETE_GOAL]
+        # TODO: factorise templates (base-summary...)?
         template_name = 'persons/bricks/frags/card-summary-acts.html'
+
+        displayed_acts_number = 5
 
         def get_context(self, *, entity, brick_context):
             context = super().get_context(entity=entity, brick_context=brick_context)
-            context['acts'] = EntityCredentials.filter(
-                user=brick_context['user'],
-                queryset=Act.objects.annotate(
-                    relations_w_person=FilteredRelation(
-                        'relations',
-                        condition=Q(relations__object_entity=entity.id),
+            rtype_id = commercial_constants.REL_OBJ_COMPLETE_GOAL
+            context['REL_OBJ_COMPLETE_GOAL'] = rtype_id
+            context['acts'] = Paginator(
+                EntityCredentials.filter(
+                    user=brick_context['user'],
+                    queryset=Act.objects.annotate(
+                        relations_w_person=FilteredRelation(
+                            'relations',
+                            condition=Q(relations__object_entity=entity.id),
+                        ),
+                    ).filter(
+                        is_deleted=False,
+                        relations_w_person__type=rtype_id,
                     ),
-                ).filter(
-                    is_deleted=False,
-                    relations_w_person__type=commercial_constants.REL_OBJ_COMPLETE_GOAL,
                 ),
-            )
+                per_page=self.displayed_acts_number,
+            ).page(1)
 
             return context
 else:
