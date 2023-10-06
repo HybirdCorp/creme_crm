@@ -566,15 +566,20 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         act2 = create_act('Act #02', orga)
         act3 = create_act('Act #02', c)
 
+        brick_context = {'object': c, 'user': user}
+
         # ---
-        summary = bricks.CommercialActsSummary()
-        sum_ctxt = summary.get_context(entity=c, brick_context={'user': user})
-        self.assertIsDict(sum_ctxt, length=2)
+        summary1 = bricks.CommercialActsSummary()
+        self.assertEqual(5, summary1.displayed_acts_number)
+
+        sum_ctxt1 = summary1.get_context(entity=c, brick_context=brick_context)
+        self.assertIsDict(sum_ctxt1, length=3)
         self.assertEqual(
             'persons/bricks/frags/card-summary-acts.html',
-            sum_ctxt.get('template_name'),
+            sum_ctxt1.get('template_name'),
         )
-        self.assertListEqual([act1, act3], [*sum_ctxt['acts']])
+        self.assertEqual(REL_OBJ_COMPLETE_GOAL, sum_ctxt1.get('REL_OBJ_COMPLETE_GOAL'))
+        self.assertCountEqual([act1, act3], sum_ctxt1['acts'].object_list)
 
         # ---
         response = self.assertGET200(c.get_absolute_url())
@@ -585,6 +590,25 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self.assertInstanceLink(brick_node, act1)
         self.assertNoInstanceLink(brick_node, act2)
         self.assertInstanceLink(brick_node, act3)
+
+        # ----
+        summary2 = bricks.CommercialActsSummary()
+        summary2.displayed_acts_number = 1
+
+        sum_ctxt2 = summary2.get_context(entity=c, brick_context=brick_context)
+        act_page2 = sum_ctxt2['acts']
+        self.assertCountEqual([act1], act_page2.object_list)
+        self.assertEqual(2, act_page2.paginator.count)
+
+        with self.assertNoException():
+            render2 = get_template(sum_ctxt2['template_name']).render({
+                **brick_context, 'summary': sum_ctxt2,
+            })
+
+        a_node = self.get_html_node_or_fail(
+            self.get_html_tree(render2), './/span[@class="card-info-value"]/a',
+        )
+        self.assertStartsWith(a_node.attrib.get('href'), Act.get_lv_absolute_url())
 
     @skipIfCustomAct
     def test_orga_hat_card_brick_commercial(self):
