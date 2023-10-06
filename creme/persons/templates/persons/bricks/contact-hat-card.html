@@ -31,7 +31,15 @@
 {% endblock %}
 
 {% block card_secondary %}
-{% with total_count=managed_count|add:employers_count %}
+  {% block contact_position %}
+    {% if object.full_position and 'full_position' not in hidden_fields %}
+      <div class="card-position">{{object.full_position}}</div>
+    {% elif object.position and 'position' not in hidden_fields %}
+      <div class="card-position">{{object.position}}</div>
+    {% endif %}
+  {% endblock %}
+  {% block contact_jobs %}
+  {% with total_count=managed_count|add:employers_count %}
     <div class="card-jobs{# TODO? {% if total_count > 3 and total_count < max_organisations %} card-jobs-wide{% endif %} #}">
       {% if total_count >= max_organisations %}
         <div class="card-job">{% url 'persons__list_organisations' as lv_url %}
@@ -61,13 +69,10 @@
               <span class="card-function">{% translate 'Employee' %}</span>, {% widget_entity_hyperlink orga user %}
           </div>
         {% endfor %}
-      {% elif object.position and 'position' not in hidden_fields %}
-        <div class="card-job">
-            <span class="card-function">{{object.position}}</span>
-        </div>
       {% endif %}
     </div>
-{% endwith %}
+  {% endwith %}
+  {% endblock %}
 {% endblock %}
 
 {% block card_fields_title %}
