@@ -454,6 +454,7 @@ class Populator(BasePopulator):
                 content_type=Contact,
                 cells=[
                     build_cell(Contact, 'sector'),
+                    build_cell(Contact, 'position'),
                     build_cell(Contact, 'full_position'),
                     build_cell(Contact, 'birthday'),
                     build_cell(Contact, 'image'),

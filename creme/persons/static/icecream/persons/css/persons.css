@@ -1,5 +1,12 @@
 /* Brick card contact */
 
+.persons-contact-card-brick .card-position {
+    margin-left: 10px;
+    margin-bottom: 3px;
+
+    color: #888;
+}
+
 .persons-contact-card-brick .card-job {
     font-size: 14px;
 }

@@ -395,7 +395,7 @@ class ContactCardHatBrick(_PersonsCardHatBrick):
             context,
             hidden_fields={
                 fname
-                for fname in ('phone', 'mobile', 'email', 'position')
+                for fname in ('phone', 'mobile', 'email', 'position', 'full_position')
                 if is_hidden(fname)
             },
 
