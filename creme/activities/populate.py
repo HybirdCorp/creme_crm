@@ -192,11 +192,23 @@ class Populator(BasePopulator):
         #     create_subtype(meeting_t, pk, name)
         meeting_t = act_types[constants.UUID_TYPE_MEETING]
         for uid, name in [
-            (constants.UUID_SUBTYPE_MEETING_MEETING,       _('Meeting')),
-            (constants.UUID_SUBTYPE_MEETING_QUALIFICATION, _('Qualification')),
-            (constants.UUID_SUBTYPE_MEETING_REVIVAL,       _('Revival')),
-            (constants.UUID_SUBTYPE_MEETING_NETWORK,       _('Network')),
-            (constants.UUID_SUBTYPE_MEETING_OTHER, pgettext('activities-meeting', 'Other')),
+            (constants.UUID_SUBTYPE_MEETING_MEETING, _('Meeting')),
+            (
+                constants.UUID_SUBTYPE_MEETING_QUALIFICATION,
+                pgettext('activities-meeting', 'Qualification')
+            ),
+            (
+                constants.UUID_SUBTYPE_MEETING_REVIVAL,
+                pgettext('activities-meeting', 'Revival')
+            ),
+            (
+                constants.UUID_SUBTYPE_MEETING_NETWORK,
+                pgettext('activities-meeting', 'Network')
+            ),
+            (
+                constants.UUID_SUBTYPE_MEETING_OTHER,
+                pgettext('activities-meeting', 'Other')
+            ),
         ]:
             update_or_create_subtype(atype=meeting_t, uid=uid, name=name)
 
@@ -210,10 +222,22 @@ class Populator(BasePopulator):
         #     create_subtype(pcall_t, pk, name)
         pcall_t = act_types[constants.UUID_TYPE_PHONECALL]
         for uid, name in [
-            (constants.UUID_SUBTYPE_PHONECALL_INCOMING,   _('Incoming')),
-            (constants.UUID_SUBTYPE_PHONECALL_OUTGOING,   _('Outgoing')),
-            (constants.UUID_SUBTYPE_PHONECALL_CONFERENCE, _('Conference')),
-            (constants.UUID_SUBTYPE_PHONECALL_FAILED,     _('Outgoing - Failed')),
+            (
+                constants.UUID_SUBTYPE_PHONECALL_INCOMING,
+                pgettext('activities-phonecall', 'Incoming')
+            ),
+            (
+                constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
+                pgettext('activities-phonecall', 'Outgoing')
+            ),
+            (
+                constants.UUID_SUBTYPE_PHONECALL_CONFERENCE,
+                pgettext('activities-phonecall', 'Conference')
+            ),
+            (
+                constants.UUID_SUBTYPE_PHONECALL_FAILED,
+                pgettext('activities-phonecall', 'Outgoing - Failed')
+            ),
         ]:
             update_or_create_subtype(atype=pcall_t, uid=uid, name=name)
 
