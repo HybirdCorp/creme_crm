@@ -202,6 +202,52 @@ class HistoryRenderTestCase(CremeTestCase):
             self.render_line(hline, user),
         )
 
+    def test_render_edition_datefield(self):
+        user = self.get_root_user()
+        orga = FakeOrganisation.objects.create(user=user, name='Seele')
+
+        orga = self.refresh(orga)
+        orga.creation_date = date1 = date(year=2005, month=11, day=15)
+        orga.save()
+
+        hline1 = self.get_hline()
+        self.assertEqual(history.TYPE_EDITION, hline1.type)
+        self.assertHTMLEqual(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                self.FMT_2_VALUES(
+                    field=f'<span class="field-change-field_name">{_("Date of creation")}</span>',
+                    value=f'<span class="field-change-new_value">'
+                          f'{date_format(date1, "DATE_FORMAT")}'
+                          f'</span>',
+                ),
+            ),
+            self.render_line(hline1, user),
+        )
+
+        # Datetime stored ---
+        orga = self.refresh(orga)
+        orga.creation_date = dt2 = self.create_datetime(
+            year=2004, month=6, day=1, hour=12, minute=30,
+        )
+        orga.save()
+
+        hline2 = self.get_hline()
+        self.assertEqual(history.TYPE_EDITION, hline2.type)
+        self.assertHTMLEqual(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                self.FMT_3_VALUES(
+                    field=f'<span class="field-change-field_name">{_("Date of creation")}</span>',
+                    oldvalue=f'<span class="field-change-old_value">'
+                             f'{date_format(date1, "DATE_FORMAT")}'
+                             f'</span>',
+                    value=f'<span class="field-change-new_value">'
+                          f'{date_format(dt2, "DATE_FORMAT")}'
+                          f'</span>',
+                ),
+            ),
+            self.render_line(hline2, user),
+        )
+
     def test_render_edition_datetimefield(self):
         user = self.get_root_user()
 
