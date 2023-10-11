@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Activities 2.5\n"
+"Project-Id-Version: Creme Activities 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-28 18:45+0200\n"
+"POT-Creation-Date: 2023-10-11 20:11+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -142,6 +142,9 @@ msgstr ""
 "La fiche actuelle est pré-sélectionnée pour être liée à la tâche créée.\n"
 "App : Activités"
 
+msgid "Create an unavailability"
+msgstr "Créer une indisponibilité"
+
 msgid "Create a task"
 msgstr "Créer une tâche"
 
@@ -159,9 +162,6 @@ msgstr "Créer un salon"
 
 msgid "Create a demo"
 msgstr "Créer une démo"
-
-msgid "Create an unavailability"
-msgstr "Créer une indisponibilité"
 
 msgid "When"
 msgstr "Quand"
@@ -392,15 +392,6 @@ msgstr "Appels téléphoniques"
 msgid "Meetings"
 msgstr "Rendez-vous"
 
-msgid "Gathering"
-msgstr "Réunion"
-
-msgid "Show"
-msgstr "Salon"
-
-msgid "Demonstration"
-msgstr "Démonstration"
-
 msgid "Title"
 msgstr "Titre"
 
@@ -559,12 +550,24 @@ msgctxt "activities-status"
 msgid "Cancelled"
 msgstr "Annulée"
 
+msgid "Gathering"
+msgstr "Réunion"
+
+msgid "Show"
+msgstr "Salon"
+
+msgid "Demonstration"
+msgstr "Démonstration"
+
+msgctxt "activities-meeting"
 msgid "Qualification"
 msgstr "Qualification"
 
+msgctxt "activities-meeting"
 msgid "Revival"
 msgstr "Relance"
 
+msgctxt "activities-meeting"
 msgid "Network"
 msgstr "Réseau"
 
@@ -572,17 +575,30 @@ msgctxt "activities-meeting"
 msgid "Other"
 msgstr "Autre"
 
+msgctxt "activities-phonecall"
 msgid "Incoming"
 msgstr "Entrant"
 
+msgctxt "activities-phonecall"
 msgid "Outgoing"
 msgstr "Sortant"
 
+msgctxt "activities-phonecall"
 msgid "Conference"
 msgstr "Conférence"
 
+msgctxt "activities-phonecall"
 msgid "Outgoing - Failed"
 msgstr "Sortant - Échoué"
+
+msgid "Activity view"
+msgstr "Vue d'Activité"
+
+msgid "Tasks"
+msgstr "Tâches"
+
+msgid "In which I participate"
+msgstr "Auxquelles je participe"
 
 msgid "Holidays"
 msgstr "Vacances"
@@ -615,15 +631,6 @@ msgstr "Visiteur"
 
 msgid "Videoconference"
 msgstr "En visioconférence"
-
-msgid "Activity view"
-msgstr "Vue d'Activité"
-
-msgid "Tasks"
-msgstr "Tâches"
-
-msgid "In which I participate"
-msgstr "Auxquelles je participe"
 
 msgid "Display minutes information in activities blocks"
 msgstr "Afficher le bilan d'une activité dans les blocs d'activités"
