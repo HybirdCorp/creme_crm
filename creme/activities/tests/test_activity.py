@@ -19,6 +19,7 @@ from creme.creme_core.creme_jobs import trash_cleaner_type
 from creme.creme_core.forms import LAYOUT_REGULAR, ReadonlyMessageField
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.gui import actions
+from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.gui.custom_form import FieldGroup, FieldGroupList
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
@@ -31,7 +32,9 @@ from creme.creme_core.models import (
     SettingValue,
 )
 from creme.creme_core.tests.base import skipIfNotInstalled
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.date_period import DaysPeriod
+from creme.creme_core.utils.media import get_creme_media_url
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 from creme.persons.tests.base import (
     skipIfCustomContact,
@@ -63,7 +66,7 @@ if apps.is_installed('creme.assistants'):
 
 
 @skipIfCustomActivity
-class ActivityTestCase(_ActivitiesTestCase):
+class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     ADD_UNAVAILABILITY_URL = reverse('activities__create_unavailability')
 
     @staticmethod
@@ -275,6 +278,46 @@ class ActivityTestCase(_ActivitiesTestCase):
             f' <span>{status.name}</span>'
             f'</div>',
             template.render(Context({**ctxt, 'tag': ViewTag.HTML_DETAIL})),
+        )
+
+    def test_detailview_meeting(self):
+        user = self.login_as_root_and_get()
+        self.assertEqual('icecream', user.theme)
+
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
+        activity = Activity.objects.create(
+            user=user, title='Meeting #1',
+            type_id=sub_type.type_id, sub_type=sub_type,
+        )
+
+        response = self.assertGET200(activity.get_absolute_url())
+        brick_node = self.get_brick_node(
+            tree=self.get_html_tree(response.content), brick=Brick.GENERIC_HAT_BRICK_ID,
+        )
+        icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
+        self.assertEqual(
+            get_creme_media_url(theme='icecream', url='images/meeting_48.png'),
+            icon_node.attrib.get('src'),
+        )
+
+    def test_detailview_phonecall(self):
+        user = self.login_as_root_and_get()
+        self.assertEqual('icecream', user.theme)
+
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_OUTGOING)
+        activity = Activity.objects.create(
+            user=user, title='Phone call #1',
+            type_id=sub_type.type_id, sub_type=sub_type,
+        )
+
+        response = self.assertGET200(activity.get_absolute_url())
+        brick_node = self.get_brick_node(
+            tree=self.get_html_tree(response.content), brick=Brick.GENERIC_HAT_BRICK_ID,
+        )
+        icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
+        self.assertEqual(
+            get_creme_media_url(theme='icecream', url='images/phone_48.png'),
+            icon_node.attrib.get('src'),
         )
 
     @skipIfCustomContact
