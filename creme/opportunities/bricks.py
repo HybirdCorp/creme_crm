@@ -21,7 +21,7 @@ from __future__ import annotations
 from datetime import timedelta
 
 from django.apps import apps
-from django.core.paginator import Paginator
+# from django.core.paginator import Paginator
 from django.db.models.query_utils import FilteredRelation, Q
 from django.utils.translation import gettext_lazy as _
 
@@ -35,6 +35,7 @@ from creme.creme_core.gui.bricks import (
     SimpleBrick,
 )
 from creme.creme_core.models import Relation, RelationType
+from creme.creme_core.utils.paginators import OnePagePaginator
 # from creme.persons.bricks import Activities4Card, CommercialActs4Card
 from creme.persons import bricks as persons_bricks
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
@@ -67,7 +68,6 @@ class _RelatedToOpportunity:
         return qs
 
 
-# TODO: unit test
 class ContactsSummary(_RelatedToOpportunity, persons_bricks.CardSummary):
     dependencies = [Contact]
     # TODO: what if RelationType.enable == False?
@@ -78,7 +78,8 @@ class ContactsSummary(_RelatedToOpportunity, persons_bricks.CardSummary):
 
     def get_context(self, *, entity, brick_context):
         context = super().get_context(entity=entity, brick_context=brick_context)
-        context['contacts'] = Paginator(
+        # context['contacts'] = Paginator(
+        context['contacts'] = OnePagePaginator(
             self.get_related_queryset(
                 opportunity=entity,
                 model=Contact,
