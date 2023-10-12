@@ -23,13 +23,14 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models import CremeModel, MinionModel
+# from creme.creme_core.models import CremeModel, MinionModel
+from creme.creme_core.models import MinionModel
 from creme.creme_core.models import fields as core_fields
 
 
-# TODO: inherit MinionModel (initial of creme 2.7?)
 # TODO: rename to ActivityKind ??
-class ActivityType(CremeModel):
+# class ActivityType(CremeModel):
+class ActivityType(MinionModel):
     # id = models.CharField(
     #     primary_key=True, max_length=100, editable=False,
     # ).set_tags(viewable=False)
@@ -72,8 +73,8 @@ class ActivityType(CremeModel):
         )
 
 
-# TODO: inherit MinionModel (initial of creme 2.7?)
-class ActivitySubType(CremeModel):
+# class ActivitySubType(CremeModel):
+class ActivitySubType(MinionModel):
     # id = models.CharField(
     #     primary_key=True, max_length=100, editable=False,
     # ).set_tags(viewable=False)
