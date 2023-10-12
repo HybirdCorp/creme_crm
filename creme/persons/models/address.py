@@ -29,25 +29,46 @@ from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import CremeEntity, CremeModel, FieldsConfig
 
 
+class ZipCodeField(core_fields.SemanticCharField):
+    pass
+
+
+class CityField(core_fields.SemanticCharField):
+    pass
+
+
+class DepartmentField(core_fields.SemanticCharField):
+    pass
+
+
+class CountryField(core_fields.SemanticCharField):
+    pass
+
+
+# TODO: other SemanticCharField?
 class AbstractAddress(CremeModel):
     name = models.CharField(_('Name'), max_length=100, blank=True)
     address = models.TextField(_('Address'), blank=True)
     po_box = models.CharField(
         _('PO box'), max_length=50, blank=True,
     ).set_tags(optional=True)
-    zipcode = models.CharField(
+    # zipcode = models.CharField(
+    zipcode = ZipCodeField(
         _('Zip code'), max_length=100, blank=True,
     ).set_tags(optional=True)
-    city = models.CharField(
+    # city = models.CharField(
+    city = CityField(
         _('City'), max_length=100, blank=True,
     ).set_tags(optional=True)
-    department = models.CharField(
+    # department = models.CharField(
+    department = DepartmentField(
         _('Department'), max_length=100, blank=True,
     ).set_tags(optional=True)
     state = models.CharField(
         _('State'), max_length=100, blank=True,
     ).set_tags(optional=True)
-    country = models.CharField(
+    # country = models.CharField(
+    country = CountryField(
         _('Country'), max_length=40, blank=True,
     ).set_tags(optional=True)
 

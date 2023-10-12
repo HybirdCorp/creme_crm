@@ -7,6 +7,7 @@ from django.db.models.deletion import CASCADE, SET_NULL
 import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CREME_REPLACE_NULL
 from creme.documents.models.fields import ImageEntityForeignKey
+from creme.persons.models import address
 
 
 class Migration(migrations.Migration):
@@ -114,11 +115,15 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name', blank=True)),
                 ('address', models.TextField(verbose_name='Address', blank=True)),
                 ('po_box', models.CharField(max_length=50, verbose_name='PO box', blank=True)),
-                ('zipcode', models.CharField(max_length=100, verbose_name='Zip code', blank=True)),
-                ('city', models.CharField(max_length=100, verbose_name='City', blank=True)),
-                ('department', models.CharField(max_length=100, verbose_name='Department', blank=True)),
+                # ('zipcode', models.CharField(max_length=100, verbose_name='Zip code', blank=True)),
+                ('zipcode', address.ZipCodeField(blank=True, max_length=100, verbose_name='Zip code')),
+                # ('city', models.CharField(max_length=100, verbose_name='City', blank=True)),
+                ('city', address.CityField(blank=True, max_length=100, verbose_name='City')),
+                # ('department', models.CharField(max_length=100, verbose_name='Department', blank=True)),
+                ('department', address.DepartmentField(blank=True, max_length=100, verbose_name='Department')),
                 ('state', models.CharField(max_length=100, verbose_name='State', blank=True)),
-                ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
+                # ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
+                ('country', address.CountryField(blank=True, max_length=40, verbose_name='Country')),
                 (
                     'object',
                     models.ForeignKey(
