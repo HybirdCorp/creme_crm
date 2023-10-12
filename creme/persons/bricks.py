@@ -24,7 +24,6 @@ from typing import Sequence
 
 from django.apps import apps
 from django.conf import settings
-from django.core.paginator import Paginator
 from django.db.models.query_utils import FilteredRelation, Q
 from django.utils.functional import cached_property, lazy
 from django.utils.translation import gettext
@@ -41,6 +40,7 @@ from creme.creme_core.gui.bricks import (
 )
 from creme.creme_core.models import CremeEntity, Relation, RelationType
 from creme.creme_core.utils.db import populate_related
+from creme.creme_core.utils.paginators import OnePagePaginator
 
 from . import constants
 
@@ -219,7 +219,7 @@ if apps.is_installed('creme.opportunities'):
             context = super().get_context(entity=entity, brick_context=brick_context)
             rtype_id = opp_constants.REL_SUB_TARGETS
             context['REL_SUB_TARGETS'] = rtype_id
-            context['opportunities'] = Paginator(
+            context['opportunities'] = OnePagePaginator(
                 EntityCredentials.filter(
                     user=brick_context['user'],
                     queryset=Opportunity.objects.annotate(
@@ -281,7 +281,7 @@ if apps.is_installed('creme.commercial'):
             context = super().get_context(entity=entity, brick_context=brick_context)
             rtype_id = commercial_constants.REL_OBJ_COMPLETE_GOAL
             context['REL_OBJ_COMPLETE_GOAL'] = rtype_id
-            context['acts'] = Paginator(
+            context['acts'] = OnePagePaginator(
                 EntityCredentials.filter(
                     user=brick_context['user'],
                     queryset=Act.objects.annotate(
