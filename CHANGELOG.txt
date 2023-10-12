@@ -129,6 +129,8 @@
                     - The global dictionary 'forms.setting._FIELDS' has been removed;
                       see the new class attribute 'creme_core.core.setting_key._SettingKey.FORM_FIELDS' instead.
             * Persons :
+                - In the method 'models.Address.info_field_names()' (use by several form generators for Address),
+                  the excluded fields are just not-viewable fields (it was a hard coded list before).
                 - The hat-card bricks have been reworked to facilitate the modification of small summaries (activities, acts, opportunities).
                   A base class 'CardSummary' has been introduced. The classes 'ContactCardHatBrick' & 'OrganisationCardHatBrick' get
                   new attributes "intro_summary" & "summaries"; so its easier to change summaries from external code (the dependencies of the bricks
