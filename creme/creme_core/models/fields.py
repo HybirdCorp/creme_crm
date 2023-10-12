@@ -39,9 +39,17 @@ from ..utils.date_period import DatePeriod, date_period_registry
 from ..utils.serializers import json_encode
 
 
+class SemanticCharField(models.CharField):
+    formfield_class = None
+
+    def formfield(self, form_class=None, **kwargs):
+        return super().formfield(form_class=form_class or self.formfield_class, **kwargs)
+
+
 # TODO: add a form field ?? (validation)
 # TODO: fix the max_length value ?
-class PhoneField(models.CharField):
+# class PhoneField(models.CharField):
+class PhoneField(SemanticCharField):
     pass
 
 

@@ -27,6 +27,10 @@
               use the new methods 'assertHaveRelation()' & 'assertHaveNoRelation()' instead.
         # The model 'creme_core.models.FileRef' get a new optional field "description";
           it's used by the new view which displays all FileRefs (so feel free to fill it).
+        # Apps :
+            * Persons :
+                - The model 'Address' gets new semantic fields (like ZipCodeField) which allow to
+                  easily customise things (like the form field, the field printer etc...).
 
     Breaking changes :
     ------------------
