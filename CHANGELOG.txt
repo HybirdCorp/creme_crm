@@ -35,6 +35,7 @@
              - a custom renderer function.
         # Apps :
             * Activities:
+                - The models 'ActivityType' & 'ActivitySubType' now inherit 'creme_core.models.MinionModel' (see <Breaking changes> part too).
                 - Upgrade FullCalendar :
                     - Use ISO8601 format WITH timezone (e.g 2023-04-14T10:38:30+01:00) for the views:
                          - activities__calendars_activities
