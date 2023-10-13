@@ -64,7 +64,7 @@ urlpatterns = [
                 name='persons__edit_contact_names',
             ),
             check_args=Swappable.INT_ID,
-        ),
+        ),  # DEPRECATED
         Swappable(
             re_path(
                 r'^contact/(?P<contact_id>\d+)[/]?$',

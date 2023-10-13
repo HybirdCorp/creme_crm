@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/hat-card.html' %}
-{% load i18n creme_bricks creme_listview creme_widgets persons_tags %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_cells creme_listview creme_widgets persons_tags %}
+{% load has_perm_to inner_edition_uri listify from creme_core_tags %}{# url #}
 
 {% block brick_extra_class %}{{block.super}} persons-contact-card-brick{% endblock %}
 
@@ -11,23 +11,27 @@
 
 {% block card_title %}
     {{object|persons_pretty_contact}}
-    {% if not object.is_deleted and not object.sandbox %}{% has_perm_to change object as edition_perm %}
-    {% brick_card_action url='persons__edit_contact_names'|url:object.id enabled=edition_perm %}
+    {% if not object.is_deleted and not object.sandbox %}
+      {% has_perm_to change object as edition_perm %}
+{#      {% brick_card_action url='persons__edit_contact_names'|url:object.id enabled=edition_perm %} #}
+      {% cell_4_regularfield instance=object field="last_name" as lname_cell %}
+      {% cell_4_regularfield instance=object field="first_name" as fname_cell %}
+      {% cell_4_regularfield instance=object field="position" as pos_cell %}
+      {% cell_4_regularfield instance=object field="full_position" as fpos_cell %}
+      {% listify lname_cell fname_cell pos_cell fpos_cell as cells %}
+      {% inner_edition_uri instance=object cells=cells as edition_uri %}
+      {% brick_card_action id='edit' url=edition_uri enabled=edition_perm %}
     {% endif %}
 {% endblock %}
 
 {% block card_indicators %}
-    {# TODO: factorise with "organisation-hat-card.html" #}
-    {% if is_customer %}
-        <div class='business-card-indicator'>{% translate 'Customer' %}</div>
-    {% endif %}
-    {% if is_supplier %}
-        <div class='business-card-indicator'>{% translate 'Supplier' %}</div>
-    {% endif %}
+  {# TODO: factorise with "organisation-hat-card.html" #}
+  {% if is_customer %}<div class='business-card-indicator'>{% translate 'Customer' %}</div>{% endif %}
+  {% if is_supplier %}<div class='business-card-indicator'>{% translate 'Supplier' %}</div>{% endif %}
 
-{% with neg_label=neglected_indicator.label %}
+  {% with neg_label=neglected_indicator.label %}
     {% if neg_label %}<div class='business-card-indicator business-card-warning-indicator'>{{neg_label}}</div>{% endif %}
-{% endwith %}
+  {% endwith %}
 {% endblock %}
 
 {% block card_secondary %}
