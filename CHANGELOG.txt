@@ -30,6 +30,10 @@
             - The module 'creme_core.tests.forms.base' is deprecated.
               Use these new methods of 'CremeTestCase' instead: assertFormfieldError() & assertValidationError().
               Then stop using the base class 'FieldTestCase' & 'FieldTestCaseMixin'.
+            - Apps :
+                * Persons :
+                    - The form class 'forms.contact.ContactNamesForm' is now deprecated.
+                    - The class-view 'views.contact.ContactNamesEdition' is now deprecated.
         # In the class 'core.setting_key.SettingKey', you can now pass :
              - a custom form-field class.
              - a custom renderer function.
@@ -45,7 +49,7 @@
     Breaking changes :
     ------------------
         # Deprecated stuffs which have been removed :
-            - In 'creme_core.core'
+            - In 'creme_core.core' :
                 - In the class 'entity_cell.EntityCell' (& child classes), the methods
                   'render_html()' & 'render_csv()' have been removed.
                 - In the class 'function_field.FunctionFieldResult' (& child classes), the methods
