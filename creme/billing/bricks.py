@@ -145,19 +145,18 @@ class CreditNotesBrick(PaginatedBrick):
     target_ctypes = (Invoice, SalesOrder, Quote)
 
     def detailview_display(self, context):
-        billing_document = context['object']
-        is_hidden = context['fields_configs'].get_for_model(CreditNote).is_fieldname_hidden
-
+        # is_hidden = context['fields_configs'].get_for_model(CreditNote).is_fieldname_hidden
         return self._render(self.get_template_context(
             context,
-            billing_document.get_credit_notes(),
+            context['object'].get_credit_notes(),
             rtype_id=self.relation_type_deps[0],
             # add_title=_('Create a credit note'),
-            hidden_fields={
-                fname
-                for fname in ('issuing_date', 'expiration_date', 'comment')
-                if is_hidden(fname)
-            },
+            # hidden_fields={
+            #     fname
+            #     for fname in ('issuing_date', 'expiration_date', 'comment')
+            #     if is_hidden(fname)
+            # },
+            hidden_fields=context['fields_configs'].get_for_model(CreditNote).hidden_field_names,
         ))
 
 
@@ -198,16 +197,15 @@ class ReceivedInvoicesBrick(QuerysetBrick):
     order_by = '-expiration_date'
 
     def detailview_display(self, context):
-        person_id = context['object'].id
-        is_hidden = context['fields_configs'].get_for_model(Invoice).is_fieldname_hidden
-
+        # is_hidden = context['fields_configs'].get_for_model(Invoice).is_fieldname_hidden
         return self._render(self.get_template_context(
             context,
             Invoice.objects.filter(
-                relations__object_entity=person_id,
+                relations__object_entity=context['object'].id,  # Contact/Organisation
                 relations__type=constants.REL_SUB_BILL_RECEIVED,
             ).select_related('status', 'currency'),
-            hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
+            # hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
+            hidden_fields=context['fields_configs'].get_for_model(Invoice).hidden_field_names,
         ))
 
 
@@ -227,21 +225,21 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
     _empty_msg   = _('No received billing document for the moment')  # OVERRIDE ME
 
     def detailview_display(self, context):
-        person_id = context['object'].id
         model = self._billing_model
-        is_hidden = context['fields_configs'].get_for_model(model).is_fieldname_hidden
+        # is_hidden = context['fields_configs'].get_for_model(model).is_fieldname_hidden
 
         return self._render(self.get_template_context(
             context,
             model.objects.filter(
-                relations__object_entity=person_id,
+                relations__object_entity=context['object'].id,  # Contact/Organisation
                 relations__type=constants.REL_SUB_BILL_RECEIVED,
             ),
             title=self._title,
             title_plural=self._title_plural,
             empty_title=self._empty_title,
             empty_msg=self._empty_msg,
-            hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
+            # hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
+            hidden_fields=context['fields_configs'].get_for_model(model).hidden_field_names,
         ))
 
 

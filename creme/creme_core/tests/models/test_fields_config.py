@@ -105,6 +105,12 @@ class FieldsConfigTestCase(CremeTestCase):
             fconf.descriptions,
         )
 
+        fnames = fconf.hidden_field_names
+        self.assertIsInstance(fnames, frozenset)
+        self.assertCountEqual([h_field1, h_field2], fnames)
+
+        self.assertIs(fnames, fconf.hidden_field_names)  # Test cache
+
     def test_manager_create02(self):
         "REQUIRED."
         r_field1 = 'phone'
@@ -143,6 +149,12 @@ class FieldsConfigTestCase(CremeTestCase):
             ],
             fconf.descriptions,
         )
+
+        fnames = fconf.required_field_names
+        self.assertIsInstance(fnames, frozenset)
+        self.assertCountEqual([r_field1, r_field2], fnames)
+
+        self.assertIs(fnames, fconf.required_field_names)  # Test cache
 
     def test_manager_create_errors_01(self):
         "Invalid field: ignored."

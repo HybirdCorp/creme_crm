@@ -122,7 +122,7 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, persons_bricks._PersonsCard
 
     def detailview_display(self, context):
         opportunity = context['object']
-        is_hidden = context['fields_configs'].get_for_model(Opportunity).is_fieldname_hidden
+        # is_hidden = context['fields_configs'].get_for_model(Opportunity).is_fieldname_hidden
 
         # TODO: extract indicator
         if apps.is_installed('creme.activities'):
@@ -139,11 +139,12 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, persons_bricks._PersonsCard
 
         return self._render(self.get_template_context(
             context,
-            hidden_fields={
-                fname
-                for fname in ('estimated_sales', 'made_sales')
-                if is_hidden(fname)
-            },
+            # hidden_fields={
+            #     fname
+            #     for fname in ('estimated_sales', 'made_sales')
+            #     if is_hidden(fname)
+            # },
+            hidden_fields=context['fields_configs'].get_for_model(Opportunity).hidden_field_names,
             is_neglected=is_neglected,
             target=target,
             target_is_organisation=isinstance(target, Organisation),
@@ -292,7 +293,7 @@ class TargetingOpportunitiesBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         entity = context['object']
-        is_hidden = context['fields_configs'].get_for_model(Opportunity).is_fieldname_hidden
+        # is_hidden = context['fields_configs'].get_for_model(Opportunity).is_fieldname_hidden
 
         return self._render(self.get_template_context(
             context,
@@ -304,11 +305,12 @@ class TargetingOpportunitiesBrick(QuerysetBrick):
                 relations__type=constants.REL_SUB_TARGETS,
             ),
             predicate_id=self.relation_type_deps[0],
-            hidden_fields={
-                fname
-                for fname in ('estimated_sales', 'made_sales')
-                if is_hidden(fname)
-            },
+            # hidden_fields={
+            #     fname
+            #     for fname in ('estimated_sales', 'made_sales')
+            #     if is_hidden(fname)
+            # },
+            hidden_fields=context['fields_configs'].get_for_model(Opportunity).hidden_field_names,
             is_organisation=isinstance(object, Organisation),
             is_contact=isinstance(object, Contact),
         ))
