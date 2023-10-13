@@ -382,7 +382,7 @@ class ContactCardHatBrick(_PersonsCardHatBrick):
         contact = context['object']
         user = context['user']
         managed_orgas = Organisation.objects.filter_managed_by_creme()
-        is_hidden = context['fields_configs'].get_for_model(Contact).is_fieldname_hidden
+        # is_hidden = context['fields_configs'].get_for_model(Contact).is_fieldname_hidden
         max_organisations = self.max_related_organisations
 
         def retrieve_organisations_n_count(rtype_id):
@@ -406,11 +406,13 @@ class ContactCardHatBrick(_PersonsCardHatBrick):
 
         return self._render(self.get_template_context(
             context,
-            hidden_fields={
-                fname
-                for fname in ('phone', 'mobile', 'email', 'position', 'full_position')
-                if is_hidden(fname)
-            },
+            # TODO: only with templatetags?
+            # hidden_fields={
+            #     fname
+            #     for fname in ('phone', 'mobile', 'email', 'position', 'full_position')
+            #     if is_hidden(fname)
+            # },
+            hidden_fields=context['fields_configs'].get_for_model(Contact).hidden_field_names,
 
             max_organisations=max_organisations,
             managed=managed,
@@ -469,7 +471,7 @@ class OrganisationCardHatBrick(_PersonsCardHatBrick):
         managed_orgas = Organisation.objects.filter_managed_by_creme()
 
         get_fconfigs = context['fields_configs'].get_for_model
-        is_hidden = get_fconfigs(Organisation).is_fieldname_hidden
+        # is_hidden = get_fconfigs(Organisation).is_fieldname_hidden
 
         max_contacts = self.max_related_contacts
 
@@ -487,11 +489,12 @@ class OrganisationCardHatBrick(_PersonsCardHatBrick):
 
         return self._render(self.get_template_context(
             context,
-            hidden_fields={
-                fname
-                for fname in ('phone', 'billing_address', 'legal_form')
-                if is_hidden(fname)
-            },
+            # hidden_fields={
+            #     fname
+            #     for fname in ('phone', 'billing_address', 'legal_form')
+            #     if is_hidden(fname)
+            # },
+            hidden_fields=get_fconfigs(Organisation).hidden_field_names,
             position_is_hidden=get_fconfigs(Contact).is_fieldname_hidden('position'),
 
             is_customer=managed_orgas.filter(
