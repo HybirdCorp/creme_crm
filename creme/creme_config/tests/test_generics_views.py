@@ -371,12 +371,14 @@ class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_disabling__invalid_model(self):
-        cat = FakeDocumentCategory.objects.create(name='Book')
-        self.assertHasNoAttr(cat, 'disabled')
+        # instance = FakeDocumentCategory.objects.create(name='Book')
+        instance = FakeTraining.objects.create(name='Book')
+        self.assertHasNoAttr(instance, 'disabled')
 
         url = reverse(
             'creme_config__disable_instance',
-            args=('creme_core', 'fake_documentcat', cat.id),
+            # args=('creme_core', 'fake_documentcat', instance.id),
+            args=('creme_core', 'fake_training', instance.id),
         )
         self.assertPOST409(url, data={'action': 'disable'})
 

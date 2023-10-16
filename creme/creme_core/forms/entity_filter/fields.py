@@ -42,11 +42,12 @@ from creme.creme_core.core.entity_filter import (
     operators,
 )
 from creme.creme_core.core.field_tags import FieldTag
+# from creme.creme_core.models import CustomFieldBoolean
 from creme.creme_core.models import (
     CremeEntity,
     CremePropertyType,
     CustomField,
-    CustomFieldBoolean,
+    CustomFieldEnumValue,
     EntityFilter,
     EntityFilterCondition,
     FieldsConfig,
@@ -201,28 +202,78 @@ class RegularFieldsConditionsField(_ConditionsField):
         return self._fields
 
     def _value_to_jsonifiable(self, value):
-        fields = self._get_fields()
+        # fields = self._get_fields()
+        # dicts = []
+        # field_choicetype = widgets.FieldConditionSelector.field_choicetype
+        #
+        # for condition in value:
+        #     error = condition.handler.error
+        #     if error:
+        #         logger.warning('The condition is invalid & so we ignored it: %s', error)
+        #         continue
+        #
+        #     search_info = condition.value
+        #     operator_id = search_info['operator']  # condition.handler.operator_id
+        #     operator = self.efilter_registry.get_operator(operator_id)
+        #
+        #     field = fields[condition.name][-1]
+        #     field_entry = {'name': condition.name, 'type': field_choicetype(field)}
+        #
+        #     if isinstance(operator, operators.BooleanOperatorBase):
+        #         values = search_info['values'][0]
+        #     elif isinstance(field, ModelBooleanField):
+        #         values = search_info['values'][0]
+        #     else:
+        #         values = ','.join(str(value) for value in search_info['values'])
+        #
+        #     if field_entry['type'] in operators.FIELDTYPES_RELATED:
+        #         field_entry['ctype'] = ContentType.objects.get_for_model(
+        #             field.remote_field.model
+        #         ).id
+        #
+        #     dicts.append({
+        #         'field': field_entry,
+        #         'operator': {
+        #             'id': operator_id,
+        #             'types': ' '.join(operator.allowed_fieldtypes),
+        #         },
+        #         'value': values,
+        #     })
+        #
+        # return dicts
         dicts = []
         field_choicetype = widgets.FieldConditionSelector.field_choicetype
 
         for condition in value:
-            error = condition.handler.error
+            handler = condition.handler
+
+            error = handler.error
             if error:
                 logger.warning('The condition is invalid & so we ignored it: %s', error)
                 continue
 
             search_info = condition.value  # TODO: use condition.handler
-            operator_id = search_info['operator']  # condition.handler.operator_id
-            operator = self.efilter_registry.get_operator(operator_id)
+            operator_id = handler.operator_id
+            operator = handler.get_operator(operator_id)
 
-            field = fields[condition.name][-1]
-            field_entry = {'name': condition.name, 'type': field_choicetype(field)}
+            field_info = handler.field_info
+            field = field_info[-1]
+            field_entry = {'name': field_info.field_name, 'type': field_choicetype(field)}
 
             # TODO: use polymorphism instead ??
             if isinstance(operator, operators.BooleanOperatorBase):
                 values = search_info['values'][0]
             elif isinstance(field, ModelBooleanField):
                 values = search_info['values'][0]
+            elif field.is_relation:
+                get_by_portable_key = field.related_model.objects.get_by_portable_key
+                get_operand = partial(handler.get_operand, user=self.user)
+                values = ','.join(
+                    str(get_by_portable_key(value).pk)
+                    if get_operand(value) is None else
+                    value
+                    for value in search_info['values']
+                )
             else:
                 values = ','.join(str(value) for value in search_info['values'])
 
@@ -556,25 +607,70 @@ class CustomFieldsConditionsField(_ConditionsField):
         )
 
     def _value_to_jsonifiable(self, value):
+        # dicts = []
+        # customfield_rname_choicetype = \
+        #     widgets.CustomFieldConditionSelector.customfield_rname_choicetype
+        # get_op = self.efilter_registry.get_operator
+        #
+        # for condition in value:
+        #     handler = condition.handler
+        #     cfield = handler.custom_field
+        #     search_info = condition.value
+        #     operator_id = search_info['operator']
+        #     operator = get_op(operator_id)
+        #     values = ','.join(str(v) for v in search_info['values'])
+        #
+        #     # HACK : lower serialisation of boolean (combobox waiting for 'true' and not 'True')
+        #     if (
+        #         search_info['rname'] == CustomFieldBoolean.get_related_name()
+        #         or isinstance(operator, operators.BooleanOperatorBase)
+        #     ):
+        #         values = values.lower()
+        #
+        #     dicts.append({
+        #         'field': {
+        #             'id': cfield.id,
+        #             'type': customfield_rname_choicetype(search_info['rname']),
+        #         },
+        #         'operator': {
+        #             'id': operator_id,
+        #             'types': ' '.join(operator.allowed_fieldtypes),
+        #         },
+        #         'value': values,
+        #     })
+        #
+        # return dicts
         dicts = []
         customfield_rname_choicetype = \
             widgets.CustomFieldConditionSelector.customfield_rname_choicetype
         get_op = self.efilter_registry.get_operator
 
+        # TODO: should be heavily reworked (with other efilter fields)
         for condition in value:
             handler = condition.handler
             cfield = handler.custom_field
             search_info = condition.value
-            operator_id = search_info['operator']
+            operator_id = search_info['operator']  # TODO: handler.operator_id
             operator = get_op(operator_id)
-            values = ','.join(str(v) for v in search_info['values'])
 
-            # HACK : lower serialisation of boolean (combobox waiting for 'true' and not 'True')
-            if (
-                search_info['rname'] == CustomFieldBoolean.get_related_name()
-                or isinstance(operator, operators.BooleanOperatorBase)
-            ):
-                values = values.lower()
+            if isinstance(operator, operators.BooleanOperatorBase):
+                # NB: lower serialisation of boolean (combobox is waiting
+                #     for 'true' and not 'True')
+                values = ','.join(str(v) for v in search_info['values']).lower()
+            else:
+                match cfield.field_type:
+                    case CustomField.BOOL:
+                        # NB: see above
+                        values = ','.join(str(v) for v in search_info['values']).lower()
+                    case CustomField.ENUM | CustomField.MULTI_ENUM:
+                        values = ','.join(map(
+                            str,
+                            CustomFieldEnumValue.objects
+                                                .filter(uuid__in=search_info['values'])
+                                                .values_list('id', flat=True)
+                        ))
+                    case _:
+                        values = ','.join(str(v) for v in search_info['values'])
 
             dicts.append({
                 'field': {

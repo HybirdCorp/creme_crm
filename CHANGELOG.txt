@@ -115,6 +115,8 @@
             - Apps :
                 * Billing :
                     - The function 'utils.round_to_2()' has been removed.
+        # The check which warned about models referenced by an entity model without
+          implementing 'portable_key()' now raises an error (because this code is now used).
         # The model 'creme_core.models.MinionModel' gets a new field : 'disabled' (a nullable datetime field).
           So you have to generate the corresponding  migration files for your apps defining child models.
         # In 'creme_core.forms' :
@@ -220,11 +222,13 @@
     ---------------------------
     (they should not cause problem if you have not deeply modified the source code of Creme)
 
-        # Data in 'EntityFilterCondition' & 'WorkFlow' have changed; some integer IDs are now strings :
-            - The class attribute 'creme_core.core.entity_filter.condition_handler.FilterConditionHandler.type_id' is now a string.
-            - The class attribute 'creme_core.core.entity_filter.operators.ConditionOperator.type_id'is now a string;
-              the "constants" like 'EQUALS' have been modified.
-          are now strings instead of integers;
+        # Data in 'EntityFilterCondition' & 'WorkFlow' have changed :
+             - Some integer IDs are now strings in 'creme_core.core.entity_filter' :
+                - The class attribute 'condition_handler.FilterConditionHandler.type_id' is now a string.
+                - The class attribute 'operators.ConditionOperator.type_id' is now a string;
+                  the "constants" like 'EQUALS' have been modified.
+             - The primary keys stored in the JSONField (e.g. for conditions on ForeignKey/ManyToManyFields)
+               have been replaced by "portable" keys (e.g. UUID-strings for 'MinionModels').
         # The attribute 'creme_core.core.enumerable.EnumerableRegistry._enums_4_models' is not a dictionary anymore.
         # In the class 'creme_core.gui.bricks.BrickRegistry', some internal attributes have changed.
         # The class 'creme_core.views.entity_filter.EntityFilterBarHatBrick' has been reworked.
