@@ -26,7 +26,11 @@ from typing import Literal
 from uuid import UUID
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.core.exceptions import (
+    FieldDoesNotExist,
+    ObjectDoesNotExist,
+    ValidationError,
+)
 from django.db.models import (
     BooleanField,
     ForeignKey,
@@ -394,8 +398,10 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         last_field = field_info[-1]
 
         if isinstance(last_field, ForeignKey):
-            # NB: we want to retrieve ID & not instance (we store ID in 'values'
-            #     & want to avoid some queries).
+            # # NB: we want to retrieve ID & not instance (we store ID in 'values'
+            # #     & want to avoid some queries).
+            # NB: we want to retrieve ID & not instance (we store UUID --
+            #     or other unique string in 'values' & want to avoid some queries).
             base_instance = (
                 entity
                 if len(field_info) == 1 else
@@ -409,7 +415,11 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
 
             # TODO: move this test in operator code + factorise ?
             if not isinstance(operator, operators.IsEmptyOperator):
-                values = [*map(last_field.to_python, values)]
+                # values = [*map(last_field.to_python, values)]
+                # TODO: manage error !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                get = last_field.related_model.objects.get_by_portable_key
+                values = [get(v).pk for v in values]
+
         elif isinstance(last_field, ManyToManyField):
             # NB: see ForeignKey remark
             base_instance = (
@@ -428,7 +438,10 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             # TODO: move this test in operator code...
             # TODO: test (need M2M with str PK)
             if not isinstance(operator, operators.IsEmptyOperator):
-                values = [*map(last_field.target_field.to_python, values)]
+                # values = [*map(last_field.target_field.to_python, values)]
+                # TODO: manage error!!!!!!!!!!!!!!!!!!!!!!
+                get = last_field.related_model.objects.get_by_portable_key
+                values = [get(v).pk for v in values]
         else:
             # HACK: string format (would be better to convert data before)
             # TODO: move this test in operator code...
@@ -535,7 +548,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
                 and not isinstance(operator, operators.BooleanOperatorBase)
             ):
                 values = []
-                pks = []
+                pks = []  # TODO: rename "(portable)keys"
 
                 for value in self._values:
                     operand = self.get_operand(value=value, user=user)
@@ -545,15 +558,28 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
                     else:
                         pks.append(value)
 
-                # NB: invalid ID are ignored (deleted instances do not cause
+                # # NB: invalid IDs are ignored (deleted instances do not cause
+                # NB: invalid portable keys are ignored (deleted instances do not cause
                 #     the deletion of condition yet, like with Relation/CremeProperty).
                 related_model = last_field.remote_field.model
 
                 try:
-                    instances = [*related_model._default_manager.filter(pk__in=pks)]
+                    # instances = [*related_model._default_manager.filter(pk__in=pks)]
+                    # TODO: need a new method to retrieve several instances at once
+                    #   fix RegularFieldConditionHandlerTestCase.test_description__fk
+                    #   backport warning if manager do not get the correct method
+                    #    + get_by_portable_key => ValueError if not valid UUIDs/etc in signature
+                    instances = []
+                    get_by_key = related_model._default_manager.get_by_portable_key
+                    for key in pks:
+                        try:
+                            instances.append(get_by_key(key))
+                        except (ObjectDoesNotExist, ValidationError):
+                            pass
                 except ValueError:
                     logger.exception(
-                        'Error in %s.description() while retrieving instance of %s with ID=%s',
+                        # 'Error in %s.description() while retrieving instance of %s with ID=%s',
+                        'Error in %s.description() while retrieving instance of %s with key=%s',
                         type(self).__name__, related_model, self._values,
                     )
                     values.append('???')
@@ -582,8 +608,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             self._verbose_values = values
 
         return operator.description(
-            field_vname=finfo.verbose_name,
-            values=values,
+            field_vname=finfo.verbose_name, values=values,
         )
 
     def entities_are_distinct(self):
@@ -616,19 +641,33 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         values = self.resolve_operands(values=self._values, user=user)
         field_info = self.field_info
 
-        # HACK: old format compatibility for boolean fields.
         last_field = field_info[-1]
         if isinstance(last_field, BooleanField):
+            # HACK: old format compatibility for boolean fields.
             values = [*map(last_field.to_python, values)]
+        elif last_field.is_relation:
+            #  TODO: move this test in operator code + factorise
+            if not isinstance(operator, operators.IsEmptyOperator):
+                pks = []
+                get_by_key = last_field.related_model.objects.get_by_portable_key
+                for key in values:
+                    try:
+                        pks.append(get_by_key(key).pk)
+                    except ObjectDoesNotExist:
+                        logger.critical(
+                            f'A condition seems to use a deleted UUID on '
+                            f'field {last_field}: {key}'
+                        )
+
+                values = pks
 
         query = operator.get_q(
-            model=self._model,
-            field_name=self._field_name,
-            values=values,
+            model=self._model, field_name=self._field_name, values=values,
         )
 
+        # TODO: move more code in operator? (see CustomFieldConditionHandler)
         if operator.exclude:
-            query.negate()  # TODO: move more code in operator ?? (see CustomFieldConditionHandler)
+            query.negate()
 
         return query
 
@@ -953,11 +992,23 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         if cfvalue is None:
             field_value = None
         else:
+            # TODO: use <match>
             # TODO: current form-field/widget generates the JSON '["True"]' or '["123"]',
             #       when '[true]' or '[123]' would be better  => fix form & migrate data
-            if cf_type in {CustomField.INT, CustomField.ENUM, CustomField.MULTI_ENUM}:
+            # if cf_type in {CustomField.INT, CustomField.ENUM, CustomField.MULTI_ENUM}:
+            #     if not isinstance(operator, operators.IsEmptyOperator):
+            #         values = [*map(int, values)]
+            if cf_type in {CustomField.ENUM, CustomField.MULTI_ENUM}:
                 # TODO: move to operator code (the code works without this test,
                 #       because boolean are just converted to integers, but it's crappy)
+                if not isinstance(operator, operators.IsEmptyOperator):
+                    values = [
+                        *CustomFieldEnumValue.objects
+                                             .filter(uuid__in=values)
+                                             .values_list('id', flat=True)
+                    ]
+            elif cf_type == CustomField.INT:
+                # TODO: see above
                 if not isinstance(operator, operators.IsEmptyOperator):
                     values = [*map(int, values)]
             elif cf_type == CustomField.BOOL:
@@ -965,13 +1016,15 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             elif cf_type == CustomField.FLOAT:
                 values = [*map(Decimal, values)]
 
-            if cf_type == CustomField.MULTI_ENUM:
-                # NB: we use get_enumvalues() to get a cached result & avoid re-making queries
-                field_value = [v.id for v in cfvalue.get_enumvalues()]
-            elif cf_type == CustomField.ENUM:
-                field_value = cfvalue.value_id
-            else:
-                field_value = cfvalue.value
+            match cf_type:
+                case CustomField.MULTI_ENUM:
+                    # NB: we use get_enumvalues() to get a cached result
+                    #     & avoid re-making queries
+                    field_value = [v.id for v in cfvalue.get_enumvalues()]
+                case CustomField.ENUM:
+                    field_value = cfvalue.value_id
+                case _:
+                    field_value = cfvalue.value
 
         accept = partial(operator.accept, values=values)
 
@@ -1060,15 +1113,24 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
                 )
             else:
                 # clean_value = cf_value_class.get_formfield(custom_field, None, user=user).clean
-                clean_value = cf_value_class.get_formfield(
-                    custom_field=custom_field, custom_value=None, user=user,
-                    creation=False,
-                ).clean
-
-                if custom_field.field_type == CustomField.MULTI_ENUM:
-                    value = [str(clean_value([v])[0]) for v in values]
-                else:
-                    value = [str(clean_value(v)) for v in values]
+                # if custom_field.field_type == CustomField.MULTI_ENUM:
+                #     value = [str(clean_value([v])[0]) for v in values]
+                # else:
+                #     value = [str(clean_value(v)) for v in values]
+                match custom_field.field_type:
+                    case CustomField.ENUM | CustomField.MULTI_ENUM:
+                        value = [*map(
+                            str,
+                            CustomFieldEnumValue.objects
+                                                .filter(pk__in=values)
+                                                .values_list('uuid', flat=True)
+                        )]
+                    case _:
+                        clean_value = cf_value_class.get_formfield(
+                            custom_field=custom_field, custom_value=None,
+                            user=user, creation=False,
+                        ).clean
+                        value = [str(clean_value(v)) for v in values]
         except ValidationError as e:
             raise cls.ValueError(
                 gettext('Condition on field «{field}»: {error}').format(
@@ -1139,14 +1201,19 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         values = self._values
         resolved_values = self.resolve_operands(values=values, user=user)
 
-        # TODO: move more code in operator ??
+        # TODO: move more code in operator
         if isinstance(operator, operators.IsEmptyOperator):
             query = Q(**{f'{related_name}__isnull': resolved_values[0]})
         else:
             query = Q(**{f'{related_name}__custom_field': self.custom_field})
             key = operator.key_pattern.format(fname)
-            value_q = Q()
 
+            if self.custom_field.field_type in {CustomField.ENUM, CustomField.MULTI_ENUM}:
+                resolved_values = CustomFieldEnumValue.objects.filter(
+                    uuid__in=resolved_values,
+                ).values_list('id', flat=True)
+
+            value_q = Q()
             for value in resolved_values:
                 value_q |= Q(**{key: value})
 

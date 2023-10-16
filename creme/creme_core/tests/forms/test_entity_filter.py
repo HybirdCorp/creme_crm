@@ -263,6 +263,7 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
     def test_clean__invalid_fk_id(self):
         """FK field with invalid id."""
+        uid = 'unknown'
         self.assertFormfieldError(
             field=RegularFieldsConditionsField(
                 model=FakeContact, efilter_type=efilter_registry.id,
@@ -270,13 +271,14 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             value=self.build_data({
                 'operator': operators.EQUALS,
                 'name':     'civility',
-                'value':    'unknown',
+                'value':    uid,
             }),
             messages=_('Condition on field «{field}»: {error}').format(
                 field=_('Civility'),
-                error=_(
-                    'Select a valid choice. That choice is not one of the available choices.'
-                ),
+                # error=_(
+                #     'Select a valid choice. That choice is not one of the available choices.'
+                # ),
+                error=_("“%(value)s” is not a valid UUID.") % {'value': uid},
             ),
         )
 
@@ -299,12 +301,13 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             ),
         )
 
-    def test_clean__invalid_many2many_id(self):
+    def test_clean__invalid_m2m_id(self):
         field = RegularFieldsConditionsField(
             model=FakeContact, efilter_type=efilter_registry.id,
         )
 
-        value = 12445
+        # value = 12445
+        value = self.UNUSED_PK
         self.assertFormfieldError(
             field=field,
             value=self.build_data({
@@ -315,7 +318,8 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             messages=_('Condition on field «{field}»: {error}').format(
                 field=_('Spoken language(s)'),
                 error=_(
-                    'Select a valid choice. %(value)s is not one of the available choices.'
+                    # 'Select a valid choice. %(value)s is not one of the available choices.'
+                    '“%(value)s” is not a valid UUID.'
                 ) % {'value': value},
             ),
         )
@@ -536,7 +540,6 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         self.assertIs(initial0.get('value'), True)
 
     def test_fk_subfield(self):
-        "FK subfield."
         clean = RegularFieldsConditionsField(
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
@@ -553,24 +556,26 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
         )
 
     def test_fk(self):
-        "FK field."
         clean = RegularFieldsConditionsField(
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
         name = 'civility'
-        value = FakeCivility.objects.all()[0].pk
+        # value = FakeCivility.objects.all()[0].pk
+        instance = FakeCivility.objects.all()[0]
         condition = self.get_alone_element(clean(self.build_data({
-            'operator': operator, 'name': name, 'value': value,
+            # 'operator': operator, 'name': name, 'value': value,
+            'operator': operator, 'name': name, 'value': instance.pk,
         })))
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
-            {'operator': operator, 'values': [str(value)]}, condition.value,
+            # {'operator': operator, 'values': [str(value)]}, condition.value,
+            {'operator': operator, 'values': [str(instance.uuid)]}, condition.value,
         )
 
     def test_fk__deep(self):
-        """Sub-field is a FK."""
+        """Sub-field is a ForeignKey."""
         field = RegularFieldsConditionsField(
             model=FakeResource, efilter_type=efilter_registry.id,
         )
@@ -578,14 +583,17 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
 
         # Enumerable ---
         name1 = 'linked_contact__sector'
-        sector_id = FakeSector.objects.first().pk
+        # sector_id = FakeSector.objects.first().pk
+        sector = FakeSector.objects.first()
         condition1 = self.get_alone_element(field.clean(self.build_data({
-            'operator': operator, 'name': name1, 'value': sector_id,
+            # 'operator': operator, 'name': name1, 'value': sector_id,
+            'operator': operator, 'name': name1, 'value': sector.id,
         })))
         self.assertEqual(RegularFieldConditionHandler.type_id, condition1.type)
         self.assertEqual(name1, condition1.name)
         self.assertDictEqual(
-            {'operator': operator, 'values': [str(sector_id)]}, condition1.value,
+            # {'operator': operator, 'values': [str(sector_id)]}, condition1.value,
+            {'operator': operator, 'values': [str(sector.uuid)]}, condition1.value,
         )
 
         # Not enumerable ---
@@ -602,101 +610,120 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
             codes='invalidfield',
         )
 
-    def test_multiple_fk__as_string(self):
+    def test_fk__multiple_values__as_string(self):
         clean = RegularFieldsConditionsField(
             model=FakeContact, efilter_type=efilter_registry.id,
         ).clean
         operator = operators.EQUALS
         name = 'civility'
-        values = [c.pk for c in FakeCivility.objects.all()]
+        # values = [c.pk for c in FakeCivility.objects.all()]
+        civilities = FakeCivility.objects.all()
         condition = self.get_alone_element(clean(self.build_data({
             'operator': operator,
             'name':     name,
-            'value':    ','.join(str(v) for v in values),
-        })))
-        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(name,                                 condition.name)
-        self.assertDictEqual(
-            {'operator': operator, 'values': [str(v) for v in values]},
-            condition.value,
-        )
-
-    def test_multiple_fk__as_list(self):
-        clean = RegularFieldsConditionsField(
-            model=FakeContact, efilter_type=efilter_registry.id,
-        ).clean
-        operator = operators.EQUALS
-        name = 'civility'
-        values = [str(c.pk) for c in FakeCivility.objects.all()]
-        condition = self.get_alone_element(clean(self.build_data({
-            'operator': operator, 'name': name, 'value': values,
-        })))
-        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(name,                                 condition.name)
-        self.assertDictEqual(
-            {'operator': operator, 'values': [str(v) for v in values]},
-            condition.value,
-        )
-
-    def test_many2many(self):
-        "ManyToMany field."
-        clean = RegularFieldsConditionsField(
-            model=FakeContact, efilter_type=efilter_registry.id,
-        ).clean
-        operator = operators.EQUALS
-        name = 'languages'
-        value = Language.objects.all()[0].pk
-        condition = self.get_alone_element(clean(self.build_data({
-            'operator': operator, 'name': name, 'value': value,
-        })))
-        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(name,                                 condition.name)
-        self.assertDictEqual(
-            {'operator': operator, 'values': [str(value)]}, condition.value,
-        )
-
-    def test_multiple_many2many__as_list(self):
-        clean = RegularFieldsConditionsField(
-            model=FakeContact, efilter_type=efilter_registry.id,
-        ).clean
-        operator = operators.EQUALS
-        name = 'languages'
-        values = [str(v) for v in Language.objects.all().values_list('pk', flat=True)]
-        condition = self.get_alone_element(clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    values,
-        })))
-        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
-        self.assertEqual(name,                                 condition.name)
-        self.assertDictEqual(
-            {'operator': operator, 'values': values}, condition.value,
-        )
-
-    def test_multiple_many2many__as_string(self):
-        clean = RegularFieldsConditionsField(
-            model=FakeContact, efilter_type=efilter_registry.id,
-        ).clean
-        operator = operators.EQUALS
-        name = 'languages'
-        values = Language.objects.all().values_list('pk', flat=True)
-        condition = self.get_alone_element(clean(self.build_data({
-            'operator': operator,
-            'name':     name,
-            'value':    ','.join(str(v) for v in values),
+            # 'value':    ','.join(str(v) for v in values),
+            'value':    ','.join(str(civ.id) for civ in civilities),
         })))
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         self.assertDictEqual(
             {
                 'operator': operator,
-                'values': [str(v) for v in values],
+                # 'values': [str(v) for v in values]
+                'values': [str(civ.uuid) for civ in civilities],
+            },
+            condition.value,
+        )
+
+    def test_fk__multiple_values__as_list(self):
+        clean = RegularFieldsConditionsField(
+            model=FakeContact, efilter_type=efilter_registry.id,
+        ).clean
+        operator = operators.EQUALS
+        name = 'civility'
+        # values = [str(c.pk) for c in FakeCivility.objects.all()]
+        civilities = FakeCivility.objects.all()
+        condition = self.get_alone_element(clean(self.build_data({
+            # 'operator': operator, 'name': name, 'value': values,
+            'operator': operator, 'name': name, 'value': [str(c.pk) for c in civilities],
+        })))
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
+        self.assertEqual(name,                                 condition.name)
+        self.assertDictEqual(
+            # {'operator': operator, 'values': [str(v) for v in values]},
+            {'operator': operator, 'values': [str(c.uuid) for c in civilities]},
+            condition.value,
+        )
+
+    def test_m2m__one_value(self):
+        """ManyToManyField."""
+        clean = RegularFieldsConditionsField(
+            model=FakeContact, efilter_type=efilter_registry.id,
+        ).clean
+        operator = operators.EQUALS
+        name = 'languages'
+        # value = Language.objects.all()[0].pk
+        lang = Language.objects.first()
+        condition = self.get_alone_element(clean(self.build_data({
+            # 'operator': operator, 'name': name, 'value': value,
+            'operator': operator, 'name': name, 'value': lang.pk,
+        })))
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
+        self.assertEqual(name,                                 condition.name)
+        self.assertDictEqual(
+            # {'operator': operator, 'values': [str(value)]}, condition.value,
+            {'operator': operator, 'values': [str(lang.uuid)]}, condition.value,
+        )
+
+    def test_m2m__multiple_values__as_list(self):
+        clean = RegularFieldsConditionsField(
+            model=FakeContact, efilter_type=efilter_registry.id,
+        ).clean
+        operator = operators.EQUALS
+        name = 'languages'
+        # values = [str(v) for v in Language.objects.all().values_list('pk', flat=True)]
+        languages = Language.objects.all()
+        condition = self.get_alone_element(clean(self.build_data({
+            'operator': operator,
+            'name':     name,
+            # 'value':    values,
+            'value':    [str(lang.pk) for lang in languages],
+        })))
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
+        self.assertEqual(name,                                 condition.name)
+        self.assertDictEqual(
+            # {'operator': operator, 'values': values}, condition.value,
+            {'operator': operator, 'values': [str(lang.uuid) for lang in languages]},
+            condition.value,
+        )
+
+    def test_m2m__multiple_values__as_string(self):
+        clean = RegularFieldsConditionsField(
+            model=FakeContact, efilter_type=efilter_registry.id,
+        ).clean
+        operator = operators.EQUALS
+        name = 'languages'
+        # values = Language.objects.all().values_list('pk', flat=True)
+        languages = Language.objects.all()
+        condition = self.get_alone_element(clean(self.build_data({
+            'operator': operator,
+            'name':     name,
+            # 'value':    ','.join(str(v) for v in values),
+            'value':    ','.join(str(lang.id) for lang in languages),
+        })))
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
+        self.assertEqual(name,                                 condition.name)
+        self.assertDictEqual(
+            {
+                'operator': operator,
+                # 'values': [str(v) for v in values],
+                'values': [str(lang.uuid) for lang in languages],
             },
             condition.value,
         )
 
     def test_static_choices(self):
-        "Static choice field."
+        """Field with static 'choices'."""
         clean = RegularFieldsConditionsField(
             model=FakeInvoiceLine, efilter_type=efilter_registry.id,
         ).clean
@@ -996,7 +1023,9 @@ class RegularFieldsConditionsFieldTestCase(_ConditionsFieldTestCase):
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.EQUALS,
-                    field_name=hidden_fname, values=[position.id],
+                    field_name=hidden_fname,
+                    # values=[position.id],
+                    values=[str(position.uuid)],
                 ),
             ],
         )

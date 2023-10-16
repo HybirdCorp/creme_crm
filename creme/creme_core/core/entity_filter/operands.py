@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2022  Hybird
+#    Copyright (C) 2013-2026  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from typing import override
 
 from django.contrib.auth import get_user_model
 from django.db.models import ForeignKey, Model
@@ -33,7 +35,7 @@ class ConditionDynamicOperand:
         self.user = user
 
     def resolve(self):
-        "Get the effective value  to use in QuerySet."
+        """Get the effective value to use in QuerySet."""
         raise NotImplementedError
 
     def validate(self, *, field, value):
@@ -54,6 +56,7 @@ class CurrentUserOperand(ConditionDynamicOperand):
     verbose_name = _('Current user')
     model = User
 
+    @override
     def resolve(self):
         user = self.user
 
@@ -62,15 +65,22 @@ class CurrentUserOperand(ConditionDynamicOperand):
 
         teams = user.teams
 
-        return [user.id, *(t.id for t in teams)] if teams else user.id
+        # return [user.id, *(t.id for t in teams)] if teams else user.id
+        return [
+            user.portable_key(), *(t.portable_key() for t in teams)
+        ] if teams else user.portable_key()
 
+    @override
     def validate(self, *, field, value):
-        if isinstance(field, ForeignKey) and \
-           issubclass(field.remote_field.model, User) and \
-           value == self.type_id:
+        if (
+            isinstance(field, ForeignKey)
+            and issubclass(field.remote_field.model, User)
+            and value == self.type_id
+        ):
             return
 
-        field.formfield().clean(value)
+        # field.formfield().clean(value)
+        super().validate(field=field, value=value)
 
 
 all_operands = (

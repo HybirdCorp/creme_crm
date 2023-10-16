@@ -614,10 +614,7 @@ class EntityFilterConditionTestCase(CremeTestCase):
 
         self.assertFalse(equal(conditions1, [build_cond(field_name='first_name')]))
         self.assertFalse(equal(conditions1, [build_cond(values=['Katsuragi'])]))
-        self.assertFalse(equal(
-            conditions1,
-            [build_cond(operator=operators.CONTAINS)],
-        ))
+        self.assertFalse(equal(conditions1, [build_cond(operator=operators.CONTAINS)]))
 
         ptype = CremePropertyType.objects.create(text='Kawaii')
         hates = RelationType.objects.builder(
@@ -720,6 +717,14 @@ class EntityFilterConditionTestCase(CremeTestCase):
 
 
 class EntityFilterTestCase(CremeTestCase):
+    def test_migration_marker(self):  # TODO: to be deleted in Creme 3.1
+        efilter = EntityFilter.objects.create(
+            id='creme_core-test_marker',
+            name='Agencies',
+            entity_type=FakeContact,
+        )
+        self.assertIs(efilter.extra_data.get('portablekeymigr'), True)
+
     def test_str(self):
         name = 'My filter'
         efilter = EntityFilter(name=name, entity_type=FakeContact)
@@ -2251,7 +2256,8 @@ class EntityFilterFilteringTestCase(CremeTestCase):
                     model=FakeContact,
                     operator=operators.EQUALS,
                     field_name='civility',
-                    values=[self.civ_mister.id],  # TODO: "self.mister" ??
+                    # values=[self.civ_mister.id],
+                    values=[str(self.civ_mister.uuid)],
                 ),
             ],
         )
@@ -2266,7 +2272,9 @@ class EntityFilterFilteringTestCase(CremeTestCase):
                 RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.EQUALS_NOT,
-                    field_name='civility', values=[self.civ_miss.id],
+                    field_name='civility',
+                    # values=[self.civ_miss.id],
+                    values=[str(self.civ_miss.uuid)],
                 ),
             ],
         )

@@ -236,7 +236,9 @@ class Populator(BasePopulator):
         self._populate_custom_entity_types()
         self._populate_currencies()
 
-        # self._fix_roles()  # To be deleted in next major version
+        # self._fix_roles()
+        self._fix_efilters()  # To be deleted in next major version
+        # self._fix_workflows()  # To be deleted in next major version  TODO
 
         if settings.TESTS_ON:
             from .tests import fake_populate
@@ -264,6 +266,68 @@ class Populator(BasePopulator):
     #         ])
     #         role.extra_data['listablemigr'] = True
     #         role.save()
+
+    def _fix_efilters(self):
+        from django.db.transaction import atomic
+        from django.utils.functional import partition
+
+        from .core.entity_filter import condition_handler, operands
+        from .models import CustomField, CustomFieldEnumValue, EntityFilter
+        from .utils.meta import FieldInfo
+
+        regular_type_id = condition_handler.RegularFieldConditionHandler.type_id
+        custom_type_id = condition_handler.CustomFieldConditionHandler.type_id
+        marker = 'portablekeymigr'  # NB: see EntityFilter.save()
+        dyn_operand_ids = {op.type_id for op in operands.all_operands}
+
+        for efilter in EntityFilter.objects.filter(
+            **{f'extra_data__{marker}__isnull': True},
+        ).distinct():
+            with atomic():
+                # Regular fields
+                for cond in efilter.conditions.filter(type=regular_type_id):
+                    if cond.value['operator'] == 'isempty':
+                        continue
+
+                    ctype = efilter.entity_type
+                    model = ctype.model_class()
+                    if model is None:
+                        raise ValueError(
+                            f'The ContentType <{ctype}> seems invalid (uninstalled app?), '
+                            f'so filters cannot be fixed',
+                        )
+
+                    last_field = FieldInfo(model=model, field_name=cond.name)[-1]
+
+                    if last_field.is_relation:
+                        pks, dyn_operands = partition(
+                            lambda x: x in dyn_operand_ids,
+                            cond.value['values'],
+                        )
+                        if pks:
+                            cond.value['values'] = dyn_operands + [
+                                instance.portable_key()
+                                for instance in last_field.related_model.objects.filter(pk__in=pks)
+                            ]
+                            cond.save()
+
+                # Custom fields
+                enum_types = (CustomField.ENUM, CustomField.MULTI_ENUM)
+                for cond in efilter.conditions.filter(type=custom_type_id):
+                    if cond.value['operator'] == 'isempty':
+                        continue
+
+                    cfield = CustomField.objects.filter(uuid=cond.name, field_type__in=enum_types)
+
+                    if cfield:
+                        cond.value['values'] = [
+                            str(ev.uuid)
+                            for ev in CustomFieldEnumValue.objects
+                                                          .filter(pk__in=cond.value['values'])
+                        ]
+                        cond.save()
+
+                efilter.save()
 
     def _populate_root(self):
         login = constants.ROOT_USERNAME

@@ -28,6 +28,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy
 
+from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.db import (
     is_db_equal_case_sensitive,
     is_db_like_case_sensitive,
@@ -235,25 +236,86 @@ class ConditionOperator:
         @param values: Sequence of POSTed values to validate.
         @param user: Instance of <django.contrib.auth.get_user_model()>. Logged user.
         @param efilter_registry: Instance of <_EntityFilterRegistry>.
+        @return TODO!!!!
         @raise: ValidationError.
         """
+        # if type(field) not in self._NO_SUBPART_VALIDATION_FIELDS or not self.accept_subpart:
+        #     formfield = field.formfield()
+        #     formfield.user = user
+        #
+        #     clean = formfield.clean
+        #     is_multiple = isinstance(field, models.ManyToManyField)
+        #
+        #     for value in values:
+        #         operand = efilter_registry.get_operand(type_id=value, user=user)
+        #
+        #         if operand is not None:
+        #             operand.validate(field=field, value=value)
+        #         else:
+        #             # TODO: validate all values at once for ManyToManyField ?
+        #             clean([value] if is_multiple else value)
+        #
+        # return values
         if type(field) not in self._NO_SUBPART_VALIDATION_FIELDS or not self.accept_subpart:
+            validated_values = []
+
             formfield = field.formfield()
             formfield.user = user
 
             clean = formfield.clean
-            is_multiple = isinstance(field, models.ManyToManyField)
+            is_multiple = isinstance(field, models.ManyToManyField)  # TODO remove?!
 
             for value in values:
                 operand = efilter_registry.get_operand(type_id=value, user=user)
+                validated = value
 
                 if operand is not None:
                     operand.validate(field=field, value=value)
+                elif field.is_relation:
+                    model = field.related_model
+
+                    try:
+                        instance = model.objects.get(pk=value)
+                    except Exception:  # TODO: better exception
+                        # try:
+                        instance = model.objects.get_by_portable_key(value)
+                        # TODO: (unit test operator)
+                        # except ValueError:  # TODO: ObjectDoesNotExist
+                        #     raise ValidationError('TODO')
+
+                    if isinstance(instance, CremeEntity) and user:
+                        user.has_perm_to_link_or_die(instance)
+
+                    validated = instance.portable_key()
                 else:
+                    # TODO: REWORK !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     # TODO: validate all values at once for ManyToManyField ?
                     clean([value] if is_multiple else value)
 
+                validated_values.append(validated)
+
+            values = validated_values
+
         return values
+
+#         if field.is_relation:
+#             # print('OLLAALALALALAL')
+#             # TODO: error
+#             model = field.related_model
+#             validated = []
+#
+#             for value in values:
+#                 try:
+#                     instance = model.objects.get(pk=value)
+#                 except ValueError:  # TODO: other error?
+#                     # try:
+#                     instance = model.objects.get_by_portable_key(value)
+#                     # except ValueError:
+#                     # raise ValidationError  TODO....
+#
+#                 validated.append(instance.portable_key())
+#
+#             values = validated
 
 
 class EqualsOperator(ConditionOperator):

@@ -465,10 +465,11 @@ class Populator(BasePopulator):
                         model=Activity,
                         operator=operators.EqualsOperator,
                         field_name='type',
-                        # NB: EntityFilterForm creates string in this case. So we use string:
-                        #     - to be consistent
-                        #     - to avoid the creation of new filters with version suffix "[2.6]"
-                        values=[str(ActivityType.objects.get(uuid=atype_uuid).id)],
+                        # # NB: EntityFilterForm creates string in this case. So we use string:
+                        # #     - to be consistent
+                        # #     - to avoid the creation of new filters with version suffix "[2.6]"
+                        # values=[str(ActivityType.objects.get(uuid=atype_uuid).id)],
+                        values=[atype_uuid],
                     ),
                 ],
             )
