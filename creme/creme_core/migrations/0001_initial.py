@@ -1,5 +1,5 @@
-import uuid
 from decimal import Decimal
+from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.auth.validators import UnicodeUsernameValidator
@@ -244,7 +244,7 @@ class Migration(migrations.Migration):
             name='Sandbox',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ('type_id', models.CharField(editable=False, max_length=48, verbose_name='Type of sandbox')),
                 (
                     'role',
@@ -266,7 +266,7 @@ class Migration(migrations.Migration):
             name='CremeEntity',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid.uuid4, unique=True, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, unique=True, editable=False)),
                 ('created', core_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
                 ('modified', core_fields.ModificationDateTimeField(default=now, verbose_name='Last modification', editable=False, blank=True)),
                 ('header_filter_search_field', models.CharField(max_length=200, editable=False)),
@@ -347,7 +347,7 @@ class Migration(migrations.Migration):
                 ('international_symbol', models.CharField(max_length=100, verbose_name='International symbol')),
                 ('is_custom', models.BooleanField(default=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -373,7 +373,7 @@ class Migration(migrations.Migration):
             name='CustomField',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('uuid', models.UUIDField(default=uuid.uuid4, unique=True, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, unique=True, editable=False)),
                 ('name', models.CharField(max_length=100, verbose_name='Field name')),
                 ('field_type', models.PositiveSmallIntegerField(verbose_name='Field type')),
                 (
@@ -762,7 +762,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True)),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'verbose_name': 'Language',
@@ -983,7 +983,7 @@ class Migration(migrations.Migration):
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
                 ('is_custom', models.BooleanField(default=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('value',),
@@ -1173,6 +1173,9 @@ class Migration(migrations.Migration):
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
                     ('order', core_fields.BasicAutoField(editable=False, blank=True)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+                    ('is_custom', models.BooleanField(default=True)),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('name',),
@@ -1352,6 +1355,9 @@ class Migration(migrations.Migration):
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+                    ('is_custom', models.BooleanField(default=True)),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('name',),
@@ -1418,6 +1424,9 @@ class Migration(migrations.Migration):
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('shortcut', models.CharField(max_length=100, verbose_name='Shortcut')),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+                    ('is_custom', models.BooleanField(default=True)),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('title',),
@@ -1431,6 +1440,9 @@ class Migration(migrations.Migration):
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+                    ('is_custom', models.BooleanField(default=True)),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('name',),
@@ -1444,6 +1456,9 @@ class Migration(migrations.Migration):
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+                    ('is_custom', models.BooleanField(default=True)),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('title',),
@@ -1457,8 +1472,10 @@ class Migration(migrations.Migration):
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
-                    ('is_custom', models.BooleanField(default=True)),
                     ('order', core_fields.BasicAutoField(editable=False, blank=True)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+                    ('is_custom', models.BooleanField(default=True)),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('order',),
@@ -1695,6 +1712,9 @@ class Migration(migrations.Migration):
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+                    ('is_custom', models.BooleanField(default=True)),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('title',),
@@ -1766,6 +1786,9 @@ class Migration(migrations.Migration):
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+                    ('is_custom', models.BooleanField(default=True)),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('name',),
@@ -1838,7 +1861,9 @@ class Migration(migrations.Migration):
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('color', core_fields.ColorField(verbose_name='Color', default='ff0000')),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
                     ('is_custom', models.BooleanField(default=True)),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('name',),
@@ -1852,7 +1877,9 @@ class Migration(migrations.Migration):
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
                     ('is_custom', models.BooleanField(default=True)),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('name',),
@@ -1917,13 +1944,15 @@ class Migration(migrations.Migration):
                     (
                         'group',
                         models.ForeignKey(
+                            to='creme_core.FakeIngredientGroup', verbose_name='Group',
                             on_delete=models.SET_DEFAULT,
-                            null=True, blank=True,
-                            verbose_name='Group', default=None,
-                            to='creme_core.FakeIngredientGroup',
+                            null=True, blank=True, default=None,
                             related_name='fake_ingredients',
                         )
-                    )
+                    ),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+                    ('is_custom', models.BooleanField(default=True)),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
                     'ordering': ('name',),
