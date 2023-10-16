@@ -384,6 +384,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         o2 = create_orga(name='Genius inc.', sector=sector2)
         o3 = create_orga(name='Acme',        sector=None)
 
+        # ID as int ---
         handler1 = RegularFieldConditionHandler(
             model=FakeOrganisation,
             field_name='sector',
@@ -394,7 +395,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler1.accept(entity=o2, user=user), False)
         self.assertIs(handler1.accept(entity=o3, user=user), False)
 
-        # String format ---
+        # TODO: log
+
+        # ID as string ---
         handler2 = RegularFieldConditionHandler(
             model=FakeOrganisation,
             field_name='sector',
@@ -404,6 +407,19 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler2.accept(entity=o1, user=user), True)
         self.assertIs(handler2.accept(entity=o2, user=user), False)
         self.assertIs(handler2.accept(entity=o3, user=user), False)
+
+        # TODO: log
+
+        # UUID ---
+        handler3 = RegularFieldConditionHandler(
+            model=FakeOrganisation,
+            field_name='sector',
+            operator_id=operators.EQUALS,
+            values=[str(sector1.uuid)],
+        )
+        self.assertIs(handler3.accept(entity=o1, user=user), True)
+        # self.assertIs(handler2.accept(entity=o2, user=user), False)
+        # self.assertIs(handler2.accept(entity=o3, user=user), False)
 
     def test_regularfield_accept_fk02(self):
         "ForeignKey sub-field."
@@ -487,7 +503,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler.accept(entity=r3, user=user), False)
 
     def test_regularfield_accept_fk05(self):
-        "Primary key is a CharField => BEWARE to ISEMPTY which need boolean value."
+        "Primary key is a CharField => BEWARE of ISEMPTY which need boolean value."
         user = self.get_root_user()
 
         create_efilter = partial(EntityFilter.objects.create, entity_type=FakeContact)
