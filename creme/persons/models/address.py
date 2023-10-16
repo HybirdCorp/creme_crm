@@ -25,6 +25,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.models.fields as core_fields
+from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import CremeEntity, CremeModel, FieldsConfig
 
 
@@ -112,7 +113,7 @@ class AbstractAddress(CremeModel):
             f.name
             for f in cls._meta.fields
             # if f.name not in excluded and not is_field_hidden(f)
-            if f.get_tag('viewable') and not is_field_hidden(f)
+            if f.get_tag(FieldTag.VIEWABLE) and not is_field_hidden(f)
         )
 
     @property
