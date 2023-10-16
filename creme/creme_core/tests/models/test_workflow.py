@@ -41,6 +41,7 @@ class WorkflowTestCase(CremeTestCase):
         self.assertIs(wf.is_custom, True)
         self.assertEqual(EntityEditionTrigger(model=FakeOrganisation), wf.trigger)
         self.assertTupleEqual((), wf.actions)
+        self.assertDictEqual({'portablekeymigr': True}, wf.extra_data)  # TODO: fix in creme 3.1
 
         conditions = wf.conditions
         self.assertIsInstance(conditions, WorkflowConditions)

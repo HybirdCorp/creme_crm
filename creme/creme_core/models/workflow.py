@@ -133,3 +133,9 @@ class Workflow(CremeModel):
     def trigger(self, value: WorkflowTrigger) -> None:
         self._trigger = None
         self.json_trigger = value.to_dict()
+
+    # TODO: remove in creme 3.1
+    def save(self, **kwargs):
+        self.extra_data['portablekeymigr'] = True
+
+        super().save(**kwargs)

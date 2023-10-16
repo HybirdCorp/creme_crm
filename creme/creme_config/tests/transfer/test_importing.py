@@ -2125,7 +2125,9 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertIsNone(ef1.user)
         self.assertFalse(ef1.is_private)
         self.assertFalse(ef1.use_or)
-        self.assertDictEqual({}, ef1.extra_data)
+        # self.assertDictEqual({}, ef1.extra_data)
+        # TODO: remove in Creme 3.1
+        self.assertDictEqual({'portablekeymigr': True}, ef1.extra_data)
 
         conditions1 = ef1.conditions.all()
         self.assertEqual(5, len(conditions1))
@@ -2170,7 +2172,9 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(other_user, ef2.user)
         self.assertFalse(ef2.is_private)
         self.assertFalse(ef2.use_or)
-        self.assertDictEqual({'my_key': 'my_value'}, ef2.extra_data)
+        # self.assertDictEqual({'my_key': 'my_value'}, ef2.extra_data)
+        # TODO: remove in Creme 3.1
+        self.assertDictEqual({'my_key': 'my_value', 'portablekeymigr': True}, ef2.extra_data)
 
         conditions2 = ef2.conditions.all()
         self.assertEqual(5, len(conditions2))

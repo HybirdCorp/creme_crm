@@ -2148,6 +2148,23 @@ class Migration(migrations.Migration):
                             verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
                         )
                     ),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
+                    ('disabled', models.DateTimeField(editable=False, null=True, verbose_name='Disabled')),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+
                     (
                         'name',
                         models.CharField(unique=True, max_length=100, verbose_name='Category name')
@@ -2203,6 +2220,23 @@ class Migration(migrations.Migration):
                             verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
                         )
                     ),
+                    ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                    (
+                        'created',
+                        core_fields.CreationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Creation date',
+                        )
+                    ),
+                    (
+                        'modified',
+                        core_fields.ModificationDateTimeField(
+                            blank=True, default=now, editable=False, verbose_name='Last modification',
+                        )
+                    ),
+                    ('disabled', models.DateTimeField(editable=False, null=True, verbose_name='Disabled')),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+
                     ('name', models.CharField(unique=True, max_length=100, verbose_name='Category name')),
                 ],
                 options={

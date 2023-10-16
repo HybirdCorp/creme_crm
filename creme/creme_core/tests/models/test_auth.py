@@ -3331,7 +3331,9 @@ class PermissionsTestCase(BaseAuthTestCase):
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
                     operator=operators.EQUALS,
-                    field_name='user', values=[user.id],
+                    field_name='user',
+                    # values=[user.id],
+                    values=[user.portable_key()],
                     filter_type=EF_CREDENTIALS,
                 ),
             ],
@@ -3567,7 +3569,9 @@ class PermissionsTestCase(BaseAuthTestCase):
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
                     operator=operators.EQUALS,
-                    field_name='user', values=[user.id],
+                    field_name='user',
+                    # values=[user.id],
+                    values=[user.portable_key()],
                     filter_type=EF_CREDENTIALS,
                 ),
             ],
@@ -3623,7 +3627,9 @@ class PermissionsTestCase(BaseAuthTestCase):
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
                     operator=operators.EQUALS,
-                    field_name='user', values=[user.id],
+                    field_name='user',
+                    # values=[user.id],
+                    values=[user.portable_key()],
                     filter_type=EF_CREDENTIALS,
                 ),
             ],
@@ -3668,7 +3674,9 @@ class PermissionsTestCase(BaseAuthTestCase):
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
                     operator=operators.EQUALS,
-                    field_name='user', values=[other.id],
+                    field_name='user',
+                    # values=[other.id],
+                    values=[other.portable_key()],
                     filter_type=EF_CREDENTIALS,
                 ),
             ],
@@ -3741,7 +3749,8 @@ class PermissionsTestCase(BaseAuthTestCase):
                 build_condition(
                     model=CremeEntity,
                     operator=operators.EQUALS,
-                    field_name='user', values=[user.id],
+                    # field_name='user', values=[user.id],
+                    field_name='user', values=[user.portable_key()],
                     filter_type=EF_CREDENTIALS,
                 ),
             ],
@@ -3821,7 +3830,8 @@ class PermissionsTestCase(BaseAuthTestCase):
                 build_condition(
                     model=CremeEntity,
                     operator=operators.EQUALS,
-                    field_name='user', values=[self.other_user.id],
+                    # field_name='user', values=[self.other_user.id],
+                    field_name='user', values=[self.other_user.portable_key()],
                     filter_type=EF_CREDENTIALS,
                 ),
             ],
@@ -4020,7 +4030,8 @@ class PermissionsTestCase(BaseAuthTestCase):
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
                     operator=operators.EQUALS,
-                    field_name='user', values=[user.id],
+                    # field_name='user', values=[user.id],
+                    field_name='user', values=[user.portable_key()],
                     filter_type=EF_CREDENTIALS,
                 ),
             ],

@@ -28,7 +28,8 @@ class OperandTestCase(CremeTestCase):
 
         operand = operands.CurrentUserOperand(user=user)
         self.assertEqual(user, operand.user)
-        self.assertEqual(user.id, operand.resolve())
+        # self.assertEqual(user.id, operand.resolve())
+        self.assertUUIDEqual(user.uuid, operand.resolve())
 
     def test_current_user__resolve__team(self):
         user = self.create_user(0)
@@ -36,7 +37,8 @@ class OperandTestCase(CremeTestCase):
 
         operand = operands.CurrentUserOperand(user=user)
         self.assertEqual(user, operand.user)
-        self.assertCountEqual([user.id, team.id], operand.resolve())
+        # self.assertCountEqual([user.id, team.id], operand.resolve())
+        self.assertCountEqual([str(user.uuid), str(team.uuid)], operand.resolve())
 
     def test_current_user__validate(self):
         operand = operands.CurrentUserOperand(user=None)

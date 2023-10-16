@@ -259,7 +259,8 @@ def check_portable_keys(**kwargs):
     from .core.field_tags import FieldTag
     from .models import CremeEntity, MinionModel
 
-    warnings = []
+    # warnings = []
+    errors = []
     warned_models = set()
 
     def _check_model(model, depth):
@@ -282,7 +283,8 @@ def check_portable_keys(**kwargs):
                 continue  # pragma: no cover
 
             if not hasattr(related_model, 'portable_key'):  # pragma: no cover
-                warnings.append(Warning(
+                # warnings.append(Warning(
+                errors.append(Error(
                     f'The model {model} has a viewable ForeignKey to the '
                     f'model {related_model} which has no method "portable_key()" '
                     f'(see docstring of <CremeEntity.portable_key()>).',
@@ -292,16 +294,17 @@ def check_portable_keys(**kwargs):
                     ),
                     obj='creme.creme_core',
                     # id='creme.E012',
-                    id='creme.core.W006',
+                    id='creme.core.E008',
                 ))
                 warned_models.add(related_model)
             elif not hasattr(related_model._default_manager, 'get_by_portable_key'):
-                warnings.append(Warning(
+                # warnings.append(Warning(
+                errors.append(Error(
                     f'The model {related_model} has a property "portable_key" but '
                     f'its default manager has no method "get_by_portable_key()".',
                     obj='creme.creme_core',
                     # id='creme.E012',
-                    id='creme.core.W007',
+                    id='creme.core.E009',
                     hint=(
                         'Your manager class should inherit <MinionManager>'
                         if issubclass(related_model, MinionModel) else
@@ -310,11 +313,12 @@ def check_portable_keys(**kwargs):
                 ))
                 warned_models.add(related_model)
             elif not hasattr(related_model._default_manager, 'get_by_portable_keys'):
-                warnings.append(Warning(
+                # warnings.append(Warning(
+                errors.append(Error(
                     f'The model {related_model} has a property "portable_key" but '
                     f'its default manager has no method "get_by_portable_keys()".',
                     obj='creme.creme_core',
-                    id='creme.E012',
+                    id='creme.core.E010',
                     hint=(
                         'Your manager class should inherit <MinionManager>'
                         if issubclass(related_model, MinionModel) else
@@ -329,7 +333,8 @@ def check_portable_keys(**kwargs):
     for model in apps.get_models():
         _check_model(model=model, depth=0)
 
-    return warnings
+    # return warnings
+    return errors
 
 
 @register(DjangoTags.models)
@@ -381,7 +386,7 @@ def check_last_entities(**kwargs):
             'The settings LAST_ENTITIES_SIZE & LAST_ENTITIES_MENU_SIZE must be integers.',
             obj='settings.py',
             # id='creme.E014',
-            id='creme.core.E008',
+            id='creme.core.E011',
         ))
     else:
         if LAST_ENTITIES_MENU_SIZE < 1 or LAST_ENTITIES_SIZE < 1:
@@ -389,7 +394,7 @@ def check_last_entities(**kwargs):
                 'The settings LAST_ENTITIES_SIZE & LAST_ENTITIES_MENU_SIZE must be >= 1.',
                 obj='settings.py',
                 # id='creme.E014',
-                id='creme.core.E009',
+                id='creme.core.E012',
             ))
         elif LAST_ENTITIES_MENU_SIZE > LAST_ENTITIES_SIZE:
             errors.append(Error(  # pragma: no cover
@@ -397,7 +402,7 @@ def check_last_entities(**kwargs):
                 'LAST_ENTITIES_SIZE.',
                 obj='settings.py',
                 # id='creme.E014',
-                id='creme.core.E010',
+                id='creme.core.E013',
             ))
 
     return errors

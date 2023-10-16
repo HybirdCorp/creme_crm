@@ -1,5 +1,6 @@
 from datetime import date
 from unittest.mock import patch
+from uuid import uuid4
 
 from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
@@ -17,6 +18,7 @@ from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
     FakeProduct,
+    FakeSector,
     Language,
 )
 from creme.creme_core.tests.base import CremeTestCase
@@ -114,6 +116,7 @@ class OperatorTestCase(CremeTestCase):
         op = operators.ConditionOperator()
         get_field = FakeOrganisation._meta.get_field
 
+        # Not registered ---
         values = [operands.CurrentUserOperand.type_id]
         self.assertEqual(
             values,
@@ -122,7 +125,7 @@ class OperatorTestCase(CremeTestCase):
                 values=[*values],
                 user=user,
                 efilter_registry=registry,
-            )
+            ),
         )
 
         user_field = get_field('user')
@@ -134,31 +137,97 @@ class OperatorTestCase(CremeTestCase):
                 efilter_registry=registry,
             )
 
+        # Registered ---
         registry.register_operands(operands.CurrentUserOperand)
         self.assertEqual(
             values,
             op.validate_field_values(
-                field=get_field('user'),
+                field=user_field,
                 values=[*values],
                 user=user,
                 efilter_registry=registry,
-            )
+            ),
         )
 
-    def test_validate_field_values__m2m(self):
-        "ManyToManyField."
+    def test_validate_field_values__fk__primary_key(self):
         op = operators.ConditionOperator()
-        field = FakeContact._meta.get_field('languages')
-        lang1, lang2 = Language.objects.all()[:2]
+        field = FakeContact._meta.get_field('sector')
+        sector1, sector2 = FakeSector.objects.all()[:2]
 
-        values = [str(lang1.id), str(lang2.id)]
+        values = [str(sector1.id), str(sector2.id)]
+        self.assertEqual(
+            # values,
+            [sector1.portable_key(), sector2.portable_key()],
+            op.validate_field_values(field=field, values=[*values]),
+        )
+
+        # Invalid data ---
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=[*values, 'not_int'])
+
+        # Deleted instance ---
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=[*values, str(self.UNUSED_PK)])
+
+    def test_validate_field_values__fk__portable_key(self):
+        op = operators.ConditionOperator()
+        field = FakeContact._meta.get_field('sector')
+        sector1, sector2 = FakeSector.objects.all()[:2]
+
+        values = [str(sector1.uuid), str(sector2.uuid)]
         self.assertEqual(
             values,
             op.validate_field_values(field=field, values=[*values]),
         )
 
+        # Invalid data ---
         with self.assertRaises(ValidationError):
-            op.validate_field_values(field=field, values=[*values, 'notanint'])
+            op.validate_field_values(field=field, values=[*values, 'not_uuid'])
+
+        # Deleted instance ---
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=[*values, str(uuid4())])
+
+    def test_validate_field_values__m2m__primary_keys(self):
+        op = operators.ConditionOperator()
+        field = FakeContact._meta.get_field('languages')
+        lang1, lang2 = Language.objects.all()[:2]
+
+        values = [str(lang1.id), str(lang2.id)]
+        # values = [str(lang1.uuid), str(lang2.uuid)]
+        self.assertEqual(
+            # values,
+            [str(lang1.uuid), str(lang2.uuid)],
+            op.validate_field_values(field=field, values=[*values]),
+        )
+
+        # Invalid data ---
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=[*values, 'notint'])
+
+        # Deleted instance ---
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=[*values, str(self.UNUSED_PK)])
+
+    def test_validate_field_values__m2m__portable_keys(self):
+        op = operators.ConditionOperator()
+        field = FakeContact._meta.get_field('languages')
+        lang1, lang2 = Language.objects.all()[:2]
+
+        # values = [str(lang1.id), str(lang2.id)]
+        values = [str(lang1.uuid), str(lang2.uuid)]
+        self.assertEqual(
+            values,
+            op.validate_field_values(field=field, values=[*values]),
+        )
+
+        # Invalid data ---
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=[*values, 'not_uuid'])
+
+        # Deleted instance ---
+        with self.assertRaises(ValidationError):
+            op.validate_field_values(field=field, values=[*values, str(uuid4())])
 
     def test_equals(self):
         op = self.get_operator(operators.EQUALS)

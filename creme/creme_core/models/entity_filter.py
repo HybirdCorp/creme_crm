@@ -1047,13 +1047,19 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
         return self
 
-    def get_verbose_conditions(self, user: CremeUser):
-        "Generators of human-readable strings explaining the conditions."
+    def get_verbose_conditions(self, user: CremeUser) -> Iterator[str]:
+        """Generators of human-readable strings explaining the conditions."""
         for cond in self.get_conditions():
             yield cond.description(user)
 
     def portable_key(self) -> str:
         return self.id
+
+    # TODO: remove in creme 3.1
+    def save(self, **kwargs):
+        self.extra_data['portablekeymigr'] = True
+
+        super().save(**kwargs)
 
 
 # TODO: store in EntityFilter as a JSON list of dictionaries?
@@ -1231,7 +1237,7 @@ class EntityFilterCondition(models.Model):
 #        => just display error in filter configuration
 #        => move checking system out of the view to be available everywhere + be extensible?
 # TODO: manage also deletion of:
-#  - instance linked with FK (Sector, Priority...).
+#  - instance linked with FK (Minion, User?...).
 #  - instance of CremeEntity used by Relation handlers.
 @receiver(pre_delete, dispatch_uid='creme_core-remove_related_filter_conditions')
 def _delete_related_efc(sender, instance, **kwargs):

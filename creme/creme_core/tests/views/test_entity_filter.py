@@ -865,7 +865,8 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
         self.assertDictEqual(
             {
                 'operator': operators.EQUALS,
-                'values':   [str(folder.id)],
+                # 'values':   [str(folder.id)],
+                'values':   [str(folder.uuid)],
             },
             condition.value,
         )
@@ -1630,7 +1631,8 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin,
                     model=FakeContact,
                     operator=operators.EQUALS,
                     field_name='civility',
-                    values=[civility.pk],
+                    # values=[civility.pk],
+                    values=[civility.portable_key()],
                 ),
             ],
         )

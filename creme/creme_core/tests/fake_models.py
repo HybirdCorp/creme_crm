@@ -50,8 +50,9 @@ else:
         'FakeResource',
     )
 
-    # NB: not MinionModel to test future errors (maybe)
-    class FakeFolderCategory(CremeModel):
+    # # NB: not MinionModel to test future errors (maybe)
+    # class FakeFolderCategory(CremeModel):
+    class FakeFolderCategory(MinionModel):
         name = models.CharField(_('Category name'), max_length=100, unique=True)
 
         def __str__(self):
@@ -89,8 +90,9 @@ else:
         def __str__(self):
             return self.title
 
-    # NB: not MinionModel to test future errors (maybe)
-    class FakeDocumentCategory(CremeModel):
+    # # NB: not MinionModel to test future errors (maybe)
+    # class FakeDocumentCategory(CremeModel):
+    class FakeDocumentCategory(MinionModel):
         name = models.CharField(_('Category name'), max_length=100, unique=True)
 
         def __str__(self):
@@ -937,7 +939,8 @@ else:
             verbose_name = 'Test Skill'
             verbose_name_plural = 'Test Skills'
 
-    # TODO: MinionModel?
+    # NB: no "disabled" field
+    #     (see GenericModelConfigTestCase.test_disabling__invalid_model)
     class FakeTraining(CremeModel):
         name = models.CharField(_('Name'), max_length=100)
         skills = models.ManyToManyField(

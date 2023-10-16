@@ -1691,6 +1691,7 @@ class ExportingTestCase(TransferBaseTestCase):
                         'value': {'start': {'month': 4, 'day': 1, 'year': 2015}},
                     },
                 ],
+                'extra_data': {'portablekeymigr': True},  # TODO: remove in Creme 3.1
             },
             loaded_efilters.get(ef1.id),
         )
@@ -1721,6 +1722,7 @@ class ExportingTestCase(TransferBaseTestCase):
                         'value': {'has': True, 'entity': str(contact.uuid)},
                     },
                 ],
+                'extra_data': {'portablekeymigr': True},  # TODO: remove in Creme 3.1
             },
             loaded_efilters.get(ef2.id),
         )
@@ -1751,7 +1753,11 @@ class ExportingTestCase(TransferBaseTestCase):
                         'value': {'has': True, 'filter_id': ef1.id},
                     },
                 ],
-                'extra_data': {'my_attr': 'my_value'},
+                # 'extra_data': {'my_attr': 'my_value'},
+                'extra_data': {
+                    'my_attr': 'my_value',
+                    'portablekeymigr': True,  # TODO: remove in Creme 3.1
+                },
             },
             loaded_efilters.get(ef3.id),
         )
