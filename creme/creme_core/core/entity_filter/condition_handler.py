@@ -27,6 +27,7 @@ from uuid import UUID
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
+# from django.db.models import UUIDField
 from django.db.models import (
     BooleanField,
     ForeignKey,
@@ -391,6 +392,23 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         last_field = field_info[-1]
 
         if isinstance(last_field, ForeignKey):
+            # # NB: we want to retrieve ID & not instance (we store ID in 'values'
+            # #     & want to avoid some queries).
+            # base_instance = (
+            #     entity
+            #     if len(field_info) == 1 else
+            #     field_info[:-1].value_from(entity)
+            # )
+            # field_value = (
+            #     None
+            #     if base_instance is None else
+            #     getattr(base_instance, field_info[-1].attname)
+            # )
+            #
+            # # TODO: move this test in operator code + factorise ?
+            # if not isinstance(operator, operators.IsEmptyOperator):
+            #     values = [*map(last_field.to_python, values)]
+
             # NB: we want to retrieve ID & not instance (we store ID in 'values'
             #     & want to avoid some queries).
             base_instance = (
@@ -407,6 +425,27 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             # TODO: move this test in operator code + factorise ?
             if not isinstance(operator, operators.IsEmptyOperator):
                 values = [*map(last_field.to_python, values)]
+
+                # TODO: factorise
+                # use_uuid = False
+                # remote_model = last_field.remote_field.model
+                # try:
+                #     uuid_field = remote_model._meta.get_field('uuid')
+                # except FieldDoesNotExist:
+                #     pass
+                # else:
+                #     use_uuid = isinstance(uuid_field, UUIDField)
+                #
+                # # TODO: factorise
+                # def uuid_or_none(s):
+                #     try:
+                #         return UUID(s)
+                #     except ValueError:
+                #         return None
+                #
+                # uuids = [uid for value in values if (uid := uuid_or_none(value))]
+                # ....
+
         elif isinstance(last_field, ManyToManyField):
             # NB: see ForeignKey remark
             base_instance = (

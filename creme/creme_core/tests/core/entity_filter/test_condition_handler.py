@@ -461,6 +461,7 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         o2 = create_orga(name='Genius inc.', sector=sector2)
         o3 = create_orga(name='Acme',        sector=None)
 
+        # ID as int ---
         handler1 = RegularFieldConditionHandler(
             efilter_type=EF_REGULAR,
             model=FakeOrganisation,
@@ -472,7 +473,9 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIs(handler1.accept(entity=o2, user=user), False)
         self.assertIs(handler1.accept(entity=o3, user=user), False)
 
-        # String format ---
+        # TODO: log
+
+        # ID as string ---
         handler2 = RegularFieldConditionHandler(
             efilter_type=EF_REGULAR,
             model=FakeOrganisation,
@@ -483,6 +486,18 @@ class RegularFieldConditionHandlerTestCase(_ConditionHandlerTestCase):
         self.assertIs(handler2.accept(entity=o1, user=user), True)
         self.assertIs(handler2.accept(entity=o2, user=user), False)
         self.assertIs(handler2.accept(entity=o3, user=user), False)
+
+        # UUID ---
+        handler3 = RegularFieldConditionHandler(
+            efilter_type=EF_REGULAR,
+            model=FakeOrganisation,
+            field_name='sector',
+            operator_id=operators.EQUALS,
+            values=[str(sector1.uuid)],
+        )
+        self.assertIs(handler3.accept(entity=o1, user=user), True)
+        # self.assertIs(handler2.accept(entity=o2, user=user), False)
+        # self.assertIs(handler2.accept(entity=o3, user=user), False)
 
     def test_accept__fk_subfield(self):
         user = self.get_root_user()
