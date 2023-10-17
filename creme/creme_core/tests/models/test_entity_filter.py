@@ -450,6 +450,20 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter16 = create_ef(pk=base_pk + '[1.10.2 rc11]12', name='Filter [1.10.2 rc11]#12')
         self.assertEqual(efilter16, get_latest_version(base_pk))
 
+    def test_portable_key(self):
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter', 'Misato', FakeContact, is_custom=True,
+        )
+
+        with self.assertNoException():
+            key = efilter.portable_key()
+        self.assertEqual('test-filter', key)
+
+        # ---
+        with self.assertNoException():
+            got_efilter = EntityFilter.objects.get_by_portable_key(key)
+        self.assertEqual(efilter, got_efilter)
+
     def test_conditions_equal01(self):
         equal = EntityFilterCondition.conditions_equal
         self.assertIs(equal([], []), True)

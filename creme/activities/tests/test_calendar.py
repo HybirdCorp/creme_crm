@@ -353,6 +353,21 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertIs(cal.is_public, True)
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
+    def test_portable_key(self):
+        user = self.create_user()
+        calendar = self.get_object_or_fail(Calendar, user=user)
+
+        with self.assertNoException():
+            key = calendar.portable_key()
+        self.assertIsInstance(key, str)
+        self.assertUUIDEqual(calendar.uuid, key)
+
+        # ---
+        with self.assertNoException():
+            got_calendar = Calendar.objects.get_by_portable_key(key)
+        self.assertEqual(calendar, got_calendar)
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
     def test_calendar_view01(self):
         "No calendars selected ; default calendar exists."
         user = self.login_as_root_and_get()

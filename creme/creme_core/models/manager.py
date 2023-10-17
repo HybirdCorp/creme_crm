@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2013 Tim Babych
 # Copyright (c) 2016 Daniel Hahler
-# Copyright (c) 2016-2023 Hybird
+# Copyright (c) 2016-2025 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +25,15 @@
 # SOFTWARE.
 ################################################################################
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.db import connections, models
 from django.db.models.sql.compiler import SQLCompiler
+
+if TYPE_CHECKING:
+    from .entity import CremeEntity
 
 
 class LowNullsSQLCompiler(SQLCompiler):
@@ -70,4 +77,6 @@ class LowNullsQuerySet(models.QuerySet):
 
 
 class CremeEntityManager(models.Manager.from_queryset(LowNullsQuerySet)):
-    pass
+    def get_by_portable_key(self, key) -> CremeEntity:
+        """See CremeEntity.portable_key()."""
+        return self.get(uuid=key)

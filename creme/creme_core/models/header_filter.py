@@ -278,6 +278,9 @@ class HeaderFilterManager(models.Manager):
             )
         )
 
+    def get_by_portable_key(self, key) -> HeaderFilter:
+        return self.get(id=key)
+
     # TODO: deprecate?
     def create_if_needed(
             self,
@@ -541,3 +544,6 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
         EntityCell.mixed_populate_entities(
             cells=self.cells, entities=entities, user=user,
         )
+
+    def portable_key(self) -> str:
+        return self.id

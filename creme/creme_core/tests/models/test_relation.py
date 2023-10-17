@@ -877,6 +877,22 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertRaises(RelationType.DoesNotExist, get_rtype, id=rtype1.id)
         self.assertRaises(RelationType.DoesNotExist, get_rtype, id=rtype2.id)
 
+    def test_portable_key(self):
+        rtype = RelationType.objects.builder(
+            id='test-subject_foobar', predicate='is loving',
+        ).symmetric(
+            id='test-object_foobar', predicate='is loved by',
+        ).get_or_create()[0]
+
+        with self.assertNoException():
+            key = rtype.portable_key()
+        self.assertEqual(rtype.id, key)
+
+        # ---
+        with self.assertNoException():
+            got_rtype = RelationType.objects.get_by_portable_key(key)
+        self.assertEqual(rtype, got_rtype)
+
     def test_is_not_internal_or_die__success(self):
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_disabled', 'is disabled'),

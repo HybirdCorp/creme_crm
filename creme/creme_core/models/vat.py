@@ -27,19 +27,20 @@ from django.utils.translation import gettext_lazy as _
 
 from ..constants import DEFAULT_VAT
 from ..global_info import cached_per_request
-from .base import MinionModel
+from . import base
 from .fields import DecimalPercentField
 
 logger = logging.getLogger(__name__)
 
 
-class VatManager(models.Manager):
+class VatManager(base.MinionManager):
     @cached_per_request('creme_core-default_vat')
     def default(self):
         return self.filter(is_default=True)[0]
 
 
-class Vat(MinionModel):
+class Vat(base.MinionModel):
+    # TODO: unique? (if key, what about edition?)
     value = DecimalPercentField(_('VAT'), default=DEFAULT_VAT)
     is_default = models.BooleanField(_('Is default?'), default=False)
 

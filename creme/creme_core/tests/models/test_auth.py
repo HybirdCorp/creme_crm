@@ -418,6 +418,28 @@ class AuthTestCase(CremeTestCase):
         self.assertNotEqual(theme[0], user.theme)
         self.assertEqual(theme, user.theme_info)
 
+    def test_portable_key(self):
+        role = self.create_role()
+        with self.assertNoException():
+            role_key = role.portable_key()
+        self.assertIsInstance(role_key, str)
+        self.assertUUIDEqual(role.uuid, role_key)
+
+        with self.assertNoException():
+            got_role = UserRole.objects.get_by_portable_key(role_key)
+        self.assertEqual(role, got_role)
+
+        # ---
+        user = self.create_user()
+        with self.assertNoException():
+            user_key = user.portable_key()
+        self.assertIsInstance(user_key, str)
+        self.assertUUIDEqual(user.uuid, user_key)
+
+        with self.assertNoException():
+            got_user = CremeUser.objects.get_by_portable_key(user_key)
+        self.assertEqual(user, got_user)
+
     def test_super_user01(self):
         self._create_users_n_contacts()
         user = self.user

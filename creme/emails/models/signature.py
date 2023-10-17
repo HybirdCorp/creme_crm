@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from uuid import uuid4
 
 from django.conf import settings
@@ -26,6 +28,11 @@ from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 from creme.documents.models.fields import ImageEntityManyToManyField
+
+
+class EmailSignatureManager(models.Manager):
+    def get_by_portable_key(self, key) -> EmailSignature:
+        return self.get(uuid=key)
 
 
 class EmailSignature(CremeModel):  # TODO: MinionModel?
@@ -54,6 +61,8 @@ class EmailSignature(CremeModel):  # TODO: MinionModel?
         ),
     )
 
+    objects = EmailSignatureManager()
+
     creation_label = pgettext_lazy('emails', 'Create a signature')
     save_label     = pgettext_lazy('emails', 'Save the signature')
 
@@ -71,3 +80,6 @@ class EmailSignature(CremeModel):  # TODO: MinionModel?
 
     def get_edit_absolute_url(self):
         return reverse('emails__edit_signature', args=(self.id,))
+
+    def portable_key(self) -> str:
+        return str(self.uuid)

@@ -94,6 +94,9 @@ class EntityFilterList(list):
 
 
 class EntityFilterManager(models.Manager):
+    def get_by_portable_key(self, key: str) -> EntityFilter:
+        return self.get(id=key)
+
     def get_latest_version(self, base_pk: str) -> EntityFilter:
         """Get the latest EntityFilter from the family which uses the 'base_pk'.
         @raises EntityFilter.DoesNotExist If there is none instance in this family
@@ -832,6 +835,9 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         "Generators of human-readable strings explaining the conditions."
         for cond in self.get_conditions():
             yield cond.description(user)
+
+    def portable_key(self) -> str:
+        return self.id
 
 
 # TODO: store in EntityFilter as a JSON list of dictionaries?

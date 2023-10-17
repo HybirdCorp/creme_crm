@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from uuid import uuid4
 
@@ -27,13 +29,13 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.global_info import get_per_request_cache
-from creme.creme_core.models import CremeModel, MinionModel
+from creme.creme_core.models import base
 from creme.creme_core.models import fields as core_fields
 
 logger = logging.getLogger(__name__)
 
 
-class SettlementTerms(MinionModel):
+class SettlementTerms(base.MinionModel):
     name = models.CharField(_('Settlement terms'), max_length=100)
 
     creation_label = _('Create settlement terms')
@@ -48,7 +50,7 @@ class SettlementTerms(MinionModel):
         ordering = ('name',)
 
 
-class StatusManager(models.Manager):
+class StatusManager(base.MinionManager):
     def __init__(self):
         super().__init__()
         self._cache_key = None
@@ -70,7 +72,7 @@ class StatusManager(models.Manager):
         return status
 
 
-class AbstractStatus(MinionModel):
+class AbstractStatus(base.MinionModel):
     name = models.CharField(_('Name'), max_length=100)
     order = core_fields.BasicAutoField()
     color = core_fields.ColorField(default=core_fields.ColorField.random)
@@ -148,7 +150,7 @@ class CreditNoteStatus(AbstractStatus):
         verbose_name_plural = _('Credit note statuses')
 
 
-class AdditionalInformation(MinionModel):
+class AdditionalInformation(base.MinionModel):
     name = models.CharField(_('Name'), max_length=100)
     description = models.TextField(verbose_name=_('Description'), blank=True)
 
@@ -164,7 +166,7 @@ class AdditionalInformation(MinionModel):
         ordering = ('name',)
 
 
-class PaymentTerms(MinionModel):
+class PaymentTerms(base.MinionModel):
     name = models.CharField(pgettext_lazy('billing-singular', 'Payment terms'), max_length=100)
     description = models.TextField(verbose_name=_('Description'), blank=True)
 
@@ -180,7 +182,12 @@ class PaymentTerms(MinionModel):
         ordering = ('name',)
 
 
-class PaymentInformation(CremeModel):
+class PaymentInformationManager(models.Manager):
+    def get_by_portable_key(self, key) -> PaymentInformation:
+        return self.get(uuid=key)
+
+
+class PaymentInformation(base.CremeModel):
     uuid = models.UUIDField(
         unique=True, editable=False, default=uuid4,
     ).set_tags(viewable=False)
@@ -208,6 +215,8 @@ class PaymentInformation(CremeModel):
     # Can be used by third party code to store the data they want,
     # without having to modify the code.
     extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
+
+    objects = PaymentInformationManager()
 
     creation_label = _('Create a payment information')
     save_label     = _('Save the payment information')
@@ -252,6 +261,9 @@ class PaymentInformation(CremeModel):
 
     def get_related_entity(self):
         return self.organisation
+
+    def portable_key(self) -> str:
+        return str(self.uuid)
 
 
 # Function used for default field values ---------------------------------------

@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import chain
+
 from django.apps import apps
 from django.conf import settings
 from django.core.checks import Error
@@ -193,5 +195,77 @@ def check_site_domain(**kwargs):
                 obj='settings.py',
                 id='creme.E011',
             ))
+
+    return warnings
+
+
+# We search for models which are referenced by CremeEntity, through
+# ForeignKey/ManyToManyField, directly (depth==0, like <CremeEntity.user>) or
+# indirectly (e.g. <CremeEntity.user__role> corresponds to depth==1)
+# We use value 1 because currently EntityFilters/HeaderFilters use this depth.
+PORTABLE_KEY_MAX_DEPTH = 1
+
+
+@register(CoreTags.models)
+def check_portable_keys(**kwargs):
+    from django.db.models import ForeignKey, ManyToManyField
+
+    from .core.field_tags import FieldTag
+    from .models import CremeEntity, MinionModel
+
+    warnings = []
+    warned_models = set()
+
+    def _check_model(model, depth):
+        if not issubclass(model, CremeEntity):
+            return
+
+        if model.__name__.startswith('Fake'):  # Avoid messages in unit tests
+            return
+
+        for field in chain(model._meta.fields, model._meta.many_to_many):
+            if (
+                not isinstance(field, (ForeignKey, ManyToManyField))
+                or not field.get_tag(FieldTag.VIEWABLE)
+                or not field.get_tag(FieldTag.ENUMERABLE)
+            ):
+                continue
+
+            related_model = field.remote_field.model
+            if related_model in warned_models:
+                continue
+
+            if not hasattr(related_model, 'portable_key'):
+                warnings.append(Warning(
+                    f'The model {model} has a viewable ForeignKey to the '
+                    f'model {related_model} which has no method "portable_key()" '
+                    f'(see docstring of <CremeEntity.portable_key()>).',
+                    hint=(
+                        f'{related_model} could get a UUIDField, '
+                        f'or even inherit <creme_core.models.MinionModel>.'
+                    ),
+                    obj='creme.creme_core',
+                    id='creme.E012',  # TODO: "W" instead?
+                ))
+                warned_models.add(related_model)
+            elif not hasattr(related_model._default_manager, 'get_by_portable_key'):
+                warnings.append(Warning(
+                    f'The model {related_model} has a property "portable_key" but '
+                    f'its default manager has no method "get_by_portable_key()".',
+                    obj='creme.creme_core',
+                    id='creme.E012',  # TODO: "W" instead?
+                    hint=(
+                        'Your manager class should inherit <MinionManager>'
+                        if issubclass(related_model, MinionModel) else
+                        None
+                    ),
+                ))
+                warned_models.add(related_model)
+
+            if depth < PORTABLE_KEY_MAX_DEPTH:
+                _check_model(model=related_model, depth=depth + 1)
+
+    for model in apps.get_models():
+        _check_model(model=model, depth=0)
 
     return warnings
