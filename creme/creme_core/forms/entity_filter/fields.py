@@ -689,7 +689,7 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         return CustomField.objects.compatible(
             self._model,
         ).filter(
-            field_type=CustomField.DATETIME,
+            field_type__in=(CustomField.DATE, CustomField.DATETIME),
         ).filter(
             # Q(is_deleted=False) | Q(id__in=self._non_hiddable_cfield_ids)
             Q(is_deleted=False) | Q(uuid__in=self._non_hiddable_cfield_uuids)
