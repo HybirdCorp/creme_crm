@@ -32,7 +32,7 @@ from creme.persons.tests.base import skipIfCustomContact
 from ..actions import DownloadAction
 from ..bricks import LinkedDocsBrick
 from ..constants import REL_SUB_RELATED_2_DOC, UUID_FOLDER_RELATED2ENTITIES
-from ..models import DocumentCategory, FolderCategory
+from ..models import DocumentCategory, FolderCategory, MimeType
 from ..utils import get_csv_folder_or_create
 from .base import (
     Document,
@@ -48,6 +48,32 @@ if apps.is_installed('creme.products'):
     skip_product_test = product_model_is_custom()
 else:
     skip_product_test = True
+
+
+class MimeTypeTestCase(_DocumentsTestCase):
+    def test_portable_key(self):
+        name = 'image/png'
+        mtype = MimeType.objects.get_or_create(name=name)[0]
+        self.assertIsInstance(mtype, MimeType)
+        self.assertEqual(name, mtype.name)
+
+        with self.assertNoException():
+            key = mtype.portable_key()
+        self.assertEqual(name, key)
+
+        # ---
+        with self.assertNoException():
+            got_mtype = MimeType.objects.get_by_portable_key(key)
+        self.assertEqual(mtype, got_mtype)
+
+    def test_get_by_portable_key__creation(self):
+        name = 'image/heif'
+        self.assertFalse(MimeType.objects.filter(name=name).exists())
+
+        with self.assertNoException():
+            mtype = MimeType.objects.get_by_portable_key(key=name)
+        self.assertIsInstance(mtype, MimeType)
+        self.assertEqual(name, mtype.name)
 
 
 @skipIfCustomDocument

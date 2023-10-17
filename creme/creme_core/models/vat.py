@@ -40,6 +40,7 @@ class VatManager(models.Manager):
 
 
 class Vat(MinionModel):
+    # TODO: unique? (if key, what about edition?)
     value = DecimalPercentField(_('VAT'), default=DEFAULT_VAT)
     is_default = models.BooleanField(_('Is default?'), default=False)
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext
@@ -23,12 +25,26 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core import models as core_models
 
+_ALL_KEY = 'all'
+
+
+class MarketSegmentManager(models.Manager):
+    def get_by_portable_key(self, key) -> MarketSegment:
+        return (
+            self.get(property_type=None)
+            if key == _ALL_KEY else
+            self.get(property_type__uuid=key)
+        )
+
 
 class MarketSegment(core_models.CremeModel):
     name = models.CharField(_('Name'), max_length=100)  # TODO: unique ?
+    # TODO: OneToOneField?
     property_type = models.ForeignKey(
         core_models.CremePropertyType, null=True, editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
+
+    objects = MarketSegmentManager()
 
     creation_label = _('Create a market segment')
     save_label     = _('Save the market segment')
@@ -52,6 +68,11 @@ class MarketSegment(core_models.CremeModel):
     @staticmethod
     def generate_property_text(segment_name):
         return gettext('is in the segment «{}»').format(segment_name)
+
+    def portable_key(self) -> str:
+        ptype = self.property_type
+
+        return _ALL_KEY if ptype is None else str(self.property_type.uuid)
 
     def save(self, *args, **kwargs):
         if self.property_type is None:

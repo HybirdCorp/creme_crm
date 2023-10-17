@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from uuid import uuid4
 
@@ -180,6 +182,11 @@ class PaymentTerms(MinionModel):
         ordering = ('name',)
 
 
+class PaymentInformationManager(models.Manager):
+    def get_by_portable_key(self, key) -> PaymentInformation:
+        return self.get(uuid=key)
+
+
 class PaymentInformation(CremeModel):
     uuid = models.UUIDField(
         unique=True, editable=False, default=uuid4,
@@ -208,6 +215,8 @@ class PaymentInformation(CremeModel):
     # Can be used by third party code to store the data they want,
     # without having to modify the code.
     extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
+
+    objects = PaymentInformationManager()
 
     creation_label = _('Create a payment information')
     save_label     = _('Save the payment information')
@@ -252,6 +261,9 @@ class PaymentInformation(CremeModel):
 
     def get_related_entity(self):
         return self.organisation
+
+    def portable_key(self) -> str:
+        return str(self.uuid)
 
 
 # Function used for default field values ---------------------------------------

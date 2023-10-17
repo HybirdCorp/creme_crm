@@ -38,6 +38,7 @@ class CurrencyManager(models.Manager):
 class Currency(MinionModel):
     name = models.CharField(_('Currency'), max_length=100)
     local_symbol = models.CharField(_('Local symbol'), max_length=100)
+    # TODO: unique?
     international_symbol = models.CharField(_('International symbol'), max_length=100)
     is_default = models.BooleanField(_('Is default?'), default=False)
 

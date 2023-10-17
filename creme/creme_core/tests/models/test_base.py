@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.core.exceptions import FieldDoesNotExist
 
 from creme.creme_core.models import (
@@ -120,3 +122,26 @@ class IsReferencedTestCase(CremeTestCase):
 
         self.assertIs(l1.is_referenced, False)
         self.assertIs(l2.is_referenced, True)
+
+
+class MinionTestCase(CremeTestCase):
+    def test_portable_key(self):
+        sector1, sector2 = FakeSector.objects.all()[:2]
+
+        with self.assertNoException():
+            key1 = sector1.portable_key()
+        self.assertIsInstance(key1, str)
+        self.assertUUIDEqual(sector1.uuid, key1)
+
+        key2 = sector2.portable_key()
+        self.assertUUIDEqual(sector2.uuid, key2)
+
+        # ---
+        with self.assertNoException():
+            got_sector1 = FakeSector.objects.get_by_portable_key(key1)
+        self.assertEqual(sector1, got_sector1)
+
+        self.assertEqual(sector2, FakeSector.objects.get_by_portable_key(key2))
+
+        with self.assertRaises(FakeSector.DoesNotExist):
+            FakeSector.objects.get_by_portable_key(uuid4())

@@ -461,3 +461,19 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
     #
     #     # self.assertGET(400, build_url(pi, 'organisation'))
     #     self.assertGET404(build_uri(pi, 'organisation'))
+
+    def test_portable_key(self):
+        user = self.get_root_user()
+
+        organisation = Organisation.objects.create(user=user, name='Nintendo')
+        pi = PaymentInformation.objects.create(organisation=organisation, name='RIB 1')
+
+        with self.assertNoException():
+            key = pi.portable_key()
+        self.assertIsInstance(key, str)
+        self.assertUUIDEqual(pi.uuid, key)
+
+        # ---
+        with self.assertNoException():
+            got_pi = PaymentInformation.objects.get_by_portable_key(key)
+        self.assertEqual(pi, got_pi)
