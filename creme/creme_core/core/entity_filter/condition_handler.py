@@ -1135,7 +1135,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
         If a custom range is used, at least one of the 2 argument "start" & "end"
         must be filled with a date.
         """
-        if not custom_field.field_type == CustomField.DATETIME:
+        if custom_field.field_type not in (CustomField.DATE, CustomField.DATETIME):
             raise cls.ValueError(
                 f'{cls.__name__}.build_condition(): not a date custom field.'
             )

@@ -2048,11 +2048,10 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
 
         create_cfield = partial(
             CustomField.objects.create,
-            field_type=CustomField.DATETIME,
             content_type=ContentType.objects.get_for_model(FakeContact),
         )
-        self.cfield01 = create_cfield(name='Day')
-        self.cfield02 = create_cfield(name='First flight')
+        self.cfield01 = create_cfield(name='Day',          field_type=CustomField.DATE)
+        self.cfield02 = create_cfield(name='First flight', field_type=CustomField.DATETIME)
 
     def test_clean_invalid_data(self):
         clean = DateCustomFieldsConditionsField(model=FakeContact).clean
@@ -2131,7 +2130,7 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(cfield01.id), condition1.name)
         self.assertEqual(EF_USER,          condition1.filter_type)
         self.assertDictEqual(
-            {'rname': 'customfielddatetime', 'name': range_type},
+            {'rname': 'customfielddate', 'name': range_type},
             condition1.value,
         )
 
@@ -2151,7 +2150,7 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(cfield01.id), condition3.name)
         self.assertDictEqual(
             {
-                'rname': 'customfielddatetime',
+                'rname': 'customfielddate',
                 'end': {'year': 2012, 'month': 6, 'day': 13},
             },
             condition3.value,
@@ -2187,7 +2186,7 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(str(self.cfield01.id), condition.name)
         self.assertEqual(EF_CREDENTIALS,        condition.filter_type)
         self.assertDictEqual(
-            {'rname': 'customfielddatetime', 'name': 'empty'},
+            {'rname': 'customfielddate', 'name': 'empty'},
             condition.value,
         )
 

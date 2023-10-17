@@ -1,5 +1,9 @@
 == Version 2.5.2 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # The "Date" CustomFields were not usable in filters (only "Date + time" ones were proposed).
+
 
 == Version 2.5.1 ==
 
