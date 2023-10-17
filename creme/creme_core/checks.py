@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -105,6 +105,51 @@ def check_real_entity_foreign_keys(**kwargs):
                 errors.extend(field.check())
 
     return errors
+
+
+@register(CoreTags.models)
+def check_foreign_keys_and_uuids(**kwargs):
+    # from django.core.exceptions import FieldDoesNotExist
+    # from django.db.models import UUIDField
+    from django.db.models import ForeignKey
+
+    from .core.field_tags import FieldTag
+    from .models import CremeEntity
+
+    warnings = []
+
+    for model in apps.get_models():
+        if not issubclass(model, CremeEntity):
+            continue
+
+        for field in model._meta.fields:
+            if (
+                not isinstance(field, ForeignKey)
+                or not field.get_tag(FieldTag.VIEWABLE)
+                or not field.get_tag(FieldTag.ENUMERABLE)
+            ):
+                continue
+
+            related_model = field.remote_field.model
+
+            if hasattr(related_model, 'natural_key'):
+                continue
+
+            # TODO ??
+            # try:
+            #     uuid_f = related_model._meta.get_field('uuid')
+            # except FieldDoesNotExist:
+            #     warnings.append(Warning(
+            #         f'The entity class {model} has a viewable ForeignKey to the '
+            #         f'model {related_model} which has no "uuid" field.',
+            #         hint=(
+            #             f'{related_model} could inherit from <creme_core.models.MinionModel>.'
+            #         ),
+            #         obj='creme.creme_core',
+            #         id='creme.E009',  # TODO: "W" instead?
+            #     ))
+
+    return warnings
 
 
 @register(CoreTags.urls)
