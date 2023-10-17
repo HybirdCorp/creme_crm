@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 import uuid
 from itertools import chain
@@ -231,6 +233,11 @@ class CremeModel(Model):
             raise ValidationError(errors)
 
 
+class MinionManager(models.Manager):
+    def get_by_portable_key(self, key: str) -> MinionModel:
+        return self.get(uuid=key)
+
+
 class MinionModel(CremeModel):
     """Base model which is great for small models used to represent "choices" in
     entities & which you classically register in creme_config.
@@ -246,5 +253,10 @@ class MinionModel(CremeModel):
     # without having to modify the code.
     extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
 
+    objects = MinionManager()
+
     class Meta:
         abstract = True
+
+    def portable_key(self) -> str:
+        return str(self.uuid)

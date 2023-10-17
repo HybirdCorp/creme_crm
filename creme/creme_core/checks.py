@@ -195,3 +195,53 @@ def check_site_domain(**kwargs):
             ))
 
     return warnings
+
+
+# TODO: look at portable_key + rename?
+@register(CoreTags.models)
+def check_foreign_keys_and_uuids(**kwargs):
+    # from django.core.exceptions import FieldDoesNotExist
+    # from django.db.models import UUIDField
+    from django.db.models import ForeignKey
+
+    from .core.field_tags import FieldTag
+    from .models import CremeEntity
+
+    warnings = []
+
+    for model in apps.get_models():
+        if not issubclass(model, CremeEntity):
+            continue
+
+        for field in model._meta.fields:
+            if (
+                not isinstance(field, ForeignKey)
+                or not field.get_tag(FieldTag.VIEWABLE)
+                or not field.get_tag(FieldTag.ENUMERABLE)
+            ):
+                continue
+
+            # related_model = field.remote_field.model
+            #
+            # if hasattr(related_model, 'natural_key'):
+            #     continue
+            #
+            # # TODO ??
+            # # from django.core.exceptions import FieldDoesNotExist
+            # # try:
+            # #     uuid_f = related_model._meta.get_field('uuid')
+            # # except FieldDoesNotExist:
+            # #     warnings.append(Warning(
+            # #         f'The entity class {model} has a viewable ForeignKey to the '
+            # #         f'model {related_model} which has no "uuid" field.',
+            # #         hint=(
+            # #             f'{related_model} could inherit from <creme_core.models.MinionModel>.'
+            # #         ),
+            # #         obj='creme.creme_core',
+            # #         id='creme.E012',  # TODO: "W" instead?
+            # #     ))
+
+            # TODO: check hasattr(related_model, 'portable_key'):
+            #  + manager get method get_by_portable_key()
+
+    return warnings
