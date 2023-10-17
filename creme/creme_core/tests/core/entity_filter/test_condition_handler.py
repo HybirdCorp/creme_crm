@@ -2211,6 +2211,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual('???', handler.description(user))
 
     def test_datecustomfield_init01(self):
+        "DATETIME."
         custom_field = CustomField.objects.create(
             name='First fight',
             content_type=FakeOrganisation,
@@ -2256,7 +2257,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
     def test_datecustomfield_init02(self):
-        "Pass a CustomField instance + start/end."
+        "Pass a DATETIME CustomField instance + start/end."
         custom_field = CustomField.objects.create(
             name='First fight',
             content_type=FakeOrganisation,
@@ -2285,6 +2286,34 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         self.assertEqual(custom_field, cfield2)
 
+    def test_datecustomfield_init03(self):
+        "DATE."
+        custom_field = CustomField.objects.create(
+            name='First fight',
+            content_type=FakeOrganisation,
+            field_type=CustomField.DATE,
+        )
+
+        rname = 'customfielddate'
+        range_name = 'previous_year'
+        handler = DateCustomFieldConditionHandler(
+            model=FakeOrganisation,
+            # custom_field=custom_field.id,
+            custom_field=custom_field.uuid,
+            related_name=rname,
+            date_range=range_name,
+        )
+
+        self.assertEqual(FakeOrganisation, handler.model)
+        self.assertIsNone(handler.subfilter_id)
+        self.assertIs(handler.subfilter, False)
+        # self.assertEqual(custom_field.id, handler._custom_field_id)
+        self.assertEqual(custom_field.uuid, handler._custom_field_uuid)
+        self.assertEqual(rname,             handler._related_name)
+        self.assertEqual(range_name,        handler._range_name)
+        self.assertIsNone(handler._start)
+        self.assertIsNone(handler._end)
+
     def test_datecustomfield_error(self):
         "<error> property."
         handler = DateCustomFieldConditionHandler(
@@ -2297,6 +2326,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual("related_name 'invalid' is invalid", handler.error)
 
     def test_datecustomfield_build01(self):
+        "DATETIME."
         # cfield_id = 6
         cfield_uuid = uuid4()
         range_name = 'today'
@@ -2320,6 +2350,30 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsNone(handler._end)
 
     def test_datecustomfield_build02(self):
+        "DATE."
+        # cfield_id = 6
+        cfield_uuid = uuid4()
+        range_name = 'today'
+        rname = 'customfielddate'
+        handler = DateCustomFieldConditionHandler.build(
+            model=FakeContact,
+            # name=str(cfield_id),
+            name=str(cfield_uuid),
+            data={
+                'rname': rname,
+                'name':  range_name,
+            },
+        )
+        self.assertEqual(FakeContact, handler.model)
+        self.assertIsNone(handler.subfilter_id)
+        # self.assertEqual(cfield_id,   handler._custom_field_id)
+        self.assertEqual(cfield_uuid, handler._custom_field_uuid)
+        self.assertEqual(rname,       handler._related_name)
+        self.assertEqual(range_name,  handler._range_name)
+        self.assertIsNone(handler._start)
+        self.assertIsNone(handler._end)
+
+    def test_datecustomfield_build_errors(self):
         cfield_id = '6'
         rname = 'customfielddatetime'
 
@@ -2362,7 +2416,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsNone(formfield2.user)
 
     def test_datecustomfield_condition01(self):
-        "Build condition."
+        "Build condition (DATETIME)."
         custom_field = CustomField.objects.create(
             name='First fight',
             content_type=FakeContact,
@@ -2415,6 +2469,59 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsNone(condition2.handler)
 
     def test_datecustomfield_condition02(self):
+        "Build condition (DATE)."
+        custom_field = CustomField.objects.create(
+            name='First fight',
+            content_type=FakeContact,
+            field_type=CustomField.DATE,
+        )
+
+        rname = 'customfielddate'
+        condition1 = DateCustomFieldConditionHandler.build_condition(
+            custom_field=custom_field, start=date(year=2015, month=4, day=1),
+        )
+        self.assertIsInstance(condition1, EntityFilterCondition)
+        self.assertIsNone(condition1.pk)
+        self.assertEqual(EF_USER,                                 condition1.filter_type)
+        self.assertEqual(DateCustomFieldConditionHandler.type_id, condition1.type)
+        # self.assertEqual(str(custom_field.id),                    condition1.name)
+        self.assertEqual(str(custom_field.uuid),                  condition1.name)
+        self.assertDictEqual(
+            {
+                'rname': rname,
+                'start': {'day': 1, 'month': 4, 'year': 2015},
+            },
+            condition1.value,
+        )
+
+        handler1 = DateCustomFieldConditionHandler.build(
+            model=FakeContact,
+            name=condition1.name,
+            data=condition1.value,
+        )
+        self.assertIsInstance(handler1, DateCustomFieldConditionHandler)
+        self.assertEqual(FakeContact, handler1.model)
+        self.assertIsNone(handler1.subfilter_id)
+        self.assertIs(handler1.subfilter, False)
+        # self.assertEqual(custom_field.id, handler1._custom_field_id)
+        self.assertEqual(custom_field.uuid, handler1._custom_field_uuid)
+        self.assertEqual(rname,             handler1._related_name)
+        self.assertIsNone(handler1._range_name)
+        self.assertIsNone(handler1._end)
+        self.assertEqual(
+            self.create_datetime(year=2015, month=4, day=1),
+            handler1._start,
+        )
+
+        # ---
+        condition2 = DateCustomFieldConditionHandler.build_condition(
+            custom_field=custom_field, start=date(year=2015, month=4, day=1),
+            filter_type=EF_CREDENTIALS,
+        )
+        self.assertEqual(EF_CREDENTIALS, condition2.filter_type)
+        self.assertIsNone(condition2.handler)
+
+    def test_datecustomfield_condition_errors(self):
         "Build condition + errors."
         ValueError = FilterConditionHandler.ValueError
         build_cond = DateCustomFieldConditionHandler.build_condition
@@ -2436,8 +2543,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             custom_field=custom_field2, date_range='unknown_range',
         )
 
-    def test_datecustomfield_get_q(self):
-        "get_q() not empty."
+    def test_datecustomfield_get_q01(self):
+        "get_q() not empty (DATETIME)."
         user = self.get_root_user()
 
         custom_field = CustomField.objects.create(
@@ -2471,6 +2578,42 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             # NB: the nested QuerySet is not compared by the query, but by its result...
             Q(pk__in=FakeOrganisation.objects.filter(id=bebop.id).values_list('id', flat=True)),
             handler.get_q(user=None)
+        )
+
+    def test_datecustomfield_get_q02(self):
+        "get_q() not empty (DATETIME)."
+        user = self.get_root_user()
+
+        custom_field = CustomField.objects.create(
+            name='First fight', field_type=CustomField.DATE,
+            content_type=FakeOrganisation,
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        bebop = create_orga(name='Bebop')
+        create_orga(name='Swordfish')
+        dragons = create_orga(name='Red Dragons')
+
+        klass = custom_field.value_class
+
+        def set_cfvalue(entity, value):
+            klass(custom_field=custom_field, entity=entity).set_value_n_save(value)
+
+        year = now().year
+        set_cfvalue(bebop,   date(year=year - 1, month=6, day=5))
+        set_cfvalue(dragons, date(year=year - 2, month=6, day=5))
+
+        handler = DateCustomFieldConditionHandler(
+            model=FakeOrganisation,
+            custom_field=custom_field,
+            related_name='customfielddate',
+            date_range='previous_year',
+        )
+
+        self.assertQEqual(
+            # NB: the nested QuerySet is not compared by the query, but by its result...
+            Q(pk__in=FakeOrganisation.objects.filter(id=bebop.id).values_list('id', flat=True)),
+            handler.get_q(user=None),
         )
 
     def test_datecustomfield_description01(self):
