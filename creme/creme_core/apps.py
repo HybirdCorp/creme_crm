@@ -150,19 +150,23 @@ class MediaGeneratorConfig(AppConfig):
 class ContentTypesConfig(VanillaContentTypesConfig):
     def ready(self):
         super().ready()
+        self.hook_order()
+        self.hook_str()
+        self.hook_fields()
+        self.hook_portable_key()
 
+    def hook_order(self):
         from django.contrib.contenttypes.models import ContentType
-
-        from creme.creme_core.models.utils import model_verbose_name
 
         meta = ContentType._meta
         assert not meta.ordering, 'It seems ContentType has an ordering policy now?!'
 
         meta.ordering = ['id']
 
-        get_ct_field = meta.get_field
-        for fname in ('app_label', 'model'):
-            get_ct_field(fname).set_tags(viewable=False)
+    def hook_str(self):
+        from django.contrib.contenttypes.models import ContentType
+
+        from .models.utils import model_verbose_name
 
         def ct_str(this):
             model = this.model_class()
@@ -170,6 +174,27 @@ class ContentTypesConfig(VanillaContentTypesConfig):
 
         # NB: the original prefix with app's name => ugly choices for final users
         ContentType.__str__ = ct_str
+
+    def hook_fields(self):
+        from django.contrib.contenttypes.models import ContentType
+
+        get_ct_field = ContentType._meta.get_field
+        for fname in ('app_label', 'model'):
+            get_ct_field(fname).set_tags(viewable=False)
+
+    def hook_portable_key(self):
+        from django.contrib.contenttypes import models as ct_models
+
+        def portable_key(this):
+            return '.'.join(this.natural_key())
+
+        def get_by_portable_key(this, key):
+            app_label, model_name = key.split('.', 2)
+
+            return this.get_by_natural_key(app_label=app_label, model=model_name)
+
+        ct_models.ContentType.portable_key = portable_key
+        ct_models.ContentTypeManager.get_by_portable_key = get_by_portable_key
 
 
 class CremeAppConfig(AppConfig):

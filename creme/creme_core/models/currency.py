@@ -23,21 +23,22 @@ from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 
 from ..global_info import cached_per_request
-from .base import MinionModel
+from . import base
 
 logger = logging.getLogger(__name__)
 
 
-# TODO: factorise ? (VAT etc...)
-class CurrencyManager(models.Manager):
+# TODO: factorise? (VAT etc...)
+class CurrencyManager(base.MinionManager):
     @cached_per_request('creme_core-default_currency')
     def default(self):
         return self.filter(is_default=True)[0]
 
 
-class Currency(MinionModel):
+class Currency(base.MinionModel):
     name = models.CharField(_('Currency'), max_length=100)
     local_symbol = models.CharField(_('Local symbol'), max_length=100)
+    # TODO: unique?
     international_symbol = models.CharField(_('International symbol'), max_length=100)
     is_default = models.BooleanField(_('Is default?'), default=False)
 

@@ -398,6 +398,17 @@ class CremeEntity(CremeModel):
             logger.debug('Fill properties cache entity_id=%s', entity_id)
             entity._properties = properties_map[entity_id]
 
+    def portable_key(self) -> str:
+        """A portable key is a string identifier which can be safely exported to
+        another database.
+        Notice:
+           - it just has to be unique for a given model.
+           - the related instance can be retrieved with this key; the default
+             manager should implement the method 'get_by_portable_key()'.
+        HINT: an UUIDField is generally the best solution.
+        """
+        return str(self.uuid)
+
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         self.header_filter_search_field = self._search_field_value()[:_SEARCH_FIELD_MAX_LENGTH]
 

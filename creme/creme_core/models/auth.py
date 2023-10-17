@@ -65,6 +65,9 @@ logger = logging.getLogger(__name__)
 
 
 class UserRoleManager(models.Manager):
+    def get_by_portable_key(self, key: str) -> UserRole:
+        return self.get(uuid=key)
+
     def smart_create(self, *,
                      creatable_models: Iterable[type[CremeEntity]] = (),
                      exportable_models: Iterable[type[CremeEntity]] = (),
@@ -358,6 +361,9 @@ class UserRole(models.Model):
             ],
             as_model=as_model,
         )
+
+    def portable_key(self) -> str:
+        return str(self.uuid)
 
 
 class SetCredentials(models.Model):
@@ -917,6 +923,9 @@ class CremeUserManager(BaseUserManager):
             or user_qs.filter(is_superuser=True).first()
             or user_qs[0]
         )
+
+    def get_by_portable_key(self, key: str) -> CremeUser:
+        return self.get(uuid=key)
 
 
 class CremeUser(AbstractBaseUser):
@@ -1486,6 +1495,9 @@ class CremeUser(AbstractBaseUser):
                     self._get_main_entity(entity).allowed_str(self),
                 )
             )
+
+    def portable_key(self) -> str:
+        return str(self.uuid)
 
 
 CremeUser._meta.get_field('password').set_tags(viewable=False)

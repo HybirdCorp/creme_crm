@@ -66,6 +66,9 @@ class CalendarManager(models.Manager):
 
     create_default_calendar.alters_data = True
 
+    def get_by_portable_key(self, key: str) -> Calendar:
+        return self.get(uuid=key)
+
     def get_default_calendar(self, user) -> Calendar:
         """Get the user's default Calendar ; creates it if necessary.
 
@@ -186,6 +189,10 @@ class Calendar(CremeModel):
                 def_cal.is_default = True
                 def_cal._enable_default_checking = False
                 def_cal.save()
+
+    def portable_key(self) -> str:
+        """See CremeEntity.portable_key()."""
+        return str(self.uuid)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         mngr = type(self).objects

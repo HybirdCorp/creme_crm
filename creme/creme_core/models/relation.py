@@ -568,6 +568,9 @@ class RelationTypeManager(models.Manager):
             enabled=enabled,
         )
 
+    def get_by_portable_key(self, key: str) -> RelationType:
+        return self.get(id=key)
+
 
 class RelationManager(models.Manager):
     def safe_create(self, **kwargs) -> None:
@@ -817,7 +820,7 @@ class RelationType(CremeModel):
                 ).format(predicate=self.predicate)
             )
 
-    def is_enabled_or_die(self):
+    def is_enabled_or_die(self) -> None:
         if not self.enabled:
             raise ConflictError(
                 gettext(
@@ -825,6 +828,10 @@ class RelationType(CremeModel):
                     "because it is disabled."
                 ).format(predicate=self.predicate)
             )
+
+    def portable_key(self) -> str:
+        """See CremeEntity.portable_key()."""
+        return self.id
 
     @property
     def subject_models(self):

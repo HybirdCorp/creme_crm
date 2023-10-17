@@ -113,6 +113,60 @@ class HeaderFilterManagerTestCase(CremeTestCase):
             hf.cells,
         )
 
+    def test_filter_by_user(self):
+        user = self.login_as_standard()
+        other_user = self.get_root_user()
+
+        teammate = self.create_user(index=1, role=user.role)
+
+        tt_team = self.create_team('TeamTitan', user, teammate)
+        a_team = self.create_team('A-Team', other_user)
+
+        cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
+
+        def create_hf(id, **kwargs):
+            return HeaderFilter.objects.create_if_needed(
+                pk=f'test-hf_orga{id}',
+                name=f'Orga view #{id}',
+                model=FakeOrganisation, cells_desc=cells,
+                **kwargs
+            )
+
+        hfilters = [
+            create_hf(1),
+            create_hf(2,  user=user),
+            create_hf(3,  user=other_user),
+            create_hf(4,  user=tt_team),
+            create_hf(5,  user=a_team),
+            create_hf(6,  user=user,       is_private=True, is_custom=True),
+            create_hf(7,  user=tt_team,    is_private=True, is_custom=True),
+            create_hf(8,  user=other_user, is_private=True, is_custom=True),
+            create_hf(9,  user=a_team,     is_private=True, is_custom=True),
+            create_hf(10, user=teammate,   is_private=True, is_custom=True),
+        ]
+
+        filtered1 = [*HeaderFilter.objects.filter_by_user(user)]
+        self.assertIn(hfilters[0], filtered1)
+        self.assertIn(hfilters[1], filtered1)
+        self.assertIn(hfilters[2], filtered1)
+        self.assertIn(hfilters[3], filtered1)
+        self.assertIn(hfilters[4], filtered1)
+        self.assertIn(hfilters[5], filtered1)
+        self.assertIn(hfilters[6], filtered1)
+        self.assertNotIn(hfilters[7], filtered1)
+        self.assertNotIn(hfilters[8], filtered1)
+        self.assertNotIn(hfilters[9], filtered1)
+
+        # ---
+        with self.assertRaises(ValueError):
+            HeaderFilter.objects.filter_by_user(tt_team)
+
+        # ---
+        staff = self.create_user(index=2, is_staff=True)
+        filtered2 = [*HeaderFilter.objects.filter_by_user(staff)]
+        for hf in hfilters:
+            self.assertIn(hf, filtered2)
+
     def test_create_if_needed__errors(self):
         user = self.get_root_user()
 
@@ -417,11 +471,6 @@ class HeaderFilterManagerTestCase(CremeTestCase):
 
 
 class HeaderFilterTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.orga_ct = ContentType.objects.get_for_model(FakeOrganisation)
-
     def test_cells(self):
         hf = HeaderFilter.objects.create(
             pk='tests-hf_contact', name='Contact view', entity_type=FakeContact,
@@ -808,59 +857,27 @@ class HeaderFilterTestCase(CremeTestCase):
             with self.assertNumQueries(0):
                 hf.populate_entities(contacts, user)
 
-    def test_manager_filter_by_user(self):
-        user = self.login_as_standard()
-        other_user = self.get_root_user()
+    def test_portable_key(self):
+        hf = HeaderFilter.objects.proxy(
+            id='test-hf_test_portable_key', name='Contact view', model=FakeContact,
+            cells=[(EntityCellRegularField, 'last_name')],
+        ).get_or_create()[0]
 
-        teammate = self.create_user(index=1, role=user.role)
-
-        tt_team = self.create_team('TeamTitan', user, teammate)
-        a_team = self.create_team('A-Team', other_user)
-
-        cells = [EntityCellRegularField.build(model=FakeOrganisation, name='name')]
-
-        def create_hf(id, **kwargs):
-            return HeaderFilter.objects.create_if_needed(
-                pk=f'test-hf_orga{id}',
-                name=f'Orga view #{id}',
-                model=FakeOrganisation, cells_desc=cells,
-                **kwargs
-            )
-
-        hfilters = [
-            create_hf(1),
-            create_hf(2,  user=user),
-            create_hf(3,  user=other_user),
-            create_hf(4,  user=tt_team),
-            create_hf(5,  user=a_team),
-            create_hf(6,  user=user,       is_private=True, is_custom=True),
-            create_hf(7,  user=tt_team,    is_private=True, is_custom=True),
-            create_hf(8,  user=other_user, is_private=True, is_custom=True),
-            create_hf(9,  user=a_team,     is_private=True, is_custom=True),
-            create_hf(10, user=teammate,   is_private=True, is_custom=True),
-        ]
-
-        filtered1 = [*HeaderFilter.objects.filter_by_user(user)]
-        self.assertIn(hfilters[0], filtered1)
-        self.assertIn(hfilters[1], filtered1)
-        self.assertIn(hfilters[2], filtered1)
-        self.assertIn(hfilters[3], filtered1)
-        self.assertIn(hfilters[4], filtered1)
-        self.assertIn(hfilters[5], filtered1)
-        self.assertIn(hfilters[6], filtered1)
-        self.assertNotIn(hfilters[7], filtered1)
-        self.assertNotIn(hfilters[8], filtered1)
-        self.assertNotIn(hfilters[9], filtered1)
+        with self.assertNoException():
+            key = hf.portable_key()
+        self.assertEqual(hf.id, key)
 
         # ---
-        with self.assertRaises(ValueError):
-            HeaderFilter.objects.filter_by_user(tt_team)
+        with self.assertNoException():
+            got_hf = HeaderFilter.objects.get_by_portable_key(key)
+        self.assertEqual(hf, got_hf)
 
-        # ---
-        staff = self.create_user(index=2, is_staff=True)
-        filtered2 = [*HeaderFilter.objects.filter_by_user(staff)]
-        for hf in hfilters:
-            self.assertIn(hf, filtered2)
+
+class HeaderFilterListTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.orga_ct = ContentType.objects.get_for_model(FakeOrganisation)
 
     def test_filterlist01(self):
         user = self.get_root_user()

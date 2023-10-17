@@ -591,3 +591,16 @@ class EntityTestCase(CremeTestCase):
             },
             orga._cvalues_map,
         )
+
+    def test_portable_key(self):
+        orga = FakeOrganisation.objects.create(name='Konoha', user=self.get_root_user())
+
+        with self.assertNoException():
+            key = orga.portable_key()
+        self.assertIsInstance(key, str)
+        self.assertUUIDEqual(orga.uuid, key)
+
+        # ---
+        with self.assertNoException():
+            got_orga = FakeOrganisation.objects.get_by_portable_key(key)
+        self.assertEqual(orga, got_orga)
