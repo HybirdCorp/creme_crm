@@ -58,13 +58,13 @@ logger = logging.getLogger(__name__)
 
 class BrickDetailviewLocationManager(models.Manager):
     # TODO: Enum for zone
-    def create_if_needed(
-            self,
-            brick: type[Brick] | str,
-            order: int,
-            zone: int,
-            model: type[CremeEntity] | ContentType | None = None,
-            role: None | UserRole | str = None) -> BrickDetailviewLocation:
+    def create_if_needed(self,
+                         brick: type[Brick] | str,
+                         order: int,
+                         zone: int,
+                         model: type[CremeEntity] | ContentType | None = None,
+                         role: None | UserRole | str = None,
+                         ) -> BrickDetailviewLocation:
         """Create an instance of BrickDetailviewLocation, but only if the
         related brick is not already on the configuration.
         @param brick: Brick ID (string) or Brick class.
@@ -87,7 +87,6 @@ class BrickDetailviewLocationManager(models.Manager):
             if model is None:
                 raise ValueError('The default configuration cannot have a related role.')
 
-            # if role == 'superuser':
             if isinstance(role, str):
                 assert role == 'superuser'
                 kwargs['superuser'] = True
@@ -287,9 +286,13 @@ class BrickHomeLocation(CremeModel):
         else:
             msg = gettext('Block configuration of Home uses «{block}»')
 
+        brick = next(
+            (brick_registry.get_bricks(brick_ids=(self.brick_id,))),
+            None
+        )
+
         return msg.format(
-            role=role,
-            block=next(brick_registry.get_bricks((self.brick_id,))).verbose_name,
+            role=role, block='??' if brick is None else brick.verbose_name,
         )
 
 
@@ -316,9 +319,14 @@ class BrickMypageLocation(CremeModel):
             'Default block configuration of "My page" uses «{block}»'
         )
 
+        brick = next(
+            (brick_registry.get_bricks(brick_ids=(self.brick_id,))),
+            None
+        )
+
         return msg.format(
             user=user,
-            block=next(brick_registry.get_bricks((self.brick_id,))).verbose_name,
+            block='??' if brick is None else brick.verbose_name,
         )
 
     @classmethod
