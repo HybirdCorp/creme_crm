@@ -519,7 +519,8 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         fname2 = 'phone'
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBrickConfigItem.objects.create(
-            id='tests-contacts1', name='Contact info',
+            # id='tests-contacts1',
+            name='Contact info',
             content_type=FakeContact,
             cells=[
                 build_cell(FakeContact, fname1),
@@ -557,7 +558,8 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBrickConfigItem.objects.create(
-            id='tests-contacts1', name='Contact info',
+            # id='tests-contacts1',
+            name='Contact info',
             content_type=FakeContact,
             cells=[
                 build_cell(FakeContact, 'last_name'),
@@ -592,7 +594,8 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBrickConfigItem.objects.create(
-            id='tests-contacts1', name='Contact info',
+            # id='tests-contacts1',
+            name='Contact info',
             content_type=FakeContact,
             cells=[
                 build_cell(FakeContact, 'last_name'),

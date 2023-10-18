@@ -157,6 +157,11 @@ class BrickRegistryTestCase(CremeTestCase):
         class FoobarInstanceBrick3(_FoobarInstanceBrick):
             id = InstanceBrickConfigItem.generate_base_id('creme_core', 'foobar_instance_brick_3')
 
+        self.assertEqual(
+            'instance-creme_core-foobar_instance_brick_1',
+            FoobarInstanceBrick1.id,
+        )
+
         create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
         ibci1 = create_ibci(brick_class_id=FoobarInstanceBrick1.id)
         ibci2 = create_ibci(brick_class_id=FoobarInstanceBrick2.id)
@@ -356,8 +361,14 @@ class BrickRegistryTestCase(CremeTestCase):
                        f'{self.config_item.entity}</tr></thead></table>'
 
         create_ibci = partial(InstanceBrickConfigItem.objects.create, entity=casca)
-        ibci1 = create_ibci(brick_class_id=FoobarInstanceBrick1.id)
-        ibci2 = create_ibci(brick_class_id=FoobarInstanceBrick2.id)
+        ibci1 = create_ibci(
+            brick_class_id=FoobarInstanceBrick1.id,
+            uuid='575f1df4-5bdc-4696-aa45-a2f49865580e',
+        )
+        ibci2 = create_ibci(
+            brick_class_id=FoobarInstanceBrick2.id,
+            uuid='675f1df4-5bdc-4696-aa45-a2f49865580e',  # After "ibci1.uuid" to facilitate test.
+        )
         create_ibci(brick_class_id=FoobarInstanceBrick3.id)
         create_ibci(brick_class_id=FoobarInstanceBrick4.id)
 
@@ -371,12 +382,14 @@ class BrickRegistryTestCase(CremeTestCase):
 
         create_cbci = CustomBrickConfigItem.objects.create
         cbci = create_cbci(
-            id='test-contacts01', name='General (contact)',
+            # id='test-contacts01',
+            name='General (contact)',
             content_type=FakeContact,
             cells=[EntityCellRegularField.build(FakeContact, 'last_name')],
         )
         create_cbci(
-            id='test-organisations01', name='General (orga)',
+            # id='test-organisations01',
+            name='General (orga)',
             content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
         )  # Not compatible with Contact
@@ -696,7 +709,8 @@ class BrickRegistryTestCase(CremeTestCase):
         rbi = RelationBrickItem.objects.create(relation_type=rtype)
 
         cbci = CustomBrickConfigItem.objects.create(
-            id='tests-organisations01', name='General', content_type=FakeOrganisation,
+            # id='tests-organisations01',
+            name='General', content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
         )
 
@@ -1033,7 +1047,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_custom_brick01(self):
         cbci = CustomBrickConfigItem.objects.create(
-            id='tests-organisations01', name='General', content_type=FakeOrganisation,
+            # id='tests-organisations01',
+            name='General', content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
         )
 
@@ -1049,7 +1064,8 @@ class BrickTestCase(CremeTestCase):
         )[0]
 
         cbci = CustomBrickConfigItem.objects.create(
-            id='tests-organisations01', name='General', content_type=FakeOrganisation,
+            # id='tests-organisations01',
+            name='General', content_type=FakeOrganisation,
             cells=[
                 EntityCellRegularField.build(FakeOrganisation, 'name'),
                 EntityCellRelation(model=FakeOrganisation, rtype=rtype),

@@ -1,4 +1,5 @@
 from functools import partial
+from uuid import UUID
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import ProtectedError
@@ -521,19 +522,21 @@ class BrickTestCase(CremeTestCase):
         rbi = RelationBrickItem.objects.create(relation_type=rtype)
         self.assertIsInstance(rbi, RelationBrickItem)
         self.assertIsNotNone(rbi.pk)
+        self.assertIsInstance(rbi.uuid, UUID)
         self.assertEqual(rtype.id, rbi.relation_type_id)
 
-        brick_id = f'rtype_brick-{rbi.id}'
+        # brick_id = f'rtype_brick-{rbi.id}'
+        brick_id = f'rtype-{rbi.uuid}'
         self.assertEqual(brick_id, rbi.brick_id)
 
-        id_from_brick_id = RelationBrickItem.id_from_brick_id
-        self.assertEqual(rbi.id, id_from_brick_id(brick_id))
-        self.assertIsNone(id_from_brick_id('invalid'))
-        self.assertIsNone(id_from_brick_id(f'invalid-{rbi.id}'))
-        self.assertIsNone(id_from_brick_id('rtype_brick-notanint'))
+        # id_from_brick_id = RelationBrickItem.id_from_brick_id
+        # self.assertEqual(rbi.id, id_from_brick_id(brick_id))
+        # self.assertIsNone(id_from_brick_id('invalid'))
+        # self.assertIsNone(id_from_brick_id(f'invalid-{rbi.id}'))
+        # self.assertIsNone(id_from_brick_id('rtype_brick-notanint'))
 
-        with self.assertRaises(ValueError):
-            _ = RelationBrickItem(relation_type=rtype).brick_id
+        # with self.assertRaises(ValueError):
+        #     _ = RelationBrickItem(relation_type=rtype).brick_id
 
         get_ct = ContentType.objects.get_for_model
         ct_contact = get_ct(FakeContact)
@@ -711,12 +714,47 @@ class BrickTestCase(CremeTestCase):
         )
         self.assertStillExists(loc4)
 
+    def test_relation_brick_manager(self):
+        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
+            ('test-subject_loves', 'loves'),
+            ('test-object_loved',  'is loved by'),
+        )
+        rtype3 = RelationType.objects.smart_update_or_create(
+            ('test-subject_likes', 'likes'),
+            ('test-object_liked', 'is liked by'),
+        )[0]
+
+        create_rbi = RelationBrickItem.objects.create
+        rbi1 = create_rbi(relation_type=rtype1)
+        rbi2 = create_rbi(relation_type=rtype2)
+        rbi3 = create_rbi(relation_type=rtype3)
+
+        self.assertCountEqual(
+            [rbi1, rbi3],
+            [
+                *RelationBrickItem.objects.for_brick_ids([
+                    rbi1.brick_id,
+                    'invalid',
+                    f'invalid-{rbi2.uuid}',
+                    'rtype-notauuid',
+                    rbi3.brick_id,
+                ]),
+            ],
+        )
+
+        # ---
+        with self.assertNumQueries(0):
+            count = len(RelationBrickItem.objects.for_brick_ids(['invalid']))
+        self.assertEqual(0, count)
+
     def test_custom_brick(self):
         cbci = CustomBrickConfigItem.objects.create(
-            id='tests-organisations01', name='General', content_type=FakeOrganisation,
+            # id='tests-organisations01',
+            name='General', content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
         )
-        self.assertEqual(f'customblock-{cbci.id}', cbci.brick_id)
+        # self.assertEqual(f'customblock-{cbci.id}', cbci.brick_id)
+        self.assertEqual(f'custom-{cbci.uuid}', cbci.brick_id)
 
         cell = self.get_alone_element(self.refresh(cbci).cells)
         self.assertIsInstance(cell, EntityCellRegularField)
@@ -724,7 +762,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_custom_brick_errors01(self):
         cbci = CustomBrickConfigItem.objects.create(
-            id='tests-organisations01', name='General', content_type=FakeOrganisation,
+            # id='tests-organisations01',
+            name='General', content_type=FakeOrganisation,
             cells=[
                 EntityCellRegularField.build(FakeOrganisation, 'name'),
                 EntityCellRegularField.build(FakeOrganisation, 'description'),
@@ -750,7 +789,8 @@ class BrickTestCase(CremeTestCase):
 
     def test_custom_brick_errors02(self):
         cbci = CustomBrickConfigItem.objects.create(
-            id='tests-organisations01', name='General', content_type=FakeOrganisation,
+            # id='tests-organisations01',
+            name='General', content_type=FakeOrganisation,
             cells=[
                 EntityCellRegularField.build(FakeOrganisation, 'name'),
                 EntityCellRegularField.build(FakeOrganisation, 'invalid'),
@@ -795,6 +835,32 @@ class BrickTestCase(CremeTestCase):
         self.assertStillExists(cbci)
         self.assertStillExists(loc)
 
+    def test_custom_brick_manager(self):
+        create_cdbci = partial(
+            CustomBrickConfigItem.objects.create, content_type=FakeContact,
+        )
+        cbci1 = create_cdbci(name='Info #1')
+        cbci2 = create_cdbci(name='Info #2')
+        cbci3 = create_cdbci(name='Info #3')
+
+        self.assertCountEqual(
+            [cbci1, cbci3],
+            [
+                *CustomBrickConfigItem.objects.for_brick_ids([
+                    cbci1.brick_id,
+                    'invalid',
+                    f'invalid-{cbci2.uuid}',
+                    'custom-notauuid',
+                    cbci3.brick_id,
+                ]),
+            ],
+        )
+
+        # ---
+        with self.assertNumQueries(0):
+            count = len(CustomBrickConfigItem.objects.for_brick_ids(['invalid']))
+        self.assertEqual(0, count)
+
     # NB: see reports for InstanceBrickConfigItem with a working Brick class
     def test_instance_brick01(self):
         user = self.get_root_user()
@@ -808,18 +874,19 @@ class BrickTestCase(CremeTestCase):
             entity=brick_entity,
         )
 
-        with self.assertRaises(ValueError):
-            ibi.brick_id  # NOQA
+        # with self.assertRaises(ValueError):
+        #     ibi.brick_id  # NOQA
 
         ibi.save()
-        brick_id = f'instanceblock-{ibi.id}'
+        # brick_id = f'instanceblock-{ibi.id}'
+        brick_id = f'instance-{ibi.uuid}'
         self.assertEqual(brick_id, ibi.brick_id)
 
-        id_from_brick_id = InstanceBrickConfigItem.id_from_brick_id
-        self.assertEqual(ibi.id, id_from_brick_id(brick_id))
-        self.assertIsNone(id_from_brick_id('invalid'))
-        self.assertIsNone(id_from_brick_id(f'invalid-{ibi.id}'))
-        self.assertIsNone(id_from_brick_id('instanceblock-notanint'))
+        # id_from_brick_id = InstanceBrickConfigItem.id_from_brick_id
+        # self.assertEqual(ibi.id, id_from_brick_id(brick_id))
+        # self.assertIsNone(id_from_brick_id('invalid'))
+        # self.assertIsNone(id_from_brick_id(f'invalid-{ibi.id}'))
+        # self.assertIsNone(id_from_brick_id('instanceblock-notanint'))
 
         brick = ibi.brick
         self.assertIsInstance(brick, Brick)
@@ -1015,6 +1082,42 @@ class BrickTestCase(CremeTestCase):
             [loc1, loc2],
         )
         self.assertStillExists(loc2)
+
+    def test_instance_brick_manager(self):
+        # id_from_brick_id = InstanceBrickConfigItem.id_from_brick_id
+        # self.assertEqual(ibi.id, id_from_brick_id(brick_id))
+        # self.assertIsNone(id_from_brick_id('invalid'))
+        # self.assertIsNone(id_from_brick_id(f'invalid-{ibi.id}'))
+        # self.assertIsNone(id_from_brick_id('instanceblock-notanint'))
+
+        user = self.get_root_user()
+        naru = FakeContact.objects.create(
+            user=user, first_name='Naru', last_name='Narusegawa',
+        )
+        inn = FakeOrganisation.objects.create(user=user, name='Hinata')
+
+        create_ibi = InstanceBrickConfigItem.objects.create
+        ibi1 = create_ibi(brick_class_id=self.TestBrick01.id, entity=naru)
+        ibi2 = create_ibi(brick_class_id=self.TestBrick02.id, entity=naru)
+        ibi3 = create_ibi(brick_class_id=self.TestBrick02.id, entity=inn)
+
+        self.assertCountEqual(
+            [ibi1, ibi3],
+            [
+                *InstanceBrickConfigItem.objects.for_brick_ids([
+                    ibi1.brick_id,
+                    'invalid',
+                    f'invalid-{ibi2.uuid}',
+                    'instance-notauuid',
+                    ibi3.brick_id,
+                ]),
+            ],
+        )
+
+        # ---
+        with self.assertNumQueries(0):
+            count = len(InstanceBrickConfigItem.objects.for_brick_ids(['invalid']))
+        self.assertEqual(0, count)
 
     def test_brick_state_manager_get_for_brick_id01(self):
         "State does not exist in DB."

@@ -1718,16 +1718,20 @@ class InstanceBrickConfigItemsImporter(Importer):
                 )
             else:
                 data.append({
-                    'id': info['id'],
+                    # 'id': info['id'],
+                    'uuid': info['uuid'],
                     'brick_class_id': info['brick_class'],
                     'entity_id': entity.id,
                     'json_extra_data': info['extra_data'],
                 })
 
-        validated_data[InstanceBrickConfigItem].update(d['id'] for d in self._data)
+        # validated_data[InstanceBrickConfigItem].update(d['id'] for d in self._data)
+        validated_data[InstanceBrickConfigItem].update(d['uuid'] for d in self._data)
 
     def save(self):
-        InstanceBrickConfigItem.objects.all().delete()  # TODO: recycle instances
+        # TODO: do not delete (UUIDs are here)
+        # TODO: recycle instances?
+        InstanceBrickConfigItem.objects.all().delete()
 
         for data in self._data:
             InstanceBrickConfigItem.objects.create(**data)
@@ -1744,23 +1748,27 @@ class CustomBrickConfigItemsImporter(Importer):
         self._data = data = []
 
         for info in deserialized_section:
-            cbci_id = info['id']
+            cbci_uuid = info['uuid']
             ctype = load_ct(info['content_type'])
 
             data.append({
-                'id': cbci_id,
+                # 'id': cbci_id,
+                'uuid': cbci_uuid,
                 'name': info['name'],
                 'content_type': ctype,
                 'cells': self.cells_proxies_registry.build_proxies_from_dicts(
                     model=ctype.model_class(),
-                    container_label=_('custom block with id="{id}"').format(id=cbci_id),
+                    # container_label=_('custom block with id="{id}"').format(id=cbci_id),
+                    container_label=_('custom block with uuid="{uuid}"').format(uuid=cbci_uuid),
                     cell_dicts=info['cells'],
                     validated_data=validated_data,
                 )
             })
 
     def save(self):
-        CustomBrickConfigItem.objects.all().delete()  # TODO: recycle instances
+        # TODO: do not delete (UUIDs...)?
+        # TODO: recycle instances?
+        CustomBrickConfigItem.objects.all().delete()
 
         for data in self._data:
             cell_proxies = data.pop('cells')
@@ -1789,9 +1797,10 @@ class DetailviewBricksLocationsImporter(Importer):
         def load_loc(info):
             brick_id = info['id']
 
-            ibci_id = InstanceBrickConfigItem.id_from_brick_id(brick_id)
-            if ibci_id and ibci_id not in validated_data[InstanceBrickConfigItem]:
-                return None
+            # TODO: error if instance brick is unknown?
+            # ibci_id = InstanceBrickConfigItem.id_from_brick_id(brick_id)
+            # if ibci_id and ibci_id not in validated_data[InstanceBrickConfigItem]:
+            #     return None
 
             data = {
                 'brick_id': brick_id,
@@ -1836,9 +1845,10 @@ class HomeBricksLocationsImporter(Importer):
         def load_loc(info):
             brick_id = info['id']
 
-            ibci_id = InstanceBrickConfigItem.id_from_brick_id(brick_id)
-            if ibci_id and ibci_id not in validated_data[InstanceBrickConfigItem]:
-                return None
+            # TODO: error if instance brick is unknown?
+            # ibci_id = InstanceBrickConfigItem.id_from_brick_id(brick_id)
+            # if ibci_id and ibci_id not in validated_data[InstanceBrickConfigItem]:
+            #     return None
 
             data = {
                 'brick_id': brick_id,
@@ -1879,9 +1889,10 @@ class MypageBricksLocationsImporter(Importer):
         for info in deserialized_section:
             brick_id = info['id']
 
-            ibci_id = InstanceBrickConfigItem.id_from_brick_id(brick_id)
-            if ibci_id and ibci_id not in validated_data[InstanceBrickConfigItem]:
-                continue
+            # TODO: error if instance brick is unknown?
+            # ibci_id = InstanceBrickConfigItem.id_from_brick_id(brick_id)
+            # if ibci_id and ibci_id not in validated_data[InstanceBrickConfigItem]:
+            #     continue
 
             data.append({
                 'brick_id': brick_id,

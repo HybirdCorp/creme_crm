@@ -43,7 +43,7 @@ from creme.creme_core.models import (
     UserRole,
 )
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.utils.id_generator import generate_string_id_and_save
+# from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
 
 from .fields import BricksConfigField
@@ -447,33 +447,37 @@ class RTypeBrickItemCtypeEditionForm(base.CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-class _CustomBrickConfigItemBaseForm(base.CremeModelForm):
-    class Meta(base.CremeModelForm.Meta):
-        model = CustomBrickConfigItem
+# class _CustomBrickConfigItemBaseForm(base.CremeModelForm):
+#     class Meta(base.CremeModelForm.Meta):
+#         model = CustomBrickConfigItem
+#
+#     def save(self, commit=True, *args, **kwargs):
+#         instance = self.instance
+#
+#         if instance.pk:
+#             super().save(*args, **kwargs)
+#         else:
+#             super().save(commit=False)
+#
+#             if commit:
+#                 ct = instance.content_type
+#                 generate_string_id_and_save(
+#                     CustomBrickConfigItem, [instance],
+#                     f'creme_core-user_customblock_{ct.app_label}-{ct.model}',
+#                 )
+#
+#         return instance
 
-    def save(self, commit=True, *args, **kwargs):
-        instance = self.instance
 
-        if instance.pk:
-            super().save(*args, **kwargs)
-        else:
-            super().save(commit=False)
-
-            if commit:
-                ct = instance.content_type
-                generate_string_id_and_save(
-                    CustomBrickConfigItem, [instance],
-                    f'creme_core-user_customblock_{ct.app_label}-{ct.model}',
-                )
-
-        return instance
-
-
-class CustomBrickConfigItemCreationForm(_CustomBrickConfigItemBaseForm):
+# class CustomBrickConfigItemCreationForm(_CustomBrickConfigItemBaseForm):
+class CustomBrickConfigItemCreationForm(base.CremeModelForm):
     ctype = core_fields.EntityCTypeChoiceField(
         label=_('Related resource'),
         widget=core_widgets.DynamicSelect(attrs={'autocomplete': True}),
     )
+
+    class Meta(base.CremeModelForm.Meta):
+        model = CustomBrickConfigItem
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -494,8 +498,12 @@ class CustomBrickConfigItemCreationForm(_CustomBrickConfigItemBaseForm):
         return cdata
 
 
-class CustomBrickConfigItemEditionForm(_CustomBrickConfigItemBaseForm):
+# class CustomBrickConfigItemEditionForm(_CustomBrickConfigItemBaseForm):
+class CustomBrickConfigItemEditionForm(base.CremeModelForm):
     cells = EntityCellsField(label=_('Lines'))
+
+    class Meta(base.CremeModelForm.Meta):
+        model = CustomBrickConfigItem
 
     blocks = base.CremeModelForm.blocks.new({
         'id': 'cells', 'label': 'Columns', 'fields': ['cells'],

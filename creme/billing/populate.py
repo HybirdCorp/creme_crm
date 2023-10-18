@@ -472,7 +472,8 @@ class Populator(BasePopulator):
                 ]
 
             cbci_invoice = create_cbci(
-                id='billing-invoice_info',
+                # id='billing-invoice_info',
+                uuid='d1ae20ac-98b5-4c4b-bf32-8c284c6eadae',
                 name=_('Invoice information'),
                 content_type=Invoice,
                 cells=build_cells(
@@ -483,7 +484,8 @@ class Populator(BasePopulator):
                 ),
             )
             cbci_c_note = create_cbci(
-                id='billing-creditnote_info',
+                # id='billing-creditnote_info',
+                uuid='b3233bc2-cda8-4b07-ae4b-617b177120fc',
                 name=_('Credit note information'),
                 content_type=CreditNote,
                 cells=build_cells(
@@ -492,7 +494,8 @@ class Populator(BasePopulator):
                 ),
             )
             cbci_quote = create_cbci(
-                id='billing-quote_info',
+                # id='billing-quote_info',
+                uuid='eb3e5fcc-e929-4a15-b859-207a093bc4cb',
                 name=_('Quote information'),
                 content_type=Quote,
                 cells=build_cells(
@@ -502,7 +505,8 @@ class Populator(BasePopulator):
                 ),
             )
             cbci_s_order = create_cbci(
-                id='billing-salesorder_info',
+                # id='billing-salesorder_info',
+                uuid='5e5b19c9-fa6e-43cf-a798-8b51b2ff73ce',
                 name=_('Salesorder information'),
                 content_type=SalesOrder,
                 cells=build_cells(
@@ -511,7 +515,8 @@ class Populator(BasePopulator):
                 ),
             )
             cbci_tbase = create_cbci(
-                id='billing-templatebase_info',
+                # id='billing-templatebase_info',
+                uuid='4653dc10-f2ce-455c-a0b2-30ff957e8f68',
                 name=pgettext('billing', 'Template information'),
                 content_type=TemplateBase,
                 cells=build_cells(
@@ -675,7 +680,9 @@ class Populator(BasePopulator):
             ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )
-        ibci1 = SimpleGraphFetcher(graph=rgraph1).create_brick_config_item()
+        ibci1 = SimpleGraphFetcher(graph=rgraph1).create_brick_config_item(
+            uuid='574e62e4-f5fb-4cb0-8e50-8bed100a83fd',
+        )
         BrickHomeLocation.objects.create(brick_id=ibci1.brick_id, order=11)
 
         # Create current year and unpaid invoices report -----------------------
@@ -694,5 +701,7 @@ class Populator(BasePopulator):
             ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )
-        ibci3 = SimpleGraphFetcher(rgraph3).create_brick_config_item()
+        ibci3 = SimpleGraphFetcher(rgraph3).create_brick_config_item(
+            uuid='9b9faf6f-0537-419f-842d-d9b3fc3cb321',
+        )
         BrickHomeLocation.objects.create(brick_id=ibci3.brick_id, order=12)

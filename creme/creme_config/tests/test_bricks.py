@@ -2147,7 +2147,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         name = 'info'
         cbc_item = CustomBrickConfigItem.objects.create(
-            id='tests-contacts1', content_type=ct, name=name,
+            # id='tests-contacts1',
+            content_type=ct, name=name,
         )
 
         url = self._build_custombrick_edit_url(cbc_item)
@@ -2222,7 +2223,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         cbc_item = CustomBrickConfigItem.objects.create(
-            id='tests-contacts1',
+            # id='tests-contacts1',
             name='Contact info',
             content_type=ct,
         )
@@ -2307,7 +2308,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBrickConfigItem.objects.create(
-            id='tests-contacts1', name='Contact info', content_type=ct,
+            # id='tests-contacts1',
+            name='Contact info', content_type=ct,
             cells=[
                 build_cell(FakeContact, valid_fname),
                 build_cell(FakeContact, hidden_fname1),

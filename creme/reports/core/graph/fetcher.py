@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from functools import partial
 from typing import TYPE_CHECKING, Iterator
+from uuid import UUID
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import ForeignKey, Q
@@ -89,6 +90,7 @@ class GraphFetcher:
 
     def create_brick_config_item(self,
                                  brick_class: type[InstanceBrick] | None = None,
+                                 uuid: str | UUID | None = None,
                                  ) -> InstanceBrickConfigItem:
         if brick_class is None:
             from creme.reports.bricks import ReportGraphChartInstanceBrick
@@ -98,6 +100,9 @@ class GraphFetcher:
             entity=self.graph,
             brick_class_id=brick_class.id,
         )
+
+        if uuid:
+            ibci.uuid = uuid
 
         for k, v in self.as_dict_items():
             ibci.set_extra_data(key=k, value=v)

@@ -244,7 +244,8 @@ class InstanceBrickConfigItemExporter(CellsExporterMixin, Exporter):
         assert isinstance(instance, models.InstanceBrickConfigItem)
 
         return {
-            'id':          instance.id,
+            # 'id':          instance.id,
+            'uuid':        str(instance.uuid),
             'brick_class': instance.brick_class_id,
             'entity':      str(instance.entity.uuid),
             'extra_data':  instance.json_extra_data,
@@ -259,7 +260,8 @@ class CustomBrickConfigItemExporter(CellsExporterMixin, Exporter):
         assert isinstance(instance, models.CustomBrickConfigItem)
 
         return {
-            'id':   instance.id,
+            # 'id':   instance.id,
+            'uuid': str(instance.uuid),
             'name': instance.name,
 
             'content_type': dump_ct(instance.content_type),

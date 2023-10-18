@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 from functools import partial
 from typing import TYPE_CHECKING, Iterable, Iterator, Sequence, TypedDict
+from uuid import UUID, uuid4
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -430,25 +431,47 @@ class StoredBrickClassMixin:
             raise ProtectedError(msg, [*locations])
 
 
-# TODO: remove this class?
-class RelationBrickItemManager(models.Manager):
-    pass
+class UUIDBrickItemManager(models.Manager):
+    def for_brick_ids(self, brick_ids) -> models.QuerySet:
+        model_prefix = self.model._brick_id_prefix
+        uuids = []
+
+        for brick_id in brick_ids:
+            try:
+                prefix, uid = brick_id.split('-', 1)
+            except ValueError:  # Unpacking error
+                continue
+
+            if prefix != model_prefix:
+                continue
+
+            try:
+                uuids.append(UUID(uid))
+            except ValueError:
+                logger.critical(
+                    '%s.for_brick_ids(): invalid UUID stored in Brick with ID=%s: %s',
+                    type(self).__name__, brick_id, uid,
+                )
+
+        return self.filter(uuid__in=uuids)
 
 
 class RelationBrickItem(StoredBrickClassMixin, CremeModel):
+    uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
     relation_type = models.OneToOneField(
         RelationType, on_delete=models.CASCADE,
         verbose_name=_('Related type of relationship'),
     )
     json_cells_map = models.JSONField(editable=False, default=dict)
 
-    objects = RelationBrickItemManager()
+    objects = UUIDBrickItemManager()
 
     creation_label = _('Create a type of block')
     save_label     = _('Save the block')
 
     _cells_map = None
-    _brick_id_prefix = 'rtype_brick'
+    # _brick_id_prefix = 'rtype_brick'
+    _brick_id_prefix = 'rtype'
 
     class Meta:
         app_label = 'creme_core'
@@ -478,34 +501,37 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
 
     @property
     def brick_id(self) -> str:
-        my_id = self.id
+        # my_id = self.id
 
-        if my_id is None:
-            raise ValueError(
-                f'{type(self).__name__}.brick_id: must be called on a saved instance.'
-            )
+        # TODO?
+        # if my_id is None:
+        #     raise ValueError(
+        #         f'{type(self).__name__}.brick_id: must be called on a saved instance.'
+        #     )
 
-        return f'{self._brick_id_prefix}-{my_id}'
+        # return f'{self._brick_id_prefix}-{my_id}'
+        return f'{self._brick_id_prefix}-{self.uuid}'
 
-    @classmethod
-    def id_from_brick_id(cls, brick_id: str) -> int | None:
-        try:
-            prefix, rbi_id = brick_id.split('-', 1)
-        except ValueError:  # Unpacking error
-            return None
-
-        if prefix != cls._brick_id_prefix:
-            return None
-
-        try:
-            return int(rbi_id)
-        except ValueError:
-            logger.critical(
-                '%s.id_from_brick_id(): invalid instance ID stored in Brick ID: %s',
-                cls.__name__, brick_id,
-            )
-
-        return None
+    # TODO: replace by a method 'uuid_from_brick_id()'?
+    # @classmethod
+    # def id_from_brick_id(cls, brick_id: str) -> int | None:
+    #     try:
+    #         prefix, rbi_id = brick_id.split('-', 1)
+    #     except ValueError:  # Unpacking error
+    #         return None
+    #
+    #     if prefix != cls._brick_id_prefix:
+    #         return None
+    #
+    #     try:
+    #         return int(rbi_id)
+    #     except ValueError:
+    #         logger.critical(
+    #             '%s.id_from_brick_id(): invalid instance ID stored in Brick ID: %s',
+    #             cls.__name__, brick_id,
+    #         )
+    #
+    #     return None
 
     def _dump_cells_map(self):
         self.json_cells_map = {
@@ -565,6 +591,7 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
 
 
 class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
+    uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
     brick_class_id = models.CharField(
         'Block class ID',
         max_length=300, editable=False,
@@ -583,12 +610,14 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
         default=dict,
     ).set_tags(viewable=False)
 
+    objects = UUIDBrickItemManager()
+
     creation_label = _('Create a block')
     save_label     = _('Save the block')
 
     _brick: InstanceBrick | None = None
-    # TODO: 'instance_brick'
-    _brick_id_prefix = 'instanceblock'
+    # _brick_id_prefix = 'instanceblock'
+    _brick_id_prefix = 'instance'
 
     class Meta:
         app_label = 'creme_core'
@@ -624,14 +653,16 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
     @property
     def brick_id(self) -> str:
-        my_id = self.id
+        # my_id = self.id
 
-        if my_id is None:
-            raise ValueError(
-                f'{type(self).__name__}.brick_id: must be called on a saved instance.'
-            )
+        # TODO?
+        # if my_id is None:
+        #     raise ValueError(
+        #         f'{type(self).__name__}.brick_id: must be called on a saved instance.'
+        #     )
 
-        return f'{self._brick_id_prefix}-{my_id}'
+        # return f'{self._brick_id_prefix}-{my_id}'
+        return f'{self._brick_id_prefix}-{self.uuid}'
 
     # TODO ?
     # def del_extra_data(self, key: str) -> None:
@@ -650,29 +681,31 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
     def extra_data_items(self):
         return iter(self._extra_data.items())
 
-    @classmethod
-    def id_from_brick_id(cls, brick_id: str) -> int | None:
-        try:
-            prefix, ibci_id = brick_id.split('-', 1)
-        except ValueError:  # Unpacking error
-            return None
-
-        if prefix != cls._brick_id_prefix:
-            return None
-
-        try:
-            return int(ibci_id)
-        except ValueError:
-            logger.critical(
-                '%s.id_from_brick_id(): invalid instance ID stored in Brick ID: %s',
-                cls.__name__, brick_id,
-            )
-
-        return None
+    # TODO: replace by a method 'uuid_from_brick_id()'?
+    # @classmethod
+    # def id_from_brick_id(cls, brick_id: str) -> int | None:
+    #     try:
+    #         prefix, ibci_id = brick_id.split('-', 1)
+    #     except ValueError:  # Unpacking error
+    #         return None
+    #
+    #     if prefix != cls._brick_id_prefix:
+    #         return None
+    #
+    #     try:
+    #         return int(ibci_id)
+    #     except ValueError:
+    #         logger.critical(
+    #             '%s.id_from_brick_id(): invalid instance ID stored in Brick ID: %s',
+    #             cls.__name__, brick_id,
+    #         )
+    #
+    #     return None
 
     @classmethod
     def generate_base_id(cls, app_name: str, name: str) -> str:
-        return f'{cls._brick_id_prefix}_{app_name}-{name}'
+        # return f'{cls._brick_id_prefix}_{app_name}-{name}'
+        return f'{cls._brick_id_prefix}-{app_name}-{name}'
 
     def save(self, **kwargs):
         # Should we manage argument 'update_fields'? (if you set explicitly the
@@ -682,15 +715,17 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
 
 class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
-    id = models.CharField(primary_key=True, max_length=100, editable=False)
+    # id = models.CharField(primary_key=True, max_length=100, editable=False)
+    uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
     content_type = CTypeForeignKey(verbose_name=_('Related type'), editable=False)
     name = models.CharField(_('Name'), max_length=200)
     json_cells = models.JSONField(editable=False, default=list)
 
-    _cells = None
+    objects = UUIDBrickItemManager()
 
-    # TODO: replace by "custom_brick" (needs data migration)
-    _brick_id_prefix = 'customblock'
+    _cells = None
+    # _brick_id_prefix = 'customblock'
+    _brick_id_prefix = 'custom'
 
     class Meta:
         app_label = 'creme_core'
@@ -700,7 +735,8 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
     @property
     def brick_id(self) -> str:
-        return f'{self._brick_id_prefix}-{self.id}'
+        # return f'{self._brick_id_prefix}-{self.id}'
+        return f'{self._brick_id_prefix}-{self.uuid}'
 
     @atomic
     def delete(self, *args, **kwargs):
@@ -711,14 +747,15 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
         super().delete(*args, **kwargs)
 
-    @classmethod
-    def id_from_brick_id(cls, brick_id: str) -> str | None:
-        try:
-            prefix, cbci_id = brick_id.split('-', 1)
-        except ValueError:  # Unpacking error
-            return None
-
-        return None if prefix != cls._brick_id_prefix else cbci_id
+    # TODO: replace by a method 'uuid_from_brick_id()'?
+    # @classmethod
+    # def id_from_brick_id(cls, brick_id: str) -> str | None:
+    #     try:
+    #         prefix, cbci_id = brick_id.split('-', 1)
+    #     except ValueError:  # Unpacking error
+    #         return None
+    #
+    #     return None if prefix != cls._brick_id_prefix else cbci_id
 
     def _dump_cells(self, cells: Iterable[EntityCell]) -> None:
         # TODO: custom encoder instead?

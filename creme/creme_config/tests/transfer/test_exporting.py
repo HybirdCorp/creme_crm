@@ -80,9 +80,10 @@ class ExportingTestCase(TransferBaseTestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        BrickDetailviewLocation.objects.filter(brick_id__startswith='instanceblock').delete()
-        BrickHomeLocation.objects.filter(brick_id__startswith='instanceblock').delete()
-        BrickMypageLocation.objects.filter(brick_id__startswith='instanceblock').delete()
+        prefix = InstanceBrickConfigItem._brick_id_prefix
+        BrickDetailviewLocation.objects.filter(brick_id__startswith=prefix).delete()
+        BrickHomeLocation.objects.filter(brick_id__startswith=prefix).delete()
+        BrickMypageLocation.objects.filter(brick_id__startswith=prefix).delete()
 
     def test_creds(self):
         "Not staff."
@@ -418,7 +419,7 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
         cbci = CustomBrickConfigItem.objects.create(
-            id='creme_core-fake_contact_info',
+            # id='creme_core-fake_contact_info',
             name='FakeContact information',
             content_type=FakeContact,
             cells=[
@@ -434,11 +435,13 @@ class ExportingTestCase(TransferBaseTestCase):
         custom_bricks_info = content.get('custom_bricks')
         self.assertIsList(custom_bricks_info)
 
+        b_uuid = str(cbci.uuid)
         with self.assertNoException():
             all_cbci_info01 = [
                 dumped_cbci
                 for dumped_cbci in custom_bricks_info
-                if dumped_cbci['id'] == cbci.id
+                # if dumped_cbci['id'] == cbci.id
+                if dumped_cbci['uuid'] == b_uuid
             ]
 
         cbci_info = self.get_alone_element(all_cbci_info01)
@@ -812,7 +815,8 @@ class ExportingTestCase(TransferBaseTestCase):
             ]
 
         ibci_info01 = self.get_alone_element(my_ibci_info01)
-        self.assertEqual(ibi.id,         ibci_info01.get('id'))
+        # self.assertEqual(ibi.id,         ibci_info01.get('id'))
+        self.assertEqual(str(ibi.uuid),  ibci_info01.get('uuid'))
         self.assertEqual(str(naru.uuid), ibci_info01.get('entity'))
         self.assertDictEqual(ibi.json_extra_data, ibci_info01.get('extra_data'))
 
@@ -826,7 +830,7 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertListEqual(
             [
                 {
-                    'id': ibi.brick_id,  # TODO: contains local ID !!!
+                    'id': ibi.brick_id,
                     'order': 5, 'zone': RIGHT,
                     'ctype': 'creme_core.fakecontact',
                 },
@@ -863,14 +867,15 @@ class ExportingTestCase(TransferBaseTestCase):
             ]
 
         ibci_info01 = self.get_alone_element(my_ibci_info01)
-        self.assertEqual(ibi.id,         ibci_info01.get('id'))
+        # self.assertEqual(ibi.id,         ibci_info01.get('id'))
+        self.assertEqual(str(ibi.uuid),  ibci_info01.get('uuid'))
         self.assertEqual(str(naru.uuid), ibci_info01.get('entity'))
         self.assertDictEqual({}, ibci_info01.get('extra_data'))
 
         # ---
         self.assertListEqual(
             [{
-                'id': ibi.brick_id,  # TODO: contains local ID !!!
+                'id': ibi.brick_id,
                 'superuser': True,
                 'order': 1,
             }],
@@ -902,7 +907,7 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertIsList(instance_bricks_info, min_length=1)
         self.assertIn(
             {
-                'id': ibi.brick_id,  # TODO: contains local ID !!!
+                'id': ibi.brick_id,
                 'order': 1,
             },
             [dumped_bdl for dumped_bdl in content.get('mypage_bricks')],

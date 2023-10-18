@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Config 2.5\n"
+"Project-Id-Version: Creme Creme-Config 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-10 18:22+0200\n"
+"POT-Creation-Date: 2023-10-19 20:44+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -261,8 +261,8 @@ msgid "block for relation-type id=\"{id}\""
 msgstr "bloc pour le type de relation id=\"{id}\""
 
 #, python-brace-format
-msgid "custom block with id=\"{id}\""
-msgstr "bloc personnalisé avec id=\"{id}\""
+msgid "custom block with uuid=\"{uuid}\""
+msgstr "bloc personnalisé avec uuid=\"{uuid}\""
 
 msgid "The brick zone «{}» is not valid."
 msgstr "La zone de bloc «{}» n'est pas valide."

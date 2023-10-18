@@ -196,24 +196,26 @@ class Populator(BasePopulator):
             build_cell = EntityCellRegularField.build
 
             cbci_email = create_cbci(
-                id='emails-entityemail_info',
+                # id='emails-entityemail_info',
+                uuid='dbabb94a-a92e-41af-89ee-b18a6a920345',
                 name=_('Email information'),
                 content_type=EntityEmail,
                 cells=[
-                   build_cell(EntityEmail, 'user'),
-                   build_cell(EntityEmail, 'reads'),
-                   build_cell(EntityEmail, 'status'),
-                   build_cell(EntityEmail, 'sender'),
-                   build_cell(EntityEmail, 'recipient'),
-                   build_cell(EntityEmail, 'subject'),
-                   build_cell(EntityEmail, 'reception_date'),
-                   build_cell(EntityEmail, 'attachments'),
-                   build_cell(EntityEmail, 'body'),
-                   build_cell(EntityEmail, 'description'),
+                    build_cell(EntityEmail, 'user'),
+                    build_cell(EntityEmail, 'reads'),
+                    build_cell(EntityEmail, 'status'),
+                    build_cell(EntityEmail, 'sender'),
+                    build_cell(EntityEmail, 'recipient'),
+                    build_cell(EntityEmail, 'subject'),
+                    build_cell(EntityEmail, 'reception_date'),
+                    build_cell(EntityEmail, 'attachments'),
+                    build_cell(EntityEmail, 'body'),
+                    build_cell(EntityEmail, 'description'),
                 ],
             )
             cbci_template = create_cbci(
-                id='emails-emailtemplate_info',
+                # id='emails-emailtemplate_info',
+                uuid='b1bf8a0a-26ef-4f05-a666-a328da6c52fd',
                 name=_('Email template information'),
                 content_type=EmailTemplate,
                 cells=[

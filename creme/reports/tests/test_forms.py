@@ -2253,7 +2253,7 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
             graph=graph,
             value=fk_name,
         ).create_brick_config_item(
-            brick_class=ReportGraphChartInstanceBrick
+            brick_class=ReportGraphChartInstanceBrick,
         )
 
         form1 = GraphInstanceBrickForm(
