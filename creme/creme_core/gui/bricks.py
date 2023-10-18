@@ -905,33 +905,49 @@ class _BrickRegistry:
         @param entity: if the bricks are displayed of the detail-view of an
                entity, it should be given.
         """
-        rtypes_item_ids = [
-            *filter(None, map(RelationBrickItem.id_from_brick_id, brick_ids)),
-        ]
-        instance_item_ids = [
-            *filter(None, map(InstanceBrickConfigItem.id_from_brick_id, brick_ids)),
-        ]
-        custom_item_ids  = [
-            *filter(None, map(CustomBrickConfigItem.id_from_brick_id, brick_ids)),
-        ]
+        # rtypes_item_ids = [
+        #     *filter(None, map(RelationBrickItem.id_from_brick_id, brick_ids)),
+        # ]
+        # instance_item_ids = [
+        #     *filter(None, map(InstanceBrickConfigItem.id_from_brick_id, brick_ids)),
+        # ]
+        # custom_item_ids  = [
+        #     *filter(None, map(CustomBrickConfigItem.id_from_brick_id, brick_ids)),
+        # ]
 
+        # relation_bricks_items = {
+        #     rbi.brick_id: rbi
+        #     for rbi in RelationBrickItem.objects
+        #                                 .filter(id__in=rtypes_item_ids)
+        #                                 .prefetch_related('relation_type')
+        # } if rtypes_item_ids else {}
         relation_bricks_items = {
             rbi.brick_id: rbi
             for rbi in RelationBrickItem.objects
-                                        .filter(id__in=rtypes_item_ids)
+                                        .for_brick_ids(brick_ids)
                                         .prefetch_related('relation_type')
-        } if rtypes_item_ids else {}
+        }
+        # instance_bricks_items = {
+        #     ibi.brick_id: ibi
+        #     for ibi in InstanceBrickConfigItem.objects
+        #                                       .filter(id__in=instance_item_ids)
+        #                                       .prefetch_related('entity')
+        # } if instance_item_ids else {}
         instance_bricks_items = {
             ibi.brick_id: ibi
             # TODO: CremeEntity.populate_real_entities
             for ibi in InstanceBrickConfigItem.objects
-                                              .filter(id__in=instance_item_ids)
+                                              .for_brick_ids(brick_ids)
                                               .prefetch_related('entity')
-        } if instance_item_ids else {}
+        }
+        # custom_bricks_items = {
+        #     cbci.brick_id: cbci
+        #     for cbci in CustomBrickConfigItem.objects.filter(id__in=custom_item_ids)
+        # } if custom_item_ids else {}
         custom_bricks_items = {
             cbci.brick_id: cbci
-            for cbci in CustomBrickConfigItem.objects.filter(id__in=custom_item_ids)
-        } if custom_item_ids else {}
+            for cbci in CustomBrickConfigItem.objects.for_brick_ids(brick_ids)
+        }
 
         for id_ in brick_ids:
             rbi = relation_bricks_items.get(id_)

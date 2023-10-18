@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
@@ -77,6 +79,7 @@ class GraphFetcherTestCase(CremeTestCase):
         self.assertEqual(graph, b_fetcher.graph)
 
     def test_fk01(self):
+        "ForeignKey ; UUID parameter."
         user = self.get_root_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
@@ -93,7 +96,9 @@ class GraphFetcherTestCase(CremeTestCase):
             fetcher1.verbose_name,
         )
 
-        ibci = fetcher1.create_brick_config_item()
+        uid = uuid4()
+        ibci = fetcher1.create_brick_config_item(uuid=uid)
+        self.assertEqual(uid, ibci.uuid)
         self.assertEqual(RGF_FK, ibci.get_extra_data('type'))
         self.assertEqual(fname, ibci.get_extra_data('value'))
 

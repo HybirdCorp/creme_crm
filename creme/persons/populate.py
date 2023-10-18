@@ -323,7 +323,8 @@ class Populator(BasePopulator):
 
             # cbci_orga_1 =
             create_cbci(
-                id='persons-organisation_main_info',
+                # id='persons-organisation_main_info',
+                uuid='05af52f4-fce8-4eca-b06a-49ea65186722',
                 name=_('Organisation information'),
                 content_type=Organisation,
                 cells=[
@@ -352,7 +353,8 @@ class Populator(BasePopulator):
             )
             # cbci_orga_2 =
             create_cbci(
-                id='persons-organisation_details',
+                # id='persons-organisation_details',
+                uuid='32446dad-ef2b-4099-aa71-573dc9d1099a',
                 name=_('Organisation details'),
                 content_type=Organisation,
                 cells=[
@@ -363,7 +365,8 @@ class Populator(BasePopulator):
                 ],
             )
             cbci_orga_extra = create_cbci(
-                id='persons-organisation_complementary',
+                # id='persons-organisation_complementary',
+                uuid='2a0f4a73-094f-492f-8fbd-125cb5ff30ed',
                 name=_('Organisation complementary information'),
                 content_type=Organisation,
                 cells=[
@@ -413,7 +416,8 @@ class Populator(BasePopulator):
             )
 
             create_cbci(
-                id='persons-contact_main_info',
+                # id='persons-contact_main_info',
+                uuid='9d945cba-f604-4552-a28c-28eb67ec4a73',
                 name=_('Contact information'),
                 content_type=Contact,
                 cells=[
@@ -436,7 +440,8 @@ class Populator(BasePopulator):
                 ],
             )
             create_cbci(
-                id='persons-contact_details',
+                # id='persons-contact_details',
+                uuid='4092894e-358c-4970-ad55-151862dee576',
                 name=_('Contact details'),
                 content_type=Contact,
                 cells=[
@@ -449,7 +454,8 @@ class Populator(BasePopulator):
                 ],
             )
             cbci_contact_extra = create_cbci(
-                id='persons-contact_complementary',
+                # id='persons-contact_complementary',
+                uuid='4c6eb2a7-d7d4-4c19-a485-ad8da84f1211',
                 name=_('Contact complementary information'),
                 content_type=Contact,
                 cells=[

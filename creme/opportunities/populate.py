@@ -333,7 +333,8 @@ class Populator(BasePopulator):
 
             build_cell = EntityCellRegularField.build
             cbci = CustomBrickConfigItem.objects.create(
-                id='opportunities-complementary',
+                # id='opportunities-complementary',
+                uuid='43ac42b1-3b6d-4c9a-8133-942b19679353',
                 name=_('Opportunity complementary information'),
                 content_type=Opportunity,
                 cells=[
@@ -539,8 +540,12 @@ class Populator(BasePopulator):
         )
 
         # Create 2 instance block items for the 2 graphs -----------------------
-        brick_id1 = SimpleGraphFetcher(rgraph1).create_brick_config_item().brick_id
-        brick_id2 = SimpleGraphFetcher(rgraph2).create_brick_config_item().brick_id
+        brick_id1 = SimpleGraphFetcher(rgraph1).create_brick_config_item(
+            uuid='0ba26e9c-5525-4ca1-b7e4-aea9828fc876',
+        ).brick_id
+        brick_id2 = SimpleGraphFetcher(rgraph2).create_brick_config_item(
+            uuid='b3e54a05-f050-4d33-9476-1e8c85aeab08',
+        ).brick_id
 
         create_bdl = partial(
             BrickDetailviewLocation.objects.create_if_needed,

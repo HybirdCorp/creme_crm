@@ -540,7 +540,8 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         self.assertIsNone(item.brick.errors)
 
         brick_id = item.brick_id
-        self.assertEqual(f'instanceblock-{item.id}', brick_id)
+        # self.assertEqual(f'instanceblock-{item.id}', brick_id)
+        self.assertEqual(f'instance-{item.uuid}', brick_id)
 
         title = '{} - {}'.format(rgraph.name, _('No volatile column'))
         self.assertEqual(title, ReportGraphChartInstanceBrick(item).verbose_name)

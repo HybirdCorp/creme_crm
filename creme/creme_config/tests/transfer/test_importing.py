@@ -3117,41 +3117,55 @@ class ImportingTestCase(TransferBaseTestCase):
         create_ibi(entity=contact1)
         create_ibi(entity=contact2)
 
-        ibi_id1 = 1
+        # ibi_id1 = 1
+        ibi_uuid1 = uuid4()
         extra_data1 = {'foo': 128}
 
-        ibi_id2 = 2
+        # ibi_id2 = 2
+        ibi_uuid2 = uuid4()
         e_uuid2 = uuid4()
         self.assertFalse(CremeEntity.objects.filter(uuid=e_uuid2).exists())
 
         ibi_data = [
             {
-                'id': ibi_id1,
+                # 'id': ibi_id1,
+                'uuid': str(ibi_uuid1),
                 'brick_class': TransferInstanceBrick.id,
                 'entity': str(contact1.uuid),
                 'extra_data': extra_data1,
             }, {
-                'id': ibi_id2,
+                # 'id': ibi_id2,
+                'uuid': str(ibi_uuid2),
                 'brick_class': TransferInstanceBrick.id,
                 'entity': str(e_uuid2),
                 'extra_data': {},
             },
         ]
         LEFT = BrickDetailviewLocation.LEFT
+        instance_prefix = InstanceBrickConfigItem._brick_id_prefix
         detail_bricks_data = [
             {'id': constants.MODELBRICK_ID,    'order': 1, 'zone': LEFT},
-            {'id': f'instanceblock-{ibi_id1}', 'order': 2, 'zone': LEFT},
-            {'id': f'instanceblock-{ibi_id2}', 'order': 3, 'zone': LEFT},  # Should be dropped
+            # {'id': f'{instance_prefix}-{ibi_id1}', 'order': 2, 'zone': LEFT},
+            {'id': f'{instance_prefix}-{ibi_uuid1}', 'order': 2, 'zone': LEFT},
+            # Should be dropped
+            # {'id': f'{instance_prefix}-{ibi_id2}', 'order': 3, 'zone': LEFT},
+            {'id': f'{instance_prefix}-{ibi_uuid2}', 'order': 3, 'zone': LEFT},
         ]
         home_bricks_data = [
             {'id': bricks.StatisticsBrick.id,  'order': 1},
-            {'id': f'instanceblock-{ibi_id1}', 'order': 2},
-            {'id': f'instanceblock-{ibi_id2}', 'order': 3},  # Should be dropped
+            # {'id': f'{instance_prefix}-{ibi_id1}', 'order': 2},
+            {'id': f'{instance_prefix}-{ibi_uuid1}', 'order': 2},
+            # Should be dropped
+            # {'id': f'{instance_prefix}-{ibi_id2}', 'order': 3},
+            {'id': f'{instance_prefix}-{ibi_uuid2}', 'order': 3},
         ]
         mypage_bricks_data = [
             {'id': bricks.HistoryBrick.id,     'order': 1},
-            {'id': f'instanceblock-{ibi_id1}', 'order': 2},
-            {'id': f'instanceblock-{ibi_id2}', 'order': 3},  # Should be dropped
+            # {'id': f'{instance_prefix}-{ibi_id1}', 'order': 2},
+            {'id': f'{instance_prefix}-{ibi_uuid1}', 'order': 2},
+            # Should be dropped
+            # {'id': f'{instance_prefix}-{ibi_id2}', 'order': 3},
+            {'id': f'{instance_prefix}-{ibi_uuid2}', 'order': 3},
         ]
 
         json_file = StringIO(json_dump({
@@ -3167,15 +3181,19 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertNoFormError(response)
 
         ibi = self.get_alone_element(InstanceBrickConfigItem.objects.all())
-        self.assertEqual(ibi_id1,                  ibi.id)
+        # self.assertEqual(ibi_id1,                  ibi.id)
+        self.assertEqual(ibi_uuid1,                ibi.uuid)
         self.assertEqual(contact1.id,              ibi.entity_id)
         self.assertEqual(TransferInstanceBrick.id, ibi.brick_class_id)
         self.assertDictEqual(extra_data1, ibi.json_extra_data)
 
-        self.assertFalse(InstanceBrickConfigItem.objects.filter(id=ibi_id2))
+        # self.assertFalse(InstanceBrickConfigItem.objects.filter(id=ibi_id2))
+        self.assertFalse(InstanceBrickConfigItem.objects.filter(uuid=ibi_uuid2))
 
         self.assertListEqual(
-            [detail_bricks_data[0]['id'], detail_bricks_data[1]['id']],  # Not ..._data[2]
+            # TODO: Not ..._data[2] ? (should be ignored at render)
+            # [detail_bricks_data[0]['id'], detail_bricks_data[1]['id']],  # Not ..._data[2]
+            [data['id'] for data in detail_bricks_data],
             [
                 *BrickDetailviewLocation.objects.filter(
                     content_type=None, role=None, superuser=False, zone=LEFT,
@@ -3183,13 +3201,17 @@ class ImportingTestCase(TransferBaseTestCase):
             ],
         )
         self.assertListEqual(
-            [home_bricks_data[0]['id'], home_bricks_data[1]['id']],  # Not ..._data[2]
+            # TODO: Not ..._data[2] ?
+            # [home_bricks_data[0]['id'], home_bricks_data[1]['id']],  # Not ..._data[2]
+            [data['id'] for data in home_bricks_data],
             [
                 *BrickHomeLocation.objects.values_list('brick_id', flat=True)
             ],
         )
         self.assertListEqual(
-            [mypage_bricks_data[0]['id'], mypage_bricks_data[1]['id']],  # Not ..._data[2]
+            # TODO: Not ..._data[2] ?
+            # [mypage_bricks_data[0]['id'], mypage_bricks_data[1]['id']],  # Not ..._data[2]
+            [data['id'] for data in mypage_bricks_data],  # Not ..._data[2]
             [
                 *BrickMypageLocation.objects.filter(user=None).values_list('brick_id', flat=True)
             ],
@@ -3199,7 +3221,7 @@ class ImportingTestCase(TransferBaseTestCase):
         self.login_as_super(is_staff=True)
 
         old_cbci = CustomBrickConfigItem.objects.create(
-            id='creme_core-fake_orga_info',
+            # id='creme_core-fake_orga_info',
             name='FakeOrganisation information',
             content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
@@ -3215,11 +3237,13 @@ class ImportingTestCase(TransferBaseTestCase):
             },
         ]
 
-        cbci_id = 'creme_core-fake_contact_info'
+        # cbci_id = 'creme_core-fake_contact_info'
+        cbci_uuid = uuid4()
         name = 'FakeContact information'
         cbci_data = [
             {
-                'id': cbci_id,
+                # 'id': cbci_id,
+                'uuid': str(cbci_uuid),
                 'content_type': ct_str,
                 'name': name,
                 'cells': [
@@ -3244,7 +3268,8 @@ class ImportingTestCase(TransferBaseTestCase):
 
         cfield = self.get_object_or_fail(CustomField, uuid=cf_uuid)
 
-        cbci = self.get_object_or_fail(CustomBrickConfigItem, id=cbci_id)
+        # cbci = self.get_object_or_fail(CustomBrickConfigItem, id=cbci_id)
+        cbci = self.get_object_or_fail(CustomBrickConfigItem, uuid=cbci_uuid)
         self.assertEqual(name,        cbci.name)
         self.assertEqual(FakeContact, cbci.content_type.model_class())
         self.assertListEqual(

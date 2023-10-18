@@ -99,12 +99,23 @@
             - The class 'paginator.FlowPaginator' does not accept ForeignKeys as key anymore;
               pass the corresponding "low-level" attribute (e.g. "user_id") or a sub-field (e.g. "user__username").
         # In 'creme_core.models' :
-            - The model 'CremePropertyType' uses now a classical AutoField (i.e. integers) for primary key, and get an UUIDField.
+            - The model 'CremePropertyType' uses now a classical AutoField (i.e. integers) for primary key, and gets an UUIDField.
               A CharField "app_label" has been added too (the app label was given is the previous string primary key).
               The parameters of the method 'CremePropertyTypeManager.smart_update_or_create()' have changed ;
               "str_pk" & "generate_pk" have been replaced bu "uuid". Notice that this method is now mainly useful to set the ContentType constraints
               (because you can pass model, not only ContentType instances) ; use 'CremePropertyType.objects.create()' or
               'CremePropertyType.objects.update_or_create()' in the other cases.
+            - In 'bricks' :
+                - The model 'CustomBrickConfigItem' uses now a classical AutoField (i.e. integers) for primary key,
+                  and gets an UUIDField. In your "populate.py" scripts, you should probably set the "uuid" with a
+                  hard-coded value (but you can just let the code generate a value).
+                - The properties 'brick_id' of the models 'CustomBrickConfigItem'/'InstanceBrickConfigItem'/'RelationBrickItem'
+                  return different values (the prefixes contained in the attributes '_brick_id_prefix' have changed).
+                  Idem with 'InstanceBrickConfigItem.generate_base_id()'.
+                  The methods 'id_from_brick_id()' have been removed.
+                     - "rtype_brick" => "rtype"
+                     - "instanceblock" => "instance"
+                     - "customblock" => "custom"
             - The field 'HeaderFilter.json_cells' is now a 'JSONField';
               you won't have to change your code if you use the property 'cells' as advised.
             - In 'EntityFilterCondition' :
@@ -137,6 +148,7 @@
         # Apps :
             * Creme_config :
                 - In 'forms' :
+                    - The class 'bricks._CustomBrickConfigItemBaseForm' has been removed.
                     - In 'creme_property_type', these classes have been removed :
                         - _CremePropertyTypeBaseForm
                         - CremePropertyTypeCreationForm
