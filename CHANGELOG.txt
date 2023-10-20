@@ -4,6 +4,7 @@
   ------------
     # There were several issues with "Date" CustomFields :
         - They were not usable in filters (because they were proposed with "normal" custom-fields).
+        - Their quick-search (i.e. in header of list-views) was disabled.
 
 
 == Version 2.4.8 ==
