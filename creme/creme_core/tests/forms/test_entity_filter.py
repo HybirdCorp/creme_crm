@@ -1284,6 +1284,7 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             {'field': {'id': str(field)}, 'operator': {'id': str(operator)}, 'value': value}
         ])
 
+    # TODO: setUpClass?
     def setUp(self):
         super().setUp()
 
@@ -1292,7 +1293,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.cfield_int       = create_cfield(name='Size',      field_type=CustomField.INT)
         self.cfield_bool      = create_cfield(name='Valid',     field_type=CustomField.BOOL)
         self.cfield_str       = create_cfield(name='Name',      field_type=CustomField.STR)
-        self.cfield_date      = create_cfield(name='Date',      field_type=CustomField.DATETIME)
+        self.cfield_datetime  = create_cfield(name='Datetime',  field_type=CustomField.DATETIME)
+        self.cfield_date      = create_cfield(name='Date',      field_type=CustomField.DATE)
         self.cfield_float     = create_cfield(name='Number',    field_type=CustomField.FLOAT)
         self.cfield_enum      = create_cfield(name='Enum',      field_type=CustomField.ENUM)
         self.cfield_multienum = create_cfield(name='MultiEnum', field_type=CustomField.MULTI_ENUM)
@@ -1316,6 +1318,24 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
     @staticmethod
     def _get_allowed_types(operator_id):
         return ' '.join(efilter_registry.get_operator(operator_id).allowed_fieldtypes)
+
+    def test_choices(self):
+        field = CustomFieldsConditionsField(
+            model=FakeContact,
+            efilter_registry=efilter_registry,
+        )
+        cfields = [*field.widget.fields]
+        self.assertInChoices(value=self.cfield_int.id,   label=self.cfield_int,   choices=cfields)
+        self.assertInChoices(value=self.cfield_bool.id,  label=self.cfield_bool,  choices=cfields)
+        self.assertInChoices(value=self.cfield_str.id,   label=self.cfield_str,   choices=cfields)
+        self.assertInChoices(value=self.cfield_float.id, label=self.cfield_float, choices=cfields)
+        self.assertInChoices(value=self.cfield_enum.id,  label=self.cfield_enum,  choices=cfields)
+        self.assertInChoices(
+            value=self.cfield_multienum.id, label=self.cfield_multienum, choices=cfields,
+        )
+
+        self.assertNotInChoices(value=self.cfield_datetime.id, choices=cfields)
+        self.assertNotInChoices(value=self.cfield_date.id,     choices=cfields)
 
     def test_frompython_custom_int(self):
         EQUALS = operators.EQUALS
@@ -1724,6 +1744,27 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
             condition.value,
         )
 
+    def test_clean_bad_cfield_types(self):
+        field = CustomFieldsConditionsField(
+            model=FakeContact, efilter_registry=efilter_registry,
+        )
+        self.assertFieldValidationError(
+            CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
+            self.build_data(
+                field=self.cfield_datetime.id,
+                operator=operators.EQUALS,
+                value='',
+            ),
+        )
+        self.assertFieldValidationError(
+            CustomFieldsConditionsField, 'invalidcustomfield', field.clean,
+            self.build_data(
+                field=self.cfield_date.id,
+                operator=operators.EQUALS,
+                value='',
+            ),
+        )
+
     def test_equals_boolean_condition(self):
         clean = CustomFieldsConditionsField(
             model=FakeContact, efilter_registry=efilter_registry,
@@ -1748,11 +1789,12 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         """custom field choice types."""
         field_choicetype = CustomFieldConditionSelector.customfield_choicetype
 
-        self.assertEqual(field_choicetype(self.cfield_enum),  'enum__null')
-        self.assertEqual(field_choicetype(self.cfield_date),  'date__null')
-        self.assertEqual(field_choicetype(self.cfield_bool),  'boolean__null')
-        self.assertEqual(field_choicetype(self.cfield_int),   'number__null')
-        self.assertEqual(field_choicetype(self.cfield_float), 'number__null')
+        self.assertEqual(field_choicetype(self.cfield_enum),     'enum__null')
+        self.assertEqual(field_choicetype(self.cfield_datetime), 'date__null')
+        self.assertEqual(field_choicetype(self.cfield_date),     'date__null')
+        self.assertEqual(field_choicetype(self.cfield_bool),     'boolean__null')
+        self.assertEqual(field_choicetype(self.cfield_int),      'number__null')
+        self.assertEqual(field_choicetype(self.cfield_float),    'number__null')
 
     def test_render_empty(self):
         widget = CustomFieldsConditionsWidget()
