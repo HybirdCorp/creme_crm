@@ -452,9 +452,10 @@ class ListViewSearchTestCase(CremeTestCase):
         int_cfield   = create_cfield(name='B', field_type=CustomField.INT)
         bool_cfield  = create_cfield(name='C', field_type=CustomField.BOOL)
         deci_cfield  = create_cfield(name='D', field_type=CustomField.FLOAT)
-        dt_cfield    = create_cfield(name='E', field_type=CustomField.DATETIME)
-        enum_cfield  = create_cfield(name='F', field_type=CustomField.ENUM)
-        menum_cfield = create_cfield(name='G', field_type=CustomField.MULTI_ENUM)
+        date_cfield  = create_cfield(name='E', field_type=CustomField.DATE)
+        dt_cfield    = create_cfield(name='F', field_type=CustomField.DATETIME)
+        enum_cfield  = create_cfield(name='G', field_type=CustomField.ENUM)
+        menum_cfield = create_cfield(name='H', field_type=CustomField.MULTI_ENUM)
 
         registry = lv_search.CustomFieldSearchRegistry()
 
@@ -481,6 +482,12 @@ class ListViewSearchTestCase(CremeTestCase):
             user=user,
         )
         self.assertIsInstance(deci_field, lv_forms.CustomDecimalField)
+
+        date_field = registry.get_field(
+            cell=EntityCellCustomField(customfield=date_cfield),
+            user=user,
+        )
+        self.assertIsInstance(date_field, lv_forms.CustomDatetimeField)
 
         dt_field = registry.get_field(
             cell=EntityCellCustomField(customfield=dt_cfield),
