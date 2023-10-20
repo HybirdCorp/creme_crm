@@ -944,9 +944,9 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
                 f'{cls.__name__}.build_condition(): unknown operator ID="{operator_id}"'
             )
 
-        if custom_field.field_type == CustomField.DATETIME:
+        if custom_field.field_type in (CustomField.DATE, CustomField.DATETIME):
             raise cls.ValueError(
-                f'{cls.__name__}.build_condition(): does not manage DATE CustomFields'
+                f'{cls.__name__}.build_condition(): does not manage DATE/DATETIME CustomFields'
             )
 
         # TODO: A bit ugly way to validate operators, but needed for compatibility.

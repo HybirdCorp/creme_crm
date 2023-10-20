@@ -534,7 +534,8 @@ class CustomFieldsConditionsField(_ConditionsField):
         'invalidvalue':       _('This value is invalid.'),
     }
 
-    _NOT_ACCEPTED_TYPES = frozenset((CustomField.DATETIME,))  # TODO: "!= DATE" instead
+    # TODO: way to express is_date_customfield()?
+    _NOT_ACCEPTED_TYPES = frozenset((CustomField.DATE, CustomField.DATETIME))
     _non_hiddable_cfield_ids = ()
 
     @_ConditionsField.model.setter

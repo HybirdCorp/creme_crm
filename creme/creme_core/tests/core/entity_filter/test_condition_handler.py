@@ -1947,10 +1947,22 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-        cf_date = create_cf(name='Day', field_type=CustomField.DATETIME)
-        self.assertRaises(
-            ValueError, build_cond,
-            custom_field=cf_date, operator=operators.EQUALS, values=[2011],  # DATE
+        cf_date = create_cf(name='Day', field_type=CustomField.DATE)
+        with self.assertRaises(ValueError) as cm1:
+            build_cond(custom_field=cf_date, operator=operators.EQUALS, values=[2011])
+        self.assertEqual(
+            'CustomFieldConditionHandler.build_condition(): '
+            'does not manage DATE/DATETIME CustomFields',
+            str(cm1.exception),
+        )
+
+        cf_datetime = create_cf(name='Day+time', field_type=CustomField.DATETIME)
+        with self.assertRaises(ValueError) as cm2:
+            build_cond(custom_field=cf_datetime, operator=operators.EQUALS, values=[2011])
+        self.assertEqual(
+            'CustomFieldConditionHandler.build_condition(): '
+            'does not manage DATE/DATETIME CustomFields',
+            str(cm2.exception),
         )
 
         cf_bool = create_cf(name='Cute?', field_type=CustomField.BOOL)
