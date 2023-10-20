@@ -2,7 +2,8 @@
 
   Users side :
   ------------
-    # The "Date" CustomFields were not usable in filters (only "Date + time" ones were proposed).
+    # There were several issues with "Date" CustomFields :
+        - They were not usable in filters (because they were proposed with "normal" custom-fields).
 
 
 == Version 2.4.8 ==
