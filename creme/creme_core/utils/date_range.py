@@ -21,10 +21,13 @@ from __future__ import annotations
 import logging
 from calendar import monthrange
 from collections import OrderedDict
-from datetime import date, datetime, timedelta
+# from datetime import date
+from datetime import datetime, timedelta
+from typing import Iterator
 
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from .date_period import date_period_registry
 
@@ -65,8 +68,10 @@ class DateRange:
     def __str__(self):
         return str(self.verbose_name)
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    #     raise NotImplementedError
+    def get_dates(self, now):
         raise NotImplementedError
 
     def get_q_dict(self, field: str, now, **extra_data) -> dict:
@@ -82,7 +87,9 @@ class DateRange:
 
 
 class CustomRange(DateRange):
-    name = ''
+    # name = ''
+    name = 'custom_range'
+    verbose_name = pgettext_lazy('creme_core-date_range', 'Customized')
 
     def __init__(self, start=None, end=None):
         if start and not isinstance(start, datetime):
@@ -106,8 +113,9 @@ class PreviousYearRange(DateRange):
     name = 'previous_year'
     verbose_name = _('Previous year')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         year = now.year - 1
         return (
             make_aware(datetime(year=year, month=1,  day=1,  **_DAY_START)),
@@ -119,8 +127,9 @@ class CurrentYearRange(DateRange):
     name = 'current_year'
     verbose_name = _('Current year')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         year = now.year
         return (
             make_aware(datetime(year=year, month=1,  day=1,  **_DAY_START)),
@@ -132,8 +141,9 @@ class NextYearRange(DateRange):
     name = 'next_year'
     verbose_name = _('Next year')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         year = now.year + 1
         return (
             make_aware(datetime(year=year, month=1,  day=1,  **_DAY_START)),
@@ -145,8 +155,9 @@ class PreviousMonthRange(DateRange):
     name = 'previous_month'
     verbose_name = _('Previous month')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         if now.month == 1:
             year  = now.year - 1
             start = now.replace(year=year, month=12, day=1,  **_DAY_START)
@@ -163,8 +174,9 @@ class CurrentMonthRange(DateRange):
     name = 'current_month'
     verbose_name = _('Current month')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         return (
             now.replace(day=1,                                       **_DAY_START),
             now.replace(day=get_month_last_day(now.year, now.month), **_DAY_END)
@@ -175,8 +187,9 @@ class NextMonthRange(DateRange):
     name = 'next_month'
     verbose_name = _('Next month')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         if now.month == 12:
             year  = now.year + 1
             start = now.replace(year=year, month=1, day=1,  **_DAY_START)
@@ -193,8 +206,9 @@ class PreviousQuarterRange(DateRange):
     name = 'previous_quarter'
     verbose_name = _('Previous quarter')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         current_quarter = get_quarter(now.month)
 
         if current_quarter > 1:
@@ -211,8 +225,9 @@ class CurrentQuarterRange(DateRange):
     name = 'current_quarter'
     verbose_name = _('Current quarter')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         return get_quarter_dates(now.year, get_quarter(now.month))
 
 
@@ -220,8 +235,9 @@ class NextQuarterRange(DateRange):
     name = 'next_quarter'
     verbose_name = _('Next quarter')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         current_quarter = get_quarter(now.month)
 
         if current_quarter < 4:
@@ -238,8 +254,9 @@ class FutureRange(DateRange):
     name = 'in_future'
     verbose_name = _('In the future')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         return now, None
 
 
@@ -247,8 +264,9 @@ class PastRange(DateRange):
     name = 'in_past'
     verbose_name = _('In the past')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         return None, now
 
 
@@ -256,8 +274,9 @@ class YesterdayRange(DateRange):
     name = 'yesterday'
     verbose_name = _('Yesterday')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         yesterday = now - timedelta(days=1)
         return (
             yesterday.replace(**_DAY_START),
@@ -269,8 +288,9 @@ class TodayRange(DateRange):
     name = 'today'
     verbose_name = _('Today')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         return (
             now.replace(**_DAY_START),
             now.replace(**_DAY_END),
@@ -281,8 +301,9 @@ class TomorrowRange(DateRange):
     name = 'tomorrow'
     verbose_name = _('Tomorrow')
 
-    @staticmethod
-    def get_dates(now):
+    # @staticmethod
+    # def get_dates(now):
+    def get_dates(self, now):
         tomorrow = now + timedelta(days=1)
         return (
             tomorrow.replace(**_DAY_START),
@@ -370,22 +391,40 @@ class DateRangeRegistry:
     class RegistrationError(Exception):
         pass
 
-    def __init__(self, *dranges: DateRange):
-        self._ranges: dict[str, DateRange] = OrderedDict()
+    # def __init__(self, *dranges: DateRange):
+    #     self._ranges: dict[str, DateRange] = OrderedDict()
+    #     self.register(*dranges)
+    def __init__(self, *dranges: type[DateRange]):
+        self._ranges: dict[str, type[DateRange]] = OrderedDict()
         self.register(*dranges)
 
-    def choices(self, exclude_empty=True):
-        if exclude_empty:
-            empties = frozenset((EmptyRange.name, NotEmptyRange.name))
-            return (
-                (key, d_range)
-                for key, d_range in self._ranges.items()
-                if key not in empties
-            )
+    # def choices(self, exclude_empty=True):
+    #     if exclude_empty:
+    #         empties = frozenset((EmptyRange.name, NotEmptyRange.name))
+    #         return (
+    #             (key, d_range)
+    #             for key, d_range in self._ranges.items()
+    #             if key not in empties
+    #         )
+    #
+    #     return self._ranges.items()
+    def choices(self, exclude_empty=True) -> Iterator[tuple[str, str]]:
+        # if exclude_empty:
+        #     empties = frozenset((EmptyRange.name, NotEmptyRange.name))
+        #     return (
+        #         (key, d_range)
+        #         for key, d_range in self._ranges.items()
+        #         if key not in empties
+        #     )
+        #
+        # return self._ranges.items()
+        excluded = {EmptyRange.name, NotEmptyRange.name} if exclude_empty else ()
+        for range_name, range_cls in self._ranges.items():
+            if range_name not in excluded:
+                yield range_name, range_cls.verbose_name
 
-        return self._ranges.items()
-
-    def register(self, *dranges: DateRange) -> None:
+    # def register(self, *dranges: DateRange) -> None:
+    def register(self, *dranges: type[DateRange]) -> None:
         ranges_map = self._ranges
 
         for drange in dranges:
@@ -398,10 +437,40 @@ class DateRangeRegistry:
 
             ranges_map[name] = drange
 
+    # def get_range(self,
+    #               name: str | None = None,
+    #               start: date | None = None,
+    #               end: date | None = None,
+    #               ) -> DateRange | None:
+    #     """Get a DateRange.
+    #     @param name: Name of a registered range (e.g. "next_year"),
+    #            or None if you want a custom range.
+    #     @param start: Start date of custom range.
+    #            Instance of <datetime.date>, or None (named range, only end date).
+    #     @param end: End date of custom range.
+    #            Instance of <datetime.date>, or None (named range, only start date).
+    #     @return: An instance of DateRange, or None.
+    #     """
+    #     if name:
+    #         drange = self._ranges.get(name)
+    #
+    #         if drange:
+    #             return drange
+    #         else:
+    #             logger.warning(
+    #                 '%s.get_range(): no range named "%s".',
+    #                 type(self).__name__, name,
+    #             )
+    #
+    #     if not start and not end:
+    #         return None
+    #
+    #     return CustomRange(start, end)
     def get_range(self,
-                  name: str | None = None,
-                  start: date | None = None,
-                  end: date | None = None,
+                  name: str,
+                  # start: date | None = None,
+                  # end: date | None = None,
+                  **kwargs,
                   ) -> DateRange | None:
         """Get a DateRange.
         @param name: Name of a registered range (e.g. "next_year"),
@@ -412,30 +481,37 @@ class DateRangeRegistry:
                Instance of <datetime.date>, or None (named range, only start date).
         @return: An instance of DateRange, or None.
         """
-        if name:
-            drange = self._ranges.get(name)
+        drange = self._ranges.get(name)
 
-            if drange:
-                return drange
-            else:
-                logger.warning(
-                    '%s.get_range(): no range named "%s".',
-                    type(self).__name__, name,
-                )
+        if not drange:
+            logger.warning(
+                '%s.get_range(): no range named "%s".',
+                type(self).__name__, name,
+            )
+            return None  # TODO: exception
 
-        if not start and not end:
-            return None
-
-        return CustomRange(start, end)
+        # TODO: try..except.. ?
+        return drange(**kwargs)
 
 
+# date_range_registry = DateRangeRegistry(
+#     PreviousYearRange(),    CurrentYearRange(),    NextYearRange(),
+#     PreviousQuarterRange(), CurrentQuarterRange(), NextQuarterRange(),
+#     PreviousMonthRange(),   CurrentMonthRange(),   NextMonthRange(),
+#     YesterdayRange(), TodayRange(), TomorrowRange(),
+#     FutureRange(), PastRange(),
+#     YearEquals(),
+#     InMoreThan(), InLessThan(), MoreThanAgo(), LessThanAgo(),
+#     EmptyRange(), NotEmptyRange(),
+# )
 date_range_registry = DateRangeRegistry(
-    PreviousYearRange(),    CurrentYearRange(),    NextYearRange(),
-    PreviousQuarterRange(), CurrentQuarterRange(), NextQuarterRange(),
-    PreviousMonthRange(),   CurrentMonthRange(),   NextMonthRange(),
-    YesterdayRange(), TodayRange(), TomorrowRange(),
-    FutureRange(), PastRange(),
-    YearEquals(),
-    InMoreThan(), InLessThan(), MoreThanAgo(), LessThanAgo(),
-    EmptyRange(), NotEmptyRange(),
+    CustomRange,
+    PreviousYearRange,    CurrentYearRange,    NextYearRange,
+    PreviousQuarterRange, CurrentQuarterRange, NextQuarterRange,
+    PreviousMonthRange,   CurrentMonthRange,   NextMonthRange,
+    YesterdayRange, TodayRange, TomorrowRange,
+    FutureRange, PastRange,
+    YearEquals,
+    InMoreThan, InLessThan, MoreThanAgo, LessThanAgo,
+    EmptyRange, NotEmptyRange,
 )

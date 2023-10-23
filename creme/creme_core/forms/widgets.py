@@ -400,7 +400,7 @@ class DateRangeSelect(DatePickerMixin, widgets.Widget):
 
     def range_choices(self):
         return [
-            ('', pgettext_lazy('creme_core-date_range', 'Customized')),
+            # ('', pgettext_lazy('creme_core-date_range', 'Customized')),
             *self.range_registry.choices(),
         ]
 

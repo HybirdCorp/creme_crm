@@ -310,7 +310,7 @@ class FieldConditionSelector(ChainedInput):
         return 'string'
 
     def get_context(self, name, value, attrs):
-        # TODO : the default datatype should be "json" only for JSONField.
+        # TODO: the default datatype should be "json" only for JSONField.
         field_attrs = {'auto': False, 'datatype': 'json'}
 
         if self.autocomplete:

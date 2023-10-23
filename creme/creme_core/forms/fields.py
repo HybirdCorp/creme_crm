@@ -1627,10 +1627,11 @@ class DateRangeField(fields.MultiValueField):
         # TODO: are these attributes useful ??
         self.ranges = ranges = fields.ChoiceField(
             required=False,
-            choices=lambda: [
-                ('', pgettext_lazy('creme_core-date_range', 'Customized')),
-                *date_range_registry.choices(),
-            ],
+            # choices=lambda: [
+            #     ('', pgettext_lazy('creme_core-date_range', 'Customized')),
+            #     *date_range_registry.choices(),
+            # ],
+            choices=date_range_registry.choices,
         )
         self.start_date = fields.DateField(required=False)
         self.end_date   = fields.DateField(required=False)

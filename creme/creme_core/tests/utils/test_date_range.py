@@ -13,92 +13,185 @@ class DateRangeTestCase(CremeTestCase):
         super().setUpClass()
 
         cls.registry = date_range.DateRangeRegistry(
-            date_range.PreviousYearRange(),
-            date_range.CurrentYearRange(),
-            date_range.NextYearRange(),
+            # date_range.PreviousYearRange(),
+            # date_range.CurrentYearRange(),
+            # date_range.NextYearRange(),
+            #
+            # date_range.PreviousQuarterRange(),
+            # date_range.CurrentQuarterRange(),
+            # date_range.NextQuarterRange(),
+            #
+            # date_range.PreviousMonthRange(),
+            # date_range.CurrentMonthRange(),
+            # date_range.NextMonthRange(),
+            #
+            # date_range.YesterdayRange(),
+            # date_range.TodayRange(),
+            # date_range.TomorrowRange(),
+            #
+            # date_range.FutureRange(),
+            # date_range.PastRange(),
+            #
+            # date_range.YearEquals(),
+            #
+            # date_range.InMoreThan(),
+            # date_range.InLessThan(),
+            # date_range.MoreThanAgo(),
+            # date_range.LessThanAgo(),
+            #
+            # date_range.EmptyRange(),
+            # date_range.NotEmptyRange(),
+            date_range.CustomRange,
 
-            date_range.PreviousQuarterRange(),
-            date_range.CurrentQuarterRange(),
-            date_range.NextQuarterRange(),
+            date_range.PreviousYearRange,
+            date_range.CurrentYearRange,
+            date_range.NextYearRange,
 
-            date_range.PreviousMonthRange(),
-            date_range.CurrentMonthRange(),
-            date_range.NextMonthRange(),
+            date_range.PreviousQuarterRange,
+            date_range.CurrentQuarterRange,
+            date_range.NextQuarterRange,
 
-            date_range.YesterdayRange(),
-            date_range.TodayRange(),
-            date_range.TomorrowRange(),
+            date_range.PreviousMonthRange,
+            date_range.CurrentMonthRange,
+            date_range.NextMonthRange,
 
-            date_range.FutureRange(),
-            date_range.PastRange(),
+            date_range.YesterdayRange,
+            date_range.TodayRange,
+            date_range.TomorrowRange,
 
-            date_range.YearEquals(),
+            date_range.FutureRange,
+            date_range.PastRange,
 
-            date_range.InMoreThan(),
-            date_range.InLessThan(),
-            date_range.MoreThanAgo(),
-            date_range.LessThanAgo(),
+            date_range.YearEquals,
 
-            date_range.EmptyRange(),
-            date_range.NotEmptyRange(),
+            date_range.InMoreThan,
+            date_range.InLessThan,
+            date_range.MoreThanAgo,
+            date_range.LessThanAgo,
+
+            date_range.EmptyRange,
+            date_range.NotEmptyRange,
         )
 
     def test_registry01(self):
         "Register in __init__()."
-        prev_range = date_range.PreviousYearRange()
-        curr_range = date_range.CurrentYearRange()
+        # prev_range = date_range.PreviousYearRange()
+        # curr_range = date_range.CurrentYearRange()
+        #
+        # registry = date_range.DateRangeRegistry(prev_range, curr_range)
+        #
+        # self.assertIs(prev_range, registry.get_range(prev_range.name))
+        # self.assertIs(curr_range, registry.get_range(curr_range.name))
+        # self.assertIsNone(registry.get_range())
+        PreviousYearRange = date_range.PreviousYearRange
+        CurrentYearRange = date_range.CurrentYearRange
+        registry = date_range.DateRangeRegistry(PreviousYearRange, CurrentYearRange)
 
-        registry = date_range.DateRangeRegistry(prev_range, curr_range)
-
-        self.assertIs(prev_range, registry.get_range(prev_range.name))
-        self.assertIs(curr_range, registry.get_range(curr_range.name))
-        self.assertIsNone(registry.get_range())
+        self.assertIsInstance(registry.get_range(PreviousYearRange.name), PreviousYearRange)
+        self.assertIsInstance(registry.get_range(CurrentYearRange.name), CurrentYearRange)
+        self.assertIsNone(registry.get_range(name='invalid'))
 
     def test_registry02(self):
         "register() method."
-        prev_range = date_range.PreviousYearRange()
-        curr_range = date_range.CurrentYearRange()
+        # prev_range = date_range.PreviousYearRange()
+        # curr_range = date_range.CurrentYearRange()
+        #
+        # registry = date_range.DateRangeRegistry()
+        # registry.register(prev_range, curr_range)
+        #
+        # self.assertIs(prev_range, registry.get_range(prev_range.name))
+        # self.assertIs(curr_range, registry.get_range(curr_range.name))
+        # self.assertIsNone(registry.get_range())
+        PreviousYearRange = date_range.PreviousYearRange
+        CurrentYearRange = date_range.CurrentYearRange
 
         registry = date_range.DateRangeRegistry()
-        registry.register(prev_range, curr_range)
+        registry.register(PreviousYearRange, CurrentYearRange)
 
-        self.assertIs(prev_range, registry.get_range(prev_range.name))
-        self.assertIs(curr_range, registry.get_range(curr_range.name))
-        self.assertIsNone(registry.get_range())
+        self.assertIsInstance(registry.get_range(PreviousYearRange.name), PreviousYearRange)
+        self.assertIsInstance(registry.get_range(CurrentYearRange.name), CurrentYearRange)
+        self.assertIsNone(registry.get_range(name='invalid'))
 
     def test_registry03(self):
         "Duplicates."
-        prev_range1 = date_range.PreviousYearRange()
-        prev_range2 = date_range.PreviousYearRange()
-        curr_range = date_range.CurrentYearRange()
+        # prev_range1 = date_range.PreviousYearRange()
+        # prev_range2 = date_range.PreviousYearRange()
+        # curr_range = date_range.CurrentYearRange()
+        #
+        # registry = date_range.DateRangeRegistry()
+        #
+        # with self.assertRaises(registry.RegistrationError):
+        #     registry.register(prev_range1, curr_range, prev_range2)
+        PreviousYearRange = date_range.PreviousYearRange
+        CurrentYearRange = date_range.CurrentYearRange
 
         registry = date_range.DateRangeRegistry()
 
         with self.assertRaises(registry.RegistrationError):
-            registry.register(prev_range1, curr_range, prev_range2)
+            registry.register(PreviousYearRange, CurrentYearRange, PreviousYearRange)
 
     def test_choices01(self):
         choices = [*self.registry.choices()]
-        length = 19
-        self.assertEqual(length, len(choices))
+        # length = 19
+        # self.assertEqual(length, len(choices))
+        self.assertEqual(20, len(choices))
 
-        choice0 = choices[0]
-        self.assertIsTuple(choice0, length=2)
+        # choice0 = choices[0]
+        # self.assertIsTuple(choice0, length=2)
 
-        PreviousYearRange = date_range.PreviousYearRange
-        self.assertEqual(PreviousYearRange.name, choice0[0])
-        self.assertIsInstance(choice0[1], PreviousYearRange)
+        # PreviousYearRange = date_range.PreviousYearRange
+        # self.assertEqual(PreviousYearRange.name, choice0[0])
+        # self.assertIsInstance(choice0[1], PreviousYearRange)
 
-        names = {choice[0] for choice in choices}
-        self.assertEqual(length, len(names))
-        self.assertIn(date_range.CurrentMonthRange.name, names)
-        self.assertNotIn(date_range.EmptyRange.name,     names)
-        self.assertNotIn(date_range.NotEmptyRange.name,  names)
+        # names = {choice[0] for choice in choices}
+        # self.assertEqual(length, len(names))
+        # self.assertIn(date_range.CurrentMonthRange.name, names)
+        # self.assertNotIn(date_range.EmptyRange.name,     names)
+        # self.assertNotIn(date_range.NotEmptyRange.name,  names)
+        self.assertInChoices(
+            value=date_range.CustomRange.name,
+            label=date_range.CustomRange.verbose_name,
+            choices=choices,
+        )
+        self.assertInChoices(
+            value=date_range.PreviousYearRange.name,
+            label=date_range.PreviousYearRange.verbose_name,
+            choices=choices,
+        )
+        self.assertInChoices(
+            value=date_range.CurrentMonthRange.name,
+            label=date_range.CurrentMonthRange.verbose_name,
+            choices=choices,
+        )
+        self.assertNotInChoices(value=date_range.EmptyRange.name, choices=choices)
+        self.assertNotInChoices(value=date_range.NotEmptyRange.name, choices=choices)
 
     def test_choices02(self):
+        "Empty allowed."
+        choices = [*self.registry.choices(exclude_empty=False)]
+        self.assertEqual(22, len(choices))
+
+        self.assertInChoices(
+            value=date_range.CustomRange.name,
+            label=date_range.CustomRange.verbose_name,
+            choices=choices,
+        )
+        self.assertInChoices(
+            value=date_range.EmptyRange.name,
+            label=date_range.EmptyRange.verbose_name,
+            choices=choices,
+        )
+        self.assertInChoices(
+            value=date_range.NotEmptyRange.name,
+            label=date_range.NotEmptyRange.verbose_name,
+            choices=choices,
+        )
+
+    def test_choices03(self):
         "Global registry."
         choices = [*date_range.date_range_registry.choices()]
-        self.assertEqual(19, len(choices))
+        # self.assertEqual(19, len(choices))
+        self.assertEqual(20, len(choices))
 
     def test_future(self):
         date_range = self.registry.get_range('in_future')
@@ -111,6 +204,9 @@ class DateRangeTestCase(CremeTestCase):
             date_range.get_q_dict(field='birthday', now=now_value),
         )
 
+        with self.assertNoException():
+            date_range.clean()
+
     def test_past(self):
         now_value = now()
         date_range = self.registry.get_range(name='in_past')
@@ -122,63 +218,70 @@ class DateRangeTestCase(CremeTestCase):
 
     def test_custom_start01(self):
         now_value = date(year=2011, month=6, day=1)
-        date_range = self.registry.get_range(start=now_value)
-        self.assertIsNotNone(date_range)
+        # d_range = self.registry.get_range(start=now_value)
+        d_range = self.registry.get_range(name=date_range.CustomRange.name, start=now_value)
+        self.assertIsNotNone(d_range)
         self.assertDictEqual(
             {
                 'created__gte': self.create_datetime(
                     year=2011, month=6, day=1, hour=0, minute=0, second=0,
                 ),
             },
-            date_range.get_q_dict(field='created', now=now()),
+            d_range.get_q_dict(field='created', now=now()),
         )
 
     def test_custom_start02(self):
         dt = self.create_datetime
         now_value = dt(year=2011, month=6, day=1, hour=12, minute=36, second=12)
-        date_range = self.registry.get_range(start=now_value)
-        self.assertIsNotNone(date_range)
+        # d_range = self.registry.get_range(start=now_value)
+        d_range = self.registry.get_range(name=date_range.CustomRange.name, start=now_value)
+        self.assertIsNotNone(d_range)
         self.assertDictEqual(
             {
                 'created__gte': dt(
                     year=2011, month=6, day=1, hour=12, minute=36, second=12,
                 ),
             },
-            date_range.get_q_dict(field='created', now=now()),
+            d_range.get_q_dict(field='created', now=now()),
         )
 
     def test_custom_end01(self):
         now_value = date(year=2012, month=7, day=15)
-        date_range = self.registry.get_range(end=now_value)
-        self.assertIsNotNone(date_range)
+        # d_range = self.registry.get_range(end=now_value)
+        d_range = self.registry.get_range(name=date_range.CustomRange.name, end=now_value)
+        self.assertIsNotNone(d_range)
         self.assertDictEqual(
             {
                 'modified__lte': self.create_datetime(
                     year=2012, month=7, day=15, hour=23, minute=59, second=59,
                 ),
             },
-            date_range.get_q_dict(field='modified', now=now()),
+            d_range.get_q_dict(field='modified', now=now()),
         )
 
     def test_custom_end02(self):
         dt = self.create_datetime
         now_value = dt(year=2012, month=7, day=15, hour=10, minute=21, second=50)
-        date_range = self.registry.get_range(end=now_value)
-        self.assertIsNotNone(date_range)
+        # d_range = self.registry.get_range(end=now_value)
+        d_range = self.registry.get_range(name=date_range.CustomRange.name, end=now_value)
+        self.assertIsNotNone(d_range)
         self.assertDictEqual(
             {
                 'modified__lte': dt(
                     year=2012, month=7, day=15, hour=10, minute=21, second=50,
                 ),
             },
-            date_range.get_q_dict(field='modified', now=now())
+            d_range.get_q_dict(field='modified', now=now())
         )
 
     def test_custom_range01(self):
         today    = date(year=2011, month=8, day=2)
         tomorrow = date(year=2011, month=8, day=3)
-        date_range = self.registry.get_range(start=today, end=tomorrow)
-        self.assertIsNotNone(date_range)
+        # d_range = self.registry.get_range(start=today, end=tomorrow)
+        d_range = self.registry.get_range(
+            name=date_range.CustomRange.name, start=today, end=tomorrow,
+        )
+        self.assertIsNotNone(d_range)
 
         dt = self.create_datetime
         self.assertDictEqual(
@@ -188,7 +291,7 @@ class DateRangeTestCase(CremeTestCase):
                     dt(year=2011, month=8, day=3, hour=23, minute=59, second=59),
                 ),
             },
-            date_range.get_q_dict(field='modified', now=now()),
+            d_range.get_q_dict(field='modified', now=now()),
         )
 
     def test_previous_year(self):

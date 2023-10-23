@@ -397,6 +397,27 @@ class DateFieldsConditionsField(_ConditionsField):
 
     # TODO: factorise with RegularFieldsConditionsField
     def _value_to_jsonifiable(self, value):
+        # fields = self._get_fields()
+        # dicts = []
+        # fmt = self._format_date
+        #
+        # for condition in value:
+        #     get = condition.value.get
+        #     field = fields[condition.name][-1]
+        #
+        #     dicts.append({
+        #         'field': {
+        #             'name': condition.name,
+        #             'type': 'daterange__null' if field.null else 'daterange',
+        #         },
+        #         'range': {
+        #             'type':  get('name', ''),
+        #             'start': fmt(get('start')),
+        #             'end':   fmt(get('end')),
+        #         },
+        #     })
+        #
+        # return dicts
         fields = self._get_fields()
         dicts = []
         fmt = self._format_date
@@ -411,15 +432,49 @@ class DateFieldsConditionsField(_ConditionsField):
                     'type': 'daterange__null' if field.null else 'daterange',
                 },
                 'range': {
-                    'type':  get('name', ''),
+                    # TODO: as_dict() method...
+                    'type': condition.value['name'],
                     'start': fmt(get('start')),
-                    'end':   fmt(get('end')),
+                    'end': fmt(get('end')),
                 },
             })
 
         return dicts
 
     def _clean_date_range(self, entry):
+        # range_info = entry.get('range')
+        #
+        # if not isinstance(range_info, dict):
+        #     raise ValidationError(
+        #         self.error_messages['invalidformat'], code='invalidformat',
+        #     )
+        #
+        # range_type = range_info.get('type') or None
+        # start = None
+        # end   = None
+        #
+        # if not range_type:
+        #     start_str = range_info.get('start')
+        #     end_str   = range_info.get('end')
+        #
+        #     if not start_str and not end_str:
+        #         raise ValidationError(
+        #             self.error_messages['emptydates'], code='emptydates',
+        #         )
+        #
+        #     clean_date = DateField().clean
+        #
+        #     if start_str:
+        #         start = clean_date(start_str)
+        #
+        #     if end_str:
+        #         end = clean_date(end_str)
+        # elif not date_range_registry.get_range(name=range_type):
+        #     raise ValidationError(
+        #         self.error_messages['invaliddaterange'], code='invaliddaterange',
+        #     )
+        #
+        # return (range_type, start, end)
         range_info = entry.get('range')
 
         if not isinstance(range_info, dict):
@@ -427,7 +482,7 @@ class DateFieldsConditionsField(_ConditionsField):
                 self.error_messages['invalidformat'], code='invalidformat',
             )
 
-        range_type = range_info.get('type') or None
+        range_type = range_info['type']   # TODO: 'emptydaterange'
         start = None
         end   = None
 

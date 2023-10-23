@@ -1066,67 +1066,72 @@ class DateFieldsConditionsFieldTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             field = DateFieldsConditionsField(model=FakeContact)
 
-        type01 = 'current_year'
-        name01 = 'created'
-        type02 = 'next_quarter'
-        name02 = 'birthday'
+        type1 = 'current_year'
+        name1 = 'created'
+        type2 = 'next_quarter'
+        name2 = 'birthday'
         conditions = field.clean(json_dump([
-            {'field': {'name': name01, 'type': 'date'},       'range': {'type': type01}},
-            {'field': {'name': name02, 'type': 'date__null'}, 'range': {'type': type02}},
+            {'field': {'name': name1, 'type': 'date'},       'range': {'type': type1}},
+            {'field': {'name': name2, 'type': 'date__null'}, 'range': {'type': type2}},
         ]))
         self.assertEqual(2, len(conditions))
 
         type_id = DateRegularFieldConditionHandler.type_id
         condition1 = conditions[0]
         self.assertEqual(type_id, condition1.type)
-        self.assertEqual(name01,  condition1.name)
+        self.assertEqual(name1,   condition1.name)
         self.assertEqual(EF_USER, condition1.filter_type)
-        self.assertDictEqual({'name': type01}, condition1.value)
+        self.assertDictEqual({'name': type1}, condition1.value)
 
         condition2 = conditions[1]
-        self.assertEqual(type_id,  condition2.type)
-        self.assertEqual(name02,   condition2.name)
-        self.assertDictEqual({'name': type02}, condition2.value)
+        self.assertEqual(type_id, condition2.type)
+        self.assertEqual(name2,   condition2.name)
+        self.assertDictEqual({'name': type2}, condition2.value)
 
     def test_ok02(self):
-        "Start/end + filter_type."
+        "CustomRange (start/end) + filter_type."
         field = DateFieldsConditionsField(
             model=FakeContact,
             efilter_type=EF_CREDENTIALS,
         )
-        name01 = 'created'
-        name02 = 'birthday'
+        name1 = 'created'
+        name2 = 'birthday'
+        range_type = 'custom_range'
         conditions = field.clean(json_dump([
             {
-                'field': {'name': name01, 'type': 'date'},
-                'range': {'type': '', 'start': self.formfield_value_date(2011, 5, 12)},
+                'field': {'name': name1, 'type': 'date'},
+                # 'range': {'type': '', 'start': self.formfield_value_date(2011, 5, 12)},
+                'range': {'type': range_type, 'start': self.formfield_value_date(2011, 5, 12)},
             }, {
-                'field': {'name': name02, 'type': 'date__null'},
-                'range': {'type': '', 'end': self.formfield_value_date(2012, 6, 13)},
+                'field': {'name': name2, 'type': 'date__null'},
+                # 'range': {'type': '', 'end': self.formfield_value_date(2012, 6, 13)},
+                'range': {'type': range_type, 'end': self.formfield_value_date(2012, 6, 13)},
             },
         ]))
         self.assertEqual(2, len(conditions))
 
         type_id = DateRegularFieldConditionHandler.type_id
         condition1 = conditions[0]
-        self.assertEqual(type_id,         condition1.type)
-        self.assertEqual(name01,          condition1.name)
-        self.assertEqual(EF_CREDENTIALS,  condition1.filter_type)
+        self.assertEqual(type_id,        condition1.type)
+        self.assertEqual(name1,          condition1.name)
+        self.assertEqual(EF_CREDENTIALS, condition1.filter_type)
         self.assertDictEqual(
-            {'start': {'year': 2011, 'month': 5, 'day': 12}},
+            # {'start': {'year': 2011, 'month': 5, 'day': 12}},
+            {'name': range_type, 'start': {'year': 2011, 'month': 5, 'day': 12}},
             condition1.value,
         )
 
         condition2 = conditions[1]
         self.assertEqual(type_id, condition2.type)
-        self.assertEqual(name02,  condition2.name)
+        self.assertEqual(name2,   condition2.name)
         self.assertDictEqual(
-            {'end': {'year': 2012, 'month': 6, 'day': 13}},
+            # {'end': {'year': 2012, 'month': 6, 'day': 13}},
+            {'name': range_type, 'end': {'year': 2012, 'month': 6, 'day': 13}},
             condition2.value,
         )
 
     def test_ok03(self):
-        "Start + end."
+        "CustomRange with start + end."
         clean = DateFieldsConditionsField(model=FakeContact).clean
         name = 'modified'
         condition = self.get_alone_element(
