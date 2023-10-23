@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ var FULLCALENDAR_SETTINGS = {
     header: {
         left:   'title',
         center: 'today, prev,next',
-        right:  'agendaWeek,month,day'
+        right:  'week,month'
     },
 
     /* views settings */
@@ -34,6 +34,7 @@ var FULLCALENDAR_SETTINGS = {
             columnFormat: 'dddd'
         },
         week: {
+            type: 'agendaWeek',
             titleFormat: 'D MMMM YYYY',
             titleRangeSeparator: ' − ',
             columnFormat: 'dddd D MMMM',
@@ -148,15 +149,21 @@ creme.activities = creme.activities || {};
 creme.activities.CalendarController = creme.component.Component.sub({
     _init_: function(options) {
         options = $.extend({
-            debounceDelay: 200
+            debounceDelay: 200,
+            defaultView: 'month',
+            allowEventMove: true,
+            fullCalendarOptions: {}
         }, options || {});
 
         this.debounceDelay(options.debounceDelay);
+        this.defaultView(options.defaultView);
         this.owner(options.owner || '');
+        this.allowEventMove(options.allowEventMove);
         this.eventSelectUrl(options.eventSelectUrl || '');
         this.eventUpdateUrl(options.eventUpdateUrl || '');
         this.eventCreateUrl(options.eventCreateUrl || '');
         this.eventFetchUrl(options.eventFetchUrl || '');
+        this.fullCalendarOptions(options.fullCalendarOptions || {});
     },
 
     owner: function(owner) {
@@ -177,6 +184,18 @@ creme.activities.CalendarController = creme.component.Component.sub({
 
     eventFetchUrl: function(url) {
         return Object.property(this, '_eventFetchUrl', url);
+    },
+
+    defaultView: function(view) {
+        return Object.property(this, '_defaultView', view);
+    },
+
+    allowEventMove: function(state) {
+        return Object.property(this, '_allowEventMove', state);
+    },
+
+    fullCalendarOptions: function(options) {
+        return Object.property(this, '_fullCalendarOptions', options);
     },
 
     debounceDelay: function(delay) {
@@ -483,6 +502,8 @@ creme.activities.CalendarController = creme.component.Component.sub({
     },
 
     _onCalendarEventFetch: function(calendar, range, callback) {
+        var isEditable = this.allowEventMove();
+
         this._query({
                 url: this.eventFetchUrl(),
                 backend: {dataType: 'json'}
@@ -492,7 +513,10 @@ creme.activities.CalendarController = creme.component.Component.sub({
                 end: range.end.unix()       // timestamp in SECOND
              })
             .onDone(function(event, data) {
-                callback(data);
+                callback(data.map(function(item) {
+                    item.editable = item.editable && isEditable;
+                    return item;
+                }));
              })
             .start();
     },
@@ -568,8 +592,10 @@ creme.activities.CalendarController = creme.component.Component.sub({
     _setupCalendarUi: function(element) {
         var self = this;
         var calendar = element.find('.calendar');
+        var fullCalendarOptions = this.fullCalendarOptions() || {};
 
-        calendar.fullCalendar($.extend({}, FULLCALENDAR_SETTINGS, {
+        calendar.fullCalendar($.extend({}, FULLCALENDAR_SETTINGS, fullCalendarOptions, {
+            defaultView: this.defaultView(),
             events: function(start, end, timezone, callback) {
                 self._onCalendarEventFetch(calendar, {start: start, end: end}, callback);
             },

@@ -1,0 +1,111 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-24 15:31+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Calendar configuration"
+msgstr "Configuration de calendrier"
+
+msgid "Days of the week"
+msgstr "Jours de la semaine"
+
+#, python-brace-format
+msgid "Start ({start}) must be before end ({end})."
+msgstr "Le début ({start}) doit être avant la fin ({end})."
+
+msgid "Role"
+msgstr ""
+
+msgid "Settings"
+msgstr "Paramètres"
+
+msgid "Superuser"
+msgstr "Super-Utilisateur"
+
+msgid "Month"
+msgstr "Mois"
+
+msgid "Week"
+msgstr "Semaine"
+
+msgid "The default configuration for calendar is not populated."
+msgstr "La configuration par défaut du calendrier n'existe pas."
+
+msgid "Default view mode"
+msgstr "Vue par défaut"
+
+msgid "First day of the week"
+msgstr "Premier jour de la semaine"
+
+# msgid "Start"
+# msgstr ""
+
+# msgid "End"
+# msgstr ""
+
+msgid "Slot duration"
+msgstr "Durée d'un intervalle de temps""
+
+msgid "Allow drag-n-drop"
+msgstr "Déplacer"
+
+msgid "Calendar display configuration"
+msgstr "Configuration du calendrier"
+
+msgid "Calendar display configurations"
+msgstr "Configurations du calendrier"
+
+#, python-brace-format
+msgid "{count} Configured calendar view"
+msgstr "{count} Configuration de calendrier"
+
+#, python-brace-format
+msgid "{count} Configured calendar views"
+msgstr "{count} Configurations de calendrier"
+
+msgid "Create for a role"
+msgstr "Créer pour un rôle"
+
+msgid "Business Days"
+msgstr "Journées de travail"
+
+msgid "Business Hours"
+msgstr "Heures de travail"
+
+# msgid "Action"
+# msgstr ""
+
+msgid "Default configuration"
+msgstr "Configuration par défaut"
+
+msgid "Edit this configuration"
+msgstr "Modifier cette configuration"
+
+msgid "Superuser configuration"
+msgstr "Configuration Super-Utilisateur"
+
+msgid "Delete this configuration"
+msgstr "Supprimer cette configuration"
+
+msgid "No configuration for the moment"
+msgstr "Aucune configuration pour le moment"
+
+msgid "Edit calendar view configuration"
+msgstr "Modifier la configuration du calendrier"
+
+msgid "Create calendar configuration for a role"
+msgstr "Créer une configuration de calendrier pour un rôle"

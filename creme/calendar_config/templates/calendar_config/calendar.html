@@ -1,0 +1,39 @@
+{% extends 'activities/calendar.html' %}
+{% load jsondata from creme_core_tags %}
+
+{% block calendar_setup_script %}
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            var settings = JSON.parse(creme.utils.JSON.readScriptText($('#calendar-settings-data')));
+            var extra = settings.extra_data || {};
+
+            if (Array.isArray(extra) || _.isString(extra) || _.isNumber(extra)) {
+                console.warn('Ignore the extra_data field that must be a plain object :', extra);
+                extra = {};
+            }
+
+            new creme.activities.CalendarController({
+                owner: "{{user_username}}",
+                eventSelectUrl: '{% url "activities__select_calendars" %}',
+                eventUpdateUrl: '{% url "activities__set_activity_dates" %}',
+                eventCreateUrl: '{% url "activities__create_activity_popup" %}',
+                eventFetchUrl: '{% url "activities__calendars_activities" %}',
+                defaultView: settings.view || 'month',
+                allowEventMove: Boolean(settings.allow_event_move),
+                fullCalendarOptions: $.extend(extra, {
+                    slotDuration: settings.slot_duration,
+                    businessHours: {
+                        dow: settings.week_days,
+                        start: settings.day_start,
+                        end: settings.day_end
+                    },
+                    scrollTime: settings.day_start,
+                    firstDay: settings.week_start
+                })
+            }).bind($('.calendar-main'));
+        });
+    </script>
+    {% block calendar_setup_data %}
+        {% jsondata calendar_settings id='calendar-settings-data' %}
+    {% endblock %}
+{% endblock %}

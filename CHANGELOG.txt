@@ -5,6 +5,9 @@
     # There were several issues with "Date" CustomFields :
         - They were not usable in filters (because they were proposed with "normal" custom-fields).
         - Their quick-search (i.e. in header of list-views) was disabled.
+    # Apps :
+        * Calendar configuration (extension of Activities) :
+            - New configuration mechanism for calendar view per role.
 
 
 == Version 2.5.1 ==

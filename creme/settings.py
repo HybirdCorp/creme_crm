@@ -324,6 +324,10 @@ INSTALLED_CREME_APPS = [
     # CREME OPTIONAL APPS (can be safely commented) #
     # -----------------------------------------------
 
+    # Allows configuration of user calendar of activities app. Will be integrated
+    # within the activities in the 2.6 release.
+    'creme.calendar_config',
+
     # Manages Activities entities:
     #   - they represent meetings, phone calls, tasks...
     #   - have participants (Contacts) & subjects.
@@ -441,6 +445,7 @@ INSTALLED_CREME_APPS = [
     # I can be useful to plan a business itinerary.
     'creme.geolocation',
 ]
+
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
 
 ALLOWED_IMAGES_EXTENSIONS = [
