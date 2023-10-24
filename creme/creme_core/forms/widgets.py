@@ -390,6 +390,7 @@ class PolymorphicInput(widgets.TextInput):
         return context
 
 
+# TODO: remove + template + js
 class DateRangeSelect(DatePickerMixin, widgets.Widget):
     template_name = 'creme_core/forms/widgets/date-range-select.html'
     range_registry = date_range_registry
@@ -1462,6 +1463,7 @@ class RelativeDatePeriodWidget(widgets.MultiWidget):
         return [values[0], values[1:]]
 
 
+# TODO: remove + template + js
 class DateRangeWidget(widgets.MultiWidget):
     template_name_format = 'creme_core/forms/widgets/date-range/{}.html'
 
@@ -1509,6 +1511,105 @@ class DateRangeWidget(widgets.MultiWidget):
         widget_cxt['widget_type'] = widget_type
 
         return context
+
+
+# class NEWDateRangeWidget(SelectorList):
+#     def __init__(self, attrs=None):
+#         super().__init__(selector=None, attrs=attrs)
+#         # self.model = model
+#         # self.fields = fields
+#
+#     def get_context(self, name, value, attrs):
+#         # TODO: "if self.selector is None" ??
+#         # TODO: creating the instance here is ugly (use a SelectorList instead of inherit it ?)
+#         self.selector = chained_input = ChainedInput()
+#         sub_attrs = {'auto': False}
+#
+#         # TODO: improve SelectorList.add_* to avoid attribute 'auto'
+#         # chained_input.add_dselect(
+#         #     'name', attrs=sub_attrs, options=self.fields,
+#         #     avoid_empty=True,
+#         # )
+#         # chained_input.add_dselect(
+#         #     'operator', attrs=sub_attrs,
+#         #     # TODO: use a GET arg instead of using a TemplateURLBuilder ?
+#         #     options=TemplateURLBuilder(
+#         #         field=(TemplateURLBuilder.Word, '${name}'),
+#         #     ).resolve(
+#         #         'creme_core__batch_process_ops',
+#         #         kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id},
+#         #     ),
+#         #     avoid_empty=True,
+#         # )
+#         #
+#         # pinput = PolymorphicInput(key='${operator}', attrs=sub_attrs)
+#         # # TODO: count if the operators with need_arg=False are more ?
+#         # pinput.set_default_input(widget=DynamicInput, attrs=sub_attrs)
+#         #
+#         # for op_id, operator in batch_operator_manager.operators():
+#         #     if not operator.need_arg:
+#         #         # TODO: DynamicHiddenInput
+#         #         pinput.add_input(op_id, widget=DynamicInput, attrs=sub_attrs, type='hidden')
+#         #
+#         # chained_input.add_input('value', pinput, attrs=sub_attrs)
+#
+#         return super().get_context(name=name, value=value, attrs=attrs)
+class DateRangeSelector(ChainedInput):
+    # template_name = ... TODO: in order to override from third party apps?
+
+    def __init__(self,
+                 # relation_types=(), content_types=None,
+                 date_ranges=(),
+                 attrs=None,
+                 # multiple=False,
+                 autocomplete=False,
+                 ):
+        super().__init__(attrs)
+        # self.relation_types = relation_types
+        self.date_ranges = date_ranges
+        # self.content_types = content_types
+        # self.multiple = multiple
+        self.autocomplete = autocomplete
+
+    # def _build_ctypes_url(self):
+    #     return TemplateURLBuilder(
+    #         rtype_id=(TemplateURLBuilder.Word, '${rtype}'),
+    #     ).resolve('creme_core__ctypes_compatible_with_rtype')
+
+    def get_context(self, name, value, attrs):
+        dselect_attrs = {'auto': False, 'autocomplete': True} if self.autocomplete else \
+                        {'auto': False}
+
+        self.add_dselect(
+            'drange_type',
+            # options=self.relation_types,
+            options=self.date_ranges,
+            attrs=dselect_attrs,
+            avoid_empty=True,
+        )
+
+        # self.add_dselect(
+        #     'ctype',
+        #     options=self.content_types or self._build_ctypes_url(),
+        #     attrs=dselect_attrs,
+        #     avoid_empty=True,
+        # )
+        # self.add_input(
+        #     'entity', widget=EntitySelector, attrs={'auto': False, 'multiple': self.multiple},
+        # )
+
+        sub_attrs = {'auto': False, 'datatype': 'json'}
+
+        # pinput = PolymorphicInput(key='${field.type}', attrs=sub_attrs)
+        # pinput.add_input('daterange__null', NullableDateRangeSelect, attrs=sub_attrs)
+        # pinput.add_input('daterange', DateRangeSelect, attrs=sub_attrs)
+        pinput = PolymorphicInput(key='${field.type}', attrs=sub_attrs)
+        # pinput.add_input('daterange__null', NullableDateRangeSelect, attrs=sub_attrs)
+        # pinput.add_input('daterange', DateRangeSelect, attrs=sub_attrs)
+
+        self.add_input('drange_value', pinput, attrs=sub_attrs)
+
+        return super().get_context(name=name, value=value, attrs=attrs)
 
 
 class DurationWidget(widgets.MultiWidget):

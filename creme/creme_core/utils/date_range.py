@@ -65,6 +65,11 @@ class DateRange:
 
     period_registry = date_period_registry
 
+    # TODO: remove? (rework DateFieldHandlerMixin to stop passing start/end when not needed?)
+    def __init__(self, **kwargs):
+        print(kwargs)  # TODO: remove
+        super().__init__()
+
     def __str__(self):
         return str(self.verbose_name)
 

@@ -24,6 +24,8 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
+# TODO: remove
+from creme.creme_core.forms.fields import DateRangeField, NEWDateRangeField
 from creme.creme_core.forms.widgets import CalendarWidget
 
 from ..models import ToDo
@@ -36,6 +38,8 @@ class ToDoForm(CremeModelForm):
         required=False, empty_value=None, initial=8,
         help_text=_('The hour is used only if you set the deadline date.'),
     )
+    old = DateRangeField(label='OLD')  # TODO: remove
+    test = NEWDateRangeField(label='NEW')  # TODO: remove
 
     class Meta(CremeModelForm.Meta):
         model = ToDo

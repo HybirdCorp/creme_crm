@@ -44,10 +44,10 @@ from ..auth.entity_credentials import EntityCredentials
 from ..core import validators
 from ..gui import quick_forms
 from ..models import CremeEntity, EntityFilter, Relation, RelationType
+from ..utils import date_range
 from ..utils.collections import OrderedSet
 from ..utils.content_type import ctype_choices, entity_ctypes
 from ..utils.date_period import DatePeriod, date_period_registry
-from ..utils.date_range import date_range_registry
 from ..utils.serializers import json_encode
 from ..utils.unicode_collation import collator
 from . import enumerable as enum_fields
@@ -1629,9 +1629,9 @@ class DateRangeField(fields.MultiValueField):
             required=False,
             # choices=lambda: [
             #     ('', pgettext_lazy('creme_core-date_range', 'Customized')),
-            #     *date_range_registry.choices(),
+            #     *date_range.date_range_registry.choices(),
             # ],
-            choices=date_range_registry.choices,
+            choices=date_range.date_range_registry.choices,
         )
         self.start_date = fields.DateField(required=False)
         self.end_date   = fields.DateField(required=False)
@@ -1651,7 +1651,9 @@ class DateRangeField(fields.MultiValueField):
 
     def compress(self, data_list):
         it = itertools.chain(data_list, itertools.repeat(None))
-        return date_range_registry.get_range(name=next(it), start=next(it), end=next(it))
+        return date_range.date_range_registry.get_range(
+            name=next(it), start=next(it), end=next(it)
+        )
 
     def validate(self, value):
         if not value.name:
@@ -1665,6 +1667,125 @@ class DateRangeField(fields.MultiValueField):
 
     def widget_attrs(self, widget):
         return {'render_as': self.render_as}
+
+
+class NEWDateRangeField(JSONField):
+    widget = core_widgets.DateRangeSelector
+    # default_error_messages = {
+    #     'invalidfield':    _('This field is invalid with this model.'),
+    #     'reusedfield':     _('The field «%(field)s» can not be used twice.'),
+    #     'invalidoperator': _('This operator is invalid.'),
+    #     'invalidvalue':    _('Invalid value => %(error)s'),
+    # }
+
+# class RelationEntityField(EntityCredsJSONField):
+#     widget = core_widgets.RelationSelector
+#     default_error_messages = {
+#         'rtypenotallowed': _(
+#             'This type of relationship causes a constraint error '
+#             '(id="%(rtype_id)s").'
+#         ),
+#     }
+    value_type: type = dict
+
+    # def __init__(self, *,
+    #              allowed_rtypes=RelationType.objects.none(),
+    #              autocomplete=False,
+    #              **kwargs):
+    #     super().__init__(**kwargs)
+    #     self.autocomplete = autocomplete
+    #     self.allowed_rtypes = allowed_rtypes
+    def __init__(self, date_range_registry=None, autocomplete=False, **kwargs):
+        super().__init__(**kwargs)
+        self.date_range_registry = date_range_registry or date_range.date_range_registry
+        self.autocomplete = autocomplete
+
+#     @property
+#     def allowed_rtypes(self):
+#         # TODO: .all()?
+#         return self._allowed_rtypes
+#
+#     @allowed_rtypes.setter
+#     def allowed_rtypes(self, allowed):
+#         rtypes = (
+#             allowed if isinstance(allowed, QuerySet) else
+#             RelationType.objects.filter(id__in=allowed)
+#         )
+#         rtypes = rtypes.order_by('predicate')  # TODO: in RelationType._meta.ordering ??
+#
+#         self._allowed_rtypes = rtypes
+#         self.widget.relation_types = self._get_options()
+
+    @property
+    def date_range_registry(self):
+        return self._date_range_registry
+
+    @date_range_registry.setter
+    def date_range_registry(self, registry):
+        from django.forms.fields import CallableChoiceIterator  # TODO: move
+
+        self._date_range_registry = registry
+        self.widget.date_ranges = CallableChoiceIterator(registry.choices)
+
+    @property
+    def autocomplete(self):
+        return self._autocomplete
+
+    @autocomplete.setter
+    def autocomplete(self, autocomplete):
+        self._autocomplete = autocomplete
+        self.widget.autocomplete = autocomplete
+
+#     def _value_to_jsonifiable(self, value):
+#         rtype, entity = value
+#
+#         return {
+#             'rtype': rtype.pk, 'ctype': entity.entity_type_id, 'entity': entity.pk,
+#         } if entity else {
+#             'rtype': rtype.pk, 'ctype': None,                  'entity': None,
+#         }
+#
+#     def _value_from_unjsonfied(self, data):
+#         clean_value = self.clean_value
+#         rtype_pk = clean_value(data, 'rtype',  str)
+#
+#         ctype_pk = clean_value(data, 'ctype',  int, required=False)
+#         if not ctype_pk:
+#             return self._return_none_or_raise(self.required, 'ctyperequired')
+#
+#         entity_pk = clean_value(data, 'entity', int, required=False)
+#         if not entity_pk:
+#             return self._return_none_or_raise(self.required, 'entityrequired')
+#
+#         rtype = self._clean_rtype(rtype_pk)
+#         entity = self._clean_entity(ctype_pk, entity_pk)
+#         self._check_entity_perms(entity)
+#
+#         Relation(
+#             # user=self.user
+#             subject_entity=entity,
+#             type=rtype.symmetric_type,
+#         ).clean_subject_entity()
+#
+#         # TODO: return Relation?
+#         return rtype, entity
+#
+#     def _clean_rtype(self, rtype_pk):
+#         rtypes = self._allowed_rtypes
+#
+#         try:
+#             rtype = rtypes.select_related('symmetric_type').get(pk=rtype_pk)
+#         except rtypes.model.DoesNotExist as e:
+#             raise ValidationError(
+#                 self.error_messages['rtypenotallowed'],
+#                 code='rtypenotallowed',
+#                 params={'rtype_id': rtype_pk},
+#             ) from e
+#
+#         return rtype
+#
+#     def _get_options(self):  # TODO: inline
+#         return ChoiceModelIterator(self._allowed_rtypes)
 
 
 class ColorField(fields.CharField):
