@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/base.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}billing-lines-brick{% endblock %}
 
@@ -10,14 +10,15 @@ data-type-global-discount="{{object.discount}}"
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as change_perm %}
-    {% brick_header_action id='billing-line-saveall' url='billing__multi_save_lines'|url:object.id label=_('Save all lines') icon='ok' enabled=change_perm loading=_('Saving…') %}
-    {% brick_header_action id='billing-line-addonfly' __ctype_id=ct_id __prefix=formset.prefix __count=item_count label=_('Add a line on the fly') type='add' enabled=change_perm %}
+{% with edit_perm=user|has_perm_to_change:object %}
+    {% brick_header_action id='billing-line-saveall' url='billing__multi_save_lines'|url:object.id label=_('Save all lines') icon='ok' enabled=edit_perm loading=_('Saving…') %}
+    {% brick_header_action id='billing-line-addonfly' __ctype_id=ct_id __prefix=formset.prefix __count=item_count label=_('Add a line on the fly') type='add' enabled=edit_perm %}
     {% block brick_line_header_actions %}{% endblock %}
+{% endwith %}
 {% endblock %}
 
 {% block brick_content %}
-{% has_perm_to change object as change_perm %}
+{% with edit_perm=user|has_perm_to_change:object %}
 {% widget_icon name='reorder' as reorder_icon %}
 {% translate 'Reset' context 'billing-lines' as reset_label %}
     <div class="bline-form" ct_id="{{ct_id}}" id="form_id_{{ct_id}}">
@@ -58,7 +59,7 @@ data-type-global-discount="{{object.discount}}"
                     <div style="display: none"> {{form.user}} {{form.DELETE}} {{form.cremeentity_ptr}}</div>
 
                     <div class="bline-buttons">
-                        {% brick_action id='billing-line-clearonfly' __ctype_id=ct_id __prefix=formset.prefix __count=item_count type='delete' label=_('Flag for delete') icon_size='small' enabled=change_perm %}
+                        {% brick_action id='billing-line-clearonfly' __ctype_id=ct_id __prefix=formset.prefix __count=item_count type='delete' label=_('Flag for delete') icon_size='small' enabled=edit_perm %}
                     </div>
 
                     <div class="bline-fields">
@@ -68,4 +69,5 @@ data-type-global-discount="{{object.discount}}"
             {% endwith %}
         {% endif %}
     </div>
+{% endwith %}
 {% endblock %}

@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_widgets creme_bricks %}
-{% load format_amount has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load format_amount url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} billing-received-invoices-brick{% endblock %}
 
@@ -9,9 +9,9 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if object %}{% has_perm_to change object as has_perm %}
-    {% brick_header_action id='add' url='billing__create_related_invoice'|url:object.id label=_('Create an invoice') enabled=has_perm %}
-    {% endif %}
+  {% if object %}
+    {% brick_header_action id='add' url='billing__create_related_invoice'|url:object.id label=_('Create an invoice') enabled=user|has_perm_to_change:object %}
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -27,23 +27,22 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-    {% for invoice in page.object_list %}
+  {% for invoice in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink invoice user %}</td>
-        {% has_perm_to view invoice as invoice_view_perm %}
-        {% if invoice_view_perm %}
-        <td>{{invoice.number|default:'—'}}</td>
-        {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{invoice.expiration_date|default:'—'}}</td>{% endif %}
-        <td>{{invoice.status}}</td>
-        <td data-type="money">{{invoice.total_no_vat|format_amount:invoice.currency}}</td>
+        {% if user|has_perm_to_view:invoice %}
+         <td>{{invoice.number|default:'—'}}</td>
+         {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{invoice.expiration_date|default:'—'}}</td>{% endif %}
+         <td>{{invoice.status}}</td>
+         <td data-type="money">{{invoice.total_no_vat|format_amount:invoice.currency}}</td>
         {% else %}
-        <td>{{HIDDEN_VALUE}}</td>
-        {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{HIDDEN_VALUE}}</td>{% endif %}
-        <td>{{HIDDEN_VALUE}}</td>
-        <td data-type="money">{{HIDDEN_VALUE}}</td>
+         <td>{{HIDDEN_VALUE}}</td>
+         {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{HIDDEN_VALUE}}</td>{% endif %}
+         <td>{{HIDDEN_VALUE}}</td>
+         <td data-type="money">{{HIDDEN_VALUE}}</td>
         {% endif %}
     </tr>
-    {% endfor %}
+  {% endfor %}
 {% endblock %}
 
 {% block brick_table_empty %}

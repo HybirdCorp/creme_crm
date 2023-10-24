@@ -1,6 +1,6 @@
-{% load i18n creme_widgets %}{% load has_perm_to from creme_core_tags %}
-{% if button.show %}{% has_perm_to create model as creation_perm %}
-<a {% if creation_perm %}class="with-icon" href="{% url 'creme_core__mass_import' button.content_type.id %}" title="{% translate 'Import entities from a file (.csv, .xls)' %}"{% else %}class="with-icon forbidden" title="{% translate 'Forbidden' %}"{% endif %}>
+{% load i18n creme_perms creme_widgets %}
+{% if button.show %}
+<a {% if user|has_perm_to_create:button.content_type %}class="with-icon" href="{% url 'creme_core__mass_import' button.content_type.id %}" title="{% translate 'Import entities from a file (.csv, .xls)' %}"{% else %}class="with-icon forbidden" title="{% translate 'Forbidden' %}"{% endif %}>
     {% translate 'Import' as label %}{% widget_icon name='document_csv' label=label size='listview-button' %}{{label}}
 </a>
 {% endif %}

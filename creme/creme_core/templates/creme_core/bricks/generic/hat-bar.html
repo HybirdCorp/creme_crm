@@ -1,13 +1,13 @@
 {% extends 'creme_core/bricks/base/base.html' %}
-{% load i18n creme_bricks creme_ctype creme_widgets %}
-{% load get_meta_value has_perm_to url url_join from creme_core_tags %}
+{% load i18n creme_bricks creme_ctype creme_perms creme_widgets %}
+{% load get_meta_value url url_join from creme_core_tags %}
 
 {% block brick_extra_class %}brick-hat brick-hat-bar{% endblock %}
 
 {% block brick_header %}{% endblock %}
 
 {% block brick_content %}
-{% has_perm_to change object as edit_perm %}{% has_perm_to delete object as delete_perm %}
+ {% with edit_perm=user|has_perm_to_change:object delete_perm=user|has_perm_to_delete:object %}
     <div class="hat-bar">
         <div class="bar-icon">{% block icon %}{% widget_icon instance=object size='brick-hat-bar' %}{% endblock %}</div>
         <div class="bar-title">
@@ -24,47 +24,47 @@
         {% if not object.is_deleted %}
             {% block buttons %}
                 {% block edit_button %}
-                    {% with edit_url=object.get_edit_absolute_url %}
-                    {% if edit_url %}
-                       <div class='bar-action'>
-                         {% if edit_perm %}
-                           <a class="bar-button" href="{% url_join edit_url callback_url=request.get_full_path %}" >
-                         {% else %}
-                           <a class="bar-button forbidden is-disabled">
-                         {% endif %}
-                               {% widget_icon name='edit' size='brick-hat-bar-button' label=_('Edit') %}
-                           </a>
-                       </div>
-                    {% endif %}
-                    {% endwith %}
+                  {% with edit_url=object.get_edit_absolute_url %}
+                   {% if edit_url %}
+                    <div class='bar-action'>
+                      {% if edit_perm %}
+                        <a class="bar-button" href="{% url_join edit_url callback_url=request.get_full_path %}" >
+                      {% else %}
+                        <a class="bar-button forbidden is-disabled">
+                      {% endif %}
+                            {% widget_icon name='edit' size='brick-hat-bar-button' label=_('Edit') %}
+                        </a>
+                    </div>
+                   {% endif %}
+                  {% endwith %}
                 {% endblock %}
 
                 {% block delete_button %}
-                    {% with delete_url=object.get_delete_absolute_url %}
-                    {% if delete_url %}
+                  {% with delete_url=object.get_delete_absolute_url %}
+                   {% if delete_url %}
                     <div class='bar-action'>
                         {% brick_bar_button action='creme_core-detailview-delete' label=_('Delete') url=delete_url icon='delete' confirm=_('Do you really want to send this entity to the trash?') enabled=delete_perm %}
                     </div>
-                    {% endif %}
-                    {% endwith %}
+                   {% endif %}
+                  {% endwith %}
                 {% endblock %}
 
                 {% block clone_button %}
-                    {% with clone_url=object.get_clone_absolute_url %}
-                    {% if clone_url %}{% has_perm_to create object as create_perm %}
+                  {% with clone_url=object.get_clone_absolute_url %}
+                   {% if clone_url %}
                     <div class='bar-action'>
-                        {% brick_bar_button action='creme_core-detailview-clone' label=_('Clone') url=clone_url icon='clone' __id=object.id confirm=_('Do you really want to clone this entity?') enabled=create_perm %}
+                        {% brick_bar_button action='creme_core-detailview-clone' label=_('Clone') url=clone_url icon='clone' __id=object.id confirm=_('Do you really want to clone this entity?') enabled=user|has_perm_to_create:object.entity_type %}
                     </div>
-                    {% endif %}
-                    {% endwith %}
+                   {% endif %}
+                  {% endwith %}
                 {% endblock %}
 
                 {% block merge_button %}
-                    {% if object.entity_type|ctype_can_be_merged %}
+                   {% if object.entity_type|ctype_can_be_merged %}
                     <div class='bar-action'>
                         {% brick_bar_button action='creme_core-detailview-merge' label=_('Merge') url='creme_core__merge_entities'|url icon='merge' __id=object.id __selection_url='creme_core__select_entity_for_merge'|url enabled=edit_perm %}
                     </div>
-                    {% endif %}
+                   {% endif %}
                 {% endblock %}
             {% endblock buttons %}
         {% else %}
@@ -84,4 +84,5 @@
          {% endif %}
         </div>
     </div>
+ {% endwith %}
 {% endblock %}

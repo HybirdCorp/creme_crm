@@ -1,18 +1,17 @@
 {% extends 'creme_core/bricks/base/paginated-list.html' %}
-{% load i18n creme_bricks %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-menu-brick{% endblock %}
 
 {% block brick_script %}
-{% has_perm_to admin 'creme_core' as admin_perm %}
-{% if admin_perm %}
- <script type="text/javascript">
-    $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick) {
-        return new creme.MenuContainersController(brick);
-    });
- </script>
-{% endif %}
+  {% if user|has_perm_to_admin:'creme_core' %}
+   <script type="text/javascript">
+      $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick) {
+          return new creme.MenuContainersController(brick);
+      });
+   </script>
+  {% endif %}
 {% endblock %}
 
 {% block brick_header_title %}
@@ -20,13 +19,13 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if show_add_button %}{% has_perm_to admin 'creme_core' as admin_perm %}
-        {% brick_header_action id='add' url='creme_config__clone_menu'|url label=_('New menu for a role') enabled=admin_perm %}
+    {% if show_add_button %}
+        {% brick_header_action id='add' url='creme_config__clone_menu'|url label=_('New menu for a role') enabled=user|has_perm_to_admin:'creme_core' %}
     {% endif %}
 {% endblock %}
 
 {% block brick_content %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_menu_level0' as delete_url %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' delete_url='creme_config__delete_menu_level0'|url %}
     <p class="help-instructions">{% translate 'Drag and drop the containers (columns) to order them.' %}</p>
 
   {% for entries_info in entries_per_role %}
@@ -53,12 +52,13 @@
         </div>
 
         <div class="menu-config-actions">
-            {% url 'creme_config__add_menu_container'      entries_info.role_arg as add_container_url %}{% brick_action id='add' url=add_container_url label=_('Add a container')          display='both' enabled=admin_perm %}
-            {% url 'creme_config__add_menu_special_level0' entries_info.role_arg as add_special_url   %}{% brick_action id='add' url=add_special_url   label=_('Add a special root entry') display='both' enabled=admin_perm %}
+            {% brick_action id='add' url='creme_config__add_menu_container'|url:entries_info.role_arg      label=_('Add a container')          display='both' enabled=admin_perm %}
+            {% brick_action id='add' url='creme_config__add_menu_special_level0'|url:entries_info.role_arg label=_('Add a special root entry') display='both' enabled=admin_perm %}
             {% if entries_info.deletable %}
               {% brick_action id='delete' url='creme_config__delete_menu'|url __role=entries_info.role_arg label=_('Delete this menu') display='both' enabled=admin_perm %}
             {% endif %}
         </div>
     </div>
   {% endfor %}
+ {% endwith %}
 {% endblock %}

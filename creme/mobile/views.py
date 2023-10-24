@@ -225,14 +225,14 @@ def persons_portal(request):
                     is_deleted=False, mobile_favorite__user=user,
                 )
             ),
-            'contact_model': Contact,
+            # 'contact_model': Contact,
 
             'favorite_organisations': cred_filter(
                 Organisation.objects.filter(
                     is_deleted=False, mobile_favorite__user=user,
                 )
             ),
-            'orga_model': Organisation,
+            # 'orga_model': Organisation,
         },
     )
 
@@ -307,10 +307,10 @@ def search_person(request):
             'search':        search,
 
             'contacts':      contacts,
-            'contact_model': Contact,
+            # 'contact_model': Contact,
 
             'organisations': orgas,
-            'orga_model':    Organisation,
+            # 'orga_model':    Organisation,
         },
     )
 

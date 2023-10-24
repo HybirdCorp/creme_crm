@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-list.html' %}
-{% load i18n creme_widgets creme_bricks %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-customforms-brick{% endblock %}
 
@@ -19,9 +19,9 @@
 {% endblock %}
 
 {% block brick_content %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_custom_form' as delete_url %}{% url 'creme_config__reset_custom_form' as reset_url %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' delete_url='creme_config__delete_custom_form'|url reset_url='creme_config__reset_custom_form'|url %}
   {% for ctw in page.object_list %}
-    {% with ctype=ctw.ctype %}
+   {% with ctype=ctw.ctype %}
     <div class="brick-list-item customform-config-ctype{% if ctw.collapsed %} customform-config-collapsed{% endif %}">
         <div class="customform-config-ctype-title">
             {% widget_icon ctype=ctype size='brick-list' class='customform-config-type-icon' %}<span>{{ctype}}</span>
@@ -32,7 +32,7 @@
 
         <div class="customform-config-ctype-content">
             <p class="help-instructions">{% translate 'Drag and drop the groups to order them.' %}</p>
-        {% for descriptor in ctw.descriptors %}
+          {% for descriptor in ctw.descriptors %}
             <div class="customform-config-descriptor">
                 <div class="customform-config-descriptor-title">
                     <span>{{descriptor.verbose_name}}</span>
@@ -41,7 +41,7 @@
                     {% endif %}
                 </div>
                 <div class="customform-config-items">
-                {% for item in descriptor.items %}
+                  {% for item in descriptor.items %}
                     <div class="customform-config-item{% if item.collapsed %} customform-config-collapsed{% endif %}">
                         <div class="customform-config-item-title">
                             <div class="toggle-icon-container toggle-icon-expand"   data-item-id="{{item.id}}" title="{% translate 'Show this form' %}"><div class="toggle-icon"></div></div>
@@ -54,7 +54,7 @@
                             <div class="customform-config-fields">
                                 <table>
                                     <tbody class="customform-config-blocks">
-                                    {% for group in item.groups %}
+                                     {% for group in item.groups %}
                                       {% with form_group_id=forloop.counter0 layout=group.layout %}{% url 'creme_config__setlayout_custom_form_group' item.id form_group_id as layout_url %}
                                         <tr data-reorderable-form-group-url="{% url 'creme_config__reorder_custom_form_group' item.id form_group_id %}">
                                             <td class="customform-config-block-container">
@@ -79,14 +79,14 @@
                                                     <div class="customform-config-block-content">
                                                         <table>
                                                             <tbody>
-                                                                {% for cell in group.cells %}
+                                                              {% for cell in group.cells %}
                                                                 <tr>
                                                                     <td {% brick_table_data_status primary %}>{{cell}}</td>
                                                                     <td {% brick_table_data_status action %}>
                                                                         {% brick_action id='delete' url=delete_cell_url __cell_key=cell.key label=_('Delete this field') enabled=admin_perm %}
                                                                     </td>
                                                                 </tr>
-                                                                {% endfor %}
+                                                              {% endfor %}
                                                             <tbody>
                                                         </table>
                                                     </div>
@@ -94,32 +94,32 @@
                                             <td>
                                         </tr>
                                       {% endwith %}
-                                    {% endfor %}
+                                     {% endfor %}
                                     </tbody>
                                 </table>
                                 <div class="customform-config-fields-actions">
                                     {% brick_action id='add' url='creme_config__add_custom_form_group'|url:item.id label=_('Add a group') display='both' enabled=admin_perm %}
-                                  {% if item.has_extra_groups %}
-                                    {% brick_action id='add' url='creme_config__add_custom_form_extra_group'|url:item.id label=_('Add a special group') display='both' enabled=admin_perm %}
-                                  {% endif %}
+                                    {% if item.has_extra_groups %}
+                                     {% brick_action id='add' url='creme_config__add_custom_form_extra_group'|url:item.id label=_('Add a special group') display='both' enabled=admin_perm %}
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="customform-config-errors">
-                            {% with errors=item.errors %}
+                              {% with errors=item.errors %}
                                 {% if errors %}<ul class="warninglist">{% for error in errors %}<li>{{error}}</li>{% endfor %}</ul>{% endif %}
-                            {% endwith %}
+                              {% endwith %}
                             </div>
                         </div>
                     </div>
-                {% endfor %}
+                  {% endfor %}
                 </div>
             </div>
-        {% endfor %}
+          {% endfor %}
         </div>
-
     </div>
-    {% endwith %}
+   {% endwith %}
   {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_list_empty %}

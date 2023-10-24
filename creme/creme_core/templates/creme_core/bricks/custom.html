@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/tiles.html' %}
-{% load i18n creme_bricks %}{% load has_perm_to inner_edition_uri url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms %}{% load inner_edition_uri url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_core-custom-brick{% endblock %}
 
@@ -7,8 +7,8 @@
     {% brick_menu_reduce_action state %}
     {{block.super}}
 
-    <hr/>{% has_perm_to admin 'creme_core' as config_perm %}
-    {% brick_menu_action id='edit' url='creme_config__edit_custom_brick'|url:config_item.id icon='config' label=_('Configure the fields') enabled=config_perm %}
+    <hr/>
+    {% brick_menu_action id='edit' url='creme_config__edit_custom_brick'|url:config_item.id icon='config' label=_('Configure the fields') enabled=user|has_perm_to_admin:'creme_core' %}
 {% endblock %}
 
 {% block brick_header_title %}
@@ -17,8 +17,8 @@
 
 {% block brick_header_actions %}
   {% if cells %}
-    {% has_perm_to change object as edit_perm %}{% inner_edition_uri instance=object cells=cells as edition_uri %}
-    {% brick_header_action id='edit' url=edition_uri enabled=edit_perm %}
+    {% inner_edition_uri instance=object cells=cells as edition_uri %}
+    {% brick_header_action id='edit' url=edition_uri enabled=user|has_perm_to_change:object %}
   {% endif %}
 {% endblock %}
 

@@ -1,5 +1,5 @@
 {% extends 'creme_core/detailview.html' %}
-{% load i18n creme_widgets creme_bricks %}{% load has_perm_to from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
 
 {% block page_title %}«{{object}}» - {% endblock %}
 
@@ -12,8 +12,8 @@
         </a>
     </li>
 
-    <li>{% has_perm_to admin 'creme_config' as admin_perm %} {# TODO: creme_core ?! #}
-        {% if admin_perm %}
+    <li>
+        {% if user|has_perm_to_admin:'creme_config' %}{# TODO: creme_core ?! #}
         <a class="menu_button menu-button-icon" href="{{object.get_create_absolute_url}}">
         {% else %}
         <a class="menu_button menu-button-icon forbidden is-disabled">
@@ -34,7 +34,8 @@
                 </h1>
             </div>
             {% if object.is_custom %}
-            <div class="bar-actions">{% has_perm_to admin 'creme_config' as admin_perm %}{# TODO: creme_core ?! #}
+            <div class="bar-actions">
+              {% with admin_perm=user|has_perm_to_admin:'creme_config' %}{# TODO: creme_core ?! #}
                 {% if object.enabled %}
                 <div class='bar-action'>
                     <a href="{{object.get_edit_absolute_url}}" class="bar-button{% if not admin_perm %} forbidden is-disabled{% endif %}">
@@ -48,6 +49,7 @@
                         <form method="POST" action="{{object.get_delete_absolute_url}}" style="display:none;">{% csrf_token %}</form>
                     </a>
                 </div>
+              {% endwith %}
             </div>
             {% endif %}
         </div>

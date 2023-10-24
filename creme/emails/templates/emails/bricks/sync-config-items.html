@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks %}
-{% load has_perm_to print_field url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms %}
+{% load print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} emails-sync_config_items-brick{% endblock %}
 
@@ -10,8 +10,7 @@
 
 {% block brick_header_actions %}
     {% translate 'New server configuration' context 'emails' as new_label %}
-    {% has_perm_to admin 'emails' as admin_perm %}
-    {% brick_header_action id='add' url='emails__create_sync_config_item'|url label=new_label enabled=admin_perm %}
+    {% brick_header_action id='add' url='emails__create_sync_config_item'|url label=new_label enabled=user|has_perm_to_admin:'emails' %}
 {% endblock %}
 
 {% block brick_before_content %}
@@ -36,10 +35,9 @@ BEWARE: these mailboxes must be dedicated to the synchronisation, because emails
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'emails' as admin_perm %}
-{% url 'emails__delete_sync_config_item' as delete_url %}
-{% translate 'Edit this configuration' context 'emails' as edit_label %}{% translate 'Delete this configuration' context 'emails' as del_label %}
-    {% for item in page.object_list %}
+ {% translate 'Edit this configuration' context 'emails' as edit_label %}{% translate 'Delete this configuration' context 'emails' as del_label %}
+ {% with admin_perm=user|has_perm_to_admin:'emails' delete_url='emails__delete_sync_config_item'|url %}
+  {% for item in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{{item.host}}</td>
         <td>{% print_field object=item field='type' %}</td>
@@ -55,7 +53,8 @@ BEWARE: these mailboxes must be dedicated to the synchronisation, because emails
             {% brick_table_action id='delete' url=delete_url __id=item.id label=del_label enabled=admin_perm %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

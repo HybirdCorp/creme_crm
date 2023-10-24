@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-list.html' %}
-{% load i18n creme_widgets creme_bricks %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-search-brick{% endblock %}
 
@@ -9,55 +9,56 @@
 {% endblock %}
 
 {% block brick_content %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_search_config' as delete_url %}
-    {% for ctw in page.object_list %}
-        {% with ctype=ctw.ctype %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' delete_url='creme_config__delete_search_config'|url %}
+  {% for ctw in page.object_list %}
+   {% with ctype=ctw.ctype %}
     <div class="brick-list-item search-config-item">
         <div class="search-config-group search-config-summary-group">
             <div class="search-config-group-title">{% widget_icon ctype=ctype size='brick-list' class='search-config-type-icon' %} {{ctype}}</div>
             <div class="search-config-group-action">
-            {% if ctw.sc_items|length < max_conf_count %}
+              {% if ctw.sc_items|length < max_conf_count %}
                 {% brick_action id='add' url='creme_config__create_search_config'|url:ctw.ctype.id label=_('Create for a role') enabled=admin_perm %}
-            {% endif %}
+              {% endif %}
             </div>
         </div>
         <div class="search-config-group brick-table">
             <table class="brick-table-content">
                 <tbody>
-                    {% for sc_item in ctw.sc_items %}
+                  {% for sc_item in ctw.sc_items %}
                     <tr>
                         {% if sc_item.role %}
-                        <td class="search-config-ctype-label">{{sc_item.role}}</td>
+                         <td class="search-config-ctype-label">{{sc_item.role}}</td>
                         {% elif sc_item.superuser %}
-                        <td class="search-config-ctype-label search-config-superuser">{% translate 'Superuser' %}</td>
+                         <td class="search-config-ctype-label search-config-superuser">{% translate 'Superuser' %}</td>
                         {% else %}
-                        <td class="search-config-ctype-label">{% translate 'Default configuration' %}</td>
+                         <td class="search-config-ctype-label">{% translate 'Default configuration' %}</td>
                         {% endif %}
                         <td class="search-config-fields">
-                            {% if sc_item.disabled %}
+                          {% if sc_item.disabled %}
                             <em>{% translate 'Search is disabled' %}</em>
-                            {% elif sc_item.all_fields %}
+                          {% elif sc_item.all_fields %}
                             <em>{% translate 'All fields' %}</em>
-                            {% else %}
+                          {% else %}
                             {{sc_item.cells|join:' / '}}
-                            {% endif %}
+                          {% endif %}
                         </td>
-                         <td {% brick_table_data_status action %}>
+                        <td {% brick_table_data_status action %}>
                             {% brick_table_action id='edit' url='creme_config__edit_search_config'|url:sc_item.id enabled=admin_perm %}
                         </td>
                         <td {% brick_table_data_status action %}>
-                            {% if not sc_item.is_default %}
+                          {% if not sc_item.is_default %}
                             {% brick_table_action id='delete' url=delete_url __id=sc_item.id enabled=admin_perm %}
-                            {% endif %}
+                          {% endif %}
                         </td>
                     </tr>
-                    {% endfor %}
+                  {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-        {% endwith %}
-    {% endfor %}
+   {% endwith %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_list_empty %}

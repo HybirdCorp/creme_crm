@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} activities-calendar-config-brick{% endblock %}
 
@@ -10,8 +10,7 @@
 
 {% block brick_header_actions %}
 {% if not error %}
-    {% has_perm_to admin 'activities' as admin_perm %}
-    {% brick_header_action id='add' url='activities__add_calendar_settings'|url label=_('Create for a role') enabled=admin_perm %}
+    {% brick_header_action id='add' url='activities__add_calendar_settings'|url label=_('Create for a role') enabled=user|has_perm_to_admin:'activities' %}
 {% endif %}
 {% endblock %}
 
@@ -28,7 +27,7 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'activities' as admin_perm %}
+{% with admin_perm=user|has_perm_to_admin:'activities' %}
     {% if default %}
         <tr>
             <td {% brick_table_data_status primary %} class="calendar-config-default">{% translate 'Default configuration' %}</td>
@@ -81,6 +80,7 @@
             </td>
         </tr>
     {% endfor %}
+{% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

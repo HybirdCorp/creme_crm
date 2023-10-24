@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to url url_join from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load url url_join from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} documents-documents-brick{% endblock %}
 
@@ -19,21 +19,19 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-    {% for doc in page.object_list %}
-    {% has_perm_to change doc as edit_perm %}
-    {% has_perm_to delete doc as delete_perm %}
+  {% for doc in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink doc user %}</td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='redirect' url=doc.get_edit_absolute_url label=_('Edit this document') icon='edit' enabled=edit_perm %}
+            {% brick_table_action id='redirect' url=doc.get_edit_absolute_url label=_('Edit this document') icon='edit' enabled=user|has_perm_to_change:doc %}
         </td>
         <td {% brick_table_data_status action %}>
           {% if not doc.is_deleted %}
-            {% brick_table_action id='delete' url=doc.get_delete_absolute_url label=_('Send this document to the trash') enabled=delete_perm %}
+            {% brick_table_action id='delete' url=doc.get_delete_absolute_url label=_('Send this document to the trash') enabled=user|has_perm_to_delete:doc %}
           {% endif %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
 {% endblock %}
 
 {% block brick_table_empty %}

@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to print_field url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} assistants-memos-brick{% endblock %}
 
@@ -9,9 +9,9 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if object %}{% has_perm_to change object as has_perm %}
-    {% brick_header_action id='add' url='assistants__create_memo'|url:object.id label=_('New memo') enabled=has_perm %}
-    {% endif %}
+  {% if object %}
+    {% brick_header_action id='add' url='assistants__create_memo'|url:object.id label=_('New memo') enabled=user|has_perm_to_change:object %}
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -27,8 +27,8 @@
 {% endblock %}
 
 {% block brick_table_rows %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_url %}
-    {% for memo in page.object_list %}
-{% has_perm_to change memo.real_entity as has_perm %}
+  {% for memo in page.object_list %}
+   {% with has_perm=user|has_perm_to_change:memo.real_entity %}
     <tr>
         {% if not object %}
             <td>{% widget_entity_hyperlink memo.real_entity user %}</td>
@@ -43,7 +43,8 @@
             {% brick_table_action id='delete' url=delete_url __id=memo.pk label=_('Delete this memo') enabled=has_perm %}
         </td>
     </tr>
-    {% endfor %}
+   {% endwith %}
+  {% endfor %}
 {% endblock %}
 
 {% block brick_table_empty %}

@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks reports_tags creme_widgets %}
-{% load jsondata has_perm_to jsonify url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets reports_tags %}
+{% load jsondata jsonify url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} reports-graphs-brick{% endblock %}
 
@@ -10,8 +10,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object.report as has_perm %}
-    {% brick_header_action id='add' url='reports__create_graph'|url:object.id label=_('Create a new graph') enabled=has_perm %}
+    {% brick_header_action id='add' url='reports__create_graph'|url:object.id label=_('Create a new graph') enabled=user|has_perm_to_change:object.report %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -23,9 +22,9 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'reports' as admin_perm %}
-{% for row in rows %}
-    {% with hand=row.graph.hand graph=row.graph %}
+ {% with admin_perm=user|has_perm_to_admin:'reports' %}
+  {% for row in rows %}
+   {% with hand=row.graph.hand graph=row.graph %}
     <tr data-graph-id="{{graph.id}}" class="graph-row-header">
         <td {% if hand.abscissa_error is not None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_abscissa}}</td>
         <td {% if hand.abscissa_error is not None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_name}}{% if graph.abscissa_parameter %} ({{graph.abscissa_parameter}}){% endif %}</td>{# TODO: hand.verbose parameter ? #}
@@ -33,11 +32,11 @@
         <td {% if ordinate.error is not None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.verbose_name}}</td>
         <td {% if ordinate.error is not None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.cell|default:'—'}}</td>
         {% endwith %}
-        <td {% brick_table_data_status action %}>{% has_perm_to change graph as graph_edit_perm %}
-            {% brick_table_action id='edit' url='reports__edit_graph'|url:graph.id enabled=graph_edit_perm %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='reports__edit_graph'|url:graph.id enabled=user|has_perm_to_change:graph %}
         </td>
-        <td {% brick_table_data_status action %}>{% has_perm_to delete graph as graph_delete_perm %}
-            {% brick_table_action id='delete' url='creme_core__delete_entity'|url:graph.id label=_('Delete this graph') enabled=graph_delete_perm %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url='creme_core__delete_entity'|url:graph.id label=_('Delete this graph') enabled=user|has_perm_to_delete:graph %}
         </td>
     </tr>
     <tr class="graph-row-title">
@@ -57,9 +56,9 @@
                     <div class="graph-control graph-controls-type">
                         <span class="graph-control-name">{% translate 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
                         <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the type of visualisation for this graph' %}">
-                            {% for chart in charts %}
+                          {% for chart in charts %}
                             <option value="{{chart.name}}" {% if chart.name == graph.chart %}selected{% endif %}>{{chart.label}}</option>
-                            {% endfor %}
+                          {% endfor %}
                         </select>
                     </div>
                     <div class="graph-control graph-controls-sort">
@@ -91,18 +90,19 @@
                 </div>
             </div>
             {% if row.data %}
-            <div class="brick-d3-content"></div>
-            {% jsondata row.data class="sketch-chart-data" %}
-            {% if row.props %}{% jsondata row.props class="sketch-chart-props" %}{% endif %}
-            {% elif row.error %}
-            <div class="brick-d3-empty brick-error">{{row.error}}</div>
+             <div class="brick-d3-content"></div>
+             {% jsondata row.data class="sketch-chart-data" %}
+             {% if row.props %}{% jsondata row.props class="sketch-chart-props" %}{% endif %}
+             {% elif row.error %}
+             <div class="brick-d3-empty brick-error">{{row.error}}</div>
             {% else %}
-            <div class="brick-d3-empty">{% translate 'No values or graph is not applicable here' %}</div>
+             <div class="brick-d3-empty">{% translate 'No values or graph is not applicable here' %}</div>
             {% endif %}
         </td>
     </tr>
-    {% endwith %}
-{% endfor %}
+   {% endwith %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

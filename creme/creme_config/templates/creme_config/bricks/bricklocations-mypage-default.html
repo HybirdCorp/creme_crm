@@ -1,6 +1,6 @@
 {% extends 'creme_config/bricks/base/bricklocations-mypage.html' %}
-{% load i18n creme_bricks %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-brickloc-mypage-default-brick{% endblock %}
 
@@ -9,8 +9,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}
-    {% brick_header_action id='edit' url='creme_config__edit_default_mypage_bricks'|url label=_('Edit blocks configuration') enabled=admin_perm %}
+    {% brick_header_action id='edit' url='creme_config__edit_default_mypage_bricks'|url label=_('Edit blocks configuration') enabled=user|has_perm_to_admin:'creme_core' %}
 {% endblock %}
 
 {% block brick_before_content %}
@@ -20,8 +19,7 @@
 {% endblock %}
 
 {% block brick_mypage_location_row_action %}
-{% has_perm_to admin 'creme_core' as admin_perm %}
-    {% brick_table_action id='delete' url='creme_config__delete_default_mypage_bricks'|url __id=location.id label=_('Remove this block') enabled=admin_perm %}
+    {% brick_table_action id='delete' url='creme_config__delete_default_mypage_bricks'|url __id=location.id label=_('Remove this block') enabled=user|has_perm_to_admin:'creme_core' %}
 {% endblock %}
 
 {% block brick_table_empty %}

@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_widgets creme_bricks %}
-{% load and_op has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load and_op url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} opportunities-invoices-brick{% endblock %}
 
@@ -9,20 +9,21 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if relation_type.enabled %}
-        {% has_perm_to link object as link_perm %}{% has_perm_to create objects_ctype as create_perm %}
-        {% url 'opportunities__generate_billing_doc' object.id objects_ctype.id as create_url %}
-        {% brick_header_action id='update' url=create_url type='add'  label=_('Generate an invoice') enabled=link_perm|and_op:create_perm %}
-        {% brick_header_action id='add-relationships'     icon='link' label=_('Link to an invoice')  enabled=link_perm __selector_url='opportunities__select_billing_objs_to_link'|url __subject_id=object.id __rtype_id=relation_type.id __ctype_id=objects_ctype.id __multiple=True %}
-    {% endif %}
+  {% if relation_type.enabled %}
+   {% with link_perm=user|has_perm_to_link:object create_perm=user|has_perm_to_create:objects_ctype %}
+    {% url 'opportunities__generate_billing_doc' object.id objects_ctype.id as create_url %}
+    {% brick_header_action id='update' url=create_url type='add'  label=_('Generate an invoice') enabled=link_perm|and_op:create_perm %}
+    {% brick_header_action id='add-relationships'     icon='link' label=_('Link to an invoice')  enabled=link_perm __selector_url='opportunities__select_billing_objs_to_link'|url __subject_id=object.id __rtype_id=relation_type.id __ctype_id=objects_ctype.id __multiple=True %}
+   {% endwith %}
+  {% endif %}
 {% endblock %}
 
 {% block brick_before_content %}
-    {% if not relation_type.enabled %}
-        <div class="global-error">
-            {% blocktranslate with predicate=relation_type.predicate %}Beware: the relationship type «{{predicate}}» is disabled. You should re-enable it if it's still useful, or remove this block{% endblocktranslate %}
-        </div>
-    {% endif %}
+  {% if not relation_type.enabled %}
+    <div class="global-error">
+        {% blocktranslate with predicate=relation_type.predicate %}Beware: the relationship type «{{predicate}}» is disabled. You should re-enable it if it's still useful, or remove this block{% endblocktranslate %}
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -33,8 +34,9 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to unlink object as unlink_perm %}{% url 'creme_core__delete_similar_relations' as delete_relation_url %}
-    {% for invoice in page.object_list %}{% has_perm_to view invoice as invoice_view_perm %}{% has_perm_to unlink invoice as invoice_unlink_perm %}
+ {% with unlink_perm=user|has_perm_to_unlink:object delete_relation_url='creme_core__delete_similar_relations'|url %}
+  {% for invoice in page.object_list %}
+   {% with invoice_view_perm=user|has_perm_to_view:invoice %}
     <tr>
         <td {% brick_table_data_status primary %}>
             {% if invoice_view_perm %}{{invoice.number}}{% else %}{{HIDDEN_VALUE}}{% endif %}
@@ -42,10 +44,14 @@
         <td>{% widget_entity_hyperlink invoice user %}</td>
         <td>{% if invoice_view_perm %}{{invoice.status}}{% else %}{{HIDDEN_VALUE}}{% endif %}</td>
         <td {% brick_table_data_status action %}>
+          {% with invoice_unlink_perm=user|has_perm_to_unlink:invoice %}
             {% brick_table_action id='delete' url=delete_relation_url __subject_id=object.id __type=relation_type.id __object_id=invoice.id label=_('Unlink this invoice') icon='unlink' enabled=unlink_perm|and_op:invoice_unlink_perm %}
+          {% endwith %}
         </td>
     </tr>
-    {% endfor %}
+   {% endwith %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

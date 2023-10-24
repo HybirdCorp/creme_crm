@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-custom-enums-brick{% endblock %}
 
@@ -9,9 +9,9 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if not custom_field.is_deleted %}{% has_perm_to admin 'creme_core' as admin_perm %}
-    {% brick_header_action id='add' url='creme_config__add_custom_enums'|url:custom_field.id label=_('New choices') enabled=admin_perm %}
-    {% endif%}
+  {% if not custom_field.is_deleted %}
+    {% brick_header_action id='add' url='creme_config__add_custom_enums'|url:custom_field.id label=_('New choices') enabled=user|has_perm_to_admin:'creme_core' %}
+  {% endif%}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -20,24 +20,25 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'creme_core' as admin_perm %}
-    {% for enum_value in page.object_list %}
-    {% with deleted=custom_field.is_deleted %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' %}
+  {% for enum_value in page.object_list %}
+   {% with deleted=custom_field.is_deleted %}
     <tr>
         <td>{{enum_value.value}}</td>
         <td {% brick_table_data_status action %}>
-            {% if not deleted %}
+          {% if not deleted %}
             {% brick_table_action id='edit' url='creme_config__edit_custom_enum'|url:enum_value.id label=_('Edit this choice') enabled=admin_perm %}
-            {% endif%}
+          {% endif%}
         </td>
         <td {% brick_table_data_status action %}>
-            {% if not deleted %}
+          {% if not deleted %}
             {% brick_table_action id='edit' url='creme_config__delete_custom_enum'|url:enum_value.id label=_('Delete this choice') icon='delete' enabled=admin_perm %}
-            {% endif%}
+          {% endif%}
         </td>
     </tr>
-    {% endwith %}
-    {% endfor %}
+   {% endwith %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} emails-signatures-brick{% endblock %}
 
@@ -10,8 +10,7 @@
 
 {% block brick_header_actions %}
     {% translate 'New signature' context 'emails' as new_label %}
-    {% has_perm_to access 'emails' as app_perm %}
-    {% brick_header_action id='add' url='emails__create_signature'|url label=new_label enabled=app_perm %}
+    {% brick_header_action id='add' url='emails__create_signature'|url label=new_label enabled=user|has_perm_to_access:'emails' %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -21,14 +20,12 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% url 'emails__delete_signature' as delete_url %}
-{% translate 'Edit this signature' context 'emails' as edit_label %}{% translate 'Delete this signature' context 'emails' as del_label %}
-    {% for signature in page.object_list %}
+ {% translate 'Edit this signature' context 'emails' as edit_label %}{% translate 'Delete this signature' context 'emails' as del_label %}
+ {% with delete_url='emails__delete_signature'|url %}
+  {% for signature in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{{signature.name}}</td>
-        <td>
-            {{signature.renderer.render_html_preview}}
-        </td>
+        <td>{{signature.renderer.render_html_preview}}</td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url=signature.get_edit_absolute_url label=edit_label %}
         </td>
@@ -36,7 +33,8 @@
             {% brick_table_action id='delete' url=delete_url __id=signature.id label=del_label %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

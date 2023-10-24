@@ -1,6 +1,5 @@
 {% extends 'creme_core/detailview.html' %}
-{% load i18n creme_bricks creme_menu creme_widgets %}
-{% load has_perm_to from creme_core_tags %}
+{% load i18n creme_bricks creme_menu creme_perms creme_widgets %}
 
 {% block body_classes %}{% if object.is_deleted %}is_deleted{% endif %}{% endblock %}
 
@@ -8,10 +7,10 @@
     {{block.super}}
 
     {% block creation_button %}
-        {% with url=object.get_create_absolute_url %}
+      {% with url=object.get_create_absolute_url %}
         {% if url %}
-            <li>{% has_perm_to create object.entity_type as create_perm %}
-                {% if create_perm %}
+            <li>
+                {% if user|has_perm_to_create:object.entity_type %}
                 <a class="menu_button menu-button-icon" href="{{url}}">
                 {% else %}
                 <a class="menu_button menu-button-icon forbidden is-disabled">
@@ -20,7 +19,7 @@
                 </a>
             </li>
         {% endif %}
-        {% endwith %}
+      {% endwith %}
     {% endblock %}
 {% endblock %}
 

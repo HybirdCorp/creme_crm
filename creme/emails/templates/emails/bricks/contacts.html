@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} emails-contacts-brick{% endblock %}
 
@@ -9,36 +9,39 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as has_perm %}
-    {% brick_header_action id='link' url='emails__add_contacts_to_mlist_from_filter'|url:object.id label=_('Add from a filter') enabled=has_perm %}
-    {% brick_header_action id='link' url='emails__add_contacts_to_mlist'|url:object.id             label=_('Add contacts')      enabled=has_perm %}
+ {% with edit_perm=user|has_perm_to_change:object %}
+    {% brick_header_action id='link' url='emails__add_contacts_to_mlist_from_filter'|url:object.id label=_('Add from a filter') enabled=edit_perm %}
+    {% brick_header_action id='link' url='emails__add_contacts_to_mlist'|url:object.id             label=_('Add contacts')      enabled=edit_perm %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_columns %}
-{% if not field_hidden %}
+ {% if not field_hidden %}
     {% brick_table_column title=_('Address') status='primary' %}
     {% brick_table_column title=_('Action') status='action' %}
-{% endif %}
+ {% endif %}
 {% endblock %}
 
 {% block brick_table_rows %}
-{% if field_hidden %}
+ {% if field_hidden %}
     <tr>
         <td class="brick-table-data-error">{% translate "The field «Email address» of Contact is hidden; in order to use this block, you have to reactivate it (so please contact your administrator)." %}</td>
     </tr>
-{% else %}{% has_perm_to change object as edit_perm %}{% url 'emails__remove_contact_from_mlist' object.id as rm_contact_url %}
-    {% for contact in page.object_list %}
-    <tr>{% has_perm_to view contact as contact_perm %}
+ {% else %}
+  {% with edit_perm=user|has_perm_to_change:object rm_contact_url='emails__remove_contact_from_mlist'|url:object.id %}
+   {% for contact in page.object_list %}
+    <tr>
         <td {% brick_table_data_status primary %}>
             {% widget_entity_hyperlink contact user %}
-            {% if contact_perm %}&nbsp;:&nbsp;{{contact.email|default:_('no email address')}}{% endif %}
+            {% if user|has_perm_to_view:contact %}&nbsp;:&nbsp;{{contact.email|default:_('no email address')}}{% endif %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=rm_contact_url __id=contact.id label=_('Remove this contact') icon='unlink' enabled=edit_perm %}
         </td>
     </tr>
-    {% endfor %}
-{% endif %}
+   {% endfor %}
+  {% endwith %}
+ {% endif %}
 {% endblock %}
 
 {% block brick_table_empty %}

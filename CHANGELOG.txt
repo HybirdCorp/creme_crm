@@ -28,6 +28,8 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
+            - The templatetag {% has_perm_to %} is deprecated;
+              use the template-filters of the new library "creme_perms" instead.
             - The module 'creme_core.tests.forms.base' is deprecated.
               Use these new methods of 'CremeTestCase' instead: assertFormfieldError() & assertValidationError().
               Then stop using the base class 'FieldTestCase' & 'FieldTestCaseMixin'.
@@ -186,12 +188,15 @@
                 - Upgrade FullCalendar : Refactor of 'creme.activities.CalendarController' renamed as 'creme.ActivityCalendar'
                     - Calendar view changes are stored in url hash (e.g: #week & #month)
                     - Use ISO8601 format WITH timezone for queries on backend views (e.g 2023-04-14T10:38:30+01:00)
+            * Documents :
+                - In the context of the brick 'ChildFoldersBrick', "folder_model" is not injected anymore.
             * Opportunities :
                 - The class 'OpportunityCardHatBrick' (& the related template) has been reworked to follow the changes in app "persons".
                   A new class 'ContactsSummary' has been introduced, and the class variable "displayed_contacts_number" has been move into it.
             * Commercial :
                 - The value 'constants.PROP_IS_A_SALESMAN' has been replaced by 'UUID_PROP_IS_A_SALESMAN'.
             * Mobile :
+                - In the function-views 'persons_portal()' & 'search_person()', "contact_model" & "orga_model" are not injected in the template context anymore.
                 - The CSS classes referencing 'ActivityType' IDs have been renamed;
                   e.g. "activity-type-activities-activitytype_meeting" became "activity-type-meeting".
 

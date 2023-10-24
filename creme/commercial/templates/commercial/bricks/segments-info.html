@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_ctype %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_ctype creme_perms %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} commercial-segments-info-brick{% endblock %}
 
@@ -9,9 +9,10 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as action_allowed %}
-    {% brick_header_action id='add'  url='commercial__create_segment_desc'|url:object.id label=_('New segment')           enabled=action_allowed %}
-    {% brick_header_action id='link' url='commercial__link_segment'|url:object.id        label=_('Add existing segments') enabled=action_allowed %}
+  {% with edit_perm=user|has_perm_to_change:object %}
+    {% brick_header_action id='add'  url='commercial__create_segment_desc'|url:object.id label=_('New segment')           enabled=edit_perm %}
+    {% brick_header_action id='link' url='commercial__link_segment'|url:object.id        label=_('Add existing segments') enabled=edit_perm %}
+  {% endwith %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -24,10 +25,9 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to change object as action_allowed %}
 {% ctype_for_model page.object_list.0 as segment_desc_ctype %}
-{% url 'creme_core__delete_related_to_entity' segment_desc_ctype.id as delete_url %}
-    {% for segmentinfo in page.object_list %}
+ {% with edit_perm=user|has_perm_to_change:object delete_url='creme_core__delete_related_to_entity'|url:segment_desc_ctype.id %}
+   {% for segmentinfo in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{{segmentinfo.segment.name}}</td>
         <td>{{segmentinfo.product}}</td>
@@ -35,13 +35,14 @@
         <td>{{segmentinfo.price}}</td>
         <td>{{segmentinfo.promotion}}</td>
         <td {% brick_table_data_status action %}>{% url 'commercial__edit_segment_desc' object.id segment_desc.id as edit_url %}
-            {% brick_table_action id='edit' url=edit_url label=_('Edit this segment') enabled=action_allowed %}
+            {% brick_table_action id='edit' url=edit_url label=_('Edit this segment') enabled=edit_perm %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url=delete_url __id=segmentinfo.id label=_('Remove this segment') icon='unlink' enabled=action_allowed %}
+            {% brick_table_action id='delete' url=delete_url __id=segmentinfo.id label=_('Remove this segment') icon='unlink' enabled=edit_perm %}
         </td>
     </tr>
-    {% endfor %}
+   {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

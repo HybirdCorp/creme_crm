@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks %}{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms %}{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_core-properties-brick{% endblock %}
 
@@ -8,24 +8,24 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% has_perm_to change object as has_perm %}
-    {% brick_header_action id='add' url='creme_core__add_properties'|url:object.id label=_('New properties') enabled=has_perm %}
+    {% brick_header_action id='add' url='creme_core__add_properties'|url:object.id label=_('New properties') enabled=user|has_perm_to_change:object %}
 {% endblock %}
 
 {% block brick_table_head %}{% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to change object as has_perm %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as rm_url %}
-    {% for property in page.object_list %}
+ {% with edit_perm=user|has_perm_to_change:object rm_url='creme_core__delete_related_to_entity'|url:objects_ctype.id %}
+  {% for property in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>
             <a href="{{property.type.get_absolute_url}}"{% if not property.type.enabled %} class="is_deleted"{% endif %}>{{property}}</a>
         </td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url=rm_url __id=property.id label=_('Remove this property') enabled=has_perm %}
+            {% brick_table_action id='delete' url=rm_url __id=property.id label=_('Remove this property') enabled=edit_perm %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

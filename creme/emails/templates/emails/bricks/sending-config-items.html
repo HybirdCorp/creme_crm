@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks %}
-{% load has_perm_to print_field url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms %}
+{% load print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} emails-sending_config_items-brick{% endblock %}
 
@@ -10,8 +10,7 @@
 
 {% block brick_header_actions %}
     {% translate 'New server configuration' context 'emails' as new_label %}
-    {% has_perm_to admin 'emails' as admin_perm %}
-    {% brick_header_action id='add' url='emails__create_sending_config_item'|url label=new_label enabled=admin_perm %}
+    {% brick_header_action id='add' url='emails__create_sending_config_item'|url label=new_label enabled=user|has_perm_to_admin:'emails' %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -27,9 +26,8 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'emails' as admin_perm %}
-{% url 'emails__delete_sending_config_item' as delete_url %}
-{% translate 'Edit this configuration' context 'emails' as edit_label %}{% translate 'Delete this configuration' context 'emails' as del_label %}
+ {% translate 'Edit this configuration' context 'emails' as edit_label %}{% translate 'Delete this configuration' context 'emails' as del_label %}
+ {% with admin_perm=user|has_perm_to_admin:'emails' delete_url='emails__delete_sending_config_item'|url %}
   {% for item in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{{item.name}}</td>
@@ -49,6 +47,7 @@
         </td>
     </tr>
   {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

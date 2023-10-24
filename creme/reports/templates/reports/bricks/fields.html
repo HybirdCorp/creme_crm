@@ -1,11 +1,11 @@
 {% extends 'creme_core/bricks/base/table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to is_none url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load is_none url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} brick-reorderable reports-fields-brick{% endblock %}
 
 {% block brick_script %}
-<script type="text/javascript">
+  <script type="text/javascript">
      creme.reports.expandSubReport = function(checkbox, url, reportId, fieldId) {
         var brick = $(checkbox).parents('.brick').creme().widget().brick();
 
@@ -21,7 +21,7 @@
                    })
                    .start();
      };
- </script>
+   </script>
 {% endblock %}
 
 {% block brick_header_title %}
@@ -29,63 +29,63 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as has_perm %}
-    {% brick_header_action id='edit' url='reports__edit_fields'|url:object.id label=_('Edit the columns') enabled=has_perm %}
+    {% brick_header_action id='edit' url='reports__edit_fields'|url:object.id label=_('Edit the columns') enabled=user|has_perm_to_change:object %}
 {% endblock %}
 
 {% block brick_table_columns %}
-    {% if columns %}
-        {% brick_table_column title='' %}
-        {% brick_table_column title=_('Column') status='primary' %}
-        {% brick_table_column title=_('Displayed in the report') %}
-        {% brick_table_column title=_('Type') %}
-        {% brick_table_column title=_('Action') status='action' %}
-        {% if expand %}
-            {% brick_table_column title=_('Expand?') status='action nowrap' %}
-        {% endif %}
-    {% else %}
-        <th>{% translate 'No column set for the moment' %}</th>
+  {% if columns %}
+    {% brick_table_column title='' %}
+    {% brick_table_column title=_('Column') status='primary' %}
+    {% brick_table_column title=_('Displayed in the report') %}
+    {% brick_table_column title=_('Type') %}
+    {% brick_table_column title=_('Action') status='action' %}
+    {% if expand %}
+     {% brick_table_column title=_('Expand?') status='action nowrap' %}
     {% endif %}
+  {% else %}
+    <th>{% translate 'No column set for the moment' %}</th>
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_body %}
-{% if columns %}
-    {% has_perm_to change object as has_perm %}{% has_perm_to link object as link_perm %}
+ {% if columns %}
+  {% with edit_perm=user|has_perm_to_change:object link_perm=user|has_perm_to_link:object %}
     <tbody class="brick-reorderable-items ui-sortable">{% widget_icon name='reorder' size='brick-table-action' class='icon brick-reorderable-handle-icon' as reorder_icon %}
-    {% for column in columns %}
-    {% with sub_report=column.sub_report %}
+     {% for column in columns %}
+      {% with sub_report=column.sub_report %}
         <tr {% if column.hand.hidden %}class="hidden-report-field"{% endif %} data-reorderable-item-order="{{column.order}}" data-reorderable-item-url="{% url 'reports__reorder_field' object.id column.id %}">
             <td data-reorderable-handle-column class="ui-sortable-handle" title="{% translate 'Drag and drop to re-order this column of report' %}">
                 {{reorder_icon.render}}
             </td>
             <td {% brick_table_data_status primary %}>{{column}}</td>
             <td>
-            {% if sub_report %}
+              {% if sub_report %}
                 {% translate 'Columns of' %} <a href="{{sub_report.get_absolute_url}}">{{sub_report}}</a> ({{sub_report.columns|join:', '}})
-            {% else %}
+              {% else %}
                 {% translate 'Value' %}
-            {% endif %}
+              {% endif %}
             </td>
             <td>{{column.hand.verbose_name}}</td>
             <td {% brick_table_data_status action %}>
-            {% if not column.hand.get_linkable_ctypes|is_none %}
-                {% if sub_report %}{% has_perm_to unlink sub_report as unlink_sub_report_perm %}
-                    {% brick_table_action id='update' url='reports__unlink_report'|url __field_id=column.id label=_('Unlink the report') display='text' enabled=unlink_sub_report_perm %}
-                {% else %}
-                    {% brick_table_action id='link' url='reports__link_report'|url:column.id label=_('Link a report') enabled=link_perm %}
-                {% endif %}
-            {% endif %}
+              {% if not column.hand.get_linkable_ctypes|is_none %}
+               {% if sub_report %}
+                {% brick_table_action id='update' url='reports__unlink_report'|url __field_id=column.id label=_('Unlink the report') display='text' enabled=user|has_perm_to_unlink:sub_report %}
+               {% else %}
+                {% brick_table_action id='link' url='reports__link_report'|url:column.id label=_('Link a report') enabled=link_perm %}
+               {% endif %}
+             {% endif %}
             </td>
             {% if expand %}
             <td {% brick_table_data_status action %}>
-                {% if sub_report %}
-                <input type="checkbox" {% if has_perm %}onclick="creme.reports.expandSubReport(this, '{% url 'reports__set_selected_field' %}', '{{object.id}}', '{{column.id}}')"{% else %}disabled="true"{% endif %} {% if column.selected %}checked {% endif %}/>
-                {% endif %}
+              {% if sub_report %}
+                <input type="checkbox" {% if edit_perm %}onclick="creme.reports.expandSubReport(this, '{% url 'reports__set_selected_field' %}', '{{object.id}}', '{{column.id}}')"{% else %}disabled="true"{% endif %} {% if column.selected %}checked {% endif %}/>
+              {% endif %}
             </td>
             {% endif %}
         </tr>
-    {% endwith %}
-    {% endfor %}
+      {% endwith %}
+     {% endfor %}
     </tbody>
-{% endif %}
+  {% endwith %}
+ {% endif %}
 {% endblock %}

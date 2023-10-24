@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} emails-sendings-brick{% endblock %}
 
@@ -9,16 +9,16 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-  {% if config_available %}{% has_perm_to change object as edit_perm %}
-    {% brick_header_action id='add' url='emails__create_sending'|url:object.id label=_('New sending') enabled=edit_perm %}
+  {% if config_available %}
+    {% brick_header_action id='add' url='emails__create_sending'|url:object.id label=_('New sending') enabled=user|has_perm_to_change:object %}
   {% endif %}
 {% endblock %}
 
 {% block brick_before_content %}
   {% if not config_available %}
-    <div class="help-box">{% has_perm_to admin 'emails' as admin_perm %}
+    <div class="help-box">
         {% translate 'No configuration for SMTP is available; so creation & edition of sending are forbidden.' %}<br>
-        {% if admin_perm %}
+        {% if user|has_perm_to_admin:'emails' %}
           {% blocktranslate with url='creme_config__app_portal'|url:'emails' %}You can create a configuration <a href="{{url}}">here</a>.{% endblocktranslate %}
         {% else %}
           {% translate 'Contact your administrator to create a configuration.' %}
@@ -37,8 +37,8 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to change object as edit_perm %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_sending_url %}
-    {% for sending in page.object_list %}
+ {% with edit_perm=user|has_perm_to_change:object delete_sending_url='creme_core__delete_related_to_entity'|url:objects_ctype.id %}
+  {% for sending in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %} data-type='date'>{{sending.sending_date}}</td>
         <td>
@@ -63,7 +63,8 @@
             {% brick_table_action id='delete' url=delete_sending_url __id=sending.pk label=_('Delete this sending') enabled=edit_perm %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

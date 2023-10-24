@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_cells creme_widgets creme_bricks %}
-{% load and_op has_perm_to inner_edition_uri from creme_core_tags %}
+{% load i18n creme_bricks creme_cells creme_perms creme_widgets %}
+{% load and_op inner_edition_uri url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} opportunities-managers-brick{% endblock %}
 
@@ -9,18 +9,17 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if relation_type.enabled %}
-        {% has_perm_to link object as link_perm %}
-        {% brick_header_action id='add-relationships' label=_('Link to a contact') icon='link' enabled=link_perm __subject_id=object.id __rtype_id=relation_type.id __ctype_id=objects_ctype.id __multiple=True %}
-    {% endif %}
+  {% if relation_type.enabled %}
+    {% brick_header_action id='add-relationships' label=_('Link to a contact') icon='link' enabled=user|has_perm_to_link:object __subject_id=object.id __rtype_id=relation_type.id __ctype_id=objects_ctype.id __multiple=True %}
+  {% endif %}
 {% endblock %}
 
 {% block brick_before_content %}
-    {% if not relation_type.enabled %}
-        <div class="global-error">
-            {% blocktranslate with predicate=relation_type.predicate %}Beware: the relationship type «{{predicate}}» is disabled. You should re-enable it if it's still useful, or remove this block{% endblocktranslate %}
-        </div>
-    {% endif %}
+  {% if not relation_type.enabled %}
+    <div class="global-error">
+        {% blocktranslate with predicate=relation_type.predicate %}Beware: the relationship type «{{predicate}}» is disabled. You should re-enable it if it's still useful, or remove this block{% endblocktranslate %}
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -32,11 +31,11 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to unlink object as unlink_perm %}{% url 'creme_core__delete_similar_relations' as delete_relation_url %}
-    {% for manager in page.object_list %}
-    <tr>{% has_perm_to view manager as mngr_view_perm %}{% has_perm_to unlink manager as mngr_unlink_perm %}
+ {% with unlink_perm=user|has_perm_to_unlink:object delete_relation_url='creme_core__delete_similar_relations'|url %}
+  {% for manager in page.object_list %}
+    <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink manager user %}</td>
-        {% if mngr_view_perm %}
+        {% if user|has_perm_to_view:manager %}
           {% for cell in cells %}
             <td {% if cell.data_type %}data-type="{{cell.data_type}}"{% endif %}>{% cell_render cell=cell instance=manager user=user as cell_content %}
                 {% if cell_content %}{{cell_content}}{% else %}<span class="empty-field">—</span>{% endif %}
@@ -45,18 +44,21 @@
         {% else %}
             {% for cell in cells %}<td>{{HIDDEN_VALUE}}</td>{% endfor %}
         {% endif %}
-        <td {% brick_table_data_status action %}>{% has_perm_to change manager as mngr_edit_perm %}
+        <td {% brick_table_data_status action %}>
           {% if cells %}{% inner_edition_uri instance=manager cells=cells callback_url=request.get_full_path as edition_uri %}
-            {% brick_table_action id='edit' url=edition_uri label=_('Edit this contact') enabled=mngr_edit_perm %}
+            {% brick_table_action id='edit' url=edition_uri label=_('Edit this contact') enabled=user|has_perm_to_change:manager %}
           {% else %}
-            {% brick_table_action id='redirect' url=manager.get_edit_absolute_url|add:'?callback_url=${location}' label=_('Edit this contact') icon='edit' enabled=mngr_edit_perm %}
+            {% brick_table_action id='redirect' url=manager.get_edit_absolute_url|add:'?callback_url=${location}' label=_('Edit this contact') icon='edit' enabled=user|has_perm_to_change:manager %}
           {% endif %}
         </td>
         <td {% brick_table_data_status action %}>
+          {% with mngr_unlink_perm=user|has_perm_to_unlink:manager %}
             {% brick_table_action id='delete' url=delete_relation_url __subject_id=object.id __type=relation_type.id __object_id=manager.id label=_('Unlink this contact') icon='unlink' enabled=unlink_perm|and_op:mngr_unlink_perm %}
+          {% endwith %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}
