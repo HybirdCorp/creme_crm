@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/hat-card.html' %}
-{% load i18n creme_bricks creme_widgets persons_tags %}
-{% load format_amount has_perm_to from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets persons_tags %}
+{% load format_amount from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} opportunities-card-brick{% endblock %}
 
@@ -12,37 +12,37 @@
 {% block card_title %}
     {{block.super}}
     {% if not object.is_deleted and not object.sandbox %}
-    {% brick_card_action_for_field instance=object field='name' user=user %}
+     {% brick_card_action_for_field instance=object field='name' user=user %}
     {% endif %}
 {% endblock %}
 
 {% block card_indicators %}
-    {% if is_neglected %}
+  {% if is_neglected %}
     <div class='business-card-indicator business-card-warning-indicator' title="{% translate 'Meeting, phone call…' %}">{% translate 'No activity since 30 days' %}</div>
-    {% endif %}
+  {% endif %}
 {% endblock %}
 
 {% block card_secondary %}
     <div class="card-targets">
-        {% if target_is_organisation %}
+      {% if target_is_organisation %}
         <span class="card-function">{% translate 'Targets the organisation' %}</span> {% widget_entity_hyperlink target user %}
+      {% else %}
+        <span class="card-function">{% translate 'Targets the contact' %}</span>
+        {% if user|has_perm_to_view:target %}
+          <a href='{{target.get_absolute_url}}' {% if target.is_deleted %}class="is_deleted"{% endif %}>{{target|persons_pretty_contact}}</a>{% persons_contact_first_employer contact=target user=user as employer %}
+          {% if employer %},
+           {% if employer.as_manager %}{% translate 'manager of the organisation' %}{% else %}{% translate 'employee of the organisation' %}{% endif %}
+           {% widget_entity_hyperlink employer.organisation user %}
+          {% endif %}
         {% else %}
-        <span class="card-function">{% translate 'Targets the contact' %}</span>{% has_perm_to view target as target_view_perm %}
-            {% if target_view_perm %}
-            <a href='{{target.get_absolute_url}}' {% if target.is_deleted %}class="is_deleted"{% endif %}>{{target|persons_pretty_contact}}</a>{% persons_contact_first_employer contact=target user=user as employer %}
-                {% if employer %},
-                {% if employer.as_manager %}{% translate 'manager of the organisation' %}{% else %}{% translate 'employee of the organisation' %}{% endif %}
-                {% widget_entity_hyperlink employer.organisation user %}
-                {% endif %}
-            {% else %}
-                {{HIDDEN_VALUE}}
-            {% endif %}
+          {{HIDDEN_VALUE}}
         {% endif %}
+      {% endif %}
     </div>
 {% endblock %}
 
 {% block card_fields_title %}
-{% translate 'Details' context 'opportunities' %}
+ {% translate 'Details' context 'opportunities' %}
 {% endblock %}
 
 {% block card_fields %}

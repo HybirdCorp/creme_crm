@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_widgets creme_bricks %}
-{% load format_amount has_perm_to from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load format_amount from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} billing-received-brick{% endblock %}
 
@@ -20,22 +20,20 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-    {% for billing_document in page.object_list %}
-    <tr>{% has_perm_to view billing_document as view_perm %}
+  {% for billing_document in page.object_list %}
+    <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink billing_document user %}</td>
-        {% if view_perm %}
-            {% if 'expiration_date' not in hidden_fields %}
-        <td data-type="date">{{billing_document.expiration_date|date:'DATE_FORMAT'}}</td>
-            {% endif %}
-        <td>{{billing_document.status}}</td>
-        <td data-type="money">{{billing_document.total_no_vat|format_amount:billing_document.currency}}</td>
+        {% if user|has_perm_to_view:billing_document %}
+         {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{billing_document.expiration_date|date:'DATE_FORMAT'}}</td>{% endif %}
+         <td>{{billing_document.status}}</td>
+         <td data-type="money">{{billing_document.total_no_vat|format_amount:billing_document.currency}}</td>
         {% else %}
-        {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{HIDDEN_VALUE}}</td>{% endif %}
-        <td>{{HIDDEN_VALUE}}</td>
-        <td data-type="money">{{HIDDEN_VALUE}}</td>
+         {% if 'expiration_date' not in hidden_fields %}<td data-type="date">{{HIDDEN_VALUE}}</td>{% endif %}
+         <td>{{HIDDEN_VALUE}}</td>
+         <td data-type="money">{{HIDDEN_VALUE}}</td>
         {% endif %}
     </tr>
-    {% endfor %}
+  {% endfor %}
 {% endblock %}
 
 {% block brick_table_empty %}

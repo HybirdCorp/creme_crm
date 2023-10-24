@@ -1,23 +1,23 @@
-{% load i18n mobile_tags %}
-{% load and_op has_perm_to from creme_core_tags %}{% has_perm_to change activity as edit_perm %}
-{% with participant_relations=activity.get_participant_relations organisations=activity|mobile_organisation_subjects has_button=buttons_template|and_op:edit_perm start=activity.start %}
+{% load i18n creme_perms mobile_tags %}{% load and_op from creme_core_tags %}
+{% with participant_relations=activity.get_participant_relations organisations=activity|mobile_organisation_subjects edit_perm=user|has_perm_to_change:activity %}
+{% with has_button=buttons_template|and_op:edit_perm start=activity.start %}
 {# <div class="card card-activity {{extra_classes}} activity-type-{{activity.type_id}}{% if is_floating %} activity-floating{% endif %}{% if activity.is_all_day %} activity-all-day{% endif %}{% if has_button %} activity-with-actions{% endif %}{% if not participant_relations and not organisations %} activity-without-participants{% endif %}" #}
 <div class="card card-activity {{extra_classes}} activity-type-{{activity|mobile_activity_type_str}}{% if is_floating %} activity-floating{% endif %}{% if activity.is_all_day %} activity-all-day{% endif %}{% if has_button %} activity-with-actions{% endif %}{% if not participant_relations and not organisations %} activity-without-participants{% endif %}"
      id="activity_{{activity.id}}" data-activity-id="{{activity.id}}"
      {% if shortcut and not is_floating %}data-shortcut="{{start|date:'H'}}"{% endif %}>
   <div class="activity-summary card-component">
-    {% if start %}
-      {% if activity.is_all_day %}
-        <span class="activity-schedule activity-schedule-beginning">{% if show_date %}{{start|date:_('d/m/Y')}} {% endif %}{% translate 'All day' %}</span>
-      {% elif is_floating %}
-        <span class="activity-schedule activity-schedule-beginning">{% if show_date %}{{start|date:_('d/m/Y')}} {% endif %}{% translate 'In day' %}</span>
-      {% else %}
-        <span class="activity-schedule"><span class="activity-schedule-beginning">{% if show_date %}{{start|date:_('d/m/Y H:i')}}{% else %}{{start|date:_('H:i')}}{% endif %}</span> &ndash; {{activity.end|date:_('H:i')}}</span>
-      {% endif %}
-      <span class="activity-type">/ {{activity.type}}</span>
+   {% if start %}
+    {% if activity.is_all_day %}
+     <span class="activity-schedule activity-schedule-beginning">{% if show_date %}{{start|date:_('d/m/Y')}} {% endif %}{% translate 'All day' %}</span>
+    {% elif is_floating %}
+     <span class="activity-schedule activity-schedule-beginning">{% if show_date %}{{start|date:_('d/m/Y')}} {% endif %}{% translate 'In day' %}</span>
     {% else %}
-      <span class="activity-type">{{activity.type}}</span>
+     <span class="activity-schedule"><span class="activity-schedule-beginning">{% if show_date %}{{start|date:_('d/m/Y H:i')}}{% else %}{{start|date:_('H:i')}}{% endif %}</span> &ndash; {{activity.end|date:_('H:i')}}</span>
     {% endif %}
+    <span class="activity-type">/ {{activity.type}}</span>
+   {% else %}
+    <span class="activity-type">{{activity.type}}</span>
+   {% endif %}
   </div>
 
   <div class="activity-title card-component">{{activity.title}}</div>
@@ -43,4 +43,5 @@
     </div>
   {% endif %}
 </div>
+{% endwith %}
 {% endwith %}

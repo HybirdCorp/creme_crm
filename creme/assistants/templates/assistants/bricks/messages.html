@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to print_field url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} assistants-messages-brick{% endblock %}
 
@@ -9,11 +9,11 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if object %}{% has_perm_to change object as has_perm %}
-        {% brick_header_action id='add' url='assistants__create_related_message'|url:object.id label=_('Send a new message') enabled=has_perm %}
-    {% else %}
-        {% brick_header_action id='add' url='assistants__create_message'|url label=_('New message') %}
-    {% endif %}
+  {% if object %}
+    {% brick_header_action id='add' url='assistants__create_related_message'|url:object.id label=_('Send a new message') enabled=user|has_perm_to_change:object %}
+  {% else %}
+    {% brick_header_action id='add' url='assistants__create_message'|url label=_('New message') %}
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -30,16 +30,16 @@
 {% endblock %}
 
 {% block brick_table_rows %}{% url 'assistants__delete_message' as delete_url %}
-    {% for message in page.object_list %}
+  {% for message in page.object_list %}
     <tr>
         {% if not object %}
-            {% with entity=message.real_entity %}
-                {% if entity %}
-                    <td>{% widget_entity_hyperlink entity user %}</td>
-                {% else %}
-                    <td>{% translate '(None)' %}</td>
-                {% endif %}
-            {% endwith %}
+          {% with entity=message.real_entity %}
+            {% if entity %}
+              <td>{% widget_entity_hyperlink entity user %}</td>
+            {% else %}
+              <td>{% translate '(None)' %}</td>
+            {% endif %}
+          {% endwith %}
         {% endif %}
         <td {% brick_table_data_status primary %}>{% print_field object=message field='sender' %}</td>
         <td data-type="date">{{message.creation_date|date:"DATE_FORMAT"}}</td>
@@ -49,7 +49,7 @@
             {% brick_table_action id='delete' url=delete_url __id=message.pk label=_('Delete this message') enabled=1 %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
 {% endblock %}
 
 {% block brick_table_empty %}

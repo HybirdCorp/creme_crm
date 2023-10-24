@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks reports_tags %}
-{% load blockjsondata has_perm_to jsonify url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms reports_tags %}
+{% load blockjsondata jsonify url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} reports-graphs-brick{% endblock %}
 
@@ -49,13 +49,12 @@
 {% endblock %}
 
 {% block brick_header_title %}
-{% translate 'Graphs' context 'reports-graphs' as empty_label %}
+ {% translate 'Graphs' context 'reports-graphs' as empty_label %}
     {% brick_header_title title=_('{count} Graph') plural=_('{count} Graphs') empty=empty_label icon='graph' %}
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object.report as has_perm %}
-    {% brick_header_action id='add' url='reports__create_graph'|url:object.id label=_('Create a new graph') enabled=has_perm %}
+    {% brick_header_action id='add' url='reports__create_graph'|url:object.id label=_('Create a new graph') enabled=user|has_perm_to_change:object.report %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -68,9 +67,9 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'reports' as admin_perm %}
-    {% for graph in page.object_list %}
-    {% with hand=graph.hand %}
+ {% with admin_perm=user|has_perm_to_admin:'reports' %}
+  {% for graph in page.object_list %}
+   {% with hand=graph.hand %}
     <tr class="graph-row-header graph-row-collapsed" data-graph-id="{{graph.id}}">
         <td>
             <div class="toggle-icon-container toggle-icon-expand" title="{% translate 'Expand' %}"><div class="toggle-icon"></div></div>
@@ -80,14 +79,14 @@
         <td {% if hand.abscissa_error is not None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_abscissa}}</td>
         <td {% if hand.abscissa_error is not None %}class="brick-table-data-error" title="{{hand.abscissa_error}}"{% endif %}>{{hand.verbose_name}}{% if graph.abscissa_parameter %} ({{graph.abscissa_parameter}}){% endif %}</td>{# TODO: hand.verbose parameter ? #}
         {% with ordinate=hand.ordinate %}
-        <td {% if ordinate.error is not None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.verbose_name}}</td>
-        <td {% if ordinate.error is not None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.cell|default:'—'}}</td>
+         <td {% if ordinate.error is not None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.verbose_name}}</td>
+         <td {% if ordinate.error is not None %}class="brick-table-data-error" title="{{ordinate.error}}"{% endif %}>{{ordinate.cell|default:'—'}}</td>
         {% endwith %}
-        <td {% brick_table_data_status action %}>{% has_perm_to change graph as graph_edit_perm %}
-            {% brick_table_action id='edit' url='reports__edit_graph'|url:graph.id enabled=graph_edit_perm %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='reports__edit_graph'|url:graph.id enabled=user|has_perm_to_change:graph %}
         </td>
-        <td {% brick_table_data_status action %}>{% has_perm_to delete graph as graph_delete_perm %}
-            {% brick_table_action id='delete' url='creme_core__delete_entity'|url:graph.id label=_('Delete this graph') enabled=graph_delete_perm %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url='creme_core__delete_entity'|url:graph.id label=_('Delete this graph') enabled=user|has_perm_to_delete:graph %}
         </td>
     </tr>
     <tr data-graph-chart="{{graph.chart|default:''}}" data-graph-id="{{graph.id}}" class="graph-row graph-row-collapsed">
@@ -102,9 +101,7 @@
                     </div>
                     <div class="graph-control graph-controls-sort">
                         <span class="graph-control-name">{% translate 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
-                        <a class="graph-control-value" title="{% translate 'Select the sort order' %}">
-                            {% translate 'Ascending' %}
-                        </a>
+                        <a class="graph-control-value" title="{% translate 'Select the sort order' %}">{% translate 'Ascending' %}</a>
                     </div>
                 </div>
                 <div class="graph-actions">
@@ -141,8 +138,9 @@
             </div>
          </td>
     </tr>
-    {% endwith %}
-    {% endfor %}
+   {% endwith %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

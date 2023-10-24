@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-list.html' %}
-{% load i18n creme_core_tags creme_widgets creme_bricks %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_core_tags creme_bricks creme_perms creme_widgets %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} billing-list-brick billing-orga-payment-info-brick{% endblock %}
 
@@ -9,12 +9,12 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as has_perm %}
-    {% brick_header_action id='add' url='billing__create_payment_info'|url:object.id label=_('Add a payment information') enabled=has_perm %}
+    {% brick_header_action id='add' url='billing__create_payment_info'|url:object.id label=_('Add a payment information') enabled=user|has_perm_to_change:object %}
 {% endblock %}
 
 {% block brick_list_content %}
-{% has_perm_to change object as has_perm %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_url %}
+{% with edit_perm=user|has_perm_to_change:object %}
+{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_url %}
     {% for payment_info in page.object_list %}
     <div class="brick-list-item billing-item">
         <div class="billing-group billing-summary-group{% if payment_info.is_default %} billing-is-default{% endif %}">
@@ -30,10 +30,10 @@
             </div>
             {% endif %}
             <div class="billing-action">
-                {% brick_action id='edit' url=payment_info.get_edit_absolute_url label=_('Edit these information') enabled=has_perm %}
+                {% brick_action id='edit' url=payment_info.get_edit_absolute_url label=_('Edit these information') enabled=edit_perm %}
             </div>
             <div class="billing-action">
-                {% brick_action id='delete' url=delete_url enabled=has_perm %}
+                {% brick_action id='delete' url=delete_url enabled=edit_perm %}
             </div>
         </div>
         <div class="billing-group billing-info-group">
@@ -62,6 +62,7 @@
         </div>
     </div>
     {% endfor %}
+{% endwith %}
 {% endblock %}
 
 {% block brick_list_empty %}

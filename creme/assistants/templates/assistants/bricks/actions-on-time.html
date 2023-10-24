@@ -1,5 +1,6 @@
 {% extends 'assistants/bricks/base/actions.html' %}
-{% load i18n creme_core_tags creme_bricks creme_widgets %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} assistants-actions-ontime-brick{% endblock %}
 
@@ -8,9 +9,9 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if object %}{% has_perm_to change object as has_perm %}
-    {% brick_header_action id='add' url='assistants__create_action'|url:object.id label=_('New action') enabled=has_perm %}
-    {% endif %}
+  {% if object %}
+    {% brick_header_action id='add' url='assistants__create_action'|url:object.id label=_('New action') enabled=user|has_perm_to_change:object %}
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_empty %}

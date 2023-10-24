@@ -1,7 +1,6 @@
-{% load i18n creme_widgets creme_bricks %}
-{% load has_perm_to format_amount url from creme_core_tags %}
-{% has_perm_to change object as edit_perm %}
-{% with line=form.instance currency=object.currency %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load format_amount url from creme_core_tags %}
+{% with edit_perm=user|has_perm_to_change:object line=form.instance currency=object.currency %}
 <table class="linetable linetable_{{ct_id}}{% if not edit_perm %} readonly{% endif %}">
     <tr class="content">{# FIRST LINE #}
         <th class="bline-quantity">{% translate 'Quantity' %}</th>
@@ -15,8 +14,8 @@
     </tr>
 
     <tr class="content">
-    {% with exclusive_of_tax=line.get_price_exclusive_of_tax inclusive_of_tax=line.get_price_inclusive_of_tax %}
-    {% if edit_perm %}
+     {% with exclusive_of_tax=line.get_price_exclusive_of_tax inclusive_of_tax=line.get_price_inclusive_of_tax %}
+      {% if edit_perm %}
         <td class="bline-quantity">{{form.quantity}}</td>
         <td class="bline-unit-price">{{form.unit_price}} {{object.currency.local_symbol}}</td>
         <td class="bline-unit">/ {{form.unit}}</td>
@@ -25,7 +24,7 @@
         <td class="bline-total-no-tax" name="exclusive_of_tax">{{line.get_raw_price|format_amount:currency}}</td>
         <td class="bline-total-discounted" name="discounted" data-value="{{exclusive_of_tax}}">{{exclusive_of_tax|format_amount:currency}}</td>
         <td class="bline-total" name="inclusive_of_tax" data-value="{{inclusive_of_tax}}">{{inclusive_of_tax|format_amount:currency}}</td>
-    {% else %}{# READONLY VERSION #}
+      {% else %}{# READONLY VERSION #}
         <td class="bline-quantity">{{line.quantity}}</td>
         <td class="bline-unit-price">{{line.unit_price}} {{object.currency.local_symbol}}</td>
         <td class="bline-unit">{% if line.unit %} / {{line.unit}}{% endif %}</td>
@@ -36,8 +35,8 @@
         <td class="bline-total-no-tax" name="exclusive_of_tax">{{line.get_raw_price|format_amount:currency}}</td>
         <td class="bline-total-discounted" name="discounted" data-value="{{exclusive_of_tax}}">{{exclusive_of_tax|format_amount:currency}}</td>
         <td class="bline-total" name="inclusive_of_tax" data-value="{{inclusive_of_tax}}">{{inclusive_of_tax|format_amount:currency}}</td>
-    {% endif %}
-    {% endwith %}
+      {% endif %}
+     {% endwith %}
     </tr>
 
     <tr class="content">{# SECOND LINE #}
@@ -45,42 +44,42 @@
         <th class="bline-comment" colspan="5">{% translate 'Comment' %}</th>
     </tr>
     <tr class="content">
-    {% if edit_perm %}
+     {% if edit_perm %}
         <td class="bline-item" colspan="3">
-        {% if line.pk %}
-            {% with related_item=line.related_item %}
+         {% if line.pk %}
+           {% with related_item=line.related_item %}
             {% if related_item %}
-                {% widget_entity_hyperlink related_item user %}
+              {% widget_entity_hyperlink related_item user %}
             {% else %}
-                <div>{% has_perm_to create related_item_ct as item_create_perm %}
-                {{form.on_the_fly_item}}
-{#                brick_table_action ?? (beware to is-disabled class  => need .brick-table .brick-table-content) #}
-                {% brick_action id='edit' url='billing__add_to_catalog'|url:line.id label=_('[add to catalog]') display='text' enabled=item_create_perm %}
-                </div>
+              <div>
+                  {{form.on_the_fly_item}}
+{#                brick_table_action ?? (beware of is-disabled class  => need .brick-table .brick-table-content) #}
+                  {% brick_action id='edit' url='billing__add_to_catalog'|url:line.id label=_('[add to catalog]') display='text' enabled=user|has_perm_to_create:related_item_ct %}
+              </div>
             {% endif %}
-            {% endwith %}
-        {% else %}
+           {% endwith %}
+         {% else %}
             {{form.on_the_fly_item}}
-        {% endif %}
+         {% endif %}
         </td>
         <td class="bline-comment" colspan="5">{{form.comment}}</td>
-    {% else %}{# READONLY VERSION #}
+     {% else %}{# READONLY VERSION #}
         <td class="bline-item" colspan="3">
-        {% if line.pk %}
-            {% with related_item=line.related_item %}
-            {% if related_item %}
-                {% widget_entity_hyperlink related_item user %}
-            {% else %}
-                <div>{% has_perm_to create related_item_ct as item_create_perm %}
+         {% if line.pk %}
+          {% with related_item=line.related_item %}
+           {% if related_item %}
+             {% widget_entity_hyperlink related_item user %}
+           {% else %}
+             <div>
                 {{line.on_the_fly_item}}
-                {% brick_action id='edit' url='billing__add_to_catalog'|url:line.id label=_('[add to catalog]') display='text' enabled=item_create_perm %}
-                </div>
-            {% endif %}
-            {% endwith %}
-        {% endif %}
+                {% brick_action id='edit' url='billing__add_to_catalog'|url:line.id label=_('[add to catalog]') display='text' enabled=user|has_perm_to_create:related_item_ct %}
+             </div>
+           {% endif %}
+          {% endwith %}
+         {% endif %}
         </td>
         <td class="bline-comment" colspan="5">{{line.comment|linebreaks}}</td>
-    {% endif %}
+     {% endif %}
     </tr>
 </table>
 {% endwith %}

@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} sms-sendings-brick{% endblock %}
 
@@ -22,8 +22,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as edit_perm %}
-    {% brick_header_action id='add' url='sms__create_sending'|url:object.id label=_('New sending') enabled=edit_perm %}
+    {% brick_header_action id='add' url='sms__create_sending'|url:object.id label=_('New sending') enabled=user|has_perm_to_change:object %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -35,9 +34,9 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to change object as edit_perm %}{% url 'sms__delete_sending' object.id as delete_sending_url %}
-{% translate 'Details' as details_label %}{% translate 'Synchronize' as sync_label %}{% translate "Can't synchronize" as nosync_label %}
-    {% for sending in page.object_list %}
+ {% translate 'Details' as details_label %}{% translate 'Synchronize' as sync_label %}{% translate "Can't synchronize" as nosync_label %}
+ {% with edit_perm=user|has_perm_to_change:object delete_sending_url='sms__delete_sending'|url:object.id %}
+  {% for sending in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %} data-type='date'>{{sending.date}}</td>
         <td>{{sending.messages.count}}</td>
@@ -58,7 +57,8 @@
             {% brick_table_action id='delete' url=delete_sending_url __id=sending.id label=_('Delete this sending') enabled=edit_perm %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

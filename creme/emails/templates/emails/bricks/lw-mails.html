@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} emails-lw-mails-brick{% endblock %}
 
@@ -16,31 +16,32 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to change object.campaign as delete_perm %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_mail_url %}
-    {% for mail in page.object_list %}
-    {% with entity=mail.real_recipient %}
+ {% with delete_perm=user|has_perm_to_change:object.campaign delete_mail_url='creme_core__delete_related_to_entity'|url:objects_ctype.id %}
+  {% for mail in page.object_list %}
+   {% with entity=mail.real_recipient %}
     <tr>
         <td {% brick_table_data_status primary %} class="lw-mail-address">
-        {% if entity %}{% has_perm_to view entity as view_address_perm %}
-            {% if view_address_perm %}{{mail.recipient}}{% else %}{{HIDDEN_VALUE}}{% endif %}
-        {% else %}
+          {% if entity %}
+            {% if user|has_perm_to_view:entity %}{{mail.recipient}}{% else %}{{HIDDEN_VALUE}}{% endif %}
+          {% else %}
             {{mail.recipient}}
-        {% endif %}
+          {% endif %}
         </td>
         <td class="lw-mail-recipient">
-        {% if entity %}
+          {% if entity %}
             {% widget_entity_hyperlink entity user %}
-        {% else %}
+          {% else %}
             <span class="empty-field">—</span>
-        {% endif %}
+          {% endif %}
         </td>
         <td class="lw-mail-status">{{mail.get_status_display}}</td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_mail_url __id=mail.id label=_('Delete this email') enabled=delete_perm %}
         </td>
     </tr>
-    {% endwith %}
-    {% endfor %}
+   {% endwith %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

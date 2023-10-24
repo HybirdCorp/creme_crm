@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load and_op has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load and_op url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} persons-managed-organisations-brick{% endblock %}
 
@@ -9,8 +9,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}
-    {% brick_header_action id='add' url='persons__orga_set_managed'|url label=_('Manage new organisations') enabled=admin_perm %}
+    {% brick_header_action id='add' url='persons__orga_set_managed'|url label=_('Manage new organisations') enabled=user|has_perm_to_admin:'creme_core' %}
 {% endblock %}
 
 {% block brick_before_content %}
@@ -23,15 +22,16 @@
 {% endblock %}
 
 {% block brick_table_rows %}
- {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'persons__orga_unset_managed' as unset_managed_url %}
- {% with count=page.paginator.count %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' unset_managed_url='persons__orga_unset_managed'|url count=page.paginator.count %}
   {% for orga in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink orga user %}</td>
         <td {% brick_table_data_status action %}>
-            {% if count != 1 %}{% has_perm_to change orga as edition_perm %}
-                {% brick_table_action id='delete' url=unset_managed_url __id=orga.id label=_('Do not manage anymore') icon='unlink' enabled=edition_perm|and_op:admin_perm %}
-            {% endif %}
+         {% if count != 1 %}
+          {% with edition_perm=user|has_perm_to_change:orga %}
+            {% brick_table_action id='delete' url=unset_managed_url __id=orga.id label=_('Do not manage anymore') icon='unlink' enabled=edition_perm|and_op:admin_perm %}
+          {% endwith %}
+         {% endif %}
         </td>
     </tr>
   {% endfor %}

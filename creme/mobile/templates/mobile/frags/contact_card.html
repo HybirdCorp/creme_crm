@@ -1,5 +1,5 @@
-{% load i18n creme_core_tags mobile_tags %}{% has_perm_to view contact as view_perm %}
-{% if view_perm %}
+{% load i18n creme_perms mobile_tags %}{% load bool or_op from creme_core_tags %}
+{% if user|has_perm_to_view:contact %}
   {% mobile_prepare_fields contact 'email' 'billing_address' 'position' 'phone' 'mobile' %}
   {% with email=contact.email address=contact.billing_address position=contact.position organisations=contact.get_employers %}
   {% with has_address=address|bool %}

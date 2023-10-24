@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} emails-mailing-lists-brick{% endblock %}
 
@@ -9,8 +9,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as has_perm %}
-    {% brick_header_action id='link' url='emails__add_mlists_to_campaign'|url:object.id label=_('Add existing mailing lists') enabled=has_perm %}
+    {% brick_header_action id='link' url='emails__add_mlists_to_campaign'|url:object.id label=_('Add existing mailing lists') enabled=user|has_perm_to_change:object %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -19,15 +18,16 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to change object as has_perm %}{% url 'emails__remove_mlist_from_campaign' object.id as rm_mlist_url %}
-    {% for mailinglist in page.object_list %}
+ {% with edit_perm=user|has_perm_to_change:object rm_mlist_url='emails__remove_mlist_from_campaign'|url:object.id %}
+  {% for mailinglist in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink mailinglist user %}</td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url=rm_mlist_url __id=mailinglist.id label=_('Remove this mailing list') icon='unlink' enabled=has_perm %}
+            {% brick_table_action id='delete' url=rm_mlist_url __id=mailinglist.id label=_('Remove this mailing list') icon='unlink' enabled=edit_perm %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

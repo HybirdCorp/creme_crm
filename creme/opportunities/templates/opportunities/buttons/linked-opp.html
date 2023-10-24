@@ -1,5 +1,5 @@
-{% load i18n creme_widgets %}{% load has_perm_to from creme_core_tags %}{% has_perm_to link object as link_perm %}
-{% if button.is_allowed and link_perm %}
+{% load i18n creme_perms creme_widgets %}
+{% if button.is_allowed and user|has_perm_to_link:object %}
 <a class="menu_button menu-button-icon" href="{% url 'opportunities__create_related_opportunity' object.id %}" title="{% blocktranslate %}Create an opportunity which targets «{{object}}».{% endblocktranslate %}" >
     {% widget_icon name='opportunity' size='instance-button' label=_('Opportunity') %}
     {{button.verbose_name}}

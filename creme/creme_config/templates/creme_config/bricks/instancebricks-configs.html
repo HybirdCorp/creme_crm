@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to has_attr uca_sort verbose_models from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load has_attr uca_sort url verbose_models from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-instances-bricks-brick{% endblock %}
 
@@ -22,9 +22,9 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_instance_brick' as delete_url %}
-    {% for brick_type in page.object_list %}
-    {% with brick=brick_type.brick %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' delete_url='creme_config__delete_instance_brick'|url %}
+  {% for brick_type in page.object_list %}
+   {% with brick=brick_type.brick %}
     <tr>
         <td {% brick_table_data_status primary %} class="instancebrick-config-name"><a href="{{brick_type.entity.get_absolute_url}}">{{brick_type}}</a></td>
         <td>
@@ -34,18 +34,19 @@
             </ul>
         </td>
         <td class="instancebrick-config-errors">
-            {% for error in brick.errors %}
-                {% if not forloop.first %}, {% endif %}
-                <span>{{error}}</span>
-            {% empty %}—
-            {% endfor %}
+          {% for error in brick.errors %}
+            {% if not forloop.first %}, {% endif %}
+            <span>{{error}}</span>
+          {% empty %}—
+          {% endfor %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_url __id=brick_type.id label=_('Delete this type of block') enabled=admin_perm %}
         </td>
     </tr>
-    {% endwith %}
-    {% endfor %}
+   {% endwith %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

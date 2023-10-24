@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/base.html' %}
-{% load i18n creme_bricks creme_ctype creme_widgets %}
-{% load has_perm_to url url_join from creme_core_tags%}
+{% load i18n creme_bricks creme_ctype creme_perms creme_widgets %}
+{% load url url_join from creme_core_tags%}
 
 {% block brick_extra_class %}brick-hat brick-hat-card{% endblock %}
 
@@ -86,11 +86,9 @@
         <div class='hat-card-sidebar{% if not object.entity_type|ctype_can_be_merged %} hat-card-sidebar-narrow{% endif %}'>
             <div class='card-actions'>
             {% block card_buttons %}
-                {% has_perm_to delete object as delete_perm %}
+              {% with edit_perm=user|has_perm_to_change:object delete_perm=user|has_perm_to_delete:object %}
                 {% if not object.is_deleted %}
-                    {% has_perm_to change object as edit_perm %}
-
-                    {% with edit_url=object.get_edit_absolute_url %}
+                  {% with edit_url=object.get_edit_absolute_url %}
                     {% if edit_url %}
                     <div class='card-action'>
                       {% if edit_perm %}
@@ -102,29 +100,30 @@
                         </a>
                     </div>
                     {% endif %}
-                    {% endwith %}
+                  {% endwith %}
 
-                    {% with delete_url=object.get_delete_absolute_url %}
-                    {% if delete_url %}
+                  {% with delete_url=object.get_delete_absolute_url %}
+                   {% if delete_url %}
                     <div class='card-action'>{% brick_card_button action='creme_core-detailview-delete' label=_('Delete') url=delete_url icon='delete' confirm=_('Do you really want to send this entity to the trash?') enabled=delete_perm %}</div>
-                    {% endif %}
-                    {% endwith %}
+                   {% endif %}
+                  {% endwith %}
 
-                    {% with clone_url=object.get_clone_absolute_url %}
-                    {% if clone_url %}{% has_perm_to create object as create_perm %}
-                    <div class='card-action'>{% brick_card_button action='creme_core-detailview-clone' label=_('Clone') url=clone_url icon='clone' __id=object.id confirm=_('Do you really want to clone this entity?') enabled=create_perm %}</div>
-                    {% endif %}
-                    {% endwith %}
+                  {% with clone_url=object.get_clone_absolute_url %}
+                   {% if clone_url %}
+                    <div class='card-action'>{% brick_card_button action='creme_core-detailview-clone' label=_('Clone') url=clone_url icon='clone' __id=object.id confirm=_('Do you really want to clone this entity?') enabled=user|has_perm_to_create:object.entity_type %}</div>
+                   {% endif %}
+                  {% endwith %}
 
-                    {% if object.entity_type|ctype_can_be_merged %}
+                  {% if object.entity_type|ctype_can_be_merged %}
                     <div class='card-action'>{% brick_card_button action='creme_core-detailview-merge' label=_('Merge') url='creme_core__merge_entities'|url icon='merge' __id=object.id __selection_url='creme_core__select_entity_for_merge'|url enabled=edit_perm %}</div>
-                    {% endif %}
+                  {% endif %}
                 {% else %}
                     <div class='card-action'>{% brick_card_button action='creme_core-detailview-restore' label=_('Restore')            url='creme_core__restore_entity'|url:object.id icon='restore' confirm=_('Do you really want to restore this entity?')           enabled=delete_perm %}</div>
                     {% if ENTITIES_DELETION_ALLOWED %}
                     <div class='card-action'>{% brick_card_button action='creme_core-detailview-delete'  label=_('Delete permanently') url=object.get_delete_absolute_url             icon='delete'  confirm=_('Do you really want to delete this entity definitely?') enabled=delete_perm %}</div>
                     {% endif %}
                 {% endif %}
+              {% endwith %}
             {% endblock %}
             </div>
             {% block card_history %}

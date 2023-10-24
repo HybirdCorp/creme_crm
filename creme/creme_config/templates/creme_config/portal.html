@@ -1,6 +1,5 @@
 {% extends BASE_HTML %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
 
 {% block page_title %}{% translate 'Configuration' %} - {% endblock %}
 
@@ -122,26 +121,25 @@
         </div>
         <div class="brick-content">
             <table class="brick-table-content">
-                {% if app_configs %}
+              {% if app_configs %}
                 <tbody>
-                    {% for app_conf in app_configs %}
-                    {% has_perm_to admin app_conf.name as app_admin_perm %}
+                  {% for app_conf in app_configs %}
                     <tr>
                         <td>
-                        {% if app_admin_perm %}
+                          {% if user|has_perm_to_admin:app_conf.name %}
                             <a href="{{app_conf.portal_url}}">{% blocktranslate with app_name=app_conf.verbose_name %}{{app_name}} configuration portal{% endblocktranslate %}</a>
-                        {% else %}
+                          {% else %}
                             <span class="forbidden">{% blocktranslate with app_name=app_conf.verbose_name %}{{app_name}} configuration portal{% endblocktranslate %}</span>
-                        {% endif %}
+                          {% endif %}
                         </td>
                     </tr>
-                    {% endfor %}
+                  {% endfor %}
                 </tbody>
-                {% else %}
+              {% else %}
                 <thead>
                     <tr><th>{% translate 'No application requires configuration' %}</th></tr>
                 </thead>
-                {% endif %}
+              {% endif %}
             </table>
         </div>
     </div>

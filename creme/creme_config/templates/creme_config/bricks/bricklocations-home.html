@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-brickloc-home-brick{% endblock %}
 
@@ -9,9 +9,9 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if show_add_button %}{% has_perm_to admin 'creme_core' as admin_perm %}
-        {% brick_header_action id='add' url='creme_config__create_home_bricks'|url label=_('Add a home configuration for a role') enabled=admin_perm %}
-    {% endif %}
+  {% if show_add_button %}
+    {% brick_header_action id='add' url='creme_config__create_home_bricks'|url label=_('Add a home configuration for a role') enabled=user|has_perm_to_admin:'creme_core' %}
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -21,16 +21,16 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_home_brick' as delete_url %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' delete_url='creme_config__delete_home_brick'|url %}
     {% if not page.number or page.number < 2 %}
         <tr>
             <td {% brick_table_data_status primary %} class="home-bricks-default">{% translate 'Default configuration' %}</td>
             <td>
-                {% if 'default' in empty_configs %}
-                    {% translate 'No block' %}
-                {% else %}
-                    {% blocktranslate count count=get_default_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktranslate %}
-                {% endif %}
+              {% if 'default' in empty_configs %}
+                {% translate 'No block' %}
+              {% else %}
+                {% blocktranslate count count=get_default_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktranslate %}
+              {% endif %}
             </td>
             <td {% brick_table_data_status action %}>
                 {% brick_table_action id='edit' url='creme_config__edit_home_bricks'|url:'default' label=_('Edit this configuration') enabled=admin_perm %}
@@ -42,11 +42,11 @@
         <tr>
             <td {% brick_table_data_status primary %} class="home-bricks-superuser">{% translate 'Superuser' %}</td>
             <td>
-                {% if 'superuser' in empty_configs %}
-                    {% translate 'No block' %}
-                {% else %}
-                    {% blocktranslate count count=superuser_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktranslate %}
-                {% endif %}
+              {% if 'superuser' in empty_configs %}
+                {% translate 'No block' %}
+              {% else %}
+                {% blocktranslate count count=superuser_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktranslate %}
+              {% endif %}
             </td>
             <td {% brick_table_data_status action %}>
                 {% brick_table_action id='edit' url='creme_config__edit_home_bricks'|url:'superuser' label=_('Edit this configuration') enabled=admin_perm %}
@@ -62,11 +62,11 @@
         <tr>
             <td {% brick_table_data_status primary %} class="home-bricks-role">{{role}}</td>
             <td>
-                {% if role.id in empty_configs %}
-                    {% translate 'No block' %}
-                {% else %}
-                    {% blocktranslate count count=role.bricks_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktranslate %}
-                {% endif %}
+              {% if role.id in empty_configs %}
+                {% translate 'No block' %}
+              {% else %}
+                {% blocktranslate count count=role.bricks_count %}{{count}} block{% plural %}{{count}} blocks{% endblocktranslate %}
+              {% endif %}
             </td>
             <td {% brick_table_data_status action %}>
                 {% brick_table_action id='edit' url='creme_config__edit_home_bricks'|url:role.id label=_('Edit this configuration') enabled=admin_perm %}
@@ -76,6 +76,7 @@
             </td>
         </tr>
     {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

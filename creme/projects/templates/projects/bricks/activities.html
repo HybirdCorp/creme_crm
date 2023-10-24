@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load and_op has_perm_to print_field url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load and_op print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} projects-tasks-activities-brick{% endblock %}
 
@@ -9,10 +9,9 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if object.is_alive %}
-        {% has_perm_to change object as has_perm %}
-        {% brick_header_action id='add' url='projects__create_activity'|url:object.id label=_('New activity') enabled=has_perm %}
-    {% endif %}
+  {% if object.is_alive %}
+    {% brick_header_action id='add' url='projects__create_activity'|url:object.id label=_('New activity') enabled=user|has_perm_to_change:object %}
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -24,46 +23,49 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to change object as has_perm %}{% url 'projects__delete_activity' as delete_url %}
-    {% for activity in page.object_list %}{% has_perm_to view activity as act_view_perm %}
+ {% with edit_perm=user|has_perm_to_change:object delete_url='projects__delete_activity'|url %}
+  {% for activity in page.object_list %}
+   {% with act_view_perm=user|has_perm_to_view:activity %}
     <tr>
         <td class="task-activities-type">
-        {% if act_view_perm %}
+          {% if act_view_perm %}
             {% widget_icon instance=activity size='brick-table' %} {% print_field object=activity field='type' %}
-        {% else %}
+          {% else %}
             {{HIDDEN_VALUE}}
-        {% endif %}
+          {% endif %}
         </td>
         <td class="task-activities-interval">
-        {% if act_view_perm %}
-            {% with start_date=activity.start|date:'SHORT_DATE_FORMAT' end_date=activity.end|date:'SHORT_DATE_FORMAT' start_hour=activity.start|date:"H\hi" end_hour=activity.end|date:"H\hi" %}
+          {% if act_view_perm %}
+           {% with start_date=activity.start|date:'SHORT_DATE_FORMAT' end_date=activity.end|date:'SHORT_DATE_FORMAT' start_hour=activity.start|date:"H\hi" end_hour=activity.end|date:"H\hi" %}
             <a href="{{activity.get_absolute_url}}">
-                {% if start_date == end_date %}
+              {% if start_date == end_date %}
                 {% blocktranslate %}On <span class="start-date">{{start_date}}</span> from <span class="start-hour">{{start_hour}}</span> to <span class="end-hour">{{end_hour}}</span>{% endblocktranslate %}
-                {% else %}
+              {% else %}
                 {% blocktranslate %}From <span class="start-date">{{start_date}}</span> at <span class="start-hour">{{start_hour}}</span> to <span class="end-date">{{end_date}}</span> at <span class="end-hour">{{end_hour}}</span>{% endblocktranslate %}
-                {% endif %}
+              {% endif %}
             </a>
-            {% endwith %}
-        {% else %}
+           {% endwith %}
+          {% else %}
             {{HIDDEN_VALUE}}
-        {% endif %}
+          {% endif %}
         </td>
         <td class="task-activities-duration">{{activity.duration}} h</td>
         <td class="task-activities-resource">{% widget_entity_hyperlink activity.projects_resource.linked_contact user %}</td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='edit' url='projects__edit_activity'|url:activity.id label=_('Edit this activity') enabled=has_perm %}
+            {% brick_table_action id='edit' url='projects__edit_activity'|url:activity.id label=_('Edit this activity') enabled=edit_perm %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url=delete_url __id=activity.id label=_('Delete this activity') enabled=has_perm|and_op:object.is_alive %}
+            {% brick_table_action id='delete' url=delete_url __id=activity.id label=_('Delete this activity') enabled=edit_perm|and_op:object.is_alive %}
         </td>
     </tr>
-    {% endfor %}
-    {% if not object.is_alive %}
+   {% endwith %}
+  {% endfor %}
+  {% if not object.is_alive %}
     <tr class="task-activities-subtitle">
         <td colspan="6">{% blocktranslate with status=object.tstatus.name %}You can't add a working period because this task is {{status}}{% endblocktranslate %}</td>
     </tr>
-    {% endif %}
+  {% endif %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

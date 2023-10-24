@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-semifixed-rtypes-brick{% endblock %}
 
@@ -9,8 +9,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}
-    {% brick_header_action id='add' url='creme_config__create_semifixed_rtype'|url label=_('New semi-fixed type') enabled=admin_perm %}
+    {% brick_header_action id='add' url='creme_config__create_semifixed_rtype'|url label=_('New semi-fixed type') enabled=user|has_perm_to_admin:'creme_core' %}
 {% endblock %}
 
 {% block brick_before_content %}
@@ -25,9 +24,9 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_semifixed_rtype' as delete_url %}
-    {% for sf_rtype in page.object_list %}
-    {% with rtype=sf_rtype.relation_type %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' delete_url='creme_config__delete_semifixed_rtype'|url %}
+  {% for sf_rtype in page.object_list %}
+   {% with rtype=sf_rtype.relation_type %}
     <tr>
         <td><span class="semifixed_rtype-predicate{% if not rtype.enabled %} semifixed_rtype-predicate-disabled{% endif %}">{{sf_rtype.predicate}}</span></td>
         <td>{% widget_entity_hyperlink sf_rtype.real_object user %}</td>
@@ -43,8 +42,9 @@
             {% brick_table_action id='delete' url=delete_url __id=sf_rtype.id label=_('Delete this type') enabled=admin_perm %}
         </td>
     </tr>
-    {% endwith %}
-    {% endfor %}
+   {% endwith %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

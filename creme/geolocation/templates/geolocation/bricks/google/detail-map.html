@@ -1,6 +1,6 @@
 {% extends 'geolocation/bricks/base/detail-map.html' %}
-{% load i18n creme_bricks %}
-{% load has_perm_to jsonify url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms %}
+{% load jsonify url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} geolocation-google{% endblock %}
 
@@ -19,6 +19,5 @@
 {% endblock %}
 
 {% block brick_geomap_error %}
-    {% has_perm_to admin 'geolocation' as admin_perm %}
-    {% brick_action id='redirect' display='text' url='creme_config__app_portal'|url:'geolocation' label=_('Google API key may be missing or invalid. Please try to configure it or contact your administrator.') enabled=admin_perm %}
+    {% brick_action id='redirect' display='text' url='creme_config__app_portal'|url:'geolocation' label=_('Google API key may be missing or invalid. Please try to configure it or contact your administrator.') enabled=user|has_perm_to_admin:'geolocation' %}
 {% endblock %}

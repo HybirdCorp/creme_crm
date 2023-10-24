@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-list.html' %}
-{% load i18n creme_widgets creme_bricks %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-rtypebricks-brick{% endblock %}
 
@@ -9,8 +9,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}
-    {% brick_header_action id='add' url='creme_config__create_rtype_brick'|url label=_('New type of block') enabled=admin_perm %}
+    {% brick_header_action id='add' url='creme_config__create_rtype_brick'|url label=_('New type of block') enabled=user|has_perm_to_admin:'creme_core' %}
 {% endblock %}
 
 {% block brick_before_content %}
@@ -20,8 +19,8 @@
 {% endblock %}
 
 {% block brick_list_content %}
-{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_rtype_brick' as delete_url %}
-    {% for brick_type in page.object_list %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' delete_url='creme_config__delete_rtype_brick'|url %}
+  {% for brick_type in page.object_list %}
     <div class="brick-list-item rtypebrick-config-item">
         <div class="rtypebrick-config-group rtypebrick-config-summary-group">
             <div class="rtypebrick-config-group-title{% if not brick_type.relation_type.enabled %} rtypebrick-config-group-title-disabled{% endif %}">
@@ -65,7 +64,8 @@
           {% endif %}
         </div>
     </div>
-    {% endfor %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_list_empty %}

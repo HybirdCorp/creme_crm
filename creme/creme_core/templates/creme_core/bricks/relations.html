@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}{% load and_op has_perm_to url url_join from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}{% load and_op url url_join from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_core-relations-brick{% endblock %}
 
@@ -8,9 +8,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to link object as subject_link_perm %}
-{% url_join 'creme_core__create_relations'|url:object.id exclude=excluded_rtype_ids as create_uri %}
-    {% brick_header_action id='link' url=create_uri label=_('New relationships') enabled=subject_link_perm %}
+    {% url_join 'creme_core__create_relations'|url:object.id exclude=excluded_rtype_ids as create_uri %}
+    {% brick_header_action id='link' url=create_uri label=_('New relationships') enabled=user|has_perm_to_link:object %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -19,25 +18,28 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-    {% has_perm_to unlink object as subject_unlink_perm %}{% url 'creme_core__delete_relation' as delete_url %}
-    {% regroup page.object_list by type as relations_by_rtype %}
-    {% for rtype, relations in relations_by_rtype %}
-      {% for relation in relations %}{% with entity_obj=relation.real_object %}
-        <tr>
-            <td {% brick_table_data_status primary %}>
-                {% if forloop.first %}<span class="relationship-predicate{% if not rtype.enabled %} relationship-predicate-disabled{% endif %}">{{rtype.predicate}}</span>{% else %}&nbsp;{% endif %}
-            </td>
-            <td>{% widget_entity_hyperlink entity_obj user %}</td>
-            <td {% brick_table_data_status action %}>
-              {% if rtype.is_internal %}
-                {% brick_table_action id='delete' label=_('Cannot delete this relationship (internal type)') icon='unlink' enabled=False %}
-              {% else %}{% has_perm_to unlink entity_obj as object_unlink_perm %}
-                {% brick_table_action id='delete' url=delete_url __id=relation.pk label=_('Delete this relationship') icon='unlink' enabled=subject_unlink_perm|and_op:object_unlink_perm %}
-              {% endif %}
-            </td>
-        </tr>
-      {% endwith %}{% endfor %}
-    {% endfor %}
+ {% with subject_unlink_perm=user|has_perm_to_unlink:object delete_url='creme_core__delete_relation'|url %}
+  {% regroup page.object_list by type as relations_by_rtype %}
+  {% for rtype, relations in relations_by_rtype %}
+   {% for relation in relations %}{% with entity_obj=relation.real_object %}
+     <tr>
+         <td {% brick_table_data_status primary %}>
+             {% if forloop.first %}<span class="relationship-predicate{% if not rtype.enabled %} relationship-predicate-disabled{% endif %}">{{rtype.predicate}}</span>{% else %}&nbsp;{% endif %}
+         </td>
+         <td>{% widget_entity_hyperlink entity_obj user %}</td>
+         <td {% brick_table_data_status action %}>
+           {% if rtype.is_internal %}
+             {% brick_table_action id='delete' label=_('Cannot delete this relationship (internal type)') icon='unlink' enabled=False %}
+           {% else %}
+            {% with object_unlink_perm=user|has_perm_to_unlink:entity_obj %}
+             {% brick_table_action id='delete' url=delete_url __id=relation.pk label=_('Delete this relationship') icon='unlink' enabled=subject_unlink_perm|and_op:object_unlink_perm %}
+            {% endwith %}
+           {% endif %}
+         </td>
+     </tr>
+   {% endwith %}{% endfor %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

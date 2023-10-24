@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load and_op app_verbose_name has_perm_to print_field uca_sort url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load and_op app_verbose_name print_field uca_sort url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-property-types-brick{% endblock %}
 
@@ -9,8 +9,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to admin 'creme_core' as admin_perm %}
-    {% brick_header_action id='add' url='creme_config__create_ptype'|url label=_('New custom type of property') enabled=admin_perm %}
+    {% brick_header_action id='add' url='creme_config__create_ptype'|url label=_('New custom type of property') enabled=user|has_perm_to_admin:'creme_core' %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -23,8 +22,8 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to admin 'creme_core' as admin_perm %}
-    {% for prop_type in page.object_list %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' %}
+  {% for prop_type in page.object_list %}
     <tr {% if not prop_type.enabled %}class="property-type-disabled"{% endif %} >
         <td {% brick_table_data_status primary %} class="property-label">{% widget_hyperlink prop_type %}</td>
         <td class="property-subjects">
@@ -37,23 +36,24 @@
         </td>
         {% with action_enabled=admin_perm|and_op:prop_type.is_custom %}
         <td {% brick_table_data_status action %}>
-            {% if prop_type.enabled %}
-                {% brick_table_action id='update' url='creme_config__disable_ptype'|url:prop_type.id label=_('Disable') display='text' enabled=admin_perm %}
-            {% else %}
-                {% brick_table_action id='update' url='creme_config__enable_ptype'|url:prop_type.id  label=_('Enable')  display='text' enabled=admin_perm %}
-            {% endif %}
+          {% if prop_type.enabled %}
+            {% brick_table_action id='update' url='creme_config__disable_ptype'|url:prop_type.id label=_('Disable') display='text' enabled=admin_perm %}
+          {% else %}
+            {% brick_table_action id='update' url='creme_config__enable_ptype'|url:prop_type.id  label=_('Enable')  display='text' enabled=admin_perm %}
+          {% endif %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% if prop_type.enabled %}
-                {% brick_table_action id='edit' url='creme_config__edit_ptype'|url:prop_type.id label=_('Edit this property type') enabled=action_enabled %}
-            {% endif %}
+          {% if prop_type.enabled %}
+            {% brick_table_action id='edit' url='creme_config__edit_ptype'|url:prop_type.id label=_('Edit this property type') enabled=action_enabled %}
+          {% endif %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=prop_type.get_delete_absolute_url label=_('Delete this property type') enabled=action_enabled %}
         </td>
         {% endwith %}
     </tr>
-    {% endfor %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}

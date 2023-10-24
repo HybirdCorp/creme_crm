@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load and_op has_perm_to print_field url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load and_op print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} documents-child-folders-brick{% endblock %}
 
@@ -9,8 +9,9 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to create folder_model as creation_perm %}{% has_perm_to link object as link_perm %}
+  {% with creation_perm=user|has_perm_to_create:objects_ctype link_perm=user|has_perm_to_link:object %}
     {% brick_header_action id='add' url='documents__create_child_folder'|url:object.id label=_('Create a child folder') enabled=creation_perm|and_op:link_perm %}
+  {% endwith %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -19,12 +20,12 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-    {% for folder in page.object_list %}
+  {% for folder in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink folder user %}</td>
         <td>{% print_field object=folder field='category' %}</td>
     </tr>
-    {% endfor %}
+  {% endfor %}
 {% endblock %}
 
 {% block brick_table_empty %}

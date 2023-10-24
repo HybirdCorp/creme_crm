@@ -1,6 +1,5 @@
-{% load i18n creme_widgets %}{% load format_amount blockjsondata has_perm_to from creme_core_tags %}
-{% has_perm_to link object as link_perm %}
-{% if button.is_allowed and link_perm %}
+{% load i18n creme_perms creme_widgets %}{% load format_amount blockjsondata from creme_core_tags %}
+{% if button.is_allowed and user|has_perm_to_link:object %}
 <a class="menu_button menu-button-icon" title="{{button.description}}" data-action="billing-hatmenubar-add-document"
    href="{% url button.url_name object.id %}{% if button.redirect %}?redirection=true{% endif %}">
     {% widget_icon name='invoice' size='instance-button' label=button.model_vname %}

@@ -1,6 +1,6 @@
 {% extends 'polls/bricks/preplies.html' %}
-{% load i18n creme_bricks %}
-{% load and_op has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms %}
+{% load and_op url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} polls-campaigns-replies-brick{% endblock %}
 
@@ -9,8 +9,9 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to link object as link_perm %}{% has_perm_to create objects_ctype as creation_perm %}
+  {% with link_perm=user|has_perm_to_link:object creation_perm=user|has_perm_to_create:objects_ctype %}
     {% brick_header_action id='add' url='polls__create_reply_from_campaign'|url:object.id label=_('Create replies') enabled=link_perm|and_op:creation_perm %}
+  {% endwith %}
 {% endblock %}
 
 {% block brick_table_rows %}

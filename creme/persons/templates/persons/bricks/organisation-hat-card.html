@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/hat-card.html' %}
-{% load i18n creme_bricks creme_listview persons_tags %}
-{% load has_perm_to url url_join from creme_core_tags %}
+{% load i18n creme_bricks creme_listview creme_perms persons_tags %}
+{% load url url_join from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} persons-organisation-card-brick{% endblock %}
 
@@ -18,21 +18,17 @@
             {% include 'creme_core/bricks/frags/hat-card-title-indicators.html' %}
         </span>
         <div class='business-card-indicators'>
-        {% if object.is_managed %}
+          {% if object.is_managed %}
             <div class='business-card-indicator'>{% blocktranslate with software=SOFTWARE_LABEL %}Managed by {{software}}{% endblocktranslate %}</div>
-        {% endif %}
-        {% if is_customer %}
-            <div class='business-card-indicator'>{% translate 'Customer' %}</div>
-        {% endif %}
-        {% if is_supplier %}
-            <div class='business-card-indicator'>{% translate 'Supplier' %}</div>
-        {% endif %}
+          {% endif %}
+          {% if is_customer %}<div class='business-card-indicator'>{% translate 'Customer' %}</div>{% endif %}
+          {% if is_supplier %}<div class='business-card-indicator'>{% translate 'Supplier' %}</div>{% endif %}
         </div>
     </div>
 {% endblock %}
 
 {% block card_secondary %}
-{% with total_count=managers_count|add:employees_count %}
+  {% with total_count=managers_count|add:employees_count %}
     <div class="card-employees{% if total_count > 3 and total_count < max_contacts %} card-employees-wide{% endif %}">
       {% if total_count >= max_contacts %}
         <span class="card-function">{% url 'persons__list_contacts' as lv_url %}
@@ -56,15 +52,15 @@
         {% endfor %}
     {% endif %}
     </div>
-{% endwith %}
+  {% endwith %}
 {% endblock %}
 
 {% block card_fields_title %}
 {% translate 'Details' context 'persons-organisation' %}
 {% endblock %}
 
-{% block card_fields %}{% has_perm_to change object as edition_perm %}
-    {% if 'phone' not in hidden_fields %}
+{% block card_fields %}
+  {% if 'phone' not in hidden_fields %}
     <div class="card-info-field">
         <span class='card-info-key'>{% translate 'Phone' %}</span>
         <span class='card-info-value'>
@@ -72,25 +68,25 @@
             {% brick_card_action_for_field instance=object field='phone' user=user %}
         </span>
     </div>
-    {% endif %}
-    {% if 'billing_address' not in hidden_fields %}
+  {% endif %}
+  {% if 'billing_address' not in hidden_fields %}
     <div class="card-info-field">
         <span class='card-info-key'>{% translate 'Address' %}</span>
         <span class='card-info-value'>
-            {% with address=object.billing_address %}
-            {% if address is not None %}
-                {% with address_desc=address|persons_pretty_address|linebreaksbr %}
-                {% if address_desc %}{{address_desc}}{% else %}—{% endif %}
-                {% url_join address.get_edit_absolute_url type='billing' as b_uri %}{% brick_card_action url=b_uri enabled=edition_perm %}
-                {% endwith %}
-            {% else %}
-                —
-                {% brick_card_action url='persons__create_billing_address'|url:object.id enabled=edition_perm %}
-            {% endif %}
-            {% endwith %}
+         {% with address=object.billing_address %}
+          {% if address is not None %}
+           {% with address_desc=address|persons_pretty_address|linebreaksbr %}
+            {% if address_desc %}{{address_desc}}{% else %}—{% endif %}
+            {% url_join address.get_edit_absolute_url type='billing' as b_uri %}{% brick_card_action url=b_uri enabled=user|has_perm_to_change:object %}
+           {% endwith %}
+          {% else %}
+            —
+            {% brick_card_action url='persons__create_billing_address'|url:object.id enabled=user|has_perm_to_change:object %}
+          {% endif %}
+         {% endwith %}
         </span>
     </div>
-    {% endif %}
+  {% endif %}
 {% endblock %}
 
 {% block card_summary %}

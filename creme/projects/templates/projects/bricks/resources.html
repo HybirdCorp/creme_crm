@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load and_op format_amount has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load and_op format_amount url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} projects-tasks-resources-brick{% endblock %}
 
@@ -9,44 +9,43 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if object.is_alive %}{% has_perm_to change object as has_perm %}
-    {% brick_header_action id='add' url='projects__create_resource'|url:object.id label=_('Create a resource') enabled=has_perm %}
-    {% endif %}
+  {% if object.is_alive %}
+    {% brick_header_action id='add' url='projects__create_resource'|url:object.id label=_('Create a resource') enabled=user|has_perm_to_change:object %}
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_columns %}
-        {% brick_table_column title=_('Contact') %}
-        {% brick_table_column title=_('Hourly cost') %}
-        {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+    {% brick_table_column title=_('Contact') %}
+    {% brick_table_column title=_('Hourly cost') %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to change object as has_perm %}{% url 'projects__delete_resource' as delete_url %}
-{% with currency=object.linked_project.currency %}
-    {% for resource in page.object_list %}
+ {% with currency=object.linked_project.currency edit_perm=user|has_perm_to_change:object delete_url='projects__delete_resource'|url %}
+  {% for resource in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink resource.linked_contact user %}</td>
         <td>{% blocktranslate with cost=resource.hourly_cost|format_amount:currency %}{{cost}} / hour{% endblocktranslate %}</td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='edit' url=resource.get_edit_absolute_url label=_('Edit this resource') enabled=has_perm %}
+            {% brick_table_action id='edit' url=resource.get_edit_absolute_url label=_('Edit this resource') enabled=edit_perm %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url=delete_url __id=resource.id label=_('Delete this resource') enabled=has_perm|and_op:object.is_alive %}
+            {% brick_table_action id='delete' url=delete_url __id=resource.id label=_('Delete this resource') enabled=edit_perm|and_op:object.is_alive %}
         </td>
     </tr>
-    {% endfor %}
-    {% if not object.is_alive %}
+  {% endfor %}
+  {% if not object.is_alive %}
     <tr class="task-activities-subtitle">
         <td colspan="4">{% blocktranslate with status=object.tstatus.name %}You can't add a working period because this task is {{status}}{% endblocktranslate %}</th>
     </tr>
-    {% endif %}
-{% endwith %}
+  {% endif %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% if not object.is_alive %}
-        {% blocktranslate with status=object.tstatus.name %}You can't add a working period because this task is {{status}}{% endblocktranslate %}
-    {% else %}
-        {% translate 'No resource assigned to this task' %}
-    {% endif %}
+  {% if not object.is_alive %}
+    {% blocktranslate with status=object.tstatus.name %}You can't add a working period because this task is {{status}}{% endblocktranslate %}
+  {% else %}
+    {% translate 'No resource assigned to this task' %}
+  {% endif %}
 {% endblock %}

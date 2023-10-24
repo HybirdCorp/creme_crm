@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+import warnings
 from itertools import zip_longest
 from re import compile as compile_re
 from urllib.parse import urlencode, urlsplit
@@ -497,9 +498,8 @@ def print_field(context, *, object, field, tag=ViewTag.HTML_DETAIL):
     )
 
 
-# TAG : "has_perm_to"-----------------------------------------------------------
+# TAG : "has_perm_to" [DEPRECATED]----------------------------------------------
 
-# TODO: move to a 'creme_auth' file ??
 _haspermto_re = compile_re(r'(\w+) (.*?) as (\w+)')
 
 
@@ -510,7 +510,6 @@ def _can_create(model_or_ct, user):
         ContentType.objects.get_for_model(model_or_ct)
     )
     return user.has_perm(f'{ct.app_label}.add_{ct.model}')
-    # return user.has_perm_to_create(ct) #TODO + had the possibility to pass CT directly
 
 
 def _can_export(model_or_ct, user):
@@ -520,7 +519,6 @@ def _can_export(model_or_ct, user):
         ContentType.objects.get_for_model(model_or_ct)
     )
     return user.has_perm(f'{ct.app_label}.export_{ct.model}')
-    # return user.has_perm_to_export(ct) #TODO ?
 
 
 _PERMS_FUNCS = {
@@ -529,7 +527,6 @@ _PERMS_FUNCS = {
     'view':   lambda entity, user: user.has_perm_to_view(entity),
     'change': lambda entity, user: user.has_perm_to_change(entity),
     'delete': lambda entity, user: user.has_perm_to_delete(entity),
-    # TODO: or ctype
     'link':   lambda entity_or_model, user: user.has_perm_to_link(entity_or_model),
     'unlink': lambda entity, user: user.has_perm_to_unlink(entity),
     'access': lambda app_name, user: user.has_perm_to_access(app_name),
@@ -550,6 +547,12 @@ def do_has_perm_to(parser, token):
               a class inheriting CremeEntity or a ContentType instance.
             * TYPE in ('access', 'admin') => an app name, like "creme_core".
     """
+    warnings.warn(
+        'The template-tag {% has_perm_to %} is deprecated; '
+        'use the template-filters of the library "creme_perms" instead.',
+        DeprecationWarning,
+    )
+
     try:
         # Splitting by None == splitting by spaces.
         tag_name, arg = token.contents.split(None, 1)

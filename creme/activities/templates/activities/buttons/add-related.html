@@ -1,4 +1,5 @@
-{% load i18n %}{% load has_perm_to from creme_core_tags %}{% has_perm_to link object as link_perm %}
+{% load i18n creme_perms %}
+{% with link_perm=user|has_perm_to_link:object %}
 {% if button.is_allowed and link_perm %}
 <a class="menu_button menu-button-icon" title="{{button.description}}"
 {#   href="{% url 'activities__create_related_activity' object.id %}?callback_url={{request.get_full_path}}{% if button.activity_type %}&activity_type={{button.activity_type}}{% endif %}"> #}
@@ -11,3 +12,4 @@
     {{button.icon.render}}{{button.verbose_name}}
 </span>
 {% endif %}
+{% endwith %}

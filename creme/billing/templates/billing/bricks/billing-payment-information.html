@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-list.html' %}
-{% load i18n creme_widgets creme_bricks %}
-{% load and_op has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load and_op url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} billing-list-brick billing-payment-info-brick{% endblock %}
 
@@ -9,8 +9,10 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-  {% if organisation and not field_hidden %}{% has_perm_to change object as can_edit %}{% has_perm_to change organisation as can_edit_orga %}
+  {% if organisation and not field_hidden %}
+   {% with can_edit=user|has_perm_to_change:object can_edit_orga=user|has_perm_to_change:organisation %}
     {% brick_header_action id='add' url='billing__create_related_payment_info'|url:object.id label=_('Add a payment information') enabled=can_edit|and_op:can_edit_orga %}
+   {% endwith %}
   {% endif %}
 {% endblock %}
 

@@ -1,6 +1,6 @@
 {% extends 'billing/bricks/base/lines.html' %}
-{% load i18n creme_bricks %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} billing-product-lines-brick{% endblock %}
 
@@ -9,8 +9,7 @@
 {% endblock %}
 
 {% block brick_line_header_actions %}
-{% has_perm_to change object as has_perm %}
-    {% brick_header_action id='add' url='billing__create_product_lines'|url:object.id label=_('Add some products') enabled=has_perm %}
+    {% brick_header_action id='add' url='billing__create_product_lines'|url:object.id label=_('Add some products') enabled=user|has_perm_to_change:object %}
 {% endblock %}
 
 {% block empty_msg %}{% translate 'No product in this document' %}{% endblock %}

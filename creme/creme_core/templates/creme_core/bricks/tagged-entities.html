@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_ctype creme_widgets %}
-{% load get_meta_value has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_ctype creme_perms creme_widgets %}
+{% load get_meta_value url from creme_core_tags %}
 
 {% block brick_extra_class %}
 {{block.super}} creme_core-tagged-entities-brick{% if page.paginator.count == 0 %} is-empty{% endif %}
@@ -26,18 +26,17 @@
 {% block brick_table_head %}{% endblock %}
 
 {% block brick_table_rows %}
-{% url 'creme_core__remove_property' as rm_url %}
-    {% for entity in page.object_list %}
+ {% with rm_url='creme_core__remove_property'|url %}
+  {% for entity in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>
-        {% if not ctype %}
-            {% widget_icon ctype=entity.entity_type size='brick-table' %}
-        {% endif %}
-        {% widget_entity_hyperlink entity user %}
+          {% if not ctype %}{% widget_icon ctype=entity.entity_type size='brick-table' %}{% endif %}
+          {% widget_entity_hyperlink entity user %}
         </td>
-        <td {% brick_table_data_status action %}>{% has_perm_to change entity as edit_perm %}
-            {% brick_table_action id='delete' url=rm_url __ptype_id=ptype_id __entity_id=entity.id label=_('Remove the property') icon='unlink' enabled=edit_perm %}
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=rm_url __ptype_id=ptype_id __entity_id=entity.id label=_('Remove the property') icon='unlink' enabled=user|has_perm_to_change:entity %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}

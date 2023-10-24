@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_widgets %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} emails-attachments-brick{% endblock %}
 
@@ -9,8 +9,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to change object as has_perm %}
-    {% brick_header_action id='link' url='emails__add_attachments_to_template'|url:object.id label=_('Add documents') enabled=has_perm %}
+    {% brick_header_action id='link' url='emails__add_attachments_to_template'|url:object.id label=_('Add documents') enabled=user|has_perm_to_change:object %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -19,15 +18,16 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to change object as has_perm %}{% url 'emails__remove_attachment_from_template' object.id as rm_attachment_url %}
-    {% for attachment in page.object_list %}
+ {% with edit_perm=user|has_perm_to_change:object rm_attachment_url='emails__remove_attachment_from_template'|url:object.id %}
+  {% for attachment in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink attachment user %}</td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url=rm_attachment_url __id=attachment.id label=_('Remove this attachment') icon='unlink' enabled=has_perm %}
+            {% brick_table_action id='delete' url=rm_attachment_url __id=attachment.id label=_('Remove this attachment') icon='unlink' enabled=edit_perm %}
         </td>
     </tr>
-    {% endfor %}
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}
