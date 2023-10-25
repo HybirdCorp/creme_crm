@@ -6,6 +6,19 @@
         - They were not usable in filters (because they were proposed with "normal" custom-fields).
         - Their quick-search (i.e. in header of list-views) was disabled.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Apps :
+            * Activities :
+                - CalendarController :
+                    - Fix an issue in 'day' view. But disable it in the button list.
+                    - New option 'allowEventMove' that allows to disable the drag-n-drop of events.
+                    - New option 'fullCalendarOptions' to customize FullCalendar.
+                    - New option 'defaultView' to force the initial view of FullCalendar.
+
 
 == Version 2.5.1 ==
 
