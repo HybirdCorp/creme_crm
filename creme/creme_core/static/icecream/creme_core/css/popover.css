@@ -69,6 +69,10 @@
     border-radius: 5px 5px 0 0;
 }
 
+.popover-title.hidden {
+    display: none;
+}
+
 .popover-content {
     padding: 5px 9px;
 }
