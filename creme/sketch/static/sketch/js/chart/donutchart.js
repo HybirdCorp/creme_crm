@@ -110,8 +110,6 @@ creme.D3DonutChart = creme.D3Chart.sub({
 
         data = this.chartData(data);
 
-        var xkeys = Array.from(new Set(data.map(function(d) { return d.x; })));
-
         var colorScale = d3.scaleOrdinal()
                                .domain([0, data.length])
                                .range(creme.d3ColorRange(colors));
@@ -124,10 +122,11 @@ creme.D3DonutChart = creme.D3Chart.sub({
 
         if (props.showLegend) {
             var legends = creme.d3LegendColumn()
-                                    .swatchColor(colorScale)
+                                    .swatchColor(function(d) { return d.color; })
                                     .swatchSize({width: 20, height: props.legendItemHeight})
                                     .spacing(0)
-                                    .data(xkeys);
+                                    .text(function(d) { return d.x; })
+                                    .data(data);
 
             chart.select('.legend')
                      .attr("transform", creme.svgTransform().translate(bounds.left, bounds.top))

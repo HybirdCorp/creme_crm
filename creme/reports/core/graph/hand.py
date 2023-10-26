@@ -29,6 +29,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
 from creme.creme_core.models import CremeEntity, CustomFieldEnumValue, Relation
+from creme.creme_core.models.fields import ColorField
 from creme.reports.constants import AbscissaGroup
 from creme.reports.utils import sparsezip
 
@@ -175,6 +176,9 @@ class ReportGraphHand:
         # print('results:', aggregates)
 
         return aggregates
+
+    def fetch_colormap(self, user) -> dict:
+        return {}
 
 
 class ReportGraphHandRegistry:
@@ -543,6 +547,32 @@ class RGHForeignKey(_RGHRegularField):
                     build_url(kwargs),
                 ],
             )
+
+    def model_has_color(self, model):
+        try:
+            color_field = model._meta.get_field('color')
+        except Exception:
+            return False
+
+        return isinstance(color_field, ColorField)
+
+    def fetch_colormap(self, user) -> dict:
+        fk_model = self._field.related_model
+
+        if not self.model_has_color(fk_model):
+            return {}
+
+        choices = self._abscissa_enumerator.choices(user=user)
+        fk_objects = {
+            e.pk: e for e in fk_model.objects.filter(
+                pk__in=[c['value'] for c in choices]
+            )
+        }
+
+        return {
+            c['label']: f"#{fk_objects[c['value']].color}"
+            for c in choices
+        }
 
 
 @RGRAPH_HANDS_MAP(AbscissaGroup.CHOICES)

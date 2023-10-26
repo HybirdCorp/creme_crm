@@ -49,6 +49,7 @@ from .base import (
     skipIfCustomReport,
     skipIfCustomRGraph,
 )
+from .fake_models import FakeReportsColorCategory
 
 
 @skipIfCustomReport
@@ -1045,6 +1046,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         with self.assertNoException():
             x_asc, y_asc = rgraph.fetch(user)
+            colors = rgraph.fetch_colormap(user)
+
+        # no color field in FakePosition
+        self.assertDictEqual({}, colors)
 
         self.assertListEqual([*FakePosition.objects.values_list('title', flat=True)], x_asc)
 
@@ -1318,6 +1323,28 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(_('Billing address'), hand.verbose_abscissa)
         self.assertEqual(
             _('this field cannot be used as abscissa.'), hand.abscissa_error
+        )
+
+    def test_fetch_colormap_with_fk(self):
+        user = self.login_as_root_and_get()
+        report = self._create_simple_documents_report(user=user)
+        rgraph = ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='Document count per category',
+            abscissa_cell_value='category', abscissa_type=ReportGraph.Group.FK,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
+        )
+
+        create_cat = FakeReportsColorCategory.objects.create
+        cat_A = create_cat(title='Cat A')
+        cat_B = create_cat(title='Cat B')
+
+        self.assertDictEqual(
+            {
+                cat_A.title: f'#{cat_A.color}',
+                cat_B.title: f'#{cat_B.color}',
+            },
+            rgraph.fetch_colormap(user)
         )
 
     def test_fetch_with_choices_01(self):

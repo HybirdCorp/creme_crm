@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from django.conf import settings
 
+from creme.creme_core.models.base import MinionModel
+
 __all__: tuple[str, ...]
 
 if not settings.TESTS_ON:
@@ -12,9 +14,10 @@ else:
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.models import CremeEntity
+    from creme.creme_core.models import fields as core_fields
     from creme.creme_core.tests.fake_models import FakeContact
 
-    __all__ = ('FakeReportsFolder', 'FakeReportsDocument', 'Guild')
+    __all__ = ('FakeReportsColorCategory', 'FakeReportsFolder', 'FakeReportsDocument', 'Guild')
 
     class FakeReportsFolder(CremeEntity):
         title = models.CharField(_('Title'), max_length=100, unique=True)
@@ -37,11 +40,29 @@ else:
         def get_absolute_url(self):
             return reverse('reports__view_fake_folder', args=(self.id,))
 
+    class FakeReportsColorCategory(MinionModel):
+        title = models.CharField(_('Title'), max_length=100)
+        color = core_fields.ColorField(default=core_fields.ColorField.random)
+
+        class Meta:
+            app_label = 'reports'
+            verbose_name = 'Test (reports) Color Category'
+            verbose_name_plural = 'Test (reports) Color Categories'
+            ordering = ('title',)
+
+        def __str__(self):
+            return self.title
+
     class FakeReportsDocument(CremeEntity):
         title = models.CharField(_('Title'), max_length=100)
         # filedata = models.FileField(_('File'), max_length=500, upload_to='documents')
         linked_folder = models.ForeignKey(
             FakeReportsFolder, verbose_name=_('Folder'), on_delete=models.PROTECT,
+        )
+
+        category = models.ForeignKey(
+            FakeReportsColorCategory,
+            verbose_name=_('Category'), null=True, on_delete=models.PROTECT,
         )
 
         class Meta:

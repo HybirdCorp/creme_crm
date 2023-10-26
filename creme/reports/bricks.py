@@ -34,6 +34,16 @@ Report = reports.get_report_model()
 ReportGraph = reports.get_rgraph_model()
 
 
+class ReportGraphMixin:
+    def merge_graph_data(self, x, y, colors: dict):
+        return [{
+            'x': x,
+            'y': y[0],
+            'url': y[1],
+            'color': colors.get(x),
+        } for x, y in zip(x, y)]
+
+
 class ReportBarHatBrick(core_bricks.SimpleBrick):
     template_name = 'reports/bricks/report-hat-bar.html'
 
@@ -60,7 +70,7 @@ class ReportFieldsBrick(core_bricks.Brick):
         ))
 
 
-class ReportGraphChartListBrick(core_bricks.QuerysetBrick):
+class ReportGraphChartListBrick(ReportGraphMixin, core_bricks.QuerysetBrick):
     id = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
     verbose_name = _("Report's graphs")
     description = _(
@@ -94,15 +104,20 @@ class ReportGraphChartListBrick(core_bricks.QuerysetBrick):
 
         context['rows'] = []
 
+        user = context['user']
+        request_order = context['request'].GET.get('order', None)
+
         for graph in graphs:
             order = 'ASC' if graph.asc else 'DESC'
 
             x, y = graph.fetch(
-                user=context['user'],
-                order=context['request'].GET.get('order', order)
+                user=user,
+                order=request_order or order
             )
 
-            data = [{'x': x, 'y': y[0], 'url': y[1]} for x, y in zip(x, y)]
+            data = self.merge_graph_data(
+                x, y, colors=graph.fetch_colormap(user)
+            )
 
             context['rows'].append({
                 'graph': graph,
@@ -119,7 +134,7 @@ class ReportGraphChartListBrick(core_bricks.QuerysetBrick):
         return self._render(context)
 
 
-class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
+class ReportGraphChartInstanceBrick(ReportGraphMixin, core_bricks.InstanceBrick):
     id = InstanceBrickConfigItem.generate_base_id('reports', 'graph')
     dependencies = (ReportGraph,)
     verbose_name = "Report's graph"
@@ -172,6 +187,7 @@ class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
 
     def detailview_display(self, context):
         entity = context['object']
+        user = context['user']
         graph = self.fetcher.graph
         data = []
         error = None
@@ -182,7 +198,10 @@ class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
                 user=context['user'],
                 order='ASC' if graph.asc else 'DESC'
             )
-            data = [{'x': x, 'y': y[0], 'url': y[1]} for x, y in zip(x, y)]
+
+            data = self.merge_graph_data(
+                x, y, colors=graph.fetch_colormap(user)
+            )
         except GraphFetcher.IncompatibleContentType as e:
             error = str(e)
         except GraphFetcher.UselessResult:
@@ -197,11 +216,17 @@ class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
         )
 
     def home_display(self, context):
+        user = context['user']
+        graph = self.fetcher.graph
+
         x, y = self.fetcher.fetch(
-            user=context['user'],
+            user=user,
             order='ASC' if self.fetcher.graph.asc else 'DESC'
         )
-        data = [{'x': x, 'y': y[0], 'url': y[1]} for x, y in zip(x, y)]
+
+        data = self.merge_graph_data(
+            x, y, colors=graph.fetch_colormap(user)
+        )
 
         return self._render_graph(
             context,
@@ -214,7 +239,7 @@ class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
         return self.fetcher.linked_models
 
 
-class ReportGraphChartBrick(core_bricks.Brick):
+class ReportGraphChartBrick(ReportGraphMixin, core_bricks.Brick):
     id = core_bricks.Brick.generate_id('reports', 'graph-chart')
     dependencies = (ReportGraph,)
     verbose_name = _("Report's graph")
@@ -222,14 +247,17 @@ class ReportGraphChartBrick(core_bricks.Brick):
 
     def detailview_display(self, context):
         graph = context['object']
+        user = context['user']
         order = 'ASC' if graph.asc else 'DESC'
 
         x, y = graph.fetch(
-            user=context['user'],
+            user=user,
             order=context['request'].GET.get('order', order)
         )
 
-        data = [{'x': x, 'y': y[0], 'url': y[1]} for x, y in zip(x, y)]
+        data = self.merge_graph_data(
+            x, y, colors=graph.fetch_colormap(user)
+        )
 
         return self._render(self.get_template_context(
             context,
