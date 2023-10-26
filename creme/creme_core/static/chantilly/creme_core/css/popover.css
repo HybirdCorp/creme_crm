@@ -73,6 +73,10 @@
     color: #333434;
 }
 
+.popover-title.hidden {
+    display: none;
+}
+
 .popover-content {
     padding: 5px 9px;
 }

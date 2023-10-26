@@ -58,6 +58,9 @@ creme.D3BarChart = creme.D3Chart.sub({
             ".bar-chart .bar text.inner.dark-bg": {
                 "font-weight": 600
             },
+            ".bar-chart .bar text.outer": {
+                "fill": "black"
+            },
             ".bar-chart .limit": {
                 stroke: "#f6c2d4",
                 "z-index": 1
