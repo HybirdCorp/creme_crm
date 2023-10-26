@@ -281,6 +281,16 @@ class BaseReportsTestCase(CremeTestCase):
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
+    def _create_documents_colors_rgraph(self, report):
+        return ReportGraph.objects.create(
+            user=report.user,
+            linked_report=report,
+            name='Number of created documents / category',
+            abscissa_cell_value='category',
+            abscissa_type=ReportGraph.Group.FK,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
+        )
+
     def _create_invoice_report_n_graph(self,
                                        user,
                                        abscissa='issuing_date',

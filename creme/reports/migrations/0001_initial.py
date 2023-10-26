@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
@@ -169,6 +171,29 @@ class Migration(migrations.Migration):
                 bases=('creme_core.cremeentity',),
             ),
             migrations.CreateModel(
+                name='FakeReportsColorCategory',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('is_custom', models.BooleanField(default=True)),
+                    ('extra_data', models.JSONField(default=dict, editable=False)),
+                    ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
+                    ('title', models.CharField(max_length=100, verbose_name='Title')),
+                    (
+                        'color',
+                        core_fields.ColorField(
+                            default=core_fields.ColorField.random,
+                            max_length=6, verbose_name='Color',
+                        )
+                    ),
+                ],
+                options={
+                    'ordering': ('title',),
+                    'verbose_name': 'Test (reports) Color Category',
+                    'verbose_name_plural': 'Test (reports) Color Categories',
+                },
+                bases=(models.Model,),
+            ),
+            migrations.CreateModel(
                 name='FakeReportsDocument',
                 fields=[
                     (
@@ -183,6 +208,13 @@ class Migration(migrations.Migration):
                         'linked_folder',
                         models.ForeignKey(
                             on_delete=PROTECT, verbose_name='Folder', to='reports.FakeReportsFolder',
+                        )
+                    ),
+                    (
+                        'category',
+                        models.ForeignKey(
+                            on_delete=PROTECT, verbose_name='Category', to='reports.FakeReportsColorCategory',
+                            null=True,
                         )
                     ),
                 ],

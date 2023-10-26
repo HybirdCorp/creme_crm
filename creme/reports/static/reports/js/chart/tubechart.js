@@ -95,14 +95,12 @@ creme.D3TubeChart = creme.D3Chart.sub({
         var colorScale = d3.scaleOrdinal().domain([0, data.length]).range(colors);
 
         var xscale = d3.scaleLinear();
-        var xkeys = data.map(function(d) { return d.x; });
         var colorize = creme.d3Colorize().scale(colorScale);
 
         data = this.hierarchy(data);
 
         // pre-compute colors
         data = colorize(data);
-        data = data.filter(function(d) { return d.y > 0; });
 
         var yDataInfo = creme.d3NumericDataInfo(data, function(d) { return d.endX; });
         var barTextFormat = props.barTextFormat || creme.d3NumericFormat(yDataInfo);
@@ -121,12 +119,13 @@ creme.D3TubeChart = creme.D3Chart.sub({
 
         if (props.showLegend) {
             var legend = chart.select('.legend');
-            var itemMaxWidth = Math.ceil(legendWidth / xkeys.length);
+            var itemMaxWidth = Math.ceil(legendWidth / data.length);
             var legendRow = creme.d3LegendRow()
-                                    .swatchColor(colorScale)
+                                    .swatchColor(function(d) { return d.color; })
                                     .swatchSize({width: 16, height: 16})
+                                    .text(function(d) { return d.x; })
                                     .interval(itemMaxWidth)
-                                    .data(xkeys);
+                                    .data(data);
 
             legend.call(legendRow);
 
@@ -163,10 +162,12 @@ creme.D3TubeChart = creme.D3Chart.sub({
             bottom: xAxisHeight
         });
 
+        var nonzero_data = data.filter(function(d) { return d.y > 0; });
+
         var items = chart.select('.bars')
                              .attr('transform', creme.svgTransform().translate(0, legendHeight))
                              .selectAll('.bar')
-                             .data(data);
+                             .data(nonzero_data);
 
         var context = {
             bounds: bounds,
@@ -204,6 +205,7 @@ creme.D3TubeChart = creme.D3Chart.sub({
                 index: i,
                 startX: acc,
                 endX: acc + d.y,
+                color: d.color,
                 data: d
             };
 

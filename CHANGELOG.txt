@@ -19,6 +19,7 @@
               (e.g. in a report on Contacts, Photograph's fields are available).
             - The fields with 'choices' (e.g. status of EntityEmails) can now be used as Graphes' abscissa.
             - Add 'linechart' to the available charts.
+            - Graphs with an enumerable abscissa are using its color if exists (e.g : billing status)
         * Geolocation :
             - The bricks which use OpenStreetMap are now used in the default installation (instead of the GoogleMaps ones).
 
@@ -51,10 +52,13 @@
                          - activities__set_activity_dates
                     - Display "busy" events (no collision) with a stripped background.
                     - Support timezone provided by the user information instead of browser.
+            * Reports:
+                - 'creme.D3TubeChart' now supports color field from data. 
             * Sketch:
                 - New 'creme.D3LineChart' to draw curved line with (optional) dots and tooltips.
                 - New 'creme.d3Tooltip' chart component that allows to render HTML tooltips.
                 - New 'creme.d3BisectScale' that retrieve the value scale source value from the position in a chart.
+                - 'creme.D3PieChart' now supports color field from data.
 
     Breaking changes :
     ------------------
