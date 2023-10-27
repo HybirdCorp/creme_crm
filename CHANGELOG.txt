@@ -8,6 +8,8 @@
     # Apps :
         * Opportunities :
             - A button could be wrongly disabled in the "Managers" brick.
+        * Emails :
+            - The button to delete SMTP configuration for campaign was broken.
 
   Developers side :
   -----------------
