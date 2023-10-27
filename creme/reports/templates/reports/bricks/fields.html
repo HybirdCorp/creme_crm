@@ -50,7 +50,7 @@
 
 {% block brick_table_body %}
 {% if columns %}
-    {% has_perm_to change object as has_perm %}{% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
+    {% has_perm_to change object as has_perm %}{% has_perm_to link object as link_perm %}
     <tbody class="brick-reorderable-items ui-sortable">{% widget_icon name='reorder' size='brick-table-action' class='icon brick-reorderable-handle-icon' as reorder_icon %}
     {% for column in columns %}
     {% with sub_report=column.sub_report %}

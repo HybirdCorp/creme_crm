@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
 {% load i18n creme_widgets creme_ctype creme_bricks creme_config_tags %}
-{% load has_perm_to or_op print_field from creme_core_tags %}
+{% load or_op print_field from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-configurable-model-brick{% if model_is_reorderable %} brick-reorderable{% endif %}{% endblock %}
 
@@ -35,7 +35,6 @@
 {% endblock %}
 
 {% block brick_table_body %}
-{% has_perm_to admin 'creme_core' as admin_perm %}
 {% widget_icon name='reorder' size='brick-table-action' class='icon brick-reorderable-handle-icon' as reorder_icon %}
     <tbody{% if model_is_reorderable %} class="brick-reorderable-items ui-sortable"{% endif %}>
     {% for object in page.object_list %}
