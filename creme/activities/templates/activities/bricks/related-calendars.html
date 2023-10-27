@@ -22,7 +22,6 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-    {% has_perm_to unlink object as activity_unlink_perm %}
     {% for calendar in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>

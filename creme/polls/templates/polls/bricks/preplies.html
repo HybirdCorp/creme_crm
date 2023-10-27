@@ -21,7 +21,6 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% has_perm_to change object as has_perm %}
     {% for preply in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink preply user %}</td>
