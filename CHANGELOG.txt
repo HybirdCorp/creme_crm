@@ -1,5 +1,7 @@
 == Version 2.5.2 Work in progress (not released -- this is a draft) ==
 
+  TODO: compile .po (creme_config, persons, emails)
+
   Users side :
   ------------
     # There were several issues with "Date" CustomFields :
