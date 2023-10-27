@@ -30,7 +30,7 @@
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink orga user %}</td>
         <td {% brick_table_data_status action %}>
             {% if count != 1 %}{% has_perm_to change orga as edition_perm %}
-                {% brick_table_action id='delete' url=unset_managed_url __id=orga.id label=_('Do not manage any more') icon='unlink' enabled=edition_perm|and_op:admin_perm %}
+                {% brick_table_action id='delete' url=unset_managed_url __id=orga.id label=_('Do not manage anymore') icon='unlink' enabled=edition_perm|and_op:admin_perm %}
             {% endif %}
         </td>
     </tr>

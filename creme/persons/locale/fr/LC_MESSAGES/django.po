@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-06 16:00+0200\n"
+"POT-Creation-Date: 2023-10-27 15:23+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -853,7 +853,7 @@ msgstr ""
 msgid "Action"
 msgstr "Action"
 
-msgid "Do not manage any more"
+msgid "Do not manage anymore"
 msgstr "Ne plus gérer"
 
 #, python-brace-format
