@@ -9,6 +9,11 @@ urlpatterns = [
         fake_views.FakeDocumentsList.as_view(),
         name='creme_core__list_fake_documents',
     ),
+    re_path(
+        r'^tests/document/(?P<document_id>\d+)[/]?$',
+        fake_views.FakeDocumentDetail.as_view(),
+        name='creme_core__view_fake_document',
+    ),
 
     re_path(
         r'^tests/images[/]?$',

@@ -1,0 +1,1 @@
+{% load i18n %}{% if object is None %}{% translate 'A todo will soon reach its deadline' %}{% else %}{% blocktranslate with entity=object.real_entity %}A todo related to «{{entity}}» will soon reach its deadline{% endblocktranslate %}{% endif %}

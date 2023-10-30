@@ -1,0 +1,28 @@
+{% extends BASE_HTML %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block page_title %}{% translate 'Notifications' %} - {% endblock %}
+
+{% block content_extra_class %}notification-list-view{% endblock %}
+
+{% block content %}
+    <div class="buttons-list">
+        <ul>
+          {% block buttons %}
+           {% if user.is_staff %}
+            <li>{% translate 'Send a system upgrade announcement' as sysupgrade_label %}
+                <a class="menu_button menu-button-icon" href="{% url 'creme_core__announce_upgrade' %}"
+                   title="{% translate 'This button displays a form which allows to announce to all users that a system upgrade will be performed at a given date.' %}">
+                    {% widget_icon name='message' size='instance-button' label=sysupgrade_label %}
+                    {{sysupgrade_label}}
+                </a>
+            </li>
+           {% endif %}
+          {% endblock %}
+        </ul>
+    </div>
+
+    {% brick_import app='creme_core' name='notifications' as notif_brick %}
+    {% brick_display notif_brick %}
+    {% brick_end %}
+{% endblock %}

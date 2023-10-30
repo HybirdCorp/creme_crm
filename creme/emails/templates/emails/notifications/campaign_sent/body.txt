@@ -1,0 +1,1 @@
+{% load i18n %}{% autoescape off %}{% if object is None %}{% translate 'The campaign has been deleted' %}{% else %}{% blocktranslate with campaign=object %}The campaign «{{campaign}}» has been sent{% endblocktranslate %}{% endif %}{% endautoescape %}

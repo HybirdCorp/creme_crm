@@ -10,7 +10,7 @@ from django.utils.translation import ngettext
 from parameterized import parameterized
 
 from creme.creme_core import get_world_settings_model
-from creme.creme_core.constants import ROOT_PASSWORD
+from creme.creme_core.constants import ROOT_PASSWORD, UUID_CHANNEL_ADMIN
 from creme.creme_core.core.setting_key import (
     SettingKey,
     UserSettingKey,
@@ -22,6 +22,8 @@ from creme.creme_core.models import CremeUser as User
 from creme.creme_core.models import (
     EntityCredentials,
     Mutex,
+    Notification,
+    NotificationChannel,
     RelationType,
     SetCredentials,
 )
@@ -41,6 +43,7 @@ from ..bricks import (
     UsersBrick,
     UserSettingValuesBrick,
 )
+from ..notification import PasswordChangeContent
 
 
 def skipIfNotCremeUser(test_func):
@@ -1022,6 +1025,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             errors=_('Your old password was entered incorrectly. Please enter it again.'),
         )
 
+        admin_chan = self.get_object_or_fail(NotificationChannel, uuid=UUID_CHANNEL_ADMIN)
+        self.assertFalse(Notification.objects.filter(
+            user=other_user, channel=admin_chan,
+        ))
+
         # POST ---
         response3 = self.client.post(
             url,
@@ -1034,6 +1042,16 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response3)
         self.assertTrue(self.refresh(other_user).check_password(new_password))
+
+        notif = self.get_object_or_fail(
+            Notification, user=other_user, channel=admin_chan,
+        )
+        self.assertEqual(PasswordChangeContent.id, notif.content_id)
+        self.assertDictEqual({}, notif.content_data)
+        self.assertEqual(
+            _('Your password has been changed by a super-user.'),
+            notif.content.render(),
+        )
 
     @skipIfNotCremeUser
     def test_change_password02(self):
@@ -1157,6 +1175,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response3)
         self.assertTrue(self.refresh(user).check_password(new_password))
+
+        self.assertFalse(
+            Notification.objects.filter(user=user, channel__uuid=UUID_CHANNEL_ADMIN)
+        )
 
     @skipIfNotCremeUser
     def test_user_activation(self):

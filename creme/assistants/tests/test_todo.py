@@ -4,31 +4,34 @@ from unittest import SkipTest
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core import mail
-from django.core.mail.backends.locmem import EmailBackend
+# from django.core import mail
+# from django.core.mail.backends.locmem import EmailBackend
 from django.db.models.query import Q, QuerySet
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils.formats import date_format
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 
 from creme.creme_core.bricks import JobErrorsBrick
+from creme.creme_core.constants import UUID_CHANNEL_REMINDERS
 from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.core.function_field import function_field_registry
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.listview import TextLVSWidget
 from creme.creme_core.gui.view_tag import ViewTag
+# from creme.creme_core.models import DateReminder
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
     BrickState,
     CremeEntity,
-    DateReminder,
     FakeContact,
     FakeOrganisation,
     HistoryLine,
     JobResult,
+    Notification,
     SettingValue,
 )
 from creme.creme_core.models.history import (
@@ -45,18 +48,19 @@ from ..constants import (
 )
 from ..function_fields import TodosField
 from ..models import Alert, ToDo
+from ..notification import TodoReminderContent
 from .base import AssistantsTestCase
 
 
 class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.original_send_messages = EmailBackend.send_messages
-
-    def tearDown(self):
-        super().tearDown()
-        EmailBackend.send_messages = self.original_send_messages
+    # @classmethod
+    # def setUpClass(cls):
+    #     super().setUpClass()
+    #     cls.original_send_messages = EmailBackend.send_messages
+    #
+    # def tearDown(self):
+    #     super().tearDown()
+    #     EmailBackend.send_messages = self.original_send_messages
 
     @staticmethod
     def _build_add_url(entity):
@@ -498,7 +502,90 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.aux_test_merge(creator, assertor)
 
-    @override_settings(SOFTWARE_LABEL='My CRM')
+    def test_todo_reminder_content01(self):
+        user = self.get_root_user()
+        entity = self.entity
+        todo = ToDo.objects.create(
+            user=user,
+            real_entity=entity,
+            title='You must do something',
+            description='very important!!\nReally.',
+            deadline=self.create_datetime(year=2023, month=10, day=23, hour=16, utc=True),
+        )
+        content1 = TodoReminderContent(instance=todo)
+        content2 = TodoReminderContent.from_dict(content1.as_dict())
+        self.assertEqual(
+            _('A todo related to «%(entity)s» will soon reach its deadline') % {'entity': entity},
+            content2.get_subject(user=user),
+        )
+        self.assertEqual(
+            '{}\n{}'.format(
+                _('The todo «%(title)s» will expire on %(expiration)s.') % {
+                    'title': todo.title,
+                    'expiration': date_format(
+                        value=localtime(todo.deadline),
+                        format='DATETIME_FORMAT',
+                    ),
+                },
+                _('Description: %(description)s') % {'description': todo.description},
+            ),
+            content2.get_body(user=user),
+        )
+        self.assertHTMLEqual(
+            '<h1>{title}</h1><p>{body}</p>'.format(
+                title=todo.title,
+                body=todo.description.replace('\n', '<br>'),
+            ) + _('Related to %(entity)s') % {
+                'entity': f'<a href="{entity.get_absolute_url()}" target="_self">{entity}</a>',
+            },
+            content2.get_html_body(user=user),
+        )
+
+    def test_todo_reminder_content02(self):
+        "No description."
+        user = self.get_root_user()
+        entity = self.entity
+        todo = ToDo.objects.create(
+            user=user,
+            real_entity=entity,
+            title='To be done',
+            # description='very important!!\nReally.', # <====
+            deadline=now() + timedelta(days=7),
+        )
+        content1 = TodoReminderContent(instance=todo)
+        content2 = TodoReminderContent.from_dict(content1.as_dict())
+        self.assertEqual(
+            _('The todo «%(title)s» will expire on %(expiration)s.') % {
+                'title': todo.title,
+                'expiration': date_format(
+                    value=localtime(todo.deadline),
+                    format='DATETIME_FORMAT',
+                ),
+            },
+            content2.get_body(user=user).strip(),
+        )
+        self.assertHTMLEqual(
+            '<h1>{title}</h1>'.format(
+                title=todo.title,
+            ) + _('Related to %(entity)s') % {
+                'entity': f'<a href="{entity.get_absolute_url()}" target="_self">{entity}</a>',
+            },
+            content2.get_html_body(user=user),
+        )
+
+    def test_todo_reminder_content_error(self):
+        "Todo does not exist anymore."
+        user = self.get_root_user()
+        content = TodoReminderContent.from_dict({'instance': self.UNUSED_PK})
+        self.assertEqual(
+            _('A todo will soon reach its deadline'),
+            content.get_subject(user=user),
+        )
+        body = _('The todo has been deleted')
+        self.assertEqual(body, content.get_body(user=user))
+        self.assertEqual(body, content.get_html_body(user=user))
+
+    # @override_settings(SOFTWARE_LABEL='My CRM')
     def test_reminder01(self):
         user = self.user
         now_value = now()
@@ -507,7 +594,9 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         sv.value = localtime(now_value).hour
         sv.save()
 
-        DateReminder.objects.all().delete()
+        # DateReminder.objects.all().delete()
+        notif_qs = Notification.objects.filter(channel__uuid=UUID_CHANNEL_REMINDERS, user=user)
+        self.assertFalse(notif_qs.all())
 
         job = self.get_reminder_job()
         self.assertIsNone(job.type.next_wakeup(job, now_value))
@@ -523,25 +612,32 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.execute_reminder_job(job)
         self.assertIsNone(job.user)
 
-        reminder = self.get_alone_element(DateReminder.objects.all())
-        self.assertEqual(todo1, reminder.object_of_reminder)
-        self.assertEqual(1,     reminder.ident)
-        self.assertDatetimesAlmostEqual(now_value, reminder.date_of_remind, seconds=60)
+        # reminder = self.get_alone_element(DateReminder.objects.all())
+        # self.assertEqual(todo1, reminder.object_of_reminder)
+        # self.assertEqual(1,     reminder.ident)
+        # self.assertDatetimesAlmostEqual(now_value, reminder.date_of_remind, seconds=60)
+        notif = self.get_alone_element(notif_qs.all())
+        self.assertFalse(notif.discarded)
+        self.assertEqual(Notification.Level.NORMAL, notif.level)
+        self.assertEqual(TodoReminderContent.id, notif.content_id)
+        self.assertEqual({'instance': todo1.id}, notif.content_data)
+        self.assertIsInstance(notif.content, TodoReminderContent)
+
         self.assertTrue(self.refresh(todo1).reminded)
         self.assertFalse(self.refresh(todo4).reminded)
 
-        message = self.get_alone_element(mail.outbox)
-        self.assertEqual([user.email], message.to)
-
-        software = 'My CRM'
-        self.assertEqual(
-            _('Reminder concerning a {software} todo related to {entity}').format(
-                software=software, entity=self.entity,
-            ),
-            message.subject,
-        )
-        self.assertIn(todo1.title, message.body)
-        self.assertIn(software,    message.body)
+        # message = self.get_alone_element(mail.outbox)
+        # self.assertEqual([user.email], message.to)
+        #
+        # software = 'My CRM'
+        # self.assertEqual(
+        #     _('Reminder concerning a {software} todo related to {entity}').format(
+        #         software=software, entity=self.entity,
+        #     ),
+        #     message.subject,
+        # )
+        # self.assertIn(todo1.title, message.body)
+        # self.assertIn(software,    message.body)
 
         self.assertFalse(JobResult.objects.filter(job=job))
 
@@ -550,6 +646,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_reminder02(self):
         "Minimum hour (SettingValue) is in the future."
+        user = self.user
         now_value = now()
 
         next_hour = localtime(now_value).hour + 1
@@ -560,11 +657,12 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         sv.value = next_hour
         sv.save()
 
-        reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
+        # reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
+        notif_qs = Notification.objects.filter(channel__uuid=UUID_CHANNEL_REMINDERS, user=user)
+        self.assertFalse(notif_qs.all())
 
         ToDo.objects.create(
-            real_entity=self.entity, user=self.user,
-            title='Todo#1', deadline=now_value,
+            real_entity=self.entity, user=user, title='Todo #1', deadline=now_value,
         )
 
         job = self.get_reminder_job()
@@ -575,61 +673,63 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
 
         self.execute_reminder_job(job)
-        self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
+        # self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
+        self.assertFalse(notif_qs.all())
 
+    # def test_reminder03(self):
+    #     "Mails error."
+    #     now_value = now()
+    #
+    #     sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+    #     sv.value = max(localtime(now_value).hour - 1, 0)
+    #     sv.save()
+    #
+    #     reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
+    #
+    #     def create_todo(title):
+    #         ToDo.objects.create(
+    #             title=title, deadline=now_value,
+    #             real_entity=self.entity, user=self.user,
+    #         )
+    #
+    #     create_todo('Todo#1')
+    #
+    #     send_messages_called = False
+    #     err_msg = 'Sent error'
+    #
+    #     def send_messages(this, messages):
+    #         nonlocal send_messages_called
+    #         send_messages_called = True
+    #         raise Exception(err_msg)
+    #
+    #     EmailBackend.send_messages = send_messages
+    #
+    #     job = self.execute_reminder_job()
+    #
+    #     self.assertTrue(send_messages_called)
+    #     self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
+    #
+    #     jresult = self.get_alone_element(JobResult.objects.filter(job=job))
+    #     self.assertListEqual(
+    #         [
+    #             _(
+    #                 'An error occurred while sending emails related to «{model}»'
+    #             ).format(model=ToDo._meta.verbose_name),
+    #             _('Original error: {}').format(err_msg),
+    #         ],
+    #         jresult.messages,
+    #     )
+    #
+    #     EmailBackend.send_messages = self.original_send_messages
+    #
+    #     create_todo('Todo#2')
+    #     job = self.execute_reminder_job()
+    #     self.assertEqual(1, len(mail.outbox))
+    #     self.assertEqual(2, DateReminder.objects.exclude(id__in=reminder_ids).count())
+    #     self.assertFalse(JobResult.objects.filter(job=job))
+
+    # def test_reminder04(self):
     def test_reminder03(self):
-        "Mails error."
-        now_value = now()
-
-        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
-        sv.value = max(localtime(now_value).hour - 1, 0)
-        sv.save()
-
-        reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
-
-        def create_todo(title):
-            ToDo.objects.create(
-                title=title, deadline=now_value,
-                real_entity=self.entity, user=self.user,
-            )
-
-        create_todo('Todo#1')
-
-        send_messages_called = False
-        err_msg = 'Sent error'
-
-        def send_messages(this, messages):
-            nonlocal send_messages_called
-            send_messages_called = True
-            raise Exception(err_msg)
-
-        EmailBackend.send_messages = send_messages
-
-        job = self.execute_reminder_job()
-
-        self.assertTrue(send_messages_called)
-        self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
-
-        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
-        self.assertListEqual(
-            [
-                _(
-                    'An error occurred while sending emails related to «{model}»'
-                ).format(model=ToDo._meta.verbose_name),
-                _('Original error: {}').format(err_msg),
-            ],
-            jresult.messages,
-        )
-
-        EmailBackend.send_messages = self.original_send_messages
-
-        create_todo('Todo#2')
-        job = self.execute_reminder_job()
-        self.assertEqual(1, len(mail.outbox))
-        self.assertEqual(2, DateReminder.objects.exclude(id__in=reminder_ids).count())
-        self.assertFalse(JobResult.objects.filter(job=job))
-
-    def test_reminder04(self):
         "Teams."
         user = self.user
         now_value = now()
@@ -646,12 +746,18 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
 
         self.execute_reminder_job()
-        self.assertCountEqual(
-            [(teammate.email,), (user.email,)],
-            [tuple(m.to) for m in mail.outbox],
-        )
+        # self.assertCountEqual(
+        #     [(teammate.email,), (user.email,)],
+        #     [tuple(m.to) for m in mail.outbox],
+        # )
 
-    def test_reminder05(self):
+        uid = UUID_CHANNEL_REMINDERS
+        self.get_object_or_fail(Notification, channel__uuid=uid, user=user)
+        self.get_object_or_fail(Notification, channel__uuid=uid, user=teammate)
+        self.assertFalse(Notification.objects.filter(channel__uuid=uid, user=team).exists())
+
+    # def test_reminder05(self):
+    def test_reminder04(self):
         "Dynamic user."
         other_user = self.create_user()
 
@@ -665,13 +771,19 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         sv.value = localtime(now_value).hour
         sv.save()
 
+        notif_qs = Notification.objects.filter(
+            channel__uuid=UUID_CHANNEL_REMINDERS, user=other_user,
+        )
+        self.assertFalse(notif_qs.all())
+
         ToDo.objects.create(real_entity=entity, title='Todo#1', deadline=now_value)
 
         self.execute_reminder_job(self.get_reminder_job())
-        self.assertEqual(1, DateReminder.objects.count())
+        # self.assertEqual(1, DateReminder.objects.count())
+        self.get_alone_element(notif_qs.all())
 
-        message = self.get_alone_element(mail.outbox)
-        self.assertListEqual([other_user.email], message.to)
+        # message = self.get_alone_element(mail.outbox)
+        # self.assertListEqual([other_user.email], message.to)
 
     def test_next_wakeup01(self):
         "Next wake is one day later + minimum hour."

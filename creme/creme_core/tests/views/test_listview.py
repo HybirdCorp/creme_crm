@@ -106,9 +106,14 @@ class ListViewTestCase(ViewsTestCase):
         else:
             self.fail('This RDBMS is not managed by this test case.')
 
+        entities_q_re = re.compile(
+            r'^SELECT COUNT\(\*\) AS (.)__count(.) FROM (.)creme_core_cremeentity(.)'
+        )
+
         optimized_counts = []
         for sql in captured_sql:
-            if sql.startswith('SELECT COUNT(*)') and sql != trash_sql:
+            # if sql.startswith('SELECT COUNT(*)') and sql != trash_sql:
+            if entities_q_re.match(sql) is not None and sql != trash_sql:
                 if 'INNER JOIN' in sql:
                     self.fail(f'slow COUNT query found: {sql}')
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,9 +20,12 @@ from django.db.models.query_utils import Q
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.constants import UUID_CHANNEL_JOBS
 from creme.creme_core.creme_jobs.base import JobType
+from creme.creme_core.models import Notification
 
 from ..models import EmailSending
+from ..notification import CampaignSentContent
 
 
 class _CampaignEmailsSendType(JobType):
@@ -38,7 +41,7 @@ class _CampaignEmailsSendType(JobType):
             state=EmailSending.State.DONE,
         ).filter(
             Q(type=EmailSending.Type.IMMEDIATE) | Q(sending_date__lte=now())
-        ):
+        ).select_related('campaign'):
             sending.state = EmailSending.State.IN_PROGRESS
             sending.save()
 
@@ -51,6 +54,14 @@ class _CampaignEmailsSendType(JobType):
             # TODO: move in send_mails() ???
             sending.state = status or EmailSending.State.DONE
             sending.save()
+
+            if sending.type != EmailSending.Type.IMMEDIATE:
+                campaign = sending.campaign
+                Notification.objects.send(
+                    channel=UUID_CHANNEL_JOBS,
+                    users=[campaign.user],
+                    content=CampaignSentContent(instance=campaign),
+                )
 
     # We have to implement it because it is a PSEUDO_PERIODIC JobType
     def next_wakeup(self, job, now_value):

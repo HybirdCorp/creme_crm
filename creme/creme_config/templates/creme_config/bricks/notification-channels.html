@@ -1,0 +1,69 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_widgets %}
+{% load print_field url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-notif_channels-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Channel') plural=_('{count} Channels') empty=verbose_name %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% brick_header_action id='add' url='creme_config__create_notif_channel'|url label=_('New channel') enabled=user.is_superuser %}
+{% endblock %}
+
+{% block brick_before_content %}
+    <div class="help">
+        {% blocktranslate %}The notifications are sent on a channel which defines where the notifications will appear (currently: in-app and/or emails) by default.
+Each user can get its own configuration for a channel.
+{% endblocktranslate %}
+    </div>
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='description' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='default_outputs' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='required' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+ {% with admin_perm=user.is_superuser delete_url='creme_config__delete_notif_channel'|url %}
+  {% for channel in page.object_list %}
+   {% with chan_type=channel.type %}
+    <tr {% if channel.deleted %} class="channel-deleted"{% endif %}>
+        <td {% brick_table_data_status primary %}>{{channel.final_name}}</td>
+        <td>{{channel.final_description}}</td>
+        <td>{% widget_enumerator channel.verbose_outputs threshold=3 summary=_('{count} outputs') %}</td>
+        <td>{% print_field object=channel field='required' %}</td>
+        <td {% brick_table_data_status action %}>
+         {% if not channel.deleted %}
+          {% if chan_type %}
+            {% brick_table_action id='edit' url='creme_config__set_notif_channel_required'|url:channel.id label=_('Set this channel required (or not)') enabled=user.is_staff %}
+          {% else %}
+            {% brick_table_action id='edit' url='creme_config__set_notif_channel_required'|url:channel.id label=_('Set this channel required (or not)') enabled=admin_perm %}
+          {% endif %}
+         {% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% if not channel.deleted %}{% brick_table_action id='edit' url='creme_config__edit_notif_channel'|url:channel.id label=_('Edit this channel') enabled=admin_perm %}{% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+          {% if not chan_type %}
+           {% if channel.deleted is None %}
+            {% brick_table_action id='delete' url=delete_url __id=channel.id label=_('Delete this channel') enabled=admin_perm %}
+           {% else %}
+            {% brick_table_action id='delete' url=delete_url __id=channel.id label=_('Delete this channel definitively') enabled=admin_perm %}
+           {% endif %}
+          {% endif %}
+        </td>
+    </tr>
+   {% endwith %}
+  {% endfor %}
+ {% endwith %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No channel for the moment' %}
+{% endblock %}

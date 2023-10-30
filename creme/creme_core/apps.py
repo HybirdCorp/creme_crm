@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2023  Hybird
+#    Copyright (C) 2015-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ from django.contrib.contenttypes.apps import (
 )
 from django.core import checks
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.core.field_tags import FieldTag
 
@@ -42,6 +43,7 @@ if TYPE_CHECKING:
     from .core.enumerable import _EnumerableRegistry
     from .core.function_field import _FunctionFieldRegistry
     from .core.imprint import _ImprintManager
+    from .core.notification import NotificationRegistry
     from .core.reminder import ReminderRegistry
     from .core.sandbox import _SandboxTypeRegistry
     from .core.setting_key import _SettingKeyRegistry
@@ -235,6 +237,7 @@ class CremeAppConfig(AppConfig):
                 enumerable,
                 function_field,
                 imprint,
+                notification,
                 reminder,
                 sandbox,
                 setting_key,
@@ -282,6 +285,7 @@ class CremeAppConfig(AppConfig):
             self.register_menu_entries(menu.menu_registry)
             self.register_creation_menu(menu.creation_menu_registry)
             self.register_merge_forms(merge.merge_form_registry)
+            self.register_notification(notification.notification_registry)
             self.register_quickforms(quick_forms.quickforms_registry)
             self.register_reminders(reminder.reminder_registry)
             self.register_sandboxes(sandbox.sandbox_type_registry)
@@ -351,6 +355,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_merge_forms(self, merge_form_registry: '_MergeFormRegistry') -> None:
+        pass
+
+    def register_notification(self, notification_registry: 'NotificationRegistry') -> None:
         pass
 
     def register_quickforms(self, quickforms_registry: 'QuickFormsRegistry') -> None:
@@ -456,6 +463,7 @@ class CremeCoreConfig(CremeAppConfig):
             bricks.JobBrick,
             bricks.JobsBrick,
             bricks.MyJobsBrick,
+            bricks.NotificationsBrick,
         )
 
     def register_buttons(self, button_registry):
@@ -529,6 +537,28 @@ class CremeCoreConfig(CremeAppConfig):
             model=FileRef,
             field_name='filedata',
             basename_builder=(lambda instance, field, file_obj: instance.basename),
+        )
+
+    def register_notification(self, notification_registry):
+        from . import notification as core_notif
+        from .core import notification
+
+        notification_registry.register_output(
+            # Default output
+            value=notification.OUTPUT_WEB, label=_('Web browser'),
+        ).register_output(
+            value=notification.OUTPUT_EMAIL, label=pgettext_lazy('creme_core', 'Email'),
+        ).register_channel_types(
+            core_notif.SystemChannelType,
+            core_notif.AdministrationChannelType,
+            core_notif.JobsChannelType,
+            core_notif.RemindersChannelType,
+        ).register_content(
+            content_cls=notification.SimpleNotifContent,
+        ).register_content(
+            content_cls=core_notif.UpgradeAnnouncement,
+        ).register_content(
+            content_cls=core_notif.MassImportDoneContent,
         )
 
     def register_creme_config(self, config_registry):

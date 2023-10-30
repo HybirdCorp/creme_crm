@@ -169,7 +169,7 @@ class JobSchedulerTestCase(CremeTestCase):
 
     @override_settings(PSEUDO_PERIOD=1)
     def test_next_wake_up02(self):
-        """PSEUDO_PERIODIC job + reminder return a wake up date before the new
+        """PSEUDO_PERIODIC job + reminder return a wake-up date before the new
         security period.
         """
         rounded_hour = round_hour(now())
@@ -188,7 +188,7 @@ class JobSchedulerTestCase(CremeTestCase):
 
     @override_settings(PSEUDO_PERIOD=1)
     def test_next_wake_up03(self):
-        """PSEUDO_PERIODIC job + reminder return a wake up date after the new
+        """PSEUDO_PERIODIC job + reminder return a wake-up date after the new
         security period.
         """
         rounded_hour = round_hour(now())

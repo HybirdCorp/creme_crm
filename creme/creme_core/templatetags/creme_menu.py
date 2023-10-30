@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,9 +23,10 @@ from django.db.models import Q
 from django.template import Library
 from django.utils.functional import partition
 
+from ..core.notification import OUTPUT_WEB
 from ..gui import button_menu
 from ..gui.menu import menu_registry
-from ..models import ButtonMenuItem, MenuConfigItem
+from ..models import ButtonMenuItem, MenuConfigItem, Notification
 
 logger = logging.getLogger(__name__)
 register = Library()
@@ -75,3 +76,21 @@ def menu_buttons_display(context):
     context['buttons'] = [*buttons.values()]
 
     return context
+
+
+@register.simple_tag
+def menu_notifications(user):
+    from ..views.notification import LastWebNotifications
+
+    qs = Notification.objects.filter(
+        user=user, discarded=None, output=OUTPUT_WEB,
+    )
+
+    return {
+        'count': qs.count(),
+        'notifications': [
+            notif.to_dict(user)
+            for notif in qs.order_by('-id')
+                           .select_related('channel')[:LastWebNotifications.limit]
+        ],
+    }

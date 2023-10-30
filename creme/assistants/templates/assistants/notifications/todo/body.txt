@@ -1,0 +1,2 @@
+{% load i18n %}{% autoescape off %}{% if object is None %}{% translate 'The todo has been deleted' %}{% else %}{% blocktranslate with title=object.title expiration=object.deadline|date:'DATETIME_FORMAT' %}The todo «{{title}}» will expire on {{expiration}}.{% endblocktranslate %}
+{% if object.description %}{% blocktranslate with description=object.description %}Description: {{description}}{% endblocktranslate %}{% endif %}{% endif %}{% endautoescape %}

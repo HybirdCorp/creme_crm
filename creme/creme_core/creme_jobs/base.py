@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2022  Hybird
+#    Copyright (C) 2016-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -82,8 +82,8 @@ class JobType:
     PSEUDO_PERIODIC = 1
     PERIODIC        = 2
 
-    id: str = ''   # Overload with a string ; use generate_id()
-    verbose_name: str = 'JOB'  # Overload with a gettext_lazy object
+    id: str = ''   # Override in child classes; use generate_id()
+    verbose_name: str = 'JOB'  # Override with a gettext_lazy object
     periodic: int = NOT_PERIODIC
 
     class Error(Exception):
@@ -93,7 +93,7 @@ class JobType:
         return str(self.verbose_name)
 
     def _execute(self, job: Job):
-        "TO BE OVERLOADED BY CHILD CLASSES"
+        "TO BE OVERRIDEN BY CHILD CLASSES"
         raise NotImplementedError
 
     @property
@@ -158,7 +158,7 @@ class JobType:
         return None
 
     def get_stats(self, job: Job) -> list[str]:
-        "Get stats as a list of strings. To be overloaded by child classes."
+        "Get stats as a list of strings. To be overriden by child classes."
         return []
 
     def next_wakeup(self, job: Job, now_value: datetime) -> datetime | None:

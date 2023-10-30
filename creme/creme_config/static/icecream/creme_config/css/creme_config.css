@@ -540,6 +540,13 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     padding-top: 5px;
 }
 
+/* Channels brick */
+
+.creme_config-notif_channels-brick .brick-table-content>tbody>tr.channel-deleted {
+    background: #ebebeb;
+    color: grey;
+}
+
 /* Buttons brick */
 
 .creme_config-buttonmenu-brick .brick-content {

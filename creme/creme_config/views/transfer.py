@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2023  Hybird
+#    Copyright (C) 2017-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,6 +58,7 @@ class ConfigExport(generic.CheckedView):
         #       - CustomBrickConfigItem
         #    - Changes in the data for EntityFilterCondition of Relation
         #      (CT uses natural-key, the key "entity_uuid" became just "entity").
+        #    - Notification channels added
         info[ID_VERSION] = '1.5'
         info.update((e_id, exporter()) for e_id, exporter in self.registry)
 

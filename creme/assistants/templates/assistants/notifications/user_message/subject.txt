@@ -1,0 +1,1 @@
+{% load i18n %}{% if object is None %}{% translate 'You received a user message' %}{% else %}{% blocktranslate with sender=object.sender %}You received a user message from «{{sender}}»{% endblocktranslate %}{% endif %}

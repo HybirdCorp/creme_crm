@@ -92,12 +92,12 @@
         <td class="user-username" {% brick_table_data_status primary %}>{{user.username}}</td>
         <td class="user-lastname" >{{user.last_name}}</td>
         <td class="user-firstname" >{{user.first_name}}</td>
-        <td class="user-role" >{% if user.role %}{{user.role}}{% else %}<em>{% if user.is_staff %}{% translate 'Staff' %}{% else %}{{superuser_label}}{% endif %}</em>{% endif %}</td>
-        <td class="user-email" >{{user.email}}</td>
-        <td class="user-displayed" >{{user.displayed_name|default:'—'}}</td>
-        <td class="user-active" >{{user.is_active|yesno:_('Yes,No')}}</td>
-        <td class="user-last-login" data-type='datetime'>{{user.last_login|default:'—'}}</td>
-        <td class="user-joined" data-type='datetime'>{{user.date_joined}}</td>
+        <td class="user-role">{% if user.role %}{{user.role}}{% else %}<em>{% if user.is_staff %}{% translate 'Staff' %}{% else %}{{superuser_label}}{% endif %}</em>{% endif %}</td>
+        <td class="user-email">{{user.email}}</td>
+        <td class="user-displayed">{{user.displayed_name|default:'—'}}</td>
+        <td class="user-active">{{user.is_active|yesno:_('Yes,No')}}</td>
+        <td class="user-last-login" data-type="datetime">{{user.last_login|default:'—'}}</td>
+        <td class="user-joined" data-type="datetime">{{user.date_joined}}</td>
         {% if display_tz %}<td class="user-timezone">{{user.time_zone}}</td>{% endif %}
         <td {% brick_table_data_status action %} class="user-activate">
             {% if user.is_active %}

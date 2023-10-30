@@ -1,0 +1,1 @@
+{% load i18n %}{% if object is None %}{% translate 'The document is deleted' %}{% else %}{% blocktranslate %}The mass import for document «{{object}}» is done{% endblocktranslate %}{% endif %}

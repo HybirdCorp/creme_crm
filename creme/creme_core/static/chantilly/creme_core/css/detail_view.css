@@ -78,7 +78,8 @@
 
 /* Buttons lists (global, entity, business) */
 
-.content-detail-view .instance-buttons {
+.content-detail-view .instance-buttons,
+.notification-list-view .buttons-list {
     padding-bottom: 20px;
 }
 
@@ -425,4 +426,11 @@
 .brick-hat-card .card-icon > div {
     width: 25px;
     height: 25px;
+}
+
+/* Notifications list */
+
+.notification-list-view .buttons-list {
+    padding-top: 5px;
+    padding-bottom: 20px;
 }

@@ -1,0 +1,3 @@
+{% load i18n creme_widgets %}{% if object is None %}{% translate 'The message has been deleted' %}{% else %}<h1>{{object.title}}</h1>{{object.body|linebreaks}}
+{% if object.real_entity %}{% widget_entity_hyperlink object.real_entity user as entity %}{% blocktranslate %}Related to {{entity}}{% endblocktranslate %}{% endif %}
+{% endif %}

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -291,10 +291,12 @@ def verbose_models(models):
     return [m._meta.verbose_name for m in models]
 
 
-# NB: really useful ? {% widget_entity_hyperlink %} seems always used instead...
+# TODO unit test
 @register.filter
-def allowed_str(entity, user):
-    return entity.allowed_str(user)
+# def allowed_str(entity, user):
+def allowed_str(instance, user):
+    # return entity.allowed_str(user)
+    return instance.allowed_str(user) if hasattr(instance, 'allowed_str') else instance
 
 
 @register.filter

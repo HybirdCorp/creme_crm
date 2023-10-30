@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,6 +34,7 @@ from creme.creme_core import get_world_settings_model
 from creme.creme_core.core import setting_key
 from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.field_tags import FieldTag
+from creme.creme_core.core.notification import notification_registry
 from creme.creme_core.gui.bricks import (
     Brick,
     BricksManager,
@@ -66,6 +67,8 @@ from creme.creme_core.models import (
     HistoryConfigItem,
     InstanceBrickConfigItem,
     MenuConfigItem,
+    NotificationChannel,
+    NotificationChannelConfigItem,
     RelationBrickItem,
     RelationType,
     SearchConfigItem,
@@ -913,6 +916,61 @@ class MenuBrick(_ConfigAdminBrick):
 
         # NB: the UserRole queryset count does not use the default & superuser configuration
         paginator.count += 2 if superuser_items else 1
+
+        return self._render(btc)
+
+
+class NotificationChannelsBrick(_ConfigAdminBrick):
+    id = Brick.generate_id('creme_config', 'notif_channels')
+    verbose_name = 'Notification channels configuration'
+    dependencies = (NotificationChannel,)
+    template_name = 'creme_config/bricks/notification-channels.html'
+    configurable = False
+
+    notification_registry = notification_registry
+
+    def detailview_display(self, context):
+        btc = self.get_template_context(
+            context, NotificationChannel.objects.order_by('id'),
+        )
+
+        # TODO: method?
+        labels = dict(self.notification_registry.output_choices)
+
+        for chan in btc['page'].object_list:
+            chan.verbose_outputs = [
+                labels.get(output, '?') for output in chan.default_outputs
+            ]
+
+        return self._render(btc)
+
+
+class NotificationChannelConfigItemsBrick(_ConfigAdminBrick):
+    id = Brick.generate_id('creme_config', 'notif_channel_config')
+    verbose_name = "User's notification channels configuration"
+    dependencies = (NotificationChannelConfigItem,)
+    template_name = 'creme_config/bricks/notification-channel-configs.html'
+    configurable = False
+
+    notification_registry = notification_registry
+
+    def detailview_display(self, context):
+        btc = self.get_template_context(
+            context,
+            NotificationChannel.objects.filter(deleted=None).order_by('id'),
+        )
+        channels = btc['page'].object_list
+        # TODO: see NotificationChannelsBrick
+        labels = dict(self.notification_registry.output_choices)
+        items = {
+            item.channel_id: item
+            for item in NotificationChannelConfigItem.objects.bulk_get(
+                channels=channels, users=[context['user']],
+            )
+        }
+        for chan in channels:
+            chan.item = item = items[chan.id]
+            item.verbose_outputs = [labels.get(output, '?') for output in item.outputs]
 
         return self._render(btc)
 

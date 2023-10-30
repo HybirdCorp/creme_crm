@@ -1,0 +1,1 @@
+{% load allowed_str from creme_core_tags %}{% if object is None %}??{% else %}{{object|allowed_str:user}}{% endif %}

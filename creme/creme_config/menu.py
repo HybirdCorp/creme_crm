@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2022  Hybird
+#    Copyright (C) 2021-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -155,6 +155,12 @@ class MenuConfigEntry(_ConfigURLEntry):
     url_name = 'creme_config__menu'
 
 
+class NotificationConfigEntry(_ConfigURLEntry):
+    id = 'creme_config-notification'
+    label = _('Notifications')
+    url_name = 'creme_config__notification'
+
+
 class ButtonsConfigEntry(_ConfigURLEntry):
     id = 'creme_config-buttons'
     label = _('Button menu')
@@ -241,6 +247,7 @@ class CremeConfigEntry(menu.ContainerEntry):
         CustomFormsConfigEntry,
         HistoryConfigEntry,
         MenuConfigEntry,
+        NotificationConfigEntry,
         ButtonsConfigEntry,
         SearchConfigEntry,
         PropertyTypesConfigEntry,

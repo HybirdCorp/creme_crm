@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 18-09-2023 for Creme 2.6
+:Version: 16-01-2024 for Creme 2.6
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2024,6 +2024,102 @@ The last thing is to declare our action in our ``apps.py``: ::
 **Going a bit further** : to code an action managing several entities at once,
 an action class must inherit ``creme.creme_core.gui.actions.UIAction``
 and must be registered with ``actions_registry.register_bulk_actions``.
+
+
+Sending notifications
+~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes you want to inform some users about a thing. It can be an event which
+will happen (e.g. Creme averts you that one of your Alerts is about to expire)
+or an action which has been performed by another user (e.g. Creme averts you
+that an administrator has changed your password).
+
+Even if you can use an existing channel, we will here create a channel specific
+to your app. First we add an UUID which we'll use to retrieve our channel; in
+``beavers/constants.py`` write this : ::
+
+    [...]
+
+    # Generate a value in your Python shell with uuid.uuid4
+    UUID_CHANNEL_BEAVERS = 'dccfcde6-e9c1-4d5e-aa31-1f42dc8d94fb'
+
+
+We have to create the channel's type too; add a new file
+``beavers/notification.py`` like : ::
+
+    from django.utils.translation import gettext_lazy as _
+
+    from creme.creme_core.core.notification import NotificationChannelType
+
+
+    class BeaversChannelType(NotificationChannelType):
+        id = NotificationChannelType.generate_id('beavers', 'main')
+        verbose_name = _('Beavers')
+        description = _('Important information about beavers')
+
+
+Then we must declare our type in ``beavers/apps.py`` : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_notification(self, notification_registry):
+            from .notification import BeaversChannelType
+
+            notification_registry.register_channel_types( BeaversChannelType)
+
+
+Now we create the channel in ``beavers/populate.py`` : ::
+
+    [...]
+    from creme.creme_core.core.notification import OUTPUT_WEB
+    from creme.creme_core.models import NotificationChannel
+
+    from .notification import BeaversChannelType
+
+    [...]
+    class Populator(BasePopulator):
+        def populate(self):
+            [...]
+
+            NotificationChannel.objects.get_or_create(
+                uuid=constants.UUID_CHANNEL_BEAVERS,
+                defaults={
+                    'type_id': BeaversChannelType.id,
+                    'default_outputs': [OUTPUT_WEB],
+                },
+            )
+
+
+We can now send notifications in our code like this : ::
+
+        from creme.creme_core.models import Notification
+
+        from my_project.beavers.constants import UUID_CHANNEL_BEAVERS
+
+        [...]
+        Notification.objects.send(
+            channel=UUID_CHANNEL_BEAVERS,
+            users=[user1, user2],
+            content=SimpleNotifContent(
+                subject='A beaver is sick',
+                body='Call a vet please',
+                # NB: there is a parameter "html_body" too.
+            ),
+        )
+
+
+**Going further** : we've used the content class ``SimpleNotifContent`` which is
+provided by default for the most simple cases. You can write your own content
+classes for the more complex cases, for example:
+
+ - to have dynamically translated messages using the target user's language.
+ - to display links to entities, with care of credentials and deleted entities.
+
+You can look at ``creme.assistants.notification.AlertReminderContent`` to see
+what is possible.
 
 
 Modifying existing apps

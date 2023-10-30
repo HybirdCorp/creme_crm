@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2023  Hybird
+#    Copyright (C) 2015-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -110,6 +110,8 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.FieldsConfigsBrick,
             bricks.CustomBricksConfigBrick,
             bricks.MenuBrick,
+            bricks.NotificationChannelsBrick,
+            bricks.NotificationChannelConfigItemsBrick,
             bricks.ButtonMenuBrick,
             bricks.UsersBrick,
             bricks.TeamsBrick,
@@ -137,4 +139,11 @@ class CremeConfigConfig(CremeAppConfig):
         children.insert(
             children.index(core_menu.MyJobsEntry) + 1,
             menu.MySettingsEntry,
+        )
+
+    def register_notification(self, notification_registry):
+        from . import notification
+
+        notification_registry.register_content(
+            content_cls=notification.PasswordChangeContent,
         )

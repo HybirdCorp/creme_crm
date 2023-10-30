@@ -1,10 +1,14 @@
 from copy import deepcopy
+from functools import partial
 
 from django.conf import settings
 from django.template import Context, Template
 from django.test import RequestFactory
 from django.test.utils import override_settings
+from django.utils.translation import pgettext
 
+from creme.creme_core import constants
+from creme.creme_core.core.notification import OUTPUT_WEB, SimpleNotifContent
 from creme.creme_core.gui import button_menu
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.menu import ContainerEntry, CustomURLEntry
@@ -13,12 +17,17 @@ from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
     MenuConfigItem,
+    Notification,
+    NotificationChannel,
 )
+from creme.creme_core.templatetags.creme_menu import menu_notifications
+from creme.creme_core.utils.dates import dt_to_ISO8601
 
 from ..base import CremeTestCase
 
 
-class MenuDisplayTestCase(CremeTestCase):
+# class MenuDisplayTestCase(CremeTestCase):
+class MenuTestCase(CremeTestCase):
     css_class_prefix = 'ui-creme-navigation-item'
 
     def _render(self, user):
@@ -196,6 +205,54 @@ class MenuDisplayTestCase(CremeTestCase):
         container_li_node = containers[0]
         self.assertEqual(container_label, container_li_node.text)
         self._assert_custom_url_entry(container_node=container_li_node, url=url)
+
+    def test_menu_notifications(self):
+        user = self.get_root_user()
+
+        chan1 = self.get_object_or_fail(NotificationChannel, uuid=constants.UUID_CHANNEL_SYSTEM)
+        chan2 = self.get_object_or_fail(NotificationChannel, uuid=constants.UUID_CHANNEL_ADMIN)
+
+        subject1 = 'Hello...'
+        body1 = '..world'
+        snc1 = SimpleNotifContent(subject=subject1, body=body1)
+
+        subject2 = 'Very important'
+        html_body2 = 'I <b>should</b> be used'
+        snc2 = SimpleNotifContent(
+            subject=subject2, body='Should not be used', html_body=html_body2,
+        )
+
+        snc3 = SimpleNotifContent(subject='Other...', body='...user')
+
+        create_notif = partial(Notification.objects.create, output=OUTPUT_WEB)
+        notif1 = create_notif(channel=chan1, user=user, content=snc1)
+        notif2 = create_notif(channel=chan2, user=user, content=snc2)
+        create_notif(channel=chan1, user=self.create_user(), content=snc3)
+
+        self.maxDiff = None
+        self.assertDictEqual(
+            {
+                'count': 2,
+                'notifications': [
+                    {
+                        'id': notif2.id,
+                        'channel': pgettext('creme_core-channels', 'Administration'),
+                        'created': dt_to_ISO8601(notif2.created),
+                        'level': Notification.Level.NORMAL,
+                        'subject': subject2,
+                        'body': html_body2,
+                    }, {
+                        'id': notif1.id,
+                        'channel': pgettext('creme_core-channels', 'System'),
+                        'created': dt_to_ISO8601(notif1.created),
+                        'level': Notification.Level.NORMAL,
+                        'subject': subject1,
+                        'body': body1,
+                    },
+                ]
+            },
+            menu_notifications(user),
+        )
 
 
 class _TestButton(Button):

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,8 +26,10 @@ from django.forms.widgets import PasswordInput
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_config.notification import PasswordChangeContent
+from creme.creme_core.constants import UUID_CHANNEL_ADMIN
 from creme.creme_core.forms import CremeForm, CremeModelForm
-from creme.creme_core.models import UserRole
+from creme.creme_core.models import Notification, UserRole
 from creme.creme_core.models.fields import CremeUserForeignKey
 
 CremeUser = get_user_model()
@@ -223,6 +225,13 @@ class UserPasswordChangeForm(CremeForm):
         user = self.user2edit
         user.set_password(self.cleaned_data.get('password_1'))
         user.save()
+
+        if self.user != user:
+            Notification.objects.send(
+                users=[user],
+                channel=UUID_CHANNEL_ADMIN,
+                content=PasswordChangeContent(),
+            )
 
 
 class _TeamForm(CremeModelForm):

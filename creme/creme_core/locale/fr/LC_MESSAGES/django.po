@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2023 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" -i "templates/creme_core/tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-07 09:57+0100\n"
+"POT-Creation-Date: 2024-01-17 16:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -49,6 +49,13 @@ msgstr "Fusionner 2 fiches"
 
 msgid "Core"
 msgstr "Cœur"
+
+msgid "Web browser"
+msgstr "Navigateur web"
+
+msgctxt "creme_core"
+msgid "Email"
+msgstr "E-mail"
 
 msgid "You are not super-user."
 msgstr "Vous n'êtes pas super-utilisateur"
@@ -187,6 +194,9 @@ msgstr "Jobs"
 
 msgid "My jobs"
 msgstr "Mes jobs"
+
+msgid "Notifications"
+msgstr "Modifications"
 
 msgid "Restrict to superusers"
 msgstr "Réserver aux super-utilisateurs"
@@ -584,13 +594,11 @@ msgstr "Queue Redis"
 msgid "Socket queue"
 msgstr "Queue par 'socket'"
 
-#, python-brace-format
-msgid "An error occurred while sending emails related to «{model}»"
-msgstr ""
-"Une erreur s'est produite pendant l'envoi des e-mails relatifs à «{model}»"
+msgid "Notification (type cannot be determined)"
+msgstr "Notification (type inconnu)"
 
-msgid "Original error: {}"
-msgstr "Erreur originale : {}"
+msgid "Please contact your administrator"
+msgstr "Veuillez contacter votre administrateur"
 
 #, python-brace-format
 msgid "{hour}h"
@@ -692,8 +700,21 @@ msgid_plural "{count} lines in the file."
 msgstr[0] "{count} ligne dans le fichier."
 msgstr[1] "{count} lignes dans le fichier."
 
-msgid "Reminders (notification emails)"
-msgstr "Mémentos (e-mails de notification)"
+msgid "Send notification emails"
+msgstr "Envoyer les e-mails de notification"
+
+#, python-brace-format
+msgid "[Notification from {software}] {subject}"
+msgstr "[Notification depuis {software}] {subject}"
+
+msgid "An error occurred while sending notification's emails"
+msgstr "Une erreur s'est produite pendant l'envoi des e-mails de notification"
+
+msgid "Original error: {}"
+msgstr "Erreur originale : {}"
+
+msgid "Reminders"
+msgstr "Mémentos"
 
 #, python-brace-format
 msgid "Execute reminders for «{model}»"
@@ -1270,6 +1291,20 @@ msgstr "URL"
 
 msgid "Merged entity"
 msgstr "Fiche fusionnée"
+
+msgid "Start"
+msgstr "Début"
+
+msgid "Extra message"
+msgstr "Extra message"
+
+msgid "Use it to give additional information, like expected duration"
+msgstr ""
+"Utilisez le pour donner des informations supplémentaires, comme la durée "
+"attendue"
+
+msgid "Start must be in the future"
+msgstr "Le début doit être dans le futur"
 
 #, python-format
 msgid "There are duplicates: %(duplicates)s"
@@ -2437,6 +2472,46 @@ msgstr "Erreur"
 msgid "Completed successfully"
 msgstr "Terminé avec succès"
 
+msgid ""
+"When a channel is required, users have to chose at least one output (in-app, "
+"email) in their personal configuration."
+msgstr ""
+"Quand un canal est obligatoire, les utilisateurs doivent choisir au moins "
+"une sortie (dans l'app, par e-mail) dans leur configuration personnelle."
+
+msgid "Default outputs"
+msgstr "Sorties par défaut"
+
+msgid "Create a channel"
+msgstr "Créer un canal"
+
+msgid "Save the channel"
+msgstr "Enregistrer le canal"
+
+msgctxt "creme_core-notif"
+msgid "Low"
+msgstr "Bas"
+
+msgctxt "creme_core-notif"
+msgid "Normal"
+msgstr "Normal"
+
+msgctxt "creme_core-notif"
+msgid "High"
+msgstr "Haut"
+
+msgid "Channel"
+msgstr "Canal"
+
+msgid "Level"
+msgstr "Niveau"
+
+msgid "Create a notification"
+msgstr "Créer une notification"
+
+msgid "Send the notification"
+msgstr "Envoyer la notification"
+
 msgid "Predicate"
 msgstr "Prédicat"
 
@@ -2501,12 +2576,6 @@ msgstr "Créer un type de relation semi-fixé"
 msgid "Semi-fixed type of relationship"
 msgstr "Type de relation semi-fixé"
 
-msgid "Reminder"
-msgstr "Mémento"
-
-msgid "Reminders"
-msgstr "Mémentos"
-
 msgid "Related resource"
 msgstr "Ressource associée"
 
@@ -2557,6 +2626,32 @@ msgstr ""
 
 msgid "Can users change their own displayed name?"
 msgstr "Les utilisateurs peuvent changer leur propre nom affiché ?"
+
+msgctxt "creme_core-channels"
+msgid "System"
+msgstr "Système"
+
+msgid "System upgrades…"
+msgstr "Mises à niveau système…"
+
+msgctxt "creme_core-channels"
+msgid "Administration"
+msgstr "Administration"
+
+msgid "Important changes on your user like password change."
+msgstr ""
+"Les changements importants sur votre utilisateur comme une changement de mot "
+"de passe."
+
+msgid "End of some long jobs (like CSV import)."
+msgstr "La fin de certain jobs long (comme les imports CSV)."
+
+msgid ""
+"The reminder feature is used by Alerts & ToDos (from the app Assistants) for "
+"example."
+msgstr ""
+"La fonctionnalité de rappel est utilisée par les Alertes & ToDos (de l'app "
+"Assistants) par exemple."
 
 msgid "owns"
 msgstr "possède"
@@ -2903,6 +2998,26 @@ msgstr "créé"
 
 msgid "None (because error is critical)"
 msgstr "Aucune (parce que l'erreur est critique)"
+
+#, python-brace-format
+msgid "{count} Notification"
+msgstr "{count} Notification"
+
+#, python-brace-format
+msgid "{count} Notifications"
+msgstr "{count} Notifications"
+
+msgid "Subject"
+msgstr "Sujet"
+
+msgid "Body"
+msgstr "Corps"
+
+msgid "Discard this notification"
+msgstr "Défausser cette notification"
+
+msgid "No notification for the moment"
+msgstr "Aucune notification pour le moment"
 
 #, python-brace-format
 msgid "{count} Property"
@@ -3276,6 +3391,9 @@ msgstr "Explorer"
 msgid "Continue the exploration"
 msgstr "Continuer l'exploration"
 
+msgid "See all notifications"
+msgstr "Voir toutes les modifications"
+
 msgid "Loading…"
 msgstr "Chargement…"
 
@@ -3422,11 +3540,59 @@ msgstr[1] "%(entities_count)s enregistrements"
 msgid "Nb / Page:"
 msgstr "Nb / Page :"
 
-msgid "Start"
-msgstr "Début"
-
 msgid "End"
 msgstr "Fin"
+
+msgid "Send a system upgrade announcement"
+msgstr "Envoyer une annonce de mise à niveau système"
+
+msgid ""
+"This button displays a form which allows to announce to all users that a "
+"system upgrade will be performed at a given date."
+msgstr ""
+"Ce bouton affiche une formulaire qui permet d'annoncer à tous les "
+"utilisateurs qu'une mise à niveau systèeme va être effectuée à une date "
+"donnée."
+
+msgid "The document is deleted"
+msgstr "Le document est supprimé"
+
+#, python-format
+msgid "The mass import for %(document)s is done"
+msgstr "L'import en masse pour %(document)s est fini"
+
+#, python-format
+msgid "The mass import for document «%(object)s» is done"
+msgstr "L'import en masse pour le document «%(object)s» est fini"
+
+msgid "A mass import is done"
+msgstr "Un import en masse est fini"
+
+#, python-format
+msgid ""
+"An upgrade will be performed on <strong>%(start)s</strong>.<br>%(message)s"
+msgstr ""
+"Une mise à niveau va être effectuée le "
+"<strong>%(start)s</strong>.<br>%(message)s"
+
+#, python-format
+msgid "An upgrade will be performed on <strong>%(start)s</strong>"
+msgstr "Une mise à niveau va être effectuée le <strong>%(start)s</strong>"
+
+#, python-format
+msgid ""
+"An upgrade will be performed on %(start)s.\n"
+"%(message)s"
+msgstr ""
+"Une mise à niveau va être effectuée le %(start)s.\n"
+"%(message)s"
+
+#, python-format
+msgid "An upgrade will be performed on %(start)s"
+msgstr "Une mise à niveau va être effectuée le %(start)s"
+
+msgid "An upgrade is planned"
+msgstr "Une mise à niveau est prévue"
 
 msgid "Search results"
 msgstr "Résultats de recherche"
@@ -3756,8 +3922,8 @@ msgid ""
 "One entity you want to merge does not exist anymore (have you already "
 "performed the merge?)"
 msgstr ""
-"Une fiche que vous voulez fusionner n'existe plus (avez-vous déjà effectué la "
-"fusion ?)"
+"Une fiche que vous voulez fusionner n'existe plus (avez-vous déjà effectué "
+"la fusion ?)"
 
 msgid "A job is already cleaning the trash."
 msgstr "Un job est déjà en train de vider la corbeille."
@@ -3906,6 +4072,9 @@ msgstr "Importer des «{model}» depuis un fichier"
 msgid "Unknown file type ; please contact your administrator."
 msgstr "Type de fichier inconnu ; veuillez contacter votre administrateur."
 
+msgid "Announce a system upgrade to users"
+msgstr "Annoncer une mise à niveau système aux utilisateurs"
+
 #, python-brace-format
 msgid "Relationships for «{entity}»"
 msgstr "Relations pour «{entity}»"
@@ -3925,6 +4094,9 @@ msgstr "Veuillez entrer au moins {count} caractères"
 
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+#~ msgid "Reminder"
+#~ msgstr "Mémento"
 
 #~ msgid ""
 #~ "The exploration mode cannot be used because your list is not ordered "

@@ -220,7 +220,7 @@ QUnit.test('creme.bricks.Brick.table (toggle selection, loading)', function(asse
 
     deepEqual([], selections.selected());
 
-    brick.setLoadingState(true, 'Loading...');
+    brick.setLoadingState(true, 'Loading…');
 
     // selection is disabled on loading
     $('tr[data-row-index="1"] td[data-selectable-selector-column]', element).trigger('click');
@@ -435,7 +435,7 @@ QUnit.test('creme.bricks.Brick.table (toggle sort, loading)', function(assert) {
 
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
-    brick.setLoadingState(true, 'Loading...');
+    brick.setLoadingState(true, 'Loading…');
 
     // sorting is disabled on loading
     $('th[data-sort-field="created"]', brick.element()).trigger('click');

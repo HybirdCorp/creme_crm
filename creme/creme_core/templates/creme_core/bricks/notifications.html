@@ -1,0 +1,39 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks %}
+{% load print_field url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-notifications-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Notification') plural=_('{count} Notifications') empty=verbose_name %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='created' status='primary' %}
+    {% brick_table_column title=_('Subject') %}
+    {% brick_table_column title=_('Body') %}
+    {% brick_table_column_for_field ctype=objects_ctype field='channel'%}
+    {% brick_table_column_for_field ctype=objects_ctype field='level'%}
+    {% brick_table_column title=_('Actions') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+ {% with discard_url='creme_core__discard_notification'|url %}
+  {% for notif in page.object_list %}
+    <tr>
+        <td class="notification-created">{% print_field object=notif field='created' %}</td>
+        <td class="notification-subject">{{notif.content_subject}}</td>
+        <td class="notification-body">{{notif.content_body}}</td>
+        <td class="notification-channel">{{notif.channel}}</td>
+        <td class="notification-level">{{notif.get_level_display}}</td>
+        <td {% brick_table_data_status action %} >
+            {% brick_table_action id='delete' url=discard_url __id=notif.id label=_('Discard this notification') %}
+        </td>
+    </tr>
+  {% endfor %}
+ {% endwith %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No notification for the moment' %}
+{% endblock %}

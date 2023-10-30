@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'EMAILS' APP
-# Copyright (C) 2023 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-08 15:41+0100\n"
+"POT-Creation-Date: 2024-01-17 14:58+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1193,6 +1193,20 @@ msgstr "Serveur SMTP : "
 msgid "Email address: "
 msgstr "Adresse e-mail : "
 
+msgid "The campaign has been deleted"
+msgstr "La campagne a été supprimée"
+
+#, python-format
+msgid "The campaign %(campaign)s has been sent"
+msgstr "La campagne %(campaign)s a été envoyée"
+
+#, python-format
+msgid "The campaign «%(campaign)s» has been sent"
+msgstr "La campagne «%(campaign)s» a été envoyée"
+
+msgid "An emailing campaign has been sent"
+msgstr "Une campagne d'emails a été envoyée"
+
 msgid "Synchronization of incoming emails with Creme"
 msgstr "Synchronisation des e-mails externes dans Creme"
 
@@ -1344,209 +1358,3 @@ msgstr "Nouveaux fichiers joints pour «{entity}»"
 
 msgid "Add the attachments"
 msgstr "Ajouter les fichiers joints"
-
-#~ msgid "Sendings"
-#~ msgstr "Envois"
-
-#~ msgid ""
-#~ "No sender email address has been configured, please contact your "
-#~ "administrator."
-#~ msgstr ""
-#~ "Aucune adresse e-mail d'expéditeur n'a été configurée, veuillez contacter "
-#~ "votre administrateur."
-
-#~ msgid "Only an administrator can modify the sender address."
-#~ msgstr "Seul un administrateur peut modifier l'adresse de l'expéditeur."
-
-#~ msgid "Allowed email campaign sender."
-#~ msgstr "Expéditeur autorisé de campagne d'e-mails"
-
-#~ msgid "{count} Configured server"
-#~ msgstr "{count} Serveur configuré"
-
-#~ msgid "Synchronized - Marked as SPAM (deprecated)"
-#~ msgstr "Synchronisé - Marqué comme SPAM (obsolète)"
-
-#~ msgid "Synchronized - Untreated (deprecated)"
-#~ msgstr "Synchronisé - Non traité (obsolète)"
-
-#~ msgid "Incoming emails to treat"
-#~ msgstr "E-mails entrants à traiter"
-
-#~ msgid "Spam"
-#~ msgstr "Spam"
-
-#~ msgid "Received with the mail {}"
-#~ msgstr "Reçu avec l'e-mail {}"
-
-#~ msgid "Creation of {entity}"
-#~ msgstr "Création de {entity}"
-
-#~ msgid "Sender(s)"
-#~ msgstr "Expéditeur(s)"
-
-#~ msgid "Recipient(s)"
-#~ msgstr "Destinataire(s)"
-
-#~ msgid "Received on"
-#~ msgstr "Reçu le"
-
-#~ msgid "Select this line"
-#~ msgstr "Sélectionner cette ligne"
-
-#~ msgid "See the entity"
-#~ msgstr "Voir la fiche"
-
-#~ msgid "%%s Email selected"
-#~ msgstr "%%s E-mail sélectionné"
-
-#~ msgid "%%s Emails selected"
-#~ msgstr "%%s E-mails sélectionnés"
-
-#~ msgid "{count} Incoming email marked as spam"
-#~ msgstr "{count} E-mail entrant marqué comme spam"
-
-#~ msgid "{count} Incoming emails marked as spam"
-#~ msgstr "{count} E-mails entrants marqués comme spam"
-
-#~ msgid "Mark the selection as «to be treated»"
-#~ msgstr "Marquer la sélection comme «à traiter»"
-
-#~ msgid "Mark as «to be treated»"
-#~ msgstr "Marquer comme «à traiter»"
-
-#~ msgid "{count} Incoming email to treat"
-#~ msgstr "{count} E-mail entrant à traiter"
-
-#~ msgid "{count} Incoming emails to treat"
-#~ msgstr "{count} E-mails entrants à traiter"
-
-#~ msgid "Mark as treated"
-#~ msgstr "Marquer comme traité"
-
-#~ msgid "Refresh"
-#~ msgstr "Rafraîchir"
-
-#~ msgid ""
-#~ "The synchronization of external emails is not configured ; contact your "
-#~ "administrator if you want this feature to be enabled."
-#~ msgstr ""
-#~ "La configuration des e-mails externes n'est pas configurée ; contactez "
-#~ "votre administrateur si vous voulez que cette fonctionnalité soit activée."
-
-#~ msgid "Emails & Campaigns portal"
-#~ msgstr "Portail E-mails & Campagnes"
-
-#~ msgid "List of campaigns"
-#~ msgstr "Liste des campagnes"
-
-#~ msgid "not sent"
-#~ msgstr "non envoyé"
-
-#~ msgid "Link to an existing email"
-#~ msgstr "Lier à un e-mail existant"
-
-#~ msgid "Sending an email to «{}»"
-#~ msgstr "Envoi d'un e-mail à «{}»"
-
-#~ msgid "Sending an email to «%s»"
-#~ msgstr "Envoi d'un e-mail à «%s»"
-
-#~ msgid "Next step"
-#~ msgstr "Étape suivante"
-
-#~ msgid "Sending an email to «{entity}» (step {step}/2)"
-#~ msgstr "Envoi d'un e-mail à «{entity}» (étape {step}/2)"
-
-#~ msgid "forbidden"
-#~ msgstr "interdit"
-
-#~ msgid "Portal of emails"
-#~ msgstr "Portail des e-mails"
-
-#~ msgid "All campaigns"
-#~ msgstr "Lister les campagnes"
-
-#~ msgid "All mailing lists"
-#~ msgstr "Lister les listes de diffusion"
-
-#~ msgid "All email templates"
-#~ msgstr "Lister les patrons d'e-mail"
-
-#~ msgid "All emails"
-#~ msgstr "Liste des e-mails"
-
-#~ msgid "Number of campaigns"
-#~ msgstr "Nombre de campagne(s)"
-
-#~ msgid "Number of mailing lists"
-#~ msgstr "Nombre de liste(s) de diffusion"
-
-#~ msgid "Unlink"
-#~ msgstr "Délier"
-
-#~ msgid "%s Child List"
-#~ msgstr "%s Liste fille"
-
-#~ msgid "Detail"
-#~ msgstr "Détail"
-
-#~ msgid "No campaign email in the history for the moment"
-#~ msgstr "Aucun e-mail de campagne dans l'historique pour le moment"
-
-#~ msgid "Delete"
-#~ msgstr "Supprimer"
-
-#~ msgid "Address of non viewable Entity"
-#~ msgstr "Adresse de fiche non visible"
-
-#~ msgid "New signature"
-#~ msgstr "Nouvelle signature"
-
-#~ msgid "Marked as 'to be treated'"
-#~ msgstr "Marquer comme 'à traiter'"
-
-#~ msgid "Sending date of emails"
-#~ msgstr "Date d'envoi des e-mails"
-
-#~ msgid "Collapse"
-#~ msgstr "Replier"
-
-#~ msgid "Email body (HTML)"
-#~ msgstr "Corps de l'e-mail (HTML)"
-
-#~ msgid "Email body"
-#~ msgstr "Corps de l'e-mail"
-
-#~ msgid "The image «%s» no longer exists or isn't valid."
-#~ msgstr "L'image «%s» n'existe pas ou plus."
-
-#~ msgid "Add an email"
-#~ msgstr "Ajouter un e-mail"
-
-#~ msgid "Add a mailing list"
-#~ msgstr "Ajouter une liste de diffusion"
-
-#~ msgid "Add from existing contacts"
-#~ msgstr "Ajouter depuis des contacts existants"
-
-#~ msgid "Add from existing organisations"
-#~ msgstr "Ajouter depuis des sociétés existantes"
-
-#~ msgid "Following mailing lists are already related to this campaign: %s"
-#~ msgstr "La(es) liste(s) suivante(s) est déja présente dans la campagne: %s"
-
-#~ msgid "Can't add"
-#~ msgstr "Création interdite"
-
-#~ msgid "Use rich text editor"
-#~ msgstr "Utilise l'éditeur de texte riche"
-
-#~ msgid "Spam emails"
-#~ msgstr "E-mails entrants marqués comme spam"
-
-#~ msgid "Campaign"
-#~ msgstr "Campagne"
-
-#~ msgid "Delete '%(object)s'"
-#~ msgstr "Supprimer '%(object)s'"

@@ -1,0 +1,1 @@
+{% load i18n %}{% with start=start|date:'DATETIME_FORMAT' %}{% if message %}{% blocktranslate %}An upgrade will be performed on <strong>{{start}}</strong>.<br>{{message}}{% endblocktranslate %}{% else %}{% blocktranslate %}An upgrade will be performed on <strong>{{start}}</strong>{% endblocktranslate %}{% endif %}{% endwith %}

@@ -1,0 +1,1 @@
+{% load i18n creme_widgets %}{% if object is None %}{% translate 'The campaign has been deleted' %}{% else %}{% widget_entity_hyperlink object user as campaign %}{% blocktranslate %}The campaign {{campaign}} has been sent{% endblocktranslate %}{% endif %}

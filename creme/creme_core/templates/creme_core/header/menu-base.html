@@ -1,4 +1,5 @@
 {% load i18n creme_menu creme_widgets %}
+{% load jsondata from creme_core_tags %}
 <div class="header-menu">
     {% block home_link %}
     <a id="logo" href="/" alt="{% translate 'Home' %}">
@@ -26,6 +27,21 @@
        {% endif %}
       {% endblock %}
 
+      {% block notifications %}
+        <div class="notification-box">{% menu_notifications user=user as notif_data %}
+            {% jsondata notif_data class='notification-box-data' %}
+            <span class="notification-box-count is-empty">{# eg: 8 #}</span>
+            <span class="notification-box-icon">{% widget_icon name='message' size='header-menu' label=_('Notifications') %}</span>
+            <div class="notification-panel">
+                <div class="notification-error is-empty"><span>??</span></div>
+                <ul class="notification-items">{# Filled by JS #}</ul>
+                <div class="notification-all-link">
+                    <a href="{% url 'creme_core__notifications' %}">{% translate 'See all notifications' %}</a>
+                </div>
+            </div>
+        </div>
+      {% endblock %}
+
       {% block search %}
         <div class="search-box">{% translate 'Search' context 'creme_core-noun' as search_label %}
             <input type="text" placeholder="{{search_label}}">
@@ -51,9 +67,14 @@
     {% block script %}
         $(function () {
             new creme.menu.MenuController().bind($('.header-menu'));
+            new creme.notification.NotificationBox({
+                refreshUrl: '{% url "creme_core__last_web_notifications" %}',
+                discardUrl: '{% url "creme_core__discard_notification" %}',
+                initialDataSelector: '.notification-box-data'
+            }).bind($('.notification-box'));
             new creme.search.SearchBox({
-                searchUrl: '{% url 'creme_core__light_search' %}',
-                advancedSearchUrl: '{% url 'creme_core__search' %}'
+                searchUrl: '{% url "creme_core__light_search" %}',
+                advancedSearchUrl: '{% url "creme_core__search" %}'
             }).bind($('.search-box'));
         });
     {% endblock %}

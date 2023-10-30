@@ -554,7 +554,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             value=role1.id,
             label=ngettext(
                 singular='{role} ({count} type of entity is configured)',
-                plural='{role} *({count} types of entity are configured)*',
+                plural='{role} ({count} types of entity are configured)',
                 number=2,
             ).format(role=role1.name, count=2),
             choices=target_choices,
@@ -744,7 +744,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             value=role1.id,
             label=ngettext(
                 singular='{role} ({count} type of entity is configured)',
-                plural='{role} *({count} types of entity are configured)*',
+                plural='{role} ({count} types of entity are configured)',
                 number=1,
             ).format(role=role1.name, count=1),
             choices=target_choices,

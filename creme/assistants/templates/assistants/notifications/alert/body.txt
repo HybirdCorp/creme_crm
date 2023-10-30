@@ -1,0 +1,2 @@
+{% load i18n %}{% autoescape off %}{% if object is None %}{% translate 'The alert has been deleted' %}{% else %}{% blocktranslate with title=object.title expiration=object.trigger_date|date:'DATETIME_FORMAT' %}The alert «{{title}}» will expire on {{expiration}}.{% endblocktranslate %}
+{% if object.description %}{% blocktranslate with description=object.description %}Description: {{description}}{% endblocktranslate %}{% endif %}{% endif %}{% endautoescape %}

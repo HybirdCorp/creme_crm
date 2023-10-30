@@ -1,0 +1,33 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_widgets %}
+{% load url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-notif_channel_configs-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Channel') plural=_('{count} Channels') empty=verbose_name %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Name') status='primary' %}
+    {% brick_table_column title=_('Description') %}
+    {% brick_table_column title=_('Receive notifications on') %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+  {% for channel in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{channel.final_name}}</td>
+        <td>{{channel.final_description}}</td>
+        <td>{% widget_enumerator channel.item.verbose_outputs threshold=3 summary=_('{count} outputs') empty=_('No output') %}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='creme_config__edit_channel_config'|url:channel.id label=_('Configure this channel') enabled=1 %}
+        </td>
+    </tr>
+  {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}{# Probably useless #}
+    No channel to configure for the moment
+{% endblock %}

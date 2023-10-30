@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -403,7 +403,8 @@ class UserMessagesSubCell(_AssistantSubCell):
             )
 
             # TODO: sender = the real user that created the activity ???
-            UserMessage.create_messages(
+            # UserMessage.create_messages(
+            UserMessage.objects.create_for_users(
                 users=value, title=title,
                 body=body, priority_id=PRIO_NOT_IMP_PK,
                 sender=instance.user, entity=instance,

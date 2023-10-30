@@ -13,6 +13,7 @@ from django.utils.translation import ngettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.bricks import JobErrorsBrick, MassImportJobErrorsBrick
+from creme.creme_core.constants import UUID_CHANNEL_JOBS
 from creme.creme_core.creme_jobs import batch_process_type, mass_import_type
 from creme.creme_core.models import (
     CremeProperty,
@@ -32,10 +33,12 @@ from creme.creme_core.models import (
     FieldsConfig,
     Job,
     MassImportJobResult,
+    Notification,
     Relation,
     RelationType,
     SetCredentials,
 )
+from creme.creme_core.notification import MassImportDoneContent
 from creme.creme_core.utils import update_model_instance
 from creme.creme_core.utils.xlrd_utils import XlrdReader
 from creme.documents.models import Document
@@ -168,6 +171,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         self.assertRedirects(response, job.get_absolute_url())
 
+        self.assertFalse(
+            Notification.objects.filter(user=user, channel__uuid=UUID_CHANNEL_JOBS),
+        )
+
         tree = self.get_html_tree(response.content)
         self.get_brick_node(tree, brick=MassImportJobErrorsBrick)
 
@@ -224,6 +231,16 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 lines_count,
             ).format(count=lines_count),
             progress.label,
+        )
+
+        notif = self.get_object_or_fail(
+            Notification, user=user, channel__uuid=UUID_CHANNEL_JOBS,
+        )
+        self.assertEqual(MassImportDoneContent.id, notif.content_id)
+        self.assertDictEqual({'instance': doc.id}, notif.content_data)
+        self.assertEqual(
+            _('The mass import for document «%(object)s» is done') % {'object': doc},
+            notif.content.get_body(user),
         )
 
         # Reload brick -----------
