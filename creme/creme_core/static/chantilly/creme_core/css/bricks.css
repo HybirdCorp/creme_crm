@@ -91,8 +91,11 @@
 }
 
 .brick .brick-content .brick-error {
+    /*
     background: #f08080;
-    color: #666;
+    color: #555;
+    */
+    color: #f06060;
 }
 
 .brick.brick-hat-bar .brick-content {
