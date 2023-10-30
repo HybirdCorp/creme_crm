@@ -6,6 +6,7 @@
       The mass-export & the exploration mode now accept to be used in this case.
     # In the detail-view for property type, a button to delete all the properties with this type
       (and related to a given entity type) has been added.
+    # Drop JQPlot compatibility
     # Apps :
         * Activities :
             - Upgrade to FullCalendar "5.11.4":
@@ -78,6 +79,10 @@
                     - The method 'login()' has been removed.
                     - In the method 'build_request()', the argument "user" is now mandatory.
                 - In the the methods 'views.base.MassImportBaseTestCaseMixin._build_*doc(), the argument "user" is now mandatory.
+            - JQPlot has been removed.
+                - The 'USE_JQPLOT' flag is no longer useful.
+                - The widgets 'ui-creme-jqueryplot' & 'ui-creme-plotselector' have been removed.
+                - The widget 'ui-creme-scrollactivator' has been removed : only used with jqplot to optimize rendering on oldest browsers.
             - In Javascript:
                 * 'creme.form.Chosen' and its dependencies have been removed.
             - Apps :
@@ -95,6 +100,10 @@
                         - EMAILCAMPAIGN_PASSWORD
                         - EMAILCAMPAIGN_PORT
                         - EMAILCAMPAIGN_USE_TLS
+                * Reports :
+                    - These class-based views have been removed:
+                        - GraphFetching (reports__fetch_graph)
+                        - GraphFetchingInstance (reports__fetch_graph_from_brick)
         # In 'creme_core.core' :
             - The class 'entity_filter.condition_handler.PropertyConditionHandler' takes now the UUID
               of the related 'CremePropertyType' instance instead of its ID (see 'creme_core.models' section) ;

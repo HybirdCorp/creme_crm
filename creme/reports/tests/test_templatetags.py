@@ -1,5 +1,3 @@
-import json
-
 from django.template import Context, Template
 from django.utils.translation import gettext as _
 
@@ -13,60 +11,6 @@ from .base import BaseReportsTestCase, Report, ReportGraph
 
 
 class ReportsTagsTestCase(BaseReportsTestCase):
-    def test_jqplot_chart_json(self):
-        rgraph = ReportGraph(
-            linked_report=Report(name='Organisation report', ct=FakeOrganisation),
-            name='Number of created organisations / year',
-            abscissa_cell_value='created',
-            abscissa_type=ReportGraph.Group.YEAR,
-            ordinate_type=ReportGraph.Aggregator.COUNT,
-        )
-
-        ctxt = Context({
-            'graph': rgraph,
-            'chart': ReportChart('barchart', 'Histogram'),
-        })
-
-        with self.assertNoException():
-            render1 = Template(
-                r'{% load reports_tags %}'
-                r'{% reports_chart_jqplot_json graph chart %}'
-            ).render(ctxt)
-
-        with self.assertNoException():
-            data1 = json.loads(render1)
-
-        self.assertIsInstance(data1, dict)
-        self.assertDictEqual(
-            {
-                'text': f'<b>{rgraph.name}</b>',
-                'textColor': 'black',
-                'fontSize': '13pt',
-                'renderer': 'jqplot.DivTitleRenderer',
-            },
-            data1.get('title'),
-        )
-
-        # ---
-        with self.assertNoException():
-            render2 = Template(
-                r'{% load reports_tags %}'
-                r'{% reports_chart_jqplot_json graph chart is_small=True %}'
-            ).render(ctxt)
-
-        with self.assertNoException():
-            data2 = json.loads(render2)
-
-        self.assertDictEqual(
-            {
-                'text': f'<b>{rgraph.name}</b>',
-                'textColor': 'black',
-                'fontSize': '12pt',
-                'renderer': 'jqplot.DivTitleRenderer',
-            },
-            data2.get('title'),
-        )
-
     def test_chart_selector(self):
         chart1 = ReportChart('barchart', 'Histogram')
         chart2 = ReportChart('piechart', 'Pie')

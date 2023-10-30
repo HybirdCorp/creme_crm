@@ -182,14 +182,11 @@ class MiscViewsTestCase(ViewsTestCase):
         'entityselector',
         'filterselector',
         'frame',
-        'jqplot',
         'layout',
         'listview',
         'model',
-        'plotselector',
         'polymorphicselector',
         'popover',
-        'scrollactivator',
         'toggle',
     ])
     @override_settings(FORCE_JS_TESTVIEW=True, TESTS_ON=False)

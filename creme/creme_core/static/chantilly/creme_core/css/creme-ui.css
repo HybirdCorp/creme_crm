@@ -187,69 +187,6 @@ ul.ui-creme-widget.is-readonly li {
 }
 
 /*----------------------------------*/
-.ui-creme-jqueryplot[widget="ui-creme-jqueryplot"] {
-    background-image: url("chantilly/images/image_64.png");
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
-    background-color: white;
-}
-
-.ui-creme-jqueryplot.widget-active[widget="ui-creme-jqueryplot"][status="wait"] {
-    background-image: url("chantilly/images/wait.gif");
-}
-
-.ui-creme-jqueryplot.widget-active[widget="ui-creme-jqueryplot"][status="valid"] {
-    background-image: none;
-}
-
-.ui-creme-jqueryplot .jqplot-highlighter-tooltip {
-    border: 0px;
-    border-radius: 5px;
-    background: black;
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-    padding: 3px;
-    z-index: 1;
-    pointer-events: none;
-}
-
-.ui-creme-jqueryplot .jqplot-table-legend .jqplot-table-legend-label {
-    padding-right: 10px;
-}
-
-.ui-creme-jqueryplot .jqplot-target .jqplot-actions {
-    position: absolute;
-    z-index: 1;
-    right: 0;
-    opacity: 0.5;
-}
-
-.ui-creme-jqueryplot .jqplot-target:hover .jqplot-actions {
-    opacity: 1;
-}
-
-.ui-creme-jqueryplot .jqplot-target .jqplot-actions button {
-    padding: 0;
-    border: 0;
-    width: 24px;
-    height: 24px;
-    background-color: #f4fafd;
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
-    float: right;
-    border-radius: 4px;
-}
-
-.ui-creme-jqueryplot .jqplot-target .jqplot-actions button:hover {
-    cursor: pointer;
-}
-
-.ui-creme-jqueryplot .jqplot-target .jqplot-actions button[name="capture"] {
-    background-image: url("chantilly/images/image_22.png");
-}
-
-/*----------------------------------*/
 ul.ui-creme-actionbuttonlist {
     display: inline;
     padding: 0px 4px 0px 0px;

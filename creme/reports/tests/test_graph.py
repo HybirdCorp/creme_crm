@@ -64,18 +64,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
     def _build_edit_url(rgraph):
         return reverse('reports__edit_graph', args=(rgraph.id,))
 
-    @staticmethod
-    def _build_fetch_url(rgraph, order='ASC', chart=None, save_settings=None):
-        uri = '{}?order={}'.format(reverse('reports__fetch_graph', args=(rgraph.id,)), order)
-
-        if chart is not None:
-            uri += f'&chart={chart}'
-
-        if save_settings is not None:
-            uri += f'&save_settings={save_settings}'
-
-        return uri
-
     def _serialize_qfilter(self, **kwargs):
         return QSerializer().dumps(Q(**kwargs))
 
@@ -191,31 +179,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         from ..report_chart_registry import report_chart_registry
         self.assertIs(chart_registry, report_chart_registry)
-
-        # ------------------------------------------------------------
-        # Without any data, the arrays are empty
-        response4 = self.assertGET200(self._build_fetch_url(rgraph, 'ASC'))
-        data = response4.json()
-        self.assertEqual(data, {
-            'x': [], 'y': []
-        })
-
-        # Lets add some data
-        sectors = list(FakeSector.objects.all())
-        FakeOrganisation.objects.create(user=user, sector=sectors[0])
-
-        # Now the abscissas are in the "x" array
-        data = self.assertGET200(self._build_fetch_url(rgraph, 'ASC')).json()
-        self.assertEqual(data['x'], [s.title for s in sectors])
-        self.assertIsList(data['y'], length=len(sectors))
-        self.assertEqual(
-            data['y'][0],
-            [1, f'/tests/organisations?q_filter={self._serialize_qfilter(sector=sectors[0].id)}'],
-        )
-
-        # ------------------------------------------------------------
-        self.assertGET200(self._build_fetch_url(rgraph, 'DESC'))
-        self.assertGET404(self._build_fetch_url(rgraph, 'STUFF'))
 
     def test_createview02(self):
         "Ordinate with aggregate + Group.DAY."
@@ -2958,86 +2921,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListEqual([0,              fmt(knights)],  y_asc2[1])
         self.assertListEqual([1,              fmt(dragons)],  y_asc2[2])
 
-    def test_fetchgraphview_with_decimal_ordinate(self):
-        "Test json encoding for Graph with Decimal in fetch_graph view."
-        user = self.login_as_root_and_get()
-        rgraph = self._create_invoice_report_n_graph(
-            user=user,
-            ordinate_type=ReportGraph.Aggregator.SUM,
-            ordinate_field='total_vat',
-        )
-
-        create_orga = partial(FakeOrganisation.objects.create, user=user)
-        orga1 = create_orga(name='BullFrog')
-        orga2 = create_orga(name='Maxis')
-        self._create_invoice(
-            orga1, orga2, issuing_date=date(2015, 10, 16), total_vat=Decimal('1212.12'),
-        )
-        self._create_invoice(
-            orga1, orga2, issuing_date=date(2015, 10,  3), total_vat=Decimal('33.24'),
-        )
-
-        self.assertGET200(self._build_fetch_url(rgraph, 'ASC'))
-
-    def test_fetchgraphview_save_settings01(self):
-        user = self.login_as_root_and_get()
-        rgraph = self._create_documents_rgraph(user=user)
-
-        chart1 = 'piechart'
-        url = self._build_fetch_url
-        self.assertGET200(url(rgraph, 'ASC', chart=chart1))
-        rgraph = self.refresh(rgraph)
-        self.assertIsNone(rgraph.chart)
-        self.assertTrue(rgraph.asc)
-
-        self.assertGET200(url(rgraph, 'ASC', chart=chart1, save_settings='false'))
-        self.assertIsNone(self.refresh(rgraph).chart)
-
-        self.assertGET404(url(rgraph, 'ASC', chart=chart1, save_settings='invalid'))
-        self.assertIsNone(self.refresh(rgraph).chart)
-
-        self.assertGET404(url(rgraph, 'ASC', chart='invalid', save_settings='true'))
-        self.assertIsNone(self.refresh(rgraph).chart)
-
-        self.assertGET200(url(rgraph, 'ASC', chart=chart1, save_settings='true'))
-        rgraph = self.refresh(rgraph)
-        self.assertEqual(chart1, rgraph.chart)
-        self.assertTrue(rgraph.asc)
-
-        chart2 = 'tubechart'
-        self.assertGET200(url(rgraph, 'DESC', chart=chart2, save_settings='true'))
-        rgraph = self.refresh(rgraph)
-        self.assertEqual(chart2, rgraph.chart)
-        self.assertFalse(rgraph.asc)
-
-        self.assertGET200(url(rgraph, 'ASC', save_settings='true'))
-        rgraph = self.refresh(rgraph)
-        self.assertEqual(chart2, rgraph.chart)
-        self.assertTrue(rgraph.asc)
-
-    def test_fetchgraphview_save_settings02(self):
-        "Not super-user."
-        user = self.login_as_standard(allowed_apps=['creme_core', 'reports'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-            set_type=SetCredentials.ESET_OWN,
-        )
-
-        rgraph1 = self._create_documents_rgraph(user=self.get_root_user())
-        self.assertFalse(user.has_perm_to_view(rgraph1))
-
-        chart = 'piechart'
-        url = self._build_fetch_url
-        self.assertGET200(url(rgraph1, 'ASC', chart=chart, save_settings='true'))
-        self.assertIsNone(self.refresh(rgraph1).chart)
-
-        # --
-        rgraph2 = self._create_documents_rgraph(user=user)
-        self.assertTrue(user.has_perm_to_change(rgraph2))
-        self.assertGET200(url(rgraph2, 'ASC', chart=chart, save_settings='true'))
-        self.assertEqual(chart, self.refresh(rgraph2).chart)
-
     def test_delete_graph_instance01(self):
         "No related Brick location."
         user = self.login_as_root_and_get()
@@ -3251,13 +3134,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             })
         )
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
+        x_data, y_data = rgraph.fetch(order='ASC', user=user)
 
-        response = self.assertGET200(self._build_fetch_url(rgraph, 'ASC'))
-        data = response.json()
         users = sorted(get_user_model().objects.all(), key=str)
-        self.assertListEqual([str(u) for u in users], data.get('x'))
-
-        y_data = data.get('y')
+        self.assertListEqual([str(u) for u in users], x_data)
 
         def get_user_index(user_id):
             index = next((i for i, u in enumerate(users) if user_id == u.id), None)
