@@ -803,13 +803,6 @@ creme.dialogs = $.extend(creme.dialogs, {
 $.widget("ui.dialog", $.ui.dialog, {
     _allowInteraction: function(event) {
         if (event !== undefined) {
-/*
-            // DEPRECATED: to be removed when Chosen has been definitively removed in Creme 2.5
-            if ($(event.target).closest(".chzn-drop").length) {
-                return true;
-            }
-*/
-
             if ($(event.target).closest('.select2-dropdown').length) {
                 return true;
             }
@@ -819,23 +812,5 @@ $.widget("ui.dialog", $.ui.dialog, {
     }
 });
 
-/*
-if (!$.ui.dialog.prototype._allowInteractionPatched) {
-    $.ui.dialog.prototype._allowInteraction = function(e) {
-        if (typeof e !== "undefined") {
-            // DEPRECATED: to be removed when Chosen has been definitively removed in Creme 2.5
-            if ($(e.target).closest(".chzn-drop").length) {
-                return true;
-            }
-
-            if ($(e.target).closest('.select2-drop').length) {
-                return true;
-            }
-            $.ui.dialog.prototype._allowInteractionPatched = true;
-            return (typeof this._super === "function") ? this._super(e) : this;
-        }
-    };
-}
-*/
 
 }(jQuery));

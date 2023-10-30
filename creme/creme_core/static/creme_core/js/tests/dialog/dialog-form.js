@@ -467,9 +467,6 @@ QUnit.test('creme.dialog.FormDialog (submit, widget)', function(assert) {
     deepEqual([
         ['form-success', {content: '', data: '', type: 'text/html'}, 'text/html']
     ], this.mockFormSubmitCalls('form-success'));
-
-    // checkin combobox has been removed !!!
-    equal(0, $('.chzn-drop').length);
 });
 
 QUnit.test('creme.dialog.FormDialog (submit, invalid response)', function(assert) {
