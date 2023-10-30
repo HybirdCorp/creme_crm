@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -221,12 +221,15 @@ class UserRole(models.Model):
 
     def can_do_on_model(self, user, model: 'CremeEntity', owner, perm: int) -> bool:
         """Can the given user execute an action (VIEW, CHANGE etc..) on this model.
-        @param user: User instance ; user that try to do something.
+        @param user: User instance; user which tries to do something.
         @param model: Class inheriting CremeEntity
         @param owner: User instance ; owner of the not-yet-existing instance of 'model'
                       None means any user that would allows the action (if it exists of course).
         @param perm: See EntityCredentials.{VIEW, CHANGE, ...}
         """
+        if not self.is_app_allowed_or_administrable(model._meta.app_label):
+            return False
+
         return SetCredentials._can_do(self._get_setcredentials(), user, model, owner, perm)
 
     def _get_setcredentials(self) -> List['SetCredentials']:
