@@ -78,6 +78,8 @@
                     - The method 'login()' has been removed.
                     - In the method 'build_request()', the argument "user" is now mandatory.
                 - In the the methods 'views.base.MassImportBaseTestCaseMixin._build_*doc(), the argument "user" is now mandatory.
+            - In Javascript:
+                * 'creme.form.Chosen' and its dependencies have been removed.
             - Apps :
                 * Creme_config :
                     - The class 'forms.fields.CustomEnumChoiceField has been removed.

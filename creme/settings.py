@@ -874,8 +874,6 @@ CREME_CORE_JS = [
 
     'creme_core/js/widgets/list/pager.js',
 
-    # DEPRECATED: to be removed in Creme 2.5
-    # 'creme_core/js/widgets/form/chosen.js',
     'creme_core/js/widgets/form/select2.js',
     'creme_core/js/widgets/form/dropdown.js',
 
