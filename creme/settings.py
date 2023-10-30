@@ -715,10 +715,6 @@ CSS_DATE_HEADER_LISTVIEW = 'hd_date_cl_lv'
 
 JQUERY_MIGRATE_MUTE = True
 
-# Allows to fall back to JQPlot for the reports bricks. This flag will disappear
-# along JQPlot resources in the release 2.5
-USE_JQPLOT = False
-
 # TODO: create a static/css/creme-minimal.css for login/logout ??
 CREME_CORE_CSS = [
     # Name
@@ -896,7 +892,7 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/entityselector.js',
     'creme_core/js/widgets/pselect.js',
     'creme_core/js/widgets/actionlist.js',
-    'creme_core/js/widgets/scrollactivator.js',
+    # 'creme_core/js/widgets/scrollactivator.js',
     'creme_core/js/widgets/container.js',
     'creme_core/js/widgets/editor.js',
 
@@ -999,7 +995,6 @@ TEST_CREME_LIB_JS = [
     'creme_core/js/tests/ajax/qunit-ajax-mixin.js',
     'creme_core/js/tests/dialog/qunit-dialog-mixin.js',
     'creme_core/js/tests/widgets/qunit-widget-mixin.js',
-    'creme_core/js/tests/widgets/qunit-plot-mixin.js',
     'creme_core/js/tests/list/qunit-listview-mixin.js',
     'creme_core/js/tests/brick/qunit-brick-mixin.js',
     'creme_core/js/tests/views/qunit-detailview-mixin.js',
@@ -1056,7 +1051,6 @@ TEST_CREME_CORE_JS = [
 
     'creme_core/js/tests/widgets/base.js',
     'creme_core/js/tests/widgets/widget.js',
-    'creme_core/js/tests/widgets/plot.js',
     'creme_core/js/tests/widgets/frame.js',
     'creme_core/js/tests/widgets/toggle.js',
     'creme_core/js/tests/widgets/dselect.js',
@@ -1067,7 +1061,6 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/widgets/checklistselect.js',
     'creme_core/js/tests/widgets/selectorlist.js',
     'creme_core/js/tests/widgets/actionlist.js',
-    'creme_core/js/tests/widgets/plotselector.js',
     'creme_core/js/tests/widgets/entitycells.js',
     'creme_core/js/tests/widgets/editor.js',
     'creme_core/js/tests/widgets/datetimepicker.js',
@@ -1133,7 +1126,6 @@ TEST_CREME_OPT_JS = [
     ('creme.projects',      'projects/js/tests/projects.js'),
     ('creme.reports',       'reports/js/tests/reports-actions.js'),
     ('creme.reports',       'reports/js/tests/reports-listview.js'),
-    ('creme.reports',       'reports/js/tests/reports-jqplot.js'),
     ('creme.reports',       'reports/js/tests/reports-brick.js'),
     ('creme.reports',       'reports/js/tests/tube-chart.js'),
 ]

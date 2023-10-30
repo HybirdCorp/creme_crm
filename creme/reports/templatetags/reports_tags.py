@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,17 +18,8 @@
 
 # import warnings
 from django import template
-from django.template.loader import render_to_string
 
 register = template.Library()
-
-
-@register.simple_tag
-def reports_chart_jqplot_json(rgraph, chart, is_small=False):
-    return render_to_string(
-        chart.template,
-        {'rgraph': rgraph, 'chart': chart, 'is_small': is_small},
-    )
 
 
 # TODO: "report_charts" argument instead of 'takes_context'?

@@ -52,17 +52,6 @@ urlpatterns = [
     ),
 
     re_path(
-        r'^graph/fetch/(?P<graph_id>\d+)[/]?$',
-        graph.GraphFetching.as_view(),
-        name='reports__fetch_graph'
-    ),
-    re_path(
-        r'^graph/fetch/from_instance_brick/(?P<instance_brick_id>\d+)/(?P<entity_id>\d+)[/]?$',
-        graph.GraphFetchingForInstance.as_view(),
-        name='reports__fetch_graph_from_brick',
-    ),
-
-    re_path(
         r'^graph/fetch/(?P<graph_id>\d+)/settings[/]?$',
         graph.GraphFetchSettings.as_view(),
         name='reports__update_graph_fetch_settings',

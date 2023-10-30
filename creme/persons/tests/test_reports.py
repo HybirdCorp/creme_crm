@@ -129,11 +129,6 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertEqual(vname, volatile_span.text)
 
-        # --
-        self.assertGET200(
-            reverse('reports__fetch_graph_from_brick', args=(ibci.id, contact.id))
-        )
-
     @skipIfCustomReport
     @skipIfCustomRGraph
     def test_report_graph_fetcher02(self):
@@ -179,16 +174,6 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
             brick_node, './/div[@class="brick-content is-empty"]'
         )
 
-        # --
-        response2 = self.assertGET200(
-            reverse('reports__fetch_graph_from_brick', args=(ibci.id, contact.id))
-        )
-
-        result = response2.json()
-        self.assertIsInstance(result, dict)
-        self.assertIsNone(result.get('x'))
-        self.assertIsNone(result.get('y'))
-
     @skipIfCustomReport
     @skipIfCustomRGraph
     def test_report_graph_fetcher03(self):
@@ -231,16 +216,6 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
             f'(you have a config problem): {ibci.brick_id}',
             logs_manager.output,
         )
-
-        # --
-        response2 = self.assertGET200(
-            reverse('reports__fetch_graph_from_brick', args=(ibci.id, invoice.id))
-        )
-
-        result = response2.json()
-        self.assertIsInstance(result, dict)
-        self.assertIsNone(result.get('x'))
-        self.assertIsNone(result.get('y'))
 
     def test_fetcher_init(self):
         "No value is needed."
