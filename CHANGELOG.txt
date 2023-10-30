@@ -11,6 +11,14 @@
         * Opportunities :
             - A button could be wrongly disabled in the "Managers" brick.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The method 'creme_core.models.CremeUser.has_perm_to_link()' with a ContentType as argument has been fixed;
+          it could return 'True' even when the model was related to a forbidden app.
+
 
 == Version 2.4.8 ==
 
