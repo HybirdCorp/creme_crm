@@ -192,11 +192,6 @@
     padding: 5px 10px;
 }
 
-.reports-graphs-brick .brick-content .brick-error {
-    background: none;
-    color: #f06060;
-}
-
 .brick-table tr.graph-row > td.reports-graph-brick {
     padding: 0;
     margin: 0;

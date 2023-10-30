@@ -18,8 +18,8 @@
 {% block brick_table_columns %}
     {% brick_table_column title=_('Role') status='primary nowrap' %}
     {% brick_table_column title=_('Default view mode') status='nowrap' %}
-    {% brick_table_column title=_('First day of the week') status='nowrap' %}
     {% brick_table_column title=_('Business Days') %}
+    {% brick_table_column title=_('First day of the week') status='nowrap' %}
     {% brick_table_column title=_('Business Hours') status='nowrap' %}
     {% brick_table_column title=_('Slot duration') status='nowrap' %}
     {% brick_table_column title=_('Allow drag-n-drop') %}
@@ -85,7 +85,7 @@
 
 {% block brick_table_empty %}
     {% if error %}
-        {{error}}
+        <div class="brick-error">{{error}}</div>
     {% else %}
         {% translate 'No configuration for the moment' %}
     {% endif %}
