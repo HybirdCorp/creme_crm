@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CONFIG' APP
-# Copyright (C) 2023 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-04 18:59+0100\n"
+"POT-Creation-Date: 2024-01-17 15:40+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -602,6 +602,36 @@ msgstr "Entrées"
 msgid "Type of container"
 msgstr "Type de conteneur"
 
+msgid "Default outputs"
+msgstr "Sorties par défaut"
+
+msgid "Default outputs used by users' configurations"
+msgstr "Sorties par défaut utilisées par les configurations des utilisateurs"
+
+msgid ""
+"If the channel is not required anymore, users could configure it to receive "
+"no notification"
+msgstr ""
+"Si le canal n'est plus obligatoire, les utilisateurs pourront le configurer "
+"pour ne plus recevoir de notification"
+
+#, python-brace-format
+msgid ""
+"If the channel is set as required, the configuration of {count} user will be "
+"updated to use the default configuration"
+msgid_plural ""
+"If the channel is set as required, the configuration of {count} users will "
+"be updated to use the default configuration"
+msgstr[0] ""
+"Si le canal est rendu obligatoire, la configuration de {count} utilisateur "
+"sera mise à jour pour utiliser la configuration par défaut"
+msgstr[1] ""
+"Si le canal est rendu obligatoire, la configuration de {count} utilisateurs "
+"sera mise à jour pour utiliser la configuration par défaut"
+
+msgid "Outputs"
+msgstr "Sorties"
+
 msgid "Type constraint"
 msgstr "Contrainte sur le type"
 
@@ -946,6 +976,9 @@ msgstr "Historique"
 msgid "Menu"
 msgstr "Menu"
 
+msgid "Notifications"
+msgstr "Notifications"
+
 msgid "Button menu"
 msgstr "Menu bouton"
 
@@ -969,6 +1002,9 @@ msgstr "Gestion des droits"
 msgid "List-views management"
 msgstr "Gestion des vues en liste"
 
+msgid "Your password has been changed by a super-user."
+msgstr "Votre mot de passe a été changé par un super-utilisateur."
+
 msgid "Action"
 msgstr "Action"
 
@@ -982,6 +1018,9 @@ msgstr "Vues détaillées — {count} Type de ressource configuré"
 #, python-brace-format
 msgid "Detailed views — {count} Configured types of resource"
 msgstr "Vues détaillées — {count} Types de ressource configurés"
+
+msgid "Clone the configuration of a role"
+msgstr "Cloner la configuration d'un rôle"
 
 msgid "Default configuration"
 msgstr "Configuration par défaut"
@@ -1426,6 +1465,57 @@ msgid "Delete this menu"
 msgstr "Supprimer ce menu"
 
 #, python-brace-format
+msgid "{count} Channel"
+msgstr "{count} Canal"
+
+#, python-brace-format
+msgid "{count} Channels"
+msgstr "{count} Canaux"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Receive notifications on"
+msgstr "Recevoir les notifications sur"
+
+#, python-brace-format
+msgid "{count} outputs"
+msgstr "{count} sorties"
+
+msgid "No output"
+msgstr "Pas de sortie"
+
+msgid "Configure this channel"
+msgstr "Configurer ce canal"
+
+msgid "New channel"
+msgstr "Nouveau canal"
+
+msgid ""
+"The notifications are sent on a channel which defines where the "
+"notifications will appear (currently: in-app and/or emails) by default.\n"
+"Each user can get its own configuration for a channel.\n"
+msgstr ""
+"Les notifications sont envoyées sur un canal qui définit où elles "
+"vont apparaître (actuellement : dans l'app et/ou par e-mail) par défaut.\n"
+"Chaque utilisateur peut avoir sa propre configuration pour un canal.\n"
+
+msgid "Set this channel required (or not)"
+msgstr "Rendre ce canal obligatoire (ou optionnel)"
+
+msgid "Edit this channel"
+msgstr "Modifier ce canal"
+
+msgid "Delete this channel"
+msgstr "Supprimer ce canal"
+
+msgid "Delete this channel definitively"
+msgstr "Supprimer ce canal définitivement"
+
+msgid "No channel for the moment"
+msgstr "Aucun canal pour le moment"
+
+#, python-brace-format
 msgid "{count} Type of property"
 msgstr "{count} Type de propriété"
 
@@ -1635,9 +1725,6 @@ msgstr "{count} Valeur de réglage"
 msgid "{count} Setting values"
 msgstr "{count} Valeurs de réglage"
 
-msgid "Description"
-msgstr "Description"
-
 msgid "Edit this value"
 msgstr "Modifier cette valeur"
 
@@ -1710,6 +1797,9 @@ msgstr "Types de propriété et de relation."
 
 msgid "Custom fields."
 msgstr "Champs personnalisés."
+
+msgid "Notification channels."
+msgstr "Canaux de notification."
 
 msgid ""
 "Views of list (NB: views related to a user are kept, but ignored at import "
@@ -2003,6 +2093,12 @@ msgstr "Gestion du menu"
 msgid "Customise the entries of the main menu"
 msgstr "Personnaliser les entrées du menu principal"
 
+msgid "Notifications settings"
+msgstr "Gestion des notifications"
+
+msgid "Customise the notification channels"
+msgstr "Personnaliser les canaux de notification"
+
 msgid "Button menu settings"
 msgstr "Gestion du menu bouton"
 
@@ -2154,6 +2250,9 @@ msgstr ""
 "Ici vous pouvez configurer le menu principal, placé en haut de cette page "
 "par exemple."
 
+msgid "Configuration of notifications"
+msgstr "Configuration des notifications"
+
 msgid "Configuration of properties"
 msgstr "Configuration des propriétés"
 
@@ -2244,9 +2343,6 @@ msgstr "Enregistrer la configuration"
 #, python-brace-format
 msgid "New block configuration for «{model}»"
 msgstr "Nouvelle configuration de bloc pour «{model}»"
-
-msgid "Clone the configuration of a role"
-msgstr "Cloner la configuration d'un rôle"
 
 msgid "Create the configuration"
 msgstr "Créer la configuration"
@@ -2421,6 +2517,33 @@ msgstr "Cloner le menu pour un rôle"
 
 msgid "Create the menu"
 msgstr "Créer le menu"
+
+#, python-brace-format
+msgid "Edit the channel «{object}»"
+msgstr "Modifier le canal «{object}»"
+
+#, python-brace-format
+msgid "Is the channel «{object}» required?"
+msgstr "Le canal «{object}» est-il obligatoire ?"
+
+msgid "Only staff users can change a system channel"
+msgstr "Seuls les super administrateur peuvent modifier un canal système"
+
+#, python-brace-format
+msgid ""
+"This channel is still used by {count} notification, so it cannot be deleted."
+msgid_plural ""
+"This channel is still used by {count} notifications, so it cannot be deleted."
+msgstr[0] ""
+"Ce canal est encore utilisé par {count} notification, donc il ne peut "
+"pas être supprimé."
+msgstr[1] ""
+"Ce canal est encore utilisé par {count} notifications, donc il ne peut "
+"pas être supprimé."
+
+#, python-brace-format
+msgid "Configure the channel «{object}»"
+msgstr "Configurer le canal «{object}»"
 
 #, python-brace-format
 msgctxt "creme_config-relationship"
@@ -2603,9 +2726,6 @@ msgstr "Modifier la configuration de l'instance"
 #~ msgid "Related application"
 #~ msgstr "Application associée"
 
-#~ msgid "Configured portals"
-#~ msgstr "Portails configurés"
-
 #~ msgid "New blocks configuration"
 #~ msgstr "Nouvelle configuration de blocs"
 
@@ -2752,9 +2872,6 @@ msgstr "Modifier la configuration de l'instance"
 
 #~ msgid "Applications credentials settings"
 #~ msgstr "Gestion des droits des applications"
-
-#~ msgid "Profiles settings"
-#~ msgstr "Gestion des profils"
 
 #~ msgid "Roles settings"
 #~ msgstr "Gestion des rôles"

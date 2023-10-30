@@ -1,0 +1,3 @@
+{% load i18n %}{% autoescape off %}{% if object is None %}{% translate 'The message has been deleted' %}{% else %}{% blocktranslate with message_title=object.title message_body=object.body %}Title: {{message_title}}
+Body: {{message_body}}{% endblocktranslate %}{% if object.real_entity %}
+{% blocktranslate with message_entity=object.real_entity %}Related entity: {{message_entity}}{% endblocktranslate %}{% endif %}{% endif %}{% endautoescape %}

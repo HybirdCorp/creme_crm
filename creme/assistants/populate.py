@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,21 +18,24 @@
 
 from functools import partial
 
-from django.conf import settings
-
+# from django.conf import settings
+from creme.creme_core.core import notification
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+# from creme.creme_core.models import Job
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
-    Job,
+    NotificationChannel,
     SettingValue,
 )
+# from creme.creme_core.notification import WebOutput
 from creme.creme_core.utils import create_if_needed
 
+from . import constants
 from .bricks import AlertsBrick, MemosBrick, TodosBrick, UserMessagesBrick
-from .constants import PRIO_IMP_PK, USERMESSAGE_PRIORITIES
-from .creme_jobs import usermessages_send_type
+# from .creme_jobs import usermessages_send_type
 from .models import UserMessagePriority
+from .notification import UserMessagesChannelType
 from .setting_keys import todo_reminder_key
 
 
@@ -40,9 +43,9 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self):
-        already_populated = UserMessagePriority.objects.filter(pk=PRIO_IMP_PK).exists()
+        already_populated = UserMessagePriority.objects.filter(pk=constants.PRIO_IMP_PK).exists()
 
-        for pk, title in USERMESSAGE_PRIORITIES.items():
+        for pk, title in constants.USERMESSAGE_PRIORITIES.items():
             create_if_needed(
                 UserMessagePriority, {'pk': pk}, title=str(title), is_custom=False,
             )
@@ -51,11 +54,25 @@ class Populator(BasePopulator):
             key_id=todo_reminder_key.id, defaults={'value': 9},
         )
 
-        Job.objects.get_or_create(
-            type_id=usermessages_send_type.id,
+        # Job.objects.get_or_create(
+        #     type_id=usermessages_send_type.id,
+        #     defaults={
+        #         'language': settings.LANGUAGE_CODE,
+        #         'status':   Job.STATUS_OK,
+        #     },
+        # )
+
+        NotificationChannel.objects.get_or_create(
+            uuid=constants.UUID_CHANNEL_USERMESSAGES,
             defaults={
-                'language': settings.LANGUAGE_CODE,
-                'status':   Job.STATUS_OK,
+                'type_id': UserMessagesChannelType.id,
+                'required': True,
+                'default_outputs': [
+                    # NotificationOutput.EMAIL,
+                    notification.OUTPUT_EMAIL,
+                    # NotificationOutput.WEB,
+                    notification.OUTPUT_WEB,
+                ],
             },
         )
 

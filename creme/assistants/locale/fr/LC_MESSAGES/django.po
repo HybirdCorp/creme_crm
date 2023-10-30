@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'ASSISTANTS' APP
-# Copyright (C) 2023 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-15 17:02+0200\n"
+"POT-Creation-Date: 2024-01-17 15:16+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -126,9 +126,6 @@ msgstr "Très important"
 
 msgid "Not important"
 msgstr "Pas important"
-
-msgid "Send user-messages emails"
-msgstr "Envoyer les e-mails des messages utilisateurs"
 
 msgid "Hour"
 msgstr "Heure"
@@ -331,64 +328,8 @@ msgstr "Enregistrer le message"
 msgid "User message"
 msgstr "Message utilisateur"
 
-#, python-brace-format
-msgid "User message from {software}: {title}"
-msgstr "Message utilisateur de {software}: {title}"
-
-#, python-brace-format
-msgid ""
-"{user} sent you the following message:\n"
-"{body}"
-msgstr ""
-"{user} vous a envoyé le message suivant:\n"
-"{body}"
-
-msgid "An error occurred while sending emails"
-msgstr "Une erreur s'est produite pendant l'envoi des e-mails"
-
-# Already in creme_core
-msgid "Original error: {}"
-msgstr ""
-
-#, python-brace-format
-msgid ""
-"This mail is automatically sent by {software} to remind you that an alert "
-"concerning {entity} will expire.\n"
-"            Alert : {title}.\n"
-"            which description is : {description}.\n"
-"\n"
-"            which is related to the entity : {entity}"
-msgstr ""
-"Ce mail est envoyé automatiquement par {software} pour vous rappeler qu'une "
-"alerte concernant {entity} va arriver à échéance.\n"
-"            Alerte : {title}.\n"
-"            dont la description est : {description}.\n"
-"\n"
-"            qui est rattachée à la fiche : {entity}"
-
-#, python-brace-format
-msgid "Reminder concerning a {software} alert related to {entity}"
-msgstr "Rappel concernant une alerte {software} à propos de {entity}"
-
-#, python-brace-format
-msgid ""
-"This mail is automatically sent by {software} to remind you that a todo "
-"concerning {entity} will expire.\n"
-"            Todo : {title}.\n"
-"            which description is : {description}.\n"
-"\n"
-"            which is related to the entity : {entity}"
-msgstr ""
-"Ce mail est envoyé automatiquement par {software} pour vous rappeler qu'une "
-"todo concernant {entity} va arriver à échéance.\n"
-"            Todo : {title}. \n"
-"            dont la description est : {description}.\n"
-"\n"
-"            qui est rattachée à la fiche : {entity}"
-
-#, python-brace-format
-msgid "Reminder concerning a {software} todo related to {entity}"
-msgstr "Rappel concernant une todo {software} à propos de {entity}"
+msgid "A user message has been received (app: Assistants)"
+msgstr "Un message utilisateur a été reçu (app : Assistants)"
 
 msgid "Minimum hour to send the mails related to Todos"
 msgstr "Heure minimum pour envoyer les e-mails relatifs aux Todos"
@@ -570,6 +511,64 @@ msgstr "Supprimer ce todo"
 msgid "No Todo for the moment"
 msgstr "Aucun Todo enregistré pour le moment"
 
+msgid "The alert has been deleted"
+msgstr "L'alerte a été supprimée"
+
+#, python-format
+msgid "Related to %(entity)s"
+msgstr "Relatif à %(entity)s"
+
+#, python-format
+msgid "The alert «%(title)s» will expire on %(expiration)s."
+msgstr "L'alerte «%(title)s» va arriver à échéance le %(expiration)s."
+
+#, python-format
+msgid "Description: %(description)s"
+msgstr "Description : %(description)s"
+
+msgid "An alert will soon expire"
+msgstr "L'alerte va bientôt arriver à échéance"
+
+#, python-format
+msgid "An alert related to «%(entity)s» will soon expire"
+msgstr "Une alerte liée à «%(entity)s» va binetôt arriver à échéance"
+
+msgid "The todo has been deleted"
+msgstr "Le todo a été supprimé"
+
+#, python-format
+msgid "The todo «%(title)s» will expire on %(expiration)s."
+msgstr "Le todo «%(title)s» va arriver à échéance le %(expiration)s."
+
+msgid "A todo will soon reach its deadline"
+msgstr "Un todo va bientôt arriver à échéance"
+
+#, python-format
+msgid "A todo related to «%(entity)s» will soon reach its deadline"
+msgstr "Un todo liée à «%(entity)s» va bientôt arriver à échéance"
+
+msgid "The message has been deleted"
+msgstr "Le message a été supprimé"
+
+#, python-format
+msgid ""
+"Title: %(message_title)s\n"
+"Body: %(message_body)s"
+msgstr ""
+"Titre : %(message_title)s\n"
+"Corps : %(message_body)s"
+
+#, python-format
+msgid "Related entity: %(message_entity)s"
+msgstr "Fiche liée : %(message_entity)s"
+
+msgid "You received a user message"
+msgstr "Vous avez reçu un message utilisateur"
+
+#, python-format
+msgid "You received a user message from «%(sender)s»"
+msgstr "Vous avez reçu un message utilisateur de «%(sender)s»"
+
 msgid "Hide validated alerts"
 msgstr "Cacher les alertes validées"
 
@@ -634,6 +633,58 @@ msgstr "Nouveau message à propos de «{entity}»"
 
 msgid "You are not allowed to delete this message: {}"
 msgstr "Vous n'avez pas la permission de supprimer ce message: {}"
+
+#~ msgid "Send user-messages emails"
+#~ msgstr "Envoyer les e-mails des messages utilisateurs"
+
+#~ msgid "User message from {software}: {title}"
+#~ msgstr "Message utilisateur de {software}: {title}"
+
+#~ msgid ""
+#~ "{user} sent you the following message:\n"
+#~ "{body}"
+#~ msgstr ""
+#~ "{user} vous a envoyé le message suivant:\n"
+#~ "{body}"
+
+#~ msgid "An error occurred while sending emails"
+#~ msgstr "Une erreur s'est produite pendant l'envoi des e-mails"
+
+#~ msgid ""
+#~ "This mail is automatically sent by {software} to remind you that an alert "
+#~ "concerning {entity} will expire.\n"
+#~ "            Alert : {title}.\n"
+#~ "            which description is : {description}.\n"
+#~ "\n"
+#~ "            which is related to the entity : {entity}"
+#~ msgstr ""
+#~ "Ce mail est envoyé automatiquement par {software} pour vous rappeler "
+#~ "qu'une alerte concernant {entity} va arriver à échéance.\n"
+#~ "            Alerte : {title}.\n"
+#~ "            dont la description est : {description}.\n"
+#~ "\n"
+#~ "            qui est rattachée à la fiche : {entity}"
+
+#~ msgid "Reminder concerning a {software} alert related to {entity}"
+#~ msgstr "Rappel concernant une alerte {software} à propos de {entity}"
+
+#~ msgid ""
+#~ "This mail is automatically sent by {software} to remind you that a todo "
+#~ "concerning {entity} will expire.\n"
+#~ "            Todo : {title}.\n"
+#~ "            which description is : {description}.\n"
+#~ "\n"
+#~ "            which is related to the entity : {entity}"
+#~ msgstr ""
+#~ "Ce mail est envoyé automatiquement par {software} pour vous rappeler "
+#~ "qu'une todo concernant {entity} va arriver à échéance.\n"
+#~ "            Todo : {title}. \n"
+#~ "            dont la description est : {description}.\n"
+#~ "\n"
+#~ "            qui est rattachée à la fiche : {entity}"
+
+#~ msgid "Reminder concerning a {software} todo related to {entity}"
+#~ msgstr "Rappel concernant une todo {software} à propos de {entity}"
 
 #~ msgid "Reactions"
 #~ msgstr "Réactions"

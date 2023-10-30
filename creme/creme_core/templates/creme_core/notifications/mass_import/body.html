@@ -1,0 +1,1 @@
+{% load i18n creme_widgets %}{% if object is None %}{% translate 'The document is deleted' %}{% else %}{% widget_entity_hyperlink object user as document %}{% blocktranslate %}The mass import for {{document}} is done{% endblocktranslate %}{% endif %}

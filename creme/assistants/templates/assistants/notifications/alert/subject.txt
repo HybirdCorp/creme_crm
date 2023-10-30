@@ -1,0 +1,1 @@
+{% load i18n %}{% if object is None %}{% translate 'An alert will soon expire' %}{% else %}{% blocktranslate with entity=object.real_entity %}An alert related to «{{entity}}» will soon expire{% endblocktranslate %}{% endif %}

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,7 +49,14 @@ class UserMessageForm(CremeModelForm):
     def save(self, *args, **kwargs):
         # NB: we do not call super() because we create several instances
         cdata = self.cleaned_data
-        UserMessage.create_messages(
-            cdata['users'], cdata['title'], cdata['body'],
-            cdata['priority'].id, self.user, self.entity,
+        # UserMessage.create_messages(
+        #     cdata['users'], cdata['title'], cdata['body'],
+        #     cdata['priority'].id, self.user, self.entity,
+        # )
+        UserMessage.objects.create_for_users(
+            users=cdata['users'],
+            title=cdata['title'], body=cdata['body'],
+            priority_id=cdata['priority'].id,
+            sender=self.user,
+            entity=self.entity,
         )

@@ -1,5 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 
+UUID_CHANNEL_USERMESSAGES = '395ca7a2-24f3-4348-a0d3-55887e956e61'
+
 PRIO_IMP_PK      = 1
 PRIO_VERY_IMP_PK = 2
 PRIO_NOT_IMP_PK  = 3

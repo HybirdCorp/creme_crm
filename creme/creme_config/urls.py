@@ -12,6 +12,7 @@ from .views import (
     header_filter,
     history,
     menu,
+    notification,
     portal,
     relation_type,
     search,
@@ -537,13 +538,11 @@ menu_patterns = [
         name='creme_config__menu',
     ),
     re_path(
-        # r'^add/container[/]?$',
         r'^add/container/(?P<role>\w+)[/]?$',
         menu.ContainerAdding.as_view(),
         name='creme_config__add_menu_container',
     ),
     re_path(
-        # r'^add/special_level0[/]?$',
         r'^add/special_level0/(?P<role>\w+)[/]?$',
         menu.SpecialLevel0Adding.as_view(),
         name='creme_config__add_menu_special_level0',
@@ -564,7 +563,6 @@ menu_patterns = [
         name='creme_config__delete_menu_level0',
     ),
     re_path(
-        # r'^reorder/level0/(?P<item_id>\d+)[/]?$',
         r'^reorder/level0/(?P<role>\w+)/(?P<item_id>\d+)[/]?$',
         menu.Level0Reordering.as_view(),
         name='creme_config__reorder_menu_level0',
@@ -578,6 +576,40 @@ menu_patterns = [
         r'^delete[/]?$',
         menu.MenuDeletion.as_view(),
         name='creme_config__delete_menu',
+    ),
+]
+
+notification_patterns = [
+    re_path(
+        r'^portal[/]?$',
+        notification.Portal.as_view(),
+        name='creme_config__notification',
+    ),
+    re_path(
+        r'^channel/add[/]?$',
+        notification.ChannelCreation.as_view(),
+        name='creme_config__create_notif_channel',
+    ),
+    re_path(
+        r'^channel/edit/(?P<channel_id>\d+)[/]?$',
+        notification.ChannelEdition.as_view(),
+        name='creme_config__edit_notif_channel',
+    ),
+    re_path(
+        r'^channel/required/(?P<channel_id>\d+)[/]?$',
+        notification.ChannelRequirementSetting.as_view(),
+        name='creme_config__set_notif_channel_required',
+    ),
+    re_path(
+        r'^channel/delete[/]?$',
+        notification.ChannelDeletion.as_view(),
+        name='creme_config__delete_notif_channel',
+    ),
+
+    re_path(
+        r'^channel_config/edit/(?P<channel_id>\d+)[/]?$',
+        notification.ChannelConfigEdition.as_view(),
+        name='creme_config__edit_channel_config',
     ),
 ]
 
@@ -711,6 +743,7 @@ urlpatterns = [
     re_path(r'^history/',       include(history_patterns)),
     re_path(r'^menu/',          include(menu_patterns)),
     re_path(r'^my_settings/',   include(user_settings_patterns)),
+    re_path(r'^notification/',  include(notification_patterns)),
     re_path(r'^property_type/', include(property_type_patterns)),
     re_path(r'^relation_type/', include(relation_type_patterns)),
     re_path(r'^search/',        include(search_patterns)),

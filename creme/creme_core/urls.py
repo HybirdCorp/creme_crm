@@ -15,6 +15,7 @@ from .views import (
     job,
     mass_export,
     mass_import,
+    notification,
     quick_forms,
     relation,
     search,
@@ -391,6 +392,30 @@ job_patterns = [
     ),
 ]
 
+notification_patterns = [
+    re_path(
+        r'^all[/]?$',
+        notification.Notifications.as_view(),
+        name='creme_core__notifications',
+    ),
+    re_path(
+        r'^last[/]?$',
+        notification.LastWebNotifications.as_view(),
+        name='creme_core__last_web_notifications',
+    ),
+    re_path(
+        r'^discard[/]?$',
+        notification.NotificationDiscarding.as_view(),
+        name='creme_core__discard_notification',
+    ),
+
+    re_path(
+        r'^announce/system_upgrade[/]?$',
+        notification.SystemUpgradeAnnouncement.as_view(),
+        name='creme_core__announce_upgrade',
+    ),
+]
+
 creme_core_patterns = [
     re_path(r'^auth/',          include(auth_patterns)),
     re_path(r'^entity/',        include(entity_patterns)),
@@ -401,6 +426,7 @@ creme_core_patterns = [
     re_path(r'^header_filter/', include(headerfilter_patterns)),
     re_path(r'^enumerable/',    include(enumerable_patterns)),
     re_path(r'^job/',           include(job_patterns)),
+    re_path(r'^notification/',  include(notification_patterns)),
 
     re_path(
         r'^list_view/popup[/]?$',

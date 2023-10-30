@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2022  Hybird
+#    Copyright (C) 2016-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,14 +27,16 @@ from .base import JobType
 
 class _ReminderType(JobType):
     id           = JobType.generate_id('creme_core', 'reminder')
-    verbose_name = _('Reminders (notification emails)')
+    # verbose_name = _('Reminders (notification emails)')
+    verbose_name = _('Reminders')
     periodic     = JobType.PSEUDO_PERIODIC
 
     reminder_registry = core_registry
 
     def _execute(self, job):
         for reminder in self.reminder_registry:
-            reminder.execute(job)
+            # reminder.execute(job)
+            reminder.execute()
 
     def get_description(self, job):
         models = [reminder.model for reminder in self.reminder_registry]

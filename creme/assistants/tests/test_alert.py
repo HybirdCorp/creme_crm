@@ -4,16 +4,18 @@ from functools import partial
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core import mail
+# from django.core import mail
 from django.db.models.query_utils import Q
 from django.forms import ChoiceField
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.timezone import now
+from django.utils.formats import date_format
+from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
 from django.utils.translation import pgettext
 
+from creme.creme_core.constants import UUID_CHANNEL_REMINDERS
 from creme.creme_core.core.entity_cell import (
     EntityCellFunctionField,
     EntityCellRegularField,
@@ -24,15 +26,16 @@ from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.fields import RelativeDatePeriodField
 from creme.creme_core.forms.listview import TextLVSWidget
 from creme.creme_core.gui.view_tag import ViewTag
+# from creme.creme_core.models import DateReminder
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
     BrickState,
     CremeEntity,
-    DateReminder,
     FakeContact,
     FakeOrganisation,
     FieldsConfig,
+    Notification,
 )
 # from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -54,6 +57,7 @@ from ..forms.alert import (
     ModelRelativeDatePeriodWidget,
 )
 from ..models import Alert
+from ..notification import AlertReminderContent
 from .base import AssistantsTestCase
 
 
@@ -1146,16 +1150,106 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.aux_test_merge(creator, assertor)
 
-    @override_settings(DEFAULT_TIME_ALERT_REMIND=60, SOFTWARE_LABEL='My CRM')
-    def test_reminder1(self):
+    def test_alert_reminder_content01(self):
+        user = self.get_root_user()
+        entity = self.entity
+        alert = Alert.objects.create(
+            user=user,
+            real_entity=entity,
+            title='Alert',
+            description='very important!!\nReally.',
+            trigger_date=self.create_datetime(year=2023, month=10, day=23, hour=16, utc=True),
+        )
+        content1 = AlertReminderContent(instance=alert)
+        content2 = AlertReminderContent.from_dict(content1.as_dict())
+        self.assertEqual(
+            _('An alert related to «%(entity)s» will soon expire') % {'entity': entity},
+            content2.get_subject(user=user),
+        )
+        self.assertEqual(
+            '{}\n{}'.format(
+                _('The alert «%(title)s» will expire on %(expiration)s.') % {
+                    'title': alert.title,
+                    'expiration': date_format(
+                        value=localtime(alert.trigger_date),
+                        format='DATETIME_FORMAT',
+                    ),
+                },
+                _('Description: %(description)s') % {'description': alert.description},
+            ),
+            content2.get_body(user=user),
+        )
+        self.assertHTMLEqual(
+            '<h1>{title}</h1><p>{body}</p>'.format(
+                title=alert.title,
+                body=alert.description.replace('\n', '<br>'),
+            ) + _('Related to %(entity)s') % {
+                'entity': f'<a href="{entity.get_absolute_url()}" target="_self">{entity}</a>'
+            },
+            content2.get_html_body(user=user),
+        )
+
+    def test_alert_reminder_content02(self):
+        "No description."
+        user = self.get_root_user()
+        entity = self.entity
+        alert = Alert.objects.create(
+            user=user,
+            real_entity=entity,
+            title='Alert',
+            # description='very important!!\nReally.', # <====
+            trigger_date=now() + timedelta(days=7),
+        )
+        content1 = AlertReminderContent(instance=alert)
+        content2 = AlertReminderContent.from_dict(content1.as_dict())
+        self.assertEqual(
+            _('An alert related to «%(entity)s» will soon expire') % {'entity': entity},
+            content2.get_subject(user=user),
+        )
+        self.assertEqual(
+            _('The alert «%(title)s» will expire on %(expiration)s.') % {
+                'title': alert.title,
+                'expiration': date_format(
+                    value=localtime(alert.trigger_date),
+                    format='DATETIME_FORMAT',
+                ),
+            },
+            content2.get_body(user=user).strip(),
+        )
+        self.assertHTMLEqual(
+            '<h1>{title}</h1>'.format(
+                title=alert.title,
+            ) + _('Related to %(entity)s') % {
+                'entity': f'<a href="{entity.get_absolute_url()}" target="_self">{entity}</a>'
+            },
+            content2.get_html_body(user=user),
+        )
+
+    def test_alert_reminder_content_error(self):
+        "Alert does not exist anymore."
+        user = self.get_root_user()
+        content = AlertReminderContent.from_dict({'instance': self.UNUSED_PK})
+        self.assertEqual(
+            _('An alert will soon expire'),
+            content.get_subject(user=user),
+        )
+        body = _('The alert has been deleted')
+        self.assertEqual(body, content.get_body(user=user))
+        self.assertEqual(body, content.get_html_body(user=user))
+
+    # @override_settings(DEFAULT_TIME_ALERT_REMIND=60, SOFTWARE_LABEL='My CRM')
+    @override_settings(DEFAULT_TIME_ALERT_REMIND=60)
+    def test_reminder01(self):
         user = self.user
         now_value = now()
 
-        job = self.get_reminder_job()
-        self.assertIsNone(job.user)
-        self.assertIsNone(job.type.next_wakeup(job, now_value))
+        reminder_job = self.get_reminder_job()
+        self.assertIsNone(reminder_job.user)
+        self.assertIsNone(reminder_job.type.next_wakeup(reminder_job, now_value))
 
-        reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
+        # reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
+        notif_qs = Notification.objects.filter(channel__uuid=UUID_CHANNEL_REMINDERS, user=user)
+        self.assertFalse(notif_qs.all())
 
         create_alert = partial(
             Alert.objects.create,
@@ -1165,39 +1259,42 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         alert2 = create_alert(title='Alert#2', trigger_date=now_value + timedelta(minutes=70))
         create_alert(title='Alert#3', is_validated=True)
 
-        self.assertLess(job.type.next_wakeup(job, now_value), now())
+        self.assertLess(reminder_job.type.next_wakeup(reminder_job, now_value), now())
 
-        self.execute_reminder_job(job)
+        # ---
+        self.execute_reminder_job(reminder_job)
 
-        reminder = self.get_alone_element(DateReminder.objects.exclude(id__in=reminder_ids))
-        self.assertEqual(alert1, reminder.object_of_reminder)
-        self.assertEqual(1,      reminder.ident)
-        self.assertDatetimesAlmostEqual(now_value, reminder.date_of_remind, seconds=60)
+        # reminder = self.get_alone_element(DateReminder.objects.exclude(id__in=reminder_ids))
+        # self.assertEqual(alert1, reminder.object_of_reminder)
+        # self.assertEqual(1,      reminder.ident)
+        # self.assertDatetimesAlmostEqual(now_value, reminder.date_of_remind, seconds=60)
+        notif = self.get_alone_element(notif_qs.all())
+        self.assertFalse(notif.discarded)
+        self.assertEqual(Notification.Level.NORMAL, notif.level)
+        self.assertEqual(AlertReminderContent.id, notif.content_id)
+        self.assertEqual({'instance': alert1.id}, notif.content_data)
+        self.assertIsInstance(notif.content, AlertReminderContent)
+
         self.assertTrue(self.refresh(alert1).reminded)
         self.assertFalse(self.refresh(alert2).reminded)
 
-        message = self.get_alone_element(mail.outbox)
-        self.assertEqual([user.email], message.to)
+        # message = self.get_alone_element(mail.outbox)
+        # self.assertEqual([user.email], message.to)
+        #
+        # software = 'My CRM'
+        # self.assertEqual(
+        #     _('Reminder concerning a {software} alert related to {entity}').format(
+        #         software=software, entity=self.entity,
+        #     ),
+        #     message.subject,
+        # )
+        # self.assertIn(alert1.title, message.body)
+        # self.assertIn(software,     message.body)
 
-        software = 'My CRM'
-        self.assertEqual(
-            _('Reminder concerning a {software} alert related to {entity}').format(
-                software=software, entity=self.entity,
-            ),
-            message.subject,
-        )
-        self.assertIn(alert1.title, message.body)
-        self.assertIn(software,     message.body)
-
-        # Reminders are not recreated if they already exist
-        self.execute_reminder_job(job)
-        self.assertFalse(DateReminder.objects.exclude(id__in=[*reminder_ids, reminder.id]))
-        self.assertEqual(1, len(mail.outbox))
-
-    def test_reminder2(self):
+    def test_reminder02(self):
         "With null trigger date."
         job = self.get_reminder_job()
-        reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
+        # reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
 
         Alert.objects.create(
             user=self.user,
@@ -1212,11 +1309,14 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
 
         self.execute_reminder_job(job)
-        self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
-        self.assertFalse(mail.outbox)
+        # self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
+        # self.assertFalse(mail.outbox)
+        self.assertFalse(Notification.objects.filter(
+            channel__uuid=UUID_CHANNEL_REMINDERS, user=self.user,
+        ))
 
     @override_settings(DEFAULT_TIME_ALERT_REMIND=60)
-    def test_reminder3(self):
+    def test_reminder03(self):
         "Dynamic user."
         other_user = self.create_user()
 
@@ -1224,17 +1324,23 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         entity.user = other_user
         entity.save()
 
-        reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
+        # reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
+        notif_qs = Notification.objects.filter(
+            channel__uuid=UUID_CHANNEL_REMINDERS, user=other_user,
+        )
+        self.assertFalse(notif_qs.all())
+
         Alert.objects.create(real_entity=entity, trigger_date=now())
 
         self.execute_reminder_job(self.get_reminder_job())
-        self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
+        # self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
+        self.get_alone_element(notif_qs.all())
 
-        message = self.get_alone_element(mail.outbox)
-        self.assertEqual([other_user.email], message.to)
+        # message = self.get_alone_element(mail.outbox)
+        # self.assertEqual([other_user.email], message.to)
 
     @override_settings(DEFAULT_TIME_ALERT_REMIND=30)
-    def test_next_wakeup1(self):
+    def test_next_wakeup01(self):
         now_value = now()
 
         create_alert = partial(
@@ -1258,7 +1364,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             wakeup,
         )
 
-    def test_next_wakeup2(self):
+    def test_next_wakeup02(self):
         "trigger_date==NULL."
         Alert.objects.create(
             user=self.user,

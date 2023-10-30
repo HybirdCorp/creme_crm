@@ -1,0 +1,1 @@
+{% load i18n %}{% translate 'An emailing campaign has been sent' %}

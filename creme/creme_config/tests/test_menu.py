@@ -330,6 +330,7 @@ class MenuEntriesTestCase(CremeTestCase):
                 (reverse('creme_config__custom_forms'),   _('Custom forms')),
                 (reverse('creme_config__history'),        _('History')),
                 (reverse('creme_config__menu'),           _('Menu')),
+                (reverse('creme_config__notification'),   _('Notifications')),
                 (reverse('creme_config__buttons'),        _('Button menu')),
                 (reverse('creme_config__search'),         pgettext('creme_core-noun', 'Search')),
                 (reverse('creme_config__ptypes'),         _('Types of property')),

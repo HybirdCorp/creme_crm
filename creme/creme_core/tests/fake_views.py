@@ -10,6 +10,12 @@ class FakeDocumentsList(generic.EntitiesList):
     model = fake_models.FakeDocument
 
 
+class FakeDocumentDetail(generic.EntityDetail):
+    model = fake_models.FakeDocument
+    # template_name = 'creme_core/tests/view-fake-doc.html'  TODO ?
+    pk_url_kwarg = 'document_id'
+
+
 class FakeImageDetail(generic.EntityDetail):
     model = fake_models.FakeImage
     pk_url_kwarg = 'image_id'

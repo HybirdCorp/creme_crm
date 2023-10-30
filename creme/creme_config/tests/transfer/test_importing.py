@@ -66,6 +66,7 @@ from creme.creme_core.models import (
     HeaderFilter,
     InstanceBrickConfigItem,
     MenuConfigItem,
+    NotificationChannel,
     RelationBrickItem,
     RelationType,
     SearchConfigItem,
@@ -3640,3 +3641,75 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
         self.assertStillExists(user_loc)
+
+    def test_notification_channels(self):
+        from creme.creme_core.core.notification import OUTPUT_EMAIL
+
+        self.login_as_super(is_staff=True)
+
+        uid1 = uuid4()
+        name1 = 'My channel'
+        description1 = 'Very useful'
+
+        channel2 = NotificationChannel.objects.create(
+            name='My channel #2', description='Description #2',
+            default_outputs=[OUTPUT_EMAIL],
+        )
+        uid2 = channel2.uuid
+        name2 = 'My other channel'
+        description2 = 'Other description'
+
+        channels_data = [
+            {
+                'uuid': constants.UUID_CHANNEL_SYSTEM,
+                'type': 'creme_core-system',
+                'required': False,
+                'default_outputs': ['email'],
+            }, {
+                'uuid': str(uid1),
+                # 'type': '',
+                'name': name1,
+                'description': description1,
+                'required': True,
+                'default_outputs': ['web', 'email'],
+            }, {
+                'uuid': str(uid2),
+                # 'type': '',
+                'name': name2,
+                'description': description2,
+                'required': False,
+                'default_outputs': ['web'],
+            },
+        ]
+        data = {
+            'version': self.VERSION,
+            'channels': channels_data,
+        }
+
+        json_file = StringIO(json_dump(data))
+        json_file.name = 'config-16-01-2024.csv'
+
+        response = self.assertPOST200(self.URL, data={'config': json_file})
+        self.assertNoFormError(response)
+
+        sys_channel = self.get_object_or_fail(
+            NotificationChannel,
+            uuid=constants.UUID_CHANNEL_SYSTEM,
+        )
+        self.assertFalse(sys_channel.required)
+        self.assertListEqual(['email'], sys_channel.default_outputs)
+
+        channel1 = self.get_object_or_fail(NotificationChannel, uuid=uid1)
+        self.assertEqual('',           channel1.type_id)
+        self.assertEqual(name1,        channel1.name)
+        self.assertEqual(description1, channel1.description)
+        self.assertTrue(channel1.required)
+        self.assertListEqual(['web', 'email'], channel1.default_outputs)
+
+        channel2 = self.refresh(channel2)
+        self.assertEqual(uid2,         channel2.uuid)
+        self.assertEqual('',           channel2.type_id)
+        self.assertEqual(name2,        channel2.name)
+        self.assertEqual(description2, channel2.description)
+        self.assertFalse(channel2.required)
+        self.assertListEqual(['web'], channel2.default_outputs)

@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2023 Hybird
+# Copyright (c) 2009-2024 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,7 @@ def date_2_dict(d: date) -> dict:
 def dt_from_ISO8601(dt_str: str) -> datetime:
     """Returns a TZ aware datetime parsed from the ISO 8601 format.
     ie: YYYY-MM-DDTHH:mm:ss.sssZ.
-    NB: this format is used by Date.toJSON() method in JavaScript):
+    NB: this format is used by Date.toJSON() method in JavaScript.
     @param dt_str: String representing a datetime.
     @return A datetime instance.
     @throws ValueError

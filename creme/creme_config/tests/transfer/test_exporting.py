@@ -4,6 +4,7 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme.creme_config.core.exporters import Exporter, ExportersRegistry
@@ -62,6 +63,7 @@ from creme.creme_core.models import (
     HeaderFilter,
     InstanceBrickConfigItem,
     MenuConfigItem,
+    NotificationChannel,
     RelationBrickItem,
     RelationType,
     SearchConfigItem,
@@ -1900,3 +1902,64 @@ class ExportingTestCase(TransferBaseTestCase):
             ],
             loaded_cforms.get(descriptor_id),
         )
+
+    def test_notification_channels(self):
+        from creme.creme_core.core import notification
+
+        self.login_as_super(is_staff=True)
+
+        channel1 = NotificationChannel.objects.create(
+            name='My channel', description='Very useful',
+            default_outputs=[notification.OUTPUT_WEB, notification.OUTPUT_EMAIL],
+        )
+        channel2 = NotificationChannel.objects.create(
+            name='Deleted channel', description='Blablabla',
+            default_outputs=[notification.OUTPUT_WEB],
+            deleted=now(),
+        )
+
+        response = self.assertGET200(self.URL)
+        content = response.json()
+
+        with self.assertNoException():
+            loaded_channels = {d['uuid']: d for d in content['channels']}
+
+        self.assertDictEqual(
+            {
+                'uuid': constants.UUID_CHANNEL_SYSTEM,
+                'type': 'creme_core-system',
+                'required': True,
+                'default_outputs': ['web'],
+            },
+            loaded_channels.get(constants.UUID_CHANNEL_SYSTEM),
+        )
+        self.assertDictEqual(
+            {
+                'uuid': constants.UUID_CHANNEL_JOBS,
+                'type': 'creme_core-jobs',
+                'required': False,
+                'default_outputs': ['web'],
+            },
+            loaded_channels.get(constants.UUID_CHANNEL_JOBS),
+        )
+        self.assertDictEqual(
+            {
+                'uuid': constants.UUID_CHANNEL_REMINDERS,
+                'type': 'creme_core-reminders',
+                'required': True,
+                'default_outputs': ['email'],
+            },
+            loaded_channels.get(constants.UUID_CHANNEL_REMINDERS),
+        )
+        self.assertDictEqual(
+            {
+                'uuid': str(channel1.uuid),
+                # 'type': '',
+                'name': channel1.name,
+                'description': channel1.description,
+                'required': True,
+                'default_outputs': ['web', 'email'],
+            },
+            loaded_channels.get(str(channel1.uuid)),
+        )
+        self.assertNotIn(str(channel2.uuid), loaded_channels)

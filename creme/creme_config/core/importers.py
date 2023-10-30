@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2023  Hybird
+#    Copyright (C) 2017-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -69,6 +69,7 @@ from creme.creme_core.models import (
     HeaderFilter,
     InstanceBrickConfigItem,
     MenuConfigItem,
+    NotificationChannel,
     RelationBrickItem,
     RelationType,
     SearchConfigItem,
@@ -1904,3 +1905,24 @@ class MypageBricksLocationsImporter(Importer):
 
         for data in self._data:
             BrickMypageLocation.objects.create(**data)
+
+
+@IMPORTERS.register(data_id=constants.ID_CHANNELS)
+class NotificationChannelsImporter(Importer):
+    def _validate_section(self, deserialized_section, validated_data):
+        self._data = data = [*deserialized_section]
+        validated_data[NotificationChannel].update(d['uuid'] for d in data)
+
+    def save(self):
+        # TODO: delete existing custom channels?
+        for data in self._data:
+            type_id = data.get('type')
+
+            if type_id:
+                channel = NotificationChannel.objects.get(uuid=data['uuid'])
+                channel.required = data['required']
+                channel.default_outputs = data['default_outputs']
+                channel.save()
+            else:
+                uid = data.pop('uuid')
+                NotificationChannel.objects.update_or_create(uuid=uid, defaults=data)

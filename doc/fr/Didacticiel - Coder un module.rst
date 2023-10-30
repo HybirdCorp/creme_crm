@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 18-09-2023 pour la version 2.6 de Creme
+:Version: 16-01-2024 pour la version 2.6 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2089,6 +2089,107 @@ Reste à déclarer notre action dans notre ``apps.py`` : ::
 **Un peu plus loin** : pour faire une action qui s'exécute sur plusieurs fiches,
 une classe d'action doit dériver de ``creme.creme_core.gui.actions.UIAction``
 et s'enregistre avec ``actions_registry.register_bulk_actions``.
+
+
+Envoyer des notifications
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Il peut arriver que vous vouliez avertir des utilisateurs d'une chose.
+Il peut s'agir un évènement qui va se produire (comme Creme vous prévient qu'une
+de vos Alertes va expirer) ou d'une action qui a été faite par un autre
+utilisateur (comme Creme vous prévient qu'un administrateur a changé votre mot
+de passe).
+
+Même si vous pouvez utiliser un canal existant, partons du principe que vous
+voulez un canal spécifique à votre app. Commençons par créer un UUID que nous
+utiliserons pour aller chercher notre canal ; dans ``beavers/constants.py``
+ajoutons : ::
+
+    [...]
+
+    # Générez une valeur dans votre shell Python avec uuid.uuid4
+    UUID_CHANNEL_BEAVERS = 'dccfcde6-e9c1-4d5e-aa31-1f42dc8d94fb'
+
+
+Il nous faut aussi créer le type de notre canal ; nous créons un nouveau
+fichier ``beavers/notification.py`` tel que : ::
+
+    from django.utils.translation import gettext_lazy as _
+
+    from creme.creme_core.core.notification import NotificationChannelType
+
+
+    class BeaversChannelType(NotificationChannelType):
+        id = NotificationChannelType.generate_id('beavers', 'main')
+        verbose_name = _('Beavers')
+        description = _('Important information about beavers')
+
+
+Il faut ensuite déclarer notre type dans ``beavers/apps.py`` : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_notification(self, notification_registry):
+            from .notification import BeaversChannelType
+
+            notification_registry.register_channel_types(BeaversChannelType)
+
+
+Maintenant nous créons le canal dans ``beavers/populate.py`` : ::
+
+    [...]
+    from creme.creme_core.core.notification import OUTPUT_WEB
+    from creme.creme_core.models import NotificationChannel
+
+    from .notification import BeaversChannelType
+
+    [...]
+    class Populator(BasePopulator):
+        def populate(self):
+            [...]
+
+            NotificationChannel.objects.get_or_create(
+                uuid=constants.UUID_CHANNEL_BEAVERS,
+                defaults={
+                    'type_id': BeaversChannelType.id,
+                    'default_outputs': [OUTPUT_WEB],
+                },
+            )
+
+
+Nous pouvons maintenant dans notre code envoyer des notifications de cette
+manière : ::
+
+        from creme.creme_core.models import Notification
+
+        from my_project.beavers.constants import UUID_CHANNEL_BEAVERS
+
+        [...]
+        Notification.objects.send(
+            channel=UUID_CHANNEL_BEAVERS,
+            users=[user1, user2],
+            content=SimpleNotifContent(
+                subject='Un castor est malade',
+                body='Il faut appeler le vétérinaire',
+                # NB: il existe aussi un paramètre "html_body".
+            ),
+        )
+
+
+**Aller plus loin** : ici on a utilisé la classe de contenu ``SimpleNotifContent``
+qui est fournie de base pour les cas où on ne veut pas s'embêter. Vous pouvez
+créer vos propres classes de contenu pour les cas plus complexes, par exemple :
+
+ - avoir des messages traduits dynamiquement en fonction de la langue de
+   l'utilisateur cible.
+ - afficher des liens vers des fiches, en faisant attention aux droits et aux
+   fiches supprimées.
+
+Vous pouvez regarder ``creme.assistants.notification.AlertReminderContent`` pour
+voir ce qu'il est possible de faire par exemple.
 
 
 Modifier les apps existantes

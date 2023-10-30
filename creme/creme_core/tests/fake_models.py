@@ -125,7 +125,9 @@ else:
         def __str__(self):
             return f'{self.linked_folder} - {self.title}'
 
-        # def get_absolute_url(self):
+        def get_absolute_url(self):
+            return reverse('creme_core__view_fake_document', args=(self.id,))
+
         # def get_edit_absolute_url(self):
         # def get_download_absolute_url(self):  TODO ??
 

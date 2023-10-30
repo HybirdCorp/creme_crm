@@ -1,7 +1,7 @@
 from functools import partial
 
 from django.conf import settings
-from django.core import mail
+# from django.core import mail
 from django.core.mail.backends.locmem import EmailBackend
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -10,18 +10,26 @@ from django.utils.translation import gettext as _
 
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
+from creme.creme_core.core.notification import (
+    OUTPUT_EMAIL,
+    OUTPUT_WEB,
+    notification_registry,
+)
+# from creme.creme_core.models import Job, JobResult,
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
     FakeOrganisation,
-    Job,
-    JobResult,
+    Notification,
+    NotificationChannel,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from ..bricks import UserMessagesBrick
-from ..creme_jobs import usermessages_send_type
+from ..constants import UUID_CHANNEL_USERMESSAGES
+# from ..creme_jobs import usermessages_send_type
 from ..models import UserMessage, UserMessagePriority
+from ..notification import MessageSentContent, UserMessagesChannelType
 from .base import AssistantsTestCase
 
 
@@ -59,11 +67,108 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
         self.assertNoFormError(response)
 
-    def _get_usermessages_job(self):
-        return self.get_object_or_fail(Job, type_id=usermessages_send_type.id)
+    # def _get_usermessages_job(self):
+    #     return self.get_object_or_fail(Job, type_id=usermessages_send_type.id)
+
+    def test_message_sent_content01(self):
+        sender = self.get_root_user()
+        recipient = self.create_user()
+        msg = UserMessage.objects.create(
+            sender=sender, recipient=recipient, creation_date=now(),
+            title='An invoice have been created',
+            body='Total: 1500$\nDeadline: 25/12/2025',
+            priority=UserMessagePriority.objects.first(),
+        )
+        content1 = MessageSentContent(instance=msg)
+        content2 = MessageSentContent.from_dict(content1.as_dict())
+        self.assertEqual(
+            _('You received a user message from «%(sender)s»') % {'sender': sender},
+            content2.get_subject(user=recipient),
+        )
+        self.assertEqual(
+            _('Title: %(message_title)s\nBody: %(message_body)s') % {
+                'message_title': msg.title, 'message_body': msg.body,
+            },
+            content2.get_body(user=sender),
+        )
+        self.assertHTMLEqual(
+            '<h1>{title}</h1><p>{body}</p>'.format(
+                title=msg.title,
+                body=msg.body.replace('\n', '<br>'),
+            ),
+            content2.get_html_body(user=sender),
+        )
+
+    def test_message_sent_content02(self):
+        "Related entity."
+        entity = self.entity
+        sender = self.get_root_user()
+        recipient = self.create_user()
+        msg = UserMessage.objects.create(
+            sender=sender, recipient=recipient, creation_date=now(),
+            title='An invoice have been created',
+            body='Total: 1500$<script>alert("pwned")</script>',
+            priority=UserMessagePriority.objects.first(),
+            real_entity=entity,
+        )
+        content1 = MessageSentContent(instance=msg)
+        content2 = MessageSentContent.from_dict(content1.as_dict())
+        self.assertEqual(
+            _('You received a user message from «%(sender)s»') % {'sender': sender},
+            content2.get_subject(user=recipient),
+        )
+        self.maxDiff = None
+        self.assertEqual(
+            '{}\n{}'.format(
+                _('Title: %(message_title)s\nBody: %(message_body)s') % {
+                    'message_title': msg.title, 'message_body': msg.body,
+                },
+                _('Related entity: %(message_entity)s') % {'message_entity': entity},
+            ),
+            content2.get_body(user=sender),
+        )
+        self.assertHTMLEqual(
+            '<h1>An invoice have been created</h1>'
+            '<p>Total: 1500$&lt;script&gt;alert(&quot;pwned&quot;)&lt;/script&gt;</p>'
+            + _('Related to %(entity)s') % {
+                'entity': f'<a href="{entity.get_absolute_url()}" target="_self">{entity}</a>'
+            },
+            content2.get_html_body(user=sender),
+        )
+
+    def test_message_sent_content_error(self):
+        "UserMessage does not exist anymore."
+        user = self.get_root_user()
+        content = MessageSentContent.from_dict({'instance': self.UNUSED_PK})
+        self.assertEqual(
+            _('You received a user message'),
+            content.get_subject(user=user),
+        )
+        body = _('The message has been deleted')
+        self.assertEqual(body, content.get_body(user=user))
+        self.assertEqual(body, content.get_html_body(user=user))
+
+    def test_channel(self):
+        chan_type = UserMessagesChannelType()
+        self.assertEqual('assistants-user_messages', chan_type.id)
+        self.assertEqual(_('User messages'), chan_type.verbose_name)
+        self.assertEqual(
+            _('A user message has been received (app: Assistants)'),
+            chan_type.description,
+        )
+
+        self.assertIsInstance(
+            notification_registry.get_channel_type(chan_type.id),
+            UserMessagesChannelType,
+        )
 
     def test_populate(self):
         self.assertEqual(3, UserMessagePriority.objects.count())
+
+        chan = self.get_object_or_fail(NotificationChannel, uuid=UUID_CHANNEL_USERMESSAGES)
+        self.assertTrue(chan.required)
+        self.assertFalse(chan.name)
+        self.assertEqual(UserMessagesChannelType.id, chan.type_id)
 
     def test_create01(self):
         self.assertFalse(UserMessage.objects.exists())
@@ -94,8 +199,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(title,    message.title)
         self.assertEqual(body,     message.body)
         self.assertEqual(priority, message.priority)
-
-        self.assertFalse(message.email_sent)
+        # self.assertFalse(message.email_sent)
 
         self.assertEqual(entity.id,             message.entity_id)
         self.assertEqual(entity.entity_type_id, message.entity_content_type_id)
@@ -107,20 +211,32 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.assertEqual(title, str(message))
 
-        job, _data = self.get_alone_element(queue.refreshed_jobs)
-        self.assertEqual(self._get_usermessages_job(), job)
+        # job, _data = self.get_alone_element(queue.refreshed_jobs)
+        # self.assertEqual(self._get_usermessages_job(), job)
+        notif1 = self.get_object_or_fail(
+            Notification,
+            user=user1, channel__uuid=UUID_CHANNEL_USERMESSAGES, output=OUTPUT_WEB,
+        )
+        self.assertEqual(MessageSentContent.id, notif1.content_id)
+        self.assertDictEqual({'instance': message.id}, notif1.content_data)
+
+        self.get_object_or_fail(
+            Notification,
+            user=user1, channel__uuid=UUID_CHANNEL_USERMESSAGES, output=OUTPUT_EMAIL,
+        )
 
     @override_settings(SOFTWARE_LABEL='My CRM')
     def test_create02(self):
-        now_value = now()
+        "2 users."
+        # now_value = now()
         priority = UserMessagePriority.objects.create(title='Important')
 
         user1 = self.create_user(index=0)
         user2 = self.create_user(index=1)
 
-        job = self._get_usermessages_job()
-        self.assertIsNone(job.user)
-        self.assertIsNone(job.type.next_wakeup(job, now_value))
+        # job = self._get_usermessages_job()
+        # self.assertIsNone(job.user)
+        # self.assertIsNone(job.type.next_wakeup(job, now_value))
 
         title = 'TITLE'
         body  = 'BODY'
@@ -129,32 +245,32 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         messages = UserMessage.objects.all()
         self.assertCountEqual([user1, user2], [msg.recipient for msg in messages])
 
-        self.assertIs(now_value, job.type.next_wakeup(job, now_value))
+        # self.assertIs(now_value, job.type.next_wakeup(job, now_value))
 
-        usermessages_send_type.execute(job)
+        # usermessages_send_type.execute(job)
 
-        messages = mail.outbox
-        self.assertEqual(len(messages), 2)
-
-        message = messages[0]
-        software = 'My CRM'
-        self.assertEqual(
-            _('User message from {software}: {title}').format(software=software, title=title),
-            message.subject,
-        )
-        self.assertEqual(
-            _('{user} sent you the following message:\n{body}').format(
-                user=self.user,
-                body=body,
-            ),
-            message.body,
-        )
-        self.assertEqual(settings.EMAIL_SENDER, message.from_email)
-        self.assertHasNoAttr(message, 'alternatives')
-        self.assertFalse(message.attachments)
-
-        for user_msg in UserMessage.objects.all():
-            self.assertTrue(user_msg.email_sent)
+        # messages = mail.outbox
+        # self.assertEqual(len(messages), 2)
+        #
+        # message = messages[0]
+        # software = 'My CRM'
+        # self.assertEqual(
+        #     _('User message from {software}: {title}').format(software=software, title=title),
+        #     message.subject,
+        # )
+        # self.assertEqual(
+        #     _('{user} sent you the following message:\n{body}').format(
+        #         user=self.user,
+        #         body=body,
+        #     ),
+        #     message.body,
+        # )
+        # self.assertEqual(settings.EMAIL_SENDER, message.from_email)
+        # self.assertHasNoAttr(message, 'alternatives')
+        # self.assertFalse(message.attachments)
+        #
+        # for user_msg in UserMessage.objects.all():
+        #     self.assertTrue(user_msg.email_sent)
 
     def test_create03(self):
         "Without related entity."
@@ -350,35 +466,35 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             errors=_('Deletion is not possible.'),
         )
 
-    def test_job(self):
-        "Error on email sending."
-        priority = UserMessagePriority.objects.create(title='Important')
-        user1 = self.create_user()
-
-        self._create_usermessage('TITLE', 'BODY', priority, [user1], None)
-
-        self.send_messages_called = False
-        err_msg = 'Sent error'
-
-        def send_messages(this, messages):
-            self.send_messages_called = True
-            raise Exception(err_msg)
-
-        EmailBackend.send_messages = send_messages
-
-        job = self._get_usermessages_job()
-        usermessages_send_type.execute(job)
-
-        self.assertTrue(self.send_messages_called)
-
-        message = self.get_alone_element(UserMessage.objects.all())
-        self.assertTrue(message.email_sent)
-
-        jresult = self.get_alone_element(JobResult.objects.filter(job=job))
-        self.assertListEqual(
-            [
-                _('An error occurred while sending emails'),
-                _('Original error: {}').format(err_msg),
-            ],
-            jresult.messages,
-        )
+    # def test_job(self):
+    #     "Error on email sending."
+    #     priority = UserMessagePriority.objects.create(title='Important')
+    #     user1 = self.create_user()
+    #
+    #     self._create_usermessage('TITLE', 'BODY', priority, [user1], None)
+    #
+    #     self.send_messages_called = False
+    #     err_msg = 'Sent error'
+    #
+    #     def send_messages(this, messages):
+    #         self.send_messages_called = True
+    #         raise Exception(err_msg)
+    #
+    #     EmailBackend.send_messages = send_messages
+    #
+    #     job = self._get_usermessages_job()
+    #     usermessages_send_type.execute(job)
+    #
+    #     self.assertTrue(self.send_messages_called)
+    #
+    #     message = self.get_alone_element(UserMessage.objects.all())
+    #     self.assertTrue(message.email_sent)
+    #
+    #     jresult = self.get_alone_element(JobResult.objects.filter(job=job))
+    #     self.assertListEqual(
+    #         [
+    #             _('An error occurred while sending emails'),
+    #             _('Original error: {}').format(err_msg),
+    #         ],
+    #         jresult.messages,
+    #     )

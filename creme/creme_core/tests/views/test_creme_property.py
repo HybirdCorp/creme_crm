@@ -18,7 +18,7 @@ from ..fake_models import FakeContact, FakeOrganisation
 from .base import BrickTestCaseMixin, ViewsTestCase
 
 
-class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
+class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
     ADD_TYPE_URL = reverse('creme_core__create_ptype')
 
     @classmethod

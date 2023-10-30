@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,55 +20,62 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.db.models import Q
+# from django.utils.translation import gettext as _
 from django.utils.timezone import localtime, now
-from django.utils.translation import gettext as _
 
 from creme.creme_core.core.reminder import Reminder
 from creme.creme_core.models import SettingValue
 
 from .models import Alert, ToDo
+from .notification import AlertReminderContent, TodoReminderContent
 from .setting_keys import todo_reminder_key
 
-# TODO: in settings.py ? SettingValue (beware to refresh job on update) ? Job's data ?
+# TODO: in settings.py? SettingValue (do not  forget to refresh job on update)? Job's data?
 TODO_REMINDER_DAYS_BEFORE = 1
 
 
 class AssistantReminder(Reminder):
-    def get_emails(self, object):
-        # TODO: can we prefetch 'entity'?
-        user = object.user or object.entity.user
-        return [
-            teammate.email
-            for teammate in user.teammates.values()
-        ] if user.is_team else [user.email]
+    # def get_emails(self, object):
+    #     user = object.user or object.entity.user
+    #     return [
+    #         teammate.email
+    #         for teammate in user.teammates.values()
+    #     ] if user.is_team else [user.email]
+
+    def get_users(self, instance):
+        return [instance.user or instance.entity.user]
 
 
 class ReminderAlert(AssistantReminder):
     id = Reminder.generate_id('assistants', 'alert')
     model = Alert
-    body = _(
-        """This mail is automatically sent by {software} to remind you that an alert concerning {entity} will expire.
-            Alert : {title}.
-            which description is : {description}.
-
-            which is related to the entity : {entity}"""  # NOQA
-    )
+    # body = _(
+    #     """This mail is automatically sent by {software} to remind you that an
+    #     alert concerning {entity} will expire.
+    #         Alert : {title}.
+    #         which description is : {description}.
+    #
+    #         which is related to the entity : {entity}"""  # NOQA
+    # )
 
     def _get_delta(self):
         return timedelta(minutes=getattr(settings, 'DEFAULT_TIME_ALERT_REMIND', 30))
 
-    def generate_email_subject(self, object):
-        return _('Reminder concerning a {software} alert related to {entity}').format(
-            software=settings.SOFTWARE_LABEL, entity=object.real_entity,
-        )
+    # def generate_email_subject(self, object):
+    #     return _('Reminder concerning a {software} alert related to {entity}').format(
+    #         software=settings.SOFTWARE_LABEL, entity=object.real_entity,
+    #     )
 
-    def generate_email_body(self, object):
-        return self.body.format(
-            software=settings.SOFTWARE_LABEL,
-            entity=object.real_entity,
-            title=object.title,
-            description=object.description,
-        )
+    # def generate_email_body(self, object):
+    #     return self.body.format(
+    #         software=settings.SOFTWARE_LABEL,
+    #         entity=object.real_entity,
+    #         title=object.title,
+    #         description=object.description,
+    #     )
+
+    def get_notification_content(self, instance):
+        return AlertReminderContent(instance)
 
     def get_Q_filter(self):
         return Q(
@@ -87,13 +94,14 @@ class ReminderAlert(AssistantReminder):
 class ReminderTodo(AssistantReminder):
     id = Reminder.generate_id('assistants', 'todo')
     model = ToDo
-    body = _(
-        """This mail is automatically sent by {software} to remind you that a todo concerning {entity} will expire.
-            Todo : {title}.
-            which description is : {description}.
-
-            which is related to the entity : {entity}"""  # NOQA
-    )
+    # body = _(
+    #     """This mail is automatically sent by {software} to remind you that a
+    #     todo concerning {entity} will expire.
+    #         Todo : {title}.
+    #         which description is : {description}.
+    #
+    #         which is related to the entity : {entity}"""  # NOQA
+    # )
 
     def _get_delta(self):
         return timedelta(days=TODO_REMINDER_DAYS_BEFORE)
@@ -101,22 +109,25 @@ class ReminderTodo(AssistantReminder):
     def _get_min_hour(self):
         return SettingValue.objects.get_4_key(key=todo_reminder_key, default=9).value
 
-    def generate_email_subject(self, object):
-        return _('Reminder concerning a {software} todo related to {entity}').format(
-            software=settings.SOFTWARE_LABEL,
-            entity=object.real_entity,
-        )
+    # def generate_email_subject(self, object):
+    #     return _('Reminder concerning a {software} todo related to {entity}').format(
+    #         software=settings.SOFTWARE_LABEL,
+    #         entity=object.real_entity,
+    #     )
 
-    def generate_email_body(self, object):
-        return self.body.format(
-            software=settings.SOFTWARE_LABEL,
-            entity=object.real_entity,
-            title=object.title,
-            description=object.description,
-        )
+    # def generate_email_body(self, object):
+    #     return self.body.format(
+    #         software=settings.SOFTWARE_LABEL,
+    #         entity=object.real_entity,
+    #         title=object.title,
+    #         description=object.description,
+    #     )
+
+    def get_notification_content(self, instance):
+        return TodoReminderContent(instance)
 
     def get_Q_filter(self):
-        # TODO: exclude Todos related to deleted entities ??
+        # TODO: exclude Todos related to deleted entities?
         return Q(deadline__lte=now() + self._get_delta(), is_ok=False)
 
     def ok_for_continue(self):

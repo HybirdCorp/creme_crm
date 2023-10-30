@@ -9,15 +9,6 @@ import creme.creme_core.models.fields as creme_fields
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('assistants', '0001_initial')
-    #     ('assistants', '0009_v2_4__alert_trigger_offset')
-    #     ('assistants', '0010_v2_4__nullable_user')
-    #     ('assistants', '0011_v2_4__minion_priority01')
-    #     ('assistants', '0012_v2_4__minion_priority02')
-    #     ('assistants', '0013_v2_4__minion_priority03')
-    # ]
-
     initial = True
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

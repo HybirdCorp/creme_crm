@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,11 +28,13 @@ from . import (
     creme_jobs,
     get_world_settings_model,
     menu,
+    notification,
     sandboxes,
     setting_keys,
 )
 from .apps import CremeAppConfig, creme_app_configs
 from .auth import EntityCredentials
+from .core.notification import OUTPUT_EMAIL, OUTPUT_WEB
 from .gui.menu import ContainerEntry, Separator0Entry, Separator1Entry
 from .management.commands.creme_populate import BasePopulator
 from .models import (
@@ -45,6 +47,7 @@ from .models import (
     Job,
     Language,
     MenuConfigItem,
+    NotificationChannel,
     RelationType,
     Sandbox,
     SetCredentials,
@@ -113,14 +116,55 @@ class Populator(BasePopulator):
                 'status': Job.STATUS_OK,
             },
         )
+        create_job(
+            type_id=creme_jobs.notification_emails_sender_type.id,
+            defaults={
+                'language': settings.LANGUAGE_CODE,
+                'status': Job.STATUS_OK,
+            },
+        )
 
         # ---------------------------
-
         Sandbox.objects.get_or_create(
             uuid=constants.UUID_SANDBOX_SUPERUSERS,
             defaults={
                 # 'superuser': True,
                 'type_id':   sandboxes.OnlySuperusersType.id,
+            },
+        )
+
+        # ---------------------------
+        create_channel = NotificationChannel.objects.get_or_create
+        create_channel(
+            uuid=constants.UUID_CHANNEL_SYSTEM,
+            defaults={
+                'type_id': notification.SystemChannelType.id,
+                'required': True,
+                'default_outputs': [OUTPUT_WEB],
+            },
+        )
+        create_channel(
+            uuid=constants.UUID_CHANNEL_ADMIN,
+            defaults={
+                'type_id': notification.AdministrationChannelType.id,
+                'default_outputs': [OUTPUT_WEB],
+                'required': False,
+            },
+        )
+        create_channel(
+            uuid=constants.UUID_CHANNEL_JOBS,
+            defaults={
+                'type_id': notification.JobsChannelType.id,
+                'default_outputs': [OUTPUT_WEB],
+                'required': False,
+            },
+        )
+        create_channel(
+            uuid=constants.UUID_CHANNEL_REMINDERS,
+            defaults={
+                'type_id': notification.RemindersChannelType.id,
+                'required': True,
+                'default_outputs': [OUTPUT_EMAIL],
             },
         )
 

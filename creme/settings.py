@@ -898,6 +898,7 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/editor.js',
 
     'creme_core/js/menu.js',
+    'creme_core/js/notification.js',
     'creme_core/js/search.js',
     'creme_core/js/bricks.js',
     'creme_core/js/bricks-action.js',

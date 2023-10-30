@@ -1,0 +1,4 @@
+{% load i18n creme_widgets %}{% if object is None %}{% translate 'The todo has been deleted' %}{% else %}<h1>{{object.title}}</h1>
+{% if object.description %}{{object.description|linebreaks}}{% endif %}
+{% widget_entity_hyperlink object.real_entity user as entity %}{% blocktranslate %}Related to {{entity}}{% endblocktranslate %}
+{% endif %}

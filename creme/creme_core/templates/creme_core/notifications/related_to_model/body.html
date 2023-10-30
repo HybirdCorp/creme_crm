@@ -1,0 +1,8 @@
+{% load creme_widgets %}{% load is_entity from creme_core_tags %}
+{% if object is None %}
+Related to a removed instance
+{% elif object|is_entity %}
+Related to: {% widget_entity_hyperlink object user %}
+{% else %}
+Related to: {% widget_hyperlink object %}
+{% endif %}

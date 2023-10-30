@@ -1,6 +1,6 @@
 from functools import partial
 
-from creme.creme_core.creme_jobs import reminder_type
+from creme.creme_core import creme_jobs
 from creme.creme_core.models import Job
 from creme.creme_core.models.history import (
     TYPE_AUX_CREATION,
@@ -69,10 +69,10 @@ class AssistantsTestCase(CremeTestCase):
         self.assertEqual(str(contact02), hline.entity_repr)
 
     def get_reminder_job(self):
-        return self.get_object_or_fail(Job, type_id=reminder_type.id)
+        return self.get_object_or_fail(Job, type_id=creme_jobs.reminder_type.id)
 
     def execute_reminder_job(self, job=None):
         job = job or self.get_reminder_job()
-        reminder_type.execute(job)
+        creme_jobs.reminder_type.execute(job)
 
         return job

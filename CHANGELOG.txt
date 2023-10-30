@@ -2,6 +2,13 @@
 
   Users side :
   ------------
+    # A notification system has been added. The notifications are sent to channels, and users can configure
+      them in order to their notifications are displayed in the browser and/our received by emails.
+        - A new job which sends notification emails has been created.
+        - The reminder system (used by Alerts & ToDos) has been reworked to create notifications (instead of sending emails).
+        - Some events produce now a notification : the end of mass import, an administrator changed your password...
+        - Staffs users can sent a notification to announce a system upgrade (there is a button in the new page which display all your notifications).
+          A new command "creme_announce" has been created to do the same thing from the shell.
     # The list-views with a big number of entities & no explicit sort now works correctly (i.e. not duplicate).
       The mass-export & the exploration mode now accept to be used in this case.
     # In the detail-view for property type, a button to delete all the properties with this type
@@ -26,6 +33,8 @@
         * Persons :
             - The staff users are not related to Contacts anymore.
               Note: the existing Contacts which were related to staff users are sent to the trash.
+       * Assistants :
+            - The UserMessages produce now notifications (so users can chose to be notified in their browser, emails are not the only way anymore).
         * Reports :
             - The date fields of referenced models can be used for temporal filtering in the Reports
               (e.g. in a report on Contacts, Photograph's fields are available).
@@ -135,6 +144,10 @@
               The attribute "_ptype_id" has been replaced by "_ptype_uuid".
             - The class 'paginator.FlowPaginator' does not accept ForeignKeys as key anymore;
               pass the corresponding "low-level" attribute (e.g. "user_id") or a sub-field (e.g. "user__username").
+            - In the class 'reminder.Reminder' :
+                - These methods have been removed : get_emails(), generate_email_subject(), generate_email_body(), send_mails().
+                - You have now to implement the methods 'get_users()' & 'get_notification_content()'.
+                - In the method 'execute()' the argument "job" has been removed.
         # In 'creme_core.models' :
             - The model 'CremePropertyType' uses now a classical AutoField (i.e. integers) for primary key, and gets an UUIDField.
               A CharField "app_label" has been added too (the app label was given is the previous string primary key).
@@ -165,6 +178,7 @@
                   - The related 'ContentType' is now stored with the key "ct" (instead of "ct_id"), and the value is the natural-key (instead of the ID).
                   - The related 'CremeEntity' is now stored with the key "entity" (instead of "entity_id") and the value is the UUID (instead of the ID).
             - The method 'FieldsConfig._get_hidden_field_names()' has been replaced by the property "hidden_field_names".
+            - The model 'reminder.DateReminder' has been removed.
         # In 'creme_core.forms' :
             - In 'entity_filter.fields' :
                 - The attribute 'CustomFieldsConditionsField._non_hiddable_cfield_ids' has been replaced by "_non_hiddable_cfield_uuids".
@@ -227,6 +241,10 @@
                 - Upgrade FullCalendar : Refactor of 'creme.activities.CalendarController' renamed as 'creme.ActivityCalendar'
                     - Calendar view changes are stored in url hash (e.g: #week & #month)
                     - Use ISO8601 format WITH timezone for queries on backend views (e.g 2023-04-14T10:38:30+01:00)
+            * Assistants :
+                - The module 'creme_jobs' has been removed (_UserMessagesSendType etc...).
+                - In the model 'UserMessage', the field 'email_sent' & the method 'send_mails()' have been removed.
+                - In 'reminders', the attributes 'ReminderAlert.body' & 'ReminderTodo.body' have been removed.
             * Documents :
                 - In the context of the brick 'ChildFoldersBrick', "folder_model" is not injected anymore.
             * Opportunities :

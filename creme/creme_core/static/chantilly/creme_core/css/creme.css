@@ -98,9 +98,14 @@ td p {
 
     text-align: center;
     text-decoration: none;
+/*
     font-size: 12px;
     font-weight: 600;
     color: #333;
+*/
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #34687e;
     white-space: nowrap;
 
     background: linear-gradient(#f6fcff, #e0f1f7);
@@ -171,9 +176,11 @@ td p {
     margin-top: 10px;
     margin-right: 5px;
 
+/*
     color: #34687e;
     font-size: 12.5px;
     font-weight: 500;
+*/
 }
 
 .buttons-list.instance-buttons ul {

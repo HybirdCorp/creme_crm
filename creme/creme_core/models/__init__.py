@@ -32,8 +32,13 @@ from .imprint import Imprint  # NOQA
 from .job import EntityJobResult, Job, JobResult, MassImportJobResult  # NOQA
 from .lock import Mutex, MutexAutoLock  # NOQA
 from .menu import MenuConfigItem  # NOQA
+from .notification import (  # NOQA
+    Notification,
+    NotificationChannel,
+    NotificationChannelConfigItem,
+)
 from .relation import Relation, RelationType, SemiFixedRelationType  # NOQA
-from .reminder import DateReminder  # NOQA
+# from .reminder import DateReminder  # NOQA
 from .search import SearchConfigItem  # NOQA
 from .setting_value import SettingValue  # NOQA
 from .vat import Vat  # NOQA

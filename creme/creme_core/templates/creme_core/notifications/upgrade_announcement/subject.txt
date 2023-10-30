@@ -1,0 +1,1 @@
+{% load i18n %}{% translate 'An upgrade is planned' %}

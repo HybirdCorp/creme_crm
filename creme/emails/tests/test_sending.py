@@ -20,6 +20,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.constants import UUID_CHANNEL_JOBS
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.gui.history import html_history_registry
@@ -28,6 +29,7 @@ from creme.creme_core.models import (
     FakeOrganisation,
     HistoryLine,
     Job,
+    Notification,
     SetCredentials,
 )
 from creme.creme_core.models.history import TYPE_AUX_CREATION
@@ -57,6 +59,7 @@ from ..models import (
     EmailSendingConfigItem,
     LightWeightEmail,
 )
+from ..notification import CampaignSentContent
 from .base import (
     Contact,
     EmailCampaign,
@@ -703,7 +706,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertNoFormError(self.client.post(
             url,
             data={
-                # 'sender': 'vicious@reddragons.mrs',
                 'config_0': item.id,
                 'config_1': sender,
 
@@ -884,7 +886,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         response1 = self.client.post(
             self._build_add_url(camp),
             data={
-                # 'sender':   'vicious@reddragons.mrs',
                 'config_0': item.id,
                 'config_1': 'vicious@reddragons.mrs',
 
@@ -1006,7 +1007,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertNoFormError(self.client.post(
             self._build_add_url(camp),
             data={
-                # 'sender':   sender,
                 'config_0': item.id,
                 'config_1': sender,
 
@@ -1069,8 +1069,12 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         # Other save() in job should not send REFRESH signals
         self.assertFalse(queue.refreshed_jobs)
 
+        self.assertFalse(
+            Notification.objects.filter(user=user, channel__uuid=UUID_CHANNEL_JOBS)
+        )
+
     def test_create04(self):
-        "Test deferred"
+        "Test deferred."
         user = self.login_as_root_and_get()
         item = EmailSendingConfigItem.objects.create(
             name='Config #1',
@@ -1087,7 +1091,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         sending_date = now_value + timedelta(weeks=1)
         naive_sending_date = make_naive(sending_date, get_current_timezone())
         data = {
-            # 'sender':   'vicious@reddragons.mrs',
             'config_0': item.id,
             'config_1': 'vicious@reddragons.mrs',
             'type':     EmailSending.Type.DEFERRED,
@@ -1157,7 +1160,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         naive_sending_date = make_naive(sending_date, get_current_timezone())
         data = {
-            # 'sender':   'vicious@reddragons.mrs',
             'config_0': item.id,
             'config_1': 'vicious@reddragons.mrs',
             'type':     EmailSending.Type.DEFERRED,
@@ -1206,7 +1208,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertNoFormError(self.client.post(
             self._build_add_url(camp),
             data={
-                # 'sender':   'vicious@reddragons.mrs',
                 'config_0': item.id,
                 'config_1': 'vicious@reddragons.mrs',
                 'type':     EmailSending.Type.IMMEDIATE,
@@ -1505,8 +1506,74 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         self.assertLess(job.type.next_wakeup(job, now_value), now_value)
 
+    def test_campaign_sent_content(self):
+        user = self.login_as_root_and_get()
+        camp = EmailCampaign.objects.create(user=user, name='Camp #01')
+
+        content1 = CampaignSentContent(instance=camp)
+        content2 = CampaignSentContent.from_dict(content1.as_dict())
+
+        self.assertEqual(
+            _('An emailing campaign has been sent'),
+            content2.get_subject(user=user),
+        )
+        self.assertEqual(
+            _('The campaign «%(campaign)s» has been sent') % {'campaign': camp},
+            content2.get_body(user=user),
+        )
+        self.assertHTMLEqual(
+            _('The campaign %(campaign)s has been sent') % {
+                'campaign': f'<a href="{camp.get_absolute_url()}" target="_self">{camp}</a>'
+            },
+            content2.get_html_body(user=user),
+        )
+
+    def test_campaign_sent_content_error(self):
+        "Campaign does not exist anymore."
+        user = self.get_root_user()
+        content = CampaignSentContent.from_dict({'instance': self.UNUSED_PK})
+        body = _('The campaign has been deleted')
+        self.assertEqual(body, content.get_body(user=user))
+        self.assertEqual(body, content.get_html_body(user=user))
+
     @skipIfCustomContact
     def test_job01(self):
+        "Deferred => notification."
+        user = self.login_as_root_and_get()
+        item = EmailSendingConfigItem.objects.create(
+            name='Config #1',
+            host='smail.mydomain.org',
+            username='jet@mydomain.org',
+            password='c0w|3OY B3b0P',
+        )
+        camp = EmailCampaign.objects.create(user=user, name='Camp #001')
+        sending = EmailSending.objects.create(
+            config_item=item,
+            sender='vicious@reddragons.mrs',
+            campaign=camp,
+            type=EmailSending.Type.DEFERRED,
+            sending_date=now() - timedelta(hours=1),
+            subject='Subject',
+            body='My body is ready!',
+        )
+        LightWeightEmail(
+            sending=sending,
+            sender=sending.sender,
+            recipient='spike.spiegel@bebop.com',
+            sending_date=sending.sending_date,
+        ).genid_n_save()
+
+        self._send_mails(self._get_job())
+        self.assertEqual(1, len(django_mail.outbox))
+
+        notif = self.get_object_or_fail(
+            Notification, user=user, channel__uuid=UUID_CHANNEL_JOBS,
+        )
+        self.assertEqual(CampaignSentContent.id, notif.content_id)
+        self.assertDictEqual({'instance': camp.id}, notif.content_data)
+
+    @skipIfCustomContact
+    def test_job02(self):
         "Deleted campaign."
         user = self.login_as_root_and_get()
         job = self._get_job()
@@ -1550,7 +1617,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertFalse(django_mail.outbox)
 
     @skipIfCustomContact
-    def test_job02(self):
+    def test_job03(self):
         "Deleted config."
         user = self.login_as_root_and_get()
         job = self._get_job()

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
+from .core import notification
 from .core.entity_cell import EntityCellCustomField
 from .creme_jobs.base import JobType
 from .gui import statistics
@@ -37,6 +38,7 @@ from .models import (
     Job,
     JobResult,
     MassImportJobResult,
+    Notification,
     Relation,
     RelationType,
 )
@@ -494,3 +496,30 @@ class MyJobsBrick(JobsBrick):
 
     def _jobs_qs(self, context):
         return Job.objects.filter(user=context['user'])
+
+
+class NotificationsBrick(QuerysetBrick):
+    id = QuerysetBrick.generate_id('creme_core', 'notifications')
+    verbose_name = _('Notifications')
+    dependencies = (Notification,)
+    template_name = 'creme_core/bricks/notifications.html'
+    configurable = False
+    page_size = 50
+
+    def detailview_display(self, context):
+        user = context['user']
+        btc = self.get_template_context(
+            context,
+            Notification.objects.filter(
+                user=user, discarded=None, output=notification.OUTPUT_WEB,
+            ).order_by('-id').select_related('channel'),
+        )
+
+        for notif in btc['page'].object_list:
+            content = notif.content
+            notif.content_subject = content.get_subject(user=user)
+            notif.content_body = (
+                content.get_html_body(user=user) or content.get_body(user=user)
+            )
+
+        return self._render(btc)

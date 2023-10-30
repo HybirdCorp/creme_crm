@@ -1488,3 +1488,12 @@ svg.icon {
     background: #ebebeb;
     color: grey;
 }
+
+
+/* Notifications brick */
+
+.creme_core-notifications-brick .notification-body h1 {
+    font-size: 14px;
+    text-decoration: underline;
+    color: #666;
+}

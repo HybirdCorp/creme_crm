@@ -1,0 +1,2 @@
+{% load i18n %}{% autoescape off %}{% with start=start|date:'DATETIME_FORMAT' %}{% if message %}{% blocktranslate %}An upgrade will be performed on {{start}}.
+{{message}}{% endblocktranslate %}{% else %}{% blocktranslate %}An upgrade will be performed on {{start}}{% endblocktranslate %}{% endif %}{% endwith %}{% endautoescape %}
