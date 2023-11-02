@@ -537,10 +537,13 @@ QUnit.test('creme.activities.CalendarController.bind (fetch)', function(assert) 
     ], this.getCalendarEvents(element));
 });
 
-QUnit.test('creme.activities.CalendarController.rendering (month view)', function(assert) {
+QUnit.parameterize('creme.activities.CalendarController.rendering (month view)', [
+    true, false
+], function(allowEventMove, assert) {
     var element = $(this.createDefaultCalendarHtml()).appendTo(this.qunitFixture());
     var controller = new creme.activities.CalendarController({
-                         eventFetchUrl: 'mock/calendar/events'
+                         eventFetchUrl: 'mock/calendar/events',
+                         allowEventMove: allowEventMove
                      }).bind(element);
     var view = controller.fullCalendar().view;
     var hex2rgb = function(color) {
@@ -555,37 +558,43 @@ QUnit.test('creme.activities.CalendarController.rendering (month view)', functio
             title: "Event #20-3 (all day)",
             typename: '<span class="fc-type">Meeting</span>',
             color: hex2rgb('#fc0000'),
-            isSmall: false
+            isSmall: false,
+            isEditable: allowEventMove
         }, {
             timestamp: todayAt({hours: 8}).format('H[h]mm'),
             title: "Event #1",
             typename: '<span class="fc-type">Call</span>',
             color: hex2rgb('#fcfcfc'),
-            isSmall: false
+            isSmall: false,
+            isEditable: allowEventMove
         }, {
             timestamp: todayAt({hours: 9}).format('H[h]mm'),
             title: "Event #2",
             typename: '<span class="fc-type">Call</span>',
             color: hex2rgb('#fcfcfc'),
-            isSmall: false
+            isSmall: false,
+            isEditable: allowEventMove
         }, {
             timestamp: todayAt({hours: 10, minutes: 30}).format('H[h]mm'),
             title: "Event #10-1",
             typename: '<span class="fc-type">Meeting</span>',
             color: hex2rgb('#fc00fc'),
-            isSmall: false
+            isSmall: false,
+            isEditable: allowEventMove
         }, {
             timestamp: todayAt({hours: 14, minutes: 30}).format('H[h]mm'),
             title: "Event #20-1 (small)",
             typename: '<span class="fc-type">Meeting</span>',
             color: hex2rgb('#fc0000'),
-            isSmall: false
+            isSmall: false,
+            isEditable: allowEventMove
         }, {
             timestamp: todayAt({hours: 16, minutes: 30}).format('H[h]mm'),
             title: "Event #20-2",
             typename: '<span class="fc-type">Meeting</span>',
             color: hex2rgb('#fc0000'),
-            isSmall: false
+            isSmall: false,
+            isEditable: allowEventMove
         }
     ], element.find('.calendar .fc-event').map(function() {
         return {
@@ -593,7 +602,8 @@ QUnit.test('creme.activities.CalendarController.rendering (month view)', functio
             title: $(this).find('.fc-title').text(),
             typename: $(this).find('.fc-type').prop('outerHTML'),
             color: $(this).css('background-color'),
-            isSmall: $(this).is('.fc-small')
+            isSmall: $(this).is('.fc-small'),
+            isEditable: $(this).is('.fc-draggable')
         };
     }).get());
 });

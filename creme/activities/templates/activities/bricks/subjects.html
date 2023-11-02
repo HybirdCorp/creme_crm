@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_widgets creme_bricks %}
-{% load has_perm_to url from creme_core_tags %}
+{% load i18n creme_widgets creme_bricks %}
+{% load and_op has_perm_to url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} activities-subjects-brick{% endblock %}
 
@@ -17,7 +17,6 @@
 
 {% block brick_table_rows %}
 {% has_perm_to unlink object as activity_unlink_perm %}{% url 'activities__remove_subject' as rm_subject_url %}
-{% has_perm_to unlink object as activity_unlink_perm %}{% url 'creme_core__delete_relation' as del_rel_url %}
     {% for relation in page.object_list %}{% with subject=relation.real_object %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink subject user %}</td>

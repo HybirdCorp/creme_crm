@@ -28,7 +28,7 @@
 
 {% block brick_table_rows %}
 {% has_perm_to admin 'emails' as admin_perm %}
-{% url 'emails__delete_campaign_config_item' as delete_url %}
+{% url 'emails__delete_sending_config_item' as delete_url %}
 {% translate 'Edit this configuration' context 'emails' as edit_label %}{% translate 'Delete this configuration' context 'emails' as del_label %}
   {% for item in page.object_list %}
     <tr>
