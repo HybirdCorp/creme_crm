@@ -1,3 +1,20 @@
+== Version 2.3.16 ==
+
+  Users side :
+  ------------
+    # There were several issues with "Date" CustomFields :
+        - They were not usable in filters (because they were proposed with "normal" custom-fields).
+        - Their quick-search (i.e. in header of list-views) was disabled.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The method 'creme_core.models.CremeUser.has_perm_to_link()' with a ContentType as argument has been fixed;
+          it could return 'True' even when the model was related to a forbidden app.
+
+
 == Version 2.3.15 ==
 
   UPGRADE NOTE :

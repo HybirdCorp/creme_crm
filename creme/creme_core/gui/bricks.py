@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -141,16 +141,16 @@ class Brick:
     # (ie: the brick is only used to display these instances ;
     # there is no inner-popup to create/edit/delete/...)
     #   ---> so when this brick is reloaded (eg: to change the pagination),
-    #   it does not causes the dependant bricks to be reloaded
+    #   it does not cause the dependant bricks to be reloaded
     #   (but it is still reloaded when the dependant bricks are reloaded of course).
     read_only: bool = False
 
     template_name: str = 'OVERLOAD_ME.html'  # Used to render the brick of course
     context_class = _BrickContext  # Class of the instance which stores the context in the session.
 
-    # ATTRIBUTES USED ONLY BY THE CONFIGURATION GUI FOR THE BRICKS (ie: in creme_config) ----------
-    # True means that the Brick appears in the configuration IHM
-    # (ie: it appears on classical detail-views/portals)
+    # ATTRIBUTES USED ONLY BY THE CONFIGURATION GUI FOR THE BRICKS (i.e. in creme_config) ---------
+    # True means that the Brick appears in the configuration GUI
+    # (i.e. it appears on classical detail-views/portals)
     configurable: bool = True
 
     # Sequence of classes inheriting CremeEntity which can have this

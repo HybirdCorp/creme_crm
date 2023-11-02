@@ -2347,6 +2347,15 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(has_perm_to_link(FakeOrganisation, owner=team1))
         self.assertFalse(has_perm_to_link(FakeOrganisation, owner=team2))
 
+        # Entity type which does not belong to creme_core
+        if apps.is_installed('creme.persons'):
+            from creme.persons import get_contact_model
+
+            Contact = get_contact_model()
+            self.assertFalse(has_perm_to_link(Contact, owner=None))  # <==
+            self.assertFalse(has_perm_to_link(Contact, owner=user))
+            self.assertFalse(has_perm_to_link(Contact, owner=other_user))
+
     def test_has_perm_to_link07(self):
         "Ignore filters when checking credentials on model."
         user = self.user

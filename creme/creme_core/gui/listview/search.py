@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2021  Hybird
+#    Copyright (C) 2019-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -354,6 +354,7 @@ class CustomFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         (CustomField.FLOAT,      lv_form.CustomDecimalField),
         (CustomField.BOOL,       lv_form.CustomBooleanField),
         (CustomField.STR,        lv_form.CustomCharField),
+        (CustomField.DATE,       lv_form.CustomDatetimeField),
         (CustomField.DATETIME,   lv_form.CustomDatetimeField),
         (CustomField.ENUM,       lv_form.CustomChoiceField),
         (CustomField.MULTI_ENUM, lv_form.CustomChoiceField),
@@ -365,6 +366,7 @@ class CustomFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         CustomField.FLOAT:      'CustomField.FLOAT',
         CustomField.BOOL:       'CustomField.BOOL',
         CustomField.STR:        'CustomField.STR',
+        CustomField.DATE:       'CustomField.DATE',
         CustomField.DATETIME:   'CustomField.DATETIME',
         CustomField.ENUM:       'CustomField.ENUM',
         CustomField.MULTI_ENUM: 'CustomField.MULTI_ENUM',

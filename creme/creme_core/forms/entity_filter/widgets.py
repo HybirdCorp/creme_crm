@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -361,6 +361,7 @@ class CustomFieldConditionSelector(FieldConditionSelector):
     _CHOICETYPES = {
         CustomField.INT:        'number__null',
         CustomField.FLOAT:      'number__null',
+        CustomField.DATE:       'date__null',
         CustomField.DATETIME:   'date__null',
         CustomField.BOOL:       'boolean__null',
         CustomField.ENUM:       'enum__null',

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -502,7 +502,8 @@ class CustomFieldsConditionsField(_ConditionsField):
         'invalidvalue':       _('This value is invalid.'),
     }
 
-    _NOT_ACCEPTED_TYPES = frozenset((CustomField.DATETIME,))  # TODO: "!= DATE" instead
+    # TODO: way to express is_date_customfield()?
+    _NOT_ACCEPTED_TYPES = frozenset((CustomField.DATE, CustomField.DATETIME))
     _non_hiddable_cfield_ids = ()
 
     @_ConditionsField.model.setter
@@ -666,7 +667,7 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         return CustomField.objects.compatible(
             self._model,
         ).filter(
-            field_type=CustomField.DATETIME,
+            field_type__in=(CustomField.DATE, CustomField.DATETIME),
         ).filter(
             Q(is_deleted=False) | Q(id__in=self._non_hiddable_cfield_ids)
         )
