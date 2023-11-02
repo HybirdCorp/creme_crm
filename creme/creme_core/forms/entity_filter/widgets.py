@@ -358,6 +358,7 @@ class CustomFieldConditionSelector(FieldConditionSelector):
     _CHOICETYPES = {
         CustomField.INT:        'number__null',
         CustomField.FLOAT:      'number__null',
+        CustomField.DATE:       'date__null',
         CustomField.DATETIME:   'date__null',
         CustomField.BOOL:       'boolean__null',
         CustomField.ENUM:       'enum__null',

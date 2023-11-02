@@ -146,7 +146,7 @@ class Brick:
     context_class = _BrickContext  # Class of the instance which stores the context in the session.
 
     # ATTRIBUTES USED ONLY BY THE CONFIGURATION GUI FOR THE BRICKS (i.e. in creme_config) ---------
-    # True means that the Brick appears in the configuration IHM
+    # True means that the Brick appears in the configuration GUI
     # (i.e. it appears on classical detail-views/portals)
     configurable: bool = True
 

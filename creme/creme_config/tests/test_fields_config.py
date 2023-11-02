@@ -87,7 +87,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         error_node = self.get_html_node_or_fail(brick_node, './/ul[@class="errorlist"]/li')
         self.assertEqual(
             _(
-                'This type of resource cannot be configured ; '
+                'This type of resource cannot be configured; '
                 'please contact your administrator.'
             ),
             error_node.text,
