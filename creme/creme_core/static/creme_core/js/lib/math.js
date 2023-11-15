@@ -19,6 +19,17 @@
 (function() {
 "use strict";
 
+var EPSILON = 1e-6;
+var RADIAN_RATIO = (Math.PI / 180);
+
+function degToRad(angle) {
+    return angle * RADIAN_RATIO;
+}
+
+function radToDeg(angle) {
+    return angle / RADIAN_RATIO;
+}
+
 function clamp(value, lower, upper) {
     var hasLower = _.isNumber(lower);
     var hasUpper = _.isNumber(upper);
@@ -50,10 +61,14 @@ function toNumber(value) {
 }
 
 _.mixin({
+    EPSILON: EPSILON,
+
     absRound: absRound,
     clamp: clamp,
     scaleRound: scaleRound,
     scaleTrunc: scaleTrunc,
+    toRadian: degToRad,
+    toDegree: radToDeg,
     toNumber: toNumber
 });
 

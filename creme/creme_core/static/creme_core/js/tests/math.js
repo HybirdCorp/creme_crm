@@ -62,4 +62,23 @@ QUnit.test('_.toNumber', function(assert) {
     equal(toNumber("-15"), -15);
 });
 
+
+QUnit.test('_.toRadian', function(assert) {
+    var toRadian = _.toRadian;
+
+    equal(toRadian(0), 0);
+    equal(toRadian(90), Math.PI / 2);
+    equal(toRadian(-90), -Math.PI / 2);
+    equal(toRadian(-180), -Math.PI);
+});
+
+QUnit.test('_.toDegree', function(assert) {
+    var toDegree = _.toDegree;
+
+    equal(toDegree(0), 0);
+    equal(toDegree(Math.PI / 2), 90);
+    equal(toDegree(-Math.PI / 2), -90);
+    equal(toDegree(-Math.PI), -180);
+});
+
 }(jQuery));
