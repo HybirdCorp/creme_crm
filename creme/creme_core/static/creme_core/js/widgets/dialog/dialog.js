@@ -23,11 +23,12 @@ creme.dialog = creme.dialog || {};
 
 var _DIALOG_SCROLLTYPES = ['frame', 'background'];
 
-// TODO : factorize
+/*
 var clamp = function(value, min, max) {
     value = _.isNumber(max) ? (max > value ? value : max) : value;
     return _.isNumber(min) ? (min < value ? value : min) : value;
 };
+*/
 
 creme.dialog.Dialog = creme.component.Component.sub({
     _init_: function(options) {
@@ -301,8 +302,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
         var maxSize = this.maxSize();
         var minSize = this.minSize();
 
-        width = clamp(width, minSize.width, maxSize.width);
-        height = clamp(height, minSize.height, maxSize.height);
+        width = _.clamp(width, minSize.width, maxSize.width);
+        height = _.clamp(height, minSize.height, maxSize.height);
 
         this._dialogOption('width', width);
         this._dialogOption('height', height);
@@ -313,7 +314,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
                 'width': 'auto'
             });
         } else {
-            var framePreferredHeight = clamp(this._frame.preferredSize()[1], minSize.height);
+            var framePreferredHeight = _.clamp(this._frame.preferredSize()[1], minSize.height);
 
             this._frame.delegate().css({
                 'min-height': framePreferredHeight,
@@ -577,8 +578,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         var resizable = is_framescroll ? options.resizable : false;
         var draggable = is_framescroll ? options.draggable : false;
-        var width = clamp(options.width, options.minWidth, options.maxWidth);
-        var height = clamp(options.height, options.minHeight, options.maxHeight);
+        var width = _.clamp(options.width, options.minWidth, options.maxWidth);
+        var height = _.clamp(options.height, options.minHeight, options.maxHeight);
         var title = options.title ? String(options.title).decodeHTMLEntities() : options.title;
 
         var dialogOptions = {
