@@ -26,5 +26,6 @@
 **/creme_core/js/datejs/*
 **/sketch/js/lib/d3-*.js
 **/sketch/js/lib/filesaver-*.js
+!**/sketch/js/lib/d3-radial-axis.js
 **/tiny_mce/**
 **/media/static/**

@@ -27,6 +27,7 @@
   -----------------
     - Javascript :
         - The version of 'FullCalendar' is now "5.11.4".
+        - Add some math functions as underscorejs mixins: absRound, clamp, scaleRound, scaleTrunc, toRadian, toDegree & toNumber
 
     Non breaking changes :
     ----------------------
@@ -59,6 +60,7 @@
                 - New 'creme.d3Tooltip' chart component that allows to render HTML tooltips.
                 - New 'creme.d3BisectScale' that retrieve the value scale source value from the position in a chart.
                 - 'creme.D3PieChart' now supports color field from data.
+                - New 'd3.radialAxisInner' & 'd3.radialAxisOuter' functions that draws axis for gauge meters.
 
     Breaking changes :
     ------------------

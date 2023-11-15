@@ -930,6 +930,7 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.creme_config',  'creme_config/js/bricks-config-editor.js'),
     ('creme.creme_config',  'creme_config/js/settings-menu.js'),
 
+    ('creme.sketch',        'sketch/js/lib/d3-radial-axis.js'),
     ('creme.sketch',        'sketch/js/utils.js'),
     ('creme.sketch',        'sketch/js/color.js'),
     ('creme.sketch',        'sketch/js/tooltip.js'),
