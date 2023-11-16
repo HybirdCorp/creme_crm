@@ -118,6 +118,8 @@
 
 .reports-graph-brick .brick-graph-header .graph-volatile {
     padding: 3px 5px;
+    display: flex;
+    align-items: baseline;
 }
 
 .reports-graph-brick .brick-graph-header .graph-volatile-label {
