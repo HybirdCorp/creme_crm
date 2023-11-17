@@ -3,7 +3,7 @@
     "version": "2.5.0",
     "license": "AGPL-3.0",
     "engines": {
-        "node": "^14.0.0"
+        "node": "^16.0.0"
     },
     "scripts": {
         "eslint-install": "npm i \"file:${ESLINT_CREME_PLUGINS:-creme/static/utils/eslint/}/eslint-plugin-template-0.5.0-hybird.tgz\" --no-save"
