@@ -33,10 +33,11 @@ from django.utils.translation import pgettext_lazy
 
 import creme.creme_core.forms.fields as core_fields
 import creme.creme_core.forms.header_filter as hf_forms
-from creme.creme_config.forms.fields import CreatorModelChoiceField
+# from creme.creme_config.forms.fields import CreatorModelChoiceField
 from creme.creme_core.backends import export_backend_registry
 from creme.creme_core.core import entity_cell
 from creme.creme_core.forms import CremeForm
+from creme.creme_core.forms.fields import enum_fields
 from creme.creme_core.forms.widgets import PrettySelect
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import (
@@ -94,26 +95,32 @@ class FilterSubCell(CustomFormExtraSubCell):
         # choice_field = mfield.formfield()
         # NB: we use legacy form field because of filtering issues with the EnumeratorChoiceField
         # TODO: use EnumeratorChoiceField
-        choice_field = CreatorModelChoiceField(
-            queryset=mfield.related_model.objects.all(),
+#         choice_field = CreatorModelChoiceField(
+#             queryset=mfield.related_model.objects.all(),
+#             empty_label=pgettext_lazy('creme_core-filter', 'All'),
+#             user=user,
+#             limit_choices_to=mfield.get_limit_choices_to(),
+#             required=not mfield.blank,
+#             label=mfield.verbose_name,
+#             help_text=mfield.help_text
+#         )
+        choice_field = enum_fields.EnumerableModelChoiceField(
+            model=type(instance),
+            field_name=field_name,
             empty_label=pgettext_lazy('creme_core-filter', 'All'),
             user=user,
-            limit_choices_to=mfield.get_limit_choices_to(),
             required=not mfield.blank,
             label=mfield.verbose_name,
             help_text=mfield.help_text
         )
 
-        choice_field.queryset = mfield.related_model.objects.filter_by_user(user).filter(
-            entity_type=getattr(instance, self.ctype_field_name),
-        )
         choice_field.initial = efilter
 
-        if hasattr(choice_field, 'get_limit_choices_to'):
-            q_filter = choice_field.get_limit_choices_to()
-
-            if q_filter is not None:
-                choice_field.queryset = choice_field.queryset.complex_filter(q_filter)
+#         if hasattr(choice_field, 'get_limit_choices_to'):
+#             q_filter = choice_field.get_limit_choices_to()
+#
+#             if q_filter is not None:
+#                 choice_field.queryset = choice_field.queryset.complex_filter(q_filter)
 
         return choice_field
 

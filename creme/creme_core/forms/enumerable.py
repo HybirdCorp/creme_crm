@@ -31,6 +31,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from ..core import enumerable
+from ..utils.serializers import json_encode
 
 logger = logging.getLogger(__name__)
 
@@ -79,6 +80,7 @@ class EnumerableChoiceSet:
                  user=None, empty_label=None,
                  limit: int | None = None,
                  url: str | None = None,  # TODO: useless?
+                 q=None,
                  ):
         """ Build choices for the EnumerableSelect widget.
 
@@ -95,6 +97,7 @@ class EnumerableChoiceSet:
         self.limit = limit
         self.url = url
         self.enumerator = enumerator
+        self.q = q
 
     @property
     def limit(self):
@@ -128,6 +131,7 @@ class EnumerableChoiceSet:
                 EnumerableChoice(**choice, selected=pop_selected(choice['value']))
                 for choice in self.enumerator.choices(
                     user=self.user,
+                    q=self.q,
                 )
             ]
         elif selected_count < limit:
@@ -136,7 +140,8 @@ class EnumerableChoiceSet:
                 EnumerableChoice(**choice, selected=pop_selected(choice['value']))
                 for choice in self.enumerator.choices(
                     user=self.user,
-                    limit=limit + 1
+                    limit=limit + 1,
+                    q=self.q,
                 )
             ]
 
@@ -154,7 +159,8 @@ class EnumerableChoiceSet:
                     EnumerableChoice(**choice, selected=True)
                     for choice in self.enumerator.choices(
                         user=self.user,
-                        only=selected_values
+                        only=selected_values,
+                        q=self.q,
                     )
                 )
         else:
@@ -164,7 +170,8 @@ class EnumerableChoiceSet:
                 EnumerableChoice(**choice, selected=True)
                 for choice in self.enumerator.choices(
                     user=self.user,
-                    only=selected_values
+                    only=selected_values,
+                    q=self.q,
                 )
             ]
 
@@ -202,7 +209,8 @@ class FieldEnumerableChoiceSet(EnumerableChoiceSet):
                  registry: enumerable._EnumerableRegistry | None = None,
                  enumerator: enumerable.Enumerator | None = None,
                  limit: int | None = None,
-                 url: str | None = None):
+                 url: str | None = None,
+                 q: None):
         self.field = field
 
         if enumerator is None:
@@ -214,7 +222,8 @@ class FieldEnumerableChoiceSet(EnumerableChoiceSet):
             user=user,
             empty_label=empty_label,
             limit=limit,
-            url=url
+            url=url,
+            q=q,
         )
 
     def get_field_enumerator(self, registry, field):
@@ -282,6 +291,11 @@ class EnumerableSelect(widgets.Select):
             attrs.setdefault('data-enum-cache', 'true')
             attrs.setdefault('data-enum-debounce', self.ENUMERABLE_DEFAULT_DEBOUNCE_DELAY)
 
+            if self.enumerable.q:
+                attrs['data-enum-extra'] = json_encode({
+                    "q": enumerable.dumps_enum_filter(self.enumerable.q),
+                })
+
         attrs['data-allow-clear'] = str(not self.is_required).lower()
 
         if self.enumerable.empty_label:
@@ -344,7 +358,8 @@ class EnumerableChoiceField(mforms.ChoiceField):
             field=self._enum.field,
             user=self._enum.user,
             limit=self._enum.limit,
-            empty_label=self._enum.empty_label
+            empty_label=self._enum.empty_label,
+            q=self._enum.q,
         )
 
         return result
@@ -427,10 +442,16 @@ class EnumerableModelChoiceField(EnumerableChoiceField):
             initial = field.default
             kwargs.setdefault('show_hidden_initial', callable(initial))
 
+        if hasattr(self, 'get_limit_choices_to'):
+            limit_choices_to = self.get_limit_choices_to()
+        else:
+            limit_choices_to = None
+
         enum = self.enumerable(
             field=field,
             user=user,
             limit=limit,
+            q=limit_choices_to,
         )
 
         super().__init__(enum, initial=initial, **kwargs)

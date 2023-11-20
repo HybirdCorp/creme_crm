@@ -47,9 +47,9 @@ class UserEnumerator(enumerable.QSEnumerator):
 
         return d
 
-    def choices(self, user, *, term=None, only=None, limit=None):
+    def choices(self, user, *, term=None, only=None, limit=None, q=None):
         # Do not apply limits on queryset, because ordering is done later
-        choices = super().choices(user, term=term, only=only)
+        choices = super().choices(user, term=term, only=only, q=q)
 
         sort_key = collator.sort_key
         choices.sort(key=lambda d: sort_key(f"{d.get('group', '')}#{d['label']}"))
@@ -68,9 +68,9 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
 
         return d
 
-    def choices(self, user, *, term=None, only=None, limit=None):
+    def choices(self, user, *, term=None, only=None, limit=None, q=None):
         # Do not apply limits on queryset, because ordering is done later
-        choices = super().choices(user, term=term, only=only)
+        choices = super().choices(user, term=term, only=only, q=q)
 
         sort_key = collator.sort_key
         choices.sort(key=lambda d: sort_key(f"{d.get('group', '')}#{d['label']}"))
@@ -79,7 +79,7 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
 
 
 class EntityCTypeForeignKeyEnumerator(enumerable.Enumerator):
-    def choices(self, user, *, term=None, only=None, limit=None):
+    def choices(self, user, *, term=None, only=None, limit=None, q=None):
         choices = ctype_choices(entity_ctypes())
 
         if only:
@@ -88,9 +88,11 @@ class EntityCTypeForeignKeyEnumerator(enumerable.Enumerator):
             term = term.lower()
             choices = [c for c in choices if term in c[1].lower()]
 
+        choices = choices[:limit] if limit else choices
+        choices = filter(q, choices) if callable(q) else choices
+
         return [
-            {'value': ct_id, 'label': label}
-            for ct_id, label in (choices[:limit] if limit else choices)
+            {'value': ct_id, 'label': label} for ct_id, label in choices
         ]
 
     def to_python(self, user, values):
@@ -141,7 +143,7 @@ class CustomFieldEnumerator(enumerable.Enumerator):
             'label': str(instance.value),
         }
 
-    def choices(self, user, *, term=None, only=None, limit=None):
+    def choices(self, user, *, term=None, only=None, limit=None, q=None):
         queryset = self._queryset(user)
 
         if term:
@@ -149,6 +151,7 @@ class CustomFieldEnumerator(enumerable.Enumerator):
         elif only:
             queryset = self.filter_only(queryset, only)
 
-        return list(
-            map(self.instance_as_dict, queryset[:limit] if limit else queryset)
-        )
+        choices = queryset[:limit] if limit else queryset
+        choices = filter(q, choices) if callable(q) else choices
+
+        return list(map(self.instance_as_dict, choices))

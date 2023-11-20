@@ -144,6 +144,23 @@ function convertToSelect2Data(data) {
     return options;
 }
 
+function stringifyExtraData(data) {
+    var output = _.mapObject(data || {}, function(value) {
+        return (_.isNumber(value) || _.isString(value)) ? value : JSON.stringify(value);
+    });
+
+    return output;
+}
+
+function parseExtraData(data) {
+    try {
+        return _.isString(data) ? JSON.parse(data) : data || {};
+    } catch (e) {
+        console.error(e);
+        return {};
+    }
+}
+
 /*
 function mergeSelect2Data(initial, items) {
     var output = [];
@@ -340,9 +357,11 @@ S2.define('select2/data/enum', [
                  });
              });
 
-        query.get({
+        var data = $.extend({
             only: missingIds.join(',')
-        });
+        }, this.enumOptions.extra || {});
+
+        query.get(data);
     };
 
     Adapter.prototype.bind = function (container, $container) {
@@ -415,10 +434,12 @@ S2.define('select2/data/enum', [
                  });
              });
 
-        return query.get({
+        var data = $.extend({
             term: params.term,
             limit: params.limit + 1  // Ask for one more element to detect overflow
-        });
+        }, options.extra || {});
+
+        return query.get(data);
     };
 
     Adapter.prototype.query = function (params, callback) {
@@ -712,6 +733,7 @@ creme.form.Select2 = creme.component.Component.sub({
             enumLimit: element.data('enumLimit'),
             enumDebounce: element.data('enumDebounce'),
             enumCache: element.data('enumCache'),
+            enumExtra: parseExtraData(element.data('enumExtra')),
             noEmpty: element.data('noEmpty')
         }, options || {});
 
@@ -765,7 +787,8 @@ creme.form.Select2 = creme.component.Component.sub({
                         url: options.enumURL,
                         debounce: options.enumDebounce,
                         limit: options.enumLimit,
-                        cache: options.enumCache
+                        cache: options.enumCache,
+                        extra: stringifyExtraData(options.enumExtra)
                     },
                     dataAdapter: EnumAdapter
                 });
