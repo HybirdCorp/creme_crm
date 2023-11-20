@@ -22,7 +22,7 @@ from django.shortcuts import get_object_or_404
 
 from creme.creme_core.enumerators import CustomFieldEnumerator
 
-from ..core.enumerable import enumerable_registry
+from ..core.enumerable import enumerable_registry, loads_enum_filter
 from ..core.exceptions import BadRequestError, ConflictError
 from ..http import CremeJsonResponse
 from ..models import CustomField
@@ -83,11 +83,16 @@ class FieldChoicesView(ChoicesView):
     def get_q(self, request):
         q = request.GET.get(self.q_arg)
 
+        try:
+            return loads_enum_filter(q) if q else None
+        except Exception as e:
+            raise BadRequestError(f"Invalid enumerator filter : {q}") from e
+
     def get_enumerable_choices(self, request, *args, **kwargs):
         limit = self.get_limit(request)
         only = self.get_only(request)
         term = request.GET.get(self.term_arg)
-        q = request.GET.get(self.q_arg)
+        q = self.get_q(request)
 
         return self.get_enumerator().choices(
             user=request.user,

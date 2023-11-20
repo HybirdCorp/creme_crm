@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Iterator
+from typing import Callable, Iterable, Iterator
 
 from django.db.models import CharField, Field, Model
 from django.db.models.query_utils import Q
@@ -26,6 +26,8 @@ from django.db.models.query_utils import Q
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.collections import ClassKeyedMap
+from creme.creme_core.utils.queries import QSerializer
+from creme.creme_core.utils.serializers import json_encode
 
 
 class Enumerator:
@@ -113,6 +115,22 @@ def get_enum_search_fields(field):
     return search_fields
 
 
+def dumps_enum_filter(q):
+    if isinstance(q, Q):
+        return QSerializer().dumps(q)
+    elif isinstance(q, dict):
+        return QSerializer().dumps(Q(**q))
+    else:
+        return json_encode(q)
+
+
+def loads_enum_filter(q):
+    try:
+        return enumerable_registry.enum_filter_by_name(q)
+    except KeyError:
+        return QSerializer().loads(q)
+
+
 class EmptyEnumerator(Enumerator):
     """Class which can enumerate nothing. Used as a placeholder if the enumerator
     cannot be found in the registry"""
@@ -176,14 +194,18 @@ class QSEnumerator(Enumerator):
     def choices(self, user, *, term=None, only=None, limit=None, q=None):
         queryset = self._queryset(user)
 
+        if isinstance(q, Q):
+            queryset = queryset.filter(q)
+
         if term:
             queryset = self.filter_term(queryset, term)
         elif only:
             queryset = self.filter_only(queryset, only)
 
-        return list(
-            map(self.instance_as_dict, queryset[:limit] if limit else queryset)
-        )
+        choices = queryset[:limit] if limit else queryset
+        choices = filter(q, choices) if callable(q) else choices
+
+        return list(map(self.instance_as_dict, choices))
 
 
 class _EnumerableRegistry:
@@ -207,6 +229,7 @@ class _EnumerableRegistry:
         self._enums_4_fields = {}
         self._enums_4_field_types = ClassKeyedMap()
         self._enums_4_models = {}
+        self._filters = {}
 
     def __str__(self):
         res = '_EnumerableRegistry:'
@@ -307,6 +330,18 @@ class _EnumerableRegistry:
         @raises: FieldDoesNotExist.
         """
         return self._enumerator(self._get_field(model, field_name))
+
+    def enum_filter_by_name(self, name: str):
+        return self._filters[name]
+
+    def register_enum_filter(self, name: str, filter: Callable | Q):
+        if name in self._filters:
+            raise self.RegistrationError(
+                f'{name}: this filter is already registered'
+            )
+
+        self._filters.setdefault(name, filter)
+        return self
 
     def register_field(self,
                        model: type[Model],
