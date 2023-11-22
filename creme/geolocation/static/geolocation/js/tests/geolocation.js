@@ -132,6 +132,117 @@ QUnit.test('creme.geolocation.Location (status)', function() {
     equal(gettext("Manual location"), location.statusLabel());
 });
 
+QUnit.test('creme.geolocation.GeoMapController (base class)', function(assert) {
+    var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
+    var controller = new creme.geolocation.GeoMapController();
+
+    equal(controller.element(), undefined);
+    equal(controller.isBound(), false);
+    equal(controller.isGeocoderAllowed(), true);
+    equal(controller.isMapEnabled(), false);
+    equal(controller.isGeocoderEnabled(), false);
+
+    this.assertRaises(function() {
+        controller.bind(element);
+    }, Error, "Error: Not implemented");
+
+    this.assertRaises(function() {
+        controller.unbind(element);
+    }, Error, "Error: Not implemented");
+
+    this.assertRaises(function() {
+        controller.addMarker('a', {});
+    }, Error, "Error: Not implemented");
+
+    equal(controller.hasMarker('a'), false);
+    deepEqual(controller, controller.removeMarker('a'));
+    deepEqual(controller, controller.removeAllMarkers());
+    deepEqual(controller, controller.updateMarker('a', {}));
+    deepEqual(controller, controller.toggleMarker('a', {}));
+    deepEqual(controller, controller.toggleAllMarkers('a', {}));
+
+    this.assertRaises(function() {
+        controller.getMarker('a');
+    }, Error, "Error: Not implemented");
+
+    this.assertRaises(function() {
+        controller.getMarkerProperties('a');
+    }, Error, "Error: Not implemented");
+
+    deepEqual(controller.markers(), []);
+    deepEqual(controller.markerIds(), []);
+
+    this.assertRaises(function() {
+        controller.addShape('a', {});
+    }, Error, "Error: Not implemented");
+
+    this.assertRaises(function() {
+        controller.getShape('a');
+    }, Error, "Error: Not implemented");
+
+    equal(controller.hasShape('a'), false);
+    deepEqual(controller, controller.removeShape('a'));
+    deepEqual(controller, controller.removeAllShapes());
+    deepEqual(controller, controller.updateShape('a', {}));
+
+    deepEqual(controller.shapes(), []);
+    deepEqual(controller.shapeIds(), []);
+
+    deepEqual(controller, controller.autoResize());
+
+    this.assertRaises(function() {
+        controller.adjustMap('a');
+    }, Error, "Error: Not implemented");
+
+    this.assertRaises(function() {
+        controller.adjustMapToShape('a');
+    }, Error, "Error: Not implemented");
+});
+
+QUnit.parameterize('creme.geolocation.GeoMapController (events)', [
+    [new creme.geolocation.GoogleMapController()],
+    [new creme.geolocation.LeafletMapController()]
+], function(controller, assert) {
+    var element = $(this.createMapHtml()).appendTo(this.qunitFixture());
+
+    this.runTestOnGeomapReady(controller, element, function() {
+        controller.trigger('any', {a: 12});
+
+        deepEqual(this.mockListenerCalls('any'), []);
+        deepEqual(this.mockListenerJQueryCalls('geomap-any'), []);
+
+        var listener = this.mockListener('any');
+        element.on('geomap-any', this.mockListener('geomap-any'));
+        controller.on('any', listener);
+
+        controller.trigger('any', {a: 12});
+
+        deepEqual(this.mockListenerCalls('any'), [['any', {a: 12}]]);
+        deepEqual(this.mockListenerJQueryCalls('geomap-any'), [
+            ['geomap-any', [controller, {a: 12}]]
+        ]);
+
+        controller.off('any', listener);
+
+        controller.trigger('any', {b: 7});
+
+        deepEqual(this.mockListenerCalls('any'), [['any', {a: 12}]]);
+        deepEqual(this.mockListenerJQueryCalls('geomap-any'), [
+            ['geomap-any', [controller, {a: 12}]],
+            ['geomap-any', [controller, {b: 7}]]
+        ]);
+
+        controller.one('any', listener);
+        controller.trigger('any', {c: 8});
+        controller.trigger('any', {d: 9});
+
+        deepEqual(this.mockListenerCalls('any'), [
+            ['any', {a: 12}],
+            ['any', {c: 8}]
+        ]);
+    });
+});
+
 QUnit.parametrize('creme.geolocation.GeoMapController.enableGeocoder (not allowed)', [
     [new creme.geolocation.GoogleMapController({
         allowGeocoder: false

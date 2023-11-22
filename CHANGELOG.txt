@@ -27,6 +27,7 @@
   Developers side :
   -----------------
     - Javascript :
+        - The version of Leaflet has been upgraded to "1.9.4".
         - The version of 'FullCalendar' is now "5.11.4".
         - Add some math functions as underscorejs mixins: absRound, clamp, scaleRound, scaleTrunc, toRadian, toDegree & toNumber
         - The version of D3js has been upgraded to "7.8.5".
