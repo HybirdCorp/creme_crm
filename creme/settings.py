@@ -765,7 +765,7 @@ CREME_OPT_CSS = [  # APPS
     ('creme.mobile',           'mobile/css/mobile.css'),
     ('creme.cti',              'cti/css/cti.css'),
 
-    ('creme.geolocation', 'geolocation/css/leaflet-1.6.0.css'),
+    ('creme.geolocation', 'geolocation/css/leaflet-1.9.4.css'),
     ('creme.geolocation', 'geolocation/css/geolocation.css'),
 
     ('creme.sketch',           'sketch/css/sketch.css'),
@@ -917,7 +917,7 @@ CREME_OPTLIB_JS = [
     # DEPRECATED: to be removed in creme 2.7
     # ('creme.activities', 'activities/js/lib/fullcalendar-3.10.2.js'),
     ('creme.activities', 'activities/js/lib/fullcalendar-5.11.4.js'),
-    ('creme.geolocation', 'geolocation/js/lib/leaflet-1.7.1.js'),
+    ('creme.geolocation', 'geolocation/js/lib/leaflet-1.9.4.js'),
     ('creme.sketch', 'sketch/js/lib/d3-7.8.5.js'),
     ('creme.sketch', 'sketch/js/lib/filesaver-2.0.4.js'),
 ]

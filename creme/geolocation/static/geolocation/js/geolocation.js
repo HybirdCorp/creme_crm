@@ -329,7 +329,7 @@ creme.geolocation.GeoMapController = creme.component.Component.sub({
     },
 
     addMarker: function(id, options) {
-        throw new Error('not implemented');
+        throw new Error('Not implemented');
     },
 
     removeMarker: function(id) {
@@ -346,11 +346,11 @@ creme.geolocation.GeoMapController = creme.component.Component.sub({
     },
 
     getMarker: function(id) {
-        throw new Error('not implemented');
+        throw new Error('Not implemented');
     },
 
     getMarkerProperties: function(id) {
-        throw new Error('not implemented');
+        throw new Error('Not implemented');
     },
 
     hasMarker: function(id) {
@@ -374,11 +374,11 @@ creme.geolocation.GeoMapController = creme.component.Component.sub({
     },
 
     addShape: function(id, options) {
-        throw new Error('not implemented');
+        throw new Error('Not implemented');
     },
 
     getShape: function(id) {
-        throw new Error('not implemented');
+        throw new Error('Not implemented');
     },
 
     hasShape: function(id) {
@@ -420,11 +420,11 @@ creme.geolocation.GeoMapController = creme.component.Component.sub({
     },
 
     adjustMap: function() {
-        throw new Error('not implemented');
+        throw new Error('Not implemented');
     },
 
     adjustMapToShape: function(id) {
-        throw new Error('not implemented');
+        throw new Error('Not implemented');
     }
 });
 
