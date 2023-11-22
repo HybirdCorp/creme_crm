@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2022  Hybird
+#    Copyright (C) 2018-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,7 @@ from django.db.models.query_utils import Q
 
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import CremeEntity
+from creme.creme_core.models.utils import model_has_color
 from creme.creme_core.utils.collections import ClassKeyedMap
 
 
@@ -122,6 +123,15 @@ class EmptyEnumerator(Enumerator):
         return ()
 
 
+class ColorEnumeratorMixin:
+    @classmethod
+    def instance_as_dict(cls, instance):
+        return {
+            **super(ColorEnumeratorMixin, cls).instance_as_dict(instance),
+            'color': instance.color
+        }
+
+
 class QSEnumerator(Enumerator):
     search_fields = ()
     limit_choices_to = None
@@ -172,6 +182,14 @@ class QSEnumerator(Enumerator):
     def filter_only(self, queryset, values):
         return queryset.filter(id__in=values)
 
+    @classmethod
+    def instance_as_dict(cls, instance) -> dict:
+        return {
+            'value': instance.pk,
+            'label': str(instance),
+            'color': getattr(instance, 'color', None)
+        }
+
     def choices(self, user, *, term=None, only=None, limit=None):
         queryset = self._queryset(user)
 
@@ -183,6 +201,10 @@ class QSEnumerator(Enumerator):
         return list(
             map(self.instance_as_dict, queryset[:limit] if limit else queryset)
         )
+
+
+class ColorQSEnumerator(ColorEnumeratorMixin, QSEnumerator):
+    pass
 
 
 class _EnumerableRegistry:
@@ -279,7 +301,9 @@ class _EnumerableRegistry:
         if enumerator_cls is None:
             self._check_viewable(field)
             self._check_is_entity(field.model)
-            enumerator_cls = QSEnumerator
+            enumerator_cls = (
+                ColorQSEnumerator if model_has_color(field.model) else ColorQSEnumerator
+            )
 
         return enumerator_cls(field)
 

@@ -47,7 +47,7 @@ def get_form_enumerable_limit():
 
 
 class EnumerableChoice:
-    def __init__(self, value, label, *, help='', group=None,
+    def __init__(self, value, label, *, help='', group=None, color=None,
                  disabled=False, selected=False, pinned=False):
         self.value = value
         self.disabled = disabled
@@ -55,6 +55,7 @@ class EnumerableChoice:
         self.help = help
         self.label = label
         self.group = group
+        self.color = color
         self.pinned = pinned
 
     def __str__(self):
@@ -71,6 +72,7 @@ class EnumerableChoice:
             'disabled': self.disabled,
             'selected': self.selected,
             'pinned': self.pinned,
+            'color': f'#{self.color}' if self.color else None
         }
 
 

@@ -29,7 +29,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
 from creme.creme_core.models import CremeEntity, CustomFieldEnumValue, Relation
-from creme.creme_core.models.fields import ColorField
+from creme.creme_core.models.utils import model_has_color
 from creme.reports.constants import AbscissaGroup
 from creme.reports.utils import sparsezip
 
@@ -548,18 +548,10 @@ class RGHForeignKey(_RGHRegularField):
                 ],
             )
 
-    def model_has_color(self, model):
-        try:
-            color_field = model._meta.get_field('color')
-        except Exception:
-            return False
-
-        return isinstance(color_field, ColorField)
-
     def fetch_colormap(self, user) -> dict:
         fk_model = self._field.related_model
 
-        if not self.model_has_color(fk_model):
+        if not model_has_color(fk_model):
             return {}
 
         choices = self._abscissa_enumerator.choices(user=user)
