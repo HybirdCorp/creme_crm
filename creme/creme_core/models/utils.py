@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2020 Hybird
+# Copyright (c) 2016-2023 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,13 @@
 # SOFTWARE.
 ################################################################################
 
+from functools import lru_cache
 from typing import Callable
 
 from django.db.models import Model
 
 from ..utils import ellipsis
+from .fields import ColorField
 
 
 def assign_2_charfield(instance: Model,
@@ -34,3 +36,13 @@ def assign_2_charfield(instance: Model,
                        truncate: Callable[[str, int], str] = ellipsis) -> None:
     field = instance._meta.get_field(field_name)
     setattr(instance, field_name, truncate(value, field.max_length))
+
+
+@lru_cache(maxsize=None)
+def model_has_color(model: Model):
+    try:
+        color_field = model._meta.get_field('color')
+    except Exception:
+        return False
+
+    return isinstance(color_field, ColorField)
