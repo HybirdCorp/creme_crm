@@ -171,6 +171,10 @@ lint: isort-check flake8
 .PHONY: format
 format: isort-fix
 
+.PHONY: build-ckeditor
+build-ckeditor:
+	@if [ ! -f "ckeditor/node_modules/.bin/webpack" ]; then (cd ckeditor && npm install --no-save); fi
+	cd ckeditor && node_modules/.bin/webpack build --mode production
 
 ## Collect the messages to translate for the entire project or the given app directories
 .PHONY: gettext-collect

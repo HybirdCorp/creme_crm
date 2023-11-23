@@ -1,0 +1,27 @@
+/* placeholder/theme/placeholder.css */
+
+.placeholder {
+    background-color: var(--ck-color-button-on-background);
+    color: var(--ck-color-button-on-color);
+    padding: 4px 1px;
+    line-height: 1em;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+
+.placeholder[title]:hover {
+    cursor: help;
+}
+
+.placeholder::selection {
+    display: none;
+}
+
+.placeholder::before {
+    content: '❴';
+    
+}
+
+.placeholder::after {
+    content: '❵';
+}

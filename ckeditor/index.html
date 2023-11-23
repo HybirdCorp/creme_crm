@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>CKEditor&nbsp;5 Framework – Implementing a simple widget</title>
+    </head>
+    <body>
+        <textarea id="editor">
+            <p>Hello <span class="placeholder">{{civility}}</span> {{first_name}} {{last_name}}, editor content goes here.</p>
+        </textarea>
+
+        <script src="dist/ckeditor5-39.0.2.js"></script>
+        <script type="text/javascript">
+        ClassicEditor.create(document.querySelector('#editor'), {
+            toolbar: ['heading', '|', 'bold', 'italic', 'numberedList', 'bulletedList', '|', 'placeholder'],
+            placeholderConfig: {
+                dropdownTitle: 'Modèles',
+                types: [
+                    {label: "Civilité", name: 'civility', help: "Madame / Mademoiselle / Monsieur"},
+                    {label: "Prénom", name: 'first_name'},
+                    {label: "Nom", name: 'last_name'}
+                ]
+           }
+       })
+        .then(editor => {
+            console.log('Editor was initialized', editor);
+
+            // Expose for playing in the console.
+            window.editor = editor;
+
+            editor.model.document.on('change:data', (event, data) => {
+                editor.updateSourceElement();
+           });
+       })
+        .catch(error => {
+            console.error(error.stack);
+       });
+
+        </script>
+    </body>
+</html>
