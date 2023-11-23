@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import (
@@ -32,10 +31,7 @@ from creme.documents import get_document_model
 class EmailTemplateBaseCustomForm(CremeEntityForm):
     class Meta:
         widgets = {
-            'body_html': CKEditor(
-                upload_url=reverse_lazy('creme_core__dropfile'),
-                toolbar='template'
-            ),
+            'body_html': CKEditor(toolbar='template'),
         }
 
 
