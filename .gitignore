@@ -47,5 +47,8 @@ node_modules/
 .coverage-karma/
 .eslint.*
 
+# CKEditor
+ckeditor/dist/*
+
 # environment variables
 .env
