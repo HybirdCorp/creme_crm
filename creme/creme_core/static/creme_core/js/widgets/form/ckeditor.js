@@ -36,7 +36,7 @@ var CKEDITOR_TOOLBARS = {
         'numberedList', 'bulletedList', '|',
         'outdent', 'indent', '|',
         'fontbackgroundcolor', 'fontcolor', 'fontfamily', 'fontsize', '|',
-        'link', 'blockquote', 'inserttable', 'imageupload', '|', 'placeholder'
+        'link', 'blockquote', 'inserttable', 'imageinsert', '|', 'placeholder'
     ],
     full: [
         'undo', 'redo', '|',
@@ -45,7 +45,7 @@ var CKEDITOR_TOOLBARS = {
         'numberedList', 'bulletedList', '|',
         'outdent', 'indent', '|',
         'fontbackgroundcolor', 'fontcolor', 'fontfamily', 'fontsize', '|',
-        'link', 'blockquote', 'horizontalline', 'inserttable', 'imageupload'
+        'link', 'blockquote', 'horizontalline', 'inserttable', 'imageinsert'
     ]
 };
 
