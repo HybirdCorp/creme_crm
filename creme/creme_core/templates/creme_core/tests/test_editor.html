@@ -26,11 +26,15 @@
         </li>
         <li style="max-width: 50%;">
             <h4>CKEditor</h4>
-            <textarea data-ckeditor-upload="{% url 'creme_core__dropfile' %}">Classic</textarea>
+            <textarea>Full toolbar</textarea>
         </li>
         <li style="max-width: 50%;">
             <h4>CKEditor</h4>
-            <textarea data-ckeditor-toolbar="simple" data-ckeditor-upload="{% url 'creme_core__dropfile' %}">Classic</textarea>
+            <textarea data-ckeditor-toolbar="simple">Simple toolbar</textarea>
+        </li>
+        <li style="max-width: 50%;">
+            <h4>CKEditor</h4>
+            <textarea data-ckeditor-toolbar="template">Template toolbar</textarea>
         </li>
     </ul>
 {% endblock %}

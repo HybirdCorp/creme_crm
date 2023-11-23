@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.urls import include, re_path
-from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from .views import (
     auth,
@@ -544,11 +543,6 @@ creme_core_patterns = [
         file_handling.RegisteredFileFieldDownloadView.as_view(),
         name='creme_core__download',
     ),
-    re_path(
-        r'^dropfile/(?P<fileref_id>\d+)?[/]?$',
-        xframe_options_sameorigin(file_handling.DropFileView.as_view()),
-        name='creme_core__dropfile'
-    )
 ]
 
 urlpatterns = [
