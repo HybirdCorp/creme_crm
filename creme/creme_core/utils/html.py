@@ -25,7 +25,6 @@ from typing import TYPE_CHECKING
 import bleach
 from bleach.css_sanitizer import CSSSanitizer
 from django.conf import settings
-from django.urls.base import reverse
 from django.utils.encoding import force_str
 from django.utils.html import mark_safe
 
@@ -89,12 +88,7 @@ def filter_img_src(tag, attr, value):
     # XXX: this feature is probably broken (& not used) -- see urls.py
     # TODO: remove the external image feature ??
     if attr == 'src':
-        return any(
-            value.startswith(path) for path in (
-                settings.MEDIA_URL,
-                reverse('creme_core__dropfile'),
-            )
-        )
+        return value.startswith(settings.MEDIA_URL)
 
     return False
 
