@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import date, time
 from json import dumps as json_dump
 
@@ -225,6 +226,25 @@ class ActivitySubTypeFieldTestCase(FieldTestCase):
                 ),
             ]),
             sorted((c.value, c.label, c.group) for c in field.choices),
+        )
+
+    def test_deepcopy(self):
+        field = ActivitySubTypeField(
+            model=Activity, field_name='sub_type',
+            limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO)
+        )
+
+        field_copy = deepcopy(field)
+
+        self.assertEqual(field_copy.limit, NO_LIMIT)
+        self.assertEqual(
+            field_copy.limit_choices_to,
+            Q(type_id=constants.ACTIVITYTYPE_INDISPO)
+        )
+
+        self.assertListEqual(
+            [(c.value, c.label, c.group) for c in field_copy.choices],
+            [(c.value, c.label, c.group) for c in field.choices]
         )
 
     def test_clean(self):
