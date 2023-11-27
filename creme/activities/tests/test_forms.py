@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import date, time
 
 # from django.core.exceptions import ValidationError
@@ -94,6 +95,25 @@ class ActivitySubTypeFieldTestCase(_ActivitiesTestCase):
                 ),
             ],
             [(c.value, c.label, c.group) for c in field.choices],
+        )
+
+    def test_deepcopy(self):
+        field = ActivitySubTypeField(
+            model=Activity, field_name='sub_type',
+            limit_choices_to=Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY)
+        )
+
+        field_copy = deepcopy(field)
+
+        self.assertEqual(field_copy.limit, NO_LIMIT)
+        self.assertEqual(
+            field_copy.limit_choices_to,
+            Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY)
+        )
+
+        self.assertListEqual(
+            [(c.value, c.label, c.group) for c in field_copy.choices],
+            [(c.value, c.label, c.group) for c in field.choices]
         )
 
     def test_clean(self):

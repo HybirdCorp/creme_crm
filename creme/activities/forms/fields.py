@@ -60,6 +60,11 @@ class ActivitySubTypeField(CreatorEnumerableModelChoiceField):
         """
         self.enum.enumerator.limit_choices_to = limit_choices_to
 
+    def __deepcopy__(self, memo):
+        result = CreatorEnumerableModelChoiceField.__deepcopy__(self, memo)
+        result.limit_choices_to = self.limit_choices_to
+        return result
+
     def widget_attrs(self, widget):
         attrs = super().widget_attrs(widget)
         attrs['data-selection-show-group'] = 'true'
