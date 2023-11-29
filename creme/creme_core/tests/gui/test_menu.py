@@ -53,10 +53,9 @@ from ..fake_menu import FakeContactCreationEntry, FakeContactsEntry
 
 
 class MenuTestCase(CremeTestCase):
-    def setUp(self):
-        super().setUp()
-        self.maxDiff = None
-        self.user = None
+    # def setUp(self):
+    #     super().setUp()
+    #     self.maxDiff = None
 
     def _build_context(self, user=None):
         user = user or self.get_root_user()
