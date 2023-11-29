@@ -1574,7 +1574,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_user_settings01(self):
         response = self.assertGET200(reverse('creme_config__user_settings'))
-        self.assertTemplateUsed(response, 'creme_config/user_settings.html')
+        # self.assertTemplateUsed(response, 'creme_config/user_settings.html')
+        self.assertTemplateUsed(response, 'creme_config/user-settings.html')
 
         get = response.context.get
         self.assertEqual(reverse('creme_core__reload_bricks'), get('bricks_reload_url'))

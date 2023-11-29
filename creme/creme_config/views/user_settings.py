@@ -37,7 +37,8 @@ from ..forms.setting import UserSettingForm
 
 
 class UserSettings(generic.BricksView):
-    template_name = 'creme_config/user_settings.html'
+    # template_name = 'creme_config/user_settings.html'
+    template_name = 'creme_config/user-settings.html'
 
     config_registry = registry.config_registry
 
