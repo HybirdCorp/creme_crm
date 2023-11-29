@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('order',),
                 'verbose_name': 'Ticket criticality',
-                'verbose_name_plural': 'Ticket criticalities',
+                'verbose_name_plural': 'Ticket criticality',
             },
             bases=(models.Model,),
         ),
