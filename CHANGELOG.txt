@@ -5,6 +5,7 @@
 
     Non breaking changes :
     ----------------------
+        # Fix empty initial value of MergeField for ManyToMany fields.
         # Apps :
             * Activities :
                 - Fix an issue in the deepcopy of the property 'limit_choices_to' of ActivitySubTypeField : it was lost and the choices not filtered.
