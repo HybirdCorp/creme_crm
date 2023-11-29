@@ -36,7 +36,7 @@ class ChoicesView(base.ContentTypeRelatedMixin, base.CheckedView):
     only_arg = 'only'
 
     def get_enumerator(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_limit(self, request):
         limit = request.GET.get(self.limit_arg)
