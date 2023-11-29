@@ -352,9 +352,17 @@ class MergeViewsTestCase(ViewsTestCase):
 
         with self.assertNoException():
             f_image = response.context['form'].fields['image']
+            f_languages = response.context['form'].fields['languages']
 
         self.assertFalse(f_image.required)
         self.assertEqual([image1.id,  image2.id,  image1.id],  f_image.initial)
+
+        self.assertFalse(f_languages.required)
+        self.assertEqual([
+            [language1.id],                 # left
+            [language1.id, language2.id],   # right
+            [language1.id]                  # merged
+        ], f_languages.initial)
 
         self.assertEqual(user, f_image._original_field.user)
         self.assertEqual(FakeImage, f_image._original_field.model)

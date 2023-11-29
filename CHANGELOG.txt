@@ -1,5 +1,12 @@
 == Version 2.3.17 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Fix empty initial value of MergeField for ManyToMany fields.
+
 
 == Version 2.3.16 ==
 
