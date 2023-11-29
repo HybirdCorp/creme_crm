@@ -328,6 +328,14 @@ QUnit.test('creme.widget.CheckListSelect.val', function(assert) {
                            [{label: 'item1', value: '12', selected: true},
                             {label: 'item2', value: '78', selected: false},
                             {label: 'item3', value: '5',  selected: true}]);
+
+    widget.val([]);
+
+    equal('&nbsp;', counter.html());
+    this.assertCheckListEntries(widget.content(),
+            [{label: 'item1', value: '12', selected: false},
+             {label: 'item2', value: '78', selected: false},
+             {label: 'item3', value: '5',  selected: false}]);
 });
 
 QUnit.test('creme.widget.CheckListSelect.val (select / unselect)', function(assert) {

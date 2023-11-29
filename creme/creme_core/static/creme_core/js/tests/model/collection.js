@@ -373,21 +373,21 @@ QUnit.test('creme.model.Array.indicesOf', function(assert) {
 
     equal(undefined, model.comparator());
 
-    equal(0, model.indicesOf('a'));
-    equal(1, model.indicesOf('b'));
-    equal(2, model.indicesOf('c'));
-    equal(3, model.indicesOf('d'));
-    equal(4, model.indicesOf(12));
+    deepEqual([0], model.indicesOf('a'));
+    deepEqual([1], model.indicesOf('b'));
+    deepEqual([2], model.indicesOf('c'));
+    deepEqual([3], model.indicesOf('d'));
+    deepEqual([4], model.indicesOf(12));
 
     deepEqual([0, 1], model.indicesOf(['a', 'b']));
     deepEqual([2, 3, 4], model.indicesOf(['c', 'd', 12]));
     deepEqual([0, 3], model.indicesOf(['a', 'd']));
     deepEqual([0, 4], model.indicesOf(['a', 'unknown', 1154, 12]));
 
-    equal(-1, model.indicesOf([]));
-    equal(-1, model.indicesOf('unknown'));
-    equal(-1, model.indicesOf(1154));
-    equal(-1, model.indicesOf(['unknown', 1154]));
+    deepEqual([], model.indicesOf([]));
+    deepEqual([], model.indicesOf('unknown'));
+    deepEqual([], model.indicesOf(1154));
+    deepEqual([], model.indicesOf(['unknown', 1154]));
 });
 
 QUnit.test('creme.model.Array.indicesOf (comparator)', function(assert) {
@@ -414,28 +414,28 @@ QUnit.test('creme.model.Array.indicesOf (comparator)', function(assert) {
     equal(5, comparator([8, 'b'], [3, 'a']));
 
     equal(comparator, model.comparator());
-    equal(-1, model.indicesOf('a'));
+    deepEqual([], model.indicesOf('a'));
 
     deepEqual([0, 1], model.indicesOf(1));
-    equal(2, model.indicesOf(2));
+    deepEqual([2], model.indicesOf(2));
 
-    equal(0, model.indicesOf([[1, 'a']]));
-    equal(1, model.indicesOf([[1, 'b']]));
+    deepEqual([0], model.indicesOf([[1, 'a']]));
+    deepEqual([1], model.indicesOf([[1, 'b']]));
 
-    equal(-1, model.indicesOf('d'));
-    equal(3, model.indicesOf(8));
-    equal(3, model.indicesOf([[8, 'd']]));
-    equal(-1, model.indicesOf([[8, 'h']]));
+    deepEqual([], model.indicesOf('d'));
+    deepEqual([3], model.indicesOf(8));
+    deepEqual([3], model.indicesOf([[8, 'd']]));
+    deepEqual([], model.indicesOf([[8, 'h']]));
 
     deepEqual([0, 1], model.indicesOf([[1, 'a'], [1, 'b']]));
     deepEqual([2, 3, 4], model.indicesOf([[2, 'c'], [8, 'd'], [12, 12]]));
     deepEqual([0, 3], model.indicesOf([[1, 'a'], [8, 'd']]));
     deepEqual([0, 4], model.indicesOf([[1, 'a'], 'unknown', 1154, [12, 12]]));
 
-    equal(-1, model.indicesOf([]));
-    equal(-1, model.indicesOf('unknown'));
-    equal(-1, model.indicesOf(1154));
-    equal(-1, model.indicesOf(['unknown', 1154]));
+    deepEqual([], model.indicesOf([]));
+    deepEqual([], model.indicesOf('unknown'));
+    deepEqual([], model.indicesOf(1154));
+    deepEqual([], model.indicesOf(['unknown', 1154]));
 });
 QUnit.test('creme.model.Array.pop (empty)', function(assert) {
     var model = new creme.model.Array();
