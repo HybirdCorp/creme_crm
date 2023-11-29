@@ -178,6 +178,7 @@
                         - CremePropertyTypeEditionForm
                     - The global dictionary 'forms.setting._FIELDS' has been removed;
                       see the new class attribute 'creme_core.core.setting_key._SettingKey.FORM_FIELDS' instead.
+                - The template 'user_settings.html' has been renamed 'user-settings.html' to be more consistent.
             * Persons :
                 - In the method 'models.Address.info_field_names()' (use by several form generators for Address),
                   the excluded fields are just not-viewable fields (it was a hard coded list before).
