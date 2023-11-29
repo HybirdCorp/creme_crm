@@ -205,7 +205,18 @@ class MergeEntitiesBaseForm(CremeForm):
             merge_field.initial = initial
 
     def _build_initial_dict(self, entity):
-        return model_to_dict(entity)
+        data = model_to_dict(entity)
+
+        # Some fields like the ManyToMany model instances as value. This
+        # cannot be used as initial data for form fields.
+        # So we need to serialize the value like the ModelForm with prepare_value().
+        for key, value in data.items():
+            field = self.fields.get(key)
+
+            if field:
+                data[key] = field._original_field.prepare_value(value)
+
+        return data
 
     def _post_entity1_update(self, entity1, entity2, cleaned_data):
         # TODO: factorize with __init__() ? CustomFieldsMixin ?
