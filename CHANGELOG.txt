@@ -5,9 +5,12 @@
 
     Non breaking changes :
     ----------------------
+        # Fix empty initial value of MergeField for ManyToMany fields.
+        # Fix an issue when setting an empty array to CheckListSelect widget.
         # Apps :
             * Activities :
                 - Fix an issue in the deepcopy of the property 'limit_choices_to' of ActivitySubTypeField : it was lost and the choices not filtered.
+
 
 == Version 2.5.2 ==
 
