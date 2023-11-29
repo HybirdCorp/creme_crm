@@ -97,8 +97,7 @@ class CremePropertyTypeManager(models.Manager):
 # TODO: factorise with RelationManager ?
 class CremePropertyManager(models.Manager):
     def safe_create(self, **kwargs) -> None:
-        """Create a CremeProperty in DB by taking care of the UNIQUE constraint
-        of Relation.
+        """Create a CremeProperty in DB by taking care of the UNIQUE constraint.
         Notice that, unlike 'create()' it always return None (to avoid a
         query in case of IntegrityError) ; use 'safe_get_or_create()' if
         you need the CremeProperty instance.
