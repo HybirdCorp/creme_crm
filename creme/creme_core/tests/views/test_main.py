@@ -77,7 +77,7 @@ class MiscViewsTestCase(ViewsTestCase):
 
         # Should not be used
         BrickHomeLocation.objects.create(
-            brick_id=HistoryBrick.id, role=self.create_role(), order=1,
+            brick_id=HistoryBrick.id, role=self.get_regular_role(), order=1,
         )
 
         response = self.assertGET200(reverse('creme_core__home'))

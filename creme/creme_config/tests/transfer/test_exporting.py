@@ -4,6 +4,7 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from creme.creme_config.core.exporters import Exporter, ExportersRegistry
 from creme.creme_core import bricks, constants
@@ -275,11 +276,17 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertEqual(self.VERSION, content.get('version'))
 
         roles_info = content.get('roles')
-        self.assertIsList(roles_info, length=1)
+        self.assertIsList(roles_info, length=2)
+        self.assertIsInstance(roles_info[0], dict)
 
-        role_info = roles_info[0]
+        roles_info_per_name = {role_info.get('name'): role_info for role_info in roles_info}
+        self.assertIn(_('Regular user'), roles_info_per_name)
+
+        # role_info = roles_info[0]
+        role_info = roles_info_per_name.get(role.name)
+        self.assertIsNotNone(role_info)
         self.assertIsInstance(role_info, dict)
-        self.assertEqual(role.name, role_info.get('name'))
+        # self.assertEqual(role.name, role_info.get('name'))
         self.assertCountEqual(
             ['creme_core', 'persons'],
             role_info.get('allowed_apps'),

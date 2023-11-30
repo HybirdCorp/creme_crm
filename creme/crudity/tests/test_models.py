@@ -44,7 +44,7 @@ class WaitingActionTestCase(CrudityTestCase):
     def test_can_validate_or_delete02(self):
         "Sandbox by user."
         user = self.login_as_root_and_get()
-        other_user = self.create_user(role=self.create_role())
+        other_user = self.create_user(role=self.get_regular_role())
 
         self._set_sandbox_by_user()
 

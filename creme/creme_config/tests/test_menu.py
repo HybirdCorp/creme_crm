@@ -359,7 +359,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         cls._items_backup = [*MenuConfigItem.objects.all()]
         MenuConfigItem.objects.all().delete()
 
-        cls.role = cls.create_role()
+        cls.role = cls.get_regular_role()
 
     @classmethod
     def tearDownClass(cls):

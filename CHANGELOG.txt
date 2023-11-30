@@ -6,6 +6,7 @@
       The mass-export & the exploration mode now accept to be used in this case.
     # In the detail-view for property type, a button to delete all the properties with this type
       (and related to a given entity type) has been added.
+    # A role "Regular user", which can do everything excepted administrating apps, is created in new installations.
     # Drop JQPlot compatibility
     # Apps :
         * Activities :

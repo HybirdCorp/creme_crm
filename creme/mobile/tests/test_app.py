@@ -4,6 +4,7 @@ from functools import partial
 from django.conf import settings
 from django.urls import reverse
 from django.utils.timezone import localtime, now
+from django.utils.translation import gettext as _
 
 from creme.activities.constants import (
     FLOATING_TIME,
@@ -13,11 +14,16 @@ from creme.activities.constants import (
     STATUS_PLANNED,
 )
 from creme.activities.tests.base import skipIfCustomActivity
+from creme.creme_core.models import UserRole
 
 from .base import Contact, MobileBaseTestCase
 
 
 class MobileAppTestCase(MobileBaseTestCase):
+    def test_core_populate(self):
+        role = self.get_object_or_fail(UserRole, name=_('Regular user'))
+        self.assertNotIn('mobile', role.allowed_apps)
+
     def test_login(self):
         url = reverse('mobile__login')
         response = self.assertGET200(url)

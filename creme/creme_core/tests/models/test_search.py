@@ -52,7 +52,7 @@ class SearchConfigTestCase(CremeTestCase):
         "With a role."
         count = SearchConfigItem.objects.count()
 
-        role = self.create_role()
+        role = self.get_regular_role()
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeOrganisation, ['name'], role=role,
         )

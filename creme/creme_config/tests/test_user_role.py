@@ -78,10 +78,14 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_portal(self, superuser):
         if superuser:
             self.login_as_super()
-            role = self.create_role()
+            # role = self.create_role()
         else:
-            user = self.login_as_standard(admin_4_apps=['creme_config'])
-            role = user.role
+            # user = self.login_as_standard(admin_4_apps=['creme_config'])
+            # role = user.role
+            self.login_as_standard(admin_4_apps=['creme_config'])
+
+        role = UserRole.objects.first()
+        self.assertIsNotNone(role)
 
         response = self.assertGET200(reverse('creme_config__roles'))
         self.assertTemplateUsed(response, 'creme_config/portals/user-role.html')
@@ -95,15 +99,21 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertBrickTitleEqual(
             brick_node,
-            count=1, title='{count} Role', plural_title='{count} Roles',
+            # count=1,
+            count=1 if superuser else 2,
+            title='{count} Role', plural_title='{count} Roles',
         )
         self.assertBrickHeaderHasButton(
             self.get_brick_header_buttons(brick_node),
             url=self.ROLE_CREATION_URL,
             label=_('New role'),
         )
-        self.assertListEqual(
-            [role.name],
+        # self.assertListEqual(
+        #     [role.name],
+        #     [n.text for n in brick_node.findall('.//td[@class="role-name"]')],
+        # )
+        self.assertIn(
+            role.name,
             [n.text for n in brick_node.findall('.//td[@class="role-name"]')],
         )
 

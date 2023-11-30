@@ -166,7 +166,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         brick_registry.register_4_instance(HomeInstanceBrick)
 
         cls.user = cls.get_root_user()
-        cls.role = cls.create_role()
+        # cls.role = cls.create_role()
+        cls.role = cls.get_regular_role()
 
         get_ct = ContentType.objects.get_for_model
         cls.contact_ct = get_ct(FakeContact)
@@ -2569,7 +2570,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(3, len(contact_rows))
 
         # ---
-        contact_def_row = contact_rows[0]
+        # contact_def_row = contact_rows[0]
+        contact_def_row = contact_rows.pop(0)
         self.assertEqual(
             _('Default configuration for «%(ctype)s»') % {'ctype': 'Test Contact'},
             self.get_html_node_or_fail(
@@ -2585,13 +2587,23 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertBrickHasAction(contact_def_row, url=self._build_editdetail_url(ct=contact_ct))
 
         # ---
-        contact_super_row = contact_rows[1]
-        self.assertEqual(
-            _('Superuser'),
-            self.get_html_node_or_fail(
-                contact_super_row,
-                './/td[@class="brickloc-config-role brickloc-config-role-superuser"]',
-            ).text,
+        contact_rows_per_title = {
+            tr_node.find('.//td').text: tr_node
+            for tr_node in contact_rows
+        }
+
+        # contact_super_row = contact_rows[1]
+        contact_super_row = contact_rows_per_title.get(_('Superuser'))
+        # self.assertEqual(
+        #     _('Superuser'),
+        #     self.get_html_node_or_fail(
+        #         contact_super_row,
+        #         './/td[@class="brickloc-config-role brickloc-config-role-superuser"]',
+        #     ).text,
+        # )
+        self.get_html_node_or_fail(
+            contact_super_row,
+            './/td[@class="brickloc-config-role brickloc-config-role-superuser"]',
         )
         self.assertEqual(
             ngettext('%(count)s block', '%(count)s blocks', 2) % {'count': 2},
@@ -2605,13 +2617,17 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         # ---
-        contact_role_row = contact_rows[2]
-        self.assertEqual(
-            role.name,
-            self.get_html_node_or_fail(
-                contact_role_row,
-                './/td[@class="brickloc-config-role"]',
-            ).text,
+        # contact_role_row = contact_rows[2]
+        contact_role_row = contact_rows_per_title.get(role.name)
+        # self.assertEqual(
+        #     role.name,
+        #     self.get_html_node_or_fail(
+        #         contact_role_row,
+        #         './/td[@class="brickloc-config-role"]',
+        #     ).text,
+        # )
+        self.get_html_node_or_fail(
+            contact_role_row, './/td[@class="brickloc-config-role"]',
         )
         self.assertEqual(
             ngettext('%(count)s block', '%(count)s blocks', 3) % {'count': 3},
