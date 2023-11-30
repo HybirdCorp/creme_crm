@@ -59,6 +59,27 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+class UserRoleManager(models.Manager):
+    def smart_create(self, *,
+                     creatable_models: Iterable[type[CremeEntity]] = (),
+                     exportable_models: Iterable[type[CremeEntity]] = (),
+                     **kwargs
+                     ) -> UserRole:
+        """Helper to use instead of 'create()': it takes models instead of
+        ContentType instances for the 2 many-to-many fields.
+        """
+        role = self.create(**kwargs)
+        get_ct = ContentType.objects.get_for_model
+
+        if creatable_models:
+            role.creatable_ctypes.set([get_ct(model) for model in creatable_models])
+
+        if exportable_models:
+            role.exportable_ctypes.set([get_ct(model) for model in exportable_models])
+
+        return role
+
+
 class UserRole(models.Model):
     name = models.CharField(_('Name'), max_length=100, unique=True)
     # superior = ForeignKey('self', verbose_name=_('Superior'), null=True)
@@ -73,6 +94,8 @@ class UserRole(models.Model):
     )
     raw_allowed_apps = models.TextField(default='')  # Use 'allowed_apps' property
     raw_admin_4_apps = models.TextField(default='')  # Use 'admin_4_apps' property
+
+    objects = UserRoleManager()
 
     creation_label = _('Create a role')
     save_label     = _('Save the role')
