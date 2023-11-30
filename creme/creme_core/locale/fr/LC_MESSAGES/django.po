@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-10 19:50+0200\n"
+"POT-Creation-Date: 2023-11-30 23:37+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2587,6 +2587,9 @@ msgstr "Création rapide"
 
 msgid "replaceMe@byYourAddress.com"
 msgstr "remplacezMoi@parVotreAdresse.fr"
+
+msgid "Regular user"
+msgstr "Utilisateur normal"
 
 msgid "United States dollar"
 msgstr "Dollar américain"

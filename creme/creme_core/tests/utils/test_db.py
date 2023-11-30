@@ -425,7 +425,7 @@ class DBTestCase(CremeTestCase):
     def test_populate_related08(self):
         "Two fields + depth > 1  => instances of level 2 have different models."
         user1 = self.get_root_user()
-        role = self.create_role()
+        role = self.get_regular_role()
         user2 = self.create_user(role=role)
 
         create_folder = partial(FakeFolder.objects.create, user=user1)
@@ -483,7 +483,7 @@ class DBTestCase(CremeTestCase):
     def test_populate_related09(self):
         "Already cached field (level 2)."
         user1 = self.get_root_user()
-        user2 = self.create_user(role=self.create_role())
+        user2 = self.create_user(role=self.get_regular_role())
 
         create_contact = partial(
             FakeContact.objects.create, user=user1, last_name='Simpson',

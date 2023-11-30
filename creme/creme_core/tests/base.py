@@ -25,6 +25,7 @@ from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.urls import reverse
 from django.utils.formats import get_format
 from django.utils.timezone import get_current_timezone, make_aware
+from django.utils.translation import gettext as _
 
 from ..constants import ROOT_PASSWORD, ROOT_USERNAME
 from ..global_info import clear_global_info
@@ -164,7 +165,7 @@ class _CremeTestCase:
         return team
 
     @classmethod
-    def create_role(self, *,
+    def create_role(cls, *,
                     name='Test',
                     creatable_models: Iterable[type[CremeEntity]] = (),
                     exportable_models: Iterable[type[CremeEntity]] = (),
@@ -181,6 +182,11 @@ class _CremeTestCase:
     def get_root_user(cls) -> CremeUser:
         # Should exist (see 'creme_core.populate.py')
         return CremeUser.objects.get(username=ROOT_USERNAME)
+
+    @classmethod
+    def get_regular_role(cls) -> UserRole:
+        # Should exist (see 'creme_core.populate.py')
+        return UserRole.objects.get(name=_('Regular user'))
 
     def login_as_root(self) -> None:
         # Should exist (see 'creme_core.populate.py')

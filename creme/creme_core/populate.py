@@ -31,6 +31,8 @@ from . import (
     sandboxes,
     setting_keys,
 )
+from .apps import CremeAppConfig, creme_app_configs
+from .auth import EntityCredentials
 from .gui.menu import ContainerEntry, Separator0Entry, Separator1Entry
 from .management.commands.creme_populate import BasePopulator
 from .models import (
@@ -45,9 +47,12 @@ from .models import (
     MenuConfigItem,
     RelationType,
     Sandbox,
+    SetCredentials,
     SettingValue,
+    UserRole,
     Vat,
 )
+from .registry import creme_registry
 from .utils import create_if_needed
 from .utils.date_period import date_period_registry
 
@@ -166,6 +171,29 @@ class Populator(BasePopulator):
                     f'login="{login}" and password="{password}".',
                     self.style.NOTICE,
                 )
+
+            CRED_REGULAR = CremeAppConfig.CRED_REGULAR
+            entity_models = [*creme_registry.iter_entity_models()]
+            regular_role = UserRole.objects.smart_create(
+                name=_('Regular user'),
+                allowed_apps=[
+                    app.label for app in creme_app_configs() if app.credentials & CRED_REGULAR
+                ],
+                creatable_models=entity_models,
+                exportable_models=entity_models,
+            )
+            SetCredentials.objects.create(
+                role=regular_role,
+                # NB: EntityCredentials._ALL_CREDS set the bit 0 too...
+                value=(
+                    EntityCredentials.VIEW
+                    | EntityCredentials.CHANGE
+                    | EntityCredentials.DELETE
+                    | EntityCredentials.LINK
+                    | EntityCredentials.UNLINK
+                ),
+                set_type=SetCredentials.ESET_ALL,
+            )
 
             # ---------------------------
             create_if_needed(

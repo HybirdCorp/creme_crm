@@ -884,8 +884,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Common user without role."
         self.login_as_root()
 
-        role = self.create_role()
-        other_user = self.create_user(role=role)
+        other_user = self.create_user(role=self.get_regular_role())
 
         url = self._build_edit_url(other_user.id)
         self.assertGET200(url)
@@ -1429,7 +1428,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Delete view can delete any normal user."
         user = self.login_as_root_and_get()
 
-        other_user = self.create_user(role=self.create_role())
+        other_user = self.create_user(role=self.get_regular_role())
         self.assertFalse(other_user.is_superuser)
 
         ce = CremeEntity.objects.create(user=other_user)

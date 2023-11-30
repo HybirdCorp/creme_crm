@@ -6,15 +6,34 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.menu import CremeEntry
-from creme.creme_core.models import EntityFilter, HeaderFilter, SetCredentials
+from creme.creme_core.models import (
+    EntityFilter,
+    HeaderFilter,
+    SetCredentials,
+    UserRole,
+)
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from .. import bricks, constants, workflow
 from ..menu import UserContactEntry
+from ..models import Sector
 from .base import Contact, Organisation, _BaseTestCase
 
 
 class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
+    def test_core_populate(self):
+        role = self.get_object_or_fail(UserRole, name=_('Regular user'))
+        self.assertIn('persons', role.allowed_apps)
+
+        get_ct = ContentType.objects.get_for_model
+        self.assertTrue(role.creatable_ctypes.filter(id=get_ct(Contact).id).exists())
+        self.assertTrue(role.creatable_ctypes.filter(id=get_ct(Organisation).id).exists())
+        self.assertFalse(role.creatable_ctypes.filter(id=get_ct(Sector).id).exists())
+
+        self.assertTrue(role.exportable_ctypes.filter(id=get_ct(Contact).id).exists())
+        self.assertTrue(role.exportable_ctypes.filter(id=get_ct(Organisation).id).exists())
+        self.assertFalse(role.exportable_ctypes.filter(id=get_ct(Sector).id).exists())
+
     def test_populate(self):
         self.get_relationtype_or_fail(
             constants.REL_SUB_EMPLOYED_BY, [Contact], [Organisation],

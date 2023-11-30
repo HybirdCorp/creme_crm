@@ -98,6 +98,27 @@ class AuthTestCase(CremeTestCase):
         self.assertEqual(OnlySuperusersType.id, sandbox.type_id)
         self.assertIsInstance(sandbox.type, OnlySuperusersType)
 
+        # ---
+        role = UserRole.objects.order_by('id').first()
+        self.assertIsNotNone(role)
+        self.assertEqual(_('Regular user'), role.name)
+        self.assertFalse(role.admin_4_apps)
+
+        allowed_apps = role.allowed_apps
+        self.assertIn('creme_core', allowed_apps)
+        self.assertIn('creme_config', allowed_apps)
+
+        set_creds = self.get_alone_element(role.credentials.all())
+        self.assertTrue(set_creds.value & EntityCredentials.VIEW)
+        self.assertTrue(set_creds.value & EntityCredentials.CHANGE)
+        self.assertTrue(set_creds.value & EntityCredentials.DELETE)
+        self.assertTrue(set_creds.value & EntityCredentials.LINK)
+        self.assertTrue(set_creds.value & EntityCredentials.UNLINK)
+        self.assertEqual(SetCredentials.ESET_ALL, set_creds.set_type)
+        self.assertIsNone(set_creds.ctype)
+        self.assertIsNone(set_creds.efilter)
+        self.assertFalse(set_creds.forbidden)
+
     def test_manager_smart_create_role(self):
         name = 'Leader'
         allowed_apps = ['creme_core', 'documents']
@@ -160,7 +181,7 @@ class AuthTestCase(CremeTestCase):
             user.clean()
 
     def test_clean_superuser(self):
-        role = self.create_role()
+        role = self.get_regular_role()
 
         user = CremeUser(
             username='Kenji', email='kenji@century.jp',
@@ -196,8 +217,7 @@ class AuthTestCase(CremeTestCase):
 
     def test_clean_team02(self):
         "No role with teams."
-        role = self.create_role()
-        team = CremeUser(username='teamA', is_team=True, role=role)
+        team = CremeUser(username='teamA', is_team=True, role=self.get_regular_role())
 
         with self.assertRaises(ValidationError) as cm:
             team.clean()
