@@ -170,17 +170,12 @@ class _CremeTestCase:
                     exportable_models: Iterable[type[CremeEntity]] = (),
                     **kwargs
                     ) -> UserRole:
-        role = UserRole.objects.create(name=name, **kwargs)
-
-        if creatable_models:
-            get_ct = ContentType.objects.get_for_model
-            role.creatable_ctypes.set([get_ct(model) for model in creatable_models])
-
-        if exportable_models:
-            get_ct = ContentType.objects.get_for_model
-            role.exportable_ctypes.set([get_ct(model) for model in exportable_models])
-
-        return role
+        return UserRole.objects.smart_create(
+            name=name,
+            creatable_models=creatable_models,
+            exportable_models=exportable_models,
+            **kwargs
+        )
 
     @classmethod
     def get_root_user(cls) -> CremeUser:

@@ -98,7 +98,35 @@ class AuthTestCase(CremeTestCase):
         self.assertEqual(OnlySuperusersType.id, sandbox.type_id)
         self.assertIsInstance(sandbox.type, OnlySuperusersType)
 
-    def test_str(self):
+    def test_manager_smart_create_role(self):
+        name = 'Leader'
+        allowed_apps = ['creme_core', 'documents']
+        admin_4_apps = ['documents']
+        creatable_models = [FakeOrganisation, FakeContact]
+        exportable_models = [FakeInvoice]
+        role = UserRole.objects.smart_create(
+            name=name,
+            allowed_apps=allowed_apps,
+            admin_4_apps=admin_4_apps,
+            creatable_models=creatable_models,
+            exportable_models=exportable_models,
+        )
+        self.assertIsInstance(role, UserRole)
+        self.assertIsNotNone(role.pk)
+        self.assertIsNotNone(role.id)
+        self.assertEqual(name, role.name)
+        self.assertCountEqual(allowed_apps, [*role.allowed_apps])
+        self.assertCountEqual(admin_4_apps, [*role.admin_4_apps])
+        self.assertCountEqual(
+            creatable_models,
+            [ct.model_class() for ct in role.creatable_ctypes.all()],
+        )
+        self.assertCountEqual(
+            exportable_models,
+            [ct.model_class() for ct in role.exportable_ctypes.all()],
+        )
+
+    def test_user_str(self):
         user = CremeUser(
             username='kirika',
             first_name='Kirika',
@@ -110,7 +138,7 @@ class AuthTestCase(CremeTestCase):
         user.displayed_name = dname = 'Kirika-chan'
         self.assertEqual(dname, str(user))
 
-    def test_clean(self):
+    def test_clean_user(self):
         user, other_user = self._create_users()
         user.email = other_user.email
 
@@ -132,7 +160,7 @@ class AuthTestCase(CremeTestCase):
             user.clean()
 
     def test_clean_superuser(self):
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role()
 
         user = CremeUser(
             username='Kenji', email='kenji@century.jp',
@@ -168,7 +196,7 @@ class AuthTestCase(CremeTestCase):
 
     def test_clean_team02(self):
         "No role with teams."
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role()
         team = CremeUser(username='teamA', is_team=True, role=role)
 
         with self.assertRaises(ValidationError) as cm:
@@ -1221,7 +1249,7 @@ class AuthTestCase(CremeTestCase):
             filter_type=EF_CREDENTIALS,
         )
 
-        role = UserRole.objects.create(name='Test')
+        role = self.create_role()
 
         build_sc = partial(
             SetCredentials,
