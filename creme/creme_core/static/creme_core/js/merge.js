@@ -23,31 +23,60 @@
 (function($) {
  "use strict";
 
+function getFieldValue(input) {
+    if (input.is('input[type="checkbox"]')) {
+        return input.prop('checked');
+    } else if (input.is('input, select, textarea')) {
+        return input.val();
+    } else if (input.is('.ui-creme-widget')) {
+        return input.creme().widget().val();
+    }
+};
+
+function setFieldValue(input, value) {
+    if (input.is('input[type="checkbox"]')) {
+        input.prop('checked', value);
+    } else if (input.is('input, select, textarea')) {
+        input.val(value).trigger('change');
+    } else if (input.is('.ui-creme-widget')) {
+        input.creme().widget().val(value);
+    }
+};
+
+creme.initializeMergeForm = function(element) {
+    function createButton(options) {
+        return $((
+           '<li class="merge-field-button">' +
+                '<button type="button" data-from="${from}" data-to="${to}">' +
+                     '<div class="merge-${direction}-arrow"></div>' +
+                '</button>' +
+           '</li>'
+        ).template(options));
+    }
+
+    element.on('click', '.merge-field-button button', function(e) {
+        e.preventDefault();
+        var source = element.find('#' + $(this).data('from'));
+        var target = element.find('#' + $(this).data('to'));
+        setFieldValue(target, getFieldValue(source));
+    });
+
+    element.find('.merge-field[id]').each(function() {
+        var resultField = $(this).find('.merge-field-result');
+        var id = $(this).attr('id');
+        resultField.before(createButton({direction: 'right', from: id + '_1', to: id + '_merged'}));
+        resultField.after(createButton({direction: 'left', from: id + '_2', to: id + '_merged'}));
+    });
+};
+
+// Keep backward compatibility
+creme.merge = creme.merge || {};
+creme.merge.initializeMergeForm = creme.initializeMergeForm;
+
+/*
 creme.merge = creme.merge || {};
 
 creme.merge.initializeMergeForm = function(form) {
-    var getter = function(input) {
-        if (input.is('input[type="checkbox"]')) {
-            return input.prop('checked');
-        } else if (input.is('input, select, textarea')) {
-            return input.val();
-        } else if (input.is('.ui-creme-widget')) {
-            return input.creme().widget().val();
-        }
-    };
-
-    var setter = function(input, value) {
-        if (input.is('.ui-creme-widget')) {
-            input.creme().widget().val(value);
-        } else if (input.is('.ui-creme-input')) {
-            input.parents('.ui-creme-widget').first().creme().widget().val(value);
-        } else if (input.is('input[type="checkbox"]')) {
-            input.prop('checked', value);
-        } else if (input.is('input, select, textarea')) {
-            input.val(value).trigger('change');
-        }
-    };
-
     var copyTo = function(source, dest) {
         setter(dest, getter(source));
     };
@@ -69,14 +98,14 @@ creme.merge.initializeMergeForm = function(form) {
 
             // jquery 1.9x migration : avoid attr('value') for inputs.
             // TODO: use an icon font (like "foundation")?
-/*
-            $result_li.before($(li_html).append($(button_html).val('⏵').on('click', function() {
-                copyTo($source_A, $merged);
-            })));
-            $result_li.after($(li_html).append($(button_html).val('⏴').on('click', function() {
-                copyTo($source_B, $merged);
-            })));
-*/
+
+            // $result_li.before($(li_html).append($(button_html).val('⏵').on('click', function() {
+            //     copyTo($source_A, $merged);
+            // })));
+            // $result_li.after($(li_html).append($(button_html).val('⏴').on('click', function() {
+            //     copyTo($source_B, $merged);
+            // })));
+
             $result_li.before(
                 $(li_html).append(
                     $(button_html).on('click', function() {
@@ -94,5 +123,5 @@ creme.merge.initializeMergeForm = function(form) {
         });
     });
 };
-
+*/
 }(jQuery));
