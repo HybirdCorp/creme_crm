@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 from django.db.models import Q, QuerySet
 from django.http import HttpResponse
+from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.list import ListView
@@ -116,6 +117,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
     is_popup_view: bool = False
     actions_registry: ActionsRegistry = global_actions_registry
+    reload_url_name: str = ''
 
     state_class: type[lv_gui.ListViewState] = lv_gui.ListViewState
 
@@ -294,6 +296,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         # NB: cannot set it within the template because the reloading case needs it too
         context['is_popup_view'] = self.is_popup_view
+        context['reload_url'] = self.get_reload_url()
 
         context['selection_mode'] = self.mode.value
         context['is_selection_enabled'] = (self.mode is not SelectionMode.NONE)
@@ -324,6 +327,11 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
             content_type=ContentType.objects.get_for_model(self.model),
             user=self.request.user,
         )
+
+    def get_reload_url(self) -> str:
+        """Return custom listview reload url."""
+        name = self.reload_url_name
+        return reverse(name) if name else ''
 
     def get_internal_q(self) -> Q:
         """Return a Q instance corresponding to an extra-filtering specific to the view."""
@@ -653,6 +661,7 @@ class BaseEntitiesListPopup(EntitiesList):
     """Base class for list-view in inner-popup."""
     template_name = 'creme_core/generics/entities-popup.html'
     is_popup_view = True
+    reload_url_name = 'creme_core__listview_popup'
 
     # TODO: true HeaderFilter creation in inner popup
     def handle_no_header_filter(self, request):

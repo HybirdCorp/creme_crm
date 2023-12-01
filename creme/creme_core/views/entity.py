@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -771,6 +771,8 @@ class EntitiesToMergeSelection(base.EntityRelatedMixin,
     mode = listview.SelectionMode.SINGLE
     entity1_id_arg = 'id1'
 
+    reload_url_name = 'creme_core__select_entity_for_merge'
+
     def check_related_entity_permissions(self, entity, user):
         self.get_merge_form_class(type(entity))  # NB: can raise exception
 
@@ -779,6 +781,11 @@ class EntitiesToMergeSelection(base.EntityRelatedMixin,
 
     def get_related_entity_id(self):
         return get_from_GET_or_404(self.request.GET, self.entity1_id_arg, cast=int)
+
+    def get_reload_url(self):
+        return super().get_reload_url() + (
+            f'?{self.entity1_id_arg}={self.get_related_entity_id()}'
+        )
 
     @property
     def model(self):
