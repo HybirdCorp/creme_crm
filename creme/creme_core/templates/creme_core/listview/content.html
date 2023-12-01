@@ -5,7 +5,7 @@
 
 {# TODO : replace it by a div after complete refactor of button/link bindings #}
 <form class="ui-creme-widget widget-auto ui-creme-listview" widget="ui-creme-listview" selection-mode="{{selection_mode}}"
-      {% if is_popup_view %}reload-url="{% url 'creme_core__listview_popup' %}"{% endif %}>
+      {% if reload_url %}reload-url="{{ reload_url }}"{% endif %}>
 {% listview_header_colspan cells=cells is_readonly=is_popup_view is_single_select=o2m as colspan %}
 <div class="list-header-container{% if not is_popup_view %} sticky-container sticky-container-standalone{% endif %}">
     <div class="list-header sticks-horizontally">
