@@ -1531,6 +1531,41 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
 
+    def test_select_relations_reload_url(self):
+        self._aux_relation_objects_to_link_selection()
+
+        data = {
+            'subject_id': self.subject.id,
+            'rtype_id': self.rtype.id,
+            'objects_ct_id': self.ct_contact.id,
+        }
+
+        url = self.SELECTION_URL
+        response = self.assertGET200(url, data=data)
+
+        reload_url = response.context['reload_url']
+        self.assertEqual(
+            self.SELECTION_URL + (
+                f'?objects_ct_id={self.ct_contact.id}'
+                f'&rtype_id={self.rtype.id}'
+                f'&subject_id={self.subject.id}'
+            ),
+            reload_url,
+        )
+
+        try:
+            entities = response.context['page_obj']
+        except KeyError:
+            self.fail(response.content)
+
+        self.assertCountEqual(
+            [self.contact01, self.contact02, self.contact03],
+            entities.object_list,
+        )
+
+        self.assertPOST404(url, data={})  # Missing GET arguments
+        self.assertPOST200(reload_url, data={})
+
     def _aux_add_relations_with_same_type(self, user):
         create_entity = partial(CremeEntity.objects.create, user=user)
         self.subject  = create_entity()
