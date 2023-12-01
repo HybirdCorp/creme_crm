@@ -1,5 +1,6 @@
 from copy import deepcopy
 from functools import partial
+from itertools import islice
 from json import dumps as json_dump
 
 from django.contrib.contenttypes.models import ContentType
@@ -136,6 +137,7 @@ class FakeContactHatBrick(Brick):
 # Test case --------------------------------------------------------------------
 
 class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
+    CLONE_DETAIL_URL = reverse('creme_config__clone_detailview_bricks')
     DEL_DETAIL_URL = reverse('creme_config__delete_detailview_bricks')
     CUSTOM_WIZARD_URL = reverse('creme_config__create_custom_brick')
 
@@ -485,8 +487,359 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             self._build_adddetail_url(self.contact_ct)
         )
 
+    def test_clone_role_config01(self):
+        "Role to role."
+        self.login_as_root()
+        self.assertFalse(BrickDetailviewLocation.objects.filter(superuser=True))
+
+        role1 = self.get_regular_role()
+        role2 = self.create_role()
+
+        model1 = FakeContact
+        model2 = FakeOrganisation
+        get_bricks = self.brick_registry.get_compatible_bricks
+        brick_ids1 = [brick_cls.id for brick_cls in islice(get_bricks(model1), 3)]
+        brick_ids2 = [brick_cls.id for brick_cls in islice(get_bricks(model2), 2)]
+
+        LEFT = BrickDetailviewLocation.LEFT
+        RIGHT = BrickDetailviewLocation.RIGHT
+        get_ct = ContentType.objects.get_for_model
+        ct1 = get_ct(model1)
+        ct2 = get_ct(model2)
+
+        create_loc = BrickDetailviewLocation.objects.create
+        create_loc(content_type=ct1, brick_id=brick_ids1[0], order=1, zone=RIGHT)
+        create_loc(content_type=ct1, brick_id=brick_ids1[1], order=2, zone=RIGHT)
+
+        role1_locs = [
+            create_loc(role=role1, content_type=ct1, order=1, brick_id=brick_ids1[0], zone=LEFT),
+            create_loc(role=role1, content_type=ct1, order=2, brick_id=brick_ids1[1], zone=LEFT),
+            create_loc(role=role1, content_type=ct1, order=1, brick_id=brick_ids1[2], zone=RIGHT),
+
+            create_loc(role=role1, content_type=ct2, order=1, brick_id=brick_ids2[0], zone=LEFT),
+            create_loc(role=role1, content_type=ct2, order=1, brick_id=brick_ids2[1], zone=RIGHT),
+        ]
+
+        url = self.CLONE_DETAIL_URL
+        context1 = self.assertGET200(url).context
+        self.assertEqual(
+            _('Clone the configuration of a role'), context1.get('title'),
+        )
+        self.assertEqual(_('Create the configuration'), context1.get('submit_label'))
+
+        with self.assertNoException():
+            fields = context1['form'].fields
+            source_f = fields['source']
+            source_choices = [*source_f.choices]
+
+            target_f = fields['target']
+            target_choices = [*target_f.choices]
+
+        self.assertTrue(source_f.required)
+        self.assertInChoices(
+            value=role1.id, label=role1.name, choices=source_choices,
+        )
+        self.assertNotInChoices(value=role2.id, choices=source_choices)
+        self.assertNotInChoices(value='',       choices=source_choices)
+
+        self.assertEqual(
+            _('If the target has already a configuration, it will be overriden'),
+            target_f.help_text,
+        )
+        self.assertInChoices(
+            value='', label='*{}*'.format(_('Superuser')), choices=target_choices,
+        )
+        self.assertInChoices(
+            value=role1.id,
+            label=ngettext(
+                singular='{role} ({count} type of entity is configured)',
+                plural='{role} *({count} types of entity are configured)*',
+                number=2,
+            ).format(role=role1.name, count=2),
+            choices=target_choices,
+        )
+        self.assertInChoices(
+            value=role2.id, label=role2.name, choices=target_choices,
+        )
+
+        # ---
+        response2 = self.assertPOST200(
+            url, follow=True, data={'source': role1.id, 'target': role1.id},
+        )
+        self.assertFormError(
+            response2.context['form'],
+            field=None, errors=_('The source and the target must be different.'),
+        )
+
+        # ---
+        self.assertNoFormError(self.client.post(
+            url, data={'source': role1.id, 'target': role2.id},
+        ))
+
+        def as_tuple(loc):
+            return loc.content_type, loc.order, loc.brick_id, loc.zone
+
+        self.assertCountEqual(
+            [as_tuple(loc) for loc in role1_locs],
+            [
+                as_tuple(loc)
+                for loc in BrickDetailviewLocation.objects.filter(role=role2, superuser=False)
+            ],
+        )
+
+    def test_clone_role_config02(self):
+        "Superuser to role."
+        self.login_as_root()
+        role = self.get_regular_role()
+
+        model = FakeContact
+        brick_ids = [
+            brick_cls.id
+            for brick_cls in islice(self.brick_registry.get_compatible_bricks(model), 3)
+        ]
+
+        LEFT = BrickDetailviewLocation.LEFT
+        RIGHT = BrickDetailviewLocation.RIGHT
+        create_loc = partial(
+            BrickDetailviewLocation.objects.create,
+            content_type=ContentType.objects.get_for_model(model),
+        )
+        create_loc(brick_id=brick_ids[0], order=1, zone=RIGHT)
+        create_loc(brick_id=brick_ids[1], order=2, zone=RIGHT)
+        create_loc(brick_id=brick_ids[2], order=3, zone=RIGHT)
+
+        superuser_locs = [
+            create_loc(brick_id=brick_ids[0], superuser=True, order=1, zone=LEFT),
+            create_loc(brick_id=brick_ids[1], superuser=True, order=2, zone=LEFT),
+        ]
+
+        url = self.CLONE_DETAIL_URL
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            source_f = fields['source']
+            source_choices = [*source_f.choices]
+            target_choices = [*fields['target'].choices]
+
+        self.assertFalse(source_f.required)
+        self.assertInChoices(
+            value='', label='*{}*'.format(_('Superuser')), choices=source_choices,
+        )
+        self.assertNotInChoices(value=role.id, choices=source_choices)
+
+        self.assertInChoices(
+            value='',
+            label=ngettext(
+                singular='*Superuser* ({count} type of entity is configured)',
+                plural='*Superuser* ({count} types of entity are configured)',
+                number=1,
+            ).format(count=1),
+            choices=target_choices,
+        )
+
+        # ---
+        self.assertNoFormError(self.client.post(
+            url, data={'source': '', 'target': role.id},
+        ))
+
+        def as_tuple(loc):
+            return loc.content_type, loc.order, loc.brick_id, loc.zone
+
+        self.maxDiff = None
+        self.assertCountEqual(
+            [as_tuple(loc) for loc in superuser_locs],
+            [
+                as_tuple(loc)
+                for loc in BrickDetailviewLocation.objects.filter(role=role, superuser=False)
+            ],
+        )
+
+    def test_clone_role_config03(self):
+        "Role to superuser."
+        self.login_as_root()
+        role = self.get_regular_role()
+
+        model = FakeContact
+        brick_ids = [
+            brick_cls.id
+            for brick_cls in islice(self.brick_registry.get_compatible_bricks(model), 3)
+        ]
+
+        LEFT = BrickDetailviewLocation.LEFT
+        RIGHT = BrickDetailviewLocation.RIGHT
+        create_loc = partial(
+            BrickDetailviewLocation.objects.create,
+            content_type=ContentType.objects.get_for_model(model),
+        )
+        create_loc(brick_id=brick_ids[0], order=1, zone=RIGHT)
+        create_loc(brick_id=brick_ids[1], order=2, zone=RIGHT)
+        create_loc(brick_id=brick_ids[2], order=3, zone=RIGHT)
+
+        role_locs = [
+            create_loc(brick_id=brick_ids[0], role=role, order=1, zone=LEFT),
+            create_loc(brick_id=brick_ids[1], role=role, order=2, zone=LEFT),
+        ]
+
+        self.assertNoFormError(self.client.post(
+            self.CLONE_DETAIL_URL, data={'source': role.id, 'target': ''},
+        ))
+
+        def as_tuple(loc):
+            return loc.content_type, loc.order, loc.brick_id, loc.zone
+
+        self.maxDiff = None
+        self.assertCountEqual(
+            [as_tuple(loc) for loc in role_locs],
+            [
+                as_tuple(loc)
+                for loc in BrickDetailviewLocation.objects.filter(role=None, superuser=True)
+            ],
+        )
+
+    def test_clone_role_config04(self):
+        "Override existing configuration (role)."
+        self.login_as_root()
+        self.assertFalse(BrickDetailviewLocation.objects.filter(superuser=True))
+
+        role1 = self.get_regular_role()
+        role2 = self.create_role()
+
+        model1 = FakeContact
+        model2 = FakeOrganisation
+        get_bricks = self.brick_registry.get_compatible_bricks
+        brick_ids1 = [brick_cls.id for brick_cls in islice(get_bricks(model1), 4)]
+        brick_ids2 = [brick_cls.id for brick_cls in islice(get_bricks(model2), 2)]
+
+        LEFT = BrickDetailviewLocation.LEFT
+        RIGHT = BrickDetailviewLocation.RIGHT
+        get_ct = ContentType.objects.get_for_model
+        ct1 = get_ct(model1)
+        ct2 = get_ct(model2)
+
+        create_loc = BrickDetailviewLocation.objects.create
+        create_loc(content_type=ct1, order=1, brick_id=brick_ids1[0], zone=LEFT)
+        default_count = BrickDetailviewLocation.objects.filter(role=None, superuser=False).count()
+
+        create_loc(role=role1, content_type=ct1, order=1, brick_id=brick_ids1[0], zone=LEFT)
+        create_loc(role=role1, content_type=ct1, order=2, brick_id=brick_ids1[1], zone=LEFT)
+        create_loc(role=role1, content_type=ct1, order=1, brick_id=brick_ids1[2], zone=RIGHT)
+
+        role2_locs = [
+            create_loc(role=role2, content_type=ct1, order=1, brick_id=brick_ids1[2], zone=RIGHT),
+            create_loc(role=role2, content_type=ct1, order=2, brick_id=brick_ids1[3], zone=RIGHT),
+
+            create_loc(role=role2, content_type=ct2, order=1, brick_id=brick_ids2[0], zone=LEFT),
+            create_loc(role=role2, content_type=ct2, order=2, brick_id=brick_ids2[1], zone=LEFT),
+        ]
+
+        url = self.CLONE_DETAIL_URL
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            target_choices = [*response1.context['form'].fields['target'].choices]
+
+        self.assertInChoices(
+            value=role1.id,
+            label=ngettext(
+                singular='{role} ({count} type of entity is configured)',
+                plural='{role} *({count} types of entity are configured)*',
+                number=1,
+            ).format(role=role1.name, count=1),
+            choices=target_choices,
+        )
+
+        # ---
+        self.assertNoFormError(self.client.post(
+            url, data={'source': role2.id, 'target': role1.id},
+        ))
+
+        def as_tuple(loc):
+            return loc.content_type, loc.order, loc.brick_id, loc.zone
+
+        self.assertCountEqual(
+            [as_tuple(loc) for loc in role2_locs],
+            [
+                as_tuple(loc)
+                for loc in BrickDetailviewLocation.objects.filter(role=role1, superuser=False)
+            ],
+        )
+        self.assertEqual(
+            default_count,
+            BrickDetailviewLocation.objects.filter(role=None, superuser=False).count(),
+        )
+
+    def test_clone_role_config05(self):
+        "Override existing configuration (superuser)."
+        self.login_as_root()
+        self.assertFalse(BrickDetailviewLocation.objects.filter(superuser=True))
+
+        role = self.get_regular_role()
+
+        model1 = FakeContact
+        model2 = FakeOrganisation
+        get_bricks = self.brick_registry.get_compatible_bricks
+        brick_ids1 = [brick_cls.id for brick_cls in islice(get_bricks(model1), 4)]
+        brick_ids2 = [brick_cls.id for brick_cls in islice(get_bricks(model2), 2)]
+
+        LEFT = BrickDetailviewLocation.LEFT
+        RIGHT = BrickDetailviewLocation.RIGHT
+        get_ct = ContentType.objects.get_for_model
+        ct1 = get_ct(model1)
+        ct2 = get_ct(model2)
+
+        create_loc = BrickDetailviewLocation.objects.create
+        create_loc(content_type=ct1, order=1, brick_id=brick_ids1[0], zone=LEFT)
+        default_count = BrickDetailviewLocation.objects.filter(role=None, superuser=False).count()
+
+        create_loc(superuser=True, content_type=ct1, order=1, brick_id=brick_ids1[0], zone=LEFT)
+        create_loc(superuser=True, content_type=ct1, order=2, brick_id=brick_ids1[1], zone=LEFT)
+        create_loc(superuser=True, content_type=ct2, order=1, brick_id=brick_ids2[0], zone=RIGHT)
+
+        role_locs = [
+            create_loc(role=role, content_type=ct1, order=1, brick_id=brick_ids1[2], zone=RIGHT),
+            create_loc(role=role, content_type=ct1, order=2, brick_id=brick_ids1[3], zone=RIGHT),
+        ]
+
+        url = self.CLONE_DETAIL_URL
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            target_choices = [*response1.context['form'].fields['target'].choices]
+
+        self.assertInChoices(
+            value='',
+            label=ngettext(
+                singular='*Superuser* ({count} type of entity is configured)',
+                plural='*Superuser* ({count} types of entity are configured)',
+                number=2,
+            ).format(count=2),
+            choices=target_choices,
+        )
+
+        # ---
+        self.assertNoFormError(self.client.post(
+            url, data={'source': role.id, 'target': ''},
+        ))
+
+        def as_tuple(loc):
+            return loc.content_type, loc.order, loc.brick_id, loc.zone
+
+        self.assertCountEqual(
+            [as_tuple(loc) for loc in role_locs],
+            [
+                as_tuple(loc)
+                for loc in BrickDetailviewLocation.objects.filter(role=None, superuser=True)
+            ],
+        )
+        self.assertEqual(
+            default_count,
+            BrickDetailviewLocation.objects.filter(role=None, superuser=False).count(),
+        )
+
     def _aux_test_edit_detailview(self, role=None, superuser=False,
-                                  expected_title='Edit the bricks'):
+                                  expected_title='Edit the bricks',
+                                  ):
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 

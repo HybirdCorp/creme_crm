@@ -71,6 +71,12 @@ class BrickDetailviewLocationsCreation(EntityCTypeRelatedMixin,
         )
 
 
+class BrickDetailviewLocationsCloning(base.ConfigCreation):
+    title = _('Clone the configuration of a role')
+    submit_label = _('Create the configuration')
+    form_class = bricks_forms.BrickDetailviewLocationsCloningForm
+
+
 class RelationTypeBrickCreation(base.ConfigModelCreation):
     model = RelationBrickItem
     form_class = bricks_forms.RTypeBrickCreationForm

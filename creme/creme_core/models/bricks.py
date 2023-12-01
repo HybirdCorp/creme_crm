@@ -241,6 +241,20 @@ class BrickDetailviewLocation(CremeModel):
             model=ct, role=role, block='??' if brick is None else brick.verbose_name,
         )
 
+    def clone_for_role(self, role: UserRole | None) -> BrickDetailviewLocation:
+        """Clone an instance to create the configuration of another role.
+        The returned instance is not saved (hint: you can use it in bulk_create()).
+        @param role: None means 'superuser'.
+        """
+        return type(self)(
+            content_type=self.content_type,
+            brick_id=self.brick_id,
+            order=self.order,
+            zone=self.zone,
+            role=role,
+            superuser=(role is None),
+        )
+
 
 class BrickHomeLocation(CremeModel):
     role = models.ForeignKey(

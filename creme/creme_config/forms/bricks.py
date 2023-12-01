@@ -16,12 +16,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
+
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import EmailField, ForeignKey, ManyToManyField, URLField
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 import creme.creme_core.forms.widgets as core_widgets
 import creme.creme_core.gui.bricks as gui_bricks
@@ -49,7 +52,9 @@ from creme.creme_core.utils.unicode_collation import collator
 from .fields import BricksConfigField
 
 __all__ = (
-    'BrickDetailviewLocationsCreationForm', 'BrickDetailviewLocationsEditionForm',
+    'BrickDetailviewLocationsCreationForm',
+    'BrickDetailviewLocationsCloningForm',
+    'BrickDetailviewLocationsEditionForm',
     'BrickHomeLocationsAddingForm', 'BrickHomeLocationsEditionForm',
     'BrickMypageLocationsForm',
     'RTypeBrickCreationForm', 'RTypeBrickItemCtypeAddingForm', 'RTypeBrickItemCtypeEditionForm',
@@ -226,6 +231,93 @@ class BrickDetailviewLocationsCreationForm(_BrickDetailviewLocationsForm):
         self.role = role = self.cleaned_data['role']
         self.superuser = (role is None)
         super().save(*args, **kwargs)
+
+
+class BrickDetailviewLocationsCloningForm(base.CremeForm):
+    source = forms.ModelChoiceField(
+        label=_('Configuration to clone'),
+        queryset=UserRole.objects.none(),
+        empty_label=None,
+    )
+    target = forms.ChoiceField(
+        label=_('Role to configure'), required=False,
+        help_text=_('If the target has already a configuration, it will be overriden'),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fields = self.fields
+
+        # Source ---
+        source_f = fields['source']
+
+        # TODO: do-able with an aggregate?
+        config_counter = defaultdict(set)
+        for loc in BrickDetailviewLocation.objects.exclude(
+            role__isnull=True, superuser=False,
+        ):
+            config_counter[loc.role_id].add(loc.content_type_id)
+
+        if None in config_counter:
+            # NB: browser can ignore <em> tag in <option>...
+            source_f.empty_label = '*{}*'.format(gettext('Superuser'))
+            source_f.required = False
+
+        source_f.queryset = UserRole.objects.filter(id__in=filter(None, config_counter.keys()))
+
+        # Target ---
+        target_f = fields['target']
+        super_count = len(config_counter[None])
+        target_choices = [(
+            '',
+            ngettext(
+                singular='*Superuser* ({count} type of entity is configured)',
+                plural='*Superuser* ({count} types of entity are configured)',
+                number=super_count,
+            ).format(count=super_count) if super_count else '*{}*'.format(gettext('Superuser'))
+        )]
+
+        # TODO: only one query on UserRole for source & target?
+        for role in UserRole.objects.order_by('name'):
+            count = len(config_counter[role.id])
+            label = ngettext(
+                singular='{role} ({count} type of entity is configured)',
+                plural='{role} *({count} types of entity are configured)*',
+                number=count,
+            ).format(role=role, count=count) if count else str(role)
+            target_choices.append((role.id, label))
+
+        target_f.choices = target_choices
+        target_f.empty_label = '*{}*'.format(gettext('Superuser'))
+
+    def clean_target(self):
+        target_id = self.cleaned_data['target']
+        return UserRole.objects.get(id=target_id) if target_id else None
+
+    def clean(self, *args, **kwargs):
+        cdata = self.cleaned_data
+
+        if not self._errors and cdata['source'] == cdata['target']:
+            raise ValidationError(_('The source and the target must be different.'))
+
+        return cdata
+
+    def save(self, *args, **kwargs):
+        cdata = self.cleaned_data
+        target = cdata['target']
+        source = cdata['source']
+
+        # TODO: recycle instances if possible?
+        BrickDetailviewLocation.objects.filter(
+            role=target, superuser=(target is None),
+        ).delete()
+
+        BrickDetailviewLocation.objects.bulk_create([
+            loc.clone_for_role(target)
+            for loc in BrickDetailviewLocation.objects.filter(
+                role=source, superuser=(source is None),
+            )
+        ])
 
 
 class BrickDetailviewLocationsEditionForm(_BrickDetailviewLocationsForm):

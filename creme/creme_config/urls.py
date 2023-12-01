@@ -427,6 +427,11 @@ bricks_patterns = [
         name='creme_config__create_detailviews_bricks',
     ),
     re_path(
+        r'^detailview/clone[/]?$',
+        bricks.BrickDetailviewLocationsCloning.as_view(),
+        name='creme_config__clone_detailview_bricks',
+    ),
+    re_path(
         r'^detailview/edit/(?P<ct_id>\d+)/(?P<role>\w+)[/]?$',
         bricks.BrickDetailviewLocationsEdition.as_view(),
         name='creme_config__edit_detailview_bricks',
