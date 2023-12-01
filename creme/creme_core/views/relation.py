@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,7 @@
 
 from collections import defaultdict
 from functools import partial
+from urllib.parse import urlencode
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import prefetch_related_objects
@@ -358,8 +359,19 @@ class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
     rtype_id_arg      = 'rtype_id'
     objects_ct_id_arg = 'objects_ct_id'
 
+    reload_url_name = 'creme_core__select_entities_to_link'
+
     def get_ctype_id(self):
         return utils.get_from_GET_or_404(self.request.GET, self.objects_ct_id_arg)
+
+    def get_reload_url(self):
+        query = urlencode({
+            self.objects_ct_id_arg: self.get_ctype_id(),
+            self.rtype_id_arg: self.get_rtype().pk,
+            self.subject_id_arg: self.get_related_entity_id(),
+        })
+
+        return super().get_reload_url() + f'?{query}'
 
     @property
     def model(self):
