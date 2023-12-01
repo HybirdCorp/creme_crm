@@ -53,6 +53,11 @@ class MergeViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_select_url(orga01))
 
+        self.assertEqual(
+            response.context['reload_url'],
+            self._build_select_url(orga01)
+        )
+
         with self.assertNoException():
             contacts = response.context['page_obj'].object_list
 
