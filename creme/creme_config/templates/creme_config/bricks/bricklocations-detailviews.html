@@ -8,6 +8,12 @@
     {% brick_header_title title=_('Detailed views — {count} Configured type of resource') plural=_('Detailed views — {count} Configured types of resource') icon='config' %}
 {% endblock %}
 
+{% block brick_header_actions %}
+  {% if display_clone_button %}
+    {% brick_header_action id='add' url='creme_config__clone_detailview_bricks'|url label=_('Clone the configuration of a role') enabled=user|has_perm_to_admin:'creme_core' %}
+  {% endif %}
+{% endblock %}
+
 {% block brick_content %}
  {% with admin_perm=user|has_perm_to_admin:'creme_core' delete_url='creme_config__delete_detailview_bricks'|url %}
   {% if not page.number or page.number < 2 %}

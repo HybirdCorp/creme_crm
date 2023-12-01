@@ -9,6 +9,8 @@
     # A role "Regular user", which can do everything excepted administrating apps, is created in new installations.
     # Drop JQPlot compatibility
     # Apps :
+        * Creme_config :
+            - The bricks configuration of a role can be cloned from the configuration of another role.
         * Activities :
             - Upgrade to FullCalendar "5.11.4":
                 - New calendar look-n-feel.

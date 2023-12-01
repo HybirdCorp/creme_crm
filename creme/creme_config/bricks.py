@@ -644,9 +644,13 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
         btc = self.get_template_context(
             context, ctypes,
             max_conf_count=UserRole.objects.count() + 1,  # NB: '+ 1' is for super-users config.
+            default_count=BrickDetailviewLocation.objects.filter(
+                content_type=None, role=None, superuser=False,
+            ).count(),
         )
 
         ctypes_wrappers = btc['page'].object_list
+        display_clone_button = False
 
         # brick_counts[content_type.id][(role_id, superuser)] -> count
         brick_counts = defaultdict(lambda: defaultdict(int))
@@ -669,6 +673,9 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
             count_per_role = brick_counts[ctw.ctype.id]
             ctw.default_count = count_per_role.pop((None, False), 0)
 
+            if count_per_role:
+                display_clone_button = True
+
             ctw.locations_info = locations_info = []
             for (role_id, superuser), block_count in count_per_role.items():
                 if superuser:
@@ -682,10 +689,7 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
 
             locations_info.sort(key=lambda t: sort_key(t[1]))  # Sort by role label
 
-        btc['default_count'] = BrickDetailviewLocation.objects.filter(
-            content_type=None,
-            role=None, superuser=False,
-        ).count()
+        btc['display_clone_button'] = display_clone_button
 
         return self._render(btc)
 

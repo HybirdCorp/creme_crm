@@ -350,6 +350,36 @@ class BrickTestCase(CremeTestCase):
         )
         self.assertIsList(locs, length=2)
 
+    def test_detail_clone_for_role01(self):
+        role = self.get_regular_role()
+        src = BrickDetailviewLocation.objects.create(
+            order=1, brick_id=self.TestBrick01.id, zone=BrickDetailviewLocation.LEFT,
+        )
+        clone = src.clone_for_role(role)
+        self.assertIsInstance(clone, BrickDetailviewLocation)
+        self.assertIsNone(clone.pk)
+        self.assertIsNone(clone.id)
+        self.assertEqual(src.brick_id, clone.brick_id)
+        self.assertEqual(src.order,    clone.order)
+        self.assertEqual(src.zone,     clone.zone)
+        self.assertIsNone(clone.content_type)
+        self.assertEqual(role, clone.role)
+        self.assertFalse(clone.superuser)
+
+    def test_detail_clone_for_role02(self):
+        src = BrickDetailviewLocation.objects.create(
+            order=2, brick_id=self.TestBrick02.id, zone=BrickDetailviewLocation.RIGHT,
+            content_type=ContentType.objects.get_for_model(FakeContact),
+            role=self.get_regular_role(),
+        )
+        clone = src.clone_for_role(None)
+        self.assertEqual(src.brick_id,     clone.brick_id)
+        self.assertEqual(src.order,        clone.order)
+        self.assertEqual(src.zone,         clone.zone)
+        self.assertEqual(src.content_type, clone.content_type)
+        self.assertIsNone(clone.role)
+        self.assertTrue(clone.superuser)
+
     def test_detail_str(self):
         TOP = BrickDetailviewLocation.TOP
 

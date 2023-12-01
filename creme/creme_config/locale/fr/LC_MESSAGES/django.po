@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-29 17:50+0100\n"
+"POT-Creation-Date: 2023-12-04 18:59+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -284,6 +284,30 @@ msgstr "Rôle"
 
 msgid "Configuration"
 msgstr "Configuration"
+
+msgid "Configuration to clone"
+msgstr "Configuration à cloner"
+
+msgid "Role to configure"
+msgstr "Rôle à configurer"
+
+msgid "If the target has already a configuration, it will be overriden"
+msgstr "Si la cible a déjà une configuration, cette dernière sera écrasée"
+
+#, python-brace-format
+msgid "*Superuser* ({count} type of entity is configured)"
+msgid_plural "*Superuser* ({count} types of entity are configured)"
+msgstr[0] "*Super-utilisateur* ({count} type de fiche est configuré)"
+msgstr[1] "*Super-utilisateur* ({count} types de fiche sont configurés)"
+
+#, python-brace-format
+msgid "{role} ({count} type of entity is configured)"
+msgid_plural "{role} ({count} types of entity are configured)"
+msgstr[0] "{role} ({count} type de fiche est configuré)"
+msgstr[1] "{role} ({count} types de fiche sont configurés)"
+
+msgid "The source and the target must be different."
+msgstr "La source et la cible doivent être différentes."
 
 msgid "Blocks to display on the home"
 msgstr "Blocs à afficher sur l'accueil"
@@ -2220,6 +2244,12 @@ msgstr "Enregistrer la configuration"
 #, python-brace-format
 msgid "New block configuration for «{model}»"
 msgstr "Nouvelle configuration de bloc pour «{model}»"
+
+msgid "Clone the configuration of a role"
+msgstr "Cloner la configuration d'un rôle"
+
+msgid "Create the configuration"
+msgstr "Créer la configuration"
 
 msgctxt "creme_config-verb"
 msgid "Select"
