@@ -12,6 +12,7 @@
         # Apps :
             * Activities :
                 - Fix an issue in the deepcopy of the property 'limit_choices_to' of ActivitySubTypeField : it was lost and the choices not filtered.
+                - Fix Activity deletion : Since the relation 'subject of activity' is internal we need to remove them before deleting.
 
 
 == Version 2.4.9 ==
