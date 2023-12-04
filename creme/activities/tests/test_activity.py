@@ -1982,7 +1982,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     @skipIfCustomContact
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete02(self):
+    def test_delete__rel_part_2_activity(self):
         "Relations constants.REL_SUB_PART_2_ACTIVITY are removed when the Activity is deleted."
         user = self.login_as_root_and_get()
 
@@ -1993,6 +1993,27 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         rel = Relation.objects.create(
             user=user, subject_entity=musashi,
             type_id=constants.REL_SUB_PART_2_ACTIVITY,
+            object_entity=activity,
+        )
+
+        self.assertPOST200(activity.get_delete_absolute_url(), follow=True)
+        self.assertDoesNotExist(activity)
+        self.assertDoesNotExist(rel)
+        self.assertStillExists(musashi)
+
+    @skipIfCustomContact
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
+    def test_delete__rel_activity_subject(self):
+        "Relations constants.REL_SUB_ACTIVITY_SUBJECT are removed when the Activity is deleted."
+        user = self.login_as_root_and_get()
+
+        activity = self._create_meeting(user=user)
+        activity.trash()
+
+        musashi = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
+        rel = Relation.objects.create(
+            user=user, subject_entity=musashi,
+            type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
             object_entity=activity,
         )
 
