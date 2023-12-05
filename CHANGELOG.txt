@@ -2,6 +2,12 @@
 
   TODO: compile *.po (creme_config)
 
+  Users side :
+  ------------
+     # Apps :
+        * Assistants :
+            - The UserMessages not related to an entity were not viewable.
+
   Developers side :
   -----------------
 
