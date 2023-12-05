@@ -4,6 +4,8 @@
 
   Users side :
   ------------
+     # Some issues with bad callback URLs on edition views after a bricks reloading have been fixed.
+       Note: sadly, this fix makes the context of the visitor mode easier to lost ("Back" in your browser to get it back).
      # Fix employees & merge selection listview popup : now the entities remain filtered even with order or page change.
      # In the theme "Chantilly", the style of messages for empty blocks was not consistent.
      # Apps :
