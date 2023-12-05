@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.bricks import BricksManager, QuerysetBrick
@@ -265,5 +266,7 @@ class UserMessagesBrick(_AssistantsBrick):
 
     def _get_queryset_for_home(self, context):
         return self.dependencies[0].objects.filter(
-            recipient=context['user'], entity__is_deleted=False,
+            recipient=context['user'],
+        ).filter(
+            Q(entity=None) | Q(entity__is_deleted=False),
         ).select_related('sender')
