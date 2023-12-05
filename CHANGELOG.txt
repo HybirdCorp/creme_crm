@@ -5,6 +5,7 @@
   Users side :
   ------------
      # Fix employees & merge selection listview popup : now the entities remain filtered even with order or page change.
+     # In the theme "Chantilly", the style of messages for empty blocks was not consistent.
 
   Developers side :
   -----------------

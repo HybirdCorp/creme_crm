@@ -557,8 +557,16 @@
     white-space: nowrap;
 }
 
+/*
 .brick-table .brick-content.is-empty .brick-table-content > thead > tr > th {
     font-weight: 500;
+}
+*/
+.brick .brick-content.is-empty,
+.brick-table .brick-content.is-empty .brick-table-content > thead > tr > th {
+    font-style: italic;
+    font-weight: 600;
+    color: #5e6b71;
 }
 
 /* examples of render hijacking for data types - end */
