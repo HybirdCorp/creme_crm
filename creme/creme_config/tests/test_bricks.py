@@ -205,7 +205,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @staticmethod
     def _build_adddetail_url(ct):
-        return reverse('creme_config__create_detailviews_bricks', args=(ct.id,))
+        # return reverse('creme_config__create_detailviews_bricks', args=(ct.id,))
+        return reverse('creme_config__create_detailview_bricks', args=(ct.id,))
 
     @staticmethod
     def _build_editdetail_url(ct=None, role=None, superuser=False):
@@ -1689,11 +1690,15 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         bhl03 = create_bhl(superuser=True)
         bhl04 = create_bhl(role=role, brick_id=bricks[1].id, order=2)
 
-        self.assertGET405(reverse('creme_config__delete_home_brick'))
-        self.assertGET405(reverse('creme_config__delete_home_brick'), data={'role': role.id})
-        self.assertPOST404(reverse('creme_config__delete_home_brick'))
+        # self.assertGET405(reverse('creme_config__delete_home_brick'))
+        self.assertGET405(reverse('creme_config__delete_home_bricks'))
+        # self.assertGET405(reverse('creme_config__delete_home_brick'), data={'role': role.id})
+        self.assertGET405(reverse('creme_config__delete_home_bricks'), data={'role': role.id})
+        # self.assertPOST404(reverse('creme_config__delete_home_brick'))
+        self.assertPOST404(reverse('creme_config__delete_home_bricks'))
 
-        self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'role': role.id})
+        # self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'role': role.id})
+        self.assertPOST200(reverse('creme_config__delete_home_bricks'), data={'role': role.id})
         self.assertDoesNotExist(bhl02)
         self.assertDoesNotExist(bhl04)
         self.assertStillExists(bhl01)
@@ -1716,7 +1721,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         bhl03 = create_bhl(role=role)
         bhl04 = create_bhl(superuser=True, brick_id=bricks[1].id, order=2)
 
-        self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'role': 'superuser'})
+        self.assertPOST200(
+            # reverse('creme_config__delete_home_brick'), data={'role': 'superuser'}
+            reverse('creme_config__delete_home_bricks'), data={'role': 'superuser'},
+        )
         self.assertDoesNotExist(bhl02)
         self.assertDoesNotExist(bhl04)
         self.assertStillExists(bhl01)

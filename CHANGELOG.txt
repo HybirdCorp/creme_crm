@@ -175,6 +175,9 @@
                    'FieldInfo(Contact, 'user').value_from(my_contact)' still returns a CremeUser instance.
         # Apps :
             * Creme_config :
+                - In 'urls' :
+                    - The view named 'creme_config__create_detailviews_bricks' has been renamed 'creme_config__create_detailview_bricks'.
+                    - The view named 'creme_config__delete_home_brick' has been renamed 'creme_config__delete_home_bricks'.
                 - In 'forms' :
                     - The class 'bricks._CustomBrickConfigItemBaseForm' has been removed.
                     - In 'creme_property_type', these classes have been removed :
