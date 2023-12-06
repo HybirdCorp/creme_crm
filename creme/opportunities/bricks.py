@@ -177,7 +177,8 @@ class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
 
         cells = []
         for cell_class, cell_name in self.cells_desc:
-            cell = cell_class.build(Contact, cell_name)
+            # cell = cell_class.build(Contact, cell_name)
+            cell = cell_class.build(self.dependencies[1], cell_name)
             if cell is not None and not cell.is_excluded:
                 cells.append(cell)
 
