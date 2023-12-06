@@ -6,11 +6,11 @@
    height="128"
    id="svg2"
    version="1.1"
-   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
+   inkscape:version="1.3.2 (1:1.3.2+202311252150+091e20ef0f)"
    sodipodi:docname="history.svg"
-   inkscape:export-filename="history_22.png"
-   inkscape:export-xdpi="15.46875"
-   inkscape:export-ydpi="15.46875"
+   inkscape:export-filename="history_32.png"
+   inkscape:export-xdpi="24"
+   inkscape:export-ydpi="24"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -188,7 +188,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4142136"
-     inkscape:cx="54.800774"
+     inkscape:cx="54.447221"
      inkscape:cy="85.206365"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
@@ -219,7 +219,8 @@
        empcolor="#ff00cb"
        empopacity="0.25098039"
        originx="0"
-       originy="0" />
+       originy="0"
+       units="px" />
     <sodipodi:guide
        orientation="0,1"
        position="82.074894,122.481"
@@ -250,7 +251,8 @@
        spacingx="8"
        spacingy="8"
        originx="0"
-       originy="0" />
+       originy="0"
+       units="px" />
   </sodipodi:namedview>
   <metadata
      id="metadata7">

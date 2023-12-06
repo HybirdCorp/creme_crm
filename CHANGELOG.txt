@@ -22,6 +22,7 @@
         # Fix empty initial value of MergeField for ManyToMany fields.
         # Fix an issue when setting an empty array to CheckListSelect widget.
         # Add customizable reload url for EntitiesList views.
+        # Many missing sizes for icon have been added (could be useful for custom apps).
         # Apps :
             * Activities :
                 - Fix an issue in the deepcopy of the property 'limit_choices_to' of ActivitySubTypeField : it was lost and the choices not filtered.
