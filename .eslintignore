@@ -17,7 +17,7 @@
 **/js/lib/underscore/*
 **/js/lib/momentjs/*
 **/js/lib/leaflet*.js
-**/js/lib/editor/*
+**/js/lib/ckeditor*.js
 **/js/lib/Sortable/*
 **/js/lib/Select2/*
 **/js/lib/fullcalendar-*/*
