@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-# TODO: these info should be retrieved from theme data (future asset manager Creme2.2+)
+# TODO: in the future asset system, these info should be retrieved from theme data
 _SVG_ICONS = {
     'chantilly': {
         'goto': {
@@ -91,7 +91,7 @@ _SVG_ICONS = {
     },
 }
 
-# TODO: Creme2.2+ these info will be retrieved from theme data
+# TODO: in the future asset system, these info should be retrieved from theme data
 _ICON_SIZES_MAP = {
     'chantilly': {
         # Fall-backs (should be avoided)
@@ -151,7 +151,7 @@ _ICON_SIZES_MAP = {
         'small':  16,
         'tiny':   12,
 
-        # Semantic sizes (use these ones)
+        # Semantic sizes (use these)
         'header-menu-home': 30,
         'header-menu':      16,
 

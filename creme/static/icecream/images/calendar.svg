@@ -6,11 +6,11 @@
    height="128"
    id="svg2"
    version="1.1"
-   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
+   inkscape:version="1.3.2 (1:1.3.2+202311252150+091e20ef0f)"
    sodipodi:docname="calendar.svg"
-   inkscape:export-filename="calendar_32.png"
-   inkscape:export-xdpi="22.5"
-   inkscape:export-ydpi="22.5"
+   inkscape:export-filename="calendar_12.png"
+   inkscape:export-xdpi="9"
+   inkscape:export-ydpi="9"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -157,8 +157,8 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="4.7453171"
-     inkscape:cx="3.6878463"
-     inkscape:cy="66.4866"
+     inkscape:cx="55.423061"
+     inkscape:cy="57.425035"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
@@ -188,7 +188,8 @@
        empcolor="#ff00cb"
        empopacity="0.25098039"
        originx="0"
-       originy="0" />
+       originy="0"
+       units="px" />
     <sodipodi:guide
        orientation="0,1"
        position="82.074894,122.481"
@@ -224,7 +225,8 @@
        spacingx="8"
        spacingy="8"
        originx="0"
-       originy="0" />
+       originy="0"
+       units="px" />
   </sodipodi:namedview>
   <metadata
      id="metadata7">
@@ -234,8 +236,24 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/" />
       </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
     </rdf:RDF>
   </metadata>
   <g
