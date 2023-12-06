@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Creme is a free/open-source Customer Relationship Management software
- * Copyright (C) 2022-2023 Hybird
+ * Copyright (C) 2024 Hybird
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -36,7 +36,7 @@ var CKEDITOR_TOOLBARS = {
         'numberedList', 'bulletedList', '|',
         'outdent', 'indent', '|',
         'fontbackgroundcolor', 'fontcolor', 'fontfamily', 'fontsize', '|',
-        'link', 'blockquote', 'inserttable', 'imageinsert', '|', 'placeholder'
+        'link', 'blockquote', 'inserttable', 'insertimage', '|', 'placeholder'
     ],
     full: [
         'undo', 'redo', '|',
@@ -45,7 +45,7 @@ var CKEDITOR_TOOLBARS = {
         'numberedList', 'bulletedList', '|',
         'outdent', 'indent', '|',
         'fontbackgroundcolor', 'fontcolor', 'fontfamily', 'fontsize', '|',
-        'link', 'blockquote', 'horizontalline', 'inserttable', 'imageinsert'
+        'link', 'blockquote', 'horizontalline', 'inserttable', 'insertimage'
     ]
 };
 
@@ -55,6 +55,22 @@ var CKEDITOR_DEFAULT_PLACEHOLDERS = [
     {name: 'last_name', label: gettext('Last name')},
     {name: 'civility', label: gettext('Civility')}
 ];
+
+function parseWidth(value, element) {
+    return value === 'fit-input' ? element.width() : value;
+}
+
+function parseHeight(value, element) {
+    switch (value) {
+        case 'fit-input':
+            return element.height();
+        case 'fit-rows':
+            var rows = parseInt(element.attr('rows')) || 0;
+            return rows ? rows + 'em' : element.height();
+        default:
+            return value;
+    }
+}
 
 creme.form.CKEditor = creme.component.Component.sub({
     _init_: function(element, options) {
@@ -67,6 +83,7 @@ creme.form.CKEditor = creme.component.Component.sub({
             hideDisabledToolbar: element.data('ckeditorHideDisabledToolbar') || false,
             placeholders: CKEDITOR_DEFAULT_PLACEHOLDERS,
             maxWidth: element.data('ckeditorMaxWidth'),
+            minHeight: element.data('ckeditorHeight'),
             isDisabled: element.prop('disabled'),
             isReadOnly: element.prop('readonly')
         }, options || {});
@@ -97,6 +114,18 @@ creme.form.CKEditor = creme.component.Component.sub({
             editor.on('change:isReadOnly', function() {
                 self._updateToolbarVisibility();
             });
+
+            if (!Object.isEmpty(options.minHeight)) {
+                var minHeight = parseHeight(options.minHeight, element);
+
+                editor.editing.view.change(function(writer) {
+                    writer.setStyle('min-height', minHeight, editor.editing.view.document.getRoot());
+                });
+            }
+
+            // As default enter creates a paragraph and shift+enter a line. Swap this behaviour.
+            editor.keystrokes.set('Shift+Enter', 'enter');
+            editor.keystrokes.set('Enter', 'shiftEnter');
 
             self.isReadOnly(options.isReadOnly);
             self.isDisabled(options.isDisabled);
@@ -174,6 +203,7 @@ creme.form.CKEditor = creme.component.Component.sub({
     _ckeditorOptions: function(element, options) {
         var csrftoken = options.csrftoken || creme.ajax.cookieCSRF();
         var toolbarItems = this._ckeditorToolbarItems(options);
+        var plugins = ClassicEditor.builtinPlugins.map(function(p) { return p.pluginName; });
         var editorOptions = {};
 
         if (options.uploadURL) {
@@ -186,6 +216,7 @@ creme.form.CKEditor = creme.component.Component.sub({
             };
         } else {
             toolbarItems = _.without(toolbarItems, 'imageupload');
+            plugins = _.without(plugins, 'ImageInsert', 'ImageUpload', 'SimpleUploadAdapter');
         }
 
         if (!Object.isEmpty(options.placeholders)) {
@@ -200,16 +231,11 @@ creme.form.CKEditor = creme.component.Component.sub({
         }
 
         if (!Object.isEmpty(options.maxWidth)) {
-            switch (options.maxWidth) {
-                case 'fit-input':
-                    editorOptions.maxWidth = element.width();
-                    break;
-                default:
-                    editorOptions.maxWidth = options.maxWidth;
-            }
+            editorOptions.maxWidth = parseWidth(options.maxWidth, element);
         }
 
         editorOptions = $.extend(editorOptions, {
+            plugins: plugins,
             toolbar: {
                 items: toolbarItems,
                 shouldNotGroupWhenFull: true
