@@ -10,6 +10,8 @@ CREME_LANGUAGE ?= fr
 PORT ?= 8000
 KARMA_BROWSERS ?= FirefoxHeadless
 CHROME_BIN ?= /usr/bin/google-chrome
+CKEDITOR_PATH := creme/editor/ckeditor
+CKEDITOR_INSTALL_PATH := creme/editor/static/editor/js/lib/
 
 
 ## clean - Basic cleanup, mostly temporary files.
@@ -171,10 +173,18 @@ lint: isort-check flake8
 .PHONY: format
 format: isort-fix
 
+.PHONY: upgrade-ckeditor-env
+upgrade-ckeditor-env:
+	cd ${CKEDITOR_PATH} && npm install --no-save
+
 .PHONY: build-ckeditor
 build-ckeditor:
-	@if [ ! -f "ckeditor/node_modules/.bin/webpack" ]; then (cd ckeditor && npm install --no-save); fi
-	cd ckeditor && node_modules/.bin/webpack build --mode production
+	@if [ ! -f "${CKEDITOR_PATH}/node_modules/.bin/webpack" ]; then (cd ${CKEDITOR_PATH} && npm install --no-save); fi
+	cd ${CKEDITOR_PATH} && node_modules/.bin/webpack build --mode production
+
+.PHONY: install-ckeditor
+install-ckeditor:
+	cp ${CKEDITOR_PATH}/dist/ckeditor5*.js ${CKEDITOR_INSTALL_PATH}
 
 ## Collect the messages to translate for the entire project or the given app directories
 .PHONY: gettext-collect

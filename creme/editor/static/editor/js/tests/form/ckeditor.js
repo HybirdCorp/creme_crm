@@ -30,10 +30,11 @@ QUnit.module("creme.form.CKEditor", new QUnitMixin(QUnitAjaxMixin,
     createEditorHtml: function(options) {
         options = options || {};
 
-        return '<textarea ${id} ${uploadURL} ${maxWidth} ${disabled} ${readonly}></textarea>'.template({
+        return '<textarea ${id} ${uploadURL} ${maxWidth} ${minHeight} ${disabled} ${readonly}></textarea>'.template({
             id: options.id ? 'id="${id}"'.template(options) : '',
             uploadURL: options.uploadURL ? 'data-ckeditor-upload="${uploadURL}"'.template(options) : '',
             maxWidth: options.maxWidth ? 'data-ckeditor-max-width="${maxWidth}"'.template(options) : '',
+            minHeight: options.minHeight ? 'data-ckeditor-height="${minHeight}"'.template(options) : '',
             disabled: options.disabled ? 'disabled' : '',
             readonly: options.readonly ? 'readonly' : ''
         });
@@ -99,10 +100,12 @@ QUnit.parameterize('creme.form.CKEditor (upload)', [
     ['mock/upload', true]
 ], function(url, enabled, assert) {
     var element = $(this.createEditorHtml({uploadURL: url})).appendTo(this.qunitFixture('field'));
-    var editor = new creme.form.CKEditor(element);
+    var editor = new creme.form.CKEditor(element, {
+        toolbarExtra: ['imageupload']
+    });
 
     this.awaitsPromise(editor.ckeditorSetup(), function() {
-        equal(enabled, element.parent().find('.ck-file-dialog-button').length > 0);
+        equal(enabled, element.parent().find('.ck-file-dialog-button input[type="file"]').length > 0);
     });
 });
 
@@ -130,6 +133,25 @@ QUnit.parameterize('creme.form.CKEditor (maxWidth)', [
 
     this.awaitsPromise(editor.ckeditorSetup(), function() {
         equal(expected, element.parent().find('.ck.ck-editor').width());
+    });
+});
+
+QUnit.parameterize('creme.form.CKEditor (maxHeight)', [
+    ['200px', '200px'],
+    ['fit-input', '300px'],
+    ['fit-rows', '13em']
+], function(minHeight, expected, assert) {
+    var element = $(this.createEditorHtml({minHeight: minHeight}));
+    element.css('height', '300px')
+           .attr('rows', 13)
+           .appendTo(this.qunitFixture('field'));
+
+    equal(element.data('ckeditorHeight'), minHeight);
+
+    var editor = new creme.form.CKEditor(element);
+
+    this.awaitsPromise(editor.ckeditorSetup(), function() {
+        equal(expected, element.parent().find('.ck.ck-editor').height());
     });
 });
 

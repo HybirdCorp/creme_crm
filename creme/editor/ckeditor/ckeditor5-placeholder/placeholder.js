@@ -10,6 +10,10 @@ export class Placeholder extends Plugin {
     static get requires() {
         return [ PlaceholderEditing, PlaceholderUI ];
     }
+
+    static get pluginName() {
+        return 'Placeholder';
+    }
 }
 
 class PlaceholderCommand extends Command {

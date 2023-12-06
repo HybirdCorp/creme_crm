@@ -2,6 +2,7 @@
           widget="ui-creme-ckeditor"
           {% if ckeditor_upload_url %}data-ckeditor-upload="{{ ckeditor_upload_url }}"{% endif %}
           data-ckeditor-toolbar="{{ ckeditor_toolbar }}"
+          data-ckeditor-height="fit-rows"
           name="{{ widget.name }}"
           {% include "django/forms/widgets/attrs.html" %}>
 {% if widget.value %}{{ widget.value }}{% endif %}

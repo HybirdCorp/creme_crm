@@ -412,6 +412,9 @@ INSTALLED_CREME_APPS = [
     #      'crudity' (if the future they will be defined from a GUI).
     'creme.crudity',
 
+    # Manages wyswyg editors in forms.
+    'creme.editor',
+
     # Manages EntityEmails, MailingLists & EmailCampaign entities.
     # If the app "crudity" is installed, emails can be synchronised with Creme.
     'creme.emails',
@@ -801,7 +804,6 @@ CREME_CORE_CSS = [
     'creme_core/css/jquery-css/creme-theme/jquery-ui-1.13.1.custom.css',
     'creme_core/css/select2/select2-4.0.13.css',
     'creme_core/css/select2/select2-creme.css',
-    'creme_core/css/ckeditor/ck5-creme.css',
 
     'creme_core/css/creme.css',
     'creme_core/css/creme-ui.css',
@@ -830,6 +832,7 @@ CREME_OPT_CSS = [  # APPS
     ('creme.billing',          'billing/css/billing.css'),
     ('creme.opportunities',    'opportunities/css/opportunities.css'),
     ('creme.commercial',       'commercial/css/commercial.css'),
+    ('creme.editor',           'editor/css/ck5-creme.css'),
     ('creme.emails',           'emails/css/emails.css'),
     ('creme.polls',            'polls/css/polls.css'),
     ('creme.products',         'products/css/products.css'),
@@ -950,7 +953,6 @@ CREME_CORE_JS = [
 
     'creme_core/js/widgets/form/select2.js',
     'creme_core/js/widgets/form/dropdown.js',
-    'creme_core/js/widgets/form/ckeditor.js',
 
     'creme_core/js/widgets/frame.js',
     'creme_core/js/widgets/toggle.js',
@@ -993,6 +995,7 @@ CREME_OPTLIB_JS = [
     ('creme.geolocation', 'geolocation/js/lib/leaflet-1.9.4.js'),
     ('creme.sketch', 'sketch/js/lib/d3-7.8.5.js'),
     ('creme.sketch', 'sketch/js/lib/filesaver-2.0.4.js'),
+    ('creme.editor', 'editor/js/lib/ckeditor5-39.0.2.js'),
 ]
 
 CREME_OPT_JS = [  # OPTIONAL APPS
@@ -1002,6 +1005,9 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.creme_config',  'creme_config/js/menu-editor.js'),
     ('creme.creme_config',  'creme_config/js/bricks-config-editor.js'),
     ('creme.creme_config',  'creme_config/js/settings-menu.js'),
+
+    ('creme.editor',        'editor/js/form/ckeditor.js'),
+    ('creme.editor',        'editor/js/editor.js'),
 
     ('creme.sketch',        'sketch/js/lib/d3-radial-axis.js'),
     ('creme.sketch',        'sketch/js/utils.js'),
@@ -1154,7 +1160,6 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/form/forms.js',
     'creme_core/js/tests/form/select2.js',
     'creme_core/js/tests/form/dropdown.js',
-    'creme_core/js/tests/form/ckeditor.js',
 
     'creme_core/js/tests/list/list-pager.js',
     'creme_core/js/tests/list/listview-actions.js',
@@ -1206,6 +1211,7 @@ TEST_CREME_OPT_JS = [
     ('creme.sketch',        'sketch/js/tests/invert.js'),
     ('creme.sketch',        'sketch/js/tests/color.js'),
     ('creme.sketch',        'sketch/js/tests/d3-radial-axis.js'),
+    ('creme.editor',        'editor/js/tests/form/ckeditor.js'),
     ('creme.crudity',       'crudity/js/tests/crudity-actions.js'),
     ('creme.cti',           'cti/js/tests/cti-actions.js'),
     ('creme.emails',        'emails/js/tests/emails-actions.js'),
