@@ -4,6 +4,7 @@
 
   Users side :
   ------------
+     # In the theme "Chantilly", an icon "Restore" was missing.
      # Apps :
         * Assistants :
             - The UserMessages not related to an entity were not viewable.
