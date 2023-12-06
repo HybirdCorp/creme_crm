@@ -196,7 +196,8 @@ class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
 
         cells = []
         for cell_class, cell_name in self.cells_desc:
-            cell = cell_class.build(Contact, cell_name)
+            # cell = cell_class.build(Contact, cell_name)
+            cell = cell_class.build(self.dependencies[1], cell_name)
             if cell is not None and not cell.is_excluded:
                 cells.append(cell)
 
@@ -278,7 +279,7 @@ class BusinessManagersBrick(_LinkedStuffBrick):
 
 
 class TargetingOpportunitiesBrick(QuerysetBrick):
-    id = _LinkedStuffBrick.generate_id('opportunities', 'target_organisations')
+    id = QuerysetBrick.generate_id('opportunities', 'target_organisations')
     verbose_name = _('Opportunities which target the Organisation / Contact')
     description = _(
         'Displays the Opportunities linked to the current Organisation / Contact '
