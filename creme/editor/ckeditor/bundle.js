@@ -10,7 +10,8 @@ import { Font, FontBackgroundColor, FontColor, FontFamily, FontSize } from '@cke
 import { GeneralHtmlSupport} from '@ckeditor/ckeditor5-html-support';
 import { Heading } from '@ckeditor/ckeditor5-heading';
 import { HorizontalLine } from '@ckeditor/ckeditor5-horizontal-line';
-import { Image, ImageCaption, ImageInsert, ImageResize, ImageStyle, ImageToolbar, ImageUpload } from '@ckeditor/ckeditor5-image';
+import { Image, ImageBlockEditing, ImageCaption, ImageEditing, ImageInsert,
+         ImageInsertViaUrl, ImageResize, ImageStyle, ImageToolbar, ImageUpload, ImageUtils } from '@ckeditor/ckeditor5-image';
 import { Indent, IndentBlock } from '@ckeditor/ckeditor5-indent';
 import { Link, LinkImage } from '@ckeditor/ckeditor5-link';
 import { List } from '@ckeditor/ckeditor5-list';
@@ -18,7 +19,7 @@ import { Paragraph } from '@ckeditor/ckeditor5-paragraph';
 import { Placeholder } from './ckeditor5-placeholder/placeholder.js';
 import { SpecialCharacters, SpecialCharactersEssentials } from '@ckeditor/ckeditor5-special-characters';
 import { Table, TableToolbar } from '@ckeditor/ckeditor5-table';
-import { TextTransformation } from '@ckeditor/ckeditor5-typing';
+import { Delete, Input, TextTransformation } from '@ckeditor/ckeditor5-typing';
 import { SimpleUploadAdapter } from '@ckeditor/ckeditor5-upload';
 import { WordCount } from '@ckeditor/ckeditor5-word-count';
 
@@ -28,6 +29,7 @@ ClassicEditor.builtinPlugins = [
     BlockToolbar,
     Bold,
     CodeBlock,
+    Delete,
     Essentials,
     FindAndReplace,
     FontBackgroundColor,
@@ -38,14 +40,19 @@ ClassicEditor.builtinPlugins = [
     Heading,
     HorizontalLine,
     Image,
+    ImageBlockEditing,
     ImageCaption,
+    ImageEditing,
     ImageInsert,
+    ImageInsertViaUrl,
     ImageResize,
     ImageStyle,
     ImageToolbar,
     ImageUpload,
+    ImageUtils,
     Indent,
     IndentBlock,
+    Input,
     Italic,
     Link,
     LinkImage,

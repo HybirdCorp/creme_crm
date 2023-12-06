@@ -24,8 +24,8 @@ from creme.creme_core.forms import (
     FieldBlockManager,
     MultiCreatorEntityField,
 )
-from creme.creme_core.forms.widgets import CKEditor
 from creme.documents import get_document_model
+from creme.editor.forms import CKEditor
 
 
 class EmailTemplateBaseCustomForm(CremeEntityForm):
