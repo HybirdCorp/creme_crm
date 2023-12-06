@@ -6,11 +6,11 @@
    height="128"
    id="svg3166"
    version="1.1"
-   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
+   inkscape:version="1.3.2 (1:1.3.2+202311252150+091e20ef0f)"
    sodipodi:docname="merge.svg"
-   inkscape:export-filename="merge_64.png"
-   inkscape:export-xdpi="45"
-   inkscape:export-ydpi="45"
+   inkscape:export-filename="merge_48.png"
+   inkscape:export-xdpi="36"
+   inkscape:export-ydpi="36"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -840,7 +840,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.3861881"
-     inkscape:cx="66.423934"
+     inkscape:cx="66.633473"
      inkscape:cy="54.270659"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -864,8 +864,24 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/" />
       </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
     </rdf:RDF>
   </metadata>
   <g

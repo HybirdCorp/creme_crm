@@ -4,13 +4,13 @@
 <svg
    id="svg2"
    version="1.1"
-   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
+   inkscape:version="1.3.2 (1:1.3.2+202311252150+091e20ef0f)"
    width="128"
    height="128"
    sodipodi:docname="commercial.svg"
-   inkscape:export-filename="commercial_48.png"
-   inkscape:export-xdpi="33.75"
-   inkscape:export-ydpi="33.75"
+   inkscape:export-filename="commercial_16.png"
+   inkscape:export-xdpi="12"
+   inkscape:export-ydpi="12"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -27,8 +27,24 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/" />
       </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
     </rdf:RDF>
   </metadata>
   <defs
@@ -1075,8 +1091,8 @@
      id="namedview4"
      showgrid="false"
      inkscape:zoom="2.8284271"
-     inkscape:cx="-49.674252"
-     inkscape:cy="79.019183"
+     inkscape:cx="-49.851029"
+     inkscape:cy="78.66563"
      inkscape:window-x="52"
      inkscape:window-y="27"
      inkscape:window-maximized="1"

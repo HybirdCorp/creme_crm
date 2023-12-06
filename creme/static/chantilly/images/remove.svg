@@ -3,16 +3,16 @@
 
 <svg
    sodipodi:docname="remove.svg"
-   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
+   inkscape:version="1.3.2 (1:1.3.2+202311252150+091e20ef0f)"
    sodipodi:version="0.32"
    id="svg2203"
    height="128"
    width="128"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    version="1.0"
-   inkscape:export-filename="remove_22.png"
-   inkscape:export-xdpi="15.47"
-   inkscape:export-ydpi="15.47"
+   inkscape:export-filename="remove_64.png"
+   inkscape:export-xdpi="48"
+   inkscape:export-ydpi="48"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -193,9 +193,9 @@
      inkscape:window-width="1868"
      inkscape:current-layer="layer1"
      inkscape:document-units="px"
-     inkscape:cy="64.099277"
-     inkscape:cx="52.165668"
-     inkscape:zoom="11.396384"
+     inkscape:cy="51.995044"
+     inkscape:cx="1.9854909"
+     inkscape:zoom="4.0292302"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1.0"
@@ -215,7 +215,24 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/" />
       </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
     </rdf:RDF>
   </metadata>
   <g
