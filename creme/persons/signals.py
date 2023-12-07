@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,8 @@ logger = logging.getLogger(__name__)
 
 @receiver(signals.post_save, sender=settings.AUTH_USER_MODEL)
 def sync_with_user(sender, instance, created, **kwargs):
-    if instance.is_team:
+    # TODO: factorise (see <_get_linked_contact()>)
+    if instance.is_team or instance.is_staff:
         return
 
     if getattr(instance, '_disable_sync_with_contact', False):

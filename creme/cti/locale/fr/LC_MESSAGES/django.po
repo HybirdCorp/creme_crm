@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'CTI' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2023 Hybird
 # This file is distributed under the same license as the PACKAGE package.
 #
 # > django-admin makemessages -l fr -i "tests.py" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme CTI 2.3\n"
+"Project-Id-Version: Creme CTI 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-15 19:13+0100\n"
+"POT-Creation-Date: 2023-12-08 13:58+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -57,6 +57,9 @@ msgstr "Appel à {entity}"
 
 msgid "Automatically created by CTI"
 msgstr "Créé automatiquement par CTI"
+
+msgid "Staff users cannot create phone call"
+msgstr "Les super administrateurs ne peuvent pas créer d'appel téléphonique"
 
 msgid "Phone call successfully created."
 msgstr "Appel téléphonique créé avec succès."

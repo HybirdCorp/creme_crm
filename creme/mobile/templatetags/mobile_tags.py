@@ -141,10 +141,12 @@ def mobile_activity_card(context, activity,
             extra_classes = 'editable-phonecall'
 
     user = context['user']
+    linked_contact = user.linked_contact
 
     return {
         'user':               user,
-        'user_contact_id':    user.linked_contact.id,
+        # TODO: test with is staff
+        'user_contact_id':    linked_contact.id if linked_contact else None,
         'activity':           activity,
         'STATUS_IN_PROGRESS': STATUS_IN_PROGRESS,
         'is_floating':        activity.floating_type != NARROW,

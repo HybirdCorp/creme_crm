@@ -530,6 +530,77 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
 
     @skipIfCustomContact
+    def test_bricks_future_n_past04(self):
+        "Home + staff root."
+        FutureActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
+        PastActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
+
+        user = self.login_as_super(is_staff=True)
+        root = self.get_root_user()
+
+        now_value = now()
+        today8 = self.create_datetime(
+            year=now_value.year, month=now_value.month, day=now_value.day,
+            hour=8,
+        )
+        one_day = timedelta(days=1)
+        tomorrow = today8 + one_day
+        yesterday = today8 - one_day
+
+        sub_type = self._get_sub_type(UUID_SUBTYPE_MEETING_NETWORK)
+        create_activity = partial(
+            Activity.objects.create,
+            user=root, type_id=sub_type.type_id, sub_type=sub_type,
+        )
+
+        future = [
+            create_activity(
+                title=f'Future #{i}',
+                start=tomorrow + timedelta(hours=i),
+                end=tomorrow + timedelta(hours=i, minutes=30),
+            ) for i in range(1, 5)
+        ]
+        past = [
+            create_activity(
+                title=f'Past #{i}',
+                start=yesterday + timedelta(hours=i),
+                end=yesterday + timedelta(hours=i, minutes=30),
+            ) for i in range(1, 5)
+        ]
+
+        contact = root.linked_contact
+        create_rel = partial(Relation.objects.create, user=root, subject_entity=contact)
+        create_rel(object_entity=future[0], type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel(object_entity=future[1], type_id=REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(object_entity=future[2], type_id=REL_SUB_LINKED_2_ACTIVITY)
+
+        create_rel(object_entity=past[0], type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel(object_entity=past[1], type_id=REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(object_entity=past[2], type_id=REL_SUB_LINKED_2_ACTIVITY)
+
+        context = self.build_context(user=user)
+        future_render = FutureActivitiesBrick().home_display(context)
+
+        future_brick_node = self.get_brick_node(
+            self.get_html_tree(future_render), brick=FutureActivitiesBrick,
+        )
+        self.assertInstanceLink(future_brick_node, future[0])
+        self.assertInstanceLink(future_brick_node, future[1])
+        self.assertInstanceLink(future_brick_node, future[2])
+        self.assertInstanceLink(future_brick_node, future[3])
+        self.assertNoInstanceLink(future_brick_node, past[0])
+
+        past_render = PastActivitiesBrick().home_display(context)
+        past_brick_node = self.get_brick_node(
+            self.get_html_tree(past_render), brick=PastActivitiesBrick,
+        )
+        self.assertInstanceLink(past_brick_node, past[0])
+        self.assertInstanceLink(past_brick_node, past[1])
+        self.assertInstanceLink(past_brick_node, past[2])
+        self.assertInstanceLink(past_brick_node, past[3])
+        self.assertNoInstanceLink(past_brick_node, future[0])
+
+    @skipIfCustomContact
     def test_add_participants01(self):
         user = self.login_as_root_and_get()
         activity = self._create_meeting(user=user)

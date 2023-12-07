@@ -105,19 +105,21 @@ class CalendarView(generic.CheckedTemplateView):
         # TODO only floating activities assigned to logged user ??
         floating_activities = []
         user = self.request.user
+        contact = user.linked_contact
 
-        for activity in Activity.objects.filter(
-            floating_type=constants.FLOATING,
-            relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
-            relations__object_entity=user.linked_contact.id,
-            is_deleted=False,
-        ):
-            try:
-                activity.calendar = activity.calendars.get(user=user)
-            except Calendar.DoesNotExist:
-                pass
-            else:
-                floating_activities.append(activity)
+        if contact:
+            for activity in Activity.objects.filter(
+                floating_type=constants.FLOATING,
+                relations__type=constants.REL_OBJ_PART_2_ACTIVITY,
+                relations__object_entity=contact.id,
+                is_deleted=False,
+            ):
+                try:
+                    activity.calendar = activity.calendars.get(user=user)
+                except Calendar.DoesNotExist:
+                    pass
+                else:
+                    floating_activities.append(activity)
 
         return floating_activities
 

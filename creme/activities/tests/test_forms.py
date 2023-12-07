@@ -11,6 +11,7 @@ from creme.activities.forms.fields import ActivitySubTypeField
 from creme.activities.models.activity import Activity
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms.enumerable import NO_LIMIT  # EnumerableChoiceField
+from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import SetCredentials
 # from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.base import CremeTestCase
@@ -254,7 +255,9 @@ class UserParticipationFieldTestCase(CremeTestCase):
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_clean(self):
-        user = self.login_as_standard(allowed_apps=('persons', 'activities'))
+        user = self.create_user(
+            role=self.create_role(allowed_apps=('persons', 'activities')),
+        )
 
         SetCredentials.objects.create(
             role=user.role,
@@ -294,13 +297,14 @@ class UserParticipationFieldTestCase(CremeTestCase):
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_not_linkable(self):
-        user = self.login_as_standard(allowed_apps=('persons', 'activities'))
-
+        role = self.create_role(allowed_apps=('persons', 'activities'))
         SetCredentials.objects.create(
-            role=user.role,
+            role=role,
             value=EntityCredentials.VIEW,
             set_type=SetCredentials.ESET_ALL,
         )
+
+        user = self.create_user(role=role)
 
         cal = Calendar.objects.create(user=user, is_default=True, name='Cal #11')
         self.assertFormfieldError(
@@ -308,6 +312,25 @@ class UserParticipationFieldTestCase(CremeTestCase):
             value=[True, cal.id],
             messages=_('You are not allowed to link this entity: {}').format(user.linked_contact),
         )
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_is_staff(self):
+        user = self.create_user(is_staff=True)
+
+        cal = Calendar.objects.get_default_calendar(user)
+
+        field = UserParticipationField(user=user)
+        widget = field.widget
+        self.assertIsInstance(widget, Label)
+        self.assertEqual(
+            _('You cannot participate as staff user'),
+            widget.empty_label,
+        )
+
+        Option = UserParticipationField.Option
+        opt = Option(is_set=False, data=None)
+        self.assertEqual(opt, field.clean([False, None]))
+        self.assertEqual(opt, field.clean([True, cal.id]))
 
 
 # class ParticipatingUsersFieldTestCase(FieldTestCase):

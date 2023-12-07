@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-11 21:31+0100\n"
+"POT-Creation-Date: 2023-12-12 11:08+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -346,6 +346,10 @@ msgstr "Jours de la semaine"
 msgid "Start ({start}) must be before end ({end})."
 msgstr "Le début ({start}) doit être avant la fin ({end})."
 
+# Already in core
+msgid "Role"
+msgstr ""
+
 msgid "Settings"
 msgstr "Paramètres"
 
@@ -354,6 +358,9 @@ msgstr "Super-Utilisateur"
 
 msgid "Appears on the calendar:"
 msgstr "Apparaît sur le calendrier :"
+
+msgid "You cannot participate as staff user"
+msgstr "Vous ne pouvez pas participer en tant que super administrateur"
 
 msgid "Too many contacts were found for the search «{}»"
 msgstr "Trop de contacts ont été trouvés pour la recherche «{}»"
@@ -511,6 +518,9 @@ msgstr "Mois"
 msgid "Week"
 msgstr "Semaine"
 
+msgid "The default configuration for calendar is not populated."
+msgstr "La configuration par défaut du calendrier n'existe pas."
+
 msgid "Default view mode"
 msgstr "Vue par défaut"
 
@@ -537,9 +547,6 @@ msgstr "Durée en jours par défaut"
 
 msgid "Default hour duration"
 msgstr "Durée en heures/minutes/secondes par défaut"
-
-msgid "The default configuration for calendar is not populated."
-msgstr "La configuration par défaut du calendrier n'existe pas."
 
 msgctxt "activities-type"
 msgid "Create a type"
@@ -758,9 +765,11 @@ msgid_plural "%(counter)s Are related to"
 msgstr[0] "%(counter)s est reliée à"
 msgstr[1] "%(counter)s sont reliées à"
 
+#, python-brace-format
 msgid "{count} Configured calendar view"
 msgstr "{count} Configuration de calendrier"
 
+#, python-brace-format
 msgid "{count} Configured calendar views"
 msgstr "{count} Configurations de calendrier"
 
@@ -902,6 +911,9 @@ msgstr "Aucun sujet enregistré pour le moment"
 
 msgid "New calendar"
 msgstr "Nouveau calendrier"
+
+msgid "Actions"
+msgstr "Actions"
 
 msgid "Edit this calendar"
 msgstr "Modifier ce calendrier"

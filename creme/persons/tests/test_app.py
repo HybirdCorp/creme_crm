@@ -114,6 +114,9 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_user_contact_menu_entry01(self):
         user = self.login_as_persons_user()
+        url = user.linked_contact.get_absolute_url()
+        self.assertEqual(url, user.get_absolute_url())
+
         SetCredentials.objects.create(
             role=user.role,
             value=EntityCredentials.VIEW,
@@ -124,7 +127,7 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
         self.assertEqual('persons-user_contact', entry.id)
         self.assertEqual(_("*User's contact*"), entry.label)
         self.assertHTMLEqual(
-            f'<a href="{user.linked_contact.get_absolute_url()}">{user}</a>',
+            f'<a href="{url}">{user}</a>',
             entry.render({
                 # 'request': self.build_request(user=user),
                 'user': user,
@@ -147,6 +150,18 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
             f'<span class="ui-creme-navigation-text-entry forbidden">{user}</span>',
             UserContactEntry().render({
                 # 'request': self.build_request(user=user),
+                'user': user,
+            }),
+        )
+
+    def test_user_contact_menu_entry03(self):
+        "Is staff."
+        user = self.login_as_super(is_staff=True)
+        self.assertFalse(user.get_absolute_url())
+
+        self.assertHTMLEqual(
+            f'<span class="ui-creme-navigation-text-entry forbidden">{user}</span>',
+            UserContactEntry().render({
                 'user': user,
             }),
         )

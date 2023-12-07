@@ -1473,14 +1473,17 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
     def test_entityfilters(self):
-        user = self.login_as_super(is_staff=True)
+        self.login_as_super(is_staff=True)
         other_user = self.get_root_user()
 
         self.assertTrue(EntityFilter.objects.filter(is_custom=False))
         self.assertFalse(EntityFilter.objects.filter(is_custom=True))
 
         ct_contact = ContentType.objects.get_for_model(FakeContact)
-        contact = user.linked_contact
+        # contact = user.linked_contact
+        contact = FakeContact.objects.create(
+            user=other_user, first_name='Naru', last_name='Narusegawa',
+        )
 
         create_cfield = partial(CustomField.objects.create, content_type=FakeContact)
         cfield1 = create_cfield(name='Rating', field_type=CustomField.INT)

@@ -171,10 +171,11 @@ class MyParticipationSubCell(CustomFormExtraSubCell):
         )
 
         # TODO: if not instance.pk: ??
-        field.initial = (
-            True,
-            Calendar.objects.get_default_calendar(user).id,
-        )
+        if user.linked_contact:
+            field.initial = (
+                True,
+                Calendar.objects.get_default_calendar(user).id,
+            )
 
         return field
 

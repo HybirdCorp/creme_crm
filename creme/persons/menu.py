@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2022  Hybird
+#    Copyright (C) 2021-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,7 @@ class UserContactEntry(menu.MenuEntry):
                 '<a href="{url}">{user}</a>',
                 url=contact.get_absolute_url(), user=user,
             )
-            if user.has_perm_to_view(contact) else
+            if contact and user.has_perm_to_view(contact) else
             format_html(
                 '<span class="ui-creme-navigation-text-entry forbidden">{user}</span>',
                 user=user,
