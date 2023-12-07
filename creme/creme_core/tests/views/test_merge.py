@@ -678,6 +678,22 @@ class MergeViewsTestCase(ViewsTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='Genshiken')
         self.assertGET409(self.build_merge_url(orga, orga))
 
+    def test_error04(self):
+        "One entity does not exist."
+        user = self.login()
+        orga = FakeOrganisation.objects.create(user=user, name='Genshiken')
+
+        response1 = self.client.get(self.build_merge_url(orga, self.UNUSED_PK))
+        msg = _(
+            'One entity you want to merge does not exist anymore '
+            '(have you already performed the merge?)'
+        )
+        self.assertContains(response1, msg, status_code=404, html=True)
+
+        # ---
+        response2 = self.client.get(self.build_merge_url(self.UNUSED_PK, orga))
+        self.assertContains(response2, msg, status_code=404, html=True)
+
     def test_perm01(self):
         user = self.login(is_superuser=False)
 

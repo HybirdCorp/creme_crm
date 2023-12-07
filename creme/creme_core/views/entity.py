@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -605,8 +605,11 @@ class Merge(MergeFormMixin, generic.CremeFormView):
             try:
                 entity1 = entities_per_id[entity1_id]
                 entity2 = entities_per_id[entity2_id]
-            except IndexError as e:
-                raise Http404(f'Entity not found: {e}') from e
+            except KeyError as e:
+                raise Http404(gettext(
+                    'One entity you want to merge does not exist anymore '
+                    '(have you already performed the merge?)'
+                )) from e
 
             if entity1.entity_type_id != entity2.entity_type_id:
                 raise ConflictError('You can not merge entities of different types.')
