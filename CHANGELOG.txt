@@ -1,11 +1,12 @@
 == Version 2.5.3 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile *.po (creme_config)
+  TODO: compile *.po (creme_core, creme_config)
 
   Users side :
   ------------
      # Some issues with bad callback URLs on edition views after a bricks reloading have been fixed.
        Note: sadly, this fix makes the context of the visitor mode easier to lost ("Back" in your browser to get it back).
+     # An error 500 in the merge view, when one entity did not exist anymore, has been fixed.
      # Fix employees & merge selection listview popup : now the entities remain filtered even with order or page change.
      # In the theme "Chantilly" :
         - The style of messages for empty blocks was not consistent.
