@@ -586,7 +586,9 @@ class _CremeTestCase:
     # def build_merge_url(self, entity1, entity2):
     @staticmethod
     def build_merge_url(entity1, entity2):
-        return reverse('creme_core__merge_entities') + f'?id1={entity1.id}&id2={entity2.id}'
+        id1 = entity1.id if isinstance(entity1, CremeEntity) else entity1
+        id2 = entity2.id if isinstance(entity2, CremeEntity) else entity2
+        return reverse('creme_core__merge_entities') + f'?id1={id1}&id2={id2}'
 
     def build_request(self, url='/', user=None):
         request = self.request_factory.get(url)
