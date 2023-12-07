@@ -440,6 +440,36 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             jresult.messages,
         )
 
+    def test_job_assign_user__is_staff(self):
+        user = self.get_root_user()
+        staff_user = self.create_user(index=0, is_staff=True, password='p4$$w0rd')
+
+        EmailSyncConfigItem.objects.create(
+            default_user=user,
+            host='pop3.mydomain.org',
+            username='spiegel',
+            password='$33 yo|_| sp4c3 c0wb0Y',
+            port=995,
+            use_ssl=True,
+        )
+        job = self._get_sync_job()
+
+        msg1 = EmailMessage()
+        msg1['Subject'] = subject = 'I want a swordfish'
+        msg1['From'] = staff_user.email
+        msg1['To'] = 'whatever2@example.org'
+
+        with patch('poplib.POP3_SSL') as pop_mock:
+            # Mocking
+            pop_mock.return_value = self.mock_POP_for_messages((1, msg1))
+
+            # Go !
+            entity_emails_sync_type.execute(job)
+
+        e2sync1 = self.get_alone_element(EmailToSync.objects.all())
+        self.assertEqual(subject, e2sync1.subject)
+        self.assertEqual(user,    e2sync1.user)
+
     def test_job_invalid_data01(self):
         "No 'From' => ignored."
         user = self.get_root_user()

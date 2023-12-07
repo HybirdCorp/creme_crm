@@ -545,6 +545,21 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 }, settings)
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_calendar_view__is_staff(self):
+        "No calendars selected ; no default calendar => a default calendar is created."
+        user = self.login_as_super(is_staff=True)
+        self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
+
+        response = self.assertGET200(self.CALENDAR_URL)
+        def_cal = self.assertUserHasDefaultCalendar(user)
+        self.assertFalse(def_cal.is_public)
+        self.assertSetEqual(
+            {def_cal.id},
+            response.context.get('my_selected_calendar_ids'),
+            Calendar.objects.values('id', 'name'),
+        )
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_add_user_calendar01(self):
         user = self.login_as_super()
         self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
@@ -1454,13 +1469,22 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_config01(self):
         user = self.login_as_super()
+        staff = self.create_user(index=1, is_staff=True)
 
         self.assertGET200(reverse('creme_config__app_portal', args=('activities',)))
 
         cal_portal = self.assertGET200(
             reverse('creme_config__model_portal', args=('activities', 'calendar'))
         )
-        self.get_brick_node(self.get_html_tree(cal_portal.content), brick=CalendarsBrick)
+        brick_node = self.get_brick_node(
+            self.get_html_tree(cal_portal.content), brick=CalendarsBrick,
+        )
+        user_names = {
+            div.text for div in brick_node.findall('.//div[@class="calendar-config-group-title"]')
+        }
+        self.assertIn(str(user), user_names)
+        self.assertIn(str(self.get_root_user()), user_names)
+        self.assertNotIn(str(staff), user_names)
 
         # ---
         url = self.CONF_ADD_URL
@@ -1641,6 +1665,21 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         deletor_type.execute(job)
         self.assertDoesNotExist(cal3)
         self.assertIn(cal2, [*act.calendars.all()])
+
+    def test_config__staff(self):
+        user = self.login_as_super(is_staff=True)
+
+        response = self.assertGET200(
+            reverse('creme_config__model_portal', args=('activities', 'calendar'))
+        )
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick=CalendarsBrick,
+        )
+        user_names = {
+            div.text for div in brick_node.findall('.//div[@class="calendar-config-group-title"]')
+        }
+        self.assertIn(str(user), user_names)
+        self.assertIn(str(self.get_root_user()), user_names)
 
     def test_colorfield(self):
         user = self.login_as_root_and_get()

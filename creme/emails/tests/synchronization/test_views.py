@@ -1166,7 +1166,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_accept_email_to_sync_perm03(self):
         "Not owner but staff."
-        user = self.login_as_super(is_staff=True)
+        # user = self.login_as_super(is_staff=True)
+        self.login_as_super(is_staff=True)
 
         other_user = self.get_root_user()
         e2s = EmailToSync.objects.create(
@@ -1175,7 +1176,10 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             body="Hello,\nI'd prefer a blue one.\n Have a good day.",
         )
 
-        sender_contact = user.linked_contact
+        # sender_contact = user.linked_contact
+        sender_contact = Contact.objects.create(
+            user=other_user, first_name='Akane', last_name='Tendô',
+        )
         recipient_contact = other_user.linked_contact
 
         create_person = partial(EmailToSyncPerson.objects.create, email_to_sync=e2s)

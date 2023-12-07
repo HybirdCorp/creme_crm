@@ -128,3 +128,18 @@ class MobileAppTestCase(MobileBaseTestCase):
         self.assertListEqual([m3, m6, m5], today_activities)
         self.assertContains(response, m1.title)
         self.assertContains(response, m3.title)
+
+    @skipIfCustomActivity
+    def test_portal__is_staff(self):
+        self.login_as_super(is_staff=True)
+
+        response = self.assertGET200(self.PORTAL_URL)
+        self.assertTemplateUsed(response, 'mobile/index.html')
+
+        with self.assertNoException():
+            context = response.context
+            hot_activities   = [*context['hot_activities']]
+            today_activities = [*context['today_activities']]
+
+        self.assertFalse(hot_activities)
+        self.assertFalse(today_activities)

@@ -1358,12 +1358,14 @@ class ContactTestCase(_BaseTestCase):
         self.assertDoesNotExist(image)
         self.assertIsNone(self.refresh(harlock).image)
 
-    def test_user_linked_contact01(self):
+    def test_user_linked_contact(self):
         first_name = 'Deunan'
         last_name = 'Knut'
+        count = Contact.objects.count()
         user = CremeUser.objects.create(
             username='dknut', last_name=last_name, first_name=first_name,
         )
+        self.assertEqual(count + 1, Contact.objects.count())
 
         with self.assertNoException():
             contact = user.linked_contact
@@ -1372,10 +1374,22 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(first_name, contact.first_name)
         self.assertEqual(last_name,  contact.last_name)
 
-    def test_user_linked_contact02(self):
+    def test_user_linked_contact__team(self):
         user = self.create_user(
             username='dknut', is_team=True, last_name='Knut', first_name='Deunan',
         )
+
+        with self.assertNoException():
+            contact = user.linked_contact
+
+        self.assertIsNone(contact)
+
+    def test_user_linked_contact__is_staff(self):
+        count = Contact.objects.count()
+        user = self.create_user(
+            username='dknut', is_staff=True, last_name='Knut', first_name='Deunan',
+        )
+        self.assertEqual(count, Contact.objects.count())
 
         with self.assertNoException():
             contact = user.linked_contact
@@ -1555,8 +1569,9 @@ class ContactTestCase(_BaseTestCase):
         self.assertIs(user.is_superuser, True)
         self.assertIs(user.is_staff, True)
 
-        contact = self.get_object_or_fail(Contact, is_user=user)
-        self.assertEqual(first_name,  contact.first_name)
-        self.assertEqual(last_name,   contact.last_name)
-        self.assertEqual(email,       contact.email)
-        self.assertEqual(super_user1, contact.user)
+        # contact = self.get_object_or_fail(Contact, is_user=user)
+        # self.assertEqual(first_name,  contact.first_name)
+        # self.assertEqual(last_name,   contact.last_name)
+        # self.assertEqual(email,       contact.email)
+        # self.assertEqual(super_user1, contact.user)
+        self.assertFalse(Contact.objects.filter(is_user=user))

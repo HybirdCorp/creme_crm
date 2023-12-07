@@ -5,7 +5,7 @@ To: {{ to }}
 Subject: {{ backend.subject }}
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-{% if contact.email %}From: =?ISO-8859-1?Q?{{ contact }}?= <{{ contact.email }}>{% endif %}
+{% if contact and contact.email %}From: =?ISO-8859-1?Q?{{ contact }}?= <{{ contact.email }}>{% endif %}
 
 <html>
   <head>

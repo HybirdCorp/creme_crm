@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022  Hybird
+#    Copyright (C) 2022-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -64,7 +64,8 @@ class _EmailAsKeyDict:
             # TODO: what about disabled users?
             users = self._users = {
                 user.email: user
-                for user in get_user_model().objects.all()
+                # for user in get_user_model().objects.all()
+                for user in get_user_model().objects.filter(is_staff=False)
             }
 
         return users.get(email_address, default)

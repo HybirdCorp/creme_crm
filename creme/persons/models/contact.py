@@ -258,7 +258,7 @@ class Contact(AbstractContact):
 # Manage the related User ------------------------------------------------------
 
 def _get_linked_contact(self):
-    if self.is_team:
+    if self.is_team or self.is_staff:
         return None
 
     contact = getattr(self, '_linked_contact_cache', None)

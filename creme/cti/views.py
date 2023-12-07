@@ -20,6 +20,7 @@ from datetime import timedelta
 from functools import partial
 
 from django.db.transaction import atomic
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.html import format_html
@@ -133,6 +134,10 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
 
     def create_related_phonecall(self):
         user = self.request.user
+        user_contact = user.linked_contact
+        if user_contact is None:
+            raise Http404(_('Staff users cannot create phone call'))
+
         users = [user]
         entity = self.get_related_entity()
 
@@ -154,7 +159,6 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
         )
         rtypes_map = get_bulk_or_404(RelationType, id_list=[caller_rtype, entity_rtype])
 
-        user_contact = user.linked_contact
         create_rel = partial(Relation.objects.create, object_entity=pcall, user=user)
 
         if entity.pk != user_contact.pk:

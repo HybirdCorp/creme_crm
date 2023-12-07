@@ -925,6 +925,52 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             rtype.enabled = True
             rtype.save()
 
+    @skipIfCustomContact
+    # @skipIfCustomOrganisation
+    def test_createview__is_staff(self):
+        user = self.login_as_super(is_staff=True)
+        root = self.get_root_user()
+
+        def_calendar = Calendar.objects.get_default_calendar(user)
+
+        # GET ---
+        url = self.ACTIVITY_CREATION_URL
+        self.assertGET200(url)
+
+        # ---
+        title = 'My task'
+        sub_type = ActivitySubType.objects.get(uuid=constants.UUID_SUBTYPE_MEETING_MEETING)
+        response2 = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user':  root.id,
+                'title': title,
+
+                self.EXTRA_SUBTYPE_KEY: sub_type.id,
+                'status':               Status.objects.all()[0].id,
+
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2023, 12, 11),
+                f'{self.EXTRA_START_KEY}_1': '17:00:00',
+
+                # Should not be used
+                f'{self.EXTRA_MYPART_KEY}_0': True,
+                f'{self.EXTRA_MYPART_KEY}_1': def_calendar.pk,
+
+                self.EXTRA_PARTUSERS_KEY: [root.id],
+            },
+        )
+        self.assertNoFormError(response2)
+
+        act = self.get_object_or_fail(Activity, title=title)
+        self.assertEqual(sub_type, act.sub_type)
+        self.assertEqual(sub_type.type_id, act.type_id)
+
+        self.assertCountEqual(
+            [Calendar.objects.get_default_calendar(root)],
+            [*act.calendars.all()],
+        )
+
     def test_createview_errors01(self):
         user = self.login_as_root_and_get()
         data = {

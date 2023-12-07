@@ -395,6 +395,16 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(30, len(factivities))
         self.assertEqual(31, fact_count)
 
+    @skipIfCustomActivity
+    def test_activities_portal__is_staff(self):
+        self.login_as_super(is_staff=True)
+        response = self.assertGET200(self.ACTIVITIES_PORTAL_URL)
+
+        with self.assertNoException():
+            pcalls  = [*response.context['phone_calls']]
+
+        self.assertFalse(pcalls)
+
     @skipIfCustomContact
     def test_phone_call_panel01(self):
         "Create with the number of a contact."

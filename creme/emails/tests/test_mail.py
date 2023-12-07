@@ -827,6 +827,16 @@ better &amp; lighter than the previous one.
             rtype.enabled = True
             rtype.save()
 
+    def test_createview_is_staff(self):
+        self.login_as_super(is_staff=True)
+        contact = Contact.objects.create(
+            user=self.get_root_user(),
+            first_name='Vincent', last_name='Law',
+            email='vincent.law@immigrates.rmd',
+        )
+
+        self.assertGET409(self._build_create_entitymail_url(contact))
+
     @skipIfCustomEmailTemplate
     @skipIfCustomContact
     def test_create_from_template01(self):

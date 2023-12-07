@@ -127,10 +127,25 @@ class UserParticipationField(core_fields.OptionalModelChoiceField):
         self._user = user
 
         if user is not None:
-            calendars_field = self.fields[1]
-            calendars_field.queryset = Calendar.objects.filter(user=user)
+            if user.linked_contact:
+                calendars_field = self.fields[1]
+                calendars_field.queryset = Calendar.objects.filter(user=user)
 
-            self.widget.sub_widget.choices = calendars_field.choices
+                self.widget.sub_widget.choices = calendars_field.choices
+            else:
+                # TODO: we should be able to reset the widget if user is changed again...
+                self.widget = core_widgets.Label(
+                    empty_label=_('You cannot participate as staff user'),
+                )
+
+    def clean(self, value):
+        user = self._user
+        assert user is not None
+
+        if not user.linked_contact:
+            return self.Option(is_set=False, data=None)
+
+        return super().clean(value=value)
 
     def validate(self, value):
         super().validate(value=value)

@@ -351,3 +351,11 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         filter_calendars = phone_call.calendars.filter
         self.assertTrue(filter_calendars(pk=get_cal(user).id).exists())
         self.assertTrue(filter_calendars(pk=get_cal(other_user).id).exists())
+
+    @skipIfCustomActivity
+    def test_create_phonecall__is_staff(self):
+        self.login_as_super(is_staff=True)
+        contact = Contact.objects.create(
+            user=self.get_root_user(), first_name='Bean', last_name='Bandit',
+        )
+        self.assertPOST404(self._build_add_pcall_url(contact))

@@ -123,14 +123,15 @@ class PersonsConfig(CremeAppConfig):
         from creme.creme_core.gui.view_tag import ViewTag
 
         def print_fk_user_html(*, value, user, html_fmt, **kwargs) -> str:
-            if not value.is_team:
-                contact = value.linked_contact
-                if user.has_perm_to_view(contact):
-                    return format_html(
-                        html_fmt,
-                        url=contact.get_absolute_url(),
-                        label=value,
-                    )
+            # TODO: test staff case
+            contact = value.linked_contact
+
+            if contact and user.has_perm_to_view(contact):
+                return format_html(
+                    html_fmt,
+                    url=contact.get_absolute_url(),
+                    label=value,
+                )
 
             return str(value)
 
@@ -290,7 +291,13 @@ class PersonsConfig(CremeAppConfig):
 
         User = get_user_model()
         User.linked_contact = property(_get_linked_contact)
-        User.get_absolute_url = lambda u: u.linked_contact.get_absolute_url()
+
+        def get_absolute_url(this):
+            contact = this.linked_contact
+
+            return '' if contact is None else contact.get_absolute_url()
+
+        User.get_absolute_url = get_absolute_url
 
     def hook_user_form(self):
         from django.contrib.contenttypes.models import ContentType

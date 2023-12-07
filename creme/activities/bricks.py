@@ -191,10 +191,16 @@ class FutureActivitiesBrick(_RelatedActivitiesBrick):
     template_name = 'activities/bricks/future-activities.html'
 
     def _get_queryset_for_entity(self, entity, context):
-        if isinstance(entity, Organisation):
-            return Activity.objects.future_linked_to_organisation(entity, context['today'])
+        now_value = context['today']
+
+        if entity is None:  # NB: staff user
+            # TODO: factorise <order_by('start')> when removed in <future_linked*()>
+            # TODO: method in manager?
+            return Activity.objects.filter(end__gt=now_value).order_by('start')
+        elif isinstance(entity, Organisation):
+            return Activity.objects.future_linked_to_organisation(orga=entity, today=now_value)
         else:
-            return Activity.objects.future_linked(entity=entity, today=context['today'])
+            return Activity.objects.future_linked(entity=entity, today=now_value)
 
 
 class PastActivitiesBrick(_RelatedActivitiesBrick):
@@ -212,10 +218,15 @@ class PastActivitiesBrick(_RelatedActivitiesBrick):
     template_name = 'activities/bricks/past-activities.html'
 
     def _get_queryset_for_entity(self, entity, context):
-        if isinstance(entity, Organisation):
-            return Activity.objects.past_linked_to_organisation(entity, context['today'])
+        now_value = context['today']
+
+        if entity is None:  # NB: staff user
+            # TODO: method in manager?
+            return Activity.objects.filter(end__lte=now_value)
+        elif isinstance(entity, Organisation):
+            return Activity.objects.past_linked_to_organisation(orga=entity, today=now_value)
         else:
-            return Activity.objects.past_linked(entity, context['today'])
+            return Activity.objects.past_linked(entity=entity, today=now_value)
 
 
 class CalendarsBrick(GenericModelBrick):
@@ -224,9 +235,14 @@ class CalendarsBrick(GenericModelBrick):
     template_name = 'activities/bricks/calendars.html'
 
     def detailview_display(self, context):
+        qs = get_user_model().objects.all()
+
+        if not context['user'].is_staff:
+            qs = qs.exclude(is_staff=True)
+
         return self._render(self.get_template_context(
             context,
-            get_user_model().objects.prefetch_related('calendar_set'),
+            qs.prefetch_related('calendar_set'),
             model_config=self.model_config,
             calendars_count=Calendar.objects.count(),
         ))

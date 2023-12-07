@@ -22,6 +22,9 @@
                 - What hour range to use.
                 - ...
             - The configuration block for Calendars has been improved.
+        * Persons :
+            - The staff users are not related to Contacts anymore.
+              Note: the existing Contacts which were related to staff users are sent to the trash.
         * Reports :
             - The date fields of referenced models can be used for temporal filtering in the Reports
               (e.g. in a report on Contacts, Photograph's fields are available).
