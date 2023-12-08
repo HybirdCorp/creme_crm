@@ -1154,12 +1154,15 @@ QUnit.test('creme.ActivityCalendar.create (ok)', function(assert) {
         options: {debounceDelay: 0}
     });
     var view = controller.fullCalendar().view;
-    var eventStart = todayAt({hours: 8});
-    var eventEnd = eventStart.clone().add(controller.fullCalendar().defaultTimedEventDuration);
+    var utcEventStart = moment.utc({hours: 8, minutes: 0, seconds: 0});
+    var utcEventEnd = utcEventStart.clone().add(controller.fullCalendar().defaultTimedEventDuration);
 
     this.assertClosedDialog();
 
-    controller.fullCalendar().select(eventStart.format(), eventEnd.format());
+    controller.fullCalendar().select({
+        start: utcEventStart.toDate(),
+        end: utcEventEnd.toDate()
+    });
 
     this.assertOpenedDialog();
 
@@ -1170,8 +1173,8 @@ QUnit.test('creme.ActivityCalendar.create (ok)', function(assert) {
             end: toISO8601(view.activeEnd, true)
         }],
         ['mock/calendar/event/create', 'GET', {
-            start: toISO8601(eventStart),
-            end: toISO8601(eventEnd),
+            start: toISO8601(utcEventStart),
+            end: toISO8601(utcEventEnd),
             allDay: 0
         }]
     ], this.mockBackendUrlCalls());
@@ -1185,8 +1188,8 @@ QUnit.test('creme.ActivityCalendar.create (ok)', function(assert) {
             end: toISO8601(view.activeEnd, true)
         }],
         ['mock/calendar/event/create', 'GET', {
-            start: toISO8601(eventStart),
-            end: toISO8601(eventEnd),
+            start: toISO8601(utcEventStart),
+            end: toISO8601(utcEventEnd),
             allDay: 0
         }],
         ['mock/calendar/event/create', 'POST', {}],

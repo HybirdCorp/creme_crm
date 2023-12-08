@@ -181,6 +181,25 @@ creme.ActivityCalendarEventRange = creme.component.Component.sub({
         return !this.allDay && (this.end.diff(this.start) < moment.duration('00:31:00').asMilliseconds());
     },
 
+    isWithinBusinessHours: function(businessHours) {
+        var weekdays = (businessHours.daysOfWeek || []);
+        var isWithin = (
+            weekdays.indexOf(this.start.day()) !== -1 &&
+            weekdays.indexOf(this.end.day()) !== -1
+        );
+
+        if (!this.allDay && isWithin) {
+            var start = moment(businessHours.startTime, 'HH:mm').format('HH:mm:ss');
+            var end = moment(businessHours.endTime, 'HH:mm').format('HH:mm:ss');
+
+            isWithin = (
+                this.start.format('HH:mm:ss') >= start && this.end.format('HH:mm:ss') <= end
+            );
+        }
+
+        return isWithin;
+    },
+
     toString: function() {
         return '${start} − ${end}${allday}'.template({
             start: this.start,
@@ -583,6 +602,9 @@ creme.ActivityCalendar = creme.component.Component.sub({
 
                  group.toggleClass('is-empty-group', group.find('.floating-event').length === 0);
              })
+            .onFail(function() {
+                info.revert();
+             })
             .start();
     },
 
@@ -602,20 +624,24 @@ creme.ActivityCalendar = creme.component.Component.sub({
             info.event.setEnd(range.end.toDate());
         }
 
-        this._query({
-                 url: this.eventUpdateUrl(),
-                 action: 'POST',
-                 warnOnFail: true
-             }, {
-                 id: info.event.id,
-                 start: toISO8601(range.start, range.allDay),
-                 end: toISO8601(range.end, range.allDay),
-                 allDay: range.allDay
-             })
-            .onFail(function() {
-                info.revert();
-             })
-            .start();
+        if (range.isWithinBusinessHours(calendar.getOption('businessHours'))) {
+            this._query({
+                     url: this.eventUpdateUrl(),
+                     action: 'POST',
+                     warnOnFail: true
+                 }, {
+                     id: info.event.id,
+                     start: toISO8601(range.start, range.allDay),
+                     end: toISO8601(range.end, range.allDay),
+                     allDay: range.allDay
+                 })
+                .onFail(function() {
+                    info.revert();
+                 })
+                .start();
+        } else {
+            info.revert();
+        }
     },
 
     _onCalendarEventFetch: function(calendar, info, successCb, failureCb) {
@@ -654,6 +680,11 @@ creme.ActivityCalendar = creme.component.Component.sub({
             duration: calendar.getOption('defaultTimedEventDuration'),
             allDay: info.allDay
         });
+
+        if (!range.isWithinBusinessHours(calendar.getOption('businessHours'))) {
+            calendar.unselect();
+            return false;
+        }
 
         var data = {
             start: toISO8601(range.start, range.allDay),
