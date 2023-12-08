@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-26 10:39+0200\n"
+"POT-Creation-Date: 2025-07-02 15:55+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -666,6 +666,13 @@ msgstr "Déplacer"
 msgid "Keep navigation state"
 msgstr "Conserver la navigation"
 
+msgid "Allow events outside business hours of a day"
+msgstr ""
+"Les évènements ne sont pas contraints par les heures de travail journalières"
+
+msgid "Allow events on all days"
+msgstr "Les évènements ne sont pas contraints par les jours travaillés"
+
 msgid "Calendar display configuration"
 msgstr "Configuration du calendrier"
 
@@ -964,6 +971,9 @@ msgstr "Journées de travail"
 msgid "Business Hours"
 msgstr "Heures de travail"
 
+msgid "Constraints on"
+msgstr "Contraintes sur"
+
 msgid "Action"
 msgstr ""
 
@@ -1096,8 +1106,8 @@ msgstr "Modifier la configuration"
 
 #, python-format
 msgid ""
-"This button can be placed on Activities' detail-views in the <a href="
-"\"%(config_url)s\">buttons configuration</a>.\n"
+"This button can be placed on Activities' detail-views in the <a "
+"href=\"%(config_url)s\">buttons configuration</a>.\n"
 "It allows to create a not successful Phone Call in one click."
 msgstr ""
 "Ce bouton peut être placé sur les vues détaillés des Activités dans la <a "

@@ -14,6 +14,15 @@
 {% endif %}
 {% endblock %}
 
+{% block brick_script %}
+<style>
+label.nowrap {
+    white-space: nowrap;
+    display: flex;
+}
+</style>
+{% endblock %}
+
 {% block brick_table_columns %}
     {% brick_table_column title=_('Role') status='primary nowrap' %}
     {% brick_table_column title=_('Default view mode') status='nowrap' %}
@@ -24,6 +33,7 @@
     {% brick_table_column title=_('Slot duration') status='nowrap' %}
     {% brick_table_column title=_('Allow drag-n-drop') %}
     {% brick_table_column title=_('Keep navigation state') %}
+    {% brick_table_column title=_('Constraints on') status='nowrap' %}
     {% brick_table_column title=_('Action') status='action' colspan="2" %}
 {% endblock %}
 
@@ -39,6 +49,10 @@
         <td>{{ default.slot_duration }}</td>
         <td><input type="checkbox" disabled {% if default.allow_event_move %}checked{% endif %} /></td>
         <td><input type="checkbox" disabled {% if default.allow_keep_state %}checked{% endif %} /></td>
+        <td>
+            <div><label class="nowrap"><input type="checkbox" disabled {% if not default.allow_event_overtime %}checked{% endif %} />{% translate 'Business Hours' %}</label></div>
+            <div><label class="nowrap"><input type="checkbox" disabled {% if not default.allow_event_anyday %}checked{% endif %} />{% translate 'Business Days' %}<label></div>
+        </td>
         <td {% brick_table_data_status action %}>&nbsp;</td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url='activities__edit_calendar_settings'|url:default.pk label=_('Edit this configuration') %}
@@ -56,6 +70,10 @@
         <td>{{ superuser.slot_duration }}</td>
         <td><input type="checkbox" disabled {% if superuser.allow_event_move %}checked{% endif %} /></td>
         <td><input type="checkbox" disabled {% if superuser.allow_keep_state %}checked{% endif %} /></td>
+        <td>
+            <div><label class="nowrap"><input type="checkbox" disabled {% if not default.allow_event_overtime %}checked{% endif %} />{% translate 'Business Hours' %}</label></div>
+            <div><label class="nowrap"><input type="checkbox" disabled {% if not default.allow_event_anyday %}checked{% endif %} />{% translate 'Business Days' %}<label></div>
+        </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url='activities__edit_calendar_settings'|url:superuser.pk label=_('Edit this configuration') %}
         </td>
@@ -75,6 +93,10 @@
         <td>{{ config.slot_duration }}</td>
         <td><input type="checkbox" disabled {% if config.allow_event_move %}checked{% endif %} /></td>
         <td><input type="checkbox" disabled {% if config.allow_keep_state %}checked{% endif %} /></td>
+        <td>
+            <div><label class="nowrap"><input type="checkbox" disabled {% if not default.allow_event_overtime %}checked{% endif %} />{% translate 'Business Hours' %}</label></div>
+            <div><label class="nowrap"><input type="checkbox" disabled {% if not default.allow_event_anyday %}checked{% endif %} />{% translate 'Business Days' %}<label></div>
+        </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url='activities__edit_calendar_settings'|url:config.pk label=_('Edit this configuration') %}
         </td>
