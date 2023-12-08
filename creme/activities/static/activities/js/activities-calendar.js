@@ -189,6 +189,28 @@ creme.ActivityCalendarEventRange = creme.component.Component.sub({
         return !this.allDay && (this.end.diff(this.start) < moment.duration('00:31:00').asMilliseconds());
     },
 
+    isWithinBusinessHours: function(businessHours) {
+        var weekdays = (businessHours.daysOfWeek || []);
+        var isWithin = (
+            weekdays.indexOf(this.start.day()) !== -1 &&
+            weekdays.indexOf(this.end.day()) !== -1
+        );
+
+        if (!this.allDay && isWithin) {
+            var start = moment(businessHours.startTime, 'hh:mm');
+            var end = moment(businessHours.endTime, 'hh:mm');
+
+            console.log(start, end);
+
+            isWithin = isWithin && (
+                this.start.isBetween(start, end, undefined, '[)') &&
+                this.end.isBetween(start, end, undefined, '(]')
+            );
+        }
+
+        return isWithin;
+    },
+
     toString: function() {
         return '${start} − ${end}${allday}'.template({
             start: this.start,
@@ -591,6 +613,9 @@ creme.ActivityCalendar = creme.component.Component.sub({
 
                  group.toggleClass('is-empty-group', group.find('.floating-event').length === 0);
              })
+            .onFail(function() {
+                info.revert();
+             })
             .start();
     },
 
@@ -662,6 +687,10 @@ creme.ActivityCalendar = creme.component.Component.sub({
             duration: calendar.getOption('defaultTimedEventDuration'),
             allDay: info.allDay
         });
+
+        if (!range.isWithinBusinessHours(calendar.getOption('businessHours'))) {
+            return;
+        }
 
         var data = {
             start: toISO8601(range.start, range.allDay),
