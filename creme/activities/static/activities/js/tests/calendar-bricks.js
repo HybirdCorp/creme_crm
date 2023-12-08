@@ -107,6 +107,8 @@ QUnit.test('creme.ActivityCalendarBrickController.setup (settings & sources)', f
     var widget = this.createCalendarBrick({
         settings: {
             allow_keep_state: true,
+            allow_event_anyday: false,
+            allow_event_overtime: false,
             view: 'week',
             utc_offset: 120,
             day_start: '08:00:00',
@@ -135,6 +137,9 @@ QUnit.test('creme.ActivityCalendarBrickController.setup (settings & sources)', f
         allowEventCreate: false,
         allowEventMove: false,
         allowEventOverlaps: true,
+        allowEventOvertime: false,
+        allowEventAnyDay: false,
+        allowSelection: true,
         defaultView: "week",
         eventCreateUrl: "",
         eventFetchUrl: "",
