@@ -8,6 +8,7 @@ from django.utils.timezone import zoneinfo
 from django.utils.translation import pgettext
 
 from creme import __version__ as creme_version
+from creme.activities.models.config import CalendarConfigItem
 from creme.creme_core.models import Relation
 from creme.persons.tests.base import skipIfCustomContact
 
@@ -17,6 +18,7 @@ from ..utils import (
     ICalEncoder,
     ZoneinfoToVtimezone,
     check_activity_collisions,
+    get_activity_config,
     get_last_day_of_a_month,
 )
 from .base import Activity, Contact, _ActivitiesTestCase, skipIfCustomActivity
@@ -191,6 +193,34 @@ class UtilsTestCase(_ActivitiesTestCase):
             activity_end=create_dt(year=2010, month=10, day=1, hour=18, minute=30),
             busy=False, participants=[c1, c2],
         )
+
+    def test_get_activity_config(self):
+        user = self.login_as_root_and_get()
+        other_user = self.create_user()
+
+        config = CalendarConfigItem.objects.for_user(user=user)
+        other_config = CalendarConfigItem.objects.for_user(user=other_user)
+
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
+
+        activity = Activity.objects.create(
+            user=user, type_id=sub_type.type_id, sub_type=sub_type,
+        )
+
+        other_activity = Activity.objects.create(
+            user=other_user, type_id=sub_type.type_id, sub_type=sub_type,
+        )
+
+        unsaved_activity = Activity(type_id=sub_type.type_id, sub_type=sub_type)
+
+        self.assertEqual(get_activity_config(activity, user), config)
+        self.assertEqual(get_activity_config(activity, other_user), config)
+
+        self.assertEqual(get_activity_config(other_activity, user), other_config)
+        self.assertEqual(get_activity_config(other_activity, other_user), other_config)
+
+        self.assertEqual(get_activity_config(unsaved_activity, user), config)
+        self.assertEqual(get_activity_config(unsaved_activity, other_user), other_config)
 
 
 @skipIfCustomActivity

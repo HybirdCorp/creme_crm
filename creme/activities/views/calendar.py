@@ -23,6 +23,7 @@ from datetime import datetime, timedelta
 from functools import partial
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.db.models import Prefetch, Q
@@ -53,7 +54,9 @@ from ..forms import calendar as calendar_forms
 from ..forms import config as config_forms
 from ..models import Calendar, CalendarConfigItem
 from ..utils import (
+    check_activity_businesshours,
     check_activity_collisions,
+    get_activity_config,
     get_current_utc_offset,
     get_last_day_of_a_month,
 )
@@ -395,6 +398,14 @@ class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView)
     def get_related_entity_id(self):
         return get_from_POST_or_404(self.request.POST, key=self.activity_id_arg, cast=int)
 
+    def get_calendar_config(self, activity, user):
+        owner = get_user_model().filter(pk=activity.user_id).first()
+
+        if owner is None:
+            owner = user
+
+        return CalendarConfigItem.objects.for_user(owner)
+
     @atomic
     @method_decorator(workflow_engine)
     def post(self, request, *args, **kwargs):
@@ -424,12 +435,19 @@ class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView)
 
         activity.handle_all_day()
 
-        collisions = check_activity_collisions(
+        collisions = check_activity_businesshours(
+            start=activity.start,
+            end=activity.end,
+            is_allday=activity.is_all_day,
+            config=get_activity_config(activity, request.user),
+        )
+
+        collisions.extend(check_activity_collisions(
             activity.start, activity.end,
             participants=[r.object_entity for r in activity.get_participant_relations()],
             busy=activity.busy,
             exclude_activity_id=activity.id,
-        )
+        ))
 
         if collisions:
             raise ConflictError(', '.join(collisions))  # TODO: improve message?

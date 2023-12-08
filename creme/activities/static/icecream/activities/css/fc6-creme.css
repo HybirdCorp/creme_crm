@@ -258,7 +258,7 @@
 }
 
 .fc-creme .fc-month-view .fc-daygrid-day.fc-day-today {
-    box-shadow: inset 0px 4px 0px #74a6db;
+    box-shadow: inset 0px 4px 0px rgb(116, 166, 219);
 }
 
 .fc-creme.fc-ltr .fc-time-grid .fc-event-container {
@@ -271,6 +271,20 @@
 
 .fc-creme .fc-time-grid .fc-slats td:not(.fc-axis) {
     cursor: pointer;
+}
+
+.fc-creme .fc-event-mirror .fc-overtime {
+    background: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0),
+        rgba(255, 255, 255, 0) 10px,
+        rgba(255, 255, 255, 0.6) 10px,
+        rgba(255, 255, 255, 0.6) 20px
+    )
+}
+
+.fc-creme .fc-event-mirror .fc-overtime:hover {
+    cursor: not-allowed;
 }
 
 /*

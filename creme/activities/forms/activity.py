@@ -39,7 +39,12 @@ from creme.persons.models import AbstractContact
 
 from .. import constants, get_activity_model
 from ..models import AbstractActivity, ActivitySubType, Calendar
-from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
+from ..utils import (
+    check_activity_businesshours,
+    check_activity_collisions,
+    get_activity_config,
+    is_auto_orga_subject_enabled,
+)
 from . import fields as act_fields
 from .fields import (
     ActivitySubTypeField,
@@ -451,7 +456,14 @@ class BaseCustomForm(core_forms.CremeEntityForm):
 
             start = instance.start
             if start:
-                collisions = check_activity_collisions(
+                collisions = check_activity_businesshours(
+                    start=start,
+                    end=instance.end,
+                    is_allday=cdata.get('is_all_day', False),
+                    config=get_activity_config(instance, self.user),
+                )
+
+                collisions.extend(check_activity_collisions(
                     activity_start=start,
                     activity_end=instance.end,
                     participants=self._get_participants_2_check(),
@@ -459,7 +471,8 @@ class BaseCustomForm(core_forms.CremeEntityForm):
                     #     so get() is here to prevent model's changes
                     busy=cdata.get('busy', False),
                     exclude_activity_id=self.instance.id,
-                )
+                ))
+
                 if collisions:
                     raise ValidationError(collisions)
 
