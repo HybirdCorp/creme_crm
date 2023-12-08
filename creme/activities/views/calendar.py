@@ -53,6 +53,7 @@ from ..forms import calendar as calendar_forms
 from ..forms import config as config_forms
 from ..models import Calendar, CalendarConfigItem
 from ..utils import (
+    check_activity_businesshours,
     check_activity_collisions,
     get_current_utc_offset,
     get_last_day_of_a_month,
@@ -424,12 +425,19 @@ class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView)
 
         activity.handle_all_day()
 
-        collisions = check_activity_collisions(
+        collisions = check_activity_businesshours(
+            start=activity.start,
+            end=activity.end,
+            is_allday=activity.is_all_day,
+            config=CalendarConfigItem.objects.for_user(request.user),
+        )
+
+        collisions.extend(check_activity_collisions(
             activity.start, activity.end,
             participants=[r.object_entity for r in activity.get_participant_relations()],
             busy=activity.busy,
             exclude_activity_id=activity.id,
-        )
+        ))
 
         if collisions:
             raise ConflictError(', '.join(collisions))  # TODO: improve message?

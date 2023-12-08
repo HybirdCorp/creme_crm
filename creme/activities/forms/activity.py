@@ -31,6 +31,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms as core_forms
+from creme.activities.models.config import CalendarConfigItem
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.chunktools import iter_as_chunk
@@ -39,7 +40,11 @@ from creme.persons.models import AbstractContact
 
 from .. import constants, get_activity_model
 from ..models import AbstractActivity, ActivitySubType, Calendar
-from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
+from ..utils import (
+    check_activity_businesshours,
+    check_activity_collisions,
+    is_auto_orga_subject_enabled,
+)
 from . import fields as act_fields
 from .fields import (
     ActivitySubTypeField,
@@ -451,7 +456,14 @@ class BaseCustomForm(core_forms.CremeEntityForm):
 
             start = instance.start
             if start:
-                collisions = check_activity_collisions(
+                collisions = check_activity_businesshours(
+                    start=start,
+                    end=instance.end,
+                    is_allday=cdata.get('is_all_day', False),
+                    config=CalendarConfigItem.objects.for_user(self.user),
+                )
+
+                collisions.extend(check_activity_collisions(
                     activity_start=start,
                     activity_end=instance.end,
                     participants=self._get_participants_2_check(),
@@ -459,7 +471,8 @@ class BaseCustomForm(core_forms.CremeEntityForm):
                     #     so get() is here to prevent model's changes
                     busy=cdata.get('busy', False),
                     exclude_activity_id=self.instance.id,
-                )
+                ))
+
                 if collisions:
                     raise ValidationError(collisions)
 

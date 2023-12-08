@@ -1284,6 +1284,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             'allow_event_move': False,
             'allow_event_create': False,
             'allow_keep_state': False,
+            'allow_event_overtime': True,
+            'allow_event_anyday': True,
             'headless_mode': False,
             'show_timezone_info': False,
             'show_week_number': True,

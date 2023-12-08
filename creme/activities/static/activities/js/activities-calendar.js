@@ -24,6 +24,8 @@ creme.ActivityCalendarController = creme.component.Component.sub({
         this._props = options = Object.assign({
             allowEventMove: true,
             allowEventOverlaps: true,
+            allowEventOvertime: true,
+            allowEventAnyDay: true,
             debounceDelay: 200,
             defaultView: 'month',
             fullCalendarOptions: {},

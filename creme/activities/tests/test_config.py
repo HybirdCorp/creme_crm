@@ -43,6 +43,8 @@ class CalendarConfigItemTestCase(BrickTestCaseMixin, CremeTestCase):
                 'slot_duration': '00:15:00',
                 'allow_event_move': True,
                 'allow_keep_state': False,
+                'allow_event_anyday': True,
+                'allow_event_overtime': True,
                 'extra_data': {},
             },
             CalendarConfigItem().as_dict(),

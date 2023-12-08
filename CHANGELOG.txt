@@ -260,7 +260,11 @@
                 - Refactor of creme.ActivityCalendar :
                     - Add headlessMode flag.
                     - Add allowEventOverlaps property (boolean or method).
-                    - Add allowEventCreate property (boolean).
+                    - Add allowEventCreate property (boolean or method).
+                    - allowEventMove property is now either a boolen or a method.
+                    - Add allowEventAnyDay property (boolean or method); If false the events cannot be created/resized/moved outside working days.
+                    - Add allowEventOvertime property (boolean or method); If false the events cannot be created/resized/moved outside business hours of a day.
+                    - Add allowSelection property (boolean or method); If false the selected range is canceled.
             * Geolocation:
                 - The urls used in brick controllers can be now overrided in python : do not require to override an entire template.
                     - DetailMapBrick.update_address_url

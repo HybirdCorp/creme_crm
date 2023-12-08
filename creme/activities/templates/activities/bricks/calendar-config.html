@@ -33,9 +33,15 @@
         <td {% brick_table_data_status primary %} class="calendar-config-default">{% translate 'Default configuration' %}</td>
         <td>{{ default.view_label }}</td>
         <td>{% if default.view_day_start == default.view_day_end %}{% translate 'All day' %}{% else %}{{ default.view_day_start }} — {{ default.view_day_end }}{% endif %}</td>
-        <td>{{ default.week_days_labels|join:", " }}</td>
+        <td>
+            <div>{{ default.week_days_labels|join:", " }}</div>
+            <div class="help-text">{% if not default.allow_event_anyday %}{% translate 'Event creation and movements are limited to working days' %}{% endif %}</div>
+        </td>
         <td>{{ default.week_start_label }}</td>
-        <td>{{ default.day_start }} — {{ default.day_end }}</td>
+        <td>
+            <div>{{ default.day_start }} — {{ default.day_end }}</div>
+            <div class="help-text">{% if not default.allow_event_overtime %}{% translate 'Event creation and movements are limited to business hours' %}{% endif %}</div>
+        </td>
         <td>{{ default.slot_duration }}</td>
         <td><input type="checkbox" disabled {% if default.allow_event_move %}checked{% endif %} /></td>
         <td><input type="checkbox" disabled {% if default.allow_keep_state %}checked{% endif %} /></td>
@@ -50,9 +56,15 @@
         <td {% brick_table_data_status primary %} class="calendar-config-superuser">{% translate 'Superuser configuration' %}</td>
         <td>{{ superuser.view_label }}</td>
         <td>{% if superuser.view_day_start == superuser.view_day_end %}{% translate 'All day' %}{% else %}{{ superuser.view_day_start }} — {{ superuser.view_day_end }}{% endif %}</td>
-        <td>{{ superuser.week_days_labels|join:", " }}</td>
+        <td>
+            <div>{{ superuser.week_days_labels|join:", " }}</div>
+            <div class="help-text">{% if not superuser.allow_event_anyday %}{% translate 'Event creation and movements are limited to working days' %}{% endif %}</div>
+        </td>
         <td>{{ superuser.week_start_label }}</td>
-        <td>{{ superuser.day_start }} — {{ superuser.day_end }}</td>
+        <td>
+            <div>{{ superuser.day_start }} — {{ superuser.day_end }}</div>
+            <div class="help-text">{% if not superuser.allow_event_overtime %}{% translate 'Event creation and movements are limited to business hours' %}{% endif %}</div>
+        </td>
         <td>{{ superuser.slot_duration }}</td>
         <td><input type="checkbox" disabled {% if superuser.allow_event_move %}checked{% endif %} /></td>
         <td><input type="checkbox" disabled {% if superuser.allow_keep_state %}checked{% endif %} /></td>
@@ -69,9 +81,15 @@
         <td {% brick_table_data_status primary %} class="calendar-config-role">{{config.role}}</td>
         <td>{{ config.view_label }}</td>
         <td>{% if config.view_day_start == config.view_day_end %}{% translate 'All day' %}{% else %}{{ config.view_day_start }} — {{ config.view_day_end }}{% endif %}</td>
-        <td>{{ config.week_days_labels|join:", " }}</td>
+        <td>
+            <div>{{ config.week_days_labels|join:", " }}</div>
+            <div class="help-text">{% if not config.allow_event_anyday %}{% translate 'Event creation and movements are limited to working days' %}{% endif %}</div>
+        </td>
         <td>{{ config.week_start_label }}</td>
-        <td>{{ config.day_start }} — {{ config.day_end }}</td>
+        <td>
+            <div>{{ config.day_start }} — {{ config.day_end }}</div>
+            <div class="help-text">{% if not config.allow_event_overtime %}{% translate 'Event creation and movements are limited to business hours' %}{% endif %}</div>
+        </td>
         <td>{{ config.slot_duration }}</td>
         <td><input type="checkbox" disabled {% if config.allow_event_move %}checked{% endif %} /></td>
         <td><input type="checkbox" disabled {% if config.allow_keep_state %}checked{% endif %} /></td>
