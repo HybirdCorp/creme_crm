@@ -117,6 +117,10 @@ class CalendarConfigItem(CremeModel):
 
     allow_event_move = models.BooleanField(_('Allow drag-n-drop'), default=True)
     allow_keep_state = models.BooleanField(_('Keep navigation state'), default=False)
+    allow_event_overtime = models.BooleanField(
+        _('Allow events outside business hours of a day'), default=True
+    )
+    allow_event_anyday = models.BooleanField(_('Allow events on all days'), default=True)
 
     # Can be used by third party code to store the data they want,
     # without having to modify the code.
@@ -164,5 +168,7 @@ class CalendarConfigItem(CremeModel):
             "slot_duration": self.slot_duration.strftime('%H:%M:00'),
             "allow_event_move": self.allow_event_move,
             "allow_keep_state": self.allow_keep_state,
+            "allow_event_overtime": self.allow_event_overtime,
+            "allow_event_anyday": self.allow_event_anyday,
             "extra_data": self.extra_data,
         }

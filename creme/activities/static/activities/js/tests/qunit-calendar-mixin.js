@@ -239,6 +239,17 @@ window.QUnitCalendarMixin = {
             allDay: moving.allDay,
             extendedProps: movingCalEvent.extendedProps || {}
         }));
+    },
+
+    simulateCalendarSelectAllow: function(controller, options) {
+        options = options || {};
+        var calendar = controller.fullCalendar();
+
+        return calendar.getCurrentData().options['selectAllow'](new _CalEventInfo({
+            start: options.start,
+            end: options.end,
+            allDay: options.allDay
+        }));
     }
 };
 
