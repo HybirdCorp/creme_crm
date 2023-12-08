@@ -29,6 +29,8 @@
                 defaultView: settings.view || 'month',
                 timezoneOffset: settings.utc_offset,
                 allowEventMove: Boolean(settings.allow_event_move),
+                allowEventAnyDay: Boolean(settings.allow_event_anyday),
+                allowEventOvertime: Boolean(settings.allow_event_overtime),
                 fullCalendarOptions: Object.assign(extra, {
                     slotDuration: settings.slot_duration,
                     slotMinTime: settings.view_day_start,

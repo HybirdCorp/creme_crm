@@ -206,6 +206,8 @@ QUnit.test('creme.ActivityCalendarController (empty)', function(assert) {
     assert.deepEqual({
         allowEventMove: true,
         allowEventOverlaps: true,
+        allowEventOvertime: true,
+        allowEventAnyDay: true,
         debounceDelay: 200,
         defaultView: 'month',
         fullCalendarOptions: {},
@@ -242,6 +244,8 @@ QUnit.test('creme.ActivityCalendarController (options)', function(assert) {
     assert.deepEqual({
         allowEventMove: true,
         allowEventOverlaps: true,
+        allowEventOvertime: true,
+        allowEventAnyDay: true,
         debounceDelay: 200,
         defaultView: 'month',
         fullCalendarOptions: {},
@@ -266,6 +270,8 @@ QUnit.test('creme.ActivityCalendarController (options)', function(assert) {
     assert.deepEqual({
         allowEventMove: true,
         allowEventOverlaps: true,
+        allowEventOvertime: true,
+        allowEventAnyDay: true,
         debounceDelay: 300,
         defaultView: 'month',
         fullCalendarOptions: {},
@@ -823,6 +829,66 @@ QUnit.test('creme.ActivityCalendarController.external (fail, allDay)', function(
     assert.equal(3, element.find('.floating-event').length);
 });
 
+QUnit.parameterize('creme.ActivityCalendarController.external (cancel, constraints)', [
+    {allowEventOvertime: false, allowEventAnyDay: false},
+    {allowEventOvertime: function() { return false; }, allowEventAnyDay: false},
+    {allowEventOvertime: function() { return false; }, allowEventAnyDay: function() { return false; }}
+], function(props, assert) {
+    var controller = this.createDefaultUserCalendar({
+        options: Object.assign({
+            debounceDelay: 0
+        }, props)
+    });
+    var element = controller.element();
+
+    deepEqual(controller.fullCalendar().getOption('businessHours'), {
+        daysOfWeek: [ 1, 2, 3, 4, 5, 6 ], // Monday - Saturday
+        startTime: '08:00:00', // a start time
+        endTime: '18:00:00' // an end time
+    });
+
+    controller.selectSource('10');
+
+    this.resetMockBackendCalls();
+
+    deepEqual([], this.mockBackendUrlCalls());
+
+    equal(false, element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group'));
+    equal(3, element.find('.floating-event').length);
+
+    var dragSource = element.find('.floating-event[data-id="52"]');
+
+    // Sunday at 10:30am
+    var dropDate = moment('2025-06-29T10:30:00Z').utc();
+
+    this.simulateCalendarDrop(controller, {
+        source: dragSource,
+        date: dropDate.toDate(),
+        allDay: false
+    });
+
+    deepEqual([], this.mockBackendUrlCalls());
+
+    // Friday at 7:30am
+    dropDate = moment('2025-06-27T07:30:00Z').utc();
+
+    this.simulateCalendarDrop(controller, {
+        source: dragSource,
+        date: dropDate.toDate(),
+        allDay: false
+    });
+
+    deepEqual([], this.mockBackendUrlCalls());
+
+    // floating event remains in menu
+    equal(1, element.find('.floating-event[data-id="52"]').length);
+    equal(
+        false,
+        element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
+    );
+    equal(3, element.find('.floating-event').length);
+});
+
 QUnit.test('creme.ActivityCalendarController.external (ok, none remains, allDay)', function(assert) {
     var controller = this.createDefaultUserCalendar({
         options: {debounceDelay: 0},
@@ -871,8 +937,7 @@ QUnit.test('creme.ActivityCalendarController.external (ok, none remains, allDay)
     assert.equal(0, element.find('.floating-event').length);
 });
 
-// SWITCHING TO 'week' DO NOT WORK WITH FULLCALENDAR 5.x
-// TODO : Find why !
+// SWITCHING TO 'week' DO NOT WORK WITH FULLCALENDAR 5.x -> Works in 6.x
 QUnit.test('creme.ActivityCalendarController.external (ok, hour)', function(assert) {
     var controller = this.createDefaultUserCalendar({
         options: {debounceDelay: 0}

@@ -36,6 +36,233 @@ QUnit.module("creme.ActivityCalendar", new QUnitMixin(QUnitEventMixin,
     }
 }));
 
+QUnit.parametrize('creme.CalendarEventRange (isSmall)', [
+    [  // 0
+        {
+            start: '2023-03-26T17:30:00Z',
+            end: '2023-03-26T17:30:00Z',
+            allDay: false
+        },
+        true
+    ],
+    [  // 1
+        {
+            start: '2023-03-26T17:30:00Z',
+            end: '2023-03-26T17:30:00Z',
+            allDay: true
+        },
+        false
+    ],
+    [  // 2
+        {
+            start: '2023-03-26T17:30:00Z',
+            end: '2023-03-26T17:45:00Z',
+            allDay: false
+        },
+        true
+    ],
+    [  // 3
+        {
+            start: '2023-03-26T17:30:00Z',
+            end: '2023-03-26T18:00:00Z',
+            allDay: false
+        },
+        true
+    ]
+], function(props, expected, assert) {
+    var range = new creme.CalendarEventRange({
+        start: moment(props.start).utc(),
+        end: props.end ? moment(props.end).utc() : null,
+        allDay: props.allDay || false
+    });
+
+    assert.equal(range.isSmall(), expected);
+});
+
+QUnit.parametrize('creme.CalendarEventRange (dayRange)', [
+    [  // 1
+        '2025-07-04T17:30:00Z',  // friday
+        '2025-07-04T18:30:00Z',
+        [5]
+    ],
+    [  // 2
+        '2025-07-04T17:30:00Z',  // friday
+        null,
+        [5]
+    ],
+    [  // 3
+        '2025-07-04T17:30:00Z',  // friday
+        '2025-07-05T18:30:00Z',  // saturday
+        [5, 6]
+    ],
+    [  // 4
+        '2025-07-01T17:30:00Z',  // tuesday
+        '2025-07-05T18:30:00Z',  // saturday
+        [2, 3, 4, 5, 6]
+    ],
+    [  // 5
+        '2025-07-02T17:30:00Z',  // wednesday
+        '2025-07-12T18:30:00Z',  // NEXT saturday
+        [3, 4, 5, 6, 0, 1, 2]
+    ]
+], function(start, end, expected, assert) {
+    var range = new creme.CalendarEventRange({
+        start: moment(start).utc(),
+        end: end ? moment(end).utc() : null
+    });
+
+    assert.deepEqual(range.dayRange(), expected);
+});
+
+QUnit.parametrize('creme.CalendarEventRange (isWithinWorkDays)', [
+    [  // 1
+        {
+            start: '2025-07-04T17:30:00Z',  // friday
+            end: '2025-07-04T18:30:00Z'
+        },
+        [1, 2, 3, 4, 5],  // monday - friday
+        true
+    ],
+    [  // 2
+        {
+            start: '2025-07-04T17:30:00Z',  // friday
+            end: null
+        },
+        [1, 2, 3, 4, 5],  // monday - friday
+        true
+    ],
+    [  // 3
+        {
+            start: '2025-07-06T17:30:00Z',  // sunday
+            end: '2025-07-06T18:30:00Z'
+        },
+        [1, 2, 3, 4, 5],  // monday - friday
+        false
+    ],
+    [  // 4
+        {
+            start: '2025-07-04T17:30:00Z',  // friday
+            end: '2025-07-05T18:30:00Z'    // saturday
+        },
+        [1, 2, 3, 4, 5],  // monday - friday
+        false
+    ],
+    [  // 5
+        {
+            start: '2025-07-04T17:30:00Z',  // friday
+            end: '2025-07-05T18:30:00Z'    // saturday
+        },
+        [1, 5, 6],  // monday, friday & saturday
+        true
+    ],
+    [  // 6
+        {
+            start: '2025-06-30T17:30:00Z',  // monday
+            end: '2025-06-30T18:30:00Z'
+        },
+        [1, 5, 6],  // monday
+        true
+    ],
+    [  // 7
+        {
+            start: '2025-07-03T17:30:00Z',  // thursday
+            end: '2025-07-04T18:30:00Z'    // friday
+        },
+        [1, 5, 6],  // monday, friday & saturday
+        false
+    ]
+], function(props, workdays, expected, assert) {
+    var range = new creme.CalendarEventRange({
+        start: moment(props.start).utc(),
+        end: props.end ? moment(props.end).utc() : null,
+        allDay: props.allDay || false
+    });
+
+    assert.equal(range.isWithinWorkDays({
+        daysOfWeek: workdays
+    }), expected);
+});
+
+QUnit.parametrize('creme.CalendarEventRange (isWithinBusinessHours)', [
+    [  // 1
+        {
+            start: '2025-07-04T08:00:00Z',   // exact match
+            end: '2025-07-04T18:00:00Z'
+        },
+        {
+            startTime: '08:00:00',
+            endTime: '18:00:00'
+        },
+        true
+    ],
+    [  // 2
+        {
+            start: '2025-07-04T08:00:00Z',
+            end: '2025-07-04T18:00:00Z'
+        },
+        {
+            startTime: '08:00:00',   // start & end range are the same
+            endTime: '08:00:00'
+        },
+        true
+    ],
+    [  // 3
+        {
+            start: '2025-07-04T08:00:00Z',   // empty slot
+            end: '2025-07-04T08:00:00Z'
+        },
+        {
+            startTime: '08:00:00',
+            endTime: '18:00:00'
+        },
+        true
+    ],
+    [  // 4
+        {
+            start: '2025-07-04T07:59:00Z',   // too early 7h59
+            end: '2025-07-04T08:59:00Z'
+        },
+        {
+            startTime: '08:00:00',
+            endTime: '18:00:00'
+        },
+        false
+    ],
+    [  // 5
+        {
+            start: '2025-07-04T17:00:00Z',
+            end: '2025-07-04T18:01:00Z'   // too late 18h01
+        },
+        {
+            startTime: '08:00:00',
+            endTime: '18:00:00'
+        },
+        false
+    ],
+    [  // 6
+        {
+            start: '2025-07-04T07:59:00Z',  // too early 7h59
+            end: '2025-07-04T18:01:00Z'     // too late 18h01
+        },
+        {
+            startTime: '08:00:00',
+            endTime: '18:00:00'
+        },
+        false
+    ]
+], function(props, hours, expected, assert) {
+    var range = new creme.CalendarEventRange({
+        start: moment(props.start).utc(),
+        end: props.end ? moment(props.end).utc() : null,
+        allDay: props.allDay || false
+    });
+
+    assert.equal(range.isWithinBusinessHours({
+        startTime: hours.startTime,
+        endTime: hours.endTime
+    }), expected);
+});
+
 QUnit.test('creme.ActivityCalendar (empty)', function(assert) {
     var element = $('<div class="calendar"></div>').appendTo(this.qunitFixture());
 
@@ -52,6 +279,9 @@ QUnit.test('creme.ActivityCalendar (empty)', function(assert) {
     assert.equal(true, controller.allowEventOverlaps());
     assert.equal(true, controller.allowEventMove());
     assert.equal(true, controller.allowEventCreate());
+    assert.equal(true, controller.allowEventOvertime());
+    assert.equal(true, controller.allowEventAnyDay());
+    assert.equal(true, controller.allowSelection());
     assert.equal(false, controller.headlessMode());
     assert.equal('month', controller.defaultView());
     assert.deepEqual({}, controller.fullCalendarOptions());
@@ -68,6 +298,9 @@ QUnit.test('creme.ActivityCalendar (options)', function(assert) {
         owner: 'myuser',
         allowEventOverlaps: false,
         allowEventMove: false,
+        allowEventOvertime: false,
+        allowEventAnyDay: false,
+        allowSelection: false,
         headlessMode: true,
         defaultView: 'week',
         eventUpdateUrl: 'mock/calendar/event/update',
@@ -85,6 +318,9 @@ QUnit.test('creme.ActivityCalendar (options)', function(assert) {
     assert.equal('mock/calendar/events', controller.eventFetchUrl());
     assert.equal(false, controller.allowEventOverlaps());
     assert.equal(false, controller.allowEventMove());
+    assert.equal(false, controller.allowEventOvertime());
+    assert.equal(false, controller.allowEventAnyDay());
+    assert.equal(false, controller.allowSelection());
     assert.equal(true, controller.headlessMode());
     assert.equal('week', controller.defaultView());
     assert.deepEqual({
@@ -104,6 +340,9 @@ QUnit.test('creme.ActivityCalendar (options)', function(assert) {
         allowEventOverlaps: false,
         allowEventMove: false,
         allowEventCreate: true,
+        allowEventOvertime: false,
+        allowEventAnyDay: false,
+        allowSelection: false,
         headlessMode: true,
         defaultView: 'week',
         externalEventData: _.noop,
@@ -422,8 +661,11 @@ QUnit.test('creme.ActivityCalendar.toggleSources', function(assert) {
 
 
 QUnit.parameterize('creme.ActivityCalendar.rendering (month view)', [
-    true, false
-], function(allowEventMove, assert) {
+    [true, true],
+    [false, false],
+    [function() { return true; }, true],
+    [function() { return false; }, false]
+], function(allowEventMove, expected, assert) {
     var element = $('<div class="calendar"></div>').appendTo(this.qunitFixture());
     var controller = new creme.ActivityCalendar(element, {
                          eventFetchUrl: 'mock/calendar/events',
@@ -444,42 +686,42 @@ QUnit.parameterize('creme.ActivityCalendar.rendering (month view)', [
             typename: '<div class="fc-event-type">Meeting</div>',
             color: hex2rgb('#fc0000'),
             isSmall: false,
-            isEditable: allowEventMove
+            isEditable: expected
         }, {
             timestamp: '8h00',
             title: "Event #1",
             typename: '<div class="fc-event-type">Call</div>',
             color: hex2rgb('#fcfcfc'),
             isSmall: false,
-            isEditable: allowEventMove
+            isEditable: expected
         }, {
             timestamp: '9h00',
             title: "Event #2",
             typename: '<div class="fc-event-type">Call</div>',
             color: hex2rgb('#fcfcfc'),
             isSmall: false,
-            isEditable: allowEventMove
+            isEditable: expected
         }, {
             timestamp: '10h30',
             title: "Event #10-1",
             typename: '<div class="fc-event-type">Meeting</div>',
             color: hex2rgb('#fc00fc'),
             isSmall: false,
-            isEditable: allowEventMove
+            isEditable: expected
         }, {
             timestamp: '14h30',
             title: "Event #20-1 (small)",
             typename: '<div class="fc-event-type">Meeting</div>',
             color: hex2rgb('#fc0000'),
             isSmall: false,
-            isEditable: allowEventMove
+            isEditable: expected
         }, {
             timestamp: '16h30',
             title: "Event #20-2",
             typename: '<div class="fc-event-type">Meeting</div>',
             color: hex2rgb('#fc0000'),
             isSmall: false,
-            isEditable: allowEventMove
+            isEditable: expected
         }
     ], element.find('.fc-event').map(function() {
         return {
@@ -659,11 +901,13 @@ QUnit.test('creme.ActivityCalendar.rendering (hilight, week view)', function(ass
     }).get());
 });
 
-QUnit.test('creme.ActivityCalendar.create (not allowed, allDay)', function(assert) {
-    var controller = this.createDefaultCalendar({
-        selectedSourceIds: ['1', '2', '10', '11', '20'],
-        allowEventCreate: false
-    });
+QUnit.parameterize('creme.ActivityCalendar.create (not allowed, allDay)', [
+    {allowEventCreate: false},
+    {allowEventCreate: function() { return false; }}
+], function(props, assert) {
+    var controller = this.createDefaultCalendar(Object.assign({
+        selectedSourceIds: ['1', '2', '10', '11', '20']
+    }, props));
     var view = controller.fullCalendar().view;
     var today = this.todayAt();
 
@@ -750,13 +994,123 @@ QUnit.test('creme.ActivityCalendar.create (ok, allDay)', function(assert) {
             allDay: 1
         }],
         ['mock/calendar/event/create', 'POST', {}]
-        /* refetch behaviour has moved to the ActivityCalendarController
+        // refetch behaviour has moved to the ActivityCalendarController
+        // ['mock/calendar/events', 'GET', {
+        //     calendar_id: ['1', '2', '10', '11', '20'],
+        //     start: this.toISO8601(view.activeStart, true),
+        //     end: this.toISO8601(view.activeEnd, true)
+        // }]
+    ], this.mockBackendUrlCalls());
+});
+
+QUnit.test('creme.ActivityCalendar.create (no overtime, allDay)', function(assert) {
+    var controller = this.createDefaultCalendar({
+        selectedSourceIds: ['1', '2', '10', '11', '20'],
+        allowEventOvertime: false
+    });
+    var view = controller.fullCalendar().view;
+    var tuesday = moment({year: 2025, month: 6, day: 1, hours: 0, minutes: 0, seconds: 0});
+    var sunday = moment({year: 2025, month: 5, day: 29, hours: 0, minutes: 0, seconds: 0});
+
+    assert.deepEqual(controller.fullCalendar().getOption('businessHours'), {
+        daysOfWeek: [ 1, 2, 3, 4, 5, 6 ], // Monday - Saturday
+        startTime: '08:00:00', // a start time
+        endTime: '18:00:00' // an end time
+    });
+
+    this.assertClosedDialog();
+
+    controller.fullCalendar().select(sunday.format('YYYY-MM-DD'));
+
+    // sunday is not in business hours BUT is an ALL DAY event so it is allowed anyway
+    this.assertOpenedDialog();
+    this.closeDialog();
+
+    this.assertClosedDialog();
+
+    assert.deepEqual([
+        ['mock/calendar/events', 'GET', {
+            calendar_id: ['1', '2', '10', '11', '20'],
+            start: this.toISO8601(view.activeStart, true),
+            end: this.toISO8601(view.activeEnd, true)
+        }],
+        ['mock/calendar/event/create', 'GET', {
+            start: sunday.format('YYYY-MM-DD'),
+            end: sunday.format('YYYY-MM-DD'),
+            allDay: 1
+        }]
+    ], this.mockBackendUrlCalls());
+
+    // tuesday is in business hours
+    controller.fullCalendar().select(tuesday.format('YYYY-MM-DD'));
+
+    this.assertOpenedDialog();
+
+    assert.deepEqual([
+        ['mock/calendar/events', 'GET', {
+            calendar_id: ['1', '2', '10', '11', '20'],
+            start: this.toISO8601(view.activeStart, true),
+            end: this.toISO8601(view.activeEnd, true)
+        }],
+        ['mock/calendar/event/create', 'GET', {
+            start: sunday.format('YYYY-MM-DD'),
+            end: sunday.format('YYYY-MM-DD'),
+            allDay: 1
+        }],
+        ['mock/calendar/event/create', 'GET', {
+            start: tuesday.format('YYYY-MM-DD'),
+            end: tuesday.format('YYYY-MM-DD'),
+            allDay: 1
+        }]
+    ], this.mockBackendUrlCalls());
+});
+
+QUnit.test('creme.ActivityCalendar.create (no anyDay, allDay)', function(assert) {
+    var controller = this.createDefaultCalendar({
+        selectedSourceIds: ['1', '2', '10', '11', '20'],
+        allowEventAnyDay: false
+    });
+    var view = controller.fullCalendar().view;
+    var tuesday = moment({year: 2025, month: 6, day: 1, hours: 0, minutes: 0, seconds: 0});
+    var sunday = moment({year: 2025, month: 5, day: 29, hours: 0, minutes: 0, seconds: 0});
+
+    assert.deepEqual(controller.fullCalendar().getOption('businessHours'), {
+        daysOfWeek: [ 1, 2, 3, 4, 5, 6 ], // Monday - Saturday
+        startTime: '08:00:00', // a start time
+        endTime: '18:00:00' // an end time
+    });
+
+    this.assertClosedDialog();
+
+    controller.fullCalendar().select(sunday.format('YYYY-MM-DD'));
+
+    // sunday is not in work days
+    this.assertClosedDialog();
+
+    assert.deepEqual([
         ['mock/calendar/events', 'GET', {
             calendar_id: ['1', '2', '10', '11', '20'],
             start: this.toISO8601(view.activeStart, true),
             end: this.toISO8601(view.activeEnd, true)
         }]
-        */
+    ], this.mockBackendUrlCalls());
+
+    // tuesday is in work days
+    controller.fullCalendar().select(tuesday.format('YYYY-MM-DD'));
+
+    this.assertOpenedDialog();
+
+    assert.deepEqual([
+        ['mock/calendar/events', 'GET', {
+            calendar_id: ['1', '2', '10', '11', '20'],
+            start: this.toISO8601(view.activeStart, true),
+            end: this.toISO8601(view.activeEnd, true)
+        }],
+        ['mock/calendar/event/create', 'GET', {
+            start: tuesday.format('YYYY-MM-DD'),
+            end: tuesday.format('YYYY-MM-DD'),
+            allDay: 1
+        }]
     ], this.mockBackendUrlCalls());
 });
 
@@ -801,13 +1155,148 @@ QUnit.test('creme.ActivityCalendar.create (ok)', function(assert) {
             allDay: 0
         }],
         ['mock/calendar/event/create', 'POST', {}]
-        /* refetch behaviour has moved to the ActivityCalendarController
+        // refetch behaviour has moved to the ActivityCalendarController
+        // ['mock/calendar/events', 'GET', {
+        //     calendar_id: ['1', '2', '10', '11', '20'],
+        //     start: this.toISO8601(view.activeStart, true),
+        //     end: this.toISO8601(view.activeEnd, true)
+        // }]
+    ], this.mockBackendUrlCalls());
+});
+
+QUnit.test('creme.ActivityCalendar.create (no overtime)', function(assert) {
+    var controller = this.createDefaultCalendar({
+        selectedSourceIds: ['1', '2', '10', '11', '20'],
+        allowEventOvertime: false
+    });
+    var view = controller.fullCalendar().view;
+    var eventDuration = controller.fullCalendar().defaultTimedEventDuration;
+
+    assert.deepEqual(controller.fullCalendar().getOption('businessHours'), {
+        daysOfWeek: [ 1, 2, 3, 4, 5, 6 ], // Monday - Saturday
+        startTime: '08:00:00', // a start time
+        endTime: '18:00:00' // an end time
+    });
+
+    // Sunday at 7:30am
+    var eventStart = moment('2025-06-29T07:30:00Z').utc();
+    var eventEnd = eventStart.clone().add(eventDuration);
+
+    controller.fullCalendar().select(eventStart.format(), eventEnd.format());
+
+    // not within the business hours
+    this.assertClosedDialog();
+
+    // Sunday at 6pm
+    eventStart = moment('2025-06-29T18:01:00Z').utc();
+    eventEnd = eventStart.clone().add(eventDuration);
+
+    controller.fullCalendar().select(eventStart.format(), eventEnd.format());
+
+    // not within the business hours
+    this.assertClosedDialog();
+
+    assert.deepEqual([
         ['mock/calendar/events', 'GET', {
             calendar_id: ['1', '2', '10', '11', '20'],
             start: this.toISO8601(view.activeStart, true),
             end: this.toISO8601(view.activeEnd, true)
         }]
-        */
+    ], this.mockBackendUrlCalls());
+
+    // Sunday at 8pm
+    eventStart = moment('2025-06-29T08:00:00Z').utc();
+    eventEnd = eventStart.clone().add(eventDuration);
+
+    controller.fullCalendar().select(eventStart.format(), eventEnd.format());
+
+    this.assertOpenedDialog();
+
+    assert.deepEqual([
+        ['mock/calendar/events', 'GET', {
+            calendar_id: ['1', '2', '10', '11', '20'],
+            start: this.toISO8601(view.activeStart, true),
+            end: this.toISO8601(view.activeEnd, true)
+        }],
+        ['mock/calendar/event/create', 'GET', {
+            start: this.toISO8601(eventStart),
+            end: this.toISO8601(eventEnd),
+            allDay: 0
+        }]
+    ], this.mockBackendUrlCalls());
+});
+
+QUnit.parameterize('creme.ActivityCalendar.create (no overtime, no anyday)', [
+    {allowEventOvertime: false, allowEventAnyDay: false},
+    {allowEventOvertime: function() { return false; }, allowEventAnyDay: false},
+    {allowEventOvertime: function() { return false; }, allowEventAnyDay: function() { return false; }}
+], function(props, assert) {
+    var controller = this.createDefaultCalendar(Object.assign({
+        selectedSourceIds: ['1', '2', '10', '11', '20']
+    }, props));
+    var view = controller.fullCalendar().view;
+    var eventDuration = controller.fullCalendar().defaultTimedEventDuration;
+
+    assert.deepEqual(controller.fullCalendar().getOption('businessHours'), {
+        daysOfWeek: [ 1, 2, 3, 4, 5, 6 ], // Monday - Saturday
+        startTime: '08:00:00', // a start time
+        endTime: '18:00:00' // an end time
+    });
+
+    // Tuesday at 7:30am : not within business hours
+    var eventStart = moment('2025-07-01T07:30:00Z').utc();
+    var eventEnd = eventStart.clone().add(eventDuration);
+
+    controller.fullCalendar().select(eventStart.format(), eventEnd.format());
+
+    // not within the business hours
+    this.assertClosedDialog();
+
+    // Sunday at 9am : not within work days
+    eventStart = moment('2025-06-29T09:00:00Z').utc();
+    eventEnd = eventStart.clone().add(eventDuration);
+
+    controller.fullCalendar().select(eventStart.format(), eventEnd.format());
+
+    // not within the business hours
+    this.assertClosedDialog();
+
+    // Thuesday at 6pm : not within business hours
+    eventStart = moment('2025-07-01T18:01:00Z').utc();
+    eventEnd = eventStart.clone().add(eventDuration);
+
+    controller.fullCalendar().select(eventStart.format(), eventEnd.format());
+
+    // not within the business hours
+    this.assertClosedDialog();
+
+    assert.deepEqual([
+        ['mock/calendar/events', 'GET', {
+            calendar_id: ['1', '2', '10', '11', '20'],
+            start: this.toISO8601(view.activeStart, true),
+            end: this.toISO8601(view.activeEnd, true)
+        }]
+    ], this.mockBackendUrlCalls());
+
+    // Tuesday at 8pm : within both business hours AND work days
+    eventStart = moment('2025-07-01T08:00:00Z').utc();
+    eventEnd = eventStart.clone().add(eventDuration);
+
+    controller.fullCalendar().select(eventStart.format(), eventEnd.format());
+
+    this.assertOpenedDialog();
+
+    assert.deepEqual([
+        ['mock/calendar/events', 'GET', {
+            calendar_id: ['1', '2', '10', '11', '20'],
+            start: this.toISO8601(view.activeStart, true),
+            end: this.toISO8601(view.activeEnd, true)
+        }],
+        ['mock/calendar/event/create', 'GET', {
+            start: this.toISO8601(eventStart),
+            end: this.toISO8601(eventEnd),
+            allDay: 0
+        }]
     ], this.mockBackendUrlCalls());
 });
 
@@ -956,6 +1445,49 @@ QUnit.test('creme.ActivityCalendar.eventDrop (ok, from AllDay)', function(assert
 
     // revert not called, no pb
     assert.equal(0, fakeRevert.count());
+});
+
+QUnit.parameterize('creme.ActivityCalendar.eventDrop (not any day, canceled)', [
+    {allowEventAnyDay: false},
+    {allowEventAnyDay: function() { return false; }}
+], function(props, assert) {
+    var controller = this.createDefaultCalendar(Object.assign({
+        selectedSourceIds: ['1', '2', '10', '11', '20'],
+        initialDate: '2023-03-20'
+    }, props)).on('event-update', this.mockListener('event-update'));
+    var fakeRevert = new FunctionFaker();
+    var revertCb = fakeRevert.wrap();
+
+    assert.deepEqual(controller.fullCalendar().getOption('businessHours'), {
+        daysOfWeek: [ 1, 2, 3, 4, 5, 6 ], // Monday - Saturday
+        startTime: '08:00:00', // a start time
+        endTime: '18:00:00' // an end time
+    });
+
+    this.resetMockBackendCalls();
+
+    controller.selectedSourceIds(['10']);
+
+    // sunday at 8:30am
+    var newEventStart = moment('2025-06-29T08:30:00Z').utc();
+    var newEventEnd = moment('2025-06-29T09:30:00Z').utc();
+
+    assert.deepEqual([], this.mockBackendUrlCalls());
+
+    this.simulateCalendarEventDrop(controller, {
+        id: '3',
+        start: newEventStart.toDate(),
+        end: newEventEnd.toDate(),
+        allDay: false,
+        revert: revertCb
+    });
+
+    this.assertClosedDialog();
+
+    assert.deepEqual([], this.mockBackendUrlCalls());
+    assert.deepEqual([], this.mockListenerCalls('event-update'));
+
+    assert.equal(1, fakeRevert.count());
 });
 
 QUnit.test('creme.ActivityCalendar.eventDrop (fail)', function(assert) {
@@ -1120,6 +1652,47 @@ QUnit.test('creme.ActivityCalendar.eventResize (fail)', function(assert) {
     assert.deepEqual([], this.mockListenerCalls('event-update'));
 });
 
+QUnit.parameterize('creme.ActivityCalendar.eventResize (not any day, canceled)', [
+    {allowEventAnyDay: false},
+    {allowEventAnyDay: function() { return false; }}
+], function(props, assert) {
+    var controller = this.createDefaultCalendar(Object.assign({
+        selectedSourceIds: ['20'],
+        initialDate: '2023-03-20'
+    }, props)).on('event-update', this.mockListener('event-update'));
+    var fakeRevert = new FunctionFaker();
+    var revertCb = fakeRevert.wrap();
+
+    assert.deepEqual(controller.fullCalendar().getOption('businessHours'), {
+        daysOfWeek: [ 1, 2, 3, 4, 5, 6 ], // Monday - Saturday
+        startTime: '08:00:00', // a start time
+        endTime: '18:00:00' // an end time
+    });
+
+    this.resetMockBackendCalls();
+
+    // resize to sunday at 9:30am
+    var eventStart = moment('2023-03-26T14:30:00');
+    var newEventEnd = moment('2023-03-26T17:30:00Z').utc();
+
+    assert.deepEqual([], this.mockBackendUrlCalls());
+
+    this.simulateCalendarEventResize(controller, {
+        id: '4',
+        start: eventStart.toDate(),
+        end: newEventEnd.toDate(),
+        allDay: false,
+        revert: revertCb
+    });
+
+    this.assertClosedDialog();
+
+    assert.deepEqual([], this.mockBackendUrlCalls());
+    assert.deepEqual([], this.mockListenerCalls('event-update'));
+
+    assert.equal(1, fakeRevert.count());
+});
+
 QUnit.parameterize('creme.ActivityCalendar.allowEventOverlaps (bool)', [
     true, false
 ], function(expected, assert) {
@@ -1199,7 +1772,137 @@ QUnit.parameterize('creme.ActivityCalendar.allowEventOverlaps (function)', [
             })
         }
     ], fakeOverlap.calls().map(function(args) {
-        return _.pick(args[0], 'stillRange');
+        // movingRange: new creme.CalendarEventRange({
+        //     start: controller._toMoment(movingEventStart.toDate()),
+        //     end: controller._toMoment(movingEventEnd.toDate()),
+        //     allDay: false
+        // }),
+        // activityCalendar: controller
+
+        return _.pick(
+            args[0],
+            'stillRange'
+            // 'movingRange',
+            // 'activityCalendar'
+        );
+    }));
+});
+
+QUnit.parameterize('creme.ActivityCalendar.selectAllow', [
+    [
+        // sunday at 8:30am
+        {
+            start: '2025-06-29T08:30:00Z',
+            end: '2025-06-29T09:30:00Z'
+        },
+        false
+    ],
+    [
+        // monday at 7:30am
+        {
+            start: '2025-06-23T07:30:00Z',
+            end: '2025-06-23T09:30:00Z'
+        },
+        false
+    ],
+    [
+        // monday at 18:01
+        {
+            start: '2025-06-23T07:30:00Z',
+            end: '2025-06-23T18:01:00Z'
+        },
+        false
+    ],
+    [
+        // monday at 8h30am
+        {
+            start: '2025-06-23T08:30:00Z',
+            end: '2025-06-23T09:30:00Z'
+        },
+        true
+    ]
+], function(event, expected, assert) {
+    var controller = this.createDefaultCalendar({
+        selectedSourceIds: ['1', '2', '10', '11', '20'],
+        initialDate: '2025-06-20',
+        allowEventAnyDay: false,
+        allowEventOvertime: false
+    });
+
+    assert.deepEqual(controller.fullCalendar().getOption('businessHours'), {
+        daysOfWeek: [ 1, 2, 3, 4, 5, 6 ], // Monday - Saturday
+        startTime: '08:00:00', // a start time
+        endTime: '18:00:00' // an end time
+    });
+
+    var newEventStart = moment.utc(event.start);
+    var newEventEnd = moment.utc(event.end);
+
+    assert.equal(this.simulateCalendarSelectAllow(controller, {
+        id: '3',
+        start: newEventStart.toDate(),
+        end: newEventEnd.toDate(),
+        allDay: false
+    }), expected);
+});
+
+QUnit.parameterize('creme.ActivityCalendar.allowSelection (bool)', [
+    true, false
+], function(expected, assert) {
+    var controller = this.createDefaultCalendar({
+        selectedSourceIds: ['1', '10'],
+        initialDate: '2023-03-20',
+        allowSelection: expected
+    });
+
+    var eventStart = moment.utc('2025-03-21T08:30:00Z');
+    var eventEnd = moment.utc('2025-03-21T09:30:00Z');
+
+    assert.equal(this.simulateCalendarSelectAllow(controller, {
+        id: '3',
+        start: eventStart.toDate(),
+        end: eventEnd.toDate(),
+        allDay: false
+    }), expected);
+});
+
+QUnit.parameterize('creme.ActivityCalendar.allowSelection (function)', [
+    true, false
+], function(expected, assert) {
+    var fakeAllowSelection = new FunctionFaker({result: expected});
+    var allowSelectionCb = fakeAllowSelection.wrap();
+
+    var controller = this.createDefaultCalendar({
+        selectedSourceIds: ['1', '10'],
+        initialDate: '2023-03-20',
+        allowSelection: allowSelectionCb
+    });
+
+    var eventStart = moment.utc('2025-03-21T08:30:00Z');
+    var eventEnd = moment.utc('2025-03-21T09:30:00Z');
+
+    assert.equal(0, fakeAllowSelection.count());
+
+    assert.equal(this.simulateCalendarSelectAllow(controller, {
+        id: '3',
+        start: eventStart.toDate(),
+        end: eventEnd.toDate(),
+        allDay: false
+    }), expected);
+
+    assert.deepEqual([
+        {
+            activityRange: new creme.CalendarEventRange({
+                start: controller._toMoment(eventStart.toDate()),
+                end: controller._toMoment(eventEnd.toDate()),
+                allDay: false
+            })
+        }
+    ], fakeAllowSelection.calls().map(function(args) {
+        return _.pick(
+            args[0],
+            'activityRange'
+        );
     }));
 });
 

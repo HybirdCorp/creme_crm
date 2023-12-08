@@ -4,6 +4,7 @@ from functools import partial
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
+from creme.activities.models.config import CalendarConfigItem, Weekday
 from creme.creme_core.models import Relation
 from creme.creme_core.tests.base import CremeTestCase
 
@@ -580,3 +581,80 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
                 f'override-{field_name}_1_1': '15:00:00',
             },
         ))
+
+    @parameterized.expand([
+        (
+            (2025, 7, 14), '17:30:00', '18:01:00',
+            _(
+                'The activity is not within the business hours '
+                'range from {day_start} to {day_end}.'
+            ).format(
+                day_start='08:00:00',
+                day_end='18:00:00',
+            )
+        ),
+        (
+            (2025, 7, 14), '07:59:00', '08:30:00',
+            _(
+                'The activity is not within the business hours '
+                'range from {day_start} to {day_end}.'
+            ).format(
+                day_start='08:00:00',
+                day_end='18:00:00',
+            )
+        ),
+        (
+            (2025, 7, 13), '08:30:00', '09:30:00',
+            _('{day} is not a working day.').format(day=Weekday.SUNDAY.label)
+        ),
+    ])
+    def test_start_or_end_overtime(self, day, start, end, expected):
+        "Overtime."
+        user = self.login_as_root_and_get()
+
+        config = CalendarConfigItem.objects.for_user(user)
+
+        config.allow_event_overtime = False
+        config.allow_event_anyday = False
+        config.day_start = time(8, 0, 0)
+        config.day_end = time(18, 0, 0)
+        config.save()
+
+        contact = user.linked_contact
+        sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
+
+        def create_meeting(**kwargs):
+            task = Activity.objects.create(
+                user=user, type_id=sub_type.type_id, sub_type=sub_type, **kwargs
+            )
+            Relation.objects.create(
+                subject_entity=contact, user=user,
+                type_id=constants.REL_SUB_PART_2_ACTIVITY,
+                object_entity=task,
+            )
+
+            return task
+
+        create_dt = self.create_datetime
+        meeting = create_meeting(
+            title='Meeting#1',
+            start=create_dt(year=2013, month=4, day=17, hour=11, minute=0),
+            end=create_dt(year=2013,   month=4, day=17, hour=12, minute=0),
+        )
+
+        response = self.assertPOST200(
+            self.build_inneredit_uri(meeting, 'start'),
+            data={
+                'override-start_0_0': self.formfield_value_date(*day),
+                'override-start_0_1': start,
+
+                'override-start_1_0': self.formfield_value_date(*day),
+                'override-start_1_1': end,
+            }
+        )
+
+        self.assertFormError(
+            self.get_form_or_fail(response),
+            field='override-start',
+            errors=expected,
+        )
