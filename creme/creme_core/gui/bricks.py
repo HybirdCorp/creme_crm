@@ -168,7 +168,8 @@ class Brick:
     # An empty value (like the default empty string) means "No special permission required".
     permissions: str | Sequence[str] = ''
 
-    GENERIC_HAT_BRICK_ID: str = 'hatbrick'
+    # GENERIC_HAT_BRICK_ID: str = 'hatbrick'
+    GENERIC_HAT_BRICK_ID: str = 'hat'
 
     def __init__(self):
         if self.relation_type_deps and Relation not in self.dependencies:
@@ -192,7 +193,8 @@ class Brick:
 
     @staticmethod
     def generate_id(app_name: str, name: str) -> str:  # TODO: rename _generate_id ?
-        return f'block_{app_name}-{name}'
+        # return f'block_{app_name}-{name}'
+        return f'regular-{app_name}-{name}'
 
     @classmethod
     def _generate_hat_id(cls, app_name: str, name: str) -> str:

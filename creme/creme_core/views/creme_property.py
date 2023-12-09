@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import atomic
@@ -240,14 +242,16 @@ class TaggedEntitiesBrick(QuerysetBrick):
         self.dependencies = (ctype.model_class(),)
 
     @staticmethod
-    def parse_brick_id(brick_id):
+    def parse_brick_id(brick_id) -> ContentType | None:
         "@return A ContentType instance if valid, else None"
         parts = brick_id.split('-')
         ctype = None
 
-        if len(parts) == 4:
+        # if len(parts) == 4:
+        if len(parts) == 5:
             try:
-                tmp_ctype = ContentType.objects.get_by_natural_key(parts[2], parts[3])
+                # tmp_ctype = ContentType.objects.get_by_natural_key(parts[2], parts[3])
+                tmp_ctype = ContentType.objects.get_by_natural_key(parts[3], parts[4])
             except ContentType.DoesNotExist:
                 pass
             else:

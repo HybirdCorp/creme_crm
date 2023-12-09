@@ -1424,7 +1424,9 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         brick_data = content[0]
         self.assertEqual(2, len(brick_data))
         self.assertEqual(MailsBrick.id, brick_data[0])
-        self.assertIn(f' id="{MailsBrick.id}"', brick_data[1])
+        # self.assertIn(f' id="{MailsBrick.id}"', brick_data[1])
+        self.assertIn(f' id="brick-{MailsBrick.id}"', brick_data[1])
+        self.assertIn(f' data-brick-id="{MailsBrick.id}"', brick_data[1])
 
         # TODO: test other bricks
 

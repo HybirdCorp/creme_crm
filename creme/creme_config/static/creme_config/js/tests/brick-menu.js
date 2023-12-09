@@ -84,8 +84,9 @@ QUnit.module("creme.MenuContainersController", new QUnitMixin(QUnitEventMixin,
     }
 }));
 
-QUnit.test('creme.MenuContainersController (drag n drop, success)', function(url, expected, assert) {
+QUnit.test('creme.MenuContainersController (drag n drop, success, 2 roots nodes)', function(url, expected, assert) {
     var brick = this.createMenuEditorBrick({
+        id: 'creme_config-test',
         items: [{
             id: 'default',
             roots: [{
@@ -105,12 +106,14 @@ QUnit.test('creme.MenuContainersController (drag n drop, success)', function(url
 
     deepEqual([
         ['mock/menu/reorder/level0/default/1', 'POST', {target: 3}],
-        ['mock/brick/all/reload', 'GET', {brick_id: ['brick-for-test'], extra_data: "{}"}]
+//        ['mock/brick/all/reload', 'GET', {brick_id: ['brick-for-test'], extra_data: "{}"}]
+        ['mock/brick/all/reload', 'GET', {brick_id: ['creme_config-test'], extra_data: "{}"}]
     ], this.mockBackendUrlCalls());
 });
 
-QUnit.test('creme.MenuContainersController (drag n drop, success)', function(url, expected, assert) {
+QUnit.test('creme.MenuContainersController (drag n drop, success, 1 root node)', function(url, expected, assert) {
     var brick = this.createMenuEditorBrick({
+        id: 'creme_config-test',
         items: [{
             id: 'default',
             roots: [{url: 'mock/menu/reorder/level0/default/1'}]
@@ -126,12 +129,14 @@ QUnit.test('creme.MenuContainersController (drag n drop, success)', function(url
 
     deepEqual([
         ['mock/menu/reorder/level0/default/1', 'POST', {target: 3}],
-        ['mock/brick/all/reload', 'GET', {brick_id: ['brick-for-test'], extra_data: "{}"}]
+//        ['mock/brick/all/reload', 'GET', {brick_id: ['brick-for-test'], extra_data: "{}"}]
+        ['mock/brick/all/reload', 'GET', {brick_id: ['creme_config-test'], extra_data: "{}"}]
     ], this.mockBackendUrlCalls());
 });
 
 QUnit.test('creme.MenuContainersController (drag n drop, failure)', function(url, expected, assert) {
     var brick = this.createMenuEditorBrick({
+        id: 'creme_config-test',
         items: [{
             id: 'default',
             roots: [{url: 'mock/menu/reorder/level0/default/fail'}]
@@ -154,7 +159,8 @@ QUnit.test('creme.MenuContainersController (drag n drop, failure)', function(url
 
     deepEqual([
         ['mock/menu/reorder/level0/default/fail', 'POST', {target: 3}],
-        ['mock/brick/all/reload', 'GET', {brick_id: ['brick-for-test'], extra_data: "{}"}]
+//        ['mock/brick/all/reload', 'GET', {brick_id: ['brick-for-test'], extra_data: "{}"}]
+        ['mock/brick/all/reload', 'GET', {brick_id: ['creme_config-test'], extra_data: "{}"}]
     ], this.mockBackendUrlCalls());
 });
 

@@ -5,7 +5,8 @@
 
 {% block brick_script %}
     <script type="text/javascript">
-        $('.brick[id="{{brick_id}}"]').on('brick-ready', function() {
+{#        $('.brick[id="{{brick_id}}"]').on('brick-ready', function() { #}
+        $('.brick[id="brick-{{brick_id}}"]').on('brick-ready', function() {
             $('.toggle-icon-container').on('click', function(e) {
                 e.stopPropagation();
 

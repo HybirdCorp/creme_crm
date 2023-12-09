@@ -10,11 +10,16 @@ from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
+    FakeContact,
+    FakeOrganisation,
     SetCredentials,
     history,
 )
+from creme.creme_core.views.creme_property import (
+    PropertyTypeInfoBrick,
+    TaggedMiscEntitiesBrick,
+)
 
-from ..fake_models import FakeContact, FakeOrganisation
 from .base import BrickTestCaseMixin, ViewsTestCase
 
 
@@ -653,10 +658,11 @@ class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertEqual(ptype, ctxt_ptype)
 
         doc = self.get_html_tree(response.content)
-        self.get_brick_node(doc, 'block_creme_core-property_type_info')
+        self.get_brick_node(doc, PropertyTypeInfoBrick)
 
         contacts_brick_node = self.get_brick_node(
-            doc, 'block_creme_core-tagged-creme_core-fakecontact',
+            # doc, 'block_creme_core-tagged-creme_core-fakecontact',
+            doc, 'regular-creme_core-tagged-creme_core-fakecontact',
         )
         self.assertBrickHasNotClass(contacts_brick_node, 'is-empty')
         self.assertInstanceLink(contacts_brick_node, tagged_contact)
@@ -664,13 +670,16 @@ class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertNoInstanceLink(contacts_brick_node, tagged_orga)
 
         orgas_brick_node = self.get_brick_node(
-            doc, 'block_creme_core-tagged-creme_core-fakeorganisation',
+            # doc, 'block_creme_core-tagged-creme_core-fakeorganisation',
+            doc, 'regular-creme_core-tagged-creme_core-fakeorganisation',
         )
         self.assertInstanceLink(orgas_brick_node, tagged_orga)
         self.assertNoInstanceLink(orgas_brick_node, tagged_contact)
 
-        self.assertNoBrick(doc, 'block_creme_core-tagged-billing-fakeimage')
-        self.assertNoBrick(doc, 'block_creme_core-misc_tagged_entities')
+        # self.assertNoBrick(doc, 'block_creme_core-tagged-billing-fakeimage')
+        self.assertNoBrick(doc, 'regular-creme_core-tagged-billing-fakeimage')
+        # self.assertNoBrick(doc, 'block_creme_core-misc_tagged_entities')
+        self.assertNoBrick(doc, 'regular-creme_core-misc_tagged_entities')
 
     def test_detailview02(self):
         "Misc brick."
@@ -692,16 +701,19 @@ class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         doc = self.get_html_tree(response.content)
 
         contacts_brick_node = self.get_brick_node(
-            doc, 'block_creme_core-tagged-creme_core-fakecontact',
+            # doc, 'block_creme_core-tagged-creme_core-fakecontact',
+            doc, 'regular-creme_core-tagged-creme_core-fakecontact',
         )
         self.assertInstanceLink(contacts_brick_node, rita)
         self.assertNoInstanceLink(contacts_brick_node, udf)
 
-        misc_brick_node = self.get_brick_node(doc, 'block_creme_core-misc_tagged_entities')
+        # misc_brick_node = self.get_brick_node(doc, 'block_creme_core-misc_tagged_entities')
+        misc_brick_node = self.get_brick_node(doc, TaggedMiscEntitiesBrick)
         self.assertInstanceLink(misc_brick_node, udf)
         self.assertNoInstanceLink(misc_brick_node, rita)
 
-        self.assertNoBrick(doc, 'block_creme_core-tagged-creme_core-fakeorganisation')
+        # self.assertNoBrick(doc, 'block_creme_core-tagged-creme_core-fakeorganisation')
+        self.assertNoBrick(doc, 'regular-creme_core-tagged-creme_core-fakeorganisation')
 
     def test_reload_ptype_bricks01(self):
         user = self.login_as_root_and_get()
@@ -710,7 +722,8 @@ class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         rita = FakeContact.objects.create(user=user, last_name='Vrataski', first_name='Rita')
         CremeProperty.objects.create(type=ptype, creme_entity=rita)
 
-        brick_id = 'block_creme_core-tagged-creme_core-fakecontact'
+        # brick_id = 'block_creme_core-tagged-creme_core-fakecontact'
+        brick_id = 'regular-creme_core-tagged-creme_core-fakecontact'
         url = reverse('creme_core__reload_ptype_bricks', args=(ptype.id,))
         response = self.assertGET200(url, data={'brick_id': brick_id})
 
@@ -728,8 +741,10 @@ class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertInstanceLink(brick_node, rita)
 
         self.assertGET404(url, data={'brick_id': 'invalid_brickid'})
-        self.assertGET404(url, data={'brick_id': 'block_creme_core-tagged-persons-invalidmodel'})
-        self.assertGET404(url, data={'brick_id': 'block_creme_core-tagged-persons-civility'})
+        # self.assertGET404(url, data={'brick_id': 'block_creme_core-tagged-persons-invalidmodel'})
+        self.assertGET404(url, data={'brick_id': 'regular-creme_core-tagged-persons-invalidmodel'})
+        # self.assertGET404(url, data={'brick_id': 'block_creme_core-tagged-persons-civility'})
+        self.assertGET404(url, data={'brick_id': 'regular-creme_core-tagged-persons-civility'})
 
     def test_reload_ptype_bricks02(self):
         "Misc brick + info brick."
@@ -743,8 +758,10 @@ class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         )
         CremeProperty.objects.create(type=ptype, creme_entity=rita)
 
-        misc_brick_id = 'block_creme_core-misc_tagged_entities'
-        info_brick_id = 'block_creme_core-property_type_info'
+        # misc_brick_id = 'block_creme_core-misc_tagged_entities'
+        misc_brick_id = TaggedMiscEntitiesBrick.id
+        # info_brick_id = 'block_creme_core-property_type_info'
+        info_brick_id = PropertyTypeInfoBrick.id
 
         response = self.assertGET200(
             reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
@@ -767,7 +784,8 @@ class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.login_as_root()
         ptype = CremePropertyType.objects.create(text='is american')
 
-        brick_id = 'block_creme_core-tagged-persons-contact'
+        # brick_id = 'block_creme_core-tagged-persons-contact'
+        brick_id = 'regular-creme_core-tagged-persons-contact'
         response = self.assertGET200(
             reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
             data={'brick_id': brick_id},

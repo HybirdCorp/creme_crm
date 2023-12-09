@@ -15,6 +15,7 @@ QUnit.module("creme.commercial.assets", new QUnitMixin(QUnitEventMixin,
 
     createAssetsMatrixBrick: function(options) {
         options = $.extend({
+            id: 'commercial-test_assets',
             classes: ['assets-matrix'],
             columns: [
                 '<th>segment A</th>'
@@ -67,7 +68,8 @@ QUnit.test('creme.commercial.setScore (ok)', function(assert) {
     ], this.mockBackendUrlCalls('mock/score'));
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["commercial-test_assets"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 

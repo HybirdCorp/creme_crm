@@ -191,7 +191,8 @@ QUnit.test('creme.billing.brick (billing-line-saveall, ok)', function(assert) {
 
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual([
-        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
@@ -476,7 +477,8 @@ QUnit.test('creme.billing.AddDocumentAction', function(assert) {
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
@@ -524,7 +526,8 @@ QUnit.test('creme.billing.AddDocumentAction (deps)', function(assert) {
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-for-test", "brick-for-test-B"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-for-test", "brick-for-test-B"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["creme_core-test", "brick-for-test-B"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
@@ -568,18 +571,23 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document', function(
     }).brick();
 
     this.createBrickWidget({
-        id: 'brick-for-test-A',
+//        id: 'brick-for-test-A',
+        id: 'creme_core-test1',
         deps: ['A', 'B']
     }).brick();
 
     this.createBrickWidget({
-        id: 'brick-for-test-B',
-        deps: ['creme_core.relation.rtype-C', 'model-A']
+//        id: 'brick-for-test-B',
+        id: 'my_app-test2',
+//        deps: ['creme_core.relation.rtype-C', 'model-A']
+        deps: ['creme_core.relation.rtype-C', 'my_app-modelA']
     }).brick();
 
     this.createBrickWidget({
-        id: 'brick-for-model-A',
-        deps: ['model-A']
+//        id: 'brick-for-model-A',
+        id: 'my_app-related_modelA',
+//        deps: ['model-A']
+        deps: ['my_app-modelA']
     }).brick();
 
     var widget = this.createHatMenuBar({
@@ -589,7 +597,8 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document', function(
                 action: 'billing-hatmenubar-add-document',
                 data: {
                     rtype_id: ['rtype-C'],
-                    model_id: ['model-A']
+//                    model_id: ['model-A']
+                    model_id: ['my_app-modelA']
                 }
             })
         ]
@@ -615,7 +624,8 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document', function(
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-for-test", "brick-for-test-B", "brick-for-model-A"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-for-test", "brick-for-test-B", "brick-for-model-A"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["creme_core-test", "my_app-test2", "my_app-related_modelA"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 

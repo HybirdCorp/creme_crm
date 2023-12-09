@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2015-2022  Hybird
+ Copyright (C) 2015-2024  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@
 creme.bricks = creme.bricks || {};
 
 creme.bricks.dialogCenterPosition = function(dialog) {
-    // TODO : simplify this code with new dialog center(constraint) feature
+    // TODO: simplify this code with new dialog center(constraint) feature
     /*
      * var outer_height = $('.header-menu').outerHeight();
      * dialog.center({top: outer_height});
@@ -38,7 +38,7 @@ creme.bricks.dialogCenterPosition = function(dialog) {
     }
 };
 
-// TODO : a specific creme.bricks.Dialog should be a better idea (combine action-link and brick-dialog-action ?)
+// TODO: a specific 'creme.bricks.Dialog' should be a better idea (combine 'action-link' and 'brick-dialog-action'?)
 creme.bricks.dialogActionButtons = function(dialog) {
     var buttons = $('a.brick-dialog-action', dialog.content()).map(function(index) {
         var link = $(this);
@@ -282,7 +282,8 @@ creme.bricks.BrickTable = creme.component.Component.sub({
           // TODO: simpler param -> key == 'order_by' ??
           var params = {};
           var order = ascending ? '' : '-';
-          params[this._brick.id() + '_order'] = order + field;
+//          params[this._brick.id() + '_order'] = order + field;
+          params[this._brick.type_id() + '_order'] = order + field;
 
           this._brick.refresh(params);
         }
@@ -656,6 +657,11 @@ creme.bricks.Brick = creme.component.Component.sub({
         return this._id;
     },
 
+    /* NB: corresponds to the Brick.id on server side */
+    type_id: function() {
+        return this._element.attr('data-brick-id');
+    },
+
     title: function() {
         return $('.brick-header .brick-title', this._element).attr('title');
     },
@@ -724,7 +730,8 @@ creme.bricks.Brick = creme.component.Component.sub({
 
             if (!Object.isEmpty(this._stateSaveURL)) {
                 creme.ajax.query(this._stateSaveURL, {action: 'post'}, {
-                               id:                this._id,
+//                               id:                this._id,
+                               brick_id:          this.type_id(),
                                is_open:           state.collapsed ? 0 : 1,
                                show_empty_fields: state.reduced ? 0 : 1
                            })
@@ -937,6 +944,13 @@ creme.bricks.BricksReloader.prototype = {
         var source_id = brick.id();
 
         if (Object.isEmpty(source_id)) {
+            console.warn('It seems there the brick to reload has no "id".');
+            this._brickFilter = null;
+            return this;
+        }
+
+        if (Object.isEmpty(brick.type_id())) {
+            console.warn('It seems there the brick to reload has no "data-brick-id".');
             this._brickFilter = null;
             return this;
         }
@@ -981,27 +995,30 @@ creme.bricks.BricksReloader.prototype = {
 
         $('.brick.widget-ready', this._bricksContainer).each(function() {
             var brick = $(this).creme().widget().brick();
-            var brick_id = brick.id();
+//            var brick_id = brick.id();
 
-            if (brickFilter(brick) && !Object.isEmpty(brick_id)) {
+//            if (brickFilter(brick) && !Object.isEmpty(brick_id)) {
+            if (brickFilter(brick) && !Object.isEmpty(brick.id()) && !Object.isEmpty(brick.type_id())) {
                 bricks.push(brick);
 
                 var brick_extra_data = brick.reloadingInfo();
 
                 if (!Object.isEmpty(brick_extra_data)) {
-                    extra_data[brick_id] = brick_extra_data;
+//                    extra_data[brick_id] = brick_extra_data;
+                    extra_data[brick.type_id()] = brick_extra_data;
                 }
             }
         });
 
         if (bricks.length === 0) {
-            console.debug('No brick collected ; so we avoid the reloading query');
+            console.debug('No brick collected; so we avoid the reloading query');
             return cancelAction('No active brick collected. Avoid the reloading query.');
         }
 
         // TODO: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
         var data = $.extend({
-            brick_id:   bricks.map(function(brick) { return brick.id(); }),
+//            brick_id:   bricks.map(function(brick) { return brick.id(); }),
+            brick_id:   bricks.map(function(brick) { return brick.type_id(); }),
             extra_data: JSON.stringify(extra_data)
         }, this.uri_extra_params || false);
 
@@ -1039,7 +1056,8 @@ creme.bricks.BricksReloader.prototype = {
                          .onDone(function(event, data) {
                               data.forEach(function(entry) {
                                   creme.bricks.replaceContent(
-                                      $('[id="' + entry[0] + '"]'),
+//                                      $('[id="' + entry[0] + '"]'),
+                                      $('[id="brick-' + entry[0] + '"]'),
                                       $((entry[1] || '').trim())
                                   );
                               });

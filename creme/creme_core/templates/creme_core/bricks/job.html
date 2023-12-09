@@ -6,7 +6,8 @@
 {% block brick_script %}{# TODO: in .js ?? #}
     {% if not request|is_ajax and not job.is_finished %}
     <script type="text/javascript">
-        $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) {
+{#        $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) { #}
+        $('.brick[id="brick-{{brick_id}}"]').on('brick-ready', function(e, brick, options) {
             var jobs = new creme.jobs.BrickJobsMonitor(brick, {
                 url: '{% url 'creme_core__jobs_info' %}'
             });

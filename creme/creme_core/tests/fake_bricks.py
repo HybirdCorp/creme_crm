@@ -5,7 +5,8 @@ class FakeAppPortalBrick(Brick):
     id = Brick.generate_id('creme_core', 'fake_app_portal')
 
     def detailview_display(self, context):
-        return f'<div id="{self.id}" class="brick"></div>'
+        # return f'<div id="{self.id}" class="brick"></div>'
+        return f'<div id="brick-{self.id}" data-brick-id="{self.id}" class="brick"></div>'
 
 
 class FakeOrganisationBarHatBrick(SimpleBrick):

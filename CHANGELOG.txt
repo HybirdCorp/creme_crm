@@ -154,6 +154,18 @@
                     - These class-based views have been removed:
                         - GraphFetching (reports__fetch_graph)
                         - GraphFetchingInstance (reports__fetch_graph_from_brick)
+        # The way the Bricks' IDs are generated & used has been reworked.
+          These IDs have always be designed to retrieve the Bricks classes (on Python/server side), but in facts they were used for the HTML "id" attribute.
+          Now these uses are more distinct ; the IDs of classes do not contain a prefix with "brick"/"block" (because it's useless),
+          & the prefixes of different types of brick have been reworked :
+            - The value of 'creme_core.constants.MODELBRICK_ID' changed from "modelblock" to "model".
+            - The value of 'creme_core.gui.bricks.Brick.GENERIC_HAT_BRICK_ID' changed from "hatbrick" to "hat".
+            - The method 'creme_core.gui.bricks.Brick.generate_id()' returns strings which start now by "regular-" (it started previously by "block_").
+          The values for the attributes "brick_id" stored in Data Base (see models in 'creme_core.models.bricks') are fixed by a migration.
+          In HTML, the Brick class' ID is now stored in the HTML attribute "data-brick-id", & the HTML attribute "id"
+          is created as "brick-{{brick_id}}" (see 'creme/creme_core/templates/creme_core/bricks/base/base.html').
+          So you'll have to fix your template files if you retrieve bricks nodes by their ID. Example :
+            $('.brick[id="{{brick_id}}"]')   =>   $('.brick[id="brick-{{brick_id}}"]')
         # In 'creme_core.core' :
             - The class 'entity_filter.condition_handler.PropertyConditionHandler' takes now the UUID
               of the related 'CremePropertyType' instance instead of its ID (see 'creme_core.models' section) ;
@@ -215,6 +227,8 @@
           related to ForeignKeys; now it return the low-level value (e.g. integer, string...), not the related model instance anymore.
           Example: 'FieldInfo(Contact, 'user_id').value_from(my_contact)' returns an integer, not a CremeUser instance.
                    'FieldInfo(Contact, 'user').value_from(my_contact)' still returns a CremeUser instance.
+        # The default value attribute 'views.bricks.BrickStateSetting.brick_id_arg' changed from "id" to "brick_id".
+          So you'll have to fix your JavaScript code if you use the URL named "creme_core__set_brick_state".
         # Apps :
             * Creme_config :
                 - In 'urls' :
@@ -278,6 +292,8 @@
                 - In the function-views 'persons_portal()' & 'search_person()', "contact_model" & "orga_model" are not injected in the template context anymore.
                 - The CSS classes referencing 'ActivityType' IDs have been renamed;
                   e.g. "activity-type-activities-activitytype_meeting" became "activity-type-meeting".
+            * Crudity :
+                - The method 'bricks.CrudityHistoryBrick.generate_id()' has been removed.
 
     Internal breaking changes :
     ---------------------------

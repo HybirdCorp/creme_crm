@@ -27,8 +27,10 @@ from .base import BrickTestCaseMixin, ViewsTestCase
 class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
     LIGHT_URL = reverse('creme_core__light_search')
 
-    CONTACT_BRICKID = 'block_creme_core-found-creme_core-fakecontact-'
-    ORGA_BRICKID    = 'block_creme_core-found-creme_core-fakeorganisation-'
+    # CONTACT_BRICKID = 'block_creme_core-found-creme_core-fakecontact-'
+    CONTACT_BRICKID = 'regular-creme_core-found-creme_core-fakecontact-'
+    # ORGA_BRICKID    = 'block_creme_core-found-creme_core-fakeorganisation-'
+    ORGA_BRICKID    = 'regular-creme_core-found-creme_core-fakeorganisation-'
 
     @classmethod
     def setUpClass(cls):
@@ -57,14 +59,18 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertFalse(link_node.text.strip())
 
     def get_search_brick_node(self, tree, brick_id_prefix):
+        prefix = f'brick-{brick_id_prefix}'
+
         for div_node in tree.findall('.//div'):
             if (
                 'brick' in div_node.attrib.get('class', '')
-                and div_node.attrib.get('id', '').startswith(brick_id_prefix)
+                # and div_node.attrib.get('id', '').startswith(brick_id_prefix)
+                and div_node.attrib.get('id', '').startswith(prefix)
             ):
                 return div_node
 
-        self.fail(f'No brick found for prefix "{brick_id_prefix}".')
+        # self.fail(f'No brick found for prefix "{brick_id_prefix}".')
+        self.fail(f'No brick found for prefix "{prefix}".')
 
     def assertNoSearchBrick(self, tree, brick_id_prefix):
         for div_node in tree.findall('.//div'):

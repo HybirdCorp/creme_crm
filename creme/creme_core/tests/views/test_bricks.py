@@ -51,17 +51,20 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(BrickState.objects.get_for_brick_id(brick_id=brick_id, user=user).is_open)
         self.assertFalse(BrickState.objects.all())
 
-        self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 1})
+        # self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 1})
+        self.assertPOST200(self.SET_STATE_URL, data={'brick_id': brick_id, 'is_open': 1})
         self.assertFalse(BrickState.objects.all())
 
-        self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 0})
+        # self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 0})
+        self.assertPOST200(self.SET_STATE_URL, data={'brick_id': brick_id, 'is_open': 0})
         self.assertEqual(1, BrickState.objects.count())
 
         bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
         self.assertFalse(bstate.is_open)
         self.assertTrue(bstate.show_empty_fields)
 
-        self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id})  # No data
+        # self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id})  # No data
+        self.assertPOST200(self.SET_STATE_URL, data={'brick_id': brick_id})  # No data
         self.assertEqual(1, BrickState.objects.count())
 
         bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
@@ -80,14 +83,16 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         # ---
         self.assertPOST200(
             self.SET_STATE_URL,
-            data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
+            # data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
+            data={'brick_id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
         )
         self.assertFalse(BrickState.objects.all())
 
         # ---
         self.assertPOST200(
             self.SET_STATE_URL,
-            data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 0},
+            # data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 0},
+            data={'brick_id': brick_id, 'is_open': 1, 'show_empty_fields': 0},
         )
         bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
         self.assertTrue(bstate.is_open)
@@ -102,7 +107,8 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.client.post(
             self.SET_STATE_URL,
-            data={'id': brick_id, 'is_open': 0, 'show_empty_fields': 0},
+            # data={'id': brick_id, 'is_open': 0, 'show_empty_fields': 0},
+            data={'brick_id': brick_id, 'is_open': 0, 'show_empty_fields': 0},
         )
 
         bstates = BrickState.objects.filter(brick_id=brick_id)
@@ -145,7 +151,8 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertPOST200(
             self.SET_STATE_URL,
-            data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
+            # data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
+            data={'brick_id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
         )
 
     def test_reload_basic01(self):

@@ -24,14 +24,18 @@ QUnit.test('creme.bricks.Brick (empty)', function(assert) {
 
 QUnit.test('creme.bricks.Brick.bind', function(assert) {
     var brick = new creme.bricks.Brick();
-    var element = $('<div id="brick_01"></div>');
+//    var element = $('<div id="brick_01"></div>');
+    var element = $('<div id="brick-creme_core-01" data-brick-id="creme_core-01"></div>');
 
     equal(false, brick.isBound());
 
     brick.bind(element);
 
     equal(true, brick.isBound());
-    equal('brick_01', brick._id);
+//    equal('brick_01', brick._id);
+    equal('brick-creme_core-01', brick._id);
+    equal('brick-creme_core-01', brick.id());
+    equal('creme_core-01', brick.type_id());
     equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
     deepEqual({
         collapsed: false,
@@ -49,6 +53,7 @@ QUnit.test('creme.bricks.Brick.bind (no id)', function(assert) {
 
     equal(true, brick.isBound());
     equal(undefined, brick._id);
+    equal(undefined, brick.id());
     equal('mock/brick/status', brick._stateSaveURL, 'stateSaveURL');
     deepEqual({
         collapsed: false,
@@ -454,7 +459,7 @@ QUnit.test('creme.bricks.Brick.setLoadingState', function(assert) {
     deepEqual([['brick-loading-start']], this.mockListenerJQueryCalls('loading-start'));
     deepEqual([], this.mockListenerCalls('loading-complete'));
 
-    brick.setLoadingState(true, 'Loading test...'); // twice, state not chaned
+    brick.setLoadingState(true, 'Loading test...'); // twice, state not changed
     equal(true, brick.isLoading());
     deepEqual([['brick-loading-start']], this.mockListenerJQueryCalls('loading-start'));
     deepEqual([], this.mockListenerCalls('loading-complete'));
@@ -465,7 +470,7 @@ QUnit.test('creme.bricks.Brick.setLoadingState', function(assert) {
     deepEqual([['brick-loading-start']], this.mockListenerJQueryCalls('loading-start'));
     deepEqual([['brick-loading-complete']], this.mockListenerJQueryCalls('loading-complete'));
 
-    brick.setLoadingState(false); // twice, state not chaned
+    brick.setLoadingState(false); // twice, state not changed
     equal(false, brick.isLoading());
     equal('', $('.brick-loading-indicator-title', element).html());
     deepEqual([['brick-loading-start']], this.mockListenerJQueryCalls('loading-start'));
@@ -486,7 +491,7 @@ QUnit.test('creme.bricks.Brick.setLoadingState (default message)', function(asse
     equal(false, brick.isLoading());
     equal('Default loading...', $('.brick-loading-indicator-title', element).html());
 
-    brick.setLoadingState(true, 'Loading test...'); // twice, state not chaned
+    brick.setLoadingState(true, 'Loading test...'); // twice, state not changed
     equal(true, brick.isLoading());
     equal('Loading test...', $('.brick-loading-indicator-title', element).html());
 
@@ -641,12 +646,17 @@ QUnit.test('creme.bricks.Brick.refresh (widget not ready)', function(assert) {
 QUnit.test('creme.bricks.Brick.refresh (no reload url)', function(assert) {
     this.setBrickAllRefreshUrl(null);
 
-    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo(this.qunitFixture());
+//    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo(this.qunitFixture());
+    var element = $(
+        '<div class="brick ui-creme-widget" widget="brick" id="brick-creme_core-test" data-brick-id="creme_core-test"></div>'
+    ).appendTo(this.qunitFixture());
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
     equal(true, brick.isBound());
-    equal('brick-for-test', brick.id());
+//    equal('brick-for-test', brick.id());
+    equal('brick-creme_core-test', brick.id());
+    equal('creme_core-test', brick.type_id());
 
     brick.refresh({}, {
         'done': this.mockListener('refresh-done'),
@@ -667,12 +677,16 @@ QUnit.test('creme.bricks.Brick.refresh (no reload url)', function(assert) {
 QUnit.test('creme.bricks.Brick.refresh (empty reload url)', function(assert) {
     this.setBrickAllRefreshUrl('');
 
-    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo(this.qunitFixture());
+//    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo(this.qunitFixture());
+    var element = $(
+        '<div class="brick ui-creme-widget" widget="brick" id="brick-creme_core-test" data-brick-id="creme_core-test"></div>'
+    ).appendTo(this.qunitFixture());
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
     equal(true, brick.isBound());
-    equal('brick-for-test', brick.id());
+//    equal('brick-for-test', brick.id());
+    equal('brick-creme_core-test', brick.id());
 
     brick.refresh({}, {
         'done': this.mockListener('refresh-done'),
@@ -710,23 +724,54 @@ QUnit.test('creme.bricks.Brick.refresh (no id)', function(assert) {
     deepEqual([['fail', 'Missing or invalid source brick']], this.mockListenerCalls('refresh-error'));
 });
 
-QUnit.test('creme.bricks.Brick.refresh', function(assert) {
-    var element = $('<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>').appendTo(this.qunitFixture());
+QUnit.test('creme.bricks.Brick.refresh (no data-brick-id)', function(assert) {
+    var element = $(
+        '<div class="brick ui-creme-widget" widget="brick" id="brick-creme_core-test" ></div>'
+    ).appendTo(this.qunitFixture());
     var widget = creme.widget.create(element);
     var brick = widget.brick();
 
     equal(true, brick.isBound());
-    equal('brick-for-test', brick.id());
+    equal('brick-creme_core-test', brick.id());
+    equal(undefined, brick.type_id());
+
+    brick.refresh({}, {
+        'done': this.mockListener('refresh-done'),
+        'cancel': this.mockListener('refresh-cancel'),
+        'fail': this.mockListener('refresh-error')
+    });
+
+    deepEqual([], this.mockBackendCalls());
+    deepEqual([], this.mockListenerCalls('refresh-done'));
+    deepEqual([], this.mockListenerCalls('refresh-cancel'));
+    deepEqual([['fail', 'Missing or invalid source brick']], this.mockListenerCalls('refresh-error'));
+});
+
+QUnit.test('creme.bricks.Brick.refresh', function(assert) {
+    var element = $(
+//        '<div class="brick ui-creme-widget" widget="brick" id="brick-for-test"></div>'
+        '<div class="brick ui-creme-widget" widget="brick" id="brick-creme_core-test" data-brick-id="creme_core-test"></div>'
+    ).appendTo(this.qunitFixture());
+    var widget = creme.widget.create(element);
+    var brick = widget.brick();
+
+    equal(true, brick.isBound());
+//    equal('brick-for-test', brick.id());
+    equal('brick-creme_core-test', brick.id());
+    equal('creme_core-test', brick.type_id());
 
     brick.refresh();
     deepEqual([
-        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.refresh (no deps)', function(assert) {
-    var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A"></div>';
-    var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B"></div>';
+//    var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A"></div>';
+//    var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B"></div>';
+    var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A" data-brick-id="A"></div>';
+    var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B" data-brick-id="B"></div>';
     var elementA = $(htmlA).appendTo(this.qunitFixture());
     var elementB = $(htmlB).appendTo(this.qunitFixture());
     var brickA = creme.widget.create(elementA).brick();
@@ -746,20 +791,24 @@ QUnit.test('creme.bricks.Brick.refresh (no deps)', function(assert) {
     brickA.refresh();
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-A"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-A"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["A"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
     brickB.refresh();
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-B"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-B"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["B"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.refresh (no deps intersection)', function(assert) {
-    var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A" data-brick-deps="[&quot;dep1&quot;]"></div>';
-    var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B" data-brick-deps="[&quot;dep2&quot;]"></div>';
+//    var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A" data-brick-deps="[&quot;dep1&quot;]"></div>';
+//    var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B" data-brick-deps="[&quot;dep2&quot;]"></div>';
+    var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A" data-brick-id="A" data-brick-deps="[&quot;dep1&quot;]"></div>';
+    var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B" data-brick-id="B" data-brick-deps="[&quot;dep2&quot;]"></div>';
     var elementA = $(htmlA).appendTo(this.qunitFixture());
     var elementB = $(htmlB).appendTo(this.qunitFixture());
     var brickA = creme.widget.create(elementA).brick();
@@ -779,20 +828,24 @@ QUnit.test('creme.bricks.Brick.refresh (no deps intersection)', function(assert)
     brickA.refresh();
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-A"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-A"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["A"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
     brickB.refresh();
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-B"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-B"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["B"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
-QUnit.test('creme.bricks.Brick.refresh (single instersection)', function(assert) {
-    var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A" data-brick-deps="[&quot;dep1&quot;,&quot;dep3&quot;]"></div>';
-    var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B" data-brick-deps="[&quot;dep1&quot;,&quot;dep2&quot;]"></div>';
+QUnit.test('creme.bricks.Brick.refresh (single intersection)', function(assert) {
+//    var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A" data-brick-deps="[&quot;dep1&quot;,&quot;dep3&quot;]"></div>';
+//    var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B" data-brick-deps="[&quot;dep1&quot;,&quot;dep2&quot;]"></div>';
+    var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A" data-brick-id="A" data-brick-deps="[&quot;dep1&quot;,&quot;dep3&quot;]"></div>';
+    var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B" data-brick-id="B" data-brick-deps="[&quot;dep1&quot;,&quot;dep2&quot;]"></div>';
     var elementA = $(htmlA).appendTo(this.qunitFixture());
     var elementB = $(htmlB).appendTo(this.qunitFixture());
     var brickA = creme.widget.create(elementA).brick();
@@ -812,7 +865,8 @@ QUnit.test('creme.bricks.Brick.refresh (single instersection)', function(assert)
     brickA.refresh();
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-A", "brick-B"], "extra_data": "{}"}]    // refresh A and B (=> "dep1" dependency)
+//        ['GET', {"brick_id": ["brick-A", "brick-B"], "extra_data": "{}"}]    // refresh A and B (=> "dep1" dependency)
+        ['GET', {"brick_id": ["A", "B"], "extra_data": "{}"}]    // refresh A and B (=> "dep1" dependency)
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
@@ -823,14 +877,18 @@ QUnit.test('creme.bricks.Brick.refresh (single instersection)', function(assert)
     brickB.refresh();
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-A", "brick-B"], "extra_data": "{}"}]    // refresh B and A (=> "dep1" dependency)
+//        ['GET', {"brick_id": ["brick-A", "brick-B"], "extra_data": "{}"}]    // refresh B and A (=> "dep1" dependency)
+        ['GET', {"brick_id": ["A", "B"], "extra_data": "{}"}]    // refresh B and A (=> "dep1" dependency)
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
 QUnit.test('creme.bricks.Brick.refresh (wildcard deps)', function(assert) {
-    var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A" data-brick-deps="[&quot;dep1&quot;]"></div>';
-    var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B" data-brick-deps="[&quot;*&quot;]"></div>';
-    var htmlC = '<div class="brick ui-creme-widget" widget="brick" id="brick-C" data-brick-deps="[&quot;dep2&quot;]"></div>';
+//    var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A" data-brick-deps="[&quot;dep1&quot;]"></div>';
+//    var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B" data-brick-deps="[&quot;*&quot;]"></div>';
+//    var htmlC = '<div class="brick ui-creme-widget" widget="brick" id="brick-C" data-brick-deps="[&quot;dep2&quot;]"></div>';
+    var htmlA = '<div class="brick ui-creme-widget" widget="brick" id="brick-A" data-brick-id="A" data-brick-deps="[&quot;dep1&quot;]"></div>';
+    var htmlB = '<div class="brick ui-creme-widget" widget="brick" id="brick-B" data-brick-id="B" data-brick-deps="[&quot;*&quot;]"></div>';
+    var htmlC = '<div class="brick ui-creme-widget" widget="brick" id="brick-C" data-brick-id="C" data-brick-deps="[&quot;dep2&quot;]"></div>';
     var elementA = $(htmlA).appendTo(this.qunitFixture());
     var elementB = $(htmlB).appendTo(this.qunitFixture());
     var elementC = $(htmlC).appendTo(this.qunitFixture());
@@ -844,10 +902,12 @@ QUnit.test('creme.bricks.Brick.refresh (wildcard deps)', function(assert) {
 
     equal(true, brickA.isBound());
     equal('brick-A', brickA.id());
+    equal('A', brickA.type_id());
     deepEqual(['dep1'], brickA.dependencies().keys());
 
     equal(true, brickB.isBound());
     equal('brick-B', brickB.id());
+    equal('B', brickB.type_id());
     deepEqual([], brickB.dependencies().keys());
     equal(true, brickB.dependencies().isWildcard());
 
@@ -858,7 +918,8 @@ QUnit.test('creme.bricks.Brick.refresh (wildcard deps)', function(assert) {
     brickA.refresh();
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-A", "brick-B"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-A", "brick-B"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["A", "B"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
@@ -869,7 +930,8 @@ QUnit.test('creme.bricks.Brick.refresh (wildcard deps)', function(assert) {
     brickB.refresh();
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-A", "brick-B", "brick-C"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-A", "brick-B", "brick-C"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["A", "B", "C"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 
     this.resetMockBackendCalls();
@@ -880,7 +942,8 @@ QUnit.test('creme.bricks.Brick.refresh (wildcard deps)', function(assert) {
     brickC.refresh();
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-B", "brick-C"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-B", "brick-C"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["B", "C"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 

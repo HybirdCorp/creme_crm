@@ -32,7 +32,9 @@ QUnit.test('creme.opportunities.QuoteController (bind)', function(assert) {
 });
 
 QUnit.test('creme.opportunities.QuoteController (toggle)', function(assert) {
+    var brick_id = 'opportunities-test';
     var brick = this.createBrickWidget({
+        id: brick_id,
         content: '<input class="opportunities-current-quote" type="checkbox" data-url="mock/opports/15/quote/12/set_current">'
     }).brick();
 
@@ -46,7 +48,8 @@ QUnit.test('creme.opportunities.QuoteController (toggle)', function(assert) {
 
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/opports/15/quote/12/set_current'));
     deepEqual([
-        ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+//        ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+        ['GET', {brick_id: [brick_id], extra_data: '{}'}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
