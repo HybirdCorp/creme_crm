@@ -324,7 +324,8 @@ QUnit.test('creme.FormGroupsController (reorder groups)', function(assert) {
         [
             'mock/brick/all/reload',
             'GET',
-            {brick_id: ['brick-for-test'], extra_data: '{}'},
+//            {brick_id: ['brick-for-test'], extra_data: '{}'},
+            {brick_id: ['creme_core-test'], extra_data: '{}'},
             {dataType: 'json', delay: 0, enableUriSearch: false, sync: true}
           ]
     ], this.mockBackendCalls());
@@ -377,7 +378,12 @@ QUnit.test('creme.FormGroupsController (reorder groups, failure)', function(asse
 
     deepEqual([
         ['mock/group/reorder/0/fail', 'POST', {target: group.index()}, {delay: 0, enableUriSearch: false, sync: true}],
-        ['mock/brick/all/reload', 'GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}, {dataType: "json", delay: 0, enableUriSearch: false, sync: true}]
+        [
+            'mock/brick/all/reload', 'GET',
+//             {"brick_id": ["brick-for-test"], "extra_data": "{}"},
+             {"brick_id": ["creme_core-test"], "extra_data": "{}"},
+             {dataType: "json", delay: 0, enableUriSearch: false, sync: true}
+        ]
     ], this.mockBackendCalls());
 });
 

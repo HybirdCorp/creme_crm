@@ -3,7 +3,8 @@
 (function($) {
     "use strict";
 
-    var MOCK_BRICK_CONTENT = '<div class="brick ui-creme-widget" widget="brick" id="${id}"></div>';
+//    var MOCK_BRICK_CONTENT = '<div class="brick ui-creme-widget" widget="brick" id="${id}"></div>';
+    var MOCK_BRICK_CONTENT = '<div class="brick ui-creme-widget" widget="brick" id="brick-${id}" data-brick-id="${id}"></div>';
 
     var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></div>';
     var MOCK_FRAME_CONTENT_FORM = '<form action="${action}">'
@@ -30,9 +31,15 @@
                     return backend.responseJSON(200, self.mockBrickState);
                 },
                 'mock/brick/all/reload': function(url, data, options) {
+/*
                     var brickContents = (data.brick_id || []).map(function(id) {
                         var content = self._brickReloadContent[id];
                         return [id, content || MOCK_BRICK_CONTENT.template({id: id})];
+                    });
+*/
+                    var brickContents = (data.brick_id || []).map(function(brick_type_id) {
+                        var content = self._brickReloadContent['brick-' + brick_type_id];
+                        return [brick_type_id, content || MOCK_BRICK_CONTENT.template({id: brick_type_id})];
                     });
 
                     return backend.responseJSON(200, brickContents);
@@ -101,7 +108,8 @@
 
         createBrickHtml: function(options) {
             options = $.extend({
-                id: 'brick-for-test',
+//                id: 'brick-for-test',
+                id: 'creme_core-test',
                 title: 'Test it',
                 header: '',
                 content: '',
@@ -116,7 +124,8 @@
             };
 
             var html = (
-                '<div class="brick ui-creme-widget ${classes}" widget="brick" id="${id}" data-brick-deps="[${deps}]" ${attributes}>'
+//                '<div class="brick ui-creme-widget ${classes}" widget="brick" id="${id}" data-brick-deps="[${deps}]" ${attributes}>'
+                '<div class="brick ui-creme-widget ${classes}" widget="brick" id="brick-${id}" data-brick-id="${id}" data-brick-deps="[${deps}]" ${attributes}>'
                      + '<div class="brick-header">'
                          + '<div class="brick-title">${title}</div>'
                          + '${header}'

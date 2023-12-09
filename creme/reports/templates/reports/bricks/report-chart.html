@@ -72,7 +72,8 @@
     {% if data %}
     <script type="text/javascript">
         (function($) {
-            creme.setupReportD3ChartBrick('.brick[id="{{brick_id}}"]', {
+{#            creme.setupReportD3ChartBrick('.brick[id="{{brick_id}}"]', { #}
+            creme.setupReportD3ChartBrick('.brick[id="brick-{{brick_id}}"]', {
                 charts: {
                     piechart: new creme.D3DonutChart({
                         band: 0,

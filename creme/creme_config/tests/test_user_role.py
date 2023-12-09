@@ -2361,7 +2361,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         location1 = locations[0]
         self.assertEqual(5,                            location1.order)
         self.assertEqual(ct,                           location1.content_type)
-        self.assertEqual('modelblock',                 location1.brick_id)
+        # self.assertEqual('modelblock',                 location1.brick_id)
+        self.assertEqual('model',                      location1.brick_id)
         self.assertEqual(BrickDetailviewLocation.LEFT, location1.zone)
 
         location2 = locations[1]

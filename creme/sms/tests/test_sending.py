@@ -182,7 +182,7 @@ class SendingsTestCase(CremeTestCase):
         url = reverse('sms__reload_messages_brick', args=(sending.id,))
         # self.assertGET404(url)  # No brick ID  TODO: see
 
-        response = self.assertGET200(url)  # TODO: data={'brick_id': MessagesBrick.id_}
+        response = self.assertGET200(url)  # TODO: data={'brick_id': MessagesBrick.id}
         self.assertEqual('application/json', response['Content-Type'])
 
         content = response.json()
@@ -191,7 +191,9 @@ class SendingsTestCase(CremeTestCase):
         brick_data = content[0]
         self.assertEqual(2, len(brick_data))
         self.assertEqual(MessagesBrick.id, brick_data[0])
-        self.assertIn(f' id="{MessagesBrick.id}"', brick_data[1])
+        # self.assertIn(f' id="{MessagesBrick.id}"', brick_data[1])
+        self.assertIn(f' id="brick-{MessagesBrick.id}"', brick_data[1])
+        self.assertIn(f' data-brick-id="{MessagesBrick.id}"', brick_data[1])
 
     def test_reload_sending_bricks02(self):
         "Can not see the campaign."

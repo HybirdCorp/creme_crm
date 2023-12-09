@@ -441,7 +441,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.login_as_root()
 
         ct = ContentType.objects.get_for_model(FakeContact)
-        brick_id = f'block_crudity-{ct.id}'
+        # brick_id = f'block_crudity-{ct.id}'
+        brick_id = f'regular-crudity-{ct.id}'
         response = self.assertGET200(
             reverse('crudity__reload_history_bricks'),
             data={'brick_id': brick_id},
@@ -461,7 +462,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         ct = ContentType.objects.get_for_model(FakeImage)
         self.assertGET200(
             reverse('crudity__reload_history_bricks'),
-            data={'brick_id': f'block_crudity-{ct.id}'},
+            # data={'brick_id': f'block_crudity-{ct.id}'},
+            data={'brick_id': f'regular-crudity-{ct.id}'},
         )
 
     @override_settings(
@@ -509,7 +511,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self._build_test_registry(FAKE_CRUDITY_BACKENDS)
         response = self.assertGET200(reverse('crudity__actions'))
 
-        brick_id = 'block_crudity-waiting_actions-swallow|swallow|CREATECONTACT'
+        # brick_id = 'block_crudity-waiting_actions-swallow|swallow|CREATECONTACT'
+        brick_id = 'regular-crudity-waiting_actions-swallow|swallow|CREATECONTACT'
         document = self.get_html_tree(response.content)
         self.get_brick_node(document, brick_id)
         # TODO: complete
@@ -518,7 +521,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.login_as_root()
 
         self._build_test_registry(FAKE_CRUDITY_BACKENDS)
-        brick_id = 'block_crudity-waiting_actions-swallow|swallow|CREATECONTACT'
+        # brick_id = 'block_crudity-waiting_actions-swallow|swallow|CREATECONTACT'
+        brick_id = 'regular-crudity-waiting_actions-swallow|swallow|CREATECONTACT'
         response = self.assertGET200(
             reverse('crudity__reload_actions_bricks'),
             data={'brick_id': brick_id},

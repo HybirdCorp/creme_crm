@@ -79,7 +79,8 @@ class BrickTestCase(CremeTestCase):
     def test_populate(self):
         self.assertLessEqual(
             {
-                'modelblock', CustomFieldsBrick.id, RelationsBrick.id,
+                # 'modelblock', CustomFieldsBrick.id, RelationsBrick.id,
+                'model', CustomFieldsBrick.id, RelationsBrick.id,
                 PropertiesBrick.id, HistoryBrick.id,
             },
             {loc.brick_id for loc in self._bdl_backup},
@@ -237,10 +238,11 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(1, BrickDetailviewLocation.objects.count())
 
         loc = self.get_object_or_fail(BrickDetailviewLocation, pk=loc.id)
-        self.assertEqual('modelblock', loc.brick_id)
-        self.assertEqual(model,        loc.content_type.model_class())
-        self.assertEqual(order,        loc.order)
-        self.assertEqual(zone,         loc.zone)
+        # self.assertEqual('modelblock', loc.brick_id)
+        self.assertEqual('model', loc.brick_id)
+        self.assertEqual(model,   loc.content_type.model_class())
+        self.assertEqual(order,   loc.order)
+        self.assertEqual(zone,    loc.zone)
 
     def test_detail_manager_create_for_model_brick02(self):
         "model = None."
@@ -248,7 +250,8 @@ class BrickTestCase(CremeTestCase):
             order=8, zone=BrickDetailviewLocation.BOTTOM, model=None,
         )
         self.assertEqual(1, BrickDetailviewLocation.objects.count())
-        self.assertEqual('modelblock', loc.brick_id)
+        # self.assertEqual('modelblock', loc.brick_id)
+        self.assertEqual('model', loc.brick_id)
         self.assertIsNone(loc.content_type)
 
     def test_detail_manager_create_for_model_brick03(self):
@@ -259,8 +262,9 @@ class BrickTestCase(CremeTestCase):
             order=8, zone=BrickDetailviewLocation.BOTTOM,
         )
         self.assertEqual(1, BrickDetailviewLocation.objects.count())
-        self.assertEqual('modelblock', loc.brick_id)
-        self.assertEqual(role,         loc.role)
+        # self.assertEqual('modelblock', loc.brick_id)
+        self.assertEqual('model', loc.brick_id)
+        self.assertEqual(role,    loc.role)
 
     def test_detail_manager_multi_create01(self):
         order1 = 25
@@ -300,9 +304,10 @@ class BrickTestCase(CremeTestCase):
         self.assertIsNone(loc3.content_type)
         self.assertIsNone(loc3.role)
         self.assertFalse(loc3.superuser)
-        self.assertEqual('modelblock', loc3.brick_id)
-        self.assertEqual(order3,       loc3.order)
-        self.assertEqual(zone3,        loc3.zone)
+        # self.assertEqual('modelblock', loc3.brick_id)
+        self.assertEqual('model', loc3.brick_id)
+        self.assertEqual(order3,  loc3.order)
+        self.assertEqual(zone3,   loc3.zone)
 
     def test_detail_manager_multi_create02(self):
         "<defaults> argument."
@@ -332,9 +337,10 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(ct, loc1.content_type)
         self.assertIsNone(loc2.role)
         self.assertTrue(loc2.superuser)
-        self.assertEqual('modelblock', loc2.brick_id)
-        self.assertEqual(order2,       loc2.order)
-        self.assertEqual(zone2,        loc2.zone)
+        # self.assertEqual('modelblock', loc2.brick_id)
+        self.assertEqual('model', loc2.brick_id)
+        self.assertEqual(order2,  loc2.order)
+        self.assertEqual(zone2,   loc2.zone)
 
     def test_detail_manager_multi_create03(self):
         "'brick' in <defaults> argument."

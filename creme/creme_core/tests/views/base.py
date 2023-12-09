@@ -55,27 +55,33 @@ class BrickTestCaseMixin:
     def get_brick_node(self, tree, brick):
         brick_id = getattr(brick, 'id', brick)
 
-        brick_node = tree.find(f".//div[@id='{brick_id}']")
+        # brick_node = tree.find(f".//div[@id='{brick_id}']")
+        brick_node = tree.find(f".//div[@id='brick-{brick_id}']")
         if brick_node is None:
-            self.fail(f'The brick id="{brick_id}" is not found.')
+            # self.fail(f'The brick id="{brick_id}" is not found.')
+            self.fail(f'The brick node id="brick-{brick_id}" is not found.')
 
         classes = brick_node.attrib.get('class')
         if classes is None:
             self.fail(
-                f'The brick id="{brick_id}" is not a valid brick (no "class" attribute).'
+                # f'The brick id="{brick_id}" is not a valid brick (no "class" attribute).'
+                f'The brick node id="brick-{brick_id}" is invalid (no "class" attribute).'
             )
 
         if 'brick' not in classes.split():
             self.fail(
-                f'The brick id="{brick_id}" is not a valid brick (no "brick" class).'
+                # f'The brick id="{brick_id}" is not a valid brick (no "brick" class).'
+                f'The brick node id="brick-{brick_id}" is invalid (no "brick" class).'
             )
 
         return brick_node
 
     def assertNoBrick(self, tree, brick_id):
-        if tree.find(f".//div[@id='{brick_id}']") is not None:
+        # if tree.find(f".//div[@id='{brick_id}']") is not None:
+        if tree.find(f".//div[@id='brick-{brick_id}']") is not None:
             self.fail(
-                f'The brick id="{brick_id}" has been unexpectedly found.'
+                # f'The brick id="{brick_id}" has been unexpectedly found.'
+                f'The brick node id="brick-{brick_id}" has been unexpectedly found.'
             )
 
     def assertInstanceLink(self, brick_node, entity, check_text=True):

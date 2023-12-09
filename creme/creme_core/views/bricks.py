@@ -175,7 +175,8 @@ class HomeBricksReloading(BricksReloading):
 
 
 class BrickStateSetting(generic.CheckedView):
-    brick_id_arg: str = 'id'
+    # brick_id_arg: str = 'id'
+    brick_id_arg: str = 'brick_id'
     FIELDS: list[tuple[str, str]] = [
         # MODEL FIELD         POST ARGUMENT
         ('is_open',           'is_open'),

@@ -424,7 +424,7 @@ class BrickRegistryTestCase(CremeTestCase):
             ('test-subject_loves', 'loves'),
             ('test-object_loved', 'is loved by'),
         )[0]
-        RelationBrickItem.objects.create(relation_type=rtype1)
+        rbi = RelationBrickItem.objects.create(relation_type=rtype1)
 
         create_cbci = CustomBrickConfigItem.objects.create
         cbci = create_cbci(
@@ -449,7 +449,7 @@ class BrickRegistryTestCase(CremeTestCase):
         ).register_4_model(
             FakeContact, FakeContactBrick,
         ).register_4_model(
-            FakeOrganisation, FakeOrganisationBrick
+            FakeOrganisation, FakeOrganisationBrick,
         ).register_4_instance(
             FoobarInstanceBrick1,
             FoobarInstanceBrick2,
@@ -459,28 +459,41 @@ class BrickRegistryTestCase(CremeTestCase):
 
         bricks = sorted(brick_registry.get_compatible_bricks(FakeContact), key=lambda b: b.id)
         self.assertEqual(7, len(bricks))
-        self.assertIsInstance(bricks[0], FoobarBrick1)
-        self.assertIsInstance(bricks[1], FoobarBrick2)
 
-        brick = bricks[2]
-        self.assertIsInstance(brick, CustomBrick)
-        self.assertEqual(cbci.brick_id, brick.id)
+        bricks_by_id = {brick.id: brick for brick in bricks}
+        # self.assertIsInstance(bricks[0], FoobarBrick1)
+        # self.assertIsInstance(bricks[1], FoobarBrick2)
+        self.assertIsInstance(bricks_by_id.get(FoobarBrick1.id), FoobarBrick1)
+        self.assertIsInstance(bricks_by_id.get(FoobarBrick2.id), FoobarBrick2)
 
-        brick = bricks[3]
-        self.assertIsInstance(brick, FoobarInstanceBrick1)
-        self.assertEqual(ibci1.brick_id, brick.id)
+        # brick = bricks[2]
+        # self.assertIsInstance(brick, CustomBrick)
+        # self.assertEqual(cbci.brick_id, brick.id)
+        self.assertIsInstance(bricks_by_id.get(cbci.brick_id), CustomBrick)
 
-        brick = bricks[4]
-        self.assertIsInstance(brick, FoobarInstanceBrick2)
-        self.assertEqual(ibci2.brick_id, brick.id)
+        # brick = bricks[3]
+        # self.assertIsInstance(brick, FoobarInstanceBrick1)
+        # self.assertEqual(ibci1.brick_id, brick.id)
+        self.assertIsInstance(bricks_by_id.get(ibci1.brick_id), FoobarInstanceBrick1)
 
-        brick = bricks[5]
-        self.assertIsInstance(brick, FakeContactBrick)
-        self.assertEqual((FakeContact,), brick.dependencies)
+        # brick = bricks[4]
+        # self.assertIsInstance(brick, FoobarInstanceBrick2)
+        # self.assertEqual(ibci2.brick_id, brick.id)
+        self.assertIsInstance(bricks_by_id.get(ibci2.brick_id), FoobarInstanceBrick2)
 
-        brick = bricks[6]
-        self.assertIsInstance(brick, SpecificRelationsBrick)
-        self.assertEqual((rtype1.id,), brick.relation_type_deps)
+        # brick = bricks[5]
+        # self.assertIsInstance(brick, FakeContactBrick)
+        # self.assertEqual((FakeContact,), brick.dependencies)
+        model_brick = bricks_by_id['model']
+        self.assertIsInstance(model_brick, FakeContactBrick)
+        self.assertEqual((FakeContact,), model_brick.dependencies)
+
+        # brick = bricks[6]
+        # self.assertIsInstance(brick, SpecificRelationsBrick)
+        # self.assertEqual((rtype1.id,), brick.relation_type_deps)
+        rel_brick = bricks_by_id[rbi.brick_id]
+        self.assertIsInstance(rel_brick, SpecificRelationsBrick)
+        self.assertEqual((rtype1.id,), rel_brick.relation_type_deps)
 
     def test_get_compatible_bricks02(self):
         "SpecificRelationsBrick."
@@ -713,7 +726,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertEqual(
             '''Invalid hat brick for model '''
             '''<class 'creme.creme_core.tests.fake_models.FakeContact'> '''
-            '''with id="hatbrick-creme_core-test_get_compatible_hat_bricks03_1" '''
+            '''with id="hat-creme_core-test_get_compatible_hat_bricks03_1" '''
             '''(already unregistered?)''',
             str(cm.exception),
         )

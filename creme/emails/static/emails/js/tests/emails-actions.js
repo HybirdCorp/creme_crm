@@ -46,6 +46,7 @@ QUnit.module("creme.emails.brick.actions", new QUnitMixin(QUnitEventMixin,
 
     createEmailBrickTable: function(options) {
         options = $.extend({
+            id: 'emails-test',
             classes: ['emails-email-brick'],
             columns: [
                 '<th data-table-primary-column>Id</th>',
@@ -435,7 +436,8 @@ QUnit.test('creme.emails.brick.emailsync-accept-multi', function(assert) {
     deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
-            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+//            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+            ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
         ]
     );
 });
@@ -478,7 +480,8 @@ QUnit.test('creme.emails.brick.emailsync-accept-multi (error 400)', function(ass
     deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
-            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+//            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+            ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
         ]
     );
 });
@@ -526,7 +529,8 @@ QUnit.test('creme.emails.brick.emailsync-accept-multi (partial error)', function
     deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
-            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+//            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+            ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
         ]
     );
 });
@@ -566,7 +570,8 @@ QUnit.test('creme.emails.brick.emailsync-accept-multi (link)', function(assert) 
     deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
-            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+//            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+            ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
         ]
     );
 });
@@ -795,7 +800,8 @@ QUnit.test('creme.emails.brick.emailsync-delete-multi', function(assert) {
     deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
-            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+//            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+            ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
         ]
     );
 });
@@ -838,7 +844,8 @@ QUnit.test('creme.emails.brick.emailsync-delete-multi (error 400)', function(ass
     deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
-            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+//            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+            ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
         ]
     );
 });
@@ -886,7 +893,8 @@ QUnit.test('creme.emails.brick.emailsync-delete-multi (partial error)', function
     deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
-            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+//            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+            ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
         ]
     );
 });
@@ -926,7 +934,8 @@ QUnit.test('creme.emails.brick.emailsync-delete-multi (link)', function(assert) 
     deepEqual(
         this.mockBackendUrlCalls('mock/brick/all/reload'),
         [
-            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+//            ['GET', {brick_id: ['brick-for-test'], extra_data: '{}'}]
+            ['GET', {brick_id: ['emails-test'], extra_data: '{}'}]
         ]
     );
 });
@@ -994,7 +1003,8 @@ QUnit.test('creme.emails.LinkEMailToAction', function(assert) {
     ], this.mockBackendUrlCalls('mock/emails/linkto'));
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
@@ -1075,7 +1085,8 @@ QUnit.test('creme.emails.hatmenubar.emails-hatmenubar-linkto', function(assert) 
     ], this.mockBackendUrlCalls('mock/emails/linkto'));
 
     deepEqual([
-        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
+        ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
 
