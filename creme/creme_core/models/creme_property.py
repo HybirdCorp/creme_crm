@@ -19,8 +19,8 @@
 from __future__ import annotations
 
 import logging
-import uuid
 from typing import Iterable
+from uuid import uuid4
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError, models
@@ -213,7 +213,7 @@ class CremePropertyManager(models.Manager):
 
 class CremePropertyType(CremeModel):
     # id = models.CharField(primary_key=True, max_length=100)
-    uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
+    uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
     # The label is used by the command "creme_uninstall".
     # Empty string means <type created by a user>.
     app_label = models.CharField(
