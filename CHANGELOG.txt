@@ -1,11 +1,17 @@
-== Version 2.5.3 Work in progress (not released -- this is a draft) ==
+== Version 2.5.3 ==
+
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
 
   Users side :
   ------------
      # Some issues with bad callback URLs on edition views after a bricks reloading have been fixed.
        Note: sadly, this fix makes the context of the visitor mode easier to lost ("Back" in your browser to get it back).
-     # An error 500 in the merge view, when one entity did not exist anymore, has been fixed.
-     # Fix employees & merge selection listview popup : now the entities remain filtered even with order or page change.
+     # In the merge view :
+        - There were issues with ManyToMany fields.
+        - An error 500 , when one entity did not exist anymore, has been fixed.
+     # The listview popup to select new mangers/employees & entity to merge has been fixed :
+       now the entities remain filtered even with order or page change.
      # In the theme "Chantilly" :
         - The style of messages for empty blocks was not consistent.
         - An icon "Restore" was missing.
@@ -20,14 +26,14 @@
 
     Non breaking changes :
     ----------------------
-        # Fix empty initial value of MergeField for ManyToMany fields.
-        # Fix an issue when setting an empty array to CheckListSelect widget.
-        # Add customizable reload url for EntitiesList views.
+        # An issue, when passing an empty array to CheckListSelect widget, has been fixed.
+        # A customizable reload URL has been added to EntitiesList views.
         # Many missing sizes for icon have been added (could be useful for custom apps).
         # Apps :
             * Activities :
-                - Fix an issue in the deepcopy of the property 'limit_choices_to' of ActivitySubTypeField : it was lost and the choices not filtered.
-                - Fix Activity deletion : Since the relation 'subject of activity' is internal we need to remove them before deleting.
+                - The deletion of Activity was not possible (the relationships "subject of activity" prevented it).
+                - An issue in the deepcopy of the property 'ActivitySubTypeField.limit_choices_to' has been fixed :
+                  it was lost and the choices not filtered.
             * Opportunities :
                 - Some bricks (products/services/quote..) did not accept specific columns.
 
