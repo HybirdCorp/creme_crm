@@ -605,7 +605,7 @@ def get_massimport_form_builder(header_dict, choices):
             super().__init__(*args, **kwargs)
             self.fields['my_participation'].initial = (
                 True,
-                Calendar.objects.get_default_calendar(self.user),
+                Calendar.objects.get_default_calendar(self.user).id,
             )
 
             self.user_participants = []
