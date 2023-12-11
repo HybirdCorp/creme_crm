@@ -14,6 +14,8 @@
      # Apps :
         * Assistants :
             - The UserMessages not related to an entity were not viewable.
+        * Activities :
+            - In mass-import, the Calendar selected by default was not always the default Calendar.
 
   Developers side :
   -----------------
