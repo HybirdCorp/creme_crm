@@ -89,7 +89,7 @@ class ActivitiesConfig(CremeAppConfig):
         register_model = config_registry.register_model
 
         register_model(
-            models.ActivityType, 'activity_type',
+            models.ActivityType, model_name='activity_type',
         ).brick_class(
             bricks.ActivityTypeBrick
         ).creation(
@@ -98,7 +98,7 @@ class ActivitiesConfig(CremeAppConfig):
             form_class=type_forms.ActivityTypeForm,
         )
         register_model(
-            models.ActivitySubType, 'activity_sub_type',
+            models.ActivitySubType, model_name='activity_sub_type',
         ).creation(
             form_class=type_forms.ActivitySubTypeForm,
         ).edition(
@@ -106,7 +106,9 @@ class ActivitiesConfig(CremeAppConfig):
         )
         register_model(models.Status, 'status')
         register_model(
-            models.Calendar, 'calendar'
+            models.Calendar, model_name='calendar',
+        ).brick_class(
+            bricks.CalendarsBrick
         ).creation(
             form_class=cal_forms.CalendarConfigForm,
         ).edition(

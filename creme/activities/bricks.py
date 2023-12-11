@@ -18,6 +18,7 @@
 
 from itertools import chain
 
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
@@ -215,6 +216,20 @@ class PastActivitiesBrick(_RelatedActivitiesBrick):
             return Activity.objects.past_linked_to_organisation(entity, context['today'])
         else:
             return Activity.objects.past_linked(entity, context['today'])
+
+
+class CalendarsBrick(GenericModelBrick):
+    id = QuerysetBrick.generate_id('activities', 'calendars_config')
+    dependencies = (Calendar,)
+    template_name = 'activities/bricks/calendars.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            get_user_model().objects.prefetch_related('calendar_set'),
+            model_config=self.model_config,
+            calendars_count=Calendar.objects.count(),
+        ))
 
 
 class UserCalendarsBrick(QuerysetBrick):
