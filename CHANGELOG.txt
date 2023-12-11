@@ -12,11 +12,16 @@
         * Creme_config :
             - The bricks configuration of a role can be cloned from the configuration of another role.
         * Activities :
-            - Upgrade to FullCalendar "5.11.4":
+            - The JavaScript component FullCalendar has been upgraded to the version "5.11.4" :
                 - New calendar look-n-feel.
-                - Week/month view change are now in browsing history and refresh will stay on the same view.
-                - Forbid collisions between events from the same creme calendar.
-            - New configuration mechanism for calendar view per role.
+                - Week/month view changes are now in browsing history ; after a refreshing you will stay on the same view.
+                - Collisions between events from the same calendar are forbidden.
+            - A configuration system for the calendar view has been added :
+                - Default view can be "month" or "week".
+                - Which days are active.
+                - What hour range to use.
+                - ...
+            - The configuration block for Calendars has been improved.
         * Reports :
             - The date fields of referenced models can be used for temporal filtering in the Reports
               (e.g. in a report on Contacts, Photograph's fields are available).

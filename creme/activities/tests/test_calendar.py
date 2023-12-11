@@ -25,8 +25,10 @@ from creme.creme_core.models import (
     SetCredentials,
 )
 from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from .. import constants, get_activity_model
+from ..bricks import CalendarsBrick
 from ..management.commands.activities_create_default_calendars import (
     Command as CalCommand,
 )
@@ -239,7 +241,7 @@ class CalendarManagerTestCase(_ActivitiesTestCase):
         self.assertFalse(self.refresh(cal2).is_default)
 
 
-class CalendarTestCase(_ActivitiesTestCase):
+class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     ADD_URL = reverse('activities__create_calendar')
     CONF_ADD_URL = reverse('creme_config__create_instance', args=('activities', 'calendar'))
     CALENDAR_URL = reverse('activities__calendar')
@@ -1454,8 +1456,13 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.login_as_super()
 
         self.assertGET200(reverse('creme_config__app_portal', args=('activities',)))
-        self.assertGET200(reverse('creme_config__model_portal', args=('activities', 'calendar')))
 
+        cal_portal = self.assertGET200(
+            reverse('creme_config__model_portal', args=('activities', 'calendar'))
+        )
+        self.get_brick_node(self.get_html_tree(cal_portal.content), brick=CalendarsBrick)
+
+        # ---
         url = self.CONF_ADD_URL
         self.assertGET200(url)
 

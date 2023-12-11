@@ -1,0 +1,46 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_bricks creme_config_tags %}
+{% load print_field from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} activities-calendars-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Calendar') plural=_('{count} Calendars') count=calendars_count icon='calendar' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% config_model_creation_url model_config=model_config user=user as creation_url %}
+    {% if creation_url %}{% brick_header_action id='add' url=creation_url label=model.creation_label %}{% endif %}
+{% endblock %}
+
+{% block brick_content %}
+  {% for user in page.object_list %}
+    <div class="brick-list-item calendar-config">
+        <div class="calendar-config-group calendar-config-summary-group">
+            <div class="calendar-config-group-title">{{user}}</div>
+{#            <div class="calendar-config-group-action">TODO: create a calendar for a given user</div> #}
+        </div>
+        <div class="calendar-config-group brick-table">
+            <table class="brick-table-content">
+                <tbody>
+                  {% for calendar in user.calendar_set.all %}
+                    <tr>
+                        <td class="calendar-config-name">{{calendar.name}} {% if calendar.is_default %}<span class="calendar-config-default">{% translate 'Default calendar' %}</span>{% endif %}</td>
+                        <td class="calendar-config-is_public">{% if calendar.is_public %}{% translate 'Public' %}{% else %}{% translate 'Private' %}{% endif %}</td>
+                        <td class="calendar-config-color">{% print_field object=calendar field='color'%}</td>
+                        <td {% brick_table_data_status action %}>
+                            {% config_model_edition_url model_config=model_config instance=calendar user=user as edit_url %}
+                            {% if edit_url %}{% brick_table_action id='edit' url=edit_url %}{% endif %}
+                        </td>
+                        <td {% brick_table_data_status action %}>
+                            {% config_model_deletion_url model_config=model_config instance=calendar user=user as delete_url %}
+                            {% if delete_url %}{% brick_table_action id='edit' url=delete_url enabled=calendar|config_is_custom icon='delete' label=_('Delete') %}{% endif %}
+                        </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  {% endfor %}
+{% endblock %}

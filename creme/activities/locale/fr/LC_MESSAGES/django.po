@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-16 15:48+0100\n"
+"POT-Creation-Date: 2023-12-11 21:31+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -792,6 +792,26 @@ msgid "No configuration for the moment"
 msgstr "Aucune configuration pour le moment"
 
 #, python-brace-format
+msgid "{count} Calendar"
+msgstr "{count} Calendrier"
+
+#, python-brace-format
+msgid "{count} Calendars"
+msgstr "{count} Calendriers"
+
+msgid "Default calendar"
+msgstr "Calendrier par défaut"
+
+msgid "Public"
+msgstr "Public"
+
+msgid "Private"
+msgstr "Privé"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+#, python-brace-format
 msgid "{count} Future activity for me"
 msgstr "{count} Activité future pour moi"
 
@@ -879,14 +899,6 @@ msgstr "Délier les sujets"
 
 msgid "No subject for the moment"
 msgstr "Aucun sujet enregistré pour le moment"
-
-#, python-brace-format
-msgid "{count} Calendar"
-msgstr "{count} Calendrier"
-
-#, python-brace-format
-msgid "{count} Calendars"
-msgstr "{count} Calendriers"
 
 msgid "New calendar"
 msgstr "Nouveau calendrier"
@@ -1146,9 +1158,6 @@ msgstr "Créer une configuration de calendrier pour un rôle"
 
 #~ msgid "Edit"
 #~ msgstr "Modifier"
-
-#~ msgid "Delete"
-#~ msgstr "Supprimer"
 
 #~ msgid "Edit calendar"
 #~ msgstr "Modifier calendrier"
