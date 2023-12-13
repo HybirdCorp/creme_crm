@@ -204,7 +204,11 @@ END:VEVENT
         )
 
     def _pre_delete(self):
-        for relation in self.relations.filter(type=REL_OBJ_PART_2_ACTIVITY):
+        relations = self.relations.filter(
+            type__in=(REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT)
+        )
+
+        for relation in relations:
             relation._delete_without_transaction()
 
 
