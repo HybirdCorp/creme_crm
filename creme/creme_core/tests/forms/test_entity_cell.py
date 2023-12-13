@@ -503,7 +503,8 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
         self.assertCellNotInChoices('regular_field-entity_type', choices=choices)
         self.assertCellInChoices('regular_field-user',           choices=choices)
         self.assertCellInChoices('regular_field-user__username', choices=choices)
-        self.assertCellNotInChoices('regular_field-user__role',  choices=choices)
+        # self.assertCellNotInChoices('regular_field-user__role',  choices=choices)
+        self.assertCellNotInChoices('regular_field-user__is_staff', choices=choices)
 
         self.assertListEqual(
             [EntityCellRegularField.build(CremeEntity, fname1)],
