@@ -1,6 +1,11 @@
 == Version 2.5.4 Work in progress (not released -- this is a draft) ==
 
 
+  Users side :
+  ------------
+     # Some icons in theme 'icecream' were accidentally passed in greyscale mode with the release <2.5.3>.
+
+
 == Version 2.5.3 ==
 
   UPGRADE NOTE :
