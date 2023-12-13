@@ -975,6 +975,8 @@ class EntitiesToMergeSelection(base.EntityRelatedMixin,
     mode = listview.SelectionMode.SINGLE
     entity1_id_arg = 'id1'
 
+    reload_url_name = 'creme_core__select_entity_for_merge'
+
     def check_related_entity_permissions(self, entity, user):
         self.get_merge_form_class(type(entity))  # NB: can raise exception
 
@@ -983,6 +985,11 @@ class EntitiesToMergeSelection(base.EntityRelatedMixin,
 
     def get_related_entity_id(self):
         return get_from_GET_or_404(self.request.GET, self.entity1_id_arg, cast=int)
+
+    def get_reload_url(self):
+        return super().get_reload_url() + (
+            f'?{self.entity1_id_arg}={self.get_related_entity_id()}'
+        )
 
     @property
     def model(self):
@@ -1050,8 +1057,11 @@ class Merge(MergeFormMixin, generic.CremeFormView):
             try:
                 entity1 = entities_per_id[entity1_id]
                 entity2 = entities_per_id[entity2_id]
-            except IndexError as e:
-                raise Http404(f'Entity not found: {e}') from e
+            except KeyError as e:
+                raise Http404(gettext(
+                    'One entity you want to merge does not exist anymore '
+                    '(have you already performed the merge?)'
+                )) from e
 
             if entity1.entity_type_id != entity2.entity_type_id:
                 raise ConflictError('You can not merge entities of different types.')

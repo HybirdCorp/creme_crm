@@ -1,3 +1,5 @@
+from functools import partial
+
 from django.conf import settings
 from django.core import mail
 from django.core.mail.backends.locmem import EmailBackend
@@ -206,8 +208,10 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         priority = UserMessagePriority.objects.first()
 
         entity1 = self.entity
-        entity2 = FakeOrganisation.objects.create(user=user, name='Acme')
-        # TODO: deleted entity
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        entity2 = create_orga(name='Acme')
+        del_entity = create_orga(name='Deleted', is_deleted=True)
 
         def create_message(entity, title):
             return UserMessage.objects.create(
@@ -225,6 +229,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         msg1 = create_message(entity1, 'Recall')
         msg2 = create_message(entity1, "It's important")
         msg3 = create_message(entity2, 'Other message')
+        msg4 = create_message(del_entity, 'Should not be visible')
+        msg5 = create_message(None, 'Only on home')
 
         UserMessagesBrick.page_size = max(4, settings.BLOCK_SIZE)
 
@@ -247,6 +253,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertTrue(message_found(detail_brick_node, msg1))
         self.assertTrue(message_found(detail_brick_node, msg2))
         self.assertFalse(message_found(detail_brick_node, msg3))
+        self.assertFalse(message_found(detail_brick_node, msg4))
+        self.assertFalse(message_found(detail_brick_node, msg5))
 
         # ---
         BrickHomeLocation.objects.get_or_create(
@@ -264,6 +272,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertTrue(message_found(home_brick_node, msg3))
         self.assertInstanceLink(home_brick_node, entity1)
         self.assertInstanceLink(home_brick_node, entity2)
+        self.assertFalse(message_found(home_brick_node, msg4))
+        self.assertTrue(message_found(home_brick_node, msg5))
 
     def test_delete_related01(self):
         priority = UserMessagePriority.objects.create(title='Important')
