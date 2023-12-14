@@ -1,3 +1,16 @@
+== Version 2.3.17 ==
+
+  Users side :
+  ------------
+     # In the merge view :
+        - There were issues with ManyToMany fields.
+        - An error 500, when one entity did not exist anymore, has been fixed.
+     # In the theme "Chantilly", an icon "Restore" was missing.
+     # Apps :
+        * Assistants :
+            - The UserMessages not related to an entity were not viewable.
+
+
 == Version 2.3.16 ==
 
   Users side :
