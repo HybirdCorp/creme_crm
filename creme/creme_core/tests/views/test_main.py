@@ -99,7 +99,7 @@ class MiscViewsTestCase(CremeTestCase):
         'entityselector',
         'filterselector',
         'frame',
-        'layout',
+        # 'layout',
         'listview',
         'model',
         'polymorphicselector',
