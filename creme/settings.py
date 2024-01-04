@@ -903,7 +903,7 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/pselect.js',
     'creme_core/js/widgets/actionlist.js',
     # 'creme_core/js/widgets/scrollactivator.js',
-    'creme_core/js/widgets/container.js',
+    # 'creme_core/js/widgets/container.js',
     'creme_core/js/widgets/editor.js',
 
     'creme_core/js/menu.js',

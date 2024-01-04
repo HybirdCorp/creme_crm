@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,14 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-/* globals BrowserVersion */
 (function($) {
 "use strict";
 
 creme.layout = creme.layout || {};
 
-/* istanbul ignore next : already supported by any recent browsers */
-/* TODO : remove layout tools */
+/*
 creme.layout.LayoutResizeSensor = creme.component.Component.sub({
     _OVERFLOW_EVENT:  'OverflowEvent' in window ? 'overflowchanged' : 'overflow',
     _UNDERFLOW_EVENT: 'OverflowEvent' in window ? 'overflowchanged' : 'underflow',
@@ -148,6 +146,12 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
         });
     }
 });
+*/
+
+/* Component size change detection is already supported by any recent browsers with ResizeObserver
+ * (see https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver/ResizeObserver)
+ * TODO : Refactor Frame and deprecate this part.
+ */
 
 creme.layout.preferredSize = function(element, depth) {
     depth = depth || 1;
