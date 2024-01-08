@@ -4,6 +4,7 @@
   Users side :
   ------------
      # Some icons in theme 'icecream' were accidentally passed in greyscale mode with the release <2.5.3>.
+     # The style of very long menu entries has been improved.
 
 
 == Version 2.5.3 ==
