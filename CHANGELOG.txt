@@ -1,5 +1,12 @@
 == Version 2.3.18 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+     # Apps :
+        * Activities :
+            - An icon was missing in the theme "chantilly" ('images/meeting_48.png').
+
+
 == Version 2.3.17 ==
 
   Users side :
