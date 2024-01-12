@@ -64,9 +64,10 @@
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' is now deprecated.
                     - The class-view 'views.contact.ContactNamesEdition' is now deprecated.
-        # In the class 'core.setting_key.SettingKey', you can now pass :
+        # In the class 'creme_core.core.setting_key.SettingKey', you can now pass :
              - a custom form-field class.
              - a custom renderer function.
+        # In the class 'creme_core.gui.bricks._BrickRegistry', 3 methods to unregister brick classes have been added.
         # Apps :
             * Activities:
                 - The models 'ActivityType' & 'ActivitySubType' now inherit 'creme_core.models.MinionModel' (see <Breaking changes> part too).

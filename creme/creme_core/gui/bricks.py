@@ -713,6 +713,9 @@ class _BrickRegistry:
     class RegistrationError(Exception):
         pass
 
+    class UnRegistrationError(RegistrationError):
+        pass
+
     def __init__(self):
         self._brick_classes: dict[str, type[Brick]] = {}
         self._hat_brick_classes: \
@@ -749,6 +752,7 @@ class _BrickRegistry:
         return self
 
     # TODO: factorise
+    # TODO: def unregister_4_instance()?
     def register_4_instance(self, *brick_classes: type[InstanceBrick]) -> _BrickRegistry:
         setdefault = self._instance_brick_classes.setdefault
 
@@ -852,6 +856,53 @@ class _BrickRegistry:
                 raise self.RegistrationError(f"Duplicated hat brick's ID: {brick_id}")
 
             brick_classes[brick_id] = brick_cls
+
+        return self
+
+    def unregister(self, *brick_classes: type[Brick]) -> _BrickRegistry:
+        for brick_cls in brick_classes:
+            brick_id = brick_cls.id
+
+            if not brick_id:
+                raise self.UnRegistrationError(f'Brick class with empty ID: {brick_cls}')
+
+            if self._brick_classes.pop(brick_id, None) is None:
+                raise self.UnRegistrationError(
+                    f'Brick class with invalid ID (already unregistered?): {brick_cls}',
+                )
+
+        return self
+
+    def unregister_4_model(self, model: type[CremeEntity]) -> _BrickRegistry:
+        if self._object_brick_classes.pop(model, None) is None:
+            raise self.UnRegistrationError(
+                f"Invalid Brick for model {model} (already unregistered?)"
+            )
+
+        return self
+
+    def unregister_hat(self, model: type[CremeEntity],
+                       main_brick: bool = False,
+                       secondary_brick_classes: Iterable[type[Brick]] = (),
+                       ) -> _BrickRegistry:
+        brick_classes = self._hat_brick_classes[model]
+
+        if main_brick:
+            if brick_classes.pop('', None) is None:
+                raise self.UnRegistrationError(
+                    f"Invalid main hat brick for model {model} (already unregistered?)",
+                )
+
+        for brick_cls in secondary_brick_classes:
+            assert issubclass(brick_cls, Brick)
+
+            brick_id = brick_cls.id
+
+            if brick_classes.pop(brick_id, None) is None:
+                raise self.UnRegistrationError(
+                    f'Invalid hat brick for model {model} with id="{brick_id}" '
+                    f'(already unregistered?)',
+                )
 
         return self
 
