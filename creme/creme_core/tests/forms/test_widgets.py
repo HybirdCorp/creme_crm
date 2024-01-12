@@ -46,7 +46,7 @@ class CalendarWidgetTestCase(CremeTestCase):
         name = 'test_calendar'
         value = self.formfield_value_date(2022, 2, 25)
         # help_text = _('Format: Day-Month-Year (Ex:31-12-2022)')
-        help_text = _('E.g. {}').format('2023-12-31')
+        help_text = _('E.g. {}').format('2024-12-31')
         self.assertHTMLEqual(
             f'<div class="creme-datepicker">'
             f'  <div class="help-text-format">{help_text}</div>'
@@ -62,7 +62,7 @@ class CalendarWidgetTestCase(CremeTestCase):
         "Other format, value, name..."
         name = 'my_calendar'
         value = self.formfield_value_date(2023, 3, 26)
-        help_text = _('E.g. {}').format('31/12/2023')
+        help_text = _('E.g. {}').format('31/12/2024')
         self.assertHTMLEqual(
             f'<div class="creme-datepicker">'
             f'  <div class="help-text-format">{help_text}</div>'
@@ -78,7 +78,7 @@ class CalendarWidgetTestCase(CremeTestCase):
     def test_render_l10n_en(self):
         name = 'my_calendar'
         value = self.formfield_value_date(2023, 3, 26)
-        help_text = _('E.g. {}').format('2023-12-31')
+        help_text = _('E.g. {}').format('2024-12-31')
         self.assertHTMLEqual(
             f'<div class="creme-datepicker">'
             f'  <div class="help-text-format">{help_text}</div>'
@@ -94,7 +94,7 @@ class CalendarWidgetTestCase(CremeTestCase):
     def test_render_l10n_fr(self):
         name = 'calendar'
         value = self.formfield_value_date(2024, 4, 27)
-        help_text = _('E.g. {}').format('31/12/2023')
+        help_text = _('E.g. {}').format('31/12/2024')
         self.assertHTMLEqual(
             f'<div class="creme-datepicker">'
             f'  <div class="help-text-format">{help_text}</div>'
@@ -516,10 +516,10 @@ class DynamicSelectTestCase(CremeTestCase):
         )
 
     def test_render(self):
-        select = DynamicSelect(options=[(1, 'A'), (2, 'B')])
+        select = DynamicSelect(options=[(1, 'A'), (2, 'B')], avoid_empty=True)
         self.assertHTMLEqual(
             '<select class="ui-creme-input ui-creme-widget widget-auto ui-creme-dselect" '
-            ' name="test" url="" widget="ui-creme-dselect">'
+            ' name="test" url="" widget="ui-creme-dselect" data-no-empty="1">'
             '  <option value="1">A</option>'
             '  <option value="2" selected>B</option>'
             '</select>',

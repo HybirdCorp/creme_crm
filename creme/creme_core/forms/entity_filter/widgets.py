@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 from collections import OrderedDict, defaultdict
+from functools import partial
 from json import dumps as json_dump
 
 from django.contrib.auth import get_user_model
@@ -36,10 +37,18 @@ from creme.creme_core.core.entity_filter import (
     operators,
 )
 from creme.creme_core.core.field_tags import FieldTag
+from creme.creme_core.enumerators import CustomFieldEnumerator
 from creme.creme_core.models import CremeEntity, CustomField
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.utils.url import TemplateURLBuilder
+from creme.creme_core.views.entity_filter import EntityFilterUserEnumerator
 
+from ..enumerable import (
+    EnumerableChoiceSet,
+    EnumerableSelect,
+    EnumerableSelectMultiple,
+    FieldEnumerableChoiceSet,
+)
 from ..widgets import (
     ChainedInput,
     DateRangeSelect,
@@ -70,6 +79,57 @@ _HAS_RELATION_OPTIONS = OrderedDict([
 ])
 
 
+class UserEnumerableSelect(EnumerableSelect):
+    is_required = True
+
+    def __init__(self, field, filter_type=EF_USER, attrs=None):
+        user_ctype = ContentType.objects.get_for_model(field.model)
+        user_choices_url = reverse(
+            'creme_core__efilter_user_choices', args=(user_ctype.id, field.name)
+        )
+
+        super().__init__(
+            enumerable=EnumerableChoiceSet(
+                empty_label=None,
+                enumerator=EntityFilterUserEnumerator(
+                    field=field,
+                    filter_type=filter_type,
+                ),
+                url=f'{user_choices_url}?filter_type={filter_type}'
+            ),
+            attrs=attrs,
+        )
+
+
+class FieldEnumerableSelect(EnumerableSelectMultiple):
+    is_required = True
+
+    def __init__(self, field, attrs=None):
+        super().__init__(
+            enumerable=FieldEnumerableChoiceSet(
+                field=field,
+                empty_label=None,
+            ),
+            attrs=attrs,
+        )
+
+
+class CustomFieldEnumerableSelect(EnumerableSelectMultiple):
+    is_required = True
+
+    def __init__(self, custom_field, attrs=None):
+        custom_choices_url = reverse('creme_core__cfield_enums', args=(custom_field.id,))
+
+        super().__init__(
+            enumerable=EnumerableChoiceSet(
+                empty_label=None,
+                enumerator=CustomFieldEnumerator(custom_field=custom_field),
+                url=custom_choices_url,
+            ),
+            attrs=attrs,
+        )
+
+
 class FieldConditionSelector(ChainedInput):
     def __init__(
             self,
@@ -88,44 +148,68 @@ class FieldConditionSelector(ChainedInput):
 
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(
-            key='${field.type}.${operator.id}',
+            key='${field.type}.${operator.id}.${field.name}',
             attrs={'auto': False},
         )
 
         EQUALS_OPS = f'{operators.EQUALS}|{operators.EQUALS_NOT}'
         add_input = pinput.add_input
+
+        # json datatype will consider pk strings as an invalid value and replaced
+        # by "null"
+        enum_field_attrs = {**field_attrs, 'datatype': 'string'}
+
+        def is_enumerable_field(field):
+            return isinstance(field, ModelRelatedField) and (
+                not issubclass(field.remote_field.model, (CremeEntity, get_user_model()))
+                and field.get_tag(FieldTag.ENUMERABLE)
+            )
+
+        def is_choices_field(field):
+            return not isinstance(field, ModelRelatedField) and field.choices
+
+        for field_info in self.fields:
+            name, model_fields = field_info
+            field = model_fields[-1]
+
+            if is_enumerable_field(field):
+                add_input(
+                    f'^enum(__null)?.({EQUALS_OPS}).{name}$',
+                    widget=FieldEnumerableSelect, attrs=enum_field_attrs,
+                    field=field,
+                )
+            elif is_choices_field(field):
+                add_input(
+                    f'^choices(__null)?.({EQUALS_OPS}).{name}$',
+                    widget=DynamicSelectMultiple, attrs=enum_field_attrs,
+                    options=field.choices,
+                )
+
+        user_field = self.model._meta.get_field('user')
+
         add_input(
-            f'^enum(__null)?.({EQUALS_OPS})$',
-            widget=DynamicSelectMultiple, attrs=field_attrs,
-            # TODO: use a GET arg instead of using a TemplateURLBuilder ?
-            # TODO: remove "field.ctype" ?
-            url=TemplateURLBuilder(
-                field=(TemplateURLBuilder.Word, '${field.name}'),
-            ).resolve(
-                'creme_core__enumerable_choices',
-                kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id},
-            ),
+            f'^user(__null)?.({EQUALS_OPS}).*$',
+            widget=UserEnumerableSelect, attrs={
+                **field_attrs,
+                # json datatype will consider __operand__ as an invalid value
+                # and replaced by "null"
+                'datatype': 'string',
+            },
+            field=user_field,
+            filter_type=self.filter_type
         )
 
-        pinput.add_dselect(
-            f'^user(__null)?.({EQUALS_OPS})$',
-            '{}?filter_type={}'.format(
-                reverse('creme_core__efilter_user_choices'),
-                self.filter_type,
-            ),
-            attrs=field_attrs,
-        )
         add_input(
-            f'^fk(__null)?.({EQUALS_OPS})$',
+            f'^fk(__null)?.({EQUALS_OPS}).*$',
             widget=EntitySelector, attrs={'auto': False},
             content_type='${field.ctype}',
         )
         add_input(
-            f'^date(__null)?.{operators.RANGE}$',
+            f'^date(__null)?.{operators.RANGE}.*$',
             widget=NullableDateRangeSelect, attrs={'auto': False},
         )
         add_input(
-            f'^date(__null)?.({EQUALS_OPS})$',
+            f'^date(__null)?.({EQUALS_OPS}).*$',
             widget=DynamicInput, type='date', attrs={'auto': False},
         )
         add_input(
@@ -133,7 +217,7 @@ class FieldConditionSelector(ChainedInput):
             options=_BOOL_OPTIONS, attrs=field_attrs,
         )
         add_input(
-            f'(string|.*__null).({operators.ISEMPTY})$',
+            f'(string|.*__null).({operators.ISEMPTY}).*$',
             widget=DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
         )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
@@ -208,6 +292,9 @@ class FieldConditionSelector(ChainedInput):
 
             return 'fk' + isnull
 
+        if field.choices is not None:
+            return 'choices' + isnull
+
         if isinstance(field, ModelDateField):
             return 'date' + isnull
 
@@ -223,6 +310,7 @@ class FieldConditionSelector(ChainedInput):
         return 'string'
 
     def get_context(self, name, value, attrs):
+        # TODO : the default datatype should be "json" only for JSONField.
         field_attrs = {'auto': False, 'datatype': 'json'}
 
         if self.autocomplete:
@@ -233,6 +321,7 @@ class FieldConditionSelector(ChainedInput):
             'field',
             options=self._build_fieldchoices(self.fields),
             attrs=field_attrs,
+            avoid_empty=True,
         )
         add_dselect(
             'operator',
@@ -244,6 +333,7 @@ class FieldConditionSelector(ChainedInput):
                           'true',
                 'dependencies': 'field',
             },
+            avoid_empty=True,
         )
         self.add_input('value', self._build_valueinput(field_attrs), attrs=attrs)
 
@@ -375,18 +465,27 @@ class CustomFieldConditionSelector(FieldConditionSelector):
         return '', (json_dump(choice_value), choice_label)
 
     def _build_valueinput(self, field_attrs):
-        pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
-        pinput.add_input(
-            f'^enum(__null)?.({operators.EQUALS}|{operators.EQUALS_NOT})$',
-            widget=DynamicSelectMultiple,
-            # TODO: use a GET arg instead of using a TemplateURLBuilder ?
-            url=TemplateURLBuilder(
-                cf_id=(TemplateURLBuilder.Int, '${field.id}'),
-            ).resolve('creme_core__cfield_enums'),
-            attrs=field_attrs,
+        pinput = PolymorphicInput(
+            key='${field.type}.${operator.id}.${field.id}',
+            attrs={'auto': False}
         )
+
+        def is_enumerable_custom_field(field):
+            return field.field_type in (CustomField.ENUM, CustomField.MULTI_ENUM)
+
+        for field_info in self.fields:
+            field_id, field = field_info
+
+            if is_enumerable_custom_field(field):
+                pinput.add_input(
+                    f'^enum(__null)?.({operators.EQUALS}|{operators.EQUALS_NOT}).{field_id}$',
+                    widget=CustomFieldEnumerableSelect,
+                    custom_field=field,
+                    attrs=field_attrs,
+                )
+
         pinput.add_input(
-            f'^date(__null)?.{operators.RANGE}$',
+            f'^date(__null)?.{operators.RANGE}.*$',
             NullableDateRangeSelect, attrs={'auto': False},
         )
         pinput.add_input(
@@ -394,7 +493,7 @@ class CustomFieldConditionSelector(FieldConditionSelector):
             DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
         )
         pinput.add_input(
-            f'(string|.*__null)?.({operators.ISEMPTY})$',
+            f'(string|.*__null)?.({operators.ISEMPTY}).*$',
             DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
         )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
@@ -469,7 +568,7 @@ class DateCustomFieldsConditionsWidget(ConditionListWidget):
         chained_input = ChainedInput()
         sub_attrs = {'auto': False}
 
-        chained_input.add_dselect('field', options=options, attrs=sub_attrs)
+        chained_input.add_dselect('field', options=options, attrs=sub_attrs, avoid_empty=True)
         chained_input.add_input('range', NullableDateRangeSelect, attrs=sub_attrs)
 
         return chained_input
@@ -508,7 +607,10 @@ class RelationsConditionsWidget(ConditionListWidget):
             rtype_id=(TemplateURLBuilder.Word, '${%s}' % rtype_name),
         ).resolve('creme_core__ctypes_compatible_with_rtype_as_choices')
 
-        add_dselect = chained_input.add_dselect
+        add_dselect = partial(
+            chained_input.add_dselect,
+            avoid_empty=True,
+        )
         add_dselect('has', options=_HAS_RELATION_OPTIONS.items(), attrs=attrs_json)
         add_dselect(rtype_name, options=rtypes, attrs={'auto': False, 'autocomplete': True})
         add_dselect('ctype', options=ctype_url, attrs={**attrs_json, 'autocomplete': True})
@@ -540,7 +642,7 @@ class RelationSubfiltersConditionsWidget(ConditionListWidget):
         rtype_name = 'rtype'
         ctype_name = 'ctype'
 
-        add_dselect = chained_input.add_dselect
+        add_dselect = partial(chained_input.add_dselect, avoid_empty=True)
         add_dselect('has', options=_HAS_RELATION_OPTIONS.items(), attrs=attrs_json)
         add_dselect(rtype_name, options=rtypes, attrs={'auto': False, 'autocomplete': True})
         add_dselect(
@@ -581,7 +683,12 @@ class PropertiesConditionsWidget(ConditionListWidget):
             'has',
             options=_HAS_PROPERTY_OPTIONS.items(),
             attrs={'auto': False, 'datatype': 'json'},
+            avoid_empty=True,
         )
-        add_dselect('ptype', options=ptypes, attrs={'auto': False})
+        add_dselect(
+            'ptype',
+            options=ptypes, attrs={'auto': False},
+            avoid_empty=True,
+        )
 
         return chained_input

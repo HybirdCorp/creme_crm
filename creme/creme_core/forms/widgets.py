@@ -187,13 +187,25 @@ class EnhancedSelectOptions:
 
 class DynamicSelect(EnhancedSelectOptions, widgets.Select):
     template_name = 'creme_core/forms/widgets/dyn-select.html'
+    avoid_empty = False
 
-    def __init__(self, attrs=None, options=None, url='', label=None):
+    def __init__(self, attrs=None, options=None, url='', label=None, avoid_empty=None):
+        """Constructor.
+            @param attrs: HTML attributes that will be rendered.
+            @param options: Select choices.
+            @param url: Optional url used by the client-side widget to get options.
+            @param label: Optional <label> for the <select> tag.
+            @param avoid_empty: If true, allows the client-side widget to select
+               the first option as default. Useful to set chained selects into a stable state.
+               e.g: The select "B" url pattern has a dependency to the select "A":
+                    if "A" value is not set, "B" won't work.
+        """
         super().__init__(attrs, ())  # TODO: options or ()
         self.url = url
         self.label = label
         self.from_python = None
         self.choices = options
+        self.avoid_empty = self.avoid_empty if avoid_empty is None else avoid_empty
 
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-dselect'
@@ -215,6 +227,9 @@ class DynamicSelect(EnhancedSelectOptions, widgets.Select):
         ).strip()
         final_attrs['widget'] = widget_type  # TODO: 'data-[creme-]widget'
         final_attrs['url'] = self.url  # TODO 'data-url' + only if value is set?
+
+        if self.avoid_empty:
+            final_attrs['data-no-empty'] = '1'
 
         return context
 
@@ -679,7 +694,12 @@ class CTEntitySelector(ChainedInput):
         if self.autocomplete:
             field_attrs['autocomplete'] = True
 
-        self.add_dselect('ctype', options=self.content_types, attrs=field_attrs)
+        self.add_dselect(
+            'ctype',
+            options=self.content_types,
+            attrs=field_attrs,
+            avoid_empty=True,
+        )
 
         multiple = self.multiple
         selector = EntitySelector(
@@ -753,9 +773,13 @@ class RelationSelector(ChainedInput):
 
         self.add_dselect(
             'rtype', options=self.relation_types, attrs=dselect_attrs,
+            avoid_empty=True,
         )
         self.add_dselect(
-            'ctype', options=self.content_types or self._build_ctypes_url(), attrs=dselect_attrs,
+            'ctype',
+            options=self.content_types or self._build_ctypes_url(),
+            attrs=dselect_attrs,
+            avoid_empty=True,
         )
         self.add_input(
             'entity', widget=EntitySelector, attrs={'auto': False, 'multiple': self.multiple},
@@ -921,6 +945,7 @@ class FilteredEntityTypeWidget(ChainedInput):
         add_dselect = partial(
             self.add_dselect,
             attrs={'auto': False, 'autocomplete': self.autocomplete},
+            avoid_empty=True,
         )
         ctype_name = 'ctype'
         add_dselect(ctype_name, options=self.content_types)
