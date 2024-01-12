@@ -1,3 +1,6 @@
+== Version 2.4.12 Work in progress (not released -- this is a draft) ==
+
+
 == Version 2.4.11 ==
 
   UPGRADE NOTE :
