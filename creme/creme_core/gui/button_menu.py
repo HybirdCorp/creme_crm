@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -104,13 +104,13 @@ class ButtonsRegistry:
     class RegistrationError(Exception):
         pass
 
+    class UnRegistrationError(RegistrationError):
+        pass
+
     def __init__(self):
         self._button_classes: dict[str, type[Button]] = {}
 
     def register(self, *button_classes: type[Button]) -> ButtonsRegistry:
-        """
-        @type button_classes: creme_core.gui.menu_buttons.Button child classes.
-        """
         setdefault = self._button_classes.setdefault
 
         for button_cls in button_classes:
@@ -134,6 +134,22 @@ class ButtonsRegistry:
                     button_cls,
                 )
                 continue
+
+        return self
+
+    def unregister(self, *button_classes: type[Button]) -> ButtonsRegistry:
+        for button_cls in button_classes:
+            button_id = button_cls.id
+
+            if not button_id:
+                raise self.UnRegistrationError(
+                    f'Button class with empty ID: {button_cls}'
+                )
+
+            if self._button_classes.pop(button_id, None) is None:
+                raise self.UnRegistrationError(
+                    f'Button class with invalid ID (already unregistered?): {button_cls}'
+                )
 
         return self
 
