@@ -135,6 +135,52 @@ class BrickRegistryTestCase(CremeTestCase):
             f"Brick class with empty ID: {FoobarBrick}", str(cm.exception),
         )
 
+    def test_unregister(self):
+        class FoobarBrick(Brick):
+            verbose_name = 'Testing purpose'
+
+            def detailview_display(self, context):
+                return self._render(self.get_template_context(context))
+
+        class FoobarBrick1(FoobarBrick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_1')
+
+        class FoobarBrick2(FoobarBrick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_2')
+
+        class FoobarBrick3(FoobarBrick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_3')
+
+        brick_registry = _BrickRegistry().register(FoobarBrick1, FoobarBrick2, FoobarBrick3)
+        brick_registry.unregister(FoobarBrick1, FoobarBrick3)
+        self.assertEqual(FoobarBrick2, brick_registry[FoobarBrick2.id])
+
+        with self.assertRaises(KeyError):
+            brick_registry[FoobarBrick1.id]  # NOQA
+        with self.assertRaises(KeyError):
+            brick_registry[FoobarBrick3.id]  # NOQA
+
+        # ---
+        class FoobarBrick4(FoobarBrick):
+            pass
+
+        with self.assertRaises(brick_registry.UnRegistrationError) as cm1:
+            brick_registry.unregister(FoobarBrick4)
+
+        self.assertEqual(
+            f'Brick class with empty ID: {FoobarBrick4}',
+            str(cm1.exception),
+        )
+
+        # ---
+        with self.assertRaises(brick_registry.UnRegistrationError) as cm1:
+            brick_registry.unregister(FoobarBrick2, FoobarBrick1)
+
+        self.assertEqual(
+            f'Brick class with invalid ID (already unregistered?): {FoobarBrick1}',
+            str(cm1.exception)
+        )
+
     def test_register_4_instance01(self):
         user = self.get_root_user()
         casca = FakeContact.objects.create(
@@ -600,6 +646,78 @@ class BrickRegistryTestCase(CremeTestCase):
                 FakeContact, secondary_brick_classes=[FakeContactHatBrick04],
             )
 
+    def test_unregister_hat_bricks01(self):
+        "Main class."
+        class FakeContactHatBrick(SimpleBrick):
+            template_name = 'creme_core/bricks/fake_contact_hat.html'  # (does not exists)
+
+        brick_registry = _BrickRegistry().register_hat(
+            FakeContact, main_brick_cls=FakeContactHatBrick,
+        )
+
+        brick_registry.unregister_hat(FakeContact, main_brick=True)
+        brick = self.get_alone_element(brick_registry.get_compatible_hat_bricks(FakeContact))
+        self.assertIsInstance(brick, SimpleBrick)
+        self.assertEqual((FakeContact,), brick.dependencies)
+        self.assertEqual('creme_core/bricks/generic/hat-bar.html', brick.template_name)
+        self.assertEqual(SimpleBrick.GENERIC_HAT_BRICK_ID, brick.id)
+
+        # ---
+        with self.assertRaises(brick_registry.UnRegistrationError) as cm:
+            brick_registry.unregister_hat(FakeContact, main_brick=True)
+        self.assertEqual(
+            "Invalid main hat brick for model "
+            "<class 'creme.creme_core.tests.fake_models.FakeContact'> "
+            "(already unregistered?)",
+            str(cm.exception),
+        )
+
+    def test_unregister_hat_bricks02(self):
+        "Secondary classes."
+        class BaseFakeContactHatBrick(SimpleBrick):
+            template_name = 'creme_core/bricks/fake_contact_hat.html'  # (does not exists)
+
+        class FakeContactHatBrick1(BaseFakeContactHatBrick):
+            id = SimpleBrick._generate_hat_id('creme_core', 'test_get_compatible_hat_bricks03_1')
+
+        class FakeContactHatBrick2(BaseFakeContactHatBrick):
+            id = SimpleBrick._generate_hat_id('creme_core', 'test_get_compatible_hat_bricks03_2')
+
+        class FakeContactHatBrick3(BaseFakeContactHatBrick):
+            id = SimpleBrick._generate_hat_id('creme_core', 'test_get_compatible_hat_bricks03_3')
+
+        brick_registry = _BrickRegistry().register_hat(
+            FakeContact,
+            secondary_brick_classes=(
+                FakeContactHatBrick1, FakeContactHatBrick2, FakeContactHatBrick3,
+            ),
+        )
+
+        brick_registry.unregister_hat(
+            FakeContact,
+            secondary_brick_classes=(FakeContactHatBrick1, FakeContactHatBrick3),
+        )
+        self.assertCountEqual(
+            [SimpleBrick, FakeContactHatBrick2],
+            [brick.__class__ for brick in brick_registry.get_compatible_hat_bricks(FakeContact)],
+        )
+
+        # ---
+        self.maxDiff = None
+        with self.assertRaises(brick_registry.UnRegistrationError) as cm:
+            brick_registry.unregister_hat(
+                FakeContact,
+                secondary_brick_classes=(FakeContactHatBrick2, FakeContactHatBrick1),
+            )
+
+        self.assertEqual(
+            '''Invalid hat brick for model '''
+            '''<class 'creme.creme_core.tests.fake_models.FakeContact'> '''
+            '''with id="hatbrick-creme_core-test_get_compatible_hat_bricks03_1" '''
+            '''(already unregistered?)''',
+            str(cm.exception),
+        )
+
     def test_get_compatible_home_bricks(self):
         class FoobarBrick1(Brick):
             id = Brick.generate_id(
@@ -691,10 +809,10 @@ class BrickRegistryTestCase(CremeTestCase):
         orga_brick = next(brick_registry.get_bricks([MODELBRICK_ID], entity=orga))
         self.assertIsInstance(orga_brick, EntityBrick)
 
-        # No registered model brick
+        # Registered model brick
         contact = FakeContact.objects.create(user=user, first_name='Casca', last_name='Mylove')
         contact_brick = next(brick_registry.get_bricks([MODELBRICK_ID], entity=contact))
-        self.assertIsInstance(contact_brick, EntityBrick)
+        self.assertIsInstance(contact_brick, ContactBrick)
 
     def test_get_bricks03(self):
         "Specific relation bricks, custom bricks."
@@ -817,6 +935,31 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = _BrickRegistry()
         with self.assertRaises(AssertionError):
             brick_registry.register_4_model(FakeContact, ContactBrick)
+
+    def test_unregister_4_model(self):
+        contact = FakeContact.objects.create(
+            user=self.get_root_user(), first_name='Casca', last_name='Mylove',
+        )
+
+        class ContactBrick(EntityBrick):
+            template_name = 'persons/bricks/my_contact.html'
+
+        brick_registry = _BrickRegistry().register_4_model(FakeContact, ContactBrick)
+
+        brick_registry.unregister_4_model(FakeContact)
+        brick = next(brick_registry.get_bricks([MODELBRICK_ID], entity=contact))
+        self.assertIsInstance(brick, EntityBrick)
+        self.assertFalse(isinstance(brick, ContactBrick))
+
+        # ---
+        with self.assertRaises(brick_registry.UnRegistrationError) as cm:
+            brick_registry.unregister_4_model(FakeContact)
+
+        self.assertEqual(
+            "Invalid Brick for model <class 'creme.creme_core.tests.fake_models.FakeContact'> "
+            "(already unregistered?)",
+            str(cm.exception),
+        )
 
     def test_brick_4_instance01(self):
         user = self.get_root_user()
