@@ -191,8 +191,12 @@ div.search-box input[type="text"] {
 .ui-creme-navigation .ui-creme-navigation-text-entry,
 .ui-creme-navigation-title {
     display: block;
+    max-width: 520px;
     padding: 5px 10px;
 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     text-decoration: none;
     text-shadow: none;
     color: #ebebeb;
