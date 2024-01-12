@@ -1,11 +1,12 @@
-== Version 2.4.11 Work in progress (not released -- this is a draft) ==
+== Version 2.4.11 ==
 
   UPGRADE NOTE :
     - You should re-generate the media files (creme generatemedia --settings=[...]).
 
   Users side :
   ------------
-     # In entity filter form:
+     # In the form for EntityFilter, selecting a level-2 foreign key (e.g. "Photograph/MIME type" in the filter for Contacts) was broken.
+       Some code from Creme 2.5 has been backported to fix this issue. It brings some interesting features too :
         - The regular fields with foreign keys are now using the Select2 combobox with lazy loading & search.
         - The regular fields with static choices (like 'Discount' in billing lines) are now using combobox instead of a text input.
         - The custom fields of ENUM/MULTI_ENUM type are now using the Select2 combobox with lazy loading & search.
@@ -13,40 +14,40 @@
         * Activities :
             - An icon was missing in the theme "chantilly" ('images/meeting_48.png').
 
-
   Developers side :
   -----------------
 
     Non breaking changes :
     ----------------------
-        # In 'creme_core.forms.enumerable':
-            - In the class 'EnumerableChoiceSet', the optional property 'url' allows to use any URL instead of only "creme_core__enumerable_choices"
-            - A class 'FieldEnumerableChoiceSet' has been added;
-              it inherits 'EnumerableChoiceSet' (which is now a base class) and has all its previous features (see the section <Breaking changes>).
-            - A new widget class 'EnumerableSelectMultiple' has been added; it supports multiple selection.
-        # In 'creme_core.forms.widgets':
-            - The 'DynamicSelect' widget now accepts 'avoid_empty' constructor argument : when true the 'data-no-empty' attribute is enabled on client side.
-            - Keep the actual behaviour of 'DynamicSelect' within the ChainedSelect widget definitions:
-                - Add avoid_empty=True to all DynamicSelect having a child dependency.
-        # In 'creme_core.forms.entity_filter':
-            - ModelRelatedField can have string pk and this will not work with the default datatype 'json' used in entityfilter widget.
+        # In 'creme_core.forms' :
+            - The class 'entity_filter.ModelRelatedField' can have string PK and this will not work with the default datatype 'json' used in EntityFilter widget.
+            - In 'enumerable' :
+                - In the class 'EnumerableChoiceSet', the optional property 'url' allows to use any URL instead of only "creme_core__enumerable_choices".
+                - A class 'FieldEnumerableChoiceSet' has been added;
+                  it inherits 'EnumerableChoiceSet' (which is now a base class) and has all its previous features (see the section <Breaking changes>).
+                - A new widget class 'EnumerableSelectMultiple' has been added; it supports multiple selection.
+            - The class 'widgets.DynamicSelect' accepts constructor argument: "avoid_empty".
+              When it's <true>, the attribute "data-no-empty" is enabled on client side (see below).
         # In Javascript :
-            - 'creme.form.Select2' now supports the lazy loading of selections :
-               Useful in entity filter polymorphic inputs that do not know the selected options beforehand.
-            - Fix a conversion issue in DynamicSelect.val() for a multiple combobox with a single value
+            - The component 'creme.form.Select2' now supports the lazy loading of selections :
+              It's useful in entity filter polymorphic inputs that do not know the selected options beforehand.
+            - A conversion issue in the method 'DynamicSelect.val()' for a multiple combobox with a single value has been fixed.
 
     Breaking changes :
     ------------------
-        # In 'creme_core.forms.enumerable':
-            - The constructor of class 'EnumerableChoiceSet' has changed; it requires now an 'Enumerator' instead of a model 'Field' and an 'EnumerableRegistry'.
-            - The 'FieldEnumerableChoiceSet' has a lazy 'url' property that uses the "creme_core__enumerable_choices" provided by the new property 'default_url'.
-        # In 'creme_core.forms.entity_filter':
-            - 'EnumerableSelectMultiple' are now used for EntityFilter regular field conditions instead of 'DynamicSelectMultiple'.
-            - The url 'creme_core__efilter_user_choices' has changed and follows the 'users/{ct_id}/{field}/json[/]?$' pattern like the
-              default enumerable choices url.
+        # In 'creme_core.forms' :
+            - In 'entity_filter' :
+                - The widget 'EnumerableSelectMultiple' is now used for EntityFilter regular field conditions instead of 'DynamicSelectMultiple'.
+                - The url 'creme_core__efilter_user_choices' has changed and follows the pattern "users/{ct_id}/{field}/json[/]?$"
+                  like the default enumerable choices URL.
+            - In 'enumerable' :
+                - The constructor of class 'EnumerableChoiceSet' has changed; it requires now an 'Enumerator' instead of a model 'Field' and an 'EnumerableRegistry'.
+                - The 'FieldEnumerableChoiceSet' has a lazy 'url' property that uses the "creme_core__enumerable_choices" provided by the new property 'default_url'.
+            - In 'widgets', in order to keep the actual behaviour of 'DynamicSelect' within the 'ChainedSelect' widget definitions
+              you have to add <avoid_empty=True> to all your 'DynamicSelect' having a child dependency.
         # In Javascript :
-            - 'creme.widget.DynamicSelect' widget does not select the first option as default behaviour. A new argument 'data-no-empty' is needed.
-            - 'creme.form.Select2' accepts the 'data-no-empty' attribute : select the first option as default if the value is empty.
+            - The widget 'creme.widget.DynamicSelect' does not select the first option as default behaviour. A new argument 'data-no-empty' is needed.
+            - 'creme.form.Select2' accepts now an attribute "data-no-empty" : select the first option as default if the value is empty.
 
 
 == Version 2.4.10 ==
