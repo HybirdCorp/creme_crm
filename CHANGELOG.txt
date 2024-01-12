@@ -67,7 +67,9 @@
         # In the class 'creme_core.core.setting_key.SettingKey', you can now pass :
              - a custom form-field class.
              - a custom renderer function.
-        # In the class 'creme_core.gui.bricks._BrickRegistry', 3 methods to unregister brick classes have been added.
+        # In 'creme_core.gui' :
+            - In the class 'bricks._BrickRegistry', 3 methods to unregister brick classes have been added.
+            - A method 'button_menu.ButtonsRegistry.unregister()' has been added.
         # Apps :
             * Activities:
                 - The models 'ActivityType' & 'ActivitySubType' now inherit 'creme_core.models.MinionModel' (see <Breaking changes> part too).

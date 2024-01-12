@@ -508,6 +508,43 @@ class GuiTestCase(CremeTestCase):
         self.assertTrue(TestButton05().is_allowed(**basic_ctxt))
         self.assertFalse(TestButton06().is_allowed(**basic_ctxt))
 
+    def test_button_registry_unregister(self):
+        class TestButton1(Button):
+            id = Button.generate_id('creme_core', 'test_button_registry_1')
+
+        class TestButton2(Button):
+            id = Button.generate_id('creme_core', 'test_button_registry_2')
+
+        class TestButton3(Button):
+            id = Button.generate_id('creme_core', 'test_button_registry_3')
+
+        registry = ButtonsRegistry().register(TestButton1, TestButton2, TestButton3)
+
+        registry.unregister(TestButton1, TestButton3)
+        get = registry.get_button
+        self.assertIsNone(get(TestButton1.id))
+        self.assertIsNone(get(TestButton3.id))
+        self.assertIsInstance(get(TestButton2.id), TestButton2)
+
+        # ---
+        class TestButton4(Button):
+            pass
+
+        with self.assertRaises(registry.UnRegistrationError) as cm1:
+            registry.unregister(TestButton4)
+        self.assertEqual(
+            f'Button class with empty ID: {TestButton4}',
+            str(cm1.exception),
+        )
+
+        # ---
+        with self.assertRaises(registry.UnRegistrationError) as cm2:
+            registry.unregister(TestButton2, TestButton1)
+        self.assertEqual(
+            f'Button class with invalid ID (already unregistered?): {TestButton1}',
+            str(cm2.exception),
+        )
+
     def test_quickforms_registry01(self):
         "Registration."
         registry = QuickFormsRegistry()
