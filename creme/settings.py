@@ -995,7 +995,7 @@ CREME_OPTLIB_JS = [
     ('creme.geolocation', 'geolocation/js/lib/leaflet-1.9.4.js'),
     ('creme.sketch', 'sketch/js/lib/d3-7.8.5.js'),
     ('creme.sketch', 'sketch/js/lib/filesaver-2.0.4.js'),
-    ('creme.editor', 'editor/js/lib/ckeditor5-39.0.2.js'),
+    ('creme.editor', 'editor/js/lib/ckeditor5-40.2.0.js'),
 ]
 
 CREME_OPT_JS = [  # OPTIONAL APPS
