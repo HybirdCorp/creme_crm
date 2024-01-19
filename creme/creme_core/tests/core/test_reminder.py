@@ -37,8 +37,13 @@ class ReminderTestCase(CremeTestCase):
             [r.__class__ for r in registry],
         )
 
-        with self.assertRaises(registry.RegistrationError):
+        with self.assertRaises(registry.UnRegistrationError) as cm:
             registry.unregister(TestReminder1)
+
+        self.assertEqual(
+            f"Invalid reminder {TestReminder1} (already unregistered?)",
+            str(cm.exception),
+        )
 
     def test_register_error01(self):
         "Duplicated ID."

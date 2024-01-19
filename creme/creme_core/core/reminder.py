@@ -162,6 +162,9 @@ class ReminderRegistry:
     class RegistrationError(Exception):
         pass
 
+    class UnRegistrationError(RegistrationError):
+        pass
+
     def __init__(self):
         self._reminders: dict[str, Reminder] = {}
 
@@ -188,8 +191,8 @@ class ReminderRegistry:
 
     def unregister(self, reminder_class: type[Reminder]) -> None:
         if self._reminders.pop(reminder_class.id, None) is None:
-            raise self.RegistrationError(
-                f'No reminder is registered with this ID: {reminder_class.id}'
+            raise self.UnRegistrationError(
+                f'Invalid reminder {reminder_class} (already unregistered?)'
             )
 
     def __iter__(self) -> Iterator[Reminder]:
