@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,6 +39,9 @@ class QuickFormsRegistry:
     class RegistrationError(Exception):
         pass
 
+    class UnRegistrationError(Exception):
+        pass
+
     def __init__(self):
         self._forms: dict[type[CremeEntity], type[CremeEntityQuickForm]] = {}
 
@@ -71,13 +74,13 @@ class QuickFormsRegistry:
 
     def unregister(self, model: type[CremeEntity]) -> None:
         """Un-register the form related to a given model.
-        @raise RegistrationError if no form is registered.
+        @raise UnRegistrationError if no form is registered.
         """
         try:
             self._forms.pop(model)
         except KeyError as e:
-            raise self.RegistrationError(
-                f'No Quick Form is registered for the model : {model}'
+            raise self.UnRegistrationError(
+                f'No Quick Form is registered for the model {model}'
             ) from e
 
     def get_form_class(

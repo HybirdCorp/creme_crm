@@ -584,9 +584,17 @@ class GuiTestCase(CremeTestCase):
         "Un-registration."
         registry = QuickFormsRegistry()
 
-        with self.assertRaises(registry.RegistrationError):
+        # with self.assertRaises(registry.RegistrationError):
+        with self.assertRaises(registry.UnRegistrationError) as cm:
             registry.unregister(FakeContact)
 
+        self.assertEqual(
+            "No Quick Form is registered for the model "
+            "<class 'creme.creme_core.tests.fake_models.FakeContact'>",
+            str(cm.exception),
+        )
+
+        # ---
         registry.register(FakeContact, FakeContactQuickForm)
         with self.assertNoException():
             registry.unregister(FakeContact)
