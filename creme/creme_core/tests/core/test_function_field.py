@@ -166,11 +166,17 @@ class FunctionFieldsTestCase(CremeTestCase):
         registry = _FunctionFieldRegistry()
 
         class TestFunctionField(FunctionField):
-            name = 'name'
+            name = 'ff_name'
             verbose_name = 'Verbose name'
 
-        with self.assertRaises(_FunctionFieldRegistry.RegistrationError):
+        # with self.assertRaises(_FunctionFieldRegistry.RegistrationError):
+        with self.assertRaises(_FunctionFieldRegistry.UnRegistrationError) as cm:
             registry.unregister(Klass, TestFunctionField)
+
+        self.assertEqual(
+            'Invalid FunctionField "ff_name" (already un-registered?)',
+            str(cm.exception),
+        )
 
     def test_result(self):
         value = 'My value'
