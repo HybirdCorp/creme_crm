@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,10 +48,15 @@ from .utils import build_cancel_path
 @login_required
 def mass_import(request, ct_id):
     ct = get_ctype_or_404(ct_id)
+    model = ct.model_class()
 
+    # try:
+    #     import_form_registry.get(ct)
+    # except import_form_registry.UnregisteredCTypeException as e:
+    #     raise Http404(e) from e
     try:
-        import_form_registry.get(ct)
-    except import_form_registry.UnregisteredCTypeException as e:
+        import_form_registry[model]
+    except KeyError as e:
         raise Http404(e) from e
 
     user = request.user
@@ -59,7 +64,6 @@ def mass_import(request, ct_id):
     if Job.objects.not_finished(user).count() >= settings.MAX_JOBS_PER_USER:
         return HttpResponseRedirect(reverse('creme_core__my_jobs'))
 
-    model = ct.model_class()
     user.has_perm_to_create_or_die(model)
 
     submit_label = _('Save the entities')

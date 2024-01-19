@@ -2,6 +2,7 @@ from functools import partial
 from time import sleep
 
 from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.models import Session
 from django.test import RequestFactory
 from django.test.utils import override_settings
@@ -11,6 +12,7 @@ from creme.creme_core.gui.button_menu import Button, ButtonsRegistry
 from creme.creme_core.gui.fields_config import FieldsConfigRegistry
 from creme.creme_core.gui.icons import Icon, IconRegistry
 from creme.creme_core.gui.last_viewed import LastViewedItem
+from creme.creme_core.gui.mass_import import FormRegistry
 from creme.creme_core.gui.quick_forms import QuickFormsRegistry
 from creme.creme_core.gui.statistics import _StatisticsRegistry
 from creme.creme_core.gui.view_tag import ViewTag
@@ -21,10 +23,15 @@ from creme.creme_core.models import (
     FakeImage,
     FakeInvoice,
     FakeOrganisation,
+    FakeTicket,
 )
 
 from ..base import CremeTestCase, skipIfNotInstalled
-from ..fake_forms import FakeContactQuickForm, FakeOrganisationQuickForm
+from ..fake_forms import (
+    FakeContactQuickForm,
+    FakeOrganisationQuickForm,
+    get_csv_form_builder,
+)
 
 
 class GuiTestCase(CremeTestCase):
@@ -670,3 +677,93 @@ class GuiTestCase(CremeTestCase):
         )
         with self.assertRaises(ValueError):
             [*ViewTag.smart_generator('unknown')]  # NOQA
+
+    def test_mass_import_registry01(self):
+        registry = FormRegistry()
+
+        get_ct = ContentType.objects.get_for_model
+        contact_ct = get_ct(FakeContact)
+        orga_ct    = get_ct(FakeOrganisation)
+        ticket_ct  = get_ct(FakeTicket)
+
+        self.assertFalse(registry.is_registered(contact_ct))
+        self.assertFalse(registry.is_registered(orga_ct))
+        self.assertFalse(registry.is_registered(ticket_ct))
+
+        self.assertNotIn(FakeContact,      registry)
+        self.assertNotIn(FakeOrganisation, registry)
+        self.assertNotIn(FakeTicket,       registry)
+
+        # ---
+        with self.assertRaises(registry.UnregisteredCTypeException) as old_cm_absent:
+            registry.get(contact_ct)
+        self.assertEqual(
+            'Unregistered ContentType: Test Contact',
+            str(old_cm_absent.exception),
+        )
+
+        with self.assertRaises(KeyError) as cm_absent:
+            registry[FakeContact]  # NOQA
+        self.assertEqual(
+            "<class 'creme.creme_core.tests.fake_models.FakeContact'>",
+            str(cm_absent.exception),
+        )
+
+        # ---
+        registry.register(FakeContact, get_csv_form_builder).register(FakeTicket)
+        self.assertTrue(registry.is_registered(contact_ct))
+        self.assertFalse(registry.is_registered(orga_ct))
+        self.assertTrue(registry.is_registered(ticket_ct))
+
+        self.assertIn(FakeContact, registry)
+        self.assertNotIn(FakeOrganisation, registry)
+        self.assertIn(FakeTicket, registry)
+
+        with self.assertNoException():
+            old_contact_builder = registry.get(contact_ct)
+        self.assertIs(get_csv_form_builder, old_contact_builder)
+
+        with self.assertNoException():
+            contact_builder = registry[FakeContact]
+        self.assertIs(get_csv_form_builder, contact_builder)
+
+        with self.assertNoException():
+            old_ticket_builder = registry.get(ticket_ct)
+        self.assertIsNone(old_ticket_builder)
+
+        with self.assertNoException():
+            ticket_builder = registry[FakeTicket]
+        self.assertIsNone(ticket_builder)
+
+        with self.assertRaises(registry.UnregisteredCTypeException):
+            registry.get(orga_ct)
+
+        with self.assertRaises(KeyError):
+            registry[FakeOrganisation]  # NOQA
+
+        # ---
+        with self.assertRaises(registry.RegistrationError) as cm_dup:
+            registry.register(FakeContact)
+
+        self.assertEqual(
+            "Model <class 'creme.creme_core.tests.fake_models.FakeContact'> "
+            "already registered for mass-import",
+            str(cm_dup.exception),
+        )
+
+    def test_mass_import_registry02(self):
+        "Un-registration."
+        registry = FormRegistry().register(FakeContact)
+
+        registry.unregister(FakeContact)
+        self.assertNotIn(FakeContact, registry)
+
+        # ---
+        with self.assertRaises(registry.UnRegistrationError) as cm:
+            registry.unregister(FakeContact)
+
+        self.assertEqual(
+            "Invalid model (already unregistered?): "
+            "<class 'creme.creme_core.tests.fake_models.FakeContact'>",
+            str(cm.exception),
+        )
