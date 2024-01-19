@@ -55,6 +55,9 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
+            - In the class 'creme_core.gui.mass_import.FormRegistry' :
+                - The methods 'get()' & 'is_registered()' are now deprecated.
+                - The class 'UnregisteredCTypeException' is now deprecated.
             - The templatetag {% has_perm_to %} is deprecated;
               use the template-filters of the new library "creme_perms" instead.
             - The module 'creme_core.tests.forms.base' is deprecated.
@@ -70,6 +73,7 @@
         # In 'creme_core.gui' :
             - In the class 'bricks._BrickRegistry', 3 methods to unregister brick classes have been added.
             - A method 'button_menu.ButtonsRegistry.unregister()' has been added.
+            - A method 'mass_import.FormRegistry.unregister()' has been added.
         # Apps :
             * Activities:
                 - The models 'ActivityType' & 'ActivitySubType' now inherit 'creme_core.models.MinionModel' (see <Breaking changes> part too).
@@ -194,7 +198,9 @@
                 - "li_merge_entity*" => "merge-field-*".
                 - "li_merge_result" => "merge-field-result".
                 - "li_merge_button" => "merge-field-button".
-        #  The attribute 'creme_core.gui.listview.state.ListViewState.extra_q' has been removed.
+        # In 'creme_core.gui' :
+            - The attribute 'listview.state.ListViewState.extra_q' has been removed.
+            - The method 'mass_import.FormRegistry.register()' now raises an exception when a model is registered twice.
         # The behaviour of the method 'creme_core.utils.meta.FieldInfo.value_from()' has changed with "low-level" attributes
           related to ForeignKeys; now it return the low-level value (e.g. integer, string...), not the related model instance anymore.
           Example: 'FieldInfo(Contact, 'user_id').value_from(my_contact)' returns an integer, not a CremeUser instance.

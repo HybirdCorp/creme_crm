@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2023  Hybird
+#    Copyright (C) 2019-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -123,13 +123,16 @@ class MassImportButton(ListViewButton):
     def get_context(self, request, lv_context):
         context = super().get_context(request=request, lv_context=lv_context)
 
-        ct = ContentType.objects.get_for_model(lv_context['model'])
+        # ct = ContentType.objects.get_for_model(lv_context['model'])
+        model = lv_context['model']
         context['show'] = (
-            self.import_form_registry.is_registered(ct)
+            # self.import_form_registry.is_registered(ct)
+            model in self.import_form_registry
             # TODO: __bool__ method instead...
             and next(self.import_backend_registry.backend_classes, None) is not None
         )
-        context['content_type'] = ct
+        # context['content_type'] = ct
+        context['content_type'] = ContentType.objects.get_for_model(model)
 
         return context
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1681,7 +1681,8 @@ def form_factory(ct, header):
         choices.extend((i, fstring.format(i)) for i in range(1, 21))
 
     model_class = ct.model_class()
-    customform_factory = import_form_registry.get(ct)
+    # customform_factory = import_form_registry.get(ct)
+    customform_factory = import_form_registry[model_class]
 
     if customform_factory:
         base_form_class = customform_factory(header_dict, choices)

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2023  Hybird
+#    Copyright (C) 2017-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Model
 from django.template import Library
 from django.utils.translation import gettext as _
 
@@ -31,7 +34,7 @@ register = Library()
 
 
 @register.simple_tag
-def ctype_for_model(model):
+def ctype_for_model(model: type[Model]) -> ContentType:
     """Returns an instance of ContentType for a model.
 
     @param model: Class 'inheriting django.db.models.Model'.
@@ -44,7 +47,7 @@ def ctype_for_model(model):
 
 
 @register.simple_tag
-def ctype_for_naturalkey(app_label, model):
+def ctype_for_naturalkey(app_label: str, model: str) -> ContentType:
     """Returns an instance of ContentType for the natural key of a model.
 
     @param app_label: String identifying an app.
@@ -58,7 +61,7 @@ def ctype_for_naturalkey(app_label, model):
 
 
 @register.simple_tag
-def ctype_for_swappable(model_setting):
+def ctype_for_swappable(model_setting: str) -> ContentType:
     """Returns an instance of ContentType for a swappable model.
 
     @param model_setting: String identifying a swappable model.
@@ -77,7 +80,7 @@ def ctype_for_swappable(model_setting):
 
 
 @register.simple_tag
-def ctype_counted_instances_label(ctype, count):
+def ctype_counted_instances_label(ctype: ContentType, count: int) -> str:
     """ Return a localized string, in order to display label like '1 Contact' or '3 Organisations'.
 
     @param ctype: A ContentType instance relation to your model.
@@ -96,7 +99,7 @@ def ctype_counted_instances_label(ctype, count):
 
 # TODO: what about the global registry ? take it from the context ?
 @register.filter
-def ctype_can_be_merged(ctype):
+def ctype_can_be_merged(ctype: ContentType) -> bool:
     """Indicates if 2 instances of a specific model can be used by the merging view of Creme.
 
     @param ctype: A ContentType instance corresponding to your model
@@ -112,7 +115,7 @@ def ctype_can_be_merged(ctype):
 
 # TODO: what about the global registry ? take it from the context ?
 @register.filter
-def ctype_can_be_mass_imported(ctype):
+def ctype_can_be_mass_imported(ctype: ContentType) -> bool:
     """Indicates if some instances of a specific model can be created from a CSV/XLS/... file.
 
     @param ctype: A ContentType instance corresponding to your model.
@@ -123,11 +126,13 @@ def ctype_can_be_mass_imported(ctype):
         {% endif %}
     """
     from ..gui.mass_import import import_form_registry
-    return import_form_registry.is_registered(ctype)
+
+    # return import_form_registry.is_registered(ctype)
+    return ctype.model_class() in import_form_registry
 
 
 # TODO: what about the global registry ? take it from the context ?
 @register.filter
-def ctype_has_quickform(ctype):
+def ctype_has_quickform(ctype: ContentType) -> bool:
     from ..gui.quick_forms import quickforms_registry
     return quickforms_registry.get_form_class(ctype.model_class()) is not None
