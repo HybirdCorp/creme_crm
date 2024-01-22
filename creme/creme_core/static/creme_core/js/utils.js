@@ -119,7 +119,7 @@ creme.utils.scrollBack = function(position, speed) {
 
 creme.utils.showErrorNReload = function(delay) {
     delay = Object.isNone(delay) ? 3000 : delay;
-    var dialog = creme.dialogs.warning('<p><b>' + gettext("Error !") + '</b></p><p>' + gettext("The page will be reload !") + '</p>')
+    var dialog = creme.dialogs.warning('<p><b>' + gettext("Error!") + '</b></p><p>' + gettext("The page will be reloaded!") + '</p>')
                               .onClose(function() {
                                   clearTimeout(timeout);
                                   creme.utils.reload();
