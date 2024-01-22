@@ -110,7 +110,9 @@ def ctype_can_be_merged(ctype: ContentType) -> bool:
         {% endif %}
     """
     from ..gui.merge import merge_form_registry
-    return merge_form_registry.get(ctype.model_class()) is not None
+
+    # return merge_form_registry.get(ctype.model_class()) is not None
+    return ctype.model_class() in merge_form_registry
 
 
 # TODO: what about the global registry ? take it from the context ?
