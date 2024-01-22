@@ -13,6 +13,7 @@ from creme.creme_core.gui.fields_config import FieldsConfigRegistry
 from creme.creme_core.gui.icons import Icon, IconRegistry
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.mass_import import FormRegistry
+from creme.creme_core.gui.merge import _MergeFormRegistry
 from creme.creme_core.gui.quick_forms import QuickFormsRegistry
 from creme.creme_core.gui.statistics import _StatisticsRegistry
 from creme.creme_core.gui.view_tag import ViewTag
@@ -31,6 +32,7 @@ from ..fake_forms import (
     FakeContactQuickForm,
     FakeOrganisationQuickForm,
     get_csv_form_builder,
+    get_merge_form_builder,
 )
 
 
@@ -765,5 +767,52 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(
             "Invalid model (already unregistered?): "
             "<class 'creme.creme_core.tests.fake_models.FakeContact'>",
+            str(cm.exception),
+        )
+
+    def test_merge_form_registry01(self):
+        registry = _MergeFormRegistry()
+        self.assertListEqual([], [*registry.models])
+        self.assertIsNone(registry.get(FakeContact))
+        self.assertIsNone(registry.get(FakeOrganisation))
+
+        self.assertNotIn(FakeContact, registry)
+        self.assertNotIn(FakeOrganisation, registry)
+
+        # ---
+        registry.register(FakeContact, get_merge_form_builder)
+        self.assertListEqual([FakeContact], [*registry.models])
+        self.assertIs(registry.get(FakeContact), get_merge_form_builder)
+        self.assertIsNone(registry.get(FakeOrganisation))
+
+        self.assertIn(FakeContact, registry)
+        self.assertNotIn(FakeOrganisation, registry)
+
+        # ---
+        with self.assertRaises(registry.RegistrationError) as cm:
+            registry.register(FakeContact, get_merge_form_builder)
+
+        self.assertEqual(
+            f'Model {FakeContact} is already registered',
+            str(cm.exception),
+        )
+
+    def test_merge_form_registry02(self):
+        registry = _MergeFormRegistry().register(
+            FakeContact, get_merge_form_builder,
+        ).register(
+            FakeOrganisation, get_merge_form_builder,
+        )
+
+        registry.unregister(FakeContact)
+        self.assertNotIn(FakeContact, registry)
+        self.assertIn(FakeOrganisation, registry)
+
+        # ---
+        with self.assertRaises(registry.UnRegistrationError) as cm:
+            registry.unregister(FakeContact)
+
+        self.assertEqual(
+            f'Invalid model {FakeContact} (already registered?)',
             str(cm.exception),
         )

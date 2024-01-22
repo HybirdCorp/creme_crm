@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,19 +32,44 @@ if TYPE_CHECKING:
 
 class _MergeFormRegistry:
     """Registry for forms uses to merge entities."""
+    class RegistrationError(Exception):
+        pass
+
+    class UnRegistrationError(RegistrationError):
+        pass
+
     def __init__(self):
         self._form_factories: dict[type[CremeEntity], FormFactory] = {}
 
+    def __contains__(self, model: type[CremeEntity]) -> bool:
+        return model in self._form_factories
+
     def register(self,
                  model: type[CremeEntity],
-                 form_factory: FormFactory) -> _MergeFormRegistry:
+                 form_factory: FormFactory,
+                 ) -> _MergeFormRegistry:
         """Register a form factory for a model.
         @param model: Class inheriting CremeEntity.
         @param form_factory: A callable with no parameter & which returns a form
                class inheriting <creme_core.forms.merge.MergeEntitiesBaseForm>.
         @return The registry instance (to chain register() calls).
         """
-        self._form_factories[model] = form_factory
+        factories = self._form_factories
+
+        if model in factories:
+            raise self.RegistrationError(f'Model {model} is already registered')
+
+        factories[model] = form_factory
+
+        return self
+
+    def unregister(self, model: type[CremeEntity]) -> _MergeFormRegistry:
+        try:
+            del self._form_factories[model]
+        except KeyError as e:
+            raise self.UnRegistrationError(
+                f'Invalid model {model} (already registered?)'
+            ) from e
 
         return self
 
