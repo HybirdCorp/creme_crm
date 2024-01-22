@@ -1,7 +1,7 @@
 {% load i18n creme_menu creme_widgets %}
 <div class="header-menu">
     {% block home_link %}
-    <a id="logo" href="/" alt="{% translate 'Home' %}">
+    <a id="logo" href="{% url 'creme_core__home' %}">
       {% block home_icon %}
         {% if world_settings.menu_icon %}
           {% widget_icon data=world_settings.menu_icon.path size='header-menu-home' label=_('Home') class='header-menu-home-icon' %}
