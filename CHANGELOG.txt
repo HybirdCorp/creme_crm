@@ -73,6 +73,7 @@
         # In 'creme_core.gui' :
             - In the class 'bricks._BrickRegistry', 3 methods to unregister brick classes have been added.
             - A method 'button_menu.ButtonsRegistry.unregister()' has been added.
+            - A method 'custom_form.CustomFormDescriptorRegistry.unregister()' has been added.
             - A method 'mass_import.FormRegistry.unregister()' has been added.
             - A method 'merge._MergeFormRegistry.unregister()' has been added.
         # Apps :

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2023  Hybird
+#    Copyright (C) 2020-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1108,6 +1108,9 @@ class CustomFormDescriptorRegistry:
     class RegistrationError(Exception):
         pass
 
+    class UnRegistrationError(RegistrationError):
+        pass
+
     def __init__(self):
         self._descriptors: dict[str, CustomFormDescriptor] = {}
 
@@ -1128,9 +1131,16 @@ class CustomFormDescriptorRegistry:
 
         return self
 
-    # TODO ?
-    # def unregister(self, *descriptors):
-    #     ...
+    def unregister(self, *descriptors: CustomFormDescriptor) -> CustomFormDescriptorRegistry:
+        for desc in descriptors:
+            try:
+                del self._descriptors[desc.id]
+            except KeyError as e:
+                raise self.UnRegistrationError(
+                    f"Invalid CustomFormDescriptor's id (already unregistered?): {desc.id}"
+                ) from e
+
+        return self
 
 
 customform_descriptor_registry = CustomFormDescriptorRegistry()

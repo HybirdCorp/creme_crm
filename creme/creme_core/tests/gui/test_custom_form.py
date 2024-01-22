@@ -2766,9 +2766,16 @@ class CustomFormDescriptorTestCase(CremeTestCase):
 
         self.assertCountEqual([form_desc1, form_desc2, form_desc3], registry)
 
-        # TODO ?
-        # registry.unregister(form_desc1, form_desc3)
-        # self.assertListEqual([form_desc2], [*registry])
+        # --
+        registry.unregister(form_desc1, form_desc3)
+        self.assertListEqual([form_desc2], [*registry])
+
+        with self.assertRaises(CustomFormDescriptorRegistry.UnRegistrationError) as cm:
+            registry.unregister(form_desc2, form_desc3)
+        self.assertEqual(
+            f"Invalid CustomFormDescriptor's id (already unregistered?): {form_desc3.id}",
+            str(cm.exception),
+        )
 
     def test_registry02(self):
         "ID collision."
@@ -2785,5 +2792,9 @@ class CustomFormDescriptorTestCase(CremeTestCase):
 
         registry = CustomFormDescriptorRegistry()
 
-        with self.assertRaises(CustomFormDescriptorRegistry.RegistrationError):
+        with self.assertRaises(CustomFormDescriptorRegistry.RegistrationError) as cm:
             registry.register(form_desc1, form_desc2)
+        self.assertEqual(
+            f"Duplicated CustomFormDescriptor's id: {form_desc1.id}",
+            str(cm.exception),
+        )
