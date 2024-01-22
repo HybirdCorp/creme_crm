@@ -1458,15 +1458,33 @@ class MenuTestCase(CremeTestCase):
         sub_item = MenuConfigItem(
             id=2, entry_id=FakeContactsEntry.id, parent_id=container_item.id,
         )
-        registry = MenuRegistry().register(
-            RecentEntitiesEntry, FakeContactsEntry
-        )
+        registry = MenuRegistry().register(RecentEntitiesEntry, FakeContactsEntry)
 
         entry = self.get_alone_element(
             registry.get_entries([container_item, sub_item])
         )
         self.assertIsInstance(entry, RecentEntitiesEntry)
         self.assertFalse([*entry.children])
+
+    def test_registry_unregister(self):
+        registry = MenuRegistry().register(
+            CremeEntry, RecentEntitiesEntry, FakeContactsEntry,
+        )
+
+        registry.unregister(RecentEntitiesEntry, FakeContactsEntry)
+        entry_classes = {*registry.entry_classes}
+        self.assertIn(CremeEntry, entry_classes)
+        self.assertNotIn(RecentEntitiesEntry, entry_classes)
+        self.assertNotIn(FakeContactsEntry,   entry_classes)
+
+        # ---
+        with self.assertRaises(registry.UnRegistrationError) as cm:
+            registry.unregister(CremeEntry, FakeContactsEntry)
+
+        self.assertEqual(
+            f'Invalid entry {FakeContactsEntry} (already unregistered?)',
+            str(cm.exception),
+        )
 
     def test_global_registry(self):
         entry_classes = {*menu_registry.entry_classes}
