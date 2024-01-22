@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -372,6 +372,9 @@ class MenuRegistry:
     class RegistrationError(Exception):
         pass
 
+    class UnRegistrationError(RegistrationError):
+        pass
+
     def __init__(self):
         self._entry_classes = {}
 
@@ -391,6 +394,17 @@ class MenuRegistry:
 
             if setdefault(entry_id, entry_cls) is not entry_cls:
                 raise self.RegistrationError(f"Duplicated entry's id: {entry_id}")
+
+        return self
+
+    def unregister(self, *entry_classes: type[MenuEntry]) -> MenuRegistry:
+        for entry_cls in entry_classes:
+            try:
+                del self._entry_classes[entry_cls.id]
+            except KeyError as e:
+                raise self.UnRegistrationError(
+                    f'Invalid entry {entry_cls} (already unregistered?)'
+                ) from e
 
         return self
 
