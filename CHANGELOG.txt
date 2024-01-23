@@ -5,6 +5,12 @@
   UPGRADE NOTE :
     - You should re-generate the media files (creme generatemedia --settings=[...]).
 
+  Users side :
+  ------------
+     # Apps :
+        * Billing :
+            - An crash in the configuration of export (when the configured engine was not installed anymore) has been fixed.
+
 
 == Version 2.5.4 ==
 
