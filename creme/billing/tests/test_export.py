@@ -733,8 +733,8 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('billing-xhtml2pdf|FR/fr_FR/cappuccino', exporter_f.initial)
 
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
-    def test_configuration_edition03(self):
-        "Invalid initial value."
+    def test_configuration_edition__invalid_initial01(self):
+        "Invalid initial value (flavour)."
         self.login_as_root()
 
         ct = ContentType.objects.get_for_model(Invoice)
@@ -752,8 +752,53 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertIsNone(localisation_f.initial)
 
+    @skipIf(xhtml2pdf_not_installed, 'The lib "xhtml2pdf" is not installed.')
+    @override_settings(BILLING_EXPORTERS=[
+        'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine',
+    ])
+    def test_configuration_edition__invalid_initial02(self):
+        "Invalid initial value (engine)."
+        self.login_as_root()
+
+        ct = ContentType.objects.get_for_model(Invoice)
+        ExporterConfigItem.objects.filter(
+            content_type=ct,
+        ).update(
+            engine_id='billing-invalid',
+            flavour_id='BROKEN/foo_FOO/invalid',
+        )
+
+        url = self._build_conf_url(ct)
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            localisation_f = response1.context['form'].fields['localisation']
+
+        self.assertIsNone(localisation_f.initial)
+
+        # ---
+        response2 = self.client.post(
+            url,
+            data={
+                'exporter_config_edition_wizard-current_step': '0',
+                '0-localisation': json_dump({
+                    'country': {
+                        'country_code': 'FR',
+                        'languages': ['fr_FR'],
+                    },
+                    'language': {'language_code': 'fr_FR'},
+                }),
+            },
+        )
+        self.assertNoFormError(response2)
+
+        with self.assertNoException():
+            exporter_f = response2.context['form'].fields['exporter']
+
+        self.assertIsNone(exporter_f.initial)
+
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
-    def test_configuration_edition04(self):
+    def test_configuration_edition__not_allowed(self):
         "Not admin credentials."
         self.login_as_standard()  # Not admin_4_apps=['billing']
 
