@@ -1,5 +1,13 @@
 == Version 2.4.12 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The widget 'creme_core.forms.header_filter.EntityCellsWidget' has been fixed
+          to enable complex HTML representations produced by field printers.
+
 
 == Version 2.4.11 ==
 
