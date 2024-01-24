@@ -1,5 +1,6 @@
 from datetime import date
 from functools import partial
+from io import BytesIO
 from pathlib import Path
 from urllib.parse import urlencode
 
@@ -13,6 +14,7 @@ from django.utils.html import format_html
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
+from openpyxl import load_workbook
 
 from creme.creme_core.core.entity_cell import (
     EntityCellFunctionField,
@@ -628,6 +630,39 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
         with self.assertRaises(StopIteration):
             next(it)
+
+    def test_xlsx_export(self):
+        user = self.login_as_root_and_get()
+        cells = self._build_hf_n_contacts(user=user).cells
+        existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
+
+        response = self.assertGET200(
+            self._build_contact_dl_url(doc_type='xlsx'), follow=True,
+        )
+        wb = load_workbook(
+            filename=BytesIO(b''.join(response.streaming_content)),
+            read_only=True,
+        )
+        self.assertListEqual(
+            [
+                [hfi.title for hfi in cells],
+                [None, 'Black',     'Jet',    'Bebop',           None],
+                [None, 'Spiegel',   'Spike',  'Bebop/Swordfish', None],
+                [None, 'Valentine', 'Faye',   None,              'is a girl/is beautiful'],
+                [None, 'Wong',      'Edward', None,              'is a girl'],
+            ],
+            [[tcell.value for tcell in row] for row in wb.active.rows],
+        )
+
+        # FileRef
+        fileref = self.get_alone_element(FileRef.objects.exclude(id__in=existing_fileref_ids))
+        self.assertTrue(fileref.temporary)
+        self.assertEqual('fakecontact.xlsx', fileref.basename)
+        self.assertEqual(user, fileref.user)
+
+        fullpath = Path(fileref.filedata.path)
+        self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists?!')
+        self.assertEqual(Path(settings.MEDIA_ROOT, 'xlsx'), fullpath.parent)
 
     def test_print_integer01(self):
         "No choices."

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2022  Hybird
+#    Copyright (C) 2020-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,7 @@ from ..models import Line
 from . import base
 
 
+# TODO: .xlsx too (with openpyxl)?
 # TODO: use a list sub-exporters in class attribute to facilitate extension/hooking
 #       (would be cool to have source/target cached properties before).
 class XLSExporter(base.BillingExporter):

@@ -77,6 +77,7 @@ virtual env, in order to keep the old one working).
      - django-formtools
      - xlrd (to import contacts, organisations, activities, tickets... from xls files)
      - xlwt (to export all types of entities -- like contacts or organisations -- as xls files)
+     - openpyxl (to import & export as above but with xlsx files)
      - csscompressor
      - rJSmin
    - Optional :

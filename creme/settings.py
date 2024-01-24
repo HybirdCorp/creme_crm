@@ -462,12 +462,14 @@ ALLOWED_EXTENSIONS = [
 IMPORT_BACKENDS = [
     'creme.creme_core.backends.csv_import.CSVImportBackend',
     'creme.creme_core.backends.xls_import.XLSImportBackend',
-    'creme.creme_core.backends.xls_import.XLSXImportBackend',
+    # 'creme.creme_core.backends.xls_import.XLSXImportBackend',
+    'creme.creme_core.backends.xlsx_import.XLSXImportBackend',
 ]
 EXPORT_BACKENDS = [
     'creme.creme_core.backends.csv_export.CSVExportBackend',
     'creme.creme_core.backends.csv_export.SemiCSVExportBackend',
     'creme.creme_core.backends.xls_export.XLSExportBackend',
+    'creme.creme_core.backends.xlsx_export.XLSXExportBackend',
 ]
 
 # EMAILS [internal] ############################################################
