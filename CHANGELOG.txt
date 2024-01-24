@@ -11,6 +11,14 @@
         * Billing :
             - An crash in the configuration of export (when the configured engine was not installed anymore) has been fixed.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The widget 'creme_core.forms.header_filter.EntityCellsWidget' has been fixed
+          to enable complex HTML representations produced by field printers.
+
 
 == Version 2.5.4 ==
 

@@ -54,11 +54,14 @@
     {% endblock %}
     </div>
 
+    {{ widget.samples|json_script:widget.uuid }}
     <script type="text/javascript">
     {% block script %}
         $(document).ready(function() {
+            var widgetSamplesNode = document.getElementById("{{widget.uuid}}");
+            var widgetSamples = JSON.parse(widgetSamplesNode.textContent);
             new creme.entity_cell.EntityCellsWidget({
-                samples: {{widget.samples|jsonify|safe}}
+                samples: widgetSamples
             }).bind($('#{{widget.attrs.id}}'));
         });
     {% endblock %}
