@@ -10,10 +10,11 @@ from creme.creme_core.utils.xlwt_utils import XlwtWriter
 
 
 class XLSUtilsTestCase(CremeTestCase):
-    files = ('data-xls5.0-95.xls',
-             'data-xls97-2003.xls',
-             'data-xlsx.xlsx'
-             )
+    files = (
+        'data-xls5.0-95.xls',
+        'data-xls97-2003.xls',
+        # 'data-xlsx.xlsx'
+    )
     current_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
     data = [
         ['Prénom', 'Nom', 'Taille1', 'Taille2', 'Send_Date'],
@@ -58,6 +59,19 @@ class XLSUtilsTestCase(CremeTestCase):
         for filename in self.files:
             rd = XlrdReader(filedata=self.get_file_path(filename))
             self.assertListEqual(self.data, [*rd])
+
+    def test_xlsx(self):
+        "Check no regression with previous xlrd results."
+        import openpyxl
+
+        wb = openpyxl.load_workbook(
+            filename=self.get_file_path('data-xlsx.xlsx'),
+            read_only=True,
+        )
+        self.assertListEqual(
+            self.data,
+            [[tcell.value or '' for tcell in row] for row in wb.active.rows],
+        )
 
     def test_open_file(self):
         for filename in self.files:

@@ -1,6 +1,7 @@
 # import warnings
 from tempfile import NamedTemporaryFile
 
+import openpyxl
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -282,6 +283,17 @@ class MassImportBaseTestCaseMixin:
         for line in lines:
             wb.writerow(line)
         wb.save(tmpfile.name)
+
+        return self._build_doc(tmpfile, user=user)
+
+    def _build_xlsx_doc(self, lines, *, user, extension='xlsx'):
+        tmpfile = self._build_file(b'', extension)
+        workbook = openpyxl.Workbook()
+
+        append = workbook.active.append
+        for line in lines:
+            append(line)
+        workbook.save(tmpfile.name)
 
         return self._build_doc(tmpfile, user=user)
 

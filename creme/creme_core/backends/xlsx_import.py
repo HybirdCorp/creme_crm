@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2024  Hybird
+#    Copyright (C) 2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,21 +17,23 @@
 ################################################################################
 
 from django.utils.translation import gettext_lazy as _
+from openpyxl import load_workbook
 
-from ..utils.xlrd_utils import XlrdReader
 from .base import ImportBackend
 
 
-class XLSImportBackend(XlrdReader, ImportBackend):
-    id = 'xls'
-    verbose_name = _('XLS File')
-    help_text = _(
-        'XLS is a file extension for a spreadsheet file format created by '
-        'Microsoft for use with Microsoft Excel ® (Excel 97-2003 Workbook).'
-    )
+class XLSXImportBackend(ImportBackend):
+    id = 'xlsx'
+    verbose_name = _('XLSX File')
+    help_text = _('XLSX file created by Microsoft Excel 2010 ®.')
 
+    def __init__(self, f):
+        super().__init__(f=f)
+        self._workbook = wb = load_workbook(
+            filename=getattr(f, 'path', f),
+            read_only=True,
+        )
+        self._rows = wb.active.rows
 
-# class XLSXImportBackend(XlrdReader, ImportBackend):
-#     id = 'xlsx'
-#     verbose_name = _('XLSX File')
-#     help_text = _('XLSX file extension introduced by Microsoft Excel 2007.')
+    def __next__(self):
+        return [td.value for td in next(self._rows)]
