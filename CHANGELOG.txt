@@ -71,6 +71,8 @@
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' is now deprecated.
                     - The class-view 'views.contact.ContactNamesEdition' is now deprecated.
+        # A new setting value "POPULATORS" has been added ; it allows to
+          override the classes used by the command "creme_populate".
         # In the class 'creme_core.core.setting_key.SettingKey', you can now pass :
              - a custom form-field class.
              - a custom renderer function.

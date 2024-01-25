@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ from importlib import import_module
 from traceback import format_exception
 
 from django.apps import apps
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import no_style
 from django.db import DEFAULT_DB_ALIAS, connections
@@ -33,6 +34,7 @@ from creme.creme_core.models import HeaderFilter, SearchConfigItem
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.dependence_sort import dependence_sort
+from creme.creme_core.utils.imports import safe_import_object
 
 
 def _checked_app_label(app_label, app_labels):
@@ -263,35 +265,52 @@ class Command(BaseCommand):
                        all_apps,
                        options,
                        ) -> BasePopulator | None:
-        try:
-            mod = import_module(apps.get_app_config(app_label).name + '.populate')
-        except ModuleNotFoundError:
+        custom_class_path = settings.POPULATORS.get(app_label)
+
+        if custom_class_path:
             if verbosity >= 1:
                 self.stdout.write(self.style.NOTICE(
-                    f'Disable populate for "{app_label}": '
-                    f'it does not have any "populate.py" script.'
+                    f'The populator for "{app_label}" has been overriden '
+                    f'(class "{custom_class_path}" will be used).'
                 ))
 
-            return None
-        except ImportError as e:
-            if verbosity >= 1:
-                self.stderr.write(self.style.NOTICE(
-                    f'Disable populate for "{app_label}": '
-                    f'error when importing the populate package [{e}].'
-                ))
+            populator_class = safe_import_object(custom_class_path)
+            if populator_class is None:
+                raise CommandError(
+                    f'Your settings value POPULATORS is invalid (currently '
+                    f'{settings.POPULATORS}). This path, used for the app '
+                    f'"{app_label}", is invalid: <{custom_class_path}>.'
+                )
+        else:
+            try:
+                mod = import_module(f'{apps.get_app_config(app_label).name}.populate')
+            except ModuleNotFoundError:
+                if verbosity >= 1:
+                    self.stdout.write(self.style.NOTICE(
+                        f'Disable populate for "{app_label}": '
+                        f'it does not have any "populate.py" script.'
+                    ))
 
-            return None
+                return None
+            except ImportError as e:
+                if verbosity >= 1:
+                    self.stderr.write(self.style.NOTICE(
+                        f'Disable populate for "{app_label}": '
+                        f'error when importing the populate package [{e}].'
+                    ))
 
-        populator_class = getattr(mod, 'Populator', None)
+                return None
 
-        if populator_class is None:
-            if verbosity >= 1:
-                self.stdout.write(self.style.NOTICE(
-                    f'Disable populate for "{app_label}": '
-                    f'its populate.py script has no "Populator" class.'
-                ))
+            populator_class = getattr(mod, 'Populator', None)
 
-            return None
+            if populator_class is None:
+                if verbosity >= 1:
+                    self.stdout.write(self.style.NOTICE(
+                        f'Disable populate for "{app_label}": '
+                        f'its populate.py script has no "Populator" class.'
+                    ))
+
+                return None
 
         try:
             populator = populator_class(
