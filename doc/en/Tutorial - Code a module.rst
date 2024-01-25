@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 16-01-2024 for Creme 2.6
+:Version: 30-01-2024 for Creme 2.6
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2719,6 +2719,45 @@ Creme provides a generic view which returns an error page to the user: ::
         ),
     ]
 
+
+Modification of "populate" script
+*********************************
+
+The "populate" scripts are, as you may know, used by the command
+"creme_populate" to fill the data base. If you want to modify this script for
+an existing app, in order to a get a fresh installation more adapted to your use
+(mainly if you want to deploy several instances).
+
+Imagine you want to customise the app "persons" to have only in the blocks'
+configuration for Contacts and Organisation the block which displays Alerts
+(so no ToDo, Memo etc…).
+
+In our file ``my_project/beavers/populate.py`` we add this code: ::
+
+    [...]
+
+    from creme.persons import populate as persons_populate
+
+    class PersonsPopulator(persons_populate.Populator):
+        # We retrieved the code of the base method, & we modify it as we want.
+        def _populate_bricks_config_for_assistants(self):
+            from creme.assistants.bricks import AlertsBrick
+
+            for model in (self.Contact, self.Organisation):
+                BrickDetailviewLocation.objects.create_if_needed(
+                    model=model, brick=AlertsBrick,
+                    order=100, zone=BrickDetailviewLocation.RIGHT,
+                )
+
+
+Now we just have to indicate to Creme to use this class instead of the default
+one. In ``my_project/settings.py``, we add this variable: ::
+
+    [...]
+
+    POPULATORS = {
+        'persons': 'my_project.beavers.populate.PersonsPopulator',
+    }
 
 
 Further with models: Tags

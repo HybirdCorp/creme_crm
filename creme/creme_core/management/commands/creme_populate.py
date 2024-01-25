@@ -75,7 +75,77 @@ class BasePopulator:
         self.dependencies = deps
 
     def populate(self) -> None:
+        # raise NotImplementedError
+
+        self.already_populated = already = self._already_populated()
+        self._populate()
+
+        if not already:
+            self._first_populate()
+
+    def _already_populated(self) -> bool:
         raise NotImplementedError
+
+    def _populate(self) -> None:
+        self._populate_property_types()
+        self._populate_relation_types()
+        self._populate_entity_filters()
+        self._populate_header_filters()
+        self._populate_jobs()
+        self._populate_sandboxes()
+        self._populate_custom_forms()
+        self._populate_search_config()
+        self._populate_setting_values()
+        self._populate_notification_channels()
+
+    def _first_populate(self) -> None:
+        self._populate_menu_config()
+        self._populate_buttons_config()
+        self._populate_bricks_config()
+
+    # Sub-populators -----------------------------------------------------------
+    # - Called every time the command is run:
+    def _populate_property_types(self) -> None:
+        pass
+
+    def _populate_relation_types(self) -> None:
+        pass
+
+    def _populate_entity_filters(self) -> None:
+        pass
+
+    def _populate_header_filters(self) -> None:
+        pass
+
+    def _populate_jobs(self) -> None:
+        pass
+
+    def _populate_sandboxes(self) -> None:
+        pass
+
+    def _populate_custom_forms(self) -> None:
+        pass
+
+    def _populate_search_config(self) -> None:
+        pass
+
+    def _populate_setting_values(self) -> None:
+        pass
+
+    def _populate_notification_channels(self) -> None:
+        pass
+
+    # - Called only the first time the command is run:
+    def _populate_menu_config(self) -> None:
+        pass
+
+    def _populate_buttons_config(self) -> None:
+        pass
+
+    def _populate_bricks_config(self) -> None:
+        pass
+
+    # Sub-populators [END] -----------------------------------------------------
 
     def get_app(self):
         return self.app

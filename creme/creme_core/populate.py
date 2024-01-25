@@ -61,26 +61,75 @@ from .utils.date_period import date_period_registry
 
 
 class Populator(BasePopulator):
-    def populate(self):
-        already_populated = RelationType.objects.filter(id=constants.REL_SUB_HAS).exists()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.root = None
 
+    def _already_populated(self):
+        return RelationType.objects.filter(id=constants.REL_SUB_HAS).exists()
+
+    def _populate(self):
         get_world_settings_model().objects.get_or_create(pk=1)
 
         if not CaseSensitivity.objects.exists():
             CaseSensitivity.objects.create(text='CasE')
 
-        RelationType.objects.smart_update_or_create(
-            (constants.REL_SUB_HAS, _('owns')),
-            (constants.REL_OBJ_HAS, _('belongs to')),
+        super()._populate()
+        self._populate_currencies()
+
+        if settings.TESTS_ON:
+            from .tests import fake_populate
+            fake_populate.populate()
+
+    def _first_populate(self):
+        self._populate_root()
+        super()._first_populate()
+        self._populate_roles()
+        self._populate_optional_currencies()
+        self._populate_languages()
+        self._populate_vats()
+
+    def _populate_root(self):
+        login = constants.ROOT_USERNAME
+        password = constants.ROOT_PASSWORD
+        self.root = get_user_model().objects.create_superuser(
+            pk=1, username=login, password=password,
+            first_name='Fulbert', last_name='Creme',
+            email=_('replaceMe@byYourAddress.com'),
         )
 
-        # ---------------------------
-        create_svalue = SettingValue.objects.get_or_create
-        create_svalue(key_id=setting_keys.block_opening_key.id,   defaults={'value': True})
-        create_svalue(key_id=setting_keys.block_showempty_key.id, defaults={'value': True})
-        create_svalue(key_id=setting_keys.currency_symbol_key.id, defaults={'value': True})
+        if self.verbosity:
+            self.stdout.write(
+                f'\n A super-user has been created with '
+                f'login="{login}" and password="{password}".',
+                self.style.NOTICE,
+            )
 
-        # ---------------------------
+    def _populate_roles(self):
+        CRED_REGULAR = CremeAppConfig.CRED_REGULAR
+        entity_models = [*creme_registry.iter_entity_models()]
+        regular_role = UserRole.objects.smart_create(
+            name=_('Regular user'),
+            allowed_apps=[
+                app.label for app in creme_app_configs() if app.credentials & CRED_REGULAR
+            ],
+            creatable_models=entity_models,
+            exportable_models=entity_models,
+        )
+        SetCredentials.objects.create(
+            role=regular_role,
+            # NB: EntityCredentials._ALL_CREDS set the bit 0 too...
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+    def _populate_currencies(self):
         create_if_needed(
             Currency,
             {'pk': constants.DEFAULT_CURRENCY_PK},
@@ -88,7 +137,48 @@ class Populator(BasePopulator):
             is_custom=False,
         )
 
-        # ---------------------------
+    def _populate_optional_currencies(self):
+        create_if_needed(
+            Currency, {'pk': 2},
+            name=_('United States dollar'),
+            local_symbol=_('$'), international_symbol=_('USD'),
+        )
+
+    def _populate_languages(self):
+        Language.objects.bulk_create([
+            Language(name=name)
+            for name in [
+                _('English'),
+                _('French'),
+                _('German'),
+                _('Spanish'),
+                _('Chinese'),
+                _('Japanese'),
+                _('Italian'),
+                _('Portuguese'),
+                _('Dutch'),
+            ]
+        ])
+
+    def _populate_vats(self):
+        create_vat = Vat.objects.get_or_create
+        DEFAULT_VAT = constants.DEFAULT_VAT
+        for value in {
+            *(
+                Decimal(value)
+                for value in ['0.0', '5.50', '7.0', '19.60', '20.0', '21.20']
+            ),
+            DEFAULT_VAT,
+        }:
+            create_vat(value=value, is_default=(value == DEFAULT_VAT), is_custom=False)
+
+    def _populate_relation_types(self):
+        RelationType.objects.smart_update_or_create(
+            (constants.REL_SUB_HAS, _('owns')),
+            (constants.REL_OBJ_HAS, _('belongs to')),
+        )
+
+    def _populate_jobs(self):
         create_job = Job.objects.get_or_create
         create_job(
             type_id=creme_jobs.sessions_cleaner_type.id,
@@ -124,16 +214,22 @@ class Populator(BasePopulator):
             },
         )
 
-        # ---------------------------
+    def _populate_sandboxes(self):
         Sandbox.objects.get_or_create(
             uuid=constants.UUID_SANDBOX_SUPERUSERS,
             defaults={
                 # 'superuser': True,
-                'type_id':   sandboxes.OnlySuperusersType.id,
+                'type_id': sandboxes.OnlySuperusersType.id,
             },
         )
 
-        # ---------------------------
+    def _populate_setting_values(self):
+        create_svalue = SettingValue.objects.get_or_create
+        create_svalue(key_id=setting_keys.block_opening_key.id,   defaults={'value': True})
+        create_svalue(key_id=setting_keys.block_showempty_key.id, defaults={'value': True})
+        create_svalue(key_id=setting_keys.currency_symbol_key.id, defaults={'value': True})
+
+    def _populate_notification_channels(self):
         create_channel = NotificationChannel.objects.get_or_create
         create_channel(
             uuid=constants.UUID_CHANNEL_SYSTEM,
@@ -168,142 +264,64 @@ class Populator(BasePopulator):
             },
         )
 
-        # ---------------------------
-        if not MenuConfigItem.objects.filter(entry_id=menu.CremeEntry.id).exists():
-            create_mitem = MenuConfigItem.objects.create
-            create_mitem(entry_id=menu.CremeEntry.id, order=1)
-            create_mitem(entry_id=Separator0Entry.id, order=2)
+    def _populate_menu_config(self):
+        create_mitem = MenuConfigItem.objects.create
+        create_mitem(entry_id=menu.CremeEntry.id, order=1)
+        create_mitem(entry_id=Separator0Entry.id, order=2)
 
-            tools = create_mitem(
-                entry_id=ContainerEntry.id, entry_data={'label': _('Tools')},
-                order=100,
-            )
-            create_mitem(entry_id=menu.JobsEntry.id, parent=tools, order=5)
+        tools = create_mitem(
+            entry_id=ContainerEntry.id, entry_data={'label': _('Tools')},
+            order=100,
+        )
+        create_mitem(entry_id=menu.JobsEntry.id, parent=tools, order=5)
 
-            create_mitem(entry_id=Separator0Entry.id, order=1000)
-            creations = create_mitem(
-                entry_id=ContainerEntry.id, entry_data={'label': _('+ Creation')},
-                order=1010,
-            )
-            create_mitem(
-                entry_id=Separator1Entry.id, entry_data={'label': _('Main entities')},
-                parent=creations, order=1,
-            )
-            create_mitem(
-                entry_id=Separator1Entry.id, entry_data={'label': _('Quick creation')},
-                parent=creations, order=100,
-            )
-            create_mitem(entry_id=menu.QuickFormsEntries.id,     parent=creations, order=101)
-            create_mitem(entry_id=Separator1Entry.id,            parent=creations, order=200)
-            create_mitem(entry_id=menu.EntitiesCreationEntry.id, parent=creations, order=201)
+        create_mitem(entry_id=Separator0Entry.id, order=1000)
+        creations = create_mitem(
+            entry_id=ContainerEntry.id, entry_data={'label': _('+ Creation')},
+            order=1010,
+        )
+        create_mitem(
+            entry_id=Separator1Entry.id, entry_data={'label': _('Main entities')},
+            parent=creations, order=1,
+        )
+        create_mitem(
+            entry_id=Separator1Entry.id, entry_data={'label': _('Quick creation')},
+            parent=creations, order=100,
+        )
+        create_mitem(entry_id=menu.QuickFormsEntries.id, parent=creations, order=101)
+        create_mitem(entry_id=Separator1Entry.id, parent=creations, order=200)
+        create_mitem(entry_id=menu.EntitiesCreationEntry.id, parent=creations, order=201)
 
-            create_mitem(entry_id=menu.RecentEntitiesEntry.id, order=1020)
+        create_mitem(entry_id=menu.RecentEntitiesEntry.id, order=1020)
 
-        # ---------------------------
-        if not already_populated:
-            login = constants.ROOT_USERNAME
-            password = constants.ROOT_PASSWORD
-            root = get_user_model().objects.create_superuser(
-                pk=1, username=login, password=password,
-                first_name='Fulbert', last_name='Creme',
-                email=_('replaceMe@byYourAddress.com'),
+    def _populate_buttons_config(self):
+        if not ButtonMenuItem.objects.filter(content_type=None).exists():
+            ButtonMenuItem.objects.create(
+                content_type=None, button_id='', order=1,
             )
 
-            if self.verbosity:
-                self.stdout.write(
-                    f'\n A super-user has been created with '
-                    f'login="{login}" and password="{password}".',
-                    self.style.NOTICE,
-                )
+    def _populate_bricks_config(self):
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'zone': BrickDetailviewLocation.LEFT},
+            data=[
+                {'order': 5},
+                {'brick': bricks.CustomFieldsBrick, 'order':  40},
+                {'brick': bricks.PropertiesBrick,   'order': 450},
+                {'brick': bricks.RelationsBrick,    'order': 500},
 
-            CRED_REGULAR = CremeAppConfig.CRED_REGULAR
-            entity_models = [*creme_registry.iter_entity_models()]
-            regular_role = UserRole.objects.smart_create(
-                name=_('Regular user'),
-                allowed_apps=[
-                    app.label for app in creme_app_configs() if app.credentials & CRED_REGULAR
-                ],
-                creatable_models=entity_models,
-                exportable_models=entity_models,
-            )
-            SetCredentials.objects.create(
-                role=regular_role,
-                # NB: EntityCredentials._ALL_CREDS set the bit 0 too...
-                value=(
-                    EntityCredentials.VIEW
-                    | EntityCredentials.CHANGE
-                    | EntityCredentials.DELETE
-                    | EntityCredentials.LINK
-                    | EntityCredentials.UNLINK
-                ),
-                set_type=SetCredentials.ESET_ALL,
-            )
+                {
+                    'brick': bricks.HistoryBrick, 'order': 8,
+                    'zone': BrickDetailviewLocation.RIGHT,
+                },
 
-            # ---------------------------
-            create_if_needed(
-                Currency, {'pk': 2},
-                name=_('United States dollar'),
-                local_symbol=_('$'), international_symbol=_('USD'),
-            )
+            ],
+        )
 
-            Language.objects.bulk_create([
-                Language(name=name)
-                for name in [
-                    _('English'),
-                    _('French'),
-                    _('German'),
-                    _('Spanish'),
-                    _('Chinese'),
-                    _('Japanese'),
-                    _('Italian'),
-                    _('Portuguese'),
-                    _('Dutch'),
-                ]
-            ])
+        create_bhl = BrickHomeLocation.objects.create
+        create_bhl(brick_id=bricks.StatisticsBrick.id, order=8)
+        create_bhl(brick_id=bricks.HistoryBrick.id,    order=10)
 
-            # ---------------------------
-            BrickDetailviewLocation.objects.multi_create(
-                defaults={'zone': BrickDetailviewLocation.LEFT},
-                data=[
-                    {'order': 5},
-                    {'brick': bricks.CustomFieldsBrick, 'order': 40},
-                    {'brick': bricks.PropertiesBrick,   'order': 450},
-                    {'brick': bricks.RelationsBrick,    'order': 500},
-
-                    {
-                        'brick': bricks.HistoryBrick, 'order': 8,
-                        'zone': BrickDetailviewLocation.RIGHT,
-                    },
-
-                ],
-            )
-
-            create_bhl = BrickHomeLocation.objects.create
-            create_bhl(brick_id=bricks.StatisticsBrick.id, order=8)
-            create_bhl(brick_id=bricks.HistoryBrick.id,    order=10)
-
-            create_bml = BrickMypageLocation.objects.create
-            create_bml(brick_id=bricks.HistoryBrick.id, order=8, user=None)
-            create_bml(brick_id=bricks.HistoryBrick.id, order=8, user=root)
-
-            # ---------------------------
-            if not ButtonMenuItem.objects.filter(content_type=None).exists():
-                ButtonMenuItem.objects.create(
-                    content_type=None, button_id='', order=1,
-                )
-
-            # ---------------------------
-            create_vat = Vat.objects.get_or_create
-            DEFAULT_VAT = constants.DEFAULT_VAT
-            for value in {
-                *(
-                    Decimal(value)
-                    for value in ['0.0', '5.50', '7.0', '19.60', '20.0', '21.20']
-                ),
-                DEFAULT_VAT,
-            }:
-                create_vat(value=value, is_default=(value == DEFAULT_VAT), is_custom=False)
-
-        if settings.TESTS_ON:
-            from .tests import fake_populate
-            fake_populate.populate()
+        create_bml = BrickMypageLocation.objects.create
+        create_bml(brick_id=bricks.HistoryBrick.id, order=8, user=None)
+        assert self.root is not None
+        create_bml(brick_id=bricks.HistoryBrick.id, order=8, user=self.root)

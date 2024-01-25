@@ -28,7 +28,6 @@ from creme.creme_core.models import (
     NotificationChannel,
     SettingValue,
 )
-# from creme.creme_core.notification import WebOutput
 from creme.creme_core.utils import create_if_needed
 
 from . import constants
@@ -42,51 +41,57 @@ from .setting_keys import todo_reminder_key
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self):
-        already_populated = UserMessagePriority.objects.filter(pk=constants.PRIO_IMP_PK).exists()
+    def _already_populated(self):
+        return UserMessagePriority.objects.filter(pk=constants.PRIO_IMP_PK).exists()
 
+    def _populate(self):
+        self._populate_message_priorities()
+        super()._populate()
+
+    def _populate_message_priorities(self):
         for pk, title in constants.USERMESSAGE_PRIORITIES.items():
             create_if_needed(
                 UserMessagePriority, {'pk': pk}, title=str(title), is_custom=False,
             )
 
+    def _populate_setting_values(self):
         SettingValue.objects.get_or_create(
             key_id=todo_reminder_key.id, defaults={'value': 9},
         )
 
-        # Job.objects.get_or_create(
-        #     type_id=usermessages_send_type.id,
-        #     defaults={
-        #         'language': settings.LANGUAGE_CODE,
-        #         'status':   Job.STATUS_OK,
-        #     },
-        # )
+    # def _populate_jobs(self):
+    #     Job.objects.get_or_create(
+    #         type_id=usermessages_send_type.id,
+    #         defaults={
+    #             'language': settings.LANGUAGE_CODE,
+    #             'status':   Job.STATUS_OK,
+    #         },
+    #     )
 
+    def _populate_notification_channels(self) -> None:
         NotificationChannel.objects.get_or_create(
             uuid=constants.UUID_CHANNEL_USERMESSAGES,
             defaults={
                 'type_id': UserMessagesChannelType.id,
                 'required': True,
                 'default_outputs': [
-                    # NotificationOutput.EMAIL,
                     notification.OUTPUT_EMAIL,
-                    # NotificationOutput.WEB,
                     notification.OUTPUT_WEB,
                 ],
             },
         )
 
-        if not already_populated:
-            create_bdl = partial(
-                BrickDetailviewLocation.objects.create_if_needed,
-                zone=BrickDetailviewLocation.RIGHT,
-            )
-            create_bdl(brick=TodosBrick,        order=100)
-            create_bdl(brick=MemosBrick,        order=200)
-            create_bdl(brick=AlertsBrick,       order=300)
-            create_bdl(brick=UserMessagesBrick, order=400)
+    def _populate_bricks_config(self):
+        create_bdl = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            zone=BrickDetailviewLocation.RIGHT,
+        )
+        create_bdl(brick=TodosBrick,        order=100)
+        create_bdl(brick=MemosBrick,        order=200)
+        create_bdl(brick=AlertsBrick,       order=300)
+        create_bdl(brick=UserMessagesBrick, order=400)
 
-            create_bhl = BrickHomeLocation.objects.create
-            create_bhl(brick_id=MemosBrick.id,        order=100)
-            create_bhl(brick_id=AlertsBrick.id,       order=200)
-            create_bhl(brick_id=UserMessagesBrick.id, order=300)
+        create_bhl = BrickHomeLocation.objects.create
+        create_bhl(brick_id=MemosBrick.id,        order=100)
+        create_bhl(brick_id=AlertsBrick.id,       order=200)
+        create_bhl(brick_id=UserMessagesBrick.id, order=300)

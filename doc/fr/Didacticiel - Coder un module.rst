@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 16-01-2024 pour la version 2.6 de Creme
+:Version: 30-01-2024 pour la version 2.6 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2838,6 +2838,47 @@ d'erreur : ::
         ),
     ]
 
+
+Modification du script "populate"
+*********************************
+
+Les scripts "populate" sont, comme vous le savez, utilisés par la commande
+"creme_populate" pour remplir la base de données. Il peut arriver que vous
+vouliez modifier ce script pour une app existante, pour que dès l'installation
+certaines configurations soit plus adaptées à votre utilisation (surtout si
+vous comptez déployer plusieurs instances).
+
+Mettons que vous vouliez modifier l'app "persons" pour que dans la
+configuration des blocs des Contacts et des Sociétés il n'y ait que les blocs
+des Alertes (donc pas les ToDos, Mémos etc…).
+
+Dans notre fichier ``my_project/beavers/populate.py`` on ajoute ce code : ::
+
+    [...]
+
+    from creme.persons import populate as persons_populate
+
+    class PersonsPopulator(persons_populate.Populator):
+        # On a récupéré le code de la méthode de base,
+        # et on le modifie à notre convenance.
+        def _populate_bricks_config_for_assistants(self):
+            from creme.assistants.bricks import AlertsBrick
+
+            for model in (self.Contact, self.Organisation):
+                BrickDetailviewLocation.objects.create_if_needed(
+                    model=model, brick=AlertsBrick,
+                    order=100, zone=BrickDetailviewLocation.RIGHT,
+                )
+
+
+Il reste juste à dire à Creme d'utiliser cette classe plutôt que celle par
+défaut. Dans ``my_project/settings.py``, ajoutons cette variable : ::
+
+    [...]
+
+    POPULATORS = {
+        'persons': 'my_project.beavers.populate.PersonsPopulator',
+    }
 
 
 Plus loin avec les modèles: les Tags

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,51 +50,93 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'documents']
 
-    def populate(self):
-        already_populated = RelationType.objects.filter(
+    SEARCH = {
+        'CAMPAIGN': ['name', 'mailing_lists__name'],
+        'MAILING_LIST': [
+            'name', 'children__name',
+            'contacts__first_name', 'contacts__last_name',
+            'organisations__name',
+        ],
+        'TEMPLATE': ['name', 'subject', 'body', 'attachments__title'],
+        'EMAIL': ['sender', 'recipient', 'subject'],
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.Contact      = persons.get_contact_model()
+        self.Organisation = persons.get_organisation_model()
+
+        self.EntityEmail   = emails.get_entityemail_model()
+        self.EmailCampaign = emails.get_emailcampaign_model()
+        self.EmailTemplate = emails.get_emailtemplate_model()
+        self.MailingList   = emails.get_mailinglist_model()
+
+    def _already_populated(self):
+        return RelationType.objects.filter(
             pk=constants.REL_SUB_MAIL_RECEIVED,
         ).exists()
 
-        EmailCampaign = emails.get_emailcampaign_model()
-        EmailTemplate = emails.get_emailtemplate_model()
-        EntityEmail   = emails.get_entityemail_model()
-        MailingList   = emails.get_mailinglist_model()
+    def _populate(self):
+        super()._populate()
+        self._populate_folder_categories()
 
-        Contact      = persons.get_contact_model()
-        Organisation = persons.get_organisation_model()
+    def _populate_folder_categories(self):
+        FolderCategory.objects.get_or_create(
+            uuid=constants.UUID_FOLDER_CAT_EMAILS,
+            defaults={
+                'name': _('Documents received by email'),
+                'is_custom': False,
+            },
+        )
 
-        # ---------------------------
+    def _populate_relation_types(self):
         create_rtype = RelationType.objects.smart_update_or_create
         create_rtype(
-            (constants.REL_SUB_MAIL_RECEIVED, _('(email) received by'),  [EntityEmail]),
-            (constants.REL_OBJ_MAIL_RECEIVED, _('received the email'),   [Organisation, Contact]),
+            (
+                constants.REL_SUB_MAIL_RECEIVED,
+                _('(email) received by'),
+                [self.EntityEmail],
+            ),
+            (
+                constants.REL_OBJ_MAIL_RECEIVED,
+                _('received the email'),
+                [self.Organisation, self.Contact],
+            ),
         )
         create_rtype(
-            (constants.REL_SUB_MAIL_SENT,     _('(email) sent by'),      [EntityEmail]),
-            (constants.REL_OBJ_MAIL_SENT,     _('sent the email'),       [Organisation, Contact]),
+            (
+                constants.REL_SUB_MAIL_SENT,
+                _('(email) sent by'),
+                [self.EntityEmail],
+            ),
+            (
+                constants.REL_OBJ_MAIL_SENT,
+                _('sent the email'),
+                [self.Organisation, self.Contact],
+            ),
         )
         create_rtype(
-            (constants.REL_SUB_RELATED_TO,    _('(email) related to'),   [EntityEmail]),
-            (constants.REL_OBJ_RELATED_TO,    _('related to the email'), []),
+            (constants.REL_SUB_RELATED_TO, _('(email) related to'),   [self.EntityEmail]),
+            (constants.REL_OBJ_RELATED_TO, _('related to the email'), []),
         )
 
-        # ---------------------------
+    def _populate_header_filters(self):
         create_hf = HeaderFilter.objects.create_if_needed
         create_hf(
             pk=constants.DEFAULT_HFILTER_MAILINGLIST,
-            model=MailingList,
+            model=self.MailingList,
             name=_('Mailing list view'),
             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
         )
         create_hf(
             pk=constants.DEFAULT_HFILTER_CAMPAIGN,
-            model=EmailCampaign,
+            model=self.EmailCampaign,
             name=_('Campaign view'),
             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
         )
         create_hf(
             pk=constants.DEFAULT_HFILTER_TEMPLATE,
-            model=EmailTemplate,
+            model=self.EmailTemplate,
             name=_('Email template view'),
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
@@ -103,7 +145,7 @@ class Populator(BasePopulator):
         )
         create_hf(
             pk=constants.DEFAULT_HFILTER_EMAIL,
-            model=EntityEmail,
+            model=self.EntityEmail,
             name=_('Email view'),
             cells_desc=[
                 (EntityCellRegularField, {'name': 'sender'}),
@@ -112,37 +154,7 @@ class Populator(BasePopulator):
             ],
         )
 
-        # ---------------------------
-        create_cform = CustomFormConfigItem.objects.create_if_needed
-        create_cform(descriptor=custom_forms.CAMPAIGN_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.CAMPAIGN_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.TEMPLATE_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.TEMPLATE_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.MAILINGLIST_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.MAILINGLIST_EDITION_CFORM)
-
-        # ---------------------------
-        create_searchconf = SearchConfigItem.objects.create_if_needed
-        create_searchconf(
-            EmailCampaign, ['name', 'mailing_lists__name'],
-        )
-        create_searchconf(
-            MailingList,
-            [
-                'name', 'children__name',
-                'contacts__first_name', 'contacts__last_name',
-                'organisations__name',
-            ],
-        )
-        create_searchconf(
-            EmailTemplate,
-            ['name', 'subject', 'body', 'attachments__title'],
-        )
-        create_searchconf(
-            EntityEmail, ['sender', 'recipient', 'subject'],
-        )
-
-        # ---------------------------
+    def _populate_jobs(self):
         create_job = Job.objects.get_or_create
         create_job(
             type_id=creme_jobs.entity_emails_send_type.id,
@@ -167,169 +179,215 @@ class Populator(BasePopulator):
             },
         )
 
-        # ---------------------------
-        FolderCategory.objects.get_or_create(
-            uuid=constants.UUID_FOLDER_CAT_EMAILS,
-            defaults={
-                'name': _('Documents received by email'),
-                'is_custom': False,
-            },
+    def _populate_custom_forms(self):
+        create_cfci = CustomFormConfigItem.objects.create_if_needed
+        create_cfci(descriptor=custom_forms.CAMPAIGN_CREATION_CFORM)
+        create_cfci(descriptor=custom_forms.CAMPAIGN_EDITION_CFORM)
+        create_cfci(descriptor=custom_forms.TEMPLATE_CREATION_CFORM)
+        create_cfci(descriptor=custom_forms.TEMPLATE_EDITION_CFORM)
+        create_cfci(descriptor=custom_forms.MAILINGLIST_CREATION_CFORM)
+        create_cfci(descriptor=custom_forms.MAILINGLIST_EDITION_CFORM)
+
+    def _populate_search_config(self):
+        create_sci = SearchConfigItem.objects.create_if_needed
+        create_sci(model=self.EmailCampaign, fields=self.SEARCH['CAMPAIGN'])
+        create_sci(model=self.MailingList,   fields=self.SEARCH['MAILING_LIST'])
+        create_sci(model=self.EmailTemplate, fields=self.SEARCH['TEMPLATE'])
+        create_sci(model=self.EntityEmail,   fields=self.SEARCH['EMAIL'])
+
+    def _populate_menu_config(self):
+        menu_container = MenuConfigItem.objects.get_or_create(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': _('Marketing')},
+            defaults={'order': 200},
+        )[0]
+
+        create_mitem = partial(MenuConfigItem.objects.create, parent=menu_container)
+        create_mitem(entry_id=menu.EmailCampaignsEntry.id, order=10)
+        create_mitem(entry_id=menu.MailingListsEntry.id,   order=15)
+        create_mitem(entry_id=menu.EmailTemplatesEntry.id, order=20)
+        create_mitem(entry_id=menu.EntityEmailsEntry.id,   order=25)
+        create_mitem(entry_id=menu.EmailSyncEntry.id,      order=30)
+
+    def _populate_buttons_config(self):
+        ButtonMenuItem.objects.create_if_needed(
+            model=self.EntityEmail,
+            button=buttons.EntityEmailLinkButton,
+            order=20,
         )
 
-        # ---------------------------
-        if not already_populated:
-            menu_container = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Marketing')},
-                defaults={'order': 200},
-            )[0]
+    def _populate_bricks_config_for_email(self):
+        EntityEmail = self.EntityEmail
+        build_cell = EntityCellRegularField.build
+        cbci = CustomBrickConfigItem.objects.create(
+            # id='emails-entityemail_info',
+            uuid='dbabb94a-a92e-41af-89ee-b18a6a920345',
+            name=_('Email information'),
+            content_type=EntityEmail,
+            cells=[
+                build_cell(EntityEmail, 'user'),
+                build_cell(EntityEmail, 'reads'),
+                build_cell(EntityEmail, 'status'),
+                build_cell(EntityEmail, 'sender'),
+                build_cell(EntityEmail, 'recipient'),
+                build_cell(EntityEmail, 'subject'),
+                build_cell(EntityEmail, 'reception_date'),
+                build_cell(EntityEmail, 'attachments'),
+                build_cell(EntityEmail, 'body'),
+                build_cell(EntityEmail, 'description'),
+            ],
+        )
 
-            create_mitem = partial(MenuConfigItem.objects.create, parent=menu_container)
-            create_mitem(entry_id=menu.EmailCampaignsEntry.id, order=10)
-            create_mitem(entry_id=menu.MailingListsEntry.id,   order=15)
-            create_mitem(entry_id=menu.EmailTemplatesEntry.id, order=20)
-            create_mitem(entry_id=menu.EntityEmailsEntry.id,   order=25)
-            create_mitem(entry_id=menu.EmailSyncEntry.id,      order=30)
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': self.EntityEmail, 'zone': BrickDetailviewLocation.LEFT},
+            data=[
+                {'brick': cbci.brick_id,                 'order':   5},
+                {'brick': bricks.EmailHTMLBodyBrick,     'order':  20},
+                {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                {'brick': core_bricks.RelationsBrick,    'order': 500},
 
-            # ---------------------------
-            create_cbci = CustomBrickConfigItem.objects.create
-            build_cell = EntityCellRegularField.build
+                {
+                    'brick': core_bricks.HistoryBrick,
+                    'order': 20, 'zone': BrickDetailviewLocation.RIGHT,
+                },
+            ],
+        )
 
-            cbci_email = create_cbci(
-                # id='emails-entityemail_info',
-                uuid='dbabb94a-a92e-41af-89ee-b18a6a920345',
-                name=_('Email information'),
-                content_type=EntityEmail,
-                cells=[
-                    build_cell(EntityEmail, 'user'),
-                    build_cell(EntityEmail, 'reads'),
-                    build_cell(EntityEmail, 'status'),
-                    build_cell(EntityEmail, 'sender'),
-                    build_cell(EntityEmail, 'recipient'),
-                    build_cell(EntityEmail, 'subject'),
-                    build_cell(EntityEmail, 'reception_date'),
-                    build_cell(EntityEmail, 'attachments'),
-                    build_cell(EntityEmail, 'body'),
-                    build_cell(EntityEmail, 'description'),
-                ],
-            )
-            cbci_template = create_cbci(
-                # id='emails-emailtemplate_info',
-                uuid='b1bf8a0a-26ef-4f05-a666-a328da6c52fd',
-                name=_('Email template information'),
-                content_type=EmailTemplate,
-                cells=[
-                    build_cell(EmailTemplate, 'created'),
-                    build_cell(EmailTemplate, 'modified'),
-                    build_cell(EmailTemplate, 'user'),
-                    build_cell(EmailTemplate, 'name'),
-                    build_cell(EmailTemplate, 'subject'),
-                    build_cell(EmailTemplate, 'body'),
-                    build_cell(EmailTemplate, 'signature'),
-                    build_cell(EmailTemplate, 'description'),
-                ],
-            )
+    def _populate_bricks_config_for_mlist(self):
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': self.MailingList, 'zone': BrickDetailviewLocation.LEFT},
+            data=[
+                {'order': 5},
+                {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                {'brick': bricks.EmailRecipientsBrick,   'order':  80},
+                {'brick': bricks.ContactsBrick,          'order':  90},
+                {'brick': bricks.OrganisationsBrick,     'order':  95},
+                {'brick': bricks.ChildListsBrick,        'order': 100},
+                {'brick': bricks.ParentListsBrick,       'order': 105},
+                {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                {'brick': core_bricks.RelationsBrick,    'order': 500},
 
-            TOP   = BrickDetailviewLocation.TOP
-            LEFT  = BrickDetailviewLocation.LEFT
-            RIGHT = BrickDetailviewLocation.RIGHT
+                {
+                    'brick': core_bricks.HistoryBrick, 'order': 20,
+                    'zone': BrickDetailviewLocation.RIGHT,
+                },
+            ],
+        )
 
+    def _populate_bricks_config_for_template(self):
+        EmailTemplate = self.EmailTemplate
+        build_cell = EntityCellRegularField.build
+        cbci = CustomBrickConfigItem.objects.create(
+            # id='emails-emailtemplate_info',
+            uuid='b1bf8a0a-26ef-4f05-a666-a328da6c52fd',
+            name=_('Email template information'),
+            content_type=EmailTemplate,
+            cells=[
+                build_cell(EmailTemplate, 'created'),
+                build_cell(EmailTemplate, 'modified'),
+                build_cell(EmailTemplate, 'user'),
+                build_cell(EmailTemplate, 'name'),
+                build_cell(EmailTemplate, 'subject'),
+                build_cell(EmailTemplate, 'body'),
+                build_cell(EmailTemplate, 'signature'),
+                build_cell(EmailTemplate, 'description'),
+            ],
+        )
+
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': self.EmailTemplate, 'zone': BrickDetailviewLocation.LEFT},
+            data=[
+                {'brick': cbci.brick_id,                 'order':   5},
+                {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                {'brick': bricks.AttachmentsBrick,       'order':  60},
+                {'brick': bricks.TemplateHTMLBodyBrick,  'order':  70},
+                {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                {'brick': core_bricks.RelationsBrick,    'order': 500},
+
+                {
+                    'brick': core_bricks.HistoryBrick, 'order': 20,
+                    'zone': BrickDetailviewLocation.RIGHT,
+                },
+            ],
+        )
+
+    def _populate_bricks_config_for_campaign(self):
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={
+                'model': self.EmailCampaign, 'zone': BrickDetailviewLocation.LEFT,
+            },
+            data=[
+                {
+                    'brick': bricks.SendingsBrick, 'order': 2,
+                    'zone': BrickDetailviewLocation.TOP,
+                },
+
+                {'order': 5},
+                {'brick': core_bricks.CustomFieldsBrick, 'order': 40},
+                {'brick': bricks.MailingListsBrick, 'order': 120},
+                {'brick': core_bricks.PropertiesBrick, 'order': 450},
+                {'brick': core_bricks.RelationsBrick, 'order': 500},
+
+                {
+                    'brick': core_bricks.HistoryBrick, 'order': 20,
+                    'zone': BrickDetailviewLocation.RIGHT,
+                },
+            ],
+        )
+
+    def _populate_bricks_config_for_persons(self):
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={
+                'brick': bricks.MailsHistoryBrick, 'order': 600,
+                'zone': BrickDetailviewLocation.RIGHT,
+            },
+            data=[
+                {'model': self.Contact},
+                {'model': self.Organisation},
+            ],
+        )
+
+    def _populate_bricks_config_for_documents(self):
+        # logger.info("Documents app is installed
+        # => we use the documents block on EmailCampaign's detail view")
+
+        from creme.documents.bricks import LinkedDocsBrick
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=LinkedDocsBrick,
+            order=600, zone=BrickDetailviewLocation.RIGHT,
+            model=self.EmailCampaign,
+        )
+
+    def _populate_bricks_config_for_assistants(self):
+        logger.info(
+            'Assistants app is installed => we use the assistants blocks on detail views'
+        )
+
+        import creme.assistants.bricks as a_bricks
+
+        for model in (self.MailingList, self.EmailCampaign, self.EmailTemplate):
             BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': EntityEmail, 'zone': LEFT},
+                defaults={'model': model, 'zone': BrickDetailviewLocation.RIGHT},
                 data=[
-                    {'brick': cbci_email.brick_id,           'order':   5},
-                    {'brick': bricks.EmailHTMLBodyBrick,     'order':  20},
-                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
-                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
-                    {'brick': core_bricks.RelationsBrick,    'order': 500},
-
-                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
-                ],
-            )
-            BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': MailingList, 'zone': LEFT},
-                data=[
-                    {'order': 5},
-                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
-                    {'brick': bricks.EmailRecipientsBrick,   'order':  80},
-                    {'brick': bricks.ContactsBrick,          'order':  90},
-                    {'brick': bricks.OrganisationsBrick,     'order':  95},
-                    {'brick': bricks.ChildListsBrick,        'order': 100},
-                    {'brick': bricks.ParentListsBrick,       'order': 105},
-                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
-                    {'brick': core_bricks.RelationsBrick,    'order': 500},
-
-                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
-                ],
-            )
-            BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': EmailCampaign, 'zone': LEFT},
-                data=[
-                    {'brick': bricks.SendingsBrick, 'order': 2, 'zone': TOP},
-
-                    {'order': 5},
-                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
-                    {'brick': bricks.MailingListsBrick,      'order': 120},
-                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
-                    {'brick': core_bricks.RelationsBrick,    'order': 500},
-
-                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
-                ],
-            )
-            BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': EmailTemplate, 'zone': LEFT},
-                data=[
-                    {'brick': cbci_template.brick_id,        'order':   5},
-                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
-                    {'brick': bricks.AttachmentsBrick,       'order':  60},
-                    {'brick': bricks.TemplateHTMLBodyBrick,  'order':  70},
-                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
-                    {'brick': core_bricks.RelationsBrick,    'order': 500},
-
-                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                    {'brick': a_bricks.TodosBrick,        'order': 100},
+                    {'brick': a_bricks.MemosBrick,        'order': 200},
+                    {'brick': a_bricks.AlertsBrick,       'order': 300},
+                    {'brick': a_bricks.UserMessagesBrick, 'order': 400},
                 ],
             )
 
-            # 'persons' app
-            BrickDetailviewLocation.objects.multi_create(
-                defaults={'brick': bricks.MailsHistoryBrick, 'order': 600, 'zone': RIGHT},
-                data=[
-                    {'model': Contact},
-                    {'model': Organisation},
-                ],
-            )
+    def _populate_bricks_config(self):
+        self._populate_bricks_config_for_email()
+        self._populate_bricks_config_for_mlist()
+        self._populate_bricks_config_for_template()
+        self._populate_bricks_config_for_campaign()
 
-            if apps.is_installed('creme.assistants'):
-                logger.info(
-                    'Assistants app is installed => we use the assistants blocks on detail views'
-                )
+        self._populate_bricks_config_for_persons()
 
-                import creme.assistants.bricks as a_bricks
+        if apps.is_installed('creme.documents'):
+            self._populate_bricks_config_for_documents()
 
-                for model in (MailingList, EmailCampaign, EmailTemplate):
-                    BrickDetailviewLocation.objects.multi_create(
-                        defaults={'model': model, 'zone': RIGHT},
-                        data=[
-                            {'brick': a_bricks.TodosBrick,        'order': 100},
-                            {'brick': a_bricks.MemosBrick,        'order': 200},
-                            {'brick': a_bricks.AlertsBrick,       'order': 300},
-                            {'brick': a_bricks.UserMessagesBrick, 'order': 400},
-                        ],
-                    )
-
-            if apps.is_installed('creme.documents'):
-                # logger.info("Documents app is installed
-                # => we use the documents block on EmailCampaign's detail view")
-
-                from creme.documents.bricks import LinkedDocsBrick
-
-                BrickDetailviewLocation.objects.create_if_needed(
-                    brick=LinkedDocsBrick, order=600, zone=RIGHT, model=EmailCampaign,
-                )
-
-            # ---------------------------
-            ButtonMenuItem.objects.create_if_needed(
-                model=EntityEmail,
-                button=buttons.EntityEmailLinkButton,
-                order=20,
-            )
+        if apps.is_installed('creme.assistants'):
+            self._populate_bricks_config_for_assistants()
