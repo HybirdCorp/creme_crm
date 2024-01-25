@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,83 +42,86 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self):
-        Report = get_report_model()
+    SEARCH = ['name']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.Report = get_report_model()
+
+    def _already_populated(self):
+        # NB: no straightforward way to test that this script has not been already run
+        return BrickDetailviewLocation.objects.filter_for_model(self.Report).exists()
+
+    def _populate_header_filters(self):
         HeaderFilter.objects.create_if_needed(
             pk=constants.DEFAULT_HFILTER_REPORT,
-            name=_('Report view'), model=Report,
+            name=_('Report view'), model=self.Report,
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
                 (EntityCellRegularField, {'name': 'ct'}),
             ],
         )
 
-        # ---------------------------
-        CustomFormConfigItem.objects.create_if_needed(
-            descriptor=custom_forms.REPORT_CREATION_CFORM,
+    def _populate_custom_forms(self):
+        create_cfci = CustomFormConfigItem.objects.create_if_needed
+        create_cfci(descriptor=custom_forms.REPORT_CREATION_CFORM)
+        create_cfci(descriptor=custom_forms.REPORT_EDITION_CFORM)
+
+    def _populate_search_config(self):
+        SearchConfigItem.objects.create_if_needed(model=self.Report, fields=self.SEARCH)
+
+    def _populate_menu_config(self):
+        menu_container = MenuConfigItem.objects.get_or_create(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': _('Analysis')},
+            defaults={'order': 500},
+        )[0]
+
+        MenuConfigItem.objects.create(
+            entry_id=ReportsEntry.id, parent=menu_container, order=20,
         )
-        CustomFormConfigItem.objects.create_if_needed(
-            descriptor=custom_forms.REPORT_EDITION_CFORM,
+
+    def _populate_bricks_config(self):
+        RIGHT = BrickDetailviewLocation.RIGHT
+
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': self.Report, 'zone': BrickDetailviewLocation.LEFT},
+            data=[
+                {'order': 5},
+                {'brick': core_bricks.CustomFieldsBrick,    'order':  40},
+                {'brick': bricks.ReportFieldsBrick,         'order':  50},
+                {'brick': bricks.ReportGraphChartListBrick, 'order':  60},
+                {'brick': core_bricks.PropertiesBrick,      'order': 450},
+                {'brick': core_bricks.RelationsBrick,       'order': 500},
+
+                {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+            ],
         )
 
-        # ---------------------------
-        SearchConfigItem.objects.create_if_needed(Report, ['name'])
-
-        # ---------------------------
-        # NB: no straightforward way to test that this populate script has not been already run
-        if not BrickDetailviewLocation.objects.filter_for_model(Report).exists():
-            menu_container = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Analysis')},
-                defaults={'order': 500},
-            )[0]
-
-            MenuConfigItem.objects.create(
-                entry_id=ReportsEntry.id, parent=menu_container, order=20,
+        if apps.is_installed('creme.assistants'):
+            logger.info(
+                'Assistants app is installed'
+                ' => we use the assistants blocks on detail view'
             )
 
-            # ---------------------------
-            RIGHT = BrickDetailviewLocation.RIGHT
+            import creme.assistants.bricks as a_bricks
 
             BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': Report, 'zone': BrickDetailviewLocation.LEFT},
+                defaults={'model': self.Report, 'zone': RIGHT},
                 data=[
-                    {'order': 5},
-                    {'brick': core_bricks.CustomFieldsBrick,    'order':  40},
-                    {'brick': bricks.ReportFieldsBrick,         'order':  50},
-                    {'brick': bricks.ReportGraphChartListBrick, 'order':  60},
-                    {'brick': core_bricks.PropertiesBrick,      'order': 450},
-                    {'brick': core_bricks.RelationsBrick,       'order': 500},
-
-                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                    {'brick': a_bricks.TodosBrick,        'order': 100},
+                    {'brick': a_bricks.MemosBrick,        'order': 200},
+                    {'brick': a_bricks.AlertsBrick,       'order': 300},
+                    {'brick': a_bricks.UserMessagesBrick, 'order': 400},
                 ],
             )
 
-            if apps.is_installed('creme.assistants'):
-                logger.info(
-                    'Assistants app is installed'
-                    ' => we use the assistants blocks on detail view'
-                )
+        if apps.is_installed('creme.documents'):
+            # logger.info('Documents app is installed
+            # => we use the documents block on detail views')
 
-                import creme.assistants.bricks as a_bricks
+            from creme.documents.bricks import LinkedDocsBrick
 
-                BrickDetailviewLocation.objects.multi_create(
-                    defaults={'model': Report, 'zone': RIGHT},
-                    data=[
-                        {'brick': a_bricks.TodosBrick,        'order': 100},
-                        {'brick': a_bricks.MemosBrick,        'order': 200},
-                        {'brick': a_bricks.AlertsBrick,       'order': 300},
-                        {'brick': a_bricks.UserMessagesBrick, 'order': 400},
-                    ],
-                )
-
-            if apps.is_installed('creme.documents'):
-                # logger.info('Documents app is installed
-                # => we use the documents block on detail views')
-
-                from creme.documents.bricks import LinkedDocsBrick
-
-                BrickDetailviewLocation.objects.create_if_needed(
-                    brick=LinkedDocsBrick, order=600, zone=RIGHT, model=Report,
-                )
+            BrickDetailviewLocation.objects.create_if_needed(
+                brick=LinkedDocsBrick, order=600, zone=RIGHT, model=self.Report,
+            )

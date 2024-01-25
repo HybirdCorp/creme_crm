@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -66,103 +66,94 @@ from .registry import lines_registry
 
 logger = logging.getLogger(__name__)
 
-CreditNote   = billing.get_credit_note_model()
-Invoice      = billing.get_invoice_model()
-Quote        = billing.get_quote_model()
-SalesOrder   = billing.get_sales_order_model()
-TemplateBase = billing.get_template_base_model()
-
-ProductLine = billing.get_product_line_model()
-ServiceLine = billing.get_service_line_model()
-
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
 
-    def populate(self):
-        already_populated = RelationType.objects.filter(
+    SEARCH = {
+        'INVOICE':     ['name', 'number', 'status__name'],
+        'QUOTE':       ['name', 'number', 'status__name'],
+        'CREDIT_NOTE': ['name', 'number', 'status__name'],
+        'SALES_ORDER': ['name', 'number', 'status__name'],
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.Contact      = persons.get_contact_model()
+        self.Organisation = persons.get_organisation_model()
+
+        self.CreditNote   = billing.get_credit_note_model()
+        self.Invoice      = billing.get_invoice_model()
+        self.Quote        = billing.get_quote_model()
+        self.SalesOrder   = billing.get_sales_order_model()
+        self.TemplateBase = billing.get_template_base_model()
+
+        self.ProductLine = billing.get_product_line_model()
+        self.ServiceLine = billing.get_service_line_model()
+
+    def _already_populated(self):
+        return RelationType.objects.filter(
             pk=constants.REL_SUB_BILL_ISSUED,
         ).exists()
 
-        Contact      = persons.get_contact_model()
-        Organisation = persons.get_organisation_model()
-        Product = products.get_product_model()
-        Service = products.get_service_model()
+    def _populate(self):
+        super()._populate()
+        self._populate_exporters_config()
+        self._populate_payment_terms()
 
-        # Relationships ---------------------------
-        line_entities = [*lines_registry]
-        create_rtype = RelationType.objects.smart_update_or_create
-        create_rtype(
-            (constants.REL_SUB_BILL_ISSUED, _('issued by'),  BILLING_MODELS),
-            (constants.REL_OBJ_BILL_ISSUED, _('has issued'), [Organisation]),
-            is_internal=True,
-            minimal_display=(False, True),
-        )
-        rt_sub_bill_received = create_rtype(
-            (constants.REL_SUB_BILL_RECEIVED, _('received by'),  BILLING_MODELS),
-            (constants.REL_OBJ_BILL_RECEIVED, _('has received'), [Organisation, Contact]),
-            is_internal=True,
-            minimal_display=(False, True),
-        )[0]
-        create_rtype(
-            (constants.REL_SUB_HAS_LINE, _('has the line'),   BILLING_MODELS),
-            (constants.REL_OBJ_HAS_LINE, _('is the line of'), line_entities),
-            is_internal=True,
-            minimal_display=(True, True),
-        )
-        create_rtype(
-            (constants.REL_SUB_LINE_RELATED_ITEM, _('has the related item'),   line_entities),
-            (constants.REL_OBJ_LINE_RELATED_ITEM, _('is the related item of'), [Product, Service]),
-            is_internal=True,
-        )
-        create_rtype(
-            (
-                constants.REL_SUB_CREDIT_NOTE_APPLIED,
-                _('is used in the billing document'),
-                [CreditNote],
-            ),
-            (
-                constants.REL_OBJ_CREDIT_NOTE_APPLIED,
-                _('uses the credit note'),
-                [Quote, SalesOrder, Invoice],
-            ),
-            is_internal=True,
-            minimal_display=(True, True),
-        )
+        self._populate_order_statuses()
+        self._populate_invoice_statuses()
+        self._populate_creditnote_statuses()
+        self._populate_quote_statuses()
 
-        create_rtype(
-            (
-                constants.REL_SUB_INVOICE_FROM_QUOTE,
-                _('(Invoice) converted from the Quote'),
-                [Invoice],
-            ),
-            (
-                constants.REL_OBJ_INVOICE_FROM_QUOTE,
-                _('(Quote) converted to the Invoice'),
-                [Quote],
-            ),
-        )
+    def _first_populate(self):
+        super()._first_populate()
+        self._populate_settlement_terms()
+        self._populate_additional_information()
 
-        if apps.is_installed('creme.activities'):
-            logger.info(
-                'Activities app is installed '
-                '=> an Invoice/Quote/SalesOrder can be the subject of an Activity'
+        if apps.is_installed('creme.reports'):
+            self._populate_reports()
+
+    def _populate_exporters_config(self):
+        get_ct = ContentType.objects.get_for_model
+        engine_id = ''
+        flavour_id = ''
+
+        if 'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine' in settings.BILLING_EXPORTERS:
+            from creme.billing.exporters.xhtml2pdf import Xhtml2pdfExportEngine
+            from creme.creme_core.utils import l10n
+
+            # TODO: add the country in settings & use it...
+            country = l10n.FR
+            language = 'fr_FR'
+            theme = 'cappuccino'
+            try:
+                Xhtml2pdfExportEngine.FLAVOURS_INFO[country][language][theme]
+            except KeyError:
+                pass
+            else:
+                engine_id = Xhtml2pdfExportEngine.id
+                flavour_id = f'{country}/{language}/{theme}'
+
+        for model in (
+            self.CreditNote, self.Invoice, self.Quote, self.SalesOrder, self.TemplateBase,
+        ):
+            ExporterConfigItem.objects.get_or_create(
+                content_type=get_ct(model),
+                defaults={
+                    'engine_id': engine_id,
+                    'flavour_id': flavour_id,
+                },
             )
 
-            from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
-
-            RelationType.objects.get(
-                pk=REL_SUB_ACTIVITY_SUBJECT,
-            ).add_subject_ctypes(Invoice, Quote, SalesOrder)
-
-        # Payment Terms ---------------------------
+    def _populate_payment_terms(self):
         create_if_needed(
             PaymentTerms, {'pk': 1}, name=_('Deposit'),
             description=_(r'20% deposit will be required'),
             is_custom=False,
         )
 
-        # SalesOrder Status ---------------------------
+    def _populate_order_statuses(self):
         def create_order_status(pk, name, **kwargs):
             create_if_needed(SalesOrderStatus, {'pk': pk}, name=name, **kwargs)
 
@@ -170,12 +161,12 @@ class Populator(BasePopulator):
         #     (used when a quote is converted in invoice for example)
         create_order_status(1, pgettext('billing-salesorder', 'Issued'), order=1, is_custom=False)
 
-        if not already_populated:
+        if not self.already_populated:
             create_order_status(2, pgettext('billing-salesorder', 'Accepted'), order=3)
             create_order_status(3, pgettext('billing-salesorder', 'Rejected'), order=4)
             create_order_status(4, pgettext('billing-salesorder', 'Created'),  order=2)
 
-        # Invoice Status ---------------------------
+    def _populate_invoice_statuses(self):
         def create_invoice_status(pk, name, **kwargs):
             create_if_needed(InvoiceStatus, {'pk': pk}, name=name, **kwargs)
 
@@ -188,7 +179,7 @@ class Populator(BasePopulator):
             order=2, is_custom=False,
         )
 
-        if not already_populated:
+        if not self.already_populated:
             create_invoice_status(
                 3, pgettext('billing-invoice', 'Sent'),
                 order=3, pending_payment=True,
@@ -214,171 +205,19 @@ class Populator(BasePopulator):
                 order=8,
             )
 
-        # CreditNote Status ---------------------------
+    def _populate_creditnote_statuses(self):
         def create_cnote_status(pk, name, **kwargs):
             create_if_needed(CreditNoteStatus, {'pk': pk}, name=name, **kwargs)
 
         create_cnote_status(1, pgettext('billing-creditnote', 'Draft'), order=1, is_custom=False)
 
-        if not already_populated:
+        if not self.already_populated:
             create_cnote_status(2, pgettext('billing-creditnote', 'Issued'),      order=2)
             create_cnote_status(3, pgettext('billing-creditnote', 'Consumed'),    order=3)
             create_cnote_status(4, pgettext('billing-creditnote', 'Out of date'), order=4)
 
-        # ---------------------------
-        EntityFilter.objects.smart_update_or_create(
-            'billing-invoices_unpaid', name=_('Invoices unpaid'),
-            model=Invoice, user='admin',
-            conditions=[
-                condition_handler.RegularFieldConditionHandler.build_condition(
-                    model=Invoice,
-                    operator=operators.EqualsOperator,
-                    field_name='status__pending_payment',
-                    values=[True],
-                ),
-            ],
-        )
-        EntityFilter.objects.smart_update_or_create(
-            'billing-invoices_unpaid_late', name=_('Invoices unpaid and late'),
-            model=Invoice, user='admin',
-            conditions=[
-                condition_handler.RegularFieldConditionHandler.build_condition(
-                    model=Invoice,
-                    operator=operators.EqualsOperator,
-                    field_name='status__pending_payment',
-                    values=[True],
-                ),
-                condition_handler.DateRegularFieldConditionHandler.build_condition(
-                    model=Invoice,
-                    field_name='expiration_date',
-                    date_range='in_past',
-                ),
-            ],
-        )
-        current_year_invoice_filter = EntityFilter.objects.smart_update_or_create(
-            'billing-current_year_invoices', name=_('Current year invoices'),
-            model=Invoice, user='admin',
-            conditions=[
-                condition_handler.DateRegularFieldConditionHandler.build_condition(
-                    model=Invoice,
-                    field_name='issuing_date',
-                    date_range='current_year',
-                ),
-            ],
-        )
-        current_year_unpaid_invoice_filter = EntityFilter.objects.smart_update_or_create(
-            'billing-current_year_unpaid_invoices',
-            name=_('Current year and unpaid invoices'),
-            model=Invoice, user='admin',
-            conditions=[
-                condition_handler.DateRegularFieldConditionHandler.build_condition(
-                    model=Invoice,
-                    field_name='issuing_date',
-                    date_range='current_year',
-                ),
-                condition_handler.RegularFieldConditionHandler.build_condition(
-                    model=Invoice,
-                    operator=operators.EqualsOperator,
-                    field_name='status__pending_payment',
-                    values=[True],
-                ),
-            ],
-        )
-
-        # ---------------------------
-        def create_hf(hf_pk, name, model, status=True):
-            HeaderFilter.objects.create_if_needed(
-                pk=hf_pk, name=name, model=model,
-                cells_desc=[
-                    (EntityCellRegularField, {'name': 'name'}),
-                    EntityCellRelation(model=model, rtype=rt_sub_bill_received),
-                    (EntityCellRegularField, {'name': 'number'}),
-                    (EntityCellRegularField, {'name': 'status'}) if status else None,
-                    (EntityCellRegularField, {'name': 'total_no_vat'}),
-                    (EntityCellRegularField, {'name': 'issuing_date'}),
-                    (EntityCellRegularField, {'name': 'expiration_date'}),
-                ],
-            )
-
-        create_hf(constants.DEFAULT_HFILTER_INVOICE,  _('Invoice view'),     Invoice)
-        create_hf(constants.DEFAULT_HFILTER_QUOTE,    _('Quote view'),       Quote)
-        create_hf(constants.DEFAULT_HFILTER_ORDER,    _('Sales order view'), SalesOrder)
-        create_hf(constants.DEFAULT_HFILTER_CNOTE,    _('Credit note view'), CreditNote)
-        create_hf(
-            constants.DEFAULT_HFILTER_TEMPLATE, _('Template view'),    TemplateBase, status=False,
-        )
-
-        def create_hf_lines(hf_pk, name, model):
-            build_cell = EntityCellRegularField.build
-            HeaderFilter.objects.create_if_needed(
-                pk=hf_pk, name=name, model=model,
-                cells_desc=[
-                    build_cell(model=model, name='on_the_fly_item'),
-                    build_cell(model=model, name='quantity'),
-                    build_cell(model=model, name='unit_price'),
-                ],
-            )
-
-        create_hf_lines('billing-hg_product_lines', _('Product lines view'), ProductLine)
-        create_hf_lines('billing-hg_service_lines', _('Service lines view'), ServiceLine)
-
-        # ---------------------------
-        create_cform = CustomFormConfigItem.objects.create_if_needed
-        create_cform(descriptor=custom_forms.INVOICE_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.INVOICE_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.QUOTE_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.QUOTE_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.ORDER_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.ORDER_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.CNOTE_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.CNOTE_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.BTEMPLATE_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.BTEMPLATE_EDITION_CFORM)
-
-        # ---------------------------
-        get_ct = ContentType.objects.get_for_model
-        engine_id = ''
-        flavour_id = ''
-
-        if 'creme.billing.exporters.xhtml2pdf.Xhtml2pdfExportEngine' in settings.BILLING_EXPORTERS:
-            from creme.billing.exporters.xhtml2pdf import Xhtml2pdfExportEngine
-            from creme.creme_core.utils import l10n
-
-            # TODO: add the country in settings & use it...
-            country = l10n.FR
-            language = 'fr_FR'
-            theme = 'cappuccino'
-            try:
-                Xhtml2pdfExportEngine.FLAVOURS_INFO[country][language][theme]
-            except KeyError:
-                pass
-            else:
-                engine_id = Xhtml2pdfExportEngine.id
-                flavour_id = f'{country}/{language}/{theme}'
-
-        for model in (CreditNote, Invoice, Quote, SalesOrder, TemplateBase):
-            ExporterConfigItem.objects.get_or_create(
-                content_type=get_ct(model),
-                defaults={
-                    'engine_id': engine_id,
-                    'flavour_id': flavour_id,
-                },
-            )
-
-        # ---------------------------
-        for model in (Invoice, CreditNote, Quote, SalesOrder):
-            SearchConfigItem.objects.create_if_needed(model, ['name', 'number', 'status__name'])
-
-        for model in (ProductLine, ServiceLine):
-            SearchConfigItem.objects.create_if_needed(model, [], disabled=True)
-
-        # ---------------------------
-        create_svalue = SettingValue.objects.get_or_create
-        create_svalue(key_id=setting_keys.payment_info_key.id,       defaults={'value': True})
-        create_svalue(key_id=setting_keys.button_redirection_key.id, defaults={'value': True})
-
-        # ---------------------------
-        if not already_populated:
+    def _populate_quote_statuses(self):
+        if not self.already_populated:
             def create_quote_status(pk, name, **kwargs):
                 create_if_needed(QuoteStatus, {'pk': pk}, name=name, **kwargs)
 
@@ -401,224 +240,534 @@ class Populator(BasePopulator):
                 order=1,
             )
 
-            # ---------------------------
-            create_if_needed(SettlementTerms, {'pk': 1}, name=_('30 days'))
-            create_if_needed(SettlementTerms, {'pk': 2}, name=_('Cash'))
-            create_if_needed(SettlementTerms, {'pk': 3}, name=_('45 days'))
-            create_if_needed(SettlementTerms, {'pk': 4}, name=_('60 days'))
-            create_if_needed(SettlementTerms, {'pk': 5}, name=_('30 days, end month the 10'))
+    def _populate_settlement_terms(self):
+        create_if_needed(SettlementTerms, {'pk': 1}, name=_('30 days'))
+        create_if_needed(SettlementTerms, {'pk': 2}, name=_('Cash'))
+        create_if_needed(SettlementTerms, {'pk': 3}, name=_('45 days'))
+        create_if_needed(SettlementTerms, {'pk': 4}, name=_('60 days'))
+        create_if_needed(SettlementTerms, {'pk': 5}, name=_('30 days, end month the 10'))
 
-            # ---------------------------
-            create_if_needed(
-                AdditionalInformation,
-                {'pk': 1}, name=_('Trainer accreditation'),
-                description=_('being certified trainer courses could be supported by your OPCA')
+    def _populate_additional_information(self):
+        create_if_needed(
+            AdditionalInformation,
+            {'pk': 1}, name=_('Trainer accreditation'),
+            description=_('being certified trainer courses could be supported by your OPCA'),
+        )
+
+    def _populate_relation_types(self):
+        Product = products.get_product_model()
+        Service = products.get_service_model()
+
+        line_entities = [*lines_registry]
+
+        create_rtype = RelationType.objects.smart_update_or_create
+        create_rtype(
+            (constants.REL_SUB_BILL_ISSUED, _('issued by'),  BILLING_MODELS),
+            (constants.REL_OBJ_BILL_ISSUED, _('has issued'), [self.Organisation]),
+            is_internal=True,
+            minimal_display=(False, True),
+        )
+        create_rtype(
+            (
+                constants.REL_SUB_BILL_RECEIVED,
+                _('received by'),
+                BILLING_MODELS,
+            ),
+            (
+                constants.REL_OBJ_BILL_RECEIVED,
+                _('has received'),
+                [self.Organisation, self.Contact],
+            ),
+            is_internal=True,
+            minimal_display=(False, True),
+        )
+        create_rtype(
+            (constants.REL_SUB_HAS_LINE, _('has the line'),   BILLING_MODELS),
+            (constants.REL_OBJ_HAS_LINE, _('is the line of'), line_entities),
+            is_internal=True,
+            minimal_display=(True, True),
+        )
+        create_rtype(
+            (
+                constants.REL_SUB_LINE_RELATED_ITEM,
+                _('has the related item'),
+                line_entities,
+            ),
+            (
+                constants.REL_OBJ_LINE_RELATED_ITEM,
+                _('is the related item of'),
+                [Product, Service],
+            ),
+            is_internal=True,
+        )
+        create_rtype(
+            (
+                constants.REL_SUB_CREDIT_NOTE_APPLIED,
+                _('is used in the billing document'),
+                [self.CreditNote],
+            ),
+            (
+                constants.REL_OBJ_CREDIT_NOTE_APPLIED,
+                _('uses the credit note'),
+                [self.Quote, self.SalesOrder, self.Invoice],
+            ),
+            is_internal=True,
+            minimal_display=(True, True),
+        )
+        create_rtype(
+            (
+                constants.REL_SUB_INVOICE_FROM_QUOTE,
+                _('(Invoice) converted from the Quote'),
+                [self.Invoice],
+            ),
+            (
+                constants.REL_OBJ_INVOICE_FROM_QUOTE,
+                _('(Quote) converted to the Invoice'),
+                [self.Quote],
+            ),
+        )
+
+        if apps.is_installed('creme.activities'):
+            logger.info(
+                'Activities app is installed '
+                '=> an Invoice/Quote/SalesOrder can be the subject of an Activity'
             )
 
-            # ---------------------------
-            menu_container = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Management')},
-                defaults={'order': 50},
-            )[0]
+            from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 
-            create_mitem = partial(MenuConfigItem.objects.create, parent=menu_container)
-            create_mitem(entry_id=menu.QuotesEntry.id,      order=10)
-            create_mitem(entry_id=menu.InvoicesEntry.id,     order=15)
-            create_mitem(entry_id=menu.CreditNotesEntry.id,  order=50)
-            create_mitem(entry_id=menu.SalesOrdersEntry.id,  order=55)
-            create_mitem(entry_id=menu.ProductLinesEntry.id, order=200)
-            create_mitem(entry_id=menu.ServiceLinesEntry.id, order=210)
+            RelationType.objects.get(
+                pk=REL_SUB_ACTIVITY_SUBJECT,
+            ).add_subject_ctypes(self.Invoice, self.Quote, self.SalesOrder)
 
-            # ---------------------------
-            create_bmi = ButtonMenuItem.objects.create_if_needed
-            create_bmi(model=Invoice, button=buttons.GenerateInvoiceNumberButton, order=0)
+    def _populate_entity_filters(self):
+        Invoice = self.Invoice
 
-            create_bmi(model=Quote, button=buttons.ConvertToInvoiceButton,    order=0)
-            create_bmi(model=Quote, button=buttons.ConvertToSalesOrderButton, order=1)
-
-            create_bmi(model=SalesOrder, button=buttons.ConvertToInvoiceButton, order=0)
-
-            create_bmi(model=Organisation, button=buttons.AddQuoteButton,      order=100)
-            create_bmi(model=Organisation, button=buttons.AddSalesOrderButton, order=101)
-            create_bmi(model=Organisation, button=buttons.AddInvoiceButton,    order=102)
-
-            create_bmi(model=Contact, button=buttons.AddQuoteButton,      order=100)
-            create_bmi(model=Contact, button=buttons.AddSalesOrderButton, order=101)
-            create_bmi(model=Contact, button=buttons.AddInvoiceButton,    order=102)
-
-            # ---------------------------
-            create_cbci = CustomBrickConfigItem.objects.create
-            build_cell = EntityCellRegularField.build
-
-            def build_cells(model, *extra_cells):
-                return [
-                    build_cell(model, 'name'),
-                    build_cell(model, 'number'),
-                    build_cell(model, 'issuing_date'),
-                    build_cell(model, 'expiration_date'),
-                    build_cell(model, 'discount'),
-                    build_cell(model, 'additional_info'),
-                    build_cell(model, 'payment_terms'),
-                    build_cell(model, 'payment_type'),
-                    build_cell(model, 'currency'),
-                    *extra_cells,
-                    build_cell(model, 'comment'),
-                    build_cell(model, 'description'),
-                    # --
-                    build_cell(model, 'created'),
-                    build_cell(model, 'modified'),
-                    build_cell(model, 'user'),
-                ]
-
-            cbci_invoice = create_cbci(
-                # id='billing-invoice_info',
-                uuid='d1ae20ac-98b5-4c4b-bf32-8c284c6eadae',
-                name=_('Invoice information'),
-                content_type=Invoice,
-                cells=build_cells(
-                    Invoice,
-                    build_cell(Invoice, 'status'),
-                    # build_cell(Invoice, 'payment_type'),
-                    build_cell(Invoice, 'buyers_order_number'),
+        self.unpaid_invoices = EntityFilter.objects.smart_update_or_create(
+            'billing-invoices_unpaid', name=_('Invoices unpaid'),
+            model=Invoice, user='admin',
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Invoice,
+                    operator=operators.EqualsOperator,
+                    field_name='status__pending_payment',
+                    values=[True],
                 ),
-            )
-            cbci_c_note = create_cbci(
-                # id='billing-creditnote_info',
-                uuid='b3233bc2-cda8-4b07-ae4b-617b177120fc',
-                name=_('Credit note information'),
-                content_type=CreditNote,
-                cells=build_cells(
-                    CreditNote,
-                    build_cell(CreditNote, 'status'),
+            ],
+        )
+        self.unpaid_n_late_invoices_filter = EntityFilter.objects.smart_update_or_create(
+            'billing-invoices_unpaid_late', name=_('Invoices unpaid and late'),
+            model=Invoice, user='admin',
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Invoice,
+                    operator=operators.EqualsOperator,
+                    field_name='status__pending_payment',
+                    values=[True],
                 ),
-            )
-            cbci_quote = create_cbci(
-                # id='billing-quote_info',
-                uuid='eb3e5fcc-e929-4a15-b859-207a093bc4cb',
-                name=_('Quote information'),
-                content_type=Quote,
-                cells=build_cells(
-                    Quote,
-                    build_cell(Quote, 'status'),
-                    build_cell(Quote, 'acceptation_date'),
+                condition_handler.DateRegularFieldConditionHandler.build_condition(
+                    model=Invoice,
+                    field_name='expiration_date',
+                    date_range='in_past',
                 ),
-            )
-            cbci_s_order = create_cbci(
-                # id='billing-salesorder_info',
-                uuid='5e5b19c9-fa6e-43cf-a798-8b51b2ff73ce',
-                name=_('Salesorder information'),
-                content_type=SalesOrder,
-                cells=build_cells(
-                    SalesOrder,
-                    build_cell(SalesOrder, 'status'),
+            ],
+        )
+        self.current_year_invoices_filter = EntityFilter.objects.smart_update_or_create(
+            'billing-current_year_invoices', name=_('Current year invoices'),
+            model=Invoice, user='admin',
+            conditions=[
+                condition_handler.DateRegularFieldConditionHandler.build_condition(
+                    model=Invoice,
+                    field_name='issuing_date',
+                    date_range='current_year',
                 ),
-            )
-            cbci_tbase = create_cbci(
-                # id='billing-templatebase_info',
-                uuid='4653dc10-f2ce-455c-a0b2-30ff957e8f68',
-                name=pgettext('billing', 'Template information'),
-                content_type=TemplateBase,
-                cells=build_cells(
-                    TemplateBase,
-                    EntityCellFunctionField.build(TemplateBase, 'get_verbose_status'),
+            ],
+        )
+        self.current_year_unpaid_invoices_filter = EntityFilter.objects.smart_update_or_create(
+            'billing-current_year_unpaid_invoices',
+            name=_('Current year and unpaid invoices'),
+            model=Invoice, user='admin',
+            conditions=[
+                condition_handler.DateRegularFieldConditionHandler.build_condition(
+                    model=Invoice,
+                    field_name='issuing_date',
+                    date_range='current_year',
                 ),
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=Invoice,
+                    operator=operators.EqualsOperator,
+                    field_name='status__pending_payment',
+                    values=[True],
+                ),
+            ],
+        )
+
+    def _create_header_filter(self, *, pk, name, model, status=True):
+        HeaderFilter.objects.create_if_needed(
+            pk=pk, name=name, model=model,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'name'}),
+                EntityCellRelation(
+                    model=model,
+                    rtype=RelationType.objects.get(id=constants.REL_SUB_BILL_RECEIVED),
+                ),
+                (EntityCellRegularField, {'name': 'number'}),
+                (EntityCellRegularField, {'name': 'status'}) if status else None,
+                (EntityCellRegularField, {'name': 'total_no_vat'}),
+                (EntityCellRegularField, {'name': 'issuing_date'}),
+                (EntityCellRegularField, {'name': 'expiration_date'}),
+            ],
+        )
+
+    def _create_header_filter_for_line(self, *, pk, name, model):
+        HeaderFilter.objects.create_if_needed(
+            pk=pk, name=name, model=model,
+            cells_desc=[
+                (EntityCellRegularField, {'name': 'on_the_fly_item'}),
+                (EntityCellRegularField, {'name': 'quantity'}),
+                (EntityCellRegularField, {'name': 'unit_price'}),
+            ],
+        )
+
+    def _populate_header_filters_for_invoice(self):
+        self._create_header_filter(
+            pk=constants.DEFAULT_HFILTER_INVOICE,
+            name=_('Invoice view'),
+            model=self.Invoice,
+        )
+
+    def _populate_header_filters_for_quote(self):
+        self._create_header_filter(
+            pk=constants.DEFAULT_HFILTER_QUOTE,
+            name=_('Quote view'),
+            model=self.Quote,
+        )
+
+    def _populate_header_filters_for_order(self):
+        self._create_header_filter(
+            pk=constants.DEFAULT_HFILTER_ORDER,
+            name=_('Sales order view'),
+            model=self.SalesOrder,
+        )
+
+    def _populate_header_filters_for_creditnode(self):
+        self._create_header_filter(
+            pk=constants.DEFAULT_HFILTER_CNOTE,
+            name=_('Credit note view'),
+            model=self.CreditNote,
+        )
+
+    def _populate_header_filters_for_templatebase(self):
+        self._create_header_filter(
+            pk=constants.DEFAULT_HFILTER_TEMPLATE,
+            name=_('Template view'),
+            model=self.TemplateBase,
+            status=False,
+        )
+
+    def _populate_header_filters_for_productline(self):
+        self._create_header_filter_for_line(
+            pk='billing-hg_product_lines',
+            name=_('Product lines view'),
+            model=self.ProductLine,
+        )
+
+    def _populate_header_filters_for_serviceline(self):
+        self._create_header_filter_for_line(
+            pk='billing-hg_service_lines',
+            name=_('Service lines view'),
+            model=self.ServiceLine,
+        )
+
+    def _populate_header_filters(self):
+        self._populate_header_filters_for_invoice()
+        self._populate_header_filters_for_quote()
+        self._populate_header_filters_for_order()
+        self._populate_header_filters_for_creditnode()
+
+        self._populate_header_filters_for_productline()
+        self._populate_header_filters_for_serviceline()
+
+    def _populate_custom_forms(self):
+        create_cform = CustomFormConfigItem.objects.create_if_needed
+        create_cform(descriptor=custom_forms.INVOICE_CREATION_CFORM)
+        create_cform(descriptor=custom_forms.INVOICE_EDITION_CFORM)
+        create_cform(descriptor=custom_forms.QUOTE_CREATION_CFORM)
+        create_cform(descriptor=custom_forms.QUOTE_EDITION_CFORM)
+        create_cform(descriptor=custom_forms.ORDER_CREATION_CFORM)
+        create_cform(descriptor=custom_forms.ORDER_EDITION_CFORM)
+        create_cform(descriptor=custom_forms.CNOTE_CREATION_CFORM)
+        create_cform(descriptor=custom_forms.CNOTE_EDITION_CFORM)
+        create_cform(descriptor=custom_forms.BTEMPLATE_CREATION_CFORM)
+        create_cform(descriptor=custom_forms.BTEMPLATE_EDITION_CFORM)
+
+    def _populate_search_config(self):
+        create_sci = SearchConfigItem.objects.create_if_needed
+        fields = self.SEARCH
+        create_sci(model=self.Invoice,    fields=fields['INVOICE'])
+        create_sci(model=self.CreditNote, fields=fields['CREDIT_NOTE'])
+        create_sci(model=self.Quote,      fields=fields['QUOTE'])
+        create_sci(model=self.SalesOrder, fields=fields['SALES_ORDER'])
+
+        for model in (self.ProductLine, self.ServiceLine):
+            create_sci(model=model, fields=[], disabled=True)
+
+    def _populate_setting_values(self):
+        create_svalue = SettingValue.objects.get_or_create
+        create_svalue(key_id=setting_keys.payment_info_key.id,       defaults={'value': True})
+        create_svalue(key_id=setting_keys.button_redirection_key.id, defaults={'value': True})
+
+    def _populate_menu_config(self):
+        menu_container = MenuConfigItem.objects.get_or_create(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': _('Management')},
+            defaults={'order': 50},
+        )[0]
+
+        create_mitem = partial(MenuConfigItem.objects.create, parent=menu_container)
+        create_mitem(entry_id=menu.QuotesEntry.id,       order=10)
+        create_mitem(entry_id=menu.InvoicesEntry.id,     order=15)
+        create_mitem(entry_id=menu.CreditNotesEntry.id,  order=50)
+        create_mitem(entry_id=menu.SalesOrdersEntry.id,  order=55)
+        create_mitem(entry_id=menu.ProductLinesEntry.id, order=200)
+        create_mitem(entry_id=menu.ServiceLinesEntry.id, order=210)
+
+    def _populate_buttons_config_for_invoice(self):
+        ButtonMenuItem.objects.create_if_needed(
+            model=self.Invoice, button=buttons.GenerateInvoiceNumberButton, order=0,
+        )
+
+    def _populate_buttons_config_for_quote(self):
+        create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Quote)
+        create_bmi(button=buttons.ConvertToInvoiceButton,    order=0)
+        create_bmi(button=buttons.ConvertToSalesOrderButton, order=1)
+
+    def _populate_buttons_config_for_order(self):
+        ButtonMenuItem.objects.create_if_needed(
+            model=self.SalesOrder, button=buttons.ConvertToInvoiceButton, order=0,
+        )
+
+    def _populate_buttons_config_for_contact(self):
+        create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Contact)
+        create_bmi(button=buttons.AddQuoteButton,      order=100)
+        create_bmi(button=buttons.AddSalesOrderButton, order=101)
+        create_bmi(button=buttons.AddInvoiceButton,    order=102)
+
+    def _populate_buttons_config_for_organisation(self):
+        create_bmi = partial(ButtonMenuItem.objects.create_if_needed, model=self.Organisation)
+        create_bmi(button=buttons.AddQuoteButton,      order=100)
+        create_bmi(button=buttons.AddSalesOrderButton, order=101)
+        create_bmi(button=buttons.AddInvoiceButton,    order=102)
+
+    def _populate_buttons_config(self):
+        self._populate_buttons_config_for_invoice()
+        self._populate_buttons_config_for_quote()
+        self._populate_buttons_config_for_order()
+
+        self._populate_buttons_config_for_contact()
+        self._populate_buttons_config_for_organisation()
+
+    def _populate_bricks_config_for_documents(self):
+        # logger.info(
+        #   'Documents app is installed
+        #   => we use the documents block on detail views'
+        # )
+
+        from creme.documents.bricks import LinkedDocsBrick
+
+        RIGHT = BrickDetailviewLocation.RIGHT
+
+        for model in [
+            self.Invoice, self.CreditNote, self.Quote, self.SalesOrder, self.TemplateBase,
+        ]:
+            BrickDetailviewLocation.objects.create_if_needed(
+                brick=LinkedDocsBrick, order=600, zone=RIGHT, model=model,
             )
 
-            models_4_blocks = [
-                (Invoice,      cbci_invoice, True),  # Boolean -> insert CreditNote block
-                (CreditNote,   cbci_c_note,  False),
-                (Quote,        cbci_quote,   True),
-                (SalesOrder,   cbci_s_order, True),
-                (TemplateBase, cbci_tbase,   False),
-            ]
+    def _populate_bricks_config_for_persons(self):
+        LEFT = BrickDetailviewLocation.LEFT
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': self.Organisation, 'zone': BrickDetailviewLocation.RIGHT},
+            data=[
+                {'brick': bricks.PaymentInformationBrick, 'order': 300, 'zone': LEFT},
 
-            TOP   = BrickDetailviewLocation.TOP
-            LEFT  = BrickDetailviewLocation.LEFT
-            RIGHT = BrickDetailviewLocation.RIGHT
+                {'brick': bricks.ReceivedInvoicesBrick, 'order':  14},
+                {'brick': bricks.ReceivedQuotesBrick,   'order':  18},
+            ],
+        )
 
-            for model, cbci, has_credit_notes in models_4_blocks:
-                data = [
-                    # LEFT
-                    {'brick': cbci.brick_id,                         'order':   5},
-                    {'brick': core_bricks.CustomFieldsBrick,         'order':  40},
-                    {'brick': bricks.BillingPaymentInformationBrick, 'order':  60},
-                    {'brick': bricks.BillingPrettyAddressBrick,      'order':  70},
-                    {'brick': core_bricks.PropertiesBrick,           'order': 450},
-                    {'brick': core_bricks.RelationsBrick,            'order': 500},
+    def _populate_bricks_config_for_assistants(self):
+        logger.info(
+            'Assistants app is installed => we use the assistants blocks on detail views'
+        )
 
-                    {'brick': bricks.TargetBrick,       'order':  2,  'zone': RIGHT},
-                    {'brick': bricks.TotalBrick,        'order':  3,  'zone': RIGHT},
-                    {'brick': core_bricks.HistoryBrick, 'order': 20,  'zone': RIGHT},
+        import creme.assistants.bricks as a_bricks
 
-                    {'brick': bricks.ProductLinesBrick, 'order': 10,  'zone': TOP},
-                    {'brick': bricks.ServiceLinesBrick, 'order': 20,  'zone': TOP},
-                ]
-                if has_credit_notes:
-                    data.append({'brick': bricks.CreditNotesBrick, 'order': 30, 'zone': TOP})
-
-                BrickDetailviewLocation.objects.multi_create(
-                    defaults={'model': model, 'zone': LEFT}, data=data,
-                )
-
-            if apps.is_installed('creme.assistants'):
-                logger.info(
-                    'Assistants app is installed => we use the assistants blocks on detail views'
-                )
-
-                import creme.assistants.bricks as a_bricks
-
-                for t in models_4_blocks:
-                    BrickDetailviewLocation.objects.multi_create(
-                        defaults={'model': t[0], 'zone': RIGHT},
-                        data=[
-                            {'brick': a_bricks.TodosBrick,        'order': 100},
-                            {'brick': a_bricks.MemosBrick,        'order': 200},
-                            {'brick': a_bricks.AlertsBrick,       'order': 300},
-                            {'brick': a_bricks.UserMessagesBrick, 'order': 400},
-                        ],
-                    )
-
-            if apps.is_installed('creme.documents'):
-                # logger.info(
-                #   'Documents app is installed
-                #   => we use the documents block on detail views'
-                # )
-
-                from creme.documents.bricks import LinkedDocsBrick
-
-                for t in models_4_blocks:
-                    BrickDetailviewLocation.objects.create_if_needed(
-                        brick=LinkedDocsBrick, order=600, zone=RIGHT, model=t[0],
-                    )
-
+        for model in [
+            self.Invoice, self.CreditNote, self.Quote, self.SalesOrder, self.TemplateBase,
+        ]:
             BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': Organisation, 'zone': RIGHT},
+                defaults={'model': model, 'zone': BrickDetailviewLocation.RIGHT},
                 data=[
-                    {'brick': bricks.PaymentInformationBrick, 'order': 300, 'zone': LEFT},
-
-                    {'brick': bricks.ReceivedInvoicesBrick,  'order':  14},
-                    {'brick': bricks.ReceivedQuotesBrick,    'order':  18},
+                    {'brick': a_bricks.TodosBrick,        'order': 100},
+                    {'brick': a_bricks.MemosBrick,        'order': 200},
+                    {'brick': a_bricks.AlertsBrick,       'order': 300},
+                    {'brick': a_bricks.UserMessagesBrick, 'order': 400},
                 ],
             )
 
-            # ---------------------------
-            if apps.is_installed('creme.reports'):
-                logger.info(
-                    'Reports app is installed '
-                    '=> we create 2 billing reports, with 3 graphs, and related blocks in home'
-                )
-                self.create_reports(
-                    rt_sub_bill_received,
-                    current_year_invoice_filter,
-                    current_year_unpaid_invoice_filter,
-                )
+    def _create_custom_brick_item(self, *, model, uuid, name, extra_cells):
+        build_cell = EntityCellRegularField.build
 
-    def create_reports(self,
-                       rt_sub_bill_received,
-                       current_year_invoice_filter,
-                       current_year_unpaid_invoice_filter,
-                       ):
+        return CustomBrickConfigItem.objects.create(
+            uuid=uuid,
+            name=name,
+            content_type=model,
+            # cells=build_cells(
+            #     CreditNote,
+            #     build_cell(CreditNote, 'status'),
+            # ),
+            cells=[
+                build_cell(model, 'name'),
+                build_cell(model, 'number'),
+                build_cell(model, 'issuing_date'),
+                build_cell(model, 'expiration_date'),
+                build_cell(model, 'discount'),
+                build_cell(model, 'additional_info'),
+                build_cell(model, 'payment_terms'),
+                build_cell(model, 'payment_type'),
+                build_cell(model, 'currency'),
+                *extra_cells,
+                build_cell(model, 'comment'),
+                build_cell(model, 'description'),
+                # --
+                build_cell(model, 'created'),
+                build_cell(model, 'modified'),
+                build_cell(model, 'user'),
+            ]
+        )
+
+    def _create_bricks_config(self, model, cbci: CustomBrickConfigItem, has_credit_notes=True):
+        TOP   = BrickDetailviewLocation.TOP
+        RIGHT = BrickDetailviewLocation.RIGHT
+
+        data = [
+            # LEFT
+            {'brick': cbci.brick_id,                         'order':   5},
+            {'brick': core_bricks.CustomFieldsBrick,         'order':  40},
+            {'brick': bricks.BillingPaymentInformationBrick, 'order':  60},
+            {'brick': bricks.BillingPrettyAddressBrick,      'order':  70},
+            {'brick': core_bricks.PropertiesBrick,           'order': 450},
+            {'brick': core_bricks.RelationsBrick,            'order': 500},
+
+            {'brick': bricks.TargetBrick,       'order':  2, 'zone': RIGHT},
+            {'brick': bricks.TotalBrick,        'order':  3, 'zone': RIGHT},
+            {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+
+            {'brick': bricks.ProductLinesBrick, 'order': 10, 'zone': TOP},
+            {'brick': bricks.ServiceLinesBrick, 'order': 20, 'zone': TOP},
+        ]
+        if has_credit_notes:
+            data.append({'brick': bricks.CreditNotesBrick, 'order': 30, 'zone': TOP})
+
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': model, 'zone': BrickDetailviewLocation.LEFT},
+            data=data,
+        )
+
+    def _populate_bricks_config_for_invoice(self):
+        Invoice = self.Invoice
+        cbci = self._create_custom_brick_item(
+            model=Invoice,
+            # id='billing-invoice_info',
+            uuid='d1ae20ac-98b5-4c4b-bf32-8c284c6eadae',
+            name=_('Invoice information'),
+            extra_cells=(
+                EntityCellRegularField.build(Invoice, 'status'),
+                # EntityCellRegularField.build(Invoice, 'payment_type'),
+                EntityCellRegularField.build(Invoice, 'buyers_order_number'),
+            ),
+        )
+        self._create_bricks_config(model=Invoice, cbci=cbci, has_credit_notes=True)
+
+    def _populate_bricks_config_for_quote(self):
+        Quote = self.Quote
+        cbci = self._create_custom_brick_item(
+            model=Quote,
+            # id='billing-quote_info',
+            uuid='eb3e5fcc-e929-4a15-b859-207a093bc4cb',
+            name=_('Quote information'),
+            extra_cells=(
+                EntityCellRegularField.build(Quote, 'status'),
+                EntityCellRegularField.build(Quote, 'acceptation_date'),
+            ),
+        )
+        self._create_bricks_config(model=Quote, cbci=cbci, has_credit_notes=True)
+
+    def _populate_bricks_config_for_order(self):
+        SalesOrder = self.SalesOrder
+        cbci = self._create_custom_brick_item(
+            model=SalesOrder,
+            # id='billing-salesorder_info',
+            uuid='5e5b19c9-fa6e-43cf-a798-8b51b2ff73ce',
+            name=_('Salesorder information'),
+            extra_cells=(
+                EntityCellRegularField.build(SalesOrder, 'status'),
+            ),
+        )
+        self._create_bricks_config(model=SalesOrder, cbci=cbci, has_credit_notes=True)
+
+    def _populate_bricks_config_for_creditnote(self):
+        CreditNote = self.CreditNote
+        cbci = self._create_custom_brick_item(
+            model=CreditNote,
+            # id='billing-creditnote_info',
+            uuid='b3233bc2-cda8-4b07-ae4b-617b177120fc',
+            name=_('Credit note information'),
+            extra_cells=(
+                EntityCellRegularField.build(CreditNote, 'status'),
+            ),
+        )
+        self._create_bricks_config(model=CreditNote, cbci=cbci, has_credit_notes=False)
+
+    def _populate_bricks_config_for_templatebase(self):
+        TemplateBase = self.TemplateBase
+        cbci = self._create_custom_brick_item(
+            model=TemplateBase,
+            # id='billing-templatebase_info',
+            uuid='4653dc10-f2ce-455c-a0b2-30ff957e8f68',
+            name=pgettext('billing', 'Template information'),
+            extra_cells=(
+                EntityCellFunctionField.build(TemplateBase, 'get_verbose_status'),
+            ),
+        )
+        self._create_bricks_config(model=TemplateBase, cbci=cbci, has_credit_notes=False)
+
+    def _populate_bricks_config(self):
+        self._populate_bricks_config_for_invoice()
+        self._populate_bricks_config_for_quote()
+        self._populate_bricks_config_for_order()
+        self._populate_bricks_config_for_creditnote()
+        self._populate_bricks_config_for_templatebase()
+
+        self._populate_bricks_config_for_persons()
+
+        if apps.is_installed('creme.documents'):
+            self._populate_bricks_config_for_documents()
+
+        if apps.is_installed('creme.assistants'):
+            self._populate_bricks_config_for_assistants()
+
+    # def create_reports(self,
+    #                    rt_sub_bill_received,
+    #                    current_year_invoice_filter,
+    #                    current_year_unpaid_invoice_filter,
+    #                    ):
+    def _populate_reports(self):
+        logger.info(
+            'Reports app is installed '
+            '=> we create 2 billing reports, with 3 graphs, and related blocks in home'
+        )
+
         # NB: the fixed UUIDs were added with Creme2.5 in order to facilitate
         #     import/export in 'creme_config'. So the Reports/ReportGraphes
         #     populated with previous versions will have different UUIDs.
@@ -634,6 +783,7 @@ class Populator(BasePopulator):
         admin = get_user_model().objects.get_admin()
         ReportGraph = reports.get_rgraph_model()
 
+        Invoice = self.Invoice
         total_no_vat_cell = EntityCellRegularField.build(Invoice, 'total_no_vat')
         if total_no_vat_cell is None:
             logger.warning(
@@ -642,15 +792,18 @@ class Populator(BasePopulator):
             )
             return
 
+        # rt_sub_bill_received = RelationType.objects.get(id=constants.REL_SUB_BILL_RECEIVED)
+
         def create_report_columns(report):
             create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
-            create_field(name='name',                  order=1)
-            create_field(name=rt_sub_bill_received.id, order=2, type=RFT_RELATION)
-            create_field(name='number',                order=3)
-            create_field(name='status',                order=4)
-            create_field(name='total_no_vat',          order=5)
-            create_field(name='issuing_date',          order=6)
-            create_field(name='expiration_date',       order=7)
+            create_field(name='name',            order=1)
+            # create_field(name=rt_sub_bill_received.id, order=2, type=RFT_RELATION)
+            create_field(name=constants.REL_SUB_BILL_RECEIVED, order=2, type=RFT_RELATION)
+            create_field(name='number',          order=3)
+            create_field(name='status',          order=4)
+            create_field(name='total_no_vat',    order=5)
+            create_field(name='issuing_date',    order=6)
+            create_field(name='expiration_date', order=7)
 
         create_report = partial(reports.get_report_model().objects.create, user=admin, ct=Invoice)
         create_graph = partial(ReportGraph.objects.create, user=admin)
@@ -659,7 +812,7 @@ class Populator(BasePopulator):
         invoices_report1 = create_report(
             uuid='e8dc076c-16c5-462e-b32e-61c6e0249dfd',
             name=_('All invoices of the current year'),
-            filter=current_year_invoice_filter,
+            filter=self.current_year_invoices_filter,
         )
         create_report_columns(invoices_report1)
 
@@ -689,7 +842,7 @@ class Populator(BasePopulator):
         invoices_report2 = create_report(
             uuid='2a1f7582-7e01-434a-b26f-6ee811e4c704',
             name=_('Invoices unpaid of the current year'),
-            filter=current_year_unpaid_invoice_filter,
+            filter=self.current_year_unpaid_invoices_filter,
         )
         create_report_columns(invoices_report2)
 

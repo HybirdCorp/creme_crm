@@ -56,22 +56,33 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self):
-        already_populated = RelationType.objects.filter(
+    SEARCH = {
+        'FOLDER': ['title', 'description', 'category__name'],
+        'DOCUMENT': [
+            'title', 'description', 'linked_folder__title', 'categories__name',
+        ],
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.Document = get_document_model()
+        self.Folder   = get_folder_model()
+
+        self.entities_category = None
+
+    def _already_populated(self):
+        return RelationType.objects.filter(
             pk=constants.REL_SUB_RELATED_2_DOC,
         ).exists()
 
-        Document = get_document_model()
-        Folder   = get_folder_model()
+    def _populate(self):
+        super()._populate()
+        self._populate_folder_categories()
+        self._populate_folders()
 
-        RelationType.objects.smart_update_or_create(
-            (constants.REL_SUB_RELATED_2_DOC, _('related to the document')),
-            (constants.REL_OBJ_RELATED_2_DOC, _('document related to'),      [Document])
-        )
-
-        # ---------------------------
-        create_folder_cat = FolderCategory.objects.get_or_create
-        entities_cat = create_folder_cat(
+    def _populate_folder_categories(self):
+        self.entities_category = FolderCategory.objects.get_or_create(
             uuid=constants.UUID_FOLDER_CAT_ENTITIES,
             defaults={
                 'name': _('Documents related to entities'),
@@ -79,34 +90,57 @@ class Populator(BasePopulator):
             },
         )[0]
 
-        # ---------------------------
+    def _populate_folders(self):
+        assert self.entities_category is not None
+
+        if folder_model_is_custom():
+            return
+
         user = get_user_model().objects.get_admin()
 
-        if not folder_model_is_custom():
-            get_create_folder = Folder.objects.get_or_create
-            get_create_folder(
-                uuid=constants.UUID_FOLDER_RELATED2ENTITIES,
-                defaults={
-                    'user':        user,
-                    'title':       settings.SOFTWARE_LABEL,
-                    'category':    entities_cat,
-                    'description': _(
-                        'Folder containing all the documents related to entities'
-                    ),
-                },
-            )
-            get_create_folder(
-                uuid=constants.UUID_FOLDER_IMAGES,
-                defaults={
-                    'user':  user,
-                    'title': _('Images'),
-                },
-            )
+        get_create_folder = self.Folder.objects.get_or_create
+        get_create_folder(
+            uuid=constants.UUID_FOLDER_RELATED2ENTITIES,
+            defaults={
+                'user':        user,
+                'title':       settings.SOFTWARE_LABEL,
+                'category':    self.entities_category,
+                'description': _(
+                    'Folder containing all the documents related to entities'
+                ),
+            },
+        )
+        get_create_folder(
+            uuid=constants.UUID_FOLDER_IMAGES,
+            defaults={
+                'user':  user,
+                'title': _('Images'),
+            },
+        )
 
-        # ---------------------------
-        create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_DOCUMENT, model=Document,
+    def _populate_relation_types(self):
+        RelationType.objects.smart_update_or_create(
+            (constants.REL_SUB_RELATED_2_DOC, _('related to the document')),
+            (constants.REL_OBJ_RELATED_2_DOC, _('document related to'),      [self.Document])
+        )
+
+    def _populate_entity_filters(self):
+        EntityFilter.objects.smart_update_or_create(
+            constants.EFILTER_IMAGES, name=_('Images'), model=self.Document,
+            is_custom=False, user='admin',
+            conditions=[
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=self.Document,
+                    operator=operators.StartsWithOperator,
+                    field_name='mime_type__name',
+                    values=[constants.MIMETYPE_PREFIX_IMG],
+                ),
+            ],
+        )
+
+    def _populate_header_filters_for_document(self):
+        HeaderFilter.objects.create_if_needed(
+            pk=constants.DEFAULT_HFILTER_DOCUMENT, model=self.Document,
             name=_('Document view'),
             cells_desc=[
                 (EntityCellRegularField, {'name': 'title'}),
@@ -114,8 +148,10 @@ class Populator(BasePopulator):
                 (EntityCellRegularField, {'name': 'mime_type'}),
             ],
         )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_FOLDER, model=Folder,
+
+    def _populate_header_filters_for_folder(self):
+        HeaderFilter.objects.create_if_needed(
+            pk=constants.DEFAULT_HFILTER_FOLDER, model=self.Folder,
             name=_('Folder view'),
             cells_desc=[
                 (EntityCellRegularField, {'name': 'title'}),
@@ -124,83 +160,70 @@ class Populator(BasePopulator):
             ],
         )
 
-        # ---------------------------
-        EntityFilter.objects.smart_update_or_create(
-            constants.EFILTER_IMAGES, name=_('Images'), model=Document,
-            is_custom=False, user='admin',
-            conditions=[
-                condition_handler.RegularFieldConditionHandler.build_condition(
-                    model=Document,
-                    operator=operators.StartsWithOperator,
-                    field_name='mime_type__name',
-                    values=[constants.MIMETYPE_PREFIX_IMG],
-                ),
+    def _populate_header_filters(self):
+        self._populate_header_filters_for_document()
+        self._populate_header_filters_for_folder()
+
+    def _populate_custom_forms(self):
+        create_cfci = CustomFormConfigItem.objects.create_if_needed
+        create_cfci(descriptor=custom_forms.FOLDER_CREATION_CFORM)
+        create_cfci(descriptor=custom_forms.FOLDER_EDITION_CFORM)
+        create_cfci(descriptor=custom_forms.DOCUMENT_CREATION_CFORM)
+        create_cfci(descriptor=custom_forms.DOCUMENT_EDITION_CFORM)
+
+    def _populate_search_config(self):
+        create_sci = SearchConfigItem.objects.create_if_needed
+        create_sci(model=self.Folder,   fields=self.SEARCH['FOLDER'])
+        create_sci(model=self.Document, fields=self.SEARCH['DOCUMENT'])
+
+    def _populate_menu_config(self):
+        menu_container = MenuConfigItem.objects.get_or_create(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': _('Tools')},
+            defaults={'order': 100},
+        )[0]
+
+        create_mitem = partial(MenuConfigItem.objects.create, parent=menu_container)
+        create_mitem(entry_id=menu.DocumentsEntry.id, order=10)
+        create_mitem(entry_id=menu.FoldersEntry.id,   order=20)
+
+    def _populate_bricks_config_for_folder(self):
+        RIGHT = BrickDetailviewLocation.RIGHT
+
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': self.Folder, 'zone': BrickDetailviewLocation.LEFT},
+            data=[
+                {'order': 5},  # generic info brick
+                {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                {'brick': bricks.ChildFoldersBrick,      'order':  50},
+                {'brick': bricks.FolderDocsBrick,        'order':  60},
+                {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                {'brick': core_bricks.RelationsBrick,    'order': 500},
+
+                {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
             ],
         )
 
-        # ---------------------------
-        CustomFormConfigItem.objects.create_if_needed(
-            descriptor=custom_forms.FOLDER_CREATION_CFORM,
-        )
-        CustomFormConfigItem.objects.create_if_needed(
-            descriptor=custom_forms.FOLDER_EDITION_CFORM,
+    def _populate_bricks_config_for_assistants(self):
+        logger.info(
+            'Assistants app is installed'
+            ' => we use the assistants blocks on detail view'
         )
 
-        CustomFormConfigItem.objects.create_if_needed(
-            descriptor=custom_forms.DOCUMENT_CREATION_CFORM,
+        import creme.assistants.bricks as a_bricks
+
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': self.Folder, 'zone': BrickDetailviewLocation.RIGHT},
+            data=[
+                {'brick': a_bricks.TodosBrick,        'order': 100},
+                {'brick': a_bricks.MemosBrick,        'order': 200},
+                {'brick': a_bricks.AlertsBrick,       'order': 300},
+                {'brick': a_bricks.UserMessagesBrick, 'order': 400},
+            ],
         )
-        CustomFormConfigItem.objects.create_if_needed(
-            descriptor=custom_forms.DOCUMENT_EDITION_CFORM,
-        )
 
-        # ---------------------------
-        create_sci = SearchConfigItem.objects.create_if_needed
-        create_sci(Document, ['title', 'description', 'linked_folder__title', 'categories__name'])
-        create_sci(Folder,   ['title', 'description', 'category__name'])
+    def _populate_bricks_config(self):
+        self._populate_bricks_config_for_folder()
 
-        # ---------------------------
-        if not already_populated:
-            menu_container = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Tools')},
-                defaults={'order': 100},
-            )[0]
-
-            create_mitem = partial(MenuConfigItem.objects.create, parent=menu_container)
-            create_mitem(entry_id=menu.DocumentsEntry.id, order=10)
-            create_mitem(entry_id=menu.FoldersEntry.id,   order=20)
-
-            # ---------------------------
-            RIGHT = BrickDetailviewLocation.RIGHT
-
-            BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': Folder, 'zone': BrickDetailviewLocation.LEFT},
-                data=[
-                    {'order': 5},  # generic info brick
-                    {'brick': core_bricks.CustomFieldsBrick, 'order': 40},
-                    {'brick': bricks.ChildFoldersBrick,      'order': 50},
-                    {'brick': bricks.FolderDocsBrick,        'order': 60},
-                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
-                    {'brick': core_bricks.RelationsBrick,    'order': 500},
-
-                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
-                ],
-            )
-
-            if apps.is_installed('creme.assistants'):
-                logger.info(
-                    'Assistants app is installed'
-                    ' => we use the assistants blocks on detail view'
-                )
-
-                import creme.assistants.bricks as a_bricks
-
-                BrickDetailviewLocation.objects.multi_create(
-                    defaults={'model': Folder, 'zone': RIGHT},
-                    data=[
-                        {'brick': a_bricks.TodosBrick,        'order': 100},
-                        {'brick': a_bricks.MemosBrick,        'order': 200},
-                        {'brick': a_bricks.AlertsBrick,       'order': 300},
-                        {'brick': a_bricks.UserMessagesBrick, 'order': 400},
-                    ],
-                )
+        if apps.is_installed('creme.assistants'):
+            self._populate_bricks_config_for_assistants()

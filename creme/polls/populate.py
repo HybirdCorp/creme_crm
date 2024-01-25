@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2023  Hybird
+#    Copyright (C) 2012-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,23 +45,39 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
-    def populate(self, *args, **kwargs):
-        PollCampaign = polls.get_pollcampaign_model()
-        PollForm     = polls.get_pollform_model()
-        PollReply    = polls.get_pollreply_model()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        Contact      = persons.get_contact_model()
-        Organisation = persons.get_organisation_model()
+        self.Contact      = persons.get_contact_model()
+        self.Organisation = persons.get_organisation_model()
 
+        self.PollCampaign = polls.get_pollcampaign_model()
+        self.PollForm     = polls.get_pollform_model()
+        self.PollReply    = polls.get_pollreply_model()
+
+    def _already_populated(self):
+        # NB: no straightforward way to test that this script has not been already run
+        return PollType.objects.exists()
+
+    def _first_populate(self):
+        super()._first_populate()
+        self._populate_poll_types()
+
+    def _populate_poll_types(self):
+        create_if_needed(PollType, {'pk': 1}, name=_('Survey'))
+        create_if_needed(PollType, {'pk': 2}, name=_('Monitoring'))
+        create_if_needed(PollType, {'pk': 3}, name=_('Assessment'))
+
+    def _populate_header_filters(self):
         create_hf = HeaderFilter.objects.create_if_needed
         create_hf(
             pk=constants.DEFAULT_HFILTER_PFORM,
-            model=PollForm, name=_('Form view'),
+            model=self.PollForm, name=_('Form view'),
             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
         )
         create_hf(
             pk=constants.DEFAULT_HFILTER_PREPLY,
-            model=PollReply, name=_('Reply view'),
+            model=self.PollReply, name=_('Reply view'),
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
                 (EntityCellRegularField, {'name': 'pform'}),
@@ -70,7 +86,7 @@ class Populator(BasePopulator):
         )
         create_hf(
             pk=constants.DEFAULT_HFILTER_PCAMPAIGN,
-            model=PollCampaign, name=_('Campaign view'),
+            model=self.PollCampaign, name=_('Campaign view'),
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
                 (EntityCellRegularField, {'name': 'due_date'}),
@@ -78,121 +94,140 @@ class Populator(BasePopulator):
             ],
         )
 
-        # ---------------------------
-        create_cform = CustomFormConfigItem.objects.create_if_needed
-        create_cform(descriptor=custom_forms.CAMPAIGN_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.CAMPAIGN_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.PFORM_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.PFORM_EDITION_CFORM)
+    def _populate_custom_forms(self):
+        create_cfci = CustomFormConfigItem.objects.create_if_needed
+        create_cfci(descriptor=custom_forms.CAMPAIGN_CREATION_CFORM)
+        create_cfci(descriptor=custom_forms.CAMPAIGN_EDITION_CFORM)
+        create_cfci(descriptor=custom_forms.PFORM_CREATION_CFORM)
+        create_cfci(descriptor=custom_forms.PFORM_EDITION_CFORM)
 
-        # ---------------------------
-        create_searchconf = SearchConfigItem.objects.create_if_needed
-        create_searchconf(PollForm,     ['name'])
-        create_searchconf(PollReply,    ['name'])
-        create_searchconf(PollCampaign, ['name'])
+    def _populate_search_config(self):
+        create_sci = SearchConfigItem.objects.create_if_needed
+        create_sci(model=self.PollForm,     fields=['name'])
+        create_sci(model=self.PollReply,    fields=['name'])
+        create_sci(model=self.PollCampaign, fields=['name'])
 
-        # ---------------------------
-        # NB: no straightforward way to test that this populate script has not been already run
-        if not PollType.objects.exists():
-            create_if_needed(PollType, {'pk': 1}, name=_('Survey'))
-            create_if_needed(PollType, {'pk': 2}, name=_('Monitoring'))
-            create_if_needed(PollType, {'pk': 3}, name=_('Assessment'))
+    def _populate_menu_config(self):
+        menu_container = MenuConfigItem.objects.get_or_create(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': _('Tools')},
+            defaults={'order': 100},
+        )[0]
 
-        # ---------------------------
-        # NB: no straightforward way to test that this populate script has not been already run
-        if not BrickDetailviewLocation.objects.filter_for_model(PollForm).exists():
-            menu_container = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Tools')},
-                defaults={'order': 100},
-            )[0]
+        create_mitem = partial(MenuConfigItem.objects.create, parent=menu_container)
+        create_mitem(
+            entry_id=Separator1Entry.id,
+            entry_data={'label': _('Polls')},
+            order=300,
+        )
+        create_mitem(entry_id=menu.PollFormsEntry.id,     order=305)
+        create_mitem(entry_id=menu.PollRepliesEntry.id,   order=310)
+        create_mitem(entry_id=menu.PollCampaignsEntry.id, order=315)
 
-            create_mitem = partial(MenuConfigItem.objects.create, parent=menu_container)
-            create_mitem(
-                entry_id=Separator1Entry.id,
-                entry_data={'label': _('Polls')},
-                order=300,
-            )
-            create_mitem(entry_id=menu.PollFormsEntry.id,     order=305)
-            create_mitem(entry_id=menu.PollRepliesEntry.id,   order=310)
-            create_mitem(entry_id=menu.PollCampaignsEntry.id, order=315)
+    def _populate_bricks_config_for_pform(self):
+        RIGHT = BrickDetailviewLocation.RIGHT
+        TOP = BrickDetailviewLocation.TOP
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': self.PollForm, 'zone': BrickDetailviewLocation.LEFT},
+            data=[
+                {'brick': bricks.PollFormLinesBrick, 'order': 5, 'zone': TOP},
 
-            # ---------------------------
-            TOP   = BrickDetailviewLocation.TOP
-            LEFT  = BrickDetailviewLocation.LEFT
-            RIGHT = BrickDetailviewLocation.RIGHT
+                {'order': 5},
+                {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                {'brick': core_bricks.RelationsBrick,    'order': 500},
 
+                {'brick': bricks.PollRepliesBrick,  'order':  5, 'zone': RIGHT},
+                {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+            ],
+        )
+
+    def _populate_bricks_config_for_preply(self):
+        RIGHT = BrickDetailviewLocation.RIGHT
+        TOP = BrickDetailviewLocation.TOP
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': self.PollReply, 'zone': BrickDetailviewLocation.LEFT},
+            data=[
+                {'brick': bricks.PollReplyLinesBrick, 'order': 5, 'zone': TOP},
+
+                {'order': 5},
+                {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                {'brick': core_bricks.RelationsBrick,    'order': 500},
+
+                {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+            ],
+        )
+
+    def _populate_bricks_config_for_campaign(self):
+        RIGHT = BrickDetailviewLocation.RIGHT
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': self.PollCampaign, 'zone': BrickDetailviewLocation.LEFT},
+            data=[
+                {'order': 5},
+                {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                {'brick': core_bricks.RelationsBrick,    'order': 500},
+
+                {'brick': bricks.PollCampaignRepliesBrick, 'order':  5, 'zone': RIGHT},
+                {'brick': core_bricks.HistoryBrick,        'order': 20, 'zone': RIGHT},
+            ],
+        )
+
+    def _populate_bricks_config_for_persons(self):
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={
+                'brick': bricks.PersonPollRepliesBrick,
+                'order': 500, 'zone': BrickDetailviewLocation.RIGHT,
+            },
+            data=[{'model': self.Contact}, {'model': self.Organisation}],
+        )
+
+    def _populate_bricks_config_for_documents(self):
+        # logger.info('Documents app is installed
+        # => we use the documents block on detail views')
+
+        from creme.documents.bricks import LinkedDocsBrick
+
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={
+                'brick': LinkedDocsBrick, 'order': 600,
+                'zone': BrickDetailviewLocation.RIGHT,
+            },
+            data=[
+                {'model': m}
+                for m in (self.PollForm, self.PollReply, self.PollCampaign)
+            ],
+        )
+
+    def _populate_bricks_config_for_assistants(self):
+        logger.info(
+            'Assistants app is installed'
+            ' => we use the assistants blocks on detail view'
+        )
+
+        import creme.assistants.bricks as a_bricks
+
+        for model in (self.PollForm, self.PollReply, self.PollCampaign):
             BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': PollForm, 'zone': LEFT},
+                defaults={'model': model, 'zone': BrickDetailviewLocation.RIGHT},
                 data=[
-                    {'brick': bricks.PollFormLinesBrick, 'order': 5, 'zone': TOP},
-
-                    {'order': 5},
-                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
-                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
-                    {'brick': core_bricks.RelationsBrick,    'order': 500},
-
-                    {'brick': bricks.PollRepliesBrick,  'order':  5, 'zone': RIGHT},
-                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                    {'brick': a_bricks.TodosBrick,        'order': 100},
+                    {'brick': a_bricks.MemosBrick,        'order': 200},
+                    {'brick': a_bricks.AlertsBrick,       'order': 300},
+                    {'brick': a_bricks.UserMessagesBrick, 'order': 400},
                 ],
             )
-            BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': PollReply, 'zone': LEFT},
-                data=[
-                    {'brick': bricks.PollReplyLinesBrick, 'order': 5, 'zone': TOP},
 
-                    {'order': 5},
-                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
-                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
-                    {'brick': core_bricks.RelationsBrick,    'order': 500},
+    def _populate_bricks_config(self):
+        self._populate_bricks_config_for_pform()
+        self._populate_bricks_config_for_preply()
+        self._populate_bricks_config_for_campaign()
 
-                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
-                ],
-            )
-            BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': PollCampaign, 'zone': LEFT},
-                data=[
-                    {'order': 5},
-                    {'brick': core_bricks.CustomFieldsBrick, 'order': 40},
-                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
-                    {'brick': core_bricks.RelationsBrick,    'order': 500},
+        self._populate_bricks_config_for_persons()
 
-                    {'brick': bricks.PollCampaignRepliesBrick, 'order': 5,  'zone': RIGHT},
-                    {'brick': core_bricks.HistoryBrick,        'order': 20, 'zone': RIGHT},
-                ],
-            )
+        if apps.is_installed('creme.documents'):
+            self._populate_bricks_config_for_documents()
 
-            BrickDetailviewLocation.objects.multi_create(
-                defaults={'brick': bricks.PersonPollRepliesBrick, 'order': 500, 'zone': RIGHT},
-                data=[{'model': Contact}, {'model': Organisation}],
-            )
-
-            if apps.is_installed('creme.assistants'):
-                logger.info(
-                    'Assistants app is installed'
-                    ' => we use the assistants blocks on detail view'
-                )
-
-                import creme.assistants.bricks as a_bricks
-
-                for model in (PollForm, PollReply, PollCampaign):
-                    BrickDetailviewLocation.objects.multi_create(
-                        defaults={'model': model, 'zone': RIGHT},
-                        data=[
-                            {'brick': a_bricks.TodosBrick,        'order': 100},
-                            {'brick': a_bricks.MemosBrick,        'order': 200},
-                            {'brick': a_bricks.AlertsBrick,       'order': 300},
-                            {'brick': a_bricks.UserMessagesBrick, 'order': 400},
-                        ],
-                    )
-
-            if apps.is_installed('creme.documents'):
-                # logger.info('Documents app is installed
-                # => we use the documents block on detail views')
-
-                from creme.documents.bricks import LinkedDocsBrick
-
-                BrickDetailviewLocation.objects.multi_create(
-                    defaults={'brick': LinkedDocsBrick, 'order': 600, 'zone': RIGHT},
-                    data=[{'model': m} for m in (PollForm, PollReply, PollCampaign)],
-                )
+        if apps.is_installed('creme.assistants'):
+            self._populate_bricks_config_for_assistants()

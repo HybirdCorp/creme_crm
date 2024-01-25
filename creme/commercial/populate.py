@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -60,24 +60,51 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'products']
 
-    def populate(self):
-        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_SOLD).exists()
+    SEARCH = {
+        'ACT': ['name', 'expected_sales', 'cost', 'goal'],
+        'STRATEGY': ['name'],
+        'PATTERN': [],
+    }
 
-        Act = commercial.get_act_model()
-        ActObjectivePattern = commercial.get_pattern_model()
-        Strategy = commercial.get_strategy_model()
-        Contact = persons.get_contact_model()
-        Organisation = persons.get_organisation_model()
-        Product = products.get_product_model()
-        Service = products.get_service_model()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
+        self.Contact      = persons.get_contact_model()
+        self.Organisation = persons.get_organisation_model()
+
+        self.Product = products.get_product_model()
+        self.Service = products.get_service_model()
+
+        self.Act                 = commercial.get_act_model()
+        self.ActObjectivePattern = commercial.get_pattern_model()
+        self.Strategy            = commercial.get_strategy_model()
+
+    def _already_populated(self):
+        return RelationType.objects.filter(pk=constants.REL_SUB_SOLD).exists()
+
+    def _populate(self):
+        super()._populate()
+        self._populate_market_segments()
+        self._populate_act_types()
+
+    def _populate_market_segments(self):
+        MarketSegment.objects.get_or_create(
+            property_type=None,
+            defaults={'name': _('All the organisations')},
+        )
+
+    def _populate_act_types(self):
+        for i, title in enumerate([_('Phone calls'), _('Show'), _('Demo')], start=1):
+            create_if_needed(ActType, {'pk': i}, title=title, is_custom=False)
+
+    def _populate_relation_types(self):
         RelationType.objects.smart_update_or_create(
-            (constants.REL_SUB_SOLD, _('has sold'),         [Contact, Organisation]),
-            (constants.REL_OBJ_SOLD, _('has been sold by'), [Product, Service]),
+            (constants.REL_SUB_SOLD, _('has sold'),         [self.Contact, self.Organisation]),
+            (constants.REL_OBJ_SOLD, _('has been sold by'), [self.Product, self.Service]),
         )
 
         complete_goal_models = {*creme_registry.iter_entity_models()}
-        complete_goal_models.discard(Strategy)
+        complete_goal_models.discard(self.Strategy)
         if apps.is_installed('creme.billing'):
             from creme import billing
             from creme.billing.registry import lines_registry
@@ -95,33 +122,22 @@ class Populator(BasePopulator):
             (
                 constants.REL_OBJ_COMPLETE_GOAL,
                 _('is completed thanks to'),
-                [Act],
+                [self.Act],
             ),
         )
 
-        # ---------------------------
+    def _populate_property_types(self):
         CremePropertyType.objects.smart_update_or_create(
             # str_pk=constants.PROP_IS_A_SALESMAN,
             uuid=constants.UUID_PROP_IS_A_SALESMAN,
             app_label='commercial',
             text=_('is a salesman'),
-            subject_ctypes=[Contact],
+            subject_ctypes=[self.Contact],
         )
 
-        # ---------------------------
-        MarketSegment.objects.get_or_create(
-            property_type=None,
-            defaults={'name': _('All the organisations')},
-        )
-
-        # ---------------------------
-        for i, title in enumerate([_('Phone calls'), _('Show'), _('Demo')], start=1):
-            create_if_needed(ActType, {'pk': i}, title=title, is_custom=False)
-
-        # ---------------------------
-        create_hf = HeaderFilter.objects.create_if_needed
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_ACT, model=Act,
+    def _populate_header_filters_for_act(self):
+        HeaderFilter.objects.create_if_needed(
+            pk=constants.DEFAULT_HFILTER_ACT, model=self.Act,
             name=_('Com Action view'),
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
@@ -129,13 +145,17 @@ class Populator(BasePopulator):
                 (EntityCellRegularField, {'name': 'due_date'}),
             ],
         )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_STRATEGY, model=Strategy,
+
+    def _populate_header_filters_for_strategy(self):
+        HeaderFilter.objects.create_if_needed(
+            pk=constants.DEFAULT_HFILTER_STRATEGY, model=self.Strategy,
             name=_('Strategy view'),
             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
         )
-        create_hf(
-            pk=constants.DEFAULT_HFILTER_PATTERN, model=ActObjectivePattern,
+
+    def _populate_header_filters_for_pattern(self):
+        HeaderFilter.objects.create_if_needed(
+            pk=constants.DEFAULT_HFILTER_PATTERN, model=self.ActObjectivePattern,
             name=_('Objective pattern view'),
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
@@ -143,28 +163,12 @@ class Populator(BasePopulator):
             ],
         )
 
-        # ---------------------------
-        create_cform = CustomFormConfigItem.objects.create_if_needed
-        create_cform(descriptor=custom_forms.ACT_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.ACT_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.PATTERN_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.PATTERN_EDITION_CFORM)
-        create_cform(descriptor=custom_forms.STRATEGY_CREATION_CFORM)
-        create_cform(descriptor=custom_forms.STRATEGY_EDITION_CFORM)
+    def _populate_header_filters(self):
+        self._populate_header_filters_for_act()
+        self._populate_header_filters_for_strategy()
+        self._populate_header_filters_for_pattern()
 
-        # ---------------------------
-        create_searchconf = SearchConfigItem.objects.create_if_needed
-        create_searchconf(Act, ['name', 'expected_sales', 'cost', 'goal'])
-        create_searchconf(Strategy, ['name'])
-        create_searchconf(ActObjectivePattern, [], disabled=True)
-
-        # ---------------------------
-        SettingValue.objects.get_or_create(
-            key_id=setting_keys.orga_approaches_key.id,
-            defaults={'value': True},
-        )
-
-        # ---------------------------
+    def _populate_jobs(self):
         Job.objects.get_or_create(
             type_id=creme_jobs.com_approaches_emails_send_type.id,
             defaults={
@@ -177,124 +181,163 @@ class Populator(BasePopulator):
             },
         )
 
-        # ---------------------------
-        if not already_populated:
-            menu_container = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Commercial')},
-                defaults={'order': 30},
-            )[0]
+    def _populate_custom_forms(self):
+        create_cform = CustomFormConfigItem.objects.create_if_needed
+        create_cform(descriptor=custom_forms.ACT_CREATION_CFORM)
+        create_cform(descriptor=custom_forms.ACT_EDITION_CFORM)
+        create_cform(descriptor=custom_forms.PATTERN_CREATION_CFORM)
+        create_cform(descriptor=custom_forms.PATTERN_EDITION_CFORM)
+        create_cform(descriptor=custom_forms.STRATEGY_CREATION_CFORM)
+        create_cform(descriptor=custom_forms.STRATEGY_EDITION_CFORM)
 
-            create_mitem = MenuConfigItem.objects.create
-            create_mitem(entry_id=menu.ActsEntry.id,       order=50, parent=menu_container)
-            create_mitem(entry_id=menu.StrategiesEntry.id, order=55, parent=menu_container)
-            create_mitem(entry_id=menu.SegmentsEntry.id,   order=60, parent=menu_container)
-            create_mitem(entry_id=menu.PatternsEntry.id,   order=70, parent=menu_container)
-
-            directory_entry = MenuConfigItem.objects.filter(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Directory')},
-            ).first()
-            if directory_entry is not None:
-                create_mitem(entry_id=menu.SalesmenEntry.id, order=100, parent=directory_entry)
-
-            creations_entry = MenuConfigItem.objects.filter(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('+ Creation')},
-            ).first()
-            if creations_entry is not None:
-                create_mitem(entry_id=menu.ActCreationEntry.id, order=40, parent=creations_entry)
-
-            # ---------------------------
-            ButtonMenuItem.objects.create_if_needed(
-                button=buttons.CompleteGoalButton, order=60,
+    def _populate_search_config(self):
+        def create_sci(model, key):
+            fields = self.SEARCH[key]
+            SearchConfigItem.objects.create_if_needed(
+                model=model, fields=fields, disabled=not bool(fields),
             )
 
-            TOP   = BrickDetailviewLocation.TOP
-            RIGHT = BrickDetailviewLocation.RIGHT
-            LEFT  = BrickDetailviewLocation.LEFT
+        create_sci(model=self.Act,                 key='ACT')
+        create_sci(model=self.Strategy,            key='STRATEGY')
+        create_sci(model=self.ActObjectivePattern, key='PATTERN')
 
-            # BrickDetailviewLocation.objects.multi_create(
-            #     defaults={'brick': bricks.ApproachesBrick, 'order': 10, 'zone': RIGHT},
-            #     data=[
-            #         {},  # default configuration
-            #         {'model': Contact},
-            #         {'model': Organisation},
-            #     ]
-            # )
+    def _populate_setting_values(self):
+        SettingValue.objects.get_or_create(
+            key_id=setting_keys.orga_approaches_key.id,
+            defaults={'value': True},
+        )
 
+    def _populate_menu_config(self):
+        menu_container = MenuConfigItem.objects.get_or_create(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': _('Commercial')},
+            defaults={'order': 30},
+        )[0]
+
+        create_mitem = MenuConfigItem.objects.create
+        create_mitem(entry_id=menu.ActsEntry.id,       order=50, parent=menu_container)
+        create_mitem(entry_id=menu.StrategiesEntry.id, order=55, parent=menu_container)
+        create_mitem(entry_id=menu.SegmentsEntry.id,   order=60, parent=menu_container)
+        create_mitem(entry_id=menu.PatternsEntry.id,   order=70, parent=menu_container)
+
+        directory_entry = MenuConfigItem.objects.filter(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': _('Directory')},
+        ).first()
+        if directory_entry is not None:
+            create_mitem(entry_id=menu.SalesmenEntry.id, order=100, parent=directory_entry)
+
+        creations_entry = MenuConfigItem.objects.filter(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': _('+ Creation')},
+        ).first()
+        if creations_entry is not None:
+            create_mitem(entry_id=menu.ActCreationEntry.id, order=40, parent=creations_entry)
+
+    def _populate_buttons_config(self):
+        ButtonMenuItem.objects.create_if_needed(
+            button=buttons.CompleteGoalButton, order=60,
+        )
+
+    def _populate_bricks_config_for_act(self):
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': self.Act, 'zone': BrickDetailviewLocation.LEFT},
+            data=[
+                {'order': 5},  # generic information brick
+                {'brick': bricks.ActObjectivesBrick,        'order':  10},
+                {'brick': bricks.RelatedOpportunitiesBrick, 'order':  20},
+                {'brick': core_bricks.CustomFieldsBrick,    'order':  40},
+                {'brick': core_bricks.PropertiesBrick,      'order': 450},
+                {'brick': core_bricks.RelationsBrick,       'order': 500},
+
+                {
+                    'brick': core_bricks.HistoryBrick, 'order': 20,
+                    'zone': BrickDetailviewLocation.RIGHT,
+                },
+            ],
+        )
+
+    def _populate_bricks_config_for_pattern(self):
+        TOP = BrickDetailviewLocation.TOP
+        RIGHT = BrickDetailviewLocation.RIGHT
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': self.ActObjectivePattern, 'zone': BrickDetailviewLocation.LEFT},
+            data=[
+                {'brick': bricks.PatternComponentsBrick, 'order': 10, 'zone': TOP},
+
+                {'order': 5},
+                {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                {'brick': core_bricks.RelationsBrick,    'order': 500},
+
+                {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+            ],
+        )
+
+    def _populate_bricks_config_for_strategy(self):
+        TOP = BrickDetailviewLocation.TOP
+        RIGHT = BrickDetailviewLocation.RIGHT
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': self.Strategy, 'zone': BrickDetailviewLocation.LEFT},
+            data=[
+                {'brick': bricks.SegmentDescriptionsBrick, 'order': 10, 'zone': TOP},
+
+                {'order': 5},
+                {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                {'brick': bricks.EvaluatedOrgasBrick,    'order':  50},
+                {'brick': bricks.AssetsBrick,            'order':  60},
+                {'brick': bricks.CharmsBrick,            'order':  70},
+                {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                {'brick': core_bricks.RelationsBrick,    'order': 500},
+
+                {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+            ],
+        )
+
+    def _populate_bricks_config_for_assistants(self):
+        logger.info(
+            'Assistants app is installed '
+            '=> we use the assistants blocks on detail views'
+        )
+
+        import creme.assistants.bricks as a_bricks
+
+        for model in (self.Act, self.ActObjectivePattern, self.Strategy):
             BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': Act, 'zone': LEFT},
+                defaults={'model': model, 'zone': BrickDetailviewLocation.RIGHT},
                 data=[
-                    {'order': 5},  # generic information brick
-                    {'brick': bricks.ActObjectivesBrick,        'order': 10},
-                    {'brick': bricks.RelatedOpportunitiesBrick, 'order': 20},
-                    {'brick': core_bricks.CustomFieldsBrick,    'order': 40},
-                    {'brick': core_bricks.PropertiesBrick,      'order': 450},
-                    {'brick': core_bricks.RelationsBrick,       'order': 500},
-
-                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                    {'brick': a_bricks.TodosBrick,        'order': 100},
+                    {'brick': a_bricks.MemosBrick,        'order': 200},
+                    {'brick': a_bricks.AlertsBrick,       'order': 300},
+                    {'brick': a_bricks.UserMessagesBrick, 'order': 400},
                 ],
             )
-            BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': ActObjectivePattern, 'zone': LEFT},
-                data=[
-                    {'brick': bricks.PatternComponentsBrick, 'order': 10, 'zone': TOP},
 
-                    {'order': 5},
-                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
-                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
-                    {'brick': core_bricks.RelationsBrick,    'order': 500},
+    def _populate_bricks_config_for_documents(self):
+        # logger.info("Documents app is installed
+        # => we use the documents blocks on Strategy's detail views")
 
-                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
-                ],
-            )
-            BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': Strategy, 'zone': LEFT},
-                data=[
-                    {'brick': bricks.SegmentDescriptionsBrick, 'order': 10, 'zone': TOP},
+        from creme.documents.bricks import LinkedDocsBrick
 
-                    {'order': 5},
-                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
-                    {'brick': bricks.EvaluatedOrgasBrick,    'order':  50},
-                    {'brick': bricks.AssetsBrick,            'order':  60},
-                    {'brick': bricks.CharmsBrick,            'order':  70},
-                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
-                    {'brick': core_bricks.RelationsBrick,    'order': 500},
-                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
-                ],
-            )
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={
+                'brick': LinkedDocsBrick, 'order': 600,
+                'zone': BrickDetailviewLocation.RIGHT,
+            },
+            data=[
+                {'model': self.Act},
+                {'model': self.ActObjectivePattern},
+                {'model': self.Strategy},
+            ],
+        )
 
-            if apps.is_installed('creme.assistants'):
-                logger.info(
-                    'Assistants app is installed '
-                    '=> we use the assistants blocks on detail views'
-                )
+    def _populate_bricks_config(self):
+        self._populate_bricks_config_for_act()
+        self._populate_bricks_config_for_pattern()
+        self._populate_bricks_config_for_strategy()
 
-                import creme.assistants.bricks as a_bricks
+        if apps.is_installed('creme.assistants'):
+            self._populate_bricks_config_for_assistants()
 
-                for model in (Act, ActObjectivePattern, Strategy):
-                    BrickDetailviewLocation.objects.multi_create(
-                        defaults={'model': model, 'zone': RIGHT},
-                        data=[
-                            {'brick': a_bricks.TodosBrick,        'order': 100},
-                            {'brick': a_bricks.MemosBrick,        'order': 200},
-                            {'brick': a_bricks.AlertsBrick,       'order': 300},
-                            {'brick': a_bricks.UserMessagesBrick, 'order': 400},
-                        ],
-                    )
-
-            if apps.is_installed('creme.documents'):
-                # logger.info("Documents app is installed
-                # => we use the documents blocks on Strategy's detail views")
-
-                from creme.documents.bricks import LinkedDocsBrick
-
-                BrickDetailviewLocation.objects.multi_create(
-                    defaults={'brick': LinkedDocsBrick, 'order': 600, 'zone': RIGHT},
-                    data=[
-                        {'model': Act},
-                        {'model': ActObjectivePattern},
-                        {'model': Strategy},
-                    ],
-                )
+        if apps.is_installed('creme.documents'):
+            self._populate_bricks_config_for_documents()

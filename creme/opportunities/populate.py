@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,23 +58,76 @@ from .buttons import LinkedOpportunityButton
 from .models import Origin, SalesPhase
 
 logger = logging.getLogger(__name__)
-Opportunity = get_opportunity_model()
 
 
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities', 'products', 'billing']
 
-    def populate(self):
-        already_populated = RelationType.objects.filter(pk=constants.REL_SUB_TARGETS).exists()
+    SEARCH = ['name', 'made_sales', 'sales_phase__name', 'origin__name']
 
-        Contact = persons.get_contact_model()
-        Organisation = persons.get_organisation_model()
-        Product = products.get_product_model()
-        Service = products.get_service_model()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-        # ---------------------------
+        self.Contact      = persons.get_contact_model()
+        self.Organisation = persons.get_organisation_model()
+
+        self.Product = products.get_product_model()
+        self.Service = products.get_service_model()
+
+        self.Opportunity = get_opportunity_model()
+
+    def _already_populated(self):
+        return RelationType.objects.filter(pk=constants.REL_SUB_TARGETS).exists()
+
+    def _first_populate(self):
+        super()._first_populate()
+        self._populate_phases()
+        self._populate_origins()
+
+        if apps.is_installed('creme.reports'):
+            logger.info(
+                'Reports app is installed'
+                ' => we create an Opportunity report, with 2 graphs, and related blocks'
+            )
+            self._populate_report_n_graphes()
+
+    def _populate_phases(self):
+        create_sphase = SalesPhase.objects.create
+        create_sphase(order=1, name=_('Forthcoming'))
+        create_sphase(order=2, name=_('In progress'))
+        create_sphase(order=3, name=_('Under negotiation'))
+        create_sphase(
+            order=4, name=pgettext('opportunities-sales_phase', 'Abandoned'),
+        )
+        create_sphase(
+            order=5, name=pgettext('opportunities-sales_phase', 'Won'),
+            won=True, color='1dd420',
+        )
+        create_sphase(
+            order=6, name=pgettext('opportunities-sales_phase', 'Lost'),
+            lost=True, color='ae4444',
+        )
+
+    def _populate_origins(self):
+        create_origin = Origin.objects.create
+        create_origin(name=pgettext('opportunities-origin', 'None'))
+        create_origin(name=_('Web site'))
+        create_origin(name=_('Mouth'))
+        create_origin(name=_('Show'))
+        create_origin(name=_('Direct email'))
+        create_origin(name=_('Direct phone call'))
+        create_origin(name=_('Employee'))
+        create_origin(name=_('Partner'))
+        create_origin(name=pgettext('opportunities-origin', 'Other'))
+
+    def _populate_relation_types(self):
+        Opportunity = self.Opportunity
+        Contact = self.Contact
+        Organisation = self.Organisation
+
         create_rtype = RelationType.objects.smart_update_or_create
-        rt_sub_targets = create_rtype(
+        # rt_sub_targets = create_rtype(...)[0]
+        create_rtype(
             (
                 constants.REL_SUB_TARGETS,
                 _('targets the organisation/contact'),
@@ -86,8 +139,9 @@ class Populator(BasePopulator):
             ),
             is_internal=True,
             minimal_display=(True, True),
-        )[0]
-        rt_obj_emit_orga = create_rtype(
+        )
+        # rt_obj_emit_orga = create_rtype(...)[1]
+        create_rtype(
             (
                 constants.REL_SUB_EMIT_ORGA,
                 _('has generated the opportunity'),
@@ -99,13 +153,13 @@ class Populator(BasePopulator):
             ),
             is_internal=True,
             minimal_display=(True, True),
-        )[1]
+        )
         create_rtype(
-            (constants.REL_SUB_LINKED_PRODUCT, _('is linked to the opportunity'), [Product]),
+            (constants.REL_SUB_LINKED_PRODUCT, _('is linked to the opportunity'), [self.Product]),
             (constants.REL_OBJ_LINKED_PRODUCT, _('concerns the product'),         [Opportunity])
         )
         create_rtype(
-            (constants.REL_SUB_LINKED_SERVICE, _('is linked to the opportunity'), [Service]),
+            (constants.REL_SUB_LINKED_SERVICE, _('is linked to the opportunity'), [self.Service]),
             (constants.REL_OBJ_LINKED_SERVICE, _('concerns the service'),         [Opportunity]),
         )
         create_rtype(
@@ -185,20 +239,14 @@ class Populator(BasePopulator):
                 ),
             )
 
-        # ---------------------------
-        create_sv = SettingValue.objects.get_or_create
-        create_sv(key_id=setting_keys.quote_key.id,              defaults={'value': False})
-        create_sv(key_id=setting_keys.target_constraint_key.id,  defaults={'value': True})
-        create_sv(key_id=setting_keys.emitter_constraint_key.id, defaults={'value': True})
-
-        # ---------------------------
+    def _populate_entity_filters(self):
         create_efilter = partial(
             EntityFilter.objects.smart_update_or_create,
-            model=Opportunity, user='admin',
+            model=self.Opportunity, user='admin',
         )
         build_cond = partial(
             condition_handler.RegularFieldConditionHandler.build_condition,
-            model=Opportunity,
+            model=self.Opportunity,
         )
         create_efilter(
             'opportunities-opportunities_won',
@@ -239,13 +287,17 @@ class Populator(BasePopulator):
             ],
         )
 
-        # ---------------------------
+    def _populate_header_filters(self):
         HeaderFilter.objects.create_if_needed(
-            pk=constants.DEFAULT_HFILTER_OPPORTUNITY, model=Opportunity,
+            pk=constants.DEFAULT_HFILTER_OPPORTUNITY, model=self.Opportunity,
             name=_('Opportunity view'),
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
-                EntityCellRelation(model=Opportunity, rtype=rt_sub_targets),
+                # EntityCellRelation(model=self.Opportunity, rtype=rt_sub_targets),
+                EntityCellRelation(
+                    model=self.Opportunity,
+                    rtype=RelationType.objects.get(id=constants.REL_SUB_TARGETS),
+                ),
                 (EntityCellRegularField, {'name': 'sales_phase'}),
                 (EntityCellRegularField, {'name': 'estimated_sales'}),
                 (EntityCellRegularField, {'name': 'made_sales'}),
@@ -253,212 +305,174 @@ class Populator(BasePopulator):
             ],
         )
 
-        # ---------------------------
-        CustomFormConfigItem.objects.create_if_needed(
-            descriptor=custom_forms.OPPORTUNITY_CREATION_CFORM,
-        )
-        CustomFormConfigItem.objects.create_if_needed(
-            descriptor=custom_forms.OPPORTUNITY_EDITION_CFORM,
-        )
+    def _populate_custom_forms(self):
+        create_cfci = CustomFormConfigItem.objects.create_if_needed
+        create_cfci(descriptor=custom_forms.OPPORTUNITY_CREATION_CFORM)
+        create_cfci(descriptor=custom_forms.OPPORTUNITY_EDITION_CFORM)
 
-        # ---------------------------
+    def _populate_search_config(self):
         SearchConfigItem.objects.create_if_needed(
-            Opportunity,
-            ['name', 'made_sales', 'sales_phase__name', 'origin__name'],
+            model=self.Opportunity, fields=self.SEARCH,
         )
 
-        # ---------------------------
-        if not already_populated:
-            create_sphase = SalesPhase.objects.create
-            create_sphase(order=1, name=_('Forthcoming'))
-            create_sphase(
-                order=4, name=pgettext('opportunities-sales_phase', 'Abandoned'),
-            )
-            create_sphase(
-                order=5, name=pgettext('opportunities-sales_phase', 'Won'),
-                won=True, color='1dd420',
-            )
-            create_sphase(
-                order=6, name=pgettext('opportunities-sales_phase', 'Lost'),
-                lost=True, color='ae4444',
-            )
-            create_sphase(order=3, name=_('Under negotiation'))
-            create_sphase(order=2, name=_('In progress'))
+    def _populate_setting_values(self):
+        create_sv = SettingValue.objects.get_or_create
+        create_sv(key_id=setting_keys.quote_key.id,              defaults={'value': False})
+        create_sv(key_id=setting_keys.target_constraint_key.id,  defaults={'value': True})
+        create_sv(key_id=setting_keys.emitter_constraint_key.id, defaults={'value': True})
 
-            # ---------------------------
-            create_origin = Origin.objects.create
-            create_origin(name=pgettext('opportunities-origin', 'None'))
-            create_origin(name=_('Web site'))
-            create_origin(name=_('Mouth'))
-            create_origin(name=_('Show'))
-            create_origin(name=_('Direct email'))
-            create_origin(name=_('Direct phone call'))
-            create_origin(name=_('Employee'))
-            create_origin(name=_('Partner'))
-            create_origin(name=pgettext('opportunities-origin', 'Other'))
+    def _populate_menu_config(self):
+        menu_container = MenuConfigItem.objects.get_or_create(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': _('Commercial')},
+            defaults={'order': 30},
+        )[0]
 
-            # ---------------------------
-            menu_container = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Commercial')},
-                defaults={'order': 30},
-            )[0]
+        MenuConfigItem.objects.create(
+            entry_id=menu.OpportunitiesEntry.id, order=10, parent=menu_container,
+        )
 
+        creations_entry = MenuConfigItem.objects.filter(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': _('+ Creation')},
+        ).first()
+        if creations_entry is not None:
             MenuConfigItem.objects.create(
-                entry_id=menu.OpportunitiesEntry.id, order=10, parent=menu_container,
+                entry_id=menu.OpportunityCreationEntry.id,
+                order=30, parent=creations_entry,
             )
 
-            creations_entry = MenuConfigItem.objects.filter(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('+ Creation')},
-            ).first()
-            if creations_entry is not None:
-                MenuConfigItem.objects.create(
-                    entry_id=menu.OpportunityCreationEntry.id,
-                    order=30, parent=creations_entry,
-                )
+    def _populate_buttons_config(self):
+        create_button = ButtonMenuItem.objects.create_if_needed
+        create_button(model=self.Organisation, button=LinkedOpportunityButton, order=30)
+        create_button(model=self.Contact,      button=LinkedOpportunityButton, order=30)
 
-            # ---------------------------
-            create_button = ButtonMenuItem.objects.create_if_needed
-            create_button(
-                model=Organisation, button=LinkedOpportunityButton, order=30,
+    def _populate_bricks_config(self):
+        Opportunity = self.Opportunity
+        LEFT = BrickDetailviewLocation.LEFT
+        RIGHT = BrickDetailviewLocation.RIGHT
+
+        build_cell = EntityCellRegularField.build
+        cbci = CustomBrickConfigItem.objects.create(
+            # id='opportunities-complementary',
+            uuid='43ac42b1-3b6d-4c9a-8133-942b19679353',
+            name=_('Opportunity complementary information'),
+            content_type=Opportunity,
+            cells=[
+                build_cell(Opportunity, 'reference'),
+                build_cell(Opportunity, 'currency'),
+                build_cell(Opportunity, 'chance_to_win'),
+                build_cell(Opportunity, 'expected_closing_date'),
+                build_cell(Opportunity, 'closing_date'),
+                build_cell(Opportunity, 'origin'),
+                build_cell(Opportunity, 'first_action_date'),
+                build_cell(Opportunity, 'description'),
+            ],
+        )
+
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': Opportunity, 'zone': LEFT},
+            data=[
+                {
+                    'brick': bricks.OpportunityCardHatBrick, 'order': 1,
+                    'zone': BrickDetailviewLocation.HAT,
+                },
+
+                {'brick': cbci.brick_id,                 'order':   5},
+                {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
+                {'brick': bricks.BusinessManagersBrick,  'order':  60},
+                {'brick': bricks.LinkedContactsBrick,    'order':  62},
+                {'brick': bricks.LinkedProductsBrick,    'order':  64},
+                {'brick': bricks.LinkedServicesBrick,    'order':  66},
+                {'brick': core_bricks.PropertiesBrick,   'order': 450},
+                {'brick': core_bricks.RelationsBrick,    'order': 500},
+
+                {'brick': bricks.OppTargetBrick,    'order':  1, 'zone': RIGHT},
+                {'brick': bricks.OppTotalBrick,     'order':  2, 'zone': RIGHT},
+                {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+            ],
+        )
+
+        if apps.is_installed('creme.activities'):
+            logger.info(
+                'Activities app is installed'
+                ' => we use the "Future activities" & "Past activities" blocks'
             )
-            create_button(
-                model=Contact,      button=LinkedOpportunityButton, order=30,
-            )
 
-            # ---------------------------
-            LEFT = BrickDetailviewLocation.LEFT
-            RIGHT = BrickDetailviewLocation.RIGHT
+            import creme.activities.bricks as act_bricks
 
-            build_cell = EntityCellRegularField.build
-            cbci = CustomBrickConfigItem.objects.create(
-                # id='opportunities-complementary',
-                uuid='43ac42b1-3b6d-4c9a-8133-942b19679353',
-                name=_('Opportunity complementary information'),
-                content_type=Opportunity,
-                cells=[
-                    build_cell(Opportunity, 'reference'),
-                    build_cell(Opportunity, 'currency'),
-                    build_cell(Opportunity, 'chance_to_win'),
-                    build_cell(Opportunity, 'expected_closing_date'),
-                    build_cell(Opportunity, 'closing_date'),
-                    build_cell(Opportunity, 'origin'),
-                    build_cell(Opportunity, 'first_action_date'),
-                    build_cell(Opportunity, 'description'),
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': Opportunity, 'zone': RIGHT},
+                data=[
+                    {'brick': act_bricks.FutureActivitiesBrick, 'order': 20},
+                    {'brick': act_bricks.PastActivitiesBrick,   'order': 21},
                 ],
+            )
+
+        if apps.is_installed('creme.assistants'):
+            logger.info(
+                'Assistants app is installed'
+                ' => we use the assistants blocks on detail views and portal'
+            )
+
+            import creme.assistants.bricks as a_bricks
+
+            BrickDetailviewLocation.objects.multi_create(
+                defaults={'model': Opportunity, 'zone': RIGHT},
+                data=[
+                    {'brick': a_bricks.TodosBrick,        'order': 100},
+                    {'brick': a_bricks.MemosBrick,        'order': 200},
+                    {'brick': a_bricks.AlertsBrick,       'order': 300},
+                    {'brick': a_bricks.UserMessagesBrick, 'order': 500},
+                ],
+            )
+
+        if apps.is_installed('creme.documents'):
+            # logger.info('Documents app is installed
+            # => we use the documents block on detail view')
+
+            from creme.documents.bricks import LinkedDocsBrick
+
+            BrickDetailviewLocation.objects.create_if_needed(
+                brick=LinkedDocsBrick, order=600, zone=RIGHT,
+                model=Opportunity,
+            )
+
+        if apps.is_installed('creme.billing'):
+            logger.info(
+                'Billing app is installed'
+                ' => we use the billing blocks on detail view'
             )
 
             BrickDetailviewLocation.objects.multi_create(
                 defaults={'model': Opportunity, 'zone': LEFT},
                 data=[
-                    {
-                        'brick': bricks.OpportunityCardHatBrick, 'order': 1,
-                        'zone': BrickDetailviewLocation.HAT,
-                    },
-
-                    {'brick': cbci.brick_id,                 'order':   5},
-                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
-                    {'brick': bricks.BusinessManagersBrick,  'order':  60},
-                    {'brick': bricks.LinkedContactsBrick,    'order':  62},
-                    {'brick': bricks.LinkedProductsBrick,    'order':  64},
-                    {'brick': bricks.LinkedServicesBrick,    'order':  66},
-                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
-                    {'brick': core_bricks.RelationsBrick,    'order': 500},
-
-                    {'brick': bricks.OppTargetBrick,    'order':  1, 'zone': RIGHT},
-                    {'brick': bricks.OppTotalBrick,     'order':  2, 'zone': RIGHT},
-                    {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
+                    {'brick': bricks.QuotesBrick,      'order': 70},
+                    {'brick': bricks.SalesOrdersBrick, 'order': 72},
+                    {'brick': bricks.InvoicesBrick,    'order': 74},
                 ],
             )
 
-            if apps.is_installed('creme.activities'):
-                logger.info(
-                    'Activities app is installed'
-                    ' => we use the "Future activities" & "Past activities" blocks'
-                )
-
-                import creme.activities.bricks as act_bricks
-
-                BrickDetailviewLocation.objects.multi_create(
-                    defaults={'model': Opportunity, 'zone': RIGHT},
-                    data=[
-                        {'brick': act_bricks.FutureActivitiesBrick, 'order': 20},
-                        {'brick': act_bricks.PastActivitiesBrick,   'order': 21},
-                    ],
-                )
-
-            if apps.is_installed('creme.assistants'):
-                logger.info(
-                    'Assistants app is installed'
-                    ' => we use the assistants blocks on detail views and portal'
-                )
-
-                import creme.assistants.bricks as a_bricks
-
-                BrickDetailviewLocation.objects.multi_create(
-                    defaults={'model': Opportunity, 'zone': RIGHT},
-                    data=[
-                        {'brick': a_bricks.TodosBrick,        'order': 100},
-                        {'brick': a_bricks.MemosBrick,        'order': 200},
-                        {'brick': a_bricks.AlertsBrick,       'order': 300},
-                        {'brick': a_bricks.UserMessagesBrick, 'order': 500},
-                    ],
-                )
-
-            if apps.is_installed('creme.documents'):
-                # logger.info('Documents app is installed
-                # => we use the documents block on detail view')
-
-                from creme.documents.bricks import LinkedDocsBrick
-
-                BrickDetailviewLocation.objects.create_if_needed(
-                    brick=LinkedDocsBrick, order=600, zone=RIGHT,
-                    model=Opportunity,
-                )
-
-            if apps.is_installed('creme.billing'):
-                logger.info(
-                    'Billing app is installed'
-                    ' => we use the billing blocks on detail view'
-                )
-
-                BrickDetailviewLocation.objects.multi_create(
-                    defaults={'model': Opportunity, 'zone': LEFT},
-                    data=[
-                        {'brick': bricks.QuotesBrick,      'order': 70},
-                        {'brick': bricks.SalesOrdersBrick, 'order': 72},
-                        {'brick': bricks.InvoicesBrick,    'order': 74},
-                    ],
-                )
-
-            if apps.is_installed('creme.emails'):
-                logger.info(
-                    'Emails app is installed'
-                    ' => we use the emails blocks on detail view'
-                )
-
-                from creme.emails.bricks import MailsHistoryBrick
-
-                BrickDetailviewLocation.objects.create_if_needed(
-                    brick=MailsHistoryBrick, order=600, zone=RIGHT,
-                    model=Opportunity,
-                )
-
-            BrickDetailviewLocation.objects.create_if_needed(
-                brick=bricks.TargetingOpportunitiesBrick, order=16, zone=RIGHT,
-                model=Organisation,
+        if apps.is_installed('creme.emails'):
+            logger.info(
+                'Emails app is installed'
+                ' => we use the emails blocks on detail view'
             )
 
-            # ---------------------------
-            if apps.is_installed('creme.reports'):
-                logger.info(
-                    'Reports app is installed'
-                    ' => we create an Opportunity report, with 2 graphs, and related blocks'
-                )
-                self.create_report_n_graphes(rt_obj_emit_orga)
+            from creme.emails.bricks import MailsHistoryBrick
 
-    def create_report_n_graphes(self, rt_obj_emit_orga):
+            BrickDetailviewLocation.objects.create_if_needed(
+                brick=MailsHistoryBrick, order=600, zone=RIGHT,
+                model=Opportunity,
+            )
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=bricks.TargetingOpportunitiesBrick, order=16, zone=RIGHT,
+            model=self.Organisation,
+        )
+
+    # def create_report_n_graphes(self, rt_obj_emit_orga):
+    def _populate_report_n_graphes(self):
         "Create the report 'Opportunities' and 2 ReportGraphs."
         # NB: the fixed UUIDs were added with Creme2.5 in order to facilitate
         #     import/export in 'creme_config'. So the Reports/ReportGraphes
@@ -477,6 +491,8 @@ class Populator(BasePopulator):
             logger.info('Report model is custom => no Opportunity report is created.')
             return
 
+        Opportunity = self.Opportunity
+
         # Create the report ----------------------------------------------------
         report = reports.get_report_model().objects.create(
             uuid='18a8226d-c2f1-4732-a4d5-705bd30c141f',
@@ -491,7 +507,8 @@ class Populator(BasePopulator):
         create_field(name='estimated_sales',   order=2)
         create_field(name='made_sales',        order=3)
         create_field(name='sales_phase__name', order=4)
-        create_field(name=rt_obj_emit_orga.id, order=5, type=RFT_RELATION)
+        # create_field(name=rt_obj_emit_orga.id, order=5, type=RFT_RELATION)
+        create_field(name=constants.REL_OBJ_EMIT_ORGA, order=5, type=RFT_RELATION)
 
         # Create 2 graphs ------------------------------------------------------
         if reports.rgraph_model_is_custom():

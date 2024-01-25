@@ -73,6 +73,8 @@
                     - The class-view 'views.contact.ContactNamesEdition' is now deprecated.
         # A new setting value "POPULATORS" has been added ; it allows to
           override the classes used by the command "creme_populate".
+          Many classes 'Populate' have been reworked to facilitate their modification by inheritance ;
+          the work has been split into several methods, and class attributes with declarative values have been added.
         # In the class 'creme_core.core.setting_key.SettingKey', you can now pass :
              - a custom form-field class.
              - a custom renderer function.
@@ -264,9 +266,12 @@
                 - In 'reminders', the attributes 'ReminderAlert.body' & 'ReminderTodo.body' have been removed.
             * Documents :
                 - In the context of the brick 'ChildFoldersBrick', "folder_model" is not injected anymore.
+            * Billing :
+                - The method 'populate.Populator.create_reports()' has been replaced by a new one, '_populate_reports()'.
             * Opportunities :
-                - The class 'OpportunityCardHatBrick' (& the related template) has been reworked to follow the changes in app "persons".
+                - The class 'bricks.OpportunityCardHatBrick' (& the related template) has been reworked to follow the changes in app "persons".
                   A new class 'ContactsSummary' has been introduced, and the class variable "displayed_contacts_number" has been move into it.
+                - The method 'populate.Populator.create_report_n_graphes()' has been replaced by a new one, '_populate_report_n_graphes()'.
             * Commercial :
                 - The value 'constants.PROP_IS_A_SALESMAN' has been replaced by 'UUID_PROP_IS_A_SALESMAN'.
             * Mobile :
