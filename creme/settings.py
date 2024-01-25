@@ -443,6 +443,15 @@ INSTALLED_CREME_APPS = [
 ]
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
 
+# The command 'creme_populate' retrieves the populators of all installed apps
+# and execute them to fill the DB. For a given app, the command retrieves by
+# default the class with the path "{app_path}.populate.Populator".
+# You can override the class to use with this dictionary.
+POPULATORS = {
+    # Example of value:
+    # 'persons': 'my_project.my_app.populate.PersonsPopulator',
+}
+
 ALLOWED_IMAGES_EXTENSIONS = [
     'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'psd', 'tif', 'tiff', 'tga', 'svg',
 ]
