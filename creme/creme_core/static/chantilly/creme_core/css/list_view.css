@@ -280,9 +280,14 @@
 
 .listview .lv-search-header th.search input,
 .listview .lv-search-header th.search select {
+/*
     background-color: #FCD3CF;
     color: #C05C50;
     border: 1px solid #D87D72;
+*/
+    background-color: #e3ffdb;
+    color: #51a937;
+    border: 2px solid #51ad36;
 }
 
 .listview .lv-search-header th {
