@@ -6,7 +6,7 @@ from creme.creme_core.forms.batch_process import BatchActionsField
 
 # from .base import FieldTestCase
 from ..base import CremeTestCase
-from ..fake_models import FakeContact
+from ..fake_models import FakeContact, FakeEmailCampaign
 
 
 # class BatchActionsFieldTestCase(FieldTestCase):
@@ -65,7 +65,7 @@ class BatchActionsFieldTestCase(CremeTestCase):
             messages=msg, codes='required',
         )
 
-    def test_clean_invalid_field(self):
+    def test_clean_invalid_field01(self):
         field = BatchActionsField(model=FakeContact)
         msg = _('This field is invalid with this model.')
         self.assertFormfieldError(
@@ -90,6 +90,19 @@ class BatchActionsFieldTestCase(CremeTestCase):
                 name='civility',  # Type not managed
                 operator='upper',
                 value='',
+            ),
+        )
+
+    def test_clean_invalid_field02(self):
+        field = BatchActionsField(model=FakeEmailCampaign)
+        self.assertFormfieldError(
+            field=field,
+            messages=_('This field is invalid with this model.'),
+            codes='invalidfield',
+            value=self.build_data(
+                name='type',  # <---
+                operator='add_int',
+                value='5',
             ),
         )
 

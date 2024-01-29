@@ -102,6 +102,7 @@ def ready():
     bulk_update_registry.register(fake_models.FakeContact)
     bulk_update_registry.register(fake_models.FakeOrganisation)
     bulk_update_registry.register(fake_models.FakeImage)
+    bulk_update_registry.register(fake_models.FakeEmailCampaign)
 
     customform_descriptor_registry.register(
         fake_custom_forms.FAKEORGANISATION_CREATION_CFORM,
