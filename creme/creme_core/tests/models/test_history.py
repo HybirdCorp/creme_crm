@@ -335,7 +335,8 @@ about this fantastic animation studio."""
         img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
 
         hayao.image = img
-        hayao.save()
+        with self.assertNumQueries(7):
+            hayao.save()
 
         hline = HistoryLine.objects.order_by('-id')[0]
         self.assertEqual(hayao.id,     hline.entity.id)
