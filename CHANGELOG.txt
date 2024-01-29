@@ -8,6 +8,8 @@
   Users side :
   ------------
      # Apps :
+        * Documents :
+            - In new installations, Folders had no "assistants" bricks on their detail-view.
         * Billing :
             - An crash in the configuration of export (when the configured engine was not installed anymore) has been fixed.
 
