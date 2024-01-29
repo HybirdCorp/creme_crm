@@ -792,7 +792,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsNotNone(hline)
         self.assertEqual(TYPE_EDITION, hline.type)
         self.assertListEqual(
-            [['status', status2del.id, default_status.id]],
+            [['status_id', status2del.id, default_status.id]],
             hline.modifications,
         )
 
@@ -881,7 +881,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsNotNone(hline)
         self.assertEqual(TYPE_EDITION, hline.type)
         self.assertListEqual(
-            [['priority', prio2del.id, fallback_priority.id]],
+            [['priority_id', prio2del.id, fallback_priority.id]],
             hline.modifications,
         )
 

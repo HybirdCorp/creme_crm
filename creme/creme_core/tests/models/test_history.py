@@ -261,10 +261,10 @@ about this fantastic animation studio."""
         self.assertIn(['phone', old_phone, phone], modifs)
         self.assertIn(['email', email], modifs)
         self.assertIn(['description', old_description, description], modifs)
-        self.assertIn(['sector', sector01.id, sector02.id], modifs)
+        self.assertIn(['sector_id', sector01.id, sector02.id], modifs)
         self.assertIn(['creation_date', '1984-12-24'], modifs)
         self.assertIn(['subject_to_vat', True], modifs, modifs)
-        self.assertIn(['legal_form', lform.id, None], modifs, modifs)
+        self.assertIn(['legal_form_id', lform.id, None], modifs, modifs)
 
     def test_edition_no_change(self):
         "No change."
@@ -335,7 +335,15 @@ about this fantastic animation studio."""
         img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
 
         hayao.image = img
-        with self.assertNumQueries(7):
+
+        # Queries:
+        #   - UPDATE CremeEntity
+        #   - UPDATE FakeContact
+        #   - SELECT CremeUser (with id)
+        #   - INSERT HistoryLine
+        #   - SELECT HistoryConfigItem
+        #   - SELECT Alert (needs Assistants app, for signals._update_alert_trigger_date())
+        with self.assertNumQueries(6):
             hayao.save()
 
         hline = HistoryLine.objects.order_by('-id')[0]

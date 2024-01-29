@@ -472,6 +472,7 @@ class HistoryRenderTestCase(CremeTestCase):
         )
 
     def test_render_edition_fk01(self):
+        # new value format '["Hayao Miyazaki", ["position_id", X], ["image_id", X]]'
         user = self.login_as_standard()
         SetCredentials.objects.create(
             role=user.role,
@@ -540,6 +541,59 @@ class HistoryRenderTestCase(CremeTestCase):
                     field=f'<span class="field-change-field_name">{_("Photograph")}</span>',
                     value=f'<span class="field-change-new_value">'
                           f'{_("{pk} (deleted)").format(pk=img_id)}'
+                          f'</span>',
+                ),
+            ),
+            self.render_line(hline, user),
+        )
+
+    def test_render_edition_fk01__old_fk_format(self):
+        # new value format '["Hayao Miyazaki", ["position_id", X], ["image_id", X]]'
+        # old value format '["Hayao Miyazaki", ["position", X], ["image", X]]'
+        user = self.login_as_standard()
+        SetCredentials.objects.create(
+            role=user.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        img = FakeImage.objects.create(user=user, name='<b>Grumpy</b> Hayao')
+        # NB: should be escaped
+        position = FakePosition.objects.create(title='Director<br>')
+
+        hayao = FakeContact.objects.create(
+            user=user,
+            first_name='Hayao',
+            last_name='Miyazaki',
+            image=img,
+            position=position
+        )
+
+        hline = HistoryLine.objects.create(
+            entity=hayao,
+            entity_ctype=ContentType.objects.get_for_model(hayao),
+            type=history.TYPE_EDITION,
+            value=json.dumps(["Hayao Miyazaki", ["position", position.id], ["image", img.id]]),
+            entity_owner=user,
+        )
+
+        self.assertHTMLEqual(
+            '<div class="history-line history-line-edition">'
+            ' <ul>'
+            '  <li>{mod1}</li>'
+            '  <li>{mod2}</li>'
+            ' </ul>'
+            '<div>'.format(
+                mod1=_('{field} set to {value}').format(
+                    field=f'<span class="field-change-field_name">{_("Position")}</span>',
+                    value=f'<span class="field-change-new_value">{escape(position.title)}</span>',
+                ),
+                mod2=_('{field} set to {value}').format(
+                    field=f'<span class="field-change-field_name">{_("Photograph")}</span>',
+                    value=f'<span class="field-change-new_value">'
+                          f'<a href="{img.get_absolute_url()}" target="_self">'
+                          f'&lt;b&gt;Grumpy&lt;/b&gt; Hayao'
+                          f'</a>'
                           f'</span>',
                 ),
             ),
