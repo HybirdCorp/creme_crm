@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.forms.batch_process import BatchActionsField
 
-from ..fake_models import FakeContact
+from ..fake_models import FakeContact, FakeEmailCampaign
 from .base import FieldTestCase
 
 
@@ -60,7 +60,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
             '[{"operator": "upper", "name": "first_name"}]',
         )
 
-    def test_clean_invalid_field(self):
+    def test_clean_invalid_field01(self):
         clean = BatchActionsField(model=FakeContact).clean
 
         self.assertFieldValidationError(
@@ -83,6 +83,17 @@ class BatchActionsFieldTestCase(FieldTestCase):
             BatchActionsField, 'invalidfield', clean,
             self.build_data(
                 name='civility',  # Type not managed
+                operator='upper',
+                value='',
+            ),
+        )
+
+    def test_clean_invalid_field02(self):
+        field = BatchActionsField(model=FakeEmailCampaign)
+        self.assertFieldValidationError(
+            BatchActionsField, 'invalidfield', field.clean,
+            self.build_data(
+                name='type',  # <---
                 operator='upper',
                 value='',
             ),

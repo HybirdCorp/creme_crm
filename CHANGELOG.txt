@@ -2,6 +2,8 @@
 
   Users side :
   ------------
+     # Some fields associated to a static list of values (attributes "choices" in Python)
+       are not proposed by the Batch-Process form anymore.
      # Apps :
         * Activities :
             - An icon was missing in the theme "chantilly" ('images/meeting_48.png').
