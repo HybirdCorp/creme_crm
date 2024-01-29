@@ -9,6 +9,7 @@
   ------------
      # Some fields associated to a static list of values (attributes "choices" in Python)
        are not proposed by the Batch-Process form anymore.
+     # A style issue in FireFox, in the form for displayed user's name, has been fixed.
      # Apps :
         * Documents :
             - In new installations, Folders had no "assistants" bricks on their detail-view.
