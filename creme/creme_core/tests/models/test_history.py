@@ -1329,6 +1329,7 @@ about this fantastic animation studio."""
 
         old_count += 1
 
+        pline = self.refresh(pline)  # reset cache
         pline.quantity = Decimal('2')
         pline.discount_unit = FakeInvoiceLine.Discount.PERCENT
         pline.save()
@@ -1338,6 +1339,19 @@ about this fantastic animation studio."""
 
         hline = hlines[-1]
         self.assertEqual(TYPE_AUX_EDITION, hline.type)
+
+    def test_auxiliary_creation_n_edition(self):
+        "Other modification on just created instance are not logged."
+        user = self.user
+        gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+        old_count = HistoryLine.objects.count()
+        todo = FakeTodo.objects.create(title='New logo', creme_entity=gainax)
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
+
+        # Not <todo = self.refresh(todo)> !!
+        todo.description = 'Blablabla'
+        todo.save()
+        self.assertEqual(old_count + 1, HistoryLine.objects.count())
 
     def test_auxiliary_edition_m2m01(self):
         other_user = self.create_user(1)
