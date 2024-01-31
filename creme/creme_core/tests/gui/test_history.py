@@ -1392,13 +1392,14 @@ class HistoryRenderTestCase(CremeTestCase):
         invoice = FakeInvoice.objects.create(
             user=user, name='Invoice', expiration_date=date(year=2021, month=12, day=15),
         )
-        old_quantity = Decimal('1.3')
+        old_quantity = Decimal('1.30')
         pline = FakeInvoiceLine.objects.create(
             item='DeathNote', user=user,
             linked_invoice=invoice, quantity=old_quantity,
             discount_unit=FakeInvoiceLine.Discount.AMOUNT,
         )
 
+        pline = self.refresh(pline)
         pline.quantity = Decimal('2.5')
         pline.discount_unit = FakeInvoiceLine.Discount.PERCENT
         pline.save()

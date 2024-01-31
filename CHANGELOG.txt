@@ -18,6 +18,11 @@
         # The widget 'creme_core.forms.header_filter.EntityCellsWidget' has been fixed
           to enable complex HTML representations produced by field printers.
 
+    Breaking changes :
+    ----------------------
+        # No HistoryLine with <type=TYPE_AUX_EDITION> is created while the auxiliary instance is not reloaded.
+          It could cause some unit tests (which check history) to fail.
+
 
 == Version 2.4.11 ==
 

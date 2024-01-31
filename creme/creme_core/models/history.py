@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -334,6 +334,7 @@ class _HistoryLineType:
 
         return modifs
 
+    # TODO: rename "_create_instance_backup"
     @staticmethod
     def _create_entity_backup(entity: Model) -> None:
         entity._instance_backup = backup = entity.__dict__.copy()
@@ -933,6 +934,7 @@ class _HLTAuxCreation(_HistoryLineType):
             related.get_related_entity(), cls.type_id,
             modifs=cls._build_modifs(related),
         )
+        # NB: see comment in _HLTEntityCreation.create_line() about backup.
 
     # def verbose_modifications(self, modifications, entity_ctype, user):
     #     warnings.warn(
@@ -1433,7 +1435,9 @@ def _final_entity(entity) -> bool:
 @receiver(signals.post_init)
 def _prepare_log(sender, instance, **kwargs):
     if hasattr(instance, 'get_related_entity'):
-        _HistoryLineType._create_entity_backup(instance)
+        # _HistoryLineType._create_entity_backup(instance)
+        if instance.id:
+            _HistoryLineType._create_entity_backup(instance)
     elif isinstance(instance, CremeEntity) and instance.id and _final_entity(instance):
         _HistoryLineType._create_entity_backup(instance)
     elif isinstance(instance, CustomFieldValue):
