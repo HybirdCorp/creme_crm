@@ -401,12 +401,19 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_root_and_get()
         atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
 
-        response = self.assertGET200(
-            reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
-            data={'brick_id': 'test_bricks_reload_detailview05'},
+        url = reverse('creme_core__reload_detailview_bricks', args=(atom.id,))
+        response1 = self.assertGET200(
+            url, data={'brick_id': 'test_bricks_reload_detailview05'},
         )
-        self.assertEqual('application/json', response['Content-Type'])
-        self.assertListEqual([], response.json())
+        self.assertEqual('application/json', response1['Content-Type'])
+        self.assertListEqual([], response1.json())
+
+        # Several bricks (BUGFIX) ---
+        response2 = self.assertGET200(
+            url, data={'brick_id': ['test_bricks_reload_detailview05', 'other-one']},
+        )
+        self.assertEqual('application/json', response2['Content-Type'])
+        self.assertListEqual([], response2.json())
 
     def test_reload_detailview06(self):
         "Extra data."
