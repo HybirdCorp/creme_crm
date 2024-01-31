@@ -4,6 +4,7 @@
   ------------
      # Some fields associated to a static list of values (attributes "choices" in Python)
        are not proposed by the Batch-Process form anymore.
+     # A bug in brick reloading has been fixed (it crashes with several invalid IDs).
      # Apps :
         * Documents :
             - In new installations, Folders had no "assistants" bricks on their detail-view.
