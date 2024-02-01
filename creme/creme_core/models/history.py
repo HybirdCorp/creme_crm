@@ -179,7 +179,10 @@ class _HistoryLineType:
             )
 
             for field in instance._meta.fields:
-                fname = field.name
+                # use get_attname instead of name to check ids for foreignkeys
+                # instead of the entity to optimize queries' number
+                # fname = field.name
+                fname = field.get_attname()
 
                 if fname in excluded_fields or not field.get_tag(FieldTag.VIEWABLE):
                     continue
@@ -187,10 +190,11 @@ class _HistoryLineType:
                 old_value = getattr(old_instance, fname)
                 new_value = getattr(instance, fname)
 
-                if isinstance(field, ForeignKey):
-                    old_value = old_value and old_value.pk
-                    new_value = new_value and new_value.pk
-                else:
+                # if isinstance(field, ForeignKey):
+                #     old_value = old_value and old_value.pk
+                #     new_value = new_value and new_value.pk
+                # else:
+                if not isinstance(field, ForeignKey):
                     try:
                         # Sometimes a form sets a string representing an int in
                         # an IntegerField (for example)
