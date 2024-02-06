@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -75,17 +75,20 @@ class EmailHTMLBodyBrick(_HTMLBodyBrick):
     id = _HTMLBodyBrick.generate_id('emails', 'email_html_body')
     dependencies = (EntityEmail,)
     target_ctypes = (EntityEmail,)
+    permissions = 'emails'
 
 
 class TemplateHTMLBodyBrick(_HTMLBodyBrick):
     id = _HTMLBodyBrick.generate_id('emails', 'template_html_body')
     dependencies = (EmailTemplate,)
     target_ctypes = (EmailTemplate,)
+    permissions = 'emails'
 
 
 class SendingHTMLBodyBrick(_HTMLBodyBrick):
     id = _HTMLBodyBrick.generate_id('emails', 'sending_html_body')
     dependencies = (EmailSending,)
+    permissions = 'emails'
     configurable = False
 
     def _get_body_url(self, instance):
@@ -97,6 +100,7 @@ class _RelatedEntitiesBrick(QuerysetBrick):
     # dependencies  = 'SET ME'
     # verbose_name  = 'SET ME'
     # template_name = 'SET ME'
+    permissions = 'emails'
 
     def _get_queryset(self, entity):  # OVERRIDE ME
         raise NotImplementedError
@@ -144,6 +148,7 @@ class EmailRecipientsBrick(QuerysetBrick):
     dependencies = (EmailRecipient,)
     template_name = 'emails/bricks/recipients.html'
     target_ctypes = (MailingList,)
+    permissions = 'emails'
 
     def detailview_display(self, context):
         mailing_list = context['object']
@@ -192,6 +197,7 @@ class ChildListsBrick(_RelatedEntitiesBrick):
     dependencies = (MailingList,)
     template_name = 'emails/bricks/child-lists.html'
     target_ctypes = (MailingList,)
+    permissions = 'emails'
     order_by = 'name'
 
     def _get_queryset(self, entity):  # NB: entity==mailing_list
@@ -204,6 +210,7 @@ class ParentListsBrick(_RelatedEntitiesBrick):
     dependencies = (MailingList,)
     template_name = 'emails/bricks/parent-lists.html'
     target_ctypes = (MailingList,)
+    permissions = 'emails'
     order_by = 'name'
 
     def _get_queryset(self, entity):  # NB: entity==mailing_list
@@ -216,6 +223,7 @@ class AttachmentsBrick(_RelatedEntitiesBrick):
     dependencies = (Document,)
     template_name = 'emails/bricks/attachments.html'
     target_ctypes = (EmailTemplate,)
+    permissions = 'emails'
     order_by = 'title'
 
     def _get_queryset(self, entity):  # NB: entity==mailtemplate
@@ -228,6 +236,7 @@ class SendingConfigItemsBrick(QuerysetBrick):
     order_by = 'id'
     template_name = 'emails/bricks/sending-config-items.html'
     configurable = False
+    # permissions = 'emails' ?
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
@@ -246,6 +255,7 @@ class SendingsBrick(QuerysetBrick):
     order_by = '-sending_date'
     template_name = 'emails/bricks/sendings.html'
     target_ctypes = (EmailCampaign,)
+    permissions = 'emails'
 
     def detailview_display(self, context):
         campaign = context['object']
@@ -261,6 +271,7 @@ class SendingBrick(SimpleBrick):
     id = SimpleBrick.generate_id('emails', 'sending')
     verbose_name = _('Information')
     dependencies = (EmailSending,)
+    permissions = 'emails'
     template_name = 'emails/bricks/sending.html'
     configurable = False
 
@@ -269,6 +280,7 @@ class MailsBrick(QuerysetBrick):
     id = QuerysetBrick.generate_id('emails', 'mails')
     verbose_name = 'Emails of a sending'
     dependencies = (LightWeightEmail,)
+    permissions = 'emails'
     order_by = 'id'
     page_size = QuerysetBrick.page_size * 3
     template_name = 'emails/bricks/lw-mails.html'
@@ -298,6 +310,8 @@ class MailsHistoryBrick(QuerysetBrick):
         constants.REL_OBJ_MAIL_RECEIVED,
         constants.REL_OBJ_RELATED_TO,
     )
+    # Important because it can be displayed on entities' detail-views of other apps
+    permissions = 'emails'
 
     def detailview_display(self, context):
         pk = context['object'].pk
@@ -322,6 +336,7 @@ class MailPopupBrick(SimpleBrick):
     id = QuerysetBrick.generate_id('emails', 'mail_popup')
     verbose_name = 'Detail popup of email'
     dependencies = (EntityEmail,)
+    permissions = 'emails'
     template_name = 'emails/bricks/mail-popup.html'
     configurable = False
 
@@ -330,6 +345,7 @@ class LwMailPopupBrick(SimpleBrick):
     id = QuerysetBrick.generate_id('emails', 'lw_mail_popup')
     verbose_name = 'Detail popup of LightWeight email'
     dependencies = (LightWeightEmail,)
+    permissions = 'emails'
     template_name = 'emails/bricks/lw-mail-popup.html'
     configurable = False
 
@@ -342,8 +358,9 @@ class LwMailsHistoryBrick(QuerysetBrick):
         'App: Emails'
     )
     dependencies = (LightWeightEmail,)
-    order_by = '-sending_date'
+    permissions = 'emails'
     template_name = 'emails/bricks/lw-mails-history.html'
+    order_by = '-sending_date'
 
     def detailview_display(self, context):
         pk = context['object'].pk
@@ -397,6 +414,7 @@ class EmailsToSyncBrick(QuerysetBrick):
     order_by = 'id'
     template_name = 'emails/bricks/emails-to-sync.html'
     configurable = False
+    permissions = 'emails'
     page_size = 50
 
     def detailview_display(self, context):

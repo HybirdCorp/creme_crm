@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -177,6 +177,7 @@ class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
     # relation_type_deps = SET ME
     # template_name = SET ME
     target_ctypes = (Opportunity,)
+    permissions = 'opportunities'
 
     # If True, entity marked as deleted are excluded from the query.
     exclude_deleted = True
@@ -290,6 +291,7 @@ class TargetingOpportunitiesBrick(QuerysetBrick):
     relation_type_deps = (constants.REL_OBJ_TARGETS, )
     template_name = 'opportunities/bricks/opportunities.html'
     target_ctypes = (Organisation, Contact)
+    permissions = 'opportunities'
     order_by = 'name'
 
     def detailview_display(self, context):
@@ -329,6 +331,7 @@ class OppTotalBrick(SimpleBrick):
     relation_type_deps = (constants.REL_OBJ_LINKED_QUOTE,)
     template_name = 'opportunities/bricks/total.html'  # TODO: totals.html ?
     target_ctypes = (Opportunity,)
+    permissions = 'opportunities'
 
 
 class OppTargetBrick(Brick):
@@ -344,6 +347,7 @@ class OppTargetBrick(Brick):
     relation_type_deps = (constants.REL_SUB_TARGETS,)
     template_name = 'opportunities/bricks/target.html'
     target_ctypes = (Opportunity,)
+    permissions = 'opportunities'
 
     def __init__(self):
         super().__init__()

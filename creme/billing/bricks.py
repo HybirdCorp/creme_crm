@@ -85,6 +85,8 @@ class _LinesBrick(SimpleBrick):
     dependencies = (Relation, CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     relation_type_deps = (constants.REL_SUB_HAS_LINE, )
     target_ctypes = (CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
+    permissions = 'billing'
+
     line_model = Line
     line_edit_form_template = 'billing/bricks/frags/line-fields.html'
 
@@ -144,6 +146,7 @@ class CreditNotesBrick(PaginatedBrick):
     relation_type_deps = (constants.REL_OBJ_CREDIT_NOTE_APPLIED, )
     template_name = 'billing/bricks/credit-notes.html'
     target_ctypes = (Invoice, SalesOrder, Quote)
+    permissions = 'billing'
 
     def detailview_display(self, context):
         # is_hidden = context['fields_configs'].get_for_model(CreditNote).is_fieldname_hidden
@@ -172,6 +175,7 @@ class TotalBrick(Brick):
     verbose_name = _('Totals')
     template_name = 'billing/bricks/total.html'  # TODO: totals.html ?
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
+    permissions = 'billing'
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
@@ -186,6 +190,7 @@ class TargetBrick(SimpleBrick):
     verbose_name = _('Target and source')
     template_name = 'billing/bricks/target.html'
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
+    permissions = 'billing'
 
 
 class ReceivedInvoicesBrick(QuerysetBrick):
@@ -195,6 +200,7 @@ class ReceivedInvoicesBrick(QuerysetBrick):
     verbose_name = _('Received invoices')
     template_name = 'billing/bricks/received-invoices.html'
     target_ctypes = (Contact, Organisation)
+    permissions = 'billing'
     order_by = '-expiration_date'
 
     def detailview_display(self, context):
@@ -215,6 +221,7 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
     verbose_name = _('Received billing documents')
     template_name = 'billing/bricks/received-billing-documents.html'
     target_ctypes = (Contact, Organisation)
+    permissions = 'billing'
     order_by = '-expiration_date'
 
     _billing_model = None  # OVERRIDE ME
@@ -296,6 +303,7 @@ class PaymentInformationBrick(QuerysetBrick):
     dependencies = (PaymentInformation,)
     template_name = 'billing/bricks/orga-payment-information.html'
     target_ctypes = (Organisation, )
+    # permissions = 'billing' ??
     order_by = 'name'
 
     def detailview_display(self, context):
@@ -321,6 +329,7 @@ class BillingPaymentInformationBrick(QuerysetBrick):
     )
     template_name = 'billing/bricks/billing-payment-information.html'
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
+    permissions = 'billing'
     dependencies = (Relation, PaymentInformation)
     relation_type_deps = (
         constants.REL_OBJ_BILL_ISSUED, constants.REL_SUB_BILL_ISSUED,
@@ -350,11 +359,13 @@ class BillingDetailedAddressBrick(persons_bricks.DetailedAddressesBrick):
     # TODO: renames 'addresses'
     id = persons_bricks.DetailedAddressesBrick.generate_id('billing', 'address')
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
+    permissions = 'billing'
 
 
 class BillingPrettyAddressBrick(persons_bricks.PrettyAddressesBrick):
     id = persons_bricks.PrettyAddressesBrick.generate_id('billing', 'addresses_pretty')
     target_ctypes = (Invoice, CreditNote, Quote, SalesOrder, TemplateBase)
+    permissions = 'billing'
 
 
 class BillingExportersBrick(Brick):
@@ -398,6 +409,7 @@ class PersonsStatisticsBrick(Brick):
     )
     template_name = 'billing/bricks/persons-statistics.html'
     target_ctypes = (Organisation, Contact)
+    permissions = 'billing'
 
     def detailview_display(self, context):
         person = context['object']

@@ -1,3 +1,4 @@
+from copy import deepcopy
 from functools import partial
 from urllib.parse import urlencode
 
@@ -12,6 +13,7 @@ from django.utils.translation import gettext as _
 from creme.creme_core.bricks import PropertiesBrick
 from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.custom_form import (
     CustomFormDescriptor,
     FieldGroup,
@@ -21,6 +23,7 @@ from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.view_tag import ViewTag
 # from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
     CremePropertyType,
     CustomFormConfigItem,
     FakeActivity,
@@ -35,11 +38,11 @@ from creme.creme_core.models import (
 from creme.creme_core.tests.fake_custom_forms import (
     FAKEACTIVITY_CREATION_CFORM,
 )
-from creme.creme_core.views.generic import EntityCreation
+from creme.creme_core.views.generic import EntityCreation, EntityDetail
 
 from .. import fake_forms
 from ..base import CremeTestCase
-from .base import BrickTestCaseMixin  # ViewsTestCase
+from .base import AppPermissionBrick, BrickTestCaseMixin  # ViewsTestCase
 
 
 # class MiscTestCase(ViewsTestCase):
@@ -69,6 +72,23 @@ class DetailTestCase(BrickTestCaseMixin, CremeTestCase):
             ]
             assert 1 == len(sessions)
             self.session = sessions[0]
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        assert hasattr(EntityDetail, 'brick_registry')
+
+        EntityDetail.brick_registry = deepcopy(brick_registry).register(
+            AppPermissionBrick,
+        )
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        delattr(EntityDetail, 'brick_registry')
+        assert hasattr(EntityDetail, 'brick_registry')
+        assert AppPermissionBrick.id not in EntityDetail.brick_registry._brick_classes
 
     def test_basic(self):
         user = self.login_as_root_and_get()
@@ -173,6 +193,42 @@ class DetailTestCase(BrickTestCaseMixin, CremeTestCase):
         param = {'visitor': '['}
         response = self.assertGET200(f'{fox.get_absolute_url()}?{urlencode(param)}')
         self.assertIsNone(response.context['visitor'])
+
+    def test_brick_permissions(self):
+        user = self.login_as_standard(allowed_apps=['creme_core'])
+        self.add_credentials(user.role, own='*')
+
+        # TODO: in fake_populate?
+        self.assertFalse(BrickDetailviewLocation.objects.filter_for_model(FakeContact))
+
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={'model': FakeContact, 'zone': BrickDetailviewLocation.LEFT},
+            data=[
+                {'order': 1},
+                {'brick': PropertiesBrick, 'order': 2},
+
+                {'brick': AppPermissionBrick, 'order': 1, 'zone': BrickDetailviewLocation.RIGHT},
+            ],
+        )
+
+        fox = FakeContact.objects.create(user=user, first_name='Fox', last_name='McCloud')
+        response = self.assertGET200(fox.get_absolute_url())
+
+        tree = self.get_html_tree(response.content)
+        self.get_brick_node(tree, brick=PropertiesBrick)
+        self.get_brick_node(tree, brick=MODELBRICK_ID)
+
+        brick_node = self.get_brick_node(tree, brick=AppPermissionBrick)
+        self.assertIn('brick-forbidden', brick_node.attrib.get('class'))
+        self.assertEqual(AppPermissionBrick.verbose_name, self.get_brick_title(brick_node))
+
+        content_node = self.get_html_node_or_fail(
+            brick_node, './/div[@class="brick-content"]',
+        )
+        self.assertEqual(
+            _('You are not allowed to view this block'),
+            content_node.text.strip(),
+        )
 
 
 # class CreationTestCase(ViewsTestCase):

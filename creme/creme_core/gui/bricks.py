@@ -47,6 +47,7 @@ from ..core.sorter import cell_sorter_registry
 from ..models import (
     BrickState,
     CremeEntity,
+    CremeUser,
     CustomBrickConfigItem,
     InstanceBrickConfigItem,
     Relation,
@@ -158,8 +159,12 @@ class Brick:
     target_ctypes: Sequence[type[CremeEntity]] = ()
     # ATTRIBUTES USED BY THE CONFIGURATION [END] --------------------------------------------------
 
-    # Some reloading views (see 'creme_core.views.bricks.BricksReloading') check
-    # permissions to avoid information leaking.
+    # The views (detail-view, home-view, 'creme_core.views.bricks.BricksReloading')
+    # check these permissions, and display a <ForbiddenBrick> (see below) when the
+    # user should not view a Brick, so :
+    #  - the visual difference is clear between a brick related to a forbidden app
+    #    and a brick with just some forbidden actions (creation, edition...).
+    #  - it avoids information leaking.
     # It can be:
     #  - a classical permission string
     #    Example: <permissions = 'my_app'>
@@ -179,6 +184,19 @@ class Brick:
             )
 
         self._reloading_info = None
+
+    def has_perms(self, user) -> bool:
+        permissions = self.permissions
+
+        # TODO: factorise with 'creme_core.views.generic.base.PermissionsMixin'
+        return bool(
+            not permissions
+            or (
+                user.has_perm(permissions)
+                if isinstance(permissions, str) else
+                user.has_perms(permissions)
+            )
+        )
 
     @property
     def reloading_info(self):
@@ -279,6 +297,20 @@ class Brick:
 
 class SimpleBrick(Brick):
     detailview_display = Brick._simple_detailview_display
+
+
+class ForbiddenBrick(SimpleBrick):
+    """Used by code which needs to get a content for forbidden brick.
+    You should not have to use it.
+    """
+    template_name = 'creme_core/bricks/generic/forbidden.html'
+
+    def __init__(self, *, id, verbose_name):
+        super().__init__()
+        self.id = id
+        self.verbose_name = verbose_name
+
+    home_display = Brick._simple_detailview_display
 
 
 class _PaginatedBrickContext(_BrickContext):
@@ -951,6 +983,8 @@ class _BrickRegistry:
     def get_bricks(self,
                    brick_ids: Sequence[str],
                    entity: CremeEntity | None = None,
+                   *,  # TODO: make all arguments keyword-only
+                   user: CremeUser | None = None,
                    ) -> Iterator[Brick]:
         """Bricks type can be SpecificRelationsBrick/InstanceBrickConfigItem:
         in this case, they are not really registered, but created on the fly.
@@ -1049,7 +1083,13 @@ class _BrickRegistry:
                 logger.warning('Brick seems deprecated: %s', id_)
                 yield Brick()
             else:
-                yield brick_cls()
+                # yield brick_cls()
+                brick = brick_cls()
+
+                if user and not brick.has_perms(user=user):
+                    brick = ForbiddenBrick(id=brick.id, verbose_name=brick.verbose_name)
+
+                yield brick
 
     def get_brick_4_object(self,
                            obj_or_ct: type[CremeEntity] | ContentType | CremeEntity,

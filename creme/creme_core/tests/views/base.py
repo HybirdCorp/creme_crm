@@ -8,12 +8,28 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.creme_jobs.mass_import import mass_import_type
+from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.models import MassImportJobResult, SetCredentials
 from creme.creme_core.utils.translation import plural
 from creme.creme_core.utils.xlwt_utils import XlwtWriter
 from creme.documents.models import Document, Folder, FolderCategory
 
 from ..base import CremeTestCase
+
+
+class AppPermissionBrick(Brick):
+    id = Brick.generate_id('creme_core', 'test_views_generic')
+    verbose_name = 'Block which need "persons" permission'
+    permissions = ['persons']
+
+    detail_str = '<div id="brick-{id}" data-brick-id="{id}" class="brick">DETAIL</div>'
+    home_str = '<div id="brick-{id}" data-brick-id="{id}" class="brick">HOME</div>'
+
+    def detailview_display(self, context):
+        return self.detail_str.format(id=self.id)
+
+    def home_display(self, context):
+        return self.home_str.format(id=self.id)
 
 
 class ViewsTestCase(CremeTestCase):

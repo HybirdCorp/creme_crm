@@ -28,6 +28,8 @@ from .utils import is_sandbox_by_user
 
 
 class CrudityQuerysetBrick(QuerysetBrick):
+    permissions = 'crudity'
+
     def __init__(self, *args, **kwargs):
         super().__init__()
 

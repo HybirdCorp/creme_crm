@@ -149,7 +149,6 @@
     opacity: 0.6;
 }
 
-
 .brick-menu-action .brick-menu-button-title {
     display: inline-block;
     margin-left: 8px;
@@ -280,7 +279,7 @@
     display: none;
 }
 
-/* block header - end */
+/* brick header - end */
 
 /* buttons - action types test */
 /* todo: find better name/namespace for enums like this ? creme-actions-* ? is-action-link ? */
@@ -323,6 +322,27 @@
 }
 
 /* button icon alignment/image hijacking test - end */
+
+/* Forbidden brick */
+
+.brick.brick-forbidden {
+  opacity: 40%;
+}
+
+.brick.brick-forbidden .brick-content {
+    padding: 0;
+    margin: 5px 10px;
+
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 700;
+    font-size: 11px;
+    color: rgb(255, 67, 67);
+
+    cursor: default;
+}
+
+/* Forbidden brick - end */
 
 /* brick types - table type */
 

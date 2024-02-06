@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -528,6 +528,7 @@ class _LinkedPeopleBrick(QuerysetBrick):
     # relation_type_deps = ...
     template_name = 'persons/bricks/base/linked-people.html'
     target_ctypes = (Organisation,)
+    permissions = 'persons'
 
     creation_label = 'Create a related contact'
     cells_desc = [
@@ -611,6 +612,7 @@ class _AddressesBrick(Brick):
     dependencies = (Address,)
     verbose_name = 'Addresses'
     target_ctypes: Sequence[type[CremeEntity]] = (Contact, Organisation)
+    permissions = 'persons'
 
     def get_template_context(self, context, **kwargs):
         person = context['object']
@@ -691,6 +693,7 @@ class _OtherAddressesBrick(QuerysetBrick):
     dependencies = (Address,)
     verbose_name = 'Other addresses'
     target_ctypes = (Contact, Organisation)
+    permissions = 'persons'
 
     def get_template_context(self, context, **kwargs):
         build_cell = partial(EntityCellRegularField.build, model=Address)
@@ -720,7 +723,7 @@ class DetailedOtherAddressesBrick(_OtherAddressesBrick):
         'App: Accounts and Contacts'
     )
     template_name = 'persons/bricks/other-addresses-detailed.html'
-    target_ctypes = (Contact, Organisation)
+    # target_ctypes = (Contact, Organisation)
 
 
 class PrettyOtherAddressesBrick(_OtherAddressesBrick):
@@ -777,6 +780,7 @@ if apps.is_installed('creme.activities'):
             str
         )()
         dependencies = (Activity,)
+        permissions = ['persons', 'activities']
         template_name = 'persons/bricks/neglected-organisations.html'
 
         _RTYPE_IDS_CUSTOMERS = (

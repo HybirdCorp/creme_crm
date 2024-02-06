@@ -78,6 +78,9 @@
           override the classes used by the command "creme_populate".
           Many classes 'Populate' have been reworked to facilitate their modification by inheritance ;
           the work has been split into several methods, and class attributes with declarative values have been added.
+        # The views which manage Bricks now display a minimal Brick (see 'creme_core.gui.bricks.ForbiddenBrick')
+          which contains an error message when the attribute 'Brick.permissions' does not pass the validation.
+          This attribute has been set for many Brick classes in order to use this new behaviour.
         # In the class 'creme_core.core.setting_key.SettingKey', you can now pass :
              - a custom form-field class.
              - a custom renderer function.
@@ -230,8 +233,10 @@
           related to ForeignKeys; now it return the low-level value (e.g. integer, string...), not the related model instance anymore.
           Example: 'FieldInfo(Contact, 'user_id').value_from(my_contact)' returns an integer, not a CremeUser instance.
                    'FieldInfo(Contact, 'user').value_from(my_contact)' still returns a CremeUser instance.
-        # The default value attribute 'views.bricks.BrickStateSetting.brick_id_arg' changed from "id" to "brick_id".
-          So you'll have to fix your JavaScript code if you use the URL named "creme_core__set_brick_state".
+        # In 'views.bricks' :
+            - The attribute 'BricksReloading.check_bricks_permission' has been removed (in child classes too).
+            - The default value attribute 'BrickStateSetting.brick_id_arg' changed from "id" to "brick_id".
+              So you'll have to fix your JavaScript code if you use the URL named "creme_core__set_brick_state".
         # Apps :
             * Creme_config :
                 - In 'urls' :

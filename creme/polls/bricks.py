@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2023  Hybird
+#    Copyright (C) 2012-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,6 +46,7 @@ class PollFormLinesBrick(Brick):
     dependencies = (PollFormLine,)
     template_name = 'polls/bricks/pform-lines.html'
     target_ctypes = (PollForm,)
+    permissions = 'polls'
 
     @staticmethod
     def _build_title(nodes):
@@ -105,6 +106,7 @@ class PollReplyLinesBrick(Brick):
     dependencies = (PollReplyLine,)
     template_name = 'polls/bricks/preply-lines.html'
     target_ctypes = (PollReply,)
+    permissions = 'polls'
 
     def detailview_display(self, context):
         preply = context['object']
@@ -128,6 +130,7 @@ class PollRepliesBrick(QuerysetBrick):
 
     template_name = 'polls/bricks/preplies.html'
     target_ctypes = (PollForm,)
+    permissions = 'polls'
 
     def detailview_display(self, context):
         pform = context['object']
@@ -143,6 +146,7 @@ class PollRepliesBrick(QuerysetBrick):
 class _RelatedRepliesBrick(QuerysetBrick):
     dependencies: BrickDependencies = (PollReply,)
     verbose_name = _('Related form replies')
+    permissions = 'polls'
 
     def _get_replies(self, pk):
         raise NotImplementedError
@@ -161,6 +165,7 @@ class PersonPollRepliesBrick(_RelatedRepliesBrick):
     id = _RelatedRepliesBrick.generate_id('polls', 'person_replies')
     template_name = 'polls/bricks/person-preplies.html'
     target_ctypes = (persons.get_contact_model(), persons.get_organisation_model())
+    permissions = 'polls'
 
     def _get_replies(self, pk):
         return PollReply.objects.filter(person=pk)
@@ -172,6 +177,7 @@ class PollCampaignRepliesBrick(_RelatedRepliesBrick):
     dependencies = (*_RelatedRepliesBrick.dependencies, PollCampaign)
     template_name = 'polls/bricks/campaign-preplies.html'
     target_ctypes = (PollCampaign,)
+    permissions = 'polls'
 
     def _get_replies(self, pk):
         return PollReply.objects.filter(campaign=pk)

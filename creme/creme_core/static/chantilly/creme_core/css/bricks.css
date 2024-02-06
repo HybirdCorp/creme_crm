@@ -314,6 +314,26 @@
 
 /* button icon alignment/image hijacking test - end */
 
+/* Forbidden brick */
+
+.brick.brick-forbidden {
+  opacity: 40%;
+}
+
+.brick.brick-forbidden .brick-content {
+    padding: 0;
+    margin: 5px 10px;
+
+    font-style: italic;
+    text-align: left;
+    font-weight: 700;
+    color: rgb(255, 67, 67);
+
+    cursor: default;
+}
+
+/* Forbidden brick - end */
+
 /* brick types - table type */
 
 .brick.brick-table .brick-content {
