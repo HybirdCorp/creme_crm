@@ -14,6 +14,7 @@ from creme.creme_core.gui.bricks import (
     BricksManager,
     CustomBrick,
     EntityBrick,
+    ForbiddenBrick,
     InstanceBrick,
     QuerysetBrick,
     SimpleBrick,
@@ -909,6 +910,60 @@ class BrickRegistryTestCase(CremeTestCase):
         )
         self.assertIsInstance(brick3, FakeContactBasicHatBrick)
 
+    def test_get_bricks__permissions(self):
+        root = self.get_root_user()
+        user = self.create_user(
+            role=self.create_role(name='Basic', allowed_apps=['creme_core']),
+        )
+
+        class AllowedBrick1(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_core', 'test_perms_1')
+            verbose_name = 'Always allowed'
+
+        class AllowedBrick2(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_core', 'test_perms_2')
+            verbose_name = 'Allowed'
+            permissions = 'creme_core'
+
+        class NotAllowedBrick1(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_core', 'test_perms_3')
+            verbose_name = 'Forbidden block #1'
+            permissions = 'persons'
+
+        class NotAllowedBrick2(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_core', 'test_perms_4')
+            verbose_name = 'Forbidden block #2'
+            permissions = ['persons']
+
+        all_bricks = [AllowedBrick1, AllowedBrick2, NotAllowedBrick1, NotAllowedBrick2]
+        brick_registry = _BrickRegistry().register(*all_bricks)
+
+        def assertBricks(brick_classes, bricks):
+            self.assertIsList(bricks, length=len(brick_classes))
+
+            for brick_cls, brick in zip(brick_classes, bricks):
+                self.assertIsInstance(brick, brick_cls)
+
+        all_brick_ids = [b.id for b in all_bricks]
+        assertBricks(all_bricks, [*brick_registry.get_bricks(all_brick_ids)])
+        assertBricks(all_bricks, [*brick_registry.get_bricks(brick_ids=all_brick_ids, user=root)])
+
+        user_bricks = [*brick_registry.get_bricks(brick_ids=all_brick_ids, user=user)]
+        self.assertEqual(len(all_brick_ids), len(user_bricks))
+
+        self.assertIsInstance(user_bricks[0], AllowedBrick1)
+        self.assertIsInstance(user_bricks[1], AllowedBrick2)
+
+        brick3 = user_bricks[2]
+        self.assertIsInstance(brick3, ForbiddenBrick)
+        self.assertEqual(NotAllowedBrick1.id,           brick3.id)
+        self.assertEqual(NotAllowedBrick1.verbose_name, brick3.verbose_name)
+
+        brick4 = user_bricks[3]
+        self.assertIsInstance(brick4, ForbiddenBrick)
+        self.assertEqual(NotAllowedBrick2.id,           brick4.id)
+        self.assertEqual(NotAllowedBrick2.verbose_name, brick4.verbose_name)
+
     def test_brick_4_model01(self):
         brick_registry = _BrickRegistry()
 
@@ -1349,6 +1404,65 @@ class BrickTestCase(CremeTestCase):
             ordered_instances,
             [c for c in page.object_list if c.id in ids],
         )
+
+    def test_has_perms(self):
+        root = self.get_root_user()
+        user = self.create_user(
+            role=self.create_role(name='Basic', allowed_apps=['creme_core', 'documents']),
+        )
+        self.assertTrue(user.has_perm('creme_core'))
+        self.assertTrue(user.has_perms(['documents', 'creme_core']))
+        self.assertFalse(user.has_perm('persons'))
+        self.assertFalse(user.has_perms(['persons', 'documents']))
+
+        class AlwaysAllowedBrick(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_core', 'test_perms_1')
+            verbose_name = 'Always allowed'
+
+        brick1 = AlwaysAllowedBrick()
+        self.assertEqual('', brick1.permissions)
+        self.assertIs(brick1.has_perms(root), True)
+        self.assertIs(brick1.has_perms(user), True)
+
+        # ---
+        class SimpleAllowedBrick(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_core', 'test_perms_2')
+            verbose_name = 'Allowed (simple)'
+            permissions = 'creme_core'
+
+        brick2 = SimpleAllowedBrick()
+        self.assertIs(brick2.has_perms(root), True)
+        self.assertIs(brick2.has_perms(user), True)
+
+        # ---
+        class MultiAllowedBrick(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_core', 'test_perms_3')
+            verbose_name = 'Allowed (multi)'
+            permissions = ['creme_core', 'documents']
+
+        brick3 = MultiAllowedBrick()
+        self.assertIs(brick3.has_perms(root), True)
+        self.assertIs(brick3.has_perms(user), True)
+
+        # ---
+        class SimpleForbiddenBrick(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_core', 'test_perms_4')
+            verbose_name = 'Forbidden (simple)'
+            permissions = 'persons'
+
+        brick4 = SimpleForbiddenBrick()
+        self.assertIs(brick4.has_perms(root), True)
+        self.assertIs(brick4.has_perms(user), False)
+
+        # ---
+        class MultiForbiddenBrick(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_core', 'test_perms_5')
+            verbose_name = 'Forbidden (multi)'
+            permissions = ['documents', 'persons']
+
+        brick5 = MultiForbiddenBrick()
+        self.assertIs(brick5.has_perms(root), True)
+        self.assertIs(brick5.has_perms(user), False)
 
     def test_relation_type_deps(self):
         class OKBrick1(Brick):

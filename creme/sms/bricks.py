@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,8 @@ MessagingList = sms.get_messaginglist_model()
 
 
 class _RelatedEntitesBrick(QuerysetBrick):
+    permissions = 'sms'
+
     def _get_queryset(self, entity):
         raise NotImplementedError
 
@@ -67,6 +69,7 @@ class RecipientsBrick(QuerysetBrick):
     dependencies = (Recipient,)
     template_name = 'sms/bricks/recipients.html'
     target_ctypes = (MessagingList,)
+    permissions = 'sms'
 
     def detailview_display(self, context):
         pk = context['object'].pk
@@ -97,9 +100,10 @@ class MessagesBrick(QuerysetBrick):
     id = QuerysetBrick.generate_id('sms', 'messages')
     verbose_name = _('Sent messages')
     dependencies = (Message,)
+    template_name = 'sms/bricks/messages.html'
+    permissions = 'sms'
     order_by = 'id'
     page_size = QuerysetBrick.page_size * 3
-    template_name = 'sms/bricks/messages.html'
 
     def detailview_display(self, context):
         sending = context['object']
@@ -110,9 +114,10 @@ class SendingsBrick(QuerysetBrick):
     id = QuerysetBrick.generate_id('sms', 'sendings')
     verbose_name = _('Sendings')
     dependencies = (Sending,)
-    order_by = '-date'
     template_name = 'sms/bricks/sendings.html'
     target_ctypes = (SMSCampaign,)
+    permissions = 'sms'
+    order_by = '-date'
 
     def detailview_display(self, context):
         campaign = context['object']

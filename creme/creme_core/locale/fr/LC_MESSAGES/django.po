@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-24 18:25+0100\n"
+"POT-Creation-Date: 2024-02-13 11:34+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2653,11 +2653,11 @@ msgstr ""
 "La fonctionnalité de rappel est utilisée par les Alertes & ToDos (de l'app "
 "Assistants) par exemple."
 
-msgid "owns"
-msgstr "possède"
+msgid "replaceMe@byYourAddress.com"
+msgstr "remplacezMoi@parVotreAdresse.fr"
 
-msgid "belongs to"
-msgstr "appartient à"
+msgid "Regular user"
+msgstr "Utilisateur normal"
 
 msgid "Euro"
 msgstr "Euro"
@@ -2667,24 +2667,6 @@ msgstr "€"
 
 msgid "EUR"
 msgstr "EUR"
-
-msgid "Tools"
-msgstr "Outils"
-
-msgid "+ Creation"
-msgstr "+ Création"
-
-msgid "Main entities"
-msgstr "Fiches principales"
-
-msgid "Quick creation"
-msgstr "Création rapide"
-
-msgid "replaceMe@byYourAddress.com"
-msgstr "remplacezMoi@parVotreAdresse.fr"
-
-msgid "Regular user"
-msgstr "Utilisateur normal"
 
 msgid "United States dollar"
 msgstr "Dollar américain"
@@ -2721,6 +2703,24 @@ msgstr "Portugais"
 
 msgid "Dutch"
 msgstr "Néerlandais"
+
+msgid "owns"
+msgstr "possède"
+
+msgid "belongs to"
+msgstr "appartient à"
+
+msgid "Tools"
+msgstr "Outils"
+
+msgid "+ Creation"
+msgstr "+ Création"
+
+msgid "Main entities"
+msgstr "Fiches principales"
+
+msgid "Quick creation"
+msgstr "Création rapide"
 
 msgid "Restricted to superusers"
 msgstr "Réservé aux super-utilisateurs"
@@ -2869,6 +2869,9 @@ msgstr "Assignée à"
 
 msgid "Entity in the trash"
 msgstr "Fiche dans la corbeille"
+
+msgid "You are not allowed to view this block"
+msgstr "Vous n'avez pas la permission de voir ce bloc"
 
 msgid "Concerned entity"
 msgstr "Fiche concernée"

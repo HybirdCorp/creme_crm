@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,6 +49,7 @@ class ApproachesBrick(QuerysetBrick):
     verbose_name = _('Commercial approaches')
     # description = TODO
     dependencies = (CommercialApproach,)
+    permissions = 'commercial'
     order_by = '-creation_date'
     template_name = 'commercial/bricks/approaches.html'
 
@@ -102,6 +103,7 @@ class SegmentDescriptionsBrick(PaginatedBrick):
     dependencies = (MarketSegment,)  # MarketSegmentDescription ??
     template_name = 'commercial/bricks/segments-info.html'
     target_ctypes = (Strategy,)
+    permissions = 'commercial'
 
     def detailview_display(self, context):
         strategy = context['object']
@@ -117,6 +119,7 @@ class AssetsBrick(QuerysetBrick):
     order_by = 'name'
     template_name = 'commercial/bricks/assets.html'
     target_ctypes = (Strategy,)
+    permissions = 'commercial'
 
     def detailview_display(self, context):
         strategy = context['object']
@@ -132,6 +135,7 @@ class CharmsBrick(QuerysetBrick):
     order_by = 'name'
     template_name = 'commercial/bricks/charms.html'
     target_ctypes = (Strategy,)
+    permissions = 'commercial'
 
     def detailview_display(self, context):
         strategy = context['object']
@@ -147,6 +151,7 @@ class EvaluatedOrgasBrick(QuerysetBrick):
     order_by = 'name'
     template_name = 'commercial/bricks/evaluated-organisations.html'
     target_ctypes = (Strategy,)
+    permissions = 'commercial'
 
     def detailview_display(self, context):
         strategy = context['object']
@@ -162,6 +167,7 @@ class AssetsMatrixBrick(Brick):
     # dependencies  = (CommercialAsset,) #useless (custom reload view....)
     template_name = 'commercial/bricks/assets-matrix.html'
     configurable = False
+    permissions = 'commercial'
 
     def detailview_display(self, context):
         # NB: credentials are OK : we are sure to use the custom reload view
@@ -182,6 +188,7 @@ class CharmsMatrixBrick(Brick):
     # dependencies = (MarketSegmentCharm,) #useless (custom reload view....)
     template_name = 'commercial/bricks/charms-matrix.html'
     configurable = False
+    permissions = 'commercial'
 
     def detailview_display(self, context):
         # NB: credentials are OK : we are sure to use the custom reload view
@@ -202,6 +209,7 @@ class AssetsCharmsMatrixBrick(Brick):
     # dependencies = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
     template_name = 'commercial/bricks/assets-charms-matrix.html'
     configurable = False
+    permissions = 'commercial'
 
     def detailview_display(self, context):
         # NB: credentials are OK : we are sure to use the custom reload view
@@ -224,6 +232,7 @@ class ActObjectivesBrick(QuerysetBrick):
     order_by = 'name'
     template_name = 'commercial/bricks/objectives.html'
     target_ctypes = (Act,)
+    permissions = 'commercial'
 
     def detailview_display(self, context):
         act_id = context['object'].id
@@ -242,6 +251,7 @@ class RelatedOpportunitiesBrick(PaginatedBrick):
     relation_type_deps = (REL_OBJ_COMPLETE_GOAL,)
     template_name = 'commercial/bricks/opportunities.html'
     target_ctypes = (Act,)
+    permissions = 'commercial'
 
     def detailview_display(self, context):
         act = context['object']
@@ -258,6 +268,7 @@ class PatternComponentsBrick(Brick):
     dependencies = (ActObjectivePatternComponent,)
     template_name = 'commercial/bricks/components.html'
     target_ctypes = (ActObjectivePattern,)
+    permissions = 'commercial'
 
     def detailview_display(self, context):
         pattern = context['object']

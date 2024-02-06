@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,6 +59,7 @@ class FolderDocsBrick(QuerysetBrick):
     dependencies = (Document,)
     template_name = 'documents/bricks/documents.html'
     target_ctypes = (Folder,)
+    permissions = 'documents'
     order_by = 'title'
 
     def detailview_display(self, context):
@@ -80,6 +81,7 @@ class ChildFoldersBrick(QuerysetBrick):
     order_by = 'title'
     template_name = 'documents/bricks/child-folders.html'
     target_ctypes = (Folder,)
+    permissions = 'documents'
 
     def detailview_display(self, context):
         folder = context['object']
@@ -101,6 +103,7 @@ class LinkedDocsBrick(QuerysetBrick):
     )
     dependencies = (Relation, Document)
     relation_type_deps = (REL_SUB_RELATED_2_DOC, )
+    permissions = 'documents'
     template_name = 'documents/bricks/linked-docs.html'
     order_by = 'id'  # For consistent ordering between 2 queries (for pages)
 

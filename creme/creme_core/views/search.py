@@ -198,7 +198,7 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
 
 
 class SearchBricksReloading(BricksReloading):
-    check_bricks_permission = False
+    # check_bricks_permission = False
 
     def get_bricks(self):
         bricks = []

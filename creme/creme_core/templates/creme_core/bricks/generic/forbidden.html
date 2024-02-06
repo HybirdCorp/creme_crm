@@ -1,0 +1,19 @@
+{% load i18n creme_bricks %}
+<div class="brick brick-forbidden {# is-empty #}is-loading-border ui-creme-widget widget-auto" widget="brick" id="brick-{{brick_id}}" data-brick-id="{{brick_id}}">
+    {% block brick_header %}
+    <div class="brick-header"{# {% if description %} title="{{description}}"{% endif %} #} >
+{% comment %}
+        <div class="brick-menu-buttons">
+            {% block brick_menu_actions %}
+                {% if state %}{% brick_menu_collapse_action state %}{% endif %}
+            {% endblock %}
+        </div>
+{% endcomment %}
+        <div class="brick-title-container">{# TODO: real error icon? #}
+            {% block brick_header_title %}{% brick_header_title title=verbose_name icon='cancel' %}{% endblock %}
+        </div>
+    </div>
+    {% endblock %}
+    <div class="brick-content">{% translate 'You are not allowed to view this block' %}
+    </div>
+</div>

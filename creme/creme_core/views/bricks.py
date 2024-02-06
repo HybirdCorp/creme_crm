@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from json import loads as json_load
 
-from django.core.exceptions import PermissionDenied
+# from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.http.response import Http404, HttpResponse, HttpResponseBase
 from django.template.context import make_context
@@ -50,9 +50,9 @@ class BricksReloading(generic.CheckedView):
     # Name of the Brick's render method to use ;
     # classically: "detailview_display" or "home_display".
     brick_render_method: str = 'detailview_display'
-    # A boolean indicating if the attribute 'permission' of the bricks
-    # instances has to be checked.
-    check_bricks_permission: bool = True
+    # # A boolean indicating if the attribute 'permission' of the bricks
+    # # instances has to be checked.
+    # check_bricks_permission: bool = True
 
     def get_brick_ids(self) -> list[str]:
         # TODO: filter empty IDs ??
@@ -64,7 +64,12 @@ class BricksReloading(generic.CheckedView):
         return brick_ids
 
     def get_bricks(self) -> list[Brick]:
-        return [*self.brick_registry.get_bricks(self.get_brick_ids())]
+        return [
+            *self.brick_registry.get_bricks(
+                brick_ids=self.get_brick_ids(),
+                user=self.request.user,
+            ),
+        ]
 
     def get_bricks_contents(self) -> list[tuple[str, str]]:
         """Build a list of tuples (brick_ID, brick_HTML) which can be serialised to JSON.
@@ -77,21 +82,20 @@ class BricksReloading(generic.CheckedView):
         context = self.get_bricks_context().flatten()
         bricks_manager = BricksManager.get(context)
 
-        if self.check_bricks_permission:
-            user = request.user
-
-            for brick in bricks:
-                permissions = brick.permissions
-
-                # TODO: factorise ? (see creme_core.views.generic.base.PermissionsMixin)
-                if permissions and not (
-                    user.has_perm(permissions)
-                    if isinstance(permissions, str) else
-                    user.has_perms(permissions)
-                ):
-                    raise PermissionDenied(
-                        f'Error: you are not allowed to view this brick: {brick.id}'
-                    )
+        # if self.check_bricks_permission:
+        #     user = request.user
+        #
+        #     for brick in bricks:
+        #         permissions = brick.permissions
+        #
+        #         if permissions and not (
+        #             user.has_perm(permissions)
+        #             if isinstance(permissions, str) else
+        #             user.has_perms(permissions)
+        #         ):
+        #             raise PermissionDenied(
+        #                 f'Error: you are not allowed to view this brick: {brick.id}'
+        #             )
 
         all_reloading_info = {}
         all_reloading_info_json = request.GET.get('extra_data')
@@ -150,7 +154,7 @@ class BricksReloading(generic.CheckedView):
 
 
 class DetailviewBricksReloading(generic.base.EntityRelatedMixin, BricksReloading):
-    check_bricks_permission = False
+    # check_bricks_permission = False
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)
@@ -158,7 +162,9 @@ class DetailviewBricksReloading(generic.base.EntityRelatedMixin, BricksReloading
     def get_bricks(self):
         return [
             *self.brick_registry.get_bricks(
-                self.get_brick_ids(), entity=self.get_related_entity(),
+                brick_ids=self.get_brick_ids(),
+                entity=self.get_related_entity(),
+                user=self.request.user,
             )
         ]
 
@@ -170,7 +176,7 @@ class DetailviewBricksReloading(generic.base.EntityRelatedMixin, BricksReloading
 
 
 class HomeBricksReloading(BricksReloading):
-    check_bricks_permission = False
+    # check_bricks_permission = False
     brick_render_method = 'home_display'
 
 

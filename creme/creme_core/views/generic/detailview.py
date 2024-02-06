@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -74,8 +74,9 @@ def detailview_bricks(user, entity, registry=brick_registry):
     bricks = {}
     model = entity.__class__
     for brick in registry.get_bricks(
-        [*chain.from_iterable(brick_ids for brick_ids in loc_map.values())],
+        brick_ids=[*chain.from_iterable(brick_ids for brick_ids in loc_map.values())],
         entity=entity,
+        user=user,
     ):
         target_ctypes = brick.target_ctypes
         if target_ctypes and model not in target_ctypes:

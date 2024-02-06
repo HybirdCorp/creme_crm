@@ -333,7 +333,7 @@ class PropertyTypeDetail(generic.CremeModelDetail):
 
 
 class PropertyTypeBricksReloading(bricks_views.BricksReloading):
-    check_bricks_permission = False
+    # check_bricks_permission = False
     ptype_id_url_kwarg = 'ptype_id'
 
     def __init__(self, **kwargs):

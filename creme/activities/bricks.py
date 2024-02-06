@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,6 +61,7 @@ class ParticipantsBrick(QuerysetBrick):
     order_by = 'id'  # For consistent ordering between 2 queries (for pages)
 
     target_ctypes = (Activity, )
+    permissions = 'activities'
 
     def detailview_display(self, context):
         activity = context['object']
@@ -103,6 +104,7 @@ class SubjectsBrick(QuerysetBrick):
     order_by = 'id'  # For consistent ordering between 2 queries (for pages)
 
     target_ctypes = (Activity, )
+    permissions = 'activities'
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
@@ -120,6 +122,7 @@ class _RelatedActivitiesBrick(QuerysetBrick):
         constants.REL_SUB_ACTIVITY_SUBJECT,
         constants.REL_SUB_PART_2_ACTIVITY,
     )
+    permissions = 'activities'
 
     _RTYPES_2_POP = (
         constants.REL_OBJ_PART_2_ACTIVITY,
@@ -233,6 +236,7 @@ class CalendarsBrick(GenericModelBrick):
     id = QuerysetBrick.generate_id('activities', 'calendars_config')
     dependencies = (Calendar,)
     template_name = 'activities/bricks/calendars.html'
+    # permissions = 'activities' ??
 
     def detailview_display(self, context):
         qs = get_user_model().objects.all()
@@ -275,6 +279,7 @@ class RelatedCalendarBrick(QuerysetBrick):
     order_by = 'name'
 
     target_ctypes = (Activity, )
+    permissions = 'activities'
 
     def detailview_display(self, context):
         user = context['user']

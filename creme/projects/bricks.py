@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,6 +46,7 @@ class ProjectExtraInfoBrick(SimpleBrick):
     )
     template_name = 'projects/bricks/project-extra-info.html'
     target_ctypes = (Project,)
+    permissions = 'projects'
 
 
 class TaskExtraInfoBrick(SimpleBrick):
@@ -58,6 +59,7 @@ class TaskExtraInfoBrick(SimpleBrick):
     )
     template_name = 'projects/bricks/task-extra-info.html'
     target_ctypes = (ProjectTask,)
+    permissions = 'projects'
 
 
 class ParentTasksBrick(QuerysetBrick):
@@ -66,6 +68,7 @@ class ParentTasksBrick(QuerysetBrick):
     verbose_name = _('Parents of a task')
     template_name = 'projects/bricks/parent-tasks.html'
     target_ctypes = (ProjectTask,)
+    permissions = 'projects'
 
     def detailview_display(self, context):
         task = context['object']
@@ -79,6 +82,7 @@ class ProjectTasksBrick(QuerysetBrick):
     verbose_name = _('Tasks of a project')
     template_name = 'projects/bricks/tasks.html'
     target_ctypes = (Project,)
+    permissions = 'projects'
 
     def detailview_display(self, context):
         project = context['object']
@@ -92,6 +96,7 @@ class TaskResourcesBrick(QuerysetBrick):
     dependencies = (Resource,)
     template_name = 'projects/bricks/resources.html'
     target_ctypes = (ProjectTask,)
+    permissions = 'projects'
     order_by = 'linked_contact__last_name'
 
     def detailview_display(self, context):
@@ -109,6 +114,7 @@ class TaskActivitiesBrick(PaginatedBrick):
     relation_type_deps = (REL_OBJ_LINKED_2_PTASK, )
     template_name = 'projects/bricks/activities.html'
     target_ctypes = (ProjectTask,)
+    permissions = ['projects', 'activities']
 
     def detailview_display(self, context):
         task = context['object']

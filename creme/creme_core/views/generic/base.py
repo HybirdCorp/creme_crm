@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2023  Hybird
+#    Copyright (C) 2018-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -401,7 +401,7 @@ class BricksMixin:
     Attributes:
     brick_registry: Instance of _BrickRegistry, used to retrieve the instances
                     of Bricks from their ID (see get_brick_ids() & get_bricks()).
-    bricks_reload_url_name: Name of the URL used to relaod the bricks
+    bricks_reload_url_name: Name of the URL used to reload the bricks
                             (see get_bricks_reload_url()).
     """
     brick_registry = brick_registry
@@ -412,7 +412,8 @@ class BricksMixin:
 
     def get_bricks(self) -> list[Brick]:
         return [*self.brick_registry.get_bricks(
-            [id_ for id_ in self.get_brick_ids() if id_]
+            brick_ids=[id_ for id_ in self.get_brick_ids() if id_],
+            user=self.request.user,
         )]
 
     def get_bricks_reload_url(self) -> str:

@@ -43,7 +43,7 @@ class History(BricksView):
 
 
 class HistoryBricksReloading(BricksReloading):
-    check_bricks_permission = False
+    # check_bricks_permission = False
     permissions = 'crudity'
 
     def get_bricks(self):

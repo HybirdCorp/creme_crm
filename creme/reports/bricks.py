@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,6 +59,7 @@ class ReportFieldsBrick(core_bricks.Brick):
     dependencies = (Field,)
     template_name = 'reports/bricks/fields.html'
     target_ctypes = (Report,)
+    permissions = 'reports'
 
     def detailview_display(self, context):
         columns = context['object'].columns
@@ -81,9 +82,10 @@ class ReportGraphChartListBrick(ReportGraphMixin, core_bricks.QuerysetBrick):
     )
     dependencies = (ReportGraph,)
     template_name = 'reports/bricks/report-chart-list.html'
+    target_ctypes = (Report,)
+    permissions = 'reports'
     # order_by = 'name'
     order_by = 'created'
-    target_ctypes = (Report,)
 
     def detailview_display(self, context):
         context = self.get_template_context(
@@ -244,6 +246,8 @@ class ReportGraphChartBrick(ReportGraphMixin, core_bricks.Brick):
     dependencies = (ReportGraph,)
     verbose_name = _("Report's graph")
     template_name = 'reports/bricks/report-chart.html'
+    target_ctypes = (ReportGraph,)
+    permissions = 'reports'
 
     def detailview_display(self, context):
         graph = context['object']
@@ -272,9 +276,9 @@ class ReportGraphChartBrick(ReportGraphMixin, core_bricks.Brick):
             }
         ))
 
-    @property
-    def target_ctypes(self):
-        return (ReportGraph,)
+    # @property
+    # def target_ctypes(self):
+    #     return (ReportGraph,)
 
 
 class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
@@ -283,6 +287,7 @@ class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
     dependencies = (InstanceBrickConfigItem,)
     template_name = 'reports/bricks/instance-bricks-info.html'
     configurable = False
+    permissions = 'reports'
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
