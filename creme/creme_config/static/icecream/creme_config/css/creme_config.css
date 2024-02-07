@@ -63,6 +63,10 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     height: 28px;
 }
 
+/* TODO: rework layout to avoid <position: relative> & fixed width ... */
+.displayed_name_form input[name="displayed_name"] {
+    width: 148px;
+}
 .displayed_name_form input[type="submit"] {
     position: relative;
     top: 5px;

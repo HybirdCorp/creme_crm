@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -134,6 +134,11 @@ class BatchActionsField(JSONField):
 
             for field in model._meta.fields:
                 if field.editable and isinstance(field, managed_fields):
+                    # TODO: field with <choices> attributes are currently excluded.
+                    #       they could only be used with assignment operator.
+                    if field.choices:
+                        continue
+
                     fname = field.name
 
                     # Not a specific form (i.e. specific business logic)

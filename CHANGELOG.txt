@@ -1,3 +1,39 @@
+== Version 2.5.5 ==
+
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+     # Some fields associated to a static list of values (attributes "choices" in Python)
+       are not proposed by the Batch-Process form anymore.
+     # A style issue in FireFox, in the form for displayed user's name, has been fixed.
+     # A bug in brick reloading has been fixed (it crashes with several invalid IDs).
+     # Apps :
+        * Documents :
+            - In new installations, Folders had no "assistants" bricks on their detail-view.
+        * Billing :
+            - The order of lines was incorrect in exported data (PDF, xls): the order set manually with drag'n drop was not used.
+            - An crash in the configuration of export (when the configured engine was not installed anymore) has been fixed.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The widget 'creme_core.forms.header_filter.EntityCellsWidget' has been fixed
+          to enable complex HTML representations produced by field printers.
+
+    Breaking changes :
+    ----------------------
+        # No HistoryLine with <type=TYPE_AUX_EDITION> is created while the auxiliary instance is not reloaded.
+          It could cause some unit tests (which check history) to fail.
+     # Apps :
+        * Billing :
+            - The method 'models.base.Base.get_lines()' only accepts model with an "order" field.
+              So if you created a custom line model which does not inherit 'models.line.Line' you should add this field.
+
+
 == Version 2.5.4 ==
 
   Users side :

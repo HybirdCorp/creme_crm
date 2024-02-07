@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP (JavaScript only)
-# Copyright (C) 2022 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -d djangojs -l fr -i "static/creme_core/js/tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-06 13:44+0100\n"
+"POT-Creation-Date: 2024-02-07 13:02+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -145,13 +145,10 @@ msgstr "Recherche avancée"
 msgid "Best result"
 msgstr "Meilleur résultat"
 
-msgid "Loading..."
-msgstr "Chargement..."
-
-msgid "Error !"
+msgid "Error!"
 msgstr "Erreur !"
 
-msgid "The page will be reload !"
+msgid "The page will be reloaded!"
 msgstr "La page va être rechargée !"
 
 msgid "Add"
@@ -263,6 +260,9 @@ msgstr[1] "Saisissez au moins %d caractères"
 
 msgid "Loading more results…"
 msgstr "Chargement de résultats supplémentaires…"
+
+msgid "⚠"
+msgstr "⚠"
 
 msgid "Show more results"
 msgstr "Afficher plus de résultats"

@@ -50,6 +50,7 @@ from ..constants import (
 from . import other_models
 from .algo import ConfigBillingAlgo
 from .fields import BillingDiscountField
+from .line import Line
 
 logger = logging.getLogger(__name__)
 
@@ -258,6 +259,7 @@ class Base(CremeEntity):
                 logger.info('billing.generate_number(): number cannot be generated (%s)', e)
 
     def get_lines(self, klass):
+        assert issubclass(klass, Line)
         assert not klass._meta.abstract, \
             '"klass" cannot be an abstract model (use ProductLine or ServiceLine)'
 
@@ -268,7 +270,7 @@ class Base(CremeEntity):
             lines = cache[klass] = klass.objects.filter(
                 relations__object_entity=self.id,
                 relations__type=REL_OBJ_HAS_LINE,
-            )
+            ).order_by('order')
 
         return lines
 

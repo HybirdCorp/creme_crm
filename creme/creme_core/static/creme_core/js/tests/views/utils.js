@@ -34,7 +34,7 @@ QUnit.test('creme.utils.showErrorNReload', function(assert) {
 
     creme.utils.showErrorNReload(150);
 
-    this.assertOpenedAlertDialog(gettext('Error !') + gettext("The page will be reload !"));
+    this.assertOpenedAlertDialog(gettext('Error!') + gettext("The page will be reloaded!"));
     deepEqual([], this.mockReloadCalls());
 
     stop(1);
@@ -53,7 +53,7 @@ QUnit.test('creme.utils.showErrorNReload (close)', function(assert) {
 
     creme.utils.showErrorNReload();
 
-    this.assertOpenedAlertDialog(gettext('Error !') + gettext("The page will be reload !"));
+    this.assertOpenedAlertDialog(gettext('Error!') + gettext("The page will be reloaded!"));
     deepEqual([], this.mockReloadCalls());
 
     this.closeDialog();

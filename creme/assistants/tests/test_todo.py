@@ -803,6 +803,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         todo = ToDo.objects.create(user=user, real_entity=akane, title='Todo#1')
         old_count = HistoryLine.objects.count()
 
+        todo = self.refresh(todo)  # reset cache
         todo.description = description = 'Conquer the world'
         todo.save()
 
