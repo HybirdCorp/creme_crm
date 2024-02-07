@@ -1,3 +1,30 @@
+== Version 2.4.12 ==
+
+  Users side :
+  ------------
+     # Some fields associated to a static list of values (attributes "choices" in Python)
+       are not proposed by the Batch-Process form anymore.
+     # A bug in brick reloading has been fixed (it crashes with several invalid IDs).
+     # Apps :
+        * Documents :
+            - In new installations, Folders had no "assistants" bricks on their detail-view.
+        * Tickets :
+            - The name of the button to link to a Ticket (visible in configuration) has been fixed.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The widget 'creme_core.forms.header_filter.EntityCellsWidget' has been fixed
+          to enable complex HTML representations produced by field printers.
+
+    Breaking changes :
+    ----------------------
+        # No HistoryLine with <type=TYPE_AUX_EDITION> is created while the auxiliary instance is not reloaded.
+          It could cause some unit tests (which check history) to fail.
+
+
 == Version 2.4.11 ==
 
   UPGRADE NOTE :

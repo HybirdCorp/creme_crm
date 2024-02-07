@@ -24,6 +24,7 @@ from collections import defaultdict
 from copy import deepcopy
 from itertools import chain
 from typing import TYPE_CHECKING, Iterable, Iterator
+from uuid import uuid4
 
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -215,6 +216,7 @@ class EntityCellsWidget(Widget):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         widget_cxt = context['widget']
+        widget_cxt['uuid'] = uuid4()
         widget_cxt['samples'] = self._build_samples()
 
         for sub_widget in self._sub_widgets:
