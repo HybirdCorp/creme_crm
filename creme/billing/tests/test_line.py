@@ -419,7 +419,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(_('Save the lines'), context.get('submit_label'))
 
         # ---
-        self.assertFalse(invoice.get_lines(Service))
+        # self.assertFalse(invoice.get_lines(Service))
+        with self.assertRaises(AssertionError):
+            invoice.get_lines(Service)
 
         service1 = self.create_service(user=user)
         service2 = self.create_service(user=user)
