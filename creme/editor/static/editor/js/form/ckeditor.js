@@ -63,10 +63,10 @@ function parseWidth(value, element) {
 function parseHeight(value, element) {
     switch (value) {
         case 'fit-input':
-            return element.height();
+            return element.height() + 'px';
         case 'fit-rows':
             var rows = parseInt(element.attr('rows')) || 0;
-            return rows ? rows + 'em' : element.height();
+            return rows ? rows + 'em' : element.height() + 'px';
         default:
             return value;
     }
