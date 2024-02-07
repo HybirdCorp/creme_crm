@@ -136,7 +136,7 @@ QUnit.parameterize('creme.form.CKEditor (maxWidth)', [
     });
 });
 
-QUnit.parameterize('creme.form.CKEditor (maxHeight)', [
+QUnit.parameterize('creme.form.CKEditor (minHeight)', [
     ['200px', '200px'],
     ['fit-input', '300px'],
     ['fit-rows', '13em']
@@ -151,7 +151,10 @@ QUnit.parameterize('creme.form.CKEditor (maxHeight)', [
     var editor = new creme.form.CKEditor(element);
 
     this.awaitsPromise(editor.ckeditorSetup(), function() {
-        equal(expected, element.parent().find('.ck.ck-editor').height());
+        equal(
+            'min-height:${height};'.template({height: expected}),
+            element.parent().find('.ck.ck-editor .ck-content').attr('style')
+        );
     });
 });
 
