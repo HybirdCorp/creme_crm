@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-22 17:44+0100\n"
+"POT-Creation-Date: 2024-02-07 13:02+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -145,14 +145,7 @@ msgstr "Recherche avancée"
 msgid "Best result"
 msgstr "Meilleur résultat"
 
-<<<<<<< HEAD
-msgid "Loading..."
-msgstr "Chargement..."
-
-msgid "Error !"
-=======
 msgid "Error!"
->>>>>>> 2ccea6b2b... Typo ('en').
 msgstr "Erreur !"
 
 msgid "The page will be reloaded!"
@@ -267,6 +260,9 @@ msgstr[1] "Saisissez au moins %d caractères"
 
 msgid "Loading more results…"
 msgstr "Chargement de résultats supplémentaires…"
+
+msgid "⚠"
+msgstr "⚠"
 
 msgid "Show more results"
 msgstr "Afficher plus de résultats"

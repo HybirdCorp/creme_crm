@@ -1,7 +1,5 @@
 == Version 2.5.5 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .po (core-js)
-
   UPGRADE NOTE :
     - You should re-generate the media files (creme generatemedia --settings=[...]).
 
