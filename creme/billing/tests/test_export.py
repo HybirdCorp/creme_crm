@@ -1086,6 +1086,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             on_the_fly_item='Unsaved product',
             unit_price=Decimal('10'),
             quantity=Decimal('1'),
+            order=2,
         )
         product = get_product_model().objects.create(
             user=user, name='Saved product',
@@ -1098,6 +1099,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             quantity=Decimal('2'),
             discount=Decimal('5'),
             discount_unit=Line.Discount.PERCENT,
+            order=1,
         )
 
         create_sline = partial(
@@ -1211,19 +1213,19 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertListEqual(
             [
-                pline1.on_the_fly_item,
-                '1.00', '10.00',
-                '0.00', '%',
-                '10.00',
+                product.name,
+                '2.00', '20.00',
+                '5.00', '%',
+                '40.00',
             ],
             next(lines)[:6],
         )
         self.assertListEqual(
             [
-                product.name,
-                '2.00', '20.00',
-                '5.00', '%',
-                '40.00',
+                pline1.on_the_fly_item,
+                '1.00', '10.00',
+                '0.00', '%',
+                '10.00',
             ],
             next(lines)[:6],
         )
