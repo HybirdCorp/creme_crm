@@ -16,13 +16,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.core.notification import NotificationContent
+from creme.creme_core.core.notification import StringBaseContent
 
 
-class PasswordChangeContent(NotificationContent):
-    id = NotificationContent.generate_id('creme_config', 'password_change')
+class PasswordChangeContent(StringBaseContent):
+    id = StringBaseContent.generate_id('creme_config', 'password_change')
 
-    def render(self):
-        return _('Your password has been changed by a super-user.')
+    subject = _('Password change')
+    body = html_body = _('Your password has been changed by a super-user.')

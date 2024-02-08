@@ -66,7 +66,7 @@ class CurrentAppConfigEntry(menu.MenuEntry):
             permissions = getattr(view, 'permissions', None)
             if isinstance(permissions, str):
                 return permissions
-            # TODO: check is prefix of all permissions are equal?
+            # TODO: check if prefix of all permissions are equal?
 
         # TODO: parse URL ?
 
