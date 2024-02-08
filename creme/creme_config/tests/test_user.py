@@ -1048,9 +1048,19 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertEqual(PasswordChangeContent.id, notif.content_id)
         self.assertDictEqual({}, notif.content_data)
+
+        content = notif.content
+        self.assertEqual(
+            _('Password change'),
+            content.get_subject(user=other_user),
+        )
         self.assertEqual(
             _('Your password has been changed by a super-user.'),
-            notif.content.render(),
+            content.get_body(user=other_user),
+        )
+        self.assertEqual(
+            _('Your password has been changed by a super-user.'),
+            content.get_html_body(user=other_user),
         )
 
     @skipIfNotCremeUser
