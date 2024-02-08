@@ -1,3 +1,4 @@
+from copy import deepcopy
 from functools import partial
 
 from django.test import RequestFactory
@@ -986,7 +987,7 @@ class BrickRegistryTestCase(CremeTestCase):
             template_name = 'persons/bricks/itdoesnotexist.html'
 
             def detailview_display(self, context):
-                return f'<table id="{self.id}"><thead><tr>' \
+                return f'<table id="brick-{self.id}"><thead><tr>' \
                        f'{self.config_item.entity}</tr></thead></table>'  # useless :)
 
         ibci = InstanceBrickConfigItem.objects.create(
@@ -1033,7 +1034,7 @@ class BrickRegistryTestCase(CremeTestCase):
             template_name = 'persons/templatetags/block_thatdoesnotexist.html'
 
             def detailview_display(self, context):
-                return f'<table id="{self.id}"><thead><tr>' \
+                return f'<table id="brick-{self.id}"><thead><tr>' \
                        f'{self.config_item.entity}</tr></thead></table>'  # Useless :)
 
         class ContactBrick(BaseBrick):
@@ -1048,6 +1049,180 @@ class BrickRegistryTestCase(CremeTestCase):
             _BrickRegistry.RegistrationError,
             brick_registry.register_4_instance,
             OrgaBrick,
+        )
+
+    def test_deep_copy(self):
+        class FoobarBrick1(Brick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_1')
+
+        class FoobarBrick2(Brick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_2')
+
+        class FoobarBrick3(Brick):
+            id = Brick.generate_id('creme_core', 'foobar_brick_3')
+
+        brick_registry = _BrickRegistry().register(
+            FoobarBrick1, FoobarBrick2,
+        ).register_invalid_models(FakeContact)
+        copied = deepcopy(brick_registry)
+
+        expected = [
+            (FoobarBrick1.id, FoobarBrick1),
+            (FoobarBrick2.id, FoobarBrick2),
+        ]
+        self.assertListEqual(expected, [*brick_registry])
+        self.assertListEqual(expected, [*copied])
+
+        self.assertTrue(brick_registry.is_model_invalid(FakeContact))
+        self.assertFalse(brick_registry.is_model_invalid(FakeOrganisation))
+        self.assertTrue(copied.is_model_invalid(FakeContact))
+        self.assertFalse(copied.is_model_invalid(FakeOrganisation))
+
+        # ---
+        brick_registry.unregister(FoobarBrick2)
+        copied.register(FoobarBrick3)
+
+        self.assertListEqual([(FoobarBrick1.id, FoobarBrick1),], [*brick_registry])
+        self.assertListEqual(
+            [
+                *expected,
+                (FoobarBrick3.id, FoobarBrick3),
+            ],
+            [*copied],
+        )
+
+        # ---
+        copied.register_invalid_models(FakeOrganisation)
+        self.assertTrue(copied.is_model_invalid(FakeContact))
+        self.assertTrue(copied.is_model_invalid(FakeOrganisation))
+        self.assertFalse(brick_registry.is_model_invalid(FakeOrganisation))
+
+    def test_deep_copy__hat(self):
+        class FakeContactHatBrick1(Brick):
+            template_name = 'creme_core/bricks/fake_contact_hat1.html'
+
+        class OtherFakeContactHatBrick1(Brick):
+            id = Brick._generate_hat_id('creme_core', 'other_hat_brick1')
+            template_name = 'creme_core/bricks/other_fake_contact_hat1.html'
+
+        class OtherFakeContactHatBrick2(Brick):
+            id = Brick._generate_hat_id('creme_core', 'other_hat_brick2')
+            template_name = 'creme_core/bricks/other_fake_contact_hat2.html'
+
+        class OtherFakeContactHatBrick3(Brick):
+            id = Brick._generate_hat_id('creme_core', 'other_hat_brick3')
+            template_name = 'creme_core/bricks/other_fake_contact_hat3.html'
+
+        brick_registry = _BrickRegistry().register_hat(
+            FakeContact,
+            main_brick_cls=FakeContactHatBrick1,
+            secondary_brick_classes=(OtherFakeContactHatBrick1, OtherFakeContactHatBrick2),
+        )
+        copied = deepcopy(brick_registry)
+
+        expected = [
+            FakeContactHatBrick1.template_name,
+            OtherFakeContactHatBrick1.template_name,
+            OtherFakeContactHatBrick2.template_name,
+        ]
+
+        def templates(registry):
+            return [b.template_name for b in registry.get_compatible_hat_bricks(FakeContact)]
+
+        self.assertListEqual(expected, templates(brick_registry))
+        self.assertListEqual(expected, templates(copied))
+
+        # ---
+        brick_registry.unregister_hat(
+            FakeContact, secondary_brick_classes=[OtherFakeContactHatBrick1],
+        )
+        copied.register_hat(
+            FakeContact, secondary_brick_classes=[OtherFakeContactHatBrick3],
+        )
+        self.assertListEqual(
+            [
+                FakeContactHatBrick1.template_name,
+                # OtherFakeContactHatBrick1.template_name,
+                OtherFakeContactHatBrick2.template_name,
+            ],
+            templates(brick_registry),
+        )
+        self.assertListEqual(
+            [*expected, OtherFakeContactHatBrick3.template_name],
+            templates(copied),
+        )
+
+    def test_deep_copy__model(self):
+        orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='Hawk')
+
+        class OrgaBrick1(EntityBrick):
+            template_name = 'persons/bricks/my_orga1.html'
+
+        class OrgaBrick2(EntityBrick):
+            template_name = 'persons/bricks/my_orga2.html'
+
+        brick_registry = _BrickRegistry().register_4_model(
+            model=FakeOrganisation, brick_cls=OrgaBrick1,
+        )
+        copied = deepcopy(brick_registry)
+
+        def get_brick(registry):
+            return next(registry.get_bricks([MODELBRICK_ID], entity=orga))
+
+        self.assertIsInstance(get_brick(brick_registry), OrgaBrick1)
+        self.assertIsInstance(get_brick(copied),         OrgaBrick1)
+
+        # ---
+        brick_registry.unregister_4_model(FakeOrganisation)
+        copied.register_4_model(FakeOrganisation, OrgaBrick2)
+        self.assertNotIn(
+            get_brick(brick_registry).__class__,
+            (OrgaBrick1, OrgaBrick2),
+        )
+        self.assertIsInstance(get_brick(copied), OrgaBrick2)
+
+    def test_deep_copy__instance(self):
+        orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='Hawk')
+
+        class BaseOrgaBrick(InstanceBrick):
+            dependencies = (FakeOrganisation,)
+            template_name = 'persons/bricks/itdoesnotexist1.html'
+
+        class OrgaBrick1(BaseOrgaBrick):
+            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'deep_copy1')
+
+        brick_registry = _BrickRegistry().register_4_instance(OrgaBrick1)
+        copied = deepcopy(brick_registry)
+
+        ibci1 = InstanceBrickConfigItem(
+            entity=orga, brick_class_id=OrgaBrick1.id,
+        )
+
+        ibrick11 = brick_registry.get_brick_4_instance(ibci1)
+        self.assertIsInstance(ibrick11, OrgaBrick1)
+        self.assertIsNone(ibrick11.errors)
+
+        ibrick12 = copied.get_brick_4_instance(ibci1)
+        self.assertIsInstance(ibrick12, OrgaBrick1)
+        self.assertIsNone(ibrick12.errors)
+
+        # ---
+        class OrgaBrick2(BaseOrgaBrick):
+            id = InstanceBrickConfigItem.generate_base_id('creme_core', 'deep_copy2')
+
+        brick_registry.register_4_instance(OrgaBrick2)
+
+        ibci2 = InstanceBrickConfigItem(
+            entity=orga, brick_class_id=OrgaBrick2.id,
+        )
+
+        ibrick21 = brick_registry.get_brick_4_instance(ibci2)
+        self.assertIsInstance(ibrick21, OrgaBrick2)
+        self.assertIsNone(ibrick21.errors)
+
+        self.assertListEqual(
+            [_('Unknown type of block (bad uninstall ?)')],
+            copied.get_brick_4_instance(ibci2).errors,
         )
 
     # TODO different keys
