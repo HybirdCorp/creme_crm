@@ -157,7 +157,7 @@ class BaseEvaluatedOrganisationView(generic.BricksView):
 
     def get_bricks_reload_url(self):
         return reverse(
-            'commercial__reload_matrix_brick',
+            self.bricks_reload_url_name,
             args=(self.get_strategy().id, self.get_organisation().id)
         )
 

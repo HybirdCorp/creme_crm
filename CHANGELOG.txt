@@ -1,5 +1,16 @@
 == Version 2.5.6 Work in progress (not released -- this is a draft) ==
 
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Apps :
+            * Commercial :
+                - The view 'views.strategy.BaseEvaluatedOrganisationView' has been improved to be easier to modify.
+
+
 == Version 2.5.5 ==
 
   UPGRADE NOTE :
