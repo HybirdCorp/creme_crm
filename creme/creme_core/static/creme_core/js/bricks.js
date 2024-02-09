@@ -528,7 +528,8 @@ creme.bricks.Brick = creme.component.Component.sub({
         this._pager = new creme.list.Pager()
                                       .on('refresh', function(event, page) {
                                            var data = {};
-                                           data[self._id + '_page'] = page;
+//                                           data[self._id + '_page'] = page;
+                                           data[self.type_id() + '_page'] = page;
                                            self.refresh(data);
                                        });
         this._table = new creme.bricks.BrickTable(this);
