@@ -311,26 +311,27 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         "Credentials error."
         user = self.login_as_projects_user(creatable_models=[Project])
 
-        create_sc = partial(SetCredentials.objects.create, role=user.role)
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),  # Not LINK
-            set_type=SetCredentials.ESET_ALL,
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # create_sc = partial(SetCredentials.objects.create, role=user.role)
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),  # Not LINK
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, all='!LINK', own='*')
 
         manager = Contact.objects.create(user=user, first_name='Gendo', last_name='Ikari')
         self.assertFalse(user.has_perm_to_link(manager))
@@ -567,11 +568,12 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             allowed_apps=['persons'],
             creatable_models=[Project, ProjectTask],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         project01 = self.create_project(user=user, name='Eva01')[0]
         project02 = self.create_project(user=user, name='Eva02')[0]
@@ -602,11 +604,12 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             allowed_apps=['persons'],
             creatable_models=[Project],  # ProjectTask
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         project = self.create_project(user=user, name='Eva01')[0]
         self.assertGET403(self._build_add_task_url(project))
@@ -1163,12 +1166,12 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             allowed_apps=['persons'],
             creatable_models=[Project, ProjectTask],
         )
-
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         project = self.create_project(user=user, name='Eva02')[0]
         task = self.create_task(project, 'legs')
@@ -1678,11 +1681,12 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             allowed_apps=['persons'],
             creatable_models=[Project, ProjectTask],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         project = self.create_project(user=user, name='Eva02')[0]
         task = self.create_task(project, 'arms')

@@ -916,19 +916,20 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             allowed_apps=['products', 'documents'],
             creatable_models=[Product, get_document_model()],
         )
-        count = Product.objects.count()
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='*')
 
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
+        count = Product.objects.count()
 
         cat1 = Category.objects.create(name='(Test) Video games')
         sub_cat11 = SubCategory.objects.create(name='Puzzle', category=cat1)

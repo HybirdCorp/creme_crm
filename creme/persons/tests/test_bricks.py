@@ -10,13 +10,13 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth import EntityCredentials
+# from creme.creme_core.auth import EntityCredentials
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     FieldsConfig,
     Relation,
     RelationType,
-    SetCredentials,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -265,11 +265,12 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
     @skipIfCustomActivity
     def test_contact_hat_card_brick_activities02(self):
         user = self.login_as_standard(allowed_apps=['persons', 'activities'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
         root = self.get_root_user()
         c = Contact.objects.create(user=user, first_name='Lawrence', last_name='Kraft')
@@ -356,11 +357,12 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
     @skipIfCustomActivity
     def test_orga_hat_card_brick_activities(self):
         user = self.login_as_standard(allowed_apps=['persons', 'activities'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
         root = self.get_root_user()
         orga = Organisation.objects.create(user=user, name='Lenos')
@@ -1025,11 +1027,12 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_managers_brick02(self):
         user = self.login_as_persons_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         c = Contact.objects.create(
             user=self.get_root_user(),

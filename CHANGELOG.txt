@@ -64,9 +64,12 @@
                 - The class 'UnregisteredCTypeException' is now deprecated.
             - The templatetag {% has_perm_to %} is deprecated;
               use the template-filters of the new library "creme_perms" instead.
-            - The module 'creme_core.tests.forms.base' is deprecated.
-              Use these new methods of 'CremeTestCase' instead: assertFormfieldError() & assertValidationError().
-              Then stop using the base class 'FieldTestCase' & 'FieldTestCaseMixin'.
+            - In 'creme_core.tests' :
+                - The module 'forms.base' is deprecated.
+                  Use these new methods of 'CremeTestCase' instead: assertFormfieldError() & assertValidationError().
+                  Then stop using the base class 'FieldTestCase' & 'FieldTestCaseMixin'.
+                - The class 'views.ViewsTestCase' is deprecated ;
+                  use the new method 'CremeTestCase.add_credentials()' instead.
             - Apps :
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' is now deprecated.

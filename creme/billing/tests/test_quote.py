@@ -10,16 +10,16 @@ from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth import EntityCredentials
+# from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui import actions
 from creme.creme_core.gui.custom_form import FieldGroupList
 from creme.creme_core.gui.view_tag import ViewTag
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     Currency,
     CustomFormConfigItem,
     FieldsConfig,
-    SetCredentials,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.constants import REL_SUB_PROSPECT
@@ -79,11 +79,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['billing', 'persons'],
             creatable_models=[Organisation, Quote, Invoice],  # Not SalesOrder
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
         response = self.assertGET200(quote.get_absolute_url())
@@ -103,11 +104,12 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['billing', 'persons'],
             creatable_models=[Organisation, Quote, SalesOrder],  # Not Invoice
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
         response = self.assertGET200(quote.get_absolute_url())
@@ -308,17 +310,18 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Quote],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='*')
 
         source, target = self.create_orgas(user=user)
         self.assertGET200(
@@ -331,17 +334,18 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             # creatable_models=[Quote],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='*')
 
         source, target = self.create_orgas(user=user)
         self.assertGET403(
@@ -354,17 +358,18 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Quote],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                # | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         # | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='!CHANGE')
 
         source, target = self.create_orgas(user=user)
         self.assertGET403(
@@ -429,19 +434,19 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=('persons', 'billing'),
             creatable_models=[Quote],
         )
-
-        create_sc = partial(SetCredentials.objects.create, role=user.role)
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        # create_sc = partial(SetCredentials.objects.create, role=user.role)
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        self.add_credentials(user.role, all=['VIEW'], own='*')
 
         quote, source1, target1 = self.create_quote_n_orgas(user=user, name='My quote')
 
@@ -488,19 +493,19 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=('persons', 'billing'),
             creatable_models=[Quote],
         )
-
-        create_sc = partial(SetCredentials.objects.create, role=user.role)
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        # create_sc = partial(SetCredentials.objects.create, role=user.role)
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        self.add_credentials(user.role, all=['VIEW'], own='*')
 
         quote, source, target = self.create_quote_n_orgas(user=user, name='My quote')
 
@@ -855,17 +860,18 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_brick03(self):
         "No VIEW permission."
         user = self.login_as_standard(allowed_apps=['persons', 'billing'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='*')
 
         source, target = self.create_orgas(user=user)
 

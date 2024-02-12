@@ -5,11 +5,12 @@ from django.conf import settings
 from django.utils.formats import number_format
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.view_tag import ViewTag
-from creme.creme_core.models import FieldsConfig, SetCredentials
+# from creme.creme_core.models import SetCredentials
+from creme.creme_core.models import FieldsConfig
 from creme.persons.tests.base import skipIfCustomOrganisation
 
 from ..function_fields import (
@@ -197,12 +198,12 @@ class FunctionFieldTestCase(_BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice],
         )
-
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         create_orga = partial(Organisation.objects.create, user=user)
         target = create_orga(name='Target')
@@ -243,12 +244,12 @@ class FunctionFieldTestCase(_BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice],
         )
-
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         create_orga = partial(Organisation.objects.create, user=user)
         target = create_orga(name='Target')

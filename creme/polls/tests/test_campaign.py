@@ -5,8 +5,8 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.commercial.models import MarketSegment
-from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import CremePropertyType, SetCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import CremePropertyType  # SetCredentials
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from ..bricks import PollCampaignRepliesBrick
@@ -237,17 +237,18 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
     def test_create_preply_from_campaign02(self):
         "Not superuser."
         user = self.login_as_polls_user(creatable_models=[PollReply])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='*')
 
         pform, camp = self._create_pform_n_campaign(user=user)
         self.assertGET200(reverse('polls__create_reply_from_campaign', args=(camp.id,)))
@@ -257,17 +258,18 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
     def test_create_preply_from_campaign03(self):
         "Creation credentials are needed."
         user = self.login_as_polls_user()  # creatable_models=[PollReply]
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='*')
 
         pform, camp = self._create_pform_n_campaign(user=user)
 
@@ -278,17 +280,18 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
     def test_create_preply_from_campaign04(self):
         "LINK credentials are needed."
         user = self.login_as_polls_user(creatable_models=[PollReply])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-                # | EntityCredentials.LINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #         # | EntityCredentials.LINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='!LINK')
 
         pform, camp = self._create_pform_n_campaign(user=user)
         self.assertGET403(reverse('polls__create_reply_from_campaign', args=(camp.id,)))

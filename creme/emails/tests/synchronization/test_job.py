@@ -575,6 +575,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
             value=EntityCredentials.VIEW | EntityCredentials.LINK,
             set_type=SetCredentials.ESET_OWN,
         )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         create_contact = partial(Contact.objects.create, user=user)
         contact1 = create_contact(
@@ -773,11 +774,12 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         user = self.login_as_emails_user(allowed_apps=['persons'])
         super_user = self.get_root_user()
 
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         recipient_email = 'contact@bebop.mrs'
         create_orga = partial(Organisation.objects.create, email=recipient_email)
@@ -1617,11 +1619,12 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
     def test_job_related_persons01(self):
         "Use sender & receivers to assign retrieve Contacts."
         user = self.login_as_emails_user(allowed_apps=['persons'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         create_contact = partial(Contact.objects.create, user=user)
         contact1 = create_contact(

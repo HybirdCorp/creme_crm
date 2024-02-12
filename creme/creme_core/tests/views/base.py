@@ -1,4 +1,4 @@
-# import warnings
+import warnings
 from tempfile import NamedTemporaryFile
 
 import openpyxl
@@ -17,8 +17,21 @@ from ..base import CremeTestCase
 
 
 class ViewsTestCase(CremeTestCase):
-    # TODO: in CremeTestCase ?
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        warnings.warn(
+            'The class ViewsTestCase is deprecated; use CremeTestCase instead.',
+            DeprecationWarning,
+        )
+
     def _set_all_perms_on_own(self, user):
+        warnings.warn(
+            'The method ViewsTestCase._set_all_perms_on_own() is deprecated; '
+            'use CremeTestCase.add_credentials() instead.',
+            DeprecationWarning,
+        )
+
         SetCredentials.objects.create(
             role=user.role,
             value=(
@@ -31,8 +44,13 @@ class ViewsTestCase(CremeTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-    # TODO: in CremeTestCase ?
     def _set_all_creds_except_one(self, *, user, excluded):
+        warnings.warn(
+            'The method ViewsTestCase._set_all_creds_except_one() is deprecated; '
+            'use CremeTestCase.add_credentials() instead.',
+            DeprecationWarning,
+        )
+
         value = EntityCredentials.NONE
 
         for cred in (

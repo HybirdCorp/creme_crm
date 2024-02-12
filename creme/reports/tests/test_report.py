@@ -15,7 +15,7 @@ from django.utils.translation import override as override_language
 from django.utils.translation import pgettext
 
 from creme.creme_config.forms.fields import CreatorModelChoiceField
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import REL_SUB_HAS
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.core.entity_filter import (
@@ -26,6 +26,7 @@ from creme.creme_core.core.entity_filter import (
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.forms import ReadonlyMessageField
 from creme.creme_core.gui import actions
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -50,7 +51,6 @@ from creme.creme_core.models import (
     HeaderFilter,
     Relation,
     RelationType,
-    SetCredentials,
 )
 from creme.creme_core.tests.fake_constants import (
     FAKE_REL_OBJ_BILL_ISSUED,
@@ -155,11 +155,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             allowed_apps=('creme_core', 'reports'),
             **kwargs
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         return user
 
@@ -1256,11 +1257,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_export_filter_not_superuser01(self):
         user = self.login_as_standard(allowed_apps=['reports'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW'])
 
         report = Report.objects.create(name='Report', user=user, ct=self.ct_orga)
         self.assertGET200(reverse('reports__export_report_filter', args=(report.id,)))
@@ -1974,11 +1976,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_edit_fields_not_super_user01(self):
         user = self.login_as_standard(allowed_apps=['reports'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
         report = Report.objects.create(name='Contact report', user=user, ct=self.ct_contact)
         self.assertGET200(self._build_editfields_url(report))
@@ -1986,11 +1989,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_edit_fields_not_super_user02(self):
         "Edition permission on Report are needed."
         user = self.login_as_standard(allowed_apps=['reports'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,  # EntityCredentials.CHANGE
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,  # EntityCredentials.CHANGE
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])  # 'CHANGE'
 
         report = Report.objects.create(name='Contact report', user=user, ct=self.ct_contact)
         self.assertGET403(self._build_editfields_url(report))
@@ -2112,11 +2116,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_link_report_not_superuser01(self):
         user = self.login_as_standard(allowed_apps=['reports'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         report = Report.objects.create(user=user, name='Report', ct=self.ct_contact)
 
@@ -2128,11 +2133,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_link_report_not_superuser02(self):
         "LINK permission."
         user = self.login_as_standard(allowed_apps=['reports'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,  # EntityCredentials.LINK
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,  # EntityCredentials.LINK
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])  # 'LINK'
 
         report = Report.objects.create(user=user, name='Report', ct=self.ct_contact)
 

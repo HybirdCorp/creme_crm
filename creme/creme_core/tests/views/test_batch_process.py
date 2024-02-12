@@ -9,7 +9,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_filter import operands, operators
 from creme.creme_core.core.entity_filter.condition_handler import (
     RegularFieldConditionHandler,
@@ -17,19 +17,21 @@ from creme.creme_core.core.entity_filter.condition_handler import (
 # Should be a test queue
 from creme.creme_core.core.job import get_queue, job_type_registry
 from creme.creme_core.creme_jobs.batch_process import batch_process_type
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     EntityFilter,
     EntityJobResult,
     FakeContact,
     FakeOrganisation,
     Job,
-    SetCredentials,
 )
 
-from .base import ViewsTestCase
+# from .base import ViewsTestCase
+from ..base import CremeTestCase
 
 
-class BatchProcessViewsTestCase(ViewsTestCase):
+# class BatchProcessViewsTestCase(ViewsTestCase):
+class BatchProcessViewsTestCase(CremeTestCase):
     @classmethod
     def build_formfield_entry(cls, name, operator, value):
         return {'name': name, 'operator': operator, 'value': value}
@@ -490,26 +492,27 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     def test_use_edit_perm(self):
         user = self.login_as_standard()
 
-        create_sc = partial(SetCredentials.objects.create, role=user.role)
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),  # Not 'CHANGE'
-            set_type=SetCredentials.ESET_ALL,
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # create_sc = partial(SetCredentials.objects.create, role=user.role)
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),  # Not 'CHANGE'
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, all='!CHANGE', own='*')
 
         create_orga = FakeOrganisation.objects.create
         orga01 = create_orga(user=self.get_root_user(), name='Genshiken')

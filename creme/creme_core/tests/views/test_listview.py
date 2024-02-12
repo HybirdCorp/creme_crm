@@ -65,11 +65,13 @@ from creme.creme_core.utils.profiling import CaptureQueriesContext
 from creme.creme_core.utils.queries import QSerializer
 
 from .. import fake_constants
-from .base import ViewsTestCase
+# from .base import ViewsTestCase
+from ..base import CremeTestCase
 
 
 @override_settings(LISTVIEW_ENUMERABLE_LIMIT=50)
-class ListViewTestCase(ViewsTestCase):
+# class ListViewTestCase(ViewsTestCase):
+class ListViewTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -3398,7 +3400,8 @@ class ListViewTestCase(ViewsTestCase):
     def test_credentials_with_filter01(self):
         "Fast count is not possible."
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
 
         efilter = EntityFilter.objects.create(
             id='creme_core-test_listview',

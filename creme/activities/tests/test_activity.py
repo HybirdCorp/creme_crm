@@ -431,7 +431,8 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_createview02(self):
         "Credentials errors."
         user = self.login_as_activities_user(creatable_models=[Activity])
-        self._build_nolink_setcreds(user=user)
+        # self._build_nolink_setcreds(user=user)
+        self.add_credentials(user.role, own=['LINK'], all='!LINK')
 
         other_user = self.get_root_user()
 

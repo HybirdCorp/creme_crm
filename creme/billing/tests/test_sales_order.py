@@ -5,13 +5,10 @@ from django.template import Context, Template
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui.view_tag import ViewTag
-from creme.creme_core.models import (
-    BrickDetailviewLocation,
-    Currency,
-    SetCredentials,
-)
+# from creme.creme_core.models import SetCredentials
+from creme.creme_core.models import BrickDetailviewLocation, Currency
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import (
     skipIfCustomAddress,
@@ -65,11 +62,12 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['billing', 'persons'],
             creatable_models=[Organisation, SalesOrder, Invoice],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         order = self.create_salesorder_n_orgas(user=user, name='My order')[0]
         response = self.assertGET200(order.get_absolute_url())
@@ -85,11 +83,12 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['billing', 'persons'],
             creatable_models=[Organisation, SalesOrder],  # Invoice
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         order = self.create_salesorder_n_orgas(user=user, name='My order')[0]
         response = self.assertGET200(order.get_absolute_url())
@@ -210,17 +209,18 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[SalesOrder],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='*')
 
         source, target = self.create_orgas(user=user)
         self.assertGET200(self._build_related_creation_url(target))
@@ -231,17 +231,18 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             # creatable_models=[SalesOrder],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='*')
 
         source, target = self.create_orgas(user=user)
         self.assertGET403(self._build_related_creation_url(target))
@@ -252,17 +253,18 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[SalesOrder],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                # | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         # | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='!CHANGE')
 
         source, target = self.create_orgas(user=user)
         self.assertGET403(self._build_related_creation_url(target))

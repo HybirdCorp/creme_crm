@@ -4,8 +4,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import CremePropertyType, SetCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.models import SetCredentials
+from creme.creme_core.models import CremePropertyType
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import skipIfCustomOrganisation
 
@@ -551,12 +552,12 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     def test_view_evaluated_orga02(self):
         "Not super-user."
         user = self.login_as_standard(allowed_apps=['commercial', 'persons'])
-
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW'])
 
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         orga = Organisation.objects.create(user=user, name='Nerv')
@@ -570,11 +571,12 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     def test_view_evaluated_orga03(self):
         "Must see the Strategy"
         user = self.login_as_standard(allowed_apps=['commercial', 'persons'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         strategy = Strategy.objects.create(user=self.get_root_user(), name='Strat#1')
         self.assertFalse(user.has_perm_to_view(strategy))
@@ -592,12 +594,12 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     def test_view_evaluated_orga04(self):
         "Must see the Organisation"
         user = self.login_as_standard(allowed_apps=['commercial', 'persons'])
-
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         self.assertTrue(user.has_perm_to_view(strategy))

@@ -15,7 +15,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
 from django.utils.translation import pgettext
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.download import filefield_download_registry
 from creme.creme_core.core.entity_filter import operators
 from creme.creme_core.core.entity_filter.condition_handler import (
@@ -47,6 +47,7 @@ from creme.creme_core.gui.field_printers import (
     simple_print_html,
     simple_print_text,
 )
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     EntityFilter,
@@ -66,7 +67,6 @@ from creme.creme_core.models import (
     FakeReport,
     FakeSector,
     FakeTicketStatus,
-    SetCredentials,
 )
 from creme.creme_core.tests.base import CremeTestCase
 
@@ -845,11 +845,12 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_many2many_printer_html03(self):
         "Entity printer."
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         prod = FakeProduct.objects.create(user=user, name='Bebop')
         field = prod._meta.get_field('images')
@@ -904,11 +905,12 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_many2many_printer_text02(self):
         "Entity printer."
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         printer = M2MPrinterForText(
             default_printer=M2MPrinterForText.printer_simple,
@@ -1508,11 +1510,12 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_registry_m2m_entity02(self):
         "Credentials."
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         create_ml = FakeMailingList.objects.create
         ml1 = create_ml(user=user, name='Swimsuits')
@@ -1564,17 +1567,18 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry_credentials(self):
         user = self.login_as_standard(allowed_apps=['creme_core'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='*')
 
         field_printers_registry = _FieldPrintersRegistry()
 

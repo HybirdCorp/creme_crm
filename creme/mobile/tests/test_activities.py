@@ -169,17 +169,18 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     def test_start_activity05(self):
         "Not allowed."
         user = self.login_as_mobile_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            set_type=SetCredentials.ESET_ALL,
-            value=(
-                EntityCredentials.VIEW
-                # | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         # | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        # )
+        self.add_credentials(user.role, all='!CHANGE')
 
         meeting = self._create_meeting(
             user=user, title='Meeting#1',
@@ -192,11 +193,12 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     def test_start_activity06(self):
         "Not super-user."
         user = self.login_as_mobile_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.CHANGE,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     value=EntityCredentials.CHANGE,
+        # )
+        self.add_credentials(user.role, all=['CHANGE'])
 
         meeting = self._create_meeting(
             user=user, title='Meeting#1',
@@ -241,17 +243,18 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     def test_stop_activity03(self):
         "Not allowed."
         user = self.login_as_mobile_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            set_type=SetCredentials.ESET_ALL,
-            value=(
-                EntityCredentials.VIEW
-                # | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         # | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        # )
+        self.add_credentials(user.role, all='!CHANGE')
 
         meeting = self._create_meeting(
             user=user, title='Meeting#1',
@@ -264,11 +267,12 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     def test_stop_activity04(self):
         "Not super-user."
         user = self.login_as_mobile_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.CHANGE,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     value=EntityCredentials.CHANGE,
+        # )
+        self.add_credentials(user.role, all=['CHANGE'])
 
         meeting = self._create_meeting(
             user=user, title='Meeting#1',

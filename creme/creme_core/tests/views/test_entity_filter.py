@@ -43,10 +43,12 @@ from creme.creme_core.models import (
     RelationType,
 )
 
-from .base import ViewsTestCase
+# from .base import ViewsTestCase
+from .base import CremeTestCase
 
 
-class EntityFilterViewsTestCase(ViewsTestCase):
+# class EntityFilterViewsTestCase(ViewsTestCase):
+class EntityFilterViewsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -1826,7 +1828,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(expected, response.json())
 
 
-class UserChoicesTestCase(ViewsTestCase):
+# class UserChoicesTestCase(ViewsTestCase):
+class UserChoicesTestCase(CremeTestCase):
     EF_TEST = 26
 
     @classmethod

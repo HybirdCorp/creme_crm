@@ -11,7 +11,7 @@ from django.utils.translation import gettext as _
 
 import creme.creme_core.forms.entity_filter.fields as ef_fields
 import creme.creme_core.forms.entity_filter.widgets as ef_widgets
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_USER,
@@ -30,6 +30,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RelationSubFilterConditionHandler,
     SubFilterConditionHandler,
 )
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -55,7 +56,6 @@ from creme.creme_core.models import (
     FakeSector,
     Relation,
     RelationType,
-    SetCredentials,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.utils.date_range import date_range_registry
@@ -932,9 +932,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
     def test_regularfield_description04(self):
         "ForeignKey to CremeEntity."
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         create_folder = partial(FakeFolder.objects.create, user=user)
         folder1 = create_folder(title='Pix')

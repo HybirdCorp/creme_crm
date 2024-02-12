@@ -75,12 +75,13 @@ class ContactQuickFormTestCase(_BaseTestCase):
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         count = Contact.objects.count()
 
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role, set_type=SetCredentials.ESET_OWN,
-        )
-        create_sc(value=EntityCredentials.VIEW)
-        create_sc(value=EntityCredentials.LINK)
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role, set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_sc(value=EntityCredentials.VIEW)
+        # create_sc(value=EntityCredentials.LINK)
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         orga_name = 'Bebop'
         self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
@@ -116,11 +117,12 @@ class ContactQuickFormTestCase(_BaseTestCase):
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         count = Contact.objects.count()
 
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         orga_name = 'Bebop'
         self.assertFalse(Organisation.objects.filter(name=orga_name))
@@ -155,11 +157,12 @@ class ContactQuickFormTestCase(_BaseTestCase):
         "No permission to create Organisation."
         user = self.login_as_persons_user(creatable_models=[Contact])  # <== not 'Organisation'
 
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'LINK'])
 
         orga_name = 'Bebop'
         self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
@@ -338,9 +341,10 @@ class ContactQuickFormTestCase(_BaseTestCase):
         "Multiple Organisations found, only one linkable (so we use it)."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
 
-        create_sc = partial(SetCredentials.objects.create, role=user.role)
-        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
-        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
+        # create_sc = partial(SetCredentials.objects.create, role=user.role)
+        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        # create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
+        self.add_credentials(user.role, all=['VIEW'], own=['LINK'])
 
         orga_name = 'Bebop'
         create_orga = partial(Organisation.objects.create, name=orga_name)
@@ -370,9 +374,10 @@ class ContactQuickFormTestCase(_BaseTestCase):
         "Multiple Organisations found, but none of them is linkable."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
 
-        create_sc = partial(SetCredentials.objects.create, role=user.role)
-        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
-        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
+        # create_sc = partial(SetCredentials.objects.create, role=user.role)
+        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        # create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
+        self.add_credentials(user.role, all=['VIEW'], own=['LINK'])
 
         orga_name = 'Bebop'
         other_user = self.get_root_user()
@@ -460,11 +465,12 @@ class ContactNamesEditionTestCase(_BaseTestCase):
 
     def test_edit01(self):
         user = self.login_as_persons_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
         contact = Contact.objects.create(user=user, first_name='Fay', last_name='Valentin')
 
@@ -496,11 +502,12 @@ class ContactNamesEditionTestCase(_BaseTestCase):
     def test_edit02(self):
         "No permission."
         user = self.login_as_persons_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,  # No EntityCredentials.CHANGE
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,  # No EntityCredentials.CHANGE
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])  # 'CHANGE'
 
         contact = Contact.objects.create(user=user, first_name='Fay', last_name='Valentin')
         self.assertGET403(self._build_url(contact))

@@ -49,10 +49,12 @@ from creme.creme_core.utils.content_type import as_ctype
 from creme.creme_core.utils.queries import QSerializer
 from creme.creme_core.utils.xlrd_utils import XlrdReader
 
-from .base import ViewsTestCase
+# from .base import ViewsTestCase
+from ..base import CremeTestCase
 
 
-class MassExportViewsTestCase(ViewsTestCase):
+# class MassExportViewsTestCase(ViewsTestCase):
+class MassExportViewsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -344,7 +346,8 @@ class MassExportViewsTestCase(ViewsTestCase):
     def test_list_view_export_credentials02(self):
         "Views credential."
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
         user.role.exportable_ctypes.set([self.ct])
 
         other_user = self.get_root_user()
@@ -404,7 +407,8 @@ class MassExportViewsTestCase(ViewsTestCase):
     def test_list_view_export_fk_entity(self):
         "FK field on CremeEntity."
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
         user.role.exportable_ctypes.set([self.ct])
 
         create_img = FakeImage.objects.create

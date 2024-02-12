@@ -22,10 +22,12 @@ from creme.creme_core.models import (
 from creme.creme_core.utils.media import get_creme_media_url
 from creme.creme_core.views.testjs import js_testview_or_404
 
-from .base import ViewsTestCase
+# from .base import ViewsTestCase
+from ..base import CremeTestCase
 
 
-class MiscViewsTestCase(ViewsTestCase):
+# class MiscViewsTestCase(ViewsTestCase):
+class MiscViewsTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
         self.FORCE_JS_TESTVIEW = settings.FORCE_JS_TESTVIEW
@@ -328,7 +330,8 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertEqual(path, build_cancel_path(request))
 
 
-class LanguageTestCase(ViewsTestCase):
+# class LanguageTestCase(ViewsTestCase):
+class LanguageTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
         self.login_as_root()
@@ -380,7 +383,8 @@ class LanguageTestCase(ViewsTestCase):
         self.assertDoesNotExist(language)
 
 
-class CurrencyTestCase(ViewsTestCase):
+# class CurrencyTestCase(ViewsTestCase):
+class CurrencyTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
         self.login_as_root()

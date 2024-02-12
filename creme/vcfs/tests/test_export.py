@@ -1,13 +1,13 @@
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     ButtonMenuItem,
     FieldsConfig,
     Relation,
     RelationType,
-    SetCredentials,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.persons.constants import REL_OBJ_EMPLOYED_BY
@@ -82,17 +82,18 @@ class VcfExportTestCase(CremeTestCase):
             allowed_apps=('creme_core', 'persons', 'vcfs'),
             creatable_models=[Contact],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-                # | EntityCredentials.VIEW
-            ),
-            set_type=SetCredentials.ESET_ALL
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #         # | EntityCredentials.VIEW
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL
+        # )
+        self.add_credentials(user.role, all='!VIEW')
 
         contact = Contact.objects.create(user=self.get_root_user(), last_name='Abitbol')
         self.assertTrue(user.has_perm_to_change(contact))

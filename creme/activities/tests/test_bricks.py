@@ -657,7 +657,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_add_participants03(self):
         "Credentials error with selected subjects."
         user = self.login_as_activities_user()
-        self._build_nolink_setcreds(user=user)
+        # self._build_nolink_setcreds(user=user)
+        self.add_credentials(user.role, own=['LINK'], all='!LINK')
 
         activity = self._create_meeting(user=user)
         self.assertTrue(user.has_perm_to_link(activity))
@@ -1041,7 +1042,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_add_subjects03(self):
         "Credentials error with selected subjects."
         user = self.login_as_activities_user()
-        self._build_nolink_setcreds(user=user)
+        # self._build_nolink_setcreds(user=user)
+        self.add_credentials(user.role, own=['LINK'], all='!LINK')
 
         activity = self._create_meeting(user=user)
         self.assertTrue(user.has_perm_to_link(activity))

@@ -904,13 +904,14 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertListEqual([cal], [*act.calendars.all()])
 
     def test_change_activity_calendar04(self):
-        "App credentials needed"
+        "App credentials needed."
         user = self.login_as_standard(allowed_apps=['creme_core'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         act = Activity.objects.create(

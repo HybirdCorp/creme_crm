@@ -611,11 +611,12 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             allowed_apps=('documents',),
             creatable_models=[Activity, Document],  # Not Contact
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         title = 'Task#1'
         first_name = 'Aoi'
@@ -871,11 +872,12 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             allowed_apps=('documents',),
             creatable_models=[Activity, Document],  # Not Organisation
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         title = 'Task#1'
         name = 'Ishiyama'
@@ -905,11 +907,12 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         user = self.login_as_activities_user(
             allowed_apps=('documents',), creatable_models=[Activity, Document],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         title = 'My Task'
         name = 'Ishiyama'
@@ -1179,11 +1182,12 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     def test_participants_multicol_extractor02(self):
         "View credentials."
         user = self.login_as_activities_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         last_name = 'Kunieda'
         create_contact = partial(Contact.objects.create, last_name=last_name)
@@ -1200,12 +1204,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         "Link credentials."
         user = self.login_as_activities_user()
 
-        create_sc = partial(SetCredentials.objects.create, role=user.role)
-        create_sc(
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        # create_sc = partial(SetCredentials.objects.create, role=user.role)
+        # create_sc(
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        self.add_credentials(user.role, own=['VIEW', 'LINK'], all=['VIEW'])
 
         ext = MultiColumnsParticipantsExtractor(0, 1)
         last_name = 'Kunieda'
@@ -1306,11 +1311,12 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     def test_participants_singlecol_extractor02(self):
         "SplitColumnParticipantsExtractor + credentials"
         user = self.login_as_activities_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         create_contact = partial(Contact.objects.create, last_name='Kunieda')
         aoi = create_contact(user=user, first_name='Aoi')
@@ -1368,12 +1374,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             allowed_apps=('documents',),
             creatable_models=[Activity, Document],
         )
-        create_sc = partial(SetCredentials.objects.create, role=user.role)
-        create_sc(
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        # create_sc = partial(SetCredentials.objects.create, role=user.role)
+        # create_sc(
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        self.add_credentials(user.role, own=['VIEW', 'LINK'], all=['VIEW'])
 
         ext = SubjectsExtractor(1, '/')
         last_name = 'Kunieda'

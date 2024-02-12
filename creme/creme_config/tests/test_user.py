@@ -17,15 +17,14 @@ from creme.creme_core.core.setting_key import (
     _SettingKeyRegistry,
     user_setting_key_registry,
 )
+# from creme.creme_core.models import EntityCredentials, SetCredentials
 from creme.creme_core.models import BrickState, CremeEntity
 from creme.creme_core.models import CremeUser as User
 from creme.creme_core.models import (
-    EntityCredentials,
     Mutex,
     Notification,
     NotificationChannel,
     RelationType,
-    SetCredentials,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -391,9 +390,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Not superuser; special chars in username; displayed_name."
         user = self.login_as_root_and_get()
         role = self.create_role(name='Mangaka', allowed_apps=['persons'])
-        SetCredentials.objects.create(
-            role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(role, all=['VIEW'])
 
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
@@ -755,9 +755,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login_as_root_and_get()
 
         role1 = self.create_role(name='Master', allowed_apps=['persons'])
-        SetCredentials.objects.create(
-            role=role1, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL
-        )
+        # SetCredentials.objects.create(
+        #     role=role1, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL
+        # )
+        self.add_credentials(role1, all=['VIEW'])
+
         other_user = User.objects.create(
             username='deunan', first_name='??', last_name='??', email='??', role=role1,
         )
@@ -858,9 +860,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login_as_config_admin()
 
         role1 = self.create_role(name='Lieutenant', allowed_apps=['persons'])
-        SetCredentials.objects.create(
-            role=role1, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=role1, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(role1, all=['VIEW'])
+
         other_user = User.objects.create(username='deunan', role=role1)
 
         briareos = Contact.objects.create(
@@ -1316,9 +1320,10 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_as_root()
 
         role = self.create_role(allowed_apps=['creme_core'])
-        SetCredentials.objects.create(
-            role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(role, own=['VIEW'])
 
         user1 = self.create_user(0, role=role)
         user2 = self.create_user(1, role=role)

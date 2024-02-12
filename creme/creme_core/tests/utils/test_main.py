@@ -16,9 +16,9 @@ from django.utils.translation import gettext, gettext_lazy
 from django.utils.translation import override as override_language
 from PIL.Image import open as open_img
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.global_info import clear_global_info
-from creme.creme_core.models import FakeOrganisation, SetCredentials
+from creme.creme_core.models import FakeOrganisation  # SetCredentials
 from creme.creme_core.utils import (
     as_int,
     create_if_needed,
@@ -358,10 +358,10 @@ better &amp; lighter than the previous one.
 
     def test_entities_to_str(self):
         user = self.login_as_standard()
-
-        SetCredentials.objects.create(
-            role=user.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='Acme#1')
