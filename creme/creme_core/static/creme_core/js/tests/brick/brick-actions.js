@@ -145,6 +145,23 @@ QUnit.test('creme.bricks.Brick.action (form, submit)', function(assert) {
     deepEqual([], this.mockRedirectCalls());
 });
 
+QUnit.test('creme.bricks.Brick.action (form, comeback)', function(assert) {
+    var brick = this.createBrickWidget().brick();
+
+    equal(true, brick.isBound());
+    equal(false, brick.isLoading());
+    this.assertClosedDialog();
+
+    var location = window.location.href.replace(/.*?:\/\/[^\/]*/g, '');
+    brick.action('form', 'mock/form', {comeback: true})
+         .on(this.brickActionListeners)
+         .start();
+
+    deepEqual([
+        ['GET', {callback_url: location}]
+    ], this.mockBackendUrlCalls('mock/form'));
+});
+
 QUnit.test('creme.bricks.Brick.action (form, submit, redirect)', function(assert) {
 //    var brick = this.createBrickWidget('brick-for-test').brick();
     var brick = this.createBrickWidget().brick();
@@ -682,6 +699,24 @@ QUnit.test('creme.bricks.Brick.action (redirect)', function(assert) {
     equal(false, brick.isLoading());
     deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual(['mock/redirect'], this.mockRedirectCalls());
+});
+
+QUnit.test('creme.bricks.Brick.action (redirect, comeback)', function(assert) {
+//  var brick = this.createBrickWidget('brick-for-test').brick();
+  var brick = this.createBrickWidget().brick();
+  var location = window.location.href.replace(/.*?:\/\/[^\/]*/g, '');
+
+  this.assertClosedDialog();
+
+  brick.action('redirect', 'mock/redirect?id=${id}', {
+      comeback: true
+  }, {
+      id: 157
+  }).on(this.brickActionListeners).start();
+
+  equal(false, brick.isLoading());
+  deepEqual([['done']], this.mockListenerCalls('action-done'));
+  deepEqual(['/mock/redirect?id=157&callback_url=' + encodeURIComponent(location)], this.mockRedirectCalls());
 });
 
 QUnit.test('creme.bricks.Brick.action (redirect template)', function(assert) {

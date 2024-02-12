@@ -105,9 +105,9 @@
                       {% endfor %}
                     {% endif %}
 {#                        <td  {% brick_table_data_status action %}>{% inner_edition_uri instance=entity_obj cells=cells callback_url=request.get_full_path as edition_uri %} #}
-                        <td  {% brick_table_data_status action %}>{% inner_edition_uri instance=entity_obj cells=cells callback_url=object.get_absolute_url as edition_uri %}
+                        <td  {% brick_table_data_status action %}>{% inner_edition_uri instance=entity_obj cells=cells as edition_uri %}
                             {% blocktranslate with object=entity_obj asvar edition_label %}Edit «{{object}}»{% endblocktranslate %}
-                            {% brick_table_action id='edit' url=edition_uri label=edition_label enabled=user|has_perm_to_change:entity_obj %}
+                            {% brick_table_action id='edit' url=edition_uri label=edition_label enabled=user|has_perm_to_change:entity_obj comeback=True %}
                         </td>
                       {% if not relation_type.is_internal %}
                         <td  {% brick_table_data_status action %}>

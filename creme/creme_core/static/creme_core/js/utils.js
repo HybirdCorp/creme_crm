@@ -35,6 +35,11 @@ creme.utils.redirect = function(url) {
     window.location.assign(url);
 };
 
+creme.utils.locationRelativeUrl = function() {
+    // remove 'http://host.com'
+    return (new creme.ajax.URL(window.location.href)).relativeUrl();
+};
+
 creme.utils.goTo = function(url, data) {
     if (Object.isEmpty(data)) {
         creme.utils.redirect(url);
