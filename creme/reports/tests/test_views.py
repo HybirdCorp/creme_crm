@@ -1,8 +1,8 @@
 from django.urls import reverse
 from parameterized import parameterized
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import SetCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.models import SetCredentials
 from creme.reports.report_chart_registry import (
     ReportPieChart,
     report_chart_registry,
@@ -33,11 +33,12 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
     def test_update_settings__not_allowed(self):
         """Edition on reports is needed to update the settings."""
         user = self.login_as_standard(allowed_apps=['reports'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,  # EntityCredentials.CHANGE
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,  # EntityCredentials.CHANGE
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])  # 'CHANGE'
 
         graph = self._create_documents_rgraph(user=self.get_root_user())
         self.assertEqual(graph.asc, True)

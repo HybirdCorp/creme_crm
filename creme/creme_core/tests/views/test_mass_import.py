@@ -44,18 +44,17 @@ from creme.creme_core.utils.xlrd_utils import XlrdReader
 from creme.documents.models import Document
 from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 
-from .base import (
-    BrickTestCaseMixin,
-    MassImportBaseTestCaseMixin,
-    ViewsTestCase,
-)
+from ..base import CremeTestCase
+# from .base import ViewsTestCase
+from .base import BrickTestCaseMixin, MassImportBaseTestCaseMixin
 
 
 @skipIfCustomDocument
 @skipIfCustomFolder
 class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                               BrickTestCaseMixin,
-                              ViewsTestCase):
+                              # ViewsTestCase):
+                              CremeTestCase):
     lv_import_data = {
         'step': 1,
         # 'document':   doc.id,
@@ -1347,7 +1346,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             allowed_apps=['creme_core', 'documents'],
             creatable_models=[FakeContact, Document],
         )
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
         cf_enum  = create_cf(name='Attack',  field_type=CustomField.ENUM)
@@ -1718,7 +1718,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             allowed_apps=['creme_core', 'documents'],
             creatable_models=[FakeContact, FakeOrganisation, Document],
         )
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
 
         doc = self._build_csv_doc([('Ayanami', 'Rei', 'Piloting')], user=user)
         response = self.assertPOST200(
@@ -1746,7 +1747,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             allowed_apps=['creme_core', 'documents'],
             creatable_models=[FakeContact, Document],  # Not Organisation
         )
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
 
         employed = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'is an employee of'),
@@ -1988,7 +1990,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             allowed_apps=['creme_core', 'documents'],
             creatable_models=[FakeContact, Document],
         )
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
         SetCredentials.objects.create(
             role=user.role,
             value=(

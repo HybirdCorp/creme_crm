@@ -6,13 +6,9 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import (
-    FieldsConfig,
-    Relation,
-    RelationType,
-    SetCredentials,
-)
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.models import SetCredentials
+from creme.creme_core.models import FieldsConfig, Relation, RelationType
 from creme.persons import constants
 from creme.persons.models import LegalForm, Sector, StaffSize
 
@@ -681,26 +677,27 @@ class OrganisationTestCase(_BaseTestCase):
         "Not super-user."
         user = self.login_as_persons_user(creatable_models=[Organisation])
 
-        create_creds = partial(SetCredentials.objects.create, role=user.role)
-        create_creds(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),  # Not 'LINK'
-            set_type=SetCredentials.ESET_ALL,
-        )
-        create_creds(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # create_creds = partial(SetCredentials.objects.create, role=user.role)
+        # create_creds(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),  # Not 'LINK'
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        # create_creds(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, all='!LINK', own='*')
 
         managed1 = self.get_object_or_fail(Organisation, is_managed=True)
         self.assertFalse(user.has_perm_to_link(managed1))
@@ -755,16 +752,17 @@ class OrganisationTestCase(_BaseTestCase):
     def test_create_customer03(self):
         "Can never link."
         user = self.login_as_standard(creatable_models=[Organisation])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),  # Not 'LINK'
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),  # Not 'LINK'
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='!LINK')
         self.assertPOST403(reverse('persons__create_customer'))
 
     def test_create_customer_disabled_rtype01(self):

@@ -8,10 +8,12 @@ from creme.creme_core.models import (
     SetCredentials,
 )
 
-from .base import ViewsTestCase
+# from .base import ViewsTestCase
+from ..base import CremeTestCase
 
 
-class DownloadViewTestCase(ViewsTestCase):
+# class DownloadViewTestCase(ViewsTestCase):
+class DownloadViewTestCase(CremeTestCase):
     def test_download_filefield01(self):
         "Errors."
         user = self.login_as_root_and_get()

@@ -1,4 +1,4 @@
-from functools import partial
+# from functools import partial
 from json import dumps as json_dump
 from unittest import skipIf
 
@@ -11,8 +11,8 @@ from creme.activities.constants import (
     UUID_TYPE_MEETING,
 )
 from creme.activities.models import ActivitySubType, ActivityType, Calendar
-from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import SetCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.tests.base import CremeTestCase
 
 from .. import activity_model_is_custom, get_activity_model
@@ -59,18 +59,18 @@ class _ActivitiesTestCase(CremeTestCase):
     def assertUserHasDefaultCalendar(self, user):
         return self.get_object_or_fail(Calendar, is_default=True, user=user)
 
-    def _build_nolink_setcreds(self, user):
-        create_sc = partial(SetCredentials.objects.create, role=user.role)
-        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),  # Not LINK
-            set_type=SetCredentials.ESET_ALL,
-        )
+    # def _build_nolink_setcreds(self, user):
+    #     create_sc = partial(SetCredentials.objects.create, role=user.role)
+    #     create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
+    #     create_sc(
+    #         value=(
+    #             EntityCredentials.VIEW
+    #             | EntityCredentials.CHANGE
+    #             | EntityCredentials.DELETE
+    #             | EntityCredentials.UNLINK
+    #         ),  # Not LINK
+    #         set_type=SetCredentials.ESET_ALL,
+    #     )
 
     def _create_activity_by_view(self,
                                  user,

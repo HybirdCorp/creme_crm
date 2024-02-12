@@ -212,11 +212,12 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
     def test_create_child03(self):
         "Creation credentials needed."
         user = self.login_as_standard(allowed_apps=['documents'])
-        SetCredentials.objects.create(
-            role=user.role,
-            set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         parent = Folder.objects.create(user=user, title='Parent folder')
         self.assertGET403(reverse('documents__create_folder', args=(parent.id,)))
@@ -289,11 +290,12 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
     def test_create_child_popup03(self):
         "Creation credentials needed."
         user = self.login_as_standard(allowed_apps=['documents'])
-        SetCredentials.objects.create(
-            role=user.role,
-            set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         parent = Folder.objects.create(user=user, title='Parent folder')
         self.assertGET403(reverse('documents__create_child_folder', args=(parent.id,)))

@@ -4,7 +4,9 @@ import sys
 import warnings
 from contextlib import ContextDecorator
 from datetime import date, datetime, timedelta, timezone
+from functools import reduce
 from json import dumps as json_dump
+from operator import or_
 from os.path import basename
 from tempfile import NamedTemporaryFile
 from typing import Iterable
@@ -27,6 +29,7 @@ from django.utils.formats import get_format
 from django.utils.timezone import get_current_timezone, make_aware
 from django.utils.translation import gettext as _
 
+from ..auth import EntityCredentials
 from ..constants import ROOT_PASSWORD, ROOT_USERNAME
 from ..global_info import clear_global_info
 from ..gui.icons import get_icon_by_name, get_icon_size_px
@@ -39,6 +42,7 @@ from ..models import (
     DeletionCommand,
     Relation,
     RelationType,
+    SetCredentials,
     SettingValue,
     UserRole,
 )
@@ -187,6 +191,61 @@ class _CremeTestCase:
     def get_regular_role(cls) -> UserRole:
         # Should exist (see 'creme_core.populate.py')
         return UserRole.objects.get(name=_('Regular user'))
+
+    _CREDS = {
+        'VIEW':   EntityCredentials.VIEW,
+        'CHANGE': EntityCredentials.CHANGE,
+        'DELETE': EntityCredentials.DELETE,
+        'LINK':   EntityCredentials.LINK,
+        'UNLINK': EntityCredentials.UNLINK,
+    }
+
+    # TODO: "ctype"
+    # TODO: "forbidden"
+    # TODO: return instances
+    @classmethod
+    def add_credentials(cls, role: UserRole, all=None, own=None) -> None:
+        """Create up to 2 SetCredentials instances related to a given role.
+        @param role: Related userRole.
+        @param all: ESET_ALL credentials. It can be:
+               - <None>: (default value) No credential is created.
+               - <'*'>: All permissions are granted (VIEW, CHANGE etc...).
+               - A list of strings; each value must be in
+                 {'VIEW', 'CHANGE', 'DELETE', 'LINK', 'UNLINK'}.
+               - A string starting by "!" followed by a value in {'VIEW', 'CHANGE'...}.
+                 It means "All permissions are granted excepted this one"
+                 (e.g. "!CHANGE").
+        @param all: ESET_OWN credentials. Same values than "all" parameter.
+
+        >> self.add_credentials(user.role, all='*', own='!DELETE')
+        """
+        CREDS = cls._CREDS
+
+        def create(set_type, flags):
+            if isinstance(flags, str):
+                if flags == '*':
+                    value = reduce(or_, CREDS.values())
+                else:
+                    assert flags.startswith('!')
+                    forbidden = flags[1:]
+                    assert forbidden in CREDS
+                    value = reduce(
+                        or_,
+                        (perm for flag, perm in CREDS.items() if flag != forbidden)
+                    )
+            else:
+                assert isinstance(flags, (list, tuple))
+                value = reduce(or_, (CREDS[flag] for flag in flags))
+
+            SetCredentials.objects.create(
+                role=role, value=value, set_type=set_type,
+            )
+
+        if all:
+            create(SetCredentials.ESET_ALL, all)
+
+        if own:
+            create(SetCredentials.ESET_OWN, own)
 
     def login_as_root(self) -> None:
         # Should exist (see 'creme_core.populate.py')

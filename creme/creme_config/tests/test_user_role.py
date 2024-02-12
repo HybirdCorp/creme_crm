@@ -1119,7 +1119,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_as_root()
 
         role = self.create_role(name='CEO', allowed_apps=['persons'])
-
         creds = SetCredentials.objects.create(
             role=role, set_type=SetCredentials.ESET_ALL, value=EntityCredentials.VIEW,
         )

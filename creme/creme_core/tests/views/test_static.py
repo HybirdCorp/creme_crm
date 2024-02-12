@@ -1,9 +1,11 @@
 from parameterized import parameterized
 
-from .base import ViewsTestCase
+# from .base import ViewsTestCase
+from ..base import CremeTestCase
 
 
-class StaticViewTestCase(ViewsTestCase):
+# class StaticViewTestCase(ViewsTestCase):
+class StaticViewTestCase(CremeTestCase):
     @parameterized.expand([
         (None, 'SAMEORIGIN'),
         ('DENY', 'SAMEORIGIN'),

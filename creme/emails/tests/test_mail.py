@@ -13,11 +13,12 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.gui import actions
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremePropertyType,
     CustomField,
@@ -26,7 +27,6 @@ from creme.creme_core.models import (
     Job,
     Relation,
     RelationType,
-    SetCredentials,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.documents.models import FolderCategory
@@ -517,26 +517,27 @@ better &amp; lighter than the previous one.
         user = self.login_as_emails_user()
         other_user = self.get_root_user()
 
-        create_sc = partial(SetCredentials.objects.create, role=user.role)
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.LINK
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),  # Not LINK
-            set_type=SetCredentials.ESET_ALL
-        )
+        # create_sc = partial(SetCredentials.objects.create, role=user.role)
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),  # Not LINK
+        #     set_type=SetCredentials.ESET_ALL
+        # )
+        self.add_credentials(user.role, all='!LINK', own='*')
 
         create_contact = Contact.objects.create
         contact01 = create_contact(
@@ -755,17 +756,18 @@ better &amp; lighter than the previous one.
         user = self.login_as_emails_user(
             creatable_models=(Contact, Organisation)  # No EntityEmail
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.LINK
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='*')
 
         contact02 = Contact.objects.create(user=user, first_name='Pino', last_name='AutoReiv')
         self.assertGET403(self._build_create_entitymail_url(contact02))
@@ -938,11 +940,12 @@ better &amp; lighter than the previous one.
     def test_create_from_template02(self):
         "Not super-user."
         user = self.login_as_emails_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'LINK'])
 
         contact = Contact.objects.create(
             user=user, first_name='Vincent', last_name='Law',
@@ -954,11 +957,12 @@ better &amp; lighter than the previous one.
     def test_create_from_template03(self):
         "Creation permission needed."
         user = self.login_as_emails_user(creatable_models=[])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'LINK'])
 
         contact = Contact.objects.create(
             user=user, first_name='Vincent', last_name='Law',
@@ -970,11 +974,12 @@ better &amp; lighter than the previous one.
     def test_create_from_template04(self):
         "LINK permission needed."
         user = self.login_as_emails_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,  # EntityCredentials.LINK
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,  # EntityCredentials.LINK
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW'])  # 'LINK'
 
         contact = Contact.objects.create(
             user=user, first_name='Vincent', last_name='Law',

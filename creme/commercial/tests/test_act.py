@@ -391,10 +391,12 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             allowed_apps=('commercial', 'opportunities'),
             creatable_models=[Opportunity],
         )
-        SetCredentials.objects.create(
-            role=user.role, set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role, set_type=SetCredentials.ESET_ALL,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
+
         act = self.create_act(user=user)
         self.assertGET200(reverse('commercial__create_opportunity', args=(act.id,)))
 
@@ -404,10 +406,12 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             allowed_apps=('commercial', 'opportunities'),
             creatable_models=[Opportunity],
         )
-        SetCredentials.objects.create(
-            role=user.role, set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role, set_type=SetCredentials.ESET_ALL,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
+
         act = self.create_act(user=user)
         self.assertGET200(reverse('commercial__create_opportunity', args=(act.id,)))
 
@@ -417,10 +421,12 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             allowed_apps=('commercial', 'opportunities'),
             # creatable_models=[Opportunity],
         )
-        SetCredentials.objects.create(
-            role=user.role, set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role, set_type=SetCredentials.ESET_ALL,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
+
         act = self.create_act(user=user)
         self.assertGET403(reverse('commercial__create_opportunity', args=(act.id,)))
 
@@ -736,11 +742,12 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             allowed_apps=['persons', 'commercial'],
             creatable_models=[Act],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE'])
 
         sys_efilter = self.get_object_or_fail(EntityFilter, pk=FILTER_MANAGED_ORGA)
 
@@ -887,11 +894,12 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             allowed_apps=['persons', 'commercial'],
             # creatable_models=[Organisation],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         act = self.create_act(user=user)
         objective = ActObjective.objects.create(

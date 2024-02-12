@@ -4,12 +4,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellFunctionField,
 )
 from creme.creme_core.gui.bricks import QuerysetBrick
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CustomField,
     CustomFieldEnum,
@@ -17,14 +18,16 @@ from creme.creme_core.models import (
     CustomFieldMultiEnum,
     FieldsConfig,
     SearchConfigItem,
-    SetCredentials,
 )
 
+from ..base import CremeTestCase
 from ..fake_models import FakeContact, FakeOrganisation, FakeSector
-from .base import BrickTestCaseMixin, ViewsTestCase
+# from .base import ViewsTestCase
+from .base import BrickTestCaseMixin
 
 
-class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
+# class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
+class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
     LIGHT_URL = reverse('creme_core__light_search')
 
     # CONTACT_BRICKID = 'block_creme_core-found-creme_core-fakecontact-'
@@ -261,7 +264,8 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
     def test_search_for_role(self):
         "Use Role's config if it exists."
         user = self.login_as_standard(allowed_apps=['creme_core'])
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
 
         SearchConfigItem.objects.create_if_needed(
             FakeContact, ['description'], role=user.role,
@@ -641,11 +645,12 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
     def test_light_search02(self):
         "Credentials."
         user = self.login_as_standard(allowed_apps=['creme_core'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         self._setup_contacts(user=self.get_root_user())
         coxi = FakeContact.objects.create(user=user, first_name='Coxi', last_name='Nail')

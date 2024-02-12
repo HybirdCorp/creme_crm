@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
     CremeEntity,
@@ -19,10 +19,12 @@ from creme.creme_core.models import (
     SemiFixedRelationType,
 )
 
-from .base import ViewsTestCase
+# from .base import ViewsTestCase
+from ..base import CremeTestCase
 
 
-class RelationViewsTestCase(ViewsTestCase):
+# class RelationViewsTestCase(ViewsTestCase):
+class RelationViewsTestCase(CremeTestCase):
     ADD_FROM_PRED_URL = reverse('creme_core__save_relations')
     SELECTION_URL     = reverse('creme_core__select_entities_to_link')
 
@@ -250,23 +252,28 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_not_superuser01(self):
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
+
         subject = CremeEntity.objects.create(user=user)
         self.assertGET200(self._build_add_url(subject))
 
     def test_add_relations_not_superuser02(self):
         "Credentials problems."
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
+        # self._set_all_perms_on_own(user)
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
+        self.add_credentials(user.role, own='*', all='!LINK')
+
         subject = CremeEntity.objects.create(user=self.get_root_user())
         self.assertGET403(self._build_add_url(subject))
 
     def test_add_relations_link_perm(self):
         "Credentials problems (no link credentials)."
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
+        # self._set_all_perms_on_own(user)
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
+        self.add_credentials(user.role, own='*', all='!LINK')
 
         subject = self._create_contact(user=user)
         unlinkable = CremeEntity.objects.create(user=self.get_root_user())
@@ -740,8 +747,9 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_add_relations_with_semi_fixed_link_perm(self):
         "Filter not linkable entities."
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
+        # self._set_all_perms_on_own(user)
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
+        self.add_credentials(user.role, own='*', all='!LINK')
 
         subject = self._create_contact(user=user)
         rtype1, rtype2 = self._create_rtypes()
@@ -1127,8 +1135,9 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_add_relations_bulk_view_perm(self):
         "Ignore subjects which are not viewable."
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.VIEW)
+        # self._set_all_perms_on_own(user)
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.VIEW)
+        self.add_credentials(user.role, own='*', all='!VIEW')
         self._aux_test_add_relations_bulk(user=user)
 
         unviewable = CremeEntity.objects.create(user=self.get_root_user())
@@ -1165,8 +1174,9 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_add_relations_bulk_link_perm01(self):
         "Ignore subjects which are not linkable."
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
+        # self._set_all_perms_on_own(user)
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
+        self.add_credentials(user.role, own='*', all='!LINK')
 
         subject = self._create_contact(user=user)
 
@@ -1186,8 +1196,9 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_add_relations_bulk_link_perm02(self):
         "Any object which is not linkable => error."
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
+        # self._set_all_perms_on_own(user)
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
+        self.add_credentials(user.role, own='*', all='!LINK')
 
         subject = self._create_contact(user=user)
         self.assertGET200(self._build_bulk_add_url(CremeEntity, subject, GET=True))
@@ -1681,8 +1692,9 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_add_relations_with_same_type_credentials(self):
         "Credentials errors."
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
+        # self._set_all_perms_on_own(user)
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.LINK)
+        self.add_credentials(user.role, own='*', all='!LINK')
 
         create_entity = CremeEntity.objects.create
         forbidden = create_entity(user=self.get_root_user())
@@ -1966,8 +1978,9 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_delete02(self):
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.UNLINK)
+        # self._set_all_perms_on_own(user)
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.UNLINK)
+        self.add_credentials(user.role, own='*', all='!UNLINK')
 
         allowed   = CremeEntity.objects.create(user=user)
         forbidden = CremeEntity.objects.create(user=self.get_root_user())
@@ -2024,7 +2037,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_delete_similar01(self):
         user = self.login_as_standard()
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.DELETE)
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.DELETE)
+        self.add_credentials(user.role, all='!DELETE')
 
         create_entity = partial(CremeEntity.objects.create, user=user)
         subject_entity01 = create_entity()
@@ -2078,7 +2092,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_delete_similar02(self):
         user = self.login_as_standard()
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.UNLINK)
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.UNLINK)
+        self.add_credentials(user.role, all='!UNLINK')
 
         allowed   = CremeEntity.objects.create(user=user)
         forbidden = CremeEntity.objects.create(user=self.get_root_user())

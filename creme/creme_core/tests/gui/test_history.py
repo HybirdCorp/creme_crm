@@ -10,7 +10,7 @@ from django.utils.html import escape, format_html
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-from creme.creme_core.auth import EntityCredentials
+# from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.bricks import HistoryBrick
 from creme.creme_core.global_info import clear_global_info
 from creme.creme_core.gui.history import (
@@ -18,6 +18,7 @@ from creme.creme_core.gui.history import (
     HistoryRegistry,
     html_history_registry,
 )
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -43,7 +44,6 @@ from creme.creme_core.models import (
     HistoryLine,
     Relation,
     RelationType,
-    SetCredentials,
     history,
 )
 
@@ -474,11 +474,12 @@ class HistoryRenderTestCase(CremeTestCase):
     def test_render_edition_fk01(self):
         # new value format '["Hayao Miyazaki", ["position_id", X], ["image_id", X]]'
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         hayao = FakeContact.objects.create(
             user=user, first_name='Hayao', last_name='Miyazaki',
@@ -551,11 +552,12 @@ class HistoryRenderTestCase(CremeTestCase):
         # new value format '["Hayao Miyazaki", ["position_id", X], ["image_id", X]]'
         # old value format '["Hayao Miyazaki", ["position", X], ["image", X]]'
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         img = FakeImage.objects.create(user=user, name='<b>Grumpy</b> Hayao')
         # NB: should be escaped
@@ -603,11 +605,12 @@ class HistoryRenderTestCase(CremeTestCase):
     def test_render_edition_fk02(self):
         "Not allowed to see."
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         hayao = FakeContact.objects.create(
             user=user, first_name='Hayao', last_name='Miyazaki',
@@ -736,11 +739,12 @@ class HistoryRenderTestCase(CremeTestCase):
     def test_render_edition_m2m03(self):
         "M2M to entities."
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         ml = FakeMailingList.objects.create(user=user, name='Nerds')
         campaign = FakeEmailCampaign.objects.create(user=user, name='Camp #1')

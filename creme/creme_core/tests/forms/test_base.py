@@ -821,17 +821,18 @@ class CremeEntityFormTestCase(CremeTestCase):
 
     def test_relations_credentials01(self):
         user = self.login_as_standard(creatable_models=[FakeContact])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='*')
 
         create_contact = FakeContact.objects.create
         contact1 = create_contact(user=user, first_name='Kanbaru', last_name='Suruga')
@@ -925,13 +926,13 @@ class CremeEntityFormTestCase(CremeTestCase):
     def test_relations_credentials03(self):
         "Link credentials on the created entity."
         user = self.login_as_standard(creatable_models=[FakeContact])
-
-        create_creds = partial(SetCredentials.objects.create, role=user.role)
-        create_creds(
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        # create_creds = partial(SetCredentials.objects.create, role=user.role)
+        # create_creds(
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        self.add_credentials(user.role, all=['VIEW'], own=['VIEW', 'LINK'])
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
@@ -966,13 +967,13 @@ class CremeEntityFormTestCase(CremeTestCase):
     def test_relations_credentials04(self):
         "Link credentials on the created entity (semi-fixed version)."
         user = self.login_as_standard(creatable_models=[FakeContact])
-
-        create_creds = partial(SetCredentials.objects.create, role=user.role)
-        create_creds(
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        # create_creds = partial(SetCredentials.objects.create, role=user.role)
+        # create_creds(
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        self.add_credentials(user.role, all=['VIEW'], own=['VIEW', 'LINK'])
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
@@ -1010,13 +1011,13 @@ class CremeEntityFormTestCase(CremeTestCase):
     def test_relations_credentials05(self):
         "No link credentials on the created entity but no relation wanted."
         user = self.login_as_standard(creatable_models=[FakeContact])
-
-        create_creds = partial(SetCredentials.objects.create, role=user.role)
-        create_creds(
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        # create_creds = partial(SetCredentials.objects.create, role=user.role)
+        # create_creds(
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        self.add_credentials(user.role, all=['VIEW'], own=['VIEW', 'LINK'])
 
         form = FakeContactForm(
             user=user,
@@ -1031,13 +1032,13 @@ class CremeEntityFormTestCase(CremeTestCase):
     def test_relations_credentials06(self):
         "Link credentials on the created entity + forced relationships."
         user = self.login_as_standard(creatable_models=[FakeContact])
-
-        create_creds = partial(SetCredentials.objects.create, role=user.role)
-        create_creds(
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        # create_creds = partial(SetCredentials.objects.create, role=user.role)
+        # create_creds(
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        self.add_credentials(user.role, all=['VIEW'], own=['VIEW', 'LINK'])
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 

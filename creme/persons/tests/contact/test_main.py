@@ -1470,11 +1470,12 @@ class ContactTestCase(_BaseTestCase):
         user = self.login_as_persons_user()
         other_user = self.get_root_user()
 
-        SetCredentials.objects.create(
-            role=user.role,
-            set_type=SetCredentials.ESET_OWN,
-            value=EntityCredentials.VIEW,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     set_type=SetCredentials.ESET_OWN,
+        #     value=EntityCredentials.VIEW,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         viewable_contact = user.linked_contact
         self.assertEqual(user, viewable_contact.user)

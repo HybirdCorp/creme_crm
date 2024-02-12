@@ -5,7 +5,8 @@ from django.utils.translation import gettext as _
 
 from creme.creme_config.models import FakeConfigEntity
 from creme.creme_core import constants
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     FakeContact,
@@ -13,12 +14,13 @@ from creme.creme_core.models import (
     FakeOrganisation,
     FieldsConfig,
     Sandbox,
-    SetCredentials,
 )
-from creme.creme_core.tests.views.base import ViewsTestCase
+# from creme.creme_core.tests.views.base import ViewsTestCase
+from creme.creme_core.tests.base import CremeTestCase
 
 
-class EntityViewsTestCase(ViewsTestCase):
+# class EntityViewsTestCase(ViewsTestCase):
+class EntityViewsTestCase(CremeTestCase):
     CLONE_URL    = reverse('creme_core__clone_entity')
     RESTRICT_URL = reverse('creme_core__restrict_entity_2_superusers')
 
@@ -58,11 +60,12 @@ class EntityViewsTestCase(ViewsTestCase):
             creatable_models=[FakeConfigEntity],
         )
 
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW'])
 
         e = FakeConfigEntity.objects.create(user=user, name='Nerv')
         response = self.assertGET200(
@@ -93,7 +96,8 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_get_creme_entities_repr02(self):
         "Several entities, several ContentTypes, credentials."
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
 
         create_c = FakeContact.objects.create
         rei   = create_c(user=user,                 first_name='Rei',   last_name='Ayanami')
@@ -250,7 +254,8 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_clone03(self):
         "Not superuser with right credentials."
         user = self.login_as_standard(creatable_models=[FakeContact])
-        self._set_all_creds_except_one(user=user, excluded=None)
+        # self._set_all_creds_except_one(user=user, excluded=None)
+        self.add_credentials(user.role, all='*')
 
         mario = FakeContact.objects.create(user=user, first_name='Mario', last_name='Bros')
         self.assertPOST200(self.CLONE_URL, data={'id': mario.id}, follow=True)
@@ -258,7 +263,8 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_clone04(self):
         "Not superuser without creation credentials => error."
         user = self.login_as_standard()
-        self._set_all_creds_except_one(user=user, excluded=None)
+        # self._set_all_creds_except_one(user=user, excluded=None)
+        self.add_credentials(user.role, all='*')
 
         mario = FakeContact.objects.create(
             user=self.get_root_user(), first_name='Mario', last_name='Bros',
@@ -270,7 +276,8 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_clone05(self):
         "Not superuser without VIEW credentials => error."
         user = self.login_as_standard(creatable_models=[FakeContact])
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.VIEW)
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.VIEW)
+        self.add_credentials(user.role, all='!VIEW')
 
         mario = FakeContact.objects.create(
             user=self.get_root_user(), first_name='Mario', last_name='Bros',

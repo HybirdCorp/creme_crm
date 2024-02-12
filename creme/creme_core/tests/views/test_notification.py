@@ -17,10 +17,13 @@ from creme.creme_core.notification import UpgradeAnnouncement
 from creme.creme_core.utils.dates import dt_to_ISO8601
 from creme.creme_core.views.notification import LastWebNotifications
 
-from .base import BrickTestCaseMixin, ViewsTestCase
+from ..base import CremeTestCase
+# from .base import ViewsTestCase
+from .base import BrickTestCaseMixin
 
 
-class NotificationViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
+# class NotificationViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
+class NotificationViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     LIST_URL = reverse('creme_core__notifications')
     LAST_URL = reverse('creme_core__last_web_notifications')
     DISCARD_URL = reverse('creme_core__discard_notification')

@@ -26,11 +26,14 @@ from creme.creme_core.creme_jobs.base import JobType
 from creme.creme_core.models import EntityJobResult, Job
 from creme.creme_core.utils.dates import dt_to_ISO8601
 
+from ..base import CremeTestCase
 from ..fake_models import FakeOrganisation
-from .base import BrickTestCaseMixin, ViewsTestCase
+# from .base import ViewsTestCase
+from .base import BrickTestCaseMixin
 
 
-class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
+# class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
+class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     LIST_URL = reverse('creme_core__jobs')
     MINE_URL = reverse('creme_core__my_jobs')
     INFO_URL = reverse('creme_core__jobs_info')

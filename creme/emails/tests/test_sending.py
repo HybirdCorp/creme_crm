@@ -19,18 +19,18 @@ from django.utils.timezone import (
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import UUID_CHANNEL_JOBS
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.gui.history import html_history_registry
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     FakeOrganisation,
     HistoryLine,
     Job,
     Notification,
-    SetCredentials,
 )
 from creme.creme_core.models.history import TYPE_AUX_CREATION
 # from creme.creme_core.tests.forms.base import FieldTestCase
@@ -1304,11 +1304,12 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_view_lw_email01(self):
         "Not super-user"
         user = self.login_as_emails_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         camp = EmailCampaign.objects.create(user=user, name='Camp#1')
         sending = EmailSending.objects.create(
@@ -1337,11 +1338,12 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_view_lw_email02(self):
         "Cannot view the campaign => error."
         user = self.login_as_emails_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         camp = EmailCampaign.objects.create(user=self.get_root_user(), name='Camp#1')
         self.assertFalse(user.has_perm_to_view(camp))
@@ -1397,11 +1399,12 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_reload_sending_bricks01(self):
         "Not super-user."
         user = self.login_as_emails_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         camp = EmailCampaign.objects.create(user=user, name='Camp#1')
         sending = EmailSending.objects.create(
@@ -1433,11 +1436,12 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_reload_sending_bricks02(self):
         "Can not see the campaign"
         user = self.login_as_emails_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         camp = EmailCampaign.objects.create(user=self.get_root_user(), name='Camp#1')
         sending = EmailSending.objects.create(

@@ -1,8 +1,8 @@
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import FakeOrganisation, SetCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import FakeOrganisation  # SetCredentials
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.documents.tests.base import (
     Document,
@@ -256,11 +256,12 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
             allowed_apps=['documents'],
             creatable_models=[Document],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         file_obj1 = self.build_filedata('Content #1')
         doc1 = self._create_doc('My doc #1', file_obj=file_obj1, user=user)
@@ -288,11 +289,12 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
             allowed_apps=['documents'],
             creatable_models=[Document],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,  # Not CHANGE
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,  # Not CHANGE
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'LINK'])  # Not 'CHANGE'
 
         file_obj = self.build_filedata('Content #1')
         doc = self._create_doc('My doc #1', file_obj=file_obj, user=user)

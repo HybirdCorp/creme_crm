@@ -6,8 +6,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui.merge import merge_form_registry
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -21,14 +22,15 @@ from creme.creme_core.models import (
     Language,
     Relation,
     RelationType,
-    SetCredentials,
     history,
 )
 
-from .base import ViewsTestCase
+# from .base import ViewsTestCase
+from ..base import CremeTestCase
 
 
-class MergeViewsTestCase(ViewsTestCase):
+# class MergeViewsTestCase(ViewsTestCase):
+class MergeViewsTestCase(CremeTestCase):
     @staticmethod
     def _build_select_url(e1):
         return reverse('creme_core__select_entity_for_merge') + f'?id1={e1.id}'
@@ -68,7 +70,8 @@ class MergeViewsTestCase(ViewsTestCase):
     def test_select_entity_for_merge02(self):
         "View credentials."
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
 
         orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='Genshiken')
         self.assertFalse(user.has_perm_to_view(orga))
@@ -77,11 +80,12 @@ class MergeViewsTestCase(ViewsTestCase):
     def test_select_entity_for_merge03(self):
         "Edit credentials."
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW'])
 
         orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='Genshiken')
         self.assertTrue(user.has_perm_to_view(orga))
@@ -689,11 +693,12 @@ class MergeViewsTestCase(ViewsTestCase):
 
     def test_perm01(self):
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'CHANGE', 'DELETE'])
 
         create_orga = FakeOrganisation.objects.create
         orga01 = create_orga(user=user,            name='Genshiken')

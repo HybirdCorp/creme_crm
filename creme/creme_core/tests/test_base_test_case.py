@@ -6,11 +6,13 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from django.utils.translation import override as override_language
 
+from ..auth import EntityCredentials
 from ..models import (
     CremeUser,
     FakeContact,
     FakeOrganisation,
     FakeSector,
+    SetCredentials,
     UserRole,
 )
 from .base import CremeTestCase
@@ -778,6 +780,94 @@ class BaseTestCaseTestCase(CremeTestCase):
                     dt_str_fr = self.formfield_value_datetime(dt_obj)
             self.assertEqual('24/02/2022', date_str_fr)
             self.assertEqual('21/03/2023 18:53:00', dt_str_fr)
+
+    def test_add_credentials01(self):
+        "ALL + wildcard."
+        role = UserRole.objects.create(name='Boss')
+        self.assertFalse(SetCredentials.objects.filter(role=role))
+
+        self.add_credentials(role, all='*')
+        creds = self.get_alone_element(SetCredentials.objects.filter(role=role))
+        self.assertEqual(
+            EntityCredentials.VIEW
+            | EntityCredentials.CHANGE
+            | EntityCredentials.DELETE
+            | EntityCredentials.LINK
+            | EntityCredentials.UNLINK,
+            creds.value,
+        )
+        self.assertEqual(SetCredentials.ESET_ALL, creds.set_type)
+
+    def test_add_credentials02(self):
+        "ALL + specific flags."
+        role = UserRole.objects.create(name='Boss')
+        self.assertFalse(SetCredentials.objects.filter(role=role))
+
+        self.add_credentials(role, all=['VIEW', 'CHANGE', 'DELETE'])
+        creds1 = self.get_alone_element(SetCredentials.objects.filter(role=role))
+        self.assertEqual(
+            EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
+            creds1.value,
+        )
+        self.assertEqual(SetCredentials.ESET_ALL, creds1.set_type)
+
+        # ---
+        self.add_credentials(role, all=['LINK', 'UNLINK'])
+        creds2 = self.get_alone_element(
+            SetCredentials.objects.filter(role=role).exclude(id=creds1.id)
+        )
+        self.assertEqual(
+            EntityCredentials.LINK | EntityCredentials.UNLINK,
+            creds2.value,
+        )
+        self.assertEqual(SetCredentials.ESET_ALL, creds2.set_type)
+
+    def test_add_credentials03(self):
+        "OWN + wildcard."
+        role = UserRole.objects.create(name='Boss')
+        self.assertFalse(SetCredentials.objects.filter(role=role))
+
+        self.add_credentials(role, own='*')
+        creds = self.get_alone_element(SetCredentials.objects.filter(role=role))
+        self.assertEqual(
+            EntityCredentials.VIEW
+            | EntityCredentials.CHANGE
+            | EntityCredentials.DELETE
+            | EntityCredentials.LINK
+            | EntityCredentials.UNLINK,
+            creds.value,
+        )
+        self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
+
+    def test_add_credentials04(self):
+        "OWN + specific flags."
+        role = UserRole.objects.create(name='Boss')
+        self.assertFalse(SetCredentials.objects.filter(role=role))
+
+        self.add_credentials(role, own=['VIEW', 'CHANGE', 'LINK'])
+        creds = self.get_alone_element(SetCredentials.objects.filter(role=role))
+        self.assertEqual(
+            EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            creds.value,
+        )
+        self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
+
+    def test_add_credentials05(self):
+        "Negative flags."
+        role = UserRole.objects.create(name='Boss')
+        self.assertFalse(SetCredentials.objects.filter(role=role))
+
+        self.add_credentials(role, own='!CHANGE')
+        creds = self.get_alone_element(SetCredentials.objects.filter(role=role))
+        self.assertEqual(
+            EntityCredentials.VIEW
+            # | EntityCredentials.CHANGE
+            | EntityCredentials.DELETE
+            | EntityCredentials.LINK
+            | EntityCredentials.UNLINK,
+            creds.value,
+        )
+        self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
 
     def test_create_role01(self):
         role = self.create_role()

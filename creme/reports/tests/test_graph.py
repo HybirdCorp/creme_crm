@@ -10,12 +10,13 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellRegularField,
 )
 from creme.creme_core.core.entity_filter import condition_handler, operators
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -33,7 +34,6 @@ from creme.creme_core.models import (
     FieldsConfig,
     Relation,
     RelationType,
-    SetCredentials,
 )
 from creme.creme_core.tests import fake_constants
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -3126,11 +3126,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
     def test_credentials01(self):
         "Filter retrieved entities with permission."
         user = self.login_as_standard(allowed_apps=['creme_core', 'reports'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
         other_user = self.get_root_user()
         report = self._create_simple_organisations_report(user=user)

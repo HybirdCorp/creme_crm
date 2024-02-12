@@ -1,12 +1,9 @@
 from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import (
-    FakeContact,
-    FakeOrganisation,
-    SetCredentials,
-)
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.models import SetCredentials
+from creme.creme_core.models import FakeContact, FakeOrganisation
 
 from ..base import CremeTestCase, skipIfNotInstalled
 
@@ -58,11 +55,12 @@ class CremePermsTestCase(CremeTestCase):
 
     def test_filter_has_perm_to_view(self):
         role = self.create_role(name='Basic', allowed_apps=['creme_core'])
-        SetCredentials.objects.create(
-            role=role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(role, own=['VIEW'])
         user = self.create_user(index=0, role=role, password='password')
         root = self.get_root_user()
 
@@ -85,11 +83,12 @@ class CremePermsTestCase(CremeTestCase):
 
     def test_filter_has_perm_to_change(self):
         role = self.create_role(name='Basic', allowed_apps=['creme_core'])
-        SetCredentials.objects.create(
-            role=role,
-            value=EntityCredentials.CHANGE,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=role,
+        #     value=EntityCredentials.CHANGE,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(role, own=['CHANGE'])
         user = self.create_user(index=0, role=role, password='password')
         root = self.get_root_user()
 
@@ -112,11 +111,13 @@ class CremePermsTestCase(CremeTestCase):
 
     def test_filter_has_perm_to_delete(self):
         role = self.create_role(name='Basic', allowed_apps=['creme_core'])
-        SetCredentials.objects.create(
-            role=role,
-            value=EntityCredentials.DELETE,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=role,
+        #     value=EntityCredentials.DELETE,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(role, own=['DELETE'])
+
         user = self.create_user(index=0, role=role, password='password')
         root = self.get_root_user()
 
@@ -142,11 +143,13 @@ class CremePermsTestCase(CremeTestCase):
         from creme.documents import get_document_model
 
         role = self.create_role(name='Basic', allowed_apps=['creme_core'])
-        SetCredentials.objects.create(
-            role=role,
-            value=EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=role,
+        #     value=EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(role, own=['LINK'])
+
         user = self.create_user(index=0, role=role, password='password')
         root = self.get_root_user()
 
@@ -175,11 +178,13 @@ class CremePermsTestCase(CremeTestCase):
 
     def test_filter_has_perm_to_unlink(self):
         role = self.create_role(name='Basic', allowed_apps=['creme_core'])
-        SetCredentials.objects.create(
-            role=role,
-            value=EntityCredentials.UNLINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=role,
+        #     value=EntityCredentials.UNLINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(role, own=['UNLINK'])
+
         user = self.create_user(index=0, role=role, password='password')
         root = self.get_root_user()
 

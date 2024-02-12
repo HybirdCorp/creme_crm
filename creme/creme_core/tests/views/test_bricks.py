@@ -2,7 +2,7 @@ from json import dumps as json_dump
 
 from django.urls import reverse
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.bricks import RelationsBrick
 from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -13,6 +13,7 @@ from creme.creme_core.gui.bricks import (
     _BrickRegistry,
     brick_registry,
 )
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickState,
@@ -22,7 +23,6 @@ from creme.creme_core.models import (
     FakeOrganisation,
     FieldsConfig,
     InstanceBrickConfigItem,
-    SetCredentials,
 )
 
 from ..base import CremeTestCase
@@ -378,9 +378,10 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_reload_detailview04(self):
         "Not superuser."
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW'])
 
         atom = FakeContact.objects.create(
             user=self.get_root_user(), first_name='Atom', last_name='Tenma',

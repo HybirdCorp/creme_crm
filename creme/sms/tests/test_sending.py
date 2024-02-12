@@ -5,13 +5,10 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui.history import html_history_registry
-from creme.creme_core.models import (
-    FakeOrganisation,
-    HistoryLine,
-    SetCredentials,
-)
+# from creme.creme_core.models import SetCredentials
+from creme.creme_core.models import FakeOrganisation, HistoryLine
 from creme.creme_core.models.history import TYPE_AUX_CREATION
 from creme.creme_core.tests.base import CremeTestCase
 from creme.persons.tests.base import skipIfCustomContact
@@ -162,11 +159,12 @@ class SendingsTestCase(CremeTestCase):
     def test_reload_messages_brick01(self):
         "Not super-user."
         user = self.login_as_standard(allowed_apps=['sms'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         camp = SMSCampaign.objects.create(user=user, name='Camp#1')
         template = MessageTemplate.objects.create(
@@ -198,11 +196,12 @@ class SendingsTestCase(CremeTestCase):
     def test_reload_sending_bricks02(self):
         "Can not see the campaign."
         user = self.login_as_standard(allowed_apps=['sms'])
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW'])
 
         camp = SMSCampaign.objects.create(user=self.get_root_user(), name='Camp#1')
         template = MessageTemplate.objects.create(

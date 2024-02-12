@@ -8,7 +8,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.bricks import PropertiesBrick
 from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -19,6 +19,7 @@ from creme.creme_core.gui.custom_form import (
 )
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.view_tag import ViewTag
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremePropertyType,
     CustomFormConfigItem,
@@ -30,7 +31,6 @@ from creme.creme_core.models import (
     Imprint,
     RelationType,
     SemiFixedRelationType,
-    SetCredentials,
 )
 from creme.creme_core.tests.fake_custom_forms import (
     FAKEACTIVITY_CREATION_CFORM,
@@ -38,10 +38,12 @@ from creme.creme_core.tests.fake_custom_forms import (
 from creme.creme_core.views.generic import EntityCreation
 
 from .. import fake_forms
-from .base import BrickTestCaseMixin, ViewsTestCase
+from ..base import CremeTestCase
+from .base import BrickTestCaseMixin  # ViewsTestCase
 
 
-class MiscTestCase(ViewsTestCase):
+# class MiscTestCase(ViewsTestCase):
+class MiscTestCase(CremeTestCase):
     def test_placeholder_view01(self):
         self.login_as_root()
         response = self.client.get(reverse('creme_core__fake_removed_view', args=[1]))
@@ -54,7 +56,8 @@ class MiscTestCase(ViewsTestCase):
         self.assertRedirects(response, '{}?next={}'.format(reverse('creme_login'), url))
 
 
-class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
+# class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
+class DetailTestCase(BrickTestCaseMixin, CremeTestCase):
     # TODO: factorise with tests.gui.test_misc.GuiTestCase
     class FakeRequest:
         def __init__(self, user):
@@ -108,7 +111,9 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_not_super_user(self):
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
+
         fox = FakeContact.objects.create(
             user=user, first_name='Fox', last_name='McCloud',
         )
@@ -170,7 +175,8 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertIsNone(response.context['visitor'])
 
 
-class CreationTestCase(ViewsTestCase):
+# class CreationTestCase(ViewsTestCase):
+class CreationTestCase(CremeTestCase):
     def test_entity_creation(self):
         user = self.login_as_root_and_get()
 
@@ -670,7 +676,8 @@ class CreationTestCase(ViewsTestCase):
         )
 
 
-class EditionTestCase(ViewsTestCase):
+# class EditionTestCase(ViewsTestCase):
+class EditionTestCase(CremeTestCase):
     def test_entity_edition(self):
         user = self.login_as_root_and_get()
         contact = FakeContact.objects.create(
@@ -765,16 +772,17 @@ class EditionTestCase(ViewsTestCase):
     def test_entity_edition_permission02(self):
         "Not edition credentials."
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),  # Not EntityCredentials.CHANGE
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),  # Not EntityCredentials.CHANGE
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='!CHANGE')
 
         contact = FakeContact.objects.create(
             user=self.get_root_user(), first_name='Spike', last_name='Spiegel',
@@ -790,7 +798,9 @@ class EditionTestCase(ViewsTestCase):
 
     def test_entity_edition_not_super_user(self):
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
+
         contact = FakeContact.objects.create(
             user=user, first_name='Spike', last_name='Spiegel',
         )
@@ -899,7 +909,8 @@ class EditionTestCase(ViewsTestCase):
     def test_related_to_entity_edition02(self):
         "Edition credentials on related entity needed."
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
 
         nerv = FakeOrganisation.objects.create(user=self.get_root_user(), name='Nerv')
         self.assertFalse(user.has_perm_to_change(nerv))

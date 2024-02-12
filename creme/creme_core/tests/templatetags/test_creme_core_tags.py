@@ -8,14 +8,11 @@ from django.template import Context, Template, TemplateSyntaxError
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.view_tag import ViewTag
-from creme.creme_core.models import (
-    FakeContact,
-    FakeOrganisation,
-    SetCredentials,
-)
+# from creme.creme_core.models import SetCredentials
+from creme.creme_core.models import FakeContact, FakeOrganisation
 from creme.creme_core.utils.html import escapejson
 
 from ..base import CremeTestCase
@@ -386,11 +383,12 @@ class CremeCoreTagsTestCase(CremeTestCase):
         user = self.login_as_standard(
             allowed_apps=['creme_core'], creatable_models=[FakeOrganisation],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW'])
 
         orga = FakeOrganisation.objects.create(user=user, name='Amestris')
         self.assertTrue(user.has_perm_to_view(orga))

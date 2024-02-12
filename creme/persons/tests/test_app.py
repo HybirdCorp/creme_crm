@@ -4,14 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth import EntityCredentials
+# from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.menu import CremeEntry
-from creme.creme_core.models import (
-    EntityFilter,
-    HeaderFilter,
-    SetCredentials,
-    UserRole,
-)
+# from creme.creme_core.models import SetCredentials
+from creme.creme_core.models import EntityFilter, HeaderFilter, UserRole
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from .. import bricks, constants, workflow
@@ -117,11 +113,12 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
         url = user.linked_contact.get_absolute_url()
         self.assertEqual(url, user.get_absolute_url())
 
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW'])
 
         entry = UserContactEntry()
         self.assertEqual('persons-user_contact', entry.id)

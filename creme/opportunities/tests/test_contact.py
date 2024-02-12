@@ -141,12 +141,12 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
             allowed_apps=('persons', 'opportunities'),
             creatable_models=[Organisation, Opportunity],
         )
-
-        SetCredentials.objects.create(
-            role=user.role,
-            set_type=SetCredentials.ESET_OWN,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     set_type=SetCredentials.ESET_OWN,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'CHANGE', 'LINK'])
 
         opp = self._create_opportunity_n_organisations(user=user)[0]
         self.assertContains(

@@ -4,15 +4,15 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.bricks import PropertiesBrick
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
     FakeContact,
     FakeOrganisation,
-    SetCredentials,
     history,
 )
 from creme.creme_core.views.creme_property import (
@@ -20,10 +20,12 @@ from creme.creme_core.views.creme_property import (
     TaggedMiscEntitiesBrick,
 )
 
-from .base import BrickTestCaseMixin, ViewsTestCase
+from ..base import CremeTestCase
+from .base import BrickTestCaseMixin  # ViewsTestCase
 
 
-class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
+# class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
+class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     ADD_TYPE_URL = reverse('creme_core__create_ptype')
 
     @classmethod
@@ -278,7 +280,8 @@ class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_delete_related_to_entity01(self):
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
 
         # ptype = CremePropertyType.objects.smart_update_or_create(
         #     str_pk='test-prop_foobar', text='hairy',
@@ -309,7 +312,8 @@ class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
     def test_delete_related_to_entity02(self):
         "Not allowed to change the related entity."
         user = self.login_as_standard()
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
+        self.add_credentials(user.role, all='!CHANGE')
 
         # ptype = CremePropertyType.objects.smart_update_or_create(
         #     str_pk='test-prop_foobar', text='hairy',
@@ -350,11 +354,13 @@ class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_delete_from_content_type(self):
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
+
         root = self.get_root_user()
 
         # create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -496,7 +502,8 @@ class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_add_properties_bulk02(self):
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, own='*')
         other_user = self.get_root_user()
 
         create_entity = CremeEntity.objects.create
@@ -558,8 +565,9 @@ class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_add_properties_bulk03(self):
         user = self.login_as_standard()
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
+        self.add_credentials(user.role, all='!CHANGE')
 
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
         uneditable = CremeEntity.objects.create(user=self.get_root_user())
 
         self.assertTrue(user.has_perm_to_view(uneditable))
@@ -576,13 +584,14 @@ class PropertyViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
     def test_add_properties_bulk04(self):
         user = self.login_as_standard()
-        self._set_all_perms_on_own(user)
+        # self._set_all_perms_on_own(user)
+        self.add_credentials(user.role, all='!CHANGE', own='*')
 
         create_ptype = CremePropertyType.objects.create
         ptype01 = create_ptype(text='wears strange hats')
         ptype02 = create_ptype(text='wears strange pants')
 
-        self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
+        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
         entity = CremeEntity.objects.create(user=user)
         uneditable = CremeEntity.objects.create(user=self.get_root_user())
 

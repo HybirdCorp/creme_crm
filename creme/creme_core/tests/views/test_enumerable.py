@@ -8,10 +8,12 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RegularFieldConditionHandler,
 )
 
-from .base import ViewsTestCase
+# from .base import ViewsTestCase
+from .base import CremeTestCase
 
 
-class EnumerableViewsTestCase(ViewsTestCase):
+# class EnumerableViewsTestCase(ViewsTestCase):
+class EnumerableViewsTestCase(CremeTestCase):
     @staticmethod
     def _build_choices_url(model, field_name):
         return reverse(
