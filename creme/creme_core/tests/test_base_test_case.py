@@ -6,8 +6,14 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from django.utils.translation import override as override_language
 
+from ..models import (
+    CremeUser,
+    FakeContact,
+    FakeOrganisation,
+    FakeSector,
+    UserRole,
+)
 from .base import CremeTestCase
-from .fake_models import FakeSector
 
 
 class BaseTestCaseTestCase(CremeTestCase):
@@ -772,6 +778,79 @@ class BaseTestCaseTestCase(CremeTestCase):
                     dt_str_fr = self.formfield_value_datetime(dt_obj)
             self.assertEqual('24/02/2022', date_str_fr)
             self.assertEqual('21/03/2023 18:53:00', dt_str_fr)
+
+    def test_create_role01(self):
+        role = self.create_role()
+        self.assertIsInstance(role, UserRole)
+        self.assertIsNotNone(role.pk)
+        self.assertEqual('Test', role.name)
+        self.assertFalse(role.allowed_apps)
+        self.assertFalse(role.admin_4_apps)
+        self.assertFalse(role.creatable_ctypes.all())
+        self.assertFalse(role.exportable_ctypes.all())
+
+    def test_create_role02(self):
+        name = 'Boss'
+        role = self.create_role(
+            name=name,
+            allowed_apps=['creme_core', 'persons'],
+            admin_4_apps=['persons'],
+            creatable_models=[FakeContact, FakeOrganisation],
+            exportable_models=[FakeContact],
+        )
+        self.assertEqual(name, role.name)
+        self.assertSetEqual({'creme_core', 'persons'}, role.allowed_apps)
+        self.assertSetEqual({'persons'},               role.admin_4_apps)
+        self.assertCountEqual(
+            [FakeContact, FakeOrganisation],
+            [ctype.model_class() for ctype in role.creatable_ctypes.all()],
+        )
+        self.assertListEqual(
+            [FakeContact],
+            [ctype.model_class() for ctype in role.exportable_ctypes.all()],
+        )
+
+    def test_build_user(self):
+        user1 = self.build_user()
+        self.assertIsInstance(user1, CremeUser)
+        self.assertIsNone(user1.pk)
+        self.assertEqual('kirika', user1.username)
+        self.assertEqual('Kirika', user1.first_name)
+        self.assertEqual('Yumura', user1.last_name)
+        self.assertEqual('kirika@noir.jp', user1.email)
+        self.assertEqual('', user1.password)
+
+        password = 'test'
+        user2 = self.build_user(index=1, password=password)
+        self.assertEqual('mireille', user2.username)
+        self.assertEqual('Mireille', user2.first_name)
+        self.assertEqual('Bouquet', user2.last_name)
+        self.assertEqual('mireille@noir.jp', user2.email)
+        self.assertNotEqual('', user2.password)
+
+    def test_create_user(self):
+        password = 'my very good password'
+        user = self.create_user(password=password)
+        self.assertIsInstance(user, CremeUser)
+        self.assertIsNotNone(user.pk)
+        self.assertEqual('kirika', user.username)
+        self.assertEqual('Kirika', user.first_name)
+        self.assertEqual('Yumura', user.last_name)
+        self.assertEqual('kirika@noir.jp', user.email)
+        self.assertTrue(user.check_password(password))
+
+    def test_create_team(self):
+        user1 = self.create_user(index=0)
+        user2 = self.create_user(index=1)
+
+        name = 'Noir'
+        team = self.create_team(name, user1, user2)
+        self.assertIsNotNone(team.pk)
+        self.assertEqual(name, team.username)
+        self.assertFalse(team.first_name)
+        self.assertFalse(team.last_name)
+        self.assertFalse(team.email)
+        self.assertCountEqual([user1, user2], team.teammates_set.all())
 
 # TODO: complete
 #   assertGETXXX
