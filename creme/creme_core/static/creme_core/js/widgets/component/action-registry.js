@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2018-2019  Hybird
+ Copyright (C) 2018-2024  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -23,12 +23,24 @@ creme.action = creme.action || {};
 
 creme.action.DefaultActionBuilderRegistry = creme.component.FactoryRegistry.sub({
     _redirectAction: function(url, options, data) {
-        var context = $.extend({
-            location: window.location.href.replace(/.*?:\/\/[^\/]*/g, '') // remove 'http://host.com'
-        }, data || {});
-
         return new creme.component.Action(function() {
-            creme.utils.goTo(creme.utils.templatize(url, context).render());
+            options = options || {};
+
+            var locationUrl = creme.utils.locationRelativeUrl();
+
+            // apply ${location} template to url.
+            var resolvedUrl = url.template($.extend({
+                location: locationUrl
+            }, data || {}));
+
+            // comeback is a shortcut for ?callback_url=${location}
+            if (options.comeback) {
+                resolvedUrl = (new creme.ajax.URL(resolvedUrl)).updateSearchData({
+                    callback_url: locationUrl
+                }).toString();
+            }
+
+            creme.utils.goTo(resolvedUrl);
             this.done();
         });
     },
@@ -54,6 +66,10 @@ creme.action.DefaultActionBuilderRegistry = creme.component.FactoryRegistry.sub(
             creme.utils.reload();
             this.done();
         });
+    },
+
+    _build_redirect: function(url, options, data) {
+        return this._redirectAction(url, options, data);
     }
 });
 

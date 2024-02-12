@@ -27,14 +27,7 @@
                   {% with edit_url=object.get_edit_absolute_url %}
                    {% if edit_url %}
                     <div class='bar-action'>
-                      {% if edit_perm %}
-{#                        <a class="bar-button" href="{% url_join edit_url callback_url=request.get_full_path %}" > #}
-                        <a class="bar-button" href="{{edit_url}}" >{# Beware of callback URL after a brick reloading #}
-                      {% else %}
-                        <a class="bar-button forbidden is-disabled">
-                      {% endif %}
-                            {% widget_icon name='edit' size='brick-hat-bar-button' label=_('Edit') %}
-                        </a>
+                      {% brick_bar_button action='redirect' icon='edit' label=_('Edit') url=edit_url enabled=edit_perm comeback=True %}
                     </div>
                    {% endif %}
                   {% endwith %}

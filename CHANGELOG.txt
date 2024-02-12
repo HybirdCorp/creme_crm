@@ -94,6 +94,9 @@
             - A method 'custom_form.CustomFormDescriptorRegistry.unregister()' has been added.
             - A method 'mass_import.FormRegistry.unregister()' has been added.
             - A method 'merge._MergeFormRegistry.unregister()' has been added.
+        # In 'creme_core.templatetags.creme_bricks':
+            - 'brick_action' accepts a new boolean argument 'comeback' ; once enabled it will add a GET argument
+              'callback_url' with the current location (client side).
         # Apps :
             * Activities:
                 - The models 'ActivityType' & 'ActivitySubType' now inherit 'creme_core.models.MinionModel' (see <Breaking changes> part too).
