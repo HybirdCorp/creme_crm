@@ -9,6 +9,8 @@
             - An icon was missing in the theme "chantilly" ('images/meeting_48.png').
         * Tickets :
             - The name of the button to link to a Ticket (visible in configuration) has been fixed.
+        * Emails :
+            - Some permissions checks in the mail history brick were missing.
 
 
 == Version 2.3.17 ==
