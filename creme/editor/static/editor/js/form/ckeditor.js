@@ -167,10 +167,12 @@ creme.form.CKEditor = creme.component.Component.sub({
 
     _updateToolbarVisibility: function() {
         if (!Object.isNone(this._editor)) {
-            var toolbar = $(this._editor.ui.view.toolbar.element);
+            var toolbarView = this._editor.ui.view.toolbar;
+            var toolbar = $(toolbarView.element);
             var disabled = this.isDisabled() || this.isReadOnly();
+            var empty = toolbarView.items.length === 0;
 
-            toolbar.toggleClass('ck-hide-toolbar', this.hideDisabledToolbar() && disabled);
+            toolbar.toggleClass('ck-hide-toolbar', empty || (this.hideDisabledToolbar() && disabled));
         }
     },
 
@@ -190,12 +192,18 @@ creme.form.CKEditor = creme.component.Component.sub({
     },
 
     _ckeditorToolbarItems: function(options) {
-        var items = CKEDITOR_TOOLBARS[options.toolbar || 'full'];
+        var items;
+
+        if (Array.isArray(options.toolbar)) {
+            items = options.toolbar.slice();
+        } else {
+            items = CKEDITOR_TOOLBARS[options.toolbar || 'full'] || [];
+            Assert.that(items.length > 0, 'CkEditor toolbar "${toolbar}" does not exist', options);
+        }
+
         var extras = !Object.isEmpty(options.toolbarExtra) ? (
             Array.isArray(options.toolbarExtra) ? options.toolbarExtra : options.toolbarExtra.split(',')
         ) : [];
-
-        Assert.that(items.length > 0, 'CkEditor toolbar "${toolbar}" does not exist', options);
 
         return extras ? items.concat(extras) : items;
     },

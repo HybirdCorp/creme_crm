@@ -95,6 +95,39 @@ QUnit.test('creme.form.CKEditor (destroy)', function(assert) {
     });
 });
 
+QUnit.test('creme.form.CKEditor (already bound)', function(assert) {
+    var element = $(this.createEditorHtml()).appendTo(this.qunitFixture('field'));
+    var editor = new creme.form.CKEditor(element);
+
+    this.awaitsPromise(editor.ckeditorSetup(), function() {
+        this.assertRaises(function() {
+            return new creme.form.CKEditor(element);
+        }, Error, 'Error: CkEditor instance is already active');
+    });
+});
+
+QUnit.test('creme.form.CKEditor (invalid toolbar)', function(assert) {
+    var element = $(this.createEditorHtml()).appendTo(this.qunitFixture('field'));
+
+    this.assertRaises(function() {
+        return new creme.form.CKEditor(element, {toolbar: 'unknown'});
+    }, Error, 'Error: CkEditor toolbar "unknown" does not exist');
+});
+
+QUnit.test('creme.form.CKEditor (empty toolbar)', function(assert) {
+    var element = $(this.createEditorHtml()).appendTo(this.qunitFixture('field'));
+    var editor = new creme.form.CKEditor(element, {toolbar: []});
+
+    this.awaitsPromise(editor.ckeditorSetup(), function() {
+        var toolbar = element.parent().find('.ck-toolbar');
+
+        equal(1, toolbar.length);
+        equal(false, editor.isReadOnly());
+        equal(false, editor.hideDisabledToolbar());
+        equal(true, toolbar.is('.ck-hide-toolbar'));  // Hidden anyway to prevent rendering glitch
+    });
+});
+
 QUnit.parameterize('creme.form.CKEditor (upload)', [
     ['', false],
     ['mock/upload', true]
