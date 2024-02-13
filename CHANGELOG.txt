@@ -13,8 +13,11 @@
     Non breaking changes :
     ----------------------
         # Apps :
+            * Email :
+                - The class-view 'views.sending.SendingBricksReloading' now checks permissions.
             * Commercial :
                 - The view 'views.strategy.BaseEvaluatedOrganisationView' has been improved to be easier to modify.
+                - The class-view 'views.strategy.MatrixBricksReloading' now checks permissions.
 
 
 == Version 2.5.5 ==
