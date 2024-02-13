@@ -12,6 +12,17 @@
         * Emails :
             - Some permissions checks in the mail history brick were missing.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Apps :
+            * Email :
+                - The class-view 'views.sending.SendingBricksReloading' now checks permissions.
+            * Commercial :
+                - The class-view 'views.strategy.MatrixBricksReloading' now checks permissions.
+
 
 == Version 2.3.17 ==
 
