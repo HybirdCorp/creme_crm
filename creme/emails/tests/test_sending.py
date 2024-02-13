@@ -1434,7 +1434,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         # TODO: test other bricks
 
     def test_reload_sending_bricks02(self):
-        "Can not see the campaign"
+        "Can not see the campaign."
         user = self.login_as_emails_user()
         # SetCredentials.objects.create(
         #     role=user.role,
@@ -1455,6 +1455,14 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertGET403(
             reverse('emails__reload_sending_bricks', args=(sending.id,)),
             data={'brick_id': MailsBrick.id},
+        )
+
+    def test_reload_sending_bricks03(self):
+        "No app perm."
+        self.login_as_standard()  # No 'emails'
+        self.assertGET403(
+            reverse('emails__reload_sending_bricks', args=(self.UNUSED_PK,)),
+            data={'brick_id': 'whatever'},
         )
 
     # TODO?

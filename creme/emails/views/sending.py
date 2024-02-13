@@ -129,6 +129,7 @@ class SendingBody(generic.RelatedToEntityDetail):
 
 # Useful because EmailSending is not a CremeEntity (should be ?)
 class SendingBricksReloading(bricks_views.BricksReloading):
+    permissions = 'emails'
     # check_bricks_permission = False
     sending_id_url_kwarg = 'sending_id'
     allowed_bricks = {

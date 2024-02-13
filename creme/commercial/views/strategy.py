@@ -288,6 +288,7 @@ class SegmentCategorySetting(generic.base.EntityRelatedMixin, generic.CheckedVie
 
 
 class MatrixBricksReloading(bricks_views.BricksReloading):
+    permissions = 'commercial'
     # check_bricks_permission = False
     strategy_id_url_kwarg = 'strategy_id'
     orga_id_url_kwarg     = 'orga_id'
