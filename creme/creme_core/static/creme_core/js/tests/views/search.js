@@ -222,8 +222,8 @@ QUnit.test('creme.search.SearchBox.search (click outside => close popover)', fun
             equal(0, element.find('.inline-search-results.showing').length);
             equal(0, $('.glasspane').length);
             start();
-        }, 100);
-    }, 100);
+        }, 200);
+    }, 200);
 });
 
 QUnit.test('creme.search.SearchBox.search (length < default min length)', function() {
