@@ -38,7 +38,8 @@
 
 {% block brick_table_rows %}
     {% for mail in page.object_list %}
-    <tr>
+    <tr>{% has_perm_to view mail as view_perm %}
+      {% if view_perm %}
         <td {% brick_table_data_status primary %} class="email-sender" data-type="email">{% print_field object=mail field='sender' %}</td>
         <td class="email-recipient" data-type="email">{% print_field object=mail field='recipient' %}</td>
         <td class="email-subject">{{mail.subject}}</td>
@@ -56,6 +57,19 @@
             {% endif %}
           {% endif %}
         </td>
+      {% else %}
+        <td {% brick_table_data_status primary %} class="email-sender" data-type="email">{{HIDDEN_VALUE}}</td>
+        <td class="email-recipient" data-type="email">{{HIDDEN_VALUE}}</td>
+        <td class="email-subject">{{HIDDEN_VALUE}}</td>
+        <td class="email-status">{{HIDDEN_VALUE}}</td>
+        <td class="email-sending-date" data-type="date">{{HIDDEN_VALUE}}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='view' label=_('Details') enabled=False %}
+        </td>
+        <td {% brick_table_data_status action %}>
+          {% brick_table_action id='update' label=_('Re-send') icon='refresh' enabled=False %}
+        </td>
+      {% endif %}
     </tr>
     {% endfor %}
 {% endblock %}

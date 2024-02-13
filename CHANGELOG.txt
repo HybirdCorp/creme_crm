@@ -1,5 +1,12 @@
 == Version 2.4.13 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Emails :
+            - Some permissions checks in the mail history brick were missing.
+
+
 == Version 2.4.12 ==
 
   Users side :
