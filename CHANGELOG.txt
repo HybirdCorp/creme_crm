@@ -302,6 +302,8 @@
                   e.g. "activity-type-activities-activitytype_meeting" became "activity-type-meeting".
             * Crudity :
                 - The method 'bricks.CrudityHistoryBrick.generate_id()' has been removed.
+            * SMS :
+                - The class 'bricks._RelatedEntitesBrick' has been renamed '_RelatedEntitiesBrick'.
 
     Internal breaking changes :
     ---------------------------
