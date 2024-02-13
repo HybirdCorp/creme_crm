@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 15-05-2023 for Creme 2.5
+:Version: 13-02-2024 for Creme 2.5
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1370,10 +1370,10 @@ Create the file ``my_project/beavers/bricks.py``: ::
         target_ctypes = (Beaver,)
 
         # If we define this method, we indicate that the block can be displayed on detailed views
-        # (another method is used for home:  home_display()).
+        # (another method is used for home: 'home_display()').
         def detailview_display(self, context):
-            # The current entity is injected in the context by the view generic.EntityDetail
-            # & by the reloading view bricks.reload_detailview().
+            # The current entity is injected in the context by the view 'generic.EntityDetail'
+            # & by the reloading view 'bricks.DetailviewBricksReloading'.
             beaver = context['object']
 
             birthday = beaver.birthday

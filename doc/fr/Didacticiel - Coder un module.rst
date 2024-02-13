@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 15-05-2023 pour la version 2.5 de Creme
+:Version: 13-02-2024 pour la version 2.5 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1412,10 +1412,10 @@ Créez le fichier ``my_project/beavers/bricks.py`` : ::
         target_ctypes = (Beaver,)
 
         # Si on définit cette méthode, on indique que ce bloc est capable de s'afficher
-        # sur les vue détaillée (c'est une autre méthode pour l'accueil:  home_display()).
+        # sur les vue détaillée (c'est une autre méthode pour l'accueil: 'home_display()').
         def detailview_display(self, context):
-            # L'entité courante est injectée dans le contexte par la vue generic.EntityDetail
-            # et par la vue de rechargement bricks.reload_detailview().
+            # L'entité courante est injectée dans le contexte par la vue 'generic.EntityDetail'
+            # et par la vue de rechargement 'bricks.DetailviewBricksReloading'.
             beaver = context['object']
 
             birthday = beaver.birthday
