@@ -25,8 +25,10 @@ creme.widget.CKEditor = creme.widget.declare('ui-creme-ckeditor', {
     _create: function(element, options, cb, sync) {
         this._editor = new creme.form.CKEditor(element, options || {});
 
-        creme.object.invoke(cb, element);
-        element.addClass('widget-ready');
+        this._editor.ckeditorSetup().then(function() {
+            creme.object.invoke(cb, element);
+            element.addClass('widget-ready');
+        });
     },
 
     _destroy: function(element) {
