@@ -243,7 +243,7 @@ property_patterns = [
     re_path(
         r'^type/(?P<ptype_id>[\w-]+)[/]?$',
         creme_property.PropertyTypeDetail.as_view(),
-        name='creme_core__ptype'
+        name='creme_core__ptype',
     ),
     re_path(
         r'^type/(?P<ptype_id>[\w-]+)/edit[/]?$',
@@ -287,6 +287,17 @@ bricks_patterns = [
 ]
 
 entity_filter_patterns = [
+    re_path(
+        r'^view/(?P<efilter_id>.+)[/]?$',
+        entity_filter.EntityFilterDetail.as_view(),
+        name='creme_core__efilter',
+    ),
+    re_path(
+        r'^reload/(?P<efilter_id>.+)[/]?$',
+        entity_filter.EntityFilterBricksReloading.as_view(),
+        name='creme_core__reload_efilter_bricks',
+    ),
+
     re_path(
         r'^add/(?P<ct_id>\d+)[/]?$',
         entity_filter.EntityFilterCreation.as_view(),

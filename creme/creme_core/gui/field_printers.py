@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -263,12 +263,16 @@ class FKPrinter:
     @staticmethod
     def print_fk_efilter_html(*, instance: Model, value, user, field: Field) -> str:
         return format_html(
-            '<div class="entity_filter-summary">{}<ul>{}</ul></div>',
-            value.name,
-            format_html_join(
+            '<div class="entity_filter-summary">'
+            '<a href="{url}">{name}</a>'
+            '<ul>{conditions}</ul>'
+            '</div>',
+            url=value.get_absolute_url(),
+            name=value.name,
+            conditions=format_html_join(
                 '', '<li>{}</li>',
                 ((vc,) for vc in value.get_verbose_conditions(user)),
-            )
+            ),
         )
 
     @staticmethod

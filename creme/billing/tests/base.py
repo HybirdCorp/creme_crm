@@ -805,7 +805,8 @@ class _BillingTestCase(_BillingTestCaseMixin,
     def assertConvertButtons(self, response, expected):
         found = []
 
-        for button_node in self.iter_instance_button_nodes(
+        # for button_node in self.iter_instance_button_nodes(
+        for button_node in self.iter_button_nodes(
             self.get_instance_buttons_node(self.get_html_tree(response.content)),
         ):
             if button_node.tag == 'a':

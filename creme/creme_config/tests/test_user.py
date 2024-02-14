@@ -814,7 +814,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfNotCremeUser
     def test_edit_user02(self):
         "Other values."
-        self.login_as_root_and_get()
+        self.login_as_root()
 
         other_user = self.create_user()
 

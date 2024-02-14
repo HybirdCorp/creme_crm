@@ -39,16 +39,20 @@ from creme.creme_core.models import (
     FakeImage,
     FakeOrganisation,
     FakeProduct,
+    FakeReport,
     HeaderFilter,
     RelationType,
 )
+from creme.creme_core.utils.translation import get_model_verbose_name
+from creme.creme_core.views import entity_filter as efilter_views
 
 # from .base import ViewsTestCase
-from .base import CremeTestCase
+from ..base import CremeTestCase
+from .base import BrickTestCaseMixin, ButtonTestCaseMixin
 
 
 # class EntityFilterViewsTestCase(ViewsTestCase):
-class EntityFilterViewsTestCase(CremeTestCase):
+class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -109,6 +113,185 @@ class EntityFilterViewsTestCase(CremeTestCase):
         return json_dump([{
             'rtype': rtype_id, 'has': False, 'ctype': ct_id, 'filter': efilter_id,
         }])
+
+    def test_detailview__regular(self):
+        user = self.login_as_root_and_get()
+        efilter = EntityFilter.objects.smart_update_or_create(
+            pk='test-filter_detailview__regular', name='My Filter',
+            model=FakeContact, is_custom=True,
+        )
+        parent_filter = EntityFilter.objects.smart_update_or_create(
+            pk='test-filter04', name='Parent Filter', model=FakeContact, is_custom=True,
+            conditions=[SubFilterConditionHandler.build_condition(efilter)],
+        )
+
+        create_report = partial(FakeReport.objects.create, user=user, ctype=efilter.entity_type)
+        report1 = create_report(name='My report with filter', efilter=efilter)
+        report2 = create_report(name='My simple report')
+
+        response = self.assertGET200(efilter.get_absolute_url())
+        self.assertTemplateUsed(response, 'creme_core/detail/entity-filter.html')
+        self.assertEqual(
+            reverse('creme_core__reload_efilter_bricks', args=(efilter.id,)),
+            response.context.get('bricks_reload_url'),
+        )
+
+        with self.assertNoException():
+            ctxt_efilter = response.context['object']
+        self.assertEqual(efilter, ctxt_efilter)
+
+        tree = self.get_html_tree(response.content)
+        config_button_node = self.get_alone_element(
+            self.iter_button_nodes(self.get_global_buttons_node(tree))
+        )
+        self.assertEqual('a', config_button_node.tag)
+        self.assertEqual(reverse('creme_config__efilters'), config_button_node.attrib.get('href'))
+
+        self.get_brick_node(tree, efilter_views.EntityFilterInfoBrick)
+
+        parents_node = self.get_brick_node(tree, efilter_views.EntityFilterParentsBrick)
+        self.assertBrickTitleEqual(
+            parents_node,
+            count=1,
+            title='{count} Parent filter',
+            plural_title='{count} Parent filters',
+        )
+        self.assertInstanceLink(parents_node, parent_filter)
+
+        reports_brick_node = self.get_brick_node(
+            tree, 'linked_to_efilter-creme_core-fakereport-efilter',
+        )
+        self.assertEqual(
+            _('Filter used by %(count)s %(model)s (field «%(field)s»)') % {
+                'count': 1,
+                'model': get_model_verbose_name(model=FakeReport, count=1),
+                'field': _('Filter'),
+            },
+            self.get_brick_title(reports_brick_node),
+        )
+        self.assertInstanceLink(reports_brick_node, report1)
+        self.assertNoInstanceLink(reports_brick_node, report2)
+
+        msg_node = self.get_html_node_or_fail(reports_brick_node, ".//div[@class='help']")
+        self.assertEqual(
+            _('You cannot delete the filter because of this dependency.'),
+            msg_node.text.strip(),
+        )
+
+    def test_detailview__credentials(self):
+        self.login_as_root()
+        efilter = EntityFilter.objects.create(
+            id='test-filter_detailview__credentials',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        )
+
+        response = self.assertGET200(efilter.get_absolute_url())
+        self.assertTemplateUsed(response, 'creme_core/detail/entity-filter.html')
+
+        tree = self.get_html_tree(response.content)
+        self.get_brick_node(tree, efilter_views.EntityFilterInfoBrick)
+        self.assertNoBrick(tree, brick_id=efilter_views.EntityFilterParentsBrick.id)
+        self.assertNoBrick(
+            tree, brick_id='linked_to_efilter-creme_core-fakereport-efilter',
+        )
+
+    def test_reload_bricks_for_detailview__parents(self):
+        self.login_as_root()
+        efilter = EntityFilter.objects.smart_update_or_create(
+            pk='test-filter_detailview__parents', name='My Filter',
+            model=FakeContact, is_custom=True,
+        )
+        parent_filter = EntityFilter.objects.smart_update_or_create(
+            pk='test-filter04', name='Parent Filter', model=FakeContact, is_custom=True,
+            conditions=[SubFilterConditionHandler.build_condition(efilter)],
+        )
+
+        brick_id = efilter_views.EntityFilterParentsBrick.id
+        response = self.assertGET200(
+            reverse('creme_core__reload_efilter_bricks', args=(efilter.id,)),
+            data={'brick_id': brick_id},
+        )
+
+        with self.assertNoException():
+            results = response.json()
+
+        self.assertIsList(results, length=1)
+
+        result = results[0]
+        self.assertIsList(result, length=2)
+        self.assertEqual(brick_id, result[0])
+
+        document = self.get_html_tree(result[1])
+        brick_node = self.get_brick_node(document, brick_id)
+        self.assertInstanceLink(brick_node, parent_filter)
+
+    def test_linked_entities_parse_brick_id(self):
+        parse = efilter_views.EntityFilterLinkedEntitiesBrick.parse_brick_id
+        self.assertTupleEqual(
+            (FakeReport, FakeReport._meta.get_field('efilter')),
+            parse('linked_to_efilter-creme_core-fakereport-efilter'),
+        )
+
+        self.assertIsNone(parse('linked_to_efilter-creme_core-fakereport-efilter-extra_part'))
+        self.assertIsNone(parse('invalid_prefix-creme_core-fakereport-efilter'))
+
+        self.assertIsNone(parse('linked_to_efilter-invalid_app-fakereport-efilter'))
+        self.assertIsNone(parse('linked_to_efilter-creme_core-invalid_model-efilter'))
+        self.assertIsNone(parse('linked_to_efilter-creme_core-fakereport-invalid_field'))
+
+        # Not entity
+        self.assertIsNone(parse('linked_to_efilter-creme_core-entityfiltercondition-filter'))
+
+        # Not FK
+        self.assertIsNone(parse('linked_to_efilter-creme_core-fakereport-name'))
+
+        # Not FK to EntityFilter
+        self.assertIsNone(parse('linked_to_efilter-creme_core-fakereport-ctype'))
+
+    def test_reload_bricks_for_detailview__linked_entities(self):
+        user = self.login_as_root_and_get()
+        efilter = EntityFilter.objects.smart_update_or_create(
+            pk='test-filter_detailview01', name='My Filter', model=FakeContact, is_custom=True,
+        )
+        create_report = partial(FakeReport.objects.create, user=user, ctype=efilter.entity_type)
+        report1 = create_report(name='My report with filter', efilter=efilter)
+        report2 = create_report(name='My simple report')
+
+        url = reverse('creme_core__reload_efilter_bricks', args=(efilter.id,))
+        brick_id = 'linked_to_efilter-creme_core-fakereport-efilter'
+        response = self.assertGET200(url, data={'brick_id': brick_id})
+
+        with self.assertNoException():
+            results = response.json()
+
+        self.assertIsList(results, length=1)
+
+        result = results[0]
+        self.assertIsList(result, length=2)
+        self.assertEqual(brick_id, result[0])
+
+        document = self.get_html_tree(result[1])
+        brick_node = self.get_brick_node(document, brick_id)
+        self.assertInstanceLink(brick_node, report1)
+        self.assertNoInstanceLink(brick_node, report2)
+
+        # ---
+        self.assertGET404(
+            url, data={'brick_id': 'linked_to_efilter-creme_core-fakereport-invalid'},
+        )
+
+    def test_reload_bricks_for_detailview__credentials(self):
+        self.login_as_root()
+        efilter = EntityFilter.objects.create(
+            id='test-filter_detailview__credentials',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        )
+        self.assertGET404(
+            reverse('creme_core__reload_efilter_bricks', args=(efilter.id,)),
+            data={'brick_id': efilter_views.EntityFilterParentsBrick.id},
+        )
 
     @override_settings(FILTERS_INITIAL_PRIVATE=False)
     def test_create01(self):

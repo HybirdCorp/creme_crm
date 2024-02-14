@@ -222,6 +222,18 @@ class BrickTestCaseMixin:
 
 
 class ButtonTestCaseMixin:
+    def get_global_buttons_node(self, tree):
+        for div_node in tree.findall('.//div'):
+            classes_attr = div_node.attrib.get('class')
+            if classes_attr is None:
+                continue
+
+            classes = classes_attr.split()
+            if 'buttons-list' in classes and 'global-buttons' in classes:
+                return div_node
+
+        self.fail('The global buttons node has not been found.')
+
     def get_instance_buttons_node(self, tree):
         for div_node in tree.findall('.//div'):
             classes_attr = div_node.attrib.get('class')
@@ -235,8 +247,10 @@ class ButtonTestCaseMixin:
         self.fail('The instance buttons node has not been found.')
 
     @staticmethod
-    def iter_instance_button_nodes(instances_button_node, *, data_action=None):
-        for a_node in instances_button_node.findall('.//a'):
+    # def iter_instance_button_nodes(instances_button_node, *, data_action=None):
+    def iter_button_nodes(buttons_node, *, data_action=None):
+        # for a_node in instances_button_node.findall('.//a'):
+        for a_node in buttons_node.findall('.//a'):
             classes_attr = a_node.attrib.get('class')
             if classes_attr is None:
                 continue
@@ -250,7 +264,8 @@ class ButtonTestCaseMixin:
             ):
                 yield a_node
 
-        for span_node in instances_button_node.findall('.//span'):
+        # for span_node in instances_button_node.findall('.//span'):
+        for span_node in buttons_node.findall('.//span'):
             classes_attr = span_node.attrib.get('class')
             if classes_attr and 'menu_button' in classes_attr.split():
                 yield span_node

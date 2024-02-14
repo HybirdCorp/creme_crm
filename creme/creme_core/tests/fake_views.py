@@ -127,3 +127,8 @@ class FakeMailingListsList(generic.EntitiesList):
 class FakeMailingListDetail(generic.EntityDetail):
     model = fake_models.FakeMailingList
     pk_url_kwarg = 'ml_id'
+
+
+class FakeReportDetail(generic.EntityDetail):
+    model = fake_models.FakeReport
+    pk_url_kwarg = 'report_id'

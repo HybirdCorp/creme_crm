@@ -1,0 +1,22 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block brick_extra_class %}{{block.super}} creme_core-parent-efilters-brick {% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Parent filter') plural=_('{count} Parent filters') empty=_('Parent filters') icon='filter' %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_table_rows %}
+  {% for parent_filter in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% widget_hyperlink parent_filter %}</td>
+    </tr>
+  {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No parent filter' %}
+{% endblock %}

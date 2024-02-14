@@ -1467,3 +1467,19 @@ svg.icon {
     text-decoration: underline;
     color: #50727c;
 }
+
+/* Entity filter bricks */
+
+.creme_core-efilter-info-brick.brick-kv-list .brick-kv-value {
+    text-align: left;
+}
+
+.creme_core-efilter-info-brick .item-efilter-conditions .brick-kv-value {
+    margin: 10px;
+    color: rgb(112, 114, 117);
+}
+
+.creme_core-efilter-info-brick .item-efilter-conditions .brick-kv-value ul {
+    margin: 3px;
+    padding-left: 18px;
+}

@@ -164,7 +164,7 @@ class NotificationViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_discard_notification_error02(self):
         "Belongs to another user."
-        self.login_as_root_and_get()
+        self.login_as_root()
         notif = Notification.objects.create(
             channel=NotificationChannel.objects.first(),
             user=self.create_user(),
