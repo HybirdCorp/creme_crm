@@ -402,7 +402,7 @@ class VisitTestCase(CremeTestCase):
         self.assertVisitEnds(response2, lv_url=lv_url, hfilter=hfilter, sort_key=cell)
 
     def test_callback_url_error(self):
-        self.login_as_root_and_get()
+        self.login_as_root()
 
         cb_url = 'www.not-my-creme-instance.com'
         cell = EntityCellRegularField.build(model=FakeOrganisation, name='name')

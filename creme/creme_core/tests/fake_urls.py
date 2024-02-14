@@ -133,6 +133,11 @@ urlpatterns = [
         fake_views.FakeMailingListDetail.as_view(),
         name='creme_core__view_fake_mlist',
     ),
+    re_path(
+        r'^tests/report/(?P<report_id>\d+)[/]?$',
+        fake_views.FakeReportDetail.as_view(),
+        name='creme_core__view_fake_report',
+    ),
 
     re_path(
         r'^tests/whatever/(?P<useless>\d+)[/]?$',

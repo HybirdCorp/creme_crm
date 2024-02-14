@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-13 11:34+0100\n"
+"POT-Creation-Date: 2024-02-19 17:15+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -306,6 +306,12 @@ msgstr "Champs calculés"
 
 msgid "{} [disabled]"
 msgstr "{} [désactivé]"
+
+msgid "Credentials filter"
+msgstr "Filtre de droits"
+
+msgid "Regular filter (usable in list-view)"
+msgstr "Filtre normal (utilisable dans les vues en liste)"
 
 msgid "Entities are accepted by the filter «{}»"
 msgstr "Les fiches sont acceptées par le filtre «{}»"
@@ -2848,6 +2854,42 @@ msgstr ""
 "Il semble que tous les champs soient cachés. Demandez à votre administrateur "
 "de corriger la configuration."
 
+msgid "Type of filter"
+msgstr "Type de filtre"
+
+msgid "Related type of entity"
+msgstr "Type de fiches concerné"
+
+msgid "Is custom?"
+msgstr "Est personnalisé ?"
+
+msgid "Any condition is met:"
+msgstr "Au moins une condition est remplie :"
+
+msgid "All these conditions are met:"
+msgstr "Toutes les conditions sont remplies :"
+
+#, python-format
+msgid "Filter used by %(count)s %(model)s (field «%(field)s»)"
+msgstr "Filtre utilisé par %(count)s %(model)s (champ «%(field)s»)"
+
+msgid "You cannot delete the filter because of this dependency."
+msgstr "Vous ne pouveaz pas supprimer me filtre à cause de ces dépendances."
+
+#, python-brace-format
+msgid "{count} Parent filter"
+msgstr "{count} Filtre parent"
+
+#, python-brace-format
+msgid "{count} Parent filters"
+msgstr "{count} Filtres parents"
+
+msgid "Parent filters"
+msgstr "Filtres parents"
+
+msgid "No parent filter"
+msgstr "Pas de filtre parent"
+
 msgid "Information on Creme entity"
 msgstr "Informations fiche Crème"
 
@@ -3200,6 +3242,12 @@ msgstr "Ne pas réserver aux super-utilisateurs"
 msgid "Cannot restrict because already in «%(sandbox)s»"
 msgstr "Impossible de réserver car déjà dans «%(sandbox)s»"
 
+msgid "Go to the configuration of filters"
+msgstr "Aller à la configuration des filtres"
+
+msgid "Do you really want to delete this filter?"
+msgstr "Voulez-vous vraiment supprimer cee filtre ?"
+
 msgid "Back to the list"
 msgstr "Retour à la liste"
 
@@ -3350,12 +3398,6 @@ msgstr "Plus"
 #, python-format
 msgid "Conditions of «%(efilter)s»"
 msgstr "Conditions du filtre «%(efilter)s»"
-
-msgid "Any condition is met:"
-msgstr "Au moins une condition est remplie :"
-
-msgid "All these conditions are met:"
-msgstr "Toutes les conditions sont remplies :"
 
 #, python-format
 msgid "%(title)s: step %(current_step)s of %(step_count)s"
@@ -4100,23 +4142,6 @@ msgstr "Recherche vide…"
 
 #~ msgid "Reminder"
 #~ msgstr "Mémento"
-
-#~ msgid ""
-#~ "The exploration mode cannot be used because your list is not ordered "
-#~ "(hint: chose a column in the list header then try to enter in the mode "
-#~ "again)."
-#~ msgstr ""
-#~ "Le mode exploration ne peut pas être utilisé car votre liste n'est pas "
-#~ "ordonnée (astuce : choisissez une colonne dans l'entête de liste puis "
-#~ "essayez à nouveau de rentrer dans le mode)."
-
-#~ msgid ""
-#~ "The file cannot be generated because your list is not ordered (hint: "
-#~ "chose a column in the list header then try to download the file again)."
-#~ msgstr ""
-#~ "Le fichier ne peut pas être généré car votre liste n'est pas ordonnée "
-#~ "(astuce : choisissez une colonne dans l'entête de liste puis essayez à "
-#~ "nouveau de télécharger le fichier)."
 
 #~ msgid ""
 #~ "If you select «customized» you have to specify a start date and/or an end "

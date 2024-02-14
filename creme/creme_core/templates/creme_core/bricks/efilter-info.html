@@ -1,0 +1,51 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_widgets creme_bricks %}
+{% load get_efilter_conditions print_field from creme_core_tags %}
+
+{% block brick_extra_class %}brick-kv-list creme_core-efilter-info-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('General information') %}
+{% endblock %}
+
+{% block brick_content %}
+    <div class="brick-kv-group">
+        <div class="brick-kv-item item-efilter-name">
+            <div class="brick-kv-key">{% translate 'Name' %}</div>
+            <div class="brick-kv-value">{% print_field object=object field='name' %}</div>
+        </div>
+        <div class="brick-kv-item item-efilter-type">
+            <div class="brick-kv-key">{% translate 'Type of filter' %}</div>
+            <div class="brick-kv-value">{{ object.registry.verbose_name }}</div>
+        </div>
+        <div class="brick-kv-item item-efilter-ctype">
+            <div class="brick-kv-key">{% translate 'Related type of entity' %}</div>
+            <div class="brick-kv-value">{% print_field object=object field='entity_type' %}</div>
+        </div>
+        <div class="brick-kv-item item-efilter-custom">
+            <div class="brick-kv-key">{% translate 'Is custom?' %}</div>
+            <div class="brick-kv-value">{% print_field object=object field='is_custom' %}</div>
+        </div>
+        <div class="brick-kv-item item-efilter-user">
+            <div class="brick-kv-key">{% translate 'Owner user' %}</div>
+            <div class="brick-kv-value">{% print_field object=object field='user' %}</div>
+        </div>
+        <div class="brick-kv-item item-efilter-private">
+            <div class="brick-kv-key">{% translate 'Is private?' context 'creme_core-entity_filter' %}</div>
+            <div class="brick-kv-value">{% print_field object=object field='is_private' %}</div>
+        </div>
+        <div class="brick-kv-item item-efilter-conditions">
+            <div class="brick-kv-key">{% translate 'Conditions' %}</div>
+            <div class="brick-kv-value">{% get_efilter_conditions efilter=object user=user as vconds %}
+              {% if vconds|length > 1 %}
+                <span>{% if object.use_or %}{% translate 'Any condition is met:' %}{% else %}{% translate 'All these conditions are met:' %}{% endif %}</span>
+                <ul>
+                    {% for vcond in vconds %}<li>{{vcond}}</li>{% endfor %}
+                </ul>
+              {% else %}
+                <span>{{vconds.0}}</span>
+              {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

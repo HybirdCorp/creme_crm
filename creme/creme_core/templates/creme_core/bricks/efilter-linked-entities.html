@@ -1,0 +1,34 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_ctype creme_widgets %}
+
+{% block brick_extra_class %}
+{{block.super}} creme_core-efilter_linked_entities-brick{# {% if page.paginator.count == 0 %} is-empty{% endif %} #}
+{% endblock %}
+
+{% block brick_header_title %}
+  {% with count=page.paginator.count %}
+    {% blocktranslate with model=objects_ctype|ctype_verbose_name:count field=field.verbose_name asvar title %}Filter used by {{count}} {{model}} (field «{{field}}»){% endblocktranslate %}
+    {% widget_icon ctype=objects_ctype size='brick-table' as ct_icon %}
+    {% brick_header_title title=title icon=ct_icon %}
+  {% endwith %}
+{% endblock %}
+
+{% block brick_table_head %}{% endblock %}
+
+{% block brick_before_content %}
+  {% if protected and page.paginator.count %}
+    <div class="help">
+        {% translate 'You cannot delete the filter because of this dependency.' %}
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block brick_table_rows %}
+  {% for entity in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>
+          {% widget_entity_hyperlink entity user %}
+        </td>
+    </tr>
+  {% endfor %}
+{% endblock %}

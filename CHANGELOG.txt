@@ -13,6 +13,8 @@
       The mass-export & the exploration mode now accept to be used in this case.
     # In the detail-view for property type, a button to delete all the properties with this type
       (and related to a given entity type) has been added.
+    # A detail-view for EntityFilter has been added ; in addition to the usual information,
+      it displays the entities which are linked to the filter (currently only Reports).
     # A role "Regular user", which can do everything excepted administrating apps, is created in new installations.
     # Many fields of User are now viewable ; it can be useful for particular filters.
     # Thanks to the libray "openpyxl", XLSX files should be better managed now for import, & export proposes this file format now.
@@ -237,6 +239,8 @@
             - The attribute 'BricksReloading.check_bricks_permission' has been removed (in child classes too).
             - The default value attribute 'BrickStateSetting.brick_id_arg' changed from "id" to "brick_id".
               So you'll have to fix your JavaScript code if you use the URL named "creme_core__set_brick_state".
+        # The method 'creme_core.tests.views.base.ButtonTestCaseMixin.iter_instance_button_nodes()' has been renamed 'iter_button_nodes()'
+          (because of the new method 'get_global_buttons_node()').
         # Apps :
             * Creme_config :
                 - In 'urls' :

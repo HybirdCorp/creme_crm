@@ -729,12 +729,15 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = r._meta.get_field('efilter')
         fmt_value = _('«{enum_value}»').format
         self.assertHTMLEqual(
-            '<div class="entity_filter-summary">{name}'
+            # '<div class="entity_filter-summary">{name}'
+            '<div class="entity_filter-summary">'
+            '  <a href="{url}">{name}</a>'
             '  <ul>'
             '    <li>{cond1}</li>'
             '    <li>{cond2}</li>'
             '  </ul>'
             '</div>'.format(
+                url=efilter.get_absolute_url(),
                 name=efilter.name,
                 cond1=_('«{field}» starts with {values}').format(
                     field=_('Name'),

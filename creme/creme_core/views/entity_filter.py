@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,13 +16,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, PermissionDenied
 from django.db.models import Field
-from django.db.models.deletion import ProtectedError
+from django.db.models.deletion import PROTECT, ProtectedError
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -31,20 +34,21 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext, pgettext_lazy
 
-from creme.creme_core.enumerators import UserEnumerator
-
 from .. import utils
 from ..auth.decorators import login_required
 from ..core.entity_filter import EF_USER, entity_filter_registries
 from ..core.exceptions import BadRequestError, ConflictError
+from ..enumerators import UserEnumerator
 from ..forms.entity_filter import forms as efilter_forms
+from ..gui.bricks import PaginatedBrick, QuerysetBrick, SimpleBrick
 from ..gui.listview import ListViewState
 from ..http import CremeJsonResponse
-from ..models import EntityFilter, RelationType
+from ..models import CremeEntity, EntityFilter, RelationType
 from ..utils import db as db_utils
 from ..utils.content_type import entity_ctypes
 from ..utils.unicode_collation import collator
 from . import generic
+from .bricks import BricksReloading
 from .decorators import jsonify
 from .entity import EntityDeletionMixin
 from .enumerable import FieldChoicesView
@@ -128,6 +132,209 @@ class EntityFilterMixin(FilterMixin):
 
     def get_efilter_registry(self):
         return self.efilter_registry
+
+
+class EntityFilterInfoBrick(SimpleBrick):
+    id = 'efilter_info'
+    read_only = True
+    template_name = 'creme_core/bricks/efilter-info.html'
+
+
+class EntityFilterParentsBrick(PaginatedBrick):
+    id = 'efilter_parents'
+    read_only = True
+    template_name = 'creme_core/bricks/efilter-parents.html'
+
+    def detailview_display(self, context):
+        efilter = context['object']
+
+        return self._render(self.get_template_context(
+            context,
+            # NB: we retrieve all parent; it should not be a big issue because
+            #     you're not supposed to have hundreds of filters.
+            [cond.filter for cond in efilter._iter_parent_conditions()],
+        ))
+
+
+class EntityFilterLinkedEntitiesBrick(QuerysetBrick):
+    read_only = True
+    template_name = 'creme_core/bricks/efilter-linked-entities.html'
+
+    id_prefix = 'linked_to_efilter'
+
+    def __init__(self, model, field):
+        super().__init__()
+        self.model = model
+        self.field = field
+        self.id = (
+            f'{self.id_prefix}-{model._meta.app_label}-{model.__name__.lower()}-{field.name}'
+        )
+        self.dependencies = (model,)
+
+    @classmethod
+    def parse_brick_id(cls, brick_id: str) -> tuple[type[CremeEntity], Field] | None:
+        """Extract info from brick ID.
+
+        @param brick_id: e.g. "linked_to_efilter-reports-report-filter".
+        @return: A tuple with the concerned model & field; or None if an error occurred.
+        """
+        parts = brick_id.split('-')
+
+        if len(parts) != 4:
+            logger.warning('parse_brick_id(): the brick ID "%s" has a bad length', brick_id)
+            return None
+
+        if parts[0] != cls.id_prefix:
+            logger.warning('parse_brick_id(): the brick ID "%s" has a bad prefix', brick_id)
+            return None
+
+        try:
+            ctype = ContentType.objects.get_by_natural_key(parts[1], parts[2])
+        except ContentType.DoesNotExist:
+            logger.warning(
+                'parse_brick_id(): the brick ID "%s" has an invalid ContentType key',
+                brick_id,
+            )
+            return None
+
+        model = ctype.model_class()
+        if not issubclass(model, CremeEntity):
+            logger.warning(
+                'parse_brick_id(): the brick ID "%s" is not related to CremeEntity',
+                brick_id,
+            )
+            return None
+
+        try:
+            field = model._meta.get_field(parts[3])
+        except FieldDoesNotExist:
+            logger.warning(
+                'parse_brick_id(): the brick ID "%s" has an invalid field name',
+                brick_id,
+            )
+            return None
+
+        if not field.many_to_one or field.remote_field.model != EntityFilter:
+            logger.warning(
+                'parse_brick_id(): the brick ID "%s" has an invalid field type',
+                brick_id,
+            )
+            return None
+
+        return (model, field)
+
+    def detailview_display(self, context):
+        field = self.field
+
+        # TODO?
+        #  if not context['user'].has_perm_to_access(self.model._meta.app_label):
+        #     message = ...
+
+        return self._render(self.get_template_context(
+            context,
+            self.model.objects.filter(**{field.name: context['object']}),
+            field=field,
+            # TODO: unit test case with False
+            protected=(field.remote_field.on_delete == PROTECT),
+        ))
+
+
+class EntityFilterDetail(generic.CremeModelDetail):
+    model = EntityFilter
+    template_name = 'creme_core/detail/entity-filter.html'
+    pk_url_kwarg = 'efilter_id'
+    bricks_reload_url_name = 'creme_core__reload_efilter_bricks'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        efilter = self.object
+        user = self.request.user
+        context['edition_perm'] = efilter.can_edit(user)[0]
+        context['deletion_perm'] = efilter.can_delete(user)[0]
+
+        return context
+
+    def get_bricks(self):
+        efilter = self.object
+        bricks = [EntityFilterInfoBrick()]
+
+        # TODO: beware to reloading too
+        if efilter.filter_type == EF_USER:
+            bricks.append(EntityFilterParentsBrick())
+
+            # TODO: regroup fields from the same model?
+            #   => how to indicate PROTECT FKs which will stop deletion
+            #   => what about non viewable fields?
+            for rel_objects in (f for f in efilter._meta.get_fields() if f.one_to_many):
+                if issubclass(rel_objects.related_model, CremeEntity):
+                    bricks.append(
+                        EntityFilterLinkedEntitiesBrick(
+                            model=rel_objects.related_model,
+                            field=rel_objects.field,
+                        )
+                    )
+
+            # TODO: manage ManyToMany too
+            #     for rel_objects in (
+            #         f
+            #         for f in efilter._meta.get_fields(include_hidden=True)
+            #         if f.many_to_many and f.auto_created
+            #     ): [...]
+
+        return bricks
+
+    def get_bricks_reload_url(self):
+        return reverse(self.bricks_reload_url_name, args=(self.object.id,))
+
+
+class EntityFilterBricksReloading(BricksReloading):
+    efilter_id_url_kwarg = 'efilter_id'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.efilter = None
+
+    def get_bricks(self):
+        bricks = []
+
+        for brick_id in self.get_brick_ids():
+            # NB: not useful
+            # if brick_id == EntityFilterInfoBrick.id:
+            #     brick = EntityFilterInfoBrick()
+
+            if brick_id == EntityFilterParentsBrick.id:
+                brick = EntityFilterParentsBrick()
+            else:
+                model_n_field = EntityFilterLinkedEntitiesBrick.parse_brick_id(brick_id)
+                if model_n_field is None:
+                    raise Http404(f'Invalid brick id "{brick_id}"')
+
+                brick = EntityFilterLinkedEntitiesBrick(
+                    model=model_n_field[0], field=model_n_field[1],
+                )
+
+            bricks.append(brick)
+
+        return bricks
+
+    def get_bricks_context(self):
+        context = super().get_bricks_context()
+        context['object'] = self.get_efilter()
+
+        return context
+
+    def get_efilter(self):
+        efilter = self.efilter
+
+        if efilter is None:
+            self.efilter = efilter = get_object_or_404(
+                EntityFilter,
+                id=self.kwargs[self.efilter_id_url_kwarg],
+                filter_type=EF_USER,
+            )
+
+        return efilter
 
 
 class EntityFilterCreation(base.EntityCTypeRelatedMixin,

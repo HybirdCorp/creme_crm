@@ -760,6 +760,9 @@ else:
         def __str__(self):
             return self.name
 
+        def get_absolute_url(self):
+            return reverse('creme_core__view_fake_report', args=(self.id,))
+
     # class FakeTicketStatus(CremeModel):
     class FakeTicketStatus(MinionModel):
         name = models.CharField(_('Name'), max_length=100)

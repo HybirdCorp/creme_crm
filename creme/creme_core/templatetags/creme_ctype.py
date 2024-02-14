@@ -73,10 +73,11 @@ def ctype_for_swappable(model_setting: str) -> ContentType:
     return ContentType.objects.get_for_model(get_concrete_model(model_setting))
 
 
-# TODO: ? (replace 'get_meta_value' which seems used only to retrieve verbose_name ?)
-# @register.assignment_tag(name='get_model_verbose_name')
-# def ctype_verbose_name(model, count):
-#     return get_model_verbose_name(model, count)
+# TODO: replace 'get_meta_value' (only used to retrieve verbose_name?)?
+@register.filter
+def ctype_verbose_name(ctype: ContentType, count: int | None  = None) -> str:
+    model = ctype.model_class()
+    return model._meta.verbose_name if count is None else get_model_verbose_name(model, count)
 
 
 @register.simple_tag

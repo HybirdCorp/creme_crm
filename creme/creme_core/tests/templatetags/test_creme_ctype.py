@@ -68,8 +68,27 @@ class CremeCTypeTagsTestCase(CremeTestCase):
             render.strip()
         )
 
+    def test_ctype_verbose_name(self):
+        with self.assertNoException():
+            template = Template(
+                r'{% load creme_ctype %}'
+                r'{{sector_ctype|ctype_verbose_name:1}}#'
+                r'{{sector_ctype|ctype_verbose_name:10}}#'
+                r'{{sector_ctype|ctype_verbose_name}}'
+            )
+            render = template.render(Context({
+                'sector_ctype': ContentType.objects.get_for_model(FakeSector),
+            }))
+
+        self.assertEqual(
+            f'{get_model_verbose_name(model=FakeSector, count=1)}#'
+            f'{get_model_verbose_name(model=FakeSector, count=10)}#'
+            f'{FakeSector._meta.verbose_name}',
+            render.strip(),
+        )
+
     def test_ctype_counted_instances_label01(self):
-        "Count == 1"
+        "Count == 1."
         with self.assertNoException():
             template = Template(
                 r'{% load creme_ctype %}'
@@ -84,7 +103,7 @@ class CremeCTypeTagsTestCase(CremeTestCase):
                 count=1,
                 model=get_model_verbose_name(model=FakeSector, count=1),
             ),
-            render.strip()
+            render.strip(),
         )
 
     def test_ctype_counted_instances_label02(self):

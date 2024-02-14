@@ -42,7 +42,7 @@
                 <ul>
                 {% for efilter in efilters %}
                     <li>
-                        {{efilter}}{% if efilter.is_private %}&nbsp;<span class="entityfilter-config-private">{% translate '(private)' %}</span>{% endif %}
+                        {% widget_hyperlink efilter %}{% if efilter.is_private %}&nbsp;<span class="entityfilter-config-private">{% translate '(private)' %}</span>{% endif %}
                         {% brick_action id='edit' url='creme_config__edit_efilter'|url:efilter.id enabled=efilter.edition_perm %}
                         {% brick_action id='delete' url=deletion_url __id=efilter.id enabled=efilter.deletion_perm %}
                     </li>

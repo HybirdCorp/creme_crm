@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2022  Hybird
+#    Copyright (C) 2019-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,8 @@ from __future__ import annotations
 import logging
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Iterator
+
+from django.utils.translation import gettext_lazy as _
 
 if TYPE_CHECKING:
     from creme.creme_core.models import CremeEntity
@@ -222,10 +224,10 @@ class _EntityFilterSuperRegistry:
 entity_filter_registries = _EntityFilterSuperRegistry().register(
     _EntityFilterRegistry(
         id=EF_CREDENTIALS,
-        verbose_name='Credentials filter (internal use)',
+        verbose_name=_('Credentials filter'),
     ),
     _EntityFilterRegistry(
         id=EF_USER,
-        verbose_name='Regular filter (usable in list-view...',
+        verbose_name=_('Regular filter (usable in list-view)'),
     ),
 )
