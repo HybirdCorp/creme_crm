@@ -1,7 +1,13 @@
 == Version 2.4.13 Work in progress (not released -- this is a draft) ==
 
+  TODO: compile .po (creme_core)
+
   Users side :
   ------------
+    # Several issues in the detail-view for property type have been fixed :
+        - Global buttons were missing (to go to the configuration page & to create a new type).
+        - The credentials for the buttons are now correct.
+        - Disabled buttons are not clickable anymore, & their style has been improved.
     # Apps :
         * Emails :
             - Some permissions checks in the mail history brick were missing.

@@ -465,7 +465,7 @@ div.hat-bar {
     justify-content: flex-end;
 }
 
-.hat-bar .bar-action .bar-button img:hover {
+.hat-bar .bar-action .bar-button:not(.is-disabled) img:hover {
     filter: brightness(2);
 }
 
