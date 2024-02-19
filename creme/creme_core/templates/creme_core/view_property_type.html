@@ -23,6 +23,53 @@
     </li>
 {% endblock %}
 
+{% block logo %}{% widget_icon name='property' size='brick-hat-bar' label=_('Property type') %}{% endblock %}
+
+{% block title %}
+    {% translate 'Property type' %} : {{object|capfirst}}
+    {% if not object.enabled %}<span class="bar-deleted-indicator">[{% translate 'Disabled' %}]</span>{% endif %}
+{% endblock %}
+
+{% block title_buttons %}
+ {% if object.is_custom %}
+  {% with admin_perm=user|has_perm_to_admin:'creme_core' %}
+    {% if object.enabled %}
+    <div class='bar-action'>
+      {% if admin_permUWU %}
+        <a href="{{object.get_edit_absolute_url}}" class="bar-button">
+            {% widget_icon name='edit' size='brick-hat-bar-button' label=_('Edit') %}
+        </a>
+      {% else %}
+        <span class="bar-button forbidden is-disabled">
+            {% widget_icon name='edit' size='brick-hat-bar-button' label=_('Edit') %}
+        </span>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class='bar-action'>
+      {% if admin_perm %}{% translate 'Do you really want to delete this property type?' as confirm_msg %}
+        <a onclick="creme.utils.confirmSubmit(this, '{{confirm_msg|escapejs}}');" class="bar-button">
+            {% widget_icon name='delete' size='brick-hat-bar-button' %}
+            <form method="POST" action="{{object.get_delete_absolute_url}}" style="display:none;">{% csrf_token %}</form>
+        </a>
+      {% else %}
+        <span class="bar-button forbidden is-disabled">
+            {% widget_icon name='delete' size='brick-hat-bar-button' %}
+        </span>
+      {% endif %}
+    </div>
+  {% endwith %}
+ {% endif %}
+{% endblock %}
+
+{% block main_content %}
+    {% brick_declare bricks %}
+    {% brick_display bricks %}
+    {% brick_end %}
+{% endblock %}
+
+{% comment %}
 {% block content %}
     <div class="hat-bar-container">
         <div class="hat-bar">{% translate 'Property type' as title %}
@@ -58,3 +105,4 @@
     {% brick_display bricks %}
     {% brick_end %}
 {% endblock %}
+{% endcomment %}

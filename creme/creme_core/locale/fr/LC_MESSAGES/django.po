@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-19 17:15+0100\n"
+"POT-Creation-Date: 2024-02-20 10:53+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3246,7 +3246,7 @@ msgid "Go to the configuration of filters"
 msgstr "Aller à la configuration des filtres"
 
 msgid "Do you really want to delete this filter?"
-msgstr "Voulez-vous vraiment supprimer cee filtre ?"
+msgstr "Voulez-vous vraiment supprimer ce filtre ?"
 
 msgid "Back to the list"
 msgstr "Retour à la liste"
@@ -3720,6 +3720,9 @@ msgstr "Type de propriété"
 
 msgid "Disabled"
 msgstr "Désactivé"
+
+msgid "Do you really want to delete this property type?"
+msgstr "Voulez-vous vraiment supprimer ce type de propriété ?"
 
 msgid "Back"
 msgstr "Retour"
