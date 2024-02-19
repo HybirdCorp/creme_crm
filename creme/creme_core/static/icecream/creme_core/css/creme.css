@@ -451,7 +451,7 @@ div.hat-bar {
     background: linear-gradient(#ffffff, #f3f3f3);
 }
 
-.hat-bar .bar-action .bar-button {
+.hat-bar .bar-action .bar-button:not(.is-disabled) {
     cursor: pointer;
 }
 
