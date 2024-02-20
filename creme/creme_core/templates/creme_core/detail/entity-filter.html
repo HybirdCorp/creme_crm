@@ -20,9 +20,9 @@
             {% widget_icon name='edit' size='brick-hat-bar-button' label=_('Edit') %}
         </a>
     </div>
-    <div class='bar-action'>{% translate 'Do you really want to delete this filter?' as confirm_msg %}
+    <div class='bar-action'>
 {# NO A BRICK  {% brick_bar_button action='creme_core-detailview-delete' label=_('Delete') url='creme_core__delete_efilter'|url icon='delete' confirm=_('Do you really want to delete this filter?') enabled=deletion_perm %} #}
-      {% if deletion_perm %}
+      {% if deletion_perm %}{% translate 'Do you really want to delete this filter?' as confirm_msg %}
         <a onclick="creme.utils.confirmSubmit(this, '{{confirm_msg|escapejs}}');" class="bar-button">
             {% widget_icon name='delete' size='brick-hat-bar-button' %}
             <form method="POST" action="{{'creme_core__delete_efilter'|url}}" style="display:none;">{% csrf_token %}

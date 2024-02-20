@@ -35,8 +35,8 @@ from ..gui.bricks import Brick, QuerysetBrick
 from ..models import CremeEntity, CremeProperty, CremePropertyType
 from ..utils import get_from_POST_or_404
 from ..utils.content_type import entity_ctypes
-from . import bricks as bricks_views
 from . import generic
+from .bricks import BricksReloading
 from .generic.base import EntityCTypeRelatedMixin
 
 # TODO: Factorise with views in creme_config
@@ -305,12 +305,12 @@ class PropertyTypeDetail(generic.CremeModelDetail):
     pk_url_kwarg = 'ptype_id'
     bricks_reload_url_name = 'creme_core__reload_ptype_bricks'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['bricks'] = self.get_bricks()
-        context['bricks_reload_url'] = self.get_bricks_reload_url()
-
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['bricks'] = self.get_bricks()
+    #     context['bricks_reload_url'] = self.get_bricks_reload_url()
+    #
+    #     return context
 
     def get_bricks(self):
         ptype = self.object
@@ -333,7 +333,7 @@ class PropertyTypeDetail(generic.CremeModelDetail):
         return reverse(self.bricks_reload_url_name, args=(self.object.id,))
 
 
-class PropertyTypeBricksReloading(bricks_views.BricksReloading):
+class PropertyTypeBricksReloading(BricksReloading):
     # check_bricks_permission = False
     ptype_id_url_kwarg = 'ptype_id'
 
