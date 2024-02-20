@@ -300,7 +300,8 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
 
 class PropertyTypeDetail(generic.CremeModelDetail):
     model = CremePropertyType
-    template_name = 'creme_core/view_property_type.html'
+    # template_name = 'creme_core/view_property_type.html'
+    template_name = 'creme_core/detail/property-type.html'
     pk_url_kwarg = 'ptype_id'
     bricks_reload_url_name = 'creme_core__reload_ptype_bricks'
 
