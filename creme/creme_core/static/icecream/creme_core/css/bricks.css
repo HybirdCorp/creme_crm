@@ -1518,6 +1518,12 @@ svg.icon {
     color: #666;
 }
 
+/* Property type bricks */
+
+.creme_core-ptype-info-brick.brick-kv-list .brick-kv-value {
+    text-align: left;
+}
+
 /* Entity filter bricks */
 
 .creme_core-efilter-info-brick.brick-kv-list .brick-kv-value {
