@@ -672,7 +672,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         contacts_brick_node = self.get_brick_node(
             # doc, 'block_creme_core-tagged-creme_core-fakecontact',
-            doc, 'regular-creme_core-tagged-creme_core-fakecontact',
+            doc, 'tagged-creme_core-fakecontact',
         )
         self.assertBrickHasNotClass(contacts_brick_node, 'is-empty')
         self.assertInstanceLink(contacts_brick_node, tagged_contact)
@@ -681,15 +681,15 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         orgas_brick_node = self.get_brick_node(
             # doc, 'block_creme_core-tagged-creme_core-fakeorganisation',
-            doc, 'regular-creme_core-tagged-creme_core-fakeorganisation',
+            doc, 'tagged-creme_core-fakeorganisation',
         )
         self.assertInstanceLink(orgas_brick_node, tagged_orga)
         self.assertNoInstanceLink(orgas_brick_node, tagged_contact)
 
         # self.assertNoBrick(doc, 'block_creme_core-tagged-billing-fakeimage')
-        self.assertNoBrick(doc, 'regular-creme_core-tagged-billing-fakeimage')
+        self.assertNoBrick(doc, 'tagged-billing-fakeimage')
         # self.assertNoBrick(doc, 'block_creme_core-misc_tagged_entities')
-        self.assertNoBrick(doc, 'regular-creme_core-misc_tagged_entities')
+        self.assertNoBrick(doc, 'misc_tagged_entities')
 
     def test_detailview02(self):
         "Misc brick."
@@ -712,7 +712,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         contacts_brick_node = self.get_brick_node(
             # doc, 'block_creme_core-tagged-creme_core-fakecontact',
-            doc, 'regular-creme_core-tagged-creme_core-fakecontact',
+            doc, 'tagged-creme_core-fakecontact',
         )
         self.assertInstanceLink(contacts_brick_node, rita)
         self.assertNoInstanceLink(contacts_brick_node, udf)
@@ -723,7 +723,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoInstanceLink(misc_brick_node, rita)
 
         # self.assertNoBrick(doc, 'block_creme_core-tagged-creme_core-fakeorganisation')
-        self.assertNoBrick(doc, 'regular-creme_core-tagged-creme_core-fakeorganisation')
+        self.assertNoBrick(doc, 'tagged-creme_core-fakeorganisation')
 
     def test_reload_ptype_bricks01(self):
         user = self.login_as_root_and_get()
@@ -733,7 +733,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         CremeProperty.objects.create(type=ptype, creme_entity=rita)
 
         # brick_id = 'block_creme_core-tagged-creme_core-fakecontact'
-        brick_id = 'regular-creme_core-tagged-creme_core-fakecontact'
+        brick_id = 'tagged-creme_core-fakecontact'
         url = reverse('creme_core__reload_ptype_bricks', args=(ptype.id,))
         response = self.assertGET200(url, data={'brick_id': brick_id})
 
@@ -751,10 +751,11 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLink(brick_node, rita)
 
         self.assertGET404(url, data={'brick_id': 'invalid_brickid'})
+        self.assertGET404(url, data={'brick_id': 'invalidprefix-creme_core-fakecontact'})
         # self.assertGET404(url, data={'brick_id': 'block_creme_core-tagged-persons-invalidmodel'})
-        self.assertGET404(url, data={'brick_id': 'regular-creme_core-tagged-persons-invalidmodel'})
+        self.assertGET404(url, data={'brick_id': 'tagged-persons-invalidmodel'})
         # self.assertGET404(url, data={'brick_id': 'block_creme_core-tagged-persons-civility'})
-        self.assertGET404(url, data={'brick_id': 'regular-creme_core-tagged-persons-civility'})
+        self.assertGET404(url, data={'brick_id': 'tagged-persons-civility'})
 
     def test_reload_ptype_bricks02(self):
         "Misc brick + info brick."
@@ -795,7 +796,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         ptype = CremePropertyType.objects.create(text='is american')
 
         # brick_id = 'block_creme_core-tagged-persons-contact'
-        brick_id = 'regular-creme_core-tagged-persons-contact'
+        brick_id = 'tagged-persons-contact'
         response = self.assertGET200(
             reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
             data={'brick_id': brick_id},

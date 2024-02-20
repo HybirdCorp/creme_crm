@@ -18,6 +18,8 @@
 
 from __future__ import annotations
 
+import logging
+
 from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import atomic
 from django.http import Http404
@@ -40,6 +42,8 @@ from .bricks import BricksReloading
 from .generic.base import EntityCTypeRelatedMixin
 
 # TODO: Factorise with views in creme_config
+
+logger = logging.getLogger(__name__)
 
 
 # TODO: Factorise with add_relations_bulk and bulk_update?
@@ -208,7 +212,8 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
 
 
 class PropertyTypeInfoBrick(Brick):
-    id = Brick.generate_id('creme_core', 'property_type_info')
+    # id = Brick.generate_id('creme_core', 'property_type_info')
+    id = 'property_type_info'
     dependencies = '*'
     read_only = True
     template_name = 'creme_core/bricks/ptype-info.html'
@@ -231,32 +236,66 @@ class PropertyTypeInfoBrick(Brick):
 class TaggedEntitiesBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/tagged-entities.html'
 
+    id_prefix = 'tagged'
+
     def __init__(self, ptype, ctype):
         super().__init__()
         self.ptype = ptype
         self.ctype = ctype
-        self.id = self.generate_id(
-            'creme_core',
-            f'tagged-{ctype.app_label}-{ctype.model}',
-        )
+        # self.id = self.generate_id(
+        #     'creme_core',
+        #     f'tagged-{ctype.app_label}-{ctype.model}',
+        # )
+        self.id = f'{self.id_prefix}-{ctype.app_label}-{ctype.model}'
         self.dependencies = (ctype.model_class(),)
 
-    @staticmethod
-    def parse_brick_id(brick_id) -> ContentType | None:
-        "@return A ContentType instance if valid, else None"
-        parts = brick_id.split('-')
-        ctype = None
+    # @staticmethod
+    # def parse_brick_id(brick_id) -> ContentType | None:
+    #     parts = brick_id.split('-')
+    #     ctype = None
+    #
+    #     if len(parts) == 4:
+    #         try:
+    #             tmp_ctype = ContentType.objects.get_by_natural_key(parts[2], parts[3])
+    #         except ContentType.DoesNotExist:
+    #             pass
+    #         else:
+    #             if issubclass(tmp_ctype.model_class(), CremeEntity):
+    #                 ctype = tmp_ctype
+    #
+    #     return ctype
+    @classmethod
+    def parse_brick_id(cls, brick_id) -> ContentType | None:
+        """Extract info from brick ID.
 
-        # if len(parts) == 4:
-        if len(parts) == 5:
-            try:
-                # tmp_ctype = ContentType.objects.get_by_natural_key(parts[2], parts[3])
-                tmp_ctype = ContentType.objects.get_by_natural_key(parts[3], parts[4])
-            except ContentType.DoesNotExist:
-                pass
-            else:
-                if issubclass(tmp_ctype.model_class(), CremeEntity):
-                    ctype = tmp_ctype
+        @param brick_id: e.g. "tagged-persons-contact".
+        @return A ContentType instance if valid, else None.
+        """
+        parts = brick_id.split('-')
+
+        if len(parts) != 3:
+            logger.warning('parse_brick_id(): the brick ID "%s" has a bad length', brick_id)
+            return None
+
+        if parts[0] != cls.id_prefix:
+            logger.warning('parse_brick_id(): the brick ID "%s" has a bad prefix', brick_id)
+            return None
+
+        try:
+            ctype = ContentType.objects.get_by_natural_key(parts[1], parts[2])
+        except ContentType.DoesNotExist:
+            logger.warning(
+                'parse_brick_id(): the brick ID "%s" has an invalid ContentType key',
+                brick_id,
+            )
+            return None
+
+        if not issubclass(ctype.model_class(), CremeEntity):
+            logger.warning(
+                'parse_brick_id(): the brick ID "%s" is not related to CremeEntity',
+                brick_id,
+            )
+            return None
 
         return ctype
 
@@ -274,7 +313,8 @@ class TaggedEntitiesBrick(QuerysetBrick):
 
 
 class TaggedMiscEntitiesBrick(QuerysetBrick):
-    id = QuerysetBrick.generate_id('creme_core', 'misc_tagged_entities')
+    # id = QuerysetBrick.generate_id('creme_core', 'misc_tagged_entities')
+    id = 'misc_tagged_entities'
     dependencies = (CremeEntity,)
     template_name = 'creme_core/bricks/tagged-entities.html'
 
