@@ -35,7 +35,7 @@
   {% with admin_perm=user|has_perm_to_admin:'creme_core' %}
     {% if object.enabled %}
     <div class='bar-action'>
-      {% if admin_permUWU %}
+      {% if admin_perm %}
         <a href="{{object.get_edit_absolute_url}}" class="bar-button">
             {% widget_icon name='edit' size='brick-hat-bar-button' label=_('Edit') %}
         </a>
