@@ -14,7 +14,7 @@
         {% widget_icon name='search' size='form-widget' label=search_label %}
         <input type="search" class="creme_config-users-brick-search-input" placeholder="{{search_label}}" title="{% blocktranslate with fields=search_fields|join:', ' %}Filter the displayed users. Fields used: {{fields}}.{% endblocktranslate %}" />
     </div>
-    <script type="text/javascript">{# TODO: use debounce & launch the research after a given delay #}
+    <script type="text/javascript">{# TODO: use debounce & launch the search after a given delay #}
         $(document).ready(function() {
             $('.creme_config-users-brick-search-input').each(function() {
                 var input = $(this);

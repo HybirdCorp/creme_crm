@@ -2,7 +2,8 @@
 <div class="search-form">
     <form method="GET" action="{% url 'creme_core__search' %}">
     {% translate "Search" context "creme_core-verb" as label %}
-        <input type="text" name="research" value="{{search_terms}}" minlength="{{min_length}}" required />
+{#        <input type="text" name="research" value="{{search_terms}}" minlength="{{min_length}}" required /> #}
+        <input type="text" name="search" value="{{search_terms}}" minlength="{{min_length}}" required />
         <select name="ct_id">
             <option value="">{% translate 'All' context 'creme_core-filter' %}</option>
             <option disabled>------</option>
