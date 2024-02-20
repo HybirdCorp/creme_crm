@@ -1439,6 +1439,7 @@ class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
 
 
 class EntityDeletion(EntityDeletionMixin,
+                     base.CallbackMixin,
                      base.EntityRelatedMixin,
                      generic.CremeDeletion):
     entity_select_for_update = True
@@ -1460,11 +1461,22 @@ class EntityDeletion(EntityDeletionMixin,
     def get_ajax_success_url(self):
         # NB: we redirect because this view can be used from the detail-view
         #     (if it's a definitive deletion, we MUST go to a new page anyway)
-        return self.get_url_for_entity()
+        # Hint: example of use in template
+        #   <div class='bar-action'>
+        #       {% brick_bar_button
+        #          action='creme_core-detailview-delete'
+        #          label=_('Delete')
+        #          url=object.get_delete_absolute_url
+        #          __callback_url='creme_core__my_page'|url
+        #          icon='delete'
+        #          confirm=_('Are you sure?')
+        #          enabled=True
+        #        %}
+        #   </div>
+        return self.get_callback_url() or self.get_url_for_entity()
 
     def get_success_url(self):
-        # TODO: callback_url?
-        return self.get_url_for_entity()
+        return self.get_callback_url() or self.get_url_for_entity()
 
     @atomic
     def perform_deletion(self, request):

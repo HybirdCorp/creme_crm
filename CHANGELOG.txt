@@ -80,9 +80,11 @@
           override the classes used by the command "creme_populate".
           Many classes 'Populate' have been reworked to facilitate their modification by inheritance ;
           the work has been split into several methods, and class attributes with declarative values have been added.
-        # The views which manage Bricks now display a minimal Brick (see 'creme_core.gui.bricks.ForbiddenBrick')
-          which contains an error message when the attribute 'Brick.permissions' does not pass the validation.
-          This attribute has been set for many Brick classes in order to use this new behaviour.
+        # In 'creme_core.views' :
+            - The views which manage Bricks now display a minimal Brick (see 'creme_core.gui.bricks.ForbiddenBrick')
+              which contains an error message when the attribute 'Brick.permissions' does not pass the validation.
+              This attribute has been set for many Brick classes in order to use this new behaviour.
+            - The class-view 'views.entity.EntityDeletion' now accepts explicit callback URL.
         # In the class 'creme_core.core.setting_key.SettingKey', you can now pass :
              - a custom form-field class.
              - a custom renderer function.
