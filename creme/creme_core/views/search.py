@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import logging
 from functools import partial
 from time import time
 from urllib.parse import urlencode
@@ -37,10 +38,13 @@ from .bricks import BricksReloading
 from .generic import base
 
 MIN_RESEARCH_LENGTH = 3
+logger = logging.getLogger(__name__)
 
 
 class FoundEntitiesBrick(QuerysetBrick):
     template_name = 'creme_core/bricks/found-entities.html'
+
+    id_prefix = 'found'
 
     def __init__(self, searcher, model, research, user, id=None):
         super().__init__()
@@ -50,30 +54,61 @@ class FoundEntitiesBrick(QuerysetBrick):
         self.research = research
         self.user = user
         ctype = ContentType.objects.get_for_model(model)
-        self.id = id or self.generate_id(
-            'creme_core',
-            # We generate a unique ID for each research, in order
-            # to avoid sharing state (e.g. page number) between researches.
-            f'found-{ctype.app_label}-{ctype.model}-{int(time())}',
-        )
+        # self.id = id or self.generate_id(
+        #     'creme_core',
+        #     f'found-{ctype.app_label}-{ctype.model}-{int(time())}',
+        # )
+        # We generate a unique ID for each research, in order
+        # to avoid sharing state (e.g. page number) between researches.
+        self.id = id or f'{self.id_prefix}-{ctype.app_label}-{ctype.model}-{int(time())}'
 
-    @staticmethod
-    def parse_brick_id(brick_id) -> ContentType | None:
-        "@return A ContentType instance if valid, else None."
-        # Example : "regular-creme_core-found-my_app-my_model-122154"
+    # @staticmethod
+    # def parse_brick_id(brick_id) -> ContentType | None:
+    #     parts = brick_id.split('-')
+    #     ctype = None
+    #
+    #     if len(parts) == 5 and parts[4]:
+    #         try:
+    #             tmp_ctype = ContentType.objects.get_by_natural_key(parts[2], parts[3])
+    #         except ContentType.DoesNotExist:
+    #             pass
+    #         else:
+    #             if issubclass(tmp_ctype.model_class(), CremeEntity):
+    #                 ctype = tmp_ctype
+    #
+    #     return ctype
+    @classmethod
+    def parse_brick_id(cls, brick_id) -> ContentType | None:
+        """Extract info from brick ID.
+
+        @param brick_id: e.g. "found-my_app-my_model-122154".
+        @return A ContentType instance if valid, else None.
+        """
         parts = brick_id.split('-')
-        ctype = None
 
-        # if len(parts) == 5 and parts[4]:
-        if len(parts) == 6 and parts[-1]:
-            try:
-                # tmp_ctype = ContentType.objects.get_by_natural_key(parts[2], parts[3])
-                tmp_ctype = ContentType.objects.get_by_natural_key(parts[3], parts[4])
-            except ContentType.DoesNotExist:
-                pass
-            else:
-                if issubclass(tmp_ctype.model_class(), CremeEntity):
-                    ctype = tmp_ctype
+        if len(parts) != 4:
+            logger.warning('parse_brick_id(): the brick ID "%s" has a bad length', brick_id)
+            return None
+
+        if parts[0] != cls.id_prefix:
+            logger.warning('parse_brick_id(): the brick ID "%s" has a bad prefix', brick_id)
+            return None
+
+        try:
+            ctype = ContentType.objects.get_by_natural_key(parts[1], parts[2])
+        except ContentType.DoesNotExist:
+            logger.warning(
+                'parse_brick_id(): the brick ID "%s" has an invalid ContentType key',
+                brick_id,
+            )
+            return None
+
+        if not issubclass(ctype.model_class(), CremeEntity):
+            logger.warning(
+                'parse_brick_id(): the brick ID "%s" is not related to CremeEntity',
+                brick_id,
+            )
+            return None
 
         return ctype
 

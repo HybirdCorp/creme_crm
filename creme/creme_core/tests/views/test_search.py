@@ -31,9 +31,9 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
     LIGHT_URL = reverse('creme_core__light_search')
 
     # CONTACT_BRICKID = 'block_creme_core-found-creme_core-fakecontact-'
-    CONTACT_BRICKID = 'regular-creme_core-found-creme_core-fakecontact-'
+    CONTACT_BRICKID = 'found-creme_core-fakecontact-'
     # ORGA_BRICKID    = 'block_creme_core-found-creme_core-fakeorganisation-'
-    ORGA_BRICKID    = 'regular-creme_core-found-creme_core-fakeorganisation-'
+    ORGA_BRICKID    = 'found-creme_core-fakeorganisation-'
 
     @classmethod
     def setUpClass(cls):
@@ -568,8 +568,6 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
 
         url = reverse('creme_core__reload_search_brick')
         brick_id = self.CONTACT_BRICKID + '32132154'
-        self.assertGET404(url, data={'brick_id': brick_id, 'search': 'da'})
-
         response = self.assertGET200(url, data={'brick_id': brick_id, 'search': 'linu'})
 
         results = response.json()
@@ -582,6 +580,17 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
 
         doc = self.get_html_tree(result[1])
         self.get_brick_node(doc, brick_id)
+
+        # ---
+        self.assertGET404(url, data={'brick_id': brick_id, 'search': 'da'})
+
+        def assertBadID(brick_id):
+            self.assertGET404(url, data={'brick_id': brick_id, 'search': 'linu'})
+
+        assertBadID('invalid_prefix-creme_core-fakecontact-')
+        assertBadID('found-creme_core-fakecontact-123-extra')
+        assertBadID('found-creme_core-invalid-123')
+        assertBadID('found-creme_core-fakesector-123')
 
     def test_light_search01(self):
         user = self.login_as_root_and_get()
