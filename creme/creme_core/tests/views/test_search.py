@@ -115,11 +115,14 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.linusfo = create_orga(name='FoobarLinusFoundation')
         self.coxco   = create_orga(name='StuffCoxCorp')
 
-    def _search(self, research=None, ct_id=None):
+    # def _search(self, research=None, ct_id=None):
+    def _search(self, searched=None, ct_id=None):
         data = {}
 
-        if research is not None:
-            data['research'] = research
+        # if research is not None:
+        #     data['research'] = research
+        if searched is not None:
+            data['search'] = searched
 
         if ct_id is not None:
             data['ct_id'] = ct_id
@@ -137,7 +140,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
 
         ctxt = response.context
         self.assertEqual(self.contact_ct_id, ctxt.get('selected_ct_id'))
-        self.assertEqual(term,               ctxt.get('research'))
+        # self.assertEqual(term,               ctxt.get('research'))
+        self.assertEqual(term,               ctxt.get('searched'))
 
         with self.assertNoException():
             models = ctxt['models']
@@ -395,7 +399,8 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         "Empty page"
         self.login_as_root()
 
-        response = self._search(research='', ct_id='')
+        # response = self._search(research='', ct_id='')
+        response = self._search(searched='', ct_id='')
         self.assertEqual(200, response.status_code)
         self.assertTemplateUsed(response, 'creme_core/search_results.html')
 

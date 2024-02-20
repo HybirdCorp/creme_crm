@@ -33,7 +33,8 @@ class CremeSearchTagsTestCase(CremeTestCase):
 
         tree = self.get_html_tree(render)
 
-        input_node = self.get_html_node_or_fail(tree, './/input[@name="research"]')
+        # input_node = self.get_html_node_or_fail(tree, './/input[@name="research"]')
+        input_node = self.get_html_node_or_fail(tree, './/input[@name="search"]')
         self.assertEqual("['Acme', 'super2000']", input_node.attrib.get('value'))
         self.assertEqual('3', input_node.attrib.get('minlength'))
 

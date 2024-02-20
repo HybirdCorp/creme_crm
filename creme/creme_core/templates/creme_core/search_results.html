@@ -18,7 +18,8 @@
         $('#search_results_title').text(titleFmt.format(total));
     });
 
-    var SEARCH = '{{research|escapejs|lower}}';
+{#    var SEARCH = '{{research|escapejs|lower}}'; #}
+    var SEARCH = '{{searched|escapejs|lower}}';
 
     $(document).on('brick-ready', '.brick.creme_core-search-brick:not(.is-empty)', function(e, brick, options) {
         brick._element.find('.advanced-search-result').each(function() {
@@ -52,10 +53,13 @@
         </div>
     </div>
 
-    {% search_form user=user selected_ct_id=selected_ct_id search_terms=research %}
+{#    {% search_form user=user selected_ct_id=selected_ct_id search_terms=research %} #}
+    {% search_form user=user selected_ct_id=selected_ct_id search_terms=searched %}
 
-    {% if research or models %}
-        {% blocktranslate with types=models|join:', ' asvar help_msg %}Your search: {{research}}
+{#    {% if research or models %} #}
+    {% if searched or models %}
+{#        {% blocktranslate with types=models|join:', ' asvar help_msg %}Your search: {{research}} #}
+        {% blocktranslate with types=models|join:', ' asvar help_msg %}Your search: {{searched}}
 
 Concerned types: {{types}}{% endblocktranslate %}
         {% widget_help_sign message=help_msg %}

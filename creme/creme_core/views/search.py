@@ -37,7 +37,8 @@ from ..utils.unicode_collation import collator
 from .bricks import BricksReloading
 from .generic import base
 
-MIN_RESEARCH_LENGTH = 3
+# MIN_RESEARCH_LENGTH = 3
+MIN_SEARCH_LENGTH = 3
 logger = logging.getLogger(__name__)
 
 
@@ -46,19 +47,21 @@ class FoundEntitiesBrick(QuerysetBrick):
 
     id_prefix = 'found'
 
-    def __init__(self, searcher, model, research, user, id=None):
+    # def __init__(self, searcher, model, research, user, id=None):
+    def __init__(self, searcher, model, searched, user, id=None):
         super().__init__()
         # dependencies  = (...,)  # TODO: ??
         self.searcher = searcher
         self.model = model
-        self.research = research
+        # self.research = research
+        self.searched = searched
         self.user = user
         ctype = ContentType.objects.get_for_model(model)
         # self.id = id or self.generate_id(
         #     'creme_core',
         #     f'found-{ctype.app_label}-{ctype.model}-{int(time())}',
         # )
-        # We generate a unique ID for each research, in order
+        # We generate a unique ID for each search, in order
         # to avoid sharing state (e.g. page number) between researches.
         self.id = id or f'{self.id_prefix}-{ctype.app_label}-{ctype.model}-{int(time())}'
 
@@ -114,9 +117,11 @@ class FoundEntitiesBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         model = self.model
-        research = self.research
+        # research = self.research
+        searched = self.searched
         searcher = self.searcher
-        results = searcher.search(model, research)
+        # results = searcher.search(model, research)
+        results = searcher.search(model, searched)
 
         if results is None:
             # HACK: ensures that the brick is displayed (with a strange title anyway...)
@@ -170,7 +175,8 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
             ResultBrick = partial(
                 self.brick_class,
                 searcher=searcher,
-                research=self.get_search_terms(),
+                # research=self.get_search_terms(),
+                searched=self.get_search_terms(),
                 user=searcher.user,
             )
 
@@ -186,7 +192,8 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['research'] = self.get_search_terms()
+        # context['research'] = self.get_search_terms()
+        context['searched'] = self.get_search_terms()
         context['error_message'] = self.get_search_error()
         context['models'] = [m._meta.verbose_name for m in self.get_searcher().models]
 
@@ -214,10 +221,15 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
 
         if error is None:
             self.search_error = error = (
+                # gettext(
+                #     'Please enter at least {count} characters'
+                # ).format(count=MIN_RESEARCH_LENGTH)
+                # if len(self.get_search_terms()) < MIN_RESEARCH_LENGTH else
+                # ''
                 gettext(
                     'Please enter at least {count} characters'
-                ).format(count=MIN_RESEARCH_LENGTH)
-                if len(self.get_search_terms()) < MIN_RESEARCH_LENGTH else
+                ).format(count=MIN_SEARCH_LENGTH)
+                if len(self.get_search_terms()) < MIN_SEARCH_LENGTH else
                 ''
             )
 
@@ -227,7 +239,8 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
         terms = self.search_terms
 
         if terms is None:
-            self.search_terms = terms = self.request.GET.get('research', '')
+            # self.search_terms = terms = self.request.GET.get('research', '')
+            self.search_terms = terms = self.request.GET.get('search', '')  # TODO: attribute
 
         return terms
 
@@ -247,14 +260,21 @@ class SearchBricksReloading(BricksReloading):
             if ctype is None:
                 raise Http404('Invalid block ID')
 
-            search = GET.get('search', '')
+            # search = GET.get('search', '')
+            searched = GET.get('search', '')
 
-            if len(search) < MIN_RESEARCH_LENGTH:
-                raise Http404(f'Please enter at least {MIN_RESEARCH_LENGTH} characters')
+            # if len(search) < MIN_RESEARCH_LENGTH:
+            #     raise Http404(f'Please enter at least {MIN_RESEARCH_LENGTH} characters')
+            if len(searched) < MIN_SEARCH_LENGTH:
+                raise Http404(f'Please enter at least {MIN_SEARCH_LENGTH} characters')
 
             model = ctype.model_class()
             bricks.append(
-                FoundEntitiesBrick(Searcher([model], user), model, search, user, id=brick_id)
+                FoundEntitiesBrick(
+                    searcher=Searcher([model], user), model=model,
+                    # searched=search, user=user, id=brick_id,
+                    searched=searched, user=user, id=brick_id,
+                )
             )
 
         return bricks
@@ -291,8 +311,10 @@ class LightSearch(SearcherMixin, base.CheckedView):
 
         if not terms:
             data['error'] = self.error_msg_empty
-        elif len(terms) < MIN_RESEARCH_LENGTH:
-            data['error'] = self.error_msg_length.format(count=MIN_RESEARCH_LENGTH)
+        # elif len(terms) < MIN_RESEARCH_LENGTH:
+        #     data['error'] = self.error_msg_length.format(count=MIN_RESEARCH_LENGTH)
+        elif len(terms) < MIN_SEARCH_LENGTH:
+            data['error'] = self.error_msg_length.format(count=MIN_SEARCH_LENGTH)
         else:
             results = []
             user = request.user

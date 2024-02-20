@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2023  Hybird
+#    Copyright (C) 2013-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -138,17 +138,19 @@ class Searcher:
         "View on the models this Searcher use."
         return self._search_map.keys()
 
-    def search(self, model: type[Model], research: str) -> QuerySet | None:
+    # def search(self, model: type[Model], research: str) -> QuerySet | None:
+    def search(self, model: type[Model], searched: str) -> QuerySet | None:
         """Return a query with the models which fields contain the wanted value.
         @param model: Class inheriting django.db.Model (CremeEntity)
-        @param research: Searched string ; it's split in words (see utils.string.smart_split()).
-        @return: Queryset on model or None ; None means 'All fields are hidden'.
+        @param searched: Searched string; it's split in words (see <utils.string.smart_split()>).
+        @return: Queryset on model or None; None means 'All fields are hidden'.
         """
         cells = self.get_cells(model)
 
         assert cells is not None  # search on a disabled model ?
 
-        strings = smart_split(research)
+        # strings = smart_split(research)
+        strings = smart_split(searched)
 
         # TODO: distinct() only if there is a JOIN...
         return model.objects.filter(
