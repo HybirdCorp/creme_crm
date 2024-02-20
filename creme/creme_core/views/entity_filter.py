@@ -259,13 +259,12 @@ class EntityFilterDetail(generic.CremeModelDetail):
         efilter = self.object
         bricks = [EntityFilterInfoBrick()]
 
-        # TODO: beware to reloading too
         if efilter.filter_type == EF_USER:
             bricks.append(EntityFilterParentsBrick())
 
             # TODO: regroup fields from the same model?
             #   => how to indicate PROTECT FKs which will stop deletion
-            #   => what about non viewable fields?
+            #   => what about non-viewable fields?
             for rel_objects in (f for f in efilter._meta.get_fields() if f.one_to_many):
                 if issubclass(rel_objects.related_model, CremeEntity):
                     bricks.append(
