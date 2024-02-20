@@ -654,7 +654,8 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         create_prop(creme_entity=tagged_orga)
 
         response = self.assertGET200(ptype.get_absolute_url())
-        self.assertTemplateUsed(response, 'creme_core/view_property_type.html')
+        # self.assertTemplateUsed(response, 'creme_core/view_property_type.html')
+        self.assertTemplateUsed(response, 'creme_core/detail/property-type.html')
         self.assertTemplateUsed(response, 'creme_core/bricks/ptype-info.html')
         self.assertTemplateUsed(response, 'creme_core/bricks/tagged-entities.html')
         self.assertEqual(

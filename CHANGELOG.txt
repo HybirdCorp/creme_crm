@@ -241,6 +241,7 @@
               So you'll have to fix your JavaScript code if you use the URL named "creme_core__set_brick_state".
         # The method 'creme_core.tests.views.base.ButtonTestCaseMixin.iter_instance_button_nodes()' has been renamed 'iter_button_nodes()'
           (because of the new method 'get_global_buttons_node()').
+        # The template "creme_core/templates/creme_core/view_property_type.html" is now "creme_core/templates/creme_core/detail/property-type.html".
         # Apps :
             * Creme_config :
                 - In 'urls' :
