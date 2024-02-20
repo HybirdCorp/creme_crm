@@ -204,6 +204,29 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         entity = self.assertStillExists(entity)
         self.assertFalse(entity.is_deleted)
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
+    def test_delete_entity_callback01(self):
+        user = self.login_as_root_and_get()
+        entity = FakeOrganisation.objects.create(user=user, name='Nerv')
+        cb_url = reverse('creme_core__my_page')
+        self.assertRedirects(
+            self.client.post(self._build_delete_url(entity), data={'callback_url': cb_url}),
+            cb_url,
+        )
+
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
+    def test_delete_entity_callback02(self):
+        "AJAX."
+        user = self.login_as_root_and_get()
+        entity = FakeOrganisation.objects.create(user=user, name='Nerv')
+        cb_url = reverse('creme_core__my_page')
+        response = self.assertPOST200(
+            self._build_delete_url(entity),
+            data={'callback_url': cb_url},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+        )
+        self.assertEqual(cb_url, response.content.decode())
+
     @override_settings(ENTITIES_DELETION_ALLOWED=False)
     def test_delete_entity_disabled01(self):
         "Deletion is disabled in settings."
