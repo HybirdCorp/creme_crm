@@ -11,10 +11,11 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.bricks import JobErrorsBrick, MassImportJobErrorsBrick
 from creme.creme_core.constants import UUID_CHANNEL_JOBS
 from creme.creme_core.creme_jobs import batch_process_type, mass_import_type
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -36,7 +37,6 @@ from creme.creme_core.models import (
     Notification,
     Relation,
     RelationType,
-    SetCredentials,
 )
 from creme.creme_core.notification import MassImportDoneContent
 from creme.creme_core.utils import update_model_instance
@@ -1992,18 +1992,19 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
         # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                # | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-            ctype=FakeContact,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         # | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        #     ctype=FakeContact,
+        # )
+        self.add_credentials(user.role, all='!CHANGE', model=FakeContact)
 
         last_name = 'Ayanami'
         first_name = 'Rei'

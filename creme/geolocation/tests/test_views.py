@@ -2,9 +2,9 @@ from functools import partial
 
 from django.urls import reverse
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_filter import condition_handler, operators
-from creme.creme_core.models import EntityFilter, FakeInvoice, SetCredentials
+from creme.creme_core.models import EntityFilter, FakeInvoice  # SetCredentials
 from creme.persons.tests.base import (
     skipIfCustomAddress,
     skipIfCustomContact,
@@ -147,12 +147,13 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
     @skipIfCustomAddress
     def test_set_address_info_credentials(self):
         user = self.login_as_standard(allowed_apps=('creme_core', 'geolocation', 'persons'))
-        SetCredentials.objects.create(
-            role=user.role,
-            ctype=Organisation,
-            value=EntityCredentials._ALL_CREDS,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     ctype=Organisation,
+        #     value=EntityCredentials._ALL_CREDS,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='*', model=Organisation)
 
         orga = create_orga(name='Orga 1', user=self.get_root_user())
         address = self.create_address(orga)
@@ -263,13 +264,13 @@ class GetAddressesTestCase(GeoLocationBaseTestCase):
 
     def test_get_addresses_credentials(self):
         user = self.login_as_standard(allowed_apps=('creme_core', 'geolocation', 'persons'))
-
-        SetCredentials.objects.create(
-            role=user.role,
-            ctype=Organisation,
-            value=EntityCredentials._ALL_CREDS,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     ctype=Organisation,
+        #     value=EntityCredentials._ALL_CREDS,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='*', model=Organisation)
 
         orga1 = create_orga(name='Orga 1', user=user)
         orga2 = create_orga(name='Orga 2', user=self.get_root_user())
@@ -568,12 +569,13 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         user = self.login_as_standard(
             allowed_apps=('creme_core', 'geolocation', 'persons'),
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            ctype=Organisation,
-            value=EntityCredentials._ALL_CREDS,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     ctype=Organisation,
+        #     value=EntityCredentials._ALL_CREDS,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='*', model=Organisation)
 
         self.populate_addresses(user)
 

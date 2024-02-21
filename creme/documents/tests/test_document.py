@@ -13,18 +13,18 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from PIL.Image import open as open_img
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.gui import actions
 from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.gui.view_tag import ViewTag
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CremeEntity,
     FakeOrganisation,
     HeaderFilter,
     RelationType,
-    SetCredentials,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons import get_contact_model
@@ -450,20 +450,20 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             allowed_apps=['documents', 'creme_core'],
             creatable_models=[Document],
         )
-
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role, set_type=SetCredentials.ESET_OWN,
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-                # | EntityCredentials.LINK
-            ),
-        )
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role, set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #         # | EntityCredentials.LINK
+        #     ),
+        # )
+        self.add_credentials(user.role, own='!LINK')
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
         self.assertTrue(user.has_perm_to_view(orga))
@@ -472,11 +472,13 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         url = self._build_addrelated_url(orga)
         self.assertGET403(url)
 
-        get_ct = ContentType.objects.get_for_model
-        create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
+        # get_ct = ContentType.objects.get_for_model
+        # create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
+        self.add_credentials(user.role, own=['LINK'], model=FakeOrganisation)
         self.assertGET403(url)
 
-        create_sc(value=EntityCredentials.LINK, ctype=get_ct(Document))
+        # create_sc(value=EntityCredentials.LINK, ctype=get_ct(Document))
+        self.add_credentials(user.role, own=['LINK'], model=Document)
         self.assertGET200(url)
 
         response = self.assertPOST200(
@@ -504,30 +506,31 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             allowed_apps=['documents', 'creme_core'],
             creatable_models=[Document],
         )
-
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role, set_type=SetCredentials.ESET_OWN,
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-                # | EntityCredentials.LINK
-            ),
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.LINK
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),
-            ctype=Document,
-        )
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role, set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #         # | EntityCredentials.LINK
+        #     ),
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     ctype=Document,
+        # )
+        self.add_credentials(user.role, own='!LINK')
+        self.add_credentials(user.role, own='*', model=Document)
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
         self.assertTrue(user.has_perm_to_view(orga))

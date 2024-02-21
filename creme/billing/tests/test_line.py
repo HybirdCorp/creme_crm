@@ -10,13 +10,9 @@ from django.utils.translation import gettext as _
 from parameterized import parameterized
 
 from creme.billing import bricks
-from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import (
-    FakeOrganisation,
-    Relation,
-    SetCredentials,
-    Vat,
-)
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.models import SetCredentials
+from creme.creme_core.models import FakeOrganisation, Relation, Vat
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.models import Contact, Organisation
 from creme.persons.tests.base import skipIfCustomOrganisation
@@ -274,29 +270,30 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice],
         )
-        create_sc = partial(
-            SetCredentials.objects.create, role=user.role, set_type=SetCredentials.ESET_ALL,
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            ctype=Organisation,
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-                # Not LINK
-            ),
-            # set_type=SetCredentials.ESET_ALL,
-        )
+        # create_sc = partial(
+        #     SetCredentials.objects.create, role=user.role, set_type=SetCredentials.ESET_ALL,
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     ctype=Organisation,
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #         # Not LINK
+        #     ),
+        # )
+        self.add_credentials(user.role, all='!LINK')
+        self.add_credentials(user.role, all='*', model=Organisation)
 
         invoice = self.create_invoice_n_orgas(name='Invoice001', user=self.get_root_user())[0]
         self.assertGET403(reverse('billing__create_product_lines', args=(invoice.id,)))

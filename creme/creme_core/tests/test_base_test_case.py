@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta
 
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
@@ -797,6 +798,9 @@ class BaseTestCaseTestCase(CremeTestCase):
             creds.value,
         )
         self.assertEqual(SetCredentials.ESET_ALL, creds.set_type)
+        self.assertIsNone(creds.ctype)
+        self.assertIsNone(creds.efilter)
+        self.assertFalse(creds.forbidden)
 
     def test_add_credentials02(self):
         "ALL + specific flags."
@@ -868,6 +872,55 @@ class BaseTestCaseTestCase(CremeTestCase):
             creds.value,
         )
         self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
+
+    def test_add_credentials__ctype01(self):
+        "Content Type."
+        role = UserRole.objects.create(name='Boss')
+        ctype = ContentType.objects.get_for_model(FakeContact)
+
+        self.add_credentials(role, all=['VIEW'], model=ctype)
+        creds = self.get_alone_element(SetCredentials.objects.filter(role=role))
+        self.assertEqual(EntityCredentials.VIEW, creds.value)
+        self.assertEqual(SetCredentials.ESET_ALL, creds.set_type)
+        self.assertEqual(ctype, creds.ctype)
+        self.assertIsNone(creds.efilter)
+        self.assertFalse(creds.forbidden)
+
+    def test_add_credentials__ctype02(self):
+        "Class."
+        role = UserRole.objects.create(name='Boss')
+
+        self.add_credentials(role, all=['VIEW'], model=FakeOrganisation)
+        creds = self.get_alone_element(SetCredentials.objects.filter(role=role))
+        self.assertEqual(EntityCredentials.VIEW, creds.value)
+        self.assertEqual(SetCredentials.ESET_ALL, creds.set_type)
+        self.assertEqual(FakeOrganisation, creds.ctype.model_class())
+        self.assertIsNone(creds.efilter)
+        self.assertFalse(creds.forbidden)
+
+    def test_add_credentials__forbidden01(self):
+        "ALL."
+        role = UserRole.objects.create(name='Boss')
+
+        self.add_credentials(role, forbidden_all=['VIEW'])
+        creds = self.get_alone_element(SetCredentials.objects.filter(role=role))
+        self.assertEqual(EntityCredentials.VIEW, creds.value)
+        self.assertEqual(SetCredentials.ESET_ALL, creds.set_type)
+        self.assertIsNone(creds.ctype)
+        self.assertIsNone(creds.efilter)
+        self.assertTrue(creds.forbidden)
+
+    def test_add_credentials__forbidden02(self):
+        "OWN."
+        role = UserRole.objects.create(name='Boss')
+
+        self.add_credentials(role, forbidden_own=['VIEW'])
+        creds = self.get_alone_element(SetCredentials.objects.filter(role=role))
+        self.assertEqual(EntityCredentials.VIEW, creds.value)
+        self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
+        self.assertIsNone(creds.ctype)
+        self.assertIsNone(creds.efilter)
+        self.assertTrue(creds.forbidden)
 
     def test_create_role01(self):
         role = self.create_role()

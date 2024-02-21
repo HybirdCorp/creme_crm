@@ -372,8 +372,8 @@ class ImportingTestCase(TransferBaseTestCase):
     def test_roles02(self):
         "Role with same name already exists => override it."
         self.login_as_super(is_staff=True)
-        get_ct = ContentType.objects.get_for_model
-        contact_ct = get_ct(FakeContact)
+        # get_ct = ContentType.objects.get_for_model
+        # contact_ct = get_ct(FakeContact)
 
         role = self.create_role(
             name='Superhero',
@@ -382,12 +382,13 @@ class ImportingTestCase(TransferBaseTestCase):
             creatable_models=[FakeContact],
             exportable_models=[FakeContact],
         )
-        SetCredentials.objects.create(
-            role=role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-            ctype=contact_ct,
-        )
+        # SetCredentials.objects.create(
+        #     role=role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        #     ctype=contact_ct,
+        # )
+        self.add_credentials(role, own=['VIEW', 'CHANGE', 'LINK'], model=FakeContact)
 
         data = {
             'version': self.VERSION,
@@ -423,9 +424,11 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertSetEqual({'persons', 'documents'}, role.allowed_apps)
         self.assertSetEqual({'documents'},            role.admin_4_apps)
 
+        get_ct = ContentType.objects.get_for_model
         orga_ct = get_ct(FakeOrganisation)
-        self.assertCountEqual([contact_ct, orga_ct], role.creatable_ctypes.all())
-        self.assertCountEqual([orga_ct],             role.exportable_ctypes.all())
+        # self.assertCountEqual([contact_ct, orga_ct], role.creatable_ctypes.all())
+        self.assertCountEqual([get_ct(FakeContact), orga_ct], role.creatable_ctypes.all())
+        self.assertCountEqual([orga_ct],                      role.exportable_ctypes.all())
 
         credentials = self.get_alone_element(role.credentials.all())
         self.assertEqual(

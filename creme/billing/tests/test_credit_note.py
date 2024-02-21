@@ -6,15 +6,15 @@ from django.template import Context, Template
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth import EntityCredentials
+# from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.gui.view_tag import ViewTag
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     Currency,
     FakeOrganisation,
     FieldsConfig,
     Relation,
-    SetCredentials,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import skipIfCustomOrganisation
@@ -515,24 +515,25 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['billing', 'persons'],
             creatable_models=[Invoice],
         )
-
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role, set_type=SetCredentials.ESET_ALL,
-        )
-        create_sc(
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-            ctype=Organisation,
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                # | EntityCredentials.LINK   # <==
-                | EntityCredentials.UNLINK
-            ),
-        )
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role, set_type=SetCredentials.ESET_ALL,
+        # )
+        # create_sc(
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        #     ctype=Organisation,
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         # | EntityCredentials.LINK   # <==
+        #         | EntityCredentials.UNLINK
+        #     ),
+        # )
+        self.add_credentials(user.role, all='!LINK')
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'], model=Organisation)
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         self.assertGET403(reverse('billing__link_to_cnotes', args=(invoice.id,)))

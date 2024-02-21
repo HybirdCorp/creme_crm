@@ -200,11 +200,14 @@ class _CremeTestCase:
         'UNLINK': EntityCredentials.UNLINK,
     }
 
-    # TODO: "ctype"
-    # TODO: "forbidden"
-    # TODO: return instances
+    # TODO: "efilter"
+    # TODO: return instances?
     @classmethod
-    def add_credentials(cls, role: UserRole, all=None, own=None) -> None:
+    def add_credentials(cls, role: UserRole,
+                        all=None, own=None,
+                        forbidden_all=None, forbidden_own=None,
+                        model: ContentType | type[CremeEntity] = None,
+                        ) -> None:
         """Create up to 2 SetCredentials instances related to a given role.
         @param role: Related userRole.
         @param all: ESET_ALL credentials. It can be:
@@ -215,30 +218,30 @@ class _CremeTestCase:
                - A string starting by "!" followed by a value in {'VIEW', 'CHANGE'...}.
                  It means "All permissions are granted excepted this one"
                  (e.g. "!CHANGE").
-        @param all: ESET_OWN credentials. Same values than "all" parameter.
+        @param own: ESET_OWN credentials. Same values than "all" parameter.
 
         >> self.add_credentials(user.role, all='*', own='!DELETE')
         """
         CREDS = cls._CREDS
 
-        def create(set_type, flags):
+        def create(set_type, flags, forbidden=False):
             if isinstance(flags, str):
                 if flags == '*':
                     value = reduce(or_, CREDS.values())
                 else:
                     assert flags.startswith('!')
-                    forbidden = flags[1:]
-                    assert forbidden in CREDS
+                    excluded = flags[1:]
+                    assert excluded in CREDS
                     value = reduce(
                         or_,
-                        (perm for flag, perm in CREDS.items() if flag != forbidden)
+                        (perm for flag, perm in CREDS.items() if flag != excluded)
                     )
             else:
                 assert isinstance(flags, (list, tuple))
                 value = reduce(or_, (CREDS[flag] for flag in flags))
 
             SetCredentials.objects.create(
-                role=role, value=value, set_type=set_type,
+                role=role, value=value, set_type=set_type, ctype=model, forbidden=forbidden,
             )
 
         if all:
@@ -246,6 +249,12 @@ class _CremeTestCase:
 
         if own:
             create(SetCredentials.ESET_OWN, own)
+
+        if forbidden_all:
+            create(SetCredentials.ESET_ALL, forbidden_all, forbidden=True)
+
+        if forbidden_own:
+            create(SetCredentials.ESET_OWN, forbidden_own, forbidden=True)
 
     def login_as_root(self) -> None:
         # Should exist (see 'creme_core.populate.py')

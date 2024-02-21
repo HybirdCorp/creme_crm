@@ -1214,12 +1214,13 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_create_resource01(self):
         "Not super-user."
         user = self.login_as_projects_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-            set_type=SetCredentials.ESET_ALL,
-            ctype=Project,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     ctype=Project,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE'], model=Project)
 
         project = Project.objects.create(
             user=user,
@@ -1243,12 +1244,13 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_create_resource02(self):
         "Edition permission needed."
         user = self.login_as_projects_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,  # | EntityCredentials.CHANGE,
-            set_type=SetCredentials.ESET_ALL,
-            ctype=Project,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,  # | EntityCredentials.CHANGE,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     ctype=Project,
+        # )
+        self.add_credentials(user.role, all=['VIEW'], model=Project)  # Not CHANGE
 
         project = Project.objects.create(
             user=user,

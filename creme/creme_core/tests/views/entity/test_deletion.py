@@ -7,9 +7,10 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from parameterized import parameterized
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.bricks import EntityJobErrorsBrick, TrashBrick
 from creme.creme_core.creme_jobs import reminder_type, trash_cleaner_type
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -24,7 +25,6 @@ from creme.creme_core.models import (
     Job,
     Relation,
     RelationType,
-    SetCredentials,
     TrashCleaningCommand,
     history,
 )
@@ -793,20 +793,21 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_standard(allowed_apps=('creme_core',))
         # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
-        other_user = self.get_root_user()
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        #     ctype=FakeOrganisation,
+        # )
+        self.add_credentials(user.role, all='*', model=FakeOrganisation)
 
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-            ctype=FakeOrganisation,
-        )
+        other_user = self.get_root_user()
 
         create_contact = partial(FakeContact.objects.create, user=user, is_deleted=True)
         contact1 = create_contact(first_name='Lawrence', last_name='Kraft')

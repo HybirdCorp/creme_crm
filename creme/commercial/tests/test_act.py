@@ -12,16 +12,16 @@ from creme.activities.constants import (
 )
 from creme.activities.models import ActivitySubType
 from creme.activities.tests.base import skipIfCustomActivity
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.forms.widgets import Label
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     EntityFilter,
     FakeOrganisation,
     Relation,
     RelationType,
-    SetCredentials,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.opportunities.models import SalesPhase
@@ -309,29 +309,30 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             allowed_apps=('commercial', 'opportunities'),
             creatable_models=[Opportunity],
         )
-
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role, set_type=SetCredentials.ESET_ALL,
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),  # NB: Not EntityCredentials.LINK
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            ctype=Opportunity,
-        )
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role, set_type=SetCredentials.ESET_ALL,
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),  # NB: Not EntityCredentials.LINK
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     ctype=Opportunity,
+        # )
+        self.add_credentials(user.role, all='!LINK')
+        self.add_credentials(user.role, all='*', model=Opportunity)
 
         act = self.create_act(user=user)
         self.assertFalse(user.has_perm_to_link(act))
@@ -353,18 +354,19 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             allowed_apps=('commercial', 'opportunities'),
             creatable_models=[Opportunity],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-            ctype=Act,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        #     ctype=Act,
+        # )
+        self.add_credentials(user.role, all='*', model=Act)
 
         act = self.create_act(user=user)
         self.assertTrue(user.has_perm_to_link(act))
@@ -873,14 +875,17 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             allowed_apps=['persons', 'commercial'],
             creatable_models=[Organisation],
         )
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,  # | EntityCredentials.CHANGE
-            set_type=SetCredentials.ESET_ALL,
-        )
-        create_sc(ctype=Act)
-        create_sc(ctype=Organisation)
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,  # | EntityCredentials.CHANGE
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        # create_sc(ctype=Act)
+        # create_sc(ctype=Organisation)
+        # NB: not CHANGE
+        self.add_credentials(user.role, all=['VIEW', 'LINK'], model=Act)
+        self.add_credentials(user.role, all=['VIEW', 'LINK'], model=Organisation)
 
         act = self.create_act(user=user)
         objective = ActObjective.objects.create(
@@ -913,12 +918,13 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             allowed_apps=['persons', 'commercial'],
             creatable_models=[Organisation],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-            ctype=Organisation,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     ctype=Organisation,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'], model=Organisation)
 
         act = self.create_act(user=user)
         objective = ActObjective.objects.create(
@@ -932,12 +938,13 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             allowed_apps=['persons', 'commercial'],
             creatable_models=[Organisation],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-            ctype=Act,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     ctype=Act,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'], model=Act)
 
         act = self.create_act(user=user)
         objective = ActObjective.objects.create(

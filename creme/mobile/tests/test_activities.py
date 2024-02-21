@@ -28,8 +28,8 @@ from creme.activities.constants import (
 )
 from creme.activities.models import Calendar
 from creme.activities.tests.base import skipIfCustomActivity
-from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import Relation, SetCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import Relation  # SetCredentials
 from creme.persons.tests.base import (
     skipIfCustomContact,
     skipIfCustomOrganisation,
@@ -560,14 +560,16 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     def test_phone_call_panel05(self):
         "Not super-user."
         user = self.login_as_mobile_user()
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role,
-            set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.VIEW,
-        )
-        create_sc(ctype=Activity)
-        create_sc(ctype=Organisation)
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     value=EntityCredentials.VIEW,
+        # )
+        # create_sc(ctype=Activity)
+        # create_sc(ctype=Organisation)
+        self.add_credentials(user.role, all=['VIEW'], model=Activity)
+        self.add_credentials(user.role, all=['VIEW'], model=Organisation)
 
         pcall = self._create_pcall(
             user=user, title='Phone call#1', participant=user.linked_contact,
@@ -618,12 +620,13 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     def test_phone_call_wf_done03(self):
         "Not usper-user."
         user = self.login_as_mobile_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            set_type=SetCredentials.ESET_ALL,
-            value=EntityCredentials.CHANGE,
-            ctype=Activity,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     value=EntityCredentials.CHANGE,
+        #     ctype=Activity,
+        # )
+        self.add_credentials(user.role, all=['CHANGE'], model=Activity)
 
         pcall = self._create_pcall(
             user=user, title='Phone call#1', participant=user.linked_contact,
