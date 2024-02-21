@@ -4,13 +4,16 @@
     {% translate "Search" context "creme_core-verb" as label %}
 {#        <input type="text" name="research" value="{{search_terms}}" minlength="{{min_length}}" required /> #}
         <input type="text" name="search" value="{{search_terms}}" minlength="{{min_length}}" required />
-        <select name="ct_id">
-            <option value="">{% translate 'All' context 'creme_core-filter' %}</option>
-            <option disabled>------</option>
-            {% for ct in content_types %}
+        <div class="select-wrapper">
+            <select name="ct_id">
+                <option value="">{% translate 'All' context 'creme_core-filter' %}</option>
+                <option disabled>------</option>
+                {% for ct in content_types %}
                 <option value="{{ct.id}}" {% if ct.id == selected_ct_id %}selected=""{% endif %} >{{ct.verbose_name}}</option>
-            {% endfor %}
-        </select>
+                {% endfor %}
+            </select>
+            <div class="select-arrow"></div>
+        </div>
         <input type="submit" value="{{label}}" />
    </form>
 </div>
