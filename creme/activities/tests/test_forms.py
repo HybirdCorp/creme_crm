@@ -298,11 +298,12 @@ class UserParticipationFieldTestCase(CremeTestCase):
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_not_linkable(self):
         role = self.create_role(allowed_apps=('persons', 'activities'))
-        SetCredentials.objects.create(
-            role=role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(role, all=['VIEW'])
 
         user = self.create_user(role=role)
 
@@ -383,11 +384,12 @@ class ParticipatingUsersFieldTestCase(CremeTestCase):
 
     def test_not_linkable(self):
         user = self.login_as_standard(allowed_apps=('persons', 'activities'))
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW'])
         self.assertFormfieldError(
             field=ParticipatingUsersField(user=user),
             value=[user.id],
