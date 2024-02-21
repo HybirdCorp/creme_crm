@@ -9,10 +9,10 @@ from django.utils.translation import gettext as _
 
 from creme.activities.forms.fields import ActivitySubTypeField
 from creme.activities.models.activity import Activity
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms.enumerable import NO_LIMIT  # EnumerableChoiceField
 from creme.creme_core.forms.widgets import Label
-from creme.creme_core.models import SetCredentials
+# from creme.creme_core.models import SetCredentials
 # from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.base import CremeTestCase
 
@@ -258,13 +258,13 @@ class UserParticipationFieldTestCase(CremeTestCase):
         user = self.create_user(
             role=self.create_role(allowed_apps=('persons', 'activities')),
         )
-
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-            ctype=type(user.linked_contact),
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     ctype=type(user.linked_contact),
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'LINK'], model=type(user.linked_contact))
 
         create_cal = Calendar.objects.create
         cal11 = create_cal(user=user, is_default=True,  name='Cal #11')
@@ -344,13 +344,13 @@ class ParticipatingUsersFieldTestCase(CremeTestCase):
 
     def test_clean(self):
         user = self.login_as_standard(allowed_apps=('persons', 'activities'))
-
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-            ctype=type(user.linked_contact),
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     ctype=type(user.linked_contact),
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'LINK'], model=type(user.linked_contact))
 
         other_user = self.get_root_user()
         staff_user = self.create_user(index=2, is_staff=True)

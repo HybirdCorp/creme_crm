@@ -5,10 +5,10 @@ from django.forms.widgets import TextInput
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.gui.quick_forms import quickforms_registry
-from creme.creme_core.models import Relation, SetCredentials
+from creme.creme_core.models import Relation  # SetCredentials
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
 from ..base import (
@@ -202,13 +202,14 @@ class ContactQuickFormTestCase(_BaseTestCase):
     def test_quickform05(self):
         "No permission to link Organisation"
         user = self.login_as_persons_user(creatable_models=[Contact])
-
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role, set_type=SetCredentials.ESET_ALL,
-        )
-        create_sc(value=EntityCredentials.VIEW)
-        create_sc(value=EntityCredentials.LINK, ctype=Contact)
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role, set_type=SetCredentials.ESET_ALL,
+        # )
+        # create_sc(value=EntityCredentials.VIEW)
+        # create_sc(value=EntityCredentials.LINK, ctype=Contact)
+        self.add_credentials(user.role, all=['VIEW'])
+        self.add_credentials(user.role, all=['LINK'], model=Contact)
 
         orga_count = Organisation.objects.count()
 
@@ -245,13 +246,14 @@ class ContactQuickFormTestCase(_BaseTestCase):
     def test_quickform06(self):
         "No permission to link Contact in general."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
-
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role, set_type=SetCredentials.ESET_ALL,
-        )
-        create_sc(value=EntityCredentials.VIEW)
-        create_sc(value=EntityCredentials.LINK, ctype=Organisation)
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role, set_type=SetCredentials.ESET_ALL,
+        # )
+        # create_sc(value=EntityCredentials.VIEW)
+        # create_sc(value=EntityCredentials.LINK, ctype=Organisation)
+        self.add_credentials(user.role, all=['VIEW'])
+        self.add_credentials(user.role, all=['LINK'], model=Organisation)
 
         response = self.assertGET200(self._build_quickform_url())
 
@@ -267,19 +269,21 @@ class ContactQuickFormTestCase(_BaseTestCase):
     def test_quickform07(self):
         "No permission to link Contact with a specific owner."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
-
-        create_sc = partial(SetCredentials.objects.create, role=user.role)
-        create_sc(
-            value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
-        )
-        create_sc(
-            value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL,
-            ctype=Organisation,
-        )
-        create_sc(
-            value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN,
-            ctype=Contact,
-        )
+        # create_sc = partial(SetCredentials.objects.create, role=user.role)
+        # create_sc(
+        #     value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
+        # )
+        # create_sc(
+        #     value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL,
+        #     ctype=Organisation,
+        # )
+        # create_sc(
+        #     value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN,
+        #     ctype=Contact,
+        # )
+        self.add_credentials(user.role, all=['VIEW'])
+        self.add_credentials(user.role, all=['LINK'], model=Organisation)
+        self.add_credentials(user.role, own=['LINK'], model=Contact)
 
         url = self._build_quickform_url()
         response1 = self.assertGET200(url)
@@ -403,10 +407,12 @@ class ContactQuickFormTestCase(_BaseTestCase):
         "Have to create an Organisations, but can not link to it."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
 
-        create_sc = partial(SetCredentials.objects.create, role=user.role)
-        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
-        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=Contact)
-        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
+        # create_sc = partial(SetCredentials.objects.create, role=user.role)
+        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        # create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=Contact)
+        # create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
+        self.add_credentials(user.role, all=['VIEW'], own=['LINK'])
+        self.add_credentials(user.role, all=['LINK'], model=Contact)
 
         orga_name = 'Bebop'
         self.assertFalse(Organisation.objects.filter(name=orga_name).exists())

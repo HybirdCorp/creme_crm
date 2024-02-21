@@ -2,13 +2,9 @@ from functools import partial
 
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import (
-    CremePropertyType,
-    Relation,
-    RelationType,
-    SetCredentials,
-)
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.models import SetCredentials
+from creme.creme_core.models import CremePropertyType, Relation, RelationType
 from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 from creme.documents import get_document_model
@@ -683,18 +679,20 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             allowed_apps=('documents',),
             creatable_models=[Activity, Document],
         )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-            ctype=Contact,
-            forbidden=True,
-        )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     ctype=Contact,
+        #     forbidden=True,
+        # )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all=['VIEW', 'LINK'])
+        self.add_credentials(user.role, forbidden_all=['LINK'], model=Contact)
 
         # other_user = self.other_user
         other_user = self.get_root_user()

@@ -21,6 +21,7 @@ from creme.creme_core.forms.fields import (
     RelationEntityField,
 )
 from creme.creme_core.gui.quick_forms import quickforms_registry
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -31,7 +32,6 @@ from creme.creme_core.models import (
     FakeOrganisation,
     Relation,
     RelationType,
-    SetCredentials,
 )
 from creme.creme_core.utils.content_type import entity_ctypes
 
@@ -547,13 +547,13 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_with_permission03(self):
         "Perm checking: VIEW."
         user = self.login_as_basic_user()
-
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW,
-            set_type=SetCredentials.ESET_ALL,
-            ctype=FakeContact,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     ctype=FakeContact,
+        # )
+        self.add_credentials(user.role, all=['VIEW'], model=FakeContact)
 
         other_user = self.get_root_user()
         contact = self.create_contact(user=other_user)
@@ -579,13 +579,13 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_with_permission04(self):
         "Perm checking: CHANGE."
         user = self.login_as_basic_user()
-
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.CHANGE,
-            set_type=SetCredentials.ESET_ALL,
-            ctype=FakeContact,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.CHANGE,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     ctype=FakeContact,
+        # )
+        self.add_credentials(user.role, all=['CHANGE'], model=FakeContact)
 
         other_user = self.create_user(index=1)
         contact = self.create_contact(user=other_user)
@@ -613,13 +613,15 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         user = self.login_as_basic_user()
         other_user = self.get_root_user()
 
-        get_ct = ContentType.objects.get_for_model
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role, set_type=SetCredentials.ESET_ALL,
-        )
-        create_sc(value=EntityCredentials.VIEW, ctype=get_ct(FakeContact))
-        create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
+        # get_ct = ContentType.objects.get_for_model
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role, set_type=SetCredentials.ESET_ALL,
+        # )
+        # create_sc(value=EntityCredentials.VIEW, ctype=get_ct(FakeContact))
+        # create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
+        self.add_credentials(user.role, all=['VIEW'], model=FakeContact)
+        self.add_credentials(user.role, all=['LINK'], model=FakeOrganisation)
 
         contact = self.create_contact(user=other_user)
         orga1 = self.create_orga(user=other_user)
@@ -994,13 +996,15 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         "Perm checking: perm combo."
         user = self.login_as_basic_user()
 
-        get_ct = ContentType.objects.get_for_model
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role, set_type=SetCredentials.ESET_ALL,
-        )
-        create_sc(value=EntityCredentials.VIEW, ctype=get_ct(FakeContact))
-        create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
+        # get_ct = ContentType.objects.get_for_model
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role, set_type=SetCredentials.ESET_ALL,
+        # )
+        # create_sc(value=EntityCredentials.VIEW, ctype=get_ct(FakeContact))
+        # create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
+        self.add_credentials(user.role, all=['VIEW'], model=FakeContact)
+        self.add_credentials(user.role, all=['LINK'], model=FakeOrganisation)
 
         other_user = self.get_root_user()
         contact = self.create_contact(user=other_user)

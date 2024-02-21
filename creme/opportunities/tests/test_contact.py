@@ -6,8 +6,8 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import CustomField, RelationType, SetCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.models import CustomField, RelationType  # SetCredentials
 from creme.opportunities.constants import REL_SUB_LINKED_CONTACT
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 from creme.persons.tests.base import (
@@ -168,20 +168,25 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
             creatable_models=[Organisation, Contact, Opportunity],
         )
 
-        get_ct = ContentType.objects.get_for_model
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role, set_type=SetCredentials.ESET_OWN,
-        )
-
-        VIEW   = EntityCredentials.VIEW
-        CHANGE = EntityCredentials.CHANGE
-        LINK   = EntityCredentials.LINK
+        # get_ct = ContentType.objects.get_for_model
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role, set_type=SetCredentials.ESET_OWN,
+        # )
+        #
+        # VIEW   = EntityCredentials.VIEW
+        # CHANGE = EntityCredentials.CHANGE
+        # LINK   = EntityCredentials.LINK
 
         for model in (Opportunity, Organisation, Contact):
-            create_sc(
-                value=(VIEW | CHANGE | LINK) if model in allowed_models else (VIEW | CHANGE),
-                ctype=get_ct(model),
+            # create_sc(
+            #     value=(VIEW | CHANGE | LINK) if model in allowed_models else (VIEW | CHANGE),
+            #     ctype=get_ct(model),
+            # )
+            self.add_credentials(
+                user.role,
+                own=['VIEW', 'CHANGE', 'LINK'] if model in allowed_models else ['VIEW', 'CHANGE'],
+                model=model,
             )
 
         opp = self._create_opportunity_n_organisations(user=user)[0]

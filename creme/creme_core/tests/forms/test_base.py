@@ -10,10 +10,11 @@ from creme.creme_config.forms.fields import (
     CreatorCustomEnumerableChoiceField,
     CustomMultiEnumChoiceField,
 )
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.forms.enumerable import EnumerableChoice
 from creme.creme_core.forms.widgets import Label
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremePropertyType,
     CustomField,
@@ -27,7 +28,6 @@ from creme.creme_core.models import (
     Relation,
     RelationType,
     SemiFixedRelationType,
-    SetCredentials,
 )
 
 from ..base import CremeTestCase
@@ -866,19 +866,20 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertNotInChoices(value=sfrt2.id, choices=sf_choices)
 
     def test_relations_credentials02(self):
-        "Label if cannot link the future entity."
+        "Label if we cannot link the future entity."
         user = self.login_as_standard(creatable_models=[FakeContact])
-
-        create_creds = partial(SetCredentials.objects.create, role=user.role)
-        create_creds(
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_creds(
-            value=EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_ALL,
-            ctype=FakeContact, forbidden=True,
-        )
+        # create_creds = partial(SetCredentials.objects.create, role=user.role)
+        # create_creds(
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_creds(
+        #     value=EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     ctype=FakeContact, forbidden=True,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'CHANGE', 'LINK'])
+        self.add_credentials(user.role, forbidden_all=['LINK'], model=FakeContact)
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 

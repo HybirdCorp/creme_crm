@@ -6,9 +6,10 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.gui.view_tag import ViewTag
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -16,7 +17,6 @@ from creme.creme_core.models import (
     FieldsConfig,
     Relation,
     RelationType,
-    SetCredentials,
 )
 from creme.creme_core.tests.base import skipIfCustomUser
 from creme.documents.tests.base import skipIfCustomDocument
@@ -854,19 +854,19 @@ class ContactTestCase(_BaseTestCase):
     def test_create_linked_contact_error01(self):
         "No LINK credentials."
         user = self.login_as_persons_user(creatable_models=[Contact])
-
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role, set_type=SetCredentials.ESET_OWN,
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),  # Not 'LINK'
-        )
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role, set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),  # Not 'LINK'
+        # )
+        self.add_credentials(user.role, own='!LINK')
 
         orga = Organisation.objects.create(user=user, name='Acme')
         self.assertTrue(user.has_perm_to_view(orga))
@@ -878,12 +878,14 @@ class ContactTestCase(_BaseTestCase):
         self.assertGET403(url2)
 
         # --
-        create_sc(value=EntityCredentials.LINK, ctype=Organisation)
+        # create_sc(value=EntityCredentials.LINK, ctype=Organisation)
+        self.add_credentials(user.role, own=['LINK'], model=Organisation)
         self.assertGET403(url1)
         self.assertGET403(url2)
 
         # --
-        create_sc(value=EntityCredentials.LINK, ctype=Contact)
+        # create_sc(value=EntityCredentials.LINK, ctype=Contact)
+        self.add_credentials(user.role, own=['LINK'], model=Contact)
         self.assertGET200(url1)
         self.assertGET200(url2)
 
@@ -915,19 +917,19 @@ class ContactTestCase(_BaseTestCase):
     def test_create_linked_contact_error02(self):
         "Cannot VIEW the organisation."
         user = self.login_as_persons_user(creatable_models=[Contact])
-
-        SetCredentials.objects.create(
-            role=user.role,
-            set_type=SetCredentials.ESET_ALL,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.LINK
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),
-            ctype=Contact,  # Not Organisation
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     set_type=SetCredentials.ESET_ALL,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     ctype=Contact,  # Not Organisation
+        # )
+        self.add_credentials(user.role, all='*', model=Contact)  # Not Organisation
 
         orga = Organisation.objects.create(user=user, name='Acme')
         self.assertFalse(user.has_perm_to_view(orga))
@@ -946,30 +948,31 @@ class ContactTestCase(_BaseTestCase):
     def test_create_linked_contact_error03(self):
         "Cannot LINK the organisation."
         user = self.login_as_persons_user(creatable_models=[Contact])
-
-        create_sc = partial(
-            SetCredentials.objects.create,
-            role=user.role, set_type=SetCredentials.ESET_ALL,
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.LINK
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),
-            ctype=Contact,  # Not Organisation
-        )
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),  # Not LINK
-            ctype=Organisation,
-        )
+        # create_sc = partial(
+        #     SetCredentials.objects.create,
+        #     role=user.role, set_type=SetCredentials.ESET_ALL,
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     ctype=Contact,  # Not Organisation
+        # )
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),  # Not LINK
+        #     ctype=Organisation,
+        # )
+        self.add_credentials(user.role, all='*',     model=Contact)
+        self.add_credentials(user.role, all='!LINK', model=Organisation)
 
         orga = Organisation.objects.create(user=user, name='Acme')
         self.assertTrue(user.has_perm_to_view(orga))
