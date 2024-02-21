@@ -8,13 +8,13 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import REL_SUB_HAS
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
     Relation,
-    SetCredentials,
     SettingValue,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -637,16 +637,17 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_add_participants02(self):
         "Credentials error with the activity."
         user = self.login_as_activities_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='!LINK')
 
         activity = self._create_meeting(user=user)
         self.assertTrue(user.has_perm_to_change(activity))
@@ -829,17 +830,18 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomContact
     def test_remove_participants01(self):
         user = self.login_as_activities_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='*')
 
         logged = user.linked_contact
         other = self.get_root_user().linked_contact
@@ -903,20 +905,21 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_remove_participants02(self):
         "Cannot unlink the contact."
         user = self.login_as_activities_user()
-        create_creds = partial(SetCredentials.objects.create, role=user.role)
-        create_creds(
-            value=EntityCredentials.VIEW | EntityCredentials.UNLINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_creds(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # create_creds = partial(SetCredentials.objects.create, role=user.role)
+        # create_creds(
+        #     value=EntityCredentials.VIEW | EntityCredentials.UNLINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_creds(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='!UNLINK', own=['VIEW', 'UNLINK'])
 
         contact = self.get_root_user().linked_contact
         self.assertFalse(user.has_perm_to_unlink(contact))
@@ -942,20 +945,21 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_remove_participants03(self):
         "Cannot unlink the activity."
         user = self.login_as_activities_user()
-        create_creds = partial(SetCredentials.objects.create, role=user.role)
-        create_creds(
-            value=EntityCredentials.VIEW | EntityCredentials.UNLINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_creds(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # create_creds = partial(SetCredentials.objects.create, role=user.role)
+        # create_creds(
+        #     value=EntityCredentials.VIEW | EntityCredentials.UNLINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_creds(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='!UNLINK', own=['VIEW', 'UNLINK'])
 
         contact = user.linked_contact
         self.assertTrue(user.has_perm_to_unlink(contact))
@@ -1022,16 +1026,17 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_add_subjects02(self):
         "Credentials error with the activity."
         user = self.login_as_activities_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='!LINK')
 
         activity = self._create_meeting(user=user)
         self.assertTrue(user.has_perm_to_change(activity))
@@ -1088,17 +1093,18 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomContact
     def test_remove_subject01(self):
         user = self.login_as_activities_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='*')
 
         activity = self._create_meeting(user=user)
         contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
@@ -1129,16 +1135,17 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_remove_subject02(self):
         "Can not unlink the activity."
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='!UNLINK')
 
         activity = self._create_meeting(user=user)
         contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
@@ -1159,27 +1166,27 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_remove_subject03(self):
         "Can not unlink the contact."
         user = self.login_as_standard()
-
-        create_creds = partial(SetCredentials.objects.create, role=user.role)
-        create_creds(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_creds(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # create_creds = partial(SetCredentials.objects.create, role=user.role)
+        # create_creds(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_creds(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='!UNLINK', own='*')
 
         activity = self._create_meeting(user=user)
         contact = Contact.objects.create(
@@ -1200,17 +1207,18 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @skipIfCustomContact
     def test_unlink01(self):
         user = self.login_as_activities_user()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='*')
 
         activity = self._create_meeting(user=user)
         contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
@@ -1241,16 +1249,17 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_unlink02(self):
         "Can not unlink the activity."
         user = self.login_as_standard()
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='!UNLINK')
 
         activity = self._create_meeting(user=user)
         contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
@@ -1268,27 +1277,27 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_unlink03(self):
         "Can not unlink the contact."
         user = self.login_as_standard()
-
-        create_creds = partial(SetCredentials.objects.create, role=user.role)
-        create_creds(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_creds(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-            ),
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # create_creds = partial(SetCredentials.objects.create, role=user.role)
+        # create_creds(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_creds(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #     ),
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, all='!UNLINK', own='*')
 
         activity = self._create_meeting(user=user)
         contact = Contact.objects.create(

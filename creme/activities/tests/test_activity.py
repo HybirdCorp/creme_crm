@@ -13,7 +13,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from PIL.ImageColor import getrgb
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.creme_jobs import trash_cleaner_type
 from creme.creme_core.forms import LAYOUT_REGULAR, ReadonlyMessageField
@@ -22,13 +22,13 @@ from creme.creme_core.gui import actions
 from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.gui.custom_form import FieldGroup, FieldGroupList
 from creme.creme_core.gui.view_tag import ViewTag
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CustomFormConfigItem,
     EntityFilter,
     Job,
     Relation,
     RelationType,
-    SetCredentials,
     SettingValue,
 )
 from creme.creme_core.tests.base import skipIfNotInstalled
@@ -1653,12 +1653,13 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_createview_related05(self):
         "Not allowed LINKing."
         user = self.login_as_activities_user(creatable_models=[Activity])
-        SetCredentials.objects.create(
-            role=user.role,
-            # Not LINK
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     # Not LINK
+        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        self.add_credentials(user.role, own='!LINK')
 
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         linked = Activity.objects.create(

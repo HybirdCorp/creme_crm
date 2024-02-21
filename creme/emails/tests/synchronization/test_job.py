@@ -13,8 +13,8 @@ from django.utils.translation import ngettext
 from parameterized import parameterized
 from PIL.Image import open as open_img
 
-from creme.creme_core.auth import EntityCredentials
-from creme.creme_core.models import Job, JobResult, SetCredentials
+# from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.models import Job, JobResult  # SetCredentials
 from creme.emails.creme_jobs import entity_emails_sync_type
 from creme.emails.models import (
     EmailSyncConfigItem,
@@ -570,11 +570,11 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         "Use sender & receivers to assign retrieve Contacts."
         user = self.login_as_emails_user(allowed_apps=['persons'])
 
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -704,23 +704,25 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         self.assertEqual(orga2, receivers.get(orga2.email))
         self.assertIsNone(receivers.get(address3, -1))
 
-    @parameterized.expand([EntityCredentials.LINK, EntityCredentials.VIEW])
+    # @parameterized.expand([EntityCredentials.LINK, EntityCredentials.VIEW])
+    @parameterized.expand(['LINK', 'VIEW'])
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_job_related_persons_credentials01(self, cred):
         "Need VIEW & LINK credentials."
         user = self.login_as_emails_user(allowed_apps=['persons'])
 
-        SetCredentials.objects.create(
-            role=user.role,
-            value=EntityCredentials.VIEW | EntityCredentials.LINK,
-            set_type=SetCredentials.ESET_OWN,
-        )
-        SetCredentials.objects.create(
-            role=user.role,
-            value=cred,
-            set_type=SetCredentials.ESET_ALL,
-        )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # SetCredentials.objects.create(
+        #     role=user.role,
+        #     value=cred,
+        #     set_type=SetCredentials.ESET_ALL,
+        # )
+        self.add_credentials(user.role, own=['VIEW', 'LINK'], all=[cred])
 
         other_user = self.get_root_user()
         contact = Contact.objects.create(

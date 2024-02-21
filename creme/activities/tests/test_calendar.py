@@ -16,14 +16,10 @@ from django.utils.translation import gettext as _
 from parameterized import parameterized
 
 from creme.activities.models.config import CalendarConfigItem
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.creme_jobs import deletor_type
-from creme.creme_core.models import (
-    DeletionCommand,
-    Job,
-    Relation,
-    SetCredentials,
-)
+# from creme.creme_core.models import SetCredentials,
+from creme.creme_core.models import DeletionCommand, Job, Relation
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
@@ -871,18 +867,19 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         user = self.login_as_activities_user()
         default_calendar = Calendar.objects.get_default_calendar(user)
 
-        create_sc = partial(SetCredentials.objects.create, role=user.role)
-        create_sc(
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
-        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        # create_sc = partial(SetCredentials.objects.create, role=user.role)
+        # create_sc(
+        #     value=(
+        #         EntityCredentials.VIEW
+        #         | EntityCredentials.CHANGE
+        #         | EntityCredentials.DELETE
+        #         | EntityCredentials.LINK
+        #         | EntityCredentials.UNLINK
+        #     ),
+        #     set_type=SetCredentials.ESET_OWN,
+        # )
+        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        self.add_credentials(user.role, all=['VIEW'], own='*')
 
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
