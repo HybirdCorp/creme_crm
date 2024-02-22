@@ -732,8 +732,8 @@ class _CremeTestCase:
         return reverse('creme_core__merge_entities') + f'?id1={id1}&id2={id2}'
 
     # def build_request(self, url='/', user=None):
-    def build_request(self, *, url='/', user=None):
-        request = self.request_factory.get(url)
+    def build_request(self, *, url='/', user=None, data=None):
+        request = self.request_factory.get(url, data=data)
         request.session = SessionBase()
         # request.user = user or self.user
 
@@ -750,14 +750,15 @@ class _CremeTestCase:
         return request
 
     # TODO: @classmethod (build_request() too)
-    def build_context(self, user, url=None, instance=None):
+    def build_context(self, user, url=None, instance=None, request_data=None):
         from django.template.context import make_context
         from django.template.engine import Engine
 
         if not url:
             url = reverse('creme_core__home') if instance is None else instance.get_absolute_url()
 
-        request = self.build_request(url=url, user=user)
+        # request = self.build_request(url=url, user=user)
+        request = self.build_request(url=url, user=user, data=request_data)
 
         context = make_context({}, request)
 

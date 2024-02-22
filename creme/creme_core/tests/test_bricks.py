@@ -121,7 +121,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         #   - BrickStates
         #   - SettingValues "is open"/"how empty fields"
         #   - Relations
-        #   - Contacts (subjects)
+        #   - Contacts (objects)
         with self.assertNumQueries(5):
             render = RelationsBrick().detailview_display(context)
 
