@@ -1,6 +1,7 @@
 from copy import deepcopy
 from functools import partial
 
+from django.contrib.contenttypes.models import ContentType
 from django.test import RequestFactory
 from django.utils.translation import gettext as _
 
@@ -22,6 +23,7 @@ from creme.creme_core.gui.bricks import (
     _BrickRegistry,
 )
 from creme.creme_core.models import (
+    CremeEntity,
     CustomBrickConfigItem,
     FakeContact,
     FakeImage,
@@ -31,9 +33,11 @@ from creme.creme_core.models import (
     RelationBrickItem,
     RelationType,
 )
+from creme.creme_core.utils.content_type import entity_ctypes
 
 from ..base import CremeTestCase
 from ..fake_constants import FAKE_REL_OBJ_EMPLOYED_BY
+from ..views.base import BrickTestCaseMixin
 
 
 class BrickRegistryTestCase(CremeTestCase):
@@ -1387,7 +1391,7 @@ class BricksManagerTestCase(CremeTestCase):
     # TODO: test def get_state(self, brick_id, user)
 
 
-class BrickTestCase(CremeTestCase):
+class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
     def setUp(self):
         super().setUp()
         self.factory = RequestFactory()
@@ -1718,10 +1722,10 @@ class BrickTestCase(CremeTestCase):
         self._assertPageOrderedLike(page, [cranel, crozzo, wallen])
 
     def test_specific_relations_brick01(self):
-        predicate = 'loves'
+        predicate = 'designed'
         rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_loves', predicate),
-            ('test-object_loved', 'is loved by'),
+            ('test-subject_designed', predicate),
+            ('test-object_designed_by', 'is designed by'),
         )[0]
         rbi = RelationBrickItem.objects.create(relation_type=rtype)
 
@@ -1733,6 +1737,71 @@ class BrickTestCase(CremeTestCase):
             brick.verbose_name,
         )
         self.assertEqual((), brick.target_ctypes)
+
+        # ---
+        # Important for ID
+        get_ct = ContentType.objects.get_for_model
+        self.assertLess(get_ct(FakeContact).id, get_ct(FakeOrganisation).id)
+
+        user = self.get_root_user()
+        # NB: we try to get various IDs for different types
+        create_contact = partial(FakeContact.objects.create, user=user)
+        wily = create_contact(first_name='John', last_name='Wily')
+        wood   = create_contact(first_name='Wood',   last_name='Man')
+        bubble = create_contact(first_name='Bubble', last_name='Man')
+        hq = FakeOrganisation.objects.create(user=user, name='HeadQuarter')
+        metal  = create_contact(first_name='Metal',  last_name='Man')
+        quick  = create_contact(first_name='Quick',  last_name='Man')
+
+        create_rel = partial(Relation.objects.create, user=user, type=rtype, subject_entity=wily)
+        create_rel(object_entity=wood)
+        create_rel(object_entity=metal)
+        create_rel(object_entity=hq)
+        create_rel(object_entity=bubble)
+        create_rel(object_entity=quick)
+
+        brick.page_size = 3
+        # page 1 ---
+        context = self.build_context(user=user, instance=wily)
+
+        # Fill cache
+        [*entity_ctypes()]  # NOQA
+        ContentType.objects.get_for_model(Relation)
+        ContentType.objects.get_for_model(CremeEntity)
+
+        # Queries:
+        #   - COUNT Relations
+        #   - BrickStates
+        #   - SettingValues "is open"/"how empty fields"
+        #   - Relations
+        #   - Contacts (only first page, no Organisation)
+        #   - Compatible ContentTypes (see all_ctypes_configured())
+        with self.assertNumQueries(6):
+            render = brick.detailview_display(context)
+
+        brick_node1 = self.get_brick_node(self.get_html_tree(render), brick=brick)
+        self.assertEqual(
+            f'{_("{count} Entities").format(count=5)} — {rtype.predicate}',
+            self.get_brick_title(brick_node1),
+        )
+        self.assertInstanceLink(brick_node1, bubble)
+        self.assertInstanceLink(brick_node1, metal)
+        self.assertInstanceLink(brick_node1, quick)
+        self.assertNoInstanceLink(brick_node1, hq)
+        self.assertNoInstanceLink(brick_node1, wood)
+
+        # page 2 ---
+        render2 = brick.detailview_display(
+            self.build_context(user=user, instance=wily, request_data={f'{brick.id}_page': 2})
+        )
+        brick_node2 = self.get_brick_node(self.get_html_tree(render2), brick=brick)
+        self.assertInstanceLink(brick_node2, hq)
+        self.assertInstanceLink(brick_node2, wood)
+        self.assertNoInstanceLink(brick_node2, bubble)
+        self.assertNoInstanceLink(brick_node2, quick)
+        self.assertNoInstanceLink(brick_node2, metal)
+
+        # TODO: test with configured cells for ContentTypes
 
     def test_specific_relations_brick02(self):
         "ContentType constraints."

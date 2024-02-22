@@ -84,7 +84,7 @@ class RelationsBrick(QuerysetBrick):
     dependencies = (Relation,)
 
     relation_type_deps = ()  # Voluntarily void -> see detailview_display()
-    order_by = 'type__predicate'
+    # order_by = 'type__predicate'
     template_name = 'creme_core/bricks/relations.html'
 
     def __init__(self):
@@ -121,9 +121,24 @@ class RelationsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         entity = context['object']
+        # relations = entity.relations.select_related(
+        #     'type', 'type__symmetric_type',
+        # ).prefetch_related('real_object')
+        # NB: we order by:
+        #   - "type__predicate" + "type_id" to group relationships by their type
+        #     (& preventing issues with types with identical predicate-- even if
+        #     you should avoid this).
+        #   - "object_entity" which will be extended to
+        #     <object_entity__header_filter_search_field>, for alphabetical
+        #     ordering of object-entities.
+        #   - "id" to get a consistent ordering of entities between different queries
+        #     (it's important for pagination)
         relations = entity.relations.select_related(
             'type', 'type__symmetric_type',
+        ).order_by(
+            'type__predicate', 'type_id', 'object_entity', 'id',
         ).prefetch_related('real_object')
+
         included_rtype_ids = self._included_rtype_ids
         excluded_rtype_ids = self._excluded_rtype_ids
         reloading_info = self._reloading_info
