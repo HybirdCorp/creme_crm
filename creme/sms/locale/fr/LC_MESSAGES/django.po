@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme SMS 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-06 13:44+0100\n"
+"POT-Creation-Date: 2024-02-22 17:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -427,14 +427,14 @@ msgid "New messaging lists for «{entity}»"
 msgstr "Nouvelles listes de diffusion pour «{entity}»"
 
 msgid "Link the messaging lists"
-msgstr "Lier les listes de diffusion"
+msgstr "Relier les listes de diffusion"
 
 #, python-brace-format
 msgid "New contacts for «{entity}»"
 msgstr "Nouveaux contacts pour «{entity}»"
 
 msgid "Link the contacts"
-msgstr "Lier les contacts"
+msgstr "Relier les contacts"
 
 #, python-brace-format
 msgid "New recipients for «{entity}»"

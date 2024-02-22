@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-12 11:08+0100\n"
+"POT-Creation-Date: 2024-02-22 17:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -741,7 +741,7 @@ msgid "Default duration"
 msgstr "Durée par défaut"
 
 msgid "Link to an activity"
-msgstr "Lier à une activité"
+msgstr "Relier à une activité"
 
 # Already in creme_core
 msgid "Unlink"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-04 10:10+0100\n"
+"POT-Creation-Date: 2024-02-22 17:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -605,7 +605,7 @@ msgid "Create a linked opportunity"
 msgstr ""
 
 msgid "Link to an existing opportunity"
-msgstr "Lier à des opportunités existantes"
+msgstr "Relier à des opportunités existantes"
 
 # Already in creme_core
 #, python-format
@@ -769,7 +769,7 @@ msgid "New organisation(s) for «{entity}»"
 msgstr "Nouvelle(s) société(s) pour «{entity}»"
 
 msgid "Link the organisations"
-msgstr "Lier les sociétés"
+msgstr "Relier les sociétés"
 
 #, python-brace-format
 msgid "Segment for «{entity}»"

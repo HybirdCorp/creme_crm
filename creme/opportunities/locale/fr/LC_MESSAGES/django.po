@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-16 14:59+0100\n"
+"POT-Creation-Date: 2024-02-22 17:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -462,7 +462,7 @@ msgid "Create a contact"
 msgstr ""
 
 msgid "Link to contacts"
-msgstr "Lier à des contacts"
+msgstr "Relier à des contacts"
 
 # Already in creme_core
 #, python-format
@@ -499,7 +499,7 @@ msgid "Generate an invoice"
 msgstr "Générer une facture"
 
 msgid "Link to an invoice"
-msgstr "Lier à une facture"
+msgstr "Relier à une facture"
 
 msgid "Unlink"
 msgstr "Délier"
@@ -519,7 +519,7 @@ msgid "{count} Business managers"
 msgstr "{count} Responsables"
 
 msgid "Link to a contact"
-msgstr "Lier à un contact"
+msgstr "Relier à un contact"
 
 msgid "No business manager for the moment"
 msgstr "Aucun responsable pour le moment"
@@ -594,7 +594,7 @@ msgid "{count} Related products"
 msgstr "{count} Produits associés"
 
 msgid "Link to a product"
-msgstr "Lier à un produit"
+msgstr "Relier à un produit"
 
 msgid "Edit this product"
 msgstr "Modifier ce produit"
@@ -620,7 +620,7 @@ msgid "Generate a current quote"
 msgstr "Générer un devis courant"
 
 msgid "Link to a quote"
-msgstr "Lier à un devis"
+msgstr "Relier à un devis"
 
 msgid "Current quote?"
 msgstr "Devis courant ?"
@@ -652,7 +652,7 @@ msgid "Generate a salesorder"
 msgstr "Générer un bon de commande"
 
 msgid "Link to a salesorder"
-msgstr "Lier à un bon"
+msgstr "Relier à un bon"
 
 msgid "Unlink this salesorder"
 msgstr "Délier ce bon"
@@ -669,7 +669,7 @@ msgid "{count} Related services"
 msgstr "{count} Services concernés"
 
 msgid "Link to a service"
-msgstr "Lier à un service"
+msgstr "Relier à un service"
 
 msgid "Edit this service"
 msgstr "Modifier ce service"
@@ -785,10 +785,10 @@ msgstr "Nouvelle opportunité ciblant «{entity}»"
 #~ msgstr "Contacts"
 
 #~ msgid "Link to an existing contact"
-#~ msgstr "Lier à un contact existant"
+#~ msgstr "Relier à un contact existant"
 
 #~ msgid "Link to an existing invoice"
-#~ msgstr "Lier à une facture existante"
+#~ msgstr "Relier à une facture existante"
 
 #~ msgid "Number"
 #~ msgstr "Numéro"
@@ -806,13 +806,13 @@ msgstr "Nouvelle opportunité ciblant «{entity}»"
 #~ msgstr "Produits"
 
 #~ msgid "Link to an existing product"
-#~ msgstr "Lier à un produit existant"
+#~ msgstr "Relier à un produit existant"
 
 #~ msgid "Quotes"
 #~ msgstr "Devis"
 
 #~ msgid "Link to an existing quote"
-#~ msgstr "Lier à un devis existant"
+#~ msgstr "Relier à un devis existant"
 
 #~ msgid "Generate a new current quote"
 #~ msgstr "Générer un nouveau devis courant"
@@ -830,13 +830,13 @@ msgstr "Nouvelle opportunité ciblant «{entity}»"
 #~ msgstr "Bons de commande"
 
 #~ msgid "Link to an existing salesorder"
-#~ msgstr "Lier à un bon existant"
+#~ msgstr "Relier à un bon existant"
 
 #~ msgid "Service"
 #~ msgstr "Service"
 
 #~ msgid "Link to an existing service"
-#~ msgstr "Lier à un service existant"
+#~ msgstr "Relier à un service existant"
 
 #~ msgid "Target & source"
 #~ msgstr "Cible et source"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-17 14:58+0100\n"
+"POT-Creation-Date: 2024-02-22 17:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -969,7 +969,7 @@ msgid "Send a email (with a template)"
 msgstr "Envoyer un e-mail (avec un patron)"
 
 msgid "Link to emails"
-msgstr "Lier à des e-mails"
+msgstr "Relier à des e-mails"
 
 msgid ""
 "Beware: the relationship types for emails are disabled. You should re-enable "
@@ -1243,7 +1243,7 @@ msgid "New mailing lists for «{entity}»"
 msgstr "Nouvelles listes de diffusion pour «{entity}»"
 
 msgid "Link the mailing lists"
-msgstr "Lier les listes de diffusion"
+msgstr "Relier les listes de diffusion"
 
 #, python-brace-format
 msgid "Sending an email to «{entity}»"
@@ -1257,7 +1257,7 @@ msgstr "Détails de l'e-mail"
 
 #, python-brace-format
 msgid "Link «{entity}» to emails"
-msgstr "Lier «{entity}» à des e-mails"
+msgstr "Relier «{entity}» à des e-mails"
 
 msgid "No type of relationship is compatible."
 msgstr "Aucun type de relation n'est compatible"
@@ -1270,21 +1270,21 @@ msgid "New contacts for «{entity}»"
 msgstr "Nouveaux contacts pour «{entity}»"
 
 msgid "Link the contacts"
-msgstr "Lier les contacts"
+msgstr "Relier les contacts"
 
 #, python-brace-format
 msgid "New organisations for «{entity}»"
 msgstr "Nouvelles sociétés pour «{entity}»"
 
 msgid "Link the organisations"
-msgstr "Lier les sociétés"
+msgstr "Relier les sociétés"
 
 #, python-brace-format
 msgid "New child list for «{entity}»"
 msgstr "Nouvelles listes filles pour «{entity}»"
 
 msgid "Link the mailing list"
-msgstr "Lier la liste de diffusion"
+msgstr "Relier la liste de diffusion"
 
 #, python-brace-format
 msgid "New recipients for «{entity}»"

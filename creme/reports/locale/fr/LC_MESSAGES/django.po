@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-06 19:06+0200\n"
+"POT-Creation-Date: 2024-02-22 17:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -460,7 +460,7 @@ msgid "Unlink the report"
 msgstr "Délier le rapport"
 
 msgid "Link a report"
-msgstr "Lier un rapport"
+msgstr "Relier un rapport"
 
 msgid "Ascending"
 msgstr "Ascendant"
@@ -694,7 +694,7 @@ msgid "Link of the column «{object}»"
 msgstr "Liaison de la colonne «{object}»"
 
 msgid "Link"
-msgstr "Lier"
+msgstr "Relier"
 
 #, python-brace-format
 msgid "Edit columns of «{object}»"

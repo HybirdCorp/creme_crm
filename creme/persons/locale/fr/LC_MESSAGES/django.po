@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-27 15:23+0200\n"
+"POT-Creation-Date: 2024-02-22 17:23+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -710,7 +710,7 @@ msgid "No address for the moment"
 msgstr "Aucune adresse pour le moment"
 
 msgid "Link to contacts"
-msgstr "Lier à des contacts"
+msgstr "Relier à des contacts"
 
 # Already in creme_core
 #, python-format
@@ -1098,7 +1098,7 @@ msgstr "Vous devez avoir au moins une société gérée."
 #~ msgstr "Création ou liaison interdite"
 
 #~ msgid "Link to existing contacts"
-#~ msgstr "Lier des contacts existants"
+#~ msgstr "Relier des contacts existants"
 
 #~ msgid "Email"
 #~ msgstr "E-mail"
