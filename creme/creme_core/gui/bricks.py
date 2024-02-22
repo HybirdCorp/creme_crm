@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -501,7 +501,8 @@ class SpecificRelationsBrick(QuerysetBrick):
         "configuration, or in the block's menu which appears when you click on the "
         "block's icon)."
     )
-    order_by = 'type'
+    # # order_by = 'type'
+    # order_by = '...' We use a multi column order manually
     template_name = 'creme_core/bricks/specific-relations.html'
 
     def __init__(self, relationbrick_item: RelationBrickItem):
@@ -534,7 +535,7 @@ class SpecificRelationsBrick(QuerysetBrick):
 
     def detailview_display(self, context) -> str:
         # TODO: check the constraints (ContentType & CremeProperties) for 'entity'
-        #       & display an message in the brick (and disable the creation button)
+        #       & display a message in the brick (and disable the creation button)
         #       if constraints are broken ? (beware: add CremePropertyType in dependencies)
         #       (problem: it needs additional queries)
         entity = context['object']
@@ -545,9 +546,17 @@ class SpecificRelationsBrick(QuerysetBrick):
             # entity.relations
             #       .filter(type=relation_type)
             #       .select_related('type', 'object_entity'),
+            # NB: we order by:
+            #   - "ctype" to group entities with the same type (sadly types will be ordered
+            #     by their ID, not their localized labels -- it would be difficult to do).
+            #   - "object_entity" which will be extended to
+            #     <object_entity__header_filter_search_field>, for alphabetical ordering.
+            #   - "id" to get a consistent ordering of entities between different queries
+            #     (it's important for pagination)
             entity.relations
                   .filter(type=relation_type)
                   .select_related('type')
+                  .order_by('object_ctype_id', 'object_entity', 'id')
                   .prefetch_related('real_object'),
             config_item=config_item,
             relation_type=relation_type,

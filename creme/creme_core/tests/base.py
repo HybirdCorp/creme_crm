@@ -590,12 +590,35 @@ class _CremeTestCase:
         id2 = entity2.id if isinstance(entity2, CremeEntity) else entity2
         return reverse('creme_core__merge_entities') + f'?id1={id1}&id2={id2}'
 
-    def build_request(self, url='/', user=None):
-        request = self.request_factory.get(url)
+    # def build_request(self, url='/', user=None):
+    def build_request(self, url='/', user=None, data=None):
+        # request = self.request_factory.get(url)
+        request = self.request_factory.get(url, data=data)
         request.session = SessionBase()
         request.user = user or self.user
 
         return request
+
+    # TODO: @classmethod (build_request() too)
+    def build_context(self, user, url=None, instance=None, request_data=None):
+        from django.template.context import make_context
+        from django.template.engine import Engine
+
+        if not url:
+            url = reverse('creme_core__home') if instance is None else instance.get_absolute_url()
+
+        # request = self.build_request(url=url, user=user)
+        request = self.build_request(url=url, user=user, data=request_data)
+
+        context = make_context({}, request)
+
+        for processor in Engine.get_default().template_context_processors:
+            context.update(processor(request))
+
+        if instance is not None:
+            context['object'] = instance
+
+        return context.flatten()
 
     @staticmethod
     def create_datetime(*args, **kwargs):

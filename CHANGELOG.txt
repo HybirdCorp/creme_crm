@@ -4,6 +4,9 @@
 
   Users side :
   ------------
+    # The block which displays all relationships, & the configurable blocks related to
+      one type of relationship, have been fixed to order more correctly entities.
+      It fixes some pagination issues with PostgreSQL.
     # Several issues in the detail-view for property type have been fixed :
         - Global buttons were missing (to go to the configuration page & to create a new type).
         - The credentials for the buttons are now correct.
