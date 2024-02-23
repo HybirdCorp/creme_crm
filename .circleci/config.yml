@@ -155,8 +155,9 @@ commands:
             echo "export LC_ALL=<< parameters.language >>.<< parameters.encoding >>" >> $BASH_ENV
 
 orbs:
-#  browser-tools: circleci/browser-tools@1.2.5
-  browser-tools: circleci/browser-tools@1.4.3
+# See https://circleci.com/developer/orbs/orb/circleci/browser-tools
+#  browser-tools: circleci/browser-tools@1.4.3
+  browser-tools: circleci/browser-tools@1.4.8
 
 jobs:
   python37-lint-isort:
