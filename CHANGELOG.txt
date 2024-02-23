@@ -209,6 +209,7 @@
                      - "rtype_brick" => "rtype"
                      - "instanceblock" => "instance"
                      - "customblock" => "custom"
+                - The method 'SpecificRelationsBrick.generate_id()' has been removed (it was unused/useless since Creme 2.4).
             - The field 'HeaderFilter.json_cells' is now a 'JSONField';
               you won't have to change your code if you use the property 'cells' as advised.
             - In 'EntityFilterCondition' :

@@ -559,9 +559,9 @@ class SpecificRelationsBrick(QuerysetBrick):
             "block's icon)."
         ).format(predicate=rtype.predicate)
 
-    @staticmethod
-    def generate_id(app_name: str, name: str) -> str:
-        return f'specificblock_{app_name}-{name}'
+    # @staticmethod
+    # def generate_id(app_name: str, name: str) -> str:
+    #     return f'specificblock_{app_name}-{name}'
 
     def detailview_display(self, context) -> str:
         # TODO: check the constraints (ContentType & CremeProperties) for 'entity'
