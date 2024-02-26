@@ -258,20 +258,20 @@ class UserCalendarsBrick(QuerysetBrick):
     dependencies = (Calendar, )
     template_name = 'activities/bricks/user-calendars.html'
     configurable = False
+    permissions = 'activities'
     order_by = 'name'
 
     def detailview_display(self, context):
         user = context['user']
-        has_app_perm = user.has_perm_to_access('activities')
-
-        # TODO: better permissions management in "my configuration"
-        if not has_app_perm:
-            return ''
+        # has_app_perm = user.has_perm_to_access('activities')
+        #
+        # if not has_app_perm:
+        #     return ''
 
         return self._render(self.get_template_context(
             context,
             Calendar.objects.filter(user=user),
-            has_app_perm=has_app_perm,  # TODO: remove
+            # has_app_perm=has_app_perm,
         ))
 
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -53,7 +53,7 @@ class ActivitiesConfig(CremeAppConfig):
             bricks.SubjectsBrick,
             bricks.FutureActivitiesBrick,
             bricks.PastActivitiesBrick,
-            bricks.UserCalendarsBrick,
+            # bricks.UserCalendarsBrick,
             bricks.RelatedCalendarBrick,
             bricks.CalendarConfigItemsBrick,
         ).register_hat(

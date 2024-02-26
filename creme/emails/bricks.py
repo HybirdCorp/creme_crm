@@ -377,17 +377,13 @@ class MySignaturesBrick(QuerysetBrick):
     order_by = 'name'
     template_name = 'emails/bricks/signatures.html'
     configurable = False
-    # NB: the brick must be visible by all users ; we check permissions in the
-    #     render to disabled only forbidden things.
-    # permissions = ''
+    permissions = 'emails'
 
     signature_render_cls = SignatureRenderer
 
     def detailview_display(self, context):
-        # TODO: better permissions management in "my configuration"
-        if not context['user'].has_perm_to_access('emails'):
-            return ''
-
+        # if not context['user'].has_perm_to_access('emails'):
+        #     return ''
         btc = self.get_template_context(
             context,
             EmailSignature.objects.filter(user=context['user']).prefetch_related('images')

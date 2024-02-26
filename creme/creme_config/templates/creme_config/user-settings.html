@@ -30,11 +30,16 @@
         </script>
     </div>
 
+{% comment %}
     {% brick_import app='creme_config' name='blocks_mypage_locations' as blocks_mypage_locations_brick %}
     {% brick_import app='creme_config' name='notif_channel_config' as channel_config_brick %}
     {% brick_import app='creme_config' name='user_setting_values' as user_setting_values_brick %}
     {% brick_declare apps_usersettings_bricks %}
     {% brick_display blocks_mypage_locations_brick channel_config_brick user_setting_values_brick apps_usersettings_bricks %}
+    {% brick_end %}
+{% endcomment %}
 
+    {% brick_declare bricks %}
+    {% brick_display bricks %}
     {% brick_end %}
 {% endblock %}

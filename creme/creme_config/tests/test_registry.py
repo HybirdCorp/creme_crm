@@ -1,16 +1,27 @@
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_config.bricks import GenericModelBrick
+from creme.creme_config.bricks import (
+    BrickMypageLocationsBrick,
+    GenericModelBrick,
+    NotificationChannelConfigItemsBrick,
+    UserSettingValuesBrick,
+)
 from creme.creme_config.forms.generics import DeletionForm
 from creme.creme_config.registry import (
     NotRegisteredInConfig,
     RegistrationError,
     _ConfigRegistry,
+    config_registry,
 )
 from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.gui.bricks import SimpleBrick, _BrickRegistry
+from creme.creme_core.gui.bricks import (
+    Brick,
+    SimpleBrick,
+    VoidBrick,
+    _BrickRegistry,
+)
 from creme.creme_core.models import FakeCivility, FakePosition, FakeSector
 from creme.creme_core.tests.base import CremeTestCase
 from creme.documents.models import DocumentCategory
@@ -460,23 +471,153 @@ class RegistryTestCase(CremeTestCase):
         self.assertNotIn(TestBrick1.id, brick_ids)
         self.assertNotIn(TestBrick2.id, brick_ids)
 
-    def test_register_userbricks(self):
+    # def test_register_userbricks(self):
+    def test_get_user_bricks(self):
+        user = self.create_user(role=self.create_role(allowed_apps=['persons']))
+
         class TestUserBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_userbricks1')
+            id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks1')
 
         class TestUserBrick2(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_config', 'test_register_userbricks2')
+            id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks2')
+            permissions = 'persons'
+
+        class TestUserBrick3(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks3')
+            permissions = ['persons']
+
+        class TestUserBrick4(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks4')
+            permissions = 'documents'
+
+        class TestUserBrick5(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_get_user_bricks5')
+            permissions = ['persons', 'documents']
 
         brick_registry = _BrickRegistry()
-        brick_registry.register(TestUserBrick1, TestUserBrick2)
+        # brick_registry.register(TestUserBrick1, TestUserBrick2)
 
         registry = _ConfigRegistry(brick_registry)
 
-        registry.register_user_bricks(TestUserBrick1, TestUserBrick2)
-        bricks = [*registry.user_bricks]
-        self.assertEqual(2, len(bricks))
+        registry.register_user_bricks(
+            TestUserBrick1, TestUserBrick2, TestUserBrick3, TestUserBrick4, TestUserBrick5,
+        )
+        # bricks = [*registry.user_bricks]
+        bricks = [*registry.get_user_bricks(user)]
+        # self.assertEqual(2, len(bricks))
+        self.assertEqual(5, len(bricks))
         self.assertIsInstance(bricks[0], TestUserBrick1)
         self.assertIsInstance(bricks[1], TestUserBrick2)
+        self.assertIsInstance(bricks[2], TestUserBrick3)
+
+        brick4 = bricks[3]
+        self.assertIsInstance(brick4, VoidBrick)
+        self.assertEqual(TestUserBrick4.id, brick4.id)
+
+        brick5 = bricks[4]
+        self.assertIsInstance(brick5, VoidBrick)
+        self.assertEqual(TestUserBrick5.id, brick5.id)
+
+    def test_get_user_brick(self):
+        user = self.create_user(role=self.create_role(allowed_apps=['persons']))
+
+        class TestUserBrick1(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick1')
+
+        class TestUserBrick2(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick2')
+            permissions = 'persons'
+
+        class TestUserBrick3(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick3')
+            permissions = ['persons']
+
+        class TestUserBrick4(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick4')
+            permissions = 'documents'
+
+        class TestUserBrick5(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick5')
+            permissions = ['persons', 'documents']
+
+        registry = _ConfigRegistry(_BrickRegistry())
+        registry.register_user_bricks(
+            TestUserBrick1, TestUserBrick2, TestUserBrick3, TestUserBrick4, TestUserBrick5,
+        )
+
+        self.assertIsInstance(
+            registry.get_user_brick(user=user, brick_id=TestUserBrick1.id),
+            TestUserBrick1,
+        )
+        self.assertIsInstance(
+            registry.get_user_brick(user=user, brick_id=TestUserBrick2.id),
+            TestUserBrick2,
+        )
+        self.assertIsInstance(
+            registry.get_user_brick(user=user, brick_id=TestUserBrick3.id),
+            TestUserBrick3,
+        )
+
+        brick4 = registry.get_user_brick(user=user, brick_id=TestUserBrick4.id)
+        self.assertIsInstance(brick4, VoidBrick)
+        self.assertEqual(TestUserBrick4.id, brick4.id)
+
+        brick5 = registry.get_user_brick(user=user, brick_id=TestUserBrick5.id)
+        self.assertIsInstance(brick5, VoidBrick)
+        self.assertEqual(TestUserBrick5.id, brick5.id)
+
+        brick6 = registry.get_user_brick(user=user, brick_id='invalid')
+        self.assertIsInstance(brick6, Brick)
+        self.assertFalse(brick6.id)
+
+    def test_user_brick_error(self):
+        "Brick registered in global registry."
+        user = self.get_root_user()
+
+        class TestUserBrick1(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick_error1')
+
+        class TestUserBrick2(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_get_user_brick_error2')
+
+        brick_registry = _BrickRegistry().register(TestUserBrick2)
+        registry = _ConfigRegistry(brick_registry)
+        registry.register_user_bricks(TestUserBrick1, TestUserBrick2)
+
+        with self.assertLogs(level='CRITICAL'):
+            bricks = [*registry.get_user_bricks(user)]
+
+        self.assertEqual(1, len(bricks))
+        self.assertIsInstance(bricks[0], TestUserBrick1)
+
+        with self.assertLogs(level='CRITICAL'):
+            brick = registry.get_user_brick(user=user, brick_id=TestUserBrick2.id)
+        self.assertIsInstance(brick, VoidBrick)
+
+    def test_register_userbricks_error01(self):
+        "Empty ID."
+        class TestUserBrick(SimpleBrick):
+            # id = ...
+            pass
+
+        registry = _ConfigRegistry(_BrickRegistry())
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.register_user_bricks(TestUserBrick)
+
+    def test_register_userbricks_error02(self):
+        "Duplicated ID."
+        class TestUserBrick1(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_register_userbricks_error02')
+
+        class TestUserBrick2(TestUserBrick1):
+            # id = ...
+            pass
+
+        registry = _ConfigRegistry(_BrickRegistry())
+
+        with self.assertRaises(registry.RegistrationError):
+            registry.register_user_bricks(TestUserBrick1, TestUserBrick2)
 
     def test_register_portal_bricks(self):
         class TestPortalBrick(SimpleBrick):
@@ -651,3 +792,11 @@ class RegistryTestCase(CremeTestCase):
 
         url, allowed = registry.get_model_creation_info(model=FakeCivility, user=user)
         self.assertIsNone(url)
+
+    def test_global_registry(self):
+        brick_classes = {
+            type(brick) for brick in config_registry.get_user_bricks(self.get_root_user())
+        }
+        self.assertIn(BrickMypageLocationsBrick,           brick_classes)
+        self.assertIn(NotificationChannelConfigItemsBrick, brick_classes)
+        self.assertIn(UserSettingValuesBrick,              brick_classes)

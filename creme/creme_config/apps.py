@@ -86,6 +86,11 @@ class CremeConfigConfig(CremeAppConfig):
         from . import bricks
 
         config_registry.register_portal_bricks(bricks.ExportButtonBrick)
+        config_registry.register_user_bricks(
+            bricks.BrickMypageLocationsBrick,
+            bricks.NotificationChannelConfigItemsBrick,
+            bricks.UserSettingValuesBrick,
+        )
 
     def register_bricks(self, brick_registry):
         from . import bricks
@@ -103,7 +108,7 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.BrickDetailviewLocationsBrick,
             bricks.BrickHomeLocationsBrick,
             bricks.BrickDefaultMypageLocationsBrick,
-            bricks.BrickMypageLocationsBrick,
+            # bricks.BrickMypageLocationsBrick,
             bricks.RelationBricksConfigBrick,
             bricks.InstanceBricksConfigBrick,
             bricks.ExportButtonBrick,
@@ -111,14 +116,13 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.CustomBricksConfigBrick,
             bricks.MenuBrick,
             bricks.NotificationChannelsBrick,
-            bricks.NotificationChannelConfigItemsBrick,
             bricks.ButtonMenuBrick,
             bricks.UsersBrick,
             bricks.TeamsBrick,
             bricks.SearchConfigBrick,
             bricks.HistoryConfigBrick,
             bricks.UserRolesBrick,
-            bricks.UserSettingValuesBrick,
+            # bricks.UserSettingValuesBrick,
             bricks.EntityFiltersBrick,
             bricks.HeaderFiltersBrick,
         )
