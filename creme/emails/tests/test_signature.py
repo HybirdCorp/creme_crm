@@ -34,6 +34,14 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
             action_type='edit',
         )
 
+    def test_brick__no_app_perm(self):
+        self.login_as_standard(allowed_apps=['persons'])  # Not 'emails'
+
+        response = self.assertGET200(reverse('creme_config__user_settings'))
+        self.assertNoBrick(
+            self.get_html_tree(response.content), brick_id=MySignaturesBrick.id,
+        )
+
     def test_create(self):
         user = self.login_as_emails_user()
         self.assertFalse(EmailSignature.objects.count())

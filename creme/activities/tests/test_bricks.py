@@ -1316,7 +1316,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertStillExists(relation)
 
     def test_user_calendars(self):
-        user = self.login_as_root_and_get()
+        # user = self.login_as_root_and_get()
+        user = self.login_as_activities_user()
         UserCalendarsBrick.page_size = max(3, settings.BLOCK_SIZE)
 
         cal1 = Calendar.objects.get_default_calendar(user)
@@ -1333,4 +1334,12 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 # TODO: make uniform?
                 for n in brick_node.findall('.//div[@class="colored-square"]')
             ],
+        )
+
+    def test_user_calendars__no_app_perm(self):
+        self.login_as_standard(allowed_apps=['persons'])  # Not 'activities'
+
+        response = self.assertGET200(reverse('creme_config__user_settings'))
+        self.assertNoBrick(
+            self.get_html_tree(response.content), brick_id=UserCalendarsBrick.id,
         )
