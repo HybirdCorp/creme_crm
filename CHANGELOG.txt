@@ -12,8 +12,13 @@
         - The credentials for the buttons are now correct.
         - Disabled buttons are not clickable anymore, & their style has been improved.
     # Apps :
+        * Activities :
+            - In "My settings", the brick with Calendars is not displayed at all
+              for users which cannot access to the app "Activities".
         * Emails :
             - Some permissions checks in the mail history brick were missing.
+            - In "My settings", the brick with Signatures is not displayed at all
+              for users which cannot access to the app "Emails".
 
   Developers side :
   -----------------
