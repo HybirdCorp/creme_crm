@@ -125,6 +125,11 @@ user_settings_patterns = [
         user_settings.UserSettingValueEdition.as_view(),
         name='creme_config__edit_user_setting',
     ),
+    re_path(
+        r'^reload[/]?$',
+        user_settings.UserSettingBricksReloading.as_view(),
+        name='creme_config__reload_user_settings_bricks',
+    ),
 ]
 
 role_patterns = [

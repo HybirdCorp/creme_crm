@@ -1340,6 +1340,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.login_as_standard(allowed_apps=['persons'])  # Not 'activities'
 
         response = self.assertGET200(reverse('creme_config__user_settings'))
-        self.assertNoBrick(
-            self.get_html_tree(response.content), brick_id=UserCalendarsBrick.id,
+        # self.assertNoBrick(
+        #     self.get_html_tree(response.content), brick_id=UserCalendarsBrick.id,
+        # )
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick=UserCalendarsBrick,
         )
+        self.assertIn('brick-void', brick_node.attrib.get('class', ''))

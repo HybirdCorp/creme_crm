@@ -77,7 +77,7 @@ class EmailsConfig(CremeAppConfig):
             bricks.MailPopupBrick,
             bricks.LwMailPopupBrick,
             bricks.LwMailsHistoryBrick,
-            bricks.MySignaturesBrick,
+            # bricks.MySignaturesBrick,
             bricks.EmailSyncConfigItemsBrick,
             bricks.EmailsToSyncBrick,
         ).register_hat(

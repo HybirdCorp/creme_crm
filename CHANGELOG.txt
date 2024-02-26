@@ -262,6 +262,11 @@
         # The template "creme_core/templates/creme_core/view_property_type.html" is now "creme_core/templates/creme_core/detail/property-type.html".
         # Apps :
             * Creme_config :
+                - In 'registry._ConfigRegistry', the way the bricks of "My configuration" are managed have changed.
+                    - BEWARE: when you register a brick with 'register_user_bricks()' (in your 'apps.py'),
+                      the brick class must not be registered in the global brick registry anymore.
+                    - The property 'user_bricks' has been replaced by 'get_user_bricks()'.
+                    - The attribute '_user_brick_ids' has been replaced by '_user_brick_classes'.
                 - In 'urls' :
                     - The view named 'creme_config__create_detailviews_bricks' has been renamed 'creme_config__create_detailview_bricks'.
                     - The view named 'creme_config__delete_home_brick' has been renamed 'creme_config__delete_home_bricks'.
@@ -273,6 +278,7 @@
                         - CremePropertyTypeEditionForm
                     - The global dictionary 'forms.setting._FIELDS' has been removed;
                       see the new class attribute 'creme_core.core.setting_key._SettingKey.FORM_FIELDS' instead.
+                - The class-view 'views.user_settings.UserSettings' does not inject "apps_usersettings_bricks" in the context anymore.
                 - The template 'user_settings.html' has been renamed 'user-settings.html' to be more consistent.
             * Persons :
                 - In the method 'models.Address.info_field_names()' (use by several form generators for Address),
@@ -293,6 +299,7 @@
                   The constant strings which allow to retrieve types by their ID have been replaced by constants UUID:
                     e.g. use 'UUID_TYPE_MEETING' instead of 'ACTIVITYTYPE_MEETING'.
                   Hint: see the files "migrations/002?_v2_6__types_uuid0?.py" to understand how to write your own migrations if you reference these types in your own models.
+                - The brick 'bricks.UserCalendarsBrick' does not inject "has_app_perm" in its context anymore.
                 - The class 'buttons.AddRelatedActivityButton' has been rework to use 'ActivityType.uuid';
                   e.g. the class attribute "activity_type" has been replaced by "activity_type_uuid".
                 - In 'views' :

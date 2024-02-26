@@ -20,6 +20,7 @@ from creme.creme_core.gui.bricks import (
     QuerysetBrick,
     SimpleBrick,
     SpecificRelationsBrick,
+    VoidBrick,
     _BrickRegistry,
 )
 from creme.creme_core.models import (
@@ -1493,6 +1494,13 @@ class BrickTestCase(BrickTestCaseMixin, CremeTestCase):
             'Relation is not a dependence.',
             str(cm.exception),
         )
+
+    def test_void_brick(self):
+        user = self.get_root_user()
+        brick = VoidBrick(id=Brick.generate_id('creme_core', 'test_void'))
+
+        render = brick.detailview_display(self.build_context(user=user))
+        self.get_brick_node(self.get_html_tree(render), brick=brick)
 
     def test_custom_brick01(self):
         cbci = CustomBrickConfigItem.objects.create(

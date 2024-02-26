@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,8 @@ from django.urls import reverse
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.gui.bricks import Brick, brick_registry
+from creme.creme_core.gui.bricks import Brick, VoidBrick, brick_registry
+from creme.creme_core.models import CremeUser
 
 from .bricks import GenericModelBrick
 
@@ -408,11 +409,14 @@ class _ConfigRegistry:
     """ Registry to customise the app 'creme_config'.
 
     You can register:
-        - 'Small' models ; their will be grouped by app, & you can created/edit/delete instances.
+        - 'Small' models ; their will be grouped by app, & you can create/edit/delete instances.
         - Bricks for the global portal of configuration.
         - Bricks for the portal of configuration of a specific app.
         - Bricks for the personal configuration of users.
     """
+    class RegistrationError(Exception):
+        pass
+
     def __init__(self,
                  brick_registry=brick_registry,
                  setting_key_registry=setting_key_registry,
@@ -420,7 +424,8 @@ class _ConfigRegistry:
         self._brick_registry = brick_registry
         self._skey_registry = setting_key_registry
         self._apps: dict[str, _AppConfigRegistry] = {}
-        self._user_brick_ids: list[str] = []
+        # self._user_brick_ids: list[str] = []
+        self._user_brick_classes: dict[str, type[Brick]] = {}
         self._portal_brick_ids: list[str] = []
 
     def get_app_registry(self, app_label: str, create=False) -> _AppConfigRegistry:
@@ -549,8 +554,25 @@ class _ConfigRegistry:
 
         @param brick_classes: Classes inheriting <creme_core.gui.Brick> with a
                method detailview_display().
+               BEWARE: do not register the classes in the global Brick registry.
+               HINT: fill the attribute "permissions" of the classes if they
+                     are closely related to their app.
         """
-        self._user_brick_ids.extend(map(self._get_brick_id, brick_classes))
+        # self._user_brick_ids.extend(map(self._get_brick_id, brick_classes))
+        setdefault = self._user_brick_classes.setdefault
+
+        for brick_cls in brick_classes:
+            brick_id = self._get_brick_id(brick_cls)
+
+            if not brick_id:
+                raise self.RegistrationError(
+                    f'User setting brick class with empty ID: {brick_cls}'
+                )
+
+            if setdefault(brick_id, brick_cls) is not brick_cls:
+                raise self.RegistrationError(
+                    f'User setting brick with duplicated ID: {brick_id}'
+                )
 
     def unregister_models(self, *models: type[Model]) -> None:
         """Un-register some models which have been registered.
@@ -573,12 +595,60 @@ class _ConfigRegistry:
         """
         return self._brick_registry.get_bricks(self._portal_brick_ids)
 
-    @property
-    def user_bricks(self) -> Iterator[Brick]:
+    # @property
+    # def user_bricks(self) -> Iterator[Brick]:
+    #     return self._brick_registry.get_bricks(self._user_brick_ids)
+    def get_user_bricks(self, user: CremeUser) -> Iterator[Brick]:
         """Get the instances of extra Bricks to display on
         "My configuration" page.
         """
-        return self._brick_registry.get_bricks(self._user_brick_ids)
+        for brick_cls in self._user_brick_classes.values():
+            brick = brick_cls()
+
+            # TODO: remove in Creme2.7?
+            # NB: we do not check in register_user_bricks() because the registration
+            #     of creme_config is generally made before the global registration
+            #     of bricks (so the check would not detect any issue).
+            if brick.id in self._brick_registry._brick_classes:
+                logger.critical(
+                    'User setting brick class registered in global brick registry: %s.\n'
+                    'HINT #1: remove it from global registry.\n'
+                    'HINT #2: add "permissions" to the class if it should not be '
+                    'displayed to all users.',
+                    brick_cls,
+                )
+                continue
+
+            if not brick.has_perms(user=user):
+                brick = VoidBrick(id=brick.id)
+
+            yield brick
+
+    def get_user_brick(self, *, user: CremeUser, brick_id: str) -> Brick:
+        # TODO: remove in Creme2.7?
+        # NB: see get_user_bricks()
+        if brick_id in self._brick_registry._brick_classes:
+            logger.critical(
+                'User setting brick class registered in global brick registry: %s.',
+                brick_id,
+            )
+            return VoidBrick(id=brick_id)
+
+        try:
+            brick_class = self._user_brick_classes[brick_id]
+        except KeyError:
+            logger.warning('Brick seems deprecated: %s', brick_id)
+            brick = Brick()
+        else:
+            brick = brick_class()
+            if not brick.has_perms(user=user):
+                # NB: we use a VoidBrick instead of a ForbiddenBrick because
+                # the Bricks which are displayed of "My configuration" cannot be
+                # configured, so you cannot remove a ForbiddenBrick with an
+                # annoying message
+                brick = VoidBrick(id=brick.id)
+
+        return brick
 
     # TODO: find a better name ?
     def get_model_creation_info(self,

@@ -313,6 +313,17 @@ class ForbiddenBrick(SimpleBrick):
     home_display = Brick._simple_detailview_display
 
 
+class VoidBrick(SimpleBrick):
+    """Used by code which needs to get a content for forbidden/invalid/... brick."""
+    template_name = 'creme_core/bricks/generic/void.html'
+
+    def __init__(self, *, id):
+        super().__init__()
+        self.id = id
+
+    home_display = Brick._simple_detailview_display
+
+
 class _PaginatedBrickContext(_BrickContext):
     __slots__ = ('page',)
 

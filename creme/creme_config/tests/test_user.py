@@ -38,6 +38,7 @@ from creme.persons.tests.base import (
 from .. import constants
 from ..bricks import (
     BrickMypageLocationsBrick,
+    NotificationChannelConfigItemsBrick,
     TeamsBrick,
     UsersBrick,
     UserSettingValuesBrick,
@@ -1590,14 +1591,14 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
 
 class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.user = cls.get_root_user()
+    # @classmethod
+    # def setUpClass(cls):
+    #     super().setUpClass()
+    #     cls.user = cls.get_root_user()
 
     def setUp(self):
         super().setUp()
-        self.login_as_root()
+        # self.login_as_root()
         self._registered_skey = []
 
     def tearDown(self):
@@ -1609,12 +1610,17 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self._registered_skey.extend(skeys)
 
     def test_user_settings01(self):
+        self.login_as_root()
         response = self.assertGET200(reverse('creme_config__user_settings'))
         # self.assertTemplateUsed(response, 'creme_config/user_settings.html')
         self.assertTemplateUsed(response, 'creme_config/user-settings.html')
 
         get = response.context.get
-        self.assertEqual(reverse('creme_core__reload_bricks'), get('bricks_reload_url'))
+        # self.assertEqual(reverse('creme_core__reload_bricks'), get('bricks_reload_url'))
+        self.assertEqual(
+            reverse('creme_config__reload_user_settings_bricks'),
+            get('bricks_reload_url'),
+        )
 
         theme_form = get('theme_form')
         self.assertIsInstance(theme_form, str)
@@ -1632,12 +1638,15 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStartsWith(dname_form, '<div>')
         self.assertIn('<label for="id_displayed_name">', dname_form)
 
-        self.assertIsList(get('apps_usersettings_bricks'))  # TODO: improve
+        # self.assertIsList(get('apps_usersettings_bricks'))
 
         doc = self.get_html_tree(response.content)
         self.get_brick_node(doc, brick=BrickMypageLocationsBrick)
+        self.get_brick_node(doc, brick=NotificationChannelConfigItemsBrick)
+        self.get_brick_node(doc, brick=UserSettingValuesBrick)
 
     def test_user_settings02(self):
+        self.login_as_root()
         world_settings = get_world_settings_model().objects.get()
         world_settings.user_name_change_enabled = False
         world_settings.save()
@@ -1650,7 +1659,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         ('chantilly', 'Chantilly'),
     ])
     def test_change_theme(self):
-        user = self.user
+        # user = self.user
+        user = self.login_as_root_and_get()
         self.assertEqual(settings.THEMES[0][0], user.theme)
 
         url = reverse('creme_config__set_user_theme')
@@ -1664,7 +1674,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         post('icecream')
 
     def test_change_timezone(self):
-        user = self.user
+        # user = self.user
+        user = self.login_as_root_and_get()
         self.assertEqual(settings.TIME_ZONE, user.time_zone)
 
         called = False
@@ -1735,7 +1746,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         ('fr', 'Français'),
     ])
     def test_change_language(self):
-        user = self.user
+        # user = self.user
+        user = self.login_as_root_and_get()
         self.assertEqual('', user.language)
 
         post_url = reverse('creme_config__set_user_language')
@@ -1761,7 +1773,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
             self.assertEqual(language, response['Content-Language'])
 
     def test_change_displayed_name(self):
-        user = self.user
+        # user = self.user
+        user = self.login_as_root_and_get()
         self.assertEqual('', user.displayed_name)
 
         world_settings = get_world_settings_model().objects.get()
@@ -1785,12 +1798,45 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         world_settings.save()
         self.assertPOST403(post_url, data={'displayed_name': 'foobar'})
 
+    def test_reload_user_settings_bricks(self):
+        self.login_as_standard()
+
+        response = self.assertGET200(
+            reverse('creme_config__reload_user_settings_bricks'),
+            data={'brick_id': [
+                BrickMypageLocationsBrick.id,
+                NotificationChannelConfigItemsBrick.id,
+                'silly_id',
+            ]},
+        )
+        self.assertEqual('application/json', response['Content-Type'])
+
+        content = response.json()
+        self.assertIsList(content, length=2)
+
+        brick_info1 = content[0]
+        self.assertIsList(brick_info1, length=2)
+        self.assertEqual(BrickMypageLocationsBrick.id, brick_info1[0])
+        self.get_brick_node(
+            tree=self.get_html_tree(brick_info1[1]),
+            brick=BrickMypageLocationsBrick,
+        )
+
+        brick_info2 = content[1]
+        self.assertIsList(brick_info2, length=2)
+        self.assertEqual(NotificationChannelConfigItemsBrick.id, brick_info2[0])
+        self.get_brick_node(
+            tree=self.get_html_tree(brick_info2[1]),
+            brick=NotificationChannelConfigItemsBrick,
+        )
+
     @staticmethod
     def _build_edit_user_svalue_url(setting_key):
         return reverse('creme_config__edit_user_setting', args=(setting_key.id,))
 
     def test_edit_user_setting_value01(self):
-        user = self.user
+        # user = self.user
+        user = self.login_as_root_and_get()
         sk = UserSettingKey(
             id='creme_config-test_edit_user_setting_value01',
             description='Page displayed',
@@ -1819,6 +1865,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_user_setting_value02(self):
         "hidden=True => error."
+        self.login_as_root()
         sk = UserSettingKey(
             id='creme_config-test_edit_user_setting_value02',
             description='Page displayed',
@@ -1831,6 +1878,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_user_setting_value03(self):
         "Not blank + STRING."
+        self.login_as_root()
         sk = UserSettingKey(
             id='creme_config-test_edit_user_setting_value03',
             description='API key',
@@ -1848,7 +1896,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_user_setting_value04(self):
         "Blank + STRING."
-        user = self.user
+        # user = self.user
+        user = self.login_as_root_and_get()
         sk = UserSettingKey(
             id='creme_config-test_edit_user_setting_value04',
             description='API key',
@@ -1873,7 +1922,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_user_setting_value05(self):
         "Blank + INT."
-        user = self.user
+        # user = self.user
+        user = self.login_as_root_and_get()
         sk = UserSettingKey(
             id='creme_config-test_edit_user_setting_value05',
             description='API key',
@@ -1901,6 +1951,7 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsNone(self.refresh(user).settings.get(sk))
 
     def test_UserSettingValuesBrick(self):
+        user = self.login_as_root_and_get()
         brick = UserSettingValuesBrick()
 
         core_sk1 = UserSettingKey(
@@ -1937,7 +1988,8 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         setattr(brick, reg_attname, registry)
 
-        context = self.build_context(user=self.user)
+        # context = self.build_context(user=self.user)
+        context = self.build_context(user=user)
 
         # with self.assertNumQueries(6):
         render = brick.detailview_display(context)

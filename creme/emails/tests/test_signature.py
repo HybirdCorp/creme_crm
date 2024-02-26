@@ -38,9 +38,13 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.login_as_standard(allowed_apps=['persons'])  # Not 'emails'
 
         response = self.assertGET200(reverse('creme_config__user_settings'))
-        self.assertNoBrick(
-            self.get_html_tree(response.content), brick_id=MySignaturesBrick.id,
+        # self.assertNoBrick(
+        #     self.get_html_tree(response.content), brick_id=MySignaturesBrick.id,
+        # )
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick=MySignaturesBrick,
         )
+        self.assertIn('brick-void', brick_node.attrib.get('class', ''))
 
     def test_create(self):
         user = self.login_as_emails_user()
