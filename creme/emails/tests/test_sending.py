@@ -1720,7 +1720,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_lw_mails_history(self):
         user = self.login_as_emails_user(allowed_apps=['persons'])
-        self.add_credentials(user.role, own='*')
+        self.add_credentials(user.role, own=['VIEW'])
 
         BrickDetailviewLocation.objects.create_if_needed(
             brick=LwMailsHistoryBrick, order=1, zone=BrickDetailviewLocation.RIGHT, model=Contact,
