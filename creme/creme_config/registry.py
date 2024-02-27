@@ -555,7 +555,7 @@ class _ConfigRegistry:
 
     def register_user_bricks(self, *brick_classes: type[Brick]) -> None:
         """Register the extra Brick classes to display of the configuration page
-        of each user ("My configuration").
+        of each user (page "My settings").
 
         @param brick_classes: Classes inheriting <creme_core.gui.Brick> with a
                method detailview_display().
@@ -631,7 +631,7 @@ class _ConfigRegistry:
     #     return self._brick_registry.get_bricks(self._user_brick_ids)
     def get_user_bricks(self, user: CremeUser) -> Iterator[Brick]:
         """Get the instances of extra Bricks to display on
-        "My configuration" page.
+        "My settings" page.
         """
         for brick_cls in self._user_brick_classes.values():
             brick = brick_cls()
@@ -674,7 +674,7 @@ class _ConfigRegistry:
             brick = brick_class()
             if not brick.has_perms(user=user):
                 # NB: we use a VoidBrick instead of a ForbiddenBrick because
-                # the Bricks which are displayed of "My configuration" cannot be
+                # the Bricks which are displayed of "My settings" cannot be
                 # configured, so you cannot remove a ForbiddenBrick with an
                 # annoying message
                 brick = VoidBrick(id=brick.id)
