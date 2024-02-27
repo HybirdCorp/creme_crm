@@ -16,7 +16,7 @@
             - In "My settings", the brick with Calendars is not displayed at all
               for users which cannot access to the app "Activities".
         * Emails :
-            - Some permissions checks in the mail history brick were missing.
+            - Some permissions checks in the email & lightweight email history bricks were missing.
             - In "My settings", the brick with Signatures is not displayed at all
               for users which cannot access to the app "Emails".
 

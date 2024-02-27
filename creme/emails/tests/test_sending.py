@@ -3,6 +3,7 @@ from datetime import timedelta
 from functools import partial
 
 from django import forms
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail as django_mail
 from django.core.exceptions import ValidationError
@@ -950,7 +951,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             history_brick_node,
             count=1,
             title='{count} Campaign email in the history',
-            plural_title='{count} Campaign emails in the history',
+            plural_title='{count} Campaigns emails in the history',
         )
         self.assertBrickHasAction(
             history_brick_node,
@@ -1799,3 +1800,56 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         camp.restore()
         self.assertFalse(queue.refreshed_jobs)
+
+    def test_lw_mails_history(self):
+        user = self.login_as_emails_user(allowed_apps=['persons'])
+        # self.add_credentials(user.role, own='*')
+        SetCredentials.objects.create(
+            role=user.role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=LwMailsHistoryBrick, order=1, zone=BrickDetailviewLocation.RIGHT, model=Contact,
+        )
+        LwMailsHistoryBrick.page_size = max(settings.BLOCK_SIZE, 2)
+
+        create_camp = EmailCampaign.objects.create
+        camp1 = create_camp(user=user,                 name='camp #1')
+        camp2 = create_camp(user=self.get_root_user(), name='camp #2')
+
+        contact = Contact.objects.create(
+            user=user, first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com',
+        )
+
+        create_sending = partial(
+            EmailSending.objects.create,
+            sender='contact@domain.org', sending_date=now() + timedelta(days=2),
+        )
+        sending1 = create_sending(campaign=camp1, subject='Allowed subject')
+        sending2 = create_sending(campaign=camp2, subject='Forbidden subject')
+
+        create_mail = partial(LightWeightEmail.objects.create, real_recipient=contact)
+        lw_mail1 = create_mail(id='73571da6a8a046578b11c4a78e68ea67', sending=sending1)
+        lw_mail2 = create_mail(id='737673eead0e43d198c9be8486f373c0', sending=sending2)
+
+        response = self.assertGET200(contact.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick=LwMailsHistoryBrick,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2,
+            title='{count} Campaign email in the history',
+            plural_title='{count} Campaigns emails in the history',
+        )
+        self.assertBrickHasAction(
+            brick_node,
+            url=reverse('emails__view_lw_mail', args=(lw_mail1.pk,)),
+            action_type='view',
+        )
+        self.assertBrickHasNoAction(
+            brick_node,
+            url=reverse('emails__view_lw_mail', args=(lw_mail2.pk,)),
+        )

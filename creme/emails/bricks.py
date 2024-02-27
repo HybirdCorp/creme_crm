@@ -369,7 +369,9 @@ class LwMailsHistoryBrick(QuerysetBrick):
         pk = context['object'].pk
         return self._render(self.get_template_context(
             context,
-            LightWeightEmail.objects.filter(recipient_entity=pk).select_related('sending'),
+            LightWeightEmail.objects.filter(
+                recipient_entity=pk,
+            ).select_related('sending').prefetch_related('sending__campaign'),
         ))
 
 
