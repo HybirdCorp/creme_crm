@@ -265,7 +265,7 @@
         # The template "creme_core/templates/creme_core/view_property_type.html" is now "creme_core/templates/creme_core/detail/property-type.html".
         # Apps :
             * Creme_config :
-                - In 'registry._ConfigRegistry', the way the bricks of "My configuration" are managed have changed.
+                - In 'registry._ConfigRegistry', the way the bricks of "My settings" are managed have changed.
                     - BEWARE: when you register a brick with 'register_user_bricks()' (in your 'apps.py'),
                       the brick class must not be registered in the global brick registry anymore.
                     - The property 'user_bricks' has been replaced by 'get_user_bricks()'.
