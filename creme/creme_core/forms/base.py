@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -525,7 +525,8 @@ class CremeModelForm(HookableFormMixin, forms.ModelForm):
     def _build_required_fields(self):
         # NB: not <type(self.instance)> because it returns an instance of
         #     SimpleLazyObject for User, which causes an error.
-        self.fields_configs.get_for_model(self.instance.__class__).update_form_fields(self.fields)
+        # self.fields_configs.get_for_model(self.instance.__class__).update_form_fields(self.fields)
+        self.fields_configs.get_for_model(self.instance.__class__).update_form_fields(self)
 
     def clean(self):
         res = super().clean()

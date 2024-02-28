@@ -347,7 +347,9 @@
             - In the class 'RelationConditionHandler', these attributes have been replaced :
                 - _entity_id => _entity_uuid
                 - _ct_id => _ct_key
-        # In the model 'creme_core.models.fields_config.FieldsConfig', the attributes "_excluded_fnames" & "_required_fnames" have been removed.
+        # In the model 'creme_core.models.fields_config.FieldsConfig' :
+            - The attributes "_excluded_fnames" & "_required_fnames" have been removed.
+            - The method 'update_form_fields()' now takes a form instance, and can set the _meta attribute (backported to 2.5.6/2.4.13).
         # Apps :
             * Creme_config :
                 - The value of class attribute "id" of several Brick classes (for bricks configuration) have changed (mainly "block" => "brick").
