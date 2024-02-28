@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from functools import partial
+# from urllib.parse import urlencode
 from unittest import skipIf
-from urllib.parse import urlencode
 
 from django.apps import apps
 from django.conf import settings
@@ -982,12 +982,16 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         buttons_node = self.get_brick_header_buttons(brick_node1)
         self.assertBrickHeaderHasButton(
             buttons_node,
-            url='{}?{}'.format(
-                reverse(
-                    'persons__create_related_contact',
-                    args=(o1.id, constants.REL_OBJ_MANAGES),
-                ),
-                urlencode({'callback_url': url}),
+            # url='{}?{}'.format(
+            #     reverse(
+            #         'persons__create_related_contact',
+            #         args=(o1.id, constants.REL_OBJ_MANAGES),
+            #     ),
+            #     urlencode({'callback_url': url}),
+            # ),
+            url=reverse(
+                'persons__create_related_contact',
+                args=(o1.id, constants.REL_OBJ_MANAGES),
             ),
             label=_('Create a manager'),
         )
@@ -1083,8 +1087,9 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
         bricks.EmployeesBrick.page_size = max(bricks.EmployeesBrick.page_size, 3)
 
-        url = o1.get_absolute_url()
-        response = self.assertGET200(url)
+        # url = o1.get_absolute_url()
+        # response = self.assertGET200(url)
+        response = self.assertGET200(o1.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content), brick=bricks.EmployeesBrick,
         )
@@ -1093,14 +1098,19 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         self.assertNoInstanceLink(brick_node, c3)
 
         buttons_node = self.get_brick_header_buttons(brick_node)
+        # TODO: test comeback?
         self.assertBrickHeaderHasButton(
             buttons_node,
-            url='{}?{}'.format(
-                reverse(
-                    'persons__create_related_contact',
-                    args=(o1.id, constants.REL_OBJ_EMPLOYED_BY),
-                ),
-                urlencode({'callback_url': url}),
+            # url='{}?{}'.format(
+            #     reverse(
+            #         'persons__create_related_contact',
+            #         args=(o1.id, constants.REL_OBJ_EMPLOYED_BY),
+            #     ),
+            #     urlencode({'callback_url': url}),
+            # ),
+            url=reverse(
+                'persons__create_related_contact',
+                args=(o1.id, constants.REL_OBJ_EMPLOYED_BY),
             ),
             label=_('Create an employee'),
         )

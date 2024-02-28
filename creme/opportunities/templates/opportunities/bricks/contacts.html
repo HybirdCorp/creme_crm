@@ -47,9 +47,12 @@
             {% for cell in cells %}<td>{{HIDDEN_VALUE}}</td>{% endfor %}
         {% endif %}
         <td {% brick_table_data_status action %}>
-{#          {% if cells %}{% inner_edition_uri instance=contact cells=cells callback_url=request.get_full_path as edition_uri %} #}
+{% comment %}
           {% if cells %}{% inner_edition_uri instance=contact cells=cells callback_url=object.get_absolute_url as edition_uri %}
             {% brick_table_action id='edit' url=edition_uri label=_('Edit this contact') enabled=user|has_perm_to_change:contact %}
+{% endcomment %}
+          {% if cells %}{% inner_edition_uri instance=contact cells=cells as edition_uri %}
+            {% brick_table_action id='edit' url=edition_uri comeback=True label=_('Edit this contact') enabled=user|has_perm_to_change:contact %}
           {% else %}
             {% brick_table_action id='redirect' url=contact.get_edit_absolute_url label=_('Edit this contact') icon='edit' enabled=user|has_perm_to_change:contact comeback=True %}
           {% endif %}

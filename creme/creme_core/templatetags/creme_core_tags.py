@@ -391,6 +391,7 @@ def grouper(value, n):
     return zip_longest(fillvalue=None, *args)
 
 
+# TODO: is 'callback_url' still useful with the JS feature "comeback"?
 @register.simple_tag
 def inner_edition_uri(instance, cells, callback_url=None):
     # TODO: pass the registry in context? accept it as argument?

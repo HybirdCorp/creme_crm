@@ -243,6 +243,12 @@ class LinkedProductsBrick(_LinkedStuffBrick):
     template_name = 'opportunities/bricks/products.html'
     order_by = 'name'
 
+    # # Example:
+    # cells_desc = [
+    #     (EntityCellRegularField, 'code'),
+    #     (EntityCellRegularField, 'category'),
+    # ]
+
 
 class LinkedServicesBrick(_LinkedStuffBrick):
     id = _LinkedStuffBrick.generate_id('opportunities', 'linked_services')
@@ -256,6 +262,12 @@ class LinkedServicesBrick(_LinkedStuffBrick):
     relation_type_deps = (constants.REL_OBJ_LINKED_SERVICE, )
     template_name = 'opportunities/bricks/services.html'
     order_by = 'name'
+
+    # # Example:
+    # cells_desc = [
+    #     (EntityCellRegularField, 'reference'),
+    #     (EntityCellRegularField, 'category'),
+    # ]
 
 
 class BusinessManagersBrick(_LinkedStuffBrick):
