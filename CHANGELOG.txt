@@ -4,6 +4,10 @@
 
   Users side :
   ------------
+    # There were several issues with fields configured as required.
+      It could notably appeared in quick forms:
+        - Fields which were added (because they are not in the default forms) cause a validation error.
+        - Fields corresponding to a ForeignKey caused an error 500.
     # The block which displays all relationships, & the configurable blocks related to
       one type of relationship, have been fixed to order more correctly entities.
       It fixes some pagination issues with PostgreSQL.
@@ -30,6 +34,13 @@
                 - The class-view 'views.sending.SendingBricksReloading' now checks permissions.
             * Commercial :
                 - The class-view 'views.strategy.MatrixBricksReloading' now checks permissions.
+
+    Internal breaking changes :
+    ---------------------------
+    (they should not cause problem if you have not deeply modified the source code of Creme)
+
+        # The method 'creme_core.models.fields_config.FieldsConfig.update_form_fields()',
+          now takes a form instance, and can set the '_meta' attribute.
 
 
 == Version 2.4.12 ==

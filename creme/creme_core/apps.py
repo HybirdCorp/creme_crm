@@ -679,10 +679,13 @@ class CremeCoreConfig(CremeAppConfig):
                     help_text=self.help_text,
                 )
             elif self.get_tag(FieldTag.ENUMERABLE):
+                required = kwargs.pop('required', False)
+
                 return config_fields.CreatorEnumerableChoiceField(
                     model=self.model,
                     field_name=self.name,
-                    required=not self.blank,
+                    # required=not self.blank,
+                    required=not self.blank or required,
                     label=self.verbose_name,
                     help_text=self.help_text,
                     **kwargs
