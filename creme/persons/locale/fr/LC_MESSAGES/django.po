@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PERSONS' APP
-# Copyright (C) 2023 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-27 15:23+0200\n"
+"POT-Creation-Date: 2024-03-01 17:13+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -244,6 +244,25 @@ msgstr ""
 "depuis le bloc des salariés).\n"
 "App : Comptes et Contacts"
 
+msgid "Transform into a user"
+msgstr "Transformer en utilisateur"
+
+msgid ""
+"This button allows to create a user corresponding to the current Contact. A "
+"Contact is automatically created when you create a user; with this button "
+"you can create the user linked to an existing Contact (you don't have to "
+"merge the existing Contact with the one created by the user creation form.\n"
+"Only superusers can use this button.\n"
+"App: Accounts and Contacts"
+msgstr ""
+"Ce bouton permet de créer un utilisateur correspondant au Contact courant. Un "
+"Contact est automatiquement créé quand vous créez un utilisateur ; avec ce "
+"bouton vous pouvez créer l'utilisateur lié à un Contact existant (vous n'avez "
+"pas à fusuonner le Contact existant avec celui crée par le formulaire de "
+"création d'utilisateur.\n"
+"Seul les super-utilisateurs peuvent utiliser ce bouton.\n"
+"App : Comptes et Contacts"
+
 msgid "Contact details"
 msgstr "Coordonnées du contact"
 
@@ -271,6 +290,32 @@ msgstr "Adresses"
 #, python-brace-format
 msgid "{address_field}: {error}"
 msgstr "{address_field} : {error}"
+
+# Already in creme_config
+msgid "Password"
+msgstr ""
+
+# Already in creme_config
+msgid "Confirm password"
+msgstr ""
+
+# Already in creme_config
+msgid "Enter the same password as before, for verification."
+msgstr ""
+
+# Already in creme_core/creme_config
+msgid "Role"
+msgstr ""
+
+# Already in creme_config
+msgid "Superuser"
+msgstr ""
+
+msgid "The first name of the Contact will be updated."
+msgstr "Le prénom du contact sera mis à jour."
+
+msgid "The email of the Contact will be updated."
+msgstr "L'adresse e-mail du contact sera mis à jour."
 
 msgid "Can not merge 2 Contacts which represent some users."
 msgstr "Impossible de fusionner 2 Contacts représentant des utilisateurs"
@@ -544,6 +589,57 @@ msgstr "Effectif de société"
 msgid "Organisation staff sizes"
 msgstr "Effectifs de société"
 
+msgid "Organisation logo"
+msgstr "Logo de société"
+
+msgid "Contact photograph"
+msgstr "Photo de contact"
+
+msgid "Madam"
+msgstr "Madame"
+
+msgid "Mrs."
+msgstr "Mme"
+
+msgid "Miss"
+msgstr "Mademoiselle"
+
+msgid "Ms."
+msgstr "Mlle"
+
+msgid "Mister"
+msgstr "Monsieur"
+
+msgid "Mr."
+msgstr "M"
+
+msgid "ReplaceByYourSociety"
+msgstr "RemplacezParVotreSociété"
+
+msgid "CEO"
+msgstr "PDG"
+
+msgid "Secretary"
+msgstr "Secrétaire"
+
+msgid "Technician"
+msgstr "Technicien"
+
+msgid "Food Industry"
+msgstr "Agroalimentaire"
+
+msgid "Industry"
+msgstr "Industrie"
+
+msgid "Software"
+msgstr "Logiciel"
+
+msgid "Telecom"
+msgstr "Télécom"
+
+msgid "Restoration"
+msgstr "Restauration"
+
 msgid "is an employee of"
 msgstr "est salarié de"
 
@@ -598,11 +694,11 @@ msgstr "est un concurrent de"
 msgid "has as competitor"
 msgstr "a pour concurrent"
 
-msgid "Managed by creme"
-msgstr "Gérée par creme"
-
 msgid "Me"
 msgstr "Moi"
+
+msgid "Managed by creme"
+msgstr "Gérée par creme"
 
 msgid "Contact view"
 msgstr "Vue de Contact"
@@ -613,59 +709,14 @@ msgstr "Vue de Société"
 msgid "Prospect/Suspect view"
 msgstr "Vue Prospect/Suspect"
 
-msgid "Organisation logo"
-msgstr "Logo de société"
-
-msgid "Contact photograph"
-msgstr "Photo de contact"
-
-msgid "Madam"
-msgstr "Madame"
-
-msgid "Mrs."
-msgstr "Mme"
-
-msgid "Miss"
-msgstr "Mademoiselle"
-
-msgid "Ms."
-msgstr "Mlle"
-
-msgid "Mister"
-msgstr "Monsieur"
-
-msgid "Mr."
-msgstr "M"
-
-msgid "ReplaceByYourSociety"
-msgstr "RemplacezParVotreSociété"
-
-msgid "CEO"
-msgstr "PDG"
-
-msgid "Secretary"
-msgstr "Secrétaire"
-
-msgid "Technician"
-msgstr "Technicien"
-
-msgid "Food Industry"
-msgstr "Agroalimentaire"
-
-msgid "Industry"
-msgstr "Industrie"
-
-msgid "Software"
-msgstr "Logiciel"
-
-msgid "Telecom"
-msgstr "Télécom"
-
-msgid "Restoration"
-msgstr "Restauration"
-
 msgid "+ Creation"
 msgstr ""
+
+msgid "Contact information"
+msgstr "Informations sur le contact"
+
+msgid "Contact complementary information"
+msgstr "Informations complémentaires sur le contact"
 
 msgid "Organisation information"
 msgstr "Informations sur la société"
@@ -675,12 +726,6 @@ msgstr "Coordonnées de la société"
 
 msgid "Organisation complementary information"
 msgstr "Informations complémentaires sur la société"
-
-msgid "Contact information"
-msgstr "Informations sur le contact"
-
-msgid "Contact complementary information"
-msgstr "Informations complémentaires sur le contact"
 
 msgid "Belongs to the Contact/User"
 msgstr "Appartient au Contact/Utilisateur"
@@ -811,6 +856,9 @@ msgid_plural "%(count)s Commercial actions"
 msgstr[0] "%(count)s Action commerciale"
 msgstr[1] "%(count)s Actions commerciales"
 
+msgid "See details"
+msgstr "Voir les détails"
+
 msgid "Next action"
 msgstr "Prochaine action"
 
@@ -822,9 +870,6 @@ msgid "%(count)s Opportunity"
 msgid_plural "%(count)s Opportunities"
 msgstr[0] "%(count)s Opportunité"
 msgstr[1] "%(count)s Opportunités"
-
-msgid "See details"
-msgstr "Voir les détails"
 
 msgid "Creme user"
 msgstr "Utilisateur Creme associé"
@@ -915,6 +960,9 @@ msgstr ""
 msgid "The relationship type «%(predicate)s» is disabled"
 msgstr "Le type de relation «%(predicate)s» est désactivé"
 
+msgid "You are not a superuser"
+msgstr "Vous n'êtes pas un super-utilisateur"
+
 msgid "Copy the address to left side"
 msgstr "Copier l'adresse à gauche"
 
@@ -985,6 +1033,14 @@ msgid ""
 "The entity «%(entity)s» has the property «%(property)s» which is forbidden "
 "by the relationship «%(predicate)s»."
 msgstr ""
+
+#. Translators: 'object' is a Contact
+#, python-brace-format
+msgid "Transform «{object}» into a user"
+msgstr "Transformer «{object}» en utilisateur"
+
+msgid "This Contact is already a user"
+msgstr "Ce Contact est déjà un utilisateur"
 
 msgid "customer"
 msgstr "client"
@@ -1117,9 +1173,6 @@ msgstr "Vous devez avoir au moins une société gérée."
 
 #~ msgid "Information"
 #~ msgstr "Informations"
-
-#~ msgid "Owner user"
-#~ msgstr "Utilisateur propriétaire"
 
 #~ msgid "Photo"
 #~ msgstr "Photo"

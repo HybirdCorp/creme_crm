@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@ from __future__ import annotations
 import warnings
 
 from django import forms
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
@@ -28,6 +29,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
+from creme.creme_core.auth import SUPERUSER_PERM
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
@@ -262,3 +264,25 @@ class ContactNamesEdition(generic.EntityEditionPopup):
 class ContactsList(generic.EntitiesList):
     model = Contact
     default_headerfilter_id = DEFAULT_HFILTER_CONTACT
+
+
+class TransformationIntoUser(generic.EntityEdition):
+    model = Contact
+    form_class = c_forms.UserFromContactCreationForm
+    pk_url_kwarg = 'contact_id'
+    # Translators: 'object' is a Contact
+    title = _('Transform «{object}» into a user')
+    submit_label = get_user_model().save_label
+    permissions = SUPERUSER_PERM
+
+    def check_instance_permissions(self, instance, user):
+        super().check_instance_permissions(instance=instance, user=user)
+        if instance.is_user:
+            raise ConflictError(gettext('This Contact is already a user'))
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['contact'] = kwargs['instance']
+        del kwargs['instance']
+
+        return kwargs

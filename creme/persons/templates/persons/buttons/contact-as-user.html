@@ -1,0 +1,10 @@
+{% load i18n creme_perms creme_widgets %}
+{% if button.is_allowed %}
+<a class="menu_button" title="{{button.description}}" data-action="redirect" href="{% url 'persons__transform_contact_into_user' object.id %}?callback_url=${location}">
+    {{button.verbose_name}}
+</a>
+{% else %}
+<span class="menu_button forbidden" title="{% translate 'You are not a superuser' %}">
+    {{button.verbose_name}}
+</span>
+{% endif %}

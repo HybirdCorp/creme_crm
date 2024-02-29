@@ -39,6 +39,7 @@
         * Persons :
             - The staff users are not related to Contacts anymore.
               Note: the existing Contacts which were related to staff users are sent to the trash.
+            - A button to transform a Contact into a user has been added.
        * Assistants :
             - The UserMessages produce now notifications (so users can chose to be notified in their browser, emails are not the only way anymore).
         * Reports :
