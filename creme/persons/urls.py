@@ -17,6 +17,12 @@ urlpatterns = [
         name='persons__orga_unset_managed',
     ),
 
+    re_path(
+        r'^contact/as_user/(?P<contact_id>\d+)[/]?$',
+        contact.TransformationIntoUser.as_view(),
+        name='persons__transform_contact_into_user',
+    ),
+
     *swap_manager.add_group(
         persons.contact_model_is_custom,
         Swappable(

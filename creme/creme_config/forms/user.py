@@ -20,8 +20,8 @@ from collections import defaultdict
 
 from django.contrib.auth import forms as auth_forms
 from django.contrib.auth import get_user_model, password_validation
+from django.core.exceptions import ValidationError
 from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField
-from django.forms.utils import ValidationError
 from django.forms.widgets import PasswordInput
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _

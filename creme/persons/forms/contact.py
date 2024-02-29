@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,17 @@
 
 import warnings
 
+from django import forms
+from django.contrib.auth import forms as auth_forms
+from django.contrib.auth import get_user_model, password_validation
+from django.core.exceptions import ValidationError
+from django.db.transaction import atomic
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+
 from creme import persons
 from creme.creme_core.forms import CremeEntityForm, CremeModelForm
+from creme.creme_core.models import UserRole
 
 
 class ContactNamesForm(CremeModelForm):
@@ -43,3 +52,118 @@ class BaseContactCustomForm(CremeEntityForm):
                 field = get_field(field_name)
                 if field is not None:
                     field.required = True
+
+
+# TODO: factorise with <creme.creme_config.forms.user.UserCreationForm>?
+class UserFromContactCreationForm(CremeModelForm):
+    error_messages = {
+        'password_mismatch': auth_forms.UserCreationForm.error_messages['password_mismatch'],
+    }
+
+    password_1 = forms.CharField(
+        label=_('Password'),
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        help_text=password_validation.password_validators_help_text_html(),
+    )
+    password_2 = forms.CharField(
+        label=_('Confirm password'),
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        help_text=_('Enter the same password as before, for verification.'),
+    )
+
+    role = forms.ModelChoiceField(
+        label=_('Role'), required=False, queryset=UserRole.objects.all(),
+    )
+
+    class Meta:
+        model = get_user_model()
+        fields = ('username', 'first_name', 'email', 'displayed_name', 'role')
+        field_classes = {'username': auth_forms.UsernameField}
+
+    def __init__(self, contact, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.contact = contact
+        fields = self.fields
+
+        # NB: browser can ignore <em> tag in <option>...
+        fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
+
+        instance = self.instance
+        instance.last_name = contact.last_name
+
+        if contact.first_name:
+            instance.first_name = contact.first_name
+            del fields['first_name']
+        else:
+            first_name_f = fields['first_name']
+            first_name_f.required = True
+            first_name_f.help_text = _('The first name of the Contact will be updated.')
+
+        if contact.email:
+            instance.email = contact.email
+            del fields['email']
+        else:
+            email_f = fields['email']
+            email_f.required = True
+            email_f.help_text = _('The email of the Contact will be updated.')
+
+    # Derived from django.contrib.auth.forms.UserCreationForm
+    def clean_username(self):
+        """Reject usernames that differ only in case."""
+        username = self.cleaned_data.get('username')
+        if (
+            username
+            and self._meta.model.objects.filter(username__iexact=username).exists()
+        ):
+            raise ValidationError(self.instance.unique_error_message(
+                model_class=self._meta.model, unique_check=['username'],
+            ))
+
+        return username
+
+    # Copied from django.contrib.auth.forms.UserCreationForm
+    def clean_password_2(self):
+        get_data = self.cleaned_data.get
+        password1 = get_data('password_1')
+        password2 = get_data('password_2')
+
+        if password1 and password2 and password1 != password2:
+            raise ValidationError(
+                self.error_messages['password_mismatch'],
+                code='password_mismatch',
+            )
+
+        return password2
+
+    def _post_clean(self):
+        super()._post_clean()
+        # NB: some validators (like the "similarity" one) need 'self.instance' to
+        #     be updated with POSTed data, so we do not call 'validate_password()'
+        #     in 'clean_password_2()'
+        password = self.cleaned_data.get('password_2')
+        if password:
+            try:
+                password_validation.validate_password(password, self.instance)
+            except ValidationError as e:
+                self.add_error('password_2', e)
+
+    @atomic
+    def save(self, *args, **kwargs):
+        instance = self.instance
+
+        instance.is_superuser = (instance.role is None)
+        instance.set_password(self.cleaned_data['password_1'])
+        # TODO: Contact.disable_user_syn(user)?
+        instance._disable_sync_with_contact = True
+
+        super().save(*args, **kwargs)
+
+        contact = self.contact
+        contact.is_user = instance
+        contact.first_name = instance.first_name
+        contact.email = instance.email
+        contact.save()
+
+        return instance

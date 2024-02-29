@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
-from creme.creme_core.auth import build_creation_perm as cperm
+from creme.creme_core.auth import SUPERUSER_PERM, build_creation_perm
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.models import Relation, RelationType
 
@@ -126,7 +126,7 @@ class AddLinkedContactButton(Button):
         'App: Accounts and Contacts'
     )
     template_name = 'persons/buttons/add-linked-contact.html'
-    permissions = cperm(Contact)  # TODO: 'persons.addrelated_contact' ??
+    permissions = build_creation_perm(Contact)  # TODO: 'persons.addrelated_contact' ??
 
     def get_context(self, *, entity, request):
         context = super().get_context(entity=entity, request=request)
@@ -136,3 +136,25 @@ class AddLinkedContactButton(Button):
 
     def get_ctypes(self):
         return (Organisation,)
+
+
+class TransformIntoUserButton(Button):
+    id = Button.generate_id('persons', 'transform_into_user')
+    verbose_name = _('Transform into a user')
+    description = _(
+        "This button allows to create a user corresponding to the current Contact. "
+        "A Contact is automatically created when you create a user; with "
+        "this button you can create the user linked to an existing Contact "
+        "(you don't have to merge the existing Contact with the one created by "
+        "the user creation form.\n"
+        "Only superusers can use this button.\n"
+        "App: Accounts and Contacts"
+    )
+    template_name = 'persons/buttons/contact-as-user.html'
+    permissions = SUPERUSER_PERM
+
+    def ok_4_display(self, entity):
+        return entity.is_user_id is None
+
+    def get_ctypes(self):
+        return (Contact,)
