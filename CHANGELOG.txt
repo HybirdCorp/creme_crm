@@ -98,6 +98,8 @@
             - 'brick_action' accepts a new boolean argument 'comeback' ; once enabled it will add a GET argument
               'callback_url' with the current location (client side).
         # Apps :
+            * Creme_config:
+                - In the class 'registry._ConfigRegistry', 2 methods to unregister brick classes have been added.
             * Activities:
                 - The models 'ActivityType' & 'ActivitySubType' now inherit 'creme_core.models.MinionModel' (see <Breaking changes> part too).
                 - Upgrade FullCalendar :

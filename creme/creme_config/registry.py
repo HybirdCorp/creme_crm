@@ -417,6 +417,9 @@ class _ConfigRegistry:
     class RegistrationError(Exception):
         pass
 
+    class UnRegistrationError(RegistrationError):
+        pass
+
     def __init__(self,
                  brick_registry=brick_registry,
                  setting_key_registry=setting_key_registry,
@@ -546,6 +549,8 @@ class _ConfigRegistry:
         @param brick_classes: Classes inheriting <creme_core.gui.Brick> with a
                method detailview_display().
         """
+        # TODO check empty ID
+        # TODO check duplicated ID
         self._portal_brick_ids.extend(map(self._get_brick_id, brick_classes))
 
     def register_user_bricks(self, *brick_classes: type[Brick]) -> None:
@@ -572,6 +577,32 @@ class _ConfigRegistry:
             if setdefault(brick_id, brick_cls) is not brick_cls:
                 raise self.RegistrationError(
                     f'User setting brick with duplicated ID: {brick_id}'
+                )
+
+    def unregister_portal_bricks(self, *brick_classes: type[Brick]) -> None:
+        for brick_cls in brick_classes:
+            brick_id = brick_cls.id
+
+            if not brick_id:
+                raise self.UnRegistrationError(f'Brick class with empty ID: {brick_cls}')
+
+            try:
+                self._portal_brick_ids.remove(brick_id)
+            except ValueError as e:
+                raise self.UnRegistrationError(
+                    f'Brick class with invalid ID (already unregistered?): {brick_cls}',
+                ) from e
+
+    def unregister_user_bricks(self, *brick_classes: type[Brick]) -> None:
+        for brick_cls in brick_classes:
+            brick_id = brick_cls.id
+
+            if not brick_id:
+                raise self.UnRegistrationError(f'Brick class with empty ID: {brick_cls}')
+
+            if self._user_brick_classes.pop(brick_id, None) is None:
+                raise self.UnRegistrationError(
+                    f'Brick class with invalid ID (already unregistered?): {brick_cls}',
                 )
 
     def unregister_models(self, *models: type[Model]) -> None:

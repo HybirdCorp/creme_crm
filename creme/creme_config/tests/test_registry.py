@@ -518,6 +518,43 @@ class RegistryTestCase(CremeTestCase):
         self.assertIsInstance(brick5, VoidBrick)
         self.assertEqual(TestUserBrick5.id, brick5.id)
 
+        # ---
+        registry.unregister_user_bricks(TestUserBrick2, TestUserBrick4)
+        self.assertListEqual(
+            [TestUserBrick1, TestUserBrick3, TestUserBrick5],
+            [*map(type, registry.get_user_bricks(self.get_root_user()))],
+        )
+
+    def test_unregister_user_bricks__error01(self):
+        class NoIDTestUserBrick(SimpleBrick):
+            id = ''
+
+        registry = _ConfigRegistry(_BrickRegistry())
+
+        with self.assertRaises(registry.UnRegistrationError) as cm:
+            registry.unregister_user_bricks(NoIDTestUserBrick)
+
+        self.assertStartsWith(str(cm.exception), 'Brick class with empty ID:')
+
+    def test_unregister_user_bricks__error02(self):
+        class TestUserBrick1(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_unregister_user_bricks__error02_1')
+
+        class TestUserBrick2(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_unregister_user_bricks__error02_2')
+
+        registry = _ConfigRegistry(_BrickRegistry())
+        registry.register_user_bricks(TestUserBrick1, TestUserBrick2)
+        registry.unregister_user_bricks(TestUserBrick1)
+
+        with self.assertRaises(registry.UnRegistrationError) as cm:
+            registry.unregister_user_bricks(TestUserBrick1)
+
+        self.assertStartsWith(
+            str(cm.exception),
+            'Brick class with invalid ID (already unregistered?):',
+        )
+
     def test_get_user_brick(self):
         user = self.create_user(role=self.create_role(allowed_apps=['persons']))
 
@@ -606,7 +643,7 @@ class RegistryTestCase(CremeTestCase):
             registry.register_user_bricks(TestUserBrick)
 
     def test_register_userbricks_error02(self):
-        "Duplicated ID."
+        "ID not found."
         class TestUserBrick1(SimpleBrick):
             id = SimpleBrick.generate_id('creme_config', 'test_register_userbricks_error02')
 
@@ -629,11 +666,14 @@ class RegistryTestCase(CremeTestCase):
         class TestPortalBrick2(TestPortalBrick):
             id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks2')
 
+        class TestPortalBrick3(TestPortalBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks3')
+
         brick_registry = _BrickRegistry()
-        brick_registry.register(TestPortalBrick1, TestPortalBrick2)
+        brick_registry.register(TestPortalBrick1, TestPortalBrick2, TestPortalBrick3)
 
         registry = _ConfigRegistry(brick_registry)
-        registry.register_portal_bricks(TestPortalBrick1, TestPortalBrick2)
+        registry.register_portal_bricks(TestPortalBrick1, TestPortalBrick2, TestPortalBrick3)
 
         brick_ids = set()
         for brick in registry.portal_bricks:
@@ -642,6 +682,45 @@ class RegistryTestCase(CremeTestCase):
 
         self.assertIn(TestPortalBrick1.id, brick_ids)
         self.assertIn(TestPortalBrick2.id, brick_ids)
+        self.assertIn(TestPortalBrick3.id, brick_ids)
+
+        # ---
+        registry.unregister_portal_bricks(TestPortalBrick1, TestPortalBrick3)
+        self.assertListEqual(
+            [TestPortalBrick2.id], [b.id for b in registry.portal_bricks],
+        )
+
+    def test_register_portal_bricks__error01(self):
+        "Empty ID."
+        class NoIDBrick(SimpleBrick):
+            id = ''
+
+        registry = _ConfigRegistry(_BrickRegistry())
+
+        with self.assertRaises(registry.UnRegistrationError) as cm:
+            registry.unregister_portal_bricks(NoIDBrick)
+
+        self.assertStartsWith(str(cm.exception), 'Brick class with empty ID:')
+
+    def test_register_portal_bricks__error02(self):
+        "ID not found."
+        class TestPortalBrick1(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks__error02_1')
+
+        class TestPortalBrick2(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_register_portal_bricks__error02_2')
+
+        registry = _ConfigRegistry(_BrickRegistry())
+        registry.register_portal_bricks(TestPortalBrick1, TestPortalBrick2)
+        registry.unregister_portal_bricks(TestPortalBrick1)
+
+        with self.assertRaises(registry.UnRegistrationError) as cm:
+            registry.unregister_portal_bricks(TestPortalBrick1)
+
+        self.assertStartsWith(
+            str(cm.exception),
+            'Brick class with invalid ID (already unregistered?):',
+        )
 
     def test_app_registry_is_empty01(self):
         "use models."
