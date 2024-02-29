@@ -345,6 +345,9 @@
                 - _entity_id => _entity_uuid
                 - _ct_id => _ct_key
         # In the model 'creme_core.models.fields_config.FieldsConfig', the attributes "_excluded_fnames" & "_required_fnames" have been removed.
+        # Apps :
+            * Creme_config :
+                - The value of class attribute "id" of several Brick classes (for bricks configuration) have changed (mainly "block" => "brick").
 
 
 == Version 2.5 ==
