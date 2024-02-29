@@ -588,7 +588,8 @@ class TeamsBrick(_ConfigAdminBrick):
 
 
 class BrickDetailviewLocationsBrick(PaginatedBrick):
-    id = PaginatedBrick.generate_id('creme_config', 'blocks_dv_locations')
+    # id = PaginatedBrick.generate_id('creme_config', 'blocks_dv_locations')
+    id = PaginatedBrick.generate_id('creme_config', 'detailview_bricks_locations')
     verbose_name = 'Blocks locations on detailed views'
     dependencies = (core_models.BrickDetailviewLocation,)
     # '-1' because there is always the line for default config on each page
@@ -684,7 +685,8 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
 
 
 class BrickHomeLocationsBrick(_ConfigAdminBrick):
-    id = _ConfigAdminBrick.generate_id('creme_config', 'blocks_home_locations')
+    # id = _ConfigAdminBrick.generate_id('creme_config', 'blocks_home_locations')
+    id = _ConfigAdminBrick.generate_id('creme_config', 'home_bricks_locations')
     verbose_name = _('Blocks on home')
     dependencies = (core_models.BrickHomeLocation,)
     template_name = 'creme_config/bricks/bricklocations-home.html'
@@ -725,7 +727,8 @@ class BrickHomeLocationsBrick(_ConfigAdminBrick):
 
 
 class BrickDefaultMypageLocationsBrick(_ConfigAdminBrick):
-    id = _ConfigAdminBrick.generate_id('creme_config', 'blocks_default_mypage_locations')
+    # id = _ConfigAdminBrick.generate_id('creme_config', 'blocks_default_mypage_locations')
+    id = _ConfigAdminBrick.generate_id('creme_config', 'default_mypage_bricks_locations')
     verbose_name = _('Blocks on default «My page»')
     dependencies = (core_models.BrickMypageLocation,)
     template_name = 'creme_config/bricks/bricklocations-mypage-default.html'
@@ -738,7 +741,8 @@ class BrickDefaultMypageLocationsBrick(_ConfigAdminBrick):
 
 
 class BrickMypageLocationsBrick(_ConfigAdminBrick):
-    id = _ConfigAdminBrick.generate_id('creme_config', 'blocks_mypage_locations')
+    # id = _ConfigAdminBrick.generate_id('creme_config', 'blocks_mypage_locations')
+    id = _ConfigAdminBrick.generate_id('creme_config', 'mypage_bricks_locations')
     verbose_name = _('Blocks on «My page»')
     dependencies = (core_models.BrickMypageLocation,)
     template_name = 'creme_config/bricks/bricklocations-mypage-user.html'
@@ -751,7 +755,8 @@ class BrickMypageLocationsBrick(_ConfigAdminBrick):
 
 
 class RelationBricksConfigBrick(_ConfigAdminBrick):
-    id = _ConfigAdminBrick.generate_id('creme_config', 'relation_blocks_config')
+    # id = _ConfigAdminBrick.generate_id('creme_config', 'relation_blocks_config')
+    id = _ConfigAdminBrick.generate_id('creme_config', 'relation_bricks_config')
     verbose_name = 'Relation blocks configuration'
     dependencies = (core_models.RelationBrickItem, core_models.BrickDetailviewLocation)
     template_name = 'creme_config/bricks/relationbricks-configs.html'
@@ -766,7 +771,8 @@ class RelationBricksConfigBrick(_ConfigAdminBrick):
 
 
 class InstanceBricksConfigBrick(_ConfigAdminBrick):
-    id = _ConfigAdminBrick.generate_id('creme_config', 'instance_blocks_config')
+    # id = _ConfigAdminBrick.generate_id('creme_config', 'instance_blocks_config')
+    id = _ConfigAdminBrick.generate_id('creme_config', 'instance_bricks_config')
     verbose_name = _("Instances' blocks")
     dependencies = (core_models.InstanceBrickConfigItem,)
     template_name = 'creme_config/bricks/instancebricks-configs.html'
@@ -785,7 +791,8 @@ class InstanceBricksConfigBrick(_ConfigAdminBrick):
 
 
 class CustomBricksConfigBrick(PaginatedBrick):
-    id = _ConfigAdminBrick.generate_id('creme_config', 'custom_blocks_config')
+    # id = _ConfigAdminBrick.generate_id('creme_config', 'custom_blocks_config')
+    id = _ConfigAdminBrick.generate_id('creme_config', 'custom_bricks_config')
     verbose_name = _('Custom blocks')
     dependencies = (core_models.CustomBrickConfigItem,)
     template_name = 'creme_config/bricks/custombricks-configs.html'
