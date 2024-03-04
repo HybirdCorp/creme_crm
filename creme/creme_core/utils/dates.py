@@ -31,6 +31,12 @@ from django.utils import formats
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import is_aware, is_naive, make_aware, make_naive
 
+# NB:
+#  - years between in [0001, 1582] are not standardized; we chose to pad with 0
+#  - when we use '%Y' & a year < 1000, strftime() does not pad with 0,
+#    but strptime() only recognized year with 0 padding...
+#  - the format '%4Y' is recognized by strftime() but no strptime()...
+# TODO: add other constants with '%4Y'? remove constants?
 DATE_ISO8601_FMT     = '%Y-%m-%d'
 DATETIME_ISO8601_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
@@ -55,7 +61,8 @@ def dt_to_ISO8601(dt: datetime) -> str:
     if is_aware(dt):
         dt = to_utc(dt)
 
-    return dt.strftime(DATETIME_ISO8601_FMT)
+    # return dt.strftime(DATETIME_ISO8601_FMT)
+    return dt.strftime('%4Y-%m-%dT%H:%M:%S.%fZ')
 
 
 def date_from_ISO8601(d_str: str) -> date:
@@ -68,10 +75,11 @@ def date_from_ISO8601(d_str: str) -> date:
 
 
 def date_to_ISO8601(d: date) -> str:
-    """Converts a datetime.date instance to a string, using the ISO 8601 format
+    """Converts a <datetime.date> instance to a string, using the ISO 8601 format
     (only the date part of the format).
     """
-    return d.strftime(DATE_ISO8601_FMT)
+    # return d.strftime(DATE_ISO8601_FMT)
+    return d.strftime('%4Y-%m-%d')
 
 
 def dt_from_str(dt_str: str) -> datetime | None:
