@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@
 
 creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
     options: {
+        /* Know issue: it seems our JS component removes "0" padding for initial value with years < 1000 in the input (but accepts 0 padded years) */
         format: 'dd-mm-yy',
         readonly: false,
         disabled: false

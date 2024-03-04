@@ -478,6 +478,14 @@ class DatesTestCase(CremeTestCase):
             ),
             dt_from_ISO8601('2015-01-16T15:22:03.123456Z'),
         )
+        self.assertEqual(
+            self.create_datetime(
+                year=999, month=1, day=16, hour=15,
+                minute=22, second=3, microsecond=123456,
+                utc=True,
+            ),
+            dt_from_ISO8601('0999-01-16T15:22:03.123456Z'),
+        )
 
     def test_dt_to_ISO8601(self):
         self.assertEqual(
@@ -502,6 +510,13 @@ class DatesTestCase(CremeTestCase):
             '2018-03-05T19:41:25.123000Z',
             dt_to_ISO8601(datetime(
                 year=2018, month=3, day=5, hour=19,
+                minute=41, second=25, microsecond=123000,
+            )),
+        )
+        self.assertEqual(
+            '0999-03-05T19:41:25.123000Z',
+            dt_to_ISO8601(datetime(
+                year=999, month=3, day=5, hour=19,
                 minute=41, second=25, microsecond=123000,
             )),
         )
@@ -643,11 +658,19 @@ class DatesTestCase(CremeTestCase):
             date(year=2016, month=11, day=23),
             date_from_ISO8601('2016-11-23'),
         )
+        self.assertEqual(
+            date(year=999, month=2, day=3),
+            date_from_ISO8601('0999-02-03'),
+        )
 
     def test_date_to_ISO8601(self):
         self.assertEqual(
             '2016-11-23',
             date_to_ISO8601(date(year=2016, month=11, day=23)),
+        )
+        self.assertEqual(
+            '0999-02-03',
+            date_to_ISO8601(date(year=999, month=2, day=3)),
         )
 
     # @override_tz('Europe/London')
