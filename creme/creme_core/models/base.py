@@ -92,16 +92,6 @@ class CremeModel(models.Model):
             if getattr(self, fname) in EMPTY_VALUES
         }
 
-        # print('==>', errors)
-        # print(
-        #     ' before',
-        #     [
-        #         (fname, getattr(self, fname))
-        #         for fname in FieldsConfig.objects.get_for_model(model).required_field_names
-        #         if getattr(self, fname) in EMPTY_VALUES
-        #     ],
-        # )
-
         if errors:
             raise ValidationError(errors)
 
