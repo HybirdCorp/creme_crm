@@ -236,7 +236,7 @@ class CalendarsBrick(GenericModelBrick):
     id = QuerysetBrick.generate_id('activities', 'calendars_config')
     dependencies = (Calendar,)
     template_name = 'activities/bricks/calendars.html'
-    # permissions = 'activities' ??
+    # permissions = 'activities.can_admin' => useless because views check that.
 
     def detailview_display(self, context):
         qs = get_user_model().objects.all()
@@ -300,6 +300,7 @@ class CalendarConfigItemsBrick(QuerysetBrick):
     dependencies = (CalendarConfigItem,)
     template_name = 'activities/bricks/calendar-config.html'
     configurable = False
+    # permissions = 'activities.can_admin' => useless because views check that.
 
     def detailview_display(self, context):
         user = context['user']
@@ -310,7 +311,7 @@ class CalendarConfigItemsBrick(QuerysetBrick):
         brick_context = self.get_template_context(
             context,
             configs,
-            has_app_perm=user.has_perm('activities'),
+            has_app_perm=user.has_perm('activities'),  # TODO: remove?
         )
 
         page = brick_context['page']

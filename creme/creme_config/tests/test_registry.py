@@ -442,7 +442,7 @@ class RegistryTestCase(CremeTestCase):
             id = SimpleBrick.generate_id('creme_config', 'test_register_app_bricks3')
 
         brick_registry = _BrickRegistry()
-        brick_registry.register(TestBrick1, TestBrick2, TestBrick3)
+        # brick_registry.register(TestBrick1, TestBrick2, TestBrick3)
 
         registry = _ConfigRegistry(brick_registry)
         registry.register_app_bricks('creme_core', TestBrick1, TestBrick2)
@@ -470,6 +470,75 @@ class RegistryTestCase(CremeTestCase):
         self.assertIn(TestBrick3.id, brick_ids)
         self.assertNotIn(TestBrick1.id, brick_ids)
         self.assertNotIn(TestBrick2.id, brick_ids)
+
+    def test_register_app_brick__error01(self):
+        class NoIDTestUserBrick(SimpleBrick):
+            id = ''
+
+        registry = _ConfigRegistry(_BrickRegistry())
+
+        with self.assertRaises(registry.RegistrationError) as cm:
+            registry.register_app_bricks('documents', NoIDTestUserBrick)
+
+        self.assertStartsWith(str(cm.exception), 'App config brick class with empty ID:')
+
+    def test_register_app_brick__error02(self):
+        "No method detailview_display()."
+        class TestBrick(Brick):
+            id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error02')
+
+        registry = _ConfigRegistry(_BrickRegistry())
+
+        with self.assertRaises(registry.RegistrationError) as cm:
+            registry.register_app_bricks('documents', TestBrick)
+
+        self.assertStartsWith(
+            str(cm.exception),
+            'App config brick class has no detailview_display() method: '
+        )
+
+    def test_register_app_brick__error03(self):
+        "Duplicated ID."
+        class TestBrick1(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error03')
+
+        class TestBrick2(SimpleBrick):
+            id = TestBrick1.id
+
+        registry = _ConfigRegistry(_BrickRegistry())
+        registry.register_app_bricks('documents', TestBrick1)
+
+        registry = _ConfigRegistry(_BrickRegistry())
+
+        with self.assertNoException():
+            registry.register_app_bricks('documents',  TestBrick1)
+            registry.register_app_bricks('creme_core', TestBrick2)
+
+        with self.assertRaises(registry.RegistrationError) as cm:
+            registry.register_app_bricks('documents', TestBrick2)
+
+        self.assertStartsWith(
+            str(cm.exception), 'App config brick class with duplicated ID: '
+        )
+
+    def test_register_app_brick__error04(self):
+        "Brick registered in global registry."
+        class TestBrick1(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error04_1')
+
+        class TestBrick2(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_register_app_brick__error04_2')
+
+        brick_registry = _BrickRegistry().register(TestBrick2)
+        registry = _ConfigRegistry(brick_registry)
+        registry.register_app_bricks('persons', TestBrick1, TestBrick2)
+
+        app_reg = registry.get_app_registry('persons')
+
+        with self.assertLogs(level='CRITICAL'):
+            brick_classes = [type(brick) for brick in app_reg.bricks]
+
+        self.assertListEqual([TestBrick1], brick_classes)
 
     # def test_register_userbricks(self):
     def test_get_user_bricks(self):
@@ -723,7 +792,7 @@ class RegistryTestCase(CremeTestCase):
         )
 
     def test_app_registry_is_empty01(self):
-        "use models."
+        "Use models."
         registry = _ConfigRegistry(
             brick_registry=_BrickRegistry(),
             setting_key_registry=_SettingKeyRegistry(),
@@ -735,7 +804,7 @@ class RegistryTestCase(CremeTestCase):
         self.assertIs(False, app_registry.is_empty)
 
     def test_app_registry_is_empty02(self):
-        "use bricks."
+        "Use bricks."
         class TestBrick(SimpleBrick):
             id = SimpleBrick.generate_id('creme_config', 'test_app_registry_is_empty02')
 

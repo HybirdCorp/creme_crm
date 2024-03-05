@@ -374,7 +374,7 @@ class BillingExportersBrick(Brick):
     template_name = 'billing/bricks/exporters.html'
     dependencies = (ExporterConfigItem,)
     configurable = False
-    permissions = 'billing'
+    # permissions = 'billing.can_admin' => auto by creme_config views
 
     def detailview_display(self, context):
         items = [*ExporterConfigItem.objects.all()]
