@@ -1,5 +1,5 @@
 {% extends 'creme_config/portals/base.html' %}
-{% load i18n creme_bricks creme_widgets %}
+{% load i18n creme_widgets %}{# creme_bricks #}
 
 {% block page_title %}{% translate 'Configuration of custom fields' %} - {% endblock %}
 
@@ -7,6 +7,14 @@
     {{block.super}}{% translate 'Custom fields' %}
 {% endblock %}
 
+{% block portal_help %}
+{% blocktranslate asvar help_msg %}Here you can add fields to each entity types.
+Beware: this kind of field is less efficient for searching/filtering of big number of entities.
+Notice: if you just want simple markers, Properties could be used instead.{% endblocktranslate %}
+    {% widget_help_sign message=help_msg %}
+{% endblock %}
+
+{% comment %}
 {% block portal_bricks %}
 {% blocktranslate asvar help_msg %}Here you can add fields to each entity types.
 Beware: this kind of field is less efficient for searching/filtering of big number of entities.
@@ -16,3 +24,4 @@ Notice: if you just want simple markers, Properties could be used instead.{% end
     {% brick_import app='creme_config' name='custom_fields' as cfields_brick %}
     {% brick_display cfields_brick %}
 {% endblock %}
+{% endcomment %}

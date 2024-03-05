@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2022  Hybird
+#    Copyright (C) 2018-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,14 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.views import generic
 
 _PERM = 'creme_core.can_admin'
+
+
+class ConfigPortal(generic.BricksView):
+    template_name = 'creme_config/portals/base.html'
+    brick_classes = []
+
+    def get_bricks(self):
+        return [brick_cls() for brick_cls in self.brick_classes]
 
 
 class ConfigCreation(generic.CremeFormPopup):

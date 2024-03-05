@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,14 +24,16 @@ from django.utils.translation import pgettext_lazy
 from creme.creme_core.models import ButtonMenuItem
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
-from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
+from ..bricks import ButtonMenuBrick
 from ..forms import button_menu as button_forms
 from . import base
 
 
-class Portal(generic.BricksView):
+# class Portal(generic.BricksView):
+class Portal(base.ConfigPortal):
     template_name = 'creme_config/portals/button-menu.html'
+    brick_classes = [ButtonMenuBrick]
 
 
 class ButtonMenuWizard(generic.wizard.CremeWizardViewPopup):
@@ -65,7 +67,7 @@ class ButtonMenuWizard(generic.wizard.CremeWizardViewPopup):
         return kwargs
 
 
-class ButtonMenuEdition(EntityCTypeRelatedMixin, base.ConfigEdition):
+class ButtonMenuEdition(generic.base.EntityCTypeRelatedMixin, base.ConfigEdition):
     model = ButtonMenuItem
     form_class = button_forms.ButtonMenuEditionForm
     ct_id_0_accepted = True

@@ -30,14 +30,16 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
+from ..bricks import NotificationChannelsBrick
 from ..forms import notification as notif_forms
 from . import base
 
 logger = logging.getLogger(__name__)
 
 
-class Portal(generic.BricksView):
+class Portal(base.ConfigPortal):
     template_name = 'creme_config/portals/notification.html'
+    brick_classes = [NotificationChannelsBrick]
 
 
 class ChannelCreation(generic.CremeModelCreationPopup):

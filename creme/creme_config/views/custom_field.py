@@ -67,8 +67,10 @@ class CustomFieldCreation(EntityCTypeRelatedMixin,
         )
 
 
-class Portal(generic.BricksView):
+# class Portal(generic.BricksView):
+class Portal(base.ConfigPortal):
     template_name = 'creme_config/custom_field/portal.html'
+    brick_classes = [bricks.CustomFieldsBrick]
 
 
 class CustomFieldEdition(base.ConfigModelEdition):

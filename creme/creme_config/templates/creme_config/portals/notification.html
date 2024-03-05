@@ -1,13 +1,8 @@
 {% extends 'creme_config/portals/base.html' %}
-{% load i18n creme_bricks %}
+{% load i18n %}
 
 {% block page_title %}{% translate 'Configuration of notifications' %} - {% endblock %}
 
 {% block title %}
     {{block.super}}{% translate 'Notifications' %}
-{% endblock %}
-
-{% block portal_bricks %}
-    {% brick_import app='creme_config' name='notif_channels' as chans_brick %}
-    {% brick_display chans_brick %}
 {% endblock %}

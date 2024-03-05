@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2022  Hybird
+#    Copyright (C) 2021-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,17 +26,20 @@ from creme.creme_core.gui.menu import ContainerEntry, menu_registry
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import MenuConfigItem
 from creme.creme_core.utils import get_from_POST_or_404
-from creme.creme_core.views import generic
+# from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import PermissionsMixin
 from creme.creme_core.views.generic.order import ReorderInstances
 
+from ..bricks import MenuBrick
 from ..forms import menu as menu_forms
 from . import base
 from .bricks import RoleRelatedMixin
 
 
-class Portal(generic.BricksView):
+# class Portal(generic.BricksView):
+class Portal(base.ConfigPortal):
     template_name = 'creme_config/portals/menu.html'
+    brick_classes = [MenuBrick]
 
 
 # TODO: 409 if ContainerEntry is not registered ?
