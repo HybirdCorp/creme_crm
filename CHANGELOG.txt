@@ -1,7 +1,5 @@
 == Version 2.4.13 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .po (creme_core)
-
   Users side :
   ------------
     # There were several issues with fields configured as required.
