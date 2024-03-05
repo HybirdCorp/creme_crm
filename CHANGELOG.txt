@@ -19,6 +19,8 @@
         * Activities :
             - In "My settings", the brick with Calendars is not displayed at all
               for users which cannot access to the app "Activities".
+        * Billing :
+            - The lib 'xhtml2pdf' has been upgraded to the version '0.2.15'.
         * Emails :
             - Some permissions checks in the email & lightweight email history bricks were missing.
             - In "My settings", the brick with Signatures is not displayed at all
