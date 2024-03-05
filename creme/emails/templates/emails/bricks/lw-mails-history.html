@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
 {% load i18n creme_bricks %}
-{% load print_field url from creme_core_tags %}
+{% load has_perm_to print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} emails-lw-mails-history-brick{% endblock %}
 
@@ -16,16 +16,25 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-    {% for mail in page.object_list %}
-    <tr>
+  {% for mail in page.object_list %}
+    <tr>{% has_perm_to view mail.sending.campaign as view_perm %}
+      {% if view_perm %}
         <td data-type="date">{{mail.sending_date}}</td>
         <td>{{mail.sending.subject}}</td>
         <td>{% print_field object=mail field='status' %}</td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='view' url='emails__view_lw_mail'|url:mail.pk label=_('Details') %}
         </td>
+      {% else %}
+        <td {# data-type="date" #}>{{HIDDEN_VALUE}}</td>
+        <td>{{HIDDEN_VALUE}}</td>
+        <td>{{HIDDEN_VALUE}}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='view' label=_('Details') enabled=False %}
+        </td>
+      {% endif %}
     </tr>
-    {% endfor %}
+  {% endfor %}
 {% endblock %}
 
 {% block brick_table_empty %}

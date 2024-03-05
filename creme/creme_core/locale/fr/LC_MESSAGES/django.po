@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2023 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" -i "templates/creme_core/tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-07 09:57+0100\n"
+"POT-Creation-Date: 2024-02-20 10:53+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3424,6 +3424,9 @@ msgstr "Type de propriété"
 
 msgid "Disabled"
 msgstr "Désactivé"
+
+msgid "Do you really want to delete this property type?"
+msgstr "Voulez-vous vraiment supprimer ce type de propriété ?"
 
 msgid "Click to display the block's menu"
 msgstr "Cliquez pour afficher le menu du bloc"

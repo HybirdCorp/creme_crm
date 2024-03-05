@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 # import warnings
+from copy import deepcopy
 from functools import partial
 from itertools import chain
 # from json import loads as json_load
@@ -464,19 +465,45 @@ class FieldsConfig(CremeModel):
 
         return self.is_field_required(field)
 
-    def update_form_fields(self, form_fields) -> None:
+    # def update_form_fields(self, form_fields) -> None:
+    #     for field_name in self._get_hidden_field_names():
+    #         form_fields.pop(field_name, None)
+    #
+    #     for field_name in self.required_field_names:
+    #         try:
+    #             form_fields[field_name].required = True
+    #         except KeyError:
+    #             logger.critical(
+    #                 'The field "%s" has been configured to be required '
+    #                 'but the current form does not use this field ; '
+    #                 'please contact your administrator.',
+    #                 field_name,
+    #             )
+    #             form_fields[field_name] = (
+    #                 self.content_type
+    #                     .model_class()
+    #                     ._meta
+    #                     .get_field(field_name)
+    #                     .formfield(required=True)
+    #             )
+    def update_form_fields(self, form) -> None:
+        form_fields = form.fields
+
         for field_name in self._get_hidden_field_names():
+            # TODO: remove from meta too?
             form_fields.pop(field_name, None)
+
+        missing_field_names = []
 
         for field_name in self.required_field_names:
             try:
                 form_fields[field_name].required = True
             except KeyError:
                 # TODO: we need the form class for a better message
-                logger.critical(
+                logger.info(
                     'The field "%s" has been configured to be required '
                     'but the current form does not use this field ; '
-                    'please contact your administrator.',
+                    'so we add it.',
                     field_name,
                 )
                 # TODO: is it possible that field does not exist any more ?
@@ -487,6 +514,17 @@ class FieldsConfig(CremeModel):
                         .get_field(field_name)
                         .formfield(required=True)
                 )
+                missing_field_names.append(field_name)
+
+        if missing_field_names:
+            # NB: we add the missing fields in the options/meta, because the
+            #     model forms only fill the instance fields (from cleaned data)
+            #     corresponding to meta.fields (so if we do not complete the
+            #     field list the model validation will fail with an error like
+            #     "The field XXX is configured as required")
+            new_meta = deepcopy(form._meta)
+            new_meta.fields = (*new_meta.fields, *missing_field_names)
+            form._meta = new_meta
 
     def natural_key(self):
         return self.content_type.natural_key()
