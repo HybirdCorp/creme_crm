@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 already_run = False
 
 
@@ -17,6 +16,7 @@ def ready():
     from ..core.function_field import function_field_registry
     from ..core.imprint import imprint_manager
     from ..gui.bricks import brick_registry
+    from ..gui.bulk_update import bulk_update_registry
     from ..gui.custom_form import customform_descriptor_registry
     from ..gui.fields_config import fields_config_registry
     from ..gui.icons import icon_registry
@@ -95,6 +95,11 @@ def ready():
     ).register_invalid_models(
         fake_models.FakeInvoiceLine,  # See creme_config tests
     )
+
+    bulk_update_registry.register(fake_models.FakeContact)
+    bulk_update_registry.register(fake_models.FakeOrganisation)
+    bulk_update_registry.register(fake_models.FakeImage)
+    bulk_update_registry.register(fake_models.FakeEmailCampaign)
 
     customform_descriptor_registry.register(
         fake_custom_forms.FAKEORGANISATION_CREATION_CFORM,

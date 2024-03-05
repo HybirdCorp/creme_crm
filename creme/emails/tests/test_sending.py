@@ -790,8 +790,9 @@ class SendingsTestCase(_EmailsTestCase):
         # TODO: test other bricks
 
     def test_reload_sending_bricks02(self):
-        "Can not see the campaign"
+        "Can not see the campaign."
         self.login(is_superuser=False)
+
         SetCredentials.objects.create(
             role=self.role,
             value=EntityCredentials.VIEW,
@@ -810,6 +811,14 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertGET403(
             reverse('emails__reload_sending_bricks', args=(sending.id,)),
             data={'brick_id': MailsBrick.id_}
+        )
+
+    def test_reload_sending_bricks03(self):
+        "No app perm."
+        self.login(is_superuser=False, allowed_apps=('persons'))  # No 'emails'
+        self.assertGET403(
+            reverse('emails__reload_sending_bricks', args=(self.UNUSED_PK,)),
+            data={'brick_id': 'whatever'},
         )
 
     def test_inneredit(self):

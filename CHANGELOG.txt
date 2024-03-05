@@ -1,3 +1,32 @@
+== Version 2.3.18 ==
+
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+     # Some fields associated to a static list of values (attributes "choices" in Python)
+       are not proposed by the Batch-Process form anymore.
+     # Apps :
+        * Activities :
+            - An icon was missing in the theme "chantilly" ('images/meeting_48.png').
+        * Tickets :
+            - The name of the button to link to a Ticket (visible in configuration) has been fixed.
+        * Emails :
+            - Some permissions checks in the mail history brick were missing.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Apps :
+            * Email :
+                - The class-view 'views.sending.SendingBricksReloading' now checks permissions.
+            * Commercial :
+                - The class-view 'views.strategy.MatrixBricksReloading' now checks permissions.
+
+
 == Version 2.3.17 ==
 
   Users side :
