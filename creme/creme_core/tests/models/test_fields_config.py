@@ -478,9 +478,40 @@ class FieldsConfigTestCase(CremeTestCase):
             ],
         )
 
-        fields = FakeContactForm(user=user).fields
+        # fields = FakeContactForm(user=user).fields
+        form1 = FakeContactForm(user=user)
+        fields = form1.fields
         self.assertFalse(fields['mobile'].required)
         self.assertTrue(fields['phone'].required)
+
+        # ---
+        last_name = 'Senjougahara'
+        data = {'user': user.id, 'last_name': last_name}
+
+        form2 = FakeContactForm(user=user, data=data)
+        self.assertDictEqual(
+            {
+                'phone': [
+                    _('This field is required.'),
+                    _('The field «{}» has been configured as required.').format(_('Phone')),
+                ],
+            },
+            form2.errors,
+        )
+
+        # ---
+        phone = '123965'
+        form3 = FakeContactForm(
+            user=user, data={**data, 'phone': phone},
+        )
+        self.assertTrue(form3.is_valid())
+
+        contact = form3.save()
+        self.assertIsInstance(contact, FakeContact)
+        self.assertIsNotNone(contact.pk)
+        self.assertEqual(user,      contact.user)
+        self.assertEqual(last_name, contact.last_name)
+        self.assertEqual(phone,     contact.phone)
 
     def test_form_update_required02(self):
         "Field not present => added."
@@ -498,12 +529,41 @@ class FieldsConfigTestCase(CremeTestCase):
             ],
         )
 
-        form = LightFakeContactForm(user=user)
-        first_name_f = form.fields.get(required)
+        form1 = LightFakeContactForm(user=user)
+        first_name_f = form1.fields.get(required)
         self.assertIsInstance(first_name_f, CharField)
         self.assertEqual(_('First name'), first_name_f.label)
         self.assertEqual(100,             first_name_f.max_length)
         self.assertTrue(first_name_f.required)
+
+        # ---
+        last_name = 'Senjougahara'
+        data = {'user': user.id, 'last_name': last_name}
+
+        form2 = LightFakeContactForm(user=user, data=data)
+        self.assertDictEqual(
+            {
+                required: [
+                    _('This field is required.'),
+                    _('The field «{}» has been configured as required.').format(_('First name')),
+                ],
+            },
+            form2.errors,
+        )
+
+        # ---
+        required_value = 'Hitagi'
+        form3 = LightFakeContactForm(
+            user=user, data={**data, required: required_value},
+        )
+        self.assertFalse(form3.errors)
+
+        contact = form3.save()
+        self.assertIsInstance(contact, FakeContact)
+        self.assertIsNotNone(contact.pk)
+        self.assertEqual(user,           contact.user)
+        self.assertEqual(last_name,      contact.last_name)
+        self.assertEqual(required_value, getattr(contact, required))
 
     def test_descriptions_setter01(self):
         "Auto-repair invalid fields."

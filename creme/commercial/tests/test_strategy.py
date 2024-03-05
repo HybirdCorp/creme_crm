@@ -1077,6 +1077,13 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(brick_id, result[0])
         self.get_brick_node(self.get_html_tree(result[1]), brick_id)
 
+    def test_reload_assets_matrix__no_app_perm(self):
+        self.login_as_standard()  # No 'commercial'
+        self.assertGET403(
+            reverse('commercial__reload_matrix_brick', args=(self.UNUSED_PK, self.UNUSED_PK)),
+            data={'brick_id': 'whatever'},
+        )
+
     @skipIfCustomOrganisation
     def test_reload_charms_matrix(self):
         # user = self.login()

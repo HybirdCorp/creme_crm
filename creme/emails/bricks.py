@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -369,7 +369,9 @@ class LwMailsHistoryBrick(QuerysetBrick):
         pk = context['object'].pk
         return self._render(self.get_template_context(
             context,
-            LightWeightEmail.objects.filter(recipient_entity=pk).select_related('sending'),
+            LightWeightEmail.objects.filter(
+                recipient_entity=pk,
+            ).select_related('sending').prefetch_related('sending__campaign'),
         ))
 
 
@@ -394,6 +396,10 @@ class MySignaturesBrick(QuerysetBrick):
         #     EmailSignature.objects.filter(user=user),
         #     # has_app_perm=user.has_perm('emails'),
         # ))
+        # TODO: better permissions management in "my configuration" (done in Creme 2.6)
+        if not context['user'].has_perm_to_access('emails'):
+            return ''
+
         btc = self.get_template_context(
             context,
             EmailSignature.objects.filter(user=context['user']).prefetch_related('images')

@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from creme.creme_core.models import (
     CustomField,
+    FakeCivility,
     FakeContact,
     FakeInvoice,
     FakeOrganisation,
@@ -50,18 +51,18 @@ class QuickFormTestCase(CremeTestCase):
         count = FakeContact.objects.count()
 
         url = self._build_quickform_url(FakeContact)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/form/add-popup.html')
-        self.assertEqual('SAMEORIGIN', response.get('X-Frame-Options'))  # allows iframe
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/form/add-popup.html')
+        self.assertEqual('SAMEORIGIN', response1.get('X-Frame-Options'))  # allows iframe
 
-        context = response.context
+        context = response1.context
         self.assertEqual(FakeContact.creation_label, context.get('title'))
         self.assertEqual(FakeContact.save_label,     context.get('submit_label'))
 
         # ---
         last_name = 'Kirika'
         email = 'admin@hello.com'
-        response = self.assertPOST200(
+        response2 = self.assertPOST200(
             url,
             data={
                 'last_name': last_name,
@@ -69,7 +70,7 @@ class QuickFormTestCase(CremeTestCase):
                 'user':      user.id,
             },
         )
-        self.assertEqual('SAMEORIGIN', response.get('X-Frame-Options'))  # allows iframe
+        self.assertEqual('SAMEORIGIN', response2.get('X-Frame-Options'))  # allows iframe
         self.assertEqual(count + 1, FakeContact.objects.count())
 
         contact = self.get_object_or_fail(FakeContact, last_name=last_name, email=email)
@@ -78,7 +79,7 @@ class QuickFormTestCase(CremeTestCase):
                 'added': [[contact.id, str(contact)]],
                 'value': contact.id,
             },
-            response.json(),
+            response2.json(),
         )
 
     def test_get_not_superuser(self):
@@ -164,12 +165,64 @@ class QuickFormTestCase(CremeTestCase):
         )
 
         url = self._build_quickform_url(FakeContact)
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
         with self.assertNoException():
-            fields = response.context['form'].fields
+            fields = response1.context['form'].fields
 
         self.assertNotIn(not_required, fields)
         self.assertIn(required, fields)
+
+        # ---
+        last_name = 'Kirika'
+        required_value = '1594862'
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'last_name': last_name,
+                'user': user.id,
+                required: required_value,
+                not_required: 'whatever',
+            },
+        ))
+
+        contact = self.get_object_or_fail(FakeContact, last_name=last_name)
+        self.assertEqual(required_value, getattr(contact, required))
+        self.assertFalse(getattr(contact, not_required))
+
+    def test_fields_config_required__enumerable_fk(self):
+        user = self.login_as_root_and_get()
+        required = 'civility'
+
+        vanilla_fields = FakeContactQuickForm(user=user).fields
+        self.assertNotIn(required, vanilla_fields)
+
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[(required, {FieldsConfig.REQUIRED: True})],
+        )
+
+        url = self._build_quickform_url(FakeContact)
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+
+        self.assertIn(required, fields)
+
+        # ---
+        last_name = 'Kirika'
+        required_value = FakeCivility.objects.first()
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'last_name': last_name,
+                'user': user.id,
+                required: required_value.id,
+            },
+        ))
+
+        contact = self.get_object_or_fail(FakeContact, last_name=last_name)
+        self.assertEqual(required_value, getattr(contact, required))
 
     # TODO: test_quickform_with_custom_sync_data
