@@ -332,6 +332,9 @@ class _AppConfigRegistry:
      - Models to configure.
      - Extra Bricks.
     """
+    class RegistrationError(Exception):
+        pass
+
     def __init__(self,
                  name: str,
                  verbose_name: str,
@@ -341,7 +344,8 @@ class _AppConfigRegistry:
         self.verbose_name = verbose_name
         self._models: dict[type[Model], _ModelConfig] = {}
         self._config_registry = config_registry
-        self._brick_ids: list[str] = []
+        # self._brick_ids: list[str] = []
+        self._brick_classes: dict[str, type[Brick]] = {}
 
     @property
     def portal_url(self) -> str:
@@ -379,8 +383,28 @@ class _AppConfigRegistry:
     def models(self) -> Iterator[_ModelConfig]:
         return iter(self._models.values())
 
-    def _register_bricks(self, brick_ids: Iterable[str]) -> None:
-        self._brick_ids.extend(brick_ids)
+    # def _register_bricks(self, brick_ids: Iterable[str]) -> None:
+    #     self._brick_ids.extend(brick_ids)
+    def _register_bricks(self, brick_classes: Iterable[type[Brick]]) -> None:
+        setdefault = self._brick_classes.setdefault
+
+        for brick_cls in brick_classes:
+            brick_id = brick_cls.id
+
+            if not brick_id:
+                raise self.RegistrationError(
+                    f'App config brick class with empty ID: {brick_cls}'
+                )
+
+            if not hasattr(brick_cls, 'detailview_display'):
+                raise self.RegistrationError(
+                    f'App config brick class has no detailview_display() method: {brick_cls}'
+                )
+
+            if setdefault(brick_id, brick_cls) is not brick_cls:
+                raise self.RegistrationError(
+                    f'App config brick class with duplicated ID: {brick_cls}'
+                )
 
     def _unregister_model(self, model: type[Model]) -> None:
         self._models.pop(model, None)
@@ -388,14 +412,33 @@ class _AppConfigRegistry:
     @property
     def bricks(self) -> Iterator[Brick]:
         """Generator yielding the extra-bricks to configure the app."""
-        return self._config_registry._brick_registry.get_bricks(self._brick_ids)
+        # return self._config_registry._brick_registry.get_bricks(self._brick_ids)
+        global_classes = self._config_registry._brick_registry._brick_classes
+
+        for brick_cls in self._brick_classes.values():
+            brick = brick_cls()
+
+            # TODO: remove in Creme2.7?
+            # NB: we do not check in register_app_bricks() because the registration
+            #     of creme_config is generally made before the global registration
+            #     of bricks (so the check would not detect any issue).
+            if brick.id in global_classes:
+                logger.critical(
+                    'App setting brick class registered in global brick registry: %s.\n'
+                    'HINT: remove it from global registry.',
+                    brick_cls,
+                )
+                continue
+
+            yield brick
 
     @property
     def is_empty(self) -> bool:
         """Is the configuration portal of the app empty."""
         return not bool(
             self._models
-            or self._brick_ids
+            # or self._brick_ids
+            or self._brick_classes
             # TODO: factorise with SettingsBrick ;
             #       pass the _ConfigRegistry to SettingsBrick everywhere
             or any(
@@ -535,12 +578,18 @@ class _ConfigRegistry:
         @param brick_classes: Classes inheriting <creme_core.gui.Brick> with a
                method detailview_display().
         """
-        self.get_app_registry(
-            app_label=app_label,
-            create=True,
-        )._register_bricks(
-            map(self._get_brick_id, brick_classes)
-        )
+        # self.get_app_registry(
+        #     app_label=app_label,
+        #     create=True,
+        # )._register_bricks(
+        #     map(self._get_brick_id, brick_classes)
+        # )
+        app_registry = self.get_app_registry(app_label=app_label, create=True)
+
+        try:
+            app_registry._register_bricks(brick_classes)
+        except app_registry.RegistrationError as e:
+            raise self.RegistrationError(e) from e
 
     def register_portal_bricks(self, *brick_classes: type[Brick]) -> None:
         """Register the extra Brick classes to display of the portal of

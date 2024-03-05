@@ -266,11 +266,14 @@
         # The template "creme_core/templates/creme_core/view_property_type.html" is now "creme_core/templates/creme_core/detail/property-type.html".
         # Apps :
             * Creme_config :
-                - In 'registry._ConfigRegistry', the way the bricks of "My settings" are managed have changed.
-                    - BEWARE: when you register a brick with 'register_user_bricks()' (in your 'apps.py'),
+                - In 'registry._ConfigRegistry' :
+                    - The way the bricks of app portal are managed have changed.
+                      BEWARE: when you register a brick with 'register_app_bricks()' (in your 'apps.py'),
                       the brick class must not be registered in the global brick registry anymore.
-                    - The property 'user_bricks' has been replaced by 'get_user_bricks()'.
-                    - The attribute '_user_brick_ids' has been replaced by '_user_brick_classes'.
+                    - The way the bricks of "My settings" are managed have changed :
+                        - BEWARE: when you register a brick with 'register_user_bricks()' (in your 'apps.py'),
+                          the brick class must not be registered in the global brick registry anymore.
+                        - The property 'user_bricks' has been replaced by 'get_user_bricks()'.
                 - In 'urls' :
                     - The view named 'creme_config__create_detailviews_bricks' has been renamed 'creme_config__create_detailview_bricks'.
                     - The view named 'creme_config__delete_home_brick' has been renamed 'creme_config__delete_home_bricks'.
@@ -354,6 +357,10 @@
         # Apps :
             * Creme_config :
                 - The value of class attribute "id" of several Brick classes (for bricks configuration) have changed (mainly "block" => "brick").
+                - The attribute 'registry._ConfigRegistry._user_brick_ids' has been replaced by '_user_brick_classes'.
+                - In the class 'registry._AppConfigRegistry' :
+                    - The attribute '_brick_ids' has been replaced by '_brick_classes'.
+                    - The method '_register_bricks' now takes Brick classes.
 
 
 == Version 2.5 ==

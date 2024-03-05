@@ -90,7 +90,7 @@ def ready():
     )
 
     brick_registry.register(
-        fake_bricks.FakeAppPortalBrick,
+        # fake_bricks.FakeAppPortalBrick,
     ).register_invalid_models(
         fake_models.FakeInvoiceLine,  # See creme_config tests
     ).register_hat(

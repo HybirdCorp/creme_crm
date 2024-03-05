@@ -236,7 +236,7 @@ class SendingConfigItemsBrick(QuerysetBrick):
     order_by = 'id'
     template_name = 'emails/bricks/sending-config-items.html'
     configurable = False
-    # permissions = 'emails' ?
+    # permissions = 'emails.can_admin' => auto by creme_config views
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
@@ -403,6 +403,7 @@ class EmailSyncConfigItemsBrick(QuerysetBrick):
     order_by = 'id'
     template_name = 'emails/bricks/sync-config-items.html'
     configurable = False
+    # permissions = 'emails.can_admin' => auto by creme_config views
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
