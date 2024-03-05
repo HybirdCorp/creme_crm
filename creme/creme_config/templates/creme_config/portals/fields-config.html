@@ -1,5 +1,5 @@
 {% extends 'creme_config/portals/base.html' %}
-{% load i18n creme_bricks creme_widgets %}
+{% load i18n creme_widgets %}{# creme_bricks #}
 
 {% block page_title %}{% translate 'Configuration of fields' %} - {% endblock %}
 
@@ -7,6 +7,16 @@
     {{block.super}}{% translate 'Configuration of fields' %}
 {% endblock %}
 
+{% block portal_help %}
+{% blocktranslate asvar help_msg_hidden %}Here you can HIDE existing fields which are optional. Hidden fields disappear everywhere (blocks on detailed views, forms, list-views…) as if they do not exist anymore.
+Notice: if you just want to hide them in some places but not all of them, you should use another way (e.g. custom block, custom form, view of list…).{% endblocktranslate %}
+{% blocktranslate asvar help_msg_required %}Here you can MARK AS REQUIRED fields which are normally not required.
+Notice: setting a field as required is not retroactive ; existing entities will not be modified, but users will be obliged to set the given field the next time they edit an entity with an empty value.{% endblocktranslate %}
+    {% widget_help_sign message=help_msg_hidden %}
+    {% widget_help_sign message=help_msg_required %}
+{% endblock %}
+
+{% comment %}
 {% block portal_bricks %}
 {% blocktranslate asvar help_msg_hidden %}Here you can HIDE existing fields which are optional. Hidden fields disappear everywhere (blocks on detailed views, forms, list-views…) as if they do not exist anymore.
 Notice: if you just want to hide them in some places but not all of them, you should use another way (e.g. custom block, custom form, view of list…).{% endblocktranslate %}
@@ -18,3 +28,4 @@ Notice: setting a field as required is not retroactive ; existing entities will 
     {% brick_import app='creme_config' name='fields_configs' as fields_configs_brick %}
     {% brick_display fields_configs_brick %}
 {% endblock %}
+{% endcomment %}

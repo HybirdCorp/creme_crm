@@ -1,5 +1,5 @@
 {% extends 'creme_config/portals/base.html' %}
-{% load i18n creme_bricks %}
+{% load i18n %}{# creme_bricks #}
 
 {% block page_title %}{% translate 'Configuration of users' %} - {% endblock %}
 
@@ -7,8 +7,10 @@
     {{block.super}}{% translate 'Users' %}
 {% endblock %}
 
+{% comment %}
 {% block portal_bricks %}
     {% brick_import app='creme_config' name='users' as users_brick %}
     {% brick_import app='creme_config' name='teams' as teams_brick %}
     {% brick_display users_brick teams_brick %}
 {% endblock %}
+{% endcomment %}

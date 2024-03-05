@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2023  Hybird
+#    Copyright (C) 2021-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,9 +25,14 @@ from creme.creme_core.views import generic
 from creme.creme_core.views.entity_filter import EntityFilterMixin
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
+from ..bricks import EntityFiltersBrick
+from .base import ConfigPortal
 
-class Portal(generic.BricksView):
+
+# class Portal(generic.BricksView):
+class Portal(ConfigPortal):
     template_name = 'creme_config/portals/entity-filter.html'
+    brick_classes = [EntityFiltersBrick]
 
 
 class EntityFilterCreation(EntityCTypeRelatedMixin,

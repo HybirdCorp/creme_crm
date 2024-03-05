@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,13 +36,17 @@ from creme.creme_core.models import (
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
+from ..bricks import UserRolesBrick
 from ..forms import user_role as role_forms
+from .base import ConfigPortal
 
 logger = logging.getLogger(__name__)
 
 
-class Portal(generic.BricksView):
+# class Portal(generic.BricksView):
+class Portal(ConfigPortal):
     template_name = 'creme_config/portals/user-role.html'
+    brick_classes = [UserRolesBrick]
 
 
 class RoleCreationWizard(generic.CremeModelCreationWizardPopup):

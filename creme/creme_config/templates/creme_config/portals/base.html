@@ -1,6 +1,12 @@
 {% extends 'creme_config/portal.html' %}
-{% load i18n creme_perms %}
+{% load i18n creme_bricks creme_perms %}
 
 {% block title %}
     {% if user|has_perm_to_access:'creme_config' %}<a href="{% url 'creme_config__portal' %}">{% translate 'Configuration' %} > </a>{% endif %}
+{% endblock %}
+
+{% block portal_bricks %}
+    {% brick_declare bricks %}
+    {% brick_display bricks %}
+    {% brick_end %}
 {% endblock %}

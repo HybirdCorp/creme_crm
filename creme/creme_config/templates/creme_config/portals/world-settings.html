@@ -1,5 +1,5 @@
 {% extends 'creme_config/portals/base.html' %}
-{% load i18n creme_bricks creme_widgets %}
+{% load i18n creme_widgets %}{# creme_bricks #}
 
 {% block page_title %}{% translate 'Configuration of the instance' %} - {% endblock %}
 
@@ -7,7 +7,9 @@
     {{block.super}}{% translate 'Instance' %}
 {% endblock %}
 
+{% comment %}
 {% block portal_bricks %}
     {% brick_import app='creme_config' name='world_settings' as world_settings_brick %}
     {% brick_display world_settings_brick %}
 {% endblock %}
+{% endcomment %}

@@ -1,5 +1,5 @@
 {% extends 'creme_config/portals/base.html' %}
-{% load i18n creme_bricks creme_widgets %}
+{% load i18n creme_widgets %}{# creme_bricks #}
 
 {% block page_title %}{% translate 'Configuration of search' %} - {% endblock %}
 
@@ -7,6 +7,13 @@
     {{block.super}}{% translate 'Search in Creme' %}
 {% endblock %}
 
+{% block portal_help %}
+{% blocktranslate asvar help_msg %}Create search settings in order to make the global search (see right side of the main menu) faster.
+Notice: limit the number of fields per type for better performance and better results visibility.{% endblocktranslate %}
+    {% widget_help_sign message=help_msg %}
+{% endblock %}
+
+{% comment %}
 {% block portal_bricks %}
 {% blocktranslate asvar help_msg %}Create search settings in order to make the global search (see right side of the main menu) faster.
 Notice: limit the number of fields per type for better performance and better results visibility.{% endblocktranslate %}
@@ -15,3 +22,4 @@ Notice: limit the number of fields per type for better performance and better re
     {% brick_import app='creme_config' name='searchconfig' as searchconfig_brick %}
     {% brick_display searchconfig_brick %}
 {% endblock %}
+{% endcomment %}
