@@ -111,7 +111,7 @@ class CremeConfigConfig(CremeAppConfig):
             # bricks.BrickMypageLocationsBrick,
             bricks.RelationBricksConfigBrick,
             bricks.InstanceBricksConfigBrick,
-            bricks.ExportButtonBrick,
+            # bricks.ExportButtonBrick,
             bricks.FieldsConfigsBrick,
             bricks.CustomBricksConfigBrick,
             bricks.MenuBrick,

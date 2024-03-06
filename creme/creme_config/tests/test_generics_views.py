@@ -46,7 +46,7 @@ from creme.creme_core.utils.translation import get_model_verbose_name
 from ..bricks import GenericModelBrick, PropertyTypesBrick, SettingsBrick
 
 
-class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
+class GenericModelConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

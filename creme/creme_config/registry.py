@@ -491,7 +491,8 @@ class _ConfigRegistry:
         self._apps: dict[str, _AppConfigRegistry] = {}
         # self._user_brick_ids: list[str] = []
         self._user_brick_classes: dict[str, type[Brick]] = {}
-        self._portal_brick_ids: list[str] = []
+        # self._portal_brick_ids: list[str] = []
+        self._portal_brick_classes: dict[str, type[Brick]] = {}
 
     def get_app_registry(self, app_label: str, create=False) -> _AppConfigRegistry:
         """ Get the instance of AppConfigRegistry related to a specific app.
@@ -617,9 +618,21 @@ class _ConfigRegistry:
         @param brick_classes: Classes inheriting <creme_core.gui.Brick> with a
                method detailview_display().
         """
-        # TODO check empty ID
-        # TODO check duplicated ID
-        self._portal_brick_ids.extend(map(self._get_brick_id, brick_classes))
+        # self._portal_brick_ids.extend(map(self._get_brick_id, brick_classes))
+        setdefault = self._portal_brick_classes.setdefault
+
+        for brick_cls in brick_classes:
+            brick_id = self._get_brick_id(brick_cls)
+
+            if not brick_id:
+                raise self.RegistrationError(
+                    f'Portal brick class with empty ID: {brick_cls}'
+                )
+
+            if setdefault(brick_id, brick_cls) is not brick_cls:
+                raise self.RegistrationError(
+                    f'Portal brick class with duplicated ID: {brick_id}'
+                )
 
     def register_user_bricks(self, *brick_classes: type[Brick]) -> None:
         """Register the extra Brick classes to display of the configuration page
@@ -663,13 +676,13 @@ class _ConfigRegistry:
             brick_id = brick_cls.id
 
             if not brick_id:
-                raise self.UnRegistrationError(f'Brick class with empty ID: {brick_cls}')
+                raise self.UnRegistrationError(f'Portal brick class with empty ID: {brick_cls}')
 
             try:
-                self._portal_brick_ids.remove(brick_id)
-            except ValueError as e:
+                del self._portal_brick_classes[brick_id]
+            except KeyError as e:
                 raise self.UnRegistrationError(
-                    f'Brick class with invalid ID (already unregistered?): {brick_cls}',
+                    f'Portal brick class with invalid ID (already unregistered?): {brick_cls}',
                 ) from e
 
     def unregister_user_bricks(self, *brick_classes: type[Brick]) -> None:
@@ -677,11 +690,11 @@ class _ConfigRegistry:
             brick_id = brick_cls.id
 
             if not brick_id:
-                raise self.UnRegistrationError(f'Brick class with empty ID: {brick_cls}')
+                raise self.UnRegistrationError(f'User brick class with empty ID: {brick_cls}')
 
             if self._user_brick_classes.pop(brick_id, None) is None:
                 raise self.UnRegistrationError(
-                    f'Brick class with invalid ID (already unregistered?): {brick_cls}',
+                    f'User brick class with invalid ID (already unregistered?): {brick_cls}',
                 )
 
     def unregister_models(self, *models: type[Model]) -> None:
@@ -703,7 +716,23 @@ class _ConfigRegistry:
         """Get the instances of extra Bricks to display on
         "General configuration" page.
         """
-        return self._brick_registry.get_bricks(self._portal_brick_ids)
+        # return self._brick_registry.get_bricks(self._portal_brick_ids)
+        for brick_cls in self._portal_brick_classes.values():
+            brick = brick_cls()
+
+            # TODO: remove in Creme2.7?
+            # NB: we do not check in register_portal_bricks() because the registration
+            #     of creme_config is generally made before the global registration
+            #     of bricks (so the check would not detect any issue).
+            if brick.id in self._brick_registry._brick_classes:
+                logger.critical(
+                    'Portal brick class registered in global brick registry: %s.\n'
+                    'HINT: remove it from global registry.',
+                    brick_cls,
+                )
+                continue
+
+            yield brick
 
     # @property
     # def user_bricks(self) -> Iterator[Brick]:
