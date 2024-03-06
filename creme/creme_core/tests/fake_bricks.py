@@ -1,6 +1,13 @@
 from creme.creme_core.gui.bricks import Brick, SimpleBrick
 
 
+class FakePortalBrick(Brick):
+    id = Brick.generate_id('creme_core', 'fake_portal')
+
+    def detailview_display(self, context):
+        return f'<div id="brick-{self.id}" data-brick-id="{self.id}" class="brick"></div>'
+
+
 class FakeAppPortalBrick(Brick):
     id = Brick.generate_id('creme_core', 'fake_app_portal')
 

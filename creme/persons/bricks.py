@@ -759,7 +759,7 @@ brick_classes: list[type[Brick]] = [
     PrettyOtherAddressesBrick,
     ManagersBrick,
     EmployeesBrick,
-    ManagedOrganisationsBrick,
+    # ManagedOrganisationsBrick,
 ]
 
 if apps.is_installed('creme.activities'):

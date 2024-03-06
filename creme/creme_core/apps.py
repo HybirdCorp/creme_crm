@@ -604,6 +604,7 @@ class CremeCoreConfig(CremeAppConfig):
                 fake_models.FakeImageCategory, 'fake_img_cat',
             ).deletion(url_name='creme_core__edit_fake_organisation')
 
+            config_registry.register_portal_bricks(fake_bricks.FakePortalBrick)
             config_registry.register_app_bricks('creme_core', fake_bricks.FakeAppPortalBrick)
 
     def register_sandboxes(self, sandbox_type_registry):

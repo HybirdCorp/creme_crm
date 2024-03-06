@@ -737,6 +737,11 @@ transfer_patterns = [
 
 urlpatterns = [
     re_path(r'^$', portal.Portal.as_view(), name='creme_config__portal'),
+    re_path(
+        r'^portal/reload[/]?$',
+        portal.PortalBricksReloading.as_view(),
+        name='creme_config__reload_portal_bricks'
+    ),
 
     # General
     re_path(r'^world/',         include(world_patterns)),

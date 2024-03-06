@@ -267,8 +267,8 @@
         # Apps :
             * Creme_config :
                 - In 'registry._ConfigRegistry' :
-                    - The way the bricks of app portal are managed have changed.
-                      BEWARE: when you register a brick with 'register_app_bricks()' (in your 'apps.py'),
+                    - The way the bricks of portal & app portals are managed have changed.
+                      BEWARE: when you register a brick with 'register_portal_bricks()'/'register_app_bricks()' (in your 'apps.py'),
                       the brick class must not be registered in the global brick registry anymore.
                     - The way the bricks of "My settings" are managed have changed :
                         - BEWARE: when you register a brick with 'register_user_bricks()' (in your 'apps.py'),
@@ -357,10 +357,13 @@
         # Apps :
             * Creme_config :
                 - The value of class attribute "id" of several Brick classes (for bricks configuration) have changed (mainly "block" => "brick").
-                - The attribute 'registry._ConfigRegistry._user_brick_ids' has been replaced by '_user_brick_classes'.
+                - In the class 'registry._ConfigRegistry' :
+                    - The attribute '_user_brick_ids' has been replaced by '_user_brick_classes'.
+                    - The attribute '_portal_brick_ids' has been replaced by '_portal_brick_classes'.
                 - In the class 'registry._AppConfigRegistry' :
                     - The attribute '_brick_ids' has been replaced by '_brick_classes'.
                     - The method '_register_bricks' now takes Brick classes.
+                - The view 'views.portal.Portal' injects "bricks" (in the context) instead "app_bricks".
 
 
 == Version 2.5 ==
