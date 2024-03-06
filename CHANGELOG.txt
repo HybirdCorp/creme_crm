@@ -100,7 +100,7 @@
               'callback_url' with the current location (client side).
         # Apps :
             * Creme_config:
-                - In the class 'registry._ConfigRegistry', 2 methods to unregister brick classes have been added.
+                - In the class 'registry._ConfigRegistry', some methods to unregister brick classes have been added.
                 - Many portals have been reworked to store the list of displayed Brick as a class attribute.
             * Activities:
                 - The models 'ActivityType' & 'ActivitySubType' now inherit 'creme_core.models.MinionModel' (see <Breaking changes> part too).

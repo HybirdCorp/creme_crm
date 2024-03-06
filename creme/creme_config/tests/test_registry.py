@@ -471,6 +471,13 @@ class RegistryTestCase(CremeTestCase):
         self.assertNotIn(TestBrick1.id, brick_ids)
         self.assertNotIn(TestBrick2.id, brick_ids)
 
+        # Un-register ---
+        registry.unregister_app_bricks('creme_core', TestBrick2)
+        self.assertListEqual(
+            [TestBrick1],
+            [type(brick) for brick in registry.get_app_registry('creme_core').bricks],
+        )
+
     def test_register_app_brick__error01(self):
         class NoIDTestUserBrick(SimpleBrick):
             id = ''
@@ -539,6 +546,44 @@ class RegistryTestCase(CremeTestCase):
             brick_classes = [type(brick) for brick in app_reg.bricks]
 
         self.assertListEqual([TestBrick1], brick_classes)
+
+    def test_unregister_app_brick__error01(self):
+        class NoIDTestUserBrick(SimpleBrick):
+            id = ''
+
+        class TestBrick(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_unregister_app_brick__error01')
+
+        registry = _ConfigRegistry(_BrickRegistry())
+        with self.assertRaises(KeyError):
+            registry.unregister_app_bricks('persons', NoIDTestUserBrick)
+
+        # ---
+        registry.register_app_bricks('persons', TestBrick)
+
+        with self.assertRaises(registry.UnRegistrationError) as cm:
+            registry.unregister_app_bricks('persons', NoIDTestUserBrick)
+
+        self.assertStartsWith(str(cm.exception), 'App config brick class with empty ID:')
+
+    def test_unregister_app_brick__error02(self):
+        class TestUserBrick1(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_unregister_app_bricks__error02_1')
+
+        class TestUserBrick2(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_config', 'test_unregister_app_bricks__error02_2')
+
+        registry = _ConfigRegistry(_BrickRegistry())
+        registry.register_app_bricks('persons', TestUserBrick1, TestUserBrick2)
+        registry.unregister_app_bricks('persons', TestUserBrick1)
+
+        with self.assertRaises(registry.UnRegistrationError) as cm:
+            registry.unregister_app_bricks('persons', TestUserBrick1)
+
+        self.assertStartsWith(
+            str(cm.exception),
+            'App config brick class with invalid ID (already unregistered?):',
+        )
 
     # def test_register_userbricks(self):
     def test_get_user_bricks(self):

@@ -335,6 +335,9 @@ class _AppConfigRegistry:
     class RegistrationError(Exception):
         pass
 
+    class UnRegistrationError(RegistrationError):
+        pass
+
     def __init__(self,
                  name: str,
                  verbose_name: str,
@@ -405,6 +408,22 @@ class _AppConfigRegistry:
                 raise self.RegistrationError(
                     f'App config brick class with duplicated ID: {brick_cls}'
                 )
+
+    def _unregister_bricks(self, brick_classes: Iterable[type[Brick]]) -> None:
+        for brick_cls in brick_classes:
+            brick_id = brick_cls.id
+
+            if not brick_id:
+                raise self.UnRegistrationError(
+                    f'App config brick class with empty ID: {brick_cls}'
+                )
+
+            try:
+                del self._brick_classes[brick_id]
+            except KeyError as e:
+                raise self.UnRegistrationError(
+                    f'App config brick class with invalid ID (already unregistered?): {brick_cls}',
+                ) from e
 
     def _unregister_model(self, model: type[Model]) -> None:
         self._models.pop(model, None)
@@ -627,6 +646,17 @@ class _ConfigRegistry:
                 raise self.RegistrationError(
                     f'User setting brick with duplicated ID: {brick_id}'
                 )
+
+    def unregister_app_bricks(self,
+                              app_label: str,
+                              *brick_classes: type[Brick],
+                              ) -> None:
+        app_registry = self.get_app_registry(app_label=app_label, create=False)
+
+        try:
+            app_registry._unregister_bricks(brick_classes)
+        except app_registry.UnRegistrationError as e:
+            raise self.UnRegistrationError(e) from e
 
     def unregister_portal_bricks(self, *brick_classes: type[Brick]) -> None:
         for brick_cls in brick_classes:
