@@ -527,6 +527,44 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(f'id="brick-{FoobarBrick.id}"',      brick_html)
         self.assertIn(f'data-brick-id="{FoobarBrick.id}"', brick_html)
 
+    def test_reload_detailview08(self):
+        "Target_ctypes constraint."
+        user = self.login_as_root_and_get()
+
+        atom = FakeContact.objects.create(
+            user=user, first_name='Atom', last_name='Tenma',
+        )
+
+        class FoobarBrick1(self.TestBrick):
+            id = Brick.generate_id('creme_core', 'test_bricks_reload_detailview08_1')
+            target_ctypes = [FakeOrganisation, FakeContact]
+
+        class FoobarBrick2(self.TestBrick):
+            id = Brick.generate_id('creme_core', 'test_bricks_reload_detailview08_2')
+            target_ctypes = [FakeOrganisation]  # FakeContact
+
+        self.brick_registry.register(FoobarBrick1, FoobarBrick2)
+
+        content = self.assertGET200(
+            reverse('creme_core__reload_detailview_bricks', args=(atom.id,)),
+            data={'brick_id': [FoobarBrick1.id, FoobarBrick2.id]},
+        ).json()
+        self.assertIsList(content, length=2)
+
+        brick1 = FoobarBrick1()
+        self.assertListEqual(
+            [brick1.id, brick1.detailview_display({})],
+            content[0],
+        )
+
+        brick_info2 = content[1]
+        self.assertEqual(FoobarBrick2.id, brick_info2[0])
+
+        brick_html2 = brick_info2[1]
+        self.assertIn('<div class="brick brick-void', brick_html2)
+        self.assertIn(f'id="brick-{FoobarBrick2.id}"',      brick_html2)
+        self.assertIn(f'data-brick-id="{FoobarBrick2.id}"', brick_html2)
+
     def test_reload_home01(self):
         self.login_as_root()
 

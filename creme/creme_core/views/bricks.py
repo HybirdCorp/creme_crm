@@ -28,7 +28,7 @@ from django.template.context import make_context
 from django.template.engine import Engine
 
 from .. import utils
-from ..gui.bricks import Brick, BricksManager, _BrickRegistry
+from ..gui.bricks import Brick, BricksManager, VoidBrick, _BrickRegistry
 from ..gui.bricks import brick_registry as global_brick_registry
 from ..http import CremeJsonResponse
 from ..models import BrickState
@@ -160,13 +160,22 @@ class DetailviewBricksReloading(generic.base.EntityRelatedMixin, BricksReloading
         user.has_perm_to_view_or_die(entity)
 
     def get_bricks(self):
-        return [
-            *self.brick_registry.get_bricks(
-                brick_ids=self.get_brick_ids(),
-                entity=self.get_related_entity(),
-                user=self.request.user,
-            )
-        ]
+        bricks = []
+        entity = self.get_related_entity()
+        model = type(entity)
+
+        for brick in self.brick_registry.get_bricks(
+            brick_ids=self.get_brick_ids(),
+            entity=entity,
+            user=self.request.user,
+        ):
+            target_ctypes = brick.target_ctypes
+            if target_ctypes and model not in target_ctypes:
+                brick = VoidBrick(id=brick.id)
+
+            bricks.append(brick)
+
+        return bricks
 
     def get_bricks_context(self):
         context = super().get_bricks_context()
