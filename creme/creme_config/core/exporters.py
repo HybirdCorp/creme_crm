@@ -202,6 +202,7 @@ class UserRoleExporter(Exporter):
         assert isinstance(instance, models.UserRole)
 
         return {
+            'uuid': str(instance.uuid),
             'name': instance.name,
 
             'allowed_apps': [*instance.allowed_apps],
@@ -303,7 +304,8 @@ class BrickDetailviewLocationExporter(BrickExporterMixin, Exporter):
 
         role = instance.role
         if role:
-            data['role'] = role.name
+            # data['role'] = role.name
+            data['role'] = str(role.uuid)
         elif instance.superuser:
             data['superuser'] = True
 
@@ -328,7 +330,8 @@ class BrickHomeLocationExporter(BrickExporterMixin, Exporter):
         # TODO: factorise
         role = instance.role
         if role:
-            data['role'] = role.name
+            # data['role'] = role.name
+            data['role'] = str(role.uuid)
         elif instance.superuser:
             data['superuser'] = True
 
@@ -370,7 +373,8 @@ class MenuItemExporter(Exporter):
         if dump_role:
             role = instance.role
             if role:
-                data['role'] = role.name
+                # data['role'] = role.name
+                data['role'] = str(role.uuid)
             elif instance.superuser:
                 data['superuser'] = True
 
@@ -422,7 +426,8 @@ class SearchConfigItemExporter(CellsExporterMixin, Exporter):
 
         role = instance.role
         if role:
-            data['role'] = role.name
+            # data['role'] = role.name
+            data['role'] = str(role.uuid)
         elif instance.superuser:
             data['superuser'] = True
 
@@ -731,7 +736,8 @@ class CustomFormsExporter(CellsExporterMixin, Exporter):
         if instance.superuser:
             data['superuser'] = True
         elif instance.role:
-            data['role'] = instance.role.name
+            # data['role'] = instance.role.name
+            data['role'] = str(instance.role.uuid)
 
         return data
 

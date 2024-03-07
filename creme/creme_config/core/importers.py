@@ -465,6 +465,7 @@ class UserRolesImporter(Importer):
 
         self._data = [
             {
+                'uuid': role_info['uuid'],
                 'name': role_info['name'],
 
                 # TODO: validate these info
@@ -481,13 +482,16 @@ class UserRolesImporter(Importer):
                 'credentials': [*map(load_creds, role_info.get('credentials', ()))],
             } for role_info in deserialized_section
         ]
-        validated_data[UserRole].update(d['name'] for d in self._data)
+        # validated_data[UserRole].update(d['name'] for d in self._data)
+        validated_data[UserRole].update(d['uuid'] for d in self._data)
 
     def save(self):
         for role_data in self._data:
             role, created = UserRole.objects.update_or_create(
-                name=role_data['name'],
+                uuid=role_data['uuid'],
+                # name=role_data['name'],
                 defaults={
+                    'name': role_data['name'],
                     'allowed_apps': role_data['allowed_apps'],
                     'admin_4_apps': role_data['admin_4_apps'],
                 },
@@ -515,12 +519,17 @@ class MenuConfigImporter(Importer):
                 'entry_data': info.get('data') or {},
             }
 
-            role_name = info.get('role')
-            if role_name:
-                if role_name in validated_data[UserRole]:
-                    data['role_name'] = role_name
+            # role_name = info.get('role')
+            role_uuid = info.get('role')
+            # if role_name:
+            if role_uuid:
+                # if role_name in validated_data[UserRole]:
+                if role_uuid in validated_data[UserRole]:
+                    # data['role_name'] = role_name
+                    data['role_uuid'] = role_uuid
                 else:
-                    data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+                    # data['role'] = UserRole.objects.get(name=role_name)
+                    data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
             elif info.get('superuser'):
                 data['superuser'] = True
 
@@ -545,9 +554,12 @@ class MenuConfigImporter(Importer):
         for data in self._data:
             children = data.pop('children')
 
-            role_name = data.pop('role_name', None)
-            if role_name:
-                data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+            # role_name = data.pop('role_name', None)
+            role_uuid = data.pop('role_uuid', None)
+            # if role_name:
+            if role_uuid:
+                # data['role'] = UserRole.objects.get(name=role_name)
+                data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
 
             parent = create_item(**data)
 
@@ -610,12 +622,17 @@ class SearchConfigImporter(Importer):
                 ),
             }
 
-            role_name = sci_info.get('role')
-            if role_name:
-                if role_name in validated_data[UserRole]:
-                    data['role_name'] = role_name
+            # role_name = sci_info.get('role')
+            role_uuid = sci_info.get('role')
+            # if role_name:
+            if role_uuid:
+                # if role_name in validated_data[UserRole]:
+                if role_uuid in validated_data[UserRole]:
+                    # data['role_name'] = role_name
+                    data['role_uuid'] = role_uuid
                 else:
-                    data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+                    # data['role'] = UserRole.objects.get(name=role_name)
+                    data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
             elif sci_info.get('superuser'):
                 data['superuser'] = True
 
@@ -628,9 +645,12 @@ class SearchConfigImporter(Importer):
 
     def save(self):
         for data in self._data:
-            role_name = data.pop('role_name', None)
-            if role_name:
-                data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+            # role_name = data.pop('role_name', None)
+            role_uuid = data.pop('role_uuid', None)
+            # if role_name:
+            if role_uuid:
+                # data['role'] = UserRole.objects.get(name=role_name)
+                data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
 
             data['cells'] = [
                 cell_proxy.build_cell() for cell_proxy in data['cells']
@@ -1571,7 +1591,8 @@ class CustomFormsImporter(Importer):
         #        data['role_name'] = role_name
         #    else:
         #        data['role'] = UserRole.objects.get(name=role_name)
-        data['role_name'] = cform_item_info.get('role', None)
+        # data['role_name'] = cform_item_info.get('role', None)
+        data['role_uuid'] = cform_item_info.get('role', None)
 
         def load_group(group_info):
             if 'cells' in group_info:
@@ -1600,7 +1621,8 @@ class CustomFormsImporter(Importer):
 
     def save(self):
         instances = {
-            (cfci.descriptor_id, getattr(cfci.role, 'name', None), cfci.superuser): cfci
+            # (cfci.descriptor_id, getattr(cfci.role, 'name', None), cfci.superuser): cfci
+            (cfci.descriptor_id, getattr(cfci.role, 'uuid', None), cfci.superuser): cfci
             for cfci in CustomFormConfigItem.objects.select_related('role')
         }
 
@@ -1623,13 +1645,17 @@ class CustomFormsImporter(Importer):
             descriptor = data['descriptor']
             superuser = data['superuser']
 
-            role_name = data.pop('role_name', None)
-            if role_name:
-                role = UserRole.objects.get(name=role_name)  # TODO: cache
+            # role_name = data.pop('role_name', None)
+            role_uuid = data.pop('role_uuid', None)
+            # if role_name:
+            if role_uuid:
+                # role = UserRole.objects.get(name=role_name)
+                role = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
             else:
                 role = None
 
-            instance = instances.get((descriptor.id, role_name, superuser))
+            # instance = instances.get((descriptor.id, role_name, superuser))
+            instance = instances.get((descriptor.id, role_uuid, superuser))
             if instance is None:
                 instance = CustomFormConfigItem(
                     descriptor_id=descriptor.id,
@@ -1813,12 +1839,17 @@ class DetailviewBricksLocationsImporter(Importer):
             if natural_ctype:
                 data['content_type'] = load_ct(natural_ctype)
 
-            role_name = info.get('role')
-            if role_name:
-                if role_name in validated_data[UserRole]:
-                    data['role_name'] = role_name
+            # role_name = info.get('role')
+            role_uuid = info.get('role')
+            # if role_name:
+            if role_uuid:
+                # if role_name in validated_data[UserRole]:
+                if role_uuid in validated_data[UserRole]:
+                    # data['role_name'] = role_name
+                    data['role_uuid'] = role_uuid
                 else:
-                    data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+                    # data['role'] = UserRole.objects.get(name=role_name)
+                    data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
             elif info.get('superuser'):
                 data['superuser'] = True
 
@@ -1830,9 +1861,12 @@ class DetailviewBricksLocationsImporter(Importer):
         BrickDetailviewLocation.objects.all().delete()  # TODO: recycle instances
 
         for data in self._data:
-            role_name = data.pop('role_name', None)
-            if role_name:
-                data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+            # role_name = data.pop('role_name', None)
+            role_uuid = data.pop('role_uuid', None)
+            # if role_name:
+            if role_uuid:
+                # data['role'] = UserRole.objects.get(name=role_name)
+                data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
 
             BrickDetailviewLocation.objects.create(**data)
 
@@ -1856,12 +1890,17 @@ class HomeBricksLocationsImporter(Importer):
                 'order':    int(info['order']),
             }
 
-            role_name = info.get('role')
-            if role_name:
-                if role_name in validated_data[UserRole]:
-                    data['role_name'] = role_name
+            # role_name = info.get('role')
+            role_uuid = info.get('role')
+            # if role_name:
+            if role_uuid:
+                # if role_name in validated_data[UserRole]:
+                if role_uuid in validated_data[UserRole]:
+                    # data['role_name'] = role_name
+                    data['role_uuid'] = role_uuid
                 else:
-                    data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+                    # data['role'] = UserRole.objects.get(name=role_name)
+                    data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
             elif info.get('superuser'):
                 data['superuser'] = True
 
@@ -1873,9 +1912,12 @@ class HomeBricksLocationsImporter(Importer):
         BrickHomeLocation.objects.all().delete()  # TODO: recycle instances
 
         for data in self._data:
-            role_name = data.pop('role_name', None)
-            if role_name:
-                data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+            # role_name = data.pop('role_name', None)
+            role_uuid = data.pop('role_uuid', None)
+            # if role_name:
+            if role_uuid:
+                # data['role'] = UserRole.objects.get(name=role_name)
+                data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
 
             BrickHomeLocation.objects.create(**data)
 

@@ -227,6 +227,7 @@
                   - The related 'CremeEntity' is now stored with the key "entity" (instead of "entity_id") and the value is the UUID (instead of the ID).
             - The method 'FieldsConfig._get_hidden_field_names()' has been replaced by the property "hidden_field_names".
             - The model 'reminder.DateReminder' has been removed.
+            - The model 'auth.UserRole' has 2 new fields: uuid & extra_data (a JSONField which can be used to store whatever you want).
         # In 'creme_core.forms' :
             - In 'entity_filter.fields' :
                 - The attribute 'CustomFieldsConditionsField._non_hiddable_cfield_ids' has been replaced by "_non_hiddable_cfield_uuids".

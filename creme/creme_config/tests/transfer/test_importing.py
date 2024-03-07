@@ -282,10 +282,12 @@ class ImportingTestCase(TransferBaseTestCase):
 
         self.assertGET200(self.URL)
 
+        uid = str(uuid4())
         name = 'Role#1'
         data = {
             'version': self.VERSION,
             'roles': [{
+                'uuid': uid,
                 'name': name,
 
                 'allowed_apps': ['persons', 'documents'],
@@ -327,7 +329,9 @@ class ImportingTestCase(TransferBaseTestCase):
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertNoFormError(response)
 
-        role = self.get_object_or_fail(UserRole, name=name)
+        # role = self.get_object_or_fail(UserRole, name=name)
+        role = self.get_object_or_fail(UserRole, uuid=uid)
+        self.assertEqual(name, role.name)
         self.assertSetEqual({'persons', 'documents'}, role.allowed_apps)
         self.assertSetEqual({'persons'},              role.admin_4_apps)
 
@@ -393,6 +397,7 @@ class ImportingTestCase(TransferBaseTestCase):
         data = {
             'version': self.VERSION,
             'roles': [{
+                'uuid': str(role.uuid),
                 'name': role.name,
 
                 'allowed_apps': ['persons', 'documents'],
@@ -420,7 +425,8 @@ class ImportingTestCase(TransferBaseTestCase):
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertNoFormError(response)
 
-        role = self.get_object_or_fail(UserRole, name=role.name)
+        # role = self.get_object_or_fail(UserRole, name=role.name)
+        role = self.get_object_or_fail(UserRole, uuid=role.uuid)
         self.assertSetEqual({'persons', 'documents'}, role.allowed_apps)
         self.assertSetEqual({'documents'},            role.admin_4_apps)
 
@@ -448,12 +454,15 @@ class ImportingTestCase(TransferBaseTestCase):
         efilter_id = 'creme_config-test_import_roles03'
         efilter_name = 'Lovers'
 
-        role_name = 'Lover users'
+        role_uuid = str(uuid4())
+        # role_name = 'Lover users'
 
         data = {
             'version': self.VERSION,
             'roles': [{
-                'name': role_name,
+                'uuid': role_uuid,
+                # 'name': role_name,
+                'name': 'Lover users',
 
                 'allowed_apps': ['persons'],
                 'admin_4_apps': [],
@@ -517,7 +526,8 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(rtype_id, condition.name)
 
         # ---
-        role = self.get_object_or_fail(UserRole, name=role_name)
+        # role = self.get_object_or_fail(UserRole, name=role_name)
+        role = self.get_object_or_fail(UserRole, uuid=role_uuid)
 
         credentials = self.get_alone_element(role.credentials.all())
         self.assertEqual(
@@ -535,6 +545,7 @@ class ImportingTestCase(TransferBaseTestCase):
         data = {
             'version': self.VERSION,
             'roles': [{
+                'uuid': str(uuid4()),
                 'name': 'Lover users',
 
                 'allowed_apps': ['persons'],
@@ -566,7 +577,8 @@ class ImportingTestCase(TransferBaseTestCase):
         self.login_as_super(is_staff=True)
         role1 = self.create_role(name='Test')
 
-        role_name2 = 'Super-hero'
+        # role_name2 = 'Super-hero'
+        role_uid2 = str(uuid4())
 
         container_label1 = 'My entries'
         container_label2 = 'My super entries'
@@ -615,11 +627,13 @@ class ImportingTestCase(TransferBaseTestCase):
             {
                 'order': 1,
                 'id': RecentEntitiesEntry.id,
-                'role': role1.name,
+                # 'role': role1.name,
+                'role': str(role1.uuid),
             }, {
                 'order': 2,
                 'id': ContainerEntry.id,
-                'role': role1.name,
+                # 'role': role1.name,
+                'role': str(role1.uuid),
                 'data': {'label': container_label3},
                 'children': [
                     {'order': 1, 'id': FakeContactsEntry.id},
@@ -630,11 +644,13 @@ class ImportingTestCase(TransferBaseTestCase):
             {
                 'order': 2,
                 'id': RecentEntitiesEntry.id,
-                'role': role_name2,
+                # 'role': role_name2,
+                'role': role_uid2,
             }, {
                 'order': 3,
                 'id': ContainerEntry.id,
-                'role': role_name2,
+                # 'role': role_name2,
+                'role': role_uid2,
                 'data': {'label': container_label4},
                 'children': [
                     {'order': 1, 'id': FakeOrganisationsEntry.id},
@@ -646,7 +662,9 @@ class ImportingTestCase(TransferBaseTestCase):
             'version': self.VERSION,
             'menu': menu_data,
             'roles': [{
-                'name': role_name2,
+                'uuid': role_uid2,
+                # 'name': role_name2,
+                'name': 'Super-hero',
                 'allowed_apps': ['persons'],
                 'creatable_ctypes': ['creme_core.fakecontact'],
 
@@ -725,7 +743,8 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(role1, role1_child1.role)
 
         # ---
-        role2 = UserRole.objects.get(name=role_name2)
+        # role2 = UserRole.objects.get(name=role_name2)
+        role2 = UserRole.objects.get(uuid=role_uid2)
 
         role2_items = MenuConfigItem.objects.filter(parent=None, role=role2)
         self.assertEqual(2, len(role2_items))
@@ -802,7 +821,8 @@ class ImportingTestCase(TransferBaseTestCase):
                 ],
             }, {
                 'ctype': 'creme_core.fakeorganisation',
-                'role': role.name,
+                # 'role': role.name,
+                'role': str(role.uuid),
                 'cells': [{'type': 'regular_field', 'value': 'name'}],
             }, {
                 'ctype': 'creme_core.fakedocument',
@@ -860,11 +880,13 @@ class ImportingTestCase(TransferBaseTestCase):
         "Related role is imported."
         self.login_as_super(is_staff=True)
 
+        role_uuid = str(uuid4())
         role_name = 'Super-hero'
         search_data = [
             {
                 'ctype': 'creme_core.fakecontact',
-                'role': role_name,
+                # 'role': role_name,
+                'role': role_uuid,
                 'cells': [
                     {'type': 'regular_field', 'value': 'last_name'},
                     {'type': 'regular_field', 'value': 'description'},
@@ -874,6 +896,7 @@ class ImportingTestCase(TransferBaseTestCase):
         data = {
             'version': self.VERSION,
             'roles': [{
+                'uuid': role_uuid,
                 'name': role_name,
 
                 'allowed_apps': ['persons'],
@@ -905,7 +928,8 @@ class ImportingTestCase(TransferBaseTestCase):
         sci = self.get_object_or_fail(
             SearchConfigItem,
             content_type=ContentType.objects.get_for_model(FakeContact),
-            role__name=role_name, superuser=False,
+            # role__name=role_name, superuser=False,
+            role__uuid=role_uuid, superuser=False,
         )
         self.assertListEqual(
             ['last_name', 'description'],
@@ -2724,14 +2748,17 @@ class ImportingTestCase(TransferBaseTestCase):
         desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM
         cf_uuid = '6a52b4db-f838-489f-b6df-d1558b3938d6'
 
-        role_name = 'Super-hero'
+        # role_name = 'Super-hero'
+        role_uuid = str(uuid4())
         gname1 = 'Main'
         gname2 = 'General'
         gname3 = 'Info'
         data = {
             'version': self.VERSION,
             'roles': [{
-                'name': role_name,
+                'uuid': role_uuid,
+                # 'name': role_name,
+                'name': 'Super-hero',
 
                 'allowed_apps': ['persons'],
                 'admin_4_apps': [],
@@ -2786,7 +2813,8 @@ class ImportingTestCase(TransferBaseTestCase):
                     ],
                 }, {
                     'descriptor': desc.id,
-                    'role': role_name,
+                    # 'role': role_name,
+                    'role': role_uuid,
                     'groups': [
                         {
                             'name': gname3,
@@ -2863,7 +2891,8 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
         # ---
-        role = self.get_object_or_fail(UserRole, name=role_name)
+        # role = self.get_object_or_fail(UserRole, name=role_name)
+        role = self.get_object_or_fail(UserRole, uuid=role_uuid)
         self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=desc.id, role=role, superuser=False,
@@ -3288,6 +3317,7 @@ class ImportingTestCase(TransferBaseTestCase):
     def test_detailview_bricks01(self):
         self.login_as_super(is_staff=True)
         role = self.create_role(name='Test')
+        role_uuid = str(role.uuid)
 
         TOP    = BrickDetailviewLocation.TOP
         LEFT   = BrickDetailviewLocation.LEFT
@@ -3317,16 +3347,20 @@ class ImportingTestCase(TransferBaseTestCase):
             # FakeContact for existing role
             {
                 'id': bricks.RelationsBrick.id,    'order': 2, 'zone': TOP,
-                'ctype': ct_str, 'role': role.name,
+                # 'ctype': ct_str, 'role': role.name,
+                'ctype': ct_str, 'role': role_uuid,
             }, {
                 'id': bricks.CustomFieldsBrick.id, 'order': 2, 'zone': LEFT,
-                'ctype': ct_str, 'role': role.name,
+                # 'ctype': ct_str, 'role': role.name,
+                'ctype': ct_str, 'role': role_uuid,
             }, {
                 'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
-                'ctype': ct_str, 'role': role.name,
+                # 'ctype': ct_str, 'role': role.name,
+                'ctype': ct_str, 'role': role_uuid,
             }, {
                 'id': bricks.HistoryBrick.id,      'order': 2, 'zone': BOTTOM,
-                'ctype': ct_str, 'role': role.name,
+                # 'ctype': ct_str, 'role': role.name,
+                'ctype': ct_str, 'role': role_uuid,
             },
 
             # FakeContact for superuser
@@ -3393,7 +3427,8 @@ class ImportingTestCase(TransferBaseTestCase):
         ):
             role_contact_bricks_data[bdl.zone].append({
                 'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
-                'ctype': ct_str, 'role': role.name,
+                # 'ctype': ct_str, 'role': role.name,
+                'ctype': ct_str, 'role': str(role.uuid),
             })
 
         self.assertFalse(role_contact_bricks_data.get(BrickDetailviewLocation.HAT))
@@ -3432,7 +3467,8 @@ class ImportingTestCase(TransferBaseTestCase):
         BOTTOM = BrickDetailviewLocation.BOTTOM
 
         ct_str = 'creme_core.fakecontact'
-        role_name = 'Super-hero'
+        # role_name = 'Super-hero'
+        role_uuid = str(uuid4())
         bricks_data = [
             # Default
             {'id': bricks.HistoryBrick.id,      'order': 1,  'zone': TOP},
@@ -3444,22 +3480,28 @@ class ImportingTestCase(TransferBaseTestCase):
             # FakeContact for our role
             {
                 'id': bricks.RelationsBrick.id,    'order': 2, 'zone': TOP,
-                'ctype': ct_str, 'role': role_name,
+                # 'ctype': ct_str, 'role': role_name,
+                'ctype': ct_str, 'role': role_uuid,
             }, {
                 'id': bricks.CustomFieldsBrick.id, 'order': 2, 'zone': LEFT,
-                'ctype': ct_str, 'role': role_name,
+                # 'ctype': ct_str, 'role': role_name,
+                'ctype': ct_str, 'role': role_uuid,
             }, {
                 'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
-                'ctype': ct_str, 'role': role_name,
+                # 'ctype': ct_str, 'role': role_name,
+                'ctype': ct_str, 'role': role_uuid,
             }, {
                 'id': bricks.HistoryBrick.id,      'order': 2, 'zone': BOTTOM,
-                'ctype': ct_str, 'role': role_name,
+                # 'ctype': ct_str, 'role': role_name,
+                'ctype': ct_str, 'role': role_uuid,
             },
         ]
         data = {
             'version': self.VERSION,
             'roles': [{
-                'name': role_name,
+                'uuid': role_uuid,
+                # 'name': role_name,
+                'name': 'Super-hero',
 
                 'allowed_apps': ['persons'],
                 'admin_4_apps': [],
@@ -3491,12 +3533,14 @@ class ImportingTestCase(TransferBaseTestCase):
         role_contact_bricks_data = defaultdict(list)
         for bdl in BrickDetailviewLocation.objects.filter(
             content_type=ContentType.objects.get_for_model(FakeContact),
-            role__name=role_name,
+            # role__name=role_name,
+            role__uuid=role_uuid,
             superuser=False,
         ):
             role_contact_bricks_data[bdl.zone].append({
                 'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
-                'ctype': ct_str, 'role': role_name,
+                # 'ctype': ct_str, 'role': role_name,
+                'ctype': ct_str, 'role': role_uuid,
             })
 
         self.assertFalse(role_contact_bricks_data.get(BrickDetailviewLocation.HAT))
@@ -3530,10 +3574,13 @@ class ImportingTestCase(TransferBaseTestCase):
         "Config per role."
         self.login_as_super(is_staff=True)
         role = self.create_role(name='Test')
+        role_uid = str(role.uuid)
 
         bricks_data = [
-            {'id': bricks.HistoryBrick.id,    'order': 5,  'role': role.name},
-            {'id': bricks.StatisticsBrick.id, 'order': 15, 'role': role.name},
+            # {'id': bricks.HistoryBrick.id,    'order': 5,  'role': role.name},
+            {'id': bricks.HistoryBrick.id,    'order': 5,  'role': role_uid},
+            # {'id': bricks.StatisticsBrick.id, 'order': 15, 'role': role.name},
+            {'id': bricks.StatisticsBrick.id, 'order': 15, 'role': role_uid},
         ]
 
         json_file = StringIO(json_dump({'version': self.VERSION, 'home_bricks': bricks_data}))
@@ -3544,7 +3591,8 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertListEqual(
             bricks_data,
             [
-                {'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
+                # {'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
+                {'id': loc.brick_id, 'order': loc.order, 'role': str(loc.role.uuid)}
                 for loc in BrickHomeLocation.objects.filter(role=role, superuser=False)
             ]
         )
@@ -3553,16 +3601,21 @@ class ImportingTestCase(TransferBaseTestCase):
         "Config per role (role is imported)."
         self.login_as_super(is_staff=True)
 
-        role_name = 'Super-hero'
+        # role_name = 'Super-hero'
+        role_uuid = str(uuid4())
         bricks_data = [
-            {'id': bricks.HistoryBrick.id,    'order': 5,  'role': role_name},
-            {'id': bricks.StatisticsBrick.id, 'order': 15, 'role': role_name},
+            # {'id': bricks.HistoryBrick.id,    'order': 5,  'role': role_name},
+            {'id': bricks.HistoryBrick.id,    'order': 5,  'role': role_uuid},
+            # {'id': bricks.StatisticsBrick.id, 'order': 15, 'role': role_name},
+            {'id': bricks.StatisticsBrick.id, 'order': 15, 'role': role_uuid},
         ]
 
         data = {
             'version': self.VERSION,
             'roles': [{
-                'name': role_name,
+                'uuid': role_uuid,
+                # 'name': role_name,
+                'name': 'Super-hero',
 
                 'allowed_apps': ['persons'],
                 'admin_4_apps': [],
@@ -3592,7 +3645,8 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertListEqual(
             bricks_data,
             [
-                {'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
+                # {'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
+                {'id': loc.brick_id, 'order': loc.order, 'role': str(loc.role.uuid)}
                 for loc in BrickHomeLocation.objects.filter(role__isnull=False, superuser=False)
             ],
         )

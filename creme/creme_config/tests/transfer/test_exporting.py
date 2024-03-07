@@ -281,26 +281,31 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertIsList(roles_info, length=2)
         self.assertIsInstance(roles_info[0], dict)
 
-        roles_info_per_name = {role_info.get('name'): role_info for role_info in roles_info}
-        self.assertIn(_('Regular user'), roles_info_per_name)
+        # roles_info_per_name = {role_info.get('name'): role_info for role_info in roles_info}
+        roles_info_per_uuid = {role_info.get('uuid'): role_info for role_info in roles_info}
+        role_info1 = roles_info_per_uuid.get('a97a66aa-a2c0-42bf-a6d0-a4d99b604cb3')
+        self.assertEqual(_('Regular user'), role_info1.get('name'))
+        self.assertIn('creme_core', role_info1.get('allowed_apps'))
+        self.assertListEqual([], role_info1.get('admin_4_apps'))
 
         # role_info = roles_info[0]
-        role_info = roles_info_per_name.get(role.name)
-        self.assertIsNotNone(role_info)
-        self.assertIsInstance(role_info, dict)
+        # role_info = roles_info_per_name.get(role.name)
+        role_info2 = roles_info_per_uuid.get(str(role.uuid))
+        self.assertIsNotNone(role_info2)
+        self.assertIsInstance(role_info2, dict)
         # self.assertEqual(role.name, role_info.get('name'))
         self.assertCountEqual(
             ['creme_core', 'persons'],
-            role_info.get('allowed_apps'),
+            role_info2.get('allowed_apps'),
         )
-        self.assertListEqual(['persons'], role_info.get('admin_4_apps'))
+        self.assertListEqual(['persons'], role_info2.get('admin_4_apps'))
         self.assertCountEqual(
             ['creme_core.fakecontact', 'creme_core.fakeorganisation'],
-            role_info.get('creatable_ctypes', ()),
+            role_info2.get('creatable_ctypes', ()),
         )
         self.assertListEqual(
             ['creme_core.fakecontact'],
-            role_info.get('exportable_ctypes'),
+            role_info2.get('exportable_ctypes'),
         )
         self.assertListEqual(
             [
@@ -323,7 +328,7 @@ class ExportingTestCase(TransferBaseTestCase):
                     'efilter': efilter.id,
                 },
             ],
-            role_info.get('credentials'),
+            role_info2.get('credentials'),
         )
 
         efilters_info = content.get('entity_filters')
@@ -612,7 +617,7 @@ class ExportingTestCase(TransferBaseTestCase):
         RIGHT = BrickDetailviewLocation.RIGHT
 
         BrickDetailviewLocation.objects.create_for_model_brick(
-            model=FakeContact, order=5,  zone=LEFT,  role=role,
+            model=FakeContact, order=5, zone=LEFT, role=role,
         )
         BrickDetailviewLocation.objects.create_if_needed(
             model=FakeContact, brick=bricks.HistoryBrick, order=10, zone=RIGHT, role=role,
@@ -621,12 +626,14 @@ class ExportingTestCase(TransferBaseTestCase):
         response = self.assertGET200(self.URL)
         content = response.json()
 
+        role_uuid = str(role.uuid)
         contact_bricks_info = [
             dumped_bdl
             for dumped_bdl in content.get('detail_bricks')
             if (
                 dumped_bdl.get('ctype') == 'creme_core.fakecontact'
-                and dumped_bdl.get('role') == role.name
+                # and dumped_bdl.get('role') == role.name
+                and dumped_bdl.get('role') == role_uuid
             )
         ]
 
@@ -650,7 +657,9 @@ class ExportingTestCase(TransferBaseTestCase):
             [
                 {
                     'id': constants.MODELBRICK_ID, 'order': 5, 'zone': LEFT,
-                    'ctype': 'creme_core.fakecontact', 'role': role.name
+                    'ctype': 'creme_core.fakecontact',
+                    # 'role': role.name
+                    'role': role_uuid,
                 },
             ],
             [binfo for binfo in contact_bricks_info if binfo['zone'] == LEFT],
@@ -659,7 +668,9 @@ class ExportingTestCase(TransferBaseTestCase):
             [
                 {
                     'id': bricks.HistoryBrick.id, 'order': 10, 'zone': RIGHT,
-                    'ctype': 'creme_core.fakecontact', 'role': role.name,
+                    'ctype': 'creme_core.fakecontact',
+                    # 'role': role.name,
+                    'role': role_uuid,
                 },
             ],
             [binfo for binfo in contact_bricks_info if binfo['zone'] == RIGHT],
@@ -731,11 +742,13 @@ class ExportingTestCase(TransferBaseTestCase):
             brick_id = data.get('id')
 
             try:
-                role_name = data['role']
+                # role_name = data['role']
+                role_uuid = data['role']
             except KeyError:
                 norole_brick_ids.discard(brick_id)
             else:
-                self.assertEqual(role.name, role_name)
+                # self.assertEqual(role.name, role_name)
+                self.assertEqual(str(role.uuid), role_uuid)
                 role_brick_ids.append(brick_id)
 
         self.assertFalse(norole_brick_ids)
@@ -1006,12 +1019,16 @@ class ExportingTestCase(TransferBaseTestCase):
             ],
             [i for i in loaded_items if 'superuser' in i],
         )
+        role_uuid = str(role.uuid)
         self.assertListEqual(
             [
-                {'id': 'creme_core-creme',      'order': 1, 'role': role.name},
-                {'id': 'creme_core-separator0', 'order': 2, 'role': role.name},
+                # {'id': 'creme_core-creme',      'order': 1, 'role': role.name},
+                {'id': 'creme_core-creme',      'order': 1, 'role': role_uuid},
+                # {'id': 'creme_core-separator0', 'order': 2, 'role': role.name},
+                {'id': 'creme_core-separator0', 'order': 2, 'role': role_uuid},
                 {
-                    'id': 'creme_core-container', 'order': 3, 'role': role.name,
+                    # 'id': 'creme_core-container', 'order': 3, 'role': role.name,
+                    'id': 'creme_core-container', 'order': 3, 'role': role_uuid,
                     'data': {'label': 'Directory'},
                     'children': [
                         {'id': 'creme_core-list_contact', 'order': 1},  # 'role': role.name
@@ -1113,7 +1130,8 @@ class ExportingTestCase(TransferBaseTestCase):
             [
                 {
                     'ctype': 'creme_core.fakecontact',
-                    'role': role.name,
+                    # 'role': role.name,
+                    'role': str(role.uuid),
                     'cells': [{'type': 'regular_field', 'value': 'last_name'}],
                 },
             ],
@@ -1809,7 +1827,8 @@ class ExportingTestCase(TransferBaseTestCase):
                     ],
                 }, {
                     'descriptor': descriptor_id,
-                    'role': role.name,
+                    # 'role': role.name,
+                    'role': str(role.uuid),
                     'groups': [
                         {
                             'name':  gname3,
