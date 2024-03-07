@@ -59,6 +59,7 @@ class ConfigExport(generic.CheckedView):
         #    - Changes in the data for EntityFilterCondition of Relation
         #      (CT uses natural-key, the key "entity_uuid" became just "entity").
         #    - Notification channels added
+        #    - Use UUID instead of name with UserRole.
         info[ID_VERSION] = '1.5'
         info.update((e_id, exporter()) for e_id, exporter in self.registry)
 

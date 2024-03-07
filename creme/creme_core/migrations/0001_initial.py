@@ -566,9 +566,13 @@ class Migration(migrations.Migration):
                 (
                     'filter_type',
                     models.PositiveSmallIntegerField(
+                        # choices=[
+                        #     (0, 'Credentials filter (internal use)'),
+                        #     (1, 'Regular filter (usable in list-view...'),
+                        # ],
                         choices=[
-                            (0, 'Credentials filter (internal use)'),
-                            (1, 'Regular filter (usable in list-view...'),
+                            (0, 'Credentials filter'),
+                            (1, 'Regular filter (usable in list-view)'),
                         ],
                         default=1,
                         editable=False,

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -82,6 +82,10 @@ class UserRoleManager(models.Manager):
 
 class UserRole(models.Model):
     name = models.CharField(_('Name'), max_length=100, unique=True)
+    uuid = models.UUIDField(
+        unique=True, editable=False, default=uuid.uuid4,
+    ).set_tags(viewable=False)
+
     # superior = ForeignKey('self', verbose_name=_('Superior'), null=True)
     # TODO: CTypeManyToManyField ?
     creatable_ctypes = models.ManyToManyField(
@@ -94,6 +98,10 @@ class UserRole(models.Model):
     )
     raw_allowed_apps = models.TextField(default='')  # Use 'allowed_apps' property
     raw_admin_4_apps = models.TextField(default='')  # Use 'admin_4_apps' property
+
+    # Can be used by third party code to store the data they want,
+    # without having to modify the code.
+    extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
 
     objects = UserRoleManager()
 
