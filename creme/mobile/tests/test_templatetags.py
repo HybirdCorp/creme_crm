@@ -1,7 +1,9 @@
+from django.template import Context, Template
 from django.test.client import RequestFactory
 from django.urls.base import reverse
 from parameterized import parameterized
 
+from creme.creme_core.models import FieldsConfig
 from creme.creme_core.tests.base import (
     OverrideSettingValueContext,
     skipIfNotInstalled,
@@ -85,3 +87,63 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
         request.META['HTTP_USER_AGENT'] = useragent
 
         self.assertEqual(mobile_document_class(request), expected)
+
+    def test_prepare_fields(self):
+        user = self.get_root_user()
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
+        )
+        contact = Contact.objects.create(
+            user=user,
+            first_name='Henri', last_name='Krinkle',
+            phone='123456', email='henri@foo.com',
+        )
+
+        with self.assertNoException():
+            template = Template(
+                r"{% load mobile_tags %}"
+                r"{% mobile_prepare_fields object 'email' 'phone' %}"
+                r"{{object.last_name}}#{{object.email}}#{{object.phone|default:'—'}}"
+            )
+            render = template.render(Context(self.build_context(user=user, instance=contact)))
+
+        self.assertEqual('Krinkle#henri@foo.com#—', render.strip())
+
+    def test_activity_type_str__meeting(self):
+        user = self.get_root_user()
+        meeting = self._create_meeting(user=user, title='Meeting #1')
+
+        with self.assertNoException():
+            template = Template(
+                r'{% load mobile_tags %}'
+                r'<div class="activity-type-{{activity|mobile_activity_type_str}}" />'
+            )
+            render = template.render(Context({'activity': meeting}))
+
+        self.assertEqual(
+            '<div class="activity-type-meeting" />',
+            render.strip(),
+        )
+
+    def test_activity_type_str__phonecall(self):
+        user = self.get_root_user()
+        meeting = self._create_pcall(user=user, title='Call #1')
+
+        with self.assertNoException():
+            template = Template(
+                r'{% load mobile_tags %}'
+                r'<div class="activity-type-{{activity|mobile_activity_type_str}}" />'
+            )
+            render = template.render(Context({'activity': meeting}))
+
+        self.assertEqual(
+            '<div class="activity-type-phonecall" />',
+            render.strip(),
+        )
+
+
+# TODO:
+#  - mobile_organisation_subjects
+#  - mobile_activity_card
+#  - mobile_footer
