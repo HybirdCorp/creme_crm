@@ -5,7 +5,7 @@
     <input type="submit" class="button" value="{% translate 'Start this activity' %}" />
   </form>
 {% else %}
-  <form action="/mobile/activity/{{activity.id}}/stop" method="POST">{% csrf_token %}
+  <form action="{% url 'mobile__stop_activity' activity.id %}" method="POST">{% csrf_token %}
     <input type="submit" class="button" value="{% translate 'Stop this activity' %}" />
   </form>
 {% endif %}
