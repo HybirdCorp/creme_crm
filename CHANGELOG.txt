@@ -307,6 +307,9 @@
                   The constant strings which allow to retrieve types by their ID have been replaced by constants UUID:
                     e.g. use 'UUID_TYPE_MEETING' instead of 'ACTIVITYTYPE_MEETING'.
                   Hint: see the files "migrations/002?_v2_6__types_uuid0?.py" to understand how to write your own migrations if you reference these types in your own models.
+                - The UUIDs of the instances of 'models.Status' created by the 'populate' script are now fixed (to be consistent between Creme instances).
+                    - The constants 'STATUS_*' have been removed; you should use the new constants 'UUID_STATUS_*' instead.
+                    - A data migration fixes the UUIDs of the 5 Statuses provided by default, and stores the old UUIDs in their field "meta_data".
                 - The brick 'bricks.UserCalendarsBrick' does not inject "has_app_perm" in its context anymore.
                 - The class 'buttons.AddRelatedActivityButton' has been rework to use 'ActivityType.uuid';
                   e.g. the class attribute "activity_type" has been replaced by "activity_type_uuid".
@@ -340,6 +343,9 @@
                   e.g. "activity-type-activities-activitytype_meeting" became "activity-type-meeting".
             * Crudity :
                 - The method 'bricks.CrudityHistoryBrick.generate_id()' has been removed.
+            * CTI :
+                - In the class-view 'views.PhoneCallCreation', some the attributes & methods have been replaced
+                  in order to use UUIDs instead of integer IDs for statuses & types.
             * SMS :
                 - The class 'bricks._RelatedEntitesBrick' has been renamed '_RelatedEntitiesBrick'.
 
@@ -365,6 +371,8 @@
                     - The attribute '_brick_ids' has been replaced by '_brick_classes'.
                     - The method '_register_bricks' now takes Brick classes.
                 - The view 'views.portal.Portal' injects "bricks" (in the context) instead "app_bricks".
+            * Mobile :
+                - The templatetag "mobile_activity_card" does not inject "STATUS_IN_PROGRESS" in the context anymore.
 
 
 == Version 2.5 ==

@@ -80,12 +80,19 @@ UUID_SUBTYPE_PHONECALL_CONFERENCE = '55aebf7f-ef4f-4c1c-a3c6-1a68ba330d7d'
 UUID_SUBTYPE_PHONECALL_FAILED     = 'e0cf04b0-b407-413e-b6d4-8946ea815041'
 
 # ------------------------------------------------------------------------------
-# TODO: UUIDs instead ?
-STATUS_PLANNED     = 1
-STATUS_IN_PROGRESS = 2
-STATUS_DONE        = 3
-STATUS_DELAYED     = 4
-STATUS_CANCELLED   = 5
+# STATUS_PLANNED     = 1
+# STATUS_IN_PROGRESS = 2
+# STATUS_DONE        = 3
+# STATUS_DELAYED     = 4
+# STATUS_CANCELLED   = 5
+
+UUID_STATUS_PLANNED     = '7efc9a5d-eacd-4be0-afa8-3277256bfcac'
+UUID_STATUS_IN_PROGRESS = '5152460c-18c3-4b8e-a780-ac286294a46e'
+UUID_STATUS_DONE        = '4c7f518b-6bd5-44ea-a867-5e33f50646da'
+UUID_STATUS_DELAYED     = '98f1990a-049a-4ff9-9a52-957a90e43bbd'
+UUID_STATUS_CANCELLED   = '9c23117f-a2eb-4284-8cc2-0c541f87e7ef'
+
+# ------------------------------------------------------------------------------
 
 SETTING_DISPLAY_REVIEW     = 'activities-display_review_activities_blocks'
 SETTING_AUTO_ORGA_SUBJECTS = 'activities-auto_orga_subjects'

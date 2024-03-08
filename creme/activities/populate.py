@@ -43,7 +43,7 @@ from creme.creme_core.models import (
     SearchConfigItem,
     SettingValue,
 )
-from creme.creme_core.utils import create_if_needed
+# from creme.creme_core.utils import create_if_needed
 from creme.persons.constants import FILTER_CONTACT_ME
 
 from . import (
@@ -125,18 +125,30 @@ class Populator(BasePopulator):
         super()._first_populate()
 
     def _populate_status(self):
-        def create_status(pk, name):
-            create_if_needed(
-                Status,
-                {'pk': pk},
-                name=name, description=name, is_custom=False,
+        # def create_status(pk, name):
+        #     create_if_needed(
+        #         Status,
+        #         {'pk': pk},
+        #         name=name, description=name, is_custom=False,
+        #     )
+        #
+        # create_status(constants.STATUS_PLANNED,     pgettext('activities-status', 'Planned')),
+        # create_status(constants.STATUS_IN_PROGRESS,
+        #               pgettext('activities-status', 'In progress')),
+        # create_status(constants.STATUS_DONE,        pgettext('activities-status', 'Done')),
+        # create_status(constants.STATUS_DELAYED,     pgettext('activities-status', 'Delayed')),
+        # create_status(constants.STATUS_CANCELLED,   pgettext('activities-status', 'Cancelled')),
+        for uid, name in [
+            (constants.UUID_STATUS_PLANNED,     pgettext('activities-status', 'Planned')),
+            (constants.UUID_STATUS_IN_PROGRESS, pgettext('activities-status', 'In progress')),
+            (constants.UUID_STATUS_DONE,        pgettext('activities-status', 'Done')),
+            (constants.UUID_STATUS_DELAYED,     pgettext('activities-status', 'Delayed')),
+            (constants.UUID_STATUS_CANCELLED,   pgettext('activities-status', 'Cancelled')),
+        ]:
+            Status.objects.get_or_create(
+                uuid=uid,
+                defaults={'name': name, 'description': name, 'is_custom': False},
             )
-
-        create_status(constants.STATUS_PLANNED,     pgettext('activities-status', 'Planned')),
-        create_status(constants.STATUS_IN_PROGRESS, pgettext('activities-status', 'In progress')),
-        create_status(constants.STATUS_DONE,        pgettext('activities-status', 'Done')),
-        create_status(constants.STATUS_DELAYED,     pgettext('activities-status', 'Delayed')),
-        create_status(constants.STATUS_CANCELLED,   pgettext('activities-status', 'Cancelled')),
 
     def _populate_activity_types(self):
         act_types = self.activity_types
@@ -151,13 +163,15 @@ class Populator(BasePopulator):
         #     ) for pk, info in act_types_info.items()
         # }
         for uid, info in self.ACTIVITY_TYPES.items():
-            act_types[uid] = create_if_needed(
-                ActivityType,
-                {'uuid': uid},
-                name=info['name'],
-                default_day_duration=info['day'], default_hour_duration=info['hour'],
-                is_custom=False,
-            )
+            act_types[uid] = ActivityType.objects.get_or_create(
+                uuid=uid,
+                defaults={
+                    'name': info['name'],
+                    'default_day_duration': info['day'],
+                    'default_hour_duration': info['hour'],
+                    'is_custom': False,
+                },
+            )[0]
 
         # def create_subtype(atype, pk, name, is_custom=False):
         #     create_if_needed(

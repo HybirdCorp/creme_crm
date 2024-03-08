@@ -93,7 +93,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(pcall.description)
         # self.assertEqual(a_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type.id)
         self.assertUUIDEqual(a_constants.UUID_SUBTYPE_PHONECALL_OUTGOING, pcall.sub_type.uuid)
-        self.assertEqual(a_constants.STATUS_IN_PROGRESS, pcall.status.id)
+        # self.assertEqual(a_constants.STATUS_IN_PROGRESS, pcall.status.id)
+        self.assertUUIDEqual(a_constants.UUID_STATUS_IN_PROGRESS, pcall.status.uuid)
         self.assertDatetimesAlmostEqual(now(), pcall.start)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
@@ -303,7 +304,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(pcall.description)
         # self.assertEqual(a_constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING, pcall.sub_type.id)
         self.assertUUIDEqual(a_constants.UUID_SUBTYPE_PHONECALL_INCOMING, pcall.sub_type.uuid)
-        self.assertEqual(a_constants.STATUS_IN_PROGRESS, pcall.status.id)
+        # self.assertEqual(a_constants.STATUS_IN_PROGRESS, pcall.status.id)
+        self.assertUUIDEqual(a_constants.UUID_STATUS_IN_PROGRESS, pcall.status.uuid)
         self.assertDatetimesAlmostEqual(now(), pcall.start)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 

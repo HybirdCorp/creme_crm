@@ -6,13 +6,15 @@ from django.urls import reverse
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 
+# STATUS_IN_PROGRESS, STATUS_PLANNED, STATUS_CANCELLED, STATUS_DONE,
 from creme.activities.constants import (
     FLOATING_TIME,
-    STATUS_CANCELLED,
-    STATUS_DONE,
-    STATUS_IN_PROGRESS,
-    STATUS_PLANNED,
+    UUID_STATUS_CANCELLED,
+    UUID_STATUS_DONE,
+    UUID_STATUS_IN_PROGRESS,
+    UUID_STATUS_PLANNED,
 )
+from creme.activities.models import Status
 from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.models import UserRole
 
@@ -78,7 +80,8 @@ class MobileAppTestCase(MobileBaseTestCase):
         m2 = create_m(
             title='Meeting: Anime',
             start=today_in_the_past(2),
-            status_id=STATUS_PLANNED,
+            # status_id=STATUS_PLANNED,
+            status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
         )
         m3 = create_m(
             title='Meeting: Manga #2',
@@ -88,7 +91,8 @@ class MobileAppTestCase(MobileBaseTestCase):
         m4 = create_m(
             title='Meeting: Figures',
             start=today_in_the_future(3),
-            status_id=STATUS_IN_PROGRESS,
+            # status_id=STATUS_IN_PROGRESS,
+            status=self.get_object_or_fail(Status, uuid=UUID_STATUS_IN_PROGRESS),
         )
         m5 = create_m(
             title='Meeting: Figures #3',
@@ -106,12 +110,14 @@ class MobileAppTestCase(MobileBaseTestCase):
         create_m(
             title='Meeting: Comics',
             start=today(7),
-            status_id=STATUS_DONE,
+            # status_id=STATUS_DONE,
+            status=self.get_object_or_fail(Status, uuid=UUID_STATUS_DONE),
         )  # Done are excluded
         create_m(
             title='Meeting: Manhua',
             start=today(10),
-            status_id=STATUS_CANCELLED,
+            # status_id=STATUS_CANCELLED,
+            status=self.get_object_or_fail(Status, uuid=UUID_STATUS_CANCELLED),
         )  # Cancelled are excluded
         create_m(title='Meeting: Manga again',  start=now_val - oneday)  # Yesterday
         create_m(title='Meeting: Manga ter.',   start=now_val + oneday)  # Tomorrow

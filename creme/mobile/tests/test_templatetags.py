@@ -3,6 +3,8 @@ from django.test.client import RequestFactory
 from django.urls.base import reverse
 from parameterized import parameterized
 
+from creme.activities import constants as act_constants
+from creme.activities.models import Status
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.tests.base import (
     OverrideSettingValueContext,
@@ -10,6 +12,7 @@ from creme.creme_core.tests.base import (
 )
 from creme.mobile import setting_keys
 from creme.mobile.templatetags.mobile_tags import (
+    mobile_activity_in_progress,
     mobile_document_class,
     mobile_location_map_url,
 )
@@ -142,6 +145,21 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
             render.strip(),
         )
 
+    def test_activity_in_progress(self):
+        user = self.get_root_user()
+        activity = self._create_pcall(user=user, title='Call #1')
+        self.assertIsNone(activity.status)
+        self.assertIs(mobile_activity_in_progress(activity), False)
+
+        activity.status = self.get_object_or_fail(
+            Status, uuid=act_constants.UUID_STATUS_DONE,
+        )
+        self.assertIs(mobile_activity_in_progress(activity), False)
+
+        activity.status = self.get_object_or_fail(
+            Status, uuid=act_constants.UUID_STATUS_IN_PROGRESS,
+        )
+        self.assertIs(mobile_activity_in_progress(activity), True)
 
 # TODO:
 #  - mobile_organisation_subjects
