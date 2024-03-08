@@ -88,8 +88,12 @@
                 - In the class 'mass_import.FormRegistry' :
                     - The methods 'get()' & 'is_registered()' are now deprecated.
                     - The class 'UnregisteredCTypeException' is now deprecated.
-            - In the methods 'creme_core.models.HeaderFilter.can_view()' & 'creme_core.models.EntityFilter.can_view()',
-              the argument "content_type" is deprecated.
+            - In 'creme_core.models' :
+                - In the methods 'HeaderFilter.can_view()' & 'creme_core.models.EntityFilter.can_view()',
+                  the argument "content_type" is deprecated.
+                - Setting the class attribute 'HistoryLine.ENABLED' is deprecated.
+                  The method 'HistoryLine.disable()' is deprecated too.
+                  Use the new context/decorator 'creme_core.models.toggle_history' instead.
             - The function 'creme_core.utils.create_if_needed()' is deprecated ;
               use 'MyModel.objects.get_or_create()' instead.
             - The constant 'creme_core.core.entity_filter.EF_USER' is deprecated ; use 'EF_REGULAR' instead.
@@ -314,6 +318,8 @@
                   - The related 'ContentType' is now stored with the key "ct" (instead of "ct_id"), and the value is the natural-key (instead of the ID).
                   - The related 'CremeEntity' is now stored with the key "entity" (instead of "entity_id") and the value is the UUID (instead of the ID).
             - The method 'FieldsConfig._get_hidden_field_names()' has been replaced by the property "hidden_field_names".
+            - The class attribute 'HistoryLine.ENABLED' has been removed, so reading it is broken
+              (you can still set it because it is checked dynamically, but is is deprecated -- see the deprecation section).
             - The model 'reminder.DateReminder' has been removed.
         # In 'creme_core.forms' :
             - In 'entity_filter.fields' :

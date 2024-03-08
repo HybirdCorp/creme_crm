@@ -24,10 +24,10 @@ from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
     FakeContact,
+    FakeOrganisation,
 )
 
 from ..base import CremeTestCase
-from ..fake_models import FakeOrganisation
 
 
 class FunctionFieldsTestCase(CremeTestCase):
