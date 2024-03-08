@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from builtins import getattr
 from datetime import date, datetime, time
 from decimal import Decimal
@@ -762,6 +763,33 @@ class _HLTEntityExport(_HistoryLineType):
         )
 
 
+HISTORY_ENABLED_CACHE_KEY = 'creme_core-history-enabled'
+
+
+def is_history_enabled() -> bool:
+    """Return the global state of the history.
+    @return: True for enabled, False for disabled.
+
+    Hint: if you want to enable/disable the history, see 'creme_core.core.history'.
+    """
+    if hasattr(HistoryLine, 'ENABLED'):
+        warnings.warn(
+            'HistoryLine.ENABLED is deprecated ;'
+            'use creme.creme_core.models.toggle_history instead.',
+            DeprecationWarning,
+        )
+        return HistoryLine.ENABLED
+
+    cache = get_per_request_cache()
+
+    per_request_status = cache.get(HISTORY_ENABLED_CACHE_KEY)
+    if per_request_status is not None:
+        return per_request_status
+
+    # History is enabled by default
+    return True
+
+
 class HistoryLine(Model):
     entity = models.ForeignKey(CremeEntity, null=True, on_delete=models.SET_NULL)
 
@@ -780,7 +808,7 @@ class HistoryLine(Model):
     type  = models.PositiveSmallIntegerField(_('Type'))  # See TYPE_*
     value = models.TextField(null=True)  # TODO: use a JSONField ? (see EntityFilter)
 
-    ENABLED: bool = True  # False means that no new HistoryLines are created.
+    # ENABLED: bool = True  (see is_history_enabled())
 
     _line_type: _HistoryLineType | None = None
     _entity_repr: str | None = None
@@ -859,6 +887,11 @@ class HistoryLine(Model):
               CremeProperty, an auxiliary model.
         """
         instance._hline_disabled = True
+        warnings.warn(
+            'HistoryLine.disable() is deprecated; '
+            'use creme.creme_core.core.history.toggle_history instead.',
+            DeprecationWarning,
+        )
 
     @staticmethod
     def mark_as_reassigned(instance, old_reference, new_reference, field_name: str):
@@ -1028,7 +1061,8 @@ class HistoryLine(Model):
         if update_fields is not None:
             raise ValueError('Argument "update_fields" not managed.')
 
-        if self.ENABLED:
+        # if self.ENABLED:
+        if is_history_enabled():
             # if self.pk is None: TODO ?
             user = get_global_info('user')
             self.username = user.username if user else ''
@@ -1066,6 +1100,15 @@ def _final_entity(entity) -> bool:
 
 @receiver(signals.post_init)
 def _prepare_log(sender, instance, **kwargs):
+    # NB: optimization (it's checked in HistoryLine.save() anyway)
+    if not is_history_enabled():
+        return
+
+    # TODO: disabling history per entity is deprecated (see HistoryLine.disable()).
+    #       To be removed in Creme2.7
+    if getattr(instance, '_hline_disabled', False):
+        return
+
     if hasattr(instance, 'get_related_entity'):
         # _HistoryLineType._create_entity_backup(instance)
         if instance.id:
@@ -1092,7 +1135,13 @@ def _prepare_log(sender, instance, **kwargs):
 
 @receiver(signals.post_save)
 def _log_creation_edition(sender, instance, created, **kwargs):
-    if getattr(instance, '_hline_disabled', False):  # see HistoryLine.disable
+    # NB: optimization (it's checked in HistoryLine.save() anyway)
+    if not is_history_enabled():
+        return
+
+    # TODO: disabling history per entity is deprecated (see HistoryLine.disable()).
+    #       To be removed in Creme2.7
+    if getattr(instance, '_hline_disabled', False):
         return
 
     try:
@@ -1121,7 +1170,13 @@ def _log_creation_edition(sender, instance, created, **kwargs):
 
 @receiver(signals.m2m_changed)
 def _log_m2m_edition(sender, instance, action, pk_set, **kwargs):
-    if getattr(instance, '_hline_disabled', False):  # see HistoryLine.disable
+    # NB: optimization (it's checked in HistoryLine.save() anyway)
+    if not is_history_enabled():
+        return
+
+    # TODO: disabling history per entity is deprecated (see HistoryLine.disable()).
+    #       To be removed in Creme2.7
+    if getattr(instance, '_hline_disabled', False):
         return
 
     if hasattr(instance, 'get_related_entity'):
@@ -1174,7 +1229,13 @@ def _get_deleted_entity_ids() -> set:
 
 @receiver(signals.pre_delete)
 def _log_deletion(sender, instance, **kwargs):
-    if getattr(instance, '_hline_disabled', False):  # See HistoryLine.disable
+    # NB: optimization (it's checked in HistoryLine.save() anyway)
+    if not is_history_enabled():
+        return
+
+    # TODO: disabling history per entity is deprecated (see HistoryLine.disable()).
+    #       To be removed in Creme2.7
+    if getattr(instance, '_hline_disabled', False):
         return
 
     # When we are dealing with CremeEntities, we check that we are dealing
