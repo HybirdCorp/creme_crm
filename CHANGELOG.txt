@@ -2,6 +2,12 @@
 
     TODO: recompile .mo (creme_config)
 
+  Users side :
+  ------------
+    # Apps :
+        * Mobile :
+            - A hard-coded URL pattern has been fixed (to use the reverse pattern matching as usual).
+
 
 == Version 2.4.13 ==
 
