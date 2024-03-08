@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+from uuid import UUID
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -639,6 +640,53 @@ class BaseTestCaseTestCase(CremeTestCase):
             )
         self.assertEqual(
             'The argument "codes" must be a dictionary in this case.',
+            str(cm4.exception),
+        )
+
+    def test_assertUUIDEqual(self):
+        str_uid1 = '432469ec-8f93-4105-b2c8-5dda8b1d6a52'
+        str_uid2 = '32f6ee9c-7204-4ebc-a9d1-8b8e19d9f8ed'
+
+        with self.assertNoException():
+            self.assertUUIDEqual(UUID(str_uid1), UUID(str_uid1))
+
+        with self.assertNoException():
+            self.assertUUIDEqual(UUID(str_uid2), UUID(str_uid2))
+
+        with self.assertRaises(self.failureException) as cm1:
+            self.assertUUIDEqual(UUID(str_uid1), UUID(str_uid2))
+        self.assertEqual(
+            f'The UUIDs are not equal: "{str_uid1}" != "{str_uid2}".',
+            str(cm1.exception),
+        )
+
+        with self.assertNoException():
+            self.assertUUIDEqual(str_uid1, UUID(str_uid1))
+
+        with self.assertNoException():
+            self.assertUUIDEqual(UUID(str_uid1), str_uid1)
+
+        with self.assertNoException():
+            self.assertUUIDEqual(str_uid1, str_uid1)
+
+        with self.assertRaises(self.failureException) as cm2:
+            self.assertUUIDEqual(str_uid1, str_uid2)
+        self.assertEqual(
+            f'The UUIDs are not equal: "{str_uid1}" != "{str_uid2}".',
+            str(cm2.exception),
+        )
+
+        with self.assertRaises(self.failureException) as cm3:
+            self.assertUUIDEqual(123654, str_uid2)
+        self.assertEqual(
+            "123654 is not an instance of <class 'uuid.UUID'>",
+            str(cm3.exception),
+        )
+
+        with self.assertRaises(self.failureException) as cm4:
+            self.assertUUIDEqual(str_uid1, 78965)
+        self.assertEqual(
+            "78965 is not an instance of <class 'uuid.UUID'>",
             str(cm4.exception),
         )
 

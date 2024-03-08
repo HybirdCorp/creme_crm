@@ -333,7 +333,7 @@ class EntityViewsTestCase(CremeTestCase):
 
         sandbox = self.refresh(contact).sandbox
         self.assertIsNotNone(sandbox)
-        self.assertEqual(constants.UUID_SANDBOX_SUPERUSERS, str(sandbox.uuid))
+        self.assertUUIDEqual(constants.UUID_SANDBOX_SUPERUSERS, sandbox.uuid)
 
         # Unset
         self.assertPOST200(url, data={**data, 'set': 'false'})

@@ -1473,7 +1473,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertNoFormError(response2)
         # self.get_object_or_fail(Activity, type=type_id, title=title)
         activity = self.get_object_or_fail(Activity, title=title)
-        self.assertEqual(constants.UUID_TYPE_PHONECALL, str(activity.type.uuid))
+        self.assertUUIDEqual(constants.UUID_TYPE_PHONECALL, activity.type.uuid)
 
     def test_create_view_invalidtype(self):
         self.login_as_root()

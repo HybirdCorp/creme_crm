@@ -108,7 +108,7 @@ class ContactTestCase(_BaseTestCase):
         user = first_contact.is_user
         self.assertIsNotNone(user)
 
-        self.assertEqual(UUID_FIRST_CONTACT, str(first_contact.uuid))
+        self.assertUUIDEqual(UUID_FIRST_CONTACT, first_contact.uuid)
 
     def test_clean_unique_user_email(self):
         user1 = self.create_user(0)
