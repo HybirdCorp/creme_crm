@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2023  Hybird
+#    Copyright (C) 2014-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,7 @@ import creme.activities.constants as act_constants
 import creme.persons.constants as persons_constants
 from creme import persons
 from creme.activities import get_activity_model
-from creme.activities.models import ActivitySubType, Calendar
+from creme.activities.models import ActivitySubType, Calendar, Status
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, EntityCredentials, Relation
@@ -164,13 +164,17 @@ def portal(request):
                         build_dt(23, 59, 59),
                     ),
                 ).exclude(
-                    status__in=(
-                        act_constants.STATUS_DONE,
-                        act_constants.STATUS_CANCELLED,
+                    # status__in=(
+                    #     act_constants.STATUS_DONE,
+                    #     act_constants.STATUS_CANCELLED,
+                    # ),
+                    status__uuid__in=(
+                        act_constants.UUID_STATUS_DONE,
+                        act_constants.UUID_STATUS_CANCELLED,
                     ),
                 ).order_by(
                     'start'
-                ).select_related('type')  # see tag mobile_activity_card
+                ).select_related('type', 'status')  # see tag mobile_activity_card
     )
 
     # TODO: an activity which starts before now, & ends before now too, with status != PROGRESS
@@ -183,7 +187,8 @@ def portal(request):
         lambda a:
             a.floating_type == act_constants.NARROW
             and (
-                a.status_id == act_constants.STATUS_IN_PROGRESS
+                # a.status_id == act_constants.STATUS_IN_PROGRESS
+                (a.status and str(a.status.uuid) == act_constants.UUID_STATUS_IN_PROGRESS)
                 or a.start < now_val
             ),
         activities
@@ -334,7 +339,8 @@ def start_activity(request, activity_id):
         activity.end = activity.start + activity.type.as_timedelta()
 
     activity.floating_type = act_constants.NARROW
-    activity.status_id = act_constants.STATUS_IN_PROGRESS
+    # activity.status_id = act_constants.STATUS_IN_PROGRESS
+    activity.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_IN_PROGRESS)
     activity.save()
 
     return HttpResponseRedirect(f'{_get_page_url(request)}#activity_{activity_id}')
@@ -355,7 +361,8 @@ def stop_activity(request, activity_id):
         raise ConflictError('This activity cannot be stopped before it is started.')
 
     activity.end = now_val
-    activity.status_id = act_constants.STATUS_DONE
+    # activity.status_id = act_constants.STATUS_DONE
+    activity.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
     activity.save()
 
     return HttpResponseRedirect(_get_page_url(request))
@@ -372,7 +379,11 @@ def activities_portal(request):
         relations__type=act_constants.REL_OBJ_PART_2_ACTIVITY,
         relations__object_entity=user.linked_contact,
     ).exclude(
-        status__in=(act_constants.STATUS_DONE, act_constants.STATUS_CANCELLED),
+        # status__in=(act_constants.STATUS_DONE, act_constants.STATUS_CANCELLED),
+        status__uuid__in=(
+            act_constants.UUID_STATUS_DONE,
+            act_constants.UUID_STATUS_CANCELLED,
+        ),
     ).order_by('start').select_related('type')  # select_related() => see tag mobile_activity_card
 
     phone_calls = cred_filter(activities.filter(
@@ -510,7 +521,8 @@ def phonecall_workflow_done(request, pcall_id):
 
     request.user.has_perm_to_change_or_die(pcall)
 
-    pcall.status_id = act_constants.STATUS_DONE
+    # pcall.status_id = act_constants.STATUS_DONE
+    pcall.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
     pcall.save()
 
     return HttpResponseRedirect(_get_page_url(request))
@@ -590,9 +602,11 @@ def _phonecall_workflow_set_end(request, end_function):
     minutes = POST.get('minutes', '')
 
     pcall = _get_pcall(request)
+    status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
 
     if pcall is not None:
-        pcall.status_id = act_constants.STATUS_DONE
+        # pcall.status_id = act_constants.STATUS_DONE
+        pcall.status = status
         pcall.start = start
         pcall.end = end
         _improve_minutes(pcall, minutes)
@@ -617,7 +631,8 @@ def _phonecall_workflow_set_end(request, end_function):
             # sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
             type_id=sub_type.type_id,
             sub_type=sub_type,
-            status_id=act_constants.STATUS_DONE,
+            # status_id=act_constants.STATUS_DONE,
+            status=status,
             start=start,
             end=end,
             minutes=minutes,
@@ -661,7 +676,8 @@ def _create_failed_pcall(request):
         # sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,
         type_id=sub_type.type_id,
         sub_type=sub_type,
-        status_id=act_constants.STATUS_DONE,
+        # status_id=act_constants.STATUS_DONE,
+        status=get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE),
         start=start,
         end=start,
         minutes=POST.get('minutes', ''),
@@ -678,7 +694,8 @@ def _set_pcall_as_failed(pcall, request):
     pcall.sub_type = get_object_or_404(
         ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_FAILED,
     )
-    pcall.status_id = act_constants.STATUS_DONE
+    # pcall.status_id = act_constants.STATUS_DONE
+    pcall.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
     pcall.floating_type = act_constants.NARROW
     pcall.start = pcall.end = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))
     _improve_minutes(pcall, POST.get('minutes', ''))

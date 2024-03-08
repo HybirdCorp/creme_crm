@@ -29,7 +29,7 @@ from django.utils.translation import gettext as _
 
 import creme.activities.constants as act_constants
 from creme import activities, persons
-from creme.activities.models import ActivitySubType, Calendar
+from creme.activities.models import ActivitySubType, Calendar, Status
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import Relation, RelationType
@@ -107,7 +107,8 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
                         generic.base.TitleMixin,
                         generic.CheckedView):
     permissions = ['activities', cperm(Activity)]
-    phonecall_status_id = act_constants.STATUS_IN_PROGRESS
+    # phonecall_status_id = act_constants.STATUS_IN_PROGRESS
+    phonecall_status_uuid = act_constants.UUID_STATUS_IN_PROGRESS
     # phonecall_subtype_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING
     phonecall_subtype_uuid = act_constants.UUID_SUBTYPE_PHONECALL_INCOMING
     title = _('Call to {entity}')  # Phone Call title
@@ -118,11 +119,13 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
     def build_phonecall(self):
         now_value = now()
         sub_type = get_object_or_404(ActivitySubType, uuid=self.get_phonecall_subtype_uuid())
+
         return Activity(
             user=self.request.user,
             title=self.get_title(),
             description=_('Automatically created by CTI'),
-            status_id=self.get_phonecall_status_id(),
+            # status_id=self.get_phonecall_status_id(),
+            status=get_object_or_404(Status, uuid=self.get_phonecall_status_uuid()),
             # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
             # sub_type_id=self.get_phonecall_subtype_id(),
             type_id=sub_type.type_id,
@@ -167,8 +170,10 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
 
         return pcall
 
-    def get_phonecall_status_id(self) -> int:
-        return self.phonecall_status_id
+    # def get_phonecall_status_id(self) -> int:
+    #     return self.phonecall_status_id
+    def get_phonecall_status_uuid(self) -> int:
+        return self.phonecall_status_uuid
 
     # def get_phonecall_subtype_id(self) -> str:
     #     return self.phonecall_subtype_id

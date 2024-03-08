@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2023  Hybird
+#    Copyright (C) 2014-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,11 +22,11 @@ from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.template import Library
 
-# from creme.activities.constants import ACTIVITYTYPE_PHONECALL
+# from creme.activities.constants import ACTIVITYTYPE_PHONECALL, STATUS_IN_PROGRESS,
 from creme.activities.constants import (
     NARROW,
     REL_SUB_ACTIVITY_SUBJECT,
-    STATUS_IN_PROGRESS,
+    UUID_STATUS_IN_PROGRESS,
     UUID_TYPE_MEETING,
     UUID_TYPE_PHONECALL,
     UUID_TYPE_TASK,
@@ -113,6 +113,14 @@ def mobile_activity_type_str(activity):
 
 
 # ------------------------------------------------------------------------------
+@register.filter
+def mobile_activity_in_progress(activity):
+    status = activity.status
+
+    return status is not None and str(status.uuid) == UUID_STATUS_IN_PROGRESS
+
+
+# ------------------------------------------------------------------------------
 START_STOP_BUTTONS  = 'start-stop'
 NO_BUTTON           = 'no-button'
 
@@ -148,7 +156,7 @@ def mobile_activity_card(context, activity,
         # TODO: test with is staff
         'user_contact_id':    linked_contact.id if linked_contact else None,
         'activity':           activity,
-        'STATUS_IN_PROGRESS': STATUS_IN_PROGRESS,
+        # 'STATUS_IN_PROGRESS': STATUS_IN_PROGRESS,
         'is_floating':        activity.floating_type != NARROW,
         'buttons_template':   _BUTTONS[button_panel],
         'show_date':          show_date,

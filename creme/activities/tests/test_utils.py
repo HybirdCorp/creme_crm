@@ -12,6 +12,7 @@ from creme.creme_core.models import Relation
 from creme.persons.tests.base import skipIfCustomContact
 
 from .. import constants
+from ..models import Status
 from ..utils import (
     ICalEncoder,
     ZoneinfoToVtimezone,
@@ -239,6 +240,7 @@ class ICalEncoderTestCase(_ActivitiesTestCase):
         create_dt = self.create_datetime
 
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_OUTGOING)
+        status = self.get_object_or_fail(Status, uuid=constants.UUID_STATUS_PLANNED)
         activity = Activity.objects.create(
             user=user,
             title='My Activity',
@@ -249,7 +251,8 @@ class ICalEncoderTestCase(_ActivitiesTestCase):
             start=create_dt(year=2023, month=3, day=26, hour=14, minute=30),
             end=create_dt(year=2023, month=3, day=26, hour=16),
             place='Tour Eiffel',
-            status_id=constants.STATUS_PLANNED,
+            # status_id=constants.STATUS_PLANNED,
+            status=status,
         )
 
         encoder = ICalEncoder()
