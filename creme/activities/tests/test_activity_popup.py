@@ -215,8 +215,8 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(hour=15), activity.end)
         # self.assertEqual(constants.ACTIVITYTYPE_MEETING, activity.type_id)
         # self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, activity.sub_type_id)
-        self.assertEqual(constants.UUID_TYPE_MEETING,            str(activity.type.uuid))
-        self.assertEqual(constants.UUID_SUBTYPE_MEETING_NETWORK, str(activity.sub_type.uuid))
+        self.assertUUIDEqual(constants.UUID_TYPE_MEETING,            activity.type.uuid)
+        self.assertUUIDEqual(constants.UUID_SUBTYPE_MEETING_NETWORK, activity.sub_type.uuid)
 
     def test_custom_activity_type(self):
         user = self.login_as_root_and_get()

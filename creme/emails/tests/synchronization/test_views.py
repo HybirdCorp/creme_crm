@@ -1035,7 +1035,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertTrue(exists(path))
 
         folder = attachment.linked_folder
-        self.assertEqual(UUID_FOLDER_CAT_EMAILS, str(folder.category.uuid))
+        self.assertUUIDEqual(UUID_FOLDER_CAT_EMAILS, folder.category.uuid)
         self.assertEqual(
             _("{username}'s files received by email").format(
                 username=user.username,

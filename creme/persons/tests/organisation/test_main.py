@@ -50,7 +50,7 @@ class OrganisationTestCase(_BaseTestCase):
         first_orga = Organisation.objects.order_by('id').first()
         self.assertIsNotNone(first_orga)
         self.assertTrue(first_orga.is_managed)
-        self.assertEqual(constants.UUID_FIRST_ORGA, str(first_orga.uuid))
+        self.assertUUIDEqual(constants.UUID_FIRST_ORGA, first_orga.uuid)
 
     def test_staff_size(self):
         count = StaffSize.objects.count()

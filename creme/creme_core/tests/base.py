@@ -12,6 +12,7 @@ from tempfile import NamedTemporaryFile
 from typing import Iterable
 from unittest import skipIf
 from unittest.util import safe_repr
+from uuid import UUID
 
 from bleach._vendor import html5lib
 from django import forms
@@ -725,6 +726,20 @@ class _CremeTestCase:
         self.assertIsInstance(q1, Q)
         self.assertIsInstance(q2, Q)
         self.assertEqual(str(q1), str(q2))
+
+    def assertUUIDEqual(self, uid1: str | UUID, uid2: str | UUID):
+        if isinstance(uid1, str):
+            uid1 = UUID(uid1)
+        else:
+            self.assertIsInstance(uid1, UUID)
+
+        if isinstance(uid2, str):
+            uid2 = UUID(uid2)
+        else:
+            self.assertIsInstance(uid2, UUID)
+
+        if uid1 != uid2:
+            self.fail(f'The UUIDs are not equal: "{uid1}" != "{uid2}".')
 
     def assertHasProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | str):
         if not CremeProperty.objects.filter(
