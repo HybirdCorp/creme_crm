@@ -40,7 +40,7 @@ from creme.creme_core.models import (
     SettingValue,
 )
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.utils import create_if_needed
+# from creme.creme_core.utils import create_if_needed
 from creme.creme_core.utils.date_period import date_period_registry
 
 from . import (
@@ -65,6 +65,20 @@ class Populator(BasePopulator):
         'STRATEGY': ['name'],
         'PATTERN': [],
     }
+    ACT_TYPES = [
+        ActType(
+            uuid='e443e7f0-df22-4f4c-9bc8-7f718867e3d1',
+            title=_('Phone calls'), is_custom=False
+        ),
+        ActType(
+            uuid='2937497e-05b2-4790-8fa9-7f2a05dbfee0',
+            title=_('Show'), is_custom=False
+        ),
+        ActType(
+            uuid='4cfcefd1-3140-4e9f-a6f5-ce7de1e08f51',
+            title=_('Demo'), is_custom=False,
+        ),
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -94,8 +108,11 @@ class Populator(BasePopulator):
         )
 
     def _populate_act_types(self):
-        for i, title in enumerate([_('Phone calls'), _('Show'), _('Demo')], start=1):
-            create_if_needed(ActType, {'pk': i}, title=title, is_custom=False)
+        # for i, title in enumerate([_('Phone calls'), _('Show'), _('Demo')], start=1):
+        #     create_if_needed(ActType, {'pk': i}, title=title, is_custom=False)
+        for act_type in self.ACT_TYPES:
+            if not ActType.objects.filter(uuid=act_type.uuid):
+                act_type.save()
 
     def _populate_relation_types(self):
         RelationType.objects.smart_update_or_create(
