@@ -35,6 +35,7 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+# from creme.creme_core.utils import create_if_needed
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -48,7 +49,6 @@ from creme.creme_core.models import (
     SearchConfigItem,
     SettingValue,
 )
-from creme.creme_core.utils import create_if_needed
 
 from . import bricks, buttons, constants, custom_forms, menu, setting_keys
 from .core import BILLING_MODELS
@@ -76,6 +76,134 @@ class Populator(BasePopulator):
         'CREDIT_NOTE': ['name', 'number', 'status__name'],
         'SALES_ORDER': ['name', 'number', 'status__name'],
     }
+    CREDIT_NOTE_STATUSES = [
+        CreditNoteStatus(
+            uuid='57191226-8ece-4a7d-bb5f-1b9635f41d9b',
+            name=pgettext('billing-creditnote', 'Draft'), order=1,
+            is_custom=False,
+            is_default=True,
+        ),
+        # is_custom == True :
+        CreditNoteStatus(
+            uuid='42263776-44e0-4b63-b330-9a0237ab37c8',
+            name=pgettext('billing-creditnote', 'Issued'), order=2,
+        ),
+        CreditNoteStatus(
+            uuid='8fc73f0e-a427-4a07-b4f3-ae0b3eca9469',
+            name=pgettext('billing-creditnote', 'Consumed'), order=3,
+        ),
+        CreditNoteStatus(
+            uuid='0eee82dd-fb06-4de0-acf9-4d1d4b970399',
+            name=pgettext('billing-creditnote', 'Out of date'), order=4,
+        ),
+    ]
+    INVOICE_STATUSES = [
+        InvoiceStatus(
+            uuid='1bbb7c7e-610f-4366-b3de-b92d63c9cf23',
+            name=pgettext('billing-invoice', 'Draft'), order=1,
+            is_custom=False,
+            is_default=True,
+        ),
+        InvoiceStatus(
+            uuid='cc1209bb-e8a2-40bb-9361-4230d9e27bf2',
+            name=pgettext('billing-invoice', 'To be sent'), order=2,
+            is_custom=False,
+            is_validated=True,
+        ),
+        # is_custom == True :
+        InvoiceStatus(
+            uuid='b8ed248b-5785-47ba-90d0-094ac9f813c7',
+            name=pgettext('billing-invoice', 'Sent'), order=3,
+            pending_payment=True,
+        ),
+        InvoiceStatus(
+            uuid='017e8734-533d-4fc7-b355-c091748ccb34',
+            name=pgettext('billing-invoice', 'Resulted'), order=5,
+        ),
+        InvoiceStatus(
+            uuid='0d8da787-394c-4735-8cad-5eb3a2382415',
+            name=pgettext('billing-invoice', 'Partly resulted'), order=4,
+            pending_payment=True,
+        ),
+        InvoiceStatus(
+            uuid='134ed1ba-efce-4984-baae-dae06fa27096',
+            name=_('Collection'), order=7,
+        ),
+        InvoiceStatus(
+            uuid='b5b256bd-6205-4f67-af3b-eb76b47e97fa',
+            name=_('Resulted collection'), order=6,
+        ),
+        InvoiceStatus(
+            uuid='b85ad6ce-9479-4c70-9241-97c03774e521',
+            name=pgettext('billing-invoice', 'Canceled'), order=8,
+        ),
+    ]
+    QUOTE_STATUSES = [
+        # is_custom == True :
+        QuoteStatus(
+            uuid='9128fed1-e87d-477b-aa94-3d220f724f05',
+            name=pgettext('billing-quote', 'Pending'), order=2,
+            is_default=True,
+        ),
+        QuoteStatus(
+            uuid='aa5b25ec-ea70-470f-91a6-402dffe933a8',
+            name=pgettext('billing-quote', 'Accepted'), order=3,
+            won=True, color='1dd420',
+        ),
+        QuoteStatus(
+            uuid='7739a6ac-64a7-4f40-a04d-39a382b08d50',
+            name=pgettext('billing-quote', 'Rejected'), order=4,
+        ),
+        QuoteStatus(
+            uuid='9571e8bb-7a50-4453-a037-de829e189952',
+            name=pgettext('billing-quote', 'Created'), order=1,
+        ),
+    ]
+    SALES_ORDER_STATUSES = [
+        SalesOrderStatus(
+            uuid='bebdab5a-0281-4b34-a257-26602a19e320',
+            name=pgettext('billing-salesorder', 'Issued'), order=1,
+            is_default=True,
+            is_custom=False,
+        ),
+        # is_custom == True :
+        SalesOrderStatus(
+            uuid='717ac4a7-97f8-4002-a555-544e4427191a',
+            name=pgettext('billing-salesorder', 'Accepted'), order=3,
+        ),
+        SalesOrderStatus(
+            uuid='a91aa135-b075-4a81-a06b-dd1839954a71',
+            name=pgettext('billing-salesorder', 'Rejected'), order=4,
+        ),
+        SalesOrderStatus(
+            uuid='ee4dd8f7-557f-46d8-8ed2-74c256875b84',
+            name=pgettext('billing-salesorder', 'Created'),  order=2,
+        ),
+    ]
+    SETTLEMENT_TERMS = [
+        SettlementTerms(
+            uuid='5d5db3d9-8af9-450a-9daa-67e78fae82f8', name=_('30 days'),
+        ),
+        SettlementTerms(
+            uuid='36590d27-bf69-43fc-bdb1-d3b13d1fac8e', name=_('Cash'),
+        ),
+        SettlementTerms(
+            uuid='2d0540fa-8be0-474c-ae97-70d721d17ee3', name=_('45 days'),
+        ),
+        SettlementTerms(
+            uuid='3766296a-98ea-4341-a305-30e551d92550', name=_('60 days'),
+        ),
+        SettlementTerms(
+            uuid='ad9152cb-bcb4-43ff-ba15-4b8d90557f23', name=_('30 days, end month the 10'),
+        ),
+    ]
+    ADDITIONAL_INFORMATION = [
+        AdditionalInformation(
+            uuid='1c3c5157-1a42-4b88-9b78-de15b41bdd96',
+            name=_('Trainer accreditation'),
+            description=_('being certified trainer courses could be supported by your OPCA'),
+        ),
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -101,10 +229,10 @@ class Populator(BasePopulator):
         self._populate_exporters_config()
         self._populate_payment_terms()
 
-        self._populate_order_statuses()
-        self._populate_invoice_statuses()
         self._populate_creditnote_statuses()
+        self._populate_invoice_statuses()
         self._populate_quote_statuses()
+        self._populate_order_statuses()
 
     def _first_populate(self):
         super()._first_populate()
@@ -147,116 +275,143 @@ class Populator(BasePopulator):
             )
 
     def _populate_payment_terms(self):
-        create_if_needed(
-            PaymentTerms, {'pk': 1}, name=_('Deposit'),
-            description=_(r'20% deposit will be required'),
-            is_custom=False,
+        # create_if_needed(
+        #     PaymentTerms, {'pk': 1}, name=_('Deposit'),
+        #     description=_(r'20% deposit will be required'),
+        #     is_custom=False,
+        # )
+        PaymentTerms.objects.get_or_create(
+            uuid='86b76130-4cac-4337-95ff-3e9021329956',
+            defaults={
+                'name': _('Deposit'),
+                'description': _(r'20% deposit will be required'),
+                'is_custom': False,
+            },
         )
 
-    def _populate_order_statuses(self):
-        def create_order_status(pk, name, **kwargs):
-            create_if_needed(SalesOrderStatus, {'pk': pk}, name=name, **kwargs)
-
-        create_order_status(
-            1, pgettext('billing-salesorder', 'Issued'),
-            order=1, is_custom=False, is_default=True,
-        )
+    def _create_statuses(self, unsaved_statuses):
+        # NB: we create the not custom ones before
+        for status in unsaved_statuses:
+            if not status.is_custom and not type(status).objects.filter(uuid=status.uuid).exists():
+                status.save()
 
         if not self.already_populated:
-            create_order_status(2, pgettext('billing-salesorder', 'Accepted'), order=3)
-            create_order_status(3, pgettext('billing-salesorder', 'Rejected'), order=4)
-            create_order_status(4, pgettext('billing-salesorder', 'Created'),  order=2)
-
-    def _populate_invoice_statuses(self):
-        def create_invoice_status(pk, name, **kwargs):
-            create_if_needed(InvoiceStatus, {'pk': pk}, name=name, **kwargs)
-
-        create_invoice_status(
-            1, pgettext('billing-invoice', 'Draft'),
-            order=1, is_custom=False, is_default=True,
-        )
-        create_invoice_status(
-            2, pgettext('billing-invoice', 'To be sent'),
-            order=2, is_custom=False, is_validated=True,
-        )
-
-        if not self.already_populated:
-            create_invoice_status(
-                3, pgettext('billing-invoice', 'Sent'),
-                order=3, pending_payment=True,
-            )
-            create_invoice_status(
-                4, pgettext('billing-invoice', 'Resulted'),
-                order=5,
-            )
-            create_invoice_status(
-                5, pgettext('billing-invoice', 'Partly resulted'),
-                order=4, pending_payment=True,
-            )
-            create_invoice_status(
-                6, _('Collection'),
-                order=7,
-            )
-            create_invoice_status(
-                7, _('Resulted collection'),
-                order=6,
-            )
-            create_invoice_status(
-                8, pgettext('billing-invoice', 'Canceled'),
-                order=8,
-            )
+            for status in unsaved_statuses:
+                if status.is_custom:
+                    status.save()
 
     def _populate_creditnote_statuses(self):
-        def create_cnote_status(pk, name, **kwargs):
-            create_if_needed(CreditNoteStatus, {'pk': pk}, name=name, **kwargs)
+        # def create_cnote_status(pk, name, **kwargs):
+        #     create_if_needed(CreditNoteStatus, {'pk': pk}, name=name, **kwargs)
+        #
+        # create_cnote_status(
+        #     1, pgettext('billing-creditnote', 'Draft'),
+        #     order=1, is_custom=False, is_default=True,
+        # )
+        #
+        # if not self.already_populated:
+        #     create_cnote_status(2, pgettext('billing-creditnote', 'Issued'),      order=2)
+        #     create_cnote_status(3, pgettext('billing-creditnote', 'Consumed'),    order=3)
+        #     create_cnote_status(4, pgettext('billing-creditnote', 'Out of date'), order=4)
+        self._create_statuses(self.CREDIT_NOTE_STATUSES)
 
-        create_cnote_status(
-            1, pgettext('billing-creditnote', 'Draft'),
-            order=1, is_custom=False, is_default=True,
-        )
-
-        if not self.already_populated:
-            create_cnote_status(2, pgettext('billing-creditnote', 'Issued'),      order=2)
-            create_cnote_status(3, pgettext('billing-creditnote', 'Consumed'),    order=3)
-            create_cnote_status(4, pgettext('billing-creditnote', 'Out of date'), order=4)
+    def _populate_invoice_statuses(self):
+        # def create_invoice_status(pk, name, **kwargs):
+        #     create_if_needed(InvoiceStatus, {'pk': pk}, name=name, **kwargs)
+        #
+        # create_invoice_status(
+        #     1, pgettext('billing-invoice', 'Draft'),
+        #     order=1, is_custom=False, is_default=True,
+        # )
+        # create_invoice_status(
+        #     2, pgettext('billing-invoice', 'To be sent'),
+        #     order=2, is_custom=False, is_validated=True,
+        # )
+        #
+        # if not self.already_populated:
+        #     create_invoice_status(
+        #         3, pgettext('billing-invoice', 'Sent'),
+        #         order=3, pending_payment=True,
+        #     )
+        #     create_invoice_status(
+        #         4, pgettext('billing-invoice', 'Resulted'),
+        #         order=5,
+        #     )
+        #     create_invoice_status(
+        #         5, pgettext('billing-invoice', 'Partly resulted'),
+        #         order=4, pending_payment=True,
+        #     )
+        #     create_invoice_status(
+        #         6, _('Collection'),
+        #         order=7,
+        #     )
+        #     create_invoice_status(
+        #         7, _('Resulted collection'),
+        #         order=6,
+        #     )
+        #     create_invoice_status(
+        #         8, pgettext('billing-invoice', 'Canceled'),
+        #         order=8,
+        #     )
+        self._create_statuses(self.INVOICE_STATUSES)
 
     def _populate_quote_statuses(self):
-        if not self.already_populated:
-            def create_quote_status(pk, name, **kwargs):
-                create_if_needed(QuoteStatus, {'pk': pk}, name=name, **kwargs)
+        # if not self.already_populated:
+        #     def create_quote_status(pk, name, **kwargs):
+        #         create_if_needed(QuoteStatus, {'pk': pk}, name=name, **kwargs)
+        #
+        #     # Default status
+        #     create_quote_status(
+        #         1, pgettext('billing-quote', 'Pending'),
+        #         order=2, is_default=True,
+        #     )
+        #
+        #     create_quote_status(
+        #         2, pgettext('billing-quote', 'Accepted'),
+        #         order=3, won=True, color='1dd420',
+        #     )
+        #     create_quote_status(
+        #         3, pgettext('billing-quote', 'Rejected'),
+        #         order=4,
+        #     )
+        #     create_quote_status(
+        #         4, pgettext('billing-quote', 'Created'),
+        #         order=1,
+        #     )
+        self._create_statuses(self.QUOTE_STATUSES)
 
-            # Default status
-            create_quote_status(
-                1, pgettext('billing-quote', 'Pending'),
-                order=2, is_default=True,
-            )
-
-            create_quote_status(
-                2, pgettext('billing-quote', 'Accepted'),
-                order=3, won=True, color='1dd420',
-            )
-            create_quote_status(
-                3, pgettext('billing-quote', 'Rejected'),
-                order=4,
-            )
-            create_quote_status(
-                4, pgettext('billing-quote', 'Created'),
-                order=1,
-            )
+    def _populate_order_statuses(self):
+        # def create_order_status(pk, name, **kwargs):
+        #     create_if_needed(SalesOrderStatus, {'pk': pk}, name=name, **kwargs)
+        #
+        # # NB: pk=1 + is_custom=False --> default status
+        # #     (used when a quote is converted in invoice for example)
+        # create_order_status(
+        #     1, pgettext('billing-salesorder', 'Issued'), order=1, is_custom=False)
+        #
+        # if not self.already_populated:
+        #     create_order_status(2, pgettext('billing-salesorder', 'Accepted'), order=3)
+        #     create_order_status(3, pgettext('billing-salesorder', 'Rejected'), order=4)
+        #     create_order_status(4, pgettext('billing-salesorder', 'Created'),  order=2)
+        self._create_statuses(self.SALES_ORDER_STATUSES)
 
     def _populate_settlement_terms(self):
-        create_if_needed(SettlementTerms, {'pk': 1}, name=_('30 days'))
-        create_if_needed(SettlementTerms, {'pk': 2}, name=_('Cash'))
-        create_if_needed(SettlementTerms, {'pk': 3}, name=_('45 days'))
-        create_if_needed(SettlementTerms, {'pk': 4}, name=_('60 days'))
-        create_if_needed(SettlementTerms, {'pk': 5}, name=_('30 days, end month the 10'))
+        # create_if_needed(SettlementTerms, {'pk': 1}, name=_('30 days'))
+        # create_if_needed(SettlementTerms, {'pk': 2}, name=_('Cash'))
+        # create_if_needed(SettlementTerms, {'pk': 3}, name=_('45 days'))
+        # create_if_needed(SettlementTerms, {'pk': 4}, name=_('60 days'))
+        # create_if_needed(SettlementTerms, {'pk': 5}, name=_('30 days, end month the 10'))
+        for terms in self.SETTLEMENT_TERMS:
+            terms.save()
 
     def _populate_additional_information(self):
-        create_if_needed(
-            AdditionalInformation,
-            {'pk': 1}, name=_('Trainer accreditation'),
-            description=_('being certified trainer courses could be supported by your OPCA'),
-        )
+        # create_if_needed(
+        #     AdditionalInformation,
+        #     {'pk': 1}, name=_('Trainer accreditation'),
+        #     description=_('being certified trainer courses could be supported by your OPCA'),
+        # )
+        for info in self.ADDITIONAL_INFORMATION:
+            info.save()
 
     def _populate_relation_types(self):
         Product = products.get_product_model()
