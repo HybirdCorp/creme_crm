@@ -49,7 +49,7 @@ from creme.creme_core.models import (
     RelationType,
     SearchConfigItem,
 )
-from creme.creme_core.utils import create_if_needed
+# from creme.creme_core.utils import create_if_needed
 from creme.documents.models import DocumentCategory
 
 from . import bricks, buttons, constants, custom_forms, menu
@@ -69,7 +69,6 @@ class Populator(BasePopulator):
             'name', 'phone', 'email', 'sector__title', 'legal_form__title',
         ],
     }
-
     BUTTONS = {
         'CONTACT': [
             # (class, order)
@@ -87,6 +86,51 @@ class Populator(BasePopulator):
             (buttons.AddLinkedContactButton, 25),
         ],
     }
+    CIVILITIES = [
+        Civility(
+            uuid='7c3867da-af53-43d4-bfcc-75c1c3e5121e',
+            title=_('Madam'), shortcut=_('Mrs.'),
+        ),
+        Civility(
+            uuid='6b84a23d-c4ec-41c1-a35d-e6c0af5af2a0',
+            title=_('Miss'), shortcut=_('Ms.'),
+        ),
+        Civility(
+            uuid='08e68afd-64aa-4981-a1db-4bde37b08655',
+            title=_('Mister'), shortcut=_('Mr.'),
+        ),
+        Civility(
+            uuid='547504b3-a886-4837-9170-62f2bc706e7f',
+            title=_('N/A'), shortcut='',
+        ),
+    ]
+    POSITIONS = [
+        Position(uuid='1534eb82-f55c-45ef-af2e-4e2d5d68218f', title=_('CEO')),
+        Position(uuid='7e10f7f8-730c-45b4-8e81-6b2e4cfbab36', title=_('Secretary')),
+        Position(uuid='9669e6a9-4661-4248-bc7c-d675f6e13216', title=_('Technician')),
+    ]
+    SECTORS = [
+        Sector(uuid='4995508b-069b-4ad5-a07d-9ae9c17918f2', title=_('Food Industry')),
+        Sector(uuid='06581ce8-e5ab-4875-b18d-b1ae366a9073', title=_('Industry')),
+        Sector(uuid='d3d16967-b4e4-4dff-a401-c97ab36fa9a2', title=_('Software')),
+        Sector(uuid='471ec83d-d7cc-4b51-8ff4-b3b16c339927', title=_('Telecom')),
+        Sector(uuid='115ecac3-dda1-4388-ad8c-c1d4d6e86214', title=_('Restoration')),
+    ]
+    LEGAL_FORMS = [
+        # TODO: add data depending on the current country
+        LegalForm(uuid='0f9ffebf-ae6a-4314-bf78-5ac33c477385', title='SARL'),
+        LegalForm(uuid='97ec5342-cfcd-47f2-9977-03238a4bb815', title='Association loi 1901'),
+        LegalForm(uuid='2a18cf05-19bd-47d1-96d0-7dd2ea969e74', title='SA'),
+        LegalForm(uuid='2085dfac-9714-407c-972b-2256e8472124', title='SAS'),
+    ]
+    STAFF_SIZES = [
+        StaffSize(uuid='625f5c71-db51-48f7-b548-63360d0b6653', size='1 - 5',     order=1),
+        StaffSize(uuid='405efcfb-b6cc-4996-8062-b0794d6b718b', size='6 - 10',    order=2),
+        StaffSize(uuid='57b8a9f0-b672-473a-bc77-db0cd73f4d71', size='11 - 50',   order=3),
+        StaffSize(uuid='bab5348c-9a46-4a05-a72e-b94db229f818', size='51 - 100',  order=4),
+        StaffSize(uuid='fd1a7587-624f-4cd1-adbc-309e237cfe91', size='100 - 500', order=5),
+        StaffSize(uuid='ca0a585c-a40d-480c-86d0-c9610c93b23b', size='> 500',     order=6),
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -129,10 +173,12 @@ class Populator(BasePopulator):
         )
 
     def _populate_civilities(self):
-        create_if_needed(Civility, {'pk': 1}, title=_('Madam'),  shortcut=_('Mrs.'))
-        create_if_needed(Civility, {'pk': 2}, title=_('Miss'),   shortcut=_('Ms.'))
-        create_if_needed(Civility, {'pk': 3}, title=_('Mister'), shortcut=_('Mr.'))
-        create_if_needed(Civility, {'pk': 4}, title=_('N/A'),    shortcut='')
+        # create_if_needed(Civility, {'pk': 1}, title=_('Madam'),  shortcut=_('Mrs.'))
+        # create_if_needed(Civility, {'pk': 2}, title=_('Miss'),   shortcut=_('Ms.'))
+        # create_if_needed(Civility, {'pk': 3}, title=_('Mister'), shortcut=_('Mr.'))
+        # create_if_needed(Civility, {'pk': 4}, title=_('N/A'),    shortcut='')
+        for civ in self.CIVILITIES:
+            civ.save()
 
     def _populate_managed_organisation(self):
         # TODO: add relationship to admin?
@@ -144,32 +190,38 @@ class Populator(BasePopulator):
             )
 
     def _populate_positions(self):
-        # TODO: for pk, title in enumerate(self.POSITIONS, start=1)
-        create_if_needed(Position, {'pk': 1}, title=_('CEO'))
-        create_if_needed(Position, {'pk': 2}, title=_('Secretary'))
-        create_if_needed(Position, {'pk': 3}, title=_('Technician'))
+        # create_if_needed(Position, {'pk': 1}, title=_('CEO'))
+        # create_if_needed(Position, {'pk': 2}, title=_('Secretary'))
+        # create_if_needed(Position, {'pk': 3}, title=_('Technician'))
+        for position in self.POSITIONS:
+            position.save()
 
     def _populate_sectors(self):
-        create_if_needed(Sector, {'pk': 1}, title=_('Food Industry'))
-        create_if_needed(Sector, {'pk': 2}, title=_('Industry'))
-        create_if_needed(Sector, {'pk': 3}, title=_('Software'))
-        create_if_needed(Sector, {'pk': 4}, title=_('Telecom'))
-        create_if_needed(Sector, {'pk': 5}, title=_('Restoration'))
+        # create_if_needed(Sector, {'pk': 1}, title=_('Food Industry'))
+        # create_if_needed(Sector, {'pk': 2}, title=_('Industry'))
+        # create_if_needed(Sector, {'pk': 3}, title=_('Software'))
+        # create_if_needed(Sector, {'pk': 4}, title=_('Telecom'))
+        # create_if_needed(Sector, {'pk': 5}, title=_('Restoration'))
+        for sector in self.SECTORS:
+            sector.save()
 
     def _populate_legal_forms(self):
-        # TODO: add data depending on the current country
-        create_if_needed(LegalForm, {'pk': 1}, title='SARL')
-        create_if_needed(LegalForm, {'pk': 2}, title='Association loi 1901')
-        create_if_needed(LegalForm, {'pk': 3}, title='SA')
-        create_if_needed(LegalForm, {'pk': 4}, title='SAS')
+        # create_if_needed(LegalForm, {'pk': 1}, title='SARL')
+        # create_if_needed(LegalForm, {'pk': 2}, title='Association loi 1901')
+        # create_if_needed(LegalForm, {'pk': 3}, title='SA')
+        # create_if_needed(LegalForm, {'pk': 4}, title='SAS')
+        for lform in self.LEGAL_FORMS:
+            lform.save()
 
     def _populate_staff_sizes(self):
-        create_if_needed(StaffSize, {'pk': 1}, size='1 - 5',     order=1)
-        create_if_needed(StaffSize, {'pk': 2}, size='6 - 10',    order=2)
-        create_if_needed(StaffSize, {'pk': 3}, size='11 - 50',   order=3)
-        create_if_needed(StaffSize, {'pk': 4}, size='51 - 100',  order=4)
-        create_if_needed(StaffSize, {'pk': 5}, size='100 - 500', order=5)
-        create_if_needed(StaffSize, {'pk': 6}, size='> 500',     order=6)
+        # create_if_needed(StaffSize, {'pk': 1}, size='1 - 5',     order=1)
+        # create_if_needed(StaffSize, {'pk': 2}, size='6 - 10',    order=2)
+        # create_if_needed(StaffSize, {'pk': 3}, size='11 - 50',   order=3)
+        # create_if_needed(StaffSize, {'pk': 4}, size='51 - 100',  order=4)
+        # create_if_needed(StaffSize, {'pk': 5}, size='100 - 500', order=5)
+        # create_if_needed(StaffSize, {'pk': 6}, size='> 500',     order=6)
+        for size in self.STAFF_SIZES:
+            size.save()
 
     def _populate_relation_types(self):
         Contact      = self.Contact
