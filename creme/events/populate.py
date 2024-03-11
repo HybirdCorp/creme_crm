@@ -33,7 +33,7 @@ from creme.creme_core.models import (
     RelationType,
     SearchConfigItem,
 )
-from creme.creme_core.utils import create_if_needed
+# from creme.creme_core.utils import create_if_needed
 from creme.opportunities import get_opportunity_model
 from creme.persons import get_contact_model
 
@@ -66,11 +66,16 @@ class Populator(BasePopulator):
         self._populate_event_types()
 
     def _populate_event_types(self):
-        for i, name in enumerate(
-            [_('Show'), _('Conference'), _('Breakfast'), _('Brunch')],
-            start=1,
-        ):
-            create_if_needed(EventType, {'pk': i}, name=name)
+        # for i, name in enumerate(
+        #     [_('Show'), _('Conference'), _('Breakfast'), _('Brunch')],
+        #     start=1,
+        # ):
+        #     create_if_needed(EventType, {'pk': i}, name=name)
+        create_type = EventType.objects.create
+        create_type(uuid='d4928cbc-6afd-40bf-9d07-815b8b920b39', name=_('Show'))
+        create_type(uuid='254fda4f-1a01-47e1-b5aa-a1b2d4ef2890', name=_('Conference'))
+        create_type(uuid='b520fe79-98f4-4362-8293-b4febd46c9df', name=_('Breakfast'))
+        create_type(uuid='42c72e13-9f47-4ea8-bd9b-0a0764ceea19', name=_('Brunch'))
 
     def _populate_relation_types(self):
         Event = self.Event
