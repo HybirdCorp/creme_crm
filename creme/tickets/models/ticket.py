@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,9 +28,10 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CREME_REPLACE, CremeEntity
 
+from ..constants import UUID_STATUS_OPEN
 from .criticity import Criticity
 from .priority import Priority
-from .status import OPEN_PK, Status
+from .status import Status  # OPEN_PK
 
 
 class TicketNumber(models.Model):
@@ -105,8 +106,13 @@ class AbstractTicket(TicketMixin):
     def get_html_attrs(self, context):
         attrs = super().get_html_attrs(context)
 
-        if self.status_id == OPEN_PK and \
-           (context['today'] - self.created) > timedelta(days=settings.TICKETS_COLOR_DELAY):
+        # if self.status_id == OPEN_PK and \
+        #    (context['today'] - self.created) > timedelta(days=settings.TICKETS_COLOR_DELAY):
+        #     attrs['data-color'] = 'tickets-important'
+        if (
+            str(self.status.uuid) == UUID_STATUS_OPEN
+            and (context['today'] - self.created) > timedelta(days=settings.TICKETS_COLOR_DELAY)
+        ):
             attrs['data-color'] = 'tickets-important'
 
         return attrs
@@ -119,7 +125,9 @@ class AbstractTicket(TicketMixin):
                 if update_fields is not None:
                     update_fields = {'closing_date', *update_fields}
         else:  # Creation
-            self.status_id = self.status_id or OPEN_PK
+            # self.status_id = self.status_id or OPEN_PK
+            if not self.status_id:
+                self.status = Status.objects.get(uuid=UUID_STATUS_OPEN)
 
             # Number management
             number_id = TicketNumber.objects.create().id

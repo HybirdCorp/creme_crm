@@ -9,6 +9,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 import creme.creme_core.tests.views.base as views_base
 from creme.creme_core.core.function_field import function_field_registry
@@ -19,14 +20,15 @@ from creme.creme_core.tests.base import CremeTestCase
 from creme.persons import get_contact_model
 
 from . import (
+    constants,
     get_ticket_model,
     get_tickettemplate_model,
     ticket_model_is_custom,
     tickettemplate_model_is_custom,
 )
 from .bricks import TicketBrick
+# from .models.status import BASE_STATUS, CLOSED_PK, INVALID_PK, OPEN_PK
 from .models import Criticity, Priority, Status, TicketNumber
-from .models.status import BASE_STATUS, CLOSED_PK, INVALID_PK, OPEN_PK
 
 skip_ticket_tests = ticket_model_is_custom()
 skip_tickettemplate_tests = tickettemplate_model_is_custom()
@@ -48,17 +50,28 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
                      views_base.BrickTestCaseMixin,
                      CremeTestCase):
     def test_populate(self):
-        for pk, name, is_closed, color in BASE_STATUS:
-            try:
-                status = Status.objects.get(pk=pk)
-            except Status.DoesNotExist:
-                self.fail(f"Bad populate: status with pk={pk} ({name}) doesn't exist")
-            else:
-                self.assertEqual(name, status.name)
-                self.assertEqual(color, status.color)
-                self.assertFalse(status.is_custom)
-                self.assertIsNotNone(status.order)
-                self.assertIs(status.is_closed, is_closed)
+        # for pk, name, is_closed, color in BASE_STATUS:
+        #     try:
+        #         status = Status.objects.get(pk=pk)
+        #     except Status.DoesNotExist:
+        #         self.fail(f"Bad populate: status with pk={pk} ({name}) doesn't exist")
+        #     else:
+        #         self.assertEqual(name, status.name)
+        #         self.assertEqual(color, status.color)
+        #         self.assertFalse(status.is_custom)
+        #         self.assertIsNotNone(status.order)
+        #         self.assertIs(status.is_closed, is_closed)
+        open_status = self.get_object_or_fail(Status, uuid=constants.UUID_STATUS_OPEN)
+        self.assertEqual(pgettext('tickets-status', 'Open'), open_status.name)
+        self.assertEqual('f8f223',                           open_status.color)
+        self.assertEqual(1,                                  open_status.order)
+        self.assertFalse(open_status.is_closed)
+
+        closed_status = self.get_object_or_fail(Status, uuid=constants.UUID_STATUS_CLOSED)
+        self.assertEqual(pgettext('tickets-status', 'Closed'), closed_status.name)
+        self.assertEqual('1dd420',                             closed_status.color)
+        self.assertEqual(2,                                    closed_status.order)
+        self.assertTrue(closed_status.is_closed)
 
         self.assertGreaterEqual(Priority.objects.count(),  2)
         self.assertGreaterEqual(Criticity.objects.count(), 2)
@@ -111,7 +124,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         user = self.get_root_user()
         title = 'Test ticket'
         description = 'Test description'
-        status1 = Status.objects.get(pk=OPEN_PK)
+        # status1 = Status.objects.get(pk=OPEN_PK)
+        status1 = Status.objects.get(uuid=constants.UUID_STATUS_OPEN)
         priority = Priority.objects.all()[0]
         criticity = Criticity.objects.all()[0]
         ticket = Ticket.objects.create(
@@ -131,7 +145,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertIsNone(ticket.closing_date)
 
         # ---
-        status2 = Status.objects.get(pk=INVALID_PK)
+        # status2 = Status.objects.get(pk=INVALID_PK)
+        status2 = Status.objects.get(uuid=constants.UUID_STATUS_INVALID)
         ticket.status = status2
         ticket.save()
         ticket.refresh_from_db()
@@ -151,7 +166,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         ticket = Ticket.objects.create(
             user=user,
             title='Test ticket',
-            status=Status.objects.get(pk=OPEN_PK),
+            # status=Status.objects.get(pk=OPEN_PK),
+            status=Status.objects.get(uuid=constants.UUID_STATUS_OPEN),
             priority=Priority.objects.all()[0],
             criticity=Criticity.objects.all()[0],
         )
@@ -177,7 +193,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             user=user,
             title=title,
             description=description,
-            status=Status.objects.get(pk=OPEN_PK),
+            # status=Status.objects.get(pk=OPEN_PK),
+            status=Status.objects.get(uuid=constants.UUID_STATUS_OPEN),
             priority=priority,
             criticity=criticity,
         )
@@ -248,7 +265,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertEqual(description,  ticket.description)
         self.assertEqual(priority,     ticket.priority)
         self.assertEqual(criticity,    ticket.criticity)
-        self.assertEqual(OPEN_PK,      ticket.status_id)
+        # self.assertEqual(OPEN_PK,      ticket.status_id)
+        self.assertUUIDEqual(constants.UUID_STATUS_OPEN, ticket.status.uuid)
 
         self.assertTrue(ticket.number)
         self.assertNotEqual(number, ticket.number)
@@ -290,7 +308,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             user=user,
             title='title',
             description='description',
-            status=get_status(pk=OPEN_PK),
+            # status=get_status(pk=OPEN_PK),
+            status=get_status(uuid=constants.UUID_STATUS_OPEN),
             priority=Priority.objects.all()[0],
             criticity=Criticity.objects.all()[0],
         )
@@ -299,7 +318,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
         self.assertEqual('', funf(ticket, user).render(ViewTag.HTML_LIST))
 
-        ticket.status = get_status(pk=CLOSED_PK)
+        # ticket.status = get_status(pk=CLOSED_PK)
+        ticket.status = get_status(uuid=constants.UUID_STATUS_CLOSED)
         ticket.save()
         self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
         self.assertEqual(
@@ -315,7 +335,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             user=user,
             title='title',
             description='description',
-            status=Status.objects.get(pk=CLOSED_PK),
+            # status=Status.objects.get(pk=CLOSED_PK),
+            status=Status.objects.get(uuid=constants.UUID_STATUS_CLOSED),
             priority=Priority.objects.all()[0],
             criticity=Criticity.objects.all()[0],
         )
@@ -330,7 +351,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             user=user,
             title='title',
             description='description',
-            status=Status.objects.get(pk=OPEN_PK),
+            # status=Status.objects.get(pk=OPEN_PK),
+            status=Status.objects.get(uuid=constants.UUID_STATUS_OPEN),
             priority=Priority.objects.all()[0],
             criticity=Criticity.objects.all()[0],
         )
@@ -340,6 +362,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
 
         title = 'Test ticket'
         description = 'Test description'
+        status = self.get_object_or_fail(Status, uuid=constants.UUID_STATUS_INVALID)
         priority = Priority.objects.all()[1]
         criticity = Criticity.objects.all()[1]
         response = self.client.post(
@@ -349,7 +372,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
                 'user':         user.pk,
                 'title':        title,
                 'description':  description,
-                'status':       INVALID_PK,
+                # 'status':       INVALID_PK,
+                'status':       status.id,
                 'priority':     priority.id,
                 'criticity':    criticity.id,
             },
@@ -361,7 +385,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertEqual(criticity,    ticket.criticity)
         self.assertEqual(title,        ticket.title)
         self.assertEqual(description,  ticket.description)
-        self.assertEqual(INVALID_PK,   ticket.status.id)
+        # self.assertEqual(INVALID_PK,   ticket.status.id)
+        self.assertUUIDEqual(constants.UUID_STATUS_INVALID, ticket.status.uuid)
         self.assertFalse(ticket.closing_date)
 
         self.assertRedirects(response, ticket.get_absolute_url())
@@ -377,11 +402,13 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             user=user,
             title=title,
             description=description,
-            status=Status.objects.get(pk=OPEN_PK),
+            # status=Status.objects.get(pk=OPEN_PK),
+            status=Status.objects.get(uuid=constants.UUID_STATUS_OPEN),
             priority=priority,
             criticity=criticity,
         )
 
+        status = Status.objects.get(uuid=constants.UUID_STATUS_CLOSED)
         response = self.client.post(
             ticket.get_edit_absolute_url(),
             follow=True,
@@ -389,7 +416,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
                 'user':         user.pk,
                 'title':        title,
                 'description':  description,
-                'status':       CLOSED_PK,
+                # 'status':       CLOSED_PK,
+                'status':       status.id,
                 'priority':     priority.id,
                 'criticity':    criticity.id,
             },
@@ -398,7 +426,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertRedirects(response, ticket.get_absolute_url())
 
         ticket = self.refresh(ticket)
-        self.assertEqual(CLOSED_PK, ticket.status_id)
+        # self.assertEqual(CLOSED_PK, ticket.status_id)
+        self.assertUUIDEqual(constants.UUID_STATUS_CLOSED, ticket.status.uuid)
 
         self.assertTrue(ticket.closing_date)
 
@@ -418,7 +447,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             user=user,
             title='Test ticket',
             description='Test description',
-            status=Status.objects.get(pk=OPEN_PK),
+            # status=Status.objects.get(pk=OPEN_PK),
+            status=Status.objects.get(uuid=constants.UUID_STATUS_OPEN),
             priority=Priority.objects.all()[0],
             criticity=Criticity.objects.all()[0],
         )
@@ -462,7 +492,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             user=user,
             title='title',
             description='description',
-            status=Status.objects.get(pk=OPEN_PK),
+            # status=Status.objects.get(pk=OPEN_PK),
+            status=Status.objects.get(uuid=constants.UUID_STATUS_OPEN),
             priority=Priority.objects.all()[0],
             criticity=Criticity.objects.all()[0],
         )
@@ -482,7 +513,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             user=user,
             title='title',
             description='description',
-            status=Status.objects.get(pk=OPEN_PK),
+            # status=Status.objects.get(pk=OPEN_PK),
+            status=Status.objects.get(uuid=constants.UUID_STATUS_OPEN),
             priority=Priority.objects.all()[0],
             criticity=Criticity.objects.all()[0],
         )
@@ -506,8 +538,10 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         user = self.login_as_root_and_get()
 
         get_status = Status.objects.get
-        status_open   = get_status(pk=OPEN_PK)
-        status_closed = get_status(pk=CLOSED_PK)
+        # status_open   = get_status(pk=OPEN_PK)
+        status_open   = get_status(uuid=constants.UUID_STATUS_OPEN)
+        # status_closed = get_status(pk=CLOSED_PK)
+        status_closed = get_status(uuid=constants.UUID_STATUS_CLOSED)
 
         ticket = Ticket.objects.create(
             user=user,
@@ -712,7 +746,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             user=user,
             title='My ticket',
             description='Test description',
-            status=get_status(pk=OPEN_PK),
+            # status=get_status(pk=OPEN_PK),
+            status=get_status(uuid=constants.UUID_STATUS_OPEN),
             priority=Priority.objects.all()[0],
             criticity=Criticity.objects.all()[0],
         )
@@ -728,14 +763,18 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             create_ticket().get_html_attrs(context),
         )
         self.assertFalse(
-            create_ticket(status=get_status(pk=CLOSED_PK)).get_html_attrs(context),
+            # create_ticket(status=get_status(pk=CLOSED_PK)).get_html_attrs(context),
+            create_ticket(
+                status=get_status(uuid=constants.UUID_STATUS_CLOSED),
+            ).get_html_attrs(context),
         )
 
 
 @skipIfCustomTicketTemplate
 class TicketTemplateTestCase(CremeTestCase):
     def create_template(self, *, user, title, description='description', status=None):
-        status = status or Status.objects.get(pk=OPEN_PK)
+        # status = status or Status.objects.get(pk=OPEN_PK)
+        status = status or Status.objects.get(uuid=constants.UUID_STATUS_OPEN)
 
         return TicketTemplate.objects.create(
             user=user,
@@ -795,9 +834,10 @@ class TicketTemplateTestCase(CremeTestCase):
     @skipIfCustomTicket
     def test_create_entity01(self):
         user = self.login_as_root_and_get()
-
         template = self.create_template(
-            user=user, title='Title', status=Status.objects.get(pk=OPEN_PK),
+            # user=user, title='Title', status=Status.objects.get(pk=OPEN_PK),
+            user=user, title='Title',
+            status=Status.objects.get(uuid=constants.UUID_STATUS_OPEN),
         )
 
         with self.assertNoException():
@@ -815,7 +855,9 @@ class TicketTemplateTestCase(CremeTestCase):
         "status=CLOSED_PK."
         user = self.login_as_root_and_get()
         template = self.create_template(
-            user=user, title='Title', status=Status.objects.get(pk=CLOSED_PK),
+            # user=user, title='Title', status=Status.objects.get(pk=CLOSED_PK),
+            user=user, title='Title',
+            status=Status.objects.get(uuid=constants.UUID_STATUS_CLOSED),
         )
 
         with self.assertNoException():
