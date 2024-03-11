@@ -335,6 +335,9 @@
                     - A data migration fixes the UUIDs of the 3 Priorities provided by default, and stores the old UUIDs in their field "meta_data".
             * Documents :
                 - In the context of the brick 'ChildFoldersBrick', "folder_model" is not injected anymore.
+            * Products :
+                - The UUIDs of the instances of the models 'Category' & 'SubCategory' created by the 'populate' script are now fixed (to be consistent between Creme instances).
+                  A data migration fixes the UUIDs of the instances provided by default, and stores the old UUIDs in their field "meta_data".
             * Billing :
                 - The method 'populate.Populator.create_reports()' has been replaced by a new one, '_populate_reports()'.
             * Opportunities :
