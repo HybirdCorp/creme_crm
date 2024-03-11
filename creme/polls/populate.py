@@ -27,6 +27,7 @@ from creme import persons, polls
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+# from creme.creme_core.utils import create_if_needed
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CustomFormConfigItem,
@@ -34,7 +35,6 @@ from creme.creme_core.models import (
     MenuConfigItem,
     SearchConfigItem,
 )
-from creme.creme_core.utils import create_if_needed
 
 from . import bricks, constants, custom_forms, menu
 from .models import PollType
@@ -64,9 +64,13 @@ class Populator(BasePopulator):
         self._populate_poll_types()
 
     def _populate_poll_types(self):
-        create_if_needed(PollType, {'pk': 1}, name=_('Survey'))
-        create_if_needed(PollType, {'pk': 2}, name=_('Monitoring'))
-        create_if_needed(PollType, {'pk': 3}, name=_('Assessment'))
+        # create_if_needed(PollType, {'pk': 1}, name=_('Survey'))
+        # create_if_needed(PollType, {'pk': 2}, name=_('Monitoring'))
+        # create_if_needed(PollType, {'pk': 3}, name=_('Assessment'))
+        create_ptype = PollType.objects.create
+        create_ptype(uuid='90d3d792-4354-43d2-8da2-9abf7cdd1421', name=_('Survey'))
+        create_ptype(uuid='f3568c0a-ba44-485d-b4f3-88dac5c9477b', name=_('Monitoring'))
+        create_ptype(uuid='3b50033a-b77c-43e4-88ae-145e433dc1ca', name=_('Assessment'))
 
     def _populate_header_filters(self):
         create_hf = HeaderFilter.objects.create_if_needed

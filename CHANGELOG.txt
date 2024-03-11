@@ -347,6 +347,9 @@
             * Events :
                 - The UUIDs of the instances of 'models.EventType' created by the 'populate' script are now fixed (to be consistent between Creme instances).
                   A data migration fixes the UUIDs of the 4 types provided by default, and stores the old UUIDs in their field "meta_data".
+            * Polls :
+                - The UUIDs of the instances of 'models.PollType' created by the 'populate' script are now fixed (to be consistent between Creme instances).
+                  A data migration fixes the UUIDs of the 3 types provided by default, and stores the old UUIDs in their field "meta_data".
             * Crudity :
                 - The method 'bricks.CrudityHistoryBrick.generate_id()' has been removed.
             * CTI :
