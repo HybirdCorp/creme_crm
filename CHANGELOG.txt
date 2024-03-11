@@ -343,6 +343,8 @@
                 - The method 'populate.Populator.create_report_n_graphes()' has been replaced by a new one, '_populate_report_n_graphes()'.
             * Commercial :
                 - The value 'constants.PROP_IS_A_SALESMAN' has been replaced by 'UUID_PROP_IS_A_SALESMAN'.
+                - The UUIDs of the instances of 'models.ActtType' created by the 'populate' script are now fixed (to be consistent between Creme instances).
+                  A data migration fixes the UUIDs of the instances provided by default, and stores the old UUIDs in their field "meta_data".
             * Tickets :
                 - The UUIDs of the instances of models 'Status', 'Priority' & 'Criticity' created by the 'populate' script are now fixed (to be consistent between Creme instances).
                     - In 'models.status', the constants '*_PK' & 'BASE_STATUS' have been removed.
