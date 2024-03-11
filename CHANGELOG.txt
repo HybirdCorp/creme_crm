@@ -289,7 +289,10 @@
                 - The class-view 'views.user_settings.UserSettings' does not inject "apps_usersettings_bricks" in the context anymore.
                 - The template 'user_settings.html' has been renamed 'user-settings.html' to be more consistent.
             * Persons :
-                - In the method 'models.Address.info_field_names()' (use by several form generators for Address),
+                - The UUIDs of the instances of the models 'Civility', 'Position', 'Sector', 'LegalForm' & 'StaffSize'
+                  created by the 'populate' script are now fixed (to be consistent between Creme instances).
+                  A data migration fixes the UUIDs of the 5 types provided by default, and stores the old UUIDs in their field "meta_data".
+                - In the method 'models.Address.info_field_names()' (used by several form generators for Address),
                   the excluded fields are just not-viewable fields (it was a hard coded list before).
                 - The hat-card bricks have been reworked to facilitate the modification of small summaries (activities, acts, opportunities).
                   A base class 'CardSummary' has been introduced. The classes 'ContactCardHatBrick' & 'OrganisationCardHatBrick' get
