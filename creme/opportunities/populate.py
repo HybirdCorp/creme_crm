@@ -64,6 +64,72 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities', 'products', 'billing']
 
     SEARCH = ['name', 'made_sales', 'sales_phase__name', 'origin__name']
+    SALES_PHASES = [
+        SalesPhase(
+            uuid='9fc5ff38-b358-4131-b03e-6c1f800bfb08',
+            order=1, name=_('Forthcoming'),
+        ),
+        SalesPhase(
+            uuid='4445c750-bcec-4fcd-afb2-c9e35a3bf38c',
+            order=2, name=_('In progress'),
+        ),
+        SalesPhase(
+            uuid='aa59fcec-2dde-46e1-a362-c30c18386c19',
+            order=3, name=_('Under negotiation'),
+        ),
+        SalesPhase(
+            uuid='779931a8-a2ed-47b1-96a1-8694452e9905',
+            order=4, name=pgettext('opportunities-sales_phase', 'Abandoned'),
+        ),
+        SalesPhase(
+            uuid='d8b5429f-89e5-46cc-9e53-5d1a0127f880',
+            order=5, name=pgettext('opportunities-sales_phase', 'Won'),
+            won=True, color='1dd420',
+        ),
+        SalesPhase(
+            uuid='597d796e-a368-48f0-8dfb-56f16965792b',
+            order=6, name=pgettext('opportunities-sales_phase', 'Lost'),
+            lost=True, color='ae4444',
+        ),
+    ]
+    ORIGINS = [
+        Origin(
+            uuid='814e485e-418a-42d5-a6ef-720aaffee7a0',
+            name=pgettext('opportunities-origin', 'None'),
+        ),
+        Origin(
+            uuid='96f55fa8-df31-4d64-8f7e-c0b5f1ca0bc6',
+            name=_('Web site'),
+        ),
+        Origin(
+            uuid='0e914271-b162-4554-afae-837916378220',
+            name=_('Mouth'),
+        ),
+        Origin(
+            uuid='14d5bb2f-5ad7-46ab-a194-59f2bb105b66',
+            name=_('Show'),
+        ),
+        Origin(
+            uuid='0f23d337-7a64-4f22-9448-7c0d2df9891b',
+            name=_('Direct email'),
+        ),
+        Origin(
+            uuid='b4e097b9-05c0-4fc9-8c12-bc62cf106046',
+            name=_('Direct phone call'),
+        ),
+        Origin(
+            uuid='c8632a03-4b78-4c00-8e45-7b04bacab2e8',
+            name=_('Employee'),
+        ),
+        Origin(
+            uuid='9bb9012f-a4dd-4e4c-8fb8-65c2aaaea789',
+            name=_('Partner'),
+        ),
+        Origin(
+            uuid='4b0a0229-cd0d-400d-8fb5-29a1479c41fe',
+            name=pgettext('opportunities-origin', 'Other'),
+        ),
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -92,33 +158,37 @@ class Populator(BasePopulator):
             self._populate_report_n_graphes()
 
     def _populate_phases(self):
-        create_sphase = SalesPhase.objects.create
-        create_sphase(order=1, name=_('Forthcoming'))
-        create_sphase(order=2, name=_('In progress'))
-        create_sphase(order=3, name=_('Under negotiation'))
-        create_sphase(
-            order=4, name=pgettext('opportunities-sales_phase', 'Abandoned'),
-        )
-        create_sphase(
-            order=5, name=pgettext('opportunities-sales_phase', 'Won'),
-            won=True, color='1dd420',
-        )
-        create_sphase(
-            order=6, name=pgettext('opportunities-sales_phase', 'Lost'),
-            lost=True, color='ae4444',
-        )
+        # create_sphase = SalesPhase.objects.create
+        # create_sphase(order=1, name=_('Forthcoming'))
+        # create_sphase(order=2, name=_('In progress'))
+        # create_sphase(order=3, name=_('Under negotiation'))
+        # create_sphase(
+        #     order=4, name=pgettext('opportunities-sales_phase', 'Abandoned'),
+        # )
+        # create_sphase(
+        #     order=5, name=pgettext('opportunities-sales_phase', 'Won'),
+        #     won=True, color='1dd420',
+        # )
+        # create_sphase(
+        #     order=6, name=pgettext('opportunities-sales_phase', 'Lost'),
+        #     lost=True, color='ae4444',
+        # )
+        for sales_phase in self.SALES_PHASES:
+            sales_phase.save()
 
     def _populate_origins(self):
-        create_origin = Origin.objects.create
-        create_origin(name=pgettext('opportunities-origin', 'None'))
-        create_origin(name=_('Web site'))
-        create_origin(name=_('Mouth'))
-        create_origin(name=_('Show'))
-        create_origin(name=_('Direct email'))
-        create_origin(name=_('Direct phone call'))
-        create_origin(name=_('Employee'))
-        create_origin(name=_('Partner'))
-        create_origin(name=pgettext('opportunities-origin', 'Other'))
+        # create_origin = Origin.objects.create
+        # create_origin(name=pgettext('opportunities-origin', 'None'))
+        # create_origin(name=_('Web site'))
+        # create_origin(name=_('Mouth'))
+        # create_origin(name=_('Show'))
+        # create_origin(name=_('Direct email'))
+        # create_origin(name=_('Direct phone call'))
+        # create_origin(name=_('Employee'))
+        # create_origin(name=_('Partner'))
+        # create_origin(name=pgettext('opportunities-origin', 'Other'))
+        for origin in self.ORIGINS:
+            origin.save()
 
     def _populate_relation_types(self):
         Opportunity = self.Opportunity
