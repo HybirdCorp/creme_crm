@@ -347,6 +347,10 @@
             * Events :
                 - The UUIDs of the instances of 'models.EventType' created by the 'populate' script are now fixed (to be consistent between Creme instances).
                   A data migration fixes the UUIDs of the 4 types provided by default, and stores the old UUIDs in their field "meta_data".
+            * Projects :
+                - The UUIDs of the instances of 'models.ProjectStatus' & 'models.TaskStatus' created by the 'populate' script are now fixed (to be consistent between Creme instances).
+                    - The constants '*_PK' & 'TASK_STATUS' (and the class 'TaskStatusDesc') have been removed.
+                    - A data migration fixes the UUIDs of the Statuses provided by default, and stores the old UUIDs in their field "meta_data".
             * Polls :
                 - The UUIDs of the instances of 'models.PollType' created by the 'populate' script are now fixed (to be consistent between Creme instances).
                   A data migration fixes the UUIDs of the 3 types provided by default, and stores the old UUIDs in their field "meta_data".

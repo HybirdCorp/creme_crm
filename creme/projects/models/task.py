@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,11 +25,12 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CREME_REPLACE, CremeEntity, Relation
 
+# from ..constants import CANCELED_PK, COMPLETED_PK
 from ..constants import (
-    CANCELED_PK,
-    COMPLETED_PK,
     REL_OBJ_LINKED_2_PTASK,
     REL_SUB_PART_AS_RESOURCE,
+    UUID_TSTATUS_CANCELED,
+    UUID_TSTATUS_COMPLETED,
 )
 from .taskstatus import TaskStatus
 
@@ -170,7 +171,9 @@ class AbstractProjectTask(CremeEntity):
 
     # TODO: property
     def is_alive(self):
-        return self.tstatus_id not in (COMPLETED_PK, CANCELED_PK)
+        # TODO: boolean field if TaskStatus instead?
+        # return self.tstatus_id not in (COMPLETED_PK, CANCELED_PK)
+        return str(self.tstatus.uuid) not in (UUID_TSTATUS_COMPLETED, UUID_TSTATUS_CANCELED)
 
     def _clone_m2m(self, source):  # Handled manually in clone_scope
         pass

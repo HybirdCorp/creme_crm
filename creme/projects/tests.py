@@ -40,13 +40,14 @@ from . import (
     task_model_is_custom,
 )
 from .actions import ProjectCloseAction
+# from .constants import COMPLETED_PK, NOT_STARTED_PK
 from .constants import (
-    COMPLETED_PK,
-    NOT_STARTED_PK,
     REL_OBJ_PROJECT_MANAGER,
     REL_SUB_LINKED_2_PTASK,
     REL_SUB_PART_AS_RESOURCE,
     REL_SUB_PROJECT_MANAGER,
+    UUID_TSTATUS_COMPLETED,
+    UUID_TSTATUS_NOT_STARTED,
 )
 from .models import ProjectStatus, Resource, TaskStatus
 
@@ -197,7 +198,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             # sub_type_id = ActivitySubType.objects.filter(type=ACTIVITYTYPE_TASK).first().id
             sub_type_id = ActivitySubType.objects.filter(type__uuid=UUID_TYPE_TASK).first().id
 
-        status = status or TaskStatus.objects.get(pk=NOT_STARTED_PK)
+        # status = status or TaskStatus.objects.get(pk=NOT_STARTED_PK)
+        status = status or TaskStatus.objects.get(uuid=UUID_TSTATUS_NOT_STARTED)
         response = self.client.post(
             self._build_add_task_url(project), follow=True,
             data={
@@ -255,7 +257,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             user=user,
             linked_project=project,
             title='legs',
-            tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
+            # tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
+            tstatus=TaskStatus.objects.get(uuid=UUID_TSTATUS_NOT_STARTED),
             start=now_value,
             end=now_value + timedelta(days=3),
             duration=1,
@@ -970,7 +973,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva02')[0]
-        status = self.get_object_or_fail(TaskStatus, id=COMPLETED_PK)
+        # status = self.get_object_or_fail(TaskStatus, id=COMPLETED_PK)
+        status = self.get_object_or_fail(TaskStatus, uuid=UUID_TSTATUS_COMPLETED)
         task = self.create_task(project, 'legs', status=status)
 
         self.assertGET409(self._build_add_resource_url(task))
@@ -1232,7 +1236,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             user=user,
             linked_project=project,
             title='legs',
-            tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
+            # tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
+            tstatus=TaskStatus.objects.get(uuid=UUID_TSTATUS_NOT_STARTED),
             start=now_value,
             end=now_value + timedelta(days=3),
             duration=21,
@@ -1261,7 +1266,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         task = ProjectTask.objects.create(
             user=user,
             linked_project=project,
-            tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
+            # tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
+            tstatus=TaskStatus.objects.get(uuid=UUID_TSTATUS_NOT_STARTED),
             start=now_value,
             end=now_value + timedelta(days=3),
             duration=21,
