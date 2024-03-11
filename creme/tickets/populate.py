@@ -20,11 +20,13 @@ import logging
 
 from django.apps import apps
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 import creme.creme_core.bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+# from creme.creme_core.utils import create_if_needed
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
@@ -36,7 +38,6 @@ from creme.creme_core.models import (
     RelationType,
     SearchConfigItem,
 )
-from creme.creme_core.utils import create_if_needed
 
 from . import (
     constants,
@@ -45,8 +46,8 @@ from . import (
     get_tickettemplate_model,
 )
 from .menu import TicketsEntry
+# from .models.status import BASE_STATUS
 from .models import Criticity, Priority, Status
-from .models.status import BASE_STATUS
 
 logger = logging.getLogger(__name__)
 
@@ -58,9 +59,47 @@ class Populator(BasePopulator):
         'title', 'number', 'description',
         'status__name', 'priority__name', 'criticity__name',
     ]
-    PRIORITIES = [_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking')]
+    STATUSES = [
+        Status(
+            uuid=constants.UUID_STATUS_OPEN,
+            name=pgettext('tickets-status', 'Open'),
+            is_closed=False, color='f8f223', is_custom=False, order=1,
+        ),
+        Status(
+            uuid=constants.UUID_STATUS_CLOSED,
+            name=pgettext('tickets-status', 'Closed'),
+            is_closed=True, color='1dd420', is_custom=False, order=2,
+        ),
+        Status(
+            uuid=constants.UUID_STATUS_INVALID,
+            name=pgettext('tickets-status', 'Invalid'),
+            is_closed=False, color='adadad', is_custom=False, order=3,
+        ),
+        Status(
+            uuid=constants.UUID_STATUS_DUPLICATED,
+            name=pgettext('tickets-status', 'Duplicated'),
+            is_closed=False, color='ababab', is_custom=False, order=4,
+        ),
+        Status(
+            uuid=constants.UUID_STATUS_WONT_FIX,
+            name=_("Won't fix"),
+            is_closed=False, color='a387ab', is_custom=False, order=5,
+        ),
+    ]
+    PRIORITIES = [
+        Priority(uuid='87599d36-8133-41b7-a382-399d5e96b160', name=_('Low'),      order=1),
+        Priority(uuid='816cefa7-2f30-46a6-8baa-92e4647f44d3', name=_('Normal'),   order=2),
+        Priority(uuid='42c39215-cf78-4d0b-b00b-b54a6680f71a', name=_('High'),     order=3),
+        Priority(uuid='69bdbe35-cf99-4168-abb3-389aab6b7313', name=_('Urgent'),   order=4),
+        Priority(uuid='d2dba4cb-382c-4d94-8306-4ec739f03144', name=_('Blocking'), order=5),
+    ]
     CRITICALITY = [
-        _('Minor'), _('Major'), _('Feature'), _('Critical'), _('Enhancement'), _('Error'),
+        Criticity(uuid='368a6b62-c66e-4286-b841-1062f59133c9', name=_('Minor'),       order=1),
+        Criticity(uuid='1aa05ca4-68ec-4068-ac3b-b9ddffaeb0aa', name=_('Major'),       order=2),
+        Criticity(uuid='e5a2a80e-36e8-49fd-8b2b-e802ccd4090c', name=_('Feature'),     order=3),
+        Criticity(uuid='9937c865-d0e7-4f33-92f3-600814e293ad', name=_('Critical'),    order=4),
+        Criticity(uuid='8e509e5e-8bd6-4cd0-8f96-5c129f0a875d', name=_('Enhancement'), order=5),
+        Criticity(uuid='3bd07632-f3ad-415e-bb33-95c723e46aa5', name=_('Error'),       order=6),
     ]
 
     def __init__(self, *args, **kwargs):
@@ -84,16 +123,19 @@ class Populator(BasePopulator):
         self._populate_criticality()
 
     def _populate_statuses(self):
-        for pk, name, is_closed, color in BASE_STATUS:
-            create_if_needed(
-                Status,
-                {'pk': pk},
-                name=str(name),
-                is_closed=is_closed,
-                color=color,
-                is_custom=False,
-                order=pk,
-            )
+        # for pk, name, is_closed, color in BASE_STATUS:
+        #     create_if_needed(
+        #         Status,
+        #         {'pk': pk},
+        #         name=str(name),
+        #         is_closed=is_closed,
+        #         color=color,
+        #         is_custom=False,
+        #         order=pk,
+        #     )
+        for status in self.STATUSES:
+            if not Status.objects.filter(uuid=status.uuid).exists():
+                status.save()
 
     def _populate_fields_config(self):
         for model in (self.Ticket, self.TicketTemplate):
@@ -103,12 +145,18 @@ class Populator(BasePopulator):
             )
 
     def _populate_priorities(self):
-        for i, name in enumerate(self.PRIORITIES, start=1):
-            create_if_needed(Priority, {'pk': i}, name=name, order=i)
+        # for i, name in enumerate(self.PRIORITIES, start=1):
+        #     create_if_needed(Priority, {'pk': i}, name=name, order=i)
+        for priority in self.PRIORITIES:
+            if not Priority.objects.filter(uuid=priority.uuid).exists():
+                priority.save()
 
     def _populate_criticality(self):
-        for i, name in enumerate(self.CRITICALITY, start=1):
-            create_if_needed(Criticity, {'pk': i}, name=name, order=i)
+        # for i, name in enumerate(self.CRITICALITY, start=1):
+        #     create_if_needed(Criticity, {'pk': i}, name=name, order=i)
+        for criticality in self.CRITICALITY:
+            if not Criticity.objects.filter(uuid=criticality.uuid).exists():
+                criticality.save()
 
     def _populate_relation_types(self):
         RelationType.objects.smart_update_or_create(

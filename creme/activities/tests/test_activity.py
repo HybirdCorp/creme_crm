@@ -1340,7 +1340,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertEqual(meeting.id,             message.entity_id)
         self.assertEqual(meeting.entity_type_id, message.entity_content_type_id)
 
-        self.assertEqual({user, other_user}, {msg.recipient for msg in messages})
+        self.assertSetEqual({user, other_user}, {msg.recipient for msg in messages})
 
         self.assertIn(str(meeting), message.title)
 
