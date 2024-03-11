@@ -34,7 +34,7 @@ from creme.creme_core.models import (
     RelationType,
     SearchConfigItem,
 )
-from creme.creme_core.utils import create_if_needed
+# from creme.creme_core.utils import create_if_needed
 from creme.persons import get_contact_model
 
 from . import (
@@ -58,28 +58,76 @@ class Populator(BasePopulator):
         'TASK': ['linked_project__name', 'duration', 'tstatus__name'],
     }
     PROJECT_STATUSES = [
-        # (name, description)
-        (
-            _('Invitation to tender'),
-            _('Response to an invitation to tender'),
-        ), (
-            _('Initialization'),
-            _('The project is starting'),
-        ), (
-            _('Preliminary phase'),
-            _('The project is in the process of analysis and design'),
-        ), (
-            _('Achievement'),
-            _('The project is being implemented'),
-        ), (
-            _('Tests'),
-            _('The project is in the testing process (unit / integration / functional)'),
-        ), (
-            _('User acceptance tests'),
-            _('The project is in the user acceptance testing process'),
-        ), (
-            _('Finished'),
-            _('The project is finished')
+        ProjectStatus(
+            uuid='e0487a58-7c2a-45e9-a6da-f770c2f1bd53',
+            name=_('Invitation to tender'),
+            description=_('Response to an invitation to tender'),
+            order=1,
+        ),
+        ProjectStatus(
+            uuid='c065000b-51a8-4f73-8585-64893d30770f',
+            name=_('Initialization'),
+            description=_('The project is starting'),
+            order=2,
+        ),
+        ProjectStatus(
+            uuid='c9e3665d-2747-4ee9-a037-de751ae2a59a',
+            name=_('Preliminary phase'),
+            description=_('The project is in the process of analysis and design'),
+            order=3,
+        ),
+        ProjectStatus(
+            uuid='680c049d-d01f-4835-aa92-dc1455ee2e9f',
+            name=_('Achievement'),
+            description=_('The project is being implemented'),
+            order=4,
+        ),
+        ProjectStatus(
+            uuid='61d1f8dd-1849-4ec6-9cce-3b73e3f4d9ae',
+            name=_('Tests'),
+            description=_(
+                'The project is in the testing process (unit / integration / functional)'
+            ),
+            order=5,
+        ),
+        ProjectStatus(
+            uuid='27d1c818-d7c7-4200-ac6e-744998cfa9b7',
+            name=_('User acceptance tests'),
+            description=_('The project is in the user acceptance testing process'),
+            order=6,
+        ),
+        ProjectStatus(
+            uuid='a7d5caf2-c41c-4695-ab07-29300b2d19c1',
+            name=_('Finished'),
+            description=_('The project is finished'),
+            order=7,
+        ),
+    ]
+    TASK_STATUSES = [
+        TaskStatus(
+            uuid=constants.UUID_TSTATUS_NOT_STARTED,
+            name=_('Not started'), description=_('The task as not started yet'),
+            is_custom=False, order=1,
+        ),
+        TaskStatus(
+            uuid=constants.UUID_TSTATUS_IN_PROGRESS,
+            name=_('In progress'), description=_('The task is in progress'),
+            is_custom=False, order=2,
+        ),
+        TaskStatus(
+            uuid=constants.UUID_TSTATUS_CANCELED,
+            name=_('Canceled'), description=_('The task has been canceled'),
+            is_custom=False, order=3,
+        ),
+        TaskStatus(
+            uuid=constants.UUID_TSTATUS_RESTARTED,
+            name=_('Restarted'), description=_('The task has been restarted'),
+            is_custom=False, order=4,
+        ),
+        TaskStatus(
+            uuid=constants.UUID_TSTATUS_COMPLETED,
+            name=_('Completed'), description=_('The task is finished'),
+            is_custom=False, order=5,
         ),
     ]
 
@@ -106,18 +154,24 @@ class Populator(BasePopulator):
         self._populate_project_statuses()
 
     def _populate_task_statuses(self):
-        for pk, statusdesc in constants.TASK_STATUS.items():
-            create_if_needed(
-                TaskStatus, {'pk': pk}, name=str(statusdesc.name), order=pk,
-                description=str(statusdesc.verbose_name), is_custom=False,
-            )
+        # for pk, statusdesc in constants.TASK_STATUS.items():
+        #     create_if_needed(
+        #         TaskStatus, {'pk': pk}, name=str(statusdesc.name), order=pk,
+        #         description=str(statusdesc.verbose_name), is_custom=False,
+        #     )
+        for status in self.TASK_STATUSES:
+            if not TaskStatus.objects.filter(uuid=status.uuid).exists():
+                status.save()
 
     def _populate_project_statuses(self):
-        for pk, (name, description) in enumerate(self.PROJECT_STATUSES, start=1):
-            create_if_needed(
-                ProjectStatus, {'pk': pk},
-                name=name, order=pk, description=description,
-            )
+        # for pk, (name, description) in enumerate(self.PROJECT_STATUSES, start=1):
+        #     create_if_needed(
+        #         ProjectStatus, {'pk': pk},
+        #         name=name, order=pk, description=description,
+        #     )
+        for status in self.PROJECT_STATUSES:
+            if not ProjectStatus.objects.filter(uuid=status.uuid).exists():
+                status.save()
 
     def _populate_relation_types(self):
         create_rtype = RelationType.objects.smart_update_or_create
