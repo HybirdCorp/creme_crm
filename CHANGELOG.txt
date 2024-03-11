@@ -327,6 +327,9 @@
                 - The module 'creme_jobs' has been removed (_UserMessagesSendType etc...).
                 - In the model 'UserMessage', the field 'email_sent' & the method 'send_mails()' have been removed.
                 - In 'reminders', the attributes 'ReminderAlert.body' & 'ReminderTodo.body' have been removed.
+                - The UUIDs of the instances of 'models.UserMessagePriority' created by the 'populate' script are now fixed (to be consistent between Creme instances).
+                    - The constants 'PRIO_*' & 'USERMESSAGE_PRIORITIES' have been removed; you should use the new constants 'UUID_PRIORITY_*' instead.
+                    - A data migration fixes the UUIDs of the 3 Priorities provided by default, and stores the old UUIDs in their field "meta_data".
             * Documents :
                 - In the context of the brick 'ChildFoldersBrick', "folder_model" is not injected anymore.
             * Billing :

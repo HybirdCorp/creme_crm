@@ -375,8 +375,12 @@ class UserMessagesSubCell(_AssistantSubCell):
 
     def post_save_instance(self, *, instance: AbstractActivity, value, form):
         if value:
-            from creme.assistants.constants import PRIO_NOT_IMP_PK
-            from creme.assistants.models import UserMessage
+            # from creme.assistants.constants import PRIO_NOT_IMP_PK
+            from creme.assistants.constants import UUID_PRIORITY_NOT_IMPORTANT
+            from creme.assistants.models import (
+                UserMessage,
+                UserMessagePriority,
+            )
 
             title = gettext('[{software}] Activity created: {activity}').format(
                 software=settings.SOFTWARE_LABEL,
@@ -406,7 +410,9 @@ class UserMessagesSubCell(_AssistantSubCell):
             # UserMessage.create_messages(
             UserMessage.objects.create_for_users(
                 users=value, title=title,
-                body=body, priority_id=PRIO_NOT_IMP_PK,
+                body=body,
+                # priority_id=PRIO_NOT_IMP_PK,
+                priority=UserMessagePriority.objects.get(uuid=UUID_PRIORITY_NOT_IMPORTANT),
                 sender=instance.user, entity=instance,
             )
 

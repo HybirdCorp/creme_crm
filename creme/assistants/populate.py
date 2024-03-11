@@ -19,16 +19,18 @@
 from functools import partial
 
 # from django.conf import settings
+from django.utils.translation import gettext as _
+
 from creme.creme_core.core import notification
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 # from creme.creme_core.models import Job
+# from creme.creme_core.utils import create_if_needed
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
     NotificationChannel,
     SettingValue,
 )
-from creme.creme_core.utils import create_if_needed
 
 from . import constants
 from .bricks import AlertsBrick, MemosBrick, TodosBrick, UserMessagesBrick
@@ -42,16 +44,25 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def _already_populated(self):
-        return UserMessagePriority.objects.filter(pk=constants.PRIO_IMP_PK).exists()
+        # return UserMessagePriority.objects.filter(pk=constants.PRIO_IMP_PK).exists()
+        return UserMessagePriority.objects.exists()
 
     def _populate(self):
         self._populate_message_priorities()
         super()._populate()
 
     def _populate_message_priorities(self):
-        for pk, title in constants.USERMESSAGE_PRIORITIES.items():
-            create_if_needed(
-                UserMessagePriority, {'pk': pk}, title=str(title), is_custom=False,
+        # for pk, title in constants.USERMESSAGE_PRIORITIES.items():
+        #     create_if_needed(
+        #         UserMessagePriority, {'pk': pk}, title=str(title), is_custom=False,
+        #     )
+        for uid, title in [
+            (constants.UUID_PRIORITY_IMPORTANT,      _('Important')),
+            (constants.UUID_PRIORITY_VERY_IMPORTANT, _('Very important')),
+            (constants.UUID_PRIORITY_NOT_IMPORTANT,  _('Not important')),
+        ]:
+            UserMessagePriority.objects.get_or_create(
+                uuid=uid, defaults={'title': title, 'is_custom': False},
             )
 
     def _populate_setting_values(self):

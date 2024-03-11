@@ -56,7 +56,7 @@ class UserMessageForm(CremeModelForm):
         UserMessage.objects.create_for_users(
             users=cdata['users'],
             title=cdata['title'], body=cdata['body'],
-            priority_id=cdata['priority'].id,
+            priority=cdata['priority'],
             sender=self.user,
             entity=self.entity,
         )

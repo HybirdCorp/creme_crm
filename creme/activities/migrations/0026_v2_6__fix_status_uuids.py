@@ -26,7 +26,7 @@ def fix_uuids(apps, schema_editor):
 
     if count:
         print(
-            f'The UUID of {count} "Status" has been modified '
+            f'The UUID of {count} "Status" have been modified '
             f'(old ones are stored in meta_data).'
         )
 

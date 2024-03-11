@@ -56,7 +56,7 @@ class UserMessageManager(models.Manager):
     def create_for_users(self, *,
                          users: Iterable[core_models.CremeUser],
                          title: str, body: str,
-                         priority_id: int,
+                         priority: UserMessagePriority,
                          sender: core_models.CremeUser,
                          entity: core_models.CremeEntity | None,
                          ) -> None:
@@ -65,7 +65,8 @@ class UserMessageManager(models.Manager):
         @param users: Recipients of the messages; notice that duplicates are removed.
         @param title: Title of the messages.
         @param body: Body of the messages.
-        @param body: User which sent the messages.
+        @param priority: Priority of the messages.
+        @param sender: User which sent the messages.
         @param entity: optional related entity.
         """
         from creme.assistants.notification import MessageSentContent
@@ -83,7 +84,7 @@ class UserMessageManager(models.Manager):
             creation_date=now(),
             title=title,
             body=body,
-            priority_id=priority_id,
+            priority=priority,
             sender=sender,
             real_entity=entity,
         )
