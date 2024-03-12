@@ -1,13 +1,13 @@
 # FR LOCALISATION OF 'BILLING' APP
-# Copyright (C) 2023 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Billing 2.5\n"
+"Project-Id-Version: Creme Billing 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-18 11:24+0200\n"
+"POT-Creation-Date: 2024-03-13 12:08+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -630,12 +630,23 @@ msgctxt "billing-plural"
 msgid "Settlement terms"
 msgstr "Délais de règlement"
 
+msgid "Is default?"
+msgstr "Par défaut ?"
+
 msgctxt "billing-status"
 msgid "Create a status"
 msgstr "Créer un statut"
 
 msgid "Pending payment"
 msgstr "Paiement en attente"
+
+msgid "Is validated?"
+msgstr "Est validé?"
+
+msgid "If true, the status is used when an Invoice number is generated."
+msgstr ""
+"Si la valeur est oui, le statut est utilisé lorsqu'un numéro de Facture est "
+"généré."
 
 msgid "Invoice status"
 msgstr "Statut de facture"
@@ -711,9 +722,6 @@ msgstr "IBAN"
 
 msgid "BIC"
 msgstr "BIC"
-
-msgid "Is default?"
-msgstr "Par défaut ?"
 
 msgctxt "billing"
 msgid "Target organisation"
@@ -810,42 +818,6 @@ msgctxt "billing"
 msgid "Templates"
 msgstr "Patrons de document"
 
-msgid "issued by"
-msgstr "a été émis(e) par"
-
-msgid "has issued"
-msgstr "a émis"
-
-msgid "received by"
-msgstr "a été reçu(e) par"
-
-msgid "has received"
-msgstr "a reçu"
-
-msgid "has the line"
-msgstr "a la ligne"
-
-msgid "is the line of"
-msgstr "est la ligne de"
-
-msgid "has the related item"
-msgstr "a comme service/produit associé"
-
-msgid "is the related item of"
-msgstr "est le produit/service associé"
-
-msgid "is used in the billing document"
-msgstr "est consommé dans le document comptable"
-
-msgid "uses the credit note"
-msgstr "consomme l'avoir"
-
-msgid "(Invoice) converted from the Quote"
-msgstr "(Facture) convertie depuis le Devis"
-
-msgid "(Quote) converted to the Invoice"
-msgstr "(Devis) converti en Facture"
-
 msgid "Deposit"
 msgstr "Acompte"
 
@@ -915,39 +887,6 @@ msgctxt "billing-creditnote"
 msgid "Out of date"
 msgstr "Périmé"
 
-msgid "Invoices unpaid"
-msgstr "Factures impayées"
-
-msgid "Invoices unpaid and late"
-msgstr "Factures impayées et en retard"
-
-msgid "Current year invoices"
-msgstr "Factures de l'année en cours"
-
-msgid "Current year and unpaid invoices"
-msgstr "Factures impayées de l'année en cours"
-
-msgid "Invoice view"
-msgstr "Vue de Facture"
-
-msgid "Quote view"
-msgstr "Vue de Devis"
-
-msgid "Sales order view"
-msgstr "Vue de Bon de Commande"
-
-msgid "Credit note view"
-msgstr "Vue des Avoirs"
-
-msgid "Template view"
-msgstr "Vue de Patron"
-
-msgid "Product lines view"
-msgstr "Vue des lignes de produit"
-
-msgid "Service lines view"
-msgstr "Vue des lignes de service"
-
 msgctxt "billing-quote"
 msgid "Pending"
 msgstr "En attente"
@@ -987,17 +926,86 @@ msgstr ""
 "étant agrée formateur les formations pourront être prises en charge par "
 "votre OPCA"
 
+msgid "issued by"
+msgstr "a été émis(e) par"
+
+msgid "has issued"
+msgstr "a émis"
+
+msgid "received by"
+msgstr "a été reçu(e) par"
+
+msgid "has received"
+msgstr "a reçu"
+
+msgid "has the line"
+msgstr "a la ligne"
+
+msgid "is the line of"
+msgstr "est la ligne de"
+
+msgid "has the related item"
+msgstr "a comme service/produit associé"
+
+msgid "is the related item of"
+msgstr "est le produit/service associé"
+
+msgid "is used in the billing document"
+msgstr "est consommé dans le document comptable"
+
+msgid "uses the credit note"
+msgstr "consomme l'avoir"
+
+msgid "(Invoice) converted from the Quote"
+msgstr "(Facture) convertie depuis le Devis"
+
+msgid "(Quote) converted to the Invoice"
+msgstr "(Devis) converti en Facture"
+
+msgid "Invoices unpaid"
+msgstr "Factures impayées"
+
+msgid "Invoices unpaid and late"
+msgstr "Factures impayées et en retard"
+
+msgid "Current year invoices"
+msgstr "Factures de l'année en cours"
+
+msgid "Current year and unpaid invoices"
+msgstr "Factures impayées de l'année en cours"
+
+msgid "Invoice view"
+msgstr "Vue de Facture"
+
+msgid "Quote view"
+msgstr "Vue de Devis"
+
+msgid "Sales order view"
+msgstr "Vue de Bon de Commande"
+
+msgid "Credit note view"
+msgstr "Vue des Avoirs"
+
+msgid "Template view"
+msgstr "Vue de Patron"
+
+msgid "Product lines view"
+msgstr "Vue des lignes de produit"
+
+msgid "Service lines view"
+msgstr "Vue des lignes de service"
+
 msgid "Invoice information"
 msgstr "Informations sur la facture"
-
-msgid "Credit note information"
-msgstr "Informations sur l'avoir"
 
 msgid "Quote information"
 msgstr "Informations sur le devis"
 
 msgid "Salesorder information"
 msgstr "Informations sur le bon de commande"
+
+msgid "Credit note information"
+msgstr "Informations sur l'avoir"
 
 msgctxt "billing"
 msgid "Template information"
@@ -1235,8 +1243,8 @@ msgid ""
 "VAT is computed from totals (one product line is created to get the right "
 "totals)"
 msgstr ""
-"La TVA est calculée depuis les totaux (une ligne produit est "
-"créée pour obtenir les bons totaux)"
+"La TVA est calculée depuis les totaux (une ligne produit est créée pour "
+"obtenir les bons totaux)"
 
 msgid "Total without VAT: "
 msgstr "Total HT : "

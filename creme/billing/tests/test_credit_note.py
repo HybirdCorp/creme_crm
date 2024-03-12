@@ -31,6 +31,7 @@ from .base import (
     Invoice,
     Organisation,
     ProductLine,
+    TemplateBase,
     _BillingTestCase,
     skipIfCustomCreditNote,
     skipIfCustomInvoice,
@@ -56,6 +57,28 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(expected_total, invoice.total_vat)
 
     def test_status(self):
+        statuses = [*CreditNoteStatus.objects.all()]
+        self.assertEqual(4, len(statuses))
+
+        default_status = self.get_alone_element(
+            [status for status in statuses if status.is_default]
+        )
+        self.assertEqual(1, default_status.pk)
+
+        # New default status => previous default status is updated
+        new_status1 = CreditNoteStatus.objects.create(name='OK', is_default=True)
+        self.assertTrue(self.refresh(new_status1).is_default)
+        self.assertEqual(5, CreditNoteStatus.objects.count())
+        self.assertFalse(
+            CreditNoteStatus.objects.exclude(id=new_status1.id).filter(is_default=True)
+        )
+
+        # No default status is found => new one is default one
+        CreditNoteStatus.objects.update(is_default=False)
+        new_status2 = CreditNoteStatus.objects.create(name='KO', is_default=False)
+        self.assertTrue(self.refresh(new_status2).is_default)
+
+    def test_status_render(self):
         user = self.get_root_user()
         status = CreditNoteStatus.objects.create(name='OK', color='00FF00')
         order = CreditNote(user=user, name='OK Note', status=status)
@@ -834,5 +857,28 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         table_cells = self.get_alone_element(rows).findall('.//td')
         self.assertEqual(4, len(table_cells))
         self.assertInstanceLink(table_cells[0], entity=credit_note)
+
+    def test_build(self):
+        user = self.get_root_user()
+        status = CreditNoteStatus.objects.exclude(is_default=True).first()
+        create_orga = partial(Organisation.objects.create, user=user)
+        tpl = TemplateBase.objects.create(
+            user=user,
+            ct=CreditNote,
+            status_id=status.id,
+            source=create_orga(name='Source'),
+            target=create_orga(name='Target'),
+        )
+
+        credit_note1 = CreditNote().build(tpl)
+        self.assertIsNotNone(credit_note1.pk)
+        self.assertEqual(user,   credit_note1.user)
+        self.assertEqual(status, credit_note1.status)
+
+        # ---
+        tpl.status_id = self.UNUSED_PK
+        status2 = CreditNote().build(tpl).status
+        self.assertIsInstance(status2, CreditNoteStatus)
+        self.assertTrue(status2.is_default)
 
     # TODO: complete (other views)

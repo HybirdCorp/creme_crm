@@ -80,9 +80,10 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomInvoice
     def test_with_address(self):
-        "Quote -> Invoice ; 2 addresses."
+        "Quote -> Invoice; 2 addresses."
         user = self.login_as_root_and_get()
 
+        def_status = InvoiceStatus.objects.create(name='OK', is_default=True)
         currency = Currency.objects.create(
             name='Berry', local_symbol='B',
             international_symbol='BB', is_custom=True,
@@ -155,7 +156,8 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(quote.total_vat,    invoice.total_vat)
         self.assertEqual(quote.total_no_vat, invoice.total_no_vat)
         self.assertEqual(currency,           invoice.currency)
-        self.assertEqual(1,                  invoice.status_id)
+        # self.assertEqual(1,                  invoice.status_id)
+        self.assertEqual(def_status,         invoice.status)
         self.assertEqual(quote.payment_info, invoice.payment_info)
         self.assertIsNone(invoice.additional_info)
         self.assertIsNone(invoice.payment_terms)
@@ -228,6 +230,8 @@ class ConvertTestCase(_BillingTestCase):
         # )
         self.add_credentials(user.role, own='*')
 
+        def_status = SalesOrderStatus.objects.create(name='OK', is_default=True)
+
         source, target = self.create_orgas(user=user)
         # We set up to generate number
         self._set_managed(source)
@@ -238,6 +242,7 @@ class ConvertTestCase(_BillingTestCase):
 
         order = self.get_alone_element(SalesOrder.objects.all())
         self.assertEqual('ORD1', order.number)
+        self.assertEqual(def_status, order.status)
         self.assertRelationCount(0, order, REL_SUB_INVOICE_FROM_QUOTE, quote)
 
     @skipIfCustomQuote

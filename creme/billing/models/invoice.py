@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,13 +25,13 @@ from creme.persons.workflow import transform_target_into_customer
 
 from .. import get_template_base_model
 from ..constants import DEFAULT_DECIMAL
-from . import other_models
 from .base import Base
+from .other_models import InvoiceStatus
 
 
 class AbstractInvoice(Base):
     status = models.ForeignKey(
-        other_models.InvoiceStatus,
+        InvoiceStatus,
         verbose_name=_('Status of invoice'),
         on_delete=deletion.CREME_REPLACE,
     )
@@ -86,14 +86,20 @@ class AbstractInvoice(Base):
 
     def build(self, template):
         # Specific recurrent generation rules
-        status_id = 1  # Default status (see populate.py)
+        # status_id = 1
+        status_id = None
 
         if isinstance(template, get_template_base_model()):
             tpl_status_id = template.status_id
-            if other_models.InvoiceStatus.objects.filter(pk=tpl_status_id).exists():
+            if InvoiceStatus.objects.filter(pk=tpl_status_id).exists():
                 status_id = tpl_status_id
 
-        self.status_id = status_id
+        # self.status_id = status_id
+        if status_id:
+            self.status_id = status_id
+        else:
+            self.status = InvoiceStatus.objects.filter(is_default=True).first()
+
         super().build(template)
         transform_target_into_customer(self.source, self.target, self.user)
 

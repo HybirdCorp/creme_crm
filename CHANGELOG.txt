@@ -42,6 +42,9 @@
             - A button to transform a Contact into a user has been added.
        * Assistants :
             - The UserMessages produce now notifications (so users can chose to be notified in their browser, emails are not the only way anymore).
+       * Billing :
+            - You can now define the default statuses (which are notably used as initial values in creation forms).
+              You can also define the Invoice status to use when a number ins generated.
         * Reports :
             - The date fields of referenced models can be used for temporal filtering in the Reports
               (e.g. in a report on Contacts, Photograph's fields are available).
@@ -339,6 +342,11 @@
                 - The UUIDs of the instances of the models 'Category' & 'SubCategory' created by the 'populate' script are now fixed (to be consistent between Creme instances).
                   A data migration fixes the UUIDs of the instances provided by default, and stores the old UUIDs in their field "meta_data".
             * Billing :
+                - In 'constants' :
+                    - 'DEFAULT_DRAFT_INVOICE_STATUS' has been removed (use 'InvoiceStatus.is_default' instead).
+                    - 'DEFAULT_INVOICE_STATUS' has been removed (use 'InvoiceStatus.is_validated' instead).
+                - In 'views.base', in the class-views 'BaseCreation' & 'RelatedBaseCreation' (& so, in their child classes),
+                  the attribute 'initial_status' has been removed.
                 - The method 'populate.Populator.create_reports()' has been replaced by a new one, '_populate_reports()'.
             * Opportunities :
                 - The UUIDs of the instances of the models 'SalesPhase' & 'Origin' created by the 'populate' script are now fixed (to be consistent between Creme instances).
