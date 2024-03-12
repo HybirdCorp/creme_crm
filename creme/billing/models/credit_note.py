@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,7 +59,8 @@ class AbstractCreditNote(Base):
     # TODO: factorise the build() methods
     def build(self, template):
         # Specific recurrent generation rules
-        status_id = 1  # Default status (see populate.py)
+        # status_id = 1  # Default status (see populate.py)
+        status_id = None
 
         if isinstance(template, get_template_base_model()):
             tpl_status_id = template.status_id
@@ -67,7 +68,11 @@ class AbstractCreditNote(Base):
             if CreditNoteStatus.objects.filter(pk=tpl_status_id).exists():
                 status_id = tpl_status_id
 
-        self.status_id = status_id
+        # self.status_id = status_id
+        if status_id:
+            self.status_id = status_id
+        else:
+            self.status = CreditNoteStatus.objects.filter(is_default=True).first()
 
         return super().build(template)
 

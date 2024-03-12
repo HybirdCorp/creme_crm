@@ -23,8 +23,8 @@ REL_OBJ_CREDIT_NOTE_APPLIED = 'billing-object_credit_note_applied'
 REL_SUB_INVOICE_FROM_QUOTE = 'billing-subject_invoice_from_quote'
 REL_OBJ_INVOICE_FROM_QUOTE = 'billing-object_invoice_from_quote'
 
-DEFAULT_DRAFT_INVOICE_STATUS = 1
-DEFAULT_INVOICE_STATUS = 2
+# DEFAULT_DRAFT_INVOICE_STATUS = 1
+# DEFAULT_INVOICE_STATUS = 2
 
 DEFAULT_HFILTER_INVOICE  = 'billing-hf_invoice'
 DEFAULT_HFILTER_QUOTE    = 'billing-hf_quote'

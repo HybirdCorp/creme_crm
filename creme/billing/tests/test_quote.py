@@ -51,6 +51,28 @@ from .base import (
 @skipIfCustomQuote
 class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_status(self):
+        statuses = [*QuoteStatus.objects.all()]
+        self.assertEqual(4, len(statuses))
+
+        default_status = self.get_alone_element(
+            [status for status in statuses if status.is_default]
+        )
+        self.assertEqual(1, default_status.pk)
+
+        # New default status => previous default status is updated
+        new_status1 = QuoteStatus.objects.create(name='OK', is_default=True)
+        self.assertTrue(self.refresh(new_status1).is_default)
+        self.assertEqual(5, QuoteStatus.objects.count())
+        self.assertFalse(
+            QuoteStatus.objects.exclude(id=new_status1.id).filter(is_default=True)
+        )
+
+        # No default status is found => new one is default one
+        QuoteStatus.objects.update(is_default=False)
+        new_status2 = QuoteStatus.objects.create(name='KO', is_default=False)
+        self.assertTrue(self.refresh(new_status2).is_default)
+
+    def test_status_render(self):
         user = self.get_root_user()
         status = QuoteStatus.objects.create(name='OK', color='00FF00')
         ctxt = {
@@ -129,9 +151,11 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         managed_orga = self.get_alone_element(Organisation.objects.filter_managed_by_creme())
         response1 = self.assertGET200(reverse('billing__create_quote'))
+        default_status = self.get_object_or_fail(QuoteStatus, is_default=True)
 
         with self.assertNoException():
-            fields = response1.context['form'].fields
+            form = response1.context['form']
+            fields = form.fields
             source_f = fields[self.SOURCE_KEY]
             number_f = fields['number']
 
@@ -144,6 +168,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             ).format(software='My CRM', organisation=managed_orga),
             number_f.help_text,
         )
+        self.assertEqual(default_status.id, form.initial.get('status'))
 
         # ---
         terms = SettlementTerms.objects.all()[0]
@@ -165,10 +190,14 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertRelationCount(1, target2, REL_SUB_PROSPECT, source2)
 
     def test_createview02(self):
-        "Source is managed + no number given."
+        "Source is managed + no number given + other default status."
         user = self.login_as_root_and_get()
-        self.assertGET200(reverse('billing__create_quote'))
+        status = QuoteStatus.objects.create(name='OK', is_default=True)
 
+        response1 = self.assertGET200(reverse('billing__create_quote'))
+        self.assertEqual(status.id, response1.context['form'].initial.get('status'))
+
+        # ---
         source, target1 = self.create_orgas(user=user)
         self._set_managed(source)
 
@@ -248,8 +277,16 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertNotIn('number', fields)
 
+    def test_createview__no_default_status(self):
+        self.login_as_root()
+        QuoteStatus.objects.update(is_default=False)
+
+        response = self.assertGET200(reverse('billing__create_quote'))
+        self.assertIsNone(response.context['form'].initial.get('status'))
+
     def test_create_related01(self):
         user = self.login_as_root_and_get()
+        default_status = self.get_object_or_fail(QuoteStatus, is_default=True)
 
         source, target = self.create_orgas(user=user)
         url = reverse('billing__create_related_quote', args=(target.id,))
@@ -267,7 +304,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertDictEqual(
             {
-                'status': 1,
+                # 'status': 1,
+                'status': default_status.id,
                 self.TARGET_KEY: target,
             },
             form.initial,
@@ -305,7 +343,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
 
     def test_create_related02(self):
-        "Not a super-user."
+        "Not a super-user + other default status."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
             creatable_models=[Quote],
@@ -323,12 +361,14 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         # )
         self.add_credentials(user.role, all='*')
 
+        status = QuoteStatus.objects.create(name='OK', is_default=True)
         source, target = self.create_orgas(user=user)
-        self.assertGET200(
+        response = self.assertGET200(
             reverse('billing__create_related_quote', args=(target.id,)),
         )
+        self.assertEqual(status.id, response.context['form'].initial.get('status'))
 
-    def test_create_related03(self):
+    def test_create_related__creation_credentials(self):
         "Creation creds are needed."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -352,7 +392,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             reverse('billing__create_related_quote', args=(target.id,)),
         )
 
-    def test_create_related04(self):
+    def test_create_related__modification_credentials(self):
         "CHANGE creds are needed."
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'],
@@ -375,6 +415,16 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertGET403(
             reverse('billing__create_related_quote', args=(target.id,)),
         )
+
+    def test_createview_related__no_default_status(self):
+        user = self.login_as_root_and_get()
+        QuoteStatus.objects.update(is_default=False)
+
+        source, target = self.create_orgas(user=user)
+        response = self.assertGET200(
+            reverse('billing__create_related_quote', args=(target.id,)),
+        )
+        self.assertIsNone(response.context['form'].initial.get('status'))
 
     def test_editview01(self):
         user = self.login_as_root_and_get()

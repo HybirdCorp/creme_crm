@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,7 @@ Invoice = get_invoice_model()
 class InvoiceCreation(base.BaseCreation):
     model = Invoice
     form_class = custom_forms.INVOICE_CREATION_CFORM
-    initial_status = constants.DEFAULT_DRAFT_INVOICE_STATUS
+    # initial_status = constants.DEFAULT_DRAFT_INVOICE_STATUS
 
 
 class RelatedInvoiceCreation(base.RelatedBaseCreation):
@@ -45,7 +45,7 @@ class RelatedInvoiceCreation(base.RelatedBaseCreation):
     form_class = custom_forms.INVOICE_CREATION_CFORM
     permissions = ('billing', cperm(Invoice))
     title = _('Create an invoice for «{entity}»')
-    initial_status = constants.DEFAULT_DRAFT_INVOICE_STATUS
+    # initial_status = constants.DEFAULT_DRAFT_INVOICE_STATUS
 
 
 class InvoiceDetail(generic.EntityDetail):
@@ -76,7 +76,9 @@ class InvoiceNumberGeneration(generic.base.EntityRelatedMixin, generic.CheckedVi
 
         # TODO: move in model ???
         if not invoice.number:
-            status = get_object_or_404(InvoiceStatus, pk=constants.DEFAULT_INVOICE_STATUS)
+            # status = get_object_or_404(InvoiceStatus, pk=constants.DEFAULT_INVOICE_STATUS)
+            # TODO: safe way if 0 or 2+ statuses?
+            status = get_object_or_404(InvoiceStatus, is_validated=True)
 
             invoice.generate_number()
             invoice.status = status

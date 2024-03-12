@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,6 +46,7 @@ class AbstractStatus(MinionModel):
     name = models.CharField(_('Name'), max_length=100)
     order = core_fields.BasicAutoField()
     color = core_fields.ColorField(default=core_fields.ColorField.random)
+    is_default = models.BooleanField(_('Is default?'), default=False)
 
     creation_label = pgettext_lazy('billing-status', 'Create a status')
 
@@ -57,9 +58,36 @@ class AbstractStatus(MinionModel):
         app_label = 'billing'
         ordering = ('order',)
 
+    # TODO: create a function/ an abstract model for saving model with
+    #       is_default attribute (and use it for Vat too) ??
+    @atomic
+    def save(self, *args, **kwargs):
+        model = type(self)
+        if self.is_default:
+            model.objects.filter(is_default=True).update(is_default=False)
+        elif not model.objects.filter(is_default=True).exclude(pk=self.id).exists():
+            self.is_default = True
+
+        super().save(*args, **kwargs)
+
 
 class InvoiceStatus(AbstractStatus):
     pending_payment = models.BooleanField(_('Pending payment'), default=False)
+    is_validated = models.BooleanField(
+        _('Is validated?'), default=False,
+        help_text=_('If true, the status is used when an Invoice number is generated.'),
+    )
+
+    # TODO: factorise too
+    @atomic
+    def save(self, *args, **kwargs):
+        model = type(self)
+        if self.is_validated:
+            model.objects.filter(is_validated=True).update(is_validated=False)
+        elif not model.objects.filter(is_validated=True).exclude(pk=self.id).exists():
+            self.is_validated = True
+
+        super().save(*args, **kwargs)
 
     class Meta(AbstractStatus.Meta):
         abstract = False

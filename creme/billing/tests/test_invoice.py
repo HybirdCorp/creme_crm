@@ -70,7 +70,51 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     def _build_gennumber_url(invoice):
         return reverse('billing__generate_invoice_number', args=(invoice.id,))
 
-    def test_status(self):
+    def test_status01(self):
+        statuses = [*InvoiceStatus.objects.all()]
+        self.assertEqual(8, len(statuses))
+
+        default_status = self.get_alone_element(
+            [status for status in statuses if status.is_default]
+        )
+        self.assertEqual(1, default_status.pk)
+
+        # New default status => previous default status is updated
+        new_status1 = InvoiceStatus.objects.create(name='OK', is_default=True)
+        self.assertTrue(self.refresh(new_status1).is_default)
+        self.assertEqual(9, InvoiceStatus.objects.count())
+        self.assertFalse(
+            InvoiceStatus.objects.exclude(id=new_status1.id).filter(is_default=True)
+        )
+
+        # No default status is found => new one is default one
+        InvoiceStatus.objects.update(is_default=False)
+        new_status2 = InvoiceStatus.objects.create(name='KO', is_default=False)
+        self.assertTrue(self.refresh(new_status2).is_default)
+
+    def test_status02(self):
+        statuses = [*InvoiceStatus.objects.all()]
+        self.assertEqual(8, len(statuses))
+
+        validated_status = self.get_alone_element(
+            [status for status in statuses if status.is_validated]
+        )
+        self.assertEqual(2, validated_status.pk)
+
+        # New validated status => previous validated status is updated
+        new_status1 = InvoiceStatus.objects.create(name='OK', is_validated=True)
+        self.assertTrue(self.refresh(new_status1).is_validated)
+        self.assertEqual(9, InvoiceStatus.objects.count())
+        self.assertFalse(
+            InvoiceStatus.objects.exclude(id=new_status1.id).filter(is_validated=True)
+        )
+
+        # No default status is found => new one is default one
+        InvoiceStatus.objects.update(is_validated=False)
+        new_status2 = InvoiceStatus.objects.create(name='KO', is_validated=False)
+        self.assertTrue(self.refresh(new_status2).is_validated)
+
+    def test_status_render(self):
         user = self.get_root_user()
         status = InvoiceStatus.objects.create(name='OK', color='00FF00')
         invoice = Invoice(user=user, name='OK Invoice', status=status)
@@ -101,7 +145,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = Invoice.objects.create(
             user=user,
             name=name,
-            status_id=1,
+            # status_id=1,
+            status=self.get_object_or_fail(InvoiceStatus, is_default=True),
             source=source,
             target=target,
         )
@@ -134,7 +179,11 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         user = self.get_root_user()
         source, target = self.create_orgas(user=user)
 
-        build_invoice = partial(Invoice, user=user, name='Invoice001', status_id=1)
+        build_invoice = partial(
+            Invoice, user=user, name='Invoice001',
+            # status_id=1
+            status=self.get_object_or_fail(InvoiceStatus, is_default=True),
+        )
 
         invoice1 = build_invoice(source=source)  # target=target
         msg1 = _('Target is required.')
@@ -164,7 +213,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = Invoice.objects.create(
             user=user,
             name=name,
-            status_id=1,
+            # status_id=1,
+            status=self.get_object_or_fail(InvoiceStatus, is_default=True),
             source=source1,
             target=target1,
         )
@@ -196,7 +246,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = Invoice.objects.create(
             user=user,
             name=name,
-            status_id=1,
+            # status_id=1,
+            status=self.get_object_or_fail(InvoiceStatus, is_default=True),
             source=source1,
             target=target1,
         )
@@ -965,6 +1016,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_generate_number01(self):
         user = self.login_as_root_and_get()
 
+        validated_status = self.get_object_or_fail(InvoiceStatus, is_validated=True)
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         self.assertFalse(invoice.number)
         self.assertEqual(1, invoice.status_id)
@@ -978,19 +1030,24 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         invoice = self.refresh(invoice)
         number = invoice.number
-        status_id = invoice.status_id
+        # status_id = invoice.status_id
+        status = invoice.status
         self.assertTrue(number)
-        self.assertEqual(2,            status_id)
+        # self.assertEqual(2,            status_id)
+        self.assertEqual(validated_status, status)
         self.assertEqual(issuing_date, invoice.issuing_date)
 
         # Already generated
         self.assertPOST409(url, follow=True)
         invoice = self.refresh(invoice)
-        self.assertEqual(number,    invoice.number)
-        self.assertEqual(status_id, invoice.status_id)
+        self.assertEqual(number, invoice.number)
+        # self.assertEqual(status_id, invoice.status_id)
+        self.assertEqual(status, invoice.status)
 
     def test_generate_number02(self):
         user = self.login_as_root_and_get()
+
+        status = InvoiceStatus.objects.create(name='OK', is_validated=True)
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         invoice.issuing_date = None
@@ -999,6 +1056,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertPOST200(self._build_gennumber_url(invoice), follow=True)
         invoice = self.refresh(invoice)
         self.assertTrue(invoice.issuing_date)
+        self.assertEqual(status, invoice.status)
         # NB: this test can fail if run at midnight...
         self.assertEqual(date.today(), invoice.issuing_date)
 

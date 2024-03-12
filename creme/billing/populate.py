@@ -157,9 +157,10 @@ class Populator(BasePopulator):
         def create_order_status(pk, name, **kwargs):
             create_if_needed(SalesOrderStatus, {'pk': pk}, name=name, **kwargs)
 
-        # NB: pk=1 + is_custom=False --> default status
-        #     (used when a quote is converted in invoice for example)
-        create_order_status(1, pgettext('billing-salesorder', 'Issued'), order=1, is_custom=False)
+        create_order_status(
+            1, pgettext('billing-salesorder', 'Issued'),
+            order=1, is_custom=False, is_default=True,
+        )
 
         if not self.already_populated:
             create_order_status(2, pgettext('billing-salesorder', 'Accepted'), order=3)
@@ -172,11 +173,11 @@ class Populator(BasePopulator):
 
         create_invoice_status(
             1, pgettext('billing-invoice', 'Draft'),
-            order=1, is_custom=False,
-        )  # Default status
+            order=1, is_custom=False, is_default=True,
+        )
         create_invoice_status(
             2, pgettext('billing-invoice', 'To be sent'),
-            order=2, is_custom=False,
+            order=2, is_custom=False, is_validated=True,
         )
 
         if not self.already_populated:
@@ -209,7 +210,10 @@ class Populator(BasePopulator):
         def create_cnote_status(pk, name, **kwargs):
             create_if_needed(CreditNoteStatus, {'pk': pk}, name=name, **kwargs)
 
-        create_cnote_status(1, pgettext('billing-creditnote', 'Draft'), order=1, is_custom=False)
+        create_cnote_status(
+            1, pgettext('billing-creditnote', 'Draft'),
+            order=1, is_custom=False, is_default=True,
+        )
 
         if not self.already_populated:
             create_cnote_status(2, pgettext('billing-creditnote', 'Issued'),      order=2)
@@ -224,7 +228,7 @@ class Populator(BasePopulator):
             # Default status
             create_quote_status(
                 1, pgettext('billing-quote', 'Pending'),
-                order=2,
+                order=2, is_default=True,
             )
 
             create_quote_status(

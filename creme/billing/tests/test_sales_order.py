@@ -35,6 +35,28 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         return reverse('billing__create_related_order', args=(target.id,))
 
     def test_status(self):
+        statuses = [*SalesOrderStatus.objects.all()]
+        self.assertEqual(4, len(statuses))
+
+        default_status = self.get_alone_element(
+            [status for status in statuses if status.is_default]
+        )
+        self.assertEqual(1, default_status.pk)
+
+        # New default status => previous default status is updated
+        new_status1 = SalesOrderStatus.objects.create(name='OK', is_default=True)
+        self.assertTrue(self.refresh(new_status1).is_default)
+        self.assertEqual(5, SalesOrderStatus.objects.count())
+        self.assertFalse(
+            SalesOrderStatus.objects.exclude(id=new_status1.id).filter(is_default=True)
+        )
+
+        # No default status is found => new one is default one
+        SalesOrderStatus.objects.update(is_default=False)
+        new_status2 = SalesOrderStatus.objects.create(name='KO', is_default=False)
+        self.assertTrue(self.refresh(new_status2).is_default)
+
+    def test_status_render(self):
         user = self.get_root_user()
         status = SalesOrderStatus.objects.create(name='OK', color='00FF00')
         order = SalesOrder(user=user, name='OK Order', status=status)
