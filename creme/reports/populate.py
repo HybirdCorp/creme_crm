@@ -49,8 +49,8 @@ class Populator(BasePopulator):
         self.Report = get_report_model()
 
     def _already_populated(self):
-        # NB: no straightforward way to test that this script has not been already run
-        return BrickDetailviewLocation.objects.filter_for_model(self.Report).exists()
+        # return BrickDetailviewLocation.objects.filter_for_model(self.Report).exists()
+        return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_REPORT).exists()
 
     def _populate_header_filters(self):
         HeaderFilter.objects.create_if_needed(

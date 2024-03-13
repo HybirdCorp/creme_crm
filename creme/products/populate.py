@@ -130,8 +130,8 @@ class Populator(BasePopulator):
         self.Service = get_service_model()
 
     def _already_populated(self):
-        # NB: no straightforward way to test that this script has not been already run
-        return Category.objects.exists()
+        # return Category.objects.exists()
+        return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_PRODUCT).exists()
 
     def _populate(self):
         super()._populate()

@@ -50,8 +50,8 @@ class Populator(BasePopulator):
         self.Graph = get_graph_model()
 
     def _already_populated(self):
-        # NB: no straightforward way to test that this script has not been already run
-        return BrickDetailviewLocation.objects.filter_for_model(self.Graph).exists()
+        # return BrickDetailviewLocation.objects.filter_for_model(self.Graph).exists()
+        return HeaderFilter.objects.filter(id=DEFAULT_HFILTER_GRAPH).exists()
 
     def _populate_header_filters(self):
         HeaderFilter.objects.create_if_needed(
