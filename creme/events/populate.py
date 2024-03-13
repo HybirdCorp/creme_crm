@@ -48,6 +48,12 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     SEARCH = ['name', 'description', 'type__name']
+    EVENT_TYPES = [
+        EventType(uuid='d4928cbc-6afd-40bf-9d07-815b8b920b39', name=_('Show')),
+        EventType(uuid='254fda4f-1a01-47e1-b5aa-a1b2d4ef2890', name=_('Conference')),
+        EventType(uuid='b520fe79-98f4-4362-8293-b4febd46c9df', name=_('Breakfast')),
+        EventType(uuid='42c72e13-9f47-4ea8-bd9b-0a0764ceea19', name=_('Brunch')),
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -71,11 +77,8 @@ class Populator(BasePopulator):
         #     start=1,
         # ):
         #     create_if_needed(EventType, {'pk': i}, name=name)
-        create_type = EventType.objects.create
-        create_type(uuid='d4928cbc-6afd-40bf-9d07-815b8b920b39', name=_('Show'))
-        create_type(uuid='254fda4f-1a01-47e1-b5aa-a1b2d4ef2890', name=_('Conference'))
-        create_type(uuid='b520fe79-98f4-4362-8293-b4febd46c9df', name=_('Breakfast'))
-        create_type(uuid='42c72e13-9f47-4ea8-bd9b-0a0764ceea19', name=_('Brunch'))
+        for event_type in self.EVENT_TYPES:
+            event_type.save()
 
     def _populate_relation_types(self):
         Event = self.Event
