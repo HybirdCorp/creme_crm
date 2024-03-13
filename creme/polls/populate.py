@@ -45,6 +45,12 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
+    POLL_TYPES = [
+        PollType(uuid='90d3d792-4354-43d2-8da2-9abf7cdd1421', name=_('Survey')),
+        PollType(uuid='f3568c0a-ba44-485d-b4f3-88dac5c9477b', name=_('Monitoring')),
+        PollType(uuid='3b50033a-b77c-43e4-88ae-145e433dc1ca', name=_('Assessment')),
+    ]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -67,10 +73,8 @@ class Populator(BasePopulator):
         # create_if_needed(PollType, {'pk': 1}, name=_('Survey'))
         # create_if_needed(PollType, {'pk': 2}, name=_('Monitoring'))
         # create_if_needed(PollType, {'pk': 3}, name=_('Assessment'))
-        create_ptype = PollType.objects.create
-        create_ptype(uuid='90d3d792-4354-43d2-8da2-9abf7cdd1421', name=_('Survey'))
-        create_ptype(uuid='f3568c0a-ba44-485d-b4f3-88dac5c9477b', name=_('Monitoring'))
-        create_ptype(uuid='3b50033a-b77c-43e4-88ae-145e433dc1ca', name=_('Assessment'))
+        for poll_type in self.POLL_TYPES:
+            poll_type.save()
 
     def _populate_header_filters(self):
         create_hf = HeaderFilter.objects.create_if_needed
