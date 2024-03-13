@@ -94,7 +94,7 @@ class Populator(BasePopulator):
             [
                 SubCategory(uuid='79c7d28f-eed2-4565-9815-1d1887f3ccaf', name=_('Fly')),
                 SubCategory(uuid='9812ff36-b3f3-4670-8d4a-b8e9c916bf0d', name=_('Hotel')),
-                SubCategory(uuid='15e6f072-bd3e-4591-9963-be2af1888520', name=_('Week-end')),
+                SubCategory(uuid='15e6f072-bd3e-4591-9963-be2af1888520', name=_('Weekend')),
                 SubCategory(uuid='abaca40b-51c9-49c1-95c4-ba93e51bdc40', name=_('Rent')),
             ]
         ], [
