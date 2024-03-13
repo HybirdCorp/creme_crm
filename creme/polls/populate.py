@@ -56,8 +56,8 @@ class Populator(BasePopulator):
         self.PollReply    = polls.get_pollreply_model()
 
     def _already_populated(self):
-        # NB: no straightforward way to test that this script has not been already run
-        return PollType.objects.exists()
+        # return PollType.objects.exists()
+        return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_PFORM).exists()
 
     def _first_populate(self):
         super()._first_populate()
