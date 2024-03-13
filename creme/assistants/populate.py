@@ -43,6 +43,24 @@ from .setting_keys import todo_reminder_key
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
+    PRIORITIES = [
+        UserMessagePriority(
+            uuid=constants.UUID_PRIORITY_IMPORTANT,
+            title=_('Important'),
+            is_custom=False,
+        ),
+        UserMessagePriority(
+            uuid=constants.UUID_PRIORITY_VERY_IMPORTANT,
+            title=_('Very important'),
+            is_custom=False,
+        ),
+        UserMessagePriority(
+            uuid=constants.UUID_PRIORITY_NOT_IMPORTANT,
+            title=_('Not important'),
+            is_custom=False,
+        ),
+    ]
+
     def _already_populated(self):
         # return UserMessagePriority.objects.filter(pk=constants.PRIO_IMP_PK).exists()
         return UserMessagePriority.objects.exists()
@@ -56,14 +74,17 @@ class Populator(BasePopulator):
         #     create_if_needed(
         #         UserMessagePriority, {'pk': pk}, title=str(title), is_custom=False,
         #     )
-        for uid, title in [
-            (constants.UUID_PRIORITY_IMPORTANT,      _('Important')),
-            (constants.UUID_PRIORITY_VERY_IMPORTANT, _('Very important')),
-            (constants.UUID_PRIORITY_NOT_IMPORTANT,  _('Not important')),
-        ]:
-            UserMessagePriority.objects.get_or_create(
-                uuid=uid, defaults={'title': title, 'is_custom': False},
-            )
+        for priority in self.PRIORITIES:
+            if (
+                not priority.is_custom
+                and not UserMessagePriority.objects.filter(uuid=priority.uuid).exists()
+            ):
+                priority.save()
+
+        if not self.already_populated:
+            for priority in self.PRIORITIES:
+                if priority.is_custom:
+                    priority.save()
 
     def _populate_setting_values(self):
         SettingValue.objects.get_or_create(
