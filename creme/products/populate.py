@@ -151,50 +151,56 @@ class Populator(BasePopulator):
         )
 
     def _populate_categories(self):
-        create_cat = Category.objects.create
-        create_subcat = SubCategory.objects.create
+        # create_cat = Category.objects.create
+        # create_subcat = SubCategory.objects.create
+        #
+        # jewelry = create_cat(name=_('Jewelry'))
+        # create_subcat(name=_('Ring'),     category=jewelry)
+        # create_subcat(name=_('Bracelet'), category=jewelry)
+        # create_subcat(name=_('Necklace'), category=jewelry)
+        # create_subcat(name=_('Earrings'), category=jewelry)
+        #
+        # mobile = create_cat(name=_('Mobile'))
+        # create_subcat(name=_('Iphone'),     category=mobile)
+        # create_subcat(name=_('Blackberry'), category=mobile)
+        # create_subcat(name=_('Samsung'),    category=mobile)
+        # create_subcat(name=_('Android'),    category=mobile)
+        #
+        # electronics = create_cat(name=_('Electronics'))
+        # create_subcat(name=_('Laptops'),  category=electronics)
+        # create_subcat(name=_('Desktops'), category=electronics)
+        # create_subcat(name=_('Tablet'),   category=electronics)
+        # create_subcat(name=_('Notebook'), category=electronics)
+        #
+        # travels = create_cat(name=_('Travels'))
+        # create_subcat(name=_('Fly'),      category=travels)
+        # create_subcat(name=_('Hotel'),    category=travels)
+        # create_subcat(name=_('Week-end'), category=travels)
+        # create_subcat(name=_('Rent'),     category=travels)
+        #
+        # vehicle = create_cat(name=_('Vehicle'))
+        # create_subcat(name=_('Car'),   category=vehicle)
+        # create_subcat(name=_('Bike'),  category=vehicle)
+        # create_subcat(name=_('Boat'),  category=vehicle)
+        # create_subcat(name=_('Plane'), category=vehicle)
+        #
+        # games_toys = create_cat(name=_('Games & Toys'))
+        # create_subcat(name=_('Boys'),   category=games_toys)
+        # create_subcat(name=_('Girls'),  category=games_toys)
+        # create_subcat(name=_('Teens'),  category=games_toys)
+        # create_subcat(name=_('Babies'), category=games_toys)
+        #
+        # clothes = create_cat(name=_('Clothes'))
+        # create_subcat(name=_('Men'),    category=clothes)
+        # create_subcat(name=_('Women'),  category=clothes)
+        # create_subcat(name=_('Kids'),   category=clothes)
+        # create_subcat(name=_('Babies'), category=clothes)
+        for category, sub_categories in self.CATEGORIES:
+            category.save()
 
-        jewelry = create_cat(name=_('Jewelry'))
-        create_subcat(name=_('Ring'),     category=jewelry)
-        create_subcat(name=_('Bracelet'), category=jewelry)
-        create_subcat(name=_('Necklace'), category=jewelry)
-        create_subcat(name=_('Earrings'), category=jewelry)
-
-        mobile = create_cat(name=_('Mobile'))
-        create_subcat(name=_('Iphone'),     category=mobile)
-        create_subcat(name=_('Blackberry'), category=mobile)
-        create_subcat(name=_('Samsung'),    category=mobile)
-        create_subcat(name=_('Android'),    category=mobile)
-
-        electronics = create_cat(name=_('Electronics'))
-        create_subcat(name=_('Laptops'),  category=electronics)
-        create_subcat(name=_('Desktops'), category=electronics)
-        create_subcat(name=_('Tablet'),   category=electronics)
-        create_subcat(name=_('Notebook'), category=electronics)
-
-        travels = create_cat(name=_('Travels'))
-        create_subcat(name=_('Fly'),      category=travels)
-        create_subcat(name=_('Hotel'),    category=travels)
-        create_subcat(name=_('Week-end'), category=travels)
-        create_subcat(name=_('Rent'),     category=travels)
-
-        vehicle = create_cat(name=_('Vehicle'))
-        create_subcat(name=_('Car'),   category=vehicle)
-        create_subcat(name=_('Bike'),  category=vehicle)
-        create_subcat(name=_('Boat'),  category=vehicle)
-        create_subcat(name=_('Plane'), category=vehicle)
-
-        games_toys = create_cat(name=_('Games & Toys'))
-        create_subcat(name=_('Boys'),   category=games_toys)
-        create_subcat(name=_('Girls'),  category=games_toys)
-        create_subcat(name=_('Teens'),  category=games_toys)
-        create_subcat(name=_('Babies'), category=games_toys)
-
-        clothes = create_cat(name=_('Clothes'))
-        create_subcat(name=_('Men'),    category=clothes)
-        create_subcat(name=_('Women'),  category=clothes)
-        create_subcat(name=_('Kids'),   category=clothes)
-        create_subcat(name=_('Babies'), category=clothes)
+            for sub_category in sub_categories:
+                sub_category.category = category
+                sub_category.save()
 
     def _populate_header_filters(self):
         create_hf = HeaderFilter.objects.create_if_needed
