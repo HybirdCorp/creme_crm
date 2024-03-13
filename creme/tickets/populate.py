@@ -134,8 +134,16 @@ class Populator(BasePopulator):
         #         order=pk,
         #     )
         for status in self.STATUSES:
-            if not Status.objects.filter(uuid=status.uuid).exists():
+            if (
+                not status.is_custom
+                and not Status.objects.filter(uuid=status.uuid).exists()
+            ):
                 status.save()
+
+        if not self.already_populated:
+            for status in self.STATUSES:
+                if status.is_custom:
+                    status.save()
 
     def _populate_fields_config(self):
         for model in (self.Ticket, self.TicketTemplate):
