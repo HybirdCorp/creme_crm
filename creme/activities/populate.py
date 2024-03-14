@@ -63,36 +63,6 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
-    ACTIVITY_TYPES = {
-        # constants.ACTIVITYTYPE_TASK: {
-        constants.UUID_TYPE_TASK: {
-            'name': _('Task'), 'day': 0, 'hour': '00:15:00',
-        },
-        # constants.ACTIVITYTYPE_MEETING: {
-        constants.UUID_TYPE_MEETING: {
-            'name': _('Meeting'), 'day': 0, 'hour': '00:15:00',
-        },
-        # constants.ACTIVITYTYPE_PHONECALL: {
-        constants.UUID_TYPE_PHONECALL: {
-            'name': _('Phone call'), 'day': 0, 'hour': '00:15:00',
-        },
-        # constants.ACTIVITYTYPE_GATHERING: {
-        constants.UUID_TYPE_GATHERING: {
-            'name': _('Gathering'), 'day': 0, 'hour': '00:15:00',
-        },
-        # constants.ACTIVITYTYPE_SHOW: {
-        constants.UUID_TYPE_SHOW: {
-            'name': _('Show'), 'day': 1, 'hour': '00:00:00',
-        },
-        # constants.ACTIVITYTYPE_DEMO: {
-        constants.UUID_TYPE_DEMO: {
-            'name': _('Demonstration'), 'day': 0, 'hour': '01:00:00',
-        },
-        # constants.ACTIVITYTYPE_INDISPO: {
-        constants.UUID_TYPE_UNAVAILABILITY: {
-            'name': _('Unavailability'), 'day': 1, 'hour': '00:00:00',
-        },
-    }
     BUTTONS = [
         # (class, order)
         (buttons.AddRelatedActivityButton, 10),
@@ -100,6 +70,205 @@ class Populator(BasePopulator):
         (buttons.AddPhoneCallButton,       12),
     ]
     SEARCH = ['title', 'description', 'type__name']
+    STATUSES = [
+        Status(
+            uuid=constants.UUID_STATUS_PLANNED,
+            name=pgettext('activities-status', 'Planned'),
+            description=pgettext('activities-status', 'Planned'),
+            is_custom=False,
+        ),
+        Status(
+            uuid=constants.UUID_STATUS_IN_PROGRESS,
+            name=pgettext('activities-status', 'In progress'),
+            description=pgettext('activities-status', 'In progress'),
+            is_custom=False,
+        ),
+        Status(
+            uuid=constants.UUID_STATUS_DONE,
+            name=pgettext('activities-status', 'Done'),
+            description=pgettext('activities-status', 'Done'),
+            is_custom=False,
+        ),
+        Status(
+            uuid=constants.UUID_STATUS_DELAYED,
+            name=pgettext('activities-status', 'Delayed'),
+            description=pgettext('activities-status', 'Delayed'),
+            is_custom=False,
+        ),
+        Status(
+            uuid=constants.UUID_STATUS_CANCELLED,
+            name=pgettext('activities-status', 'Cancelled'),
+            description=pgettext('activities-status', 'Cancelled'),
+            is_custom=False,
+        ),
+    ]
+    ACTIVITY_TYPES = [
+        [
+            ActivityType(
+                uuid=constants.UUID_TYPE_TASK,
+                name=_('Task'),
+                default_day_duration=0, default_hour_duration='00:15:00',
+                is_custom=False,
+            ),
+            [
+                ActivitySubType(
+                    uuid='767b94e1-b366-4b97-8755-d719b268e402',
+                    name=_('Task'), is_custom=True,
+                ),
+            ]
+        ], [
+            ActivityType(
+                uuid=constants.UUID_TYPE_MEETING,
+                name=_('Meeting'),
+                default_day_duration=0, default_hour_duration='00:15:00',
+                is_custom=False,
+            ),
+            [
+                ActivitySubType(
+                    uuid=constants.UUID_SUBTYPE_MEETING_MEETING,
+                    name=_('Meeting'), is_custom=False,
+                ),
+                ActivitySubType(
+                    uuid=constants.UUID_SUBTYPE_MEETING_QUALIFICATION,
+                    name=pgettext('activities-meeting', 'Qualification'), is_custom=False,
+                ),
+                ActivitySubType(
+                    uuid=constants.UUID_SUBTYPE_MEETING_REVIVAL,
+                    name=pgettext('activities-meeting', 'Revival'), is_custom=False,
+                ),
+                ActivitySubType(
+                    uuid=constants.UUID_SUBTYPE_MEETING_NETWORK,
+                    name=pgettext('activities-meeting', 'Network'), is_custom=False,
+                ),
+                ActivitySubType(
+                    uuid=constants.UUID_SUBTYPE_MEETING_OTHER,
+                    name=pgettext('activities-meeting', 'Other'), is_custom=False,
+                ),
+            ]
+        ], [
+            ActivityType(
+                uuid=constants.UUID_TYPE_PHONECALL,
+                name=_('Phone call'),
+                default_day_duration=0, default_hour_duration='00:15:00',
+                is_custom=False,
+            ),
+            [
+                ActivitySubType(
+                    uuid=constants.UUID_SUBTYPE_PHONECALL_INCOMING,
+                    name=pgettext('activities-phonecall', 'Incoming'), is_custom=False,
+                ),
+                ActivitySubType(
+                    uuid=constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
+                    name=pgettext('activities-phonecall', 'Outgoing'), is_custom=False,
+                ),
+                ActivitySubType(
+                    uuid=constants.UUID_SUBTYPE_PHONECALL_CONFERENCE,
+                    name=pgettext('activities-phonecall', 'Conference'), is_custom=False,
+                ),
+                ActivitySubType(
+                    uuid=constants.UUID_SUBTYPE_PHONECALL_FAILED,
+                    name=pgettext('activities-phonecall', 'Outgoing - Failed'), is_custom=False,
+                ),
+            ]
+        ], [
+            ActivityType(
+                uuid=constants.UUID_TYPE_GATHERING,
+                name=_('Gathering'),
+                default_day_duration=0, default_hour_duration='00:15:00',
+                is_custom=False,
+            ),
+            [
+                ActivitySubType(
+                    uuid='75b957a2-4fe7-4b98-8493-3f95e43a4968',
+                    name=_('Gathering'), is_custom=True,
+                ),
+                ActivitySubType(
+                    uuid='2147569e-7bc4-4b79-8760-844dc568c422',
+                    name=pgettext('activities-gathering', 'Team'), is_custom=True,
+                ),
+                ActivitySubType(
+                    uuid='e4ff08c8-80df-4528-bcc1-4f9d20c6fe61',
+                    name=pgettext('activities-gathering', 'Internal'), is_custom=True,
+                ),
+                ActivitySubType(
+                    uuid='1c626935-d47a-4d9b-af4b-b90b8a71fc77',
+                    name=_('On the site'), is_custom=True,
+                ),
+                ActivitySubType(
+                    uuid='8f003f06-f1ea-456e-90f3-82e8b8ef7424',
+                    name=_('Remote'), is_custom=True,
+                ),
+                ActivitySubType(
+                    uuid='bc001a5c-eb90-4a3c-b703-afe347d3bf34',
+                    name=_('Outside'), is_custom=True,
+                ),
+            ]
+        ], [
+            ActivityType(
+                uuid=constants.UUID_TYPE_SHOW,
+                name=_('Show'),
+                default_day_duration=1, default_hour_duration='00:00:00',
+                is_custom=False,
+            ),
+            [
+                ActivitySubType(
+                    uuid='b75a663c-af2e-4440-89b3-2a75410cd55b',
+                    name=_('Exhibitor'), is_custom=True,
+                ),
+                ActivitySubType(
+                    uuid='591b34b3-4226-48d4-a74d-d94665190b44',
+                    name=_('Visitor'), is_custom=True,
+                ),
+            ]
+        ], [
+            ActivityType(
+                uuid=constants.UUID_TYPE_DEMO,
+                name=_('Demonstration'),
+                default_day_duration=0, default_hour_duration='01:00:00',
+                is_custom=False,
+            ),
+            [
+                ActivitySubType(
+                    uuid='c32a94c7-8a2a-4589-8b0d-6764c63fb659',
+                    name=_('Demonstration'), is_custom=True,
+                ),
+                ActivitySubType(
+                    uuid='247902ed-05dd-4ba6-9cbd-ea43b7c996eb',
+                    name=_('On the site'), is_custom=True,
+                ),
+                ActivitySubType(
+                    uuid='e22a2e5d-4349-4d44-bd77-21b1a10816d5',
+                    name=_('Outside'), is_custom=True,
+                ),
+                ActivitySubType(
+                    uuid='3faf21bf-80b4-4182-b975-8146db2fb68b',
+                    name=_('Videoconference'), is_custom=True,
+                ),
+            ]
+        ], [
+            ActivityType(
+                uuid=constants.UUID_TYPE_UNAVAILABILITY,
+                name=_('Unavailability'),
+                default_day_duration=1, default_hour_duration='00:00:00',
+                is_custom=False,
+            ),
+            [
+                ActivitySubType(
+                    uuid=constants.UUID_SUBTYPE_UNAVAILABILITY,
+                    name=_('Unavailability'), is_custom=False,
+                ),
+                ActivitySubType(
+                    uuid='d0408f78-77ba-4c49-9fa7-fc1e3455554e',
+                    name=_('Holidays'), is_custom=True,
+
+                ),
+                ActivitySubType(
+                    uuid='09baec7a-b0ba-4c03-8981-84fc066d2970',
+                    name=_('Ill'), is_custom=True,
+                ),
+            ]
+        ],
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -107,22 +276,16 @@ class Populator(BasePopulator):
         self.Organisation = persons.get_organisation_model()
         self.Activity = get_activity_model()
 
-        self.activity_types = {}
-
     def _already_populated(self):
         return RelationType.objects.filter(
             pk=constants.REL_SUB_LINKED_2_ACTIVITY,
         ).exists()
 
     def _populate(self):
-        self._populate_activity_types()
+        self._populate_activity_types_and_sub_types()
         self._populate_status()
         self._populate_calendar_config()
         super()._populate()
-
-    def _first_populate(self):
-        self._populate_optional_sub_types()
-        super()._first_populate()
 
     def _populate_status(self):
         # def create_status(pk, name):
@@ -138,223 +301,49 @@ class Populator(BasePopulator):
         # create_status(constants.STATUS_DONE,        pgettext('activities-status', 'Done')),
         # create_status(constants.STATUS_DELAYED,     pgettext('activities-status', 'Delayed')),
         # create_status(constants.STATUS_CANCELLED,   pgettext('activities-status', 'Cancelled')),
-        for uid, name in [
-            (constants.UUID_STATUS_PLANNED,     pgettext('activities-status', 'Planned')),
-            (constants.UUID_STATUS_IN_PROGRESS, pgettext('activities-status', 'In progress')),
-            (constants.UUID_STATUS_DONE,        pgettext('activities-status', 'Done')),
-            (constants.UUID_STATUS_DELAYED,     pgettext('activities-status', 'Delayed')),
-            (constants.UUID_STATUS_CANCELLED,   pgettext('activities-status', 'Cancelled')),
-        ]:
-            Status.objects.get_or_create(
-                uuid=uid,
-                defaults={'name': name, 'description': name, 'is_custom': False},
-            )
+        for status in self.STATUSES:
+            if not status.is_custom and not Status.objects.filter(uuid=status.uuid).exists():
+                status.save()
 
-    def _populate_activity_types(self):
-        act_types = self.activity_types
+        if not self.already_populated:
+            for status in self.STATUSES:
+                if status.is_custom:
+                    status.save()
 
-        # act_types = {
-        #     pk: create_if_needed(
-        #         ActivityType,
-        #         {'pk': pk},
-        #         name=info['name'],
-        #         default_day_duration=info['day'], default_hour_duration=info['hour'],
-        #         is_custom=False,
-        #     ) for pk, info in act_types_info.items()
-        # }
-        for uid, info in self.ACTIVITY_TYPES.items():
-            act_types[uid] = ActivityType.objects.get_or_create(
-                uuid=uid,
-                defaults={
-                    'name': info['name'],
-                    'default_day_duration': info['day'],
-                    'default_hour_duration': info['hour'],
-                    'is_custom': False,
-                },
-            )[0]
+    def _populate_activity_types_and_sub_types(self):
+        for atype, sub_types in self.ACTIVITY_TYPES:
+            if atype.is_custom:
+                continue
 
-        # def create_subtype(atype, pk, name, is_custom=False):
-        #     create_if_needed(
-        #         ActivitySubType,
-        #         {'pk': pk},
-        #         name=name, type=atype, is_custom=is_custom,
-        #     )
-        def update_or_create_subtype(*, atype, uid, name, is_custom=False):
-            # create_if_needed(
-            #     ActivitySubType,
-            #     {'uuid': uid},
-            #     name=name, type=atype, is_custom=is_custom,
-            # )
-            ActivitySubType.objects.update_or_create(
-                uuid=uid,
-                defaults={
-                    'name': name, 'type': atype, 'is_custom': is_custom,
-                },
-            )
+            try:
+                atype = ActivityType.objects.get(uuid=atype.uuid)
+            except ActivityType.DoesNotExist:
+                atype.save()
 
-        # meeting_t = act_types[constants.ACTIVITYTYPE_MEETING]
-        # for pk, name in [
-        #     (constants.ACTIVITYSUBTYPE_MEETING_MEETING,       _('Meeting')),
-        #     (constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION, _('Qualification')),
-        #     (constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,       _('Revival')),
-        #     (constants.ACTIVITYSUBTYPE_MEETING_NETWORK,       _('Network')),
-        #     (constants.ACTIVITYSUBTYPE_MEETING_OTHER, pgettext('activities-meeting', 'Other')),
-        # ]:
-        #     create_subtype(meeting_t, pk, name)
-        meeting_t = act_types[constants.UUID_TYPE_MEETING]
-        for uid, name in [
-            (constants.UUID_SUBTYPE_MEETING_MEETING, _('Meeting')),
-            (
-                constants.UUID_SUBTYPE_MEETING_QUALIFICATION,
-                pgettext('activities-meeting', 'Qualification')
-            ),
-            (
-                constants.UUID_SUBTYPE_MEETING_REVIVAL,
-                pgettext('activities-meeting', 'Revival')
-            ),
-            (
-                constants.UUID_SUBTYPE_MEETING_NETWORK,
-                pgettext('activities-meeting', 'Network')
-            ),
-            (
-                constants.UUID_SUBTYPE_MEETING_OTHER,
-                pgettext('activities-meeting', 'Other')
-            ),
-        ]:
-            update_or_create_subtype(atype=meeting_t, uid=uid, name=name)
+                # The ActivityType did not exist, so we can create all subtypes
+                for sub_type in sub_types:
+                    sub_type.type = atype
+                    sub_type.save()
+            else:
+                # The ActivityType already existed, so we only create missing mandatory subtypes
+                for sub_type in sub_types:
+                    if (
+                        not sub_type.is_custom
+                        and not ActivitySubType.objects.filter(uuid=sub_type.uuid).exists()
+                    ):
+                        sub_type.type = atype
+                        sub_type.save()
 
-        # pcall_t = act_types[constants.ACTIVITYTYPE_PHONECALL]
-        # for pk, name in [
-        #     (constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,   _('Incoming')),
-        #     (constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,   _('Outgoing')),
-        #     (constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE, _('Conference')),
-        #     (constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,     _('Outgoing - Failed')),
-        # ]:
-        #     create_subtype(pcall_t, pk, name)
-        pcall_t = act_types[constants.UUID_TYPE_PHONECALL]
-        for uid, name in [
-            (
-                constants.UUID_SUBTYPE_PHONECALL_INCOMING,
-                pgettext('activities-phonecall', 'Incoming')
-            ),
-            (
-                constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
-                pgettext('activities-phonecall', 'Outgoing')
-            ),
-            (
-                constants.UUID_SUBTYPE_PHONECALL_CONFERENCE,
-                pgettext('activities-phonecall', 'Conference')
-            ),
-            (
-                constants.UUID_SUBTYPE_PHONECALL_FAILED,
-                pgettext('activities-phonecall', 'Outgoing - Failed')
-            ),
-        ]:
-            update_or_create_subtype(atype=pcall_t, uid=uid, name=name)
+        # NB: not useful in vanilla -- all types are is_custom==False
+        #     (could be used by custom app to create types with is_custom==True)
+        if not self.already_populated:
+            for atype, sub_types in self.ACTIVITY_TYPES:
+                if atype.is_custom:
+                    atype.save()
 
-        # unav_t = act_types[constants.ACTIVITYTYPE_INDISPO]
-        # create_subtype(
-        #     unav_t,
-        #     pk=constants.ACTIVITYSUBTYPE_UNAVAILABILITY, name=_('Unavailability'),
-        # )
-        update_or_create_subtype(
-            atype=act_types[constants.UUID_TYPE_UNAVAILABILITY],
-            uid=constants.UUID_SUBTYPE_UNAVAILABILITY,
-            name=_('Unavailability'),
-        )
-
-    def _populate_optional_sub_types(self):
-        create_subtype = ActivitySubType.objects.create
-        act_types = self.activity_types
-
-        unav_t = act_types[constants.UUID_TYPE_UNAVAILABILITY]
-        # create_subtype(
-        #     atype=unav_t, name=_('Holidays'), is_custom=True,
-        #     pk='activities-activitysubtype_holidays',
-        # )
-        # create_subtype(
-        #     atype=unav_t, name=_('Ill'), is_custom=True,
-        #     pk='activities-activitysubtype_ill',
-        # )
-        create_subtype(
-            type=unav_t, name=_('Holidays'), is_custom=True,
-            uuid='d0408f78-77ba-4c49-9fa7-fc1e3455554e',
-        )
-        create_subtype(
-            type=unav_t, name=_('Ill'), is_custom=True,
-            uuid='09baec7a-b0ba-4c03-8981-84fc066d2970',
-        )
-
-        # create_subtype(
-        #     atype=act_types[constants.ACTIVITYTYPE_TASK],
-        #     name=_('Task'), is_custom=True,
-        #     pk='activities-activitysubtype_task',
-        # )
-        create_subtype(
-            type=act_types[constants.UUID_TYPE_TASK],
-            name=_('Task'), is_custom=True,
-            uuid='767b94e1-b366-4b97-8755-d719b268e402',
-        )
-
-        # gathering_t = act_types[constants.ACTIVITYTYPE_GATHERING]
-        # for pk, name in [
-        #     ('activities-activitysubtype_gathering', _('Gathering')),
-        #     (
-        #         'activities-activitysubtype_gathering_team',
-        #         pgettext('activities-gathering', 'Team')
-        #     ),
-        #     (
-        #         'activities-activitysubtype_gathering_internal',
-        #         pgettext('activities-gathering', 'Internal')
-        #     ),
-        #     ('activities-activitysubtype_gathering_on_site', _('On the site')),
-        #     ('activities-activitysubtype_gathering_remote',  _('Remote')),
-        #     ('activities-activitysubtype_gathering_outside', _('Outside')),
-        # ]:
-        #     create_subtype(atype=gathering_t, pk=pk, name=name, is_custom=True)
-        gathering_t = act_types[constants.UUID_TYPE_GATHERING]
-        for uid, name in [
-            ('75b957a2-4fe7-4b98-8493-3f95e43a4968', _('Gathering')),
-            ('2147569e-7bc4-4b79-8760-844dc568c422', pgettext('activities-gathering', 'Team')),
-            (
-                'e4ff08c8-80df-4528-bcc1-4f9d20c6fe61',
-                pgettext('activities-gathering', 'Internal'),
-            ),
-            ('1c626935-d47a-4d9b-af4b-b90b8a71fc77', _('On the site')),
-            ('8f003f06-f1ea-456e-90f3-82e8b8ef7424', _('Remote')),
-            ('bc001a5c-eb90-4a3c-b703-afe347d3bf34', _('Outside')),
-        ]:
-            create_subtype(uuid=uid, type=gathering_t, name=name, is_custom=True)
-
-        # show_t = act_types[constants.ACTIVITYTYPE_SHOW]
-        # for pk, name in [
-        #     ('activities-activitysubtype_show_exhibitor', _('Exhibitor')),
-        #     ('activities-activitysubtype_show_visitor',   _('Visitor')),
-        # ]:
-        #     create_subtype(atype=show_t, pk=pk, name=name, is_custom=True)
-        show_t = act_types[constants.UUID_TYPE_SHOW]
-        for uid, name in [
-            ('b75a663c-af2e-4440-89b3-2a75410cd55b', _('Exhibitor')),
-            ('591b34b3-4226-48d4-a74d-d94665190b44', _('Visitor')),
-        ]:
-            create_subtype(uuid=uid, type=show_t, name=name, is_custom=True)
-
-        # demo_t = act_types[constants.ACTIVITYTYPE_DEMO]
-        # for pk, name in [
-        #     ('activities-activitysubtype_demo',                 _('Demonstration')),
-        #     ('activities-activitysubtype_demo_on_site',         _('On the site')),
-        #     ('activities-activitysubtype_demo_outside',         _('Outside')),
-        #     ('activities-activitysubtype_demo_videoconference', _('Videoconference')),
-        # ]:
-        #     create_subtype(atype=demo_t, pk=pk, name=name, is_custom=True)
-        demo_t = act_types[constants.UUID_TYPE_DEMO]
-        for uid, name in [
-            ('c32a94c7-8a2a-4589-8b0d-6764c63fb659', _('Demonstration')),
-            ('247902ed-05dd-4ba6-9cbd-ea43b7c996eb', _('On the site')),
-            ('e22a2e5d-4349-4d44-bd77-21b1a10816d5', _('Outside')),
-            ('3faf21bf-80b4-4182-b975-8146db2fb68b', _('Videoconference')),
-        ]:
-            create_subtype(uuid=uid, type=demo_t, name=name, is_custom=True)
+                    for sub_type in sub_types:
+                        sub_type.type = atype
+                        sub_type.save()
 
     def _populate_calendar_config(self):
         # Create default calendar configuration
@@ -437,7 +426,7 @@ class Populator(BasePopulator):
                         operator=operators.EqualsOperator,
                         field_name='type',
                         # values=[act_types[atype_uuid].id],
-                        values=[self.activity_types[atype_uuid].id],
+                        values=[ActivityType.objects.get(uuid=atype_uuid).id],
                     ),
                 ],
             )
