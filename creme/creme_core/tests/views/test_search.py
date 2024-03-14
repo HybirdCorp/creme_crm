@@ -76,10 +76,13 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.fail(f'No brick found for prefix "{prefix}".')
 
     def assertNoSearchBrick(self, tree, brick_id_prefix):
+        prefix = f'brick-{brick_id_prefix}'
+
         for div_node in tree.findall('.//div'):
             if (
-                'brick' not in div_node.attrib.get('class', '')
-                and div_node.attrib.get('id', '').startswith(brick_id_prefix)
+                'brick' in div_node.attrib.get('class', '')
+                # and div_node.attrib.get('id', '').startswith(brick_id_prefix)
+                and div_node.attrib.get('id', '').startswith(prefix)
             ):
                 self.fail(f'A brick unexpectedly found for prefix "{brick_id_prefix}".')
 
@@ -257,7 +260,7 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         context = response.context
 
         tree = self.get_html_tree(response.content)
-        self.assertNoSearchBrick(tree, brick_id_prefix=self.ORGA_BRICKID)
+        self.get_search_brick_node(tree, brick_id_prefix=self.ORGA_BRICKID)
 
         self.assertNoSearchBrick(tree, brick_id_prefix=self.CONTACT_BRICKID)
 
