@@ -21,6 +21,7 @@
       BEWARE: if you use a custom list for 'IMPORT_BACKENDS' in your settings,
               the value "creme.creme_core.backends.xls_import.XLSXImportBackend" is now invalid.
               You should use "creme.creme_core.backends.xlsx_import.XLSXImportBackend" instead.
+    # In global search, forbidden models are not proposed anymore.
     # Drop JQPlot compatibility
     # Apps :
         * Creme_config :
@@ -399,6 +400,11 @@
         # In the model 'creme_core.models.fields_config.FieldsConfig' :
             - The attributes "_excluded_fnames" & "_required_fnames" have been removed.
             - The method 'update_form_fields()' now takes a form instance, and can set the _meta attribute (backported to 2.5.6/2.4.13).
+        # In the context created by the class-view 'creme_core.views.search.Search',
+          "models" is now a list of CremeEntity classes (use "verbose_names" instead).
+        # In the templatetag "{% search_form %}" (from library "creme_search")
+            - The argument "user" has been removed.
+            - A mandatory argument "models" has been added.
         # Apps :
             * Creme_config :
                 - The value of class attribute "id" of several Brick classes (for bricks configuration) have changed (mainly "block" => "brick").

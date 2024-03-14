@@ -19,25 +19,33 @@
 from django import template
 from django.contrib.contenttypes.models import ContentType
 
-from ..core.search import Searcher
-from ..registry import creme_registry
-from ..utils.unicode_collation import collator
+# from ..core.search import Searcher
+# from ..registry import creme_registry
+# from ..utils.unicode_collation import collator
 from ..views import search as search_views
 
 register = template.Library()
 
 
 @register.inclusion_tag('creme_core/templatetags/search-form.html')
-def search_form(*, user, selected_ct_id, search_terms):
+# def search_form(*, user, selected_ct_id, search_terms):
+def search_form(*, models, selected_ct_id, search_terms):
+    # get_ct = ContentType.objects.get_for_model
+    # content_types = [
+    #     {
+    #         'id':           get_ct(model).id,
+    #         'verbose_name': str(model._meta.verbose_name),
+    #     } for model in Searcher(creme_registry.iter_entity_models(), user).models
+    # ]
+    # sort_key = collator.sort_key
+    # content_types.sort(key=lambda k: sort_key(k['verbose_name']))
     get_ct = ContentType.objects.get_for_model
     content_types = [
         {
-            'id':           get_ct(model).id,
+            'id': get_ct(model).id,
             'verbose_name': str(model._meta.verbose_name),
-        } for model in Searcher(creme_registry.iter_entity_models(), user).models
+        } for model in models
     ]
-    sort_key = collator.sort_key
-    content_types.sort(key=lambda k: sort_key(k['verbose_name']))
 
     return {
         # 'min_length':     search_views.MIN_RESEARCH_LENGTH,

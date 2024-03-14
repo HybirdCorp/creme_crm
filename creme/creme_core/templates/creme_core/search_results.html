@@ -54,12 +54,12 @@
     </div>
 
 {#    {% search_form user=user selected_ct_id=selected_ct_id search_terms=research %} #}
-    {% search_form user=user selected_ct_id=selected_ct_id search_terms=searched %}
+    {% search_form models=models selected_ct_id=selected_ct_id search_terms=searched %}
 
 {#    {% if research or models %} #}
-    {% if searched or models %}
+    {% if searched or verbose_names %}
 {#        {% blocktranslate with types=models|join:', ' asvar help_msg %}Your search: {{research}} #}
-        {% blocktranslate with types=models|join:', ' asvar help_msg %}Your search: {{searched}}
+        {% blocktranslate with types=verbose_names|join:', ' asvar help_msg %}Your search: {{searched}}
 
 Concerned types: {{types}}{% endblocktranslate %}
         {% widget_help_sign message=help_msg %}

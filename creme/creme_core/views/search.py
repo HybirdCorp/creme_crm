@@ -139,8 +139,14 @@ class SearcherMixin:
     searchable_models_registry = creme_registry
 
     def get_raw_models(self):
-        models = [*self.searchable_models_registry.iter_entity_models()]
-        models.sort(key=lambda m: m._meta.verbose_name)
+        # models = [*self.searchable_models_registry.iter_entity_models()]
+        role = self.request.user.role
+        models = [*creme_registry.iter_entity_models(
+            app_labels=role.allowed_apps if role else None
+        )]
+        # models.sort(key=lambda m: m._meta.verbose_name)
+        sort_key = collator.sort_key
+        models.sort(key=lambda m: sort_key(str(m._meta.verbose_name)))
 
         return models
 
@@ -195,7 +201,9 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
         # context['research'] = self.get_search_terms()
         context['searched'] = self.get_search_terms()
         context['error_message'] = self.get_search_error()
-        context['models'] = [m._meta.verbose_name for m in self.get_searcher().models]
+        # context['models'] = [m._meta.verbose_name for m in self.get_searcher().models]
+        context['models'] = models = [*self.get_searcher().models]
+        context['verbose_names'] = [str(model._meta.verbose_name) for model in models]
 
         ctype = self.get_ctype()
         context['selected_ct_id'] = ctype.id if ctype else None
@@ -209,8 +217,9 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
         ctype = self.get_ctype()
 
         if ctype is None:
-            models = [*creme_registry.iter_entity_models()]
-            models.sort(key=lambda m: m._meta.verbose_name)
+            # models = [*creme_registry.iter_entity_models()]
+            # models.sort(key=lambda m: m._meta.verbose_name)
+            models = super().get_raw_models()
         else:
             models = [ctype.model_class()]
 
@@ -259,6 +268,8 @@ class SearchBricksReloading(BricksReloading):
 
             if ctype is None:
                 raise Http404('Invalid block ID')
+
+            user.has_perm_to_access_or_die(ctype.app_label)
 
             # search = GET.get('search', '')
             searched = GET.get('search', '')
