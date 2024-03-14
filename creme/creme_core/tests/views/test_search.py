@@ -148,10 +148,13 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
 
         with self.assertNoException():
             models = ctxt['models']
+            verbose_names = ctxt['verbose_names']
             bricks = ctxt['bricks']
             reload_url = ctxt['bricks_reload_url']
 
-        self.assertListEqual(['Test Contact'], models)
+        # self.assertListEqual(['Test Contact'], models)
+        self.assertListEqual([FakeContact], models)
+        self.assertListEqual(['Test Contact'], verbose_names)
         self.assertEqual(
             f"{reverse('creme_core__reload_search_brick')}?search={term}",
             reload_url,
@@ -206,9 +209,14 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLinkNoLabel(brick_node2, entity=self.coxco)
         self.assertNoInstanceLink(brick_node2, entity=self.linusfo)
 
-        vnames = {str(vname) for vname in context['models']}
-        self.assertIn('Test Contact', vnames)
-        self.assertIn('Test Organisation', vnames)
+        # vnames = {str(vname) for vname in context['models']}
+        # self.assertIn('Test Contact', vnames)
+        # self.assertIn('Test Organisation', vnames)
+        self.assertCountEqual({FakeContact, FakeOrganisation}, context['models'])
+        self.assertCountEqual(
+            [FakeContact._meta.verbose_name, FakeOrganisation._meta.verbose_name],
+            context['verbose_names'],
+        )
 
     def test_search_regular_fields03(self):
         "Error."
@@ -264,9 +272,14 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertNoSearchBrick(tree, brick_id_prefix=self.CONTACT_BRICKID)
 
-        vnames = {str(vname) for vname in context['models']}
-        self.assertIn(FakeOrganisation._meta.verbose_name, vnames)
-        self.assertNotIn(FakeContact._meta.verbose_name, vnames)
+        # vnames = {str(vname) for vname in context['models']}
+        # self.assertIn(FakeOrganisation._meta.verbose_name, vnames)
+        # self.assertNotIn(FakeContact._meta.verbose_name, vnames)
+        self.assertListEqual([FakeOrganisation], context['models'])
+        self.assertListEqual(
+            [FakeOrganisation._meta.verbose_name],
+            context['verbose_names'],
+        )
 
     def test_search_for_role(self):
         "Use Role's config if it exists."
@@ -771,4 +784,54 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
                 ],
             },
             response.json(),
+        )
+
+    def test_search_app_credentials(self):
+        from creme.documents import get_document_model
+
+        user = self.login_as_standard(allowed_apps=['documents'])  # Not 'creme_core'
+        self.add_credentials(user.role, own='*')
+        self._setup_contacts(user=user)
+
+        Document = get_document_model()
+        SearchConfigItem.objects.create_if_needed(Document, ['title'])
+
+        searched = 'linu'
+        response1 = self._search(searched)
+        self.assertEqual(200, response1.status_code)
+
+        tree1 = self.get_html_tree(response1.content)
+        self.assertNoSearchBrick(tree1, brick_id_prefix=self.ORGA_BRICKID)
+        self.assertNoSearchBrick(tree1, brick_id_prefix=self.CONTACT_BRICKID)
+
+        context1 = response1.context
+        models = context1['models']
+        self.assertNotIn(FakeContact, models)
+        self.assertNotIn(FakeOrganisation, models)
+
+        vnames = {str(vname) for vname in context1['verbose_names']}
+        self.assertNotIn('Test Contact', vnames)
+        self.assertNotIn('Test Organisation', vnames)
+        self.assertIn(str(Document._meta.verbose_name), vnames)
+
+        # ---
+        response2 = self._search(searched, self.contact_ct_id)
+        self.assertEqual(403, response2.status_code)
+
+        # ---
+        reload_url = reverse('creme_core__reload_search_brick')
+        self.assertGET200(
+            reload_url,
+            data={'brick_id': 'found-documents-document-', 'search': searched},
+        )
+        self.assertGET403(
+            reload_url,
+            data={'brick_id': self.CONTACT_BRICKID + '456132', 'search': searched},
+        )
+
+        # ---
+        response3 = self.assertGET200(self.LIGHT_URL, data={'value': searched})
+        self.assertDictEqual(
+            {'best': None, 'results': []},
+            response3.json(),
         )
