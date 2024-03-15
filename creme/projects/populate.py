@@ -58,6 +58,7 @@ class Populator(BasePopulator):
         'TASK': ['linked_project__name', 'duration', 'tstatus__name'],
     }
     PROJECT_STATUSES = [
+        # is_custom=True => only created during the first execution
         ProjectStatus(
             uuid='e0487a58-7c2a-45e9-a6da-f770c2f1bd53',
             name=_('Invitation to tender'),
@@ -147,21 +148,8 @@ class Populator(BasePopulator):
 
     def _populate(self):
         super()._populate()
-        self._populate_task_statuses()
-
-    def _first_populate(self):
-        super()._first_populate()
         self._populate_project_statuses()
-
-    def _populate_task_statuses(self):
-        # for pk, statusdesc in constants.TASK_STATUS.items():
-        #     create_if_needed(
-        #         TaskStatus, {'pk': pk}, name=str(statusdesc.name), order=pk,
-        #         description=str(statusdesc.verbose_name), is_custom=False,
-        #     )
-        for status in self.TASK_STATUSES:
-            if not TaskStatus.objects.filter(uuid=status.uuid).exists():
-                status.save()
+        self._populate_task_statuses()
 
     def _populate_project_statuses(self):
         # for pk, (name, description) in enumerate(self.PROJECT_STATUSES, start=1):
@@ -169,9 +157,15 @@ class Populator(BasePopulator):
         #         ProjectStatus, {'pk': pk},
         #         name=name, order=pk, description=description,
         #     )
-        for status in self.PROJECT_STATUSES:
-            if not ProjectStatus.objects.filter(uuid=status.uuid).exists():
-                status.save()
+        self._save_minions(self.PROJECT_STATUSES)
+
+    def _populate_task_statuses(self):
+        # for pk, statusdesc in constants.TASK_STATUS.items():
+        #     create_if_needed(
+        #         TaskStatus, {'pk': pk}, name=str(statusdesc.name), order=pk,
+        #         description=str(statusdesc.verbose_name), is_custom=False,
+        #     )
+        self._save_minions(self.TASK_STATUSES)
 
     def _populate_relation_types(self):
         create_rtype = RelationType.objects.smart_update_or_create

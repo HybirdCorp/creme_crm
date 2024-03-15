@@ -110,14 +110,7 @@ class Populator(BasePopulator):
     def _populate_act_types(self):
         # for i, title in enumerate([_('Phone calls'), _('Show'), _('Demo')], start=1):
         #     create_if_needed(ActType, {'pk': i}, title=title, is_custom=False)
-        for act_type in self.ACT_TYPES:
-            if not act_type.is_custom and not ActType.objects.filter(uuid=act_type.uuid).exists():
-                act_type.save()
-
-        if not self.already_populated:
-            for act_type in self.ACT_TYPES:
-                if act_type.is_custom:
-                    act_type.save()
+        self._save_minions(self.ACT_TYPES)
 
     def _populate_relation_types(self):
         RelationType.objects.smart_update_or_create(

@@ -64,6 +64,13 @@ class Populator(BasePopulator):
             'name', 'description', 'category__name', 'sub_category__name',
         ],
     }
+    DOC_CATEGORIES = [
+        DocumentCategory(
+            uuid=constants.UUID_DOC_CAT_IMG_PRODUCT,
+            name=_('Product image'),
+            is_custom=False,
+        ),
+    ]
     CATEGORIES = [
         [
             Category(uuid='3fb0ef3c-45d0-40bd-8e71-b1ab49fca8d3', name=_('Jewelry')),
@@ -142,13 +149,14 @@ class Populator(BasePopulator):
         self._populate_categories()
 
     def _populate_doc_categories(self):
-        DocumentCategory.objects.get_or_create(
-            uuid=constants.UUID_DOC_CAT_IMG_PRODUCT,
-            defaults={
-                'name': _('Product image'),
-                'is_custom': False,
-            },
-        )
+        # DocumentCategory.objects.get_or_create(
+        #     uuid=constants.UUID_DOC_CAT_IMG_PRODUCT,
+        #     defaults={
+        #         'name': _('Product image'),
+        #         'is_custom': False,
+        #     },
+        # )
+        self._save_minions(self.DOC_CATEGORIES)
 
     def _populate_categories(self):
         # create_cat = Category.objects.create

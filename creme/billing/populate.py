@@ -180,7 +180,16 @@ class Populator(BasePopulator):
             name=pgettext('billing-salesorder', 'Created'),  order=2,
         ),
     ]
+    PAYMENT_TERMS = [
+        PaymentTerms(
+            uuid='86b76130-4cac-4337-95ff-3e9021329956',
+            name=_('Deposit'),
+            description=_(r'20% deposit will be required'),
+            is_custom=False,
+        ),
+    ]
     SETTLEMENT_TERMS = [
+        # is_custom=True => only created during the first execution
         SettlementTerms(
             uuid='5d5db3d9-8af9-450a-9daa-67e78fae82f8', name=_('30 days'),
         ),
@@ -198,6 +207,7 @@ class Populator(BasePopulator):
         ),
     ]
     ADDITIONAL_INFORMATION = [
+        # is_custom=True => only created during the first execution
         AdditionalInformation(
             uuid='1c3c5157-1a42-4b88-9b78-de15b41bdd96',
             name=_('Trainer accreditation'),
@@ -228,6 +238,8 @@ class Populator(BasePopulator):
         super()._populate()
         self._populate_exporters_config()
         self._populate_payment_terms()
+        self._populate_settlement_terms()
+        self._populate_additional_information()
 
         self._populate_creditnote_statuses()
         self._populate_invoice_statuses()
@@ -236,8 +248,6 @@ class Populator(BasePopulator):
 
     def _first_populate(self):
         super()._first_populate()
-        self._populate_settlement_terms()
-        self._populate_additional_information()
 
         if apps.is_installed('creme.reports'):
             self._populate_reports()
@@ -280,25 +290,23 @@ class Populator(BasePopulator):
         #     description=_(r'20% deposit will be required'),
         #     is_custom=False,
         # )
-        PaymentTerms.objects.get_or_create(
-            uuid='86b76130-4cac-4337-95ff-3e9021329956',
-            defaults={
-                'name': _('Deposit'),
-                'description': _(r'20% deposit will be required'),
-                'is_custom': False,
-            },
-        )
+        self._save_minions(self.PAYMENT_TERMS)
 
-    def _create_statuses(self, unsaved_statuses):
-        # NB: we create the not custom ones before
-        for status in unsaved_statuses:
-            if not status.is_custom and not type(status).objects.filter(uuid=status.uuid).exists():
-                status.save()
+    def _populate_settlement_terms(self):
+        # create_if_needed(SettlementTerms, {'pk': 1}, name=_('30 days'))
+        # create_if_needed(SettlementTerms, {'pk': 2}, name=_('Cash'))
+        # create_if_needed(SettlementTerms, {'pk': 3}, name=_('45 days'))
+        # create_if_needed(SettlementTerms, {'pk': 4}, name=_('60 days'))
+        # create_if_needed(SettlementTerms, {'pk': 5}, name=_('30 days, end month the 10'))
+        self._save_minions(self.SETTLEMENT_TERMS)
 
-        if not self.already_populated:
-            for status in unsaved_statuses:
-                if status.is_custom:
-                    status.save()
+    def _populate_additional_information(self):
+        # create_if_needed(
+        #     AdditionalInformation,
+        #     {'pk': 1}, name=_('Trainer accreditation'),
+        #     description=_('being certified trainer courses could be supported by your OPCA'),
+        # )
+        self._save_minions(self.ADDITIONAL_INFORMATION)
 
     def _populate_creditnote_statuses(self):
         # def create_cnote_status(pk, name, **kwargs):
@@ -313,7 +321,7 @@ class Populator(BasePopulator):
         #     create_cnote_status(2, pgettext('billing-creditnote', 'Issued'),      order=2)
         #     create_cnote_status(3, pgettext('billing-creditnote', 'Consumed'),    order=3)
         #     create_cnote_status(4, pgettext('billing-creditnote', 'Out of date'), order=4)
-        self._create_statuses(self.CREDIT_NOTE_STATUSES)
+        self._save_minions(self.CREDIT_NOTE_STATUSES)
 
     def _populate_invoice_statuses(self):
         # def create_invoice_status(pk, name, **kwargs):
@@ -353,7 +361,7 @@ class Populator(BasePopulator):
         #         8, pgettext('billing-invoice', 'Canceled'),
         #         order=8,
         #     )
-        self._create_statuses(self.INVOICE_STATUSES)
+        self._save_minions(self.INVOICE_STATUSES)
 
     def _populate_quote_statuses(self):
         # if not self.already_populated:
@@ -378,7 +386,7 @@ class Populator(BasePopulator):
         #         4, pgettext('billing-quote', 'Created'),
         #         order=1,
         #     )
-        self._create_statuses(self.QUOTE_STATUSES)
+        self._save_minions(self.QUOTE_STATUSES)
 
     def _populate_order_statuses(self):
         # def create_order_status(pk, name, **kwargs):
@@ -393,25 +401,7 @@ class Populator(BasePopulator):
         #     create_order_status(2, pgettext('billing-salesorder', 'Accepted'), order=3)
         #     create_order_status(3, pgettext('billing-salesorder', 'Rejected'), order=4)
         #     create_order_status(4, pgettext('billing-salesorder', 'Created'),  order=2)
-        self._create_statuses(self.SALES_ORDER_STATUSES)
-
-    def _populate_settlement_terms(self):
-        # create_if_needed(SettlementTerms, {'pk': 1}, name=_('30 days'))
-        # create_if_needed(SettlementTerms, {'pk': 2}, name=_('Cash'))
-        # create_if_needed(SettlementTerms, {'pk': 3}, name=_('45 days'))
-        # create_if_needed(SettlementTerms, {'pk': 4}, name=_('60 days'))
-        # create_if_needed(SettlementTerms, {'pk': 5}, name=_('30 days, end month the 10'))
-        for terms in self.SETTLEMENT_TERMS:
-            terms.save()
-
-    def _populate_additional_information(self):
-        # create_if_needed(
-        #     AdditionalInformation,
-        #     {'pk': 1}, name=_('Trainer accreditation'),
-        #     description=_('being certified trainer courses could be supported by your OPCA'),
-        # )
-        for info in self.ADDITIONAL_INFORMATION:
-            info.save()
+        self._save_minions(self.SALES_ORDER_STATUSES)
 
     def _populate_relation_types(self):
         Product = products.get_product_model()
