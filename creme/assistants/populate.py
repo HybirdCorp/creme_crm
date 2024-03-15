@@ -74,17 +74,7 @@ class Populator(BasePopulator):
         #     create_if_needed(
         #         UserMessagePriority, {'pk': pk}, title=str(title), is_custom=False,
         #     )
-        for priority in self.PRIORITIES:
-            if (
-                not priority.is_custom
-                and not UserMessagePriority.objects.filter(uuid=priority.uuid).exists()
-            ):
-                priority.save()
-
-        if not self.already_populated:
-            for priority in self.PRIORITIES:
-                if priority.is_custom:
-                    priority.save()
+        self._save_minions(self.PRIORITIES)
 
     def _populate_setting_values(self):
         SettingValue.objects.get_or_create(

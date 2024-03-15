@@ -65,6 +65,7 @@ class Populator(BasePopulator):
 
     SEARCH = ['name', 'made_sales', 'sales_phase__name', 'origin__name']
     SALES_PHASES = [
+        # is_custom=True => only created during the first execution
         SalesPhase(
             uuid='9fc5ff38-b358-4131-b03e-6c1f800bfb08',
             order=1, name=_('Forthcoming'),
@@ -93,6 +94,7 @@ class Populator(BasePopulator):
         ),
     ]
     ORIGINS = [
+        # is_custom=True => only created during the first execution
         Origin(
             uuid='814e485e-418a-42d5-a6ef-720aaffee7a0',
             name=pgettext('opportunities-origin', 'None'),
@@ -145,10 +147,13 @@ class Populator(BasePopulator):
     def _already_populated(self):
         return RelationType.objects.filter(pk=constants.REL_SUB_TARGETS).exists()
 
-    def _first_populate(self):
-        super()._first_populate()
+    def _populate(self):
+        super()._populate()
         self._populate_phases()
         self._populate_origins()
+
+    def _first_populate(self):
+        super()._first_populate()
 
         if apps.is_installed('creme.reports'):
             logger.info(
@@ -173,8 +178,7 @@ class Populator(BasePopulator):
         #     order=6, name=pgettext('opportunities-sales_phase', 'Lost'),
         #     lost=True, color='ae4444',
         # )
-        for sales_phase in self.SALES_PHASES:
-            sales_phase.save()
+        self._save_minions(self.SALES_PHASES)
 
     def _populate_origins(self):
         # create_origin = Origin.objects.create
@@ -187,8 +191,7 @@ class Populator(BasePopulator):
         # create_origin(name=_('Employee'))
         # create_origin(name=_('Partner'))
         # create_origin(name=pgettext('opportunities-origin', 'Other'))
-        for origin in self.ORIGINS:
-            origin.save()
+        self._save_minions(self.ORIGINS)
 
     def _populate_relation_types(self):
         Opportunity = self.Opportunity

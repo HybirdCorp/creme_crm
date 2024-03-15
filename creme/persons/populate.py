@@ -86,7 +86,20 @@ class Populator(BasePopulator):
             (buttons.AddLinkedContactButton, 25),
         ],
     }
+    DOC_CATEGORIES = [
+        DocumentCategory(
+            uuid=constants.UUID_DOC_CAT_IMG_ORGA,
+            name=_('Organisation logo'),
+            is_custom=False,
+        ),
+        DocumentCategory(
+            uuid=constants.UUID_DOC_CAT_IMG_CONTACT,
+            name=_('Contact photograph'),
+            is_custom=False,
+        ),
+    ]
     CIVILITIES = [
+        # is_custom=True => only created during the first execution
         Civility(
             uuid='7c3867da-af53-43d4-bfcc-75c1c3e5121e',
             title=_('Madam'), shortcut=_('Mrs.'),
@@ -105,11 +118,13 @@ class Populator(BasePopulator):
         ),
     ]
     POSITIONS = [
+        # is_custom=True => only created during the first execution
         Position(uuid='1534eb82-f55c-45ef-af2e-4e2d5d68218f', title=_('CEO')),
         Position(uuid='7e10f7f8-730c-45b4-8e81-6b2e4cfbab36', title=_('Secretary')),
         Position(uuid='9669e6a9-4661-4248-bc7c-d675f6e13216', title=_('Technician')),
     ]
     SECTORS = [
+        # is_custom=True => only created during the first execution
         Sector(uuid='4995508b-069b-4ad5-a07d-9ae9c17918f2', title=_('Food Industry')),
         Sector(uuid='06581ce8-e5ab-4875-b18d-b1ae366a9073', title=_('Industry')),
         Sector(uuid='d3d16967-b4e4-4dff-a401-c97ab36fa9a2', title=_('Software')),
@@ -118,12 +133,14 @@ class Populator(BasePopulator):
     ]
     LEGAL_FORMS = [
         # TODO: add data depending on the current country
+        # is_custom=True => only created during the first execution
         LegalForm(uuid='0f9ffebf-ae6a-4314-bf78-5ac33c477385', title='SARL'),
         LegalForm(uuid='97ec5342-cfcd-47f2-9977-03238a4bb815', title='Association loi 1901'),
         LegalForm(uuid='2a18cf05-19bd-47d1-96d0-7dd2ea969e74', title='SA'),
         LegalForm(uuid='2085dfac-9714-407c-972b-2256e8472124', title='SAS'),
     ]
     STAFF_SIZES = [
+        # is_custom=True => only created during the first execution
         StaffSize(uuid='625f5c71-db51-48f7-b548-63360d0b6653', size='1 - 5',     order=1),
         StaffSize(uuid='405efcfb-b6cc-4996-8062-b0794d6b718b', size='6 - 10',    order=2),
         StaffSize(uuid='57b8a9f0-b672-473a-bc77-db0cd73f4d71', size='11 - 50',   order=3),
@@ -145,40 +162,40 @@ class Populator(BasePopulator):
     def _populate(self):
         super()._populate()
         self._populate_doc_categories()
-
-    def _first_populate(self):
-        super()._first_populate()
         self._populate_civilities()
-        self._populate_managed_organisation()
         self._populate_positions()
         self._populate_sectors()
         self._populate_legal_forms()
         self._populate_staff_sizes()
 
+    def _first_populate(self):
+        super()._first_populate()
+        self._populate_managed_organisation()
+
     def _populate_doc_categories(self) -> None:
-        create_doc_cat = DocumentCategory.objects.get_or_create
-        create_doc_cat(
-            uuid=constants.UUID_DOC_CAT_IMG_ORGA,
-            defaults={
-                'name': _('Organisation logo'),
-                'is_custom': False,
-            },
-        )
-        create_doc_cat(
-            uuid=constants.UUID_DOC_CAT_IMG_CONTACT,
-            defaults={
-                'name': _('Contact photograph'),
-                'is_custom': False,
-            },
-        )
+        # create_doc_cat = DocumentCategory.objects.get_or_create
+        # create_doc_cat(
+        #     uuid=constants.UUID_DOC_CAT_IMG_ORGA,
+        #     defaults={
+        #         'name': _('Organisation logo'),
+        #         'is_custom': False,
+        #     },
+        # )
+        # create_doc_cat(
+        #     uuid=constants.UUID_DOC_CAT_IMG_CONTACT,
+        #     defaults={
+        #         'name': _('Contact photograph'),
+        #         'is_custom': False,
+        #     },
+        # )
+        self._save_minions(self.DOC_CATEGORIES)
 
     def _populate_civilities(self):
         # create_if_needed(Civility, {'pk': 1}, title=_('Madam'),  shortcut=_('Mrs.'))
         # create_if_needed(Civility, {'pk': 2}, title=_('Miss'),   shortcut=_('Ms.'))
         # create_if_needed(Civility, {'pk': 3}, title=_('Mister'), shortcut=_('Mr.'))
         # create_if_needed(Civility, {'pk': 4}, title=_('N/A'),    shortcut='')
-        for civ in self.CIVILITIES:
-            civ.save()
+        self._save_minions(self.CIVILITIES)
 
     def _populate_managed_organisation(self):
         # TODO: add relationship to admin?
@@ -193,8 +210,7 @@ class Populator(BasePopulator):
         # create_if_needed(Position, {'pk': 1}, title=_('CEO'))
         # create_if_needed(Position, {'pk': 2}, title=_('Secretary'))
         # create_if_needed(Position, {'pk': 3}, title=_('Technician'))
-        for position in self.POSITIONS:
-            position.save()
+        self._save_minions(self.POSITIONS)
 
     def _populate_sectors(self):
         # create_if_needed(Sector, {'pk': 1}, title=_('Food Industry'))
@@ -202,16 +218,14 @@ class Populator(BasePopulator):
         # create_if_needed(Sector, {'pk': 3}, title=_('Software'))
         # create_if_needed(Sector, {'pk': 4}, title=_('Telecom'))
         # create_if_needed(Sector, {'pk': 5}, title=_('Restoration'))
-        for sector in self.SECTORS:
-            sector.save()
+        self._save_minions(self.SECTORS)
 
     def _populate_legal_forms(self):
         # create_if_needed(LegalForm, {'pk': 1}, title='SARL')
         # create_if_needed(LegalForm, {'pk': 2}, title='Association loi 1901')
         # create_if_needed(LegalForm, {'pk': 3}, title='SA')
         # create_if_needed(LegalForm, {'pk': 4}, title='SAS')
-        for lform in self.LEGAL_FORMS:
-            lform.save()
+        self._save_minions(self.LEGAL_FORMS)
 
     def _populate_staff_sizes(self):
         # create_if_needed(StaffSize, {'pk': 1}, size='1 - 5',     order=1)
@@ -220,8 +234,7 @@ class Populator(BasePopulator):
         # create_if_needed(StaffSize, {'pk': 4}, size='51 - 100',  order=4)
         # create_if_needed(StaffSize, {'pk': 5}, size='100 - 500', order=5)
         # create_if_needed(StaffSize, {'pk': 6}, size='> 500',     order=6)
-        for size in self.STAFF_SIZES:
-            size.save()
+        self._save_minions(self.STAFF_SIZES)
 
     def _populate_relation_types(self):
         Contact      = self.Contact

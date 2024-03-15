@@ -19,8 +19,10 @@
 from __future__ import annotations
 
 import sys
+from copy import deepcopy
 from importlib import import_module
 from traceback import format_exception
+from typing import Sequence
 
 from django.apps import apps
 from django.conf import settings
@@ -30,7 +32,7 @@ from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models.signals import pre_save
 
 from creme.creme_core.apps import creme_app_configs
-from creme.creme_core.models import HeaderFilter, SearchConfigItem
+from creme.creme_core.models import HeaderFilter, MinionModel, SearchConfigItem
 from creme.creme_core.utils.collections import OrderedSet
 from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.dependence_sort import dependence_sort
@@ -146,6 +148,40 @@ class BasePopulator:
         pass
 
     # Sub-populators [END] -----------------------------------------------------
+
+    # Helpers ------------------------------------------------------------------
+    def _save_minions(self, unsaved_instances: Sequence[MinionModel]) -> None:
+        """Save smartly some instances of model inheriting MinionModel.
+        Instances with is_custom=False are created if they do not already exist.
+        Instances with is_custom=True are created only during the first execution
+        of the populator.
+        """
+        if not unsaved_instances:
+            return
+
+        model = type(unsaved_instances[0])
+        if not issubclass(model, MinionModel):
+            raise ValueError(f'{model} does not inherit MinionModel')
+
+        for o in unsaved_instances:
+            if not isinstance(o, model):
+                raise ValueError(f'{o} is not an instance of {model}')
+
+            if o.pk is not None:
+                raise ValueError(f'{o} is a saved in DB')
+
+        unsaved_instances = deepcopy(unsaved_instances)
+
+        for instance in unsaved_instances:
+            if not instance.is_custom and not model.objects.filter(uuid=instance.uuid).exists():
+                instance.save()
+
+        if not self.already_populated:
+            for instance in unsaved_instances:
+                if instance.is_custom:
+                    instance.save()
+
+    # Helpers [END]-------------------------------------------------------------
 
     def get_app(self):
         return self.app
@@ -283,7 +319,7 @@ class Command(BaseCommand):
             try:
                 populator.populate()
             except Exception as e:
-                self.stderr.write(f' Populate "{populator.app}" failed ({e})')
+                self.stderr.write(f' Populate "{populator.app}" failed ({type(e)}: {e})')
                 if verbosity >= 1:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
                     self.stderr.write(

@@ -46,6 +46,7 @@ class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
     POLL_TYPES = [
+        # is_custom=True => only created during the first execution
         PollType(uuid='90d3d792-4354-43d2-8da2-9abf7cdd1421', name=_('Survey')),
         PollType(uuid='f3568c0a-ba44-485d-b4f3-88dac5c9477b', name=_('Monitoring')),
         PollType(uuid='3b50033a-b77c-43e4-88ae-145e433dc1ca', name=_('Assessment')),
@@ -65,16 +66,15 @@ class Populator(BasePopulator):
         # return PollType.objects.exists()
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_PFORM).exists()
 
-    def _first_populate(self):
-        super()._first_populate()
+    def _populate(self):
+        super()._populate()
         self._populate_poll_types()
 
     def _populate_poll_types(self):
         # create_if_needed(PollType, {'pk': 1}, name=_('Survey'))
         # create_if_needed(PollType, {'pk': 2}, name=_('Monitoring'))
         # create_if_needed(PollType, {'pk': 3}, name=_('Assessment'))
-        for poll_type in self.POLL_TYPES:
-            poll_type.save()
+        self._save_minions(self.POLL_TYPES)
 
     def _populate_header_filters(self):
         create_hf = HeaderFilter.objects.create_if_needed

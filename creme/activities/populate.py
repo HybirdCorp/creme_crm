@@ -301,14 +301,7 @@ class Populator(BasePopulator):
         # create_status(constants.STATUS_DONE,        pgettext('activities-status', 'Done')),
         # create_status(constants.STATUS_DELAYED,     pgettext('activities-status', 'Delayed')),
         # create_status(constants.STATUS_CANCELLED,   pgettext('activities-status', 'Cancelled')),
-        for status in self.STATUSES:
-            if not status.is_custom and not Status.objects.filter(uuid=status.uuid).exists():
-                status.save()
-
-        if not self.already_populated:
-            for status in self.STATUSES:
-                if status.is_custom:
-                    status.save()
+        self._save_minions(self.STATUSES)
 
     def _populate_activity_types_and_sub_types(self):
         for atype, sub_types in self.ACTIVITY_TYPES:

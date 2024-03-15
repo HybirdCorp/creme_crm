@@ -49,6 +49,7 @@ class Populator(BasePopulator):
 
     SEARCH = ['name', 'description', 'type__name']
     EVENT_TYPES = [
+        # is_custom=True => only created during the first execution
         EventType(uuid='d4928cbc-6afd-40bf-9d07-815b8b920b39', name=_('Show')),
         EventType(uuid='254fda4f-1a01-47e1-b5aa-a1b2d4ef2890', name=_('Conference')),
         EventType(uuid='b520fe79-98f4-4362-8293-b4febd46c9df', name=_('Breakfast')),
@@ -67,8 +68,8 @@ class Populator(BasePopulator):
             pk=constants.REL_SUB_IS_INVITED_TO,
         ).exists()
 
-    def _first_populate(self):
-        super()._first_populate()
+    def _populate(self):
+        super()._populate()
         self._populate_event_types()
 
     def _populate_event_types(self):
@@ -77,8 +78,7 @@ class Populator(BasePopulator):
         #     start=1,
         # ):
         #     create_if_needed(EventType, {'pk': i}, name=name)
-        for event_type in self.EVENT_TYPES:
-            event_type.save()
+        self._save_minions(self.EVENT_TYPES)
 
     def _populate_relation_types(self):
         Event = self.Event

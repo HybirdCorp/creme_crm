@@ -87,6 +87,7 @@ class Populator(BasePopulator):
         ),
     ]
     PRIORITIES = [
+        # is_custom=True => only created during the first execution
         Priority(uuid='87599d36-8133-41b7-a382-399d5e96b160', name=_('Low'),      order=1),
         Priority(uuid='816cefa7-2f30-46a6-8baa-92e4647f44d3', name=_('Normal'),   order=2),
         Priority(uuid='42c39215-cf78-4d0b-b00b-b54a6680f71a', name=_('High'),     order=3),
@@ -94,6 +95,7 @@ class Populator(BasePopulator):
         Priority(uuid='d2dba4cb-382c-4d94-8306-4ec739f03144', name=_('Blocking'), order=5),
     ]
     CRITICALITY = [
+        # is_custom=True => only created during the first execution
         Criticity(uuid='368a6b62-c66e-4286-b841-1062f59133c9', name=_('Minor'),       order=1),
         Criticity(uuid='1aa05ca4-68ec-4068-ac3b-b9ddffaeb0aa', name=_('Major'),       order=2),
         Criticity(uuid='e5a2a80e-36e8-49fd-8b2b-e802ccd4090c', name=_('Feature'),     order=3),
@@ -115,12 +117,12 @@ class Populator(BasePopulator):
     def _populate(self):
         super()._populate()
         self._populate_statuses()
+        self._populate_priorities()
+        self._populate_criticality()
 
     def _first_populate(self):
         super()._first_populate()
         self._populate_fields_config()
-        self._populate_priorities()
-        self._populate_criticality()
 
     def _populate_statuses(self):
         # for pk, name, is_closed, color in BASE_STATUS:
@@ -133,17 +135,7 @@ class Populator(BasePopulator):
         #         is_custom=False,
         #         order=pk,
         #     )
-        for status in self.STATUSES:
-            if (
-                not status.is_custom
-                and not Status.objects.filter(uuid=status.uuid).exists()
-            ):
-                status.save()
-
-        if not self.already_populated:
-            for status in self.STATUSES:
-                if status.is_custom:
-                    status.save()
+        self._save_minions(self.STATUSES)
 
     def _populate_fields_config(self):
         for model in (self.Ticket, self.TicketTemplate):
@@ -155,16 +147,12 @@ class Populator(BasePopulator):
     def _populate_priorities(self):
         # for i, name in enumerate(self.PRIORITIES, start=1):
         #     create_if_needed(Priority, {'pk': i}, name=name, order=i)
-        for priority in self.PRIORITIES:
-            if not Priority.objects.filter(uuid=priority.uuid).exists():
-                priority.save()
+        self._save_minions(self.PRIORITIES)
 
     def _populate_criticality(self):
         # for i, name in enumerate(self.CRITICALITY, start=1):
         #     create_if_needed(Criticity, {'pk': i}, name=name, order=i)
-        for criticality in self.CRITICALITY:
-            if not Criticity.objects.filter(uuid=criticality.uuid).exists():
-                criticality.save()
+        self._save_minions(self.CRITICALITY)
 
     def _populate_relation_types(self):
         RelationType.objects.smart_update_or_create(
