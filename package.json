@@ -14,7 +14,7 @@
         "colors": "^1.4.0",
         "eslint": "7.32.0",
         "eslint-plugin-standard": "5.0.0",
-        "follow-redirects": "1.15.4",
+        "follow-redirects": "1.15.6",
         "graceful-fs": "^4.2.11",
         "has-flag": "^5.0.0",
         "jquery": "3.6.4",
