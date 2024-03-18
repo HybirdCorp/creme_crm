@@ -4,6 +4,8 @@
 
   Users side :
   ------------
+    # Some validation issues with bulk-edition have been fixed.
+      It could be observed when editing several Invoices at once for example.
     # Apps :
         * Mobile :
             - A hard-coded URL pattern has been fixed (to use the reverse pattern matching as usual).
