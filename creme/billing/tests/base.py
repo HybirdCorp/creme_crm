@@ -21,7 +21,12 @@ from creme.products import get_product_model, get_service_model
 from creme.products.models import Category, SubCategory
 
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-from ..models import CreditNoteStatus, QuoteStatus
+from ..models import (
+    CreditNoteStatus,
+    InvoiceStatus,
+    QuoteStatus,
+    SalesOrderStatus,
+)
 
 skip_cnote_tests    = billing.credit_note_model_is_custom()
 skip_invoice_tests  = billing.invoice_model_is_custom()
@@ -138,7 +143,8 @@ class _BillingTestCaseMixin:
             data={
                 'user':   user.pk,
                 'name':   name,
-                'status': 1,
+                # 'status': 1,
+                'status': InvoiceStatus.objects.first().id,
 
                 'issuing_date':    self.formfield_value_date(2010,  9,  7),
                 'expiration_date': self.formfield_value_date(2010, 10, 13),
@@ -257,7 +263,8 @@ class _BillingTestCaseMixin:
             data={
                 'user':    user.pk,
                 'name':    name,
-                'status': status.id if status else 1,
+                # 'status': status.id if status else 1,
+                'status': status.id if status else SalesOrderStatus.objects.first().id,
 
                 'issuing_date':    self.formfield_value_date(2012, 1, 5),
                 'expiration_date': self.formfield_value_date(2012, 2, 15),
