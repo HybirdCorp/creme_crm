@@ -655,8 +655,14 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
         entities = self.entities
         kwargs['instances'] = entities
 
-        if len(entities) == 1:
-            kwargs['instance'] = entities[0]
+        # if len(entities) == 1:
+        #     kwargs['instance'] = entities[0]
+        if entities:
+            # NB: we set an empty CremeEntity because:
+            #  - an empty instance of the real type can raise ValidationErrors about missing info
+            #  - using entities[0] can raise ValidationErrors about info which do
+            #    not concern other entities (& so stop all the editions)
+            kwargs['instance'] = entities[0] if len(entities) == 1 else CremeEntity()
 
         return kwargs
 
