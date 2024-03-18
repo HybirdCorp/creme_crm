@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2023 Hybird
+# Copyright (c) 2009-2024 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ from __future__ import annotations
 import logging
 import sys
 import traceback
+import warnings
 from typing import Iterable
 
 from django.http import Http404
@@ -39,6 +40,12 @@ logger = logging.getLogger(__name__)
 
 
 def create_if_needed(model, get_dict, **attrs):
+    warnings.warn(
+        'creme_core.utils.create_if_needed() is deprecated; '
+        'use MyModel.objects.get_or_create() instead.',
+        DeprecationWarning
+    )
+
     try:
         instance = model.objects.get(**get_dict)
     except model.DoesNotExist:
