@@ -56,7 +56,7 @@ from .models import (
     Vat,
 )
 from .registry import creme_registry
-from .utils import create_if_needed
+# from .utils import create_if_needed
 from .utils.date_period import date_period_registry
 
 
@@ -131,18 +131,35 @@ class Populator(BasePopulator):
         )
 
     def _populate_currencies(self):
-        create_if_needed(
-            Currency,
-            {'pk': constants.DEFAULT_CURRENCY_PK},
-            name=_('Euro'), local_symbol=_('€'), international_symbol=_('EUR'),
-            is_custom=False,
+        # create_if_needed(
+        #     Currency,
+        #     {'pk': constants.DEFAULT_CURRENCY_PK},
+        #     name=_('Euro'), local_symbol=_('€'), international_symbol=_('EUR'),
+        #     is_custom=False,
+        # )
+        Currency.objects.get_or_create(
+            id=constants.DEFAULT_CURRENCY_PK,
+            defaults={
+                'name': _('Euro'),
+                'local_symbol': _('€'),
+                'international_symbol': _('EUR'),
+                'is_custom': False,
+            },
         )
 
     def _populate_optional_currencies(self):
-        create_if_needed(
-            Currency, {'pk': 2},
-            name=_('United States dollar'),
-            local_symbol=_('$'), international_symbol=_('USD'),
+        # create_if_needed(
+        #     Currency, {'pk': 2},
+        #     name=_('United States dollar'),
+        #     local_symbol=_('$'), international_symbol=_('USD'),
+        # )
+        Currency.objects.get_or_create(
+            id=2,
+            defaults={
+                'name': _('United States dollar'),
+                'local_symbol': _('$'),
+                'international_symbol': _('USD'),
+            },
         )
 
     def _populate_languages(self):

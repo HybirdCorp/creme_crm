@@ -69,6 +69,8 @@
             - In the class 'creme_core.gui.mass_import.FormRegistry' :
                 - The methods 'get()' & 'is_registered()' are now deprecated.
                 - The class 'UnregisteredCTypeException' is now deprecated.
+            - The function 'creme_core.utils.create_if_needed()' is deprecated ;
+              use 'MyModel.objects.get_or_create()' instead.
             - The templatetag {% has_perm_to %} is deprecated;
               use the template-filters of the new library "creme_perms" instead.
             - In 'creme_core.tests' :
