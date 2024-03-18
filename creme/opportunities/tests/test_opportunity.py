@@ -861,3 +861,32 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertNoFormError(response)
         self.assertEqual(phase3, getattr(self.refresh(opport1), field_name))
         self.assertEqual(phase3, getattr(self.refresh(opport2), field_name))
+
+    def test_bulk_edit__user(self):
+        "Bulk edit the field 'user' for 2 Opportunities (bugfix)."
+        user1 = self.login_as_root_and_get()
+        user2 = self.create_user()
+        target, emitter = self._create_target_n_emitter(user=user1)
+        phase = SalesPhase.objects.first()
+
+        create_opport = partial(
+            Opportunity.objects.create,
+            user=user1, emitter=emitter, target=target, sales_phase=phase,
+        )
+        opport1 = create_opport(name='Opp #1')
+        opport2 = create_opport(name='Opp #2')
+
+        field_name = 'user'
+        url = self.build_bulkupdate_uri(
+            model=Opportunity, field=field_name, entities=[opport1, opport2],
+        )
+        response = self.assertPOST200(
+            url,
+            data={
+                'entities': [opport1.id, opport2.id],
+                field_name: user2.id,
+            },
+        )
+        self.assertNoFormError(response)
+        self.assertEqual(user2, getattr(self.refresh(opport1), field_name))
+        self.assertEqual(user2, getattr(self.refresh(opport2), field_name))
