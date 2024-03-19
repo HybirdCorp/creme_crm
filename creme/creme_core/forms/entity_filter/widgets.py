@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,8 +31,9 @@ from django.db.models.fields.related import RelatedField as ModelRelatedField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
-    EF_USER,
+    EF_REGULAR,
     _EntityFilterRegistry,
     operators,
 )
@@ -82,7 +83,8 @@ _HAS_RELATION_OPTIONS = OrderedDict([
 class UserEnumerableSelect(EnumerableSelect):
     is_required = True
 
-    def __init__(self, field, filter_type=EF_USER, attrs=None):
+    # def __init__(self, field, filter_type=EF_USER, attrs=None):
+    def __init__(self, field, filter_type=EF_REGULAR, attrs=None):
         user_ctype = ContentType.objects.get_for_model(field.model)
         user_choices_url = reverse(
             'creme_core__efilter_user_choices', args=(user_ctype.id, field.name)
@@ -136,7 +138,8 @@ class FieldConditionSelector(ChainedInput):
             model=CremeEntity,
             fields=(),
             operators=(),
-            filter_type=EF_USER,
+            # filter_type=EF_USER,
+            filter_type=EF_REGULAR,
             attrs=None,
             autocomplete=False):
         super().__init__(attrs)
@@ -370,7 +373,8 @@ class RegularFieldsConditionsWidget(ConditionListWidget):
         self.model = model
         self.fields = fields
         self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-            id=-1,
+            # id=-1,
+            id='creme_core-default',
             verbose_name='Default for RegularFieldsConditionsWidget',
         )
 
@@ -531,8 +535,8 @@ class CustomFieldsConditionsWidget(ConditionListWidget):
         super().__init__(None, attrs)
         self.fields = fields
         self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-            # id=None,
-            id=-1,
+            # id=-1,
+            id='creme_core-default',
             verbose_name='Default for RegularFieldsConditionsWidget',
         )
 

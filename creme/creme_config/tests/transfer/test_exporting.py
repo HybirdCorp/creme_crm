@@ -14,9 +14,10 @@ from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellRegularField,
 )
+# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
-    EF_USER,
+    EF_REGULAR,
     operators,
 )
 from creme.creme_core.core.entity_filter.condition_handler import (
@@ -1600,7 +1601,8 @@ class ExportingTestCase(TransferBaseTestCase):
                 'id':    ef1.id,
                 'name':  ef1.name,
                 'ctype': ct_str_c,
-                'filter_type': EF_USER,
+                # 'filter_type': EF_USER,
+                'filter_type': EF_REGULAR,
                 'use_or': False,
                 'conditions': [
                     {
@@ -1625,7 +1627,8 @@ class ExportingTestCase(TransferBaseTestCase):
                 'id':    ef2.id,
                 'name':  ef2.name,
                 'ctype': ct_str_o,
-                'filter_type': EF_USER,
+                # 'filter_type': EF_USER,
+                'filter_type': EF_REGULAR,
                 'user':  other_user.username,
                 'use_or': True,
                 'conditions': [
@@ -1658,7 +1661,8 @@ class ExportingTestCase(TransferBaseTestCase):
                 'id':    ef3.id,
                 'name':  ef3.name,
                 'ctype': ct_str_o,
-                'filter_type': EF_USER,
+                # 'filter_type': EF_USER,
+                'filter_type': EF_REGULAR,
                 'user':  other_user.username,
                 'is_private': True,
                 'use_or': False,

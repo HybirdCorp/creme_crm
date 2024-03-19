@@ -33,7 +33,8 @@ import creme.creme_core.forms.base as core_forms
 import creme.creme_core.models as core_models
 from creme.creme_core import get_world_settings_model
 from creme.creme_core.core import setting_key
-from creme.creme_core.core.entity_filter import EF_USER
+# from creme.creme_core.core.entity_filter import EF_USER
+from creme.creme_core.core.entity_filter import EF_REGULAR
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.core.notification import notification_registry
 from creme.creme_core.gui.bricks import (
@@ -1196,7 +1197,8 @@ class EntityFiltersBrick(PaginatedBrick):
         user_ids = set()
 
         for efilter in core_models.EntityFilter.objects.filter(
-            filter_type=EF_USER,
+            # filter_type=EF_USER,
+            filter_type=EF_REGULAR,
             entity_type__in=[ctw.ctype for ctw in ctypes_wrappers],
         ):
             # TODO: templatetags instead ?

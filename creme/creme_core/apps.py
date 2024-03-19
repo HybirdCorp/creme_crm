@@ -271,7 +271,8 @@ class CremeAppConfig(AppConfig):
                 entity_filter.entity_filter_registries[entity_filter.EF_CREDENTIALS]
             )
             self.register_entity_filter(
-                entity_filter.entity_filter_registries[entity_filter.EF_USER]
+                # entity_filter.entity_filter_registries[entity_filter.EF_USER]
+                entity_filter.entity_filter_registries[entity_filter.EF_REGULAR]
             )
             self.register_custom_forms(custom_form.customform_descriptor_registry)
             self.register_enumerable(enumerable.enumerable_registry)

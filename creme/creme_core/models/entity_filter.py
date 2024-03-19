@@ -37,8 +37,9 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext, pgettext_lazy
 
+# from ..core.entity_filter import EF_USER
 from ..core.entity_filter import (
-    EF_USER,
+    EF_REGULAR,
     _EntityFilterRegistry,
     entity_filter_registries,
 )
@@ -146,7 +147,8 @@ class EntityFilterManager(models.Manager):
                 f'user cannot be a team ({user})'
             )
 
-        qs = self.filter(filter_type=EF_USER)
+        # qs = self.filter(filter_type=EF_USER)
+        qs = self.filter(filter_type=EF_REGULAR)
 
         return (
             qs
@@ -310,8 +312,13 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     ).set_tags(viewable=False)
     name = models.CharField(max_length=100, verbose_name=_('Name'))
 
-    filter_type = models.PositiveSmallIntegerField(
-        editable=False, default=EF_USER,
+    # filter_type = models.PositiveSmallIntegerField(
+    #     editable=False, default=EF_USER,
+    #     choices=[(registry.id, registry.verbose_name) for registry in entity_filter_registries],
+    # ).set_tags(viewable=False)
+    filter_type = models.CharField(
+        max_length=36,
+        editable=False, default=EF_REGULAR,
         choices=[(registry.id, registry.verbose_name) for registry in entity_filter_registries],
     ).set_tags(viewable=False)
 
@@ -404,7 +411,8 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     def can_edit(self, user) -> tuple[bool, str]:
         assert not user.is_team
 
-        if self.filter_type != EF_USER:
+        # if self.filter_type != EF_USER:
+        if self.filter_type != EF_REGULAR:
             return False, gettext('You cannot edit/delete a system filter')
 
         if not user.has_perm(self.entity_type.app_label):
@@ -842,7 +850,8 @@ class EntityFilterCondition(models.Model):
     class Meta:
         app_label = 'creme_core'
 
-    def __init__(self, *args, model=None, filter_type=EF_USER, **kwargs):
+    # def __init__(self, *args, model=None, filter_type=EF_USER, **kwargs):
+    def __init__(self, *args, model=None, filter_type=EF_REGULAR, **kwargs):
         self.filter_type = filter_type
         super().__init__(*args, **kwargs)
 

@@ -33,7 +33,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core import entity_cell
-from creme.creme_core.core.entity_filter import EF_USER
+# from creme.creme_core.core.entity_filter import EF_USER
+from creme.creme_core.core.entity_filter import EF_REGULAR
 from creme.creme_core.core.entity_filter.condition_handler import (
     CustomFieldConditionHandler,
     DateCustomFieldConditionHandler,
@@ -1450,7 +1451,8 @@ class EntityFiltersImporter(Importer):
             data = {
                 'id':         efilter_id,
                 'model':      model,
-                'filter_type': efilter_info.get('filter_type', EF_USER),
+                # 'filter_type': efilter_info.get('filter_type', EF_USER),
+                'filter_type': efilter_info.get('filter_type', EF_REGULAR),
                 'name':       str(efilter_info['name']),
                 'user':       None,
                 'is_private': False,

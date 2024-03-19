@@ -9,9 +9,10 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext, pgettext
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
-    EF_USER,
+    EF_REGULAR,
     _EntityFilterRegistry,
     entity_filter_registries,
     operands,
@@ -2036,7 +2037,8 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
 
 # class UserChoicesTestCase(ViewsTestCase):
 class UserChoicesTestCase(CremeTestCase):
-    EF_TEST = 26
+    # EF_TEST = 26
+    EF_TEST = 'creme_core-test_user_choices'
 
     @classmethod
     def setUpClass(cls):
@@ -2117,7 +2119,8 @@ class UserChoicesTestCase(CremeTestCase):
 
         # "filter_type" ---
         choices2 = self.assertGET200(
-            f'{url}?filter_type={EF_USER}'
+            # f'{url}?filter_type={EF_USER}'
+            f'{url}?filter_type={EF_REGULAR}'
         ).json()
         self.assertEqual(choices1, choices2)
 
@@ -2127,6 +2130,7 @@ class UserChoicesTestCase(CremeTestCase):
         self.assertEqual(choices1, choices3)
 
         self.assertGET(400, url + '?filter_type=1024')
+        self.assertGET(400, url + '?filter_type=invalid')
 
     def test_user_choices02(self):
         "Other registered operands."

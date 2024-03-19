@@ -1,7 +1,8 @@
 from django.core.exceptions import ValidationError
 
+# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
-    EF_USER,
+    EF_REGULAR,
     entity_filter_registries,
     operands,
 )
@@ -12,7 +13,8 @@ from creme.creme_core.tests.base import CremeTestCase
 class OperandTestCase(CremeTestCase):
     def test_current_user01(self):
         "Registered."
-        operand = entity_filter_registries[EF_USER].get_operand(
+        # operand = entity_filter_registries[EF_USER].get_operand(
+        operand = entity_filter_registries[EF_REGULAR].get_operand(
             type_id=operands.CurrentUserOperand.type_id,
             user=None,
         )

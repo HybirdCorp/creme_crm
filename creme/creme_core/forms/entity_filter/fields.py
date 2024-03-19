@@ -35,8 +35,9 @@ from django.forms.fields import CallableChoiceIterator
 from django.utils.formats import get_format
 from django.utils.translation import gettext_lazy as _
 
+# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
-    EF_USER,
+    EF_REGULAR,
     _EntityFilterRegistry,
     condition_handler,
     operators,
@@ -70,7 +71,8 @@ class _ConditionsField(JSONField):
     def __init__(self, *,
                  model=CremeEntity,
                  efilter_registry=None,
-                 efilter_type=EF_USER,
+                 # efilter_type=EF_USER,
+                 efilter_type=EF_REGULAR,
                  condition_cls=EntityFilterCondition,
                  **kwargs):
         """Constructor.
@@ -81,7 +83,8 @@ class _ConditionsField(JSONField):
         super().__init__(**kwargs)
         self.model = model
         self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-            id=-1,
+            # id=-1,
+            id='creme_core-default',
             verbose_name='Default for _ConditionsField',
         )
         self.efilter_type = efilter_type
@@ -1062,7 +1065,8 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
     def __init__(self, *,
                  model=CremeEntity,
                  efilter_registry=None,
-                 efilter_type=EF_USER,
+                 # efilter_type=EF_USER,
+                 efilter_type=EF_REGULAR,
                  condition_cls=EntityFilterCondition,
                  user=None,
                  **kwargs):
@@ -1070,8 +1074,8 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
         self.user = user
         self.model = model
         self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-            # id=None,
-            id=-1,
+            # id=-1,
+            id='creme_core-default',
             verbose_name='Default for SubfiltersConditionsField',
         )
         self.efilter_type = efilter_type
