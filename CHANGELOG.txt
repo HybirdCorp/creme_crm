@@ -7,6 +7,8 @@
     # Some validation issues with bulk-edition have been fixed.
       It could be observed when editing several Invoices at once for example.
     # Apps :
+        * Billing :
+            -  The button to delete Payment Information (on Organisations' detail-views) was broken.
         * Mobile :
             - A hard-coded URL pattern has been fixed (to use the reverse pattern matching as usual).
 
