@@ -258,7 +258,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         with self.assertNoException():
             form = context1['form']
 
-        self.assertDictEqual({}, form.initial)
+        # self.assertDictEqual({}, form.initial)
+        self.assertDictEqual({'first_name': 'Luigi'}, form.initial)
 
         # ---
         value = 'Peach'
@@ -1220,44 +1221,78 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             errors=_('This Contact is related to a user and must have a first name.'),
         )
 
-    def test_other_field_validation_error_several_entities(self):
+    def test_other_field_validation_error_several_entities01(self):
+        "First selected entities (used as initial) raises an error."
         # user = self.login()
         user = self.login_as_root_and_get()
-        create_empty_user = partial(
-            self.create_user, first_name='', last_name='', email='',
-        )
-        empty_user1 = create_empty_user(username='empty1')
-        empty_user2 = create_empty_user(username='empty2')
 
-        create_contact = partial(
-            FakeContact.objects.create, user=user, first_name='', last_name='',
-        )
-        empty_contact1 = create_contact(is_user=empty_user1)
-        empty_contact2 = create_contact(is_user=empty_user2)
-        mario          = create_contact(first_name='Mario', last_name='Bros')
+        def create_contact(related_user):
+            return FakeContact.objects.create(
+                user=user, is_user=related_user,
+                first_name=related_user.first_name, last_name=related_user.last_name,
+            )
 
-        field_name = 'last_name'
+        user_contact1 = create_contact(self.create_user(index=0))
+        user_contact2 = create_contact(self.create_user(index=1))
+
+        field_name = 'first_name'
         build_uri = partial(self.build_bulkupdate_uri, model=FakeContact, field=field_name)
-        self.assertGET200(build_uri(entities=[empty_contact1, empty_contact2, mario]))
+        self.assertGET200(build_uri(entities=[user_contact1, user_contact2]))
 
         # ---
-        response = self.client.post(
+        response2 = self.assertPOST200(
             build_uri(),
             data={
-                'entities': [empty_contact1.id, empty_contact2.id, mario.id],
-                # 'field_value': 'Bros',
-                field_name: 'Bros',
+                'entities': [user_contact1.id, user_contact2.id],
+                field_name: '',
             },
         )
-        self.assertNoFormError(response)
+        self.assertFormError(
+            response2.context['form'],
+            field=None,
+            errors=_('This Contact is related to a user and must have a first name.'),
+        )
 
-        get_context = response.context.get
+    def test_other_field_validation_error_several_entities02(self):
+        "First selected entities (used as initial) does not raise an error."
+        user = self.login_as_root_and_get()
+
+        def create_user_contact(related_user):
+            return FakeContact.objects.create(
+                user=user, is_user=related_user,
+                first_name=related_user.first_name, last_name=related_user.last_name,
+            )
+
+        user_contact1 = create_user_contact(self.create_user(index=0))
+        user_contact2 = create_user_contact(self.create_user(index=1))
+
+        contact3 = FakeContact.objects.create(
+            user=user, first_name='Mario', last_name='Acme',
+        )
+        self.assertLess(contact3.last_name, user_contact1.last_name)
+        self.assertLess(contact3.last_name, user_contact2.last_name)
+
+        field_name = 'first_name'
+        build_uri = partial(self.build_bulkupdate_uri, model=FakeContact, field=field_name)
+        self.assertGET200(build_uri(entities=[user_contact1, user_contact2, contact3]))
+
+        # ---
+        response2 = self.client.post(
+            build_uri(),
+            data={
+                'entities': [user_contact1.id, user_contact2.id, contact3.id],
+                field_name: '',
+            },
+        )
+        self.assertNoFormError(response2)
+
+        get_context = response2.context.get
         self.assertEqual(3, get_context('initial_count'))
         self.assertEqual(1, get_context('success_count'))
         self.assertEqual(2, len(get_context('errors')))
 
         self.assertContains(
-            response,
+            response2,
             _('This Contact is related to a user and must have a first name.'),
             count=2,
         )
