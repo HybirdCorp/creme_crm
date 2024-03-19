@@ -2338,12 +2338,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         user = self.login_as_root_and_get()
 
         create_dt = self.create_datetime
-        create_activity = partial(
-            Activity.objects.create,
-            user=user,
-            start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
-            end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-        )
+        create_activity = partial(Activity.objects.create, user=user)
         unav_subtype = self._get_sub_type(constants.UUID_SUBTYPE_UNAVAILABILITY)
         activity1 = create_activity(
             title='act01',
@@ -2351,6 +2346,8 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             type=unav_subtype.type,
             # sub_type_id=constants.ACTIVITYSUBTYPE_UNAVAILABILITY,
             sub_type=unav_subtype,
+            start=create_dt(year=2024, month=1, day=1, hour=14, minute=0),
+            end=create_dt(year=2024, month=1, day=1, hour=15, minute=0),
         )
         phonecall_subtype = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_INCOMING)
         activity2 = create_activity(
@@ -2359,6 +2356,10 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             type=phonecall_subtype.type,
             # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
             sub_type=phonecall_subtype,
+            # More recent, so ordered before activity1, so used as reference
+            # instance for global validation
+            start=create_dt(year=2024, month=1, day=2, hour=14, minute=0),
+            end=create_dt(year=2024, month=1, day=2, hour=15, minute=0),
         )
 
         field_name = 'type'
