@@ -33,7 +33,7 @@
                 {% brick_action id='edit' url=payment_info.get_edit_absolute_url label=_('Edit these information') enabled=edit_perm %}
             </div>
             <div class="billing-action">
-                {% brick_action id='delete' url=delete_url enabled=edit_perm %}
+                {% brick_action id='delete' url=delete_url __id=payment_info.id enabled=edit_perm %}
             </div>
         </div>
         <div class="billing-group billing-info-group">
