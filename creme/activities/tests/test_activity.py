@@ -2138,21 +2138,22 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
 
         create_dt = self.create_datetime
-        create_activity = partial(
-            Activity.objects.create,
-            user=user,
-            start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
-            end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-        )
+        create_activity = partial(Activity.objects.create, user=user)
         activity1 = create_activity(
             title='act01',
             type_id=constants.ACTIVITYTYPE_INDISPO,
             sub_type_id=constants.ACTIVITYSUBTYPE_UNAVAILABILITY,
+            start=create_dt(year=2024, month=1, day=1, hour=14, minute=0),
+            end=create_dt(year=2024, month=1, day=1, hour=15, minute=0),
         )
         activity2 = create_activity(
             title='act02',
             type_id=constants.ACTIVITYTYPE_PHONECALL,
             sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+            # More recent, so ordered before activity1, so used as reference
+            # instance for global validation
+            start=create_dt(year=2024, month=1, day=2, hour=14, minute=0),
+            end=create_dt(year=2024, month=1, day=2, hour=15, minute=0),
         )
 
         # url = self.build_bulkupdate_url(Activity, 'type')

@@ -117,7 +117,8 @@ class _CremeTestCase:
         }, {
             'username': 'chloe',
             'first_name': 'Chloé',
-            'last_name': '??',
+            # 'last_name': '??',
+            'last_name': 'Noir',
             'email': 'chloe@noir.jp',
         },
     ]
