@@ -36,7 +36,8 @@ from django.utils.translation import pgettext, pgettext_lazy
 
 from .. import utils
 from ..auth.decorators import login_required
-from ..core.entity_filter import EF_USER, entity_filter_registries
+# from ..core.entity_filter import EF_USER, entity_filter_registries
+from ..core.entity_filter import EF_REGULAR, entity_filter_registries
 from ..core.exceptions import BadRequestError, ConflictError
 from ..enumerators import UserEnumerator
 from ..forms.entity_filter import forms as efilter_forms
@@ -128,7 +129,8 @@ class FilterMixin:
 
 
 class EntityFilterMixin(FilterMixin):
-    efilter_registry = entity_filter_registries[EF_USER]
+    # efilter_registry = entity_filter_registries[EF_USER]
+    efilter_registry = entity_filter_registries[EF_REGULAR]
 
     def get_efilter_registry(self):
         return self.efilter_registry
@@ -265,7 +267,8 @@ class EntityFilterDetail(generic.CremeModelDetail):
         efilter = self.object
         bricks = [EntityFilterInfoBrick()]
 
-        if efilter.filter_type == EF_USER:
+        # if efilter.filter_type == EF_USER:
+        if efilter.filter_type == EF_REGULAR:
             bricks.append(EntityFilterParentsBrick())
 
             # TODO: regroup fields from the same model?
@@ -341,7 +344,8 @@ class EntityFilterBricksReloading(BricksReloading):
             efilter = get_object_or_404(
                 EntityFilter,
                 id=self.kwargs[self.efilter_id_url_kwarg],
-                filter_type=EF_USER,
+                # filter_type=EF_USER,
+                filter_type=EF_REGULAR,
             )
             self.check_instance_permissions(instance=efilter, user=self.request.user)
 
@@ -498,7 +502,8 @@ class EntityFilterUserEnumerator(UserEnumerator):
     def __init__(
         self,
         field: Field,
-        filter_type=EF_USER,
+        # filter_type=EF_USER,
+        filter_type=EF_REGULAR,
         search_fields=None,
         limit_choices_to=None
     ):
@@ -555,7 +560,8 @@ class UserChoicesView(FieldChoicesView):
 
     def get(self, request, *args, **kwargs):
         try:
-            self.filter_type = int(request.GET.get('filter_type', EF_USER))
+            # self.filter_type = int(request.GET.get('filter_type', EF_USER))
+            self.filter_type = request.GET.get('filter_type', EF_REGULAR)
         except ValueError as e:
             raise BadRequestError(e) from e
 

@@ -73,6 +73,7 @@
               the argument "content_type" is deprecated.
             - The function 'creme_core.utils.create_if_needed()' is deprecated ;
               use 'MyModel.objects.get_or_create()' instead.
+            - The constant 'creme_core.core.entity_filter.EF_USER' is deprecated ; use 'EF_REGULAR' instead.
             - The templatetag {% has_perm_to %} is deprecated;
               use the template-filters of the new library "creme_perms" instead.
             - In 'creme_core.tests' :
@@ -192,10 +193,12 @@
           So you'll have to fix your template files if you retrieve bricks nodes by their ID. Example :
             $('.brick[id="{{brick_id}}"]')   =>   $('.brick[id="brick-{{brick_id}}"]')
         # In 'creme_core.core' :
-            - The class 'entity_filter.condition_handler.PropertyConditionHandler' takes now the UUID
-              of the related 'CremePropertyType' instance instead of its ID (see 'creme_core.models' section) ;
-              the related field 'EntityFilterCondition.name' stores now the UUID of the CremePropertyType instance.
-              The attribute "_ptype_id" has been replaced by "_ptype_uuid".
+            - In 'entity_filter' :
+                - The constants 'EF_USER' & 'EF_CREDENTIALS' are now strings.
+                - The class 'condition_handler.PropertyConditionHandler' takes now the UUID
+                  of the related 'CremePropertyType' instance instead of its ID (see 'creme_core.models' section) ;
+                  the related field 'EntityFilterCondition.name' stores now the UUID of the CremePropertyType instance.
+                  The attribute "_ptype_id" has been replaced by "_ptype_uuid".
             - The class 'paginator.FlowPaginator' does not accept ForeignKeys as key anymore;
               pass the corresponding "low-level" attribute (e.g. "user_id") or a sub-field (e.g. "user__username").
             - In the class 'reminder.Reminder' :
@@ -224,6 +227,7 @@
                 - The method 'SpecificRelationsBrick.generate_id()' has been removed (it was unused/useless since Creme 2.4).
             - The field 'HeaderFilter.json_cells' is now a 'JSONField';
               you won't have to change your code if you use the property 'cells' as advised.
+            - The field 'EntityFilter.filter_type' is now a CharField (see changes about the constants 'EF_*').
             - In 'EntityFilterCondition' :
                 - The field 'name' contains now the UUID of 'CremePropertyType' & 'CustomField' when it's relevant.
                 - The field 'raw_value' has been renamed "value" & is now a 'JSONField';

@@ -12,9 +12,10 @@ from django.utils.translation import gettext as _
 import creme.creme_core.forms.entity_filter.fields as ef_fields
 import creme.creme_core.forms.entity_filter.widgets as ef_widgets
 # from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
-    EF_USER,
+    EF_REGULAR,
     _EntityFilterRegistry,
     operands,
     operators,
@@ -193,7 +194,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_regularfield_formfield(self):
         user = self.get_root_user()
-        efilter_registry = _EntityFilterRegistry(id=None, verbose_name='Test')
+        # efilter_registry = _EntityFilterRegistry(id=None, verbose_name='Test')
+        efilter_registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         formfield1 = RegularFieldConditionHandler.formfield(
             user=user,
@@ -651,7 +653,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition, EntityFilterCondition)
         self.assertIsNone(condition.pk)
-        self.assertEqual(EF_USER,                              condition.filter_type)
+        # self.assertEqual(EF_USER,                              condition.filter_type)
+        self.assertEqual(EF_REGULAR,                           condition.filter_type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(fname, condition.name)
         self.assertDictEqual(
@@ -1184,7 +1187,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        self.assertEqual(EF_USER,                                  condition1.filter_type)
+        # self.assertEqual(EF_USER,                                  condition1.filter_type)
+        self.assertEqual(EF_REGULAR,                               condition1.filter_type)
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition1.type)
         self.assertEqual(fname1,                                   condition1.name)
         self.assertDictEqual(
@@ -1887,7 +1891,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition, EntityFilterCondition)
         self.assertIsNone(condition.pk)
-        self.assertEqual(EF_USER,                             condition.filter_type)
+        # self.assertEqual(EF_USER,                             condition.filter_type)
+        self.assertEqual(EF_REGULAR,                          condition.filter_type)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         # self.assertEqual(str(custom_field.id),                condition.name)
         self.assertEqual(str(custom_field.uuid),              condition.name)
@@ -2442,7 +2447,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        self.assertEqual(EF_USER,                                 condition1.filter_type)
+        # self.assertEqual(EF_USER,                                 condition1.filter_type)
+        self.assertEqual(EF_REGULAR,                              condition1.filter_type)
         self.assertEqual(DateCustomFieldConditionHandler.type_id, condition1.type)
         # self.assertEqual(str(custom_field.id),                    condition1.name)
         self.assertEqual(str(custom_field.uuid),                  condition1.name)
@@ -2495,7 +2501,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        self.assertEqual(EF_USER,                                 condition1.filter_type)
+        # self.assertEqual(EF_USER,                                 condition1.filter_type)
+        self.assertEqual(EF_REGULAR,                              condition1.filter_type)
         self.assertEqual(DateCustomFieldConditionHandler.type_id, condition1.type)
         # self.assertEqual(str(custom_field.id),                    condition1.name)
         self.assertEqual(str(custom_field.uuid),                  condition1.name)
@@ -2990,7 +2997,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         condition1 = build_cond(rtype=loves, has=True)
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        self.assertEqual(EF_USER,                          condition1.filter_type)
+        # self.assertEqual(EF_USER,                          condition1.filter_type)
+        self.assertEqual(EF_REGULAR,                       condition1.filter_type)
         self.assertEqual(RelationConditionHandler.type_id, condition1.type)
         self.assertEqual(loves.id,                         condition1.name)
         self.assertDictEqual({'has': True}, condition1.value)
@@ -3512,7 +3520,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         condition1 = SubFilterConditionHandler.build_condition(sub_efilter)
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        self.assertEqual(EF_USER,                           condition1.filter_type)
+        # self.assertEqual(EF_USER,                           condition1.filter_type)
+        self.assertEqual(EF_REGULAR,                        condition1.filter_type)
         self.assertEqual(SubFilterConditionHandler.type_id, condition1.type)
         self.assertEqual(sub_efilter.id,                    condition1.name)
         # self.assertEqual('',                                condition1.raw_value)
@@ -3751,7 +3760,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        self.assertEqual(EF_USER,                                   condition1.filter_type)
+        # self.assertEqual(EF_USER,                                   condition1.filter_type)
+        self.assertEqual(EF_REGULAR,                                condition1.filter_type)
         self.assertEqual(RelationSubFilterConditionHandler.type_id, condition1.type)
         self.assertEqual(loves.id,                                  condition1.name)
         self.assertDictEqual(
@@ -4081,7 +4091,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        self.assertEqual(EF_USER,                          condition1.filter_type)
+        # self.assertEqual(EF_USER,                          condition1.filter_type)
+        self.assertEqual(EF_REGULAR,                       condition1.filter_type)
         self.assertEqual(PropertyConditionHandler.type_id, condition1.type)
         # self.assertEqual(ptype1.id,                        condition1.name)
         self.assertEqual(str(ptype1.uuid), condition1.name)

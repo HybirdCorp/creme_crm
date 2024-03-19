@@ -17,9 +17,10 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
     EntityCellRelation,
 )
+# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
-    EF_USER,
+    EF_REGULAR,
     operands,
     operators,
 )
@@ -2027,7 +2028,8 @@ class ImportingTestCase(TransferBaseTestCase):
         efilter_data1 = efilters_data[0]
         ef1 = self.get_object_or_fail(EntityFilter, id=efilter_data1['id'])
         self.assertEqual(efilter_data1['name'], ef1.name)
-        self.assertEqual(EF_USER, ef1.filter_type)
+        # self.assertEqual(EF_USER, ef1.filter_type)
+        self.assertEqual(EF_REGULAR, ef1.filter_type)
         self.assertEqual(ct_contact, ef1.entity_type)
         self.assertTrue(ef1.is_custom)
         self.assertIsNone(ef1.user)
@@ -2075,7 +2077,8 @@ class ImportingTestCase(TransferBaseTestCase):
         efilter_data2 = efilters_data[1]
         ef2 = self.get_object_or_fail(EntityFilter, id=efilter_data2['id'])
         self.assertEqual(efilter_data2['name'], ef2.name)
-        self.assertEqual(EF_USER, ef2.filter_type)
+        # self.assertEqual(EF_USER, ef2.filter_type)
+        self.assertEqual(EF_REGULAR, ef2.filter_type)
         self.assertEqual(get_ct(FakeOrganisation), ef2.entity_type)
         self.assertTrue(ef2.is_custom)
         self.assertEqual(other_user, ef2.user)

@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Iterator
 
@@ -32,8 +33,18 @@ if TYPE_CHECKING:
     from .operators import ConditionOperator
 
 logger = logging.getLogger(__name__)
-EF_CREDENTIALS = 0
-EF_USER = 1
+# EF_CREDENTIALS = 0
+# EF_USER = 1  # Deprecated (see below)
+EF_REGULAR = 'creme_core-regular'
+EF_CREDENTIALS = 'creme_core-credentials'
+
+
+def __getattr__(name):
+    if name == 'EF_USER':
+        warnings.warn('"EF_USER" is deprecated; use EF_REGULAR instead.', DeprecationWarning)
+        return EF_REGULAR
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 class _EntityFilterRegistry:
@@ -45,10 +56,12 @@ class _EntityFilterRegistry:
     class RegistrationError(Exception):
         pass
 
-    id: int
+    # id: int
+    id: str
     verbose_name: str
 
-    def __init__(self, *, id: int, verbose_name: str):
+    # def __init__(self, *, id: int, verbose_name: str):
+    def __init__(self, *, id: str, verbose_name: str):
         self.id = id
         self.verbose_name = verbose_name
 
@@ -196,7 +209,8 @@ class _EntityFilterSuperRegistry:
     def __init__(self):
         self._registries = OrderedDict()
 
-    def __getitem__(self, registry_id: int) -> _EntityFilterRegistry:
+    # def __getitem__(self, registry_id: int) -> _EntityFilterRegistry:
+    def __getitem__(self, registry_id: str) -> _EntityFilterRegistry:
         return self._registries[registry_id]
 
     def __iter__(self) -> Iterator[_EntityFilterRegistry]:
@@ -214,7 +228,8 @@ class _EntityFilterSuperRegistry:
 
         return self
 
-    def unregister(self, *registry_ids: int) -> None:
+    # def unregister(self, *registry_ids: int) -> None:
+    def unregister(self, *registry_ids: str) -> None:
         registries = self._registries
 
         for registry_id in registry_ids:
@@ -227,7 +242,8 @@ entity_filter_registries = _EntityFilterSuperRegistry().register(
         verbose_name=_('Credentials filter'),
     ),
     _EntityFilterRegistry(
-        id=EF_USER,
+        # id=EF_USER,
+        id=EF_REGULAR,
         verbose_name=_('Regular filter (usable in list-view)'),
     ),
 )

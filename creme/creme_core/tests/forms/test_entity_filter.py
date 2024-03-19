@@ -7,9 +7,10 @@ from django.contrib.contenttypes.models import ContentType
 # from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
+# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
-    EF_USER,
+    EF_REGULAR,
     _EntityFilterRegistry,
     operands,
     operators,
@@ -69,7 +70,8 @@ from creme.creme_core.models import (
 from creme.creme_core.tests.base import CremeTestCase
 
 efilter_registry = _EntityFilterRegistry(
-    id=0,
+    # id=0,
+    id='creme_core-test_efilter_forms',
     verbose_name='Form tests',
 ).register_condition_handlers(
     RegularFieldConditionHandler,
@@ -359,7 +361,8 @@ class RegularFieldsConditionsFieldTestCase(CremeTestCase):
         )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
-        self.assertEqual(EF_USER,                              condition.filter_type)
+        # self.assertEqual(EF_USER,                              condition.filter_type)
+        self.assertEqual(EF_REGULAR,                           condition.filter_type)
         self.assertDictEqual(
             {'operator': operator, 'values': [value]},
             condition.value,
@@ -1081,7 +1084,8 @@ class DateFieldsConditionsFieldTestCase(CremeTestCase):
         condition1 = conditions[0]
         self.assertEqual(type_id, condition1.type)
         self.assertEqual(name01,  condition1.name)
-        self.assertEqual(EF_USER, condition1.filter_type)
+        # self.assertEqual(EF_USER, condition1.filter_type)
+        self.assertEqual(EF_REGULAR, condition1.filter_type)
         self.assertDictEqual({'name': type01}, condition1.value)
 
         condition2 = conditions[1]
@@ -1671,7 +1675,8 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
         # self.assertEqual(str(self.cfield_int.id),             condition.name)
         self.assertEqual(str(self.cfield_int.uuid),           condition.name)
-        self.assertEqual(EF_USER,                             condition.filter_type)
+        # self.assertEqual(EF_USER,                             condition.filter_type)
+        self.assertEqual(EF_REGULAR,                          condition.filter_type)
         self.assertDictEqual(
             {
                 'operator': operator,
@@ -2177,7 +2182,8 @@ class DateCustomFieldsConditionsFieldTestCase(CremeTestCase):
         self.assertEqual(type_id,            condition1.type)
         # self.assertEqual(str(cfield01.id), condition1.name)
         self.assertEqual(str(cfield01.uuid), condition1.name)
-        self.assertEqual(EF_USER,            condition1.filter_type)
+        # self.assertEqual(EF_USER,            condition1.filter_type)
+        self.assertEqual(EF_REGULAR,         condition1.filter_type)
         self.assertDictEqual(
             {'rname': 'customfielddate', 'name': range_type},
             condition1.value,
@@ -2390,7 +2396,8 @@ class PropertiesConditionsFieldTestCase(CremeTestCase):
         self.assertEqual(type_id,         condition2.type)
         # self.assertEqual(self.ptype02.id, condition2.name)
         self.assertEqual(str(self.ptype02.uuid), condition2.name)
-        self.assertEqual(EF_USER,         condition2.filter_type)
+        # self.assertEqual(EF_USER,         condition2.filter_type)
+        self.assertEqual(EF_REGULAR,      condition2.filter_type)
         # self.assertIs(condition2.value, False)
         self.assertDictEqual({'has': False}, condition2.value)
 
@@ -2552,7 +2559,8 @@ class RelationsConditionsFieldTestCase(CremeTestCase):
         condition1 = conditions[0]
         self.assertEqual(type_id,   condition1.type)
         self.assertEqual(rtype1.id, condition1.name)
-        self.assertEqual(EF_USER,   condition1.filter_type)
+        # self.assertEqual(EF_USER,   condition1.filter_type)
+        self.assertEqual(EF_REGULAR, condition1.filter_type)
         self.assertDictEqual({'has': True}, condition1.value)
 
         condition2 = conditions[1]
@@ -2909,7 +2917,8 @@ class SubfiltersConditionsFieldTestCase(CremeTestCase):
         type_id = SubFilterConditionHandler.type_id
         condition1 = conditions[0]
         self.assertEqual(type_id,   condition1.type)
-        self.assertEqual(EF_USER, condition1.filter_type)
+        # self.assertEqual(EF_USER, condition1.filter_type)
+        self.assertEqual(EF_REGULAR, condition1.filter_type)
         self.assertDictEqual({}, condition1.value)
 
         self.assertCountEqual(
@@ -3017,7 +3026,8 @@ class RelationSubfiltersConditionsFieldTestCase(CremeTestCase):
         condition1 = conditions[0]
         self.assertEqual(type_id,   condition1.type)
         self.assertEqual(rtype1.id, condition1.name)
-        self.assertEqual(EF_USER,   condition1.filter_type)
+        # self.assertEqual(EF_USER,   condition1.filter_type)
+        self.assertEqual(EF_REGULAR, condition1.filter_type)
         self.assertDictEqual(
             {'has': True, 'filter_id': filter_id1},
             condition1.value,
@@ -3158,7 +3168,8 @@ class EntityFilterFormsTestCase(CremeTestCase):
     def test_creation_form01(self):
         user = self.get_root_user()
         efilter_registry = _EntityFilterRegistry(
-            id=-1,
+            # id=-1,
+            id='creme_core-test_efilter_creation_form',
             verbose_name='Test',
         ).register_condition_handlers(
             RegularFieldConditionHandler,
@@ -3222,7 +3233,8 @@ class EntityFilterFormsTestCase(CremeTestCase):
     def test_creation_form02(self):
         user = self.get_root_user()
         efilter_registry = _EntityFilterRegistry(
-            id=-1,
+            # id=-1,
+            id='creme_core-test_efilter_creation_form',
             verbose_name='Test',
         ).register_condition_handlers(
             RegularFieldConditionHandler,
@@ -3244,7 +3256,8 @@ class EntityFilterFormsTestCase(CremeTestCase):
     def test_edition_form01(self):
         user = self.get_root_user()
         efilter_registry = _EntityFilterRegistry(
-            id=-1,
+            # id=-1,
+            id='creme_core-test_efilter_edition_form',
             verbose_name='Test',
         ).register_condition_handlers(
             RegularFieldConditionHandler,
@@ -3321,7 +3334,8 @@ class EntityFilterFormsTestCase(CremeTestCase):
     def test_edition_form02(self):
         user = self.get_root_user()
         efilter_registry = _EntityFilterRegistry(
-            id=-1,
+            # id=-1,
+            id='creme_core-test_efilter_edition_form',
             verbose_name='Test',
         ).register_condition_handlers(
             RegularFieldConditionHandler,

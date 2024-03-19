@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,8 @@ from creme.creme_core.utils.db import (
 )
 from creme.creme_core.utils.meta import FieldInfo
 
-from . import EF_USER, entity_filter_registries
+# from . import EF_USER, entity_filter_registries
+from . import EF_REGULAR, entity_filter_registries
 
 # IDs
 EQUALS          = 1
@@ -199,7 +200,9 @@ class ConditionOperator:
         return query
 
     def validate_field_values(self, *, field, values, user=None,
-                              efilter_registry=entity_filter_registries[EF_USER]):
+                              # efilter_registry=entity_filter_registries[EF_USER],
+                              efilter_registry=entity_filter_registries[EF_REGULAR],
+                              ):
         """Raises a ValidationError to notify of a problem with 'values'.
         @param field: Model field.
         @param values: Sequence of POSTed values to validate.
@@ -455,7 +458,9 @@ class IEndsWithNotOperator(IEndsWithOperator):
 
 class BooleanOperatorBase(ConditionOperator):
     def validate_field_values(self, *, field, values, user=None,
-                              efilter_registry=entity_filter_registries[EF_USER]):
+                              # efilter_registry=entity_filter_registries[EF_USER],
+                              efilter_registry=entity_filter_registries[EF_REGULAR],
+                              ):
         if len(values) != 1 or not isinstance(values[0], bool):
             raise ValidationError(
                 f'A list with one bool is expected for boolean operator {self.verbose_name}'
@@ -528,7 +533,9 @@ class RangeOperator(ConditionOperator):
         )
 
     def validate_field_values(self, *, field, values, user=None,
-                              efilter_registry=entity_filter_registries[EF_USER]):
+                              # efilter_registry=entity_filter_registries[EF_USER],
+                              efilter_registry=entity_filter_registries[EF_REGULAR],
+                              ):
         if len(values) != 2:
             raise ValidationError(
                 f'A list with 2 elements is expected for condition {self.verbose_name}'

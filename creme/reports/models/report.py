@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,8 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.core.entity_filter import EF_USER
+# from creme.creme_core.core.entity_filter import EF_USER
+from creme.creme_core.core.entity_filter import EF_REGULAR
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import (
     CremeEntity,
@@ -52,7 +53,8 @@ class AbstractReport(CremeEntity):
     filter = models.ForeignKey(
         EntityFilter, verbose_name=_('Filter'),
         blank=True, null=True, on_delete=models.PROTECT,
-        limit_choices_to={'filter_type': EF_USER},
+        # limit_choices_to={'filter_type': EF_USER},
+        limit_choices_to={'filter_type': EF_REGULAR},
     ).set_null_label(_('No filter'))
 
     creation_label = _('Create a report')

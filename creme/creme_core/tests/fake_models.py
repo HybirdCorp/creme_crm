@@ -18,7 +18,8 @@ else:
     from django.utils.translation import pgettext_lazy
 
     from ..constants import DEFAULT_CURRENCY_PK
-    from ..core.entity_filter import EF_USER
+    # from ..core.entity_filter import EF_USER
+    from ..core.entity_filter import EF_REGULAR
     from ..models import (
         CremeEntity,
         CremeModel,
@@ -745,7 +746,8 @@ else:
         efilter = models.ForeignKey(
             EntityFilter, verbose_name=_('Filter'),
             blank=True, null=True, on_delete=models.PROTECT,
-            limit_choices_to={'filter_type': EF_USER},
+            # limit_choices_to={'filter_type': EF_USER},
+            limit_choices_to={'filter_type': EF_REGULAR},
         ).set_null_label(_('No filter'))
 
         # creation_label = _('Create a report')

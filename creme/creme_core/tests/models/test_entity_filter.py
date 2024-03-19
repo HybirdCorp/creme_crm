@@ -8,9 +8,10 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme import __version__
+# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
-    EF_USER,
+    EF_REGULAR,
     entity_filter_registries,
     operands,
     operators,
@@ -216,14 +217,16 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertIsInstance(efilter, EntityFilter)
         self.assertEqual(pk,      efilter.id)
         self.assertEqual(name,    efilter.name)
-        self.assertEqual(EF_USER, efilter.filter_type)
+        # self.assertEqual(EF_USER, efilter.filter_type)
+        self.assertEqual(EF_REGULAR, efilter.filter_type)
         self.assertEqual(model, efilter.entity_type.model_class())
         self.assertIsNone(efilter.user)
         self.assertIs(efilter.use_or,     False)
         self.assertIs(efilter.is_custom,  False)
         self.assertIs(efilter.is_private, False)
 
-        self.assertEqual(entity_filter_registries[EF_USER], efilter.registry)
+        # self.assertEqual(entity_filter_registries[EF_USER], efilter.registry)
+        self.assertEqual(entity_filter_registries[EF_REGULAR], efilter.registry)
 
         condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
@@ -3626,7 +3629,8 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertIsInstance(efilter2, EntityFilter)
         self.assertEqual('test-1',      efilter2.pk)
         self.assertEqual(efilter1.name, efilter2.name)
-        self.assertEqual(EF_USER,       efilter2.filter_type)
+        # self.assertEqual(EF_USER,       efilter2.filter_type)
+        self.assertEqual(EF_REGULAR,    efilter2.filter_type)
         self.assertFalse(efilter2.is_custom)
         self.assertIsNone(efilter2.user)
         self.assertFalse(efilter2.use_or)
