@@ -1366,7 +1366,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             response.content.decode(),
         )
 
-    def test_report_csv01(self):
+    def test_report_csv__empty(self):
         "Empty report."
         user = self.login_as_root_and_get()
         self.assertFalse(FakeInvoice.objects.all())
@@ -1390,7 +1390,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             response.content.decode(),
         )
 
-    def test_report_csv02(self):
+    def test_report_csv__no_filter(self):
         user = self.login_as_root_and_get()
 
         self._create_persons(user=user)
@@ -1417,7 +1417,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         with self.assertRaises(StopIteration):
             next(content)
 
-    def test_report_csv03(self):
+    def test_report_csv__date_filter__custom(self):
         "With date filter."
         user = self.login_as_root_and_get()
 
@@ -1440,7 +1440,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(f'"Ayanami","{user}","","Kawaii"', content[1])
         self.assertEqual(f'"Langley","{user}","",""',       content[2])
 
-    def test_report_csv04(self):
+    def test_report_csv__date_filter__registered(self):
         "With date filter and registered range."
         user = self.login_as_root_and_get()
 
@@ -1464,7 +1464,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(2, len(content))
         self.assertEqual(f'"Baby","{user}","",""', content[1])
 
-    def test_report_csv05(self):
+    def test_report_csv__date_filter__errors(self):
         "Errors: invalid GET param."
         user = self.login_as_root_and_get()
 
@@ -1489,7 +1489,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         export(409, date_filter_1=r'1980\01\01')  # Invalid format
         export(409, date_filter_2=r'2000\01\01')  # Invalid format
 
-    def test_report_csv06(self):
+    def test_report_csv__fields_config(self):
         "With FieldsConfig."
         user = self.login_as_root_and_get()
 
@@ -1519,7 +1519,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual('"Ayanami"',   next(content))
         self.assertEqual('"Katsuragi"', next(content))
 
-    def test_report_csv07(self):
+    def test_report_csv__fields_config__subfield(self):
         "With FieldsConfig on sub-field."
         user = self.login_as_root_and_get()
 
@@ -1542,7 +1542,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual('"Ayanami"',   next(content))
         self.assertEqual('"Katsuragi"', next(content))
 
-    def test_report_csv08(self):
+    def test_report_csv__disabled_rtype(self):
         "With disabled RelationType."
         user = self.login_as_root_and_get()
 
@@ -1567,7 +1567,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             next(content),
         )
 
-    def test_report_csv09(self):
+    def test_report__date_filter__subfield(self):
         "Date filter on sub-field."
         user = self.login_as_root_and_get()
 
