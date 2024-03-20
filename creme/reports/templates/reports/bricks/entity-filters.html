@@ -1,0 +1,13 @@
+{% extends 'creme_config/bricks/entity-filters.html' %}
+{% load i18n creme_widgets creme_bricks %}
+{% load url from creme_core_tags %}
+
+{# TODO ?? {% block brick_extra_class %}{{block.super}} reports-entityfilters-brick{% endblock %}  #}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('Filters: {count} configurable type of resource') plural=_('Filters: {count} configurable types of resource') icon='filter' %}
+{% endblock %}
+
+{% block creation_button %}
+    {% brick_action id='add' url='reports__create_efilter'|url:ctype.id label=_('Create a filter') enabled=True %}
+{% endblock %}

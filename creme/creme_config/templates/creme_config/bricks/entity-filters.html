@@ -10,55 +10,57 @@
 
 {% block brick_content %}
 {# {% url 'creme_core__delete_efilter' as deletion_url %} #}
-    {% for ctw in page.object_list %}
-    {% with ctype=ctw.ctype %}
-    <div class="brick-list-item entityfilter-config-item">
+  {% for ctw in page.object_list %}
+   {% with ctype=ctw.ctype %}
+    <div class="brick-list-item entityfilter-config-item entityfilter-config-item-{{ctype.app_label}}-{{ctype.model}}">
         <div class="entityfilter-config-group entityfilter-config-summary-group">
             <div class="entityfilter-config-group-title">
                 {% widget_icon ctype=ctype size='brick-list' class='entityfilter-config-type-icon' %} {{ctype}}
             </div>
             <div class="entityfilter-config-group-action">
-                {% brick_action id='add' url='creme_config__create_efilter'|url:ctype.id label=_('Create a filter') enabled=1 %}
+              {% block creation_button %}{% brick_action id='add' url='creme_config__create_efilter'|url:ctype.id label=_('Create a filter') enabled=1 %}{% endblock %}
             </div>
         </div>
         <div class="entityfilter-config-group entityfilter-config-content-group">
-            {% if ctw.all_users_filters %}
+          {% if ctw.all_users_filters %}
             <div class="entityfilter-config-all">
                 <span class="entityfilter-config-user-title">{% translate 'Filters belonging to all users' %}</span>
                 <ul>
-                {% for efilter in ctw.all_users_filters %}
-                    <li>
+                  {% for efilter in ctw.all_users_filters %}
+                    <li data-efilter-id="{{efilter.id}}">
                         {% widget_hyperlink efilter %}
-                        {% brick_action id='edit' url='creme_config__edit_efilter'|url:efilter.id enabled=efilter.edition_perm %}
+{#                        {% brick_action id='edit' url='creme_config__edit_efilter'|url:efilter.id enabled=efilter.edition_perm %} #}
+                        {% brick_action id='edit' url=efilter.edition_url enabled=efilter.edition_perm %}
 {#                        {% brick_action id='delete' url=deletion_url __id=efilter.id enabled=efilter.deletion_perm %} #}
                         {% brick_action id='delete' url=efilter.get_delete_absolute_url enabled=efilter.deletion_perm %}
                     </li>
-                {% endfor %}
+                  {% endfor %}
                 </ul>
             </div>
-            {% endif %}
-            {% for user, efilters in ctw.owned_filters %}
+          {% endif %}
+          {% for user, efilters in ctw.owned_filters %}
             <div class="entityfilter-config-owned">
                 <span class="entityfilter-config-user-title">{% blocktranslate %}Filters belonging to {{user}}{% endblocktranslate %}</span>
                 <ul>
-                {% for efilter in efilters %}
-                    <li>
+                  {% for efilter in efilters %}
+                    <li data-efilter-id="{{efilter.id}}">
                         {% if efilter.view_perm %}{% widget_hyperlink efilter %}{% else %}{{efilter}}{% endif %}{% if efilter.is_private %}&nbsp;<span class="entityfilter-config-private">{% translate '(private)' %}</span>{% endif %}
-                        {% brick_action id='edit' url='creme_config__edit_efilter'|url:efilter.id enabled=efilter.edition_perm %}
+{#                        {% brick_action id='edit' url='creme_config__edit_efilter'|url:efilter.id enabled=efilter.edition_perm %} #}
+                        {% brick_action id='edit' url=efilter.edition_url enabled=efilter.edition_perm %}
 {#                        {% brick_action id='delete' url=deletion_url __id=efilter.id enabled=efilter.deletion_perm %} #}
                         {% brick_action id='delete' url=efilter.get_delete_absolute_url enabled=efilter.deletion_perm %}
                     </li>
-                {% endfor %}
+                  {% endfor %}
                 </ul>
             </div>
-            {% endfor %}
-            {% if not ctw.all_users_filters and not ctw.owned_filters %}
+          {% endfor %}
+          {% if not ctw.all_users_filters and not ctw.owned_filters %}
             <span class="empty-message">{% translate 'No filter for this type of resource' %}</span>
-            {% endif %}
+          {% endif %}
         </div>
     </div>
-    {% endwith %}
-    {% endfor %}
+   {% endwith %}
+  {% endfor %}
 {% endblock %}
 
 {% block brick_list_empty %}

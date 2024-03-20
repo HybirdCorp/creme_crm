@@ -5,6 +5,8 @@ DEFAULT_HFILTER_REPORT = 'reports-hf'
 
 DATETIME_FILTER_FORMAT = '%d|%m|%Y|%H|%M|%S'
 
+EF_REPORTS = 'reports-report'
+
 # ReportField types
 RFT_FIELD      = 1
 RFT_RELATION   = 2

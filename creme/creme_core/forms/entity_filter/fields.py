@@ -37,7 +37,6 @@ from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
-    EF_REGULAR,
     _EntityFilterRegistry,
     condition_handler,
     operators,
@@ -72,7 +71,6 @@ class _ConditionsField(JSONField):
                  model=CremeEntity,
                  efilter_registry=None,
                  # efilter_type=EF_USER,
-                 efilter_type=EF_REGULAR,
                  condition_cls=EntityFilterCondition,
                  **kwargs):
         """Constructor.
@@ -87,7 +85,7 @@ class _ConditionsField(JSONField):
             id='creme_core-default',
             verbose_name='Default for _ConditionsField',
         )
-        self.efilter_type = efilter_type
+        # self.efilter_type = efilter_type
         self.condition_cls = condition_cls
 
     def initialize(self, ctype, conditions=None, efilter=None):
@@ -95,6 +93,10 @@ class _ConditionsField(JSONField):
             self._set_initial_conditions(conditions)
 
         self.model = ctype.model_class()
+
+    @property
+    def efilter_type(self):
+        return self._efilter_registry.id
 
     @property
     def efilter_registry(self):
@@ -1066,7 +1068,6 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
                  model=CremeEntity,
                  efilter_registry=None,
                  # efilter_type=EF_USER,
-                 efilter_type=EF_REGULAR,
                  condition_cls=EntityFilterCondition,
                  user=None,
                  **kwargs):
@@ -1078,8 +1079,12 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
             id='creme_core-default',
             verbose_name='Default for SubfiltersConditionsField',
         )
-        self.efilter_type = efilter_type
+        # self.efilter_type = efilter_type
         self.condition_cls = condition_cls
+
+    @property
+    def efilter_type(self):
+        return self.efilter_registry.id
 
     def clean(self, value):
         build_condition = partial(

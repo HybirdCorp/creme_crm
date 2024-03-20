@@ -1,0 +1,10 @@
+{% extends 'creme_core/detail/entity-filter.html' %}
+{% load i18n creme_widgets %}
+
+{% block global_buttons %}
+    <li>{% translate "Go to the configuration of Reports' filters" as list_label %}
+        <a class="menu_button menu-button-icon" href="{% url 'creme_config__app_portal' 'reports' %}">
+            {% widget_icon name='listview' size='global-button' label=list_label %} {{list_label}}
+        </a>
+    </li>
+{% endblock %}

@@ -113,6 +113,8 @@ class _EntityFilterForm(CremeModelForm):
 
 # class EntityFilterCreateForm(_EntityFilterForm):
 class EntityFilterCreationForm(_EntityFilterForm):
+    pk_prefix = 'creme_core-userfilter_'
+
     def __init__(self, ctype, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._entity_type = self.instance.entity_type = ctype
@@ -128,7 +130,8 @@ class EntityFilterCreationForm(_EntityFilterForm):
         super().save(commit=False, *args, **kwargs)
         generate_string_id_and_save(
             EntityFilter, [instance],
-            f'creme_core-userfilter_{ct.app_label}-{ct.model}',
+            # f'creme_core-userfilter_{ct.app_label}-{ct.model}',
+            f'{self.pk_prefix}{ct.app_label}-{ct.model}',
         )
 
         instance.set_conditions(

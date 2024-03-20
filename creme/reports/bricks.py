@@ -22,10 +22,12 @@ from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+import creme.creme_config.bricks as config_bricks
 import creme.creme_core.gui.bricks as core_bricks
 from creme import reports
 from creme.creme_core.models import InstanceBrickConfigItem
 
+from .constants import EF_REPORTS
 from .core.graph import GraphFetcher
 from .models import Field
 from .report_chart_registry import report_chart_registry
@@ -297,3 +299,12 @@ class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
                 entity=context['object'].id,
             ),
         ))
+
+
+class ReportEntityFiltersBrick(config_bricks.EntityFiltersBrick):
+    id = core_bricks.QuerysetBrick.generate_id('reports', 'entity_filters')
+    verbose_name = 'Filters specific to Reports'
+    template_name = 'reports/bricks/entity-filters.html'
+
+    filter_type = EF_REPORTS
+    edition_url_name = 'reports__edit_efilter_popup'
