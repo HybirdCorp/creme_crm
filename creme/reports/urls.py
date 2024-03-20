@@ -1,10 +1,10 @@
 from django.conf import settings
-from django.urls import re_path
+from django.urls import include, re_path
 
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
 from . import report_model_is_custom, rgraph_model_is_custom
-from .views import bricks, export, graph, report
+from .views import bricks, entity_filter, export, graph, report
 
 urlpatterns = [
     re_path(
@@ -21,6 +21,43 @@ urlpatterns = [
         r'^export/(?P<report_id>\d+)[/]?$',
         export.Export.as_view(),
         name='reports__export_report',
+    ),
+
+    # Entity Filters
+    re_path(
+        r'^entity_filter/',
+        include([
+            re_path(
+                r'^view/(?P<efilter_id>.+)[/]?$',
+                entity_filter.ReportEntityFilterDetail.as_view(),
+                name='reports__efilter',
+            ),
+            re_path(
+                r'^reload/(?P<efilter_id>.+)[/]?$',
+                entity_filter.ReportEntityFilterBricksReloading.as_view(),
+                name='reports__reload_efilter_bricks',
+            ),
+            re_path(
+                r'^add/(?P<ct_id>\d+)[/]?$',
+                entity_filter.ReportEntityFilterCreation.as_view(),
+                name='reports__create_efilter',
+            ),
+            re_path(
+                r'^edit/(?P<efilter_id>.+)[/]?$',
+                entity_filter.ReportEntityFilterEdition.as_view(),
+                name='reports__edit_efilter',
+            ),
+            re_path(
+                r'^edit_popup/(?P<efilter_id>.+)[/]?$',
+                entity_filter.ReportEntityFilterEditionPopup.as_view(),
+                name='reports__edit_efilter_popup',
+            ),
+            re_path(
+                r'^delete/(?P<efilter_id>.+)[/]?$',
+                entity_filter.ReportEntityFilterDeletion.as_view(),
+                name='reports__delete_efilter',
+            ),
+        ])
     ),
 
     # Fields brick

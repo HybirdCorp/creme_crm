@@ -1551,7 +1551,7 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
         @param filter_type: see the field 'EntityFilter.filter_type'.
         @param condition_cls: Class of condition.
         """
-        assert isinstance(subfilter, EntityFilter)
+        assert isinstance(subfilter, EntityFilter), type(subfilter)
         has = bool(has)
 
         return condition_cls(

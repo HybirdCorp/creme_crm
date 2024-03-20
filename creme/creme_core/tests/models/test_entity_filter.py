@@ -13,6 +13,8 @@ from creme import __version__
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
+    _EntityFilterRegistry,
+    _EntityFilterSuperRegistry,
     entity_filter_registries,
     operands,
     operators,
@@ -147,6 +149,24 @@ class EntityFiltersTestCase(CremeTestCase):
             ids = [contacts[sn].id for sn in short_names]
 
         return ids
+
+    def test_str(self):
+        name = 'My filter'
+        efilter = EntityFilter(name=name, entity_type=FakeContact)
+        self.assertEqual(name, str(efilter))
+
+        registry1 = _EntityFilterRegistry(id='creme_core-test1', verbose_name='Test #1')
+        registry2 = _EntityFilterRegistry(
+            id='creme_core-test2', verbose_name='Test #2', tag='test',
+        )
+        efilter.efilter_registries = _EntityFilterSuperRegistry().register(
+            registry1, registry2,
+        )
+        efilter.filter_type = registry1.id
+        self.assertEqual(name, str(efilter))
+
+        efilter.filter_type = registry2.id
+        self.assertEqual(f'{name} [test]', str(efilter))
 
     def test_can_edit__root(self):
         root = self.get_root_user()

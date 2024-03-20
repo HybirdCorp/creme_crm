@@ -415,6 +415,8 @@
             - In the model 'FieldsConfig' :
                 - The attributes "_excluded_fnames" & "_required_fnames" have been removed.
                 - The method 'update_form_fields()' now takes a form instance, and can set the _meta attribute (backported to 2.5.6/2.4.13).
+        # The attribute 'creme_core.forms.entity_filter.fields._ConditionsField.efilter_type' is now read only
+          (idem with 'SubfiltersConditionsField').
         # In 'creme_core.views' :
             - In the context created by the class-view 'search.Search',
               "models" is now a list of CremeEntity classes (use "verbose_names" instead).
