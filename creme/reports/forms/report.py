@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from django import forms
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
+from django.utils.formats import get_format
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -683,10 +684,13 @@ class ReportExportPreviewFilterForm(CremeForm):
             d_range = date_filter.name
             start, end = date_filter.get_dates(now())
 
+            date_format = get_format('DATE_INPUT_FORMATS')[0]
             data.extend([
                 ('date_filter_0', d_range),
-                ('date_filter_1', start.strftime('%d-%m-%Y') if start else ''),
-                ('date_filter_2', end.strftime('%d-%m-%Y') if end else ''),
+                # ('date_filter_1', start.strftime('%d-%m-%Y') if start else ''),
+                # ('date_filter_2', end.strftime('%d-%m-%Y') if end else ''),
+                ('date_filter_1', start.strftime(date_format) if start else ''),
+                ('date_filter_2', end.strftime(date_format) if end else ''),
             ])
 
         return '&'.join(f'{key}={value}' for key, value in data)

@@ -9,6 +9,8 @@
     # Apps :
         * Billing :
             -  The button to delete Payment Information (on Organisations' detail-views) was broken.
+        * Reports :
+            - The date filter in the download popup was broken.
         * Mobile :
             - A hard-coded URL pattern has been fixed (to use the reverse pattern matching as usual).
 
