@@ -90,7 +90,7 @@ class _ConditionsField(JSONField):
 
     @property
     def efilter_type(self):
-        return self.efilter_registry.id
+        return self._efilter_registry.id
 
     def initialize(self, ctype, conditions=None, efilter=None):
         if conditions:

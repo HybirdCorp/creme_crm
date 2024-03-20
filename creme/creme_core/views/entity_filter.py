@@ -300,6 +300,7 @@ class EntityFilterDetail(EntityFilterMixin, generic.CremeModelDetail):
 
 class EntityFilterBricksReloading(BricksReloading):
     efilter_id_url_kwarg = 'efilter_id'
+    filter_type = EF_REGULAR
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -347,7 +348,7 @@ class EntityFilterBricksReloading(BricksReloading):
                 EntityFilter,
                 id=self.kwargs[self.efilter_id_url_kwarg],
                 # filter_type=EF_USER,
-                filter_type=EF_REGULAR,
+                filter_type=self.filter_type,
             )
             self.check_instance_permissions(instance=efilter, user=self.request.user)
 

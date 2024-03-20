@@ -1,6 +1,9 @@
 from creme.creme_core.core.entity_filter import (
+    EF_CREDENTIALS,
+    EF_REGULAR,
     _EntityFilterRegistry,
     _EntityFilterSuperRegistry,
+    entity_filter_registries,
     operands,
     operators,
 )
@@ -166,6 +169,23 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
         with self.assertRaises(_EntityFilterRegistry.RegistrationError):
             registry.register_operators(TestOperator)
+
+    def test_tag01(self):
+        registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
+        self.assertEqual('', registry.tag)
+
+        registry.tag = 'test'
+        self.assertEqual('test', registry.tag)
+
+        # ---
+        self.assertEqual('', entity_filter_registries[EF_REGULAR].tag)
+        self.assertEqual('', entity_filter_registries[EF_CREDENTIALS].tag)
+
+    def test_tag02(self):
+        registry = _EntityFilterRegistry(
+            id='creme_core-default', verbose_name='Test', tag='test',
+        )
+        self.assertEqual('test', registry.tag)
 
 
 class EntityFilterSuperRegistryTestCase(CremeTestCase):

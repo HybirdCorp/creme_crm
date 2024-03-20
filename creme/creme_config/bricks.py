@@ -26,6 +26,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
+from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -1163,6 +1164,10 @@ class EntityFiltersBrick(PaginatedBrick):
     template_name = 'creme_config/bricks/entity-filters.html'
     configurable = False
 
+    filter_type = EF_REGULAR
+    # TODO: EntityFilter.get_popup_edit_absolute_url() ??
+    edition_url_name = 'creme_config__edit_efilter'
+
     def detailview_display(self, context):
         # NB: we wrap the ContentType instances instead of store extra data in
         #     them because the instances are stored in a global cache, so we do
@@ -1198,11 +1203,12 @@ class EntityFiltersBrick(PaginatedBrick):
 
         for efilter in core_models.EntityFilter.objects.filter(
             # filter_type=EF_USER,
-            filter_type=EF_REGULAR,
+            filter_type=self.filter_type,
             entity_type__in=[ctw.ctype for ctw in ctypes_wrappers],
         ):
             # TODO: templatetags instead ?
             efilter.view_perm = efilter.can_view(user)[0]
+            efilter.edition_url = reverse(self.edition_url_name, args=(efilter.id,))
             efilter.edition_perm = efilter.can_edit(user)[0]
             efilter.deletion_perm = efilter.can_delete(user)[0]
 

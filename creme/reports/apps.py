@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2023  Hybird
+#    Copyright (C) 2015-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,6 +31,7 @@ class ReportsConfig(CremeAppConfig):
         self.register_reports_aggregations()
         self.register_reports_charts()
         self.register_reports_graph_fetchers()
+        self.register_reports_efilter_registry()
 
         from . import signals  # NOQA
 
@@ -71,6 +72,14 @@ class ReportsConfig(CremeAppConfig):
             self.Report
         ).exclude('ct').add_overriders(bulk.ReportFilterOverrider)
         # TODO: self.ReportGraph? (beware to 'chart')
+
+    def register_creme_config(self, config_registry):
+        from . import bricks
+
+        config_registry.register_app_bricks(
+            'reports',
+            bricks.ReportEntityFiltersBrick,
+        )
 
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
@@ -145,4 +154,43 @@ class ReportsConfig(CremeAppConfig):
             fetcher.SimpleGraphFetcher,
             fetcher.RegularFieldLinkedGraphFetcher,
             fetcher.RelationLinkedGraphFetcher,
+        )
+
+    def register_reports_efilter_registry(self):
+        from creme.creme_core.core import entity_filter
+        from creme.creme_core.core.entity_filter import (
+            condition_handler,
+            operands,
+            operators,
+        )
+        from creme.reports.constants import EF_REPORTS
+
+        from .core import entity_filter as reports_filter
+
+        entity_filter.entity_filter_registries.register(
+            entity_filter._EntityFilterRegistry(
+                id=EF_REPORTS,
+                verbose_name=_('Reports filter'),
+                detail_url_name='reports__efilter',
+                edition_url_name='reports__edit_efilter',
+                deletion_url_name='reports__delete_efilter',
+                tag=_('Report'),
+            ).register_condition_handlers(
+                condition_handler.RegularFieldConditionHandler,
+                condition_handler.DateRegularFieldConditionHandler,
+
+                condition_handler.CustomFieldConditionHandler,
+                condition_handler.DateCustomFieldConditionHandler,
+
+                condition_handler.RelationConditionHandler,
+                reports_filter.ReportRelationSubFilterConditionHandler,
+
+                condition_handler.PropertyConditionHandler,
+
+                reports_filter.ReportSubFilterConditionHandler,
+            ).register_operators(
+                *operators.all_operators,
+            ).register_operands(
+                *operands.all_operands,
+            ),
         )

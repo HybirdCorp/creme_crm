@@ -276,7 +276,7 @@ class FKPrinter:
             '<ul>{conditions}</ul>'
             '</div>',
             url=value.get_absolute_url(),
-            name=value.name,
+            name=value,
             conditions=format_html_join(
                 '', '<li>{}</li>',
                 ((vc,) for vc in value.get_verbose_conditions(user)),

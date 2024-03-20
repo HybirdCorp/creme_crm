@@ -353,6 +353,8 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     creation_label = _('Create a filter')
     save_label     = _('Save the filter')
 
+    efilter_registries = entity_filter_registries
+
     _conditions_cache = None
     _connected_filter_cache = None
     _subfilter_conditions_cache = None
@@ -373,7 +375,10 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         pass
 
     def __str__(self):
-        return self.name
+        # return self.name
+        tag = self.registry.tag
+
+        return f'{self.name} [{tag}]' if tag else self.name
 
     def accept(self, entity: CremeEntity, user) -> bool:
         """Check if a CremeEntity instance is accepted or refused by the filter.
@@ -663,7 +668,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
     @property
     def registry(self) -> _EntityFilterRegistry:
-        return entity_filter_registries[self.filter_type]
+        return self.efilter_registries[self.filter_type]
 
     def filter(self, qs: QuerySet, user=None) -> QuerySet:
         qs = qs.filter(self.get_q(user))
@@ -848,6 +853,8 @@ class EntityFilterCondition(models.Model):
     # raw_value = models.TextField()
     value = models.JSONField(default=dict)
 
+    efilter_registries = entity_filter_registries
+
     _handler = None  # Cache for FilterConditionHandler instance.
     _model = None
 
@@ -937,7 +944,7 @@ class EntityFilterCondition(models.Model):
             registry = (
                 self.filter.registry
                 if self.filter_id else
-                entity_filter_registries[self.filter_type]
+                self.efilter_registries[self.filter_type]
             )
             self._handler = _handler = registry.get_handler(
                 type_id=self.type,

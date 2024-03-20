@@ -49,10 +49,19 @@ def __getattr__(name):
 
 
 class _EntityFilterRegistry:
-    """Registry about EntityFilter components:
-     - Conditions handlers.
-     - Operators.
-     - Operands.
+    """A registry which stores information about a type of <models.EntityFilter>.
+     (current types: regular, credentials, reports -- with the "reports" app).
+     Base information:
+       - ID (which is the type of filter too)
+       - verbose name
+       - tag (optional small name, see below).
+       - URLs which works with this type of filter
+
+     These components can be registered:
+       - Conditions handlers (this type of filter can filter on regular fields?
+         on custom fields? on relationships? etc...) .
+       - Operators (for condition on fields, operators like "equals" or "start with").
+       - Operands (special operand for condition on fields; used for <current user>).
     """
     class RegistrationError(Exception):
         pass
@@ -63,6 +72,7 @@ class _EntityFilterRegistry:
     detail_url_name: str
     edition_url_name: str
     deletion_url_name: str
+    tag: str
 
     # def __init__(self, *, id: int, verbose_name: str):
     def __init__(self, *,
@@ -70,12 +80,39 @@ class _EntityFilterRegistry:
                  detail_url_name: str = '',
                  edition_url_name: str = '',
                  deletion_url_name: str = '',
+                 tag: str = '',
                  ):
+        """Constructor.
+        @param id: A string used to retrieve the registry in the super registry;
+               it's used to set the field <EntityFilter.filter_type>.
+        @param detail_url_name: Name of the URL which displays details about an
+               EntityFilter linked to this registry.
+               - The URL pattern must take a filter's ID as unique argument
+                 (see method <detail_url()>).
+               - An empty string indicates that there is no detail-view for this type.
+        @param edition_url_name: Name of the URL which displays a form-view to
+               edit an EntityFilter linked to this registry.
+               - The URL pattern must take a filter's ID as unique argument
+                 (see method <edition_url()>).
+               - An empty string indicates that there is no edition view for this type.
+        @param deletion_url_name: Name of the URL to delete an EntityFilter
+               linked to this registry.
+               - The URL pattern must take a filter's ID as unique argument
+                 (see method <deletion_url()>).
+               - An empty string indicates that there is no deletion view for this type.
+               - The view should be a POST view.
+        @param tag: Small string used to visually distinguish filter with a special type
+               (i.e. not EF_REGULAR).
+               - The regular type can use an empty string.
+               - The internal types can use an empty string if they are never referenced.
+               - Special types (e.g. app "Reports") should use a gettext_lazy() string.
+        """
         self.id = id
         self.verbose_name = verbose_name
         self.detail_url_name = detail_url_name
         self.edition_url_name = edition_url_name
         self.deletion_url_name = deletion_url_name
+        self.tag = tag
 
         # We keep the registration order for the form.
         self._handler_classes: dict[int, type[FilterConditionHandler]] = OrderedDict()
@@ -230,6 +267,11 @@ class _EntityFilterRegistry:
 
 
 class _EntityFilterSuperRegistry:
+    """A registry of _EntityFilterRegistry, to manage different types of filter
+
+    You'll probably never instantiate one & just used the global instance
+    <entity_filter_registries> (excepted in unit tests).
+    """
     class RegistrationError(Exception):
         pass
 
