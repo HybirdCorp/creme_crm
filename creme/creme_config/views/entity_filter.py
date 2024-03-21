@@ -17,6 +17,7 @@
 ################################################################################
 
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms.entity_filter.forms as efilter_forms
@@ -75,17 +76,24 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEditionPopup):
     pk_url_kwarg = 'efilter_id'
     submit_label = _('Save the filter')
 
+    def check_instance_permissions(self, instance, user):
+        super().check_instance_permissions(instance=instance, user=user)
+        if instance.filter_type != self.efilter_type:
+            raise PermissionDenied('You cannot edit this type of filter thought this URL')
+
+        self.check_filter_permissions(filter_obj=instance, user=user)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_message'] = self.get_case_sensitivity_message()
 
         return context
 
-    def get_object(self, *args, **kwargs):
-        efilter = super().get_object(*args, **kwargs)
-        self.check_filter_permissions(filter_obj=efilter, user=self.request.user)
-
-        return efilter
+    # def get_object(self, *args, **kwargs):
+    #     efilter = super().get_object(*args, **kwargs)
+    #     self.check_filter_permissions(filter_obj=efilter, user=self.request.user)
+    #
+    #     return efilter
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

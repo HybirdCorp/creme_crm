@@ -412,8 +412,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         assert not user.is_team
 
         # if self.filter_type != EF_USER:
-        if self.filter_type != EF_REGULAR:
-            return False, gettext('You cannot edit/delete a system filter')
+        #     return False, gettext('You cannot edit/delete a system filter')
 
         if not user.has_perm(self.entity_type.app_label):
             return False, gettext('You are not allowed to access to this app')

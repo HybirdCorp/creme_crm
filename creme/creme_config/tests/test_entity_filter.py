@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_config.bricks import EntityFiltersBrick
-from creme.creme_core.core.entity_filter import operators
+from creme.creme_core.core.entity_filter import EF_CREDENTIALS, operators
 from creme.creme_core.core.entity_filter.condition_handler import (
     RegularFieldConditionHandler,
 )
@@ -210,11 +210,22 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             condition.value,
         )
 
-    def test_edit02(self):
+    def test_edit__belongs_to_other(self):
         "Can not edit Filter that belongs to another user."
         self.login_as_standard(allowed_apps=('creme_core',))
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Filter01', FakeContact, user=self.get_root_user(), is_custom=True,
+        )
+        self.assertGET403(self._build_edit_url(efilter))
+
+    def test_edit__not_regular(self):
+        self.login_as_root()
+
+        efilter = EntityFilter.objects.create(
+            id='test-system_filter',
+            name='Credentials special filter',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
         )
         self.assertGET403(self._build_edit_url(efilter))
