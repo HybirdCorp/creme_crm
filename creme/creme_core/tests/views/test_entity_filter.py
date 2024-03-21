@@ -1912,6 +1912,23 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         self._delete(efilter01)
         self.assertStillExists(efilter01)
 
+    def test_delete__credentials(self):
+        "Cannot delete a credentials filter with the regular view."
+        self.login_as_root()
+
+        efilter = EntityFilter.objects.create(
+            id='test-system_filter', name='System filter',
+            entity_type=FakeContact, is_custom=True,
+            filter_type=EF_CREDENTIALS,
+        )
+        # self.assertPOST403(
+        self.assertPOST409(
+            reverse('creme_core__delete_efilter'),
+            data={'id': efilter.id},
+            follow=True,
+        )
+        self.assertStillExists(efilter)
+
     def test_get_content_types01(self):
         self.login_as_root()
 

@@ -408,9 +408,11 @@
         # In 'creme_core.forms.entity_filter.fields', in the classes '_ConditionsField' & 'SubfiltersConditionsField' :
             - The constructor parameter 'efilter_type' has been removed (the type is the registry's ID).
             - The attribute 'efilter_type' is now read only.
-        # In the model 'creme_core.models.fields_config.FieldsConfig' :
-            - The attributes "_excluded_fnames" & "_required_fnames" have been removed.
-            - The method 'update_form_fields()' now takes a form instance, and can set the _meta attribute (backported to 2.5.6/2.4.13).
+        # In 'creme_core.models' :
+            - In the method 'EntityFilter.can_edit()', the type of filter is not checked anymore (it is checked by the views).
+            - In the model 'FieldsConfig' :
+                - The attributes "_excluded_fnames" & "_required_fnames" have been removed.
+                - The method 'update_form_fields()' now takes a form instance, and can set the _meta attribute (backported to 2.5.6/2.4.13).
         # In 'creme_core.views' :
             - In the context created by the class-view 'search.Search',
               "models" is now a list of CremeEntity classes (use "verbose_names" instead).

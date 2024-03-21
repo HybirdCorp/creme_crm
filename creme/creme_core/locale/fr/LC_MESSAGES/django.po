@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-21 10:40+0100\n"
+"POT-Creation-Date: 2024-04-02 14:46+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2234,9 +2234,6 @@ msgstr "Filtres de fiche"
 msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
-msgid "You cannot edit/delete a system filter"
-msgstr "Vous ne pouvez pas modifier/supprimer un filtre système"
-
 msgid "You are not allowed to access to this app"
 msgstr "Vous n'avez pas la permission d'accéder à cette application"
 
@@ -3248,6 +3245,18 @@ msgstr "Aller à la configuration des filtres"
 msgid "Do you really want to delete this filter?"
 msgstr "Voulez-vous vraiment supprimer ce filtre ?"
 
+msgid "Go to the configuration of types"
+msgstr "Aller à la configuration des types"
+
+msgid "Property type"
+msgstr "Type de propriété"
+
+msgid "Disabled"
+msgstr "Désactivé"
+
+msgid "Do you really want to delete this property type?"
+msgstr "Voulez-vous vraiment supprimer ce type de propriété ?"
+
 msgid "Back to the list"
 msgstr "Retour à la liste"
 
@@ -3712,18 +3721,6 @@ msgstr "%(count)s éléments"
 msgid "The definitive deletion has been disabled by the administrator."
 msgstr "La suppression définitive a été désactivée par l'administrateur."
 
-msgid "Go to the configuration of types"
-msgstr "Aller à la configuration des types"
-
-msgid "Property type"
-msgstr "Type de propriété"
-
-msgid "Disabled"
-msgstr "Désactivé"
-
-msgid "Do you really want to delete this property type?"
-msgstr "Voulez-vous vraiment supprimer ce type de propriété ?"
-
 msgid "Back"
 msgstr "Retour"
 
@@ -4142,6 +4139,9 @@ msgstr "Veuillez entrer au moins {count} caractères"
 
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+#~ msgid "You cannot edit/delete a system filter"
+#~ msgstr "Vous ne pouvez pas modifier/supprimer un filtre système"
 
 #~ msgid "Reminder"
 #~ msgstr "Mémento"
