@@ -243,14 +243,21 @@ class EntityFilterLinkedEntitiesBrick(QuerysetBrick):
         ))
 
 
+# TODO: inherit EntityFilterMixin?
 class EntityFilterDetail(generic.CremeModelDetail):
     model = EntityFilter
     template_name = 'creme_core/detail/entity-filter.html'
     pk_url_kwarg = 'efilter_id'
     bricks_reload_url_name = 'creme_core__reload_efilter_bricks'
+    # TODO: <efilter_registries = entity_filter_registries> ?
+    efilter_type: str = EF_REGULAR
 
     def check_instance_permissions(self, instance, user):
         super().check_instance_permissions(instance=instance, user=user)
+
+        if instance.filter_type != self.efilter_type:
+            raise PermissionDenied('You cannot view this type of filter thought this URL')
+
         allowed, msg = instance.can_view(user)
         if not allowed:
             raise PermissionDenied(msg)
@@ -397,17 +404,24 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
     pk_url_kwarg = 'efilter_id'
     submit_label = _('Save the modified filter')
 
+    def check_instance_permissions(self, instance, user):
+        super().check_instance_permissions(instance=instance, user=user)
+        if instance.filter_type != self.efilter_type:
+            raise PermissionDenied('You cannot edit this type of filter thought this URL')
+
+        self.check_filter_permissions(filter_obj=instance, user=user)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_message'] = self.get_case_sensitivity_message()
 
         return context
 
-    def get_object(self, *args, **kwargs):
-        efilter = super().get_object(*args, **kwargs)
-        self.check_filter_permissions(filter_obj=efilter, user=self.request.user)
-
-        return efilter
+    # def get_object(self, *args, **kwargs):
+    #     efilter = super().get_object(*args, **kwargs)
+    #     self.check_filter_permissions(filter_obj=efilter, user=self.request.user)
+    #
+    #     return efilter
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -416,10 +430,16 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
         return kwargs
 
 
-class EntityFilterDeletion(EntityDeletionMixin, generic.CremeModelDeletion):
+class EntityFilterDeletion(EntityDeletionMixin,
+                           EntityFilterMixin,
+                           generic.CremeModelDeletion):
     model = EntityFilter
 
     def check_instance_permissions(self, instance, user):
+        super().check_instance_permissions(instance=instance, user=user)
+        if instance.filter_type != self.efilter_type:
+            raise ConflictError('You cannot delete this type of filter thought this URL')
+
         allowed, msg = instance.can_delete(user)
         if not allowed:
             raise PermissionDenied(msg)
