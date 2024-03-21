@@ -35,11 +35,11 @@ from django.forms.fields import CallableChoiceIterator
 from django.utils.formats import get_format
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.core.entity_filter import EF_USER
+# from creme.creme_core.core.entity_filter import EF_USER, _EntityFilterRegistry
 from creme.creme_core.core.entity_filter import (
     EF_REGULAR,
-    _EntityFilterRegistry,
     condition_handler,
+    entity_filter_registries,
     operators,
 )
 from creme.creme_core.core.field_tags import FieldTag
@@ -72,7 +72,6 @@ class _ConditionsField(JSONField):
                  model=CremeEntity,
                  efilter_registry=None,
                  # efilter_type=EF_USER,
-                 efilter_type=EF_REGULAR,
                  condition_cls=EntityFilterCondition,
                  **kwargs):
         """Constructor.
@@ -82,13 +81,16 @@ class _ConditionsField(JSONField):
         """
         super().__init__(**kwargs)
         self.model = model
-        self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-            # id=-1,
-            id='creme_core-default',
-            verbose_name='Default for _ConditionsField',
-        )
-        self.efilter_type = efilter_type
+        # self.efilter_registry = efilter_registry or _EntityFilterRegistry(
+        #     id=-1, verbose_name='Default for _ConditionsField',
+        # )
+        self.efilter_registry = efilter_registry or entity_filter_registries[EF_REGULAR]
+        # self.efilter_type = efilter_type
         self.condition_cls = condition_cls
+
+    @property
+    def efilter_type(self):
+        return self.efilter_registry.id
 
     def initialize(self, ctype, conditions=None, efilter=None):
         if conditions:
@@ -1066,20 +1068,22 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
                  model=CremeEntity,
                  efilter_registry=None,
                  # efilter_type=EF_USER,
-                 efilter_type=EF_REGULAR,
                  condition_cls=EntityFilterCondition,
                  user=None,
                  **kwargs):
         super().__init__(queryset=EntityFilter.objects.none(), **kwargs)
         self.user = user
         self.model = model
-        self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-            # id=-1,
-            id='creme_core-default',
-            verbose_name='Default for SubfiltersConditionsField',
-        )
-        self.efilter_type = efilter_type
+        # self.efilter_registry = efilter_registry or _EntityFilterRegistry(
+        #     id=-1, verbose_name='Default for SubfiltersConditionsField',
+        # )
+        self.efilter_registry = efilter_registry or entity_filter_registries[EF_REGULAR]
+        # self.efilter_type = efilter_type
         self.condition_cls = condition_cls
+
+    @property
+    def efilter_type(self):
+        return self.efilter_registry.id
 
     def clean(self, value):
         build_condition = partial(
