@@ -12,6 +12,7 @@ from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
     _EntityFilterRegistry,
+    entity_filter_registries,
     operands,
     operators,
 )
@@ -362,7 +363,7 @@ class RegularFieldsConditionsFieldTestCase(CremeTestCase):
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
         # self.assertEqual(EF_USER,                              condition.filter_type)
-        self.assertEqual(EF_REGULAR,                           condition.filter_type)
+        self.assertEqual(efilter_registry.id,                  condition.filter_type)
         self.assertDictEqual(
             {'operator': operator, 'values': [value]},
             condition.value,
@@ -371,8 +372,9 @@ class RegularFieldsConditionsFieldTestCase(CremeTestCase):
     def test_initialize(self):
         "initialize() + filter_type."
         field = RegularFieldsConditionsField(
-            efilter_registry=efilter_registry,
-            efilter_type=EF_CREDENTIALS,
+            # efilter_registry=efilter_registry,
+            # efilter_type=EF_CREDENTIALS,
+            efilter_registry=entity_filter_registries[EF_CREDENTIALS],
         )
         field.initialize(ctype=ContentType.objects.get_for_model(FakeContact))
 
@@ -1097,7 +1099,8 @@ class DateFieldsConditionsFieldTestCase(CremeTestCase):
         "Start/end + filter_type."
         field = DateFieldsConditionsField(
             model=FakeContact,
-            efilter_type=EF_CREDENTIALS,
+            # efilter_type=EF_CREDENTIALS,
+            efilter_registry=entity_filter_registries[EF_CREDENTIALS],
         )
         name01 = 'created'
         name02 = 'birthday'
@@ -1676,7 +1679,7 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
         # self.assertEqual(str(self.cfield_int.id),             condition.name)
         self.assertEqual(str(self.cfield_int.uuid),           condition.name)
         # self.assertEqual(EF_USER,                             condition.filter_type)
-        self.assertEqual(EF_REGULAR,                          condition.filter_type)
+        self.assertEqual(efilter_registry.id,                 condition.filter_type)
         self.assertDictEqual(
             {
                 'operator': operator,
@@ -1690,8 +1693,9 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
         "'model' property + filter_type."
         with self.assertNumQueries(0):
             field = CustomFieldsConditionsField(
-                efilter_registry=efilter_registry,
-                efilter_type=EF_CREDENTIALS,
+                # efilter_registry=efilter_registry,
+                # efilter_type=EF_CREDENTIALS,
+                efilter_registry=entity_filter_registries[EF_CREDENTIALS],
             )
             field.model = FakeContact
 
@@ -1722,7 +1726,7 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
         "Invalid value."
         field = CustomFieldsConditionsField(
             efilter_registry=efilter_registry,
-            efilter_type=EF_CREDENTIALS,
+            # efilter_type=EF_CREDENTIALS,
         )
         field.model = FakeContact
 
@@ -1957,7 +1961,7 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
     def test_clean_several_invalid_inputs(self):
         field = CustomFieldsConditionsField(
             efilter_registry=efilter_registry,
-            efilter_type=EF_CREDENTIALS,
+            # efilter_type=EF_CREDENTIALS,
             model=FakeContact
         )
         error_fmt = _('Condition on field «{field}»: {error}').format
@@ -2034,7 +2038,7 @@ class CustomFieldsConditionsFieldTestCase(CremeTestCase):
         self.assertFormfieldError(
             field=CustomFieldsConditionsField(
                 efilter_registry=efilter_registry,
-                efilter_type=EF_CREDENTIALS,
+                # efilter_type=EF_CREDENTIALS,
                 model=FakeContact,
             ),
             value=self.build_data({
@@ -2229,7 +2233,10 @@ class DateCustomFieldsConditionsFieldTestCase(CremeTestCase):
     def test_empty(self):
         "Empty operator + filter_type."
         with self.assertNumQueries(0):
-            field = DateCustomFieldsConditionsField(efilter_type=EF_CREDENTIALS)
+            # field = DateCustomFieldsConditionsField(efilter_type=EF_CREDENTIALS)
+            field = DateCustomFieldsConditionsField(
+                efilter_registry=entity_filter_registries[EF_CREDENTIALS],
+            )
             field.model = FakeContact
 
         conditions = field.clean(json_dump([
@@ -2393,11 +2400,11 @@ class PropertiesConditionsFieldTestCase(CremeTestCase):
         self.assertDictEqual({'has': True}, condition1.value)
 
         condition2 = conditions[1]
-        self.assertEqual(type_id,         condition2.type)
+        self.assertEqual(type_id,                condition2.type)
         # self.assertEqual(self.ptype02.id, condition2.name)
         self.assertEqual(str(self.ptype02.uuid), condition2.name)
         # self.assertEqual(EF_USER,         condition2.filter_type)
-        self.assertEqual(EF_REGULAR,      condition2.filter_type)
+        self.assertEqual(EF_REGULAR,             condition2.filter_type)
         # self.assertIs(condition2.value, False)
         self.assertDictEqual({'has': False}, condition2.value)
 
@@ -2405,7 +2412,10 @@ class PropertiesConditionsFieldTestCase(CremeTestCase):
         ptype = self.ptype01
 
         with self.assertNumQueries(0):
-            field = PropertiesConditionsField(efilter_type=EF_CREDENTIALS)
+            # field = PropertiesConditionsField(efilter_type=EF_CREDENTIALS)
+            field = PropertiesConditionsField(
+                efilter_registry=entity_filter_registries[EF_CREDENTIALS],
+            )
             field.model = FakeContact
 
         condition = self.get_alone_element(
@@ -2456,6 +2466,17 @@ class PropertiesConditionsFieldTestCase(CremeTestCase):
 
 # class RelationsConditionsFieldTestCase(FieldTestCase):
 class RelationsConditionsFieldTestCase(CremeTestCase):
+    # TODO?
+    # @classmethod
+    # def setUpClass(cls):
+    #     super().setUpClass()
+    #     entity_filter_registries.register(efilter_registry)
+    #
+    # @classmethod
+    # def tearDownClass(cls):
+    #     super().tearDownClass()
+    #     entity_filter_registries.unregister(efilter_registry.id)
+
     def _create_rtype(self):
         return RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving', [FakeContact]),
@@ -2592,7 +2613,8 @@ class RelationsConditionsFieldTestCase(CremeTestCase):
 
         field = RelationsConditionsField(
             model=FakeContact,
-            efilter_type=EF_CREDENTIALS,
+            # efilter_type=EF_CREDENTIALS,
+            efilter_registry=entity_filter_registries[EF_CREDENTIALS],
         )
         ct_id = ContentType.objects.get_for_model(FakeContact).id
         conditions = field.clean(json_dump([
@@ -2931,7 +2953,8 @@ class SubfiltersConditionsFieldTestCase(CremeTestCase):
         field = SubfiltersConditionsField(
             model=FakeContact,
             user=user,
-            efilter_type=EF_CREDENTIALS,
+            # efilter_type=EF_CREDENTIALS,
+            efilter_registry=entity_filter_registries[EF_CREDENTIALS],
         )
         field.initialize(
             ctype=ContentType.objects.get_for_model(FakeContact),
@@ -3024,8 +3047,8 @@ class RelationSubfiltersConditionsFieldTestCase(CremeTestCase):
 
         type_id = RelationSubFilterConditionHandler.type_id
         condition1 = conditions[0]
-        self.assertEqual(type_id,   condition1.type)
-        self.assertEqual(rtype1.id, condition1.name)
+        self.assertEqual(type_id,    condition1.type)
+        self.assertEqual(rtype1.id,  condition1.name)
         # self.assertEqual(EF_USER,   condition1.filter_type)
         self.assertEqual(EF_REGULAR, condition1.filter_type)
         self.assertDictEqual(
@@ -3045,12 +3068,11 @@ class RelationSubfiltersConditionsFieldTestCase(CremeTestCase):
         self._create_subfilters()
 
         rtype = self._create_rtype()[0]
-        user = self.get_root_user()
-
         field = RelationSubfiltersConditionsField(
             model=FakeContact,
-            user=user,
-            efilter_type=EF_CREDENTIALS,
+            user=self.get_root_user(),
+            # efilter_type=EF_CREDENTIALS,
+            efilter_registry=entity_filter_registries[EF_CREDENTIALS],
         )
 
         filter_id = self.sub_efilter01.id
@@ -3080,9 +3102,7 @@ class RelationSubfiltersConditionsFieldTestCase(CremeTestCase):
         # user = self.get_root_user()
         #
         # field = RelationSubfiltersConditionsField(
-        #     model=FakeContact,
-        #     user=user,
-        #     efilter_type=EF_CREDENTIALS,
+        #     model=FakeContact, user=user, efilter_type=EF_CREDENTIALS,
         # )
         # err = self.assertFieldRaises(
         #     ValidationError, field.clean,
@@ -3100,9 +3120,7 @@ class RelationSubfiltersConditionsFieldTestCase(CremeTestCase):
         # )
         self.assertFormfieldError(
             field=RelationSubfiltersConditionsField(
-                model=FakeContact,
-                user=self.get_root_user(),
-                efilter_type=EF_CREDENTIALS,
+                model=FakeContact, user=self.get_root_user(),
             ),
             value=json_dump([{
                 'rtype': rtype.id, 'has': True,
@@ -3121,12 +3139,8 @@ class RelationSubfiltersConditionsFieldTestCase(CremeTestCase):
         rtype.enabled = False
         rtype.save()
 
-        user = self.get_root_user()
-
         field = RelationSubfiltersConditionsField(
-            model=FakeContact,
-            user=user,
-            efilter_type=EF_CREDENTIALS,
+            model=FakeContact, user=self.get_root_user(),  # efilter_type=EF_CREDENTIALS,
         )
         field.initialize(
             ctype=ContentType.objects.get_for_model(FakeContact),
@@ -3165,13 +3179,27 @@ class RelationSubfiltersConditionsFieldTestCase(CremeTestCase):
 
 # class EntityFilterFormsTestCase(FieldTestCase):
 class EntityFilterFormsTestCase(CremeTestCase):
+    def setUp(self):
+        super().setUp()
+        self.efilter_registry = _EntityFilterRegistry(
+            id='creme_core-efilter_forms_testcase',
+            verbose_name='Test',
+        )
+        entity_filter_registries.register(self.efilter_registry)
+
+    def tearDown(self):
+        entity_filter_registries.unregister(self.efilter_registry.id)
+
     def test_creation_form01(self):
         user = self.get_root_user()
-        efilter_registry = _EntityFilterRegistry(
-            # id=-1,
-            id='creme_core-test_efilter_creation_form',
-            verbose_name='Test',
-        ).register_condition_handlers(
+        # efilter_registry = _EntityFilterRegistry(
+        #     id=-1, verbose_name='Test',
+        # ).register_condition_handlers(
+        #     RegularFieldConditionHandler,
+        #     DateRegularFieldConditionHandler,
+        # ).register_operators(*operators.all_operators)
+        efilter_registry = self.efilter_registry
+        efilter_registry.register_condition_handlers(
             RegularFieldConditionHandler,
             DateRegularFieldConditionHandler,
         ).register_operators(*operators.all_operators)
@@ -3232,11 +3260,14 @@ class EntityFilterFormsTestCase(CremeTestCase):
 
     def test_creation_form02(self):
         user = self.get_root_user()
-        efilter_registry = _EntityFilterRegistry(
-            # id=-1,
-            id='creme_core-test_efilter_creation_form',
-            verbose_name='Test',
-        ).register_condition_handlers(
+        # efilter_registry = _EntityFilterRegistry(
+        #     id=-1, verbose_name='Test',
+        # ).register_condition_handlers(
+        #     RegularFieldConditionHandler,
+        #     PropertyConditionHandler,
+        # )
+        efilter_registry = self.efilter_registry
+        efilter_registry.register_condition_handlers(
             RegularFieldConditionHandler,
             PropertyConditionHandler,
         )
@@ -3255,11 +3286,14 @@ class EntityFilterFormsTestCase(CremeTestCase):
 
     def test_edition_form01(self):
         user = self.get_root_user()
-        efilter_registry = _EntityFilterRegistry(
-            # id=-1,
-            id='creme_core-test_efilter_edition_form',
-            verbose_name='Test',
-        ).register_condition_handlers(
+        # efilter_registry = _EntityFilterRegistry(
+        #     id=-1, verbose_name='Test',
+        # ).register_condition_handlers(
+        #     RegularFieldConditionHandler,
+        #     DateRegularFieldConditionHandler,
+        # ).register_operators(*operators.all_operators)
+        efilter_registry = self.efilter_registry
+        efilter_registry.register_condition_handlers(
             RegularFieldConditionHandler,
             DateRegularFieldConditionHandler,
         ).register_operators(*operators.all_operators)
@@ -3333,11 +3367,14 @@ class EntityFilterFormsTestCase(CremeTestCase):
 
     def test_edition_form02(self):
         user = self.get_root_user()
-        efilter_registry = _EntityFilterRegistry(
-            # id=-1,
-            id='creme_core-test_efilter_edition_form',
-            verbose_name='Test',
-        ).register_condition_handlers(
+        # efilter_registry = _EntityFilterRegistry(
+        #     id=-1, verbose_name='Test',
+        # ).register_condition_handlers(
+        #     RegularFieldConditionHandler,
+        #     RelationConditionHandler,
+        # ).register_operators(*operators.all_operators)
+        efilter_registry = self.efilter_registry
+        efilter_registry.register_condition_handlers(
             RegularFieldConditionHandler,
             RelationConditionHandler,
         ).register_operators(*operators.all_operators)

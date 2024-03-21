@@ -130,10 +130,12 @@ class FilterMixin:
 
 class EntityFilterMixin(FilterMixin):
     # efilter_registry = entity_filter_registries[EF_USER]
-    efilter_registry = entity_filter_registries[EF_REGULAR]
+    efilter_registries = entity_filter_registries
+    efilter_type: str = EF_REGULAR
 
     def get_efilter_registry(self):
-        return self.efilter_registry
+        # return self.efilter_registry
+        return self.efilter_registries[self.efilter_type]
 
 
 class EntityFilterInfoBrick(SimpleBrick):

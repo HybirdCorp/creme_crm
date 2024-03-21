@@ -405,11 +405,16 @@
             - In the class 'RelationConditionHandler', these attributes have been replaced :
                 - _entity_id => _entity_uuid
                 - _ct_id => _ct_key
+        # In 'creme_core.forms.entity_filter.fields', in the classes '_ConditionsField' & 'SubfiltersConditionsField' :
+            - The constructor parameter 'efilter_type' has been removed (the type is the registry's ID).
+            - The attribute 'efilter_type' is now read only.
         # In the model 'creme_core.models.fields_config.FieldsConfig' :
             - The attributes "_excluded_fnames" & "_required_fnames" have been removed.
             - The method 'update_form_fields()' now takes a form instance, and can set the _meta attribute (backported to 2.5.6/2.4.13).
-        # In the context created by the class-view 'creme_core.views.search.Search',
-          "models" is now a list of CremeEntity classes (use "verbose_names" instead).
+        # In 'creme_core.views' :
+            - In the context created by the class-view 'search.Search',
+              "models" is now a list of CremeEntity classes (use "verbose_names" instead).
+            - In the view-mixin 'entity_filter.EntityFilterMixin', the attribute 'efilter_registry' has been replaced by 'efilter_type'.
         # In the templatetag "{% search_form %}" (from library "creme_search")
             - The argument "user" has been removed.
             - A mandatory argument "models" has been added.
