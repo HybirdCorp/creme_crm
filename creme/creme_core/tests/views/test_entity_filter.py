@@ -186,18 +186,8 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
         )
-
-        self.assertGET403(efilter.get_absolute_url())
-        # TODO?
-        # response = self.assertGET200(efilter.get_absolute_url())
-        # self.assertTemplateUsed(response, 'creme_core/detail/entity-filter.html')
-        #
-        # tree = self.get_html_tree(response.content)
-        # self.get_brick_node(tree, efilter_views.EntityFilterInfoBrick)
-        # self.assertNoBrick(tree, brick_id=efilter_views.EntityFilterParentsBrick.id)
-        # self.assertNoBrick(
-        #     tree, brick_id='linked_to_efilter-creme_core-fakereport-efilter',
-        # )
+        self.assertEqual('', efilter.get_absolute_url())
+        self.assertGET409(reverse('creme_core__efilter', args=(efilter.id,)))
 
     def test_reload_bricks_for_detailview__parents(self):
         self.login_as_root()
@@ -1588,7 +1578,9 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             entity_type=FakeContact, is_custom=True,
             filter_type=EF_CREDENTIALS,
         )
-        self.assertGET403(efilter.get_edit_absolute_url())
+        # self.assertGET403(efilter.get_edit_absolute_url())
+        self.assertEqual('', efilter.get_edit_absolute_url())
+        self.assertGET409(reverse('creme_core__edit_efilter', args=(efilter.id,)))
 
     def _aux_edit_subfilter(self, efilter, user=None, is_private=''):
         user = user or self.user
@@ -1790,11 +1782,13 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         response2 = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
         self.assertNoFormError(response2)
 
-    def _delete(self, efilter, **kwargs):
+    # def _delete(self, efilter, **kwargs):
+    def _delete(self, efilter):
         return self.client.post(
-            reverse('creme_core__delete_efilter'),
-            data={'id': efilter.id},
-            **kwargs
+            # reverse('creme_core__delete_efilter'),
+            # data={'id': efilter.id},
+            reverse('creme_core__delete_efilter', args=(efilter.id,)),
+            # **kwargs
         )
 
     def test_delete01(self):
@@ -1803,8 +1797,12 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Filter 01', FakeContact, is_custom=True,
         )
-        response = self._delete(efilter, follow=True)
-        self.assertEqual(200, response.status_code)
+        # response = self._delete(efilter, follow=True)
+        # self.assertEqual(200, response.status_code)
+        url = efilter.get_delete_absolute_url()
+        self.assertEqual(reverse('creme_core__delete_efilter', args=(efilter.id,)), url)
+
+        response = self.assertPOST200(url, follow=True)
         self.assertRedirects(response, FakeContact.get_lv_absolute_url())
         self.assertDoesNotExist(efilter)
 
@@ -1912,6 +1910,20 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         self._delete(efilter01)
         self.assertStillExists(efilter01)
 
+    def test_delete__deprecated(self):
+        self.login_as_root()
+
+        efilter = EntityFilter.objects.smart_update_or_create(
+            'test-filter01', 'Filter 01', FakeContact, is_custom=True,
+        )
+        response = self.assertPOST200(
+            reverse('creme_core__delete_efilter'),
+            data={'id': efilter.id},
+            follow=True,
+        )
+        self.assertRedirects(response, FakeContact.get_lv_absolute_url())
+        self.assertDoesNotExist(efilter)
+
     def test_delete__credentials(self):
         "Cannot delete a credentials filter with the regular view."
         self.login_as_root()
@@ -1921,6 +1933,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             entity_type=FakeContact, is_custom=True,
             filter_type=EF_CREDENTIALS,
         )
+        self.assertEqual('', efilter.get_delete_absolute_url())
         # self.assertPOST403(
         self.assertPOST409(
             reverse('creme_core__delete_efilter'),
