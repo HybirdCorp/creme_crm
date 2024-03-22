@@ -3,6 +3,7 @@
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext as _
 
 from creme.creme_core.constants import REL_SUB_HAS
 from creme.creme_core.core.entity_cell import (
@@ -154,6 +155,51 @@ class HeaderFiltersTestCase(CremeTestCase):
                 is_private=True, is_custom=False,
                 cells_desc=[(EntityCellRegularField, {'name': 'last_name'})],
             )
+
+    def test_can_edit__root(self):
+        root = self.get_root_user()
+        # other = self.user
+        other = self.create_user()
+        team1 = self.create_team('team A', other, root)
+        team2 = self.create_team('team B', other)
+        OK = (True, 'OK')
+        self.assertTupleEqual(
+            OK, HeaderFilter(entity_type=FakeContact).can_edit(root),
+        )
+        self.assertTupleEqual(
+            OK, HeaderFilter(entity_type=FakeContact, user=other).can_edit(root),
+        )
+        KO = (False, _('You are not allowed to edit/delete this view'))
+        self.assertTupleEqual(
+            KO, HeaderFilter(entity_type=FakeContact, user=other, is_private=True).can_edit(root),
+        )
+        self.assertTupleEqual(
+            OK, HeaderFilter(entity_type=FakeContact, user=root, is_private=True).can_edit(root),
+        )
+        self.assertTupleEqual(
+            KO, HeaderFilter(entity_type=FakeContact, user=team2, is_private=True).can_edit(root),
+        )
+        self.assertTupleEqual(
+            OK, HeaderFilter(entity_type=FakeContact, user=team1, is_private=True).can_edit(root),
+        )
+
+    def test_can_edit__staff(self):
+        staff = self.create_user(index=1, is_staff=True)
+        self.assertTrue(
+            HeaderFilter(
+                entity_type=FakeContact, user=self.get_root_user(), is_private=True,
+            ).can_edit(staff)[0],
+        )
+
+    def test_can_edit__regular_user(self):
+        from creme.documents import get_document_model
+
+        user = self.create_user(index=1, role=self.create_role(allowed_apps=['creme_core']))
+        self.assertTrue(HeaderFilter(entity_type=FakeContact).can_edit(user)[0])
+        self.assertTupleEqual(
+            (False, _('You are not allowed to access to this app')),
+            HeaderFilter(entity_type=get_document_model()).can_edit(user),
+        )
 
     def test_ct_cache(self):
         hf = HeaderFilter.objects.create_if_needed(
