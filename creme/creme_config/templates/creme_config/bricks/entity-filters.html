@@ -28,7 +28,7 @@
                 <ul>
                 {% for efilter in ctw.all_users_filters %}
                     <li>
-                        {{efilter}}
+                        {% widget_hyperlink efilter %}
                         {% brick_action id='edit' url='creme_config__edit_efilter'|url:efilter.id enabled=efilter.edition_perm %}
                         {% brick_action id='delete' url=deletion_url __id=efilter.id enabled=efilter.deletion_perm %}
                     </li>
