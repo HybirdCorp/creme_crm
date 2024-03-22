@@ -404,6 +404,9 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         if self.filter_type != EF_USER:
             return False, gettext('You cannot edit/delete a system filter')
 
+        if not user.has_perm(self.entity_type.app_label):
+            return False, gettext('You are not allowed to access to this app')
+
         if not self.user_id:  # All users allowed
             return True, 'OK'
 
@@ -413,13 +416,9 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         if user.is_superuser and not self.is_private:
             return True, 'OK'
 
-        if not user.has_perm(self.entity_type.app_label):
-            return False, gettext('You are not allowed to access to this app')
-
         if not self.user.is_team:
             if self.user_id == user.id:
                 return True, 'OK'
-
         elif user.id in self.user.teammates:  # TODO: move in a User method ??
             return True, 'OK'
 
