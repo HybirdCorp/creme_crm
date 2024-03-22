@@ -32,7 +32,7 @@ from django.db import models
 from django.db.models import Q, QuerySet
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-from django.urls import reverse
+# from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext, pgettext_lazy
@@ -408,6 +408,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
         return self.can_edit(user)
 
+    # TODO: move to registry?
     def can_edit(self, user) -> tuple[bool, str]:
         assert not user.is_team
 
@@ -723,10 +724,14 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         return connected
 
     def get_absolute_url(self):
-        return reverse('creme_core__efilter', args=(self.id,))
+        return self.registry.detail_url(self)
 
     def get_edit_absolute_url(self):
-        return reverse('creme_core__edit_efilter', args=(self.id,))
+        # return reverse('creme_core__edit_efilter', args=(self.id,))
+        return self.registry.edition_url(self)
+
+    def get_delete_absolute_url(self) -> str:
+        return self.registry.deletion_url(self)
 
     def get_q(self, user=None) -> Q:
         query = Q()

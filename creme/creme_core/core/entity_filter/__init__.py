@@ -23,6 +23,7 @@ import warnings
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Iterator
 
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 if TYPE_CHECKING:
@@ -59,17 +60,43 @@ class _EntityFilterRegistry:
     # id: int
     id: str
     verbose_name: str
+    detail_url_name: str
+    edition_url_name: str
+    deletion_url_name: str
 
     # def __init__(self, *, id: int, verbose_name: str):
-    def __init__(self, *, id: str, verbose_name: str):
+    def __init__(self, *,
+                 id: str, verbose_name: str,
+                 detail_url_name: str = '',
+                 edition_url_name: str = '',
+                 deletion_url_name: str = '',
+                 ):
         self.id = id
         self.verbose_name = verbose_name
+        self.detail_url_name = detail_url_name
+        self.edition_url_name = edition_url_name
+        self.deletion_url_name = deletion_url_name
 
         # We keep the registration order for the form.
         self._handler_classes: dict[int, type[FilterConditionHandler]] = OrderedDict()
 
         self._operator_classes: dict[int, type[ConditionOperator]] = {}
         self._operand_classes: dict[str, type[ConditionDynamicOperand]] = {}
+
+    def detail_url(self, efilter) -> str:
+        url_name = self.detail_url_name
+
+        return '' if not url_name else reverse(url_name, args=(efilter.id,))
+
+    def edition_url(self, efilter) -> str:
+        url_name = self.edition_url_name
+
+        return '' if not url_name else reverse(url_name, args=(efilter.id,))
+
+    def deletion_url(self, efilter) -> str:
+        url_name = self.deletion_url_name
+
+        return '' if not url_name else reverse(url_name, args=(efilter.id,))
 
     def register_condition_handlers(
             self,
@@ -245,5 +272,8 @@ entity_filter_registries = _EntityFilterSuperRegistry().register(
         # id=EF_USER,
         id=EF_REGULAR,
         verbose_name=_('Regular filter (usable in list-view)'),
+        detail_url_name='creme_core__efilter',
+        edition_url_name='creme_core__edit_efilter',
+        deletion_url_name='creme_core__delete_efilter',
     ),
 )

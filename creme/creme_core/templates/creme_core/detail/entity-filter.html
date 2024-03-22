@@ -1,6 +1,5 @@
 {% extends 'creme_core/detailview.html' %}
 {% load i18n creme_bricks creme_widgets %}
-{% load url from creme_core_tags %}
 
 {# {% block page_title %}«{{object}}» - {% endblock %} #}
 
@@ -15,19 +14,21 @@
 {% block logo %} {% widget_icon name='filter' size='brick-hat-bar' label=_('Filter of Entity') %}{% endblock %}
 
 {% block title_buttons %}
+  {% with edition_url=object.get_edit_absolute_url deletion_url=object.get_delete_absolute_url %}
+   {% if edition_url %}
     <div class='bar-action'>
-        <a href="{{object.get_edit_absolute_url}}" class="bar-button{% if not edition_perm %} forbidden is-disabled{% endif %}">
+        <a href="{{edition_url}}" class="bar-button{% if not edition_perm %} forbidden is-disabled{% endif %}">
             {% widget_icon name='edit' size='brick-hat-bar-button' label=_('Edit') %}
         </a>
     </div>
+   {% endif %}
+   {% if deletion_url %}
     <div class='bar-action'>
 {# NO A BRICK  {% brick_bar_button action='creme_core-detailview-delete' label=_('Delete') url='creme_core__delete_efilter'|url icon='delete' confirm=_('Do you really want to delete this filter?') enabled=deletion_perm %} #}
       {% if deletion_perm %}{% translate 'Do you really want to delete this filter?' as confirm_msg %}
         <a onclick="creme.utils.confirmSubmit(this, '{{confirm_msg|escapejs}}');" class="bar-button">
             {% widget_icon name='delete' size='brick-hat-bar-button' %}
-            <form method="POST" action="{{'creme_core__delete_efilter'|url}}" style="display:none;">{% csrf_token %}
-                <input name="id" value="{{object.id}}">
-            </form>
+            <form method="POST" action="{{deletion_url}}" style="display:none;">{% csrf_token %}</form>
         </a>
       {% else %}
         <span class="bar-button forbidden is-disabled">
@@ -35,6 +36,8 @@
         </span>
       {% endif %}
     </div>
+   {% endif %}
+  {% endwith %}
 {% endblock %}
 
 {% block main_content %}

@@ -4,6 +4,7 @@ from logging import info
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import QuerySet
+from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
@@ -227,6 +228,14 @@ class EntityFiltersTestCase(CremeTestCase):
 
         # self.assertEqual(entity_filter_registries[EF_USER], efilter.registry)
         self.assertEqual(entity_filter_registries[EF_REGULAR], efilter.registry)
+        self.assertEqual(
+            reverse('creme_core__efilter', args=(efilter.id,)),
+            efilter.get_absolute_url(),
+        )
+        self.assertEqual(
+            reverse('creme_core__edit_efilter', args=(efilter.id,)),
+            efilter.get_edit_absolute_url(),
+        )
 
         condition = self.get_alone_element(efilter.conditions.all())
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
@@ -683,6 +692,16 @@ class EntityFiltersTestCase(CremeTestCase):
                     ),
                 ],
             )
+
+    def test_absolute_urls__not_regular(self):
+        efilter = EntityFilter.objects.create(
+            id='creme_core-test_filter_absolute_urls',
+            name='Agencies',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        )
+        self.assertEqual('', efilter.get_absolute_url())
+        self.assertEqual('', efilter.get_edit_absolute_url())
 
     def test_ct_cache(self):
         efilter = EntityFilter.objects.smart_update_or_create(

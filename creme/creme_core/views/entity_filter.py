@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -243,20 +244,16 @@ class EntityFilterLinkedEntitiesBrick(QuerysetBrick):
         ))
 
 
-# TODO: inherit EntityFilterMixin?
-class EntityFilterDetail(generic.CremeModelDetail):
+class EntityFilterDetail(EntityFilterMixin, generic.CremeModelDetail):
     model = EntityFilter
     template_name = 'creme_core/detail/entity-filter.html'
     pk_url_kwarg = 'efilter_id'
     bricks_reload_url_name = 'creme_core__reload_efilter_bricks'
-    # TODO: <efilter_registries = entity_filter_registries> ?
-    efilter_type: str = EF_REGULAR
 
     def check_instance_permissions(self, instance, user):
         super().check_instance_permissions(instance=instance, user=user)
-
         if instance.filter_type != self.efilter_type:
-            raise PermissionDenied('You cannot view this type of filter thought this URL')
+            raise ConflictError('You cannot view this type of filter thought this URL')
 
         allowed, msg = instance.can_view(user)
         if not allowed:
@@ -273,31 +270,27 @@ class EntityFilterDetail(generic.CremeModelDetail):
         return context
 
     def get_bricks(self):
+        bricks = [EntityFilterInfoBrick(), EntityFilterParentsBrick()]
         efilter = self.object
-        bricks = [EntityFilterInfoBrick()]
 
-        # if efilter.filter_type == EF_USER:
-        if efilter.filter_type == EF_REGULAR:
-            bricks.append(EntityFilterParentsBrick())
-
-            # TODO: regroup fields from the same model?
-            #   => how to indicate PROTECT FKs which will stop deletion
-            #   => what about non-viewable fields?
-            for rel_objects in (f for f in efilter._meta.get_fields() if f.one_to_many):
-                if issubclass(rel_objects.related_model, CremeEntity):
-                    bricks.append(
-                        EntityFilterLinkedEntitiesBrick(
-                            model=rel_objects.related_model,
-                            field=rel_objects.field,
-                        )
+        # TODO: regroup fields from the same model?
+        #   => how to indicate PROTECT FKs which will stop deletion
+        #   => what about non-viewable fields?
+        for rel_objects in (f for f in efilter._meta.get_fields() if f.one_to_many):
+            if issubclass(rel_objects.related_model, CremeEntity):
+                bricks.append(
+                    EntityFilterLinkedEntitiesBrick(
+                        model=rel_objects.related_model,
+                        field=rel_objects.field,
                     )
+                )
 
-            # TODO: manage ManyToMany too
-            #     for rel_objects in (
-            #         f
-            #         for f in efilter._meta.get_fields(include_hidden=True)
-            #         if f.many_to_many and f.auto_created
-            #     ): [...]
+        # TODO: manage ManyToMany too
+        #     for rel_objects in (
+        #         f
+        #         for f in efilter._meta.get_fields(include_hidden=True)
+        #         if f.many_to_many and f.auto_created
+        #     ): [...]
 
         return bricks
 
@@ -407,7 +400,7 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
     def check_instance_permissions(self, instance, user):
         super().check_instance_permissions(instance=instance, user=user)
         if instance.filter_type != self.efilter_type:
-            raise PermissionDenied('You cannot edit this type of filter thought this URL')
+            raise ConflictError('You cannot edit this type of filter thought this URL')
 
         self.check_filter_permissions(filter_obj=instance, user=user)
 
@@ -434,6 +427,7 @@ class EntityFilterDeletion(EntityDeletionMixin,
                            EntityFilterMixin,
                            generic.CremeModelDeletion):
     model = EntityFilter
+    pk_url_kwarg = 'efilter_id'
 
     def check_instance_permissions(self, instance, user):
         super().check_instance_permissions(instance=instance, user=user)
@@ -443,6 +437,20 @@ class EntityFilterDeletion(EntityDeletionMixin,
         allowed, msg = instance.can_delete(user)
         if not allowed:
             raise PermissionDenied(msg)
+
+    def get_query_kwargs(self):
+        try:
+            kwargs = {'pk': self.kwargs[self.pk_url_kwarg]}
+        except KeyError:
+            # TODO: Remove in Creme 2.7
+            warnings.warn(
+                'EntityFilterDeletion with ID as POST argument is deprecated; '
+                'set it in the URL instead.',
+                DeprecationWarning
+            )
+            kwargs = super().get_query_kwargs()
+
+        return kwargs
 
     def get_success_url(self):
         # TODO: callback_url?
