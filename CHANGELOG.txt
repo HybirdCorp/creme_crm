@@ -74,6 +74,8 @@
             - The function 'creme_core.utils.create_if_needed()' is deprecated ;
               use 'MyModel.objects.get_or_create()' instead.
             - The constant 'creme_core.core.entity_filter.EF_USER' is deprecated ; use 'EF_REGULAR' instead.
+            - In the class-view 'creme_core.views.entity_filter.EntityFilterDeletion' (related to the URL named "creme_core__delete_efilter"),
+              the ID of the EntityFilter should now be passed in the URL, not the POST data.
             - The templatetag {% has_perm_to %} is deprecated;
               use the template-filters of the new library "creme_perms" instead.
             - In 'creme_core.tests' :
