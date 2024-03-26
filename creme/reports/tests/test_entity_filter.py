@@ -291,6 +291,69 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
             condition.value,
         )
 
+    def test_create__subfilters(self):
+        # self.login_as_standard(allowed_apps=['reports', 'creme_core'])
+        self.login_as_root()
+
+        regular_efilter = EntityFilter.objects.create(
+            id='creme_core-contacts_filter',
+            name='Contact filter',
+            entity_type=FakeContact,
+        )
+        report_efilter = EntityFilter.objects.create(
+            id='reports-contacts_filter',
+            name='Contact filter (only reports)',
+            entity_type=FakeContact,
+            filter_type=EF_REPORTS,
+        )
+        # TODO: other ctypes?
+
+        url = self._build_add_url(FakeContact)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            # TODO: relationsubfiltercondition
+            sub_filters_choices = [
+                *response.context['form'].fields['subfiltercondition'].choices
+            ]
+
+        self.assertInChoices(
+            value=regular_efilter.id, label=regular_efilter.name, choices=sub_filters_choices,
+        )
+        self.assertInChoices(
+            value=report_efilter.id, label=report_efilter.name, choices=sub_filters_choices,
+        )
+
+        # TODO
+        # ---
+        # name = 'Filter with sub-filters 01'
+        # response2 = self.client.post(
+        #     url,
+        #     data={
+        #         'name': name,
+        #         'is_private': 'on',
+        #         'user': user,
+        #         'use_or': 'on',
+        #         'subfiltercondition': [report_filter.id]
+        #     },
+        # )
+        # self.assertNoFormError(response2)
+        #
+        # efilter = self.get_alone_element(
+        #     EntityFilter.objects.filter(filter_type=EF_REPORTS, name=name)
+        # )
+        # self.assertEqual(FakeContact, efilter.entity_type.model_class())
+        # self.assertTrue(efilter.is_private)
+        # self.assertEqual(user, efilter.user)
+        # self.assertTrue(efilter.use_or)
+        #
+        # condition = self.get_alone_element(efilter.conditions.all())
+        # self.assertEqual(
+        #     condition_handler.SubFilterConditionHandler.type_id,
+        #     condition.type,
+        # )
+        # self.assertEqual(report_filter.id, condition.name)
+
     def test_edit(self):
         self.login_as_standard(allowed_apps=['reports', 'creme_core'])
 
