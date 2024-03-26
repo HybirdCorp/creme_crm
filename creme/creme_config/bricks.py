@@ -1200,6 +1200,7 @@ class EntityFiltersBrick(PaginatedBrick):
             entity_type__in=[ctw.ctype for ctw in ctypes_wrappers],
         ):
             # TODO: templatetags instead ?
+            efilter.view_perm = efilter.can_view(user)[0]
             efilter.edition_perm = efilter.can_edit(user)[0]
             efilter.deletion_perm = efilter.can_delete(user)[0]
 

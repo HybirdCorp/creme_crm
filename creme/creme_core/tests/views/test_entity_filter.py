@@ -186,15 +186,17 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             filter_type=EF_CREDENTIALS,
         )
 
-        response = self.assertGET200(efilter.get_absolute_url())
-        self.assertTemplateUsed(response, 'creme_core/detail/entity-filter.html')
-
-        tree = self.get_html_tree(response.content)
-        self.get_brick_node(tree, efilter_views.EntityFilterInfoBrick)
-        self.assertNoBrick(tree, brick_id=efilter_views.EntityFilterParentsBrick.id)
-        self.assertNoBrick(
-            tree, brick_id='linked_to_efilter-creme_core-fakereport-efilter',
-        )
+        self.assertGET403(efilter.get_absolute_url())
+        # TODO?
+        # response = self.assertGET200(efilter.get_absolute_url())
+        # self.assertTemplateUsed(response, 'creme_core/detail/entity-filter.html')
+        #
+        # tree = self.get_html_tree(response.content)
+        # self.get_brick_node(tree, efilter_views.EntityFilterInfoBrick)
+        # self.assertNoBrick(tree, brick_id=efilter_views.EntityFilterParentsBrick.id)
+        # self.assertNoBrick(
+        #     tree, brick_id='linked_to_efilter-creme_core-fakereport-efilter',
+        # )
 
     def test_reload_bricks_for_detailview__parents(self):
         self.login_as_root()
@@ -292,6 +294,28 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             reverse('creme_core__reload_efilter_bricks', args=(efilter.id,)),
             data={'brick_id': efilter_views.EntityFilterParentsBrick.id},
         )
+
+    def test_detailview__private(self):
+        user = self.login_as_root_and_get()
+        other = self.create_user()
+        efilter = EntityFilter.objects.create(
+            id='test-filter_detailview__private',
+            entity_type=FakeContact,
+            is_private=True,
+            user=other,
+        )
+        detail_url = efilter.get_absolute_url()
+        self.assertGET403(detail_url)
+
+        reload_uri = reverse('creme_core__reload_efilter_bricks', args=(efilter.id,))
+        reload_data = {'brick_id': efilter_views.EntityFilterParentsBrick.id}
+        self.assertGET403(reload_uri, data=reload_data)
+
+        # ---
+        efilter.user = user
+        efilter.save()
+        self.assertGET200(detail_url)
+        self.assertGET200(reload_uri, data=reload_data)
 
     @override_settings(FILTERS_INITIAL_PRIVATE=False)
     def test_create01(self):

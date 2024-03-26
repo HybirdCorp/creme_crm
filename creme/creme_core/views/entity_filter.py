@@ -245,6 +245,12 @@ class EntityFilterDetail(generic.CremeModelDetail):
     pk_url_kwarg = 'efilter_id'
     bricks_reload_url_name = 'creme_core__reload_efilter_bricks'
 
+    def check_instance_permissions(self, instance, user):
+        super().check_instance_permissions(instance=instance, user=user)
+        allowed, msg = instance.can_view(user)
+        if not allowed:
+            raise PermissionDenied(msg)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -294,6 +300,11 @@ class EntityFilterBricksReloading(BricksReloading):
         super().__init__(**kwargs)
         self.efilter = None
 
+    def check_instance_permissions(self, instance, user):
+        allowed, msg = instance.can_view(user)
+        if not allowed:
+            raise PermissionDenied(msg)
+
     def get_bricks(self):
         bricks = []
 
@@ -327,11 +338,14 @@ class EntityFilterBricksReloading(BricksReloading):
         efilter = self.efilter
 
         if efilter is None:
-            self.efilter = efilter = get_object_or_404(
+            efilter = get_object_or_404(
                 EntityFilter,
                 id=self.kwargs[self.efilter_id_url_kwarg],
                 filter_type=EF_USER,
             )
+            self.check_instance_permissions(instance=efilter, user=self.request.user)
+
+            self.efilter = efilter
 
         return efilter
 
