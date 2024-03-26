@@ -531,8 +531,10 @@ class _CremeTestCase:
         """Search a choice among a classical sequence of Django's choices
         (i.e. tuples (value, label)).
         """
+        value = str(value)
+
         for i, (choice_value, choice_label) in enumerate(choices):
-            if value == choice_value:
+            if value == str(choice_value):
                 if choice_label != label:
                     self.fail(
                         f'The choice "{value}" has been found, but with the '
@@ -544,7 +546,7 @@ class _CremeTestCase:
         self.fail(
             'The choice "{value}" has not been found in {values}.'.format(
                 value=value,
-                values=[c[0] for c in choices],
+                values=[str(c[0]) for c in choices],
             )
         )
 
