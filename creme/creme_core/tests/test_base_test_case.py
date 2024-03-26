@@ -171,7 +171,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         with self.assertRaises(self.failureException) as cm1:
             self.assertInChoices(3, 'three', choices)
         self.assertEqual(
-            'The choice "3" has not been found in [1, 2].',
+            '''The choice "3" has not been found in ['1', '2'].''',
             str(cm1.exception),
         )
 
