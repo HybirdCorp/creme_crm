@@ -69,6 +69,8 @@
             - In the class 'creme_core.gui.mass_import.FormRegistry' :
                 - The methods 'get()' & 'is_registered()' are now deprecated.
                 - The class 'UnregisteredCTypeException' is now deprecated.
+            - In the methods 'models.HeaderFilter.can_view()' & 'models.EntityFilter.can_view()',
+              the argument "content_type" is deprecated.
             - The function 'creme_core.utils.create_if_needed()' is deprecated ;
               use 'MyModel.objects.get_or_create()' instead.
             - The templatetag {% has_perm_to %} is deprecated;

@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 # from json import loads as json_load
 from typing import TYPE_CHECKING, Iterable
 
@@ -38,6 +39,8 @@ if TYPE_CHECKING:
     from ..core.entity_cell import EntityCell
 
 logger = logging.getLogger(__name__)
+# NB: used for deprecation purposes; do not use
+_NOT_PASSED = object()
 
 
 class HeaderFilterList(list):
@@ -224,10 +227,19 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
     def can_view(self,
                  user,
-                 content_type: ContentType | None = None,
+                 # content_type: ContentType | None = None,
+                 content_type=_NOT_PASSED,
                  ) -> tuple[bool, str]:
-        if content_type and content_type != self.entity_type:
-            return False, 'Invalid entity type'
+        # if content_type and content_type != self.entity_type:
+        #     return False, 'Invalid entity type'
+        if content_type is not _NOT_PASSED:
+            warnings.warn(
+                'In HeaderFilter.can_view(), the argument "content_type" is deprecated.',
+                DeprecationWarning,
+            )
+
+            if content_type and content_type != self.entity_type:
+                return False, 'Invalid entity type'
 
         return self.can_edit(user)
 

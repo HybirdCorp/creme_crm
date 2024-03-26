@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from copy import deepcopy
 from itertools import zip_longest
 # from json import loads as json_load
@@ -54,6 +55,8 @@ if TYPE_CHECKING:
     )
 
 logger = logging.getLogger(__name__)
+# NB: used for deprecation purposes; do not use
+_NOT_PASSED = object()
 
 
 # TODO: move to core.entity_filter ? (what about HeaderFilterList ?)
@@ -424,9 +427,18 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
         return False, gettext('You are not allowed to view/edit/delete this filter')
 
-    def can_view(self, user, content_type: ContentType | None = None) -> tuple[bool, str]:
-        if content_type and content_type != self.entity_type:
-            return False, 'Invalid entity type'
+    # def can_view(self, user, content_type: ContentType | None = None) -> tuple[bool, str]:
+    def can_view(self, user, content_type=_NOT_PASSED) -> tuple[bool, str]:
+        # if content_type and content_type != self.entity_type:
+        #     return False, 'Invalid entity type'
+        if content_type is not _NOT_PASSED:
+            warnings.warn(
+                'In EntityFilter.can_view(), the argument "content_type" is deprecated.',
+                DeprecationWarning,
+            )
+
+            if content_type and content_type != self.entity_type:
+                return False, 'Invalid entity type'
 
         return self.can_edit(user)
 
