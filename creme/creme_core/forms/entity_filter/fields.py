@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1058,7 +1058,6 @@ class PropertiesConditionsField(_ConditionsField):
 
 
 # TODO: factorise with _ConditionsField (mixin ?)
-# TODO: unit tests
 class SubfiltersConditionsField(ModelMultipleChoiceField):
     def __init__(self, *,
                  model=CremeEntity,
@@ -1071,7 +1070,8 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
         self.user = user
         self.model = model
         self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-            id=None,
+            # id=None,
+            id=-1,
             verbose_name='Default for SubfiltersConditionsField',
         )
         self.efilter_type = efilter_type
