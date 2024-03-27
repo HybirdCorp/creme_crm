@@ -808,25 +808,20 @@ class _BrickRegistry:
         setdefault = self._brick_classes.setdefault
 
         for brick_cls in brick_classes:
+            # TODO: remove creme 2.6
+            if hasattr(brick_cls, 'id_'):
+                logger.critical(
+                    'The brick class %s uses the old "id_" attribute; '
+                    'use an attribute "id" instead (brick is ignored).',
+                    brick_cls,
+                )
+                continue
+
             # brick_id = brick_cls.id_
             brick_id = brick_cls.id
 
             if not brick_id:
-                # TODO: in creme 2.6 only
-                #  raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
-                try:
-                    brick_cls.id_  # NOQA
-                except AttributeError:
-                    raise self.RegistrationError(
-                        f'Brick class with empty ID: {brick_cls}'
-                    )
-                else:
-                    logger.critical(
-                        'The brick class %s uses the old "id_" attribute; '
-                        'use an attribute "id" instead (brick is ignored).',
-                        brick_cls,
-                    )
-                    continue
+                raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
 
             if setdefault(brick_id, brick_cls) is not brick_cls:
                 raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
@@ -843,25 +838,20 @@ class _BrickRegistry:
                     f'Brick class does not inherit InstanceBrick: {brick_cls}'
                 )
 
+            # TODO: remove creme 2.6
+            if hasattr(brick_cls, 'id_'):
+                logger.critical(
+                    'The brick class %s uses the old "id_" attribute; '
+                    'use an attribute "id" instead (brick is ignored).',
+                    brick_cls,
+                )
+                continue
+
             # brick_id = brick_cls.id_
             brick_id = brick_cls.id
 
             if not brick_id:
-                # TODO: in creme 2.6 only
-                #  raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
-                try:
-                    brick_cls.id_  # NOQA
-                except AttributeError:
-                    raise self.RegistrationError(
-                        f'Brick class with empty ID: {brick_cls}'
-                    )
-                else:
-                    logger.critical(
-                        'The brick class %s uses the old "id_" attribute; '
-                        'use an attribute "id" instead (brick is ignored).',
-                        brick_cls,
-                    )
-                    continue
+                raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
 
             if setdefault(brick_id, brick_cls) is not brick_cls:
                 raise self.RegistrationError(f"Duplicated brick's ID: {brick_id}")
@@ -917,22 +907,17 @@ class _BrickRegistry:
         for brick_cls in secondary_brick_classes:
             assert issubclass(brick_cls, Brick)
 
+            # TODO: remove in creme 2.6
+            if hasattr(brick_cls, 'id_'):
+                logger.critical(
+                    'The brick class %s uses the old "id_" attribute; '
+                    'use an attribute "id" instead (brick is ignored).',
+                    brick_cls,
+                )
+                continue
+
             # brick_id = brick_cls.id_
             brick_id = brick_cls.id
-
-            # TODO: remove in creme 2.6
-            if not brick_id:
-                try:
-                    brick_id = brick_cls.id_
-                except AttributeError:
-                    pass
-                else:
-                    logger.critical(
-                        'The brick class %s uses the old "id_" attribute; '
-                        'use an attribute "id" instead (brick is ignored).',
-                        brick_cls,
-                    )
-                    continue
 
             if not brick_id or not brick_id.startswith(Brick.GENERIC_HAT_BRICK_ID + '-'):
                 raise self.RegistrationError(
