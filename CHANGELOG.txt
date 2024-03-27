@@ -4,6 +4,7 @@
 
   Users side :
   ------------
+    # The HTML directive to not be indexed by search engine has been added.
     # Some validation issues with bulk-edition have been fixed.
       It could be observed when editing several Invoices at once for example.
     # There were permissions issues with EntityFilters & HeaderFilters ;
