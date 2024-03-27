@@ -144,7 +144,9 @@
                     {% endblock %}
                 </div>
                 <div class="version">
+                  {% if user.is_authenticated %}
                     {% block version %}{% blocktranslate %}Version {{creme_version}}{% endblocktranslate %}{% endblock %}
+                  {% endif %}
                 </div>
                 <div class="links">
                     {% block links %}
