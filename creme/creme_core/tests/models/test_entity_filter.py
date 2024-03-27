@@ -932,8 +932,7 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_filter_field_not_equals(self):
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Not Ikari', FakeContact, is_custom=True,
-        )
-        efilter.set_conditions([
+        ).set_conditions([
             RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.EQUALS_NOT,
@@ -975,8 +974,7 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', name='Contains "isat"',
             model=FakeContact, is_custom=True,
-        )
-        efilter.set_conditions([
+        ).set_conditions([
             RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.CONTAINS,
@@ -991,8 +989,7 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter01', name='Not contains "Misa"',
             model=FakeContact, user=self.user, is_custom=True,
-        )
-        efilter.set_conditions([
+        ).set_conditions([
             RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.ICONTAINS,
@@ -1004,8 +1001,7 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_filter_field_contains_not(self):
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Not Ikari', FakeContact, is_custom=True,
-        )
-        efilter.set_conditions([
+        ).set_conditions([
             RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.CONTAINS_NOT,
@@ -1019,8 +1015,7 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_filter_field_icontains_not(self):
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Not contains "sato" (ci)', FakeContact, is_custom=True,
-        )
-        efilter.set_conditions([
+        ).set_conditions([
             RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.ICONTAINS_NOT,
@@ -1064,8 +1059,7 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_filter_field_lt(self):
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', '< Faye', FakeContact, is_custom=True,
-        )
-        efilter.set_conditions([
+        ).set_conditions([
             RegularFieldConditionHandler.build_condition(
                 model=FakeContact,
                 operator=operators.LT,
@@ -1390,8 +1384,7 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter02', 'lang contains "an"',
             model=FakeContact, is_custom=True,
-        )
-        efilter.set_conditions([
+        ).set_conditions([
             build_cond(
                 model=FakeContact,
                 operator=operators.ICONTAINS,
@@ -1537,8 +1530,7 @@ class EntityFiltersTestCase(CremeTestCase):
         build = partial(RegularFieldConditionHandler.build_condition, model=FakeContact)
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Jet', FakeContact, is_custom=True,
-        )
-        efilter.set_conditions([
+        ).set_conditions([
             build(operator=operators.EQUALS, field_name='first_name', values=['Jet']),
         ])
 
@@ -1784,8 +1776,7 @@ class EntityFiltersTestCase(CremeTestCase):
         # Test that a CycleError is not raised
         sub_sub_efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-filter03', name='Filter03', model=FakeContact, is_custom=True,
-        )
-        sub_sub_efilter.set_conditions([
+        ).set_conditions([
             build_4_field(
                 operator=operators.EQUALS,     field_name='last_name',  values=['Black'],
             ),
@@ -2338,8 +2329,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         sub_efilter02 = EntityFilter.objects.smart_update_or_create(
             pk='test-filter02', name='Filter Gendo', model=FakeContact, is_custom=True,
-        )
-        sub_efilter02.set_conditions([
+        ).set_conditions([
             build_4_field(operator=operators.EQUALS, field_name='first_name', values=['Gendô']),
         ])
         self.assertExpectedFiltered(sub_efilter02, FakeContact, [self.contacts['gendou'].id])
