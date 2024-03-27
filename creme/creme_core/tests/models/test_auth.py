@@ -1312,8 +1312,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1403,8 +1402,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1461,8 +1459,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1517,8 +1514,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1567,8 +1563,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1624,8 +1619,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1682,8 +1676,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth1',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter1.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1700,8 +1693,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth2',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter2.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1762,8 +1754,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth1',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter1.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1780,8 +1771,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth2',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter2.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1849,8 +1839,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth1',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter1.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1867,8 +1856,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth2',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter2.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1932,8 +1920,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
@@ -2011,8 +1998,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -2627,8 +2613,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
@@ -2865,8 +2850,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
@@ -2922,8 +2906,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
@@ -2968,8 +2951,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
@@ -3217,8 +3199,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -3277,8 +3258,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=Document,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=Document,
@@ -3322,8 +3302,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth01',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter_4_contact.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -3340,8 +3319,7 @@ class AuthTestCase(CremeTestCase):
             id='creme_core-test_auth02',
             entity_type=FakeOrganisation,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter_4_orga.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
@@ -3756,8 +3734,7 @@ class AuthTestCase(CremeTestCase):
             entity_type=FakeContact,
             # entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.PropertyConditionHandler.build_condition(
                     # model=CremeEntity,

@@ -83,8 +83,7 @@ class CremeQueryTagsTestCase(CremeTestCase):
             id='creme_core-test_auth',
             entity_type=FakeOrganisation,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,

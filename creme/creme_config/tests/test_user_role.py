@@ -1330,8 +1330,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
             use_or=True,
-        )
-        efilter1.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1480,8 +1479,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
             use_or=False,
-        )
-        efilter1.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1581,8 +1579,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             id='creme_config-test_user_role',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -1651,8 +1648,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             name='My entities',
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter1.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
@@ -1821,8 +1817,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             name='My entities',
             entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter1.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=CremeEntity,
@@ -2202,8 +2197,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
             use_or=True,
-        )
-        efilter1.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,

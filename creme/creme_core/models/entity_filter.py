@@ -771,7 +771,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
                        conditions,
                        check_cycles: bool = True,
                        check_privacy: bool = True,
-                       ) -> None:
+                       ) -> EntityFilter:
         assert all(c.filter_type == self.filter_type for c in conditions)
 
         if check_cycles:
@@ -798,6 +798,8 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
             EntityFilterCondition.objects.filter(pk__in=conds2del).delete()
 
         self._build_conditions_cache(conditions)
+
+        return self
 
     def get_verbose_conditions(self, user):
         "Generators of human-readable strings explaining the conditions."

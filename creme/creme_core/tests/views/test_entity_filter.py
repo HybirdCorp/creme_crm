@@ -1211,10 +1211,9 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             SubFilterConditionHandler.build_condition(subfilter),
         ])
 
-        parent_filter = EntityFilter.objects.smart_update_or_create(
-            'test-filter04', 'Filter 04', FakeContact, is_custom=True,
-        )
-        parent_filter.set_conditions([SubFilterConditionHandler.build_condition(efilter)])
+        EntityFilter.objects.smart_update_or_create(
+            'test-filter04', 'Parent Filter', FakeContact, is_custom=True,
+        ).set_conditions([SubFilterConditionHandler.build_condition(efilter)])
 
         url = efilter.get_edit_absolute_url()
         response = self.assertGET200(url)

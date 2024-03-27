@@ -3407,8 +3407,7 @@ class ListViewTestCase(CremeTestCase):
             id='creme_core-test_listview',
             entity_type=FakeOrganisation,
             filter_type=EF_CREDENTIALS,
-        )
-        efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeOrganisation,
@@ -3473,8 +3472,7 @@ class ListViewTestCase(CremeTestCase):
             id='creme_core-test_listview01',
             entity_type=FakeContact,
             filter_type=EF_CREDENTIALS,
-        )
-        cred_efilter.set_conditions(
+        ).set_conditions(
             [
                 condition_handler.RelationConditionHandler.build_condition(
                     model=FakeContact,
