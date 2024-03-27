@@ -9,7 +9,9 @@
       It could be observed when editing several Invoices at once for example.
     # There were permissions issues with EntityFilters & HeaderFilters ;
       public filters could be edited/deleted by users with no app permission.
-    # The IRC address in "About" page has been fixed.
+    # In the "About" page :
+        - the IRC address  has been fixed.
+        - the version is displayed only when you are authenticated.
     # Apps :
         * Billing :
             -  The button to delete Payment Information (on Organisations' detail-views) was broken.
