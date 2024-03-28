@@ -19,6 +19,8 @@
             - The date filter in the download popup was broken.
         * Mobile :
             - A hard-coded URL pattern has been fixed (to use the reverse pattern matching as usual).
+        * Assistants :
+            - The code of Alert has been improved (a query is avoided when creating a CremeEntity).
 
 
 == Version 2.4.13 ==
