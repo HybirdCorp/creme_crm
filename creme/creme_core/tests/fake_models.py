@@ -799,6 +799,7 @@ else:
     def get_sentinel_priority():
         return FakeTicketPriority.objects.get_or_create(name='Deleted')[0]
 
+    # No list-view; see test_fk_printer_html__content_type02
     class FakeTicket(CremeEntity):
         title = models.CharField(_('Title'), max_length=100)
         status = models.ForeignKey(

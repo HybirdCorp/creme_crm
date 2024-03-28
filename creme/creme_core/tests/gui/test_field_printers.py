@@ -4,6 +4,7 @@ from functools import partial
 from os.path import basename
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.test.utils import override_settings
@@ -66,6 +67,7 @@ from creme.creme_core.models import (
     FakeProduct,
     FakeReport,
     FakeSector,
+    FakeTicket,
     FakeTicketStatus,
 )
 from creme.creme_core.tests.base import CremeTestCase
@@ -676,8 +678,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(instance=c, value=None, user=user, field=field3),
         )
 
-    def test_fk_printer_html02(self):
-        "CremeEntity."
+    def test_fk_printer_html__creme_entity(self):
         user = self.get_root_user()
         c = FakeContact()
         field = c._meta.get_field('image')
@@ -693,8 +694,64 @@ class FieldsPrintersTestCase(CremeTestCase):
             printer(instance=c, value=img, user=user, field=field),
         )
 
-    def test_fk_printer_html03(self):
-        "EntityFilter."
+    def test_fk_printer_html__content_type01(self):
+        self.assertHasAttr(FakeContact, 'get_lv_absolute_url')
+
+        user = self.get_root_user()
+        report = FakeReport(ctype=FakeContact)
+        field = report._meta.get_field('ctype')
+
+        printer = FKPrinter(
+            none_printer=FKPrinter.print_fk_null_html,
+            default_printer=simple_print_html,
+        ).register(ContentType, FKPrinter.print_fk_contenttype_html)
+
+        url = reverse('creme_core__list_fake_contacts')
+        self.assertHTMLEqual(
+            f'<a href="{url}">Test Contacts</a>',
+            printer(instance=report, value=report.ctype, user=user, field=field),
+        )
+
+    def test_fk_printer_html__content_type02(self):
+        "Model without related list-view."
+        self.assertHasNoAttr(FakeTicket, 'get_lv_absolute_url')
+
+        printer = FKPrinter(
+            none_printer=FKPrinter.print_fk_null_html,
+            default_printer=simple_print_html,
+        ).register(ContentType, FKPrinter.print_fk_contenttype_html)
+
+        report = FakeReport(ctype=FakeTicket)
+        self.assertEqual(
+            'Test Tickets',
+            printer(
+                instance=report, value=report.ctype,
+                user=self.get_root_user(),
+                field=report._meta.get_field('ctype'),
+            ),
+        )
+
+    def test_fk_printer_html__content_type03(self):
+        "No app perm."
+        user = self.create_user(
+            role=self.create_role(name='No core', allowed_apps=['documents']),
+        )
+
+        printer = FKPrinter(
+            none_printer=FKPrinter.print_fk_null_html,
+            default_printer=simple_print_html,
+        ).register(ContentType, FKPrinter.print_fk_contenttype_html)
+
+        report = FakeReport(ctype=FakeContact)
+        self.assertEqual(
+            'Test Contacts',
+            printer(
+                instance=report, value=report.ctype, user=user,
+                field=report._meta.get_field('ctype'),
+            ),
+        )
+
+    def test_fk_printer_html__entity_filter(self):
         user = self.get_root_user()
 
         printer = FKPrinter(
