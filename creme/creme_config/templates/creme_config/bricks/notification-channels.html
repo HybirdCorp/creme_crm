@@ -8,9 +8,11 @@
     {% brick_header_title title=_('{count} Channel') plural=_('{count} Channels') empty=verbose_name %}
 {% endblock %}
 
+{% comment %} TODO: uncomment when user created channel are useful (workflow-engine)
 {% block brick_header_actions %}
     {% brick_header_action id='add' url='creme_config__create_notif_channel'|url label=_('New channel') enabled=user.is_superuser %}
 {% endblock %}
+{% endcomment %}
 
 {% block brick_before_content %}
     <div class="help">
