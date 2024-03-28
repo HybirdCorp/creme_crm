@@ -41,9 +41,13 @@ def _refresh_alert_reminder_job(sender, instance, **kwargs):
 
 
 @receiver(post_save)
-def _update_alert_trigger_date(sender, instance, **kwargs):
+def _update_alert_trigger_date(sender, instance, created, **kwargs):
     # NB: "@receiver(post_save, sender=CremeEntity)" does not work
     #     (the signal is sent for final class & strict class comparison is done)
+    if created:
+        # The instance has just been created, no alert can exist yet
+        return
+
     if not isinstance(instance, CremeEntity):
         return
 
