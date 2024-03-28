@@ -247,6 +247,19 @@ class FKPrinter:
         return format_html('<em>{}</em>', null_label) if null_label else ''
 
     @staticmethod
+    def print_fk_contenttype_html(*, instance: Model, value, user, field: Field) -> str:
+        model = value.model_class()
+        verbose_name = model._meta.verbose_name_plural
+        get_url = getattr(model, 'get_lv_absolute_url', None)
+
+        if not get_url or not user.has_perm_to_access(model._meta.app_label):
+            return str(verbose_name)
+
+        return format_html(
+            '<a href="{url}">{name}</a>', url=get_url(), name=verbose_name,
+        )
+
+    @staticmethod
     def print_fk_entity_html(*, instance: Model, value, user, field: Field,
                              target='_self',  # Extra field
                              ) -> str:
@@ -590,6 +603,8 @@ class _FieldPrintersRegistry:
                     if target is None else
                     partial(FKPrinter.print_fk_entity_html, target=target)
                 ),
+            ).register(
+                model=ContentType, printer=FKPrinter.print_fk_contenttype_html,
             ).register(
                 model=EntityFilter, printer=FKPrinter.print_fk_efilter_html,
             )

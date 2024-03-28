@@ -150,7 +150,7 @@ class ContentTypesConfig(VanillaContentTypesConfig):
         from django.contrib.contenttypes.models import ContentType
 
         meta = ContentType._meta
-        assert not meta.ordering, 'It seems ContentType has an ordering policy now ?!'
+        assert not meta.ordering, 'It seems ContentType has an ordering policy now?!'
 
         meta.ordering = ['id']
 
