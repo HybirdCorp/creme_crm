@@ -9,6 +9,7 @@
       It could be observed when editing several Invoices at once for example.
     # There were permissions issues with EntityFilters & HeaderFilters ;
       public filters could be edited/deleted by users with no app permission.
+    # The selector with lazy-loading should perform less queries (delay raised to 300ms).
     # In the "About" page :
         - the IRC address  has been fixed.
         - the version is displayed only when you are authenticated.
@@ -27,6 +28,7 @@
 
     Non breaking changes :
     ----------------------
+        # The debounce delay of 'creme_core.forms.enumerable.EnumerableSelect' can be configured.
         # Apps :
             * Billing :
                 - The conversion view is more robust (the relationship creation could crash).
