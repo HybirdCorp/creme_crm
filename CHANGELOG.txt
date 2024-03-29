@@ -318,7 +318,7 @@
 
   UPGRADE NOTE :
     - You should upgrade the minor version of Django 3.2 (3.2.19 or more).
-    - The python library has to be installed (indeed it's necessary only if you use the app 'emails');
+    - The python library "cryptography" has to be installed (indeed it's necessary only if you use the app 'emails');
       it's already installed in vanilla installations (because it is a dependence of 'xhtml2pdf').
 
   Users side :
