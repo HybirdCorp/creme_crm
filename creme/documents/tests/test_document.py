@@ -481,15 +481,17 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.add_credentials(user.role, own=['LINK'], model=Document)
         self.assertGET200(url)
 
+        # A named variable to close it cleanly
+        file_obj = self.build_filedata(
+            'Yes I am the content (DocumentTestCase.test_add_related_document03)'
+        )
         response = self.assertPOST200(
             url, follow=True,
             data={
                 'user': self.get_root_user().pk,
                 'title': 'Title',
                 'description': 'Test description',
-                'filedata': self.build_filedata(
-                    'Yes I am the content (DocumentTestCase.test_add_related_document03)'
-                ),
+                'filedata': file_obj,
             }
         )
         self.assertFormError(
