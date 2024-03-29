@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022-2023  Hybird
+#    Copyright (C) 2022-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -250,6 +250,10 @@ class EnumerableSelect(widgets.Select):
     option_template_name = 'creme_core/forms/widgets/enhanced-option.html'
     create_url = None
 
+    # Set the default debounce delay to 300ms to reduce the number of API calls.
+    # The default value in the JS component is 100ms.
+    ENUMERABLE_DEFAULT_DEBOUNCE_DELAY = 300
+
     def __init__(self, enumerable: EnumerableChoiceSet = None,
                  attrs=None, create_url=None):
         super().__init__(attrs=attrs, choices=())  # TODO: options or ()
@@ -274,8 +278,9 @@ class EnumerableSelect(widgets.Select):
             attrs.update({
                 'data-enum-url': self.enumerable.url,
                 'data-enum-limit': self.enumerable.limit,
-                'data-enum-cache': 'true',
             })
+            attrs.setdefault('data-enum-cache', 'true')
+            attrs.setdefault('data-enum-debounce', self.ENUMERABLE_DEFAULT_DEBOUNCE_DELAY)
 
         attrs['data-allow-clear'] = str(not self.is_required).lower()
 
