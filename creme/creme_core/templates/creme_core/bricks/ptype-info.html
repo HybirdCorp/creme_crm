@@ -20,7 +20,7 @@
     <div class='brick-kv-item'>
         <div class='brick-kv-key'>{% translate 'Applies on entities with following types' %}</div>
         <div class='brick-kv-value -kv-left'>
-        {% for ctype in ctypes %}{% widget_join %}<a>{{ctype}}</a>{% end_widget_join %}{% empty %}{% translate "No related type of resource" %}{% endfor %}
+        {% for ctype in ctypes %}{% widget_join %}{{ctype}}{% end_widget_join %}{% empty %}{% translate "No related type of resource" %}{% endfor %}
         </div>
     </div>
     <div class='brick-kv-item'>
