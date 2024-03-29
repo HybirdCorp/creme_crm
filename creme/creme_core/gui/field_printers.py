@@ -42,7 +42,11 @@ from ..core.download import (
     filefield_download_registry,
 )
 from ..models import CremeEntity, CremeUser, EntityFilter, fields
-from ..templatetags.creme_widgets import widget_entity_hyperlink, widget_urlize
+from ..templatetags.creme_widgets import (
+    widget_ctype_hyperlink,
+    widget_entity_hyperlink,
+    widget_urlize,
+)
 from ..utils import bool_as_html
 from ..utils.collections import ClassKeyedMap
 from ..utils.meta import FieldInfo
@@ -248,16 +252,7 @@ class FKPrinter:
 
     @staticmethod
     def print_fk_contenttype_html(*, instance: Model, value, user, field: Field) -> str:
-        model = value.model_class()
-        verbose_name = model._meta.verbose_name_plural
-        get_url = getattr(model, 'get_lv_absolute_url', None)
-
-        if not get_url or not user.has_perm_to_access(model._meta.app_label):
-            return str(verbose_name)
-
-        return format_html(
-            '<a href="{url}">{name}</a>', url=get_url(), name=verbose_name,
-        )
+        return widget_ctype_hyperlink(ctype=value, user=user)
 
     @staticmethod
     def print_fk_entity_html(*, instance: Model, value, user, field: Field,

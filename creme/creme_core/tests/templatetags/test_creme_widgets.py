@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template, TemplateSyntaxError
 from django.test import override_settings
 from django.test.testcases import assert_and_parse_html
+from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.templatetags.creme_widgets import (
@@ -14,7 +15,7 @@ from creme.creme_core.templatetags.creme_widgets import (
 from creme.creme_core.utils.media import get_creme_media_url
 
 from ..base import CremeTestCase
-from ..fake_models import FakeOrganisation, FakeSector
+from ..fake_models import FakeContact, FakeOrganisation, FakeSector, FakeTicket
 
 
 class CremeWidgetsTagsTestCase(CremeTestCase):
@@ -54,6 +55,57 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             '<a href="/creme_core/sectors">My favorite &lt;i&gt;one&lt;/i&gt;</a>',
             render2,
         )
+
+    def test_widget_ctype_hyperlink01(self):
+        self.assertHasAttr(FakeContact, 'get_lv_absolute_url')
+
+        user = self.get_root_user()
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_ctype_hyperlink ctype=ctype user=user %}'
+            ).render(Context({
+                'ctype': ContentType.objects.get_for_model(FakeContact),
+                'user': user,
+            }))
+
+        url = reverse('creme_core__list_fake_contacts')
+        self.assertEqual(f'<a href="{url}">Test Contacts</a>', render)
+
+    def test_widget_ctype_hyperlink02(self):
+        "Model without related list-view."
+        self.assertHasNoAttr(FakeTicket, 'get_lv_absolute_url')
+
+        user = self.get_root_user()
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_ctype_hyperlink ctype=ctype user=user %}'
+            ).render(Context({
+                'ctype': ContentType.objects.get_for_model(FakeTicket),
+                'user': user,
+            }))
+
+        self.assertEqual('Test Tickets', render)
+
+    def test_widget_ctype_hyperlink03(self):
+        "No app perm."
+        user = self.create_user(
+            role=self.create_role(name='No core', allowed_apps=['documents']),
+        )
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_ctype_hyperlink ctype=ctype user=user %}'
+            ).render(Context({
+                'ctype': ContentType.objects.get_for_model(FakeContact),
+                'user': user,
+            }))
+
+        self.assertEqual('Test Contacts', render)
 
     def test_widget_entity_hyperlink01(self):
         "Escaping."

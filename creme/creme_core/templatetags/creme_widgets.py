@@ -296,8 +296,33 @@ def widget_hyperlink(instance, label=None):
             label=instance if label is None else label,
         )
     except AttributeError:
-        # NB: we do not use label ; the template-tag juste print a string in this case.
+        # NB: we do not use label; the template-tag just prints a string in this case.
         return escape(instance)
+
+
+@register.simple_tag
+def widget_ctype_hyperlink(ctype, user):
+    """ Prints a <a> tag referencing the page of a model instance.
+    @param instance: Instance of DjangoModel which has a method 'get_absolute_url()'
+           BEWARE: it must not be a CremeEntity instance, or an auxiliary instance,
+           because the permissions are not checked.
+    @param label: String used as label of the link; by default the label used is
+           'instance.__str__()'.
+
+    Eg:
+       {% widget_hyperlink my_instance %}
+       {% widget_hyperlink my_instance 'My favorite instance' %}
+    """
+    model = ctype.model_class()
+    verbose_name = model._meta.verbose_name_plural
+    get_url = getattr(model, 'get_lv_absolute_url', None)
+
+    if not get_url or not user.has_perm_to_access(model._meta.app_label):
+        return str(verbose_name)
+
+    return format_html(
+        '<a href="{url}">{name}</a>', url=get_url(), name=verbose_name,
+    )
 
 
 @register.simple_tag
