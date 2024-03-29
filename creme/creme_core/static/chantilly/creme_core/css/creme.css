@@ -418,11 +418,13 @@ span.enumerator-empty {
 
 /* Title bar */
 
+/*
 .global-buttons + .hat-bar-container {
     border-top-color: rgb(204, 204, 204);
     border-top-style: solid;
     border-top-width: 1px;
 }
+*/
 
 .hat-bar-container {
     margin-bottom: 10px;
