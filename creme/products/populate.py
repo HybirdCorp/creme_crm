@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -261,10 +261,10 @@ class Populator(BasePopulator):
             create_subcat(name=_('Notebook'), category=electronics)
 
             travels = create_cat(name=_('Travels'))
-            create_subcat(name=_('Fly'),      category=travels)
-            create_subcat(name=_('Hotel'),    category=travels)
-            create_subcat(name=_('Week-end'), category=travels)
-            create_subcat(name=_('Rent'),     category=travels)
+            create_subcat(name=_('Fly'),     category=travels)
+            create_subcat(name=_('Hotel'),   category=travels)
+            create_subcat(name=_('Weekend'), category=travels)
+            create_subcat(name=_('Rent'),    category=travels)
 
             vehicle = create_cat(name=_('Vehicle'))
             create_subcat(name=_('Car'),   category=vehicle)

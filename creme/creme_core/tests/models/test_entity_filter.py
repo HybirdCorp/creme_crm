@@ -146,6 +146,50 @@ class EntityFiltersTestCase(CremeTestCase):
 
         return ids
 
+    def test_can_edit__root(self):
+        root = self.get_root_user()
+        other = self.user
+        team1 = self.create_team('team A', other, root)
+        team2 = self.create_team('team B', other)
+        OK = (True, 'OK')
+        self.assertTupleEqual(
+            OK, EntityFilter(entity_type=FakeContact).can_edit(root),
+        )
+        self.assertTupleEqual(
+            OK, EntityFilter(entity_type=FakeContact, user=other).can_edit(root),
+        )
+        KO = (False, _('You are not allowed to view/edit/delete this filter'))
+        self.assertTupleEqual(
+            KO, EntityFilter(entity_type=FakeContact, user=other, is_private=True).can_edit(root),
+        )
+        self.assertTupleEqual(
+            OK, EntityFilter(entity_type=FakeContact, user=root, is_private=True).can_edit(root),
+        )
+        self.assertTupleEqual(
+            KO, EntityFilter(entity_type=FakeContact, user=team2, is_private=True).can_edit(root),
+        )
+        self.assertTupleEqual(
+            OK, EntityFilter(entity_type=FakeContact, user=team1, is_private=True).can_edit(root),
+        )
+
+    def test_can_edit__staff(self):
+        staff = self.create_user(index=1, is_staff=True)
+        self.assertTrue(
+            EntityFilter(
+                entity_type=FakeContact, user=self.user, is_private=True,
+            ).can_edit(staff)[0],
+        )
+
+    def test_can_edit__regular_user(self):
+        from creme.documents import get_document_model
+
+        user = self.create_user(index=1, role=self.create_role(allowed_apps=['creme_core']))
+        self.assertTrue(EntityFilter(entity_type=FakeContact).can_edit(user)[0])
+        self.assertTupleEqual(
+            (False, _('You are not allowed to access to this app')),
+            EntityFilter(entity_type=get_document_model()).can_edit(user),
+        )
+
     def test_manager_smart_update_or_create01(self):
         "Custom=False."
         pk = 'test-filter01'

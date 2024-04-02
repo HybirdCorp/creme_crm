@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -295,7 +295,7 @@ def widget_hyperlink(instance, label=None):
             label=instance if label is None else label,
         )
     except AttributeError:
-        # NB: we do not use label ; the template-tag juste print a string in this case.
+        # NB: we do not use label; the template-tag just prints a string in this case.
         return escape(instance)
 
 

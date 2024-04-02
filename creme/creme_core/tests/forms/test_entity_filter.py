@@ -33,6 +33,7 @@ from creme.creme_core.forms.entity_filter.fields import (
     RegularFieldsConditionsField,
     RelationsConditionsField,
     RelationSubfiltersConditionsField,
+    SubfiltersConditionsField,
 )
 from creme.creme_core.forms.entity_filter.forms import (
     EntityFilterCreationForm,
@@ -2751,6 +2752,150 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
             f'<span>{_("No choice available.")}</span>',
             widget.render('test', ''),
         )
+
+
+class SubfiltersConditionsFieldTestCase(FieldTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        create_efilter = partial(
+            EntityFilter.objects.smart_update_or_create,
+            is_custom=True,
+        )
+        cls.sub_efilter01 = create_efilter(
+            pk='creme_core-test_subfilter01', name='Public filter for Contact (not custom)',
+            model=FakeContact,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.EQUALS,
+                    field_name='first_name',
+                    values=['Spike'],
+                ),
+            ],
+        )
+        cls.sub_efilter02 = create_efilter(
+            pk='creme_core-test_subfilter02', name='Public filter for Contact (custom)',
+            model=FakeContact,
+        )
+        cls.sub_efilter03 = create_efilter(
+            pk='creme_core-test_subfilter03', name='Public filter for Organisation',
+            model=FakeOrganisation,
+        )
+
+    def test_choices(self):
+        user = self.get_root_user()
+        other = self.create_user()
+
+        filter1 = self.sub_efilter01
+        filter2 = self.sub_efilter02
+
+        create_private_efilter = partial(
+            EntityFilter.objects.smart_update_or_create,
+            model=FakeContact, is_custom=True, is_private=True
+        )
+        private_efilter1 = create_private_efilter(
+            pk='creme_core-test_private_subfilter01',
+            name='Private filter for Contact (mine)',
+            user=user,
+        )
+        create_private_efilter(
+            pk='creme_core-test_private_subfilter02',
+            name='Private filter for Contact (not mine)',
+            user=other,
+        )
+
+        field = SubfiltersConditionsField(model=FakeContact)
+        field.user = user
+
+        self.assertFalse([*field.choices])
+
+        # ---
+        ctype = ContentType.objects.get_for_model(FakeContact)
+        field.initialize(ctype=ctype)
+
+        choices2 = [*field.choices]
+        self.assertInChoices(value=filter1.id, label=str(filter1), choices=choices2)
+        self.assertInChoices(value=filter2.id, label=str(filter2), choices=choices2)
+        self.assertInChoices(
+            value=private_efilter1.id, label=str(private_efilter1), choices=choices2,
+        )
+        self.assertEqual(3, len(choices2))
+
+        # ---
+        field.initialize(ctype=ctype, efilter=filter1)
+        choices3 = [*field.choices]
+        self.assertInChoices(value=filter2.id, label=str(filter2), choices=choices3)
+        self.assertNotInChoices(value=filter1.id, choices=choices3)
+
+    def test_choices__deep(self):
+        user = self.get_root_user()
+
+        filter1 = self.sub_efilter01
+        filter2 = self.sub_efilter02
+
+        filter1 = self.refresh(filter1)  # reset cache
+        parent_efilter = EntityFilter.objects.smart_update_or_create(
+            pk='creme_core-test_parent_filter',
+            name='Filter with child',
+            model=FakeContact,
+            is_custom=True,
+            conditions=[SubFilterConditionHandler.build_condition(subfilter=filter1)],
+        )
+
+        field = SubfiltersConditionsField(model=FakeContact)
+        field.user = user
+        field.initialize(
+            ctype=ContentType.objects.get_for_model(FakeContact),
+            efilter=filter1,
+        )
+
+        choices = [*field.choices]
+        self.assertInChoices(value=filter2.id, label=str(filter2), choices=choices)
+        self.assertNotInChoices(value=parent_efilter.id, choices=choices)
+
+    def test_ok(self):
+        user = self.get_root_user()
+
+        with self.assertNumQueries(0):
+            field = SubfiltersConditionsField(model=FakeContact)
+            field.user = user
+
+        field.initialize(
+            ctype=ContentType.objects.get_for_model(FakeContact),
+        )
+
+        filter_id1 = self.sub_efilter01.id
+        filter_id2 = self.sub_efilter02.id
+        conditions = field.clean([filter_id1, filter_id2])
+        self.assertEqual(2, len(conditions))
+
+        type_id = SubFilterConditionHandler.type_id
+        condition1 = conditions[0]
+        self.assertEqual(type_id,   condition1.type)
+        self.assertEqual(EF_USER, condition1.filter_type)
+        self.assertIsNone(condition1.value)
+
+        self.assertCountEqual(
+            [filter_id1, filter_id2], [cond.name for cond in conditions],
+        )
+
+    def test_filter_type(self):
+        user = self.get_root_user()
+
+        field = SubfiltersConditionsField(
+            model=FakeContact,
+            user=user,
+            efilter_type=EF_CREDENTIALS,
+        )
+        field.initialize(
+            ctype=ContentType.objects.get_for_model(FakeContact),
+        )
+
+        condition = self.get_alone_element(field.clean([self.sub_efilter01.id]))
+        self.assertEqual(SubFilterConditionHandler.type_id, condition.type)
+        self.assertEqual(EF_CREDENTIALS, condition.filter_type)
 
 
 class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):

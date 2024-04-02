@@ -71,7 +71,7 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
     def assertNoSearchBrick(self, tree, brick_id_prefix):
         for div_node in tree.findall('.//div'):
             if (
-                'brick' not in div_node.attrib.get('class', '')
+                'brick' in div_node.attrib.get('class', '')
                 and div_node.attrib.get('id', '').startswith(brick_id_prefix)
             ):
                 self.fail(f'A brick unexpectedly found for prefix "{brick_id_prefix}".')
@@ -277,7 +277,7 @@ class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
         # self.assertContains(response, self.coxco.get_absolute_url())
         # self.assertNotContains(response, self.linusfo.get_absolute_url())
         tree = self.get_html_tree(response.content)
-        self.assertNoSearchBrick(tree, brick_id_prefix=self.ORGA_BRICKID)
+        self.get_search_brick_node(tree, brick_id_prefix=self.ORGA_BRICKID)
 
         # self.assertNotContains(response, f' id="{self.CONTACT_BRICKID}-')
         # self.assertNotContains(response, self.alan.get_absolute_url())
