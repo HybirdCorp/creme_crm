@@ -1,7 +1,5 @@
 == Version 2.5.7 Work in progress (not released -- this is a draft) ==
 
-  TODO: recompile .mo (creme_config, products)
-
   Users side :
   ------------
     # The HTML directive to not be indexed by search engine has been added.
