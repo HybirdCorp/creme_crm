@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -139,12 +139,7 @@ class AbstractOpportunity(core_models.CremeEntity):
         return self.name
 
     def _clean_emitter_n_target(self):
-        # if not self.pk:  # Creation
-        # NB: if the user (which is required) is not set, an error will be
-        #     raised before anyway. In bulk-edition, an empty instance is
-        #     built to check some errors (before true instances are validated),
-        #     & the following validation was annoying.
-        if not self.pk and self.user_id:  # Creation
+        if not self.pk:  # Creation
             if not self._opp_emitter:
                 raise ValidationError(gettext('Emitter is required.'))
 

@@ -655,7 +655,20 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
         entities = self.entities
         kwargs['instances'] = entities
 
-        if len(entities) == 1:
+        # if len(entities) == 1:
+        #     kwargs['instance'] = entities[0]
+        if entities:
+            # NB:
+            #  - if we let an empty instance of <self.get_ctype().model_class()>
+            #    as form.instance, the method clean() of this instance can raise
+            #    an annoying ValidationError due to the emptiness (because only
+            #    the fields of this form are filled).
+            #  - if we build empty CremeEntity, we avoid this clean() method,
+            #    but the TypeOverriders have to manage a special case in their
+            #    method post_clean_instance()
+            #  So we use entities[0]; this way can lead to get ValidationErrors
+            #  about info which do not concern other entities (& so stop all the
+            #  editions), but it seems to be the less annoying solution.
             kwargs['instance'] = entities[0]
 
         return kwargs

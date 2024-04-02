@@ -1,3 +1,38 @@
+== Version 2.4.14 ==
+
+  Users side :
+  ------------
+    # The HTML directive to not be indexed by search engine has been added.
+    # Some validation issues with bulk-edition have been fixed.
+      It could be observed when editing several Invoices at once for example.
+    # There were permissions issues with EntityFilters & HeaderFilters ;
+      public filters could be edited/deleted by users with no app permission.
+    # The selector with lazy-loading should perform less queries (delay raised to 300ms).
+    # There was a broken link in CremePropertyType detail-view.
+    # In the "About" page :
+        - the IRC address  has been fixed.
+        - the version is displayed only when you are authenticated.
+    # Apps :
+        * Billing :
+            - The button to delete Payment Information (on Organisations' detail-views) was broken.
+        * Reports :
+            - The date filter in the download popup was broken.
+        * Mobile :
+            - A hard-coded URL pattern has been fixed (to use the reverse pattern matching as usual).
+        * Assistants :
+            - The code of Alert has been improved (a query is avoided when creating a CremeEntity).
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The debounce delay of 'creme_core.forms.enumerable.EnumerableSelect' can be configured.
+        # Apps :
+            * Billing :
+                - The conversion view is more robust (the relationship creation could crash).
+
+
 == Version 2.4.13 ==
 
   Users side :
@@ -284,7 +319,7 @@
 
   UPGRADE NOTE :
     - You should upgrade the minor version of Django 3.2 (3.2.19 or more).
-    - The python library has to be installed (indeed it's necessary only if you use the app 'emails');
+    - The python library "cryptography" has to be installed (indeed it's necessary only if you use the app 'emails');
       it's already installed in vanilla installations (because it is a dependence of 'xhtml2pdf').
 
   Users side :

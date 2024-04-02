@@ -544,7 +544,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         folder1 = create_folder(title='Test folder#1')
         folder2 = create_folder(title='Test folder#2', parent_folder=folder1)
         folder3 = create_folder(title='Test folder#3', parent_folder=folder2)
-        folder4 = create_folder(title='Test folder#4')
+        folder4 = create_folder(title='Test folder#0')  # First by title
 
         # url = self.build_bulkupdate_url(Folder, 'parent_folder')
         # self.assertGET200(url)
@@ -564,6 +564,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
                 formfield_name: folder3.id,
             },
         )
+        self.assertNoFormError(response2)
         self.assertContains(
             response2,
             _('This folder is one of the child folders of «%(folder)s»') % {

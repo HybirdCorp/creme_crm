@@ -1211,27 +1211,40 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         # ---
         date_field = 'birthday'
+        start = self.formfield_value_date(1990, 1, 1)
+        end = self.formfield_value_date(1990, 12, 31)
         response = self.assertPOST200(
             url,
             data={
                 'doc_type':      'csv',
                 'date_filter_0': '',
+
                 # 'date_filter_1': '01-01-1990',
                 # 'date_filter_2': '31-12-1990',
-                'date_filter_1': self.formfield_value_date(1990,  1,  1),
-                'date_filter_2': self.formfield_value_date(1990, 12, 31),
+                'date_filter_1': start,
+                'date_filter_2': end,
                 'date_field':    date_field,
             },
         )
         self.assertNoFormError(response)
         self.assertEqual(
+            # '{url}?doc_type=csv'
+            # '&date_field={date}'
+            # '&date_filter_0='
+            # '&date_filter_1=01-01-1990'
+            # '&date_filter_2=31-12-1990'.format(
+            #     url=reverse('reports__export_report', args=(report.id,)),
+            #     date=date_field,
+            # ),
             '{url}?doc_type=csv'
-            '&date_field={date}'
+            '&date_field={field}'
             '&date_filter_0='
-            '&date_filter_1=01-01-1990'
-            '&date_filter_2=31-12-1990'.format(
+            '&date_filter_1={start}'
+            '&date_filter_2={end}'.format(
                 url=reverse('reports__export_report', args=(report.id,)),
-                date=date_field,
+                field=date_field,
+                start=start,
+                end=end
             ),
             response.content.decode(),
         )
@@ -1433,7 +1446,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             birthday=datetime(year=now().year, month=1, day=1)
         )
         report = self._create_contacts_report('trinita')
-        response = self.assertGET200(
+        response1 = self.assertGET200(
             self._build_export_url(report),
             data={
                 'doc_type': 'csv',
@@ -1442,9 +1455,26 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
 
-        content = [s for s in response.content.decode().split('\r\n') if s]
-        self.assertEqual(2, len(content))
-        self.assertEqual(f'"Baby","{user}","",""', content[1])
+        content1 = [s for s in response1.content.decode().split('\r\n') if s]
+        self.assertEqual(2, len(content1))
+        self.assertEqual(f'"Baby","{user}","",""', content1[1])
+
+        # ---
+        response2 = self.assertGET200(
+            self._build_export_url(report),
+            data={
+                'doc_type': 'csv',
+                'date_field': 'birthday',
+                'date_filter_0': 'current_year',
+                # Should not be used
+                'date_filter_1': self.formfield_value_date(1980, 1, 1),
+                'date_filter_2': self.formfield_value_date(2000, 1, 1),
+            },
+        )
+
+        content2 = [s for s in response2.content.decode().split('\r\n') if s]
+        self.assertEqual(2, len(content2))
+        self.assertEqual(f'"Baby","{user}","",""', content2[1])
 
     def test_report_csv05(self):
         "Errors: invalid GET param."
