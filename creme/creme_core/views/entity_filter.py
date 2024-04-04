@@ -493,6 +493,7 @@ def get_content_types(request, rtype_id):
 class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
     response_class = CremeJsonResponse
     ctype_id_arg = 'ct_id'
+    efilter_types_arg = 'type'
     include_all_arg = 'all'
     all_label = pgettext_lazy('creme_core-filter', 'All')
 
@@ -501,6 +502,20 @@ class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
 
     def get_ctype_id(self):
         return utils.get_from_GET_or_404(self.request.GET, self.ctype_id_arg, int)
+
+    def get_efilter_types(self) -> list[str]:
+        efilter_types = self.request.GET.getlist(self.efilter_types_arg)
+
+        if efilter_types:
+            for filter_type in efilter_types:
+                try:
+                    entity_filter_registries[filter_type]
+                except KeyError as e:
+                    raise Http404(f'Invalid type of filter "{filter_type}"') from e
+        else:
+            efilter_types = [EF_REGULAR]
+
+        return efilter_types
 
     def get_include_all(self):
         return utils.get_from_GET_or_404(
@@ -514,7 +529,7 @@ class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
         choices = [('', self.all_label)] if self.get_include_all() else []
         choices.extend(
             EntityFilter.objects
-                        .filter_by_user(self.request.user)
+                        .filter_by_user(self.request.user, types=self.get_efilter_types())
                         .filter(entity_type=self.get_ctype())
                         .values_list('id', 'name')
         )

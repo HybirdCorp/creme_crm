@@ -1,6 +1,7 @@
 from datetime import date
 from functools import partial
 from json import dumps as json_dump
+from urllib.parse import urlencode
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
@@ -71,8 +72,17 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         return reverse('creme_core__ctypes_compatible_with_rtype_as_choices', args=(rtype.id,))
 
     @staticmethod
-    def _build_get_filter_url(ct):
-        return reverse('creme_core__efilters') + f'?ct_id={ct.id}'
+    def _build_get_filter_url(ct, all_=None, types=None):
+        # return reverse('creme_core__efilters') + f'?ct_id={ct.id}'
+        params = {'ct_id': ct.id}
+
+        if all_ is not None:
+            params['all'] = all_
+
+        if types is not None:
+            params['type'] = types
+
+        return reverse('creme_core__efilters') + '?' + urlencode(params, doseq=True)
 
     @staticmethod
     def _build_rfields_data(name, operator, value):
@@ -1978,68 +1988,85 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             response.json(),
         )
 
-    def test_filters_for_ctype01(self):
+    def test_filters_for_ctype__empty(self):
         self.login_as_root()
 
-        response = self.assertGET200(self._build_get_filter_url(self.ct_contact))
-        self.assertListEqual([], response.json())
+        build_url = self._build_get_filter_url
+        response1 = self.assertGET200(build_url(self.ct_contact))
+        self.assertListEqual([], response1.json())
 
-    def test_filters_for_ctype02(self):
+        # ---
+        response2 = self.assertGET200(build_url(self.ct_contact, types=[EF_REGULAR]))
+        self.assertListEqual([], response2.json())
+
+    def test_filters_for_ctype__ok(self):
         user = self.login_as_root_and_get()
 
-        create_efilter = EntityFilter.objects.smart_update_or_create
-        name1 = 'Filter 01'
-        name2 = 'Filter 02'
-        name3 = 'Filter 03'
+        create_efilter = partial(EntityFilter.objects.create, entity_type=FakeContact)
 
         pk_fmt = 'test-contact_filter{}'.format
-        efilter01 = create_efilter(pk_fmt(1), name1, FakeContact, is_custom=True)
-        efilter02 = create_efilter(
-            pk_fmt(2), name2, FakeContact, is_custom=False,
-            conditions=[
-                RegularFieldConditionHandler.build_condition(
-                    model=FakeContact, field_name='first_name',
-                    operator=operators.EQUALS, values=['Misato'],
-                ),
-            ],
-        )
+        efilter1 = create_efilter(pk=pk_fmt(1), name='Filter 1')
+        efilter2 = create_efilter(pk=pk_fmt(2), name='Filter 2', is_custom=False)
+        # .set_conditions([
+        #     RegularFieldConditionHandler.build_condition(
+        #         model=FakeContact, field_name='first_name',
+        #         operator=operators.EQUALS, values=['Misato'],
+        #     ),
+        # ])
+        create_efilter(pk='test-orga_filter', name='Orga Filter', entity_type=FakeOrganisation)
+        efilter3 = create_efilter(pk=pk_fmt(3), name='Filter 3', is_private=True, user=user)
         create_efilter(
-            'test-orga_filter', 'Orga Filter', FakeOrganisation, is_custom=True,
-        )
-        efilter03 = create_efilter(
-            pk_fmt(3), name3, FakeContact, is_custom=True, is_private=True, user=user,
-        )
-        create_efilter(
-            pk_fmt(4), 'Private', FakeContact, is_custom=True,
+            pk=pk_fmt(4), name='Private',
             # is_private=True, user=self.other_user,
             is_private=True, user=self.create_user(),
         )
+        cred_filter = create_efilter(pk=pk_fmt(5), name='System', filter_type=EF_CREDENTIALS)
+
         expected = [
-            [efilter01.id, name1],
-            [efilter02.id, name2],
-            [efilter03.id, name3],
+            [efilter1.id, efilter1.name],
+            [efilter2.id, efilter2.name],
+            [efilter3.id, efilter3.name],
         ]
 
-        response = self.assertGET200(self._build_get_filter_url(self.ct_contact))
-        self.assertEqual(expected, response.json())
+        build_url = partial(self._build_get_filter_url, ct=self.ct_contact)
+        response1 = self.assertGET200(build_url())
+        self.assertListEqual(expected, response1.json())
 
-        url = self._build_get_filter_url(self.ct_contact)
-        response = self.assertGET200(url)
-        self.assertEqual(expected, response.json())
+        # ---
+        response_all_int = self.assertGET200(build_url(all_=0))
+        self.assertListEqual(expected, response_all_int.json())
 
-        response = self.assertGET200(url + '&all=0')
-        self.assertEqual(expected, response.json())
+        # ---
+        response_all_bool = self.assertGET200(build_url(all_='false'))
+        self.assertListEqual(expected, response_all_bool.json())
 
-        response = self.assertGET200(url + '&all=false')
-        self.assertEqual(expected, response.json())
+        # ---
+        response_regular = self.assertGET200(build_url(types=[EF_REGULAR]))
+        self.assertListEqual(expected, response_regular.json())
 
-        self.assertGET404(url + '&all=invalid')
+        # ---
+        response_creds = self.assertGET200(build_url(types=[EF_CREDENTIALS]))
+        self.assertListEqual([
+            [cred_filter.id, cred_filter.name],
+        ], response_creds.json())
 
-    def test_filters_for_ctype03(self):
+    def test_filters_for_ctype__errors(self):
+        self.login_as_root()
+
+        build_url = partial(self._build_get_filter_url, ct=self.ct_contact)
+        response1 = self.client.get(build_url(all_='invalid'))
+        # self.assertContains(response1, 'Problem with argument "all"', html=True, status_code=404)
+        self.assertIn(b'Problem with argument &quot;all&quot;', response1.content)
+
+        # ---
+        response2 = self.client.get(build_url(types=['invalid']))
+        self.assertIn(b'Invalid type of filter &quot;invalid&quot;', response2.content)
+
+    def test_filters_for_ctype__app_perm(self):
         self.login_as_standard(allowed_apps=['documents'])
         self.assertGET403(self._build_get_filter_url(self.ct_contact))
 
-    def test_filters_for_ctype04(self):
+    def test_filters_for_ctype__all_choice(self):
         "Include 'All' fake filter."
         self.login_as_root()
 
@@ -2054,15 +2081,17 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             [efilter02.id, 'Filter 02'],
         ]
 
-        url = self._build_get_filter_url(self.ct_contact)
-        response = self.assertGET200(url + '&all=1')
-        self.assertEqual(expected, response.json())
+        build_url = partial(self._build_get_filter_url, ct=self.ct_contact)
+        response_int = self.assertGET200(build_url(all_=1))
+        self.assertEqual(expected, response_int.json())
 
-        response = self.assertGET200(url + '&all=true')
-        self.assertEqual(expected, response.json())
+        # ---
+        response_bool = self.assertGET200(build_url(all_='true'))
+        self.assertEqual(expected, response_bool.json())
 
-        response = self.assertGET200(url + '&all=True')
-        self.assertEqual(expected, response.json())
+        # ---
+        response_bool_cap = self.assertGET200(build_url(all_='True'))
+        self.assertEqual(expected, response_bool_cap.json())
 
 
 # class UserChoicesTestCase(ViewsTestCase):
