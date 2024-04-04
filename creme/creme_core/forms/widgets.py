@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -915,6 +915,7 @@ class FilteredEntityTypeWidget(ChainedInput):
 
         # TODO: allow to omit the 'All' filter ??
         # TODO: do not make a request for ContentType ID == '0'
+        # TODO: parameter for accepted filter types (regular, credentials, reports...)
         add_dselect(
             'efilter',
             options=reverse('creme_core__efilters') + '?ct_id=${%s}&all=true' % ctype_name,
