@@ -137,7 +137,7 @@ class EntityFilterManager(models.Manager):
 
         return efilters[-1]  # TODO: max()
 
-    def filter_by_user(self, user) -> QuerySet:
+    def filter_by_user(self, user, types: Iterable[str] = (EF_REGULAR,)) -> QuerySet:
         """Get the EntityFilter queryset corresponding of filters which a user can see.
         @param user: A User instance.
         """
@@ -148,7 +148,7 @@ class EntityFilterManager(models.Manager):
             )
 
         # qs = self.filter(filter_type=EF_USER)
-        qs = self.filter(filter_type=EF_REGULAR)
+        qs = self.filter(filter_type__in=types)
 
         return (
             qs
