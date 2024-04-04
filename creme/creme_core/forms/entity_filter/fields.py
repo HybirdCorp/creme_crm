@@ -925,9 +925,14 @@ class RelationsConditionsField(_ConditionsField):
 
 class RelationSubfiltersConditionsField(RelationsConditionsField):
     widget = widgets.RelationSubfiltersConditionsWidget
+    sub_filter_types = [EF_REGULAR]
     default_error_messages = {
         'invalidfilter': _('This filter is invalid.'),
     }
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.widget.efilter_types = self.sub_filter_types
 
     def _condition_to_dict(self, condition):
         value = condition.value
@@ -959,9 +964,9 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
             all_kwargs.append(kwargs)
 
         if filter_ids:
-            filters = EntityFilter.objects.filter_by_user(self.user).filter(
-                pk__in=filter_ids,
-            ).in_bulk()
+            filters = EntityFilter.objects.filter_by_user(
+                self.user, types=self.sub_filter_types,
+            ).filter(pk__in=filter_ids).in_bulk()
 
             if len(filters) != len(filter_ids):
                 raise ValidationError(
@@ -1064,6 +1069,8 @@ class PropertiesConditionsField(_ConditionsField):
 
 # TODO: factorise with _ConditionsField (mixin ?)
 class SubfiltersConditionsField(ModelMultipleChoiceField):
+    sub_filter_types = [EF_REGULAR]
+
     def __init__(self, *,
                  model=CremeEntity,
                  efilter_registry=None,
@@ -1095,7 +1102,9 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
         return [build_condition(subfilter) for subfilter in super().clean(value)]
 
     def initialize(self, ctype, conditions=None, efilter=None):
-        qs = EntityFilter.objects.filter_by_user(self.user).filter(entity_type=ctype)
+        qs = EntityFilter.objects.filter_by_user(
+            self.user, types=self.sub_filter_types,
+        ).filter(entity_type=ctype)
 
         if efilter:
             qs = qs.exclude(pk__in=efilter.get_connected_filter_ids())

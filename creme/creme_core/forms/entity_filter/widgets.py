@@ -19,6 +19,7 @@
 from collections import OrderedDict, defaultdict
 from functools import partial
 from json import dumps as json_dump
+from urllib.parse import urlencode
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -627,9 +628,10 @@ class RelationsConditionsWidget(ConditionListWidget):
 class RelationSubfiltersConditionsWidget(ConditionListWidget):
     empty_selector_label = _('No relation type at present.')
 
-    def __init__(self, rtypes=(), attrs=None):
+    def __init__(self, rtypes=(), efilter_types=(EF_REGULAR,), attrs=None):
         super().__init__(None, attrs=attrs)
         self.rtypes = rtypes
+        self.efilter_types = efilter_types
 
     def get_selector(self, name, value, attrs):
         chained_input = ChainedInput()
@@ -654,7 +656,11 @@ class RelationSubfiltersConditionsWidget(ConditionListWidget):
         )
         add_dselect(
             'filter',
-            options=reverse('creme_core__efilters') + '?ct_id=${%s}' % ctype_name,
+            # options=reverse('creme_core__efilters') + '?ct_id=${%s}' % ctype_name,
+            options=reverse('creme_core__efilters') + '?' + urlencode(
+                {'ct_id': '${%s}' % ctype_name, 'type': self.efilter_types},
+                doseq=True, safe='${}',
+            ),
             attrs={
                 'auto': False,
                 'autocomplete': True,
