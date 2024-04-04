@@ -3478,6 +3478,11 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertNotIn(ef10, efilters_set1)
 
         # ---
+        efilters_set2 = {*EntityFilter.objects.filter_by_user(user, types=[EF_CREDENTIALS])}
+        self.assertIn(ef10, efilters_set2)
+        self.assertNotIn(ef1, efilters_set2)
+
+        # ---
         with self.assertRaises(ValueError):
             EntityFilter.objects.filter_by_user(tt_team)
 
@@ -3488,17 +3493,17 @@ class EntityFiltersTestCase(CremeTestCase):
             is_superuser=True, is_staff=True,
             first_name='Staffito', last_name='Creme',
         )
-        efilters_set2 = [*EntityFilter.objects.filter_by_user(staff)]
-        self.assertIn(ef1, efilters_set2)
-        self.assertIn(ef2, efilters_set2)
-        self.assertIn(ef3, efilters_set2)
-        self.assertIn(ef4, efilters_set2)
-        self.assertIn(ef5, efilters_set2)
-        self.assertIn(ef6, efilters_set2)
-        self.assertIn(ef7, efilters_set2)
-        self.assertIn(ef8, efilters_set2)
-        self.assertIn(ef9, efilters_set2)
-        self.assertNotIn(ef10, efilters_set2)
+        efilters_set3 = [*EntityFilter.objects.filter_by_user(staff)]
+        self.assertIn(ef1, efilters_set3)
+        self.assertIn(ef2, efilters_set3)
+        self.assertIn(ef3, efilters_set3)
+        self.assertIn(ef4, efilters_set3)
+        self.assertIn(ef5, efilters_set3)
+        self.assertIn(ef6, efilters_set3)
+        self.assertIn(ef7, efilters_set3)
+        self.assertIn(ef8, efilters_set3)
+        self.assertIn(ef9, efilters_set3)
+        self.assertNotIn(ef10, efilters_set3)
 
     def test_get_verbose_conditions01(self):
         efilter = EntityFilter.objects.smart_update_or_create(
