@@ -6,6 +6,7 @@ from django.db.models.deletion import CASCADE, PROTECT
 
 import creme.creme_core.models.fields as core_fields
 from creme.creme_core.core.entity_filter import EF_REGULAR
+from creme.reports.constants import EF_REPORTS
 
 
 # EF_USER = 1
@@ -40,7 +41,7 @@ class Migration(migrations.Migration):
                         on_delete=PROTECT, verbose_name='Filter', blank=True,
                         to='creme_core.EntityFilter', null=True,
                         # limit_choices_to={'filter_type': EF_USER},
-                        limit_choices_to={'filter_type': EF_REGULAR},
+                        limit_choices_to={'filter_type__in': [EF_REGULAR, EF_REPORTS]},
                     )
                 ),
             ],

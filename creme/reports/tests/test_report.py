@@ -63,6 +63,7 @@ from creme.creme_core.utils.xlrd_utils import XlrdReader
 from ..actions import ExportReportAction
 from ..bricks import ReportFieldsBrick, ReportGraphChartListBrick
 from ..constants import (
+    EF_REPORTS,
     RFT_AGG_CUSTOM,
     RFT_AGG_FIELD,
     RFT_CUSTOM,
@@ -461,6 +462,50 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             [field.name for field in columns],
         )
 
+    def test_createview__report_filter(self):
+        user = self.login_as_root_and_get()
+
+        efilter = EntityFilter.objects.create(
+            id='reports-test_report_creation03',
+            name='Mihana corp.',
+            entity_type=FakeOrganisation,
+            filter_type=EF_REPORTS,  # <===
+        )
+
+        url = self.ADD_URL
+        step_key = 'report_creation_wizard-current_step'
+        name = 'My awesome organisation report'
+        self.assertNoWizardFormError(self.client.post(
+            url,
+            data={
+                step_key: 0,
+
+                '0-user': user.id,
+                '0-name': name,
+
+                '0-cform_extra-reports_filtered_ctype':
+                    self.formfield_value_filtered_entity_type(
+                        ctype=self.ct_orga, efilter=efilter,
+                    ),
+            },
+        ))
+        self.assertNoWizardFormError(self.client.post(
+            url, follow=True, data={step_key: 1},
+        ))
+        self.assertNoWizardFormError(self.client.post(
+            url,
+            follow=True,
+            data={
+                step_key: 2,
+                '2-columns': 'regular_field-name,regular_field-capital',
+            },
+        ))
+
+        report = self.get_object_or_fail(Report, name=name)
+        self.assertEqual(user,             report.user)
+        self.assertEqual(FakeOrganisation, report.ct.model_class())
+        self.assertEqual(efilter,          report.filter)
+
     def test_createview_error(self):
         "No column selected."
         user = self.login_as_root_and_get()
@@ -549,8 +594,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(name,    report.name)
         self.assertEqual(efilter, report.filter)
 
-    def test_editview02(self):
-        """Cannot edit the 'filter' field when its a private filter which
+    def test_editview__forbidden_filter(self):
+        """Cannot edit the 'filter' field when it's a private filter which
         belongs to another user.
         """
         user = self.login_as_root_and_get()
@@ -581,7 +626,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertNoFormError(response)
         self.assertEqual(ef_priv, self.refresh(report).filter)
 
-    def test_editview03(self):
+    def test_editview__reset_filter(self):
         "Reset filter to None."
         user = self.login_as_root_and_get()
 
@@ -615,8 +660,46 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertNoFormError(response2)
         self.assertIsNone(self.refresh(report).filter)
 
+    def test_editview__report_filter(self):
+        user = self.login_as_root_and_get()
+
+        ctype = self.ct_contact
+        efilter = EntityFilter.objects.create(
+            id='reports-test_edition_filter',
+            name='A filter specific to reports',
+            entity_type=ctype,
+            filter_type=EF_REPORTS,  # <===
+        )
+        report = Report.objects.create(name='Report', user=user, filter=efilter, ct=ctype)
+
+        url = report.get_edit_absolute_url()
+        response1 = self.assertGET200(url)
+
+        filter_key = 'cform_extra-reports_filter'
+
+        with self.assertNoException():
+            filter_f = response1.context['form'].fields[filter_key]
+            filter_choices = [*filter_f.choices]
+
+        self.assertEqual(efilter, filter_f.initial)
+        self.assertInChoices(
+            value=efilter.id, label=str(efilter), choices=filter_choices,
+        )
+
+        # ---
+        self.assertNoFormError(self.client.post(
+            url,
+            follow=True,
+            data={
+                'user': user.pk,
+                'name': 'Report edited',
+                filter_key: efilter.id,
+            },
+        ))
+        self.assertEqual(efilter, self.refresh(report).filter)
+
     @override_settings(FORM_ENUMERABLE_LIMIT=100)
-    def test_report_inneredit_filter01(self):
+    def test_report_inneredit_filter(self):
         user = self.login_as_root_and_get()
         other_user = self.create_user()
 
@@ -667,19 +750,20 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             ),
         )
 
+        # ---
         response3 = self.client.post(uri, data={form_field_name: contact_filter.pk})
         self.assertNoFormError(response3)
         self.assertEqual(contact_filter, self.refresh(report).filter)
 
         # ---
-        response3 = self.assertGET200(uri)
+        response4 = self.assertGET200(uri)
 
         with self.assertNoException():
-            filter_f3 = response3.context['form'].fields[form_field_name]
+            filter_f4 = response4.context['form'].fields[form_field_name]
 
-        self.assertEqual(contact_filter.id, filter_f3.initial)
+        self.assertEqual(contact_filter.id, filter_f4.initial)
 
-    def test_report_inneredit_filter02(self):
+    def test_report_inneredit_filter__private(self):
         "Private filter to another user -> cannot edit."
         self.login_as_root()
         other_user = self.create_user()
@@ -713,7 +797,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
         self.assertEqual(efilter, self.refresh(report).filter)
 
-    def test_report_inneredit_filter03(self):
+    def test_report_inneredit_filter__set_required(self):
         user = self.login_as_root_and_get()
 
         field_name = 'filter'
@@ -730,6 +814,33 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             filter_f = response.context['form'].fields[f'override-{field_name}']
 
         self.assertTrue(filter_f.required)
+
+    @override_settings(FORM_ENUMERABLE_LIMIT=100)
+    def test_report_inneredit_filter__report_filter(self):
+        user = self.login_as_root_and_get()
+        report = self._create_simple_contacts_report(
+            user=user, name='A', description='Simple report',
+        )
+        self.assertIsNone(report.filter)
+
+        efilter = EntityFilter.objects.create(
+            id='reports-test_inneredit_report_filter', name='Contacts',
+            entity_type=FakeContact,
+            filter_type=EF_REPORTS,  # <===
+        )
+
+        field_name = 'filter'
+        uri = self.build_inneredit_uri(report, field_name)
+        response1 = self.assertGET200(uri)
+        form_field_name = f'override-{field_name}'
+
+        with self.assertNoException():
+            efilter_choices = [*response1.context['form'].fields[form_field_name].choices]
+
+        self.assertInChoices(value=efilter.id, label=str(efilter), choices=efilter_choices)
+
+        self.assertNoFormError(self.client.post(uri, data={form_field_name: efilter.pk}))
+        self.assertEqual(efilter, self.refresh(report).filter)
 
     def test_report_bulkedit_filter01(self):
         "Reports are related to the same ContentType -> OK."

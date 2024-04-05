@@ -65,9 +65,19 @@ class EntityFilterList(list):
     """Contains all the EntityFilter objects corresponding to a CremeEntity's ContentType.
     Indeed, it's as a cache.
     """
-    def __init__(self, content_type: ContentType, user):
+    # TODO: "model" instead of "content_type"?
+    # def __init__(self, content_type: ContentType, user):
+    def __init__(self, content_type: ContentType, user, extra_filter_id: str | None = None):
+        qs = (
+            EntityFilter.objects.filter_by_user(user, types=None).filter(
+                Q(filter_type=EF_REGULAR) | Q(id=extra_filter_id)
+            ) if extra_filter_id else
+            EntityFilter.objects.filter_by_user(user)
+        )
+
         super().__init__(
-            EntityFilter.objects.filter_by_user(user).filter(entity_type=content_type)
+            # EntityFilter.objects.filter_by_user(user).filter(entity_type=content_type)
+            qs.filter(entity_type=content_type)
         )
         self._selected: EntityFilter | None = None
 
@@ -137,9 +147,10 @@ class EntityFilterManager(models.Manager):
 
         return efilters[-1]  # TODO: max()
 
-    def filter_by_user(self, user, types: Iterable[str] = (EF_REGULAR,)) -> QuerySet:
+    def filter_by_user(self, user, types: Iterable[str] | None = (EF_REGULAR,)) -> QuerySet:
         """Get the EntityFilter queryset corresponding of filters which a user can see.
         @param user: A User instance.
+        @param types: Accepted types of filter; <None> means all types are accepted.
         """
         if user.is_team:
             raise ValueError(
@@ -148,7 +159,7 @@ class EntityFilterManager(models.Manager):
             )
 
         # qs = self.filter(filter_type=EF_USER)
-        qs = self.filter(filter_type__in=types)
+        qs = self.all() if types is None else self.filter(filter_type__in=types)
 
         return (
             qs

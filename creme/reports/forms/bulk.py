@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2022  Hybird
+#    Copyright (C) 2014-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,9 +21,11 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext, pgettext_lazy
 
 from creme.creme_config.forms.fields import CreatorModelChoiceField
+from creme.creme_core.core.entity_filter import EF_REGULAR
 from creme.creme_core.forms.fields import ReadonlyMessageField
 from creme.creme_core.gui.bulk_update import FieldOverrider
 from creme.creme_core.models import EntityFilter, FieldsConfig
+from creme.reports.constants import EF_REPORTS
 
 
 class ReportFilterOverrider(FieldOverrider):
@@ -72,9 +74,12 @@ class ReportFilterOverrider(FieldOverrider):
         self._has_same_report_ct = all(e.ct == first_ct for e in instances)
 
         if self._has_same_report_ct:
-            field.queryset = EntityFilter.objects.filter_by_user(user).filter(
-                entity_type=first_ct,
-            )
+            # field.queryset = EntityFilter.objects.filter_by_user(user).filter(
+            #     entity_type=first_ct,
+            # )
+            field.queryset = EntityFilter.objects.filter_by_user(
+                user, types=[EF_REGULAR, EF_REPORTS],
+            ).filter(entity_type=first_ct)
 
             if len(instances) == 1:
                 field.initial = first.filter_id

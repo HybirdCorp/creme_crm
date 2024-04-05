@@ -1059,3 +1059,20 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         )
         self.assertPOST403(efilter.get_delete_absolute_url(), follow=True)
         self.assertStillExists(efilter)
+
+    def test_filter_choices(self):
+        self.login_as_root()
+
+        efilter = EntityFilter.objects.create(
+            pk='reports-test_filter_choices', name='Contacts',
+            entity_type=FakeContact,
+            filter_type=EF_REPORTS,
+        )
+
+        response = self.assertGET200(
+            f'{reverse("creme_core__efilters")}?ct_id={efilter.entity_type_id}&type={EF_REPORTS}'
+        )
+        self.assertListEqual(
+            [[efilter.id, f'{efilter.name} [{_("Report")}]']],
+            response.json(),
+        )

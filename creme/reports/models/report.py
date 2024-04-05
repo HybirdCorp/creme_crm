@@ -41,6 +41,8 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.models.fields import EntityCTypeForeignKey
 
+from ..constants import EF_REPORTS
+
 if TYPE_CHECKING:
     from ..core.report import ReportHand
 
@@ -54,7 +56,7 @@ class AbstractReport(CremeEntity):
         EntityFilter, verbose_name=_('Filter'),
         blank=True, null=True, on_delete=models.PROTECT,
         # limit_choices_to={'filter_type': EF_USER},
-        limit_choices_to={'filter_type': EF_REGULAR},
+        limit_choices_to={'filter_type__in': [EF_REGULAR, EF_REPORTS]},
     ).set_null_label(_('No filter'))
 
     creation_label = _('Create a report')

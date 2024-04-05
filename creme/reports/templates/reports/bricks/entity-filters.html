@@ -8,6 +8,14 @@
     {% brick_header_title title=_('Filters: {count} configurable type of resource') plural=_('Filters: {count} configurable types of resource') icon='filter' %}
 {% endblock %}
 
+{% block brick_before_content %}
+    <div class="help">
+        {% blocktranslate %}These filters can only be used in Reports; so they cannot be used in list-views.
+They are useful to avoid having many filters available in list-views which are only destined to Reports.
+They can reference regular filters as sub-filters, but regular filters cannot reference them.{% endblocktranslate %}
+    </div>
+{% endblock %}
+
 {% block creation_button %}
     {% brick_action id='add' url='reports__create_efilter'|url:ctype.id label=_('Create a filter') enabled=True %}
 {% endblock %}
