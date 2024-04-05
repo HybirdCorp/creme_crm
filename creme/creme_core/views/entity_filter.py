@@ -529,10 +529,14 @@ class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
     def get_choices(self):
         choices = [('', self.all_label)] if self.get_include_all() else []
         choices.extend(
-            EntityFilter.objects
-                        .filter_by_user(self.request.user, types=self.get_efilter_types())
-                        .filter(entity_type=self.get_ctype())
-                        .values_list('id', 'name')
+            # EntityFilter.objects
+            #             .filter_by_user(self.request.user)
+            #             .filter(entity_type=self.get_ctype())
+            #             .values_list('id', 'name')
+            (efilter.id, str(efilter))
+            for efilter in EntityFilter.objects.filter_by_user(
+                self.request.user, types=self.get_efilter_types(),
+            ).filter(entity_type=self.get_ctype())
         )
 
         return choices

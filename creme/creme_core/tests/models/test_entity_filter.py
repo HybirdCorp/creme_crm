@@ -3525,6 +3525,11 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertIn(ef9, efilters_set3)
         self.assertNotIn(ef10, efilters_set3)
 
+        # ---
+        efilters_set4 = {*EntityFilter.objects.filter_by_user(user, types=None)}
+        self.assertIn(ef1, efilters_set4)
+        self.assertIn(ef10, efilters_set4)
+
     def test_get_verbose_conditions01(self):
         efilter = EntityFilter.objects.smart_update_or_create(
             pk='test-ef_contact', name='My filter', model=FakeContact,
@@ -3858,3 +3863,36 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertIn(ef1, efl)
         self.assertIn(ef3, efl)
         self.assertIn(ef4, efl)
+
+    def test_filterlist__extra_id(self):
+        user = self.user
+
+        ef1 = EntityFilter.objects.create(
+            id='creme_core-test_efilter_list01',
+            name='Regular filter',
+            entity_type=FakeContact,
+        )
+        ef2 = EntityFilter.objects.create(
+            id='creme_core-test_efilter_list02',
+            name='System filter',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        )
+
+        ct = self.contact_ct
+        efl1 = EntityFilterList(content_type=ct, user=user)
+        self.assertIn(ef1, efl1)
+        self.assertNotIn(ef2, efl1)
+        self.assertEqual(ef1, efl1.select_by_id(ef1.id))
+        self.assertEqual(ef1, efl1.select_by_id(ef2.id))  # No change
+
+        # With extra ID ---
+        efl2 = EntityFilterList(content_type=ct, user=user, extra_filter_id=ef2.id)
+        self.assertIn(ef1, efl2)
+        self.assertIn(ef2, efl2)
+        self.assertEqual(ef2, efl2.select_by_id(ef2.id))
+
+        # With empty extra ID ---
+        efl3 = EntityFilterList(content_type=ct, user=user, extra_filter_id='')
+        self.assertIn(ef1, efl3)
+        self.assertNotIn(ef2, efl3)

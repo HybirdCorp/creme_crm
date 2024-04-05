@@ -26,8 +26,11 @@ from django import forms
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
+from django.urls import reverse
 from django.utils.formats import get_format
+from django.utils.safestring import mark_safe
 from django.utils.timezone import now
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -36,6 +39,7 @@ import creme.creme_core.forms.header_filter as hf_forms
 from creme.creme_config.forms.fields import CreatorModelChoiceField
 from creme.creme_core.backends import export_backend_registry
 from creme.creme_core.core import entity_cell
+from creme.creme_core.core.entity_filter import EF_REGULAR
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.widgets import PrettySelect
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
@@ -48,6 +52,7 @@ from creme.creme_core.models import (
 from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field
 
 from .. import constants, get_report_model
+from ..constants import EF_REPORTS
 from ..core.report import RHRelated
 from ..models import Field
 from ..report_aggregation_registry import field_aggregation_registry
@@ -62,7 +67,19 @@ class FilteredCTypeSubCell(CustomFormExtraSubCell):
     verbose_name = _('Entity type & filter')
 
     def formfield(self, instance, user, **kwargs):
-        return core_fields.FilteredEntityTypeField(label=self.verbose_name, user=user)
+        return core_fields.FilteredEntityTypeField(
+            label=self.verbose_name,
+            user=user,
+            filter_types=[EF_REGULAR, EF_REPORTS],
+            help_text=mark_safe(
+                gettext('Hint: you can create filters specific to Reports {here}').format(
+                    here='<a href="{url}">{label}</a>'.format(
+                        url=reverse('creme_config__app_portal', args=('reports',)),
+                        label=_('here'),
+                    ),
+                )
+            ),
+        )
 
     def post_clean_instance(self, *, instance, value, form):
         if value:
@@ -104,7 +121,10 @@ class FilterSubCell(CustomFormExtraSubCell):
             help_text=mfield.help_text
         )
 
-        choice_field.queryset = mfield.related_model.objects.filter_by_user(user).filter(
+        # choice_field.queryset = mfield.related_model.objects.filter_by_user(user).filter(
+        choice_field.queryset = mfield.related_model.objects.filter_by_user(
+            user, types=[EF_REGULAR, EF_REPORTS],
+        ).filter(
             entity_type=getattr(instance, self.ctype_field_name),
         )
         choice_field.initial = efilter

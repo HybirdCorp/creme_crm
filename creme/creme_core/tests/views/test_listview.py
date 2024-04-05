@@ -1105,7 +1105,7 @@ class ListViewTestCase(CremeTestCase):
             r' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
         )
 
-    def test_efilter01(self):
+    def test_efilter__regular(self):
         user = self.login_as_root_and_get()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1150,6 +1150,61 @@ class ListViewTestCase(CremeTestCase):
         self.assertCountOccurrences(bebop.name,   content2, count=1)
         self.assertCountOccurrences(redtail.name, content2, count=1)
         self.assertCountOccurrences(dragons.name, content2, count=1)
+
+    def test_efilter__other_type(self):
+        "Pass a filter which is not EF_REGULAR."
+        user = self.login_as_root_and_get()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        bebop   = create_orga(name='Bebop')
+        redtail = create_orga(name='Redtail')
+        dragons = create_orga(name='Red Dragons')
+
+        self._build_hf()
+
+        efilter = EntityFilter.objects.create(
+            id='creme_core-filter01', name='Red', entity_type=FakeOrganisation,
+            user=user,
+            filter_type=EF_CREDENTIALS,
+        ).set_conditions([
+            condition_handler.RegularFieldConditionHandler.build_condition(
+                model=FakeOrganisation, field_name='name',
+                operator=operators.ISTARTSWITH, values=['Red'],
+                filter_type=EF_CREDENTIALS,
+            ),
+        ])
+
+        response1 = self.assertPOST200(self.url, data={'filter': efilter.id})
+
+        content1 = self._get_lv_cell_contents(
+            self._get_lv_table_node(self._get_lv_node(response1))
+        )
+        self.assertCountOccurrences(redtail.name, content1, count=1)
+        self.assertCountOccurrences(dragons.name, content1, count=1)
+        self.assertNotIn(bebop.name, content1)
+
+        self.assertEqual(2, response1.context['page_obj'].paginator.count)
+
+        # Private filter belonging to another user => filter is ignored ---
+        forbidden_efilter = EntityFilter.objects.create(
+            id='reports-filter02', name='Dragons', entity_type=FakeOrganisation,
+            user=self.create_user(), is_private=True,
+        ).set_conditions([
+            condition_handler.RegularFieldConditionHandler.build_condition(
+                model=FakeOrganisation, field_name='name',
+                operator=operators.ICONTAINS, values=['Dragons'],
+            ),
+        ])
+        self.assertFalse(forbidden_efilter.can_view(user)[0])
+
+        response2 = self.assertPOST200(self.url, data={'filter': forbidden_efilter.id})
+
+        content2 = self._get_lv_cell_contents(
+            self._get_lv_table_node(self._get_lv_node(response2))
+        )
+        self.assertCountOccurrences(redtail.name, content2, count=1)
+        self.assertCountOccurrences(dragons.name, content2, count=1)
+        self.assertCountOccurrences(bebop.name,   content2, count=1)
 
     def test_internal_q(self):
         user = self.login_as_root_and_get()

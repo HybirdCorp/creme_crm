@@ -7,7 +7,7 @@
         <select name="filter" class="lv-state-field list-filters-selector">
             <option value="">{% translate 'All' context 'creme_core-filter' %}</option>
             {% for efilter in entity_filters %}
-                <option value="{{efilter.id}}"{% if efilter_id == efilter.id %} selected{% endif %}>{{efilter.name}}</option>
+                <option value="{{efilter.id}}"{% if efilter_id == efilter.id %} selected{% endif %}>{{efilter}}</option>
             {% endfor %}
         </select>
         <div class="select-arrow"></div>
