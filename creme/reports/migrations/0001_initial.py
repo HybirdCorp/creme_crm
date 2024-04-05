@@ -5,10 +5,10 @@ from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
 
 import creme.creme_core.models.fields as core_fields
+from creme.creme_core.core.entity_filter import EF_REGULAR
 
-EF_USER = 1
 
-
+# EF_USER = 1
 class Migration(migrations.Migration):
     # Memo: last migration was '0013_v2_2__instance_bricks_data'
 
@@ -39,7 +39,8 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=PROTECT, verbose_name='Filter', blank=True,
                         to='creme_core.EntityFilter', null=True,
-                        limit_choices_to={'filter_type': EF_USER},
+                        # limit_choices_to={'filter_type': EF_USER},
+                        limit_choices_to={'filter_type': EF_REGULAR},
                     )
                 ),
             ],
