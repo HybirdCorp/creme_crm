@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 from functools import partial
 from json import loads as json_load
-from typing import Any, Collection, Sequence
+from typing import Any, Collection, Iterable, Sequence
 
 from django.apps import apps
 # from django.contrib.auth import get_user_model
@@ -42,6 +42,7 @@ from django.utils.translation import pgettext_lazy
 
 from ..auth.entity_credentials import EntityCredentials
 from ..core import validators
+from ..core.entity_filter import EF_REGULAR
 from ..gui import quick_forms
 from ..models import CremeEntity, EntityFilter, Relation, RelationType
 from ..utils.collections import OrderedSet
@@ -1103,15 +1104,21 @@ class FilteredEntityTypeField(JSONField):
     }
     value_type = dict
 
-    def __init__(self, *, ctypes=entity_ctypes, empty_label=None, **kwargs):
+    def __init__(self, *,
+                 ctypes=entity_ctypes,
+                 filter_types=(EF_REGULAR,),
+                 empty_label=None,
+                 **kwargs):
         """Constructor.
         @param ctypes: Allowed content types.
                - A callable which returns an iterable of ContentType IDs / instances.
                - Sequence of ContentType IDs / instances.
+        @param filter_types: Allowed types of filter.
         """
         super().__init__(**kwargs)
         self._empty_label = empty_label
         self.ctypes = ctypes
+        self.filter_types = filter_types
 
     def _build_empty_value(self):
         return None, None
@@ -1140,6 +1147,14 @@ class FilteredEntityTypeField(JSONField):
 
         self._ctypes = ctypes
         self.widget.content_types = fields.CallableChoiceIterator(self._get_choices)
+
+    @property
+    def filter_types(self):
+        yield from self._filter_types
+
+    @filter_types.setter
+    def filter_types(self, value: Iterable[str]):
+        self._filter_types = self.widget.efilter_types = [*value]
 
     def _get_choices(self):
         choices = []
@@ -1177,9 +1192,9 @@ class FilteredEntityTypeField(JSONField):
             efilter = None
         else:
             try:
-                efilter = EntityFilter.objects.filter_by_user(self._user)\
-                                              .filter(entity_type=ct)\
-                                              .get(pk=efilter_pk)
+                efilter = EntityFilter.objects.filter_by_user(
+                    self._user, types=self.filter_types,
+                ).filter(entity_type=ct).get(pk=efilter_pk)
             except EntityFilter.DoesNotExist:
                 raise ValidationError(
                     self.error_messages['invalidefilter'],

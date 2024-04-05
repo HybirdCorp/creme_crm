@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.core.entity_filter import EF_CREDENTIALS, EF_REGULAR
 from creme.creme_core.forms.fields import (
     CreatorEntityField,
     FilteredEntityTypeField,
@@ -2870,6 +2871,23 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
             codes='invalidefilter',
         )
 
+    def test_clean_filter_with_excluded_type(self):
+        "EF_CREDENTIALS excluded by default."
+        efilter = EntityFilter.objects.create(
+            id='creme_core-test_filtered_entity_field',
+            name='John',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        )
+
+        field = FilteredEntityTypeField(user=self.create_user())
+        self.assertFormfieldError(
+            field=field,
+            value=self.build_value(self.ct_contact.id, efilter.id),
+            messages=_('This filter is invalid.'),
+            codes='invalidefilter',
+        )
+
     def test_clean_void(self):
         field = FilteredEntityTypeField(required=False)
         field.user = self.user
@@ -2917,6 +2935,8 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
 
         field = FilteredEntityTypeField()
         field.user = self.user
+        self.assertCountEqual([EF_REGULAR], field.filter_types)
+        self.assertCountEqual([EF_REGULAR], field.widget.efilter_types)
 
         ct = self.ct_contact
         self.assertTupleEqual(
@@ -2938,3 +2958,26 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
             (ct, efilter),
             field.clean(self.build_value(ct.id, efilter.id)),
         )
+
+    def test_clean_with_filter__credentials(self):
+        efilter = EntityFilter.objects.create(
+            id='test-filter01', name='John', entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+        )
+
+        field = FilteredEntityTypeField(user=self.user, filter_types=[EF_CREDENTIALS])
+        self.assertCountEqual([EF_CREDENTIALS], field.filter_types)
+        self.assertCountEqual([EF_CREDENTIALS], field.widget.efilter_types)
+
+        ct = self.ct_contact
+        self.assertTupleEqual(
+            (ct, efilter), field.clean(self.build_value(ct.id, efilter.id)),
+        )
+
+    def test_filter_types_property(self):
+        filter_types = [EF_CREDENTIALS, EF_REGULAR]
+        field = FilteredEntityTypeField(user=self.user)
+
+        field.filter_types = filter_types
+        self.assertCountEqual(filter_types, field.filter_types)
+        self.assertCountEqual(filter_types, field.widget.efilter_types)

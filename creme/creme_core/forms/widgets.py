@@ -24,6 +24,7 @@ import logging
 from datetime import date
 from functools import partial
 from types import GeneratorType
+from urllib.parse import urlencode
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
@@ -33,6 +34,7 @@ from django.utils.formats import get_format
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, pgettext, pgettext_lazy
 
+from ..core.entity_filter import EF_REGULAR
 from ..utils.date_range import date_range_registry
 from ..utils.queries import QSerializer
 from ..utils.url import TemplateURLBuilder
@@ -899,10 +901,16 @@ class MultiEntityCreatorWidget(SelectorList):
 class FilteredEntityTypeWidget(ChainedInput):
     # template_name = ... TODO in order to override from apps ?
 
-    def __init__(self, content_types=(), attrs=None, autocomplete=True):
+    def __init__(self,
+                 content_types=(),
+                 efilter_types=(EF_REGULAR,),
+                 attrs=None,
+                 autocomplete=True,
+                 ):
         super().__init__(attrs)
         self.content_types = content_types
         self.autocomplete = autocomplete
+        self.efilter_types = efilter_types
 
     def get_context(self, name, value, attrs):
         add_dselect = partial(
@@ -915,10 +923,17 @@ class FilteredEntityTypeWidget(ChainedInput):
 
         # TODO: allow to omit the 'All' filter ??
         # TODO: do not make a request for ContentType ID == '0'
-        # TODO: parameter for accepted filter types (regular, credentials, reports...)
         add_dselect(
             'efilter',
-            options=reverse('creme_core__efilters') + '?ct_id=${%s}&all=true' % ctype_name,
+            # options=reverse('creme_core__efilters') + '?ct_id=${%s}&all=true' % ctype_name,
+            options=reverse('creme_core__efilters') + '?' + urlencode(
+                {
+                    'ct_id': '${%s}' % ctype_name,
+                    'type': self.efilter_types,
+                    'all': 'true',
+                },
+                doseq=True, safe='${}',
+            ),
         )
 
         return super().get_context(name=name, value=value, attrs=attrs)
