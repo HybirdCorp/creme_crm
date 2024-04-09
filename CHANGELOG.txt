@@ -1,7 +1,9 @@
 == Version 2.5.8 Work in progress (not released -- this is a draft) ==
 
   Users side :
-    # Fix the image entity selector (chrome browser only) : the newly uploaded file now selected.
+  ------------
+    # The image entity selector was broken on Chrome: the newly uploaded file was not selected.
+    # The description of filter conditions with ForeignKey + "is not empty" has been fixed.
 
 
 == Version 2.5.7 ==
