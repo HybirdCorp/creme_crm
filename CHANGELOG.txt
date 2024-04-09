@@ -1,5 +1,9 @@
 == Version 2.5.8 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+    # Fix the image entity selector (chrome browser only) : the newly uploaded file now selected.
+
+
 == Version 2.5.7 ==
 
   Users side :
