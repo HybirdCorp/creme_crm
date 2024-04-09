@@ -932,6 +932,30 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             handler2.description(user),
         )
 
+        # Operator IS_EMPTY (+False) => should not retrieve any instance
+        handler3 = RegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='position',
+            operator_id=operators.ISEMPTY,
+            values=[False],
+        )
+        self.assertEqual(
+            _('«{field}» is not empty').format(field=_('Position')),
+            handler3.description(user),
+        )
+
+        # Operator IS_EMPTY (+True)
+        handler4 = RegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='position',
+            operator_id=operators.ISEMPTY,
+            values=[True],
+        )
+        self.assertEqual(
+            _('«{field}» is empty').format(field=_('Position')),
+            handler4.description(user),
+        )
+
     def test_regularfield_description04(self):
         "ForeignKey to CremeEntity."
         user = self.login_as_standard()
