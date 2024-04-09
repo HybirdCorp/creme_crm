@@ -534,7 +534,6 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(type=rtype3).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
 
-    @skipIfCustomOrganisation
     def test_error_invalid_source(self):
         "Source is not a billing document."
         user = self.login_as_root_and_get()
