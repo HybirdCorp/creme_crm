@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2019  Hybird
+    Copyright (C) 2009-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -97,8 +97,10 @@ creme.dialog.FrameContentData = creme.component.Component.sub({
     },
 
     _cleanPRE: function(content, dataType) {
-        // some browsers (like firefox) wrap empty/invalid html text with <pre> tag
-        var matches = content.match(new RegExp('^[\s]*<pre[^>]*>(.*)</pre>[\s]*$'));
+        // Some browsers (like firefox) wrap empty/invalid html text with <pre> tag
+        // The latest versions of google chrome (at least > 123, maybe sooner) are adding an extra
+        // <div class="{guessed-contentype}-formatter-container"></div>
+        var matches = content.match(new RegExp('^[\s]*<pre[^>]*>([^<]*)</pre>.*$'));
 
         if (matches !== null && matches.length === 2) {
             return {content: matches[1], type: 'text/plain'};
