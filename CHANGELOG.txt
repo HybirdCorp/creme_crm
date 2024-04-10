@@ -2,8 +2,10 @@
 
   Users side :
   ------------
+    # In EntityFilter :
+        - There was an issue with sub-filters & ManyToManyFields (entities could be displayed several times in the list-view).
+        - The description of conditions with ForeignKey + "is not empty" has been fixed.
     # The image entity selector was broken on Chrome: the newly uploaded file was not selected.
-    # The description of filter conditions with ForeignKey + "is not empty" has been fixed.
     # A small issue in the password reset system has been fixed ;
       the confirmation page still displayed a 'submit' button when the link was not valid anymore.
 

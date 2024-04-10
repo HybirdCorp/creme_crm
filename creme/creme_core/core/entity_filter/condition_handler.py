@@ -263,6 +263,9 @@ class SubFilterConditionHandler(FilterConditionHandler):
 
         return self.DESCRIPTION_FORMAT.format(subfilter) if subfilter else '???'
 
+    def entities_are_distinct(self):
+        return self.subfilter.entities_are_distinct
+
     @property
     def error(self):
         if self.subfilter is False:
@@ -344,7 +347,7 @@ class BaseRegularFieldConditionHandler(FilterConditionHandler):
 class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
                                    BaseRegularFieldConditionHandler):
     """Filter entities by using one of their fields.
-    Note: no date field ; see <DateRegularFieldConditionHandler>.
+    Note: no date field; see <DateRegularFieldConditionHandler>.
     """
     type_id = 5
 
@@ -1377,7 +1380,8 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
         return form_class(**defaults)
 
-    # TODO: use a filter "relations__*" when there is only one condition on Relations ??
+    # TODO: use a filter "relations__*" when there is only one condition on Relations?
+    #       + update code of 'entities_are_distinct()'
     def get_q(self, user):
         kwargs = {'type': self._rtype_id}
 
