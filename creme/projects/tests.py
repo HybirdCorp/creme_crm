@@ -10,6 +10,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
+import creme.creme_core.tests.views.base as views_base
 import creme.projects.bricks as proj_bricks
 # from creme.activities.constants import (
 #     ACTIVITYSUBTYPE_MEETING_MEETING,
@@ -28,7 +29,6 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui import actions
 from creme.creme_core.models import Currency, SetCredentials
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.currency_format import currency
 from creme.persons.models import Contact
 from creme.persons.tests.base import skipIfCustomContact
@@ -68,7 +68,9 @@ def skipIfCustomTask(test_func):
 
 @skipIfCustomContact
 @skipIfCustomProject
-class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
+class ProjectsTestCase(views_base.BrickTestCaseMixin,
+                       views_base.ButtonTestCaseMixin,
+                       CremeTestCase):
     EXTRA_LEADERS_KEY = 'cform_extra-projects_leaders'
     EXTRA_PARENTTASKS_KEY = 'cform_extra-projects_parent_tasks'
     DELETE_RESOURCE_URL = reverse('projects__delete_resource')
@@ -1391,9 +1393,22 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(project.is_closed)
         self.assertIsNone(project.effective_end_date)
 
-        url = reverse('projects__close_project', args=(project.id,))
-        self.assertGET405(url)
-        self.assertPOST200(url, follow=True)
+        detail_url = project.get_absolute_url()
+        close_url = reverse('projects__close_project', args=(project.id,))
+
+        detail_response1 = self.assertGET200(detail_url)
+        button_nodes1 = self.get_instance_buttons_node(
+            self.get_html_tree(detail_response1.content)
+        )
+        for button_node in self.iter_button_nodes(button_nodes1):
+            if button_node.tag == 'a' and button_node.attrib.get('href') == close_url:
+                break
+        else:
+            self.fail('<Close> button not found!')
+
+        # ---
+        self.assertGET405(close_url)
+        self.assertPOST200(close_url, follow=True)
 
         project = self.refresh(project)
         self.assertTrue(project.is_closed)
@@ -1401,8 +1416,16 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertDatetimesAlmostEqual(now(), project.effective_end_date)
 
+        detail_response2 = self.assertGET200(detail_url)
+        button_nodes2 = self.get_instance_buttons_node(
+            self.get_html_tree(detail_response2.content)
+        )
+        for button_node in self.iter_button_nodes(button_nodes2):
+            if button_node.tag == 'a' and button_node.attrib.get('href') == close_url:
+                self.fail('<Close> button found!')
+
         # Already closed
-        self.assertPOST409(url, follow=True)
+        self.assertPOST409(close_url, follow=True)
 
     def _create_parented_task(self, title, project, parents=None):
         status = TaskStatus.objects.get_or_create(name='status', description='')[0]

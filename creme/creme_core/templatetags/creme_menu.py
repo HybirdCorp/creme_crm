@@ -50,12 +50,13 @@ def menu_display(context):
     return context
 
 
+# TODO: pass the registry in the context?
 @register.inclusion_tag(
     'creme_core/templatetags/detailview-buttons.html', takes_context=True,
 )
 def menu_buttons_display(context):
     entity = context['object']
-    bmi = ButtonMenuItem.objects.filter(
+    button_ids = ButtonMenuItem.objects.filter(
         Q(content_type=entity.entity_type)
         | Q(content_type__isnull=True)
     ).exclude(
@@ -69,8 +70,10 @@ def menu_buttons_display(context):
     buttons = OrderedDict()
     request = context['request']
 
-    # TODO: pass the registry in the context ?
-    for button in button_menu.button_registry.get_buttons(bmi, entity):
+    for button in button_menu.button_registry.mandatory_buttons(entity=entity):
+        buttons[button.id] = button.get_context(entity=entity, request=request)
+
+    for button in button_menu.button_registry.get_buttons(button_ids, entity):
         buttons[button.id] = button.get_context(entity=entity, request=request)
 
     context['buttons'] = [*buttons.values()]

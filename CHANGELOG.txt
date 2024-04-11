@@ -103,7 +103,10 @@
              - a custom renderer function.
         # In 'creme_core.gui' :
             - In the class 'bricks._BrickRegistry', 3 methods to unregister brick classes have been added.
-            - A method 'button_menu.ButtonsRegistry.unregister()' has been added.
+            - In 'button_menu.ButtonsRegistry' :
+                - A method 'unregister()' has been added.
+                - A button class can now be registered as mandatory, to be always displayed without
+                  having to hard code them in the detail-view template.
             - A method 'custom_form.CustomFormDescriptorRegistry.unregister()' has been added.
             - A method 'mass_import.FormRegistry.unregister()' has been added.
             - A method 'merge._MergeFormRegistry.unregister()' has been added.
@@ -388,6 +391,8 @@
                 - The UUIDs of the instances of 'models.ProjectStatus' & 'models.TaskStatus' created by the 'populate' script are now fixed (to be consistent between Creme instances).
                     - The constants '*_PK' & 'TASK_STATUS' (and the class 'TaskStatusDesc') have been removed.
                     - A data migration fixes the UUIDs of the Statuses provided by default, and stores the old UUIDs in their field "meta_data".
+                - The button "Close project" uses the new system for mandatory buttons;
+                  so the template "projects/templates/projects/view_project.html" has been reworked.
             * Polls :
                 - The UUIDs of the instances of 'models.PollType' created by the 'populate' script are now fixed (to be consistent between Creme instances).
                   A data migration fixes the UUIDs of the 3 types provided by default, and stores the old UUIDs in their field "meta_data".
