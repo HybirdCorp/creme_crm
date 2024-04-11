@@ -998,7 +998,7 @@ class ButtonMenuBrick(Brick):
             if button is not None:
                 _button_list.append({
                     'label': str(bmi),
-                    'description': str(button.description)
+                    'description': str(button.description),
                 })
 
         sort_key = collator.sort_key

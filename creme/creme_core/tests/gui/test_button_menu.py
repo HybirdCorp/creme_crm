@@ -311,3 +311,175 @@ class ButtonMenuTestCase(CremeTestCase):
             f'Button class with invalid ID (already unregistered?): {TestButton1}',
             str(cm2.exception),
         )
+
+    def test_registry_mandatory_buttons(self):
+        class TestButton1(Button):
+            id = Button.generate_id('creme_core', 'test_mandatory_button_1')
+
+        class TestButton2(Button):
+            id = Button.generate_id('creme_core', 'test_mandatory_button_2')
+
+        class TestButton3(Button):
+            id = Button.generate_id('creme_core', 'test_mandatory_button_3')
+
+            def get_ctypes(this):
+                return [FakeOrganisation, FakeContact]
+
+        class TestButton4(Button):
+            id = Button.generate_id('creme_core', 'test_mandatory_button_4')
+
+            def get_ctypes(this):
+                return [FakeOrganisation]
+
+        registry = ButtonsRegistry().register_mandatory(
+            button_class=TestButton1,
+        ).register_mandatory(
+            button_class=TestButton2, priority=8,
+        ).register_mandatory(
+            button_class=TestButton3, priority=10,
+        ).register_mandatory(
+            button_class=TestButton4, priority=5,
+        )
+
+        def assertButtonsEqual(expected_classes, buttons):
+            self.assertEqual(len(expected_classes), len(buttons))
+            for button_cls, button in zip(expected_classes, buttons):
+                self.assertIsInstance(button, button_cls)
+
+        assertButtonsEqual(
+            [TestButton1, TestButton2, TestButton3],
+            # [*registry.mandatory_buttons(model=FakeContact)],
+            [*registry.mandatory_buttons(entity=FakeContact())],
+        )
+        assertButtonsEqual(
+            [TestButton1, TestButton4, TestButton2, TestButton3],
+            # [*registry.mandatory_buttons(model=FakeOrganisation)],
+            [*registry.mandatory_buttons(entity=FakeOrganisation())],
+        )
+
+        self.assertIsNone(registry.get_button(TestButton2.id))
+        # TODO?
+        # self.assertIsInstance(
+        #     registry.get_mandatory_button(button_id=TestButton2.id, model=FakeOrganisation),
+        #     TestButton2,
+        # )
+        assertButtonsEqual(
+            [TestButton1, TestButton4, TestButton3],
+            [*registry.get_buttons(
+                entity=FakeOrganisation(),
+                id_list=[TestButton1.id, TestButton4.id, TestButton3.id],
+            )],
+        )
+        assertButtonsEqual(
+            [TestButton1, TestButton3],  # TestButton4 is ignored
+            [*registry.get_buttons(
+                entity=FakeContact(),
+                id_list=[TestButton1.id, TestButton4.id, TestButton3.id],
+            )],
+        )
+
+        # Unregistering (Button with no related model) ---
+        registry.unregister_mandatory(TestButton2)
+        assertButtonsEqual(
+            [TestButton1, TestButton3],
+            # [*registry.mandatory_buttons(model=FakeContact)],
+            [*registry.mandatory_buttons(entity=FakeContact())],
+        )
+        assertButtonsEqual(
+            [TestButton1, TestButton4, TestButton3],
+            # [*registry.mandatory_buttons(model=FakeOrganisation)],
+            [*registry.mandatory_buttons(entity=FakeOrganisation())],
+        )
+
+        # Unregistering (Button with related model) ---
+        registry.unregister_mandatory(TestButton3)
+        assertButtonsEqual(
+            # [TestButton1], [*registry.mandatory_buttons(model=FakeContact)],
+            [TestButton1], [*registry.mandatory_buttons(entity=FakeContact())],
+        )
+        assertButtonsEqual(
+            [TestButton1, TestButton4],
+            # [*registry.mandatory_buttons(model=FakeOrganisation)],
+            [*registry.mandatory_buttons(entity=FakeOrganisation())],
+        )
+
+    def test_registry_mandatory_buttons__empty_id(self):
+        class TestButton(Button):
+            # id = ...
+            pass
+
+        registry = ButtonsRegistry()
+
+        with self.assertRaises(ButtonsRegistry.RegistrationError):
+            registry.register_mandatory(button_class=TestButton)
+
+    def test_registry_mandatory_buttons__duplicated_id1(self):
+        class TestButton1(Button):
+            id = Button.generate_id('creme_core', 'test_button_registry_1')
+
+        class TestButton2(Button):
+            # id = Button.generate_id('creme_core', 'test_button_registry_2')
+            id = TestButton1.id  # <===
+
+        registry = ButtonsRegistry().register_mandatory(button_class=TestButton1)
+
+        with self.assertRaises(ButtonsRegistry.RegistrationError):
+            registry.register_mandatory(button_class=TestButton2)
+
+    def test_registry_mandatory_buttons__duplicated_id2(self):
+        class TestButton1(Button):
+            id = Button.generate_id('creme_core', 'test_button_registry_1')
+
+            def get_ctypes(this):
+                return [FakeContact]
+
+        class TestButton2(Button):
+            # id = Button.generate_id('creme_core', 'test_button_registry_3')
+            id = TestButton1.id  # <===
+
+            def get_ctypes(this):
+                return [FakeOrganisation, FakeContact]
+
+        registry = ButtonsRegistry().register_mandatory(button_class=TestButton1)
+
+        with self.assertRaises(ButtonsRegistry.RegistrationError):
+            registry.register_mandatory(button_class=TestButton2)
+
+    def test_registry_unregister_mandatory_errors(self):
+        class TestButton1(Button):
+            # id = ''
+            pass
+
+        class TestButton2(Button):
+            id = Button.generate_id('creme_core', 'test_button_registry_2')
+
+        registry = ButtonsRegistry().register_mandatory(button_class=TestButton2)
+
+        with self.assertRaises(ButtonsRegistry.UnRegistrationError) as cm1:
+            registry.unregister_mandatory(button_class=TestButton1)
+
+        self.assertStartsWith(str(cm1.exception), 'Button class with empty ID:')
+
+        # ---
+        registry.unregister_mandatory(button_class=TestButton2)
+
+        with self.assertRaises(ButtonsRegistry.UnRegistrationError) as cm2:
+            registry.unregister_mandatory(button_class=TestButton2)
+
+        self.assertStartsWith(
+            str(cm2.exception),
+            'Button class with invalid ID (already unregistered?): ',
+        )
+
+    def test_registry_mandatory_buttons__ok_for_display(self):
+        class TestButton(Button):
+            id = Button.generate_id('creme_core', 'test_mandatory_button')
+
+            def ok_4_display(this, entity):
+                return False
+
+        registry = ButtonsRegistry().register_mandatory(TestButton)
+
+        self.assertFalse(
+            [*registry.mandatory_buttons(entity=FakeOrganisation())],
+        )

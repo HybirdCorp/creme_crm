@@ -400,3 +400,49 @@ class MenuButtonsDisplayTestCase(CremeTestCase):
             [TestButton01.action_id, TestButton02.action_id],
             actions_ids,
         )
+
+    def test_menu_buttons_display__mandatory(self):
+        class MandatoryButton1(_TestButton):
+            id = Button.generate_id('creme_core', 'test_mandatory_button_1')
+            action_id = 'creme_core-tests_mandatory01'
+
+        class MandatoryButton2(_TestButton):
+            id = Button.generate_id('creme_core', 'test_mandatory_button_2')
+            action_id = 'creme_core-tests_mandatory02'
+
+            def get_ctypes(this):
+                return [FakeOrganisation, FakeContact]
+
+        self.button_registry.register_mandatory(
+            button_class=MandatoryButton1, priority=8,
+        ).register_mandatory(
+            button_class=MandatoryButton2, priority=1,
+        )
+
+        user = self.get_root_user()
+        orga = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        ButtonMenuItem.objects.create_if_needed(button=TestButton01, order=1)
+
+        request = RequestFactory().get(orga.get_absolute_url())
+        request.user = user
+
+        with self.assertNoException():
+            template = Template(
+                r'{% load creme_menu %}'
+                r'{% menu_buttons_display %}'
+            )
+            render = template.render(
+                Context({'request': request, 'user': user, 'object': orga})
+            )
+
+        actions_ids = []
+        for node in self.get_button_nodes(self.get_html_tree(render)):
+            action_id = node.attrib.get('data-action')
+            if action_id:
+                actions_ids.append(action_id)
+
+        self.assertListContainsSubset(
+            [MandatoryButton2.action_id, MandatoryButton1.action_id, TestButton01.action_id],
+            actions_ids,
+        )
