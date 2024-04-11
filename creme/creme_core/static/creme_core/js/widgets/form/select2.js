@@ -226,34 +226,6 @@ function getSelect2Data(items, key) {
     return res.length === 1 ? res[0] : res;
 }
 
-function Cache(options) {
-    options = Object.assign({
-        key: function(d) {
-            return Object.isString(d) ? d : JSON.stringify(d);
-        }
-    }, options || {});
-
-    this._data = {};
-    this._keygen = options.key;
-}
-
-Cache.prototype = {
-    set: function(key, data) {
-        this._data[this._keygen(key)] = data;
-        return this;
-    },
-
-    get: function(key) {
-        return this._data[this._keygen(key)];
-    },
-
-    reset: function() {
-        this._data = {};
-        return this;
-    }
-};
-
-
 S2.define('select2/data/enum', [
     'select2/data/array',
     'select2/utils'
@@ -267,7 +239,6 @@ S2.define('select2/data/enum', [
 
 
         if (enumOptions.cache) {
-            this._cache = new Cache();
             this._queryBackend = creme.ajax.defaultCacheBackend();
         } else {
             this._queryBackend = creme.ajax.defaultBackend();
@@ -388,14 +359,7 @@ S2.define('select2/data/enum', [
         });
 
         /* When cache is enabled, fill it with the initial "not pinned" options */
-        if (this._cache && this.enumOptions.url) {
-            /* TODO : detect overflow  !!!! */
-            this._cache.set({
-                limit: this.enumOptions.limit
-            }, items.filter(function(item) {
-                return !item.pinned;
-            }));
-        }
+        this.setInitialEnumData(items);
 
         container.on('enum:more', function(params) {
             /*
@@ -416,6 +380,8 @@ S2.define('select2/data/enum', [
             if (this._queryBackend instanceof creme.ajax.CacheBackend) {
                 this._queryBackend.reset();
             }
+
+            this.extendInitialEnumData(params.items);
         }.bind(this));
 
         container.on('close', function() {
@@ -433,11 +399,36 @@ S2.define('select2/data/enum', [
         };
     };
 
+    Adapter.prototype.extendInitialEnumData = function(items) {
+        if (this._initialEnumData) {
+            this._initialEnumData.items = this._initialEnumData.items.concat(items);
+        }
+    };
+
+    Adapter.prototype.setInitialEnumData = function(items) {
+        if (this.enumOptions.url) {
+            items = items.filter(function(item) {
+                return !item.pinned;
+            });
+
+            this._initialEnumData = {
+                more: this.enumOptions.limit <= items.length,
+                items: items
+            };
+        }
+    };
+
     Adapter.prototype.cachedEnumData = function(params) {
-        return this._cache ? this._cache.get({
-            term: params.term,
-            limit: params.limit
-        }) || [] : [];
+        params = params || {};
+
+        if (params.term || params.limit > this.enumOptions.limit) {
+            return;
+        }
+
+        return this._initialEnumData || {
+            items: [],
+            more: false
+        };
     };
 
     Adapter.prototype.enumQuery = function (params, callback) {
@@ -452,12 +443,12 @@ S2.define('select2/data/enum', [
 
         var data = this.cachedEnumData(params);
 
-        if (data.length > 0) {
+        if (!Object.isNone(data)) {
             self._lastEnumParams = params;
 
-            /* Force "more" flag to display the "Show more" button. */
+            /* Force initial "more" flag to display the "Show more" button. */
             return callback($.extend(
-                self.processResults(data, params), {more: true}
+                self.processResults(data.items, params), {more: data.more}
             ));
         }
 
