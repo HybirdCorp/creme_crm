@@ -167,17 +167,28 @@ class ButtonsRegistry:
         @yield creme_core.gui.button_menu.Button instances.
         """
         button_classes = self._button_classes
+        model = type(entity)
 
         for button_id in id_list:
             button_cls = button_classes.get(button_id)
 
             if button_cls is None:
                 logger.warning('Button seems deprecated: %s', button_id)
-            else:
-                button = button_cls()
+                continue
 
-                if button.ok_4_display(entity):
-                    yield button
+            button = button_cls()
+
+            allowed_models = button.get_ctypes()
+            if allowed_models and model not in allowed_models:
+                logger.warning(
+                    'This button cannot be displayed on this content type '
+                    '(you have a config problem): %s',
+                    button_id,
+                )
+                continue
+
+            if button.ok_4_display(entity):
+                yield button
 
     def __iter__(self) -> Iterator[tuple[str, Button]]:
         for b_id, b_cls in self._button_classes.items():

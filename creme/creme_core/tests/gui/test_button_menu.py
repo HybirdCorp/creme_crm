@@ -4,6 +4,7 @@ from creme.creme_core.gui.button_menu import Button, ButtonsRegistry
 from creme.creme_core.models import FakeContact
 
 from ..base import CremeTestCase
+from ..fake_models import FakeOrganisation
 
 
 class ButtonMenuTestCase(CremeTestCase):
@@ -226,6 +227,53 @@ class ButtonMenuTestCase(CremeTestCase):
 
         self.assertTrue(TestButton05().is_allowed(**basic_ctxt))
         self.assertFalse(TestButton06().is_allowed(**basic_ctxt))
+
+    def test_registry__allowed_ctypes(self):
+        user = self.get_root_user()
+
+        class TestButton1(Button):
+            id = Button.generate_id('creme_core', 'test_button_registry1')
+
+        class TestButton2(Button):
+            id = Button.generate_id('creme_core', 'test_button_registry2')
+
+            def get_ctypes(this):
+                return [FakeOrganisation, FakeContact]
+
+        class TestButton3(Button):
+            id = Button.generate_id('creme_core', 'test_button_registry3')
+
+            def get_ctypes(this):
+                return [FakeOrganisation]
+
+        registry = ButtonsRegistry().register(TestButton1, TestButton2, TestButton3)
+
+        c = FakeContact.objects.create(
+            user=user, first_name='Musubi', last_name='Susono',
+        )
+
+        with self.assertLogs(level='WARNING') as logs_manager:
+            buttons = [
+                *registry.get_buttons(
+                    [
+                        TestButton3.id,  # No because ctype is not allowed
+                        TestButton2.id,
+                        TestButton1.id,
+                    ],
+                    entity=c,
+                ),
+            ]
+
+        self.assertIsList(buttons, length=2)
+        self.assertIsInstance(buttons[0], TestButton2)
+        self.assertIsInstance(buttons[1], TestButton1)
+
+        self.assertIn(
+            f'WARNING:creme.creme_core.gui.button_menu:'
+            f'This button cannot be displayed on this content type '
+            f'(you have a config problem): {TestButton3.id}',
+            logs_manager.output,
+        )
 
     def test_registry_unregister(self):
         class TestButton1(Button):
