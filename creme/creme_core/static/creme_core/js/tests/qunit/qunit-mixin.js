@@ -242,19 +242,21 @@
             if (isNaN(target)) {
                 return this.awaitsPromise(target, func);
             } else {
+                var done = this.assert.async();
+
                 setTimeout(function() {
                     try {
                         func.apply(this, arguments);
                     } finally {
-                        start();
+                        done();
                     }
                 }, target);
-
-                stop(1);
             }
         },
 
         awaitsPromise: function(promise, func) {
+            var done = this.assert.async();
+
             promise.then(function() {
                        try {
                            func.apply(this, arguments);
@@ -262,14 +264,11 @@
                            console.error(e);
                            ok(false, 'Unexpected promise callback error');
                        }
-                   }.bind(this))
-                   .catch(function(e) {
+                   }.bind(this)).catch(function(e) {
                        console.error(e);
                    }).finally(function() {
-                       start();
+                       done();
                    });
-
-            stop(1);
         }
     };
 
