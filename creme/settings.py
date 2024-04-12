@@ -873,7 +873,7 @@ CREME_LIB_JS = [
     'creme_core/js/lib/editor/tinymce.3.4.9.js',
     'creme_core/js/lib/Sortable/Sortable-1.15.6.js',
     # 'creme_core/js/lib/editor/ckeditor5-37.1.0.js',
-    'creme_core/js/lib/editor/ckeditor5-39.0.2.js',
+    # 'creme_core/js/lib/editor/ckeditor5-39.0.2.js',
     'creme_core/js/lib/select2/select2-4.0.13.full.js',
     'creme_core/js/lib/select2/i18n/en.js',
     'creme_core/js/lib/select2/i18n/fr.js',
@@ -995,7 +995,7 @@ CREME_OPTLIB_JS = [
     ('creme.geolocation', 'geolocation/js/lib/leaflet-1.9.4.js'),
     ('creme.sketch', 'sketch/js/lib/d3-7.8.5.js'),
     ('creme.sketch', 'sketch/js/lib/filesaver-2.0.4.js'),
-    ('creme.editor', 'editor/js/lib/ckeditor5-40.2.0.js'),
+    ('creme.editor', 'editor/js/lib/ckeditor5-41.3.0.js'),
 ]
 
 CREME_OPT_JS = [  # OPTIONAL APPS
