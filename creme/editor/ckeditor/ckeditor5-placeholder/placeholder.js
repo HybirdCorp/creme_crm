@@ -1,7 +1,7 @@
 import { ClassicEditor } from '@ckeditor/ckeditor5-editor-classic';
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { Widget, toWidget, viewToModelPositionOutsideModelElement } from '@ckeditor/ckeditor5-widget';
-import { Model, addListToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui';
+import { ViewModel, addListToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui';
 import { Collection } from '@ckeditor/ckeditor5-utils';
 
 import './theme/placeholder.css';
@@ -89,7 +89,7 @@ function getDropdownItemsDefinitions(placeholders) {
     return new Collection(placeholders.map(placeholder => {
         return {
             type: 'button',
-            model: new Model({
+            model: new ViewModel({
                 commandParam: placeholder,
                 label: placeholder.label || placeholder.name,
                 withText: true
