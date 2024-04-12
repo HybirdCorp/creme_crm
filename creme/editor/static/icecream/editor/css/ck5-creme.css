@@ -1,3 +1,7 @@
 .ck.ck-toolbar.ck-hide-toolbar {
     display: none;
 }
+
+.ck.ck-powered-by a {
+    pointer-events: none;
+}
