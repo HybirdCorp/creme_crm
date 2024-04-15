@@ -25,6 +25,7 @@
 
 {% block view_title %}
     {% brick_declare bricks.hat %}
+    {% brick_declare bricks.buttons %}
     {% brick_declare bricks.top %}
     {% brick_declare bricks.left %}
     {% brick_declare bricks.right %}
@@ -33,8 +34,13 @@
     {% brick_display bricks.hat %}
 {% endblock %}
 
+{% comment %}
 {% block instance_buttons %}
     {% menu_buttons_display %}
+{% endblock %}
+{% endcomment %}
+{% block instance_buttons_container %}
+    {% brick_display bricks.buttons %}
 {% endblock %}
 
 {% block detail_view_top %}

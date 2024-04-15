@@ -214,6 +214,23 @@ creme.bricks.BrickActionBuilders = creme.action.DefaultActionBuilderRegistry.sub
         });
 
         return action;
+    },
+
+    _build_creme_core_hatmenubar_addrelationships: function(url, options, data) {
+        console.warn('The brick action "creme_core-hatmenubar-addrelationships" is deprecated; use "add-relationships" instead.');
+        return this._build_add_relationships(url, options, data);
+    },
+    _build_creme_core_hatmenubar_form: function(url, options, data) {
+        console.warn('The brick action "creme_core-hatmenubar-form" is deprecated; use "add"/"edit" instead.');
+        return this._build_edit(url, options, data);
+    },
+    _build_creme_core_hatmenubar_update: function(url, options, data) {
+        console.warn('The brick action "creme_core-hatmenubar-update" is deprecated; use "update" instead.');
+        return this._build_update(url, options, data);
+    },
+    _build_creme_core_hatmenubar_view: function(url, options, data) {
+        console.warn('The brick action "creme_core-hatmenubar-view" is deprecated; use "view" instead.');
+        return this._build_view(url, options, data);
     }
 });
 

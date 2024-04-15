@@ -1,6 +1,7 @@
 {% load i18n creme_widgets %}{% load blockjsondata from creme_core_tags %}
 {% if button.is_allowed %}
-<a class="menu_button menu-button-icon" title="{{button.description}}" data-action="billing-hatmenubar-invoice-number" href="{% url 'billing__generate_invoice_number' object.id %}">
+{# <a class="menu_button menu-button-icon" title="{{button.description}}" data-action="billing-hatmenubar-invoice-number" href="{% url 'billing__generate_invoice_number' object.id %}"> #}
+<a class="menu_button menu-button-icon" title="{{button.description}}" data-action="update" href="{% url 'billing__generate_invoice_number' object.id %}">
     {% widget_icon name='invoice' size='instance-button' label=_('Invoice number') %}
     {{button.verbose_name}}
     {% blockjsondata %}{

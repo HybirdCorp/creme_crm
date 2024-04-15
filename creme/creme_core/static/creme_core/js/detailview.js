@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2017-2022  Hybird
+    Copyright (C) 2017-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -59,6 +59,11 @@
 
     creme.views = creme.views || {};
 
+/* NB: these actions are only available in detail-view for non-CremeEntity models
+   ( "creme_core/generics/view_entity.html" uses a Brick with the buttons, so brick-actions are used instead).
+   TODO: should we used a Brick in all cases (to get a powerful reloading system -- and remove the code below) ?
+         The hat bar should be a true Brick too?
+ */
     var menuBarActions = {
         'creme_core-hatmenubar-view': function(url, options, data) {
             options = $.extend(creme.bricks.defaultDialogOptions(url, data.title), options || {});
@@ -72,7 +77,7 @@
 
         'creme_core-hatmenubar-update': function(url, options, data) {
             return this._postQueryAction(url, options, data);
-        },
+        }/*, // NB: This action is only meaningful with CremeEntities, so we can remove it
 
         'creme_core-hatmenubar-addrelationships': function(url, options, data) {
             var action = new creme.relations.AddRelationToAction({
@@ -86,10 +91,9 @@
             });
 
             return action;
-        }
+        } */
     };
 
-    // TODO : temporary widget. We should use a brick instead.
     creme.views.HatMenuBar = creme.widget.declare('ui-creme-hatmenubar', {
         _create: function(element, options, cb, sync, args) {
             var builder = this._builder = new creme.action.DefaultActionBuilderRegistry();

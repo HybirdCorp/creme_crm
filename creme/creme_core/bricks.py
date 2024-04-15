@@ -16,20 +16,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from collections import defaultdict
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from .core import notification
 from .core.entity_cell import EntityCellCustomField
 from .creme_jobs.base import JobType
-from .gui import statistics
+from .gui import button_menu, statistics
 from .gui.bricks import Brick, BricksManager, QuerysetBrick
 from .gui.history import html_history_registry
 from .models import (
+    ButtonMenuItem,
     CremeEntity,
     CremeProperty,
     CustomField,
@@ -46,6 +50,64 @@ from .models.history import TYPE_SYM_REL_DEL, TYPE_SYM_RELATION, HistoryLine
 from .utils.content_type import entity_ctypes
 
 logger = logging.getLogger(__name__)
+
+
+class ButtonsBrick(Brick):
+    id = Brick.generate_id('creme_core', 'buttons')
+    # dependencies => filled dynamically (see detailview_display()/_set_dependencies())
+    verbose_name = 'Button menu'
+    template_name = 'creme_core/bricks/buttons.html'
+    configurable = False
+
+    button_registry = button_menu.button_registry
+
+    def _get_buttons(self, entity: CremeEntity) -> dict[str, button_menu.Button]:
+        button_ids = ButtonMenuItem.objects.filter(
+            Q(content_type=entity.entity_type) | Q(content_type__isnull=True)
+        ).exclude(button_id='').order_by('order').values_list('button_id', flat=True)
+
+        registry = self.button_registry
+        # NB1: remember that dicts keep the order of insertion
+        # NB2: we insert mandatory buttons at the beginning
+        buttons = {
+            button.id: button for button in registry.mandatory_buttons(entity=entity)
+        }
+        for button in registry.get_buttons(button_ids, entity):
+            buttons[button.id] = button
+
+        return buttons
+
+    def _set_dependencies(self,
+                          buttons: dict[str, button_menu.Button],
+                          model: type[CremeEntity],
+                          ) -> None:
+        deps = set()
+        rtype_deps = set()
+        CURRENT = button_menu.Button.CURRENT
+        for button in buttons.values():
+            deps.update(
+                model if dep == CURRENT else dep
+                for dep in button.dependencies
+            )
+            rtype_deps.update(button.relation_type_deps)
+
+        self.dependencies = [*deps]
+        self.relation_type_deps = [*rtype_deps]
+
+    def detailview_display(self, context):
+        entity = context['object']
+        buttons = self._get_buttons(entity)
+        self._set_dependencies(buttons=buttons, model=type(entity))
+
+        request = context['request']
+
+        return self._render(self.get_template_context(
+            context,
+            buttons=[
+                button.get_context(entity=entity, request=request)
+                for button in buttons.values()
+            ],
+        ))
 
 
 class PropertiesBrick(QuerysetBrick):

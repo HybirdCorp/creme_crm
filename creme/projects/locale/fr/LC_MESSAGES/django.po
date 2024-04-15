@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'PROJECTS' APP
-# Copyright (C) 2023 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i tests.py --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Projects 2.5\n"
+"Project-Id-Version: Creme Projects 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-07 18:05+0100\n"
+"POT-Creation-Date: 2024-04-22 19:03+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -57,36 +57,6 @@ msgstr "Ressource(s) affectée(s) à une tâche"
 
 msgid "Activities for a task"
 msgstr "Activités pour une tâche"
-
-msgid "Not started"
-msgstr "Non commencée"
-
-msgid "The task as not started yet"
-msgstr "La tâche n'a pas encore démarrée"
-
-msgid "In progress"
-msgstr "En cours"
-
-msgid "The task is in progress"
-msgstr "La tâche est en cours"
-
-msgid "Canceled"
-msgstr "Annulée"
-
-msgid "The task has been canceled"
-msgstr "La tâche a été annulée"
-
-msgid "Restarted"
-msgstr "Redémarrée"
-
-msgid "The task has been restarted"
-msgstr "La tâche a été redémarrée"
-
-msgid "Completed"
-msgstr "Terminée"
-
-msgid "The task is finished"
-msgstr "La tâche est terminée"
 
 msgid "Creation form for project"
 msgstr "Formulaire de création de projet"
@@ -238,30 +208,6 @@ msgctxt "projects-plural"
 msgid "Status of task"
 msgstr "Statut de tâche"
 
-msgid "is one of the leaders of this project"
-msgstr "est un des responsables du projet"
-
-msgid "has as leader"
-msgstr "a pour responsable"
-
-msgid "is related to the task of project"
-msgstr "est lié à la tâche de projet"
-
-msgid "includes the activity"
-msgstr "inclut l'activité"
-
-msgid "is a resource of"
-msgstr "est une ressource de"
-
-msgid "has as a resource"
-msgstr "a en tant que ressource"
-
-msgid "Project view"
-msgstr "Vue de Projet"
-
-msgid "Task view"
-msgstr "Vue de Tâche"
-
 msgid "Invitation to tender"
 msgstr "Appel d'offre"
 
@@ -304,6 +250,60 @@ msgstr "Terminé"
 
 msgid "The project is finished"
 msgstr "Le projet est terminé"
+
+msgid "Not started"
+msgstr "Non commencée"
+
+msgid "The task as not started yet"
+msgstr "La tâche n'a pas encore démarrée"
+
+msgid "In progress"
+msgstr "En cours"
+
+msgid "The task is in progress"
+msgstr "La tâche est en cours"
+
+msgid "Canceled"
+msgstr "Annulée"
+
+msgid "The task has been canceled"
+msgstr "La tâche a été annulée"
+
+msgid "Restarted"
+msgstr "Redémarrée"
+
+msgid "The task has been restarted"
+msgstr "La tâche a été redémarrée"
+
+msgid "Completed"
+msgstr "Terminée"
+
+msgid "The task is finished"
+msgstr "La tâche est terminée"
+
+msgid "is one of the leaders of this project"
+msgstr "est un des responsables du projet"
+
+msgid "has as leader"
+msgstr "a pour responsable"
+
+msgid "is related to the task of project"
+msgstr "est lié à la tâche de projet"
+
+msgid "includes the activity"
+msgstr "inclut l'activité"
+
+msgid "is a resource of"
+msgstr "est une ressource de"
+
+msgid "has as a resource"
+msgstr "a en tant que ressource"
+
+msgid "Project view"
+msgstr "Vue de Projet"
+
+msgid "Task view"
+msgstr "Vue de Tâche"
 
 #, python-brace-format
 msgid "{count} Related activity"
@@ -468,6 +468,9 @@ msgstr "Supprimer cette tâche"
 
 msgid "No task in this project for the moment"
 msgstr "Aucune tâche dans ce projet pour le moment"
+
+msgid "Do you really want to close this project?"
+msgstr "Voulez vous vraiment fermer ce projet ?"
 
 msgid "Back to the project"
 msgstr "Retour au projet"

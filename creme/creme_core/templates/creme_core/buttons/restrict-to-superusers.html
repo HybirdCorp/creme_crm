@@ -1,17 +1,34 @@
-{% load i18n creme_widgets %}
+{% load i18n creme_widgets %}{% load blockjsondata from creme_core_tags %}
 {% if user.is_superuser %}
 {% if button.sandbox_uuid is None %}
-{% translate 'Are you sure you want to restrict this entity to superusers?' as confirm_msg %}
-{# NB: we could reload only some bricks with creme.bricks.BricksReloader, but the button must be reloaded too (to update its label etc...) -> need buttons to be bricks ? #}
-<a class="menu_button menu-button-icon" title="{{button.description}}" onclick="creme.dialogs.confirm('{{confirm_msg|escapejs}}').onOk(function() { creme.utils.ajaxQuery('{% url 'creme_core__restrict_entity_2_superusers' %}', {action: 'POST', reloadOnSuccess: true}, {id: {{object.id}}, set: true}).start();}).open();">
+{# {% translate 'Are you sure you want to restrict this entity to superusers?' as confirm_msg %} #}
+{# <a class="menu_button menu-button-icon" title="{{button.description}}" onclick="creme.dialogs.confirm('{{confirm_msg|escapejs}}').onOk(function() { creme.utils.ajaxQuery('{% url 'creme_core__restrict_entity_2_superusers' %}', {action: 'POST', reloadOnSuccess: true}, {id: {{object.id}}, set: true}).start();}).open();"> #}
+<a class="menu_button menu-button-icon" title="{{button.description}}" data-action="update" href="{% url 'creme_core__restrict_entity_2_superusers' %}">
     {% widget_icon name='security' size='instance-button' label=_('Confidentiality') %}
     {% translate 'Restrict to superusers' %}
+    {% blockjsondata %}{
+        "data": {
+            "id": {{object.id}}, "set": true
+        },
+        "options": {
+            "confirm": "{% translate 'Are you sure you want to restrict this entity to superusers?' %}"
+        }
+    }{% endblockjsondata %}
 </a>
 {% elif button.sandbox_uuid == button.UUID_SANDBOX_SUPERUSERS %}
-{% translate 'Are you sure you want this entity to be accessible to regular users?' as confirm_msg %}
-<a class="menu_button menu-button-icon" title="{{button.description}}" onclick="creme.dialogs.confirm('{{confirm_msg|escapejs}}').onOk(function() { creme.utils.ajaxQuery('{% url 'creme_core__restrict_entity_2_superusers' %}', {action: 'POST', reloadOnSuccess: true}, {id: {{object.id}}, set: false}).start();}).open();">
+{# {% translate 'Are you sure you want this entity to be accessible to regular users?' as confirm_msg %} #}
+{# <a class="menu_button menu-button-icon" title="{{button.description}}" onclick="creme.dialogs.confirm('{{confirm_msg|escapejs}}').onOk(function() { creme.utils.ajaxQuery('{% url 'creme_core__restrict_entity_2_superusers' %}', {action: 'POST', reloadOnSuccess: true}, {id: {{object.id}}, set: false}).start();}).open();"> #}
+<a class="menu_button menu-button-icon" title="{{button.description}}" data-action="update" href="{% url 'creme_core__restrict_entity_2_superusers' %}">
     {% widget_icon name='security' size='instance-button' label=_('Confidentiality') %}
     {% translate 'Not restrict to superusers' %}
+    {% blockjsondata %}{
+        "data": {
+            "id": {{object.id}}, "set": false
+        },
+        "options": {
+            "confirm": "{% translate 'Are you sure you want this entity to be accessible to regular users?' %}"
+        }
+    }{% endblockjsondata %}
 </a>
 {% else %}
 <span class="menu_button menu-button-icon forbidden" title="{% blocktranslate with sandbox=object.sandbox.type.verbose_name %}Cannot restrict because already in «{{sandbox}}»{% endblocktranslate %}">

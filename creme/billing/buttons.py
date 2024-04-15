@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,6 +41,7 @@ class GenerateInvoiceNumberButton(Button):
         'This button generates the number for the current invoice.\n'
         'App: Billing'
     )
+    dependencies = [Invoice]
     template_name = 'billing/buttons/generate-invoice-number.html'
 
     def get_ctypes(self):
@@ -56,6 +57,7 @@ class GenerateInvoiceNumberButton(Button):
 
 
 class _AddBillingDocumentButton(Button):
+    # dependencies = [Relation]  # TODO: see billing-action.js (reloading is manually managed)
     template_name = 'billing/buttons/add-billing-document.html'
     model_to_create = Base  # Override
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,9 +19,10 @@
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.button_menu import Button
-from creme.creme_core.models import RelationType
+from creme.creme_core.models import Relation, RelationType
 
-from .constants import REL_SUB_LINKED_2_TICKET
+# from .constants import REL_SUB_LINKED_2_TICKET
+from . import constants
 
 
 class Linked2TicketButton(Button):
@@ -32,11 +33,14 @@ class Linked2TicketButton(Button):
         'using the relationship type «is linked to the ticket».\n'
         'App: Tickets'
     )
+    dependencies = (Relation,)
+    relation_type_deps = (constants.REL_SUB_LINKED_2_TICKET,)
     template_name = 'tickets/buttons/linked.html'
     permissions = 'tickets'
 
     def get_context(self, **kwargs):
         context = super().get_context(**kwargs)
-        context['rtype'] = RelationType.objects.get(id=REL_SUB_LINKED_2_TICKET)
+        # context['rtype'] = RelationType.objects.get(id=REL_SUB_LINKED_2_TICKET)
+        context['rtype'] = RelationType.objects.get(id=self.relation_type_deps[0])
 
         return context

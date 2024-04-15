@@ -30,6 +30,7 @@
             return creme.widget.create(element);
         },
 
+        /* TODO: rename (createActionBarButton?) ? */
         createHatMenuActionButton: function(options) {
             return (
                 '<a href="${url}" data-action="${action}" class="menu_button">' +
@@ -42,6 +43,18 @@
                         options: options.options || {}
                     })
                 });
+        },
+
+        /* TODO: in brick mixin? */
+        createButtonsBrick: function(options) {
+//            options = $.extend({
+//                classes: ['creme_core-buttons-brick']
+//            }, options || {});
+
+            return this.createBrickWidget({
+                classes: ['creme_core-buttons-brick'],
+                content: (options.buttons || []).join('')
+            });
         }
     };
 

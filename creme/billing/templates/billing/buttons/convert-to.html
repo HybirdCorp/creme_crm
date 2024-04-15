@@ -1,7 +1,8 @@
 {% load i18n creme_widgets %}{% load blockjsondata from creme_core_tags %}
 {% if button.is_allowed and button.creation_perm %}
 <a class="menu_button menu-button-icon" title="{{button.description}}"
-   data-action="billing-hatmenubar-convert" href="{% url 'billing__convert' object.id %}">
+{#   data-action="billing-hatmenubar-convert" href="{% url 'billing__convert' object.id %}"> #}
+   data-action="update-redirect" href="{% url 'billing__convert' object.id %}">
     {% widget_icon name='invoice' size='instance-button' label=button.model_vname %}
     {{button.verbose_name}}
     {% blockjsondata %}{

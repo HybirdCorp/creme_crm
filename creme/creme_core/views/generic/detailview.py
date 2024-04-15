@@ -181,10 +181,20 @@ class EntityDetail(CremeModelDetail):
         super().check_view_permissions(user=user)
         user.has_perm_to_access_or_die(self.model._meta.app_label)
 
+    # TODO: change BricksMixin.get_bricks() return type to <dict> ?
+    # TODO: add a system for mandatory Brick (& set ButtonsBrick as mandatory) in BricksMixin?
     def get_bricks(self):
-        return detailview_bricks(
-            self.request.user, self.object, registry=self.brick_registry,
-        )
+        # Reports models cause import of views (& so, cycle errors)...  # TODO: fix that
+        from creme.creme_core.bricks import ButtonsBrick
+
+        user = self.request.user
+        entity = self.object
+        bricks = detailview_bricks(user=user, entity=entity, registry=self.brick_registry)
+        bricks['buttons'] = [*self.brick_registry.get_bricks(
+            brick_ids=[ButtonsBrick.id], entity=entity, user=user,
+        )]
+
+        return bricks
 
     def get_visitor(self) -> EntityVisitor | None:
         """Deserialize the visitor in the URL
