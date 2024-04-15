@@ -19,8 +19,7 @@
 (function($) {
 "use strict";
 
-/* TODO: unit test */
-/* TODO: Use Select2 widget with "persisting" tag ({tags: true} loose the entry after closing) */
+/* TODO: Use Select2 widget with "persisting" tag ({tags: true} loses the entry after closing) */
 creme.widget.SelectOrInputWidget = creme.widget.declare('ui-creme-selectorinput', {
     _create: function(element, options) {
         var select = element.find('select');
