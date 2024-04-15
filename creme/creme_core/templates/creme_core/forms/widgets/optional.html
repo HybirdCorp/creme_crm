@@ -1,6 +1,6 @@
 {% with widgets=widget.subwidgets %}
-<ul {% include "django/forms/widgets/attrs.html" %}>
-    <li>{% with widget=widgets.0 %}{% include widget.template_name %}{% endwith %}</li>
-    <li class="optional-widget-hiddable">{{widget.label}}&nbsp;{% with widget=widgets.1 %}{% include widget.template_name %}{% endwith %}</li>
-</ul>
+<div {% include "django/forms/widgets/attrs.html" %}>
+    {% with widget=widgets.0 %}{% include widget.template_name %}{% endwith %}
+    <div class="optional-input"><span class="optional-label">{{widget.label}}</span>{% with widget=widgets.1 %}{% include widget.template_name %}{% endwith %}</div>
+</div>
 {% endwith %}

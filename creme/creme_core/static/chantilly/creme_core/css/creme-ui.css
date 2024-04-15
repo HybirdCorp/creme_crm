@@ -705,3 +705,23 @@ img.entity-summary {
     height: 11px;
     display: inline-block;
 }
+
+.ui-creme-optional {
+    display: flex;
+    flex-direction: row;
+}
+
+.ui-creme-optional .optional-label {
+    color: #666;
+    font-size: 12.5px;
+    margin-right: 1em;
+}
+
+.ui-creme-optional .optional-input {
+    visibility: hidden;
+}
+
+.ui-creme-optional .optional-toggle:checked ~ .optional-input {
+    visibility: visible;
+}
+

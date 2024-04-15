@@ -1012,7 +1012,8 @@ class OptionalWidget(widgets.MultiWidget):
     def __init__(self, sub_widget=widgets.TextInput, attrs=None, sub_label=''):
         super().__init__(
             widgets=(
-                widgets.CheckboxInput(attrs={'class': 'optional-widget-trigger'}),
+                # widgets.CheckboxInput(attrs={'class': 'optional-widget-trigger'}),
+                widgets.CheckboxInput(attrs={'class': 'optional-toggle'}),
                 sub_widget,
             ),
             attrs=attrs,
@@ -1027,21 +1028,13 @@ class OptionalWidget(widgets.MultiWidget):
         w_context = context['widget']
         w_context['label'] = self.sub_label
 
-        # TODO: factorise
-        widget_type = 'ui-creme-optional'
         final_attrs = w_context['attrs']
         disabled = final_attrs.pop('disabled', False)
-        base_css = (
-            'optional-widget ui-creme-widget widget-auto'
-            if final_attrs.pop('auto', True) else
-            'optional-widget ui-creme-widget'
-        )
+
         final_attrs['class'] = (
-            f"{base_css} {widget_type}"
+            "ui-creme-optional"
             f"{' is-disabled' if disabled else ''}"
-            f" {final_attrs.get('class', '')}"
-        ).strip()
-        final_attrs['widget'] = widget_type  # TODO: data-widget
+        )
 
         return context
 
