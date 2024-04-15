@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2022  Hybird
+    Copyright (C) 2022-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -20,29 +20,39 @@
 "use strict";
 
 /* TODO: unit test */
+/* TODO: Use Select2 widget with "persisting" tag ({tags: true} loose the entry after closing) */
 creme.widget.SelectOrInputWidget = creme.widget.declare('ui-creme-selectorinput', {
     _create: function(element, options) {
         var select = element.find('select');
         var input = element.find('input[type="text"]');
-        var inputBackup = '';
+        var inputBackup = input.val();
 
         select.on('change', function(e) {
              if (select.val() === '0') {
                 input.val(inputBackup);
              } else {
-                if (!inputBackup) {
-                    inputBackup = input.val();
-                }
-
+                inputBackup = input.val();
                 input.val('');
              }
         });
-        input.on('input', function(e) {
-            inputBackup = '';
+        input.on('input keyup paste', function(e) {
             select.val(0);
         });
 
         element.addClass('widget-ready');
+    },
+
+    val: function(element, value) {
+        if (value === undefined) {
+            value = element.find('select').val();
+            return (value === '0') ? element.find('input[type="text"]').val() : value;
+        }
+
+        if (!Object.isNone(value) && !Object.isString(value)) {
+            value = JSON.stringify(value);
+        }
+
+        element.find('select').val(value).trigger('change');
     }
 });
 

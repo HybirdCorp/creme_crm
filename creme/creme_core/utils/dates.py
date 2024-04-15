@@ -62,7 +62,7 @@ def dt_to_ISO8601(dt: datetime) -> str:
         dt = to_utc(dt)
 
     # return dt.strftime(DATETIME_ISO8601_FMT)
-    return dt.strftime('%4Y-%m-%dT%H:%M:%S.%fZ')
+    return dt.strftime(f'{dt.year:04d}-%m-%dT%H:%M:%S.%fZ')
 
 
 def date_from_ISO8601(d_str: str) -> date:
