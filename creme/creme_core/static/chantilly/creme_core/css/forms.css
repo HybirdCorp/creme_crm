@@ -976,11 +976,19 @@ table .dragtable-col-placeholder:first {
     font-size: 14px;
 }
 
+.ordered-widget button {
+    display: none;
+}
+
 .ordered-widget .ordered-widget-enabled .ordered-widget-title {
     background: rgba(245, 71, 71, 0.07);
     border: 1px solid #f49b90;
 
     color: #95453c;
+}
+
+.ordered-widget .ordered-widget-enabled button {
+    display: block;
 }
 
 .ordered-widget .ordered-widget-choice {
