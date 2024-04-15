@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -41,21 +41,31 @@ creme.emails.LinkEMailToAction = creme.component.Action.sub({
 
         var dialog = creme.dialogs.form(options.url, {submitData: formData}, formData);
 
+        // TODO: something like <dialog.onFormSuccess(self._refreshBrick.bind(self)).onClose ...>
         dialog.onFormSuccess(function(event, data) {
-                    var deps = ['creme_core.relation'].concat(
-                        options.rtypes.map(function(rtype) {
-                            return 'creme_core.relation.' + rtype;
-                        })
-                    );
+            var deps = ['creme_core.relation'].concat(
+                options.rtypes.map(function(rtype) {
+                    return 'creme_core.relation.' + rtype;
+                })
+            );
 
-                    new creme.bricks.BricksReloader().dependencies(deps).action().start();
-                    self.done();
-               })
-               .onClose(function() {
-                   self.cancel();
-               })
-               .open({width: 1024});
+            new creme.bricks.BricksReloader().dependencies(deps).action().start();
+            self.done();
+        }).onClose(function() {
+            self.cancel();
+        }).open({width: 1024});
     }
+});
+
+/* $(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) { */
+$(document).on('brick-setup-actions', '.creme_core-buttons-brick', function(e, brick, actions) {
+    actions.register('emails-hatmenubar-linkto', function(url, options, data, e) {
+        return new creme.emails.LinkEMailToAction({
+            url: url,
+            rtypes: data.rtypes,
+            ids: data.ids
+        });
+    });
 });
 
 // TODO: really useful?
@@ -206,16 +216,6 @@ var emailActions = {
 
 $(document).on('brick-setup-actions', '.brick.emails-email-brick', function(e, brick, actions) {
     actions.registerAll(emailActions);
-});
-
-$(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) {
-    actions.register('emails-hatmenubar-linkto', function(url, options, data, e) {
-        return new creme.emails.LinkEMailToAction({
-            url: url,
-            rtypes: data.rtypes,
-            ids: data.ids
-        });
-    });
 });
 
 creme.emails.ResendEMailsAction = creme.component.Action.sub({

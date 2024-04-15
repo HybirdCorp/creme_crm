@@ -255,6 +255,7 @@ class MenuTestCase(CremeTestCase):
         )
 
 
+# DEPRECATED (remove the template too)
 class _TestButton(Button):
     action_id = 'creme_core-tests-??'
     template_name = 'creme_core/tests/unit/buttons/test_ttag_creme_menu.html'
@@ -291,6 +292,7 @@ class TestButton05(_TestButton):
     action_id = 'creme_core-tests-dosomethingawesome05'
 
 
+# DEPRECATED
 class MenuButtonsDisplayTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
@@ -345,7 +347,6 @@ class MenuButtonsDisplayTestCase(CremeTestCase):
                 Context({'request': request, 'user': user, 'object': orga})
             )
 
-        # print(render)
         data_actions = {
             node.attrib.get('data-action'): i
             for i, node in enumerate(self.get_button_nodes(self.get_html_tree(render)))
@@ -389,7 +390,6 @@ class MenuButtonsDisplayTestCase(CremeTestCase):
                 Context({'request': request, 'user': user, 'object': orga})
             )
 
-        # print(render)
         actions_ids = []
         for node in self.get_button_nodes(self.get_html_tree(render)):
             action_id = node.attrib.get('data-action')

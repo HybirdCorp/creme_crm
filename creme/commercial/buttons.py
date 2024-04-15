@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.button_menu import Button
-from creme.creme_core.models import RelationType
+from creme.creme_core.models import Relation, RelationType
 
 from .constants import REL_SUB_COMPLETE_GOAL
 
@@ -32,6 +32,8 @@ class CompleteGoalButton(Button):
         'using the relationship type «completes a goal of the commercial action».\n'
         'App: Commercial'
     )
+    dependencies = (Relation,)
+    relation_type_deps = (REL_SUB_COMPLETE_GOAL,)
     template_name = 'commercial/buttons/complete-goal.html'
     permissions = 'commercial'
 

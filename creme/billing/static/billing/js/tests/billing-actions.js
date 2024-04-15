@@ -291,6 +291,7 @@ QUnit.test('creme.billing.brick (billing-line-clearonfly)', function(assert) {
     equal(false, addonflyLink.is('.forbidden'));
 });
 
+/*
 QUnit.test('creme.billing.hatmenubar.invoice-number (fail)', function(assert) {
     var widget = this.createHatMenuBar({
         buttons: [
@@ -400,7 +401,8 @@ QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, ok)', function(ass
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
     deepEqual([current_url], this.mockReloadCalls());
 });
-
+*/
+/*
 QUnit.test('creme.billing.hatmenubar.convert (fail)', function(assert) {
     var widget = this.createHatMenuBar({
         buttons: [
@@ -443,6 +445,7 @@ QUnit.test('creme.billing.hatmenubar.convert (ok)', function(assert) {
     deepEqual([['POST', {type: 'invoice'}]], this.mockBackendUrlCalls('mock/quote/convert/12'));
     deepEqual(['mock/quote/invoice'], this.mockRedirectCalls());
 });
+*/
 
 QUnit.test('creme.billing.AddDocumentAction', function(assert) {
     this.createBrickWidget({
@@ -571,25 +574,21 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document', function(
     }).brick();
 
     this.createBrickWidget({
-//        id: 'brick-for-test-A',
         id: 'creme_core-test1',
         deps: ['A', 'B']
     }).brick();
 
     this.createBrickWidget({
-//        id: 'brick-for-test-B',
         id: 'my_app-test2',
-//        deps: ['creme_core.relation.rtype-C', 'model-A']
         deps: ['creme_core.relation.rtype-C', 'my_app-modelA']
     }).brick();
 
     this.createBrickWidget({
-//        id: 'brick-for-model-A',
         id: 'my_app-related_modelA',
-//        deps: ['model-A']
         deps: ['my_app-modelA']
     }).brick();
 
+/*
     var widget = this.createHatMenuBar({
         buttons: [
             this.createHatMenuActionButton({
@@ -597,7 +596,19 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document', function(
                 action: 'billing-hatmenubar-add-document',
                 data: {
                     rtype_id: ['rtype-C'],
-//                    model_id: ['model-A']
+                    model_id: ['my_app-modelA']
+                }
+            })
+        ]
+    });
+*/
+    var widget = this.createButtonsBrick({
+        buttons: [
+            this.createHatMenuActionButton({
+                url: 'mock/billing/document/add',
+                action: 'billing-hatmenubar-add-document',
+                data: {
+                    rtype_id: ['rtype-C'],
                     model_id: ['my_app-modelA']
                 }
             })
@@ -624,7 +635,6 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document', function(
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test", "brick-for-test-B", "brick-for-model-A"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test", "my_app-test2", "my_app-related_modelA"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -637,7 +647,22 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document (with redir
     POSTBackends[creationURL] = this.backend.response(200, quoteURL);
     this.setMockBackendPOST(POSTBackends);
 
+/*
     var widget = this.createHatMenuBar({
+        buttons: [
+            this.createHatMenuActionButton({
+                url: creationURL + '?redirection=true',
+                action: 'billing-hatmenubar-add-document',
+                data: {
+                    rtype_id: ['rtype-C'],
+                    model_id: ['model-A']
+                }
+            })
+        ]
+    });
+*/
+
+    var widget = this.createButtonsBrick({
         buttons: [
             this.createHatMenuActionButton({
                 url: creationURL + '?redirection=true',
@@ -651,6 +676,7 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document (with redir
     });
 
     $(widget.element).find('a.menu_button').trigger('click');
+
 
     deepEqual([
         ['GET', {"redirection": "true"}]

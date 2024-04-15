@@ -16,6 +16,7 @@ QUnit.module("creme.projects.hatmenubar.actions", new QUnitMixin(QUnitEventMixin
     }
 }));
 
+/*
 QUnit.test('creme.projects.hatmenubar.close (not confirmed)', function(assert) {
     var widget = this.createHatMenuBar({
         buttons: [
@@ -80,6 +81,7 @@ QUnit.test('creme.projects.hatmenubar.close', function(assert) {
     deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/projects/12/close'));
     deepEqual([current_url], this.mockReloadCalls());
 });
+*/
 
 QUnit.test('creme.projects.listview.actions (projects-close, cancel)', function(assert) {
     var list = this.createDefaultListView().controller();

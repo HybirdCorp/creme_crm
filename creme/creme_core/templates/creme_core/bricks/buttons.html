@@ -1,0 +1,15 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+
+{% block brick_extra_class %}creme_core-buttons-brick{% endblock %}
+
+{% block brick_header %}{% endblock %}{# No header here! #}
+
+{% block brick_content_extra_class %}buttons-list instance-buttons{% endblock %}
+
+{% block brick_content %}
+    <ul>
+      {% for button_ctxt in buttons %}
+        <li>{% include button_ctxt.template_name with button=button_ctxt %}</li>
+      {% endfor %}
+    </ul>
+{% endblock %}

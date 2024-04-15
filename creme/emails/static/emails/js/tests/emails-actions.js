@@ -1049,7 +1049,21 @@ QUnit.test('creme.emails.hatmenubar.emails-hatmenubar-linkto', function(assert) 
         deps: ['creme_core.relation']
     }).brick();
 
+/*
     var widget = this.createHatMenuBar({
+        buttons: [
+            this.createHatMenuActionButton({
+                url: 'mock/emails/linkto',
+                action: 'emails-hatmenubar-linkto',
+                data: {
+                    rtypes: ['rtype.1', 'rtype.5', 'rtype.78'],
+                    ids: '12'
+                }
+            })
+        ]
+    });
+*/
+    var widget = this.createButtonsBrick({
         buttons: [
             this.createHatMenuActionButton({
                 url: 'mock/emails/linkto',

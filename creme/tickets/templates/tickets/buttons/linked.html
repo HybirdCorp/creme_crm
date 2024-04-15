@@ -1,7 +1,8 @@
 {% load i18n creme_ctype creme_perms creme_widgets %}{% load blockjsondata from creme_core_tags %}
 {% ctype_for_swappable 'TICKETS_TICKET_MODEL' as ticket_ct %}
 {% if button.is_allowed and user|has_perm_to_link:object and button.rtype.enabled %}
-<a class="menu_button menu-button-icon" title="{{button.description}}" data-action="creme_core-hatmenubar-addrelationships">
+{# <a class="menu_button menu-button-icon" title="{{button.description}}" data-action="creme_core-hatmenubar-addrelationships"> #}
+<a class="menu_button menu-button-icon" title="{{button.description}}" data-action="add-relationships">
     {% widget_icon name='ticket' size='instance-button' label=_('Ticket') %}
     {{button.verbose_name}}
     {% blockjsondata %}{

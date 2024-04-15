@@ -21,7 +21,9 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from heapq import heappop, heappush
-from typing import DefaultDict, Iterable, Iterator, Sequence
+from typing import DefaultDict, Iterable, Iterator, Literal, Sequence
+
+from django.db.models import Model
 
 from ..models import CremeEntity
 
@@ -30,6 +32,10 @@ logger = logging.getLogger(__name__)
 
 class Button:
     "Button displayed above the bricks in detail-views of CremeEntities."
+
+    # Can be used as a value in 'dependencies' to design the model of the
+    # instance which the detail-view is about (think <context['object']>).
+    CURRENT = 'CURRENT'
 
     # ID of the button, stored in DB (i.e. the button configuration), to
     # retrieve the right button class (so it must be unique)
@@ -43,6 +49,18 @@ class Button:
     # Description used as tool-tips
     # Tips: use gettext_lazy()
     description: str = ''
+
+    # List of the models on which the button depends (i.e. generally the button
+    # is designed to create/modify instances of these models); it also can be
+    # the string Button.CURRENT (see above).
+    # Notice: it's globally the same thing as <Brick.dependencies>, excepted
+    # there is no wildcard (at the moment it seems useless), & there is CURRENT.
+    dependencies: list[type[Model]] | tuple[type[Model], ...] | Literal['CURRENT'] = ()
+
+    # List of IDs of RelationType objects on which the brick depends ;
+    # only used for Buttons which have the model 'Relation' in their dependencies.
+    # Notice: it's the same thing as <Brick.relation_type_deps>.
+    relation_type_deps: Sequence[str] = ()
 
     # Name/path of the template used to render the button.
     template_name: str = 'creme_core/buttons/place-holder.html'
@@ -66,7 +84,7 @@ class Button:
     def get_context(self, *, entity: CremeEntity, request) -> dict:
         """Context used by the template system to render the button."""
         return {
-            # 'id': self.id, # TODO: for reload system like bricks' one
+            # 'id': self.id, # TODO?
             'verbose_name': self.verbose_name,
             'description': self.description,
             'is_allowed': self.is_allowed(entity=entity, request=request),

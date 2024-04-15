@@ -1305,6 +1305,29 @@ svg.icon {
     font-size: 12.5px;
 }
 
+/* Buttons bar brick */
+
+.brick:not(.is-empty) ~ .brick.creme_core-buttons-brick:not(.is-empty) {
+    margin-top: 5px;
+}
+
+.creme_core-buttons-brick {
+    padding-bottom: 20px;
+
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+.creme_core-buttons-brick .brick-content.buttons-list.instance-buttons {
+    padding: 0;
+}
+
+/* TODO: remove the base rule we override? */
+.creme_core-buttons-brick .brick-content.buttons-list.instance-buttons .menu_button img {
+    padding-right: 0px;
+}
+
 /* Relationships brick */
 
 .creme_core-relations-brick .relationship-predicate-disabled {

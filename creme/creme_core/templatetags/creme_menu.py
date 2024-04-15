@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+import warnings
 from collections import OrderedDict
 
 from django.db.models import Q
@@ -50,11 +51,16 @@ def menu_display(context):
     return context
 
 
-# TODO: pass the registry in the context?
 @register.inclusion_tag(
     'creme_core/templatetags/detailview-buttons.html', takes_context=True,
 )
 def menu_buttons_display(context):
+    warnings.warn(
+        'The templatetag {% menu_buttons_display %} is deprecated; '
+        'see the new brick <creme.creme_core.bricks.ButtonsBrick>.',
+        DeprecationWarning,
+    )
+
     entity = context['object']
     button_ids = ButtonMenuItem.objects.filter(
         Q(content_type=entity.entity_type)

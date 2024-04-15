@@ -454,6 +454,7 @@ class CremeCoreConfig(CremeAppConfig):
         from . import bricks
 
         brick_registry.register(
+            bricks.ButtonsBrick,
             bricks.PropertiesBrick,
             bricks.RelationsBrick,
             bricks.CustomFieldsBrick,

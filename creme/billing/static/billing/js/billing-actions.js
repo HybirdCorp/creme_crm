@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2018-2021  Hybird
+    Copyright (C) 2018-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -43,6 +43,7 @@ creme.billing.AddDocumentAction = creme.component.Action.sub({
             if (redirectionURL) {
                 creme.utils.redirect(redirectionURL);
             } else {
+                /* TODO: just add dependencies in Button class & simplify this code? */
                 var deps = options.deps || ['creme_core.relation'];
                 var reload = new creme.bricks.BricksReloader().dependencies(deps).action();
 
@@ -60,6 +61,7 @@ creme.billing.AddDocumentAction = creme.component.Action.sub({
 });
 
 var hatmenubarActions = {
+/*
     'billing-hatmenubar-invoice-number': function(url, options, data, e) {
         return creme.utils.ajaxQuery(url, $.extend({
             action: 'post',
@@ -67,6 +69,8 @@ var hatmenubarActions = {
             reloadOnSuccess: true
         }, options || {}));
     },
+*/
+/*
     'billing-hatmenubar-convert': function(url, options, data, e) {
         var action = creme.utils.ajaxQuery(url, $.extend({
             action: 'post',
@@ -77,6 +81,7 @@ var hatmenubarActions = {
             creme.utils.goTo(data);
         });
     },
+*/
     'billing-hatmenubar-add-document': function(url, options, data, e) {
         return new creme.billing.AddDocumentAction({
             url: url,
@@ -89,7 +94,8 @@ var hatmenubarActions = {
     }
 };
 
-$(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) {
+/* $(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) { */
+$(document).on('brick-setup-actions', '.creme_core-buttons-brick', function(e, brick, actions) {
     actions.registerAll(hatmenubarActions);
 });
 

@@ -31,7 +31,8 @@ class ButtonsTestCase(CremeTestCase):
         Relation.objects.create(
             user=user,
             subject_entity=orga,
-            type_id=button.relation_type_id,
+            # type_id=button.relation_type_id,
+            type_id=button.relation_type_deps[0],
             object_entity=managed_orga,
         )
         self.assertFalse(button.ok_4_display(orga))

@@ -31,6 +31,7 @@ class CloseProjectButton(Button):
     #     'This button ....\n'
     #     'App: Projects'
     # )
+    dependencies = (Project,)
     template_name = 'projects/buttons/close-project.html'
     permissions = 'projects'
 

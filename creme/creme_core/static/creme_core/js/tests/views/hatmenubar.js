@@ -61,6 +61,7 @@ QUnit.test('creme.detailview.hatmenubar (no action)', function(assert) {
     deepEqual([], widget.delegate._actionlinks);
 });
 
+/*
 QUnit.test('creme.detailview.hatmenubar (addrelationships)', function(assert) {
     var widget = this.createHatMenuBar({
         buttons: [
@@ -106,7 +107,7 @@ QUnit.test('creme.detailview.hatmenubar (addrelationships)', function(assert) {
         ['mock/relation/add', 'POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
     ], this.mockBackendUrlCalls());
 });
-
+*/
 
 QUnit.test('creme.detailview.hatmenubar (view)', function(assert) {
     var widget = this.createHatMenuBar({
@@ -238,7 +239,7 @@ QUnit.test('creme.detailview.hatmenubar (action registry)', function(assert) {
     ok(registry.has('creme_core-hatmenubar-view'));
     ok(registry.has('creme_core-hatmenubar-update'));
     ok(registry.has('creme_core-hatmenubar-form'));
-    ok(registry.has('creme_core-hatmenubar-addrelationships'));
+//    ok(registry.has('creme_core-hatmenubar-addrelationships'));
 });
 
 }(jQuery));
