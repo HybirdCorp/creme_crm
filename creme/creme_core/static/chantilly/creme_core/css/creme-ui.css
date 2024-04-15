@@ -725,3 +725,42 @@ img.entity-summary {
     visibility: visible;
 }
 
+.ui-creme-union {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.ui-creme-union .union-case + .union-case {
+    margin-top: 15px;
+}
+
+.ui-creme-union .union-case .union-case-toggle {
+    width: 1rem;
+    margin: 3px;
+    padding: 0;
+}
+
+.ui-creme-union .union-case .union-case-widget {
+    pointer-events: none;
+    opacity: 0.3;
+    margin-left: calc(1rem + 6px);
+}
+
+.ui-creme-union .union-case label {
+    position: relative;
+    top: -3px;
+    left: -3px;
+    color: #888;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.ui-creme-union .union-case label:hover {
+    cursor: pointer;
+}
+
+.ui-creme-union .union-case .union-case-toggle:checked ~ .union-case-widget {
+    pointer-events: all;
+    opacity: 1.0;
+}
