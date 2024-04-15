@@ -1058,21 +1058,14 @@ class UnionWidget(widgets.Widget):
     def get_context(self, name, value, attrs):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
-        widget_type = 'ui-creme-union'
         w_context = context['widget']
         final_attrs = w_context['attrs']
-        base_css = (
-            'union-widget ui-creme-widget widget-auto'
-            if final_attrs.pop('auto', True) else
-            'union-widget ui-creme-widget'
-        )
         disabled = final_attrs.pop('disabled', False)
         final_attrs['class'] = (
-            f"{base_css} {widget_type}"
+            'ui-creme-union'
             f"{' is-disabled' if disabled else ''}"
             f" {final_attrs.get('class', '')}"
         ).strip()
-        final_attrs['widget'] = widget_type  # TODO: data-widget
 
         sub_attrs = {'disabled': True} if disabled else {}
         selected_sub_name, sub_values = ('', {}) if value is None else value

@@ -1,12 +1,10 @@
 <ul {% include "django/forms/widgets/attrs.html" %}>
 {% with attrs=widget.attrs %}
 {% for choice in widget.subwidget_choices %}
-  <li class="union-sub_widget">
-    <label>{# TODO: help text as tooltip ??? #}
-      <input class="union-widget-switch" type="radio" name="{{widget.name}}" value="{{choice.name}}"{% if widget.required %} required{% endif %}{% if choice.checked %} checked{% endif %}{% if widget.disabled %} disabled{% endif%}>
-      {{choice.label}}
-    </label>
-    <div class="union-sub_widget_container">{% include choice.widget.template_name with widget=choice.widget %}</div>
+  <li class="union-case">
+    <input class="union-case-toggle" type="radio" name="{{widget.name}}" id="union_{{choice.widget.name}}" value="{{choice.name}}"{% if widget.required %} required{% endif %}{% if choice.checked %} checked{% endif %}{% if widget.disabled %} disabled{% endif%}>
+    <label for="union_{{choice.widget.name}}">{# TODO: help text as tooltip ??? #}{{choice.label}}</label>
+    <div class="union-case-widget">{% include choice.widget.template_name with widget=choice.widget %}</div>
   </li>
 {% endfor %}
 {% endwith %}
