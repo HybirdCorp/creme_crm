@@ -183,6 +183,9 @@
                 - Form submit error responses with HTML can either replace the default overlay content or the frame content.
                 - New creme.dialog.Frame option 'fillOnError'; if enabled the html error response replaces the content.
                 - New creme.dialog.Dialog option 'fillFrameOnError'; if enabled the html error response replaces the content.
+            * PopoverAction:
+                - Now accept <script type="*/html"> or dom queries for the content for popovers : allows usage of links.
+                - Factorise action creation in creme.dialog.PopoverAction.fromTarget()
 
     Breaking changes :
     ------------------

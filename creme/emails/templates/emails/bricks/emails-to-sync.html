@@ -91,7 +91,7 @@
                 <a data-action="popover" class="brick-action brick-table-action emails-sync-view_body">
                     {% widget_icon name='view' label=_('View the body') size='brick-table' class='brick-action-icon brick-table-action-icon' %}
                     <summary>{% translate 'Details' %}</summary>
-                    <details>{{email_to_sync.body|linebreaksbr}}</details>
+                    <script type="text/html">{{email_to_sync.body|linebreaksbr}}</script>
                 </a>
             {% else %}
                 <span class="empty-field">—</span>
@@ -102,7 +102,7 @@
                 <a data-action="popover" class="brick-action brick-table-action emails-sync-view_body">
                     {% widget_icon name='view' label=_('View the HTML body') size='brick-table' class='brick-action-icon brick-table-action-icon' %}
                     <summary>{% translate 'Details' %}</summary>
-                    <details>{{email_to_sync.body_html}}</details>
+                    <script type="text/html">{{email_to_sync.body_html|safe}}</script>
                 </a>
             {% else %}
                 <span class="empty-field">—</span>
