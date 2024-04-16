@@ -1,6 +1,4 @@
 {% load i18n %}{% load get_efilter_conditions from creme_core_tags %}
-<summary>{% blocktranslate %}Conditions of «{{efilter}}»{% endblocktranslate %}</summary>
-<details>
 {% get_efilter_conditions efilter=efilter user=user as vconds %}
 {% if vconds|length > 1 %}
     <span>{% if efilter.use_or %}{% translate 'Any condition is met:' %}{% else %}{% translate 'All these conditions are met:' %}{% endif %}</span>
@@ -10,4 +8,3 @@
 {% else %}
     <span>{{vconds.0}}</span>
 {% endif %}
-</details>

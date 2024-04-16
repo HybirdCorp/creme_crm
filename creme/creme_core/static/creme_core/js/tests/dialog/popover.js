@@ -592,4 +592,75 @@ QUnit.test('creme.dialog.ImagePopover (close on click, disabled)', function(asse
     equal(true, popover.isOpened());
 });
 
+QUnit.test('creme.dialog.PopoverAction.fromTarget', function(assert) {
+    var anchor = this.qunitFixture('popover');
+    var target = $(
+       '<a data-title="My title">' +
+           '<script type="text/html">Hello world ! Go <a href="/">here !</a></script>' +
+       '</a>'
+    );
+
+    var action = creme.dialog.PopoverAction.fromTarget(target);
+
+    action.start({target: anchor});
+    var popover = this.assertOpenedPopover();
+
+    this.equalHtml('My title', popover.find('.popover-title'));
+    this.equalHtml('Hello world ! Go <a href="/">here !</a>', popover.find('.popover-content'));
+});
+
+QUnit.test('creme.dialog.PopoverAction.fromTarget (summary)', function(assert) {
+    var anchor = this.qunitFixture('popover');
+    var target = $(
+       '<a>' +
+           '<summary><h1>My title</h1></summary>' +
+           '<script type="text/html">Hello world ! Go <a href="/">here !</a></script>' +
+       '</a>'
+    );
+
+    var action = creme.dialog.PopoverAction.fromTarget(target);
+
+    action.start({target: anchor});
+    var popover = this.assertOpenedPopover();
+
+    this.equalHtml('My title', popover.find('.popover-title'));
+    this.equalHtml('Hello world ! Go <a href="/">here !</a>', popover.find('.popover-content'));
+});
+
+QUnit.test('creme.dialog.PopoverAction.fromTarget (legacy)', function(assert) {
+    var anchor = this.qunitFixture('popover');
+    var target = $(
+       '<a>' +
+           '<summary>My title</summary>' +
+           '<details>Hello world ! Go here !</details>' +
+       '</a>'
+    );
+
+    var action = creme.dialog.PopoverAction.fromTarget(target);
+
+    action.start({target: anchor});
+    var popover = this.assertOpenedPopover();
+
+    this.equalHtml('My title', popover.find('.popover-title'));
+    this.equalHtml('Hello world ! Go here !', popover.find('.popover-content'));
+});
+
+QUnit.test('creme.dialog.PopoverAction.fromTarget (contentHref)', function(assert) {
+    var anchor = this.qunitFixture('popover');
+    var target = $(
+       '<a data-title="My title" data-content-href="#my-popover">' +
+            '<script type="text/html">Hello world ! Go <a href="/">here !</a></script>' +
+       '</a>' +
+       '<script type="text/html" id="my-popover">Hello guys ! Go <a href="/">there !</a></script>'
+    ).appendTo(anchor);
+
+    var action = creme.dialog.PopoverAction.fromTarget(target);
+
+    action.start({target: anchor});
+    var popover = this.assertOpenedPopover();
+
+    this.equalHtml('My title', popover.find('.popover-title'));
+    this.equalHtml('Hello guys ! Go <a href="/">there !</a>', popover.find('.popover-content'));
+});
+
 }(jQuery));

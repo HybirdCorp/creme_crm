@@ -53,12 +53,11 @@
         >
             {% if alert.trigger_date is None %}{% translate '(error)' %}{% else %}{% print_field object=alert field='trigger_date' %}{% endif %}
             {% if alert.trigger_offset %}
-            <a data-action="popover">
+            <a data-action="popover" data-title="{% translate 'Details' %}">
                 {% widget_icon name='info' label=_('The trigger date is relative') size='brick-table' %}
-                <summary>{% translate 'Details' %}</summary>
-                <details>
-                    <span>{% assistants_verbose_date_offset offset_dict=alert.trigger_offset entity=alert.real_entity %}</span>
-                </details>
+                <script type="text/html">
+                <span>{% assistants_verbose_date_offset offset_dict=alert.trigger_offset entity=alert.real_entity %}</span>
+                </script>
             </a>
             {% endif %}
         </td>

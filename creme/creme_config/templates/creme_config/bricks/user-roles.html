@@ -41,9 +41,9 @@
                     {% with efilter=sc.efilter %}
                         {% if efilter %}
                             <br>&nbsp;{% blocktranslate %}Filter «{{efilter}}»{% endblocktranslate %}
-                            <a data-action="popover">
+                            <a data-action="popover" data-title="{% blocktranslate %}Conditions of «{{efilter}}»{% endblocktranslate %}">
                                 {% widget_icon name='info' label=_('Information on the current filter') size='brick-action' %}
-                                {% include 'creme_core/frags/entity-filter-summary.html' with efilter=sc.efilter user=user %}
+                                <script type="text/html">{% include 'creme_core/frags/entity-filter-summary.html' with efilter=efilter user=user %}</script>
                             </a>
                         {% endif %}
                     {% endwith %}

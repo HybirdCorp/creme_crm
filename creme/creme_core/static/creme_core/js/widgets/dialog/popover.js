@@ -353,4 +353,38 @@ creme.dialog.PopoverAction = creme.component.Action.sub({
     }
 });
 
+creme.dialog.PopoverAction.fromTarget = function(target, options) {
+    /*
+        Opens a popover at the given DOM/jquery target element.
+        Some arguments like the title and the content are extracted directly from the element :
+         - <a content-href="#my_id">
+              Gets the body from another tag outside the link.
+         - <a><script type="text/html"></script></a>
+              Gets the body from the script tag within the link. Works HTML links
+         - <a title=""> or <a summary="">
+              Gives the popover title.
+         - <a><details></details></a>
+              Gets the body from the details tag (backward compatibility). DOES NOT work HTML links
+    */
+    target = $(target);
+
+    var contentHref = target.data('contentHref');
+    var content = contentHref ? $(contentHref).text() : target.find('script[type$="html"]').text();
+    var title = target.data('title') || target.find('summary').text();
+
+    // Keeps compatibility with older way of creating popover
+    if (Object.isEmpty(content)) {
+        content = target.find('details').html();
+    }
+
+    options = Object.assign({
+        content: content,
+        title: title
+    }, options || {}, {
+        target: target
+    });
+
+    return new creme.dialog.PopoverAction(options);
+};
+
 }(jQuery));
