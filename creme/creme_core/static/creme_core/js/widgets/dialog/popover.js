@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2017-2022  Hybird
+ Copyright (C) 2017-2025  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -72,7 +72,7 @@ creme.dialog.Popover = creme.component.Component.sub({
         var dialog = this._dialog;
         var close = this.close.bind(this);
 
-        dialog.css('visiblility', 'hidden');  // hide dialog before positioning
+        dialog.css('visibility', 'hidden');  // hide dialog before positioning
 
         this._anchor = anchor;
 
@@ -82,7 +82,7 @@ creme.dialog.Popover = creme.component.Component.sub({
 
         this.direction(options.direction || 'bottom');
 
-        dialog.css('visiblility', 'visible');
+        dialog.css('visibility', 'visible');
 
         dialog.on('modal-close', this._onclose);
 
@@ -352,5 +352,27 @@ creme.dialog.PopoverAction = creme.component.Action.sub({
         this._build(options).open(options.target);
     }
 });
+
+creme.dialog.PopoverAction.fromTarget = function(target, options, data, e) {
+    target = $(target);
+
+    var contentHref = target.data('contentHref');
+    var content = contentHref ? $(contentHref).text() : target.find('script[type$="html"]').text();
+    var title = target.data('title') || target.find('summary').text();
+
+    // Keeps compatibility with older way of creating popover
+    if (Object.isEmpty(content)) {
+        content = target.find('details').html();
+    }
+
+    options = Object.assign({
+        content: content,
+        title: title
+    }, options || {}, {
+        target: target
+    });
+
+    return new creme.dialog.PopoverAction(options);
+};
 
 }(jQuery));
