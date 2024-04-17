@@ -62,6 +62,9 @@ def dt_to_ISO8601(dt: datetime) -> str:
         dt = to_utc(dt)
 
     # return dt.strftime(DATETIME_ISO8601_FMT)
+    # return dt.strftime(f'%4Y-%m-%dT%H:%M:%S.%fZ')
+    # The behaviour of strftime for '%4Y' is not consistent between OS
+    # (see https://bugs.python.org/issue13305)
     return dt.strftime(f'{dt.year:04d}-%m-%dT%H:%M:%S.%fZ')
 
 
