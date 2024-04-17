@@ -200,7 +200,7 @@ class DateRangeSelectTestCase(CremeTestCase):
         custom_label = pgettext('creme_core-date_range', 'Customized')
         self.assertHTMLEqual(
             f'<span class="ui-creme-daterange-selector ui-creme-widget widget-auto"'
-            f'      date_format="yy/mm/dd" widget="ui-creme-daterange-selector">'
+            f'      data-format="yy/mm/dd" widget="ui-creme-daterange-selector">'
             f'  <input name="{name}"'
             f'         class="ui-creme-daterange-selector ui-creme-input" type="hidden">'
             f'  <select class="daterange-input range-type">'
@@ -232,7 +232,7 @@ class DateRangeSelectTestCase(CremeTestCase):
         custom_label = pgettext('creme_core-date_range', 'Customized')
         self.assertHTMLEqual(
             f'<span class="ui-creme-daterange-selector ui-creme-widget widget-auto"'
-            f'      date_format="yy-mm-dd" widget="ui-creme-daterange-selector">'
+            f'      data-format="yy-mm-dd" widget="ui-creme-daterange-selector">'
             f'  <input name="{name}" value="{value}"'
             f'         class="ui-creme-daterange-selector ui-creme-input" type="hidden">'
             f'  <select class="daterange-input range-type">'
