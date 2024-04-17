@@ -28,6 +28,10 @@
 .ui-creme-datetimepicker li.date input { width: 8em; }
 .ui-creme-datetimepicker li img.ui-datepicker-trigger { vertical-align:middle; }
 
+.ui-creme-daterange-selector .hidden {
+    display: none;
+}
+
 /*----------------------------------*/
 ul.ui-layout { margin:0; padding:0; list-style:none; }
 ul.ui-layout li { margin:0; padding:0; list-style:none; }

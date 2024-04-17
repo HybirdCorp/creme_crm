@@ -1,4 +1,4 @@
-{% load i18n %}<span class="{{widget.class}}" widget="{{widget.widget_type}}" date_format="{{widget.date_format}}">
+{% load i18n %}<span class="{{widget.class}}" widget="{{widget.widget_type}}" data-format="{{widget.date_format}}">
     {% include 'django/forms/widgets/input.html' %}
     <select class="daterange-input range-type">
         {% for value, label in widget.choices %}

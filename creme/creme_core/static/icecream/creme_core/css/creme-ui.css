@@ -111,6 +111,10 @@
 .ui-creme-datetimepicker li button[type="button"] { padding: 0px 6px; }
 .ui-creme-datetimepicker li img.ui-datepicker-trigger { vertical-align: middle; }
 
+.ui-creme-daterange-selector .hidden {
+    display: none;
+}
+
 /*----------------------------------*/
 ul.ui-layout { margin:0; padding:0; list-style:none; }
 ul.ui-layout li { margin:0; padding:0; list-style:none; }
