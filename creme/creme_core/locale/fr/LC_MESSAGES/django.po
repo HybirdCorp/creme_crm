@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-02 14:46+0200\n"
+"POT-Creation-Date: 2024-04-19 10:37+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3226,6 +3226,9 @@ msgstr[1] "%(counter)s n'étaient pas modifiables."
 
 msgid "Are you sure you want to restrict this entity to superusers?"
 msgstr "Voulez-vous vraiment réserver cette fiche aux super-utilisateurs ?"
+
+msgid "Confidentiality"
+msgstr "Confidentialité"
 
 msgid "Are you sure you want this entity to be accessible to regular users?"
 msgstr ""
