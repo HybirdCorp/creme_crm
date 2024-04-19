@@ -60,7 +60,8 @@ class Button:
     @staticmethod
     def generate_id(app_name: str, name: str) -> str:
         """Helper used to create the value of the class attribute 'id'."""
-        return f'button_{app_name}-{name}'
+        # return f'button_{app_name}-{name}'
+        return f'{app_name}-{name}'
 
     def get_context(self, *, entity: CremeEntity, request) -> dict:
         """Context used by the template system to render the button."""
