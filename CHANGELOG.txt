@@ -420,6 +420,8 @@
             - The constructor parameter 'efilter_type' has been removed (the type is the registry's ID).
             - The attribute 'efilter_type' is now read only.
         # In 'creme_core.models' :
+            - In the values of 'ButtonMenuItem.button_id', the prefix "button_" has been removed
+              (see 'creme.creme_core.gui.button_menu.Buttongenerate_id()').
             - In the method 'EntityFilter.can_edit()', the type of filter is not checked anymore (it is checked by the views).
             - In the model 'FieldsConfig' :
                 - The attributes "_excluded_fnames" & "_required_fnames" have been removed.
