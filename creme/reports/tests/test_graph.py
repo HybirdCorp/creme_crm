@@ -39,8 +39,9 @@ from creme.creme_core.tests import fake_constants
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.queries import QSerializer
 
-from ..core.graph import AbscissaInfo, ListViewURLBuilder, OrdinateInfo
+from ..core.graph import AbscissaInfo, OrdinateInfo
 from ..core.graph.fetcher import SimpleGraphFetcher
+from ..core.graph.lv_url import ListViewURLBuilder
 from .base import (
     AxisFieldsMixin,
     BaseReportsTestCase,
