@@ -1080,6 +1080,11 @@ class _BrickRegistry:
             if cbci:
                 if entity is None:
                     logger.warning('Custom brick without entity?!')
+                elif entity.entity_type != cbci.content_type:
+                    logger.warning(
+                        'Custom brick is related to %s, but the entity is an instance of %s',
+                        cbci.content_type.model_class(), type(entity),
+                    )
                 else:
                     yield CustomBrick(id_, cbci)
 
