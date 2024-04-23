@@ -140,7 +140,7 @@ QUnit.test('creme.widget.declare (object, override method)', function(assert) {
     equal(creme.widget._widgets['ui-test'], undefined);
 
     var widget = $.extend(new MockWidget(), {
-        jsonval: function(element) { return 'overriden jsonval'; }
+        jsonval: function(element) { return 'overridden jsonval'; }
     });
     equal(widget.destroy, undefined);
     equal(typeof widget.jsonval, 'function');
@@ -150,7 +150,7 @@ QUnit.test('creme.widget.declare (object, override method)', function(assert) {
     equal(typeof declared.jsonval, 'function');
 
     deepEqual(creme.widget._widgets['ui-test'], declared);
-    equal(declared.jsonval($('<div/>')), 'overriden jsonval');
+    equal(declared.jsonval($('<div/>')), 'overridden jsonval');
 });
 
 QUnit.test('creme.widget.ready', function(assert) {

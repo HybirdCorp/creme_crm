@@ -544,7 +544,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotInChoices(value='',       choices=source_choices)
 
         self.assertEqual(
-            _('If the target has already a configuration, it will be overriden'),
+            _('If the target has already a configuration, it will be overridden'),
             target_f.help_text,
         )
         self.assertInChoices(

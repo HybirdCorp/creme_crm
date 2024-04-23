@@ -376,7 +376,7 @@ class Command(BaseCommand):
         if custom_class_path:
             if verbosity >= 1:
                 self.stdout.write(self.style.NOTICE(
-                    f'The populator for "{app_label}" has been overriden '
+                    f'The populator for "{app_label}" has been overridden '
                     f'(class "{custom_class_path}" will be used).'
                 ))
 

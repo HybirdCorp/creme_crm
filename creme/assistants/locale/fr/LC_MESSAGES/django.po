@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-17 15:16+0100\n"
+"POT-Creation-Date: 2024-04-23 23:24+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -531,7 +531,7 @@ msgstr "L'alerte va bientôt arriver à échéance"
 
 #, python-format
 msgid "An alert related to «%(entity)s» will soon expire"
-msgstr "Une alerte liée à «%(entity)s» va binetôt arriver à échéance"
+msgstr "Une alerte liée à «%(entity)s» va bientôt arriver à échéance"
 
 msgid "The todo has been deleted"
 msgstr "Le todo a été supprimé"

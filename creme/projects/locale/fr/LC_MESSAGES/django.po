@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-22 19:03+0200\n"
+"POT-Creation-Date: 2024-04-23 23:12+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -122,7 +122,7 @@ msgstr "Projet"
 
 #, python-brace-format
 msgid "Start ({start}) must be before end ({end})."
-msgstr "La date de début ({start}) doit être avant la date de fin ({end})."
+msgstr "Le début ({start}) doit être avant la fin ({end})."
 
 msgid "Name"
 msgstr "Nom"
