@@ -5,7 +5,7 @@
     {% blockjsondata %}{
         "data": {
             "rtypes": {{button.rtypes|jsonify|safe}},
-            "ids": ["{{object.pk}}"]
+            "ids": [{{object.id}}]
         }
     }{% endblockjsondata %}
 </a>
