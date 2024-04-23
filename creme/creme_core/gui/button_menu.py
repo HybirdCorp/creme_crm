@@ -55,7 +55,9 @@ class Button:
     # the string Button.CURRENT (see above).
     # Notice: it's globally the same thing as <Brick.dependencies>, excepted
     # there is no wildcard (at the moment it seems useless), & there is CURRENT.
-    dependencies: list[type[Model]] | tuple[type[Model], ...] | Literal['CURRENT'] = ()
+    dependencies: \
+        list[type[Model] | Literal['CURRENT']] | tuple[type[Model] | Literal['CURRENT'], ...]\
+        = ()
 
     # List of IDs of RelationType objects on which the brick depends ;
     # only used for Buttons which have the model 'Relation' in their dependencies.
