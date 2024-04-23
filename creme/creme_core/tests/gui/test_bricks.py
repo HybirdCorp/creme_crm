@@ -882,6 +882,11 @@ class BrickRegistryTestCase(CremeTestCase):
         # No entity
         self.assertFalse([*brick_registry.get_bricks([cbci.brick_id])])
 
+        # Entity with bad type
+        self.assertFalse([*brick_registry.get_bricks(
+            brick_ids=[cbci.brick_id], entity=FakeContact(),
+        )])
+
         # ---
         bricks = [*brick_registry.get_bricks(
             brick_ids=[QuuxBrick.id, cbci.brick_id], entity=FakeOrganisation(),
