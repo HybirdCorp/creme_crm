@@ -776,7 +776,7 @@ class BrickRegistryTestCase(CremeTestCase):
         brick = self.get_alone_element(brick_registry.get_compatible_home_bricks())
         self.assertIsInstance(brick, FoobarBrick1)
 
-    def test_get_bricks01(self):
+    def test_get_bricks(self):
         class QuuxBrick1(SimpleBrick):
             id = SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_1')
             verbose_name = 'Testing purpose #1'
@@ -811,7 +811,7 @@ class BrickRegistryTestCase(CremeTestCase):
         )
         self.assertIsInstance(brick, Brick)
 
-    def test_get_bricks02(self):
+    def test_get_bricks__model(self):
         "Model brick."
         user = self.get_root_user()
 
@@ -834,10 +834,10 @@ class BrickRegistryTestCase(CremeTestCase):
         contact_brick = next(brick_registry.get_bricks([MODELBRICK_ID], entity=contact))
         self.assertIsInstance(contact_brick, ContactBrick)
 
-    def test_get_bricks03(self):
-        "Specific relation bricks, custom bricks."
-        class QuuxBrick1(SimpleBrick):
-            id = SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_2')
+    def test_get_bricks__relation(self):
+        "Specific relation bricks."
+        class QuuxBrick(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_core', 'test_get_bricks__relation')
             verbose_name = 'Testing purpose #1'
 
         rtype = RelationType.objects.smart_update_or_create(
@@ -846,6 +846,24 @@ class BrickRegistryTestCase(CremeTestCase):
         )[0]
         rbi = RelationBrickItem.objects.create(relation_type=rtype)
 
+        brick_registry = _BrickRegistry()
+        brick_registry.register(QuuxBrick)
+
+        bricks = [*brick_registry.get_bricks([QuuxBrick.id, rbi.brick_id])]
+        self.assertEqual(2, len(bricks))
+
+        self.assertIsInstance(bricks[0], QuuxBrick)
+
+        rel_brick = bricks[1]
+        self.assertIsInstance(rel_brick, SpecificRelationsBrick)
+        self.assertEqual((rtype.id,), rel_brick.relation_type_deps)
+
+    def test_get_bricks__custom(self):
+        "Custom bricks."
+        class QuuxBrick(SimpleBrick):
+            id = SimpleBrick.generate_id('creme_core', 'test_get_bricks__custom')
+            verbose_name = 'Testing purpose #1'
+
         cbci = CustomBrickConfigItem.objects.create(
             # id='tests-organisations01',
             name='General', content_type=FakeOrganisation,
@@ -853,26 +871,20 @@ class BrickRegistryTestCase(CremeTestCase):
         )
 
         brick_registry = _BrickRegistry()
-        brick_registry.register(QuuxBrick1)
+        brick_registry.register(QuuxBrick)
 
-        bricks = [
-            *brick_registry.get_bricks([QuuxBrick1.id, rbi.brick_id, cbci.brick_id]),
-        ]
-        self.assertEqual(3, len(bricks))
+        bricks = [*brick_registry.get_bricks([QuuxBrick.id, cbci.brick_id])]
+        self.assertEqual(2, len(bricks))
 
-        self.assertIsInstance(bricks[0], QuuxBrick1)
+        self.assertIsInstance(bricks[0], QuuxBrick)
 
-        rel_brick = bricks[1]
-        self.assertIsInstance(rel_brick, SpecificRelationsBrick)
-        self.assertEqual((rtype.id,), rel_brick.relation_type_deps)
-
-        custom_brick = bricks[2]
+        custom_brick = bricks[1]
         self.assertIsInstance(custom_brick, CustomBrick)
         self.assertEqual(cbci.brick_id,      custom_brick.id)
         self.assertEqual([FakeOrganisation], custom_brick.dependencies)
         self.assertEqual(cbci.name,          custom_brick.verbose_name)
 
-    def test_get_bricks04(self):
+    def test_get_bricks__hat(self):
         "Hat brick."
         user = self.get_root_user()
         casca = FakeContact.objects.create(
