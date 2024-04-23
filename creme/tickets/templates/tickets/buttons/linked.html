@@ -7,7 +7,7 @@
     {{button.verbose_name}}
     {% blockjsondata %}{
         "data": {
-            "subject_id": "{{object.id}}", "rtype_id": "{{button.rtype.id}}", "ctype_id": "{{ticket_ct.id}}"
+            "subject_id": {{object.id}}, "rtype_id": "{{button.rtype.id}}", "ctype_id": {{ticket_ct.id}}
         }
     }{% endblockjsondata %}
 </a>
