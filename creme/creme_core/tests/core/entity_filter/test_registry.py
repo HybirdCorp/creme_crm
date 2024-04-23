@@ -12,7 +12,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     FilterConditionHandler,
     RegularFieldConditionHandler,
 )
-from creme.creme_core.models import FakeContact
+from creme.creme_core.models import EntityFilter, FakeContact
 from creme.creme_core.tests.base import CremeTestCase
 
 
@@ -187,6 +187,21 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         )
         self.assertEqual('test', registry.tag)
 
+    def test_id_length(self):
+        length = 36
+        self.assertEqual(length, EntityFilter._meta.get_field('filter_type').max_length)
+
+        rid = 'a_app-a_very_very_very_very_long_name'
+        self.assertEqual(length + 1, len(rid))
+
+        with self.assertRaises(ValueError) as cm:
+            _EntityFilterRegistry(id=rid, verbose_name='Test01')
+
+        self.assertEqual(
+            f'The "id" cannot be longer than {length}',
+            str(cm.exception),
+        )
+
 
 class EntityFilterSuperRegistryTestCase(CremeTestCase):
     def test_main(self):
@@ -228,8 +243,7 @@ class EntityFilterSuperRegistryTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_collision(self):
-        "ID collision."
+    def test_id_collision(self):
         # rid = 42
         rid = 'creme_core-listview'
         registry01 = _EntityFilterRegistry(id=rid, verbose_name='Test01')
