@@ -40,6 +40,7 @@ from django.utils.translation import ngettext, pgettext_lazy
 # from ..core.entity_filter import EF_USER
 from ..core.entity_filter import (
     EF_REGULAR,
+    TYPE_ID_MAX_LENGTH,
     _EntityFilterRegistry,
     entity_filter_registries,
 )
@@ -328,7 +329,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     #     choices=[(registry.id, registry.verbose_name) for registry in entity_filter_registries],
     # ).set_tags(viewable=False)
     filter_type = models.CharField(
-        max_length=36,
+        max_length=TYPE_ID_MAX_LENGTH,
         editable=False, default=EF_REGULAR,
         choices=[(registry.id, registry.verbose_name) for registry in entity_filter_registries],
     ).set_tags(viewable=False)

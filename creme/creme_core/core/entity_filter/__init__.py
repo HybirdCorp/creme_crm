@@ -39,6 +39,8 @@ logger = logging.getLogger(__name__)
 EF_REGULAR = 'creme_core-regular'
 EF_CREDENTIALS = 'creme_core-credentials'
 
+TYPE_ID_MAX_LENGTH = 36
+
 
 def __getattr__(name):
     if name == 'EF_USER':
@@ -107,6 +109,9 @@ class _EntityFilterRegistry:
                - The internal types can use an empty string if they are never referenced.
                - Special types (e.g. app "Reports") should use a gettext_lazy() string.
         """
+        if len(id) > TYPE_ID_MAX_LENGTH:
+            raise ValueError(f'The "id" cannot be longer than {TYPE_ID_MAX_LENGTH}')
+
         self.id = id
         self.verbose_name = verbose_name
         self.detail_url_name = detail_url_name
