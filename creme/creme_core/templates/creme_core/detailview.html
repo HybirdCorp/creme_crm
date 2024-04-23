@@ -11,14 +11,14 @@
             <ul>
             {% block global_buttons %}
                 {% block listview_button %}
-                    {% if object.get_lv_absolute_url %}
+                  {% if object.get_lv_absolute_url %}
                     <li>
                         <a class="menu_button menu-button-icon" href="{{object.get_lv_absolute_url}}">{% translate 'Back to the list' as back_label %}
                             {% widget_icon name='listview' size='global-button' label=back_label %}
                             {{back_label}}
                         </a>
                     </li>
-                    {% endif %}
+                  {% endif %}
                 {% endblock %}
             {% endblock %}
             </ul>
