@@ -25,6 +25,7 @@ from typing import (
     Iterable,
     Iterator,
     List,
+    Literal,
     Sequence,
     Tuple,
     Type,
@@ -56,7 +57,7 @@ from ..models import (
 from ..utils.meta import OrderedField
 
 logger = logging.getLogger(__name__)
-BrickDependencies = Union[List[Type[Model]], Tuple[Type[Model], ...], str]
+BrickDependencies = Union[List[Type[Model]], Tuple[Type[Model], ...], Literal['*']]
 
 
 class _BrickContext:
