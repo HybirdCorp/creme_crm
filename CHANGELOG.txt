@@ -436,11 +436,13 @@
     ---------------------------
     (they should not cause problem if you have not deeply modified the source code of Creme)
 
-        # In 'creme_core.core.entity_filter.condition_handler' :
-            - The attribute 'BaseCustomFieldConditionHandler._custom_field_id', has been replaced by '_custom_field_uuid'.
-            - In the class 'RelationConditionHandler', these attributes have been replaced :
-                - _entity_id => _entity_uuid
-                - _ct_id => _ct_key
+        # In 'creme_core.core.entity_filter' :
+            - The method '_EntityFilterSuperRegistry.unregister()' raises a new class of exception ('UnRegistrationError').
+            - In 'condition_handler' :
+                - The attribute 'BaseCustomFieldConditionHandler._custom_field_id', has been replaced by '_custom_field_uuid'.
+                - In the class 'RelationConditionHandler', these attributes have been replaced :
+                    - _entity_id => _entity_uuid
+                    - _ct_id => _ct_key
         # In 'creme_core.forms.entity_filter.fields', in the classes '_ConditionsField' & 'SubfiltersConditionsField' :
             - The constructor parameter 'efilter_type' has been removed (the type is the registry's ID).
             - The attribute 'efilter_type' is now read only.

@@ -275,6 +275,9 @@ class _EntityFilterSuperRegistry:
     class RegistrationError(Exception):
         pass
 
+    class UnRegistrationError(RegistrationError):
+        pass
+
     def __init__(self):
         self._registries = OrderedDict()
 
@@ -302,7 +305,12 @@ class _EntityFilterSuperRegistry:
         registries = self._registries
 
         for registry_id in registry_ids:
-            del registries[registry_id]
+            try:
+                del registries[registry_id]
+            except KeyError as e:
+                raise self.UnRegistrationError(
+                    f'Invalid registry ID "{registry_id}" (already unregistered?)'
+                ) from e
 
 
 entity_filter_registries = _EntityFilterSuperRegistry().register(

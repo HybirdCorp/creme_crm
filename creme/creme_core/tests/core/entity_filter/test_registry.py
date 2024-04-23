@@ -212,15 +212,21 @@ class EntityFilterSuperRegistryTestCase(CremeTestCase):
 
         self.assertListEqual(
             [registry01, registry02, registry03],
-            [*registries]
+            [*registries],
         )
 
         # ---
         registries.unregister(rid1, rid3)
         self.assertListEqual([registry02], [*registries])
 
-        with self.assertRaises(KeyError):
+        # with self.assertRaises(KeyError):
+        with self.assertRaises(registries.UnRegistrationError) as cm:
             registries.unregister(rid1)
+
+        self.assertEqual(
+            f'Invalid registry ID "{rid1}" (already unregistered?)',
+            str(cm.exception),
+        )
 
     def test_collision(self):
         "ID collision."
