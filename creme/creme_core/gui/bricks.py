@@ -1064,7 +1064,11 @@ class _BrickRegistry:
         for id_ in brick_ids:
             rbi = relation_bricks_items.get(id_)
             if rbi:
-                yield SpecificRelationsBrick(rbi)
+                if entity is None:
+                    logger.warning('Relation brick without entity?!')
+                else:
+                    yield SpecificRelationsBrick(rbi)
+
                 continue
 
             ibi = instance_bricks_items.get(id_)
@@ -1074,12 +1078,16 @@ class _BrickRegistry:
 
             cbci = custom_bricks_items.get(id_)
             if cbci:
-                yield CustomBrick(id_, cbci)
+                if entity is None:
+                    logger.warning('Custom brick without entity?!')
+                else:
+                    yield CustomBrick(id_, cbci)
+
                 continue
 
             if id_ == MODELBRICK_ID:
                 if entity is None:
-                    logger.warning('Model brick without entity ?!')
+                    logger.warning('Model brick without entity?!')
                 else:
                     yield self.get_brick_4_object(entity)
 
@@ -1192,15 +1200,17 @@ class _BrickRegistry:
         for ibi in InstanceBrickConfigItem.objects.all():
             brick = self.get_brick_4_instance(ibi)
 
-            if (hasattr(brick, 'detailview_display')
-                    and (not brick.target_ctypes or model in brick.target_ctypes)):
+            if (
+                hasattr(brick, 'detailview_display')
+                and (not brick.target_ctypes or model in brick.target_ctypes)
+            ):
                 yield brick
 
         if model:
             yield self.get_brick_4_object(model)
 
             for cbci in CustomBrickConfigItem.objects.filter(
-                    content_type=ContentType.objects.get_for_model(model),
+                content_type=ContentType.objects.get_for_model(model),
             ):
                 yield CustomBrick(cbci.brick_id, cbci)
         else:
