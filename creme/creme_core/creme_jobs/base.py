@@ -158,7 +158,7 @@ class JobType:
         return None
 
     def get_stats(self, job: Job) -> list[str]:
-        "Get stats as a list of strings. To be overriden by child classes."
+        "Get stats as a list of strings. To be overridden by child classes."
         return []
 
     def next_wakeup(self, job: Job, now_value: datetime) -> datetime | None:

@@ -241,7 +241,7 @@ class BrickDetailviewLocationsCloningForm(base.CremeForm):
     )
     target = forms.ChoiceField(
         label=_('Role to configure'), required=False,
-        help_text=_('If the target has already a configuration, it will be overriden'),
+        help_text=_('If the target has already a configuration, it will be overridden'),
     )
 
     def __init__(self, *args, **kwargs):

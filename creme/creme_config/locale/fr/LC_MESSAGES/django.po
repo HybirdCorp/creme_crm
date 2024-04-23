@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-05 17:17+0100\n"
+"POT-Creation-Date: 2024-04-23 23:10+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -291,7 +291,7 @@ msgstr "Configuration à cloner"
 msgid "Role to configure"
 msgstr "Rôle à configurer"
 
-msgid "If the target has already a configuration, it will be overriden"
+msgid "If the target has already a configuration, it will be overridden"
 msgstr "Si la cible a déjà une configuration, cette dernière sera écrasée"
 
 #, python-brace-format
@@ -2566,7 +2566,7 @@ msgid "Change password for «{object}»"
 msgstr "Changer le mot de passe pour «{object}»"
 
 msgid "Change your password"
-msgstr "Changer votre mot de passe"
+msgstr "Modifier votre mot de passe"
 
 msgid "Save the team"
 msgstr "Enregistrer l'équipe"

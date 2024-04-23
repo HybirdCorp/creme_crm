@@ -699,7 +699,7 @@
                     - In 'forms.fields', the classes 'CategoryField' & 'CreatorCategorySelector' have been removed.
                     - The function-view 'views.product.get_subcategories()' (URL named "products__subcategories") has been removed.
         # In 'creme_core.apps', the method 'CremeCoreConfig.hook_select_template()' has been removed.
-          It means that the template of 'Select' is not overriden by default anymore (you can use the new class 'creme_core.forms.widgets.PrettySelect').
+          It means that the template of 'Select' is not overridden by default anymore (you can use the new class 'creme_core.forms.widgets.PrettySelect').
         # In 'creme_core.core' :
             - In 'entity_cell' :
                 - In the class 'EntityCellRegularField', the attributes '_printer_html' & '_printer_csv' have been removed.
@@ -2260,7 +2260,7 @@
                 - The field 'verbose' has been removed.
                 - These methods have been removed: generate_id(), get_base_id(), id_is_specific()
             - The PK ("id" field) of 'ButtonMenuItem' is now a classical AutoField (so IDs are integers), not a CharField anymore.
-            - The method 'CustomFieldValue._get_formfield()' is now abstract (i.e. it will raise a 'NotImplementedError' if not overriden).
+            - The method 'CustomFieldValue._get_formfield()' is now abstract (i.e. it will raise a 'NotImplementedError' if not overridden).
             - In 'EntityFilterCondition' :
                 - The field "value" has been renamed "raw_value".
                 - The property 'decoded_value' has been renamed 'value' (and the related setter has been added).

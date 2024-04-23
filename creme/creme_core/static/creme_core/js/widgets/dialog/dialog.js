@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2023  Hybird
+    Copyright (C) 2009-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -797,7 +797,7 @@ creme.dialogs = $.extend(creme.dialogs, {
  * So the custom Chosen widget will not work correctly (needs focus event on search field).
  * Same issue with Select2
  *
- * The _allowInteraction method can be overriden (see https://api.jqueryui.com/dialog/#method-_allowInteraction)
+ * The _allowInteraction method can be overridden (see https://api.jqueryui.com/dialog/#method-_allowInteraction)
  * and the ui.dialog widget redefined (see https://learn.jquery.com/jquery-ui/widget-factory/extending-widgets/#redefining-widgets)
  */
 
