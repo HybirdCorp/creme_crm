@@ -26,6 +26,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.views.generic import DetailView
 
+from creme.creme_core.bricks import ButtonsBrick
 from creme.creme_core.core import imprint
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.last_viewed import LastViewedItem
@@ -184,9 +185,6 @@ class EntityDetail(CremeModelDetail):
     # TODO: change BricksMixin.get_bricks() return type to <dict> ?
     # TODO: add a system for mandatory Brick (& set ButtonsBrick as mandatory) in BricksMixin?
     def get_bricks(self):
-        # Reports models cause import of views (& so, cycle errors)...  # TODO: fix that
-        from creme.creme_core.bricks import ButtonsBrick
-
         user = self.request.user
         entity = self.object
         bricks = detailview_bricks(user=user, entity=entity, registry=self.brick_registry)

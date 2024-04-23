@@ -473,6 +473,8 @@
                 - The view 'views.portal.Portal' injects "bricks" (in the context) instead "app_bricks".
             * Billing :
                 - In JavaScript, the actions "billing-hatmenubar-invoice-number" & "billing-hatmenubar-add-document" have been removed.
+            * Report :
+                - The module 'core.graph.lv_url' is not imported in the parent module anymore.
             * Mobile :
                 - The templatetag "mobile_activity_card" does not inject "STATUS_IN_PROGRESS" in the context anymore.
             * Projects :
