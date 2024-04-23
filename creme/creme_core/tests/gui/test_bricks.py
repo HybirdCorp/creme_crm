@@ -849,7 +849,13 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = _BrickRegistry()
         brick_registry.register(QuuxBrick)
 
-        bricks = [*brick_registry.get_bricks([QuuxBrick.id, rbi.brick_id])]
+        # No entity
+        self.assertFalse([*brick_registry.get_bricks([rbi.brick_id])])
+
+        # ---
+        bricks = [*brick_registry.get_bricks(
+            brick_ids=[QuuxBrick.id, rbi.brick_id], entity=FakeContact(),
+        )]
         self.assertEqual(2, len(bricks))
 
         self.assertIsInstance(bricks[0], QuuxBrick)
@@ -873,7 +879,13 @@ class BrickRegistryTestCase(CremeTestCase):
         brick_registry = _BrickRegistry()
         brick_registry.register(QuuxBrick)
 
-        bricks = [*brick_registry.get_bricks([QuuxBrick.id, cbci.brick_id])]
+        # No entity
+        self.assertFalse([*brick_registry.get_bricks([cbci.brick_id])])
+
+        # ---
+        bricks = [*brick_registry.get_bricks(
+            brick_ids=[QuuxBrick.id, cbci.brick_id], entity=FakeOrganisation(),
+        )]
         self.assertEqual(2, len(bricks))
 
         self.assertIsInstance(bricks[0], QuuxBrick)

@@ -1,7 +1,7 @@
 from django.template import Context, RequestContext, Template
 from django.utils.translation import gettext as _
 
-from creme.creme_core.bricks import HistoryBrick
+from creme.creme_core.bricks import HistoryBrick, StatisticsBrick
 from creme.creme_core.constants import MODELBRICK_ID, REL_SUB_HAS
 from creme.creme_core.gui.bricks import Brick, EntityBrick, brick_registry
 from creme.creme_core.models import (
@@ -192,30 +192,37 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_brick_get_by_ids01(self):
-        rtype = RelationType.objects.get(id=REL_SUB_HAS)
-        rbi = RelationBrickItem.objects.create(relation_type=rtype)
+        # rtype = RelationType.objects.get(id=REL_SUB_HAS)
+        # rbi = RelationBrickItem.objects.create(relation_type=rtype)
 
         with self.assertNoException():
             render = Template(
                 '{% load creme_bricks %}'
                 '{% brick_get_by_ids brick_id1 brick_id2 as bricks %}'
-                '{{bricks.0.verbose_name}}##{{bricks.1.config_item.brick_id}}'
+                # '{{bricks.0.verbose_name}}##{{bricks.1.config_item.brick_id}}'
+                '{{bricks.0.verbose_name}}##{{bricks.1.verbose_name}}'
             ).render(RequestContext(
                 self.build_request(user=self.get_root_user()),
                 {
                     'brick_id1': HistoryBrick.id,
-                    'brick_id2': rbi.brick_id,
+                    # 'brick_id2': rbi.brick_id,
+                    'brick_id2': StatisticsBrick.id,
                 },
             ))
 
         self.assertEqual(
-            f'{HistoryBrick.verbose_name}##{rbi.brick_id}',
-            render.strip()
+            # f'{HistoryBrick.verbose_name}##{rbi.brick_id}',
+            f'{HistoryBrick.verbose_name}##{StatisticsBrick.verbose_name}',
+            render.strip(),
         )
 
     def test_brick_get_by_ids02(self):
         "'entity' argument."
         user = self.get_root_user()
+
+        rtype = RelationType.objects.get(id=REL_SUB_HAS)
+        rbi = RelationBrickItem.objects.create(relation_type=rtype)
+
         motoko = FakeContact.objects.create(
             user=user, first_name='Motoko', last_name='Kusanagi',
         )
@@ -223,21 +230,25 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         with self.assertNoException():
             render = Template(
                 '{% load creme_bricks %}'
-                '{% brick_get_by_ids brick_id1 brick_id2 entity=motoko as bricks %}'
-                '{{bricks.0.verbose_name}}##{{bricks.1.verbose_name}}'
+                '{% brick_get_by_ids brick_id1 brick_id2 brick_id3 entity=motoko as bricks %}'
+                '{{bricks.0.verbose_name}}'
+                '##{{bricks.1.verbose_name}}'
+                '##{{bricks.2.config_item.brick_id}}'
             ).render(RequestContext(
                 self.build_request(user=user),
                 {
                     'brick_id1': HistoryBrick.id,
                     'brick_id2': MODELBRICK_ID,
+                    'brick_id3': rbi.brick_id,
                     'motoko': motoko,
                 },
             ))
 
         self.assertEqual(
-            '{}##{}'.format(
+            '{}##{}##{}'.format(
                 HistoryBrick.verbose_name,
                 EntityBrick.verbose_name,
+                rbi.brick_id,
             ),
             render.strip()
         )
