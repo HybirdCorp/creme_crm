@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2023  Hybird
+#    Copyright (C) 2016-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,8 @@ import logging
 from collections import deque
 from datetime import MAXYEAR, datetime, timedelta
 from heapq import heapify, heappop, heappush
+from subprocess import Popen
+from typing import Deque
 
 from django.conf import settings
 from django.db.models import Q
@@ -61,17 +63,17 @@ class JobScheduler:
     the manager runs them regularly (see settings.PSEUDO_PERIOD) in order to
     reduce the aftermath of a redis/... connection problem.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self._max_user_jobs = settings.MAX_USER_JOBS
         self._queue = get_queue()
-        self._procs = {}  # key: job.id; value: subprocess.Popen instance
+        self._procs: dict[int, Popen] = {}  # keys are Job IDs
 
         # Heap, which elements are (wakeup_date, job_instance)
         #   => closer wakeup in the first element.
-        self._system_jobs = []
+        self._system_jobs: list[tuple[datetime, int, Job]] = []  # "int" is Job ID
 
-        self._system_jobs_starts = {}
-        self._users_jobs = deque()
+        self._system_jobs_starts: dict[int, datetime] = {}  # "int" is Job ID
+        self._users_jobs: Deque[Job] = deque()
         self._running_userjob_ids: set[int] = set()
 
     class _DeferredJob:
@@ -157,6 +159,7 @@ class JobScheduler:
             while next_wakeup < now_value:
                 next_wakeup += period
 
+            # TODO: how to cleanly manage jobs with an invalid type?
             if job.type.periodic == JobType.PSEUDO_PERIODIC:
                 dyn_next_wakeup = job.type.next_wakeup(job, now_value)
 

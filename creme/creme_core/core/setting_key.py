@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from functools import partial
 from json import loads as json_load
-from typing import Any, Callable, Iterator
+from typing import Any, Callable, Iterator, Type
 
 from django import forms
 from django.db.models import Model, TextField
@@ -89,8 +89,8 @@ class _SettingKey:
                  type: int = STRING,
                  hidden: bool = False,
                  blank: bool = False,
-                 formfield_class: type[forms.Field] | None = None,
-                 html_printer: Callable | None = None,
+                 formfield_class: Type[forms.Field] | None = None,
+                 html_printer: Callable[[Any], str] | None = None,
                  ):
         """Constructor.
         @param id: Unique String. Use something like "my_app-key_name".

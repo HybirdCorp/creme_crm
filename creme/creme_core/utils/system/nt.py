@@ -3,7 +3,7 @@
 ################################################################################
 #
 # Copyright (c) 2012 Daniel Miller
-# Copyright (c) 2016-2020 Hybird
+# Copyright (c) 2016-2024 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,8 @@ try:
     def is_exit_handler_enabled():
         return __win32_exit_handler is not None
 except ImportError:
-    def enable_exit_handler(*args, **kwargs):
+    # def enable_exit_handler(*args, **kwargs):
+    def enable_exit_handler(handler=None):
         logger.critical('pywin32.SetConsoleCtrlHandler is not supported by your install')
         return False
 

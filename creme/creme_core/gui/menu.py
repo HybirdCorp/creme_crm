@@ -375,8 +375,8 @@ class MenuRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
-    def __init__(self):
-        self._entry_classes = {}
+    def __init__(self) -> None:
+        self._entry_classes: dict[str, type[MenuEntry]] = {}
 
     def register(self, *entry_classes: type[MenuEntry]) -> MenuRegistry:
         setdefault = self._entry_classes.setdefault
@@ -419,8 +419,8 @@ class MenuRegistry:
         """Get instances corresponding some MenuConfigItems.
         Parenting is managed ; and attributes 'config_item_id' are filled.
         """
-        # TODO: generalise with deeper levels ?
-        entry_info = [[], []]  # NB: 2 lists for 2 levels
+        # NB: 2 lists for 2 levels   TODO: generalise with deeper levels?
+        entry_info: list[list[tuple[type[MenuEntry], MenuConfigItem]]] = [[], []]
         get_class = self._entry_classes.get
 
         for item in config_items:
@@ -472,7 +472,7 @@ class _PriorityList:
     Items must have a '_priority' attribute, reserved to the _PriorityList it belongs to.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._items = []
         self._ids: set[str] = set()  # IDs of _items, for fast existence checking.
 

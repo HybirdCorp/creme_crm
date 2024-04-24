@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2022 Hybird
+# Copyright (c) 2022-2024 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ import logging
 import poplib
 import socket
 from email import message_from_bytes, policy
-from email.message import Message
+from email.message import EmailMessage
 from typing import Iterator, Union
 
 from django.utils.translation import gettext
@@ -50,7 +50,7 @@ class MailBox:
             self._email_id = email_id
             self._retrieved = False
 
-        def __enter__(self) -> Message | None:
+        def __enter__(self) -> EmailMessage | None:
             if self._box._client is None:
                 raise RuntimeError(
                     'The manager returned by "fetch_mail" must be used within '
@@ -108,6 +108,7 @@ class MailBox:
 
     def __enter__(self) -> MailBox:
         assert self._email_ids is None  # Only enter once
+        assert self._client_cls is not None
 
         host = self._host
         username = self._username

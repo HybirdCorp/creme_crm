@@ -185,7 +185,7 @@ class ReportGraphHand:
 class ReportGraphHandRegistry:
     __slots__ = ('_hands', )
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._hands: dict[int, type[ReportGraphHand]] = {}
 
     def __call__(self, hand_id: int):

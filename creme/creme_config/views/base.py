@@ -23,6 +23,7 @@ from typing import Sequence
 from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.views import generic
 
 _PERM = 'creme_core.can_admin'
@@ -30,7 +31,7 @@ _PERM = 'creme_core.can_admin'
 
 class ConfigPortal(generic.BricksView):
     template_name = 'creme_config/portals/base.html'
-    brick_classes = []
+    brick_classes: list[type[Brick]] = []
 
     def get_bricks(self):
         return [brick_cls() for brick_cls in self.brick_classes]

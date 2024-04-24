@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2022  Hybird
+#    Copyright (C) 2012-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ from creme.creme_core.forms.merge import (
     mergefield_factory,
 )
 from creme.creme_core.models import FieldsConfig
+from creme.persons.models import AbstractAddress
 
 Contact = persons.get_contact_model()
 Address = persons.get_address_model()
@@ -38,7 +39,7 @@ _SHIP_PREFIX = 'shipaddr_'
 class _PersonMergeForm(MergeEntitiesBaseForm):
     _address_field_names = ()  # Overloaded by get_merge_form_builder()
 
-    def __init__(self, entity1, entity2, *args, **kwargs):
+    def __init__(self, entity1, entity2, *args, **kwargs) -> None:
         if isinstance(entity1, Contact):  # TODO: create a ContactMergeForm ?
             if entity2.is_user:
                 if entity1.is_user:
@@ -55,11 +56,11 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
 
         super().__init__(entity1, entity2, *args, **kwargs)
 
-        self._addresses_to_delete: list[Address] = []
+        self._addresses_to_delete: list[AbstractAddress] = []
         # NB: str is an attribute name of a ForeignKey to Address
         #     (e.g. "billing_address") which have to be set.
         #     An empty string means no attribute to set.
-        self._addresses_to_save: list[tuple[Address, str]] = []
+        self._addresses_to_save: list[tuple[AbstractAddress, str]] = []
 
     def _build_initial_address_dict(self, address, initial, prefix):
         getter = (

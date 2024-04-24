@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -104,9 +104,9 @@ class CalendarManager(models.Manager):
         @param users: Iterable of 'django.contrib.auth.get_user_model()' instances.
         @return: Dictionary with users' IDs as keys & 'Calendar' instances as values.
         """
-        default_calendars = {}
-        calendar_ids_to_set = []
-        calendar_ids_to_unset = []
+        default_calendars: dict[int, Calendar] = {}  # int is User ID
+        calendar_ids_to_set: list[int]  = []
+        calendar_ids_to_unset: list[int] = []
         users_per_id = {user.id: user for user in users}
 
         calendars_per_users = defaultdict(list)

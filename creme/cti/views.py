@@ -172,7 +172,7 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
 
     # def get_phonecall_status_id(self) -> int:
     #     return self.phonecall_status_id
-    def get_phonecall_status_uuid(self) -> int:
+    def get_phonecall_status_uuid(self) -> str:
         return self.phonecall_status_uuid
 
     # def get_phonecall_subtype_id(self) -> str:

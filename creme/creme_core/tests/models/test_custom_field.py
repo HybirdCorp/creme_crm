@@ -111,7 +111,7 @@ class CustomFieldsTestCase(CremeTestCase):
             name='Arcadia',
         )
 
-    def test_int01(self):
+    def test_int01(self) -> None:
         name = 'Length of ship'
         cfield: CustomField = CustomField.objects.create(
             name=name,
@@ -152,7 +152,7 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertIsInstance(formfield2, forms.IntegerField)
         self.assertIsNone(formfield2.initial)
 
-    def test_int02(self):
+    def test_int02(self) -> None:
         "value_n_save()."
         cfield = CustomField.objects.create(
             name='Length of ship',
@@ -353,7 +353,7 @@ by a man named Tochiro.
         self.assertIsInstance(formfield, forms.BooleanField)
         self.assertFalse(formfield.required)
 
-    def test_bool02(self):
+    def test_bool02(self) -> None:
         "set_value_n_save()."
         cfield = CustomField.objects.create(
             name='Ship is armed?',
@@ -547,7 +547,7 @@ by a man named Tochiro.
         self.assertStillExists(cfield2)
         self.assertStillExists(cf_value2)
 
-    def test_delete_entity(self):
+    def test_delete_entity(self) -> None:
         create_orga = partial(
             FakeOrganisation.objects.create,
             user=self.get_root_user(),

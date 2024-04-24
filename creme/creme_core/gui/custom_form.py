@@ -1111,7 +1111,7 @@ class CustomFormDescriptorRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._descriptors: dict[str, CustomFormDescriptor] = {}
 
     def __iter__(self) -> Iterator[CustomFormDescriptor]:

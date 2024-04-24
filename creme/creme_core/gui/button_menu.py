@@ -134,7 +134,7 @@ class ButtonsRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._button_classes: dict[str, type[Button]] = {}
         self._mandatory_classes: DefaultDict[
             type[CremeEntity] | None,
@@ -203,7 +203,7 @@ class ButtonsRegistry:
             )
 
         classes = self._mandatory_classes
-        models = button_class().get_ctypes() or [None]
+        models: Iterable[type[CremeEntity] | None] = button_class().get_ctypes() or [None]
 
         for model in models:
             buttons = classes[model]
@@ -248,7 +248,7 @@ class ButtonsRegistry:
             )
 
         classes = self._mandatory_classes
-        models = button_class().get_ctypes() or [None]
+        models: Iterable[type[CremeEntity] | None] = button_class().get_ctypes() or [None]
 
         for model in models:
             if classes[model].pop(button_id, None) is None:
@@ -317,7 +317,7 @@ class ButtonsRegistry:
         (based of its model).
         Instances are ordered by their priority (see <register_mandatory()>).
         """
-        heap = []
+        heap: list[tuple[int, type[Button]]] = []
         classes = self._mandatory_classes
 
         for prio_n_cls in classes[None].values():

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2022  Hybird
+#    Copyright (C) 2021-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -70,12 +70,12 @@ class MenuConfigItem(CremeModel):
 
     @staticmethod
     @atomic
-    def clone_for_role(qs: models.QuerySet, role: UserRole | None = None):
+    def clone_for_role(qs: models.QuerySet, role: UserRole | None = None) -> None:
         model = qs.model
         create_item = partial(model.objects.create, role=role, superuser=role is None)
 
         # We must translate the parent<->children relation in cloned menu
-        ids_translation = {}
+        ids_translation: dict[int, MenuConfigItem] = {}
 
         # We order by ID to get parents first (so the cloned parents exists
         # when we clone the children)

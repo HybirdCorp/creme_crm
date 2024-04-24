@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2017-2022 Hybird
+# Copyright (c) 2017-2024 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -41,7 +41,7 @@ class PagerLink:
                  page: int | None,
                  label=None,
                  help=None,
-                 group: str = None,
+                 group: str | None = None,
                  enabled: bool = True,
                  is_current: bool = False,
                  ):

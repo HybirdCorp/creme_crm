@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -177,7 +177,7 @@ class GraphInstanceBrickForm(CremeModelForm):
         self.graph = graph
         self.fields['fetcher'].graph = graph
 
-    def clean_fetcher(self):
+    def clean_fetcher(self) -> GraphFetcher:
         fetcher: GraphFetcher = self.cleaned_data['fetcher']
         graph = self.graph
         extra_items = dict(fetcher.as_dict_items())
@@ -193,7 +193,7 @@ class GraphInstanceBrickForm(CremeModelForm):
 
         return fetcher
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> InstanceBrickConfigItem:
         ibci: InstanceBrickConfigItem = self.instance
         ibci.brick_class_id = self.brick_class.id
         ibci.entity = self.graph

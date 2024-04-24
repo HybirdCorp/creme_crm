@@ -370,7 +370,7 @@ class UserRoleCloningForm(CremeModelForm):
                 required=False,
             )
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> UserRole:
         cdata = self.cleaned_data
         instance: UserRole = self.instance
         # TODO UserRole.clone() ?

@@ -49,7 +49,7 @@ class FormRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._form_factories: dict[type[CremeEntity], FormFactory | None] = {}
 
     def register(self,

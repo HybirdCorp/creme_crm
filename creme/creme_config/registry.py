@@ -485,7 +485,7 @@ class _ConfigRegistry:
     def __init__(self,
                  brick_registry=brick_registry,
                  setting_key_registry=setting_key_registry,
-                 ):
+                 ) -> None:
         self._brick_registry = brick_registry
         self._skey_registry = setting_key_registry
         self._apps: dict[str, _AppConfigRegistry] = {}
