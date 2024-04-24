@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2023  Hybird
+#    Copyright (C) 2020-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -66,9 +66,8 @@ class CustomFormConfigItemManager(models.Manager):
                      descriptor: str | CustomFormDescriptor,
                      user,
                      ) -> CustomFormConfigItem:
-        no_user_qs = self.filter(
-            descriptor_id=descriptor if isinstance(descriptor, str) else descriptor.id,
-        )
+        descriptor_id = descriptor if isinstance(descriptor, str) else descriptor.id
+        no_user_qs = self.filter(descriptor_id=descriptor_id)
 
         # NB: we use order_by() + first() to retrieve with a higher priority the
         #     instance corresponding to the role, and fallback to the default config.
@@ -84,7 +83,7 @@ class CustomFormConfigItemManager(models.Manager):
         if cfci is None:
             raise self.model.DoesNotExist(
                 f'No <{self.model.__name__}> found for '
-                f'descriptor="{descriptor.id}" & user="{user.username}".'
+                f'descriptor="{descriptor_id}" & user="{user.username}".'
             )
 
         return cfci
