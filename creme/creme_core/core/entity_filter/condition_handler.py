@@ -243,7 +243,7 @@ class SubFilterConditionHandler(FilterConditionHandler):
     def build_condition(cls,
                         subfilter: EntityFilter,
                         # filter_type: int = EF_USER,
-                        filter_type: int = EF_REGULAR,
+                        filter_type: str = EF_REGULAR,
                         condition_cls=EntityFilterCondition,
                         ):
         """Build an (unsaved) EntityFilterCondition.
@@ -357,7 +357,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
     """
     type_id = 5
 
-    def __init__(self, *, model, field_name, operator_id, values):
+    def __init__(self, *, model, field_name, operator_id, values) -> None:
         super().__init__(model=model, field_name=field_name)
         self._operator_id: int = operator_id
         self._values = values
@@ -1272,6 +1272,8 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         },
     }
 
+    _entity: CremeEntity | None | Literal[False]
+
     def __init__(self, *, model, rtype,
                  exclude=False,
                  ctype: ContentType | tuple[str, str] | None = None,
@@ -1643,6 +1645,8 @@ class PropertyConditionHandler(FilterConditionHandler):
         False: _('The entities have the property «{}»'),
         True:  _('The entities have no property «{}»'),
     }
+
+    _ptype: CremePropertyType | None | Literal[False]
 
     def __init__(self, *,
                  model: type[CremeEntity],

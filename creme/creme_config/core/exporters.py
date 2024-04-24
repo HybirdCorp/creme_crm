@@ -92,7 +92,7 @@ class ExportersRegistry:
     class Collision(Exception):
         pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._registered: dict[str, tuple[int, type[Exporter]]] = OrderedDict()
         self._unregistered: set[str] = set()
 

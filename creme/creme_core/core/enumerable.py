@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2022  Hybird
+#    Copyright (C) 2018-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Iterator
+from typing import Iterable, Iterator, Sequence
 
 from django.db.models import CharField, Field, Model
 from django.db.models.query_utils import Q
@@ -123,7 +123,7 @@ class EmptyEnumerator(Enumerator):
 
 
 class QSEnumerator(Enumerator):
-    search_fields = ()
+    search_fields: Sequence[str] = ()
     limit_choices_to = None
 
     def __init__(self, field: Field, search_fields=None, limit_choices_to=None):

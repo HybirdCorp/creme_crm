@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2023  Hybird
+#    Copyright (C) 2013-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -246,7 +246,7 @@ class ReportHand:
 class ReportHandRegistry:
     __slots__ = ('_hands', )
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._hands: dict[int, type[ReportHand]] = {}
 
     def __call__(self, hand_id: int):
@@ -310,7 +310,7 @@ class RHRegularField(ReportHand):
             RHRegularField
         )
 
-        instance = ReportHand.__new__(klass)
+        instance: RHRegularField = ReportHand.__new__(klass)
         instance._field_info = field_info
 
         return instance
@@ -343,7 +343,7 @@ class RHRegularField(ReportHand):
 
 
 class RHForeignKey(RHRegularField):
-    def __init__(self, report_field):
+    def __init__(self, report_field) -> None:
         field_info = self._field_info
         fk_field = field_info[0]
         self._fk_attr_name: str = fk_field.get_attname()
@@ -650,7 +650,7 @@ class RHAggregateCustomField(RHAggregate):
 class RHRelated(ReportHand):
     verbose_name = _('Related field')
 
-    def __init__(self, report_field):
+    def __init__(self, report_field) -> None:
         related_field = self._get_related_field(
             report_field.model,
             report_field.name,

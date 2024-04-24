@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2023  Hybird
+#    Copyright (C) 2013-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,9 +36,9 @@ logger = logging.getLogger(__name__)
 class _ModelSmartColumnsRegistry:
     __slots__ = ('_cells', '_relationtype')
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._cells: list[tuple[type[EntityCell], str]] = []
-        self._relationtype = None  # Cache
+        self._relationtype: RelationType | None | Literal[False] = None  # Cache
 
     # TODO: factorise with json deserialization of EntityCells
     def _get_cells(self, model: type[CremeEntity]) -> list[EntityCell]:
@@ -97,7 +97,7 @@ class _ModelSmartColumnsRegistry:
 
 
 class SmartColumnsRegistry:
-    def __init__(self):
+    def __init__(self) -> None:
         self._model_registries: \
             DefaultDict[type[CremeEntity], _ModelSmartColumnsRegistry] \
             = defaultdict(_ModelSmartColumnsRegistry)

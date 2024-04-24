@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2022 Hybird
+# Copyright (c) 2009-2024 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,20 +24,20 @@
 
 from __future__ import annotations
 
-from typing import Callable, Iterable, Iterator, TypeVar
+from typing import Callable, Iterable, Iterator, Literal, TypeVar
 
 T = TypeVar('T')
 
 
 # TODO: need a type "Boolable" for 'parser'
-def iter_splitchunks(chunks: Iterable,
+def iter_splitchunks(chunks: Iterable[str],
                      sep: str,
-                     parser: Callable = None,
+                     parser: Callable[[str], str | Literal[False] | None] | None = None,
                      limit: int | None = None,
                      ) -> Iterator[str]:
     """Iterator through chunks as split single stream.
 
-    @param chunks: iterator of list of strings.
+    @param chunks: iterable of strings.
     @param sep: split separator.
     @param parser: function that returns a parsed result from each entry.
            if returns None, False or empty string, the entry will be ignored.

@@ -258,10 +258,10 @@ class NotificationRegistry:
         def __init__(self, **kwargs):
             pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._outputs: dict[str, str] = {}
         self._channel_classes: dict[str, type[NotificationChannelType]] = {}
-        self._content_classes: dict[Output, dict[str: type[NotificationContent]]] = {
+        self._content_classes: dict[Output, dict[str, type[NotificationContent]]] = {
             _DEFAULT_OUTPUT: {},
         }
 

@@ -86,7 +86,7 @@ class EnumerableChoiceSet:
         @param user: CremeUser instance. Used to check visibility permissions.
         @param limit: Max available choices for initial the widget (no limit: -1).
                Do not limit the selected values.
-        @param url: Url used by the client-side widget to get the next choices.
+        @param url: URL used by the client-side widget to get the next choices.
         """
         limit = limit or get_form_enumerable_limit()
 
@@ -254,8 +254,10 @@ class EnumerableSelect(widgets.Select):
     # The default value in the JS component is 100ms.
     ENUMERABLE_DEFAULT_DEBOUNCE_DELAY = 300
 
-    def __init__(self, enumerable: EnumerableChoiceSet = None,
-                 attrs=None, create_url=None):
+    def __init__(self,
+                 enumerable: EnumerableChoiceSet | None = None,
+                 attrs=None, create_url=None,
+                 ):
         super().__init__(attrs=attrs, choices=())  # TODO: options or ()
         self.enumerable = enumerable
         self.create_url = create_url or self.create_url
@@ -318,7 +320,7 @@ class EnumerableChoiceField(mforms.ChoiceField):
         ),
     }
 
-    def __init__(self, enum: type[EnumerableChoiceSet], *, empty_label="---------",
+    def __init__(self, enum: EnumerableChoiceSet, *, empty_label="---------",
                  required=True, label=None, initial=None, help_text='',
                  **kwargs):
         # Call Field instead of ChoiceField __init__() because we don't need
@@ -415,7 +417,7 @@ class EnumerableChoiceField(mforms.ChoiceField):
 
 
 class EnumerableModelChoiceField(EnumerableChoiceField):
-    enumerable: type[EnumerableChoiceSet] = FieldEnumerableChoiceSet
+    enumerable: type[FieldEnumerableChoiceSet] = FieldEnumerableChoiceSet
     widget: type[EnumerableSelect] = EnumerableSelect
 
     def __init__(self, model: type[Model], field_name: str, *, user=None, initial=None,

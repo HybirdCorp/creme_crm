@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2022  Hybird
+#    Copyright (C) 2018-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 ################################################################################
 
 from __future__ import annotations
+
+from typing import Type
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.base import Model
@@ -50,7 +52,7 @@ class UIAction:
           the user (not allowed, some business logic not OK…).
     """
     id: str = ''
-    model: type[Model] = Model
+    model: Type[Model] = Model
 
     type: str = ''
     url_name: str | None = None
@@ -68,7 +70,7 @@ class UIAction:
         return f'{app_label}-{name}'
 
     def __init__(self, user,
-                 model: type[Model] | None = None,
+                 model: Type[Model] | None = None,
                  instance: CremeEntity | None = None,
                  **kwargs):
         self.user = user

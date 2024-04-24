@@ -42,7 +42,7 @@ class QuickFormsRegistry:
     class UnRegistrationError(Exception):
         pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._forms: dict[type[CremeEntity], type[CremeEntityQuickForm]] = {}
 
     # TODO: rename form=>form_class

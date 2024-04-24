@@ -113,7 +113,7 @@ class UserRole(models.Model):
         verbose_name = _('Role')
         verbose_name_plural = _('Roles')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._allowed_apps: set[str] | None = None
         self._extended_allowed_apps: set[str] | None = None

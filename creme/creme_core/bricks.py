@@ -23,7 +23,7 @@ from collections import defaultdict
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
+from django.db.models import Model, Q
 from django.utils.translation import gettext_lazy as _
 
 from .core import notification
@@ -81,8 +81,8 @@ class ButtonsBrick(Brick):
                           buttons: dict[str, button_menu.Button],
                           model: type[CremeEntity],
                           ) -> None:
-        deps = set()
-        rtype_deps = set()
+        deps: set[type[Model]] = set()
+        rtype_deps: set[str] = set()
         CURRENT = button_menu.Button.CURRENT
         for button in buttons.values():
             deps.update(

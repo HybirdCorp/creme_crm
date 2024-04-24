@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -295,7 +295,7 @@ def get_icon_by_name(name: str,
 
 
 class IconRegistry:
-    def __init__(self):
+    def __init__(self) -> None:
         self._icons: dict[type[Model], str] = {}
         self._icons_4_objects: dict[type[Model], IconInfoFunc] = {}
 

@@ -163,7 +163,7 @@ class CellProxiesRegistry:
 
     Can be used as a decorator (see __call__() ).
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self._proxies_classes: dict[str, type[CellProxy]] = {}
 
     def __call__(self, proxy_cls: type[CellProxy]) -> type[CellProxy]:
@@ -352,7 +352,7 @@ class ImportersRegistry:
     class Collision(Exception):
         pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._registered: dict[str, tuple[int, type[Importer]]] = OrderedDict()
         self._unregistered: set[str] = set()
 
@@ -1099,7 +1099,7 @@ class ConditionProxiesRegistry:
 
     Can be used as a decorator (see __call__() ).
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self._proxies_classes: dict[int, type[ConditionProxy]] = {}
 
     def __call__(self, proxy_cls: type[ConditionProxy]) -> type[ConditionProxy]:

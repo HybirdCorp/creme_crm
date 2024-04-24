@@ -37,6 +37,7 @@ from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.persons import get_contact_model
+from creme.persons.models import AbstractContact
 
 from .. import constants, get_activity_model
 from ..models import AbstractActivity, ActivitySubType, Calendar
@@ -557,7 +558,7 @@ class BaseCreationCustomForm(BaseCustomForm):
     def __init__(self, sub_type: ActivitySubType | None = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # All Contacts who participate: me, other users, other contacts
-        self.participants = set()
+        self.participants: set[AbstractContact] = set()
 
         if sub_type:
             instance = self.instance

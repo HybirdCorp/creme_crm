@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2023  Hybird
+#    Copyright (C) 2020-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -180,7 +180,7 @@ class GHCCRelation(GraphHandCellConstraint):
 
 class GHCCCustomField(GraphHandCellConstraint):
     cell_class = EntityCellCustomField
-    customfield_types = set()
+    customfield_types: set[int] = set()
 
     def cells(self, not_hiddable_cell_keys=()):
         for cfield in CustomField.objects.get_for_model(self.model).values():
@@ -212,7 +212,7 @@ class GraphHandConstraintsRegistry:
     class RegistrationError(Exception):
         pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._constraints_by_type_id: dict[str, type[GraphHandCellConstraint]] = {}
         self._constraints_by_rgtype:  dict[int, type[GraphHandCellConstraint]] = {}
         self._param_validators: dict[int, forms.Field] = {}
@@ -473,7 +473,7 @@ class AggregatorConstraintsRegistry:
     class RegistrationError(Exception):
         pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._constraints_by_type_id: dict[str, type[AggregatorCellConstraint]] = {}
 
     def cell_constraints(self,

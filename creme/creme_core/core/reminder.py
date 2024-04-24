@@ -165,7 +165,7 @@ class ReminderRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._reminders: dict[str, Reminder] = {}
 
     def register(self, reminder_class: type[Reminder]) -> ReminderRegistry:

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2022  Hybird
+#    Copyright (C) 2016-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,7 @@ from . import fields as core_fields
 from .entity import CremeEntity
 
 if TYPE_CHECKING:
-    from ..creme_jobs import JobType
+    from ..creme_jobs.base import JobType
 
 logger = logging.getLogger(__name__)
 
@@ -151,12 +151,19 @@ class Job(models.Model):
 
     @property
     def description(self) -> list[str]:  # TODO: cache ?
-        try:
-            return self.type.get_description(self)
-        except Exception:
-            logger.exception(
-                'Error when building the description of the job id="%s"', self.id,
+        jtype = self.type
+
+        if jtype is None:
+            logger.warning(
+                'Cannot build the description of job id="%s" (invalid job type)', self.id,
             )
+        else:
+            try:
+                return jtype.get_description(self)
+            except Exception:
+                logger.exception(
+                    'Error when building the description of the job id="%s"', self.id,
+                )
 
         return []
 
@@ -300,7 +307,7 @@ class Job(models.Model):
         return jtype.get_stats(self) if jtype is not None else []
 
     @property
-    def type(self) -> JobType:
+    def type(self) -> JobType | None:
         from ..core.job import job_type_registry
         return job_type_registry.get(self.type_id)
 

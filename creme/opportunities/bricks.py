@@ -26,7 +26,10 @@ from django.db.models.query_utils import FilteredRelation, Q
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons, products
-from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.core.entity_cell import (
+    EntityCell,
+    EntityCellRegularField,
+)
 from creme.creme_core.gui.bricks import (
     Brick,
     BrickDependencies,
@@ -181,7 +184,7 @@ class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
 
     # If True, entity marked as deleted are excluded from the query.
     exclude_deleted = True
-    cells_desc = []
+    cells_desc: list[tuple[type[EntityCell], str]] = []
 
     def _get_queryset(self, opportunity, rtype):
         return self.get_related_queryset(

@@ -236,7 +236,7 @@ class Base(CremeEntity):
         return credit_notes
 
     # TODO: remove "source" argument?
-    def generate_number(self, source: Base = None):
+    def generate_number(self, source: Base | None = None):
         # Lazy loading of number generators
         from creme.billing.registry import algo_registry
 

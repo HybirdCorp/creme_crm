@@ -119,7 +119,7 @@ class _JSONEncoder(JSONEncoder):
 class _HistoryLineTypeRegistry:
     __slots__ = ('_hltypes', )
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._hltypes: dict[int, type[_HistoryLineType]] = {}
 
     def __call__(self, type_id: int):

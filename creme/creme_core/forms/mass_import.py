@@ -199,10 +199,10 @@ class RegularFieldExtractor(SingleColumnExtractor):
         super().__init__(column_index=column_index)
         self._default_value = default_value
         self._value_castor = value_castor
-        self._subfield_search = None
-        self._fk_model = None
-        self._m2m = None
-        self._fk_form = None
+        self._subfield_search: str | None = None
+        self._fk_model: type[Model] | None = None
+        self._m2m: bool | None = None
+        self._fk_form: type[CremeModelForm] | None = None
 
     def set_subfield_search(self,
                             subfield_search: str,

@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from itertools import chain
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING, Iterator, Type
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -310,7 +310,7 @@ class Field(CremeModel):
         return hand.get_value(entity, user, scope) if hand else '??'
 
     @property
-    def model(self) -> type[CremeEntity]:
+    def model(self) -> Type[CremeEntity]:
         return self.report.ct.model_class()
 
     @property

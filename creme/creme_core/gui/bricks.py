@@ -328,7 +328,7 @@ class VoidBrick(SimpleBrick):
 class _PaginatedBrickContext(_BrickContext):
     __slots__ = ('page',)
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.page: int = 1
 
     def __repr__(self):
@@ -673,7 +673,7 @@ class CustomBrick(Brick):
         # TODO: related models (by FK/M2M/...) ?
         self.dependencies = deps = [custombrick_conf_item.content_type.model_class()]
 
-        rtype_ids = [
+        rtype_ids: list[str] = [
             rtype.id
             for rtype in filter(
                 None,
@@ -709,7 +709,7 @@ class BricksManager:
     class Error(Exception):
         pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._bricks: list[Brick] = []
 
         self._bricks_groups: DefaultDict[str, list[Brick]] = defaultdict(list)
@@ -775,7 +775,7 @@ class _BrickRegistry:
     class UnRegistrationError(RegistrationError):
         pass
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._brick_classes: dict[str, type[Brick]] = {}
         self._hat_brick_classes: \
             DefaultDict[type[CremeEntity], dict[str, type[Brick]]] = defaultdict(dict)
