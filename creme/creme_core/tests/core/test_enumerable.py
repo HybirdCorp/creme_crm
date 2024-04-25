@@ -541,6 +541,42 @@ class EnumerableTestCase(CremeTestCase):
             ],
         )
 
+    def test_entity_enumerator(self):
+        role = self.create_role(allowed_apps=['creme_core'])
+        self.add_credentials(role, own=['VIEW'])
+
+        user = self.create_user(role=role)
+
+        create_img = FakeImage.objects.create
+        img1 = create_img(name='Lizard', user=user)
+        img2 = create_img(name='Flower', user=user)
+        img3 = create_img(name='Img #3', user=self.user)
+
+        self.assertTrue(user.has_perm_to_view(img1))
+        self.assertTrue(user.has_perm_to_view(img2))
+        self.assertFalse(user.has_perm_to_view(img3))
+
+        e = enumerators.EntityEnumerator(FakeContact._meta.get_field('image'))
+        self.assertListEqual(
+            [
+                {'value': img2.id, 'label': img2.name},
+                {'value': img1.id, 'label': img1.name},
+            ],
+            e.choices(user),
+        )
+
+        self.assertEqual(('header_filter_search_field',), e.search_fields)
+        self.assertListEqual(
+            [{'value': img2.id, 'label': img2.name}],
+            e.choices(user, term='Flow'),
+        )
+
+        # Hard coded behaviour for entity (remove in the future)
+        self.assertIsInstance(
+            _EnumerableRegistry().enumerator_by_fieldname(model=FakeContact, field_name='image'),
+            enumerators.EntityEnumerator,
+        )
+
     def test_user_enumerator(self):
         user = self.user
         other_user = self.create_user()
