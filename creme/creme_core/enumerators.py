@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2023  Hybird
+#    Copyright (C) 2018-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,16 +16,41 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
+from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core import enumerable
-from creme.creme_core.models.custom_field import (
+from creme.creme_core.models import (
+    CremeEntity,
     CustomField,
     CustomFieldEnumValue,
 )
 from creme.creme_core.utils.content_type import ctype_choices, entity_ctypes
 from creme.creme_core.utils.unicode_collation import collator
+
+logger = logging.getLogger(__name__)
+
+
+# NB: currently not used by UI, it's here for security purposes
+class EntityEnumerator(enumerable.QSEnumerator):
+    search_fields = ('header_filter_search_field',)
+
+    def _queryset(self, user):
+        qs = super()._queryset(user=user)
+
+        # TODO: unit test (new fake model?)
+        model = qs.model
+        if model is CremeEntity:
+            logger.warning(
+                'Cannot enumerate a ForeignKey which references just <CremeEntity>: %s',
+                self.field,
+            )
+            return model.objects.none()
+
+        return EntityCredentials.filter(user=user, queryset=qs)
 
 
 class UserEnumerator(enumerable.QSEnumerator):

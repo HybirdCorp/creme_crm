@@ -4,6 +4,7 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core import models
 from creme.creme_core.core.entity_filter import operators
+# from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.core.entity_filter.condition_handler import (
     RegularFieldConditionHandler,
 )
@@ -112,7 +113,7 @@ class EnumerableViewsTestCase(CremeTestCase):
         self.assertIn(lang2.id, ids)
         self.assertNotIn(lang1.id, ids)
 
-    def test_choices_success_specific_printer01(self):
+    def test_choices_fk_to_entityfilter(self):
         "Model is EntityFilter."
         user = self.login_as_root_and_get()
 
@@ -184,7 +185,7 @@ class EnumerableViewsTestCase(CremeTestCase):
             find_efilter_dict(efilter2),
         )
 
-    def test_choices_success_specific_printer02(self):
+    def test_choices_entityctypefk(self):
         "Field is a EntityCTypeForeignKey."
         self.login_as_root()
 
@@ -206,6 +207,35 @@ class EnumerableViewsTestCase(CremeTestCase):
 
         civ_ctid = get_ct(models.FakeCivility).id
         self.assertFalse([t for t in choices if t['value'] == civ_ctid])
+
+    def test_choices_fk_to_entity(self):
+        "Model is a CremeEntity (credentials have to be used)."
+        user = self.login_as_standard()
+        self.add_credentials(user.role, own=['VIEW'])
+
+        create_img = models.FakeImage.objects.create
+        img1 = create_img(name='Img #1', user=user)
+        img2 = create_img(name='Img #2', user=user)
+        img3 = create_img(name='Img #3', user=self.get_root_user())
+
+        self.assertTrue(user.has_perm_to_view(img1))
+        self.assertTrue(user.has_perm_to_view(img2))
+        self.assertFalse(user.has_perm_to_view(img3))
+
+        response = self.assertGET200(self._build_choices_url(models.FakeContact, 'image'))
+        dict_choices = response.json()
+        self.assertIsList(dict_choices, length=2)
+
+        choices = []
+        for d in dict_choices:
+            self.assertIsInstance(d, dict)
+            with self.assertNoException():
+                choices.append((d['value'], d['label']))
+
+        self.assertInChoices(value=img1.id, label=img1.name, choices=choices)
+        self.assertInChoices(value=img2.id, label=img2.name, choices=choices)
+
+        self.assertNotInChoices(value=img3.id, choices=choices)
 
     def test_choices_POST(self):
         self.login_as_root()

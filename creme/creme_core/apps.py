@@ -505,6 +505,12 @@ class CremeCoreConfig(CremeAppConfig):
 
         from . import enumerators, models
 
+        # TODO: improve the registry to write this
+        #       (see 'core.enumerable._EnumerableRegistry._enumerator()') :
+        # enumerable_registry.register_related_model(
+        #     models.CremeEntity,
+        #     enumerators.EntityEnumerator,
+        # )
         enumerable_registry.register_related_model(
             get_user_model(),
             enumerators.UserEnumerator,

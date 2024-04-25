@@ -123,6 +123,7 @@ class EmptyEnumerator(Enumerator):
 
 
 class QSEnumerator(Enumerator):
+    """Specialisation of Enumerator to enumerate elements of a QuerySet."""
     search_fields: Sequence[str] = ()
     limit_choices_to = None
 
@@ -152,7 +153,6 @@ class QSEnumerator(Enumerator):
 
         return q
 
-    """Specialisation of Enumerator to enumerate elements of a QuerySet."""
     def _queryset(self, user):
         field = self.field
         qs = field.remote_field.model.objects.all()
@@ -281,6 +281,12 @@ class _EnumerableRegistry:
             self._check_is_entity(field.model)
             enumerator_cls = QSEnumerator
 
+            # TODO: this is a hack because we cannot currently register 'EntityEnumerator'
+            #       for all CremeEntity classes (see comment for 'register_related_model())
+            if issubclass(field.remote_field.model, CremeEntity):
+                from creme.creme_core.enumerators import EntityEnumerator
+                enumerator_cls = EntityEnumerator
+
         return enumerator_cls(field)
 
     def enumerator_by_field(self, field: Field) -> Enumerator:
@@ -351,6 +357,8 @@ class _EnumerableRegistry:
 
         return self
 
+    # TODO: improve to register a base class, so all the child classes are using
+    #       the enumerator class too (e.g. CremeEntity).
     def register_related_model(self,
                                model: type[Model],
                                enumerator_class: type[Enumerator],
