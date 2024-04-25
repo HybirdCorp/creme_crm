@@ -11,6 +11,13 @@
     # A small issue in the password reset system has been fixed ;
       the confirmation page still displayed a 'submit' button when the link was not valid anymore.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The view which returns choices for enumerable models uses credentials with CremeEntities.
+
 
 == Version 2.5.7 ==
 
