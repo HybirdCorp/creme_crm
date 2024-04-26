@@ -4,7 +4,7 @@
     <script type="text/javascript">
         (function($) {
 {#            creme.setupD3ChartBrick('.brick[id="{{brick_id}}"]', { #}
-            creme.setupD3ChartBrick('.brick[id="brick-{{brick_id}}"]', {
+            creme.setupD3ChartBrick('.brick[data-brick-id="{{brick_id}}"]', {
                 chart: new creme.D3DonutChart()
             });
         }(jQuery));
