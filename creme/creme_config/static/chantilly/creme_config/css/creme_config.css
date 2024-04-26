@@ -393,6 +393,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
     background-color: hsl(197, 69%, 97%);
 
+    cursor: grab;
+
     text-align: center;
     font-size: 14px;
     color: hsla(198, 41%, 35%, 1);

@@ -10,6 +10,9 @@
     # The image entity selector was broken on Chrome: the newly uploaded file was not selected.
     # A small issue in the password reset system has been fixed ;
       the confirmation page still displayed a 'submit' button when the link was not valid anymore.
+    # Apps :
+        * Creme_config :
+            - The cursor's style in custom forms' configuration has been improved (to indicate that drag'n drop is enabled).
 
   Developers side :
   -----------------
