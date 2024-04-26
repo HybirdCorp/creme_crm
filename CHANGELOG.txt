@@ -213,7 +213,7 @@
           In HTML, the Brick class' ID is now stored in the HTML attribute "data-brick-id", & the HTML attribute "id"
           is created as "brick-{{brick_id}}" (see 'creme/creme_core/templates/creme_core/bricks/base/base.html').
           So you'll have to fix your template files if you retrieve bricks nodes by their ID. Example :
-            $('.brick[id="{{brick_id}}"]')   =>   $('.brick[id="brick-{{brick_id}}"]')
+            $('.brick[id="{{brick_id}}"]')   =>   $('.brick[data-brick-id="{{brick_id}}"]')
         # The way the Buttons (in "view_entity.html") are managed has changed.
           They are now wrapped into a Brick (the well-named "ButtonsBrick") & use brick actions.
           If you defined custom actions, the code to register your actions have to be modified in order it keeps working :
