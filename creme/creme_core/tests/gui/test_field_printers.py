@@ -315,15 +315,30 @@ class FieldsPrintersTestCase(CremeTestCase):
             DATETIME_FORMAT='j F Y H:i',
             DATETIME_INPUT_FORMATS=['%d-%m-%Y %H:%M:%S'],
         ):
-            self.assertEqual(
-                date_format(value, 'DATETIME_FORMAT'),  # TODO: localtime() ??
+            # self.assertEqual(
+            #     date_format(value, 'DATETIME_FORMAT'),
+            #     print_datetime_html(instance=a, value=value, user=user, field=field),
+            # )
+            self.assertHTMLEqual(
+                # TODO: localtime() ??
+                '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
+                    seconds=_('Seconds: {}').format(value.second),
+                    dt=date_format(value, 'DATETIME_FORMAT'),
+                ),
                 print_datetime_html(instance=a, value=value, user=user, field=field),
             )
 
         with override_settings(USE_L10N=True):
             with override_language('en'):
-                self.assertEqual(
-                    date_format(value, 'DATETIME_FORMAT'),
+                # self.assertEqual(
+                #     date_format(value, 'DATETIME_FORMAT'),
+                #     print_datetime_html(instance=a, value=value, user=user, field=field),
+                # )
+                self.assertHTMLEqual(
+                    '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
+                        seconds=_('Seconds: {}').format(value.second),
+                        dt=date_format(value, 'DATETIME_FORMAT'),
+                    ),
                     print_datetime_html(instance=a, value=value, user=user, field=field),
                 )
 
@@ -1454,8 +1469,15 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
         local_dt = localtime(casca.created)
-        self.assertEqual(
-            date_format(local_dt, 'DATETIME_FORMAT'),
+        # self.assertEqual(
+        #     date_format(local_dt, 'DATETIME_FORMAT'),
+        #     render_field(field_name='created'),
+        # )
+        self.assertHTMLEqual(
+            '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
+                seconds=_('Seconds: {}').format(local_dt.second),
+                dt=date_format(local_dt, 'DATETIME_FORMAT'),
+            ),
             render_field(field_name='created'),
         )
 

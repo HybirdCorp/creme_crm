@@ -227,7 +227,13 @@ def print_url_html(*, value, **kwargs) -> str:
 
 
 def print_datetime_html(*, value, **kwargs) -> str:
-    return date_format(localtime(value), 'DATETIME_FORMAT') if value else ''
+    # return date_format(localtime(value), 'DATETIME_FORMAT') if value else ''
+    return format_html(
+        '<span class="datetime-field" title="{}">{}</span>',
+        # No "precise" (with seconds/milliseconds) format in Django's ones; should be enough
+        _('Seconds: {}').format(value.second),
+        date_format(localtime(value), 'DATETIME_FORMAT'),
+    ) if value else ''
 
 
 def print_datetime_text(*, value, **kwargs) -> str:

@@ -440,8 +440,15 @@ class EntityCellTestCase(CremeTestCase):
             DATETIME_FORMAT='j F Y H:i',
             DATETIME_INPUT_FORMATS=[dt_input_format],
         ):
-            self.assertEqual(
-                date_format(local_dt, 'DATETIME_FORMAT'),
+            # self.assertEqual(
+            #     date_format(local_dt, 'DATETIME_FORMAT'),
+            #     cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+            # )
+            self.assertHTMLEqual(
+                '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
+                    seconds=_('Seconds: {}').format(local_dt.second),
+                    dt=date_format(local_dt, 'DATETIME_FORMAT'),
+                ),
                 cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
             )
             self.assertEqual(

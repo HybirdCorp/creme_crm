@@ -37,7 +37,7 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-    {% for line in page.object_list %}{% with concerned_entity=line.entity %}
+  {% for line in page.object_list %}{% with concerned_entity=line.entity %}
     <tr>
         <td {% brick_table_data_status primary %} data-type="date">
             {% print_field object=line field='date' %}
@@ -63,7 +63,7 @@
         </td>
         <td>{% if line.user is not None %}{% widget_hyperlink line.user %}{% else %}{{line.username}}{% endif %}</td>
     </tr>
-    {% endwith %}{% endfor %}
+  {% endwith %}{% endfor %}
 {% endblock %}
 
 {% block brick_table_empty %}
