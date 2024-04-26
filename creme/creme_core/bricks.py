@@ -547,14 +547,15 @@ class JobsBrick(QuerysetBrick):
     id = QuerysetBrick.generate_id('creme_core', 'jobs')
     verbose_name = _('Jobs')
     dependencies = (Job,)
-    # order_by = '-created'
     template_name = 'creme_core/bricks/jobs-all.html'
     configurable = False
     page_size = 50
     # permission = None
 
     def _jobs_qs(self, context):
-        return Job.objects.all()
+        # NB: would be cool to order by app's verbose name + job type's verbose name.
+        #     This ordering regroups jobs per app, it's not bad.
+        return Job.objects.order_by('type_id', 'id')
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
@@ -572,7 +573,7 @@ class MyJobsBrick(JobsBrick):
     template_name = 'creme_core/bricks/jobs-mine.html'
 
     def _jobs_qs(self, context):
-        return Job.objects.filter(user=context['user'])
+        return super()._jobs_qs(context=context).filter(user=context['user'])
 
 
 class NotificationsBrick(QuerysetBrick):
