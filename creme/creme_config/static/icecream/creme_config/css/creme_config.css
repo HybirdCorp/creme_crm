@@ -388,6 +388,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
     background-color: #f7f7f7;
 
+    cursor: grab;
+
     text-align: center;
     text-transform: uppercase;
     color: #666;
