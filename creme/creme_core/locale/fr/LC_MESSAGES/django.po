@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-23 23:26+0200\n"
+"POT-Creation-Date: 2024-04-26 15:13+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1531,6 +1531,9 @@ msgstr "Oui"
 
 msgid "No"
 msgstr "Non"
+
+msgid "Seconds: {}"
+msgstr "Secondes : {}"
 
 msgid "hour"
 msgid_plural "hours"
@@ -3224,19 +3227,19 @@ msgid_plural "%(counter)s entities were not editable."
 msgstr[0] "%(counter)s n'était pas modifiable."
 msgstr[1] "%(counter)s n'étaient pas modifiables."
 
+msgid "Confidentiality"
+msgstr "Confidentialité"
+
 msgid "Are you sure you want to restrict this entity to superusers?"
 msgstr "Voulez-vous vraiment réserver cette fiche aux super-utilisateurs ?"
 
-msgid "Confidentiality"
-msgstr "Confidentialité"
+msgid "Not restrict to superusers"
+msgstr "Ne pas réserver aux super-utilisateurs"
 
 msgid "Are you sure you want this entity to be accessible to regular users?"
 msgstr ""
 "Voulez-vous vraiment que cette fiche soit accessible aux utilisateurs "
 "normaux ?"
-
-msgid "Not restrict to superusers"
-msgstr "Ne pas réserver aux super-utilisateurs"
 
 #, python-format
 msgid "Cannot restrict because already in «%(sandbox)s»"
