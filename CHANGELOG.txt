@@ -121,6 +121,7 @@
                     - A method 'unregister()' has been added.
                     - A button class can now be registered as mandatory, to be always displayed without
                       having to hard code them in the detail-view template.
+            - A method 'bulk_update.FieldOverrider.post_save_instance()' has been added.
             - A method 'custom_form.CustomFormDescriptorRegistry.unregister()' has been added.
             - A method 'mass_import.FormRegistry.unregister()' has been added.
             - A method 'merge._MergeFormRegistry.unregister()' has been added.

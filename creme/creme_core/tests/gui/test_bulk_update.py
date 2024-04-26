@@ -18,7 +18,7 @@ from creme.creme_core.gui.bulk_update import (
     FieldOverrider,
     _BulkUpdateRegistry,
 )
-from creme.creme_core.models import CustomField, FieldsConfig
+from creme.creme_core.models import CustomField, FieldsConfig, Language
 
 from ..base import CremeTestCase
 from ..fake_models import (
@@ -1051,6 +1051,59 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFormInstanceErrors(
             form, (form_field_name, error_msg),
         )
+
+    def test_build_form_class_overriders__post_save_instance(self):
+        registry = self.bulk_update_registry
+        overridden = 'languages'
+
+        class LanguageField(form_fields.CharField):
+            def clean(this, value):
+                lname = super().clean(value=value)
+
+                # NB: a real field would check errors better...
+                return [Language.objects.get(name=lname)]
+
+        class LanguagesOverrider(FieldOverrider):
+            field_names = [overridden]
+
+            def formfield(self, instances, user, **kwargs):
+                return LanguageField(required=False)
+
+            def post_save_instance(self, *, instance, value, form):
+                instance.languages.set(value)
+
+        registry.register(FakeContact).add_overriders(LanguagesOverrider)
+
+        form_cls = registry.build_form_class(
+            model=FakeContact,
+            cells=[EntityCellRegularField.build(FakeContact, overridden)],
+        )
+
+        user = self.get_root_user()
+        contact = FakeContact.objects.create(
+            user=user, first_name='Asa', last_name='Asada',
+        )
+        klingon = Language.objects.create(name='Klingon')
+
+        # GET ---
+        with self.assertNoException():
+            form1 = form_cls(user=user, instance=contact)
+
+        fields1 = form1.fields
+        form_field_name = f'override-{overridden}'
+        self.assertListEqual([form_field_name], [*fields1.keys()])
+
+        # POST ---
+        with self.assertNoException():
+            form2 = form_cls(
+                user=user, instance=contact,
+                data={form_field_name: klingon.name},
+            )
+
+        self.assertFalse(form2.errors)
+
+        form2.save()
+        self.assertListEqual([klingon], [*self.refresh(contact).languages.all()])
 
     def test_build_form_class_fk(self):
         model = FakeContact
