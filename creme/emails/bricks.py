@@ -90,6 +90,8 @@ class SendingHTMLBodyBrick(_HTMLBodyBrick):
     dependencies = (EmailSending,)
     permissions = 'emails'
     configurable = False
+    # TODO: remove when the bricks is no more globally registered
+    target_ctypes = (EmailSending,)  # Security purpose
 
     def _get_body_url(self, instance):
         return reverse('emails__sending_body', args=(instance.id,))
@@ -274,6 +276,8 @@ class SendingBrick(SimpleBrick):
     permissions = 'emails'
     template_name = 'emails/bricks/sending.html'
     configurable = False
+    # TODO: remove when the bricks is no more globally registered
+    target_ctypes = (EmailSending,)  # Security purpose
 
 
 class MailsBrick(QuerysetBrick):
@@ -285,6 +289,8 @@ class MailsBrick(QuerysetBrick):
     page_size = QuerysetBrick.page_size * 3
     template_name = 'emails/bricks/lw-mails.html'
     configurable = False
+    # TODO: remove when the bricks is no more globally registered
+    target_ctypes = (EmailSending,)  # Security purpose
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(
@@ -339,6 +345,7 @@ class MailPopupBrick(SimpleBrick):
     permissions = 'emails'
     template_name = 'emails/bricks/mail-popup.html'
     configurable = False
+    target_ctypes = (EntityEmail,)  # Security purpose only
 
 
 class LwMailPopupBrick(SimpleBrick):
@@ -348,6 +355,7 @@ class LwMailPopupBrick(SimpleBrick):
     permissions = 'emails'
     template_name = 'emails/bricks/lw-mail-popup.html'
     configurable = False
+    target_ctypes = (LightWeightEmail,)  # Security purpose only
 
 
 class LwMailsHistoryBrick(QuerysetBrick):

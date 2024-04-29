@@ -146,19 +146,18 @@ class Brick:
     template_name: str = 'OVERRIDE_ME.html'  # Used to render the brick of course
     context_class = _BrickContext  # Class of the instance which stores the context in the session.
 
-    # ATTRIBUTES USED ONLY BY THE CONFIGURATION GUI FOR THE BRICKS (i.e. in creme_config) ---------
     # True means that the Brick appears in the configuration GUI
     # (i.e. it appears on classical detail-views/portals)
     configurable: bool = True
 
-    # Sequence of classes inheriting CremeEntity which can have this
-    # type of brick on their detail-views.
-    # An empty sequence means that all types are OK.
+    # Sequence of classes inheriting CremeEntity which can have this type of
+    # brick on their detail-views. An empty sequence means that all types are OK.
+    # This attribute notably is used by the reloading views (to only use allowed
+    # bricks, & by creme_config to only propose relevant bricks.
     # Example of value:
     #    # Available for detail-views of Contact & Organisation
     #    target_ctypes = (Contact, Organisation)
     target_ctypes: Sequence[type[CremeEntity]] = ()
-    # ATTRIBUTES USED BY THE CONFIGURATION [END] --------------------------------------------------
 
     # The views (detail-view, home-view, 'creme_core.views.bricks.BricksReloading')
     # check these permissions, and display a <ForbiddenBrick> (see below) when the
