@@ -25,7 +25,7 @@
     # The button menu has been reworked; it can now be reloaded dynamically
       (e.g. some buttons reloaded the whole page in order to be hidden -- or change their label -- once they did their job).
     # Seconds are now displayed as tool-tip for datetime fields.
-    # Drop JQPlot compatibility
+    # The JQPlot compatibility has been dropped.
     # Apps :
         * Creme_config :
             - The bricks configuration of a role can be cloned from the configuration of another role.
@@ -34,6 +34,7 @@
                 - New calendar look-n-feel.
                 - Week/month view changes are now in browsing history ; after a refreshing you will stay on the same view.
                 - Collisions between events from the same calendar are forbidden.
+                - The "busy" events (no collision)are displayed with a stripped background.
             - A configuration system for the calendar view has been added :
                 - Default view can be "month" or "week".
                 - Which days are active.
@@ -44,18 +45,18 @@
             - The staff users are not related to Contacts anymore.
               Note: the existing Contacts which were related to staff users are sent to the trash.
             - A button to transform a Contact into a user has been added.
-       * Assistants :
-            - The UserMessages produce now notifications (so users can chose to be notified in their browser, emails are not the only way anymore).
-       * Billing :
-            - You can now define the default statuses (which are notably used as initial values in creation forms).
-              You can also define the Invoice status to use when a number ins generated.
         * Reports :
             - You can now create filters which are reserved to Reports.
             - The date fields of referenced models can be used for temporal filtering in the Reports
               (e.g. in a report on Contacts, Photograph's fields are available).
             - The fields with 'choices' (e.g. status of EntityEmails) can now be used as Graphes' abscissa.
-            - Add 'linechart' to the available charts.
-            - Graphs with an enumerable abscissa are using its color if exists (e.g : billing status)
+            - A new type of chart is available: 'linechart'.
+            - Graphs with an enumerable abscissa are now using its color if exists (e.g. billing status).
+        * Assistants :
+            - The UserMessages produce now notifications (so users can chose to be notified in their browser, emails are not the only way anymore).
+        * Billing :
+            - You can now define the default statuses (which are notably used as initial values in creation forms).
+              You can also define the Invoice status to use when a number ins generated.
         * Geolocation :
             - The bricks which use OpenStreetMap are now used in the default installation (instead of the GoogleMaps ones).
 
@@ -64,7 +65,7 @@
     - Javascript :
         - The version of Leaflet has been upgraded to "1.9.4".
         - The version of 'FullCalendar' is now "5.11.4".
-        - Add some math functions as underscorejs mixins: absRound, clamp, scaleRound, scaleTrunc, toRadian, toDegree & toNumber
+        - Some math functions have been added as underscorejs mixins: absRound, clamp, scaleRound, scaleTrunc, toRadian, toDegree & toNumber
         - The version of D3js has been upgraded to "7.8.5".
 
     Non breaking changes :
@@ -105,6 +106,7 @@
           override the classes used by the command "creme_populate".
           Many classes 'Populate' have been reworked to facilitate their modification by inheritance ;
           the work has been split into several methods, and class attributes with declarative values have been added.
+        # The class 'creme_core.models.UserRole' has 2 new fields: uuid & extra_data (a JSONField which can be used to store whatever you want).
         # In 'creme_core.views' :
             - The views which manage Bricks now display a minimal Brick (see 'creme_core.gui.bricks.ForbiddenBrick')
               which contains an error message when the attribute 'Brick.permissions' does not pass the validation.
@@ -122,33 +124,33 @@
                     - A method 'unregister()' has been added.
                     - A button class can now be registered as mandatory, to be always displayed without
                       having to hard code them in the detail-view template.
-            - A method 'bulk_update.FieldOverrider.post_save_instance()' has been added.
+            - A method 'bulk_update.FieldOverrider.post_save_instance()' has been added
+              (it's useful to manage ManyToManyFields, Relationships, CremeProperties...).
             - A method 'custom_form.CustomFormDescriptorRegistry.unregister()' has been added.
             - A method 'mass_import.FormRegistry.unregister()' has been added.
             - A method 'merge._MergeFormRegistry.unregister()' has been added.
-        # In 'creme_core.templatetags.creme_bricks':
-            - 'brick_action' accepts a new boolean argument 'comeback' ; once enabled it will add a GET argument
-              'callback_url' with the current location (client side).
+        # In 'creme_core.templatetags.creme_bricks', the tag {% brick_action %} accepts a new boolean argument 'comeback' ;
+          once enabled it will add a GET argument 'callback_url' with the current location (client side).
+          All derived tags (like {% brick_table_action %}) accept this argument too, of course.
         # Apps :
             * Creme_config:
                 - In the class 'registry._ConfigRegistry', some methods to unregister brick classes have been added.
                 - Many portals have been reworked to store the list of displayed Brick as a class attribute.
             * Activities:
                 - The models 'ActivityType' & 'ActivitySubType' now inherit 'creme_core.models.MinionModel' (see <Breaking changes> part too).
-                - Upgrade FullCalendar :
-                    - Use ISO8601 format WITH timezone (e.g 2023-04-14T10:38:30+01:00) for the views:
+                - The upgrade of FullCalendar came with the following changes :
+                    - these views use ISO8601 format WITH timezone (e.g 2023-04-14T10:38:30+01:00) :
                          - activities__calendars_activities
                          - activities__set_activity_dates
-                    - Display "busy" events (no collision) with a stripped background.
-                    - Support timezone provided by the user information instead of browser.
+                    - The timezone used is the one provided by the user information instead of the browser's one.
             * Reports:
-                - 'creme.D3TubeChart' now supports color field from data. 
+                - The graphes with type 'creme.D3TubeChart' now support color field from data.
             * Sketch:
-                - New 'creme.D3LineChart' to draw curved line with (optional) dots and tooltips.
-                - New 'creme.d3Tooltip' chart component that allows to render HTML tooltips.
+                - The new type of chart 'creme.D3LineChart' draws a curved line with (optional) dots and tooltips.
+                - The new chart component 'creme.d3Tooltip' allows to render HTML tooltips.
                 - New 'creme.d3BisectScale' that retrieve the value scale source value from the position in a chart.
-                - 'creme.D3PieChart' now supports color field from data.
-                - New 'd3.radialAxisInner' & 'd3.radialAxisOuter' functions that draws axis for gauge meters.
+                - The type of chart 'creme.D3DonutChart' now supports color field from data.
+                - The new functions 'd3.axisRadialInner()' & 'd3.axisRadialOuter' draw axis for gauge meters.
 
     Breaking changes :
     ------------------
@@ -182,7 +184,7 @@
                 - The widgets 'ui-creme-jqueryplot' & 'ui-creme-plotselector' have been removed.
                 - The widget 'ui-creme-scrollactivator' has been removed : only used with jqplot to optimize rendering on oldest browsers.
             - In Javascript:
-                * 'creme.form.Chosen' and its dependencies have been removed.
+                * The component 'creme.form.Chosen' and its dependencies have been removed.
             - Apps :
                 * Creme_config :
                     - The class 'forms.fields.CustomEnumChoiceField has been removed.
@@ -203,7 +205,7 @@
                         - GraphFetching (reports__fetch_graph)
                         - GraphFetchingInstance (reports__fetch_graph_from_brick)
         # The way the Bricks' IDs are generated & used has been reworked.
-          These IDs have always be designed to retrieve the Bricks classes (on Python/server side), but in facts they were used for the HTML "id" attribute.
+          These IDs have always be designed to retrieve the Bricks classes (on Python/server side), but in facts they were used for the HTML "id" attribute too.
           Now these uses are more distinct ; the IDs of classes do not contain a prefix with "brick"/"block" (because it's useless),
           & the prefixes of different types of brick have been reworked :
             - The value of 'creme_core.constants.MODELBRICK_ID' changed from "modelblock" to "model".
@@ -214,9 +216,9 @@
           is created as "brick-{{brick_id}}" (see 'creme/creme_core/templates/creme_core/bricks/base/base.html').
           So you'll have to fix your template files if you retrieve bricks nodes by their ID. Example :
             $('.brick[id="{{brick_id}}"]')   =>   $('.brick[data-brick-id="{{brick_id}}"]')
-        # The way the Buttons (in "view_entity.html") are managed has changed.
+        # The way the Buttons ofr CremeEntities (see "view_entity.html") are managed has changed.
           They are now wrapped into a Brick (the well-named "ButtonsBrick") & use brick actions.
-          If you defined custom actions, the code to register your actions have to be modified in order it keeps working :
+          If you defined custom actions for a CremeEntity class, the code to register your actions have to be modified in order it keeps working :
           Old code :
              $(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) {...}
           New code :
@@ -249,10 +251,10 @@
                 - The properties 'brick_id' of the models 'CustomBrickConfigItem'/'InstanceBrickConfigItem'/'RelationBrickItem'
                   return different values (the prefixes contained in the attributes '_brick_id_prefix' have changed).
                   Idem with 'InstanceBrickConfigItem.generate_base_id()'.
-                  The methods 'id_from_brick_id()' have been removed.
                      - "rtype_brick" => "rtype"
                      - "instanceblock" => "instance"
                      - "customblock" => "custom"
+                  The methods 'id_from_brick_id()' have been removed.
                 - The method 'SpecificRelationsBrick.generate_id()' has been removed (it was unused/useless since Creme 2.4).
             - The field 'HeaderFilter.json_cells' is now a 'JSONField';
               you won't have to change your code if you use the property 'cells' as advised.
@@ -268,7 +270,6 @@
                   - The related 'CremeEntity' is now stored with the key "entity" (instead of "entity_id") and the value is the UUID (instead of the ID).
             - The method 'FieldsConfig._get_hidden_field_names()' has been replaced by the property "hidden_field_names".
             - The model 'reminder.DateReminder' has been removed.
-            - The model 'auth.UserRole' has 2 new fields: uuid & extra_data (a JSONField which can be used to store whatever you want).
         # In 'creme_core.forms' :
             - In 'entity_filter.fields' :
                 - The attribute 'CustomFieldsConditionsField._non_hiddable_cfield_ids' has been replaced by "_non_hiddable_cfield_uuids".
@@ -306,7 +307,7 @@
         # The method 'creme_core.tests.views.base.ButtonTestCaseMixin.iter_instance_button_nodes()' has been renamed 'iter_button_nodes()'
           (because of the new method 'get_global_buttons_node()').
         # The template "creme_core/templates/creme_core/view_property_type.html" is now "creme_core/templates/creme_core/detail/property-type.html".
-        # Remove obsolete javascript tools : all browsers are supporting flexbox, table layout and ResizeObserver
+        # These obsolete javascript tools have been removed (because all browsers are supporting flexbox, table layout and ResizeObserver) :
             - creme.widget.Container
             - creme.layout.LayoutResizeSensor
         # Apps :
@@ -369,9 +370,10 @@
                     - In 'calendar', the function '_js_timestamp_to_datetime' has been removed and replaced by 'fromRFC3339()' & 'toRFC3339()'.
                 - The class 'statistics.AveragePerMonthStatistics' has been reworked to use 'ActivityType.uuid';
                   e.g. in the class attribute 'items', the keys "type_id" have been replaced by "type_uuid".
-                - Upgrade FullCalendar : Refactor of 'creme.activities.CalendarController' renamed as 'creme.ActivityCalendar'
-                    - Calendar view changes are stored in url hash (e.g: #week & #month)
-                    - Use ISO8601 format WITH timezone for queries on backend views (e.g 2023-04-14T10:38:30+01:00)
+                - The upgrade of 'FullCalendar' caused some changes :
+                    - 'creme.activities.CalendarController' has been renamed as 'creme.ActivityCalendar'.
+                    - The Calendar view changes are now stored in URL hashes (e.g: #week & #month).
+                    - We use ISO8601 format WITH timezone for queries on backend views (e.g. "2023-04-14T10:38:30+01:00").
             * Assistants :
                 - The module 'creme_jobs' has been removed (_UserMessagesSendType etc...).
                 - In the model 'UserMessage', the field 'email_sent' & the method 'send_mails()' have been removed.
@@ -404,7 +406,7 @@
                 - In the class 'buttons.EntityEmailLinkButton', the attribute 'rtype_ids' has been removed ('relation_type_deps' is used instead).
             * Commercial :
                 - The value 'constants.PROP_IS_A_SALESMAN' has been replaced by 'UUID_PROP_IS_A_SALESMAN'.
-                - The UUIDs of the instances of 'models.ActtType' created by the 'populate' script are now fixed (to be consistent between Creme instances).
+                - The UUIDs of the instances of 'models.ActType' created by the 'populate' script are now fixed (to be consistent between Creme instances).
                   A data migration fixes the UUIDs of the instances provided by default, and stores the old UUIDs in their field "meta_data".
             * Tickets :
                 - The UUIDs of the instances of models 'Status', 'Priority' & 'Criticity' created by the 'populate' script are now fixed (to be consistent between Creme instances).
@@ -450,7 +452,7 @@
             - The attribute 'efilter_type' is now read only.
         # In 'creme_core.models' :
             - In the values of 'ButtonMenuItem.button_id', the prefix "button_" has been removed
-              (see 'creme.creme_core.gui.button_menu.Buttongenerate_id()').
+              (see 'creme.creme_core.gui.button_menu.Button.generate_id()').
             - In the method 'EntityFilter.can_edit()', the type of filter is not checked anymore (it is checked by the views).
             - In the model 'FieldsConfig' :
                 - The attributes "_excluded_fnames" & "_required_fnames" have been removed.
