@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-13 12:08+0100\n"
+"POT-Creation-Date: 2024-04-29 21:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -818,28 +818,21 @@ msgctxt "billing"
 msgid "Templates"
 msgstr "Patrons de document"
 
-msgid "Deposit"
-msgstr "Acompte"
+msgctxt "billing-creditnote"
+msgid "Draft"
+msgstr "Brouillon"
 
-#, python-format
-msgid "20% deposit will be required"
-msgstr "20% d'acompte sera demandé"
-
-msgctxt "billing-salesorder"
+msgctxt "billing-creditnote"
 msgid "Issued"
 msgstr "Émis"
 
-msgctxt "billing-salesorder"
-msgid "Accepted"
-msgstr "Accepté"
+msgctxt "billing-creditnote"
+msgid "Consumed"
+msgstr "Consommé"
 
-msgctxt "billing-salesorder"
-msgid "Rejected"
-msgstr "Rejeté"
-
-msgctxt "billing-salesorder"
-msgid "Created"
-msgstr "Créé"
+msgctxt "billing-creditnote"
+msgid "Out of date"
+msgstr "Périmé"
 
 msgctxt "billing-invoice"
 msgid "Draft"
@@ -871,22 +864,6 @@ msgctxt "billing-invoice"
 msgid "Canceled"
 msgstr "Annulée"
 
-msgctxt "billing-creditnote"
-msgid "Draft"
-msgstr "Brouillon"
-
-msgctxt "billing-creditnote"
-msgid "Issued"
-msgstr "Émis"
-
-msgctxt "billing-creditnote"
-msgid "Consumed"
-msgstr "Consommé"
-
-msgctxt "billing-creditnote"
-msgid "Out of date"
-msgstr "Périmé"
-
 msgctxt "billing-quote"
 msgid "Pending"
 msgstr "En attente"
@@ -902,6 +879,29 @@ msgstr "Rejeté"
 msgctxt "billing-quote"
 msgid "Created"
 msgstr "Créé"
+
+msgctxt "billing-salesorder"
+msgid "Issued"
+msgstr "Émis"
+
+msgctxt "billing-salesorder"
+msgid "Accepted"
+msgstr "Accepté"
+
+msgctxt "billing-salesorder"
+msgid "Rejected"
+msgstr "Rejeté"
+
+msgctxt "billing-salesorder"
+msgid "Created"
+msgstr "Créé"
+
+msgid "Deposit"
+msgstr "Acompte"
+
+#, python-format
+msgid "20% deposit will be required"
+msgstr "20% d'acompte sera demandé"
 
 msgid "30 days"
 msgstr "À 30 jours"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-23 23:24+0200\n"
+"POT-Creation-Date: 2024-04-29 21:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -117,15 +117,6 @@ msgstr ""
 "Permet d'envoyer des messages internes aux autres utilisateurs, et de voir "
 "les messages que les autres utilisateurs vous ont envoyés.\n"
 "App : Assistants"
-
-msgid "Important"
-msgstr "Important"
-
-msgid "Very important"
-msgstr "Très important"
-
-msgid "Not important"
-msgstr "Pas important"
 
 msgid "Hour"
 msgstr "Heure"
@@ -330,6 +321,15 @@ msgstr "Message utilisateur"
 
 msgid "A user message has been received (app: Assistants)"
 msgstr "Un message utilisateur a été reçu (app : Assistants)"
+
+msgid "Important"
+msgstr "Important"
+
+msgid "Very important"
+msgstr "Très important"
+
+msgid "Not important"
+msgstr "Pas important"
 
 msgid "Minimum hour to send the mails related to Todos"
 msgstr "Heure minimum pour envoyer les e-mails relatifs aux Todos"

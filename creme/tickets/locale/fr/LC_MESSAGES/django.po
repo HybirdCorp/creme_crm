@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'TICKETS' APP
-# Copyright (C) 2023 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i tests.py --no-location
@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Tickets 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-27 18:28+0200\n"
+"POT-Creation-Date: 2024-04-29 21:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -79,25 +79,6 @@ msgstr "Priorité de ticket"
 msgid "Ticket priorities"
 msgstr "Priorités de ticket"
 
-msgctxt "tickets-status"
-msgid "Open"
-msgstr "Ouvert"
-
-msgctxt "tickets-status"
-msgid "Closed"
-msgstr "Fermé"
-
-msgctxt "tickets-status"
-msgid "Invalid"
-msgstr "Invalide"
-
-msgctxt "tickets-status"
-msgid "Duplicated"
-msgstr "Dupliqué"
-
-msgid "Won't fix"
-msgstr "Ne sera pas corrigé"
-
 msgid "Is a \"closed\" status?"
 msgstr "Est un statut \"fermé\" ?"
 
@@ -161,17 +142,24 @@ msgstr "Patron de ticket"
 msgid "Ticket templates"
 msgstr "Patrons de ticket"
 
-msgid "is linked to the ticket"
-msgstr "est lié au ticket"
+msgctxt "tickets-status"
+msgid "Open"
+msgstr "Ouvert"
 
-msgid "(ticket) linked to the entity"
-msgstr "(ticket) lié à la fiche"
+msgctxt "tickets-status"
+msgid "Closed"
+msgstr "Fermé"
 
-msgid "Ticket view"
-msgstr "Vue de Ticket"
+msgctxt "tickets-status"
+msgid "Invalid"
+msgstr "Invalide"
 
-msgid "Ticket template view"
-msgstr "Vue de patron de ticket"
+msgctxt "tickets-status"
+msgid "Duplicated"
+msgstr "Dupliqué"
+
+msgid "Won't fix"
+msgstr "Ne sera pas corrigé"
 
 msgid "Low"
 msgstr "Basse"
@@ -205,6 +193,18 @@ msgstr "Amélioration"
 
 msgid "Error"
 msgstr "Erreur"
+
+msgid "is linked to the ticket"
+msgstr "est lié au ticket"
+
+msgid "(ticket) linked to the entity"
+msgstr "(ticket) lié à la fiche"
+
+msgid "Ticket view"
+msgstr "Vue de Ticket"
+
+msgid "Ticket template view"
+msgstr "Vue de patron de ticket"
 
 #, python-format
 msgid "The relationship type «%(predicate)s» is disabled"

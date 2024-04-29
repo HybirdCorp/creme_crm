@@ -183,7 +183,7 @@ class NotificationTestCase(CremeTestCase):
         content = MassImportDoneContent(instance=doc)
         self.assertEqual(_('A mass import is done'), content.get_subject(user))
         self.assertEqual(
-            _('The mass import for document «%(instance)s» is done') % {'instance': doc},
+            _('The mass import for document «%(object)s» is done') % {'object': doc},
             content.get_body(user),
         )
         self.assertEqual(

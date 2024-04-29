@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-01 17:24+0100\n"
+"POT-Creation-Date: 2024-04-29 21:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -584,24 +584,6 @@ msgctxt "activities-plural"
 msgid "Status of activity"
 msgstr "Statuts d'activité"
 
-msgid "related to the activity"
-msgstr "relié à l'activité"
-
-msgid "(activity) related to"
-msgstr "(activité) relié à"
-
-msgid "is subject of the activity"
-msgstr "est sujet de l'activité"
-
-msgid "(activity) has for subject"
-msgstr "(activité) a pour sujet"
-
-msgid "participates to the activity"
-msgstr "participe à l'activité"
-
-msgid "(activity) has as participant"
-msgstr "(activité) a comme participant"
-
 msgctxt "activities-status"
 msgid "Planned"
 msgstr "Prévue"
@@ -621,15 +603,6 @@ msgstr "En retard"
 msgctxt "activities-status"
 msgid "Cancelled"
 msgstr "Annulée"
-
-msgid "Gathering"
-msgstr "Réunion"
-
-msgid "Show"
-msgstr "Salon"
-
-msgid "Demonstration"
-msgstr "Démonstration"
 
 msgctxt "activities-meeting"
 msgid "Qualification"
@@ -663,20 +636,8 @@ msgctxt "activities-phonecall"
 msgid "Outgoing - Failed"
 msgstr "Sortant - Échoué"
 
-msgid "Activity view"
-msgstr "Vue d'Activité"
-
-msgid "Tasks"
-msgstr "Tâches"
-
-msgid "In which I participate"
-msgstr "Auxquelles je participe"
-
-msgid "Holidays"
-msgstr "Vacances"
-
-msgid "Ill"
-msgstr "Malade"
+msgid "Gathering"
+msgstr "Réunion"
 
 msgctxt "activities-gathering"
 msgid "Team"
@@ -695,14 +656,53 @@ msgstr "À distance"
 msgid "Outside"
 msgstr "À l'extérieur"
 
+msgid "Show"
+msgstr "Salon"
+
 msgid "Exhibitor"
 msgstr "Exposant"
 
 msgid "Visitor"
 msgstr "Visiteur"
 
+msgid "Demonstration"
+msgstr "Démonstration"
+
 msgid "Videoconference"
 msgstr "En visioconférence"
+
+msgid "Holidays"
+msgstr "Vacances"
+
+msgid "Ill"
+msgstr "Malade"
+
+msgid "related to the activity"
+msgstr "relié à l'activité"
+
+msgid "(activity) related to"
+msgstr "(activité) relié à"
+
+msgid "is subject of the activity"
+msgstr "est sujet de l'activité"
+
+msgid "(activity) has for subject"
+msgstr "(activité) a pour sujet"
+
+msgid "participates to the activity"
+msgstr "participe à l'activité"
+
+msgid "(activity) has as participant"
+msgstr "(activité) a comme participant"
+
+msgid "Tasks"
+msgstr "Tâches"
+
+msgid "In which I participate"
+msgstr "Auxquelles je participe"
+
+msgid "Activity view"
+msgstr "Vue d'Activité"
 
 msgid "Display minutes information in activities blocks"
 msgstr "Afficher le bilan d'une activité dans les blocs d'activités"

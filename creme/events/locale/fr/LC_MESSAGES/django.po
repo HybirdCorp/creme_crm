@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'EVENTS' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i tests.py --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Events 2.5\n"
+"Project-Id-Version: Creme Events 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-06 13:44+0100\n"
+"POT-Creation-Date: 2024-04-29 21:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -118,6 +118,18 @@ msgstr "Évènements"
 msgid "The end date must be after the start date."
 msgstr "La date de fin doit être après la date de début."
 
+msgid "Show"
+msgstr "Salon"
+
+msgid "Conference"
+msgstr "Conférence"
+
+msgid "Breakfast"
+msgstr "Petit déjeuner"
+
+msgid "Brunch"
+msgstr "Brunch"
+
 msgid "is invited to the event"
 msgstr "est invité à l'évènement"
 
@@ -156,18 +168,6 @@ msgstr "(évènement) a généré l'opportunité"
 
 msgid "Event view"
 msgstr "Vue d'évènement"
-
-msgid "Show"
-msgstr "Salon"
-
-msgid "Conference"
-msgstr "Conférence"
-
-msgid "Breakfast"
-msgstr "Petit déjeuner"
-
-msgid "Brunch"
-msgstr "Brunch"
 
 msgid "View related contacts"
 msgstr "Voir les contacts en rapport"
