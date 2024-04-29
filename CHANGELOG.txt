@@ -4,6 +4,8 @@
 
   Users side :
   ------------
+    # In list-views, columns related to sub-fields of ManyToManyFields were sortable ;
+      it caused crashes & other strange behaviors.
     # In EntityFilter :
         - There was an issue with sub-filters & ManyToManyFields (entities could be displayed several times in the list-view).
         - The description of conditions with ForeignKey + "is not empty" has been fixed.
