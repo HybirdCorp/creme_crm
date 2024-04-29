@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-23 23:26+0200\n"
+"POT-Creation-Date: 2024-04-29 17:46+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -673,6 +673,10 @@ msgstr "Télécharger en tant que fichier"
 
 msgid "Regenerate"
 msgstr "Générer à nouveau"
+
+#, python-format
+msgid "Graph related to the report «%(report)s»"
+msgstr "Graphe lié au rapport «%(report)s»"
 
 #, python-brace-format
 msgid "Create an instance block for «{entity}»"
