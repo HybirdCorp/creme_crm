@@ -107,6 +107,7 @@ class MessagesBrick(QuerysetBrick):
     permissions = 'sms'
     order_by = 'id'
     page_size = QuerysetBrick.page_size * 3
+    # configurable = False
 
     def detailview_display(self, context):
         sending = context['object']

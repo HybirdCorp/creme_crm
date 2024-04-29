@@ -289,6 +289,7 @@ class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
     dependencies = (InstanceBrickConfigItem,)
     template_name = 'reports/bricks/instance-bricks-info.html'
     configurable = False
+    target_ctypes = (Report,)  # Security purpose only
     permissions = 'reports'
 
     def detailview_display(self, context):

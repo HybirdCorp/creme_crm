@@ -132,6 +132,7 @@ class SendingBricksReloading(bricks_views.BricksReloading):
     permissions = 'emails'
     # check_bricks_permission = False
     sending_id_url_kwarg = 'sending_id'
+    # TODO: share with SendingDetail
     allowed_bricks = {
         bricks.SendingBrick.id:         bricks.SendingBrick,
         bricks.SendingHTMLBodyBrick.id: bricks.SendingHTMLBodyBrick,
