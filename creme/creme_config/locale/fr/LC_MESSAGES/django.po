@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-23 23:10+0200\n"
+"POT-Creation-Date: 2024-04-29 21:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1492,9 +1492,6 @@ msgstr "Pas de sortie"
 msgid "Configure this channel"
 msgstr "Configurer ce canal"
 
-msgid "New channel"
-msgstr "Nouveau canal"
-
 msgid ""
 "The notifications are sent on a channel which defines where the "
 "notifications will appear (currently: in-app and/or emails) by default.\n"
@@ -2624,6 +2621,9 @@ msgstr "Vous n'avez pas la permission de modifier votre nom affiché"
 
 msgid "Edit the instance's settings"
 msgstr "Modifier la configuration de l'instance"
+
+#~ msgid "New channel"
+#~ msgstr "Nouveau canal"
 
 #~ msgid "Text"
 #~ msgstr "Texte"

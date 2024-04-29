@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-17 14:58+0100\n"
+"POT-Creation-Date: 2024-04-29 21:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -708,6 +708,9 @@ msgstr "Enregistrer le patron d'e-mail"
 msgid "Email templates"
 msgstr "Patrons d'e-mail"
 
+msgid "Documents received by email"
+msgstr "Documents reçus par e-mail"
+
 msgid "(email) received by"
 msgstr "(e-mail) a été reçu par"
 
@@ -737,9 +740,6 @@ msgstr "Vue de Patron d'e-mail"
 
 msgid "Email view"
 msgstr "Vue d'E-mail"
-
-msgid "Documents received by email"
-msgstr "Documents reçus par e-mail"
 
 msgid "Email information"
 msgstr "Informations sur l'e-mail"

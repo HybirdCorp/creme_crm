@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Products 2.5\n"
+"Project-Id-Version: Creme Products 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-13 17:01+0100\n"
+"POT-Creation-Date: 2024-04-29 21:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -162,12 +162,6 @@ msgstr "Service"
 msgid "Services"
 msgstr "Services"
 
-msgid "Product view"
-msgstr "Vue de Produit"
-
-msgid "Service view"
-msgstr "Vue de Service"
-
 msgid "Product image"
 msgstr "Image de produit"
 
@@ -272,6 +266,12 @@ msgstr "Femmes"
 
 msgid "Kids"
 msgstr "Enfants"
+
+msgid "Product view"
+msgstr "Vue de Produit"
+
+msgid "Service view"
+msgstr "Vue de Service"
 
 #, python-brace-format
 msgid "{count} Image"
