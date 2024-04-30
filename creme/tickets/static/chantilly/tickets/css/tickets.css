@@ -1,4 +1,4 @@
-.list_view tbody tr[data-color="tickets-important"] {
+.listview tbody tr[data-color="tickets-important"] {
     background-color: #f08080;
 }
 
