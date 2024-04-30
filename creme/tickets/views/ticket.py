@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,3 +52,11 @@ class TicketEdition(generic.EntityEdition):
 class TicketsList(generic.EntitiesList):
     model = Ticket
     default_headerfilter_id = DEFAULT_HFILTER_TICKET
+
+    def get_unordered_queryset_n_count(self):
+        qs, count = super().get_unordered_queryset_n_count()
+
+        # NB1: select_related() to avoid queries when the field status is not
+        #      in the columns of the HeaderFilter (see AbstractTicket.get_html_attrs()).
+        # NB2: it's OK to modify the base queryset here because we are not filtering it.
+        return qs.select_related('status'), count
