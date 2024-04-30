@@ -1,4 +1,5 @@
-.listview tbody tr[data-color="tickets-important"] {
+.listview tbody tr[data-color="tickets-important"],
+.listview tbody tr.lv-row.odd[data-color="tickets-important"] {
     background-color: #f08080;
 }
 
