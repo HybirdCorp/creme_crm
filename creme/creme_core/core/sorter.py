@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -243,8 +243,12 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
 
     def get_field_name(self, cell) -> str | None:
         assert isinstance(cell, EntityCellRegularField)
+        field_info = cell.field_info
 
-        field = cell.field_info[-1]
+        if isinstance(field_info[0], models.ManyToManyField):
+            return None
+
+        field = field_info[-1]
         sorter = (
             self._sorters_4_modelfields.get(field)
             or self._sorters_4_modelfieldtypes[type(field)]

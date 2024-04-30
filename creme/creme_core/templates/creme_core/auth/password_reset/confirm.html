@@ -1,0 +1,5 @@
+{% extends 'creme_core/auth/password_reset/form.html' %}
+
+{% block main %}
+    {% if validlink %}{{block.super}}{% endif %}
+{% endblock %}

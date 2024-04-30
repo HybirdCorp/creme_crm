@@ -633,6 +633,7 @@ class QuerySorterTestCase(CremeTestCase):
 
     def test_regularfield_default_not_sortable02(self):
         "ManyToManyField is not sortable."
+        registry = CellSorterRegistry()
         sorter = QuerySorter()
 
         field_name1 = 'name'
@@ -640,14 +641,27 @@ class QuerySorterTestCase(CremeTestCase):
 
         build_cell = partial(EntityCellRegularField.build, model=FakeEmailCampaign)
         cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
+        self.assertEqual(field_name1, registry.get_field_name(cells[0]))
+        self.assertIsNone(registry.get_field_name(cells[1]))
 
-        sort_info = sorter.get(
-            model=FakeInvoice, cells=cells,
+        sort_info1 = sorter.get(
+            model=FakeEmailCampaign, cells=cells,
             cell_key=cells[1].key, order=Order(),
         )
-        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sort_info.field_names)
-        self.assertEqual(cells[0].key, sort_info.main_cell_key)
-        self.assertTrue(sort_info.main_order.asc)
+        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sort_info1.field_names)
+        self.assertEqual(cells[0].key, sort_info1.main_cell_key)
+        self.assertTrue(sort_info1.main_order.asc)
+
+        # Sub-field ---
+        cell3 = build_cell(name='mailing_lists__user')
+        self.assertIsNone(registry.get_field_name(cell3))
+
+        sort_info2 = sorter.get(
+            model=FakeEmailCampaign, cells=[cell3],
+            cell_key=cell3.key, order=Order(),
+        )
+        self.assertEqual(('cremeentity_ptr_id',), sort_info2.field_names)
+        self.assertIsNone(sort_info2.main_cell_key)
 
     def test_regularfield_default_autofield(self):
         "AutoField is sortable."
