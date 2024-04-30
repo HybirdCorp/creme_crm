@@ -1,5 +1,11 @@
 == Version 2.4.16 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Tickets :
+            - In list-view, the background color for important tickets was broken.
+
 
 == Version 2.4.15 ==
 
