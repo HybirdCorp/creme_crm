@@ -52,6 +52,7 @@ from creme.creme_core.models import (
     FakePosition,
     FakeReport,
     FakeSector,
+    Language,
     Relation,
     RelationType,
     SetCredentials,
@@ -95,6 +96,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         self.assertIsNone(handler.error)
         self.assertIs(handler.applicable_on_entity_base, False)
+        self.assertIs(handler.entities_are_distinct(), True)
 
         self.assertQEqual(
             Q(name__icontains=value),
@@ -216,6 +218,43 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsInstance(formfield2, MyField)
         self.assertIs(formfield2.required, False)
         self.assertIsNone(formfield2.user)
+
+    def test_regularfield_get_q__m2m(self):
+        user = self.get_root_user()
+
+        # create_cat = FakeDocumentCategory.objects.create
+        # cat1 = create_cat(name='Picture')
+        # cat2 = create_cat(name='Music')
+        cat_id1 = 12
+        cat_id2 = 45
+
+        # One value ---
+        handler1 = RegularFieldConditionHandler(
+            model=FakeDocument,
+            field_name='categories',
+            operator_id=operators.EQUALS,
+            values=[cat_id1],
+        )
+        self.assertFalse(handler1.entities_are_distinct())
+
+        self.assertQEqual(
+            Q(categories__exact=cat_id1),
+            handler1.get_q(user),
+        )
+
+        # Two values ---
+        handler2 = RegularFieldConditionHandler(
+            model=FakeDocument,
+            field_name='categories',
+            operator_id=operators.EQUALS,
+            values=[cat_id1, cat_id2],
+        )
+        self.assertFalse(handler2.entities_are_distinct())
+
+        self.assertQEqual(
+            Q(categories__in=[cat_id1, cat_id2]),
+            handler2.get_q(user),
+        )
 
     def test_regularfield_accept_string(self):
         user = self.get_root_user()
@@ -932,6 +971,30 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 values=_('«{enum_value}»').format(enum_value='???')
             ),
             handler2.description(user),
+        )
+
+        # Operator IS_EMPTY (+False) => should not retrieve any instance
+        handler3 = RegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='position',
+            operator_id=operators.ISEMPTY,
+            values=[False],
+        )
+        self.assertEqual(
+            _('«{field}» is not empty').format(field=_('Position')),
+            handler3.description(user),
+        )
+
+        # Operator IS_EMPTY (+True)
+        handler4 = RegularFieldConditionHandler(
+            model=FakeContact,
+            field_name='position',
+            operator_id=operators.ISEMPTY,
+            values=[True],
+        )
+        self.assertEqual(
+            _('«{field}» is empty').format(field=_('Position')),
+            handler4.description(user),
         )
 
     def test_regularfield_description04(self):
@@ -2689,6 +2752,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         self.assertIsNone(handler1.error)
         self.assertIs(handler1.applicable_on_entity_base, True)
+        self.assertIs(handler1.entities_are_distinct(), True)
 
         self.assertQEqual(
             Q(pk__in=Relation.objects.none()),
@@ -3311,6 +3375,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         self.assertIsNone(handler.error)
         self.assertIs(handler.applicable_on_entity_base, False)
+        self.assertIs(handler.entities_are_distinct(), True)
 
         self.assertQEqual(Q(name__exact='Bebop'), handler.get_q(user=None))
 
@@ -3351,7 +3416,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             data=None,
         )
         self.assertEqual(FakeContact, handler1.model)
-        self.assertEqual(subfilter_id,  handler1.subfilter_id)
+        self.assertEqual(subfilter_id, handler1.subfilter_id)
 
     def test_subfilter_error(self):
         handler = SubFilterConditionHandler(
@@ -3373,6 +3438,27 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         handler = SubFilterConditionHandler(subfilter=sub_efilter)
         self.assertIs(handler.applicable_on_entity_base, True)
+
+    def test_subfilter__distinct(self):
+        l1, l2 = Language.objects.all()[:2]
+
+        sub_cond = RegularFieldConditionHandler.build_condition(
+            model=FakeContact, field_name='languages',
+            operator=operators.EQUALS, values=[l1.id, l2.id],
+        )
+        self.assertFalse(sub_cond.handler.entities_are_distinct())
+
+        sub_efilter = EntityFilter.objects.create(
+            id='test-sub_filter01', name='Sub Filter on languages', entity_type=FakeContact,
+        )
+        sub_efilter.set_conditions([sub_cond])
+
+        handler = SubFilterConditionHandler(
+            model=FakeOrganisation,
+            subfilter=sub_efilter.id,
+        )
+        self.assertFalse(handler.entities_are_distinct())
+        self.assertQEqual(Q(languages__in=[l1.id, l2.id]), handler.get_q(user=None))
 
     def test_subfilter_formfield(self):
         user = self.get_root_user()

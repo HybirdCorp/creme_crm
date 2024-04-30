@@ -8,6 +8,7 @@ from django.db import connection, models
 from django.utils.translation import gettext as _
 
 from creme.creme_core import enumerators
+from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core.entity_filter import EF_CREDENTIALS
 from creme.creme_core.core.enumerable import (
     Enumerator,
@@ -28,6 +29,7 @@ from creme.creme_core.models import (
     FakeReport,
     FakeTodo,
     Language,
+    SetCredentials,
     Vat,
 )
 from creme.creme_core.models.custom_field import (
@@ -542,6 +544,46 @@ class EnumerableTestCase(CremeTestCase):
                     ('unknown', 'Unknown'),
                 ])
             ],
+        )
+
+    def test_entity_enumerator(self):
+        role = self.create_role(allowed_apps=['creme_core'])
+        SetCredentials.objects.create(
+            role=role,
+            value=EntityCredentials.VIEW,
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        user = self.create_user(role=role)
+
+        create_img = FakeImage.objects.create
+        img1 = create_img(name='Lizard', user=user)
+        img2 = create_img(name='Flower', user=user)
+        img3 = create_img(name='Img #3', user=self.user)
+
+        self.assertTrue(user.has_perm_to_view(img1))
+        self.assertTrue(user.has_perm_to_view(img2))
+        self.assertFalse(user.has_perm_to_view(img3))
+
+        e = enumerators.EntityEnumerator(FakeContact._meta.get_field('image'))
+        self.assertListEqual(
+            [
+                {'value': img2.id, 'label': img2.name},
+                {'value': img1.id, 'label': img1.name},
+            ],
+            e.choices(user),
+        )
+
+        self.assertEqual(('header_filter_search_field',), e.search_fields)
+        self.assertListEqual(
+            [{'value': img2.id, 'label': img2.name}],
+            e.choices(user, term='Flow'),
+        )
+
+        # Hard coded behaviour for entity (remove in the future)
+        self.assertIsInstance(
+            _EnumerableRegistry().enumerator_by_fieldname(model=FakeContact, field_name='image'),
+            enumerators.EntityEnumerator,
         )
 
     def test_user_enumerator(self):

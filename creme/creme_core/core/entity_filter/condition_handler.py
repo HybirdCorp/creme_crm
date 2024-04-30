@@ -265,6 +265,9 @@ class SubFilterConditionHandler(FilterConditionHandler):
 
         return self.DESCRIPTION_FORMAT.format(subfilter) if subfilter else '???'
 
+    def entities_are_distinct(self):
+        return self.subfilter.entities_are_distinct
+
     @property
     def error(self):
         if self.subfilter is False:
@@ -346,7 +349,7 @@ class BaseRegularFieldConditionHandler(FilterConditionHandler):
 class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
                                    BaseRegularFieldConditionHandler):
     """Filter entities by using one of their fields.
-    Note: no date field ; see <DateRegularFieldConditionHandler>.
+    Note: no date field; see <DateRegularFieldConditionHandler>.
     """
     type_id = 5
 
@@ -490,11 +493,17 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
     def description(self, user):
         finfo = self.field_info
         values = self._verbose_values
+        operator = self.get_operator(self._operator_id)
 
         if values is None:
             last_field = finfo[-1]
 
-            if isinstance(last_field, (ForeignKey, ManyToManyField)):
+            # if isinstance(last_field, (ForeignKey, ManyToManyField)):
+            if (
+                isinstance(last_field, (ForeignKey, ManyToManyField))
+                # TODO: meh; need a better API in operators
+                and not isinstance(operator, operators.BooleanOperatorBase)
+            ):
                 values = []
                 pks = []
 
@@ -542,7 +551,11 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
 
             self._verbose_values = values
 
-        return self.get_operator(self._operator_id).description(
+        # return self.get_operator(self._operator_id).description(
+        #     field_vname=finfo.verbose_name,
+        #     values=values,
+        # )
+        return operator.description(
             field_vname=finfo.verbose_name,
             values=values,
         )
@@ -1387,7 +1400,8 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
         return form_class(**defaults)
 
-    # TODO: use a filter "relations__*" when there is only one condition on Relations ??
+    # TODO: use a filter "relations__*" when there is only one condition on Relations?
+    #       + update code of 'entities_are_distinct()'
     def get_q(self, user):
         kwargs = {'type': self._rtype_id}
 

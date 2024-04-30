@@ -1,3 +1,27 @@
+== Version 2.5.8 ==
+
+  Users side :
+  ------------
+    # In list-views, columns related to sub-fields of ManyToManyFields were sortable ;
+      it caused crashes & other strange behaviors.
+    # In EntityFilter :
+        - There was an issue with sub-filters & ManyToManyFields (entities could be displayed several times in the list-view).
+        - The description of conditions with ForeignKey + "is not empty" has been fixed.
+    # The image entity selector was broken on Chrome: the newly uploaded file was not selected.
+    # A small issue in the password reset system has been fixed ;
+      the confirmation page still displayed a 'submit' button when the link was not valid anymore.
+    # Apps :
+        * Creme_config :
+            - The cursor's style in custom forms' configuration has been improved (to indicate that drag'n drop is enabled).
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The view which returns choices for enumerable models uses credentials with CremeEntities.
+
+
 == Version 2.5.7 ==
 
   Users side :
