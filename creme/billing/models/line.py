@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -71,6 +71,11 @@ class Line(CremeEntity):
         editable=False, default=0
     ).set_tags(viewable=False)
 
+    _DELETABLE_INTERNAL_RTYPE_IDS = (
+        constants.REL_OBJ_HAS_LINE,
+        constants.REL_SUB_LINE_RELATED_ITEM,
+    )
+
     creation_label = _('Create a line')
 
     _related_document = False
@@ -83,15 +88,15 @@ class Line(CremeEntity):
         verbose_name_plural = _('Lines')
         ordering = ('created',)
 
-    def _pre_delete(self):
-        for relation in Relation.objects.filter(
-            type__in=[
-                constants.REL_OBJ_HAS_LINE,
-                constants.REL_SUB_LINE_RELATED_ITEM,
-            ],
-            subject_entity=self.id,
-        ):
-            relation._delete_without_transaction()
+    # def _pre_delete(self):
+    #     for relation in Relation.objects.filter(
+    #         type__in=[
+    #             constants.REL_OBJ_HAS_LINE,
+    #             constants.REL_SUB_LINE_RELATED_ITEM,
+    #         ],
+    #         subject_entity=self.id,
+    #     ):
+    #         relation._delete_without_transaction()
 
     def _pre_save_clone(self, source):
         self.related_document = source._new_related_document

@@ -61,6 +61,8 @@ class AbstractProjectTask(CremeEntity):
         TaskStatus, verbose_name=_('Task situation'), on_delete=CREME_REPLACE,
     )
 
+    _DELETABLE_INTERNAL_RTYPE_IDS = (REL_OBJ_LINKED_2_PTASK,)
+
     creation_label = _('Create a task')
     save_label     = _('Save the task')
 
@@ -91,12 +93,12 @@ class AbstractProjectTask(CremeEntity):
     def get_related_entity(self):
         return self.linked_project
 
-    def _pre_delete(self):
-        for resource in self.get_resources():
-            resource.delete()
-
-        for relation in self.relations.filter(type=REL_OBJ_LINKED_2_PTASK):
-            relation._delete_without_transaction()
+    # def _pre_delete(self):
+    #     for resource in self.get_resources():
+    #         resource.delete()
+    #
+    #     for relation in self.relations.filter(type=REL_OBJ_LINKED_2_PTASK):
+    #         relation._delete_without_transaction()
 
     def get_parents(self):
         if self.parents is None:

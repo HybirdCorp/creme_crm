@@ -809,6 +809,32 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             errors=_('Some entities are not linkable: {}').format(casca),
         )
 
+    def test_delete(self):
+        user = self.login_as_root_and_get()
+        event = self._create_event(user=user, name='Eclipse')
+
+        create_contact = partial(Contact.objects.create, user=user)
+        casca    = create_contact(first_name='Casca',    last_name='Miura')
+        griffith = create_contact(first_name='Griffith', last_name='Miura')
+
+        self.assertNoFormError(self.client.post(
+            self._build_link_contacts_url(event), follow=True,
+            data={
+                'related_contacts': self.formfield_value_multi_relation_entity(
+                    (constants.REL_OBJ_IS_INVITED_TO,  casca),
+                    (constants.REL_OBJ_NOT_CAME_EVENT, griffith),
+                ),
+            },
+        ))
+        # TODO: other types
+        #   REL_OBJ_CAME_EVENT
+        #   REL_OBJ_IS_INVITED_TO
+        #   REL_OBJ_REFUSED_INVITATION
+        #   REL_OBJ_GEN_BY_EVENT
+
+        with self.assertNoException():
+            event.delete()
+
     def test_delete_type(self):
         user = self.login_as_root_and_get()
         etype = EventType.objects.create(name='Natural')

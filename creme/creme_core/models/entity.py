@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -82,6 +82,15 @@ class CremeEntity(CremeModel):
 
     objects = CremeEntityManager()
 
+    # Tuple of (internal) RelationType IDs
+    # The Relations with these types will be automatically deleted when the
+    # instance is deleted (see delete()), so the deletion won't be blocked
+    # because of remaining dependencies.
+    # NB: the field "is_internal" oh these RelationType should be <True>,
+    #     because not internal types are always deleted.
+    # BEWARE: the types must take the instance as relationships' SUBJECT (i.e. not OBJECT).
+    _DELETABLE_INTERNAL_RTYPE_IDS: tuple[str] = ()
+
     _real_entity: CremeEntity | Literal[True] | None = None
 
     # Currently used in reports (can be used elsewhere ?) to allow reporting
@@ -131,7 +140,10 @@ class CremeEntity(CremeModel):
         # (e.g.:this problem appears when deleting an EmailCampaign with Sendings)
         _get_deleted_entity_ids().add(self.id)
 
-        for relation in self.relations.exclude(type__is_internal=True):
+        # for relation in self.relations.exclude(type__is_internal=True):
+        for relation in self.relations.filter(
+            Q(type__is_internal=False) | Q(type__in=self._DELETABLE_INTERNAL_RTYPE_IDS)
+        ):
             relation.delete(using=using)
 
         for prop in self.properties.all():

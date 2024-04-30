@@ -124,6 +124,15 @@ class Base(CremeEntity):
         blank=True, null=True, on_delete=CREME_REPLACE_NULL,
     ).set_tags(optional=True)
 
+    # NB: REL_SUB_HAS_LINE is excluded because we must retrieve the line to delete them
+    # TODO: signal to delete a line when the corresponding Relation is deleted?
+    _DELETABLE_INTERNAL_RTYPE_IDS = (
+        REL_SUB_BILL_ISSUED,
+        REL_SUB_BILL_RECEIVED,
+        # REL_SUB_HAS_LINE,
+        REL_OBJ_LINE_RELATED_ITEM,
+    )
+
     creation_label = _('Create an accounting document')
 
     generate_number_in_create = True  # TODO: use settings/SettingValue instead ???
@@ -159,13 +168,15 @@ class Base(CremeEntity):
     def _pre_delete(self):
         lines = [*self.iter_all_lines()]
 
+        # TODO: see remark to _DELETABLE_INTERNAL_RTYPE_IDS
         for relation in Relation.objects.filter(
-                type__in=[
-                    REL_SUB_BILL_ISSUED,
-                    REL_SUB_BILL_RECEIVED,
-                    REL_SUB_HAS_LINE,
-                    REL_OBJ_LINE_RELATED_ITEM,
-                ],
+                # type__in=[
+                #     REL_SUB_BILL_ISSUED,
+                #     REL_SUB_BILL_RECEIVED,
+                #     REL_SUB_HAS_LINE,
+                #     REL_OBJ_LINE_RELATED_ITEM,
+                # ],
+                type=REL_SUB_HAS_LINE,
                 subject_entity=self.id):
             relation._delete_without_transaction()
 

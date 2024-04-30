@@ -1703,7 +1703,7 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
         s_addr = invoice.billing_address
         self.assertIsInstance(s_addr, Address)
 
-        invoice.delete()
+        self.refresh(invoice).delete()
         self.assertDoesNotExist(invoice)
         self.assertDoesNotExist(product_line)
         self.assertDoesNotExist(service_line)
@@ -1736,7 +1736,7 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
             subject_entity=invoice, object_entity=ce, type=rtype, user=user,
         )
 
-        self.assertRaises(ProtectedError, invoice.delete)
+        self.assertRaises(ProtectedError, self.refresh(invoice).delete)
 
         try:
             Invoice.objects.get(pk=invoice.pk)
