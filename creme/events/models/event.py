@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -74,6 +74,15 @@ class AbstractEvent(CremeEntity):
         _('Final cost (€)'), max_digits=10, decimal_places=2, blank=True, null=True,
     ).set_tags(optional=True)
 
+    _DELETABLE_INTERNAL_RTYPE_IDS = (
+        constants.REL_OBJ_IS_INVITED_TO,
+        constants.REL_OBJ_ACCEPTED_INVITATION,
+        constants.REL_OBJ_REFUSED_INVITATION,
+        constants.REL_OBJ_CAME_EVENT,
+        constants.REL_OBJ_NOT_CAME_EVENT,
+        constants.REL_OBJ_GEN_BY_EVENT,
+    )
+
     creation_label = pgettext_lazy('events', 'Create an event')
     save_label     = pgettext_lazy('events', 'Save the event')
 
@@ -87,19 +96,19 @@ class AbstractEvent(CremeEntity):
     def __str__(self):
         return self.name
 
-    def _pre_delete(self):
-        for relation in Relation.objects.filter(
-            type__in=[
-                constants.REL_OBJ_IS_INVITED_TO,
-                constants.REL_OBJ_ACCEPTED_INVITATION,
-                constants.REL_OBJ_REFUSED_INVITATION,
-                constants.REL_OBJ_CAME_EVENT,
-                constants.REL_OBJ_NOT_CAME_EVENT,
-                constants.REL_OBJ_GEN_BY_EVENT,
-            ],
-            subject_entity=self,
-        ):
-            relation._delete_without_transaction()
+    # def _pre_delete(self):
+    #     for relation in Relation.objects.filter(
+    #         type__in=[
+    #             constants.REL_OBJ_IS_INVITED_TO,
+    #             constants.REL_OBJ_ACCEPTED_INVITATION,
+    #             constants.REL_OBJ_REFUSED_INVITATION,
+    #             constants.REL_OBJ_CAME_EVENT,
+    #             constants.REL_OBJ_NOT_CAME_EVENT,
+    #             constants.REL_OBJ_GEN_BY_EVENT,
+    #         ],
+    #         subject_entity=self,
+    #     ):
+    #         relation._delete_without_transaction()
 
     def clean(self):
         end = self.end_date

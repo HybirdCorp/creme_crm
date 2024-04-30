@@ -118,6 +118,8 @@ class AbstractOpportunity(core_models.CremeEntity):
         _('Date of the first action'), blank=True, null=True,
     ).set_tags(optional=True)
 
+    _DELETABLE_INTERNAL_RTYPE_IDS = (constants.REL_SUB_TARGETS, constants.REL_OBJ_EMIT_ORGA)
+
     creation_label = _('Create an opportunity')
     save_label     = _('Save the opportunity')
 
@@ -145,11 +147,11 @@ class AbstractOpportunity(core_models.CremeEntity):
             if not self._opp_target:
                 raise ValidationError(gettext('Target is required.'))
 
-    def _pre_delete(self):
-        for relation in self.relations.filter(
-            type__in=(constants.REL_SUB_TARGETS, constants.REL_OBJ_EMIT_ORGA),
-        ):
-            relation._delete_without_transaction()
+    # def _pre_delete(self):
+    #     for relation in self.relations.filter(
+    #         type__in=(constants.REL_SUB_TARGETS, constants.REL_OBJ_EMIT_ORGA),
+    #     ):
+    #         relation._delete_without_transaction()
 
     def _pre_save_clone(self, source):
         self.emitter = source.emitter

@@ -106,7 +106,10 @@
           override the classes used by the command "creme_populate".
           Many classes 'Populate' have been reworked to facilitate their modification by inheritance ;
           the work has been split into several methods, and class attributes with declarative values have been added.
-        # The class 'creme_core.models.UserRole' has 2 new fields: uuid & extra_data (a JSONField which can be used to store whatever you want).
+        # In 'creme_core.models' :
+            - A class attribute 'CremeEntity._DELETABLE_INTERNAL_RTYPE_IDS' has been added to avoid writing
+              methods '_pre_delete()' to manage the internal Relationships.
+            - The class 'UserRole' has 2 new fields: uuid & extra_data (a JSONField which can be used to store whatever you want).
         # In 'creme_core.views' :
             - The views which manage Bricks now display a minimal Brick (see 'creme_core.gui.bricks.ForbiddenBrick')
               which contains an error message when the attribute 'Brick.permissions' does not pass the validation.

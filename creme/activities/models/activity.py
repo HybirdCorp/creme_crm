@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -113,6 +113,8 @@ class AbstractActivity(CremeEntity):
 
     objects = ActivityManager()
 
+    _DELETABLE_INTERNAL_RTYPE_IDS = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT)
+
     creation_label = _('Create an activity')
     save_label = _('Save the activity')
 
@@ -173,13 +175,13 @@ class AbstractActivity(CremeEntity):
             allowed_internal=[*allowed_internal, REL_OBJ_PART_2_ACTIVITY],
         )
 
-    def _pre_delete(self):
-        relations = self.relations.filter(
-            type__in=(REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT)
-        )
-
-        for relation in relations:
-            relation._delete_without_transaction()
+    # def _pre_delete(self):
+    #     relations = self.relations.filter(
+    #         type__in=(REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT)
+    #     )
+    #
+    #     for relation in relations:
+    #         relation._delete_without_transaction()
 
 
 class Activity(AbstractActivity):
