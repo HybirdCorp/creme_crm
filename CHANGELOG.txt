@@ -67,6 +67,7 @@
         - The version of 'FullCalendar' is now "5.11.4".
         - Some math functions have been added as underscorejs mixins: absRound, clamp, scaleRound, scaleTrunc, toRadian, toDegree & toNumber
         - The version of D3js has been upgraded to "7.8.5".
+        - The version of jQuery is now "3.7.1" (jQuery-migrate 3.4.1).
 
     Non breaking changes :
     ----------------------
