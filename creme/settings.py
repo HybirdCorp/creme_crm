@@ -796,8 +796,8 @@ CREME_LIB_JS = [
 
     'creme_core/js/media.js',
     'creme_core/js/lib/underscore/underscore-1.13.2.js',
-    'creme_core/js/jquery/3.x/jquery-3.6.3.js',
-    'creme_core/js/jquery/3.x/jquery-migrate-3.4.0.js',
+    'creme_core/js/jquery/3.x/jquery-3.7.1.js',
+    'creme_core/js/jquery/3.x/jquery-migrate-3.4.1.js',
     'creme_core/js/jquery/ui/jquery-ui-1.13.1.js',
     'creme_core/js/jquery/ui/jquery-ui-locale.js',
     'creme_core/js/jquery/extensions/jquery.dragtable.js',
