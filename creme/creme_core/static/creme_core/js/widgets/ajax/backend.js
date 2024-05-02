@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,8 @@ $(document).ajaxSend(function(event, xhr, settings) {
 
 // Traditional parameter serialization (true: a=1&a=2&b=3, false: a[]=1&a[]=2&b=3)
 // So, with false if a param is used more than once "[]" is appended to the param name
-jQuery.ajaxSettings.traditional = true;
+// This setting is deprecated since jQuery 1.9 see (https://bugs.jquery.com/ticket/12137)
+// jQuery.ajaxSettings.traditional = true;
 
 creme.ajax = creme.ajax || {};
 
@@ -224,7 +225,10 @@ creme.ajax.jqueryFormSubmit = function(form, successCb, errorCb, options) {
         iframe: useIFrame,
         success: _onSuccess,
         error: _onError,
-        headers: headers
+        headers: headers,
+        // Use explicit traditional=true argument to replace ajaxSettings.traditional deprecated
+        // since jQuery 1.9 see (https://bugs.jquery.com/ticket/12137)
+        traditional: true
     }, options);
 
     $(form).ajaxSubmit(submitOptions);

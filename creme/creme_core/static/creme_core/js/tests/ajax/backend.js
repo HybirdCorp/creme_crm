@@ -92,6 +92,16 @@ QUnit.parametrize('creme.ajax.Backend.post', [
 QUnit.parametrize('creme.ajax.Backend.submit', [
     [{}, {}, {
         iframe: true,
+        traditional: true,
+        url: 'mock/a',
+        data: {},
+        headers: {
+            'X-CSRFToken': 'my-token'
+        }
+    }],
+    [{traditional: false}, {}, {
+        iframe: true,
+        traditional: false,
         url: 'mock/a',
         data: {},
         headers: {
@@ -100,6 +110,7 @@ QUnit.parametrize('creme.ajax.Backend.submit', [
     }],
     [{headers: {'X-Client-Id': 'my-key'}}, {action: 'mock/b'}, {
         iframe: true,
+        traditional: true,
         url: 'mock/b',
         data: {},
         headers: {
@@ -109,6 +120,7 @@ QUnit.parametrize('creme.ajax.Backend.submit', [
     }],
     [{action: 'mock/b'}, {headers: {'X-Client-Id': 'my-key'}}, {
         iframe: true,
+        traditional: true,
         url: 'mock/b',
         data: {},
         headers: {
@@ -118,6 +130,7 @@ QUnit.parametrize('creme.ajax.Backend.submit', [
     }],
     [{}, {data: {any: 'value'}, headers: {'X-Client-Id': 'my-key'}}, {
         iframe: true,
+        traditional: true,
         url: 'mock/a',
         data: {
             any: 'value'
@@ -155,6 +168,7 @@ QUnit.parametrize('creme.ajax.Backend.submit', [
 
     equal(form.attr('action'), expected.url);
 
+    equal(submitCall.traditional, expected.traditional);
     equal(submitCall.iframe, expected.iframe);
     deepEqual(submitCall.data || {}, expected.data);
     deepEqual(submitCall.headers, expected.headers);
