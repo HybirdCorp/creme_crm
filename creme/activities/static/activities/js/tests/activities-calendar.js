@@ -444,11 +444,11 @@ QUnit.module("creme.ActivityCalendar", new QUnitMixin(QUnitEventMixin,
 QUnit.test('creme.ActivityCalendar (empty)', function(assert) {
     var element = $(this.createCalendarHtml()).appendTo(this.qunitFixture());
 
-    equal(0, element.find('.calendar .fc-header').size());
+    equal(0, element.find('.calendar .fc-header').length);
 
     var controller = new creme.ActivityCalendar(element);
 
-    equal(1, element.find('.calendar .fc-header-toolbar').size(), 'calendar header');
+    equal(1, element.find('.calendar .fc-header-toolbar').length, 'calendar header');
 
     equal('', controller.owner());
     equal('', controller.eventSelectUrl());

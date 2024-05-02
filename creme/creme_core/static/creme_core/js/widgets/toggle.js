@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -50,11 +50,11 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
         var open_event   = options['open-event'];
         var close_event  = options['close-event'];
 
-        if (toggle_event != null) { trigger.bind(toggle_event, function() { self.toggle(element, undefined, options); }); }
+        if (toggle_event != null) { trigger.on(toggle_event, function() { self.toggle(element, undefined, options); }); }
 
-        if (open_event != null) { trigger.bind(open_event, function() { self.expand(element, options); }); }
+        if (open_event != null) { trigger.on(open_event, function() { self.expand(element, options); }); }
 
-        if (close_event != null) { trigger.bind(close_event, function() { self.collapse(element, options); }); }
+        if (close_event != null) { trigger.on(close_event, function() { self.collapse(element, options); }); }
     },
 
     trigger: function(element) {

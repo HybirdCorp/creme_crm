@@ -173,13 +173,13 @@ QUnit.test('creme.menu.MenuController (main menu, hover)', function(assert) {
     equal(false, menuA.is('.ui-creme-navigation-activated'));
     equal(false, menuB.is('.ui-creme-navigation-activated'));
 
-    menuA.mouseenter();
+    menuA.trigger('mouseenter');
 
     equal(true, menuA.is('.ui-creme-navigation-activated'));
     equal(false, menuB.is('.ui-creme-navigation-activated'));
 
-    menuA.mouseleave();
-    menuB.mouseenter();
+    menuA.trigger('mouseleave');
+    menuB.trigger('mouseenter');
 
     equal(false, menuA.is('.ui-creme-navigation-activated'));
     equal(true, menuB.is('.ui-creme-navigation-activated'));
@@ -234,7 +234,7 @@ QUnit.test('creme.menu.MenuController (quickform, close opened submenu)', functi
     equal(true, controller.isBound());
     equal(false, menuA.is('li.ui-creme-navigation-activated'));
 
-    menuA.mouseenter();
+    menuA.trigger('mouseenter');
 
     equal(true, menuA.is('li.ui-creme-navigation-activated'));
 
@@ -335,7 +335,7 @@ QUnit.test('creme.menu.MenuController (submenu anyform, close opened submenu)', 
     equal(true, controller.isBound());
     equal(false, menuA.is('li.ui-creme-navigation-activated'));
 
-    menuA.mouseenter();
+    menuA.trigger('mouseenter');
 
     equal(true, menuA.is('li.ui-creme-navigation-activated'));
 

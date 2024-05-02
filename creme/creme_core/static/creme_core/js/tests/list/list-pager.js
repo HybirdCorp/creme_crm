@@ -115,7 +115,7 @@ QUnit.test('creme.list.Pager (choose, toggle input)', function() {
     equal(false, input.is('.invalid-page'));
     equal(true, link.is('.active'));
 
-    input.focusout();
+    input.trigger('focusout');
 
     equal('2', input.val());
     equal(false, input.is('.invalid-page'));

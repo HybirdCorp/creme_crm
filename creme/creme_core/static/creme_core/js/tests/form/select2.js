@@ -381,13 +381,13 @@ QUnit.parametrize('creme.form.Select2 (search + toggle create)', [
     $('.select2-search__field').val(term).trigger('input');
 
     if (expected) {
-        equal(1, $('.select2-results__create-title').size());
+        equal(1, $('.select2-results__create-title').length);
         equal(
             gettext('Create new item «%s»').format(term),
             $('.select2-results__create-title').text()
         );
     } else {
-        equal(0, $('.select2-results__create-title').size());
+        equal(0, $('.select2-results__create-title').length);
     }
 });
 
@@ -413,7 +413,7 @@ QUnit.test('creme.form.Select2 (create popup, submit)', function(assert) {
 
     $('.select2-search__field').val(term).trigger('input');
 
-    equal(1, $('.select2-results__create-title').size());
+    equal(1, $('.select2-results__create-title').length);
     equal(
         gettext('Create new item «%s»').format(term),
         $('.select2-results__create-title').text()
@@ -521,7 +521,7 @@ QUnit.parametrize('creme.form.Select2 (create popup, submit, group)', [
 
     $('.select2-search__field').val(term).trigger('input');
 
-    equal(1, $('.select2-results__create-title').size());
+    equal(1, $('.select2-results__create-title').length);
     equal(
         gettext('Create new item «%s»').format(term),
         $('.select2-results__create-title').text()
@@ -588,7 +588,7 @@ QUnit.test('creme.form.Select2 (create popup, cancel)', function(assert) {
 
     $('.select2-search__field').val('Item C').trigger('input');
 
-    equal(1, $('.select2-results__create-title').size());
+    equal(1, $('.select2-results__create-title').length);
     equal(
         gettext('Create new item «%s»').format('Item C'),
         $('.select2-results__create-title').text()

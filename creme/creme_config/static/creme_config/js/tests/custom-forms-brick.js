@@ -222,7 +222,7 @@ QUnit.test('creme.FormGroupsController (toggle content type)', function(assert) 
 
     deepEqual([], this.mockBackendUrlCalls('mock/group/expand'));
 
-    controller.ctype(ctypeIdA).find('.customform-config-show-details').click();
+    controller.ctype(ctypeIdA).find('.customform-config-show-details').trigger('click');
 
     equal(controller.ctype(ctypeIdA).is('.customform-config-collapsed'), false);
     equal(controller.ctype(ctypeIdB).is('.customform-config-collapsed'), true);
@@ -232,7 +232,7 @@ QUnit.test('creme.FormGroupsController (toggle content type)', function(assert) 
         ['POST', {action: 'show', ct_id: ctypeIdA}]
     ], this.mockBackendUrlCalls('mock/group/expand'));
 
-    controller.ctype(ctypeIdA).find('.customform-config-hide-details').click();
+    controller.ctype(ctypeIdA).find('.customform-config-hide-details').trigger('click');
 
     equal(controller.ctype(ctypeIdA).is('.customform-config-collapsed'), true);
     equal(controller.ctype(ctypeIdB).is('.customform-config-collapsed'), true);
@@ -264,7 +264,7 @@ QUnit.test('creme.FormGroupsController (toggle custom form item)', function(asse
     deepEqual([], this.mockBackendUrlCalls('mock/group/expand'));
     equal(controller.ctype(ctypeId).find('.customform-config-item').is('.customform-config-collapsed'), true);
 
-    controller.ctype(ctypeId).find('.toggle-icon-expand').click();
+    controller.ctype(ctypeId).find('.toggle-icon-expand').trigger('click');
     equal(controller.ctype(ctypeId).find('.customform-config-item').is('.customform-config-collapsed'), false);
     deepEqual([
         ['POST', {action: 'show', item_id: itemId}]
@@ -407,11 +407,11 @@ QUnit.test('creme.FormGroupsController (toggle item)', function(assert) {
 //    equal(item.is('.customform-config-item-collapsed'), true);
     equal(item.is('.customform-config-collapsed'), true);
 
-    item.find('.toggle-icon-expand').click();
+    item.find('.toggle-icon-expand').trigger('click');
 //    equal(item.is('.customform-config-item-collapsed'), false);
     equal(item.is('.customform-config-collapsed'), false);
 
-    item.find('.toggle-icon-collapse').click();
+    item.find('.toggle-icon-collapse').trigger('click');
 //    equal(item.is('.customform-config-item-collapsed'), true);
     equal(item.is('.customform-config-collapsed'), true);
 });
