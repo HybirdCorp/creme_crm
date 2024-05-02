@@ -152,6 +152,7 @@ def entities_to_str(entities: Iterable, user) -> str:
     return ', '.join(entity.allowed_str(user) for entity in entities)
 
 
+# DEPRECATED
 __BFS_MAP = {
     'true':  True,
     'false': False,
@@ -159,6 +160,8 @@ __BFS_MAP = {
 
 
 def bool_from_str(string: str) -> bool:
+    warnings.warn('bool_from_str() is deprecated.', DeprecationWarning)
+
     b = __BFS_MAP.get(string.lower())
 
     if b is not None:

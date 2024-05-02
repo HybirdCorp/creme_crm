@@ -93,6 +93,7 @@
                 - "creme_core-hatmenubar-update" => "update"
                 - "creme_core-hatmenubar-view" => "view"
                 Notice that the actions are not deprecated for models which do not inherit 'CremeEntity' (i.e. do not use the template "view_entity.html").
+            - The function 'creme_core.utils.bool_from_str()' is deprecated.
             - In 'creme_core.tests' :
                 - The module 'forms.base' is deprecated.
                   Use these new methods of 'CremeTestCase' instead: assertFormfieldError() & assertValidationError().
@@ -237,6 +238,14 @@
              $(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) {...}
           New code :
              $(document).on('brick-setup-actions', '.creme_core-buttons-brick', function(e, brick, actions) {...}
+        # The way the values are stored in 'creme_core.models.SettingValue' has changed.
+          The field "value_str" (TextField) has been replaced by "json_value" (JSONField).
+            - Now when you store an empty string, you retrieve an empty string, not <None>.
+            - If you have defined your own 'SettingKey', you have to write migration for the related 'SettingValue'
+              (because in migration mode, 'apps' are not initialized as usual, so the core cannot know your 'SettingKey').
+              You should just copy "creme/activities/migrations/0027_v2_6__settingvalue_json.py" and modify :
+                 - The function 'fill_json()' to use your own 'SettingKeys'.
+                 - The dependency <('activities', '0026_v2_6__fix_status_uuids')>.
         # In 'creme_core.core' :
             - In 'entity_filter' :
                 - The constants 'EF_USER' & 'EF_CREDENTIALS' are now strings.

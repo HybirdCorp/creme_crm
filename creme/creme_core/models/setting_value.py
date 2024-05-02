@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import logging
 
+from django.core.validators import EMPTY_VALUES
 from django.db import models, transaction
 
 from ..core.setting_key import (
@@ -55,7 +56,8 @@ class SettingValueManager(models.Manager):
         return self.filter(key_id=key_id).exists()
 
     def set_4_key(self, key: SettingKey | str, value):
-        """Set the SettingValue corresponding to a SettingKey. The cache will be cleared.
+        """Set the SettingValue corresponding to a SettingKey.
+        The cache will be cleared.
 
         @param key: A SettingKey instance, or an ID of SettingKey (string).
         """
@@ -65,9 +67,10 @@ class SettingValueManager(models.Manager):
             if value is None:
                 self.filter(key_id=key_id).delete()
             else:
+                # TODO: create_or_update()?
                 setting, created = self.get_or_create(
                     key_id=key_id,
-                    defaults={'value': value}
+                    defaults={'value': value},
                 )
 
                 if not created:
@@ -181,7 +184,8 @@ class SettingValueManager(models.Manager):
 
 class SettingValue(models.Model):
     key_id    = models.CharField(max_length=100)  # See SettingKey.id
-    value_str = models.TextField()
+    # value_str = models.TextField()
+    json_value = models.JSONField(editable=False, null=True)
 
     objects = SettingValueManager(skey_registry=setting_key_registry)
 
@@ -189,7 +193,8 @@ class SettingValue(models.Model):
         app_label = 'creme_core'
 
     def __str__(self):
-        return f'SettingValue(key_id="{self.key_id}", value_str="{self.value_str}")'
+        # return f'SettingValue(key_id="{self.key_id}", value_str="{self.value_str}")'
+        return f'SettingValue(key_id="{self.key_id}", value="{self.json_value}")'
 
     @property
     def key(self) -> SettingKey:
@@ -201,24 +206,32 @@ class SettingValue(models.Model):
 
     @property
     def value(self):
-        value_str = self.value_str
-
-        # TODO: for string-value, empty an string is returned as <None> => use JSON instead ??
-        return self.key.cast(value_str) if value_str else None
+        # value_str = self.value_str
+        # return self.key.cast(value_str) if value_str else None
+        value = self.json_value
+        return None if value is None else self.key.cast(value)
 
     @value.setter
     def value(self, value):
-        if value is None:
-            if not self.key.blank:
-                raise ValueError(
-                    'SettingValue.value: a value is required (key is not <blank=True>.'
-                )
+        # if value is None:
+        #     if not self.key.blank:
+        #         raise ValueError(
+        #             'SettingValue.value: a value is required (key is not <blank=True>.'
+        #         )
+        #
+        #     self.value_str = ''
+        # else:
+        #     value_str = str(value)
+        #     self.key.cast(value_str)  # raises ValueError
+        #     self.value_str = value_str
+        final_value = None if value is None else self.key.cast(value)  # raises ValueError
 
-            self.value_str = ''
-        else:
-            value_str = str(value)
-            self.key.cast(value_str)  # raises ValueError
-            self.value_str = value_str
+        if final_value in EMPTY_VALUES and not self.key.blank:
+            raise ValueError(
+                'SettingValue.value: a value is required (key is not <blank=True>.'
+            )
+
+        self.json_value = final_value
 
     @property
     def as_html(self) -> str:
