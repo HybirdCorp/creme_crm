@@ -189,6 +189,10 @@
                 - The widget 'ui-creme-scrollactivator' has been removed : only used with jqplot to optimize rendering on oldest browsers.
             - In Javascript:
                 * The component 'creme.form.Chosen' and its dependencies have been removed.
+                * jQuery 3.x :
+                    - Do not rely on $.ajaxSettings.traditional (deprecated since jQuery 1.9+) :
+                        - creme.ajax.param() will always use traditional mode
+                        - creme.ajax.jqueryFormSubmit() will use traditional mode as default.
             - Apps :
                 * Creme_config :
                     - The class 'forms.fields.CustomEnumChoiceField has been removed.
