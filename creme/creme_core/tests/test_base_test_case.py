@@ -1,19 +1,24 @@
 from datetime import date, datetime, timedelta
-from uuid import UUID
+from functools import partial
+from uuid import UUID, uuid4
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from django.utils.translation import override as override_language
 
 from ..auth import EntityCredentials
 from ..models import (
+    CremeProperty,
+    CremePropertyType,
     CremeUser,
     FakeContact,
     FakeOrganisation,
     FakeSector,
+    RelationType,
     SetCredentials,
     UserRole,
 )
@@ -690,6 +695,153 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm4.exception),
         )
 
+    def test_assertGET(self):
+        self.login_as_root()
+
+        url = reverse('creme_core__view_fake_contact', args=(self.UNUSED_PK,))
+        with self.assertRaises(self.failureException) as cm:
+            self.assertGET(200, url)
+
+        self.assertStartsWith(
+            str(cm.exception),
+            'Expected status was <200>. Got status <404>. Content is ',
+        )
+
+        with self.assertNoException():
+            self.assertGET(200, reverse('creme_core__home'))
+
+    def test_assertNoFormError(self):
+        user = self.login_as_root_and_get()
+
+        url = reverse('creme_core__create_fake_contact')
+        response1 = self.client.post(url, data={'user': user.id}, follow=True)
+
+        with self.assertRaises(self.failureException) as cm1:
+            self.assertNoFormError(response1, status=404)
+
+        self.assertStartsWith(str(cm1.exception), 'Response status=200 (expected: 404)')
+
+        # ---
+        with self.assertRaises(self.failureException) as cm2:
+            self.assertNoFormError(response1)
+
+        self.assertEqual(
+            f'* last_name\n'
+            f'  * {_("This field is required.")}',
+            str(cm2.exception),
+        )
+
+        # ---
+        response2 = self.client.post(
+            url, data={'user': user.id, 'last_name': 'Doe'}, follow=True,
+        )
+        with self.assertNoException():
+            self.assertNoFormError(response2)
+
+    def test_assertHasProperty(self):
+        user = self.login_as_root_and_get()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        entity1 = create_orga(name='TOA industries')
+        entity2 = create_orga(name='DRF')
+
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Military')
+        ptype2 = create_ptype(text='Hi-tech')
+
+        create_prop = CremeProperty.objects.create
+        create_prop(creme_entity=entity1, type=ptype2)
+        create_prop(creme_entity=entity2, type=ptype1)
+
+        # Failures -------------------------------------------------------------
+        # Arguments are instances
+        with self.assertRaises(self.failureException) as cm1:
+            self.assertHasProperty(entity=entity1, ptype=ptype1)
+        self.assertEqual(
+            f'<{entity1.name}> has no property with type <{ptype1.text}>',
+            str(cm1.exception),
+        )
+
+        # Arguments are IDs
+        with self.assertRaises(self.failureException) as cm2:
+            self.assertHasProperty(entity=entity1.id, ptype=ptype1.id)
+        self.assertEqual(
+            f'<{entity1.id}> has no property with type <{ptype1.id}>',
+            str(cm2.exception),
+        )
+
+        # Argument is a UUID
+        with self.assertRaises(self.failureException) as cm3:
+            self.assertHasProperty(entity=entity1, ptype=str(ptype1.uuid))
+        self.assertEqual(
+            f'<{entity1}> has no property with type <{ptype1.uuid}>',
+            str(cm3.exception),
+        )
+
+        # Successes ------------------------------------------------------------
+        create_prop(creme_entity=entity1, type=ptype1)
+
+        with self.assertNoException():
+            self.assertHasProperty(entity=entity1, ptype=ptype1)
+
+        with self.assertNoException():
+            self.assertHasProperty(entity=entity1.id, ptype=ptype1.id)
+
+        with self.assertNoException():
+            self.assertHasProperty(entity=entity1, ptype=str(ptype1.uuid))
+
+    def test_assertHasNoProperty(self):
+        user = self.login_as_root_and_get()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        entity1 = create_orga(name='TOA industries')
+        entity2 = create_orga(name='DRF')
+
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Military')
+        ptype2 = create_ptype(text='Hi-tech')
+
+        create_prop = CremeProperty.objects.create
+        create_prop(creme_entity=entity1, type=ptype2)
+        create_prop(creme_entity=entity2, type=ptype1)
+
+        # Successes ------------------------------------------------------------
+        with self.assertNoException():
+            self.assertHasNoProperty(entity=entity1, ptype=ptype1)
+
+        with self.assertNoException():
+            self.assertHasNoProperty(entity=entity1.id, ptype=ptype1.id)
+
+        with self.assertNoException():
+            self.assertHasNoProperty(entity=entity1, ptype=str(ptype1.uuid))
+
+        # Failures -------------------------------------------------------------
+        create_prop(creme_entity=entity1, type=ptype1)
+
+        # Arguments are instances
+        with self.assertRaises(self.failureException) as cm1:
+            self.assertHasNoProperty(entity=entity1, ptype=ptype1)
+        self.assertEqual(
+            f'<{entity1.name}> has property with type <{ptype1.text}>',
+            str(cm1.exception),
+        )
+
+        # Arguments are IDs
+        with self.assertRaises(self.failureException) as cm2:
+            self.assertHasNoProperty(entity=entity1.id, ptype=ptype1.id)
+        self.assertEqual(
+            f'<{entity1.id}> has property with type <{ptype1.id}>',
+            str(cm2.exception),
+        )
+
+        # Argument is a UUID
+        with self.assertRaises(self.failureException) as cm3:
+            self.assertHasNoProperty(entity=entity1, ptype=str(ptype1.uuid))
+        self.assertEqual(
+            f'<{entity1}> has property with type <{ptype1.uuid}>',
+            str(cm3.exception),
+        )
+
     def test_get_alone_element(self):
         with self.assertNoException():
             e1 = self.get_alone_element([1])
@@ -754,16 +906,107 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm2.exception),
         )
 
+    def test_get_relationtype_or_fail(self):
+        type_id = 'test-subject_testbase'
+        sym_type_id = 'test-object_testbase'
+
+        with self.assertRaises(self.failureException) as cm1:
+            self.get_relationtype_or_fail(type_id)
+        self.assertEqual(
+            f'Bad populate: RelationType with id="{type_id}" cannot be found',
+            str(cm1.exception),
+        )
+
+        # ---
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(text='Military')
+        ptype2 = create_ptype(text='Hi-tech')
+        ptype3 = create_ptype(text='Bio-tech')
+
+        rtype = RelationType.objects.smart_update_or_create(
+            (type_id,     'is hiring',   (FakeContact, FakeOrganisation), [ptype1, ptype2]),
+            (sym_type_id, 'is hived by', (FakeContact,), [ptype3]),
+        )[0]
+
+        with self.assertNoException():
+            result = self.get_relationtype_or_fail(
+                type_id,
+                sub_models=[FakeContact, FakeOrganisation],
+                obj_models=[FakeContact],
+                sub_props=[ptype1, ptype2],
+                obj_props=[ptype3],
+            )
+
+        self.assertEqual(rtype, result)
+
+        # Models constraints (subjects)
+        with self.assertRaises(self.failureException):
+            self.get_relationtype_or_fail(
+                type_id,
+                sub_models=[FakeContact],  # FakeOrganisation
+                obj_models=[FakeContact],
+                sub_props=[ptype1, ptype2.uuid],
+                obj_props=[ptype3],
+            )
+
+        # Models constraints (objects)
+        with self.assertRaises(self.failureException):
+            self.get_relationtype_or_fail(
+                type_id,
+                sub_models=[FakeContact, FakeOrganisation],
+                obj_models=[FakeOrganisation],  # <==
+                sub_props=[ptype1.uuid, ptype2],
+                obj_props=[ptype3.uuid],
+            )
+
+        # Properties constraints (subjects)
+        with self.assertRaises(self.failureException):
+            self.get_relationtype_or_fail(
+                type_id,
+                sub_models=[FakeContact, FakeOrganisation],
+                obj_models=[FakeContact],
+                sub_props=[ptype3],  # <===
+                obj_props=[ptype3],
+            )
+
+        # Properties constraints (objects)
+        with self.assertRaises(self.failureException):
+            self.get_relationtype_or_fail(
+                type_id,
+                sub_models=[FakeContact, FakeOrganisation],
+                obj_models=[FakeContact],
+                sub_props=[ptype1, ptype2],  # <===
+                obj_props=[ptype1],
+            )
+
+    def test_get_propertytype_or_fail(self):
+        uid = str(uuid4())
+
+        with self.assertRaises(self.failureException) as cm1:
+            self.get_propertytype_or_fail(uid)
+        self.assertEqual(
+            f'Bad populate: CremePropertyType with uuid="{uid}" cannot be found',
+            str(cm1.exception),
+        )
+
+        # ---
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            uuid=uid, text='Military', subject_ctypes=[FakeContact, FakeOrganisation],
+        )
+
+        with self.assertNoException():
+            result = self.get_propertytype_or_fail(uid, models=[FakeContact, FakeOrganisation])
+
+        self.assertEqual(ptype, result)
+
+        # Properties constraints
+        with self.assertRaises(self.failureException):
+            self.get_propertytype_or_fail(uid, models=[FakeContact])  # FakeOrganisation
+
     def test_get_choices_group_or_fail(self):
         grouped_choices = [
-            (
-                'numbers',
-                [(1, 'one'), (2, 'two')],
-            ),
-            (
-                'colors',
-                [('red', 'Red'), ('green', 'Green')],
-            )
+            ('numbers', [(1, 'one'), (2, 'two')]),
+            ('colors',  [('red', 'Red'), ('green', 'Green')]),
         ]
 
         choices1 = self.get_choices_group_or_fail('numbers', grouped_choices)
@@ -777,6 +1020,29 @@ class BaseTestCaseTestCase(CremeTestCase):
         with self.assertRaises(self.failureException) as cm:
             self.get_choices_group_or_fail(label, grouped_choices)
         self.assertEqual(f'Group "{label}" not found.', str(cm.exception))
+
+    def test_get_html_node_or_fail(self):
+        tree = self.get_html_tree(
+"""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+</head>
+<body>
+    <div class="main-content">Hi</div>
+</body>
+""")  # NOQA
+
+        with self.assertRaises(self.failureException) as cm:
+            self.get_html_node_or_fail(tree, './/div[@class="content"]')
+        self.assertEqual(
+            'The HTML node with path <.//div[@class="content"]> has not been found.',
+            str(cm.exception),
+        )
+
+        with self.assertNoException():
+            node = self.get_html_node_or_fail(tree, './/div[@class="main-content"]')
+        self.assertEqual('Hi', node.text)
 
     def test_formfield_value_date(self):
         date_obj = date(year=2022, month=2, day=24)
@@ -1046,7 +1312,6 @@ class BaseTestCaseTestCase(CremeTestCase):
 # TODO: complete
 #   assertGETXXX
 #   assertPOSTXXX
-#   assertNoFormError
 #   assertNoFormsetError
 #   assertNoWizardFormError
 #   assertQuerysetSQLEqual
@@ -1056,5 +1321,3 @@ class BaseTestCaseTestCase(CremeTestCase):
 #   assertSameRelationsNProperties
 #   assertXMLEqualv2
 #   get_deletion_command_or_fail
-#   get_relationtype_or_fail
-#   get_propertytype_or_fail
