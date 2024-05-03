@@ -743,18 +743,39 @@ class _CremeTestCase:
         if uid1 != uid2:
             self.fail(f'The UUIDs are not equal: "{uid1}" != "{uid2}".')
 
-    def assertHasProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | str):
-        if not CremeProperty.objects.filter(
-            type_id=ptype.id if isinstance(ptype, CremePropertyType) else ptype,
-            creme_entity_id=entity.id if isinstance(entity, CremeEntity) else entity,
-        ).exists():
+    def __get_creme_properties(self,
+                               entity: CremeEntity | int,
+                               ptype: CremePropertyType | int | str,
+                               ):
+        kwargs = {'creme_entity_id': entity.id if isinstance(entity, CremeEntity) else entity}
+        if isinstance(ptype, CremePropertyType):
+            kwargs['type'] = ptype
+        elif isinstance(ptype, int):
+            kwargs['type_id'] = ptype
+        else:
+            assert isinstance(ptype, str)  # TODO: <UUID> ?
+            kwargs['type__uuid'] = ptype
+
+        return CremeProperty.objects.filter(**kwargs)
+
+    # def assertHasProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | str):
+    def assertHasProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | int | str):
+        # if not CremeProperty.objects.filter(
+        #     type_id=ptype.id if isinstance(ptype, CremePropertyType) else ptype,
+        #     creme_entity_id=entity.id if isinstance(entity, CremeEntity) else entity,
+        # ).exists():
+        #     self.fail(f'<{entity}> has no property with type <{ptype}>')
+        if not self.__get_creme_properties(entity=entity, ptype=ptype).exists():
             self.fail(f'<{entity}> has no property with type <{ptype}>')
 
-    def assertHasNoProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | str):
-        if CremeProperty.objects.filter(
-            type_id=ptype.id if isinstance(ptype, CremePropertyType) else ptype,
-            creme_entity_id=entity.id if isinstance(entity, CremeEntity) else entity,
-        ).exists():
+    # def assertHasNoProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | str):
+    def assertHasNoProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | int | str):
+        # if CremeProperty.objects.filter(
+        #     type_id=ptype.id if isinstance(ptype, CremePropertyType) else ptype,
+        #     creme_entity_id=entity.id if isinstance(entity, CremeEntity) else entity,
+        # ).exists():
+        #     self.fail(f'<{entity}> has property with type <{ptype}>')
+        if self.__get_creme_properties(entity=entity, ptype=ptype).exists():
             self.fail(f'<{entity}> has property with type <{ptype}>')
 
     def assertRelationCount(self, count, subject_entity, type_id, object_entity):
@@ -1019,13 +1040,15 @@ class _CremeTestCase:
         )
 
     def get_relationtype_or_fail(self, pk,
-                                 sub_models=(), obj_models=(),
-                                 sub_props=(), obj_props=(),
+                                 sub_models: Iterable[type[CremeEntity]] = (),
+                                 obj_models: Iterable[type[CremeEntity]] = (),
+                                 sub_props: Iterable[CremePropertyType | str] = (),
+                                 obj_props: Iterable[CremePropertyType | str] = (),
                                  ):
         try:
             rt = RelationType.objects.get(pk=pk)
         except RelationType.DoesNotExist:
-            self.fail(f'Bad populate: RelationType with pk={pk} cannot be found')
+            self.fail(f'Bad populate: RelationType with id="{pk}" cannot be found')
 
         get_ct = ContentType.objects.get_for_model
         self.assertCountEqual(
@@ -1037,11 +1060,19 @@ class _CremeTestCase:
             rt.object_ctypes.order_by('id'),
         )
 
+        # self.assertCountEqual(
+        #     sub_props, rt.subject_properties.values_list('id', flat=True),
+        # )
         self.assertCountEqual(
-            sub_props, rt.subject_properties.values_list('id', flat=True),
+            [ptype if isinstance(ptype, str) else str(ptype.uuid) for ptype in sub_props],
+            [str(uid) for uid in rt.subject_properties.values_list('uuid', flat=True)],
         )
+        # self.assertCountEqual(
+        #     obj_props, rt.object_properties.values_list('id', flat=True),
+        # )
         self.assertCountEqual(
-            obj_props, rt.object_properties.values_list('id', flat=True),
+            [ptype if isinstance(ptype, str) else str(ptype.uuid) for ptype in obj_props],
+            [str(uid) for uid in rt.object_properties.values_list('uuid', flat=True)],
         )
 
         self.assertNotEqual(
@@ -1052,13 +1083,16 @@ class _CremeTestCase:
         return rt
 
     # def get_propertytype_or_fail(self, pk, models=()):
-    def get_propertytype_or_fail(self, uid, models=()):
+    def get_propertytype_or_fail(self,
+                                 uid: str | UUID,
+                                 models: Iterable[type[CremeEntity]] = (),
+                                 ):
         try:
             # pt = CremePropertyType.objects.get(pk=pk)
             pt = CremePropertyType.objects.get(uuid=uid)
         except CremePropertyType.DoesNotExist:
             # self.fail(f'Bad populate: unfoundable CremePropertyType with pk={pk}')
-            self.fail(f'Bad populate: unfoundable CremePropertyType with uuid={uid}')
+            self.fail(f'Bad populate: CremePropertyType with uuid="{uid}" cannot be found')
 
         get_ct = ContentType.objects.get_for_model
         self.assertCountEqual(
