@@ -622,10 +622,10 @@ class _HLTSymRelationDeletion(_HLTRelationDeletion):
 class _HLTAuxCreation(_HistoryLineType):
     verbose_name = _('Auxiliary (creation)')
 
-    @staticmethod
-    def _model_info(ct_id):
-        model_class = ContentType.objects.get_for_id(ct_id).model_class()
-        return model_class, model_class._meta.verbose_name
+    # @staticmethod
+    # def _model_info(ct_id):
+    #     model_class = ContentType.objects.get_for_id(ct_id).model_class()
+    #     return model_class, model_class._meta.verbose_name
 
     @staticmethod
     def _build_modifs(related):

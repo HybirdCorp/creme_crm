@@ -480,6 +480,7 @@
             - In the model 'FieldsConfig' :
                 - The attributes "_excluded_fnames" & "_required_fnames" have been removed.
                 - The method 'update_form_fields()' now takes a form instance, and can set the _meta attribute (backported to 2.5.6/2.4.13).
+            - The method 'creme_core.models.history._HLTAuxCreation._model_info()' has been removed.
         # The method 'creme_core.gui.bricks._BrickRegistry.get_bricks()'
             - does not build 'SpecificRelationsBrick' & 'CustomBrick' when no entity is given.
             - does not build 'CustomBrick' when the entity's type does not match.
