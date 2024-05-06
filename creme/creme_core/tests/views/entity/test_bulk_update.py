@@ -35,6 +35,8 @@ from creme.creme_core.models import (
     FakeFolder,
     FakeImage,
     FakeImageCategory,
+    FakeInvoice,
+    FakeInvoiceLine,
     FakeOrganisation,
     FakePosition,
     FakeSector,
@@ -63,6 +65,7 @@ class _BulkEditTestCase(CremeTestCase):
 class BulkUpdateTestCase(_BulkEditTestCase):
     def setUp(self):
         super().setUp()
+        # TODO: deepcopy() in setUpClass() ?
         self._original_bulk_update_registry = BulkUpdate.bulk_update_registry
 
     def tearDown(self):
@@ -96,6 +99,24 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         self.assertGET404(
             self.build_bulkupdate_uri(model=FakeImage, entities=[user.linked_contact])
+        )
+
+    def test_no_editable_field(self):
+        user = self.login_as_root_and_get()
+        BulkUpdate.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
+        registry.register(FakeActivity).exclude(
+            'user', 'description',
+            'title', 'place', 'minutes', 'start', 'end', 'type',
+        )
+
+        activity = FakeActivity.objects.create(
+            user=user, title='Meeting', type=FakeActivityType.objects.first(),
+        )
+        response = self.client.get(
+            self.build_bulkupdate_uri(model=type(activity), entities=[activity])
+        )
+        self.assertContains(
+            response, text='has not inner-editable field.', status_code=404,
         )
 
     def test_regular_field_invalid_field(self):
@@ -393,17 +414,29 @@ class BulkUpdateTestCase(_BulkEditTestCase):
     def test_regular_field_not_editable(self):
         user = self.login_as_root_and_get()
 
-        field_name = 'position'
+        field_name1 = 'position'
         BulkUpdate.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
-        registry.register(FakeContact).exclude(field_name)
+        registry.register(FakeContact).exclude(field_name1)
 
         unemployed = FakePosition.objects.create(title='unemployed')
-        mario, luigi, url = self.create_2_contacts_n_url(user=user, field=field_name)
+        mario, luigi, url = self.create_2_contacts_n_url(user=user, field=field_name1)
         self.assertPOST404(
             url,
             data={
                 'entities': [mario.id, luigi.id],
-                field_name: unemployed.id,
+                field_name1: unemployed.id,
+            },
+        )
+
+        # Not editable field ---
+        field_name2 = 'created'
+        self.assertPOST404(
+            self.build_bulkupdate_uri(
+                model=FakeContact, field=field_name2, entities=(mario, luigi),
+            ),
+            data={
+                'entities': [mario.id, luigi.id],
+                field_name2: 'whatever',
             },
         )
 
@@ -1287,6 +1320,26 @@ class InnerEditTestCase(_BulkEditTestCase):
             ),
             response.context.get('help_message'),
         )
+
+    def test_aux_entity(self):
+        user = self.login_as_standard(allowed_apps=['creme_core'])
+        self.add_credentials(user.role, all='!CHANGE')
+
+        invoice = FakeInvoice.objects.create(user=user, name='Invoice#1')
+        line = FakeInvoiceLine.objects.create(user=user, linked_invoice=invoice)
+        response = self.client.get(self.build_inneredit_uri(line, 'item'))
+        self.assertContains(
+            response,
+            text=_('You are not allowed to edit this entity'),
+            status_code=403, html=True,
+        )
+
+    def test_permissions(self):
+        user = self.login_as_standard(allowed_apps=['creme_core'])
+        self.add_credentials(user.role, all='!CHANGE')
+
+        mario = self.create_contact(user=user)
+        self.assertGET403(self.build_inneredit_uri(mario, 'first_name'))
 
     def test_regular_field(self):
         user = self.login_as_root_and_get()

@@ -817,6 +817,9 @@ else:
             verbose_name_plural = 'Test Tickets'
             ordering = ('title',)
 
+        def get_delete_absolute_url(self):
+            return ''
+
     # TODO: MinionModel?
     class FakeIngredientGroup(CremeModel):
         name = models.CharField(_('Name'), max_length=100)
