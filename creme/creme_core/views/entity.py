@@ -37,12 +37,8 @@ from django.db.models import ProtectedError, Q
 from django.db.transaction import atomic
 from django.forms.fields import ChoiceField
 from django.forms.models import modelform_factory
-from django.http import (
-    Http404,
-    HttpResponse,
-    HttpResponseBadRequest,
-    HttpResponseRedirect,
-)
+# from django.http import HttpResponseBadRequest
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -746,11 +742,11 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
     results_template_name = 'creme_core/bulk-update-results.html'
     max_errors = 100
 
-    def dispatch(self, *args, **kwargs):
-        try:
-            return super().dispatch(*args, **kwargs)
-        except (FieldDoesNotExist, bulk_update.FieldNotAllowed) as e:
-            return HttpResponseBadRequest(str(e))
+    # def dispatch(self, *args, **kwargs):
+    #     try:
+    #         return super().dispatch(*args, **kwargs)
+    #     except (FieldDoesNotExist, bulk_update.FieldNotAllowed) as e:
+    #         return HttpResponseBadRequest(str(e))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -799,7 +795,6 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
             key=lambda cell: sort_key(cell.title),
         )
 
-        # TODO: test
         if not rfield_cells and not cfield_cells:
             raise Http404(f'The model "{model}" has not inner-editable field.')
 
@@ -1222,10 +1217,12 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
 
     def check_related_entity_permissions(self, entity, user):
         if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
-            raise Http404(gettext('This model does not use the generic deletion view.'))
+            # raise Http404(gettext('This model does not use the generic deletion view.'))
+            raise ConflictError(gettext('This model does not use the generic deletion view.'))
 
         if hasattr(entity, 'get_related_entity'):
-            raise Http404('Can not restore an auxiliary entity')  # See trash_entity()
+            # raise Http404('Can not restore an auxiliary entity')
+            raise ConflictError('Can not restore an auxiliary entity')  # See trash_entity()
 
         user.has_perm_to_delete_or_die(entity)
 

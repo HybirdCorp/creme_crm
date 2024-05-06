@@ -21,6 +21,7 @@ from creme.creme_core.models import (
     FakeInvoiceLine,
     FakeOrganisation,
     FakeSector,
+    FakeTicket,
     HistoryLine,
     Job,
     Relation,
@@ -148,7 +149,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete_entity01(self):
+    def test_delete_entity(self):
         "is_deleted=False -> trash."
         user = self.login_as_root_and_get()
 
@@ -180,7 +181,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotContains(response, edit_url)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete_entity02(self):
+    def test_delete_entity__definitive_deletion(self):
         "is_deleted=True -> real deletion."
         user = self.login_as_root_and_get()
 
@@ -193,7 +194,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(entity)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete_entity03(self):
+    def test_delete_entity__permissions(self):
         "No DELETE credentials."
         user = self.login_as_standard()
         # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.DELETE)
@@ -203,6 +204,17 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST403(self._build_delete_url(entity))
         entity = self.assertStillExists(entity)
         self.assertFalse(entity.is_deleted)
+
+    def test_delete_entity__not_deletable(self):
+        """<get_delete_absolute_url()> returns an empty URL."""
+        user = self.login_as_root_and_get()
+        ticket = FakeTicket.objects.create(user=user, title='Ticket#1')
+        response = self.client.post(self._build_delete_url(ticket))
+        self.assertContains(
+            response,
+            text=_('«{entity}» does not use the generic deletion view.').format(entity=ticket),
+            status_code=409, html=True,
+        )
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete_entity_callback01(self):
@@ -622,17 +634,9 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             html=True,
         )
 
-    def test_restore_entity01(self):
-        "No trashed."
-        user = self.login_as_root_and_get()
-
-        entity = FakeOrganisation.objects.create(user=user, name='Nerv')
-        url = self._build_restore_url(entity)
-        self.assertGET405(url)
-        self.assertPOST404(url)
-
-    def test_restore_entity02(self):
-        user = self.login_as_root_and_get()
+    def test_restore_entity(self):
+        user = self.login_as_standard()
+        self.add_credentials(user.role, own=['VIEW', 'DELETE'])
 
         entity = FakeOrganisation.objects.create(
             user=user, name='Nerv', is_deleted=True,
@@ -645,7 +649,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         entity = self.get_object_or_fail(FakeOrganisation, pk=entity.pk)
         self.assertFalse(entity.is_deleted)
 
-    def test_restore_entity03(self):
+    def test_restore_entity__ajax(self):
         user = self.login_as_root_and_get()
 
         entity = FakeOrganisation.objects.create(user=user, name='Nerv', is_deleted=True)
@@ -655,6 +659,41 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         entity = self.get_object_or_fail(FakeOrganisation, pk=entity.pk)
         self.assertFalse(entity.is_deleted)
+
+    def test_restore_entity__not_deleted(self):
+        user = self.login_as_root_and_get()
+
+        entity = FakeOrganisation.objects.create(user=user, name='Nerv')
+        url = self._build_restore_url(entity)
+        self.assertGET405(url)
+        self.assertPOST404(url)
+
+    def test_restore_entity__permissions(self):
+        user = self.login_as_standard()
+        self.add_credentials(user.role, own=['VIEW'])  # 'DELETE'
+
+        entity = FakeOrganisation.objects.create(user=user, name='Nerv', is_deleted=True)
+        self.assertPOST403(self._build_restore_url(entity), follow=True)
+
+    def test_restore_entity__auxiliary(self):
+        user = self.login_as_root_and_get()
+        invoice = FakeInvoice.objects.create(user=user, name='Invoice#1')
+        line = FakeInvoiceLine.objects.create(user=user, linked_invoice=invoice, is_deleted=True)
+        response = self.assertPOST409(self._build_restore_url(line))
+        self.assertContains(
+            response, text='Can not restore an auxiliary entity', status_code=409,
+        )
+
+    def test_restore_entity__not_deletable(self):
+        """<get_delete_absolute_url()> returns an empty URL."""
+        user = self.login_as_root_and_get()
+        ticket = FakeTicket.objects.create(user=user, title='Ticket#1', is_deleted=True)
+        response = self.client.post(self._build_restore_url(ticket))
+        self.assertContains(
+            response,
+            text=_('This model does not use the generic deletion view.'),
+            status_code=409, html=True,
+        )
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_empty_trash01(self):

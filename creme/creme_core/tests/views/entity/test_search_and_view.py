@@ -17,6 +17,24 @@ class SearchAndViewTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertRedirects(response, entity.get_absolute_url())
 
+    def test_value_error(self):
+        self.login_as_root()
+
+        url = self.SEARCHNVIEW_URL
+        data = {'models': 'creme_core-fakecontact', 'fields': 'phone'}
+        response1 = self.client.get(url, data=data)
+        self.assertContains(
+            response1,
+            text='No GET argument with this key: &quot;value&quot;',
+            status_code=404,
+        )
+
+        # ---
+        response2 = self.client.get(url, data={**data, 'value': ''})
+        self.assertContains(
+            response2, text='Void &quot;value&quot; arg', status_code=404,
+        )
+
     def test_one_model_one_field(self):
         user = self.login_as_root_and_get()
 

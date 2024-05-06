@@ -10,6 +10,7 @@ from creme.creme_core import constants
 from creme.creme_core.models import (
     CremeEntity,
     FakeContact,
+    FakeDocument,
     FakeImage,
     FakeOrganisation,
     FieldsConfig,
@@ -156,14 +157,14 @@ class EntityViewsTestCase(CremeTestCase):
         self.assertIsList(json_data)
         self.assertTrue(all(isinstance(elt, list) for elt in json_data))
         self.assertTrue(all(len(elt) == 2 for elt in json_data))
-
-        names = [
-            'created', 'modified', 'first_name', 'last_name', 'description',
-            'phone', 'mobile', 'email', 'birthday', 'url_site',
-            'is_a_nerd', 'loves_comics',
-        ]
-        self.assertFalse({*names}.symmetric_difference({name for name, vname in json_data}))
-        self.assertEqual(len(names), len(json_data))
+        self.assertCountEqual(
+            [
+                'created', 'modified', 'first_name', 'last_name', 'description',
+                'phone', 'mobile', 'email', 'birthday', 'url_site',
+                'is_a_nerd', 'loves_comics',
+            ],
+            [name for name, vname in json_data],
+        )
 
         json_dict = dict(json_data)
         self.assertEqual(_('First name'), json_dict['first_name'])
@@ -175,15 +176,15 @@ class EntityViewsTestCase(CremeTestCase):
     def test_get_info_fields02(self):
         self.login_as_root()
 
-        response = self.client.get(self._build_test_get_info_fields_url(FakeOrganisation))
+        response = self.assertGET200(self._build_test_get_info_fields_url(FakeOrganisation))
         json_data = response.json()
-
-        names = [
-            'created', 'modified', 'name', 'description', 'url_site',
-            'phone', 'email', 'creation_date',  'subject_to_vat', 'capital',
-        ]
-        self.assertFalse({*names}.symmetric_difference({name for name, vname in json_data}))
-        self.assertEqual(len(names), len(json_data))
+        self.assertCountEqual(
+            [
+                'created', 'modified', 'name', 'description', 'url_site',
+                'phone', 'email', 'creation_date', 'subject_to_vat', 'capital',
+            ],
+            [name for name, vname in json_data],
+        )
 
         json_dict = dict(json_data)
         self.assertEqual(_('Description'), json_dict['description'])
@@ -192,8 +193,21 @@ class EntityViewsTestCase(CremeTestCase):
             json_dict['name'],
         )
 
-    def test_get_info_fields03(self):
-        "With FieldsConfig."
+    def test_get_info_fields__several_required_fields(self):
+        self.login_as_root()
+
+        response = self.assertGET200(self._build_test_get_info_fields_url(FakeDocument))
+        json_data = response.json()
+        self.assertCountEqual(
+            ['created', 'modified', 'title', 'description', 'filedata'],
+            [name for name, vname in json_data],
+        )
+
+        json_dict = dict(json_data)
+        self.assertEqual(_('Title'), json_dict['title'])
+        self.assertEqual(_('File'), json_dict['filedata'])
+
+    def test_get_info_fields__fieldsconfig(self):
         self.login_as_root()
 
         FieldsConfig.objects.create(
