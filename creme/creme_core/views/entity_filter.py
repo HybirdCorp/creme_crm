@@ -571,6 +571,7 @@ class EntityFilterUserEnumerator(UserEnumerator):
             if issubclass(operand.model, User):
                 yield operand
 
+    # TODO: unit test
     def to_python(self, user, values):
         operands = {o.type_id for o in self.get_user_operands(user)}
 
@@ -609,10 +610,11 @@ class UserChoicesView(FieldChoicesView):
         return EntityFilterUserEnumerator(field, filter_type=self.filter_type)
 
     def get(self, request, *args, **kwargs):
-        try:
-            # self.filter_type = int(request.GET.get('filter_type', EF_USER))
-            self.filter_type = request.GET.get('filter_type', EF_REGULAR)
-        except ValueError as e:
-            raise BadRequestError(e) from e
+        # try:
+        #     self.filter_type = int(request.GET.get('filter_type', EF_USER))
+        # except ValueError as e:
+        #     raise BadRequestError(e) from e
+        # TODO: check type?
+        self.filter_type = request.GET.get('filter_type', EF_REGULAR)
 
         return super().get(request, *args, **kwargs)
