@@ -2129,6 +2129,11 @@ class UserChoicesTestCase(CremeTestCase):
 
         cls.contact_ctype = ContentType.objects.get_for_model(FakeContact)
 
+    def _build_url(self, field_name='user'):
+        return reverse(
+            'creme_core__efilter_user_choices', args=(self.contact_ctype.id, field_name)
+        )
+
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
@@ -2142,9 +2147,7 @@ class UserChoicesTestCase(CremeTestCase):
         first_user = self.create_user(index=2)
         self.assertGreater(str(user), str(first_user))
 
-        url = reverse(
-            'creme_core__efilter_user_choices', args=(self.contact_ctype.pk, 'user')
-        )
+        url = self._build_url()
         choices1 = self.assertGET200(url).json()
         self.assertIsList(choices1, min_length=3)
 
@@ -2193,11 +2196,12 @@ class UserChoicesTestCase(CremeTestCase):
         "Other registered operands."
         self.login_as_root()
 
-        url = reverse(
-            'creme_core__efilter_user_choices', args=(self.contact_ctype.pk, 'user')
-        )
         choices = self.assertGET200(
-            f'{url}?filter_type={self.EF_TEST}'
+            f'{self._build_url()}?filter_type={self.EF_TEST}'
         ).json()
         self.assertEqual(self.MainUserOperand.type_id,   choices[0]['value'])
         self.assertEqual(self.SuperUsersOperand.type_id, choices[1]['value'])
+
+    def test_field_does_not_exist(self):
+        self.login_as_root()
+        self.assertGET404(self._build_url(field_name='invalid'))
