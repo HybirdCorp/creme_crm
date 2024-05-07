@@ -238,7 +238,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         model = self.model
 
         logger.critical(
-            'No HeaderFilter is available for <%s> ; '
+            'No HeaderFilter is available for <%s>; '
             'the developer should have created one in "populate.py" script',
             model,
         )
@@ -568,10 +568,10 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
             form = form_builder(data=arguments)
             form.full_clean()
 
-            if not form.filtered_data:  # TODO: unit test
+            if not form.filtered_data:
                 stored_search = state.search
 
-                if stored_search:  # TODO: unit test
+                if stored_search:
                     form = form_builder(data=stored_search)
                     form.full_clean()
 

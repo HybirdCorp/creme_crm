@@ -265,6 +265,13 @@ class ListViewTestCase(CremeTestCase):
             ],
         )
 
+    def test_not_logged(self):
+        url = self.url
+        response = self.assertGET(302, url)
+        self.assertRedirects(
+            response, '{}?next={}'.format(reverse('creme_login'), url),
+        )
+
     def test_content01(self):
         user = self.login_as_root_and_get()
 
@@ -475,6 +482,35 @@ class ListViewTestCase(CremeTestCase):
             f'<a href="/tests/contact/{spike.id}" target="_blank">{spike}</a>'.encode(),
             html_tostring(rtype_cell_content[0]).strip(),
         )
+
+    def test_no_headerfilter(self):
+        self.login_as_root()
+        ct = ContentType.objects.get_for_model(FakeMailingList)
+        self.assertFalse(HeaderFilter.objects.filter(entity_type=ct))
+
+        url = FakeMailingList.get_lv_absolute_url()
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/forms/header-filter.html')
+
+        # ---
+        name = 'ML view'
+        response2 = self.client.post(
+            url,
+            data={
+                'name':  name,
+                'cells': 'regular_field-name',
+            },
+        )
+        self.assertNoFormError(response2, status=302)
+
+        hfilter = self.get_object_or_fail(HeaderFilter, entity_type=ct, name=name)
+        self.assertEqual(1, len(hfilter.cells))
+
+        self.assertRedirects(response2, url)
+
+        # ---
+        response3 = self.assertGET200(url)
+        self._get_lv_node(response3)
 
     def test_selection_single(self):
         user = self.login_as_root_and_get()
@@ -1454,20 +1490,28 @@ class ListViewTestCase(CremeTestCase):
         hf = self._build_hf(cell)
         url = self.url
         data = {'hfilter': hf.id}
-        response = self.assertPOST200(url, data={**data, 'search-' + cell.key: '1'})
-        orgas_set = self._get_entities_set(response)
-        self.assertNotIn(bebop, orgas_set)
-        self.assertIn(nerv,     orgas_set)
-        self.assertIn(seele,    orgas_set)
+        response1 = self.assertPOST200(url, data={**data, f'search-{cell.key}': '1'})
+        orgas_set1 = self._get_entities_set(response1)
+        self.assertNotIn(bebop, orgas_set1)
+        self.assertIn(nerv,     orgas_set1)
+        self.assertIn(seele,    orgas_set1)
 
         # -------------------------------
         # with CaptureQueriesContext() as context:  TODO
-        response = self.assertPOST200(url, data={**data, 'search-' + cell.key: '0'})
+        response2 = self.assertPOST200(url, data={**data, f'search-{cell.key}': '0'})
 
-        orgas_set = self._get_entities_set(response)
-        self.assertIn(bebop,    orgas_set)
-        self.assertNotIn(nerv,  orgas_set)
-        self.assertNotIn(seele, orgas_set)
+        orgas_set2 = self._get_entities_set(response2)
+        self.assertIn(bebop,    orgas_set2)
+        self.assertNotIn(nerv,  orgas_set2)
+        self.assertNotIn(seele, orgas_set2)
+
+        # Empty search => stored search used ---
+        response3 = self.assertPOST200(url, data=data)
+
+        orgas_set3 = self._get_entities_set(response3)
+        self.assertIn(bebop,    orgas_set3)
+        self.assertNotIn(nerv,  orgas_set3)
+        self.assertNotIn(seele, orgas_set3)
 
         # TODO
         # self._assertNoDistinct(context.captured_sql)
