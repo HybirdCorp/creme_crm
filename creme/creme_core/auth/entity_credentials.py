@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -72,6 +72,13 @@ class EntityCredentials:
         @param user: <django.contrib.auth.get_user_model()> instance.
         @param entity: CremeEntity (or child class) instance.
         """
+        from ..models import CremeEntity
+        if not isinstance(entity, CremeEntity):
+            raise TypeError(
+                'EntityCredentials: the argument "entity" is not a CremeEntity '
+                f'(currently "{entity}" is a {type(entity)}).'
+            )
+
         if user.is_superuser:
             value = self._ALL_CREDS
         else:

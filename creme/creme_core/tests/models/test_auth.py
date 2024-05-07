@@ -39,6 +39,7 @@ from creme.documents.models import Document, Folder
 from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 
 from ..base import CremeTestCase, skipIfNotInstalled
+from ..fake_models import FakeTodo
 
 
 class AuthTestCase(CremeTestCase):
@@ -2423,7 +2424,7 @@ class AuthTestCase(CremeTestCase):
         self.assertTrue(user.has_perm_to_view(entity))
         self.assertFalse(user.has_perm_to_change(entity))
 
-    def test_has_perm_to02(self):
+    def test_has_perm_to__auxiliary_entity(self):
         "Not real entity + auxiliary entity + change/delete."
         user = self.create_user()
         ct = ContentType.objects.get_for_model(FakeInvoice)
@@ -2475,6 +2476,42 @@ class AuthTestCase(CremeTestCase):
         # with self.assertNumQueries(2):
         can_delete_eline = user.has_perm_to_delete(line_entity)
         self.assertTrue(can_delete_eline)
+
+    def test_has_perm_to__auxiliary(self):
+        "Simple Model + auxiliary entity + change/delete."
+        user1 = self.create_user(0)
+        user2 = self.create_user(1)
+        ESET_OWN = SetCredentials.ESET_OWN
+        self._create_role(
+            'Worker', ['creme_core'], users=[user1, user2],
+            set_creds=[
+                SetCredentials(value=EntityCredentials.VIEW,   set_type=ESET_OWN),
+                SetCredentials(value=EntityCredentials.CHANGE, set_type=ESET_OWN),
+                # SetCredentials(value=EntityCredentials.DELETE, set_type=ESET_OWN),
+            ],
+        )
+
+        entity = FakeContact.objects.create(user=user1, first_name='Munisai', last_name='Shinmen')
+        todo = FakeTodo.objects.create(title='Todo#1', creme_entity=entity)
+
+        self.assertTrue(user1.has_perm_to_view(entity))
+        self.assertTrue(user1.has_perm_to_change(entity))
+        self.assertFalse(user1.has_perm_to_delete(entity))
+        self.assertFalse(user2.has_perm_to_view(entity))
+        self.assertFalse(user2.has_perm_to_change(entity))
+        self.assertFalse(user2.has_perm_to_delete(entity))
+
+        self.assertTrue(user1.has_perm_to_view(todo))
+        self.assertTrue(user1.has_perm_to_change(todo))
+        self.assertTrue(user1.has_perm_to_delete(todo))
+        self.assertFalse(user2.has_perm_to_view(todo))
+        self.assertFalse(user2.has_perm_to_change(todo))
+        self.assertFalse(user2.has_perm_to_delete(todo))
+
+        # Not entity, not auxiliary
+        with self.assertRaises(TypeError) as cm:
+            user1.has_perm_to_view(user2)
+        self.assertIn('get_related_entity', str(cm.exception))
 
     def test_has_perm_to_link01(self):
         "Superuser."
