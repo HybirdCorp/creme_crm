@@ -53,6 +53,7 @@ if TYPE_CHECKING:
     from typing import DefaultDict, Iterable, Sequence, Type, Union
 
     from ..core.sandbox import SandboxType
+    from .base import CremeModel
 
     EntityInstanceOrClass = Union[Type[CremeEntity], CremeEntity]
 
@@ -1214,23 +1215,66 @@ class CremeUser(AbstractBaseUser):
                 )
             )
 
-    def has_perm_to_change(self, entity: CremeEntity) -> bool:
-        if entity.is_deleted:
-            return False
+    def _get_related_entity(self, instance: CremeModel) -> CremeEntity:
+        try:
+            get_related_entity = instance.get_related_entity
+        except AttributeError as e:
+            raise TypeError(
+                'The permission system need an instance of CremeEntity or a '
+                'model with a method <get_related_entity()>'
+            ) from e
 
-        main_entity = (
-            entity.get_real_entity().get_related_entity()
-            if hasattr(entity.entity_type.model_class(), 'get_related_entity')
-            else entity
-        )
+        entity = get_related_entity()
 
-        return self._get_credentials(main_entity).can_change()
+        if not isinstance(entity, CremeEntity):
+            # TODO: unit test
+            raise TypeError(
+                f'The get_related_entity() of "{instance}" MUST return a CremeEntity instance'
+            )
 
-    def has_perm_to_change_or_die(self, entity: CremeEntity) -> None:
+        if hasattr(entity, 'get_related_entity'):
+            # TODO: unit test
+            raise TypeError(
+                f'The get_related_entity() of "{instance}" MUST return a '
+                f'CremeEntity instance without method <get_related_entity()>'
+            )
+
+        return entity
+
+    def _get_main_entity(self, instance: CremeModel) -> CremeEntity:
+        if isinstance(instance, CremeEntity):
+            return (
+                self._get_related_entity(instance.get_real_entity())
+                if hasattr(instance.entity_type.model_class(), 'get_related_entity')
+                else instance
+            )
+        else:
+            return self._get_related_entity(instance)
+
+    # TODO: change argument name ("instance")
+    def has_perm_to_change(self, entity: CremeModel) -> bool:
+        """Has a user the permission to modify an instance.
+        @param entity: An instance of CremeEntity, or an auxiliary instance
+               (i.e. with a method get_related_entity()).
+        """
+        # if entity.is_deleted:
+        #     return False
+        #
+        # main_entity = (
+        #     entity.get_real_entity().get_related_entity()
+        #     if hasattr(entity.entity_type.model_class(), 'get_related_entity')
+        #     else entity
+        # )
+        main_entity = self._get_main_entity(entity)
+
+        return False if main_entity.is_deleted else self._get_credentials(main_entity).can_change()
+
+    def has_perm_to_change_or_die(self, entity: CremeModel) -> None:
         if not self.has_perm_to_change(entity):
             raise PermissionDenied(
                 gettext('You are not allowed to edit this entity: {}').format(
-                    entity.allowed_str(self),
+                    # entity.allowed_str(self),
+                    self._get_main_entity(entity).allowed_str(self),
                 )
             )
 
@@ -1249,19 +1293,34 @@ class CremeUser(AbstractBaseUser):
                 )
             )
 
-    def has_perm_to_delete(self, entity: CremeEntity) -> bool:
-        if hasattr(entity.entity_type.model_class(), 'get_related_entity'):  # TODO: factorise
+    # TODO: rename argument (see <has_perm_to_change()>)
+    def has_perm_to_delete(self, entity: CremeModel) -> bool:
+        """Has a user the permission to delete an instance.
+        @param entity: An instance of CremeEntity, or an auxiliary instance
+               (i.e. with a method get_related_entity()).
+        """
+        # if hasattr(entity.entity_type.model_class(), 'get_related_entity'):
+        #     return self._get_credentials(
+        #         entity.get_real_entity().get_related_entity(),
+        #     ).can_change()
+        #
+        # return self._get_credentials(entity).can_delete()
+        if not isinstance(entity, CremeEntity):
+            return self._get_credentials(self._get_related_entity(entity)).can_change()
+
+        if hasattr(entity.entity_type.model_class(), 'get_related_entity'):
             return self._get_credentials(
-                entity.get_real_entity().get_related_entity(),
+                self._get_related_entity(entity.get_real_entity()),
             ).can_change()
 
         return self._get_credentials(entity).can_delete()
 
-    def has_perm_to_delete_or_die(self, entity: CremeEntity) -> None:
+    def has_perm_to_delete_or_die(self, entity: CremeModel) -> None:
         if not self.has_perm_to_delete(entity):
             raise PermissionDenied(
                 gettext('You are not allowed to delete this entity: {}').format(
-                    entity.allowed_str(self),
+                    # entity.allowed_str(self),
+                    self._get_main_entity(entity).allowed_str(self),
                 )
             )
 
@@ -1338,15 +1397,21 @@ class CremeUser(AbstractBaseUser):
                 )
             )
 
-    def has_perm_to_view(self, entity: CremeEntity) -> bool:
-        # TODO: what about related_entity ?
-        return self._get_credentials(entity).can_view()
+    # TODO: rename argument (see <has_perm_to_change()>)
+    def has_perm_to_view(self, entity: CremeModel) -> bool:
+        """Has a user the permission to view an instance.
+        @param entity: An instance of CremeEntity, or an auxiliary instance
+               (i.e. with a method get_related_entity()).
+        """
+        # return self._get_credentials(entity).can_view()
+        return self._get_credentials(self._get_main_entity(entity)).can_view()
 
-    def has_perm_to_view_or_die(self, entity: CremeEntity) -> None:
+    def has_perm_to_view_or_die(self, entity: CremeModel) -> None:
         if not self.has_perm_to_view(entity):
             raise PermissionDenied(
                 gettext('You are not allowed to view this entity: {}').format(
-                    entity.allowed_str(self),
+                    # entity.allowed_str(self),
+                    self._get_main_entity(entity).allowed_str(self),
                 )
             )
 

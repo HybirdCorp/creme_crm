@@ -678,10 +678,17 @@ class SearchAndView(base.CheckedView):
 # TODO: remove when bulk_update_registry has been rework to manage different
 #       types of cells (e.g. RelationType => LINK)
 def _bulk_has_perm(entity, user):  # NB: indeed 'entity' can be a simple model...
-    # TODO: factorise
-    owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity
+    # owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity
+    # return user.has_perm_to_change(owner) if isinstance(owner, CremeEntity) else False
+    try:
+        return user.has_perm_to_change(entity)
+    except TypeError as e:
+        logger.critical(
+            'Cannot resolve CHANGE permission for inner/bulk edition '
+            '(original error: %s)', e,
+        )
 
-    return user.has_perm_to_change(owner) if isinstance(owner, CremeEntity) else False
+    return False
 
 
 class InnerEdition(base.EntityCTypeRelatedMixin,
