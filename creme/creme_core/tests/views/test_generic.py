@@ -140,13 +140,11 @@ class DetailTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET200(fox.get_absolute_url())
 
     def test_not_logged(self):
-        user = self.login_as_root_and_get()
         fox = FakeContact.objects.create(
-            user=user, first_name='Fox', last_name='McCloud',
+            user=self.get_root_user(), first_name='Fox', last_name='McCloud',
         )
         url = fox.get_absolute_url()
 
-        self.client.logout()
         response = self.assertGET(302, url)
         self.assertRedirects(
             response, '{}?next={}'.format(reverse('creme_login'), url),
