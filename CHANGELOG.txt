@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # An useless/empty message panel in the errors-popup for bulk-update has been removed.
     # Apps :
         * Tickets :
             - In list-view, the background color for important tickets was broken.
