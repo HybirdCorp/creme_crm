@@ -11,9 +11,9 @@ QUnit.module("creme.ajax.utils.js", new QUnitMixin(QUnitAjaxMixin,
 }));
 
 QUnit.parametrize('creme.ajax.Backend (options)', [
-    [{}, {dataType: 'html', sync: false, debug: false}],
-    [{dataType: 'json'}, {dataType: 'json', sync: false, debug: false}],
-    [{any: 'value'}, {dataType: 'html', sync: false, debug: false, any: 'value'}]
+    [{}, {dataType: 'html', sync: false, debug: false, traditional: true}],
+    [{dataType: 'json'}, {dataType: 'json', sync: false, debug: false, traditional: true}],
+    [{any: 'value'}, {dataType: 'html', sync: false, debug: false, any: 'value', traditional: true}]
 ], function(options, expected, assert) {
     var backend = new creme.ajax.Backend(options);
     deepEqual(backend.options, expected);
