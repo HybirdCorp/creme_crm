@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2022 Hybird
+# Copyright (c) 2016-2024 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -130,7 +130,7 @@ class FileCreator:
         if not exists(dir_path):
             try:
                 os.makedirs(dir_path, 0o755)
-            except os.error as e:
+            except OSError as e:
                 if not exists(dir_path):
                     logger.warning('Cannot create directory %s (%s)', dir_path, e)
 
