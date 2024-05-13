@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from functools import partial
 from json import loads as json_load
-from typing import Any, Callable, Iterator, Type
+from typing import Any, Callable, Iterator
 
 from django import forms
 from django.db.models import Model, TextField
@@ -78,11 +78,6 @@ class _SettingKey:
         EMAIL:  forms.EmailField,
     }
 
-    id: str
-    app_label: str
-    type: int
-    hidden: bool
-
     def __init__(self, *,
                  id: str,
                  description: str,
@@ -90,7 +85,7 @@ class _SettingKey:
                  type: int = STRING,
                  hidden: bool = False,
                  blank: bool = False,
-                 formfield_class: Type[forms.Field] | None = None,
+                 formfield_class: type[forms.Field] | None = None,
                  html_printer: Callable[[Any], str] | None = None,
                  ):
         """Constructor.
@@ -105,12 +100,12 @@ class _SettingKey:
         @param html_printer: Function to render the related value as HTML;
                it must take one argument (the string value).
         """
-        self.id = id
-        self.description = description
-        self.app_label = app_label
-        self.type = type
-        self.hidden = hidden
-        self.blank = blank
+        self.id: str = id
+        self.description: str = description
+        self.app_label: str = app_label
+        self.type: int = type
+        self.hidden: bool = hidden
+        self.blank: bool = blank
         self.formfield_class = formfield_class
         self.html_printer = html_printer
 

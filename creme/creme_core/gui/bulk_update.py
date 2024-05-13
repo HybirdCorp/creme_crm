@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 from itertools import chain
-from typing import Iterable, Iterator, Sequence, Type
+from typing import Iterable, Iterator, Sequence
 
 from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
@@ -241,7 +241,7 @@ class _BulkUpdateRegistry:
             return self
 
         @property
-        def overrider_classes(self) -> dict[str, Type[FieldOverrider]]:
+        def overrider_classes(self) -> dict[str, type[FieldOverrider]]:
             overrider_classes = {}
             for overrider_cls in self._overrider_classes:
                 for field_name in overrider_cls.field_names:
@@ -271,10 +271,10 @@ class _BulkUpdateRegistry:
         return self._configs.get(model)
 
     def build_form_class(self,
-                         model: Type[CremeEntity],
+                         model: type[CremeEntity],
                          cells: Sequence[EntityCell],
                          exclude_unique=False,
-                         ) -> Type[base.CremeModelForm]:
+                         ) -> type[base.CremeModelForm]:
         """Build a class inheriting <CremeModelForm> to edit only the given fields
         @param model: Type of the instance(s) we want to edit.
         @param cells: The EntityCells corresponding to the fields (regular fields,

@@ -16,7 +16,7 @@ from .base import BaseReportsTestCase, skipIfCustomReport
 class GraphFetchSettingsTestCase(BaseReportsTestCase):
     @classmethod
     def setUpClass(cls):
-        super(GraphFetchSettingsTestCase, cls).setUpClass()
+        super().setUpClass()
 
         # TODO : Use a fake registry instead.
         report_chart_registry.register(

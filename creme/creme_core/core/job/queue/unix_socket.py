@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2022  Hybird
+#    Copyright (C) 2021-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -79,7 +79,7 @@ class UnixSocketQueue(BaseJobSchedulerQueue):
         if not os_path.exists(base_dir_path):
             try:
                 os.makedirs(base_dir_path, 0o700)
-            except os.error as e:
+            except OSError as e:
                 logger.warning('Cannot create directory %s (%s)', base_dir_path, e)
 
                 raise ImproperlyConfigured(
@@ -98,7 +98,7 @@ class UnixSocketQueue(BaseJobSchedulerQueue):
         # TODO: factorise
         try:
             os.mkdir(private_dir_path, 0o700)
-        except os.error as e:
+        except OSError as e:
             logger.warning('Cannot create directory %s (%s)', private_dir_path, e)
 
             raise ImproperlyConfigured(

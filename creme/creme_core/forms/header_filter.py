@@ -659,7 +659,7 @@ class _HeaderFilterForm(CremeModelForm):
 
 class HeaderFilterCreationForm(_HeaderFilterForm):
     def __init__(self,
-                 ctype: 'ContentType',
+                 ctype: ContentType,
                  smart_columns_registry: SmartColumnsRegistry | None = None,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)

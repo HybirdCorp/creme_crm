@@ -53,7 +53,7 @@ FAKE_CRUDITY_BACKENDS = [
 
 
 class FakePOP3:
-    instances: list['FakePOP3'] = []
+    instances: list[FakePOP3] = []
 
     def __init__(self, host, port=None, timeout=None):
         self._host = host

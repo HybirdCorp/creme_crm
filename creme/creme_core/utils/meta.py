@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2023 Hybird
+# Copyright (c) 2009-2024 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -238,7 +238,7 @@ class _ExcludeModelFieldQuery(_FilterModelFieldQuery):
 
 class ModelFieldEnumerator:
     def __init__(self,
-                 model: Type[Model],
+                 model: type[Model],
                  depth: int = 0,
                  only_leaves: bool = True,
                  ):
