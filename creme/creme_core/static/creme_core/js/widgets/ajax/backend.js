@@ -37,7 +37,9 @@ creme.ajax.Backend = function(options) {
     this.options = $.extend({
         dataType: 'html',
         sync: false,
-        debug: false
+        debug: false,
+        // Keep using traditional=true as default to replace ajaxSettings.traditional
+        traditional: true
     }, options || {});
 };
 
