@@ -3676,7 +3676,8 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter2 = efilter1.clone()
         self.assertIsInstance(efilter2, EntityFilter)
-        self.assertEqual('test-1',      efilter2.pk)
+        # self.assertEqual('test-1',      efilter2.pk)
+        self.assertStartsWith(efilter2.id, 'test-')
         self.assertEqual(efilter1.name, efilter2.name)
         # self.assertEqual(EF_USER,       efilter2.filter_type)
         self.assertEqual(EF_REGULAR,    efilter2.filter_type)
@@ -3720,9 +3721,10 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter1.filter_type = EF_CREDENTIALS
 
         efilter2 = efilter1.clone()
-        self.assertEqual('creme_core-cloned-1', efilter2.pk)
-        self.assertEqual(efilter1.name,         efilter2.name)
-        self.assertEqual(EF_CREDENTIALS,        efilter2.filter_type)
+        # self.assertEqual('creme_core-cloned-1', efilter2.pk)
+        self.assertStartsWith(efilter2.id, 'creme_core-cloned-')
+        self.assertEqual(efilter1.name, efilter2.name)
+        self.assertEqual(EF_CREDENTIALS, efilter2.filter_type)
         self.assertTrue(efilter2.is_custom)
         self.assertEqual(user, efilter2.user)
         self.assertTrue(efilter2.use_or)

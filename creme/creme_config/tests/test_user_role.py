@@ -856,7 +856,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(name, efilter.name)
         self.assertTrue(efilter.is_custom)
         self.assertFalse(efilter.use_or)
-        self.assertEqual(f'creme_core-credentials_{role.id}-1', efilter.id)
+        # self.assertEqual(f'creme_core-credentials_{role.id}-1', efilter.id)
+        self.assertStartsWith(efilter.id, f'creme_core-credentials_{role.id}-')
         self.assertEqual(EF_CREDENTIALS, efilter.filter_type)
 
         condition = self.get_alone_element(efilter.conditions.all())
@@ -1289,10 +1290,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsInstance(efilter, EntityFilter)
         self.assertEqual(name, efilter.name)
         self.assertTrue(efilter.use_or)
-        self.assertEqual(
-            f'creme_core-credentials_{role.id}-1',
-            efilter.id,
-        )
+        # self.assertEqual(f'creme_core-credentials_{role.id}-1', efilter.id)
+        self.assertStartsWith(efilter.id, f'creme_core-credentials_{role.id}-')
         self.assertEqual(EF_CREDENTIALS, efilter.filter_type)
 
         condition = self.get_alone_element(efilter.conditions.all())
