@@ -28,7 +28,8 @@ from django.utils.formats import get_format
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
-from creme.creme_core.models import CremeEntity, CustomFieldEnumValue, Relation
+# from creme.creme_core.models import CremeEntity
+from creme.creme_core.models import CustomFieldEnumValue, Relation
 from creme.creme_core.models.fields import ColorField
 from creme.reports.constants import AbscissaGroup
 from creme.reports.utils import sparsezip
@@ -627,31 +628,48 @@ class RGHRelation(ReportGraphHand):
         self._rtype = rtype
 
     def _fetch(self, *, entities, order, user, extra_q):
-        # TODO: Optimize ! (populate real entities)
-        # TODO: sort alphabetically (with header_filter_search_field ?
-        #       Queryset is not paginated so we can sort the "list") ?
-        # TODO: make listview url for this case
+        # build_url = self._listview_url_builder(extra_q=extra_q)
+        # relations = Relation.objects.filter(
+        #     type=self._rtype, subject_entity__entity_type=self._graph.linked_report.ct,
+        # )
+        # rel_filter = relations.filter
+        # ce_objects_get = CremeEntity.objects.get
+        # entities_filter = entities.filter
+        # y_value_func = self._y_calculator.aggregate
+        #
+        # for obj_id in relations.values_list('object_entity', flat=True).distinct():
+        #     subj_ids = rel_filter(
+        #         object_entity=obj_id,
+        #     ).order_by('subject_entity__id').values_list('subject_entity')
+        #
+        #     yield (
+        #         str(ce_objects_get(pk=obj_id).get_real_entity()),
+        #         [
+        #             y_value_func(entities_filter(pk__in=subj_ids)),
+        #             build_url({'pk__in': [e[0] for e in subj_ids]}),
+        #         ],
+        #     )
+        rtype_id = self._rtype.id
         build_url = self._listview_url_builder(extra_q=extra_q)
-        relations = Relation.objects.filter(
-            type=self._rtype, subject_entity__entity_type=self._graph.linked_report.ct,
-        )
-        rel_filter = relations.filter
-        ce_objects_get = CremeEntity.objects.get
         entities_filter = entities.filter
         y_value_func = self._y_calculator.aggregate
 
-        for obj_id in relations.values_list('object_entity', flat=True).distinct():
-            subj_ids = rel_filter(
-                object_entity=obj_id,
-            ).order_by('subject_entity__id').values_list('subject_entity')
+        # NB: we assume the field "header_filter_search_field" is up-to-date
+        #     (it should be in the absolute, but it's not the responsibility of this code)
+        # TODO: order_by 'header_filter_search_field'
+        # TODO: limit + warning message (in UI) when the limit is reached?
+        for obj_id, obj_str in Relation.objects.filter(
+            type_id=rtype_id, subject_entity__entity_type=self._graph.linked_report.ct,
+        ).values_list(
+            'object_entity_id',
+            'object_entity__header_filter_search_field',
+        ).order_by('object_entity__header_filter_search_field').distinct():
+            q_dict = {
+                'relations__type_id': rtype_id,
+                'relations__object_entity_id': obj_id,
+            }
 
-            yield (
-                str(ce_objects_get(pk=obj_id).get_real_entity()),
-                [
-                    y_value_func(entities_filter(pk__in=subj_ids)),
-                    build_url({'pk__in': [e[0] for e in subj_ids]}),
-                ],
-            )
+            yield (obj_str, [y_value_func(entities_filter(**q_dict)), build_url(q_dict)])
 
     @property
     def verbose_abscissa(self):
