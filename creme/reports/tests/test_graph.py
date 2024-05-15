@@ -2568,9 +2568,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         self.assertEqual(2, len(x_asc))
 
-        with self.assertNoException():
-            lannisters_idx = x_asc.index(str(lannisters))
-            starks_idx     = x_asc.index(str(starks))
+        lannisters_idx = self.assertIndex(str(lannisters), x_asc)
+        starks_idx     = self.assertIndex(str(starks),     x_asc)
 
         fmt = '/tests/contacts?q_filter={}&filter=test-filter'.format
         self.assertListEqual(
@@ -2636,11 +2635,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         x_asc, y_asc = rgraph.fetch(user)
         self.assertEqual(2, len(x_asc))
 
-        ned_index = x_asc.index(str(ned))
-        self.assertNotEqual(-1,  ned_index)
-
-        tywin_index = x_asc.index(str(tywin))
-        self.assertNotEqual(-1,  tywin_index)
+        ned_index   = self.assertIndex(str(ned),   x_asc)
+        tywin_index = self.assertIndex(str(tywin), x_asc)
 
         fmt = '/tests/organisations?q_filter={}'.format
         self.assertListEqual(

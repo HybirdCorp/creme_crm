@@ -61,13 +61,8 @@ class SalesPhaseTestCase(CremeTestCase):
 
         response = self.assertGET200(self.PORTAL_URL)
         content = response.content.decode()
-
-        sp1_index = content.index(sp1.name)
-        self.assertNotEqual(-1, sp1_index)
-
-        sp2_index = content.index(sp2.name)
-        self.assertNotEqual(-1, sp2_index)
-
+        sp1_index = self.assertIndex(sp1.name, content)
+        sp2_index = self.assertIndex(sp2.name, content)
         self.assertLess(sp2_index, sp1_index)  # order_by('order')
 
     def test_creme_config_brick_reordering(self):
