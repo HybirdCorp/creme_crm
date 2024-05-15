@@ -2541,44 +2541,54 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ],
         )
 
+        rtype_id = fake_constants.FAKE_REL_SUB_EMPLOYED_BY
         create_rel = partial(
             Relation.objects.create,
-            user=user, type_id=fake_constants.FAKE_REL_OBJ_EMPLOYED_BY,
+            user=user, type_id=rtype_id,
         )
-        create_rel(subject_entity=lannisters, object_entity=tyrion)
-        create_rel(subject_entity=starks,     object_entity=ned)
-        create_rel(subject_entity=starks,     object_entity=aria)
-        create_rel(subject_entity=starks,     object_entity=jon)
+        create_rel(subject_entity=tyrion, object_entity=lannisters)
+        create_rel(subject_entity=ned,    object_entity=starks)
+        create_rel(subject_entity=aria,   object_entity=starks)
+        create_rel(subject_entity=jon,    object_entity=starks)
 
         report = self._create_simple_contacts_report(user=user, efilter=efilter)
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of employees',
-            abscissa_cell_value=fake_constants.FAKE_REL_SUB_EMPLOYED_BY,
+            abscissa_cell_value=rtype_id,
             abscissa_type=ReportGraph.Group.RELATION,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         # ASC -----------------------------------------------------------------
         x_asc, y_asc = rgraph.fetch(user=user)
-        # TODO: sort alphabetically (see comment in the code)
-        # self.assertEqual([str(lannisters), str(starks)], x_asc)
-        # self.assertEqual(1, y_asc[0])
-        # self.assertEqual(2, y_asc[1]) #not 3, because of the filter
-
-        self.assertEqual(2, len(x_asc))
-
-        lannisters_idx = self.assertIndex(str(lannisters), x_asc)
-        starks_idx     = self.assertIndex(str(starks),     x_asc)
+        # self.assertEqual(2, len(x_asc))
+        # lannisters_idx = self.assertIndex(str(lannisters), x_asc)
+        # starks_idx     = self.assertIndex(str(starks),     x_asc)
+        self.assertEqual([str(lannisters), str(starks)], x_asc)
 
         fmt = '/tests/contacts?q_filter={}&filter=test-filter'.format
         self.assertListEqual(
-            [1, fmt(self._serialize_qfilter(pk__in=[tyrion.id]))],
-            y_asc[lannisters_idx],
+            # [1, fmt(self._serialize_qfilter(pk__in=[tyrion.id]))],
+            [
+                1,
+                fmt(self._serialize_qfilter(
+                    relations__type_id=rtype_id, relations__object_entity_id=lannisters.id,
+                ))
+            ],
+            # y_asc[lannisters_idx],
+            y_asc[0],
         )
         self.assertListEqual(
-            [2, fmt(self._serialize_qfilter(pk__in=[ned.id, aria.id, jon.id]))],
-            y_asc[starks_idx],
+            # [2, fmt(self._serialize_qfilter(pk__in=[ned.id, aria.id, jon.id]))],
+            [
+                2,
+                fmt(self._serialize_qfilter(
+                    relations__type_id=rtype_id, relations__object_entity_id=starks.id,
+                ))
+            ],
+            # y_asc[starks_idx],
+            y_asc[1],
         )  # Not 3, because of the filter
 
         # DESC ----------------------------------------------------------------
@@ -2595,7 +2605,10 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListviewURL(
             url=xtra_url,
             model=FakeContact,
-            expected_q=extra_q & Q(pk__in=[ned.id, aria.id, jon.id]),
+            # expected_q=extra_q & Q(pk__in=[ned.id, aria.id, jon.id]),
+            expected_q=extra_q & Q(
+                relations__type_id=rtype_id, relations__object_entity_id=starks.id,
+            ),
             expected_efilter_id=efilter.id,
         )
 
@@ -2633,19 +2646,33 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         # ASC -----------------------------------------------------------------
         x_asc, y_asc = rgraph.fetch(user)
-        self.assertEqual(2, len(x_asc))
-
-        ned_index   = self.assertIndex(str(ned),   x_asc)
-        tywin_index = self.assertIndex(str(tywin), x_asc)
+        # self.assertEqual(2, len(x_asc))
+        # ned_index   = self.assertIndex(str(ned),   x_asc)
+        # tywin_index = self.assertIndex(str(tywin), x_asc)
+        self.assertEqual([str(ned), str(tywin)], x_asc)
 
         fmt = '/tests/organisations?q_filter={}'.format
         self.assertListEqual(
-            [100, fmt(self._serialize_qfilter(pk__in=[lannisters.pk]))],
-            y_asc[tywin_index],
+            # [100, fmt(self._serialize_qfilter(pk__in=[lannisters.pk]))],
+            [
+                100,
+                fmt(self._serialize_qfilter(
+                    relations__type_id=rtype.id, relations__object_entity_id=tywin.id,
+                ))
+            ],
+            # y_asc[tywin_index],
+            y_asc[1],
         )
         self.assertListEqual(
-            [90,  fmt(self._serialize_qfilter(pk__in=[starks.id, tullies.id]))],
-            y_asc[ned_index],
+            # [90,  fmt(self._serialize_qfilter(pk__in=[starks.id, tullies.id]))],
+            [
+                90,
+                fmt(self._serialize_qfilter(
+                    relations__type_id=rtype.id, relations__object_entity_id=ned.id,
+                ))
+            ],
+            # y_asc[ned_index],
+            y_asc[0],
         )
 
         # DESC ----------------------------------------------------------------
@@ -2701,17 +2728,32 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         x_asc, y_asc = rgraph.fetch(user)
-        self.assertCountEqual([str(lannisters), str(starks)], x_asc)
+        # self.assertCountEqual([str(lannisters), str(starks)], x_asc)
+        self.assertListEqual([str(lannisters), str(starks)], x_asc)
 
-        index = x_asc.index
+        # index = x_asc.index
         fmt = '/tests/contacts?q_filter={}'.format
         self.assertListEqual(
-            [600, fmt(self._serialize_qfilter(pk__in=[jaime.id, tyrion.id]))],
-            y_asc[index(str(lannisters))],
+            # [600, fmt(self._serialize_qfilter(pk__in=[jaime.id, tyrion.id]))],
+            [
+                600,
+                fmt(self._serialize_qfilter(
+                    relations__type_id=rtype_id, relations__object_entity_id=lannisters.id,
+                ))
+            ],
+            # y_asc[index(str(lannisters))],
+            y_asc[0],  # lannisters
         )
         self.assertListEqual(
-            [800, fmt(self._serialize_qfilter(pk__in=[ned.id, robb.id]))],
-            y_asc[index(str(starks))],
+            # [800, fmt(self._serialize_qfilter(pk__in=[ned.id, robb.id]))],
+            [
+                800,
+                fmt(self._serialize_qfilter(
+                    relations__type_id=rtype_id, relations__object_entity_id=starks.id,
+                ))
+            ],
+            # y_asc[index(str(starks))],
+            y_asc[1],  # starks
         )
 
     def test_fetch_by_relation04(self):

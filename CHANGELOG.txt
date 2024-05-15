@@ -47,6 +47,10 @@
             - A button to transform a Contact into a user has been added.
         * Reports :
             - You can now create filters which are reserved to Reports.
+            - The Graphes using Relationships have been improved :
+                 - the SQL queries should be more efficient.
+                 - the entities in abscissa are now ordered by their name.
+                 - the length of the URL to list-view remains always short (& so it avoids issue with URLs which reach the server's limit).
             - The date fields of referenced models can be used for temporal filtering in the Reports
               (e.g. in a report on Contacts, Photograph's fields are available).
             - The fields with 'choices' (e.g. status of EntityEmails) can now be used as Graphes' abscissa.
