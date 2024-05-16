@@ -512,8 +512,11 @@ class FieldsPrintersTestCase(CremeTestCase):
             filedata=file_path,
         )
         self.assertHTMLEqual(
-            """<a onclick="creme.dialogs.image('{url}').open();">
-                <img src="{url}" alt="{label}" width="200.0" height="200.0" />
+            # """<a onclick="creme.dialogs.image('{url}').open();">
+            #     <img src="{url}" alt="{label}" width="200.0" height="200.0" />
+            # </a>""".format(
+            """<a class="image-file" onclick="creme.dialogs.image('{url}').open();">
+                <img src="{url}" alt="{label}" />
             </a>""".format(
                 url=reverse(
                     'creme_core__download',
@@ -627,8 +630,11 @@ class FieldsPrintersTestCase(CremeTestCase):
             filedata=file_path,
         )
         self.assertHTMLEqual(
-            """<a onclick="creme.dialogs.image('{url}').open();">
-                <img src="{url}" alt="{label}" width="200.0" height="200.0" />
+            # """<a onclick="creme.dialogs.image('{url}').open();">
+            #     <img src="{url}" alt="{label}" width="200.0" height="200.0" />
+            # </a>""".format(
+            """<a class="image-file" onclick="creme.dialogs.image('{url}').open();">
+                <img src="{url}" alt="{label}" />
             </a>""".format(
                 url=reverse(
                     'creme_core__download',
