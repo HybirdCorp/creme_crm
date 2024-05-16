@@ -399,6 +399,11 @@ span.enumerator-empty {
     color: #333;
 }
 
+a.image-file img {
+    max-height: 200px;
+    max-width: 200px;
+}
+
 /* Title bar */
 
 .global-buttons + .hat-bar-container {

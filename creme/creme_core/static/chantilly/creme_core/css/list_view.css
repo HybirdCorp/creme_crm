@@ -744,8 +744,8 @@
 }
 
 .listview tbody .lv-cell-content a img {
-    width: 64px;
-    height: 64px;
+    max-width: 64px;
+    max-height: 64px;
 }
 
 .listview tbody .lv-cell-content a img.text_icon {

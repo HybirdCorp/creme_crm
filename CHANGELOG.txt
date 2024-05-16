@@ -76,10 +76,12 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
-            - In the class 'creme_core.gui.mass_import.FormRegistry' :
-                - The methods 'get()' & 'is_registered()' are now deprecated.
-                - The class 'UnregisteredCTypeException' is now deprecated.
-            - In the methods 'models.HeaderFilter.can_view()' & 'models.EntityFilter.can_view()',
+            - In 'creme_core.gui' :
+                - In 'field_printers', the function 'image_size()' & the constants MAX_HEIGHT/MAX_WIDTH are now deprecated.
+                - In the class 'mass_import.FormRegistry' :
+                    - The methods 'get()' & 'is_registered()' are now deprecated.
+                    - The class 'UnregisteredCTypeException' is now deprecated.
+            - In the methods 'creme_core.models.HeaderFilter.can_view()' & 'creme_core.models.EntityFilter.can_view()',
               the argument "content_type" is deprecated.
             - The function 'creme_core.utils.create_if_needed()' is deprecated ;
               use 'MyModel.objects.get_or_create()' instead.

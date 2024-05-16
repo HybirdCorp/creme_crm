@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 # import warnings
 from functools import partial
 from os.path import splitext
@@ -84,12 +85,28 @@ if TYPE_CHECKING:
     #   - "field"
     M2MInstancePrinter = Callable[[Model, Model, Manager, CremeUser, Field], str]
 
-# TODO: in settings
-MAX_HEIGHT: int = 200
-MAX_WIDTH: int = 200
+
+# MAX_HEIGHT: int = 200
+# MAX_WIDTH: int = 200
+def __getattr__(name):
+    if name == 'MAX_HEIGHT':
+        warnings.warn('"MAX_HEIGHT" is deprecated', DeprecationWarning)
+        return 200
+
+    if name == 'MAX_WIDTH':
+        warnings.warn('"MAX_WIDTH" is deprecated', DeprecationWarning)
+        return 200
+
+    raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
 
 
-def image_size(image, max_h: int = MAX_HEIGHT, max_w: int = MAX_WIDTH) -> str:
+# def image_size(image, max_h: int = MAX_HEIGHT, max_w: int = MAX_WIDTH) -> str:
+def image_size(image, max_h: int = 200, max_w: int = 200) -> str:
+    warnings.warn(
+        'creme_core.gui.field_printers.image_size() is deprecated.',
+        DeprecationWarning,
+    )
+
     if hasattr(image, 'height'):
         h = image.height
     elif hasattr(image, 'height_field'):
@@ -178,13 +195,20 @@ class FileFieldPrinterForHTML:
             ext = ext[1:]  # remove '.'
 
         if ext in settings.ALLOWED_IMAGES_EXTENSIONS:
+            # return format_html(
+            #     """<a onclick="creme.dialogs.image('{url}').open();">"""
+            #     """<img src="{url}" {size} alt="{label}"/>"""
+            #     """</a>""",
+            #     url=url,
+            #     label=_('Download «{file}»').format(file=file_name),
+            #     size=image_size(dl_filefield.file),
+            # )
             return format_html(
-                """<a onclick="creme.dialogs.image('{url}').open();">"""
-                """<img src="{url}" {size} alt="{label}"/>"""
+                """<a class="image-file" onclick="creme.dialogs.image('{url}').open();">"""
+                """<img src="{url}" alt="{label}"/>"""
                 """</a>""",
                 url=url,
                 label=_('Download «{file}»').format(file=file_name),
-                size=image_size(dl_filefield.file),   # TODO: fix to use the file
             )
         else:
             return format_html(

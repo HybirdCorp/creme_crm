@@ -368,6 +368,11 @@ span.enumerator-empty {
     color: #485860;
 }
 
+a.image-file img {
+    max-height: 200px;
+    max-width: 200px;
+}
+
 /* Title bar */
 
 /*
