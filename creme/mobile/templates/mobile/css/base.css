@@ -134,6 +134,7 @@ nav .selected-tab {
 .search input {
   -webkit-appearance: none;
      -moz-appearance: none;
+          appearance: none;
 
   padding: 2px;
   width: 100%;
@@ -485,6 +486,8 @@ html.android .activity-actions-minutes .activity-minutes {
 
 html.ios .activity-actions-minutes .activity-minutes {
   -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
   font-family: 'HelveticaNeue-Medium', 'HelveticaNeue-Bold', 'HelveticaNeue', 'Helvetica', 'Arial', sans-serif;
 }
 
