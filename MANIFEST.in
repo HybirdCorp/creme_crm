@@ -1,9 +1,7 @@
-recursive-include creme *.bat
 recursive-include creme *.blend
 recursive-include creme *.css
 recursive-include creme *.csv
 recursive-include creme *.cur
-recursive-include creme *.ddf
 recursive-include creme *.eot
 recursive-include creme *.eot?#iefix
 recursive-include creme *.gif
@@ -23,14 +21,9 @@ recursive-include creme *.swf
 recursive-include creme *.tex
 recursive-include creme *.ttf
 recursive-include creme *.txt
-recursive-include creme *.wbxml
 recursive-include creme *.woff
-recursive-include creme *.wsgi
 recursive-include creme *.xls
 recursive-include creme *.xlsx
 recursive-include creme *.xml
-recursive-include creme *.xsd
-recursive-include creme *.xsf
-recursive-include creme *.xsl
 recursive-include creme *.zip
 recursive-include creme/creme_core/conf/project_template/ *
