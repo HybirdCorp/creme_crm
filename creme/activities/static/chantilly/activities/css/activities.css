@@ -106,10 +106,12 @@
 
 .calendar-menu .floating-event {
     padding: 2px 5px;
-    cursor: move;
-    cursor:         grab;
+/*    cursor: move; */
+    cursor: grab;
+/*
     cursor:    -moz-grab;
     cursor: -webkit-grab;
+*/
 }
 
 .calendar-menu .floating-event:hover {
@@ -132,9 +134,11 @@
     background: white;
     border: dashed 1px #666;
     padding: 2px 20px !important;
-    cursor:         grabbing;
+    cursor: grabbing;
+/*
     cursor:    -moz-grabbing;
     cursor: -webkit-grabbing;
+*/
 }
 
 .calendar-menu .menu-group-title {
