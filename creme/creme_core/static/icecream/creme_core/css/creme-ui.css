@@ -616,18 +616,6 @@ input:disabled + .ui-datepicker-trigger {
 
 .ui-creme-checklistselect select.ui-creme-input,
 .ui-creme-checklistselect select.is-field-invalid {
-/*  Modified on 14/06/2022
-
-    -webkit-appearance: none;
-       -moz-appearance: none;
-            appearance: none;
-    width: 0;
-    height: 0;
-    border: 0 !important;
-    padding: 0 !important;
-    overflow: hidden;
-    box-shadow: none !important;
-*/
     display: none;
 }
 
