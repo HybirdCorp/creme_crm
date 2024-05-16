@@ -754,7 +754,8 @@ CREME_CORE_CSS = [
 ]
 
 CREME_OPT_CSS = [  # APPS
-    ('creme.persons',          'persons/css/persons.css'),
+    ('creme.persons',   'persons/css/persons.css'),
+    ('creme.sketch',    'sketch/css/sketch.css'),
 
     ('creme.activities',       'activities/css/activities.css'),
     # DEPRECATED: to be removed in creme 2.7
@@ -778,8 +779,6 @@ CREME_OPT_CSS = [  # APPS
 
     ('creme.geolocation', 'geolocation/css/leaflet-1.9.4.css'),
     ('creme.geolocation', 'geolocation/css/geolocation.css'),
-
-    ('creme.sketch',           'sketch/css/sketch.css'),
 ]
 
 CREME_I18N_JS = [
