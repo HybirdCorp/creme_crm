@@ -240,7 +240,7 @@
           is created as "brick-{{brick_id}}" (see 'creme/creme_core/templates/creme_core/bricks/base/base.html').
           So you'll have to fix your template files if you retrieve bricks nodes by their ID. Example :
             $('.brick[id="{{brick_id}}"]')   =>   $('.brick[data-brick-id="{{brick_id}}"]')
-        # The way the Buttons ofr CremeEntities (see "view_entity.html") are managed has changed.
+        # The way the Buttons for CremeEntities (see "view_entity.html") are managed has changed.
           They are now wrapped into a Brick (the well-named "ButtonsBrick") & use brick actions.
           If you defined custom actions for a CremeEntity class, the code to register your actions have to be modified in order it keeps working :
           Old code :
@@ -346,6 +346,8 @@
         # These obsolete javascript tools have been removed (because all browsers are supporting flexbox, table layout and ResizeObserver) :
             - creme.widget.Container
             - creme.layout.LayoutResizeSensor
+        # Some icons which were unused (& not in the 2 themes) were moved in "creme/media/warehouse/" : pin.svg, print.svg, buyer.svg, training.svg...
+          They are not collected by the asset manager anymore, but you can copy them in your project to use them.
         # Apps :
             * Creme_config :
                 - In 'registry._ConfigRegistry' :
