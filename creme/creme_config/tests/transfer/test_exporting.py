@@ -1443,6 +1443,7 @@ class ExportingTestCase(TransferBaseTestCase):
             is_custom=True,
             user=other_user, is_private=True,
             cells_desc=[(EntityCellRegularField, {'name': 'name'})],
+            extra_data={'my_key': 'my_value'},
         )
 
         response = self.assertGET200(self.URL)
@@ -1489,6 +1490,7 @@ class ExportingTestCase(TransferBaseTestCase):
                 'cells': [
                     {'type': EntityCellRegularField.type_id, 'value': 'name'},
                 ],
+                'extra_data': {'my_key': 'my_value'},
             },
             loaded_hfilters.get(hf3.id),
         )
@@ -1584,6 +1586,8 @@ class ExportingTestCase(TransferBaseTestCase):
                 ),
             ],
         )
+        ef3.extra_data = {'my_attr': 'my_value'}
+        ef3.save()
 
         response = self.assertGET200(self.URL)
         content = response.json()
@@ -1684,6 +1688,7 @@ class ExportingTestCase(TransferBaseTestCase):
                         'value': {'has': True, 'filter_id': ef1.id},
                     },
                 ],
+                'extra_data': {'my_attr': 'my_value'},
             },
             loaded_efilters.get(ef3.id),
         )

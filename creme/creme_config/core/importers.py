@@ -959,6 +959,7 @@ class HeaderFiltersImporter(Importer):
                 'name':       str(hfilter_info['name']),
                 'user':       None,
                 'is_private': False,
+                'extra_data': hfilter_info.get('extra_data') or {},
 
                 'cells':  self.cells_proxies_registry.build_proxies_from_dicts(
                     model=model,
@@ -1003,6 +1004,7 @@ class HeaderFiltersImporter(Importer):
                 cells_desc=[
                     cell_proxy.build_cell() for cell_proxy in data['cells']
                 ],
+                extra_data=data['extra_data'],
             )
 
 
@@ -1458,6 +1460,7 @@ class EntityFiltersImporter(Importer):
                 'is_private': False,
                 'use_or':     efilter_info.get('use_or', False),
                 'conditions': conditions_proxies,
+                'extra_data': efilter_info.get('extra_data') or {},
             }
 
             username = efilter_info.get('user')
@@ -1525,6 +1528,7 @@ class EntityFiltersImporter(Importer):
                 entity_type=data['model'],
                 is_private=data['is_private'],
                 filter_type=filter_type,
+                extra_data=data['extra_data'],
             )
 
             conditions = []

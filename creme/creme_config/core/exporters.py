@@ -600,6 +600,10 @@ class HeaderFilterExporter(CellsExporterMixin, Exporter):
             if instance.is_private:
                 data['is_private'] = True
 
+        extra_data = instance.extra_data
+        if extra_data:
+            data['extra_data'] = extra_data
+
         return data
 
 
@@ -696,6 +700,10 @@ class EntityFilterExporter(Exporter):
 
             if instance.is_private:
                 data['is_private'] = True
+
+        extra_data = instance.extra_data
+        if extra_data:
+            data['extra_data'] = extra_data
 
         return data
 
