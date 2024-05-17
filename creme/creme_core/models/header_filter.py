@@ -32,7 +32,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 # from ..utils.serializers import json_encode
-from . import CremeEntity
+from . import CremeEntity, CremeUser
 from . import fields as core_fields
 
 if TYPE_CHECKING:
@@ -47,7 +47,7 @@ class HeaderFilterList(list):
     """Contains all the HeaderFilter objects corresponding to a CremeEntity's ContentType.
     Indeed, it's a cache.
     """
-    def __init__(self, content_type: ContentType, user):
+    def __init__(self, content_type: ContentType, user: CremeUser):
         super().__init__(
             HeaderFilter.objects.filter_by_user(user)
                                 .filter(entity_type=content_type)
@@ -76,7 +76,7 @@ class HeaderFilterList(list):
 
 
 class HeaderFilterManager(models.Manager):
-    def filter_by_user(self, user) -> QuerySet:
+    def filter_by_user(self, user: CremeUser) -> QuerySet:
         if user.is_team:
             raise ValueError(
                 f'HeaderFilterManager.filter_by_user(): '
@@ -100,7 +100,7 @@ class HeaderFilterManager(models.Manager):
             name: str,
             model: type[CremeEntity],
             is_custom: bool = False,
-            user=None,
+            user: CremeUser | None = None,
             is_private: bool = False,
             cells_desc: Iterable[EntityCell | tuple[type[EntityCell], dict]] = (),
     ) -> HeaderFilter:
@@ -197,14 +197,14 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
     def __str__(self):
         return self.name
 
-    def can_delete(self, user) -> tuple[bool, str]:
+    def can_delete(self, user: CremeUser) -> tuple[bool, str]:
         if not self.is_custom:
             return False, gettext("This view can't be deleted")
 
         return self.can_edit(user)
 
     # TODO: factorise with EntityFilter.can_edit ???
-    def can_edit(self, user) -> tuple[bool, str]:
+    def can_edit(self, user: CremeUser) -> tuple[bool, str]:
         if not user.has_perm(self.entity_type.app_label):
             return False, gettext('You are not allowed to access to this app')
 
@@ -226,7 +226,7 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
         return False, gettext('You are not allowed to edit/delete this view')
 
     def can_view(self,
-                 user,
+                 user: CremeUser,
                  # content_type: ContentType | None = None,
                  content_type=_NOT_PASSED,
                  ) -> tuple[bool, str]:
@@ -243,7 +243,7 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
         return self.can_edit(user)
 
-    def _dump_cells(self, cells: Iterable[EntityCell]):
+    def _dump_cells(self, cells: Iterable[EntityCell]) -> None:
         # self.json_cells = json_encode([cell.to_dict() for cell in cells])
         self.json_cells = [cell.to_dict() for cell in cells]
 
@@ -288,11 +288,11 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
         return reverse('creme_core__edit_hfilter', args=(self.id,))
 
     # TODO: way to mean QuerySet[CremeEntity] ??
-    def populate_entities(self, entities: QuerySet, user) -> None:
+    def populate_entities(self, entities: QuerySet, user: CremeUser) -> None:
         """Fill caches of CremeEntity objects, related to the columns that will
         be displayed with this HeaderFilter.
         @param entities: QuerySet on CremeEntity (or subclass).
-        @param user: Instance of get_user_model().
+        @param user: Current user.
         """
         from ..core.entity_cell import EntityCell
         EntityCell.mixed_populate_entities(
