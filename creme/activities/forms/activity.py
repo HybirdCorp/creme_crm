@@ -105,9 +105,14 @@ class UnavailabilityTypeSubCell(CustomFormExtraSubCell):
 # -------------------------------------
 class _ActivityDateSubCell(CustomFormExtraSubCell):
     attr_name = 'COMPLETE_ME'
+    help_text = ''
 
     def formfield(self, instance, user, **kwargs):
-        field = DateWithOptionalTimeField(label=self.verbose_name, **kwargs)
+        field = DateWithOptionalTimeField(
+            label=self.verbose_name,
+            help_text=self.help_text,
+            **kwargs
+        )
 
         dt = getattr(instance, self.attr_name, None)
         if dt:
@@ -124,6 +129,14 @@ class StartSubCell(_ActivityDateSubCell):
     sub_type_id = 'activities_start'
     verbose_name = _('Start')
     attr_name = 'start'
+    help_text = _(
+        'You can specify:\n'
+        ' - The date and the time (hour/minute).\n'
+        ' - Only the date; the activity is placed in the calendar anyway '
+        '(at the corresponding day).\n'
+        ' - Neither the date neither the time; the activity is available in the '
+        'calendar view in the panel «Floating activities».'
+    )
 
 
 # Same ID than StartSubCell to replace it transparently
