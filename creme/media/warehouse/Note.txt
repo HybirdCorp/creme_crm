@@ -1,0 +1,4 @@
+This directory contains icons which are not used anymore, but could be useful
+for custom code.
+Here, they are not collected by the asset manager, so you have to copy the icons
+you want (& generate the .png files ) in a collected folder of your project.
