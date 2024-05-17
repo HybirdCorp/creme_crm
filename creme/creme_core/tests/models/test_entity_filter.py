@@ -273,7 +273,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual([value],     handler._values)
 
     def test_manager_smart_update_or_create02(self):
-        "A owner, custom filter."
+        "An owner, custom filter."
         pk = 'test-filter_nerv'
         name = 'Nerv'
         model = FakeOrganisation

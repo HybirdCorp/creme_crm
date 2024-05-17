@@ -126,6 +126,7 @@
             - The class 'UserRole' has 2 new fields: uuid & extra_data (a JSONField which can be used to store whatever you want).
             - Some methods of 'CremeUser' accept instances of auxiliary models (i.e. with a method 'get_related_entity()')
               which do not inherit 'CremeEntity': has_perm_to_view*(), has_perm_to_change*(), has_perm_to_delete*().
+            - The class 'EntityFilter' & 'HeaderFilter' got a JSONField "meta_data" to store custom data.
         # In 'creme_core.views' :
             - The views which manage Bricks now display a minimal Brick (see 'creme_core.gui.bricks.ForbiddenBrick')
               which contains an error message when the attribute 'Brick.permissions' does not pass the validation.

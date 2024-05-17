@@ -46,6 +46,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(self.contact_ct, hf.entity_type)
         self.assertIs(hf.is_custom, True)
         self.assertIs(hf.is_private, False)
+        self.assertDictEqual({}, hf.extra_data)
         # self.assertEqual('[]', hf.json_cells)
         self.assertListEqual([], hf.json_cells)
         self.assertFalse(hf.cells)
@@ -72,7 +73,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         )
 
     def test_manager_create_if_needed02(self):
-        "With cells."
+        "With cells & extra_data."
         user = self.get_root_user()
 
         create_rtype = RelationType.objects.smart_update_or_create
@@ -85,6 +86,7 @@ class HeaderFiltersTestCase(CremeTestCase):
             ('test-object_like',  'Is liked by'),
         )[0]
 
+        extra_data = {'my_key': 'my_value'}
         hf = HeaderFilter.objects.create_if_needed(
             pk='tests-hf_contact', name='Contact view',
             model=FakeContact, is_custom=True, is_private=True,
@@ -95,6 +97,7 @@ class HeaderFiltersTestCase(CremeTestCase):
                 (EntityCellRelation, {'rtype_id': likes.id}),
                 None,
             ],
+            extra_data=extra_data,
         )
 
         hf = self.refresh(hf)
@@ -108,6 +111,7 @@ class HeaderFiltersTestCase(CremeTestCase):
             ],
             hf.cells,
         )
+        self.assertDictEqual(extra_data, hf.extra_data)
 
     def test_manager_create_if_needed03(self):
         "Do not modify if it already exists."

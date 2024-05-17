@@ -186,7 +186,8 @@ class EntityFilterManager(models.Manager):
                                user: CremeUser | Literal['admin'] | None = None,
                                use_or: bool = False,
                                is_private: bool = False,
-                               conditions=()
+                               conditions=(),
+                               # TODO: extra_data?
                                ) -> EntityFilter:
         """Creation helper ; useful for populate.py scripts.
         @param user: Can be None (i.e. 'All users'), a User instance, or the
@@ -366,6 +367,10 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         ],
         default=False,
     ).set_tags(viewable=False)
+
+    # Can be used by third party code to store the data they want,
+    # without having to modify the code.
+    extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
 
     objects = EntityFilterManager()
 

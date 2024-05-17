@@ -1484,6 +1484,7 @@ class ImportingTestCase(TransferBaseTestCase):
                 'ctype': 'creme_core.fakeorganisation',
                 'user':  other_user.username,
                 'cells': [],
+                'extra_data': {'my_value': 'my_value'},
             }, {
                 'id':         'creme_config-test_import_headerfilters03',
                 'name':       'Private contact view',
@@ -1506,15 +1507,17 @@ class ImportingTestCase(TransferBaseTestCase):
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertNoFormError(response)
 
-        hfilter_data = hfilters_data[0]
+        hfilter_data1 = hfilters_data[0]
         hf1 = self.get_object_or_fail(
             HeaderFilter,
             is_custom=True,
             entity_type=ct_contact,
-            id=hfilter_data['id'],
-            name=hfilter_data['name'],
+            id=hfilter_data1['id'],
+            name=hfilter_data1['name'],
             user=None, is_private=False,
         )
+        self.assertDictEqual({}, hf1.extra_data)
+
         cells1 = hf1.cells
         self.assertEqual(4, len(cells1))
 
@@ -1532,25 +1535,26 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(ff_name, cell1_4.function_field.name)
 
         # --
-        hfilter_data = hfilters_data[1]
-        self.get_object_or_fail(
+        hfilter_data2 = hfilters_data[1]
+        hf2 = self.get_object_or_fail(
             HeaderFilter,
             is_custom=True,
             entity_type=get_ct(FakeOrganisation),
-            id=hfilter_data['id'],
-            name=hfilter_data['name'],
+            id=hfilter_data2['id'],
+            name=hfilter_data2['name'],
             user=other_user,
             is_private=False,
         )
+        self.assertDictEqual({'my_value': 'my_value'}, hf2.extra_data)
 
         # --
-        hfilter_data = hfilters_data[2]
+        hfilter_data3 = hfilters_data[2]
         self.get_object_or_fail(
             HeaderFilter,
             is_custom=True,
             entity_type=ct_contact,
-            id=hfilter_data['id'],
-            name=hfilter_data['name'],
+            id=hfilter_data3['id'],
+            name=hfilter_data3['name'],
             user=other_user,
             is_private=True,
         )
@@ -1942,6 +1946,7 @@ class ImportingTestCase(TransferBaseTestCase):
                         'value': {'has': True, 'entity': str(contact.uuid)},
                     },
                 ],
+                'extra_data': {'my_key': 'my_value'},
             }, {
                 'id':         'creme_config-test_import_entityfilters01_3',
                 'name':       'Private contact view',
@@ -2035,6 +2040,7 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertIsNone(ef1.user)
         self.assertFalse(ef1.is_private)
         self.assertFalse(ef1.use_or)
+        self.assertDictEqual({}, ef1.extra_data)
 
         conditions1 = ef1.conditions.all()
         self.assertEqual(5, len(conditions1))
@@ -2084,6 +2090,7 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(other_user, ef2.user)
         self.assertFalse(ef2.is_private)
         self.assertFalse(ef2.use_or)
+        self.assertDictEqual({'my_key': 'my_value'}, ef2.extra_data)
 
         conditions2 = ef2.conditions.all()
         self.assertEqual(5, len(conditions2))

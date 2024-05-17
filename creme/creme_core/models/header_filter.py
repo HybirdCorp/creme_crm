@@ -103,6 +103,7 @@ class HeaderFilterManager(models.Manager):
             user: CremeUser | None = None,
             is_private: bool = False,
             cells_desc: Iterable[EntityCell | tuple[type[EntityCell], dict]] = (),
+            extra_data: dict | None = None,
     ) -> HeaderFilter:
         """Creation helper ; useful for populate.py scripts.
         @param cells_desc: List of objects where each one can other:
@@ -148,6 +149,7 @@ class HeaderFilterManager(models.Manager):
                 is_custom=is_custom, is_private=is_private,
                 entity_type=model,
                 cells=cells,
+                extra_data=extra_data or {},
             )
 
         return hf
@@ -177,6 +179,10 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
     # TODO: CellsField? (what about auto saving on invalid cells?)
     # json_cells = models.TextField(editable=False, null=True)
     json_cells = models.JSONField(editable=False, default=list)
+
+    # Can be used by third party code to store the data they want,
+    # without having to modify the code.
+    extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
 
     objects = HeaderFilterManager()
 
