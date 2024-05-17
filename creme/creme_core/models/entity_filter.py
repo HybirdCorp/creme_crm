@@ -24,7 +24,7 @@ from copy import deepcopy
 from itertools import zip_longest
 # from json import loads as json_load
 from re import compile as compile_re
-from typing import TYPE_CHECKING, Iterable, Iterator
+from typing import TYPE_CHECKING, Iterable, Iterator, Literal, Type
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -48,7 +48,7 @@ from ..global_info import get_global_info
 from ..utils import update_model_instance
 from ..utils.id_generator import generate_string_id_and_save
 # from ..utils.serializers import json_encode
-from . import CremeEntity
+from . import CremeEntity, CremeUser
 from . import fields as core_fields
 
 if TYPE_CHECKING:
@@ -68,7 +68,11 @@ class EntityFilterList(list):
     """
     # TODO: "model" instead of "content_type"?
     # def __init__(self, content_type: ContentType, user):
-    def __init__(self, content_type: ContentType, user, extra_filter_id: str | None = None):
+    def __init__(self,
+                 content_type: ContentType,
+                 user: CremeUser,
+                 extra_filter_id: str | None = None,
+                 ):
         qs = (
             EntityFilter.objects.filter_by_user(user, types=None).filter(
                 Q(filter_type=EF_REGULAR) | Q(id=extra_filter_id)
@@ -148,9 +152,12 @@ class EntityFilterManager(models.Manager):
 
         return efilters[-1]  # TODO: max()
 
-    def filter_by_user(self, user, types: Iterable[str] | None = (EF_REGULAR,)) -> QuerySet:
+    def filter_by_user(self,
+                       user: CremeUser,
+                       types: Iterable[str] | None = (EF_REGULAR,),
+                       ) -> QuerySet:
         """Get the EntityFilter queryset corresponding of filters which a user can see.
-        @param user: A User instance.
+        @param user: The user who owns the filters; cannot be a team.
         @param types: Accepted types of filter; <None> means all types are accepted.
         """
         if user.is_team:
@@ -176,7 +183,7 @@ class EntityFilterManager(models.Manager):
                                name: str,
                                model: type[CremeEntity],
                                is_custom: bool = False,
-                               user=None,
+                               user: CremeUser | Literal['admin'] | None = None,
                                use_or: bool = False,
                                is_private: bool = False,
                                conditions=()
@@ -392,15 +399,14 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
         return f'{self.name} [{tag}]' if tag else self.name
 
-    def accept(self, entity: CremeEntity, user) -> bool:
+    def accept(self, entity: CremeEntity, user: CremeUser) -> bool:
         """Check if a CremeEntity instance is accepted or refused by the filter.
         Use it for entities which have already been retrieved ; but prefer
         the method filter() in order to retrieve the least entities as possible.
 
         @param entity: Instance of <CremeEntity>.
-        @param user: Instance of <django.contrib.auth.get_user_model()> ; it's
-               the current user (& so is used to retrieve it & it's teams by the
-               operand <CurrentUserOperand>.
+        @param user: It's the current user (& so is used to know it & it's teams
+               by the operand <CurrentUserOperand>).
         @return: A boolean ; True means the entity is accepted
                 (i.e. pass the conditions).
         """
@@ -419,14 +425,14 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         """
         return all(c.handler.applicable_on_entity_base for c in self.get_conditions())
 
-    def can_delete(self, user) -> tuple[bool, str]:
+    def can_delete(self, user: CremeUser) -> tuple[bool, str]:
         if not self.is_custom:
             return False, gettext("This filter can't be edited/deleted")
 
         return self.can_edit(user)
 
     # TODO: move to registry?
-    def can_edit(self, user) -> tuple[bool, str]:
+    def can_edit(self, user: CremeUser) -> tuple[bool, str]:
         assert not user.is_team
 
         # if self.filter_type != EF_USER:
@@ -453,7 +459,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         return False, gettext('You are not allowed to view/edit/delete this filter')
 
     # def can_view(self, user, content_type: ContentType | None = None) -> tuple[bool, str]:
-    def can_view(self, user, content_type=_NOT_PASSED) -> tuple[bool, str]:
+    def can_view(self, user: CremeUser, content_type=_NOT_PASSED) -> tuple[bool, str]:
         # if content_type and content_type != self.entity_type:
         #     return False, 'Invalid entity type'
         if content_type is not _NOT_PASSED:
@@ -488,7 +494,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
                 gettext('There is a cycle with a sub-filter.')
             )
 
-    def _check_privacy_parent_filters(self, is_private: bool, owner) -> None:
+    def _check_privacy_parent_filters(self, is_private: bool, owner: CremeUser) -> None:
         if not self.id:
             return  # Cannot have a parent because we are creating the filter
 
@@ -552,7 +558,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     def _check_privacy_sub_filters(self,
                                    conditions: Iterable[EntityFilterCondition],
                                    is_private: bool,
-                                   owner,
+                                   owner: CremeUser | None,
                                    ) -> None:
         # TODO: factorise
         ref_filter_ids = {
@@ -630,7 +636,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     def check_privacy(self,
                       conditions: Iterable[EntityFilterCondition],
                       is_private: bool,
-                      owner,
+                      owner: CremeUser,
                       ) -> None:
         "@raises EntityFilter.PrivacyError"
         self._check_privacy_sub_filters(conditions, is_private, owner)
@@ -682,7 +688,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     def registry(self) -> _EntityFilterRegistry:
         return self.efilter_registries[self.filter_type]
 
-    def filter(self, qs: QuerySet, user=None) -> QuerySet:
+    def filter(self, qs: QuerySet, user: CremeUser | None = None) -> QuerySet:
         qs = qs.filter(self.get_q(user))
 
         if not self.entities_are_distinct:
@@ -750,7 +756,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     def get_delete_absolute_url(self) -> str:
         return self.registry.deletion_url(self)
 
-    def get_q(self, user=None) -> Q:
+    def get_q(self, user: CremeUser | None = None) -> Q:
         query = Q()
 
         if user is None:
@@ -830,7 +836,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
         return self
 
-    def get_verbose_conditions(self, user):
+    def get_verbose_conditions(self, user: CremeUser):
         "Generators of human-readable strings explaining the conditions."
         for cond in self.get_conditions():
             yield cond.description(user)
@@ -874,7 +880,10 @@ class EntityFilterCondition(models.Model):
         app_label = 'creme_core'
 
     # def __init__(self, *args, model=None, filter_type=EF_USER, **kwargs):
-    def __init__(self, *args, model=None, filter_type=EF_REGULAR, **kwargs):
+    def __init__(self, *args,
+                 model: Type[CremeEntity] | None = None,
+                 filter_type=EF_REGULAR,
+                 **kwargs):
         self.filter_type = filter_type
         super().__init__(*args, **kwargs)
 
@@ -896,17 +905,15 @@ class EntityFilterCondition(models.Model):
             )
         )
 
-    def accept(self, entity: CremeEntity, user) -> bool:
+    def accept(self, entity: CremeEntity, user: CremeUser) -> bool:
         """Check if a CremeEntity instance is accepted or refused by the condition.
         Use it for entities which have already been retrieved ; but prefer
         the method get_q() in order to retrieve the least entities as possible.
 
         @param entity: Instance of <CremeEntity>.
-        @param user: Instance of <django.contrib.auth.get_user_model()> ; it's
-               the current user (& so is used to retrieve it & it's teams by the
-               operand <CurrentUserOperand>).
-        @return: A boolean ; True means the entity is accepted
-                (i.e. pass the condition).
+        @param user: It's the current user (& so is used to know it & it's teams
+               by the operand <CurrentUserOperand>).
+        @return: <True> means the entity is accepted (i.e. pass the condition).
         """
         return self.handler.accept(entity=entity, user=user)
 
@@ -935,7 +942,7 @@ class EntityFilterCondition(models.Model):
             )
         )
 
-    def clone(self, efilter):
+    def clone(self, efilter: EntityFilter):
         return type(self).objects.create(
             filter=efilter,
             type=self.type,
@@ -944,7 +951,7 @@ class EntityFilterCondition(models.Model):
             value=deepcopy(self.value),
         )
 
-    def description(self, user):
+    def description(self, user: CremeUser) -> str:
         "Human-readable string explaining the condition."
         return self.handler.description(user)
 
@@ -982,20 +989,20 @@ class EntityFilterCondition(models.Model):
 
         return handler.error
 
-    def get_q(self, user=None) -> Q:
+    def get_q(self, user: CremeUser | None = None) -> Q:
         return self.handler.get_q(user)
 
     def _get_subfilter_id(self) -> str | None:
         return self.handler.subfilter_id
 
     @property
-    def model(self) -> type[CremeEntity]:  # TODO: test
+    def model(self) -> Type[CremeEntity]:  # TODO: test
         return self._model or self.filter.entity_type.model_class()
 
     def update(self, other_condition: EntityFilterCondition) -> bool:
-        """Fill a condition with the content a another one
+        """Fill a condition with the content of another one
         (in order to reuse the old instance if possible).
-        @return True if there is at least one change, else False.
+        @return <True> means "there is at least one change".
         """
         changed = False
 
