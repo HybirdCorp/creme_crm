@@ -100,7 +100,18 @@ class RangeOverrider(FieldOverrider):
     }
 
     def formfield(self, instances, user, **kwargs):
-        field = ActivityRangeField(label=_('When'), required=False, **kwargs)
+        field = ActivityRangeField(
+            label=_('When'), required=False,
+            help_text=_(
+                'You can specify:\n'
+                ' - The dates and the times (hour/minute).\n'
+                ' - Only the dates; the activity is placed in the calendar anyway '
+                '(at the corresponding days).\n'
+                ' - Neither the date neither the time; the activity is available '
+                'in the calendar view in the panel «Floating activities».'
+            ),
+            **kwargs
+        )
 
         if len(instances) == 1:
             first = instances[0]
