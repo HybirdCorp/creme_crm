@@ -5,18 +5,8 @@ syntax: glob
 *.pyc
 
 # Still useful?
-#*.orig
 .project*
-.settings*
-
-# # DEPRECATED with new project layout
-# creme/media/upload/*/*
-# creme/media/static/*
-# django.wsgi
-# local_settings*.py
-# _generated_media_names.py
-# *.sqlite
-# *.db
+#.settings*
 
 # Python package
 *.egg-info
