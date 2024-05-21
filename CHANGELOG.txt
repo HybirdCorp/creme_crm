@@ -6,6 +6,8 @@
     # Apps :
         * Tickets :
             - In list-view, the background color for important tickets was broken.
+        * Emails :
+            - The images in the signatures' preview have been enlarged.
 
 
 == Version 2.5.8 ==
