@@ -7,8 +7,8 @@
         * Tickets :
             - In list-view, the background color for important tickets was broken.
         * Emails :
+            - The render of the signatures has been improved (some line breaks have been added).
             - The images in the signatures' preview have been enlarged.
-
 
   Developers side :
   -----------------
