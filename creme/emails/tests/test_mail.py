@@ -186,12 +186,21 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         # ---
         message = self.get_alone_element(mail.outbox)
-        self.assertEqual(subject,                    message.subject)
-        self.assertEqual(body,                       message.body)
-        self.assertEqual([recipient],                message.recipients())
-        self.assertEqual(sender,                     message.from_email)
-        self.assertEqual([(body_html, 'text/html')], message.alternatives)
-        self.assertFalse(message.attachments)
+        # self.assertEqual(subject,                    message.subject)
+        # self.assertEqual(body,                       message.body)
+        # self.assertEqual([recipient],                message.recipients())
+        # self.assertEqual(sender,                     message.from_email)
+        # self.assertEqual([(body_html, 'text/html')], message.alternatives)
+        # self.assertFalse(message.attachments)
+        self.assertEqual(subject,     message.subject)
+        self.assertEqual('',          message.body)
+        self.assertEqual([recipient], message.recipients())
+        self.assertEqual(sender,      message.from_email)
+        # TODO: test better
+        self.assertIn('Message-ID', message.extra_headers)
+
+        self.assertBodiesEqual(message, body=body, body_html=body_html)
+        self.assertEqual(1, len(message.attachments))
 
         self.assertEqual([], queue.refreshed_jobs)
 
@@ -280,7 +289,8 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
                 (basename(doc1.filedata.name), content1.decode(), 'text/plain'),
                 (basename(doc2.filedata.name), content2.decode(), 'text/plain'),
             ],
-            message.attachments,
+            # message.attachments,
+            message.attachments[1:],  # 0 is for bodies
         )
 
     @skipIfCustomContact
@@ -1272,7 +1282,8 @@ better &amp; lighter than the previous one.
 
         message = messages[0]
         self.assertEqual(email1.subject, message.subject)
-        self.assertEqual(email1.body,    message.body)
+        # self.assertEqual(email1.body,    message.body)
+        self.assertBodiesEqual(message, body=email1.body, body_html=email1.body_html)
 
         SENT = EntityEmail.Status.SENT
         self.assertEqual(SENT, self.refresh(email1).status)
@@ -1300,7 +1311,8 @@ better &amp; lighter than the previous one.
 
         message = self.get_alone_element(mail.outbox)
         self.assertEqual(email.subject, message.subject)
-        self.assertEqual(email.body,    message.body)
+        # self.assertEqual(email.body,    message.body)
+        self.assertBodiesEqual(message, body=email.body, body_html=email.body_html)
 
     def test_job02(self):
         from ..creme_jobs.entity_emails_send import ENTITY_EMAILS_RETRY
@@ -1321,7 +1333,8 @@ better &amp; lighter than the previous one.
 
         message = self.get_alone_element(mail.outbox)
         self.assertEqual(email.subject, message.subject)
-        self.assertEqual(email.body,    message.body)
+        # self.assertEqual(email.body,    message.body)
+        self.assertBodiesEqual(message, body=email.body, body_html=email.body_html)
 
     def test_job03(self):
         user = self.login_as_root_and_get()

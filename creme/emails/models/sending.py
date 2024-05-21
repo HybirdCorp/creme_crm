@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -48,6 +48,7 @@ logger = logging.getLogger(__name__)
 class LightWeightEmailSender(EMailSender):
     def __init__(self, sending: EmailSending):
         super().__init__(
+            sender_address=sending.sender,
             body=sending.body,
             body_html=sending.body_html,
             signature=sending.signature,
@@ -226,7 +227,7 @@ class EmailSending(CremeModel):
             return self.State.ERROR
 
         try:
-            sender = self.email_sender_cls(sending=self)
+            sender_obj = self.email_sender_cls(sending=self)
         except ImageFromHTMLError as e:
             send_mail(
                 gettext('[{software}] Campaign email sending error.').format(
@@ -261,7 +262,7 @@ class EmailSending(CremeModel):
         SLEEP_TIME = getattr(settings, 'EMAILCAMPAIGN_SLEEP_TIME', 2)
 
         for mail in LightWeightEmail.objects.filter(sending=self):
-            if sender.send(mail, connection=connection):
+            if sender_obj.send(mail, connection=connection):
                 mails_count += 1
                 one_mail_sent = True
                 logger.debug('Mail sent to %s', mail.recipient)

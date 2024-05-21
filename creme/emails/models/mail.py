@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 import logging
 
@@ -83,6 +85,15 @@ class _Email(CremeModel):
 
 
 class EntityEmailSender(utils.EMailSender):
+    def __init__(self, entity_email: AbstractEntityEmail):
+        super().__init__(
+            sender_address=entity_email.sender,
+            body=entity_email.body,
+            body_html=entity_email.body_html,
+            signature=entity_email.signature,
+            attachments=entity_email.attachments.all(),
+        )
+
     def get_subject(self, mail):
         return mail.subject
 
@@ -182,12 +193,13 @@ class AbstractEntityEmail(_Email, CremeEntity):
             entity_emails_send_type.refresh_job()
 
     def send(self):
-        sender = self.email_sender_cls(
-            body=self.body,
-            body_html=self.body_html,
-            signature=self.signature,
-            attachments=self.attachments.all(),
-        )
+        # sender = self.email_sender_cls(
+        #     body=self.body,
+        #     body_html=self.body_html,
+        #     signature=self.signature,
+        #     attachments=self.attachments.all(),
+        # )
+        sender = self.email_sender_cls(self)
 
         if sender.send(self):
             logger.debug('Mail sent to %s', self.recipient)

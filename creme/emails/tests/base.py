@@ -1,3 +1,4 @@
+from email.mime.image import MIMEImage
 from functools import partial
 from unittest import skipIf
 
@@ -63,6 +64,27 @@ class _EmailsTestCase(CremeTestCase):
             admin_4_apps=['emails', *admin_4_apps],
             **kwargs
         )
+
+    def assertBodiesEqual(self, message, body, body_html, signature_images_types=()):
+        bodies_attachment = message.attachments[0]
+        self.assertTrue(bodies_attachment.is_multipart())
+
+        alt_attachment = bodies_attachment.get_payload(0)
+        body_payload = alt_attachment.get_payload(0)
+        self.assertEqual('text/plain', body_payload.get_content_type())
+        self.assertEqual(body,         body_payload.get_payload())
+
+        body_html_payload = alt_attachment.get_payload(1)
+        self.assertEqual('text/html', body_html_payload.get_content_type())
+        self.assertHTMLEqual(body_html, body_html_payload.get_payload())
+
+        for i, img_type in enumerate(signature_images_types):
+            img = bodies_attachment.get_payload(1 + i)
+            self.assertIsInstance(img, MIMEImage)
+            self.assertEqual(img_type, img.get_content_type())
+
+        with self.assertRaises(IndexError):
+            alt_attachment.get_payload(2 + len(signature_images_types))
 
     @staticmethod
     def _build_create_entitymail_url(entity):

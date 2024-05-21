@@ -61,6 +61,11 @@
         * Billing :
             - You can now define the default statuses (which are notably used as initial values in creation forms).
               You can also define the Invoice status to use when a number ins generated.
+        * Emails :
+            - The spam score of sent emails should be better :
+                - the header contains a "Message-ID" which matches the host domain.
+                - the "content-ID" of inline images matches the host domain.
+            - The render of inlined images has been improved.
         * Geolocation :
             - The bricks which use OpenStreetMap are now used in the default installation (instead of the GoogleMaps ones).
 
@@ -116,6 +121,10 @@
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' is now deprecated.
                     - The class-view 'views.contact.ContactNamesEdition' is now deprecated.
+                * Emails :
+                    - The function 'utils.get_mime_image()' is deprecated; use 'utils.SignatureImage' instead.
+                    - The constructor of 'utils.SignatureRenderer' takes now an argument "domain" ;
+                      do not fill it is deprecated.
         # A new setting value "POPULATORS" has been added ; it allows to
           override the classes used by the command "creme_populate".
           Many classes 'Populate' have been reworked to facilitate their modification by inheritance ;
@@ -443,6 +452,12 @@
                 - The method 'populate.Populator.create_report_n_graphes()' has been replaced by a new one, '_populate_report_n_graphes()'.
             * Emails :
                 - In the class 'buttons.EntityEmailLinkButton', the attribute 'rtype_ids' has been removed ('relation_type_deps' is used instead).
+                - The constructor of 'models.mail.EntityEmailSender' now takes only one argument (the 'EntityEmail' instance) ;
+                  the class stored in the class attribute 'AbstractEntityEmail.email_sender_cls' uses this new signature.
+                - In 'utils' :
+                    - The constructor of 'EMailSender' takes now an argument "domain".
+                    - In the class 'SignatureRenderer', the sub-class 'Image' has been removed ;
+                      the class 'SignatureImage' is used instead.
             * Commercial :
                 - The value 'constants.PROP_IS_A_SALESMAN' has been replaced by 'UUID_PROP_IS_A_SALESMAN'.
                 - The UUIDs of the instances of 'models.ActType' created by the 'populate' script are now fixed (to be consistent between Creme instances).
