@@ -52,7 +52,8 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
         signature.images.set([img1, img2])
 
         renderer = SignatureRenderer(signature=signature)
-        self.assertEqual(f'\n--\n{signature.body}', renderer.render_text())
+        # self.assertEqual(f'\n--\n{signature.body}', renderer.render_text())
+        self.assertEqual(f'\n\n--\n{signature.body}', renderer.render_text())
         self.assertHTMLEqual(
             f'<div class="creme-emails-signature" id="signature-{signature.id}">'
             f'<p><br>--<br>{escape(signature.body)}</p>'
@@ -144,7 +145,8 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
         message = messages[0]
         self.assertEqual(MySender.subject, message.subject)
-        self.assertEqual(f'{body}\n--\n{signature.body}', message.body)
+        # self.assertEqual(f'{body}\n--\n{signature.body}', message.body)
+        self.assertEqual(f'{body}\n\n--\n{signature.body}', message.body)
         self.assertEqual(mail.sender, message.from_email)
 
         alternative = self.get_alone_element(message.alternatives)
