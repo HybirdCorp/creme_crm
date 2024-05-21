@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022-2023  Hybird
+#    Copyright (C) 2022-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 ################################################################################
 
 from random import randint
+from typing import Sequence
 
 from creme.creme_core.gui.bricks import Brick
 
@@ -59,14 +60,14 @@ class BarChartBrick(ChartBrick):
     """
     template_name = "sketch/bricks/bar-chart.html"
 
-    # Draw limit lines on the Y axis
-    limits = []
+    # Show limits along the Y axis : list of values drawn as horizontal lines
+    limits: Sequence[float] = ()
     # Enable animations when the data are updated
     enable_transition = True
     # Title of the horizontal axis
-    abscissa_title = None
+    abscissa_title: str = ''
     # Title of the vertical axis
-    ordinate_title = None
+    ordinate_title: str = ''
 
     def get_chart_props(self, context):
         return {
@@ -102,8 +103,8 @@ class GroupBarChartBrick(ChartBrick):
     """
     template_name = "sketch/bricks/groupbar-chart.html"
 
-    # Draw limit lines on the Y axis
-    limits = []
+    # Show limits along the Y axis : list of values drawn as horizontal lines
+    limits: Sequence[float] = ()
     # Enable animations when the data are updated
     enable_transition = True
     # Toggle legend (horizontal)
@@ -145,8 +146,8 @@ class StackBarChartBrick(ChartBrick):
     """
     template_name = "sketch/bricks/stackbar-chart.html"
 
-    # Draw limit lines on the Y axis
-    limits = []
+    # Show limits along the Y axis : list of values drawn as horizontal lines
+    limits: Sequence[float] = ()
     # Enable animations when the data are updated
     enable_transition = True
     # Toggle legend (horizontal)
@@ -203,14 +204,14 @@ class LineChartBrick(ChartBrick):
     """
     template_name = "sketch/bricks/line-chart.html"
 
-    # Draw limit lines on the Y axis
-    limits = []
+    # Show limits along the Y axis : list of values drawn as horizontal lines
+    limits: Sequence[float] = ()
     # Enable animations when the data are updated
     enable_transition = True
     # Title of the horizontal axis
-    abscissa_title = None
+    abscissa_title: str = ''
     # Title of the vertical axis
-    ordinate_title = None
+    ordinate_title: str = ''
 
     enable_tooltip = True
 
