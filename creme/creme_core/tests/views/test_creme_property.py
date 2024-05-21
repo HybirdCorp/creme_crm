@@ -639,7 +639,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(1, filter_prop(type=ptype01).count())
         self.assertEqual(2, filter_prop(type=ptype02).count())
 
-    def test_detailview01(self):
+    def test_detailview(self):
         user = self.login_as_root_and_get()
         ptype = CremePropertyType.objects.create(text='is american')
 
@@ -691,7 +691,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         # self.assertNoBrick(doc, 'block_creme_core-misc_tagged_entities')
         self.assertNoBrick(doc, 'misc_tagged_entities')
 
-    def test_detailview02(self):
+    def test_detailview__misc(self):
         "Misc brick."
         user = self.login_as_root_and_get()
         ptype = CremePropertyType.objects.smart_update_or_create(
@@ -724,6 +724,46 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # self.assertNoBrick(doc, 'block_creme_core-tagged-creme_core-fakeorganisation')
         self.assertNoBrick(doc, 'tagged-creme_core-fakeorganisation')
+
+    def test_detailview__permissions01(self):
+        "No app permissions."
+        user = self.login_as_standard(allowed_apps=['persons'])
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            text='is american', subject_ctypes=[FakeContact],
+        )
+
+        tagged = FakeContact.objects.create(
+            user=self.get_root_user(),
+            last_name='Vrataski', first_name='Rita'
+        )
+        self.assertFalse(user.has_perm_to_view(tagged))
+        self.assertFalse(user.has_perm_to_access('creme_core'))
+
+        CremeProperty.objects.create(creme_entity=tagged, type=ptype)
+
+        response = self.assertGET200(ptype.get_absolute_url())
+        self.assertTemplateUsed(response, 'creme_core/bricks/generic/forbidden.html')
+
+        brick_node = self.get_brick_node(
+            tree=self.get_html_tree(response.content),
+            brick='tagged-creme_core-fakecontact',
+        )
+        self.assertBrickHasClass(brick_node=brick_node, css_class='brick-forbidden')
+        self.assertEqual(FakeContact._meta.verbose_name_plural, self.get_brick_title(brick_node))
+
+    def test_detailview__permissions02(self):
+        "No app permissions + no type constraint."
+        self.login_as_standard(allowed_apps=['persons'])
+
+        # No <subject_ctypes=[FakeContact]>
+        ptype = CremePropertyType.objects.smart_update_or_create(text='is american')
+
+        response = self.assertGET200(ptype.get_absolute_url())
+        self.assertNoBrick(
+            tree=self.get_html_tree(response.content),
+            brick_id='tagged-creme_core-fakecontact',
+        )
 
     def test_reload_ptype_bricks01(self):
         user = self.login_as_root_and_get()
@@ -790,7 +830,7 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         doc2 = self.get_html_tree(result[1][1])
         self.get_brick_node(doc2, info_brick_id)
 
-    def test_reload_ptype_bricks03(self):
+    def test_reload_ptype_bricks__empty(self):
         "Empty brick."
         self.login_as_root()
         ptype = CremePropertyType.objects.create(text='is american')
@@ -810,3 +850,24 @@ class PropertyViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         doc = self.get_html_tree(brick_data[1])
         brick_node = self.get_brick_node(doc, brick_id)
         self.assertBrickHasClass(brick_node, 'is-empty')
+
+    def test_reload_ptype_bricks__permissions(self):
+        "No app permissions."
+        self.login_as_standard(allowed_apps=['persons'])
+        ptype = CremePropertyType.objects.create(text='is american')
+
+        brick_id = 'tagged-creme_core-fakecontact'
+        response = self.assertGET200(
+            reverse('creme_core__reload_ptype_bricks', args=(ptype.id,)),
+            data={'brick_id': brick_id},
+            headers={'X-Requested-With': 'XMLHttpRequest'},
+        )
+
+        with self.assertNoException():
+            result = response.json()
+
+        brick_data = self.get_alone_element(result)
+        doc = self.get_html_tree(brick_data[1])
+        brick_node = self.get_brick_node(doc, brick_id)
+        self.assertBrickHasClass(brick_node=brick_node, css_class='brick-forbidden')
+        self.assertEqual(FakeContact._meta.verbose_name_plural, self.get_brick_title(brick_node))

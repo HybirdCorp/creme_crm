@@ -33,7 +33,7 @@ import creme.creme_config.forms.creme_property_type as ptype_forms
 from ..auth import EntityCredentials
 from ..core.paginator import FlowPaginator
 from ..forms import creme_property as prop_forms
-from ..gui.bricks import Brick, QuerysetBrick
+from ..gui.bricks import Brick, ForbiddenBrick, QuerysetBrick
 from ..models import CremeEntity, CremeProperty, CremePropertyType
 from ..utils import get_from_POST_or_404
 from ..utils.content_type import entity_ctypes
@@ -356,16 +356,39 @@ class PropertyTypeDetail(generic.CremeModelDetail):
         ptype = self.object
         ctypes = ptype.subject_ctypes.all()
 
-        bricks = [
-            PropertyTypeInfoBrick(ptype, ctypes),
-            *(
-                TaggedEntitiesBrick(ptype, ctype)
-                for ctype in (ctypes or entity_ctypes())
-            ),
-        ]
+        # bricks = [
+        #     PropertyTypeInfoBrick(ptype, ctypes),
+        #     *(
+        #         TaggedEntitiesBrick(ptype, ctype)
+        #         for ctype in (ctypes or entity_ctypes())
+        #     ),
+        # ]
+        # if ctypes:
+        #     bricks.append(TaggedMiscEntitiesBrick(ptype, excluded_ctypes=ctypes))
+        bricks = [PropertyTypeInfoBrick(ptype, ctypes)]
+        user = self.request.user
 
         if ctypes:
+            has_perm_to_access = user.has_perm_to_access
+
+            for ctype in ctypes:
+                brick = TaggedEntitiesBrick(ptype, ctype)
+                if not has_perm_to_access(ctype.app_label):
+                    brick = ForbiddenBrick(
+                        id=brick.id,
+                        verbose_name=ctype.model_class()._meta.verbose_name_plural,
+                    )
+
+                bricks.append(brick)
+
             bricks.append(TaggedMiscEntitiesBrick(ptype, excluded_ctypes=ctypes))
+        else:
+            bricks.extend(
+                TaggedEntitiesBrick(ptype, ctype)
+                for ctype in entity_ctypes(
+                    app_labels=None if user.is_superuser else user.role.allowed_apps,
+                )
+            )
 
         return bricks
 
@@ -397,6 +420,13 @@ class PropertyTypeBricksReloading(BricksReloading):
                     raise Http404(f'Invalid brick id "{brick_id}"')
 
                 brick = TaggedEntitiesBrick(ptype, ctype)
+
+                # TODO: factorise
+                if not self.request.user.has_perm_to_access(ctype.app_label):
+                    brick = ForbiddenBrick(
+                        id=brick.id,
+                        verbose_name=ctype.model_class()._meta.verbose_name_plural,
+                    )
 
             bricks.append(brick)
 
