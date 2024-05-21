@@ -1035,10 +1035,12 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         message = messages[0]
         self.assertEqual(template.subject, message.subject)
-        self.assertEqual(template.body,    message.body)
+        # self.assertEqual(template.body,    message.body)
         self.assertEqual(sender,           message.from_email)
-        self.assertListEqual([('', 'text/html')], message.alternatives)
-        self.assertFalse(message.attachments)
+        # self.assertListEqual([('', 'text/html')], message.alternatives)
+        # self.assertFalse(message.attachments)
+        self.assertBodiesEqual(message, body=template.body, body_html='')
+        self.assertEqual(1, len(message.attachments))
 
         # See 'creme.creme_core.utils.test.EmailBackend'
         connection = message.connection
@@ -1217,15 +1219,18 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         ))
 
         self._send_mails(self._get_job())
-        messages = django_mail.outbox
-        self.assertEqual(len(messages), 1)
-
-        message = messages[0]
-        self.assertEqual('Hello Spike Spiegel !', message.body)
-        self.assertListEqual(
-            [('<b>Hello</b> Spike Spiegel !', 'text/html')],
-            message.alternatives,
+        message = self.get_alone_element(django_mail.outbox)
+        # self.assertEqual('Hello Spike Spiegel !', message.body)
+        # self.assertListEqual(
+        #     [('<b>Hello</b> Spike Spiegel !', 'text/html')],
+        #     message.alternatives,
+        # )
+        self.assertBodiesEqual(
+            message,
+            body='Hello Spike Spiegel !',
+            body_html='<b>Hello</b> Spike Spiegel !',
         )
+        self.assertEqual(1, len(message.attachments))
 
     def test_create07(self):
         "No related to a campaign => error."
