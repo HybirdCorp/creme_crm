@@ -1,1 +1,1 @@
-urlpatterns = []
+urlpatterns: list = []
