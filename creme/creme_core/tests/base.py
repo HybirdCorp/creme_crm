@@ -241,6 +241,7 @@ class _CremeTestCase:
         superuser = self.create_user(
             index=0,
             is_staff=is_staff,
+            password=password,
         )
 
         role = UserRole(name='Basic')

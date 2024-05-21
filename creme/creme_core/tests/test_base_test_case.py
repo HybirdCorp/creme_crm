@@ -10,6 +10,22 @@ from .fake_models import FakeSector
 
 
 class BaseTestCaseTestCase(CremeTestCase):
+    def test_login(self):  # DEPRECATED
+        user = self.login()
+        self.assertTrue(user.is_superuser)
+        self.assertFalse(user.is_staff)
+        self.assertIs(user, getattr(self, 'user', None))
+
+        other_user = getattr(self, 'other_user', None)
+        self.assertIsNotNone(other_user)
+        self.assertFalse(other_user.is_superuser)
+
+        role = other_user.role
+        self.assertIsNotNone(role)
+        self.assertEqual('Basic', role.name)
+        self.assertCountEqual(['creme_core'], role.allowed_apps)
+        self.assertIs(role, getattr(self, 'role', None))
+
     def test_assertNoException(self):
         with self.assertNoException():
             pass

@@ -10,6 +10,14 @@
             - The images in the signatures' preview have been enlarged.
 
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The deprecated method 'creme_core.tests.base._CremeTestCase.login()' was broken.
+
+
 == Version 2.5.8 ==
 
   Users side :
