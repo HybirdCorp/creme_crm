@@ -1328,6 +1328,11 @@ class ImportingTestCase(TransferBaseTestCase):
         uuid_01 = uuid4()
         uuid_02 = uuid4()
 
+        uuid_enum11 = uuid4()
+        uuid_enum12 = uuid4()
+        uuid_enum21 = uuid4()
+        uuid_enum22 = uuid4()
+
         ct_str_c = 'creme_core.fakecontact'
         ct_str_o = 'creme_core.fakeorganisation'
 
@@ -1340,10 +1345,30 @@ class ImportingTestCase(TransferBaseTestCase):
                 'type': CustomField.BOOL
             }, {
                 'uuid': str(uuid4()), 'ctype': ct_str_c, 'name': 'Languages',
-                'type': CustomField.ENUM, 'choices': ['C', 'Python'],
+                'type': CustomField.ENUM,
+                # 'choices': ['C', 'Python'],
+                'choices': [
+                    {
+                        'uuid': str(uuid_enum11),
+                        'value': 'C',
+                    }, {
+                        'uuid': str(uuid_enum12),
+                        'value': 'Python',
+                    },
+                ],
             }, {
                 'uuid': str(uuid4()), 'ctype': ct_str_c, 'name': 'Hobbies',
-                'type': CustomField.MULTI_ENUM, 'choices': ['Programming', 'Reading'],
+                'type': CustomField.MULTI_ENUM,
+                # 'choices': ['Programming', 'Reading'],
+                'choices': [
+                    {
+                        'uuid': str(uuid_enum21),
+                        'value': 'Programming',
+                    }, {
+                        'uuid': str(uuid_enum22),
+                        'value': 'Reading',
+                    },
+                ],
             },
         ]
 
@@ -1373,14 +1398,26 @@ class ImportingTestCase(TransferBaseTestCase):
         cfield3 = self.get_object_or_fail(CustomField, name=cfield_data['name'])
         self.assertCountEqual(
             cfield_data['choices'],
-            cfield3.customfieldenumvalue_set.values_list('value', flat=True),
+            # cfield3.customfieldenumvalue_set.values_list('value', flat=True),
+            [
+                {
+                    'uuid': str(uid),
+                    'value': value,
+                } for uid, value in cfield3.customfieldenumvalue_set.values_list('uuid', 'value')
+            ]
         )
 
         cfield_data = cfields_data[3]
         cfield4 = self.get_object_or_fail(CustomField, name=cfield_data['name'])
         self.assertCountEqual(
             cfield_data['choices'],
-            cfield4.customfieldenumvalue_set.values_list('value', flat=True),
+            # cfield4.customfieldenumvalue_set.values_list('value', flat=True),
+            [
+                {
+                    'uuid': str(uid),
+                    'value': value,
+                } for uid, value in cfield4.customfieldenumvalue_set.values_list('uuid', 'value')
+            ]
         )
 
     def test_customfields02(self):
