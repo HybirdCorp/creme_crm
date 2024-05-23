@@ -227,6 +227,7 @@ class LinkedContactsBrick(_LinkedStuffBrick):
 
     cells_desc = [
         (EntityCellRegularField, 'position'),
+        (EntityCellRegularField, 'full_position'),
         (EntityCellRegularField, 'email'),
         (EntityCellRegularField, 'phone'),
         (EntityCellRegularField, 'mobile'),
