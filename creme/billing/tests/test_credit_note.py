@@ -15,6 +15,7 @@ from creme.creme_core.models import (
     FakeOrganisation,
     FieldsConfig,
     Relation,
+    Vat,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import skipIfCustomOrganisation
@@ -110,7 +111,10 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
 
-        create_line = partial(ProductLine.objects.create, user=user)
+        create_line = partial(
+            ProductLine.objects.create,
+            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
+        )
         create_line(
             related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'),
         )
@@ -297,7 +301,10 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_addrelated_view(self):
         "Attach credit note to existing invoice."
         user = self.login_as_root_and_get()
-        create_line = partial(ProductLine.objects.create, user=user)
+        create_line = partial(
+            ProductLine.objects.create,
+            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
+        )
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         invoice_target = invoice.target
@@ -360,7 +367,10 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_addrelated_view_not_same_currency(self):
         "Cannot attach credit note in US Dollar to invoice in Euro."
         user = self.login_as_root_and_get()
-        create_line = partial(ProductLine.objects.create, user=user)
+        create_line = partial(
+            ProductLine.objects.create,
+            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
+        )
         us_dollar = Currency.objects.all()[1]
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
@@ -410,7 +420,10 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_addrelated_view_already_linked(self):
         "Cannot attach credit note in US Dollar to invoice in Euro."
         user = self.login_as_root_and_get()
-        create_line = partial(ProductLine.objects.create, user=user)
+        create_line = partial(
+            ProductLine.objects.create,
+            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
+        )
         us_dollar = Currency.objects.all()[1]
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
@@ -471,7 +484,10 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_addrelated_view_already_not_same_target(self):
         "Cannot attach credit note in US Dollar to invoice in Euro."
         user = self.login_as_root_and_get()
-        create_line = partial(ProductLine.objects.create, user=user)
+        create_line = partial(
+            ProductLine.objects.create,
+            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
+        )
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal('100'))
@@ -622,7 +638,10 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     def test_deleterelated_view(self):
         user = self.login_as_root_and_get()
-        create_line = partial(ProductLine.objects.create, user=user)
+        create_line = partial(
+            ProductLine.objects.create,
+            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
+        )
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         invoice_target = invoice.target
@@ -667,7 +686,10 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     def test_deleterelated_view_not_exists(self):
         user = self.login_as_root_and_get()
-        create_line = partial(ProductLine.objects.create, user=user)
+        create_line = partial(
+            ProductLine.objects.create,
+            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
+        )
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         invoice_target = invoice.target
@@ -700,7 +722,10 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @skipIfCustomProductLine
     def test_deleterelated_view_not_allowed(self):
         user = self.login_as_root_and_get()
-        create_line = partial(ProductLine.objects.create, user=user)
+        create_line = partial(
+            ProductLine.objects.create,
+            user=user, vat_value=self.get_object_or_fail(Vat, value='0.0'),
+        )
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
         invoice_target = invoice.target

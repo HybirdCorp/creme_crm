@@ -1140,10 +1140,12 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_total_vat(self):
         user = self.login_as_root_and_get()
 
+        vat = self.get_object_or_fail(Vat, value='0.0')
+
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
         self.assertEqual(0, invoice._get_total_with_tax())
 
-        kwargs = {'user': user, 'related_document': invoice}
+        kwargs = {'user': user, 'related_document': invoice, 'vat_value': vat}
         product_line = ProductLine.objects.create(
             on_the_fly_item='Flyyy product', quantity=3, unit_price=Decimal('5'),
             **kwargs

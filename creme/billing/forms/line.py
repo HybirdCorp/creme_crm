@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,6 +58,7 @@ class _LineMultipleAddForm(core_forms.CremeForm):
     )
     vat = forms.ModelChoiceField(
         label=_('Vat'), queryset=Vat.objects.all(), empty_label=None,
+        initial=Vat.objects.default,
     )
 
     def _get_line_class(self):
@@ -66,8 +67,7 @@ class _LineMultipleAddForm(core_forms.CremeForm):
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.billing_document = entity
-        # Not in field declaration because default value can change
-        self.fields['vat'].initial = Vat.objects.default()
+        # self.fields['vat'].initial = Vat.objects.default()
 
     def save(self):
         cdata = self.cleaned_data
@@ -135,6 +135,7 @@ class LineEditionForm(core_forms.CremeModelForm):
     #       should we disable globally this feature with Vat model ??
     vat_value = forms.ModelChoiceField(
         label=_('Vat'), queryset=Vat.objects.all(), empty_label=None,
+        initial=Vat.objects.default,
     )
 
     class Meta:
@@ -182,7 +183,7 @@ class LineEditionForm(core_forms.CremeModelForm):
         discount_unit_f.choices = discount_units
         discount_unit_f.widget.attrs = {'class': 'bound'}
 
-        fields['vat_value'].initial = Vat.objects.default()
+        # fields['vat_value'].initial = Vat.objects.default()
 
     def save(self, *args, **kwargs):
         instance = self.instance

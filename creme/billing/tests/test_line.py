@@ -317,7 +317,8 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         create_pline = partial(
             ProductLine.objects.create,
             user=user, on_the_fly_item=product_name,
-            unit_price=unit_price, unit=''
+            unit_price=unit_price, unit='',
+            vat_value=self.get_object_or_fail(Vat, value='0.0'),
         )
         create_pline(related_document=quote)
         create_pline(related_document=invoice)
@@ -499,6 +500,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     @skipIfCustomProductLine
     def test_related_item03(self):
+        # Fill caches
+        Vat.objects.default()
+        ContentType.objects.get_for_model(ProductLine)
+
         with self.assertNumQueries(0):
             product_line = ProductLine()
             product = product_line.related_item
@@ -585,7 +590,11 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001', discount=0)[0]
 
-        create_line = partial(ProductLine.objects.create, user=user, related_document=invoice)
+        create_line = partial(
+            ProductLine.objects.create,
+            user=user, related_document=invoice,
+            vat_value=self.get_object_or_fail(Vat, value='0.0'),
+        )
         ids = tuple(
             create_line(on_the_fly_item=f'Fly {price}', unit_price=Decimal(price)).id
             for price in ('10', '20')

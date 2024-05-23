@@ -8,6 +8,7 @@ from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
 import creme.creme_core.models.fields as core_fields
 from creme.billing.models.fields import BillingDiscountField
 from creme.creme_core.models import CREME_REPLACE, CREME_REPLACE_NULL
+from creme.creme_core.models.vat import get_default_vat_pk
 
 
 class Migration(migrations.Migration):
@@ -787,7 +788,14 @@ class Migration(migrations.Migration):
                         verbose_name='Discount Unit',
                     )
                 ),
-                ('vat_value', models.ForeignKey(default=1, on_delete=PROTECT, verbose_name='VAT', to='creme_core.Vat')),
+                (
+                    'vat_value',
+                    models.ForeignKey(
+                        to='creme_core.Vat', verbose_name='VAT', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_vat_pk,
+                    )
+                ),
                 ('order', models.PositiveIntegerField(default=0, editable=False)),
             ],
             options={
@@ -843,7 +851,14 @@ class Migration(migrations.Migration):
                         verbose_name='Discount Unit',
                     )
                 ),
-                ('vat_value', models.ForeignKey(default=1, on_delete=PROTECT, verbose_name='VAT', to='creme_core.Vat')),
+                (
+                    'vat_value',
+                    models.ForeignKey(
+                        to='creme_core.Vat', verbose_name='VAT', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_vat_pk,
+                    )
+                ),
                 ('order', models.PositiveIntegerField(default=0, editable=False)),
             ],
             options={
