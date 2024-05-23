@@ -26,6 +26,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation, Vat
+from creme.creme_core.models.vat import get_default_vat_pk
 
 from .. import constants
 from ..utils import round_to_2
@@ -33,9 +34,8 @@ from ..utils import round_to_2
 logger = logging.getLogger(__name__)
 
 
-# TODO: use a smart workflow engine to update the BillingModel only once when
+# TODO: use a smarter system to update the BillingModel only once when
 #  several lines are edited for the moment when have to re-save the model manually.
-
 class Line(CremeEntity):
     class Discount(models.IntegerChoices):
         PERCENT     = 1, _('Percent'),
@@ -63,8 +63,8 @@ class Line(CremeEntity):
     )
     vat_value = models.ForeignKey(
         Vat, verbose_name=_('VAT'), on_delete=models.PROTECT,
-        # NB: these VAT should exist (see creme_core.populate), and is normally 0.0%
-        default=1,
+        # default=1,
+        default=get_default_vat_pk,
     )
 
     order = models.PositiveIntegerField(

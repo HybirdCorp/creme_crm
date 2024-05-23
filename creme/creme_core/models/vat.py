@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2023  Hybird
+#    Copyright (C) 2013-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.db import models
 from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
@@ -23,6 +25,8 @@ from django.utils.translation import gettext_lazy as _
 from ..constants import DEFAULT_VAT
 from ..global_info import cached_per_request
 from .base import MinionModel
+
+logger = logging.getLogger(__name__)
 
 
 class VatManager(models.Manager):
@@ -72,3 +76,12 @@ class Vat(MinionModel):
                 first_vat.save()
 
         super().delete(*args, **kwargs)
+
+
+# Can be used as default value for ForeignKey
+def get_default_vat_pk():
+    try:
+        return Vat.objects.default().pk
+    except IndexError:
+        logger.warning('No default VAT instance found.')
+        return None
