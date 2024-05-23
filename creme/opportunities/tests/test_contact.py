@@ -10,6 +10,7 @@ from parameterized import parameterized
 from creme.creme_core.models import CustomField, RelationType  # SetCredentials
 from creme.opportunities.constants import REL_SUB_LINKED_CONTACT
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
+from creme.persons.models import Position
 from creme.persons.tests.base import (
     skipIfCustomContact,
     skipIfCustomOrganisation,
@@ -67,6 +68,11 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         contact = self.get_object_or_fail(
             Contact, first_name=first_name, last_name=last_name,
         )
+        self.assertIsNone(contact.position)
+        self.assertFalse(contact.full_position)
+        self.assertFalse(contact.email)
+        self.assertFalse(contact.phone)
+        self.assertFalse(contact.mobile)
         self.assertRelationCount(
             subject_entity=contact, type_id=REL_SUB_LINKED_CONTACT, object_entity=opp,
             count=1,
@@ -83,12 +89,25 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
 
         first_name = 'Faye'
         last_name  = 'Valentine'
+        position = Position.objects.first()
+        full_position = 'Rogue pilot'
+        email = 'faye.valentine@bebop.mrs'
+        phone = '123654'
+        mobile = '779654'
         response = self.client.post(
             self._build_url(opp),
             data={
                 'user': user.id,
                 'first_name': first_name,
                 'last_name': last_name,
+
+                'position': position.id,
+                'full_position': full_position,
+
+                'email': email,
+                'phone': phone,
+                'mobile': mobile,
+
                 'is_employed': 'on',
             },
         )
@@ -97,6 +116,11 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         contact = self.get_object_or_fail(
             Contact, first_name=first_name, last_name=last_name,
         )
+        self.assertEqual(position, contact.position)
+        self.assertEqual(full_position, contact.full_position)
+        self.assertEqual(email, contact.email)
+        self.assertEqual(phone, contact.phone)
+        self.assertEqual(mobile, contact.mobile)
         self.assertRelationCount(
             subject_entity=contact, type_id=REL_SUB_EMPLOYED_BY, object_entity=target,
             count=1,
