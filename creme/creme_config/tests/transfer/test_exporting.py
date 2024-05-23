@@ -1395,11 +1395,29 @@ class ExportingTestCase(TransferBaseTestCase):
                 }, {
                     'uuid': str(cfield3.uuid), 'ctype': ct_str1,
                     'name': cfield3.name, 'type': cfield3.field_type,
-                    'choices': [eval1.value, eval2.value],
+                    # 'choices': [eval1.value, eval2.value],
+                    'choices': [
+                        {
+                            'uuid': str(eval1.uuid),
+                            'value': eval1.value,
+                        }, {
+                            'uuid': str(eval2.uuid),
+                            'value': eval2.value,
+                        },
+                    ],
                 }, {
                     'uuid': str(cfield4.uuid), 'ctype': ct_str1,
                     'name': cfield4.name, 'type': cfield4.field_type,
-                    'choices': [eval3.value, eval4.value],
+                    # 'choices': [eval3.value, eval4.value],
+                    'choices': [
+                        {
+                            'uuid': str(eval3.uuid),
+                            'value': eval3.value,
+                        }, {
+                            'uuid': str(eval4.uuid),
+                            'value': eval4.value,
+                        },
+                    ],
                 },
             ],
             loaded_cfields,

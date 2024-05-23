@@ -568,9 +568,16 @@ class CustomFieldExporter(Exporter):
 
         if cf_type in self.enum_types:
             data['choices'] = [
-                *instance.customfieldenumvalue_set
-                         .order_by('id')
-                         .values_list('value', flat=True)
+                # *instance.customfieldenumvalue_set
+                #          .order_by('id')
+                #          .values_list('value', flat=True)
+                # NB: .values('uuid', 'value') is not serializable with the UUID objects
+                {
+                    'uuid': str(uid),
+                    'value': value,
+                } for uid, value in instance.customfieldenumvalue_set
+                                            .order_by('id')
+                                            .values_list('uuid', 'value')
             ]
 
         return data

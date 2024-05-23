@@ -2,6 +2,7 @@ from collections import defaultdict
 from datetime import date
 from decimal import Decimal
 from functools import partial
+from uuid import UUID
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -403,6 +404,8 @@ by a man named Tochiro.
             custom_field=cfield,
             value='BattleShip',
         )
+        self.assertIsInstance(enum_value.uuid, UUID)
+
         orga = self._create_orga()
         cf_value = CustomFieldEnum.objects.create(
             custom_field=cfield,
@@ -431,6 +434,7 @@ by a man named Tochiro.
         )
         enum_value1 = create_enum_value(value='BattleShip')
         enum_value2 = create_enum_value(value='Transporter')
+        self.assertNotEqual(enum_value1.uuid, enum_value2.uuid)
 
         orga = self._create_orga()
         cf_value = CustomFieldEnum.objects.create(

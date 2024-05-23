@@ -22,6 +22,7 @@ import logging
 from collections import OrderedDict
 from datetime import date
 from typing import TYPE_CHECKING
+from uuid import UUID
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -914,7 +915,14 @@ class CustomFieldsImporter(Importer):
         }
 
         if field_type in self.ENUM_TYPES:
-            data['choices'] = cfield_info['choices']
+            # data['choices'] = cfield_info['choices']
+            data['choices'] = [
+                {
+                    'value': choice['value'],
+                    # Can raise ValueError('badly formed hexadecimal UUID string')
+                    'uuid': UUID(choice['uuid']),
+                } for choice in cfield_info['choices']
+            ]
 
         return data
 
@@ -930,7 +938,8 @@ class CustomFieldsImporter(Importer):
             cfield = CustomField.objects.create(**data)
 
             for choice in choices:
-                CustomFieldEnumValue.objects.create(custom_field=cfield, value=choice)
+                # CustomFieldEnumValue.objects.create(custom_field=cfield, value=choice)
+                CustomFieldEnumValue.objects.create(custom_field=cfield, **choice)
 
 
 # Header Filters ---------------------------------------------------------------
