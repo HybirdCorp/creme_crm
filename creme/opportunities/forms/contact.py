@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2021  Hybird
+#    Copyright (C) 2019-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,13 @@ Contact = persons.get_contact_model()
 class RelatedContactForm(CremeEntityQuickForm):
     class Meta:
         model = Contact
-        fields = ('user', 'last_name', 'first_name', 'phone', 'email')
+        # TODO: retrieve the fields from LinkedContactsBrick?
+        fields = (
+            'user',
+            'last_name', 'first_name',
+            'position', 'full_position',
+            'email', 'phone', 'mobile',
+        )
 
     def __init__(self, opportunity, *args, **kwargs):
         super().__init__(*args, **kwargs)
