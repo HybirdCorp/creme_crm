@@ -86,16 +86,25 @@ UUID_SUBTYPE_PHONECALL_FAILED     = 'e0cf04b0-b407-413e-b6d4-8946ea815041'
 # STATUS_DELAYED     = 4
 # STATUS_CANCELLED   = 5
 
-UUID_STATUS_PLANNED     = '7efc9a5d-eacd-4be0-afa8-3277256bfcac'
-UUID_STATUS_IN_PROGRESS = '5152460c-18c3-4b8e-a780-ac286294a46e'
-UUID_STATUS_DONE        = '4c7f518b-6bd5-44ea-a867-5e33f50646da'
-UUID_STATUS_DELAYED     = '98f1990a-049a-4ff9-9a52-957a90e43bbd'
-UUID_STATUS_CANCELLED   = '9c23117f-a2eb-4284-8cc2-0c541f87e7ef'
+UUID_STATUS_PLANNED      = '7efc9a5d-eacd-4be0-afa8-3277256bfcac'
+UUID_STATUS_IN_PROGRESS  = '5152460c-18c3-4b8e-a780-ac286294a46e'
+UUID_STATUS_DONE         = '4c7f518b-6bd5-44ea-a867-5e33f50646da'
+UUID_STATUS_DELAYED      = '98f1990a-049a-4ff9-9a52-957a90e43bbd'
+UUID_STATUS_CANCELLED    = '9c23117f-a2eb-4284-8cc2-0c541f87e7ef'
+UUID_STATUS_UNSUCCESSFUL = '480717eb-f4cf-4075-ad9f-24b650e3d538'
 
 # ------------------------------------------------------------------------------
 
 SETTING_DISPLAY_REVIEW     = 'activities-display_review_activities_blocks'
 SETTING_AUTO_ORGA_SUBJECTS = 'activities-auto_orga_subjects'
+
+# Button "Unsuccessful phone call"
+SETTING_UNSUCCESSFUL_SUBTYPE_UUID = 'activities-unsuccessful_call_subtype'
+SETTING_UNSUCCESSFUL_TITLE        = 'activities-unsuccessful_call_title'
+SETTING_UNSUCCESSFUL_STATUS_UUID  = 'activities-unsuccessful_call_status'
+SETTING_UNSUCCESSFUL_DURATION     = 'activities-unsuccessful_call_duration'
+
+# ------------------------------------------------------------------------------
 
 # Floating styles
 NARROW        = 1

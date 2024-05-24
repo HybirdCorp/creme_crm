@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -193,6 +193,7 @@ class UnavailabilityCreation(ActivityCreation):
         return constants.UUID_TYPE_UNAVAILABILITY
 
 
+# TODO: move to 'buttons' ?
 class RelatedActivityCreation(ActivityCreation):
     form_class = custom_forms.ACTIVITY_CREATION_CFORM
     entity_pk_url_kwargs = 'entity_id'

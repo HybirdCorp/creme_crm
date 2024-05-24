@@ -3,7 +3,7 @@ from django.urls import include, re_path
 from creme.creme_core.conf.urls import Swappable, swap_manager
 
 from . import activity_model_is_custom
-from .views import activity, bricks, calendar
+from .views import activity, bricks, buttons, calendar
 
 calendar_patterns = [
     re_path(
@@ -99,6 +99,12 @@ urlpatterns = [
 
     re_path(r'^calendar/', include(calendar_patterns)),
 
+    re_path(
+        r'^buttons/unsuccessful/settings/edit[/]?$',
+        buttons.UnsuccessfulPhoneCallConfiguration.as_view(),
+        name='activities__edit_unsuccessful_call_settings',
+    ),
+
     *swap_manager.add_group(
         activity_model_is_custom,
         Swappable(
@@ -113,6 +119,13 @@ urlpatterns = [
                 r'^phone_calls[/]?$',
                 activity.PhoneCallsList.as_view(),
                 name='activities__list_phone_calls',
+            ),
+        ),
+        Swappable(
+            re_path(
+                r'^phone_call/add_unsuccessful/(?P<contact_id>\d+)[/]?$',
+                buttons.UnsuccessfulPhoneCallCreation.as_view(),
+                name='activities__create_unsuccessful_phone_call',
             ),
         ),
         Swappable(

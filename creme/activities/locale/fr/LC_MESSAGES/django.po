@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-17 15:50+0200\n"
+"POT-Creation-Date: 2024-05-29 11:42+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -90,6 +90,9 @@ msgstr ""
 msgid "On my calendars"
 msgstr "Sur mes calendriers"
 
+msgid "Configuration of the button «Create an unsuccessful phone call»"
+msgstr "Configuration du bouton «Créer un appel non abouti»"
+
 msgid "Create a related activity"
 msgstr "Créer une activité liée"
 
@@ -141,6 +144,22 @@ msgstr ""
 "Ce bouton affiche le formulaire de création des tâches (sorte d'activité). "
 "La fiche actuelle est pré-sélectionnée pour être liée à la tâche créée.\n"
 "App : Activités"
+
+msgid "Create an unsuccessful phone call"
+msgstr "Créer un appel non abouti"
+
+msgid ""
+"This button creates a short phone call (kind of activity) which was not "
+"successful (in order to keep an history).\n"
+"The current contact participates to the created call, & you too.\n"
+"The fields values can be set in the configuration of «Activities».\n"
+"App: Activities"
+msgstr ""
+"Ce bouton crée un court appel téléphonique (sorte d'activité) qui n'a pas "
+"été fructueux (afin de garder quand même un historique).\n"
+"le contact courant participe à l'appel créé, et vous aussi.\n"
+"Les valeurs des champs peuvent être réglées dans la configuration de «Activités».\n"
+"App: Activités"
 
 msgid "Create an unavailability"
 msgstr "Créer une indisponibilité"
@@ -357,6 +376,15 @@ msgstr[1] ""
 "Attention ! Le type de {count} activités ne peut pas être modifié parce que "
 "ce sont des indisponibilités."
 
+msgid "Title"
+msgstr "Titre"
+
+msgid "Duration (in minutes)"
+msgstr "Durée (en minutes)"
+
+msgid "The duration is used to compute automatically the start of the call"
+msgstr "La durée est utilisée pour calculer automatiquement le début de l'appel"
+
 msgid "User"
 msgstr "Utilisateur"
 
@@ -442,9 +470,6 @@ msgstr "Appels téléphoniques"
 
 msgid "Meetings"
 msgstr "Rendez-vous"
-
-msgid "Title"
-msgstr "Titre"
 
 msgid "Minutes"
 msgstr "Bilan"
@@ -634,6 +659,13 @@ msgctxt "activities-status"
 msgid "Cancelled"
 msgstr "Annulée"
 
+msgctxt "activities-status"
+msgid "Unsuccessful"
+msgstr "Non abouti"
+
+msgid "Used by default by the button «Create an unsuccessful phone call»"
+msgstr "Utilisé par défaut par le bouton «Créer un appel non abouti»"
+
 msgctxt "activities-meeting"
 msgid "Qualification"
 msgstr "Qualification"
@@ -734,6 +766,9 @@ msgstr "Auxquelles je participe"
 msgid "Activity view"
 msgstr "Vue d'Activité"
 
+msgid "Unsuccessful call"
+msgstr "Appel non abouti"
+
 msgid "Display minutes information in activities blocks"
 msgstr "Afficher le bilan d'une activité dans les blocs d'activités"
 
@@ -743,6 +778,9 @@ msgid ""
 msgstr ""
 "Ajouter automatiquement les sociétés des participants en tant que sujets des "
 "activités"
+
+msgid "Sub-type"
+msgstr "Sous-type"
 
 msgid "Activities (since one year)"
 msgstr "Activités (depuis un an)"
@@ -940,6 +978,31 @@ msgstr "Délier les sujets"
 msgid "No subject for the moment"
 msgstr "Aucun sujet enregistré pour le moment"
 
+msgid "Edit the configuration"
+msgstr "Modifier la configuration"
+
+#, python-format
+msgid ""
+"This button can be placed on Activities' detail-views in the <a href="
+"\"%(config_url)s\">buttons configuration</a>.\n"
+"It allows to create a not successful Phone Call in one click."
+msgstr ""
+"Ce bouton peut être placé sur les vues détaillés des Activités dans la "
+"<a href=\"%(config_url)s\">configuration des boutons</a>.\n"
+"Il permet de créer un Appel Téléphonique infructueux en un clic."
+
+msgid "The recorded sub-type is invalid (it may have been deleted)"
+msgstr "Le sous-type enregistré est invalide (il peut avoir été supprimé)"
+
+msgid "The recorded status is invalid (it may have been deleted)"
+msgstr "Le sous-type enregistré est invalide (il peut avoir été supprimé)"
+
+#, python-format
+msgid "%(count)s minute"
+msgid_plural "%(count)s minutes"
+msgstr[0] "%(count)s minute"
+msgstr[1] "%(count)s minutes"
+
 msgid "New calendar"
 msgstr "Nouveau calendrier"
 
@@ -960,6 +1023,9 @@ msgstr "Vous n'avez pas la permission de relier cette fiche"
 
 msgid "You are not allowed to create an Activity"
 msgstr "Vous n'avez pas la permission de créer une Activité"
+
+msgid "You cannot call yourself"
+msgstr "Vous ne pouvez pas vous appelez vous-même"
 
 msgid "You can drag and drop these activities in the calendar"
 msgstr "Vous pouvez glisser-déposer ces activités dans le calendrier"
@@ -1046,6 +1112,27 @@ msgstr "Ajouter les sujets"
 
 msgid "One entity does not exist any more."
 msgstr "Une fiche n'existe plus."
+
+msgid ""
+"The current contact is you; the button has to be used with a different "
+"contact"
+msgstr ""
+"Le contact courant c'est vous ; le bouton doit être utilisé avec un contact "
+"différent"
+
+msgid ""
+"The configuration of the button is broken; fix it in the configuration of "
+"«Activities»."
+msgstr ""
+"La configuration du bouton est cassée ; corrigez la dans la configuration de "
+"«Activités»."
+
+msgid "Edit the configuration of the button"
+msgstr "Modifier la configuration du bouton"
+
+# Already in creme_core
+msgid "Save the modifications"
+msgstr ""
 
 # Already in creme_config
 #, python-brace-format

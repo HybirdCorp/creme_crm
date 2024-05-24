@@ -1,0 +1,16 @@
+{% load i18n creme_perms creme_widgets %}
+{% with link_perm=user|has_perm_to_link:object user_contact=request.user.linked_contact %}
+{% if button.is_allowed and link_perm and object != user_contact %}
+<a class="menu_button menu-button-icon" title="{{button.description}}" data-action="update"
+   href="{% url 'activities__create_unsuccessful_phone_call' object.id %}">
+    {% widget_icon name='phone' size='instance-button' label=_('Phone call') %}
+    {{button.verbose_name}}
+</a>
+{% else %}
+<span class="menu_button menu-button-icon forbidden"
+      title="{% if not link_perm %}{% translate 'You are not allowed to link this entity' %}{% elif object == user_contact %}{% translate 'You cannot call yourself' %}{% else %}{% translate 'You are not allowed to create an Activity' %}{% endif %}">
+    {% widget_icon name='phone' size='instance-button' label=_('Phone call') %}
+    {{button.verbose_name}}
+</span>
+{% endif %}
+{% endwith %}

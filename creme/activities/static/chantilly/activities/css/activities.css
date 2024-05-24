@@ -514,3 +514,23 @@
     color: hsla(197, 42%, 20%, 1);
     font-style: italic;
 }
+
+.activities-unsuccessful-config-brick.brick-kv-list .brick-kv-key {
+    font-weight: 600;
+    color: hsla(220, 26%, 50%, 1);
+}
+
+.activities-unsuccessful-config-brick .item-unsuccessful-help {
+    padding: 8px;
+    color: grey;
+    background: rgb(254, 254, 252);
+    font-style: italic;
+}
+
+.activities-unsuccessful-config-brick .item-unsuccessful-help a {
+    padding-left: 2px;
+}
+
+.activities-unsuccessful-config-brick.brick-kv-list .brick-kv-value {
+    text-align: left;
+}

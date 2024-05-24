@@ -897,6 +897,12 @@
     text-align: right;
 }
 
+.brick-kv-list .brick-kv-value.brick-kv-value-error {
+    font-weight: 500;
+    font-style: italic;
+    color: #f06060;
+}
+
 .brick-kv-list .brick-kv-group:not(:first-child) .brick-kv-group-title,
 .brick-kv-list .brick-kv-group:not(:first-child) .brick-kv-item {
     border-left: 1px solid #ccc;
