@@ -40,6 +40,7 @@
                 - Which days are active.
                 - What hour range to use.
                 - ...
+            - A new button, which can be displayed on Contacts' detail-views, is available: "Create an unsuccessful phone call".
             - The configuration block for Calendars has been improved.
         * Persons :
             - The staff users are not related to Contacts anymore.

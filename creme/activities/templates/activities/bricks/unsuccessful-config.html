@@ -1,0 +1,46 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_bricks %}
+{% load url from creme_core_tags %}
+
+{% block brick_extra_class %}brick-kv-list activities-unsuccessful-config-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=verbose_name icon='phone' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% brick_header_action id='edit' url='activities__edit_unsuccessful_call_settings'|url label=_('Edit the configuration') %}
+{% endblock %}
+
+{% block brick_content %}
+    <div class="brick-kv-group">
+        <div class="brick-kv-item item-unsuccessful-help">
+            {% blocktranslate with config_url='creme_config__buttons'|url %}This button can be placed on Activities' detail-views in the <a href="{{config_url}}">buttons configuration</a>.
+It allows to create a not successful Phone Call in one click.{% endblocktranslate %}
+        </div>
+        <div class="brick-kv-item item-unsuccessful-sub_type">
+            <div class="brick-kv-key">{% translate 'Sub-type' %}</div>
+            {% if sub_type is None %}
+             <div class="brick-kv-value brick-kv-value-error">{% translate 'The recorded sub-type is invalid (it may have been deleted)' %}</div>
+            {% else %}
+             <div class="brick-kv-value">{{sub_type}}</div>
+            {% endif %}
+        </div>
+        <div class="brick-kv-item item-unsuccessful-title">
+            <div class="brick-kv-key">{% translate 'Title' %}</div>
+            <div class="brick-kv-value">{{title}}</div>
+        </div>
+        <div class="brick-kv-item item-unsuccessful-ctype">
+            <div class="brick-kv-key">{% translate 'Status' %}</div>
+            {% if status is None %}
+             <div class="brick-kv-value brick-kv-value-error">{% translate 'The recorded status is invalid (it may have been deleted)' %}</div>
+            {% else %}
+             <div class="brick-kv-value">{{status}}</div>
+            {% endif %}
+        </div>
+        <div class="brick-kv-item item-unsuccessful-duration">
+            <div class="brick-kv-key">{% translate 'Duration' %}</div>
+            <div class="brick-kv-value">{% blocktranslate count count=duration %}{{count}} minute{% plural %}{{count}} minutes{% endblocktranslate %}</div>
+        </div>
+    </div>
+{% endblock %}

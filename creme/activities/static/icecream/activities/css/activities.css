@@ -499,3 +499,25 @@
     color: hsla(197, 42%, 20%, 1);
     font-style: italic;
 }
+
+.activities-unsuccessful-config-brick.brick-kv-list .brick-kv-key {
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 11px;
+    color: #777;
+
+    cursor: default;
+}
+
+.activities-unsuccessful-config-brick .item-unsuccessful-help {
+    color: grey;
+    font-style: italic;
+}
+
+.activities-unsuccessful-config-brick .item-unsuccessful-help a {
+    padding-left: 2px;
+}
+
+.activities-unsuccessful-config-brick.brick-kv-list .brick-kv-value {
+    text-align: left;
+}

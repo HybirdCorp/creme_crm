@@ -47,15 +47,15 @@ class SettingValueManager(models.Manager):
         super().__init__(**kwargs)
         self.key_registry = skey_registry
 
-    def exists_4_key(self, key: SettingKey | str):
-        """Check if a SettingValue exists
+    def exists_4_key(self, key: SettingKey | str) -> bool:
+        """Check if a SettingValue exists.
 
         @param key: A SettingKey instance, or an ID of SettingKey (string).
         """
         key_id = key if isinstance(key, str) else key.id
         return self.filter(key_id=key_id).exists()
 
-    def set_4_key(self, key: SettingKey | str, value):
+    def set_4_key(self, key: SettingKey | str, value) -> None:
         """Set the SettingValue corresponding to a SettingKey.
         The cache will be cleared.
 
@@ -165,7 +165,7 @@ class SettingValueManager(models.Manager):
                     sv = retrieved_svalues[key_id]
                 except KeyError as e:
                     logger.critical(
-                        'SettingValue with key_id="%s" cannot be found ! '
+                        'SettingValue with key_id="%s" cannot be found! '
                         '(maybe "creme_populate" command has not been run correctly).',
                         key_id
                     )

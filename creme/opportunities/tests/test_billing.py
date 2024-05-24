@@ -133,7 +133,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertPOST200(url, follow=True)
 
         quote = self.get_alone_element(Quote.objects.all())
-        self.assertDatetimesAlmostEqual(date.today(), quote.issuing_date)
+        self.assertEqual(date.today(), quote.issuing_date)
         self.assertEqual(1, quote.status_id)
         self.assertTrue(quote.number)
         self.assertEqual(

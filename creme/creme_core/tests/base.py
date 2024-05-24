@@ -32,6 +32,7 @@ from django.utils.translation import gettext as _
 
 from ..auth import EntityCredentials
 from ..constants import ROOT_PASSWORD, ROOT_USERNAME
+from ..core.setting_key import SettingKey
 from ..global_info import clear_global_info
 from ..gui.icons import get_icon_by_name, get_icon_size_px
 from ..management.commands.creme_populate import Command as PopulateCommand
@@ -357,6 +358,9 @@ class _CremeTestCase:
             self.fail(self._formatMessage(msg, std_msg))
 
     def assertDatetimesAlmostEqual(self, dt1, dt2, seconds=10):
+        self.assertIsInstance(dt1, datetime)
+        self.assertIsInstance(dt2, datetime)
+
         delta = max(dt1, dt2) - min(dt1, dt2)
 
         if delta > timedelta(seconds=seconds):
@@ -891,6 +895,13 @@ class _CremeTestCase:
                 err_codes = [e.code for e in error.error_list]
                 if codes != err_codes:
                     self.fail(f'The codes differ. Expected: {codes!r}. Got: {err_codes!r}')
+
+    # TODO: unit test
+    def assertSettingValueEqual(self, key: SettingKey | str, value):
+        sv = self.get_object_or_fail(
+            SettingValue, key_id=(key if isinstance(key, str) else key.id),
+        )
+        self.assertEqual(value, sv.value)
 
     def assertXMLEqualv2(self, expected, actual):
         """Compare 2 strings representing XML document, with the XML semantic.

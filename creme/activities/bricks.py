@@ -19,16 +19,23 @@
 from itertools import chain
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
 from creme.creme_config.bricks import GenericModelBrick
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.gui.bricks import QuerysetBrick, SimpleBrick
+from creme.creme_core.gui.bricks import Brick, QuerysetBrick, SimpleBrick
 from creme.creme_core.models import CremeEntity, Relation, SettingValue
 
-from . import constants, get_activity_model
-from .models import ActivityType, Calendar, CalendarConfigItem
+from . import constants, get_activity_model, setting_keys
+from .models import (
+    ActivitySubType,
+    ActivityType,
+    Calendar,
+    CalendarConfigItem,
+    Status,
+)
 from .setting_keys import review_key
 
 Contact      = persons.get_contact_model()
@@ -334,3 +341,42 @@ class CalendarConfigItemsBrick(QuerysetBrick):
             paginator.count += 2 if superuser else 1
 
         return self._render(brick_context)
+
+
+class UnsuccessfulButtonConfigBrick(Brick):
+    id = Brick.generate_id('activities', 'unsuccessful_call_config')
+    verbose_name = _('Configuration of the button «Create an unsuccessful phone call»')
+    template_name = 'activities/bricks/unsuccessful-config.html'
+    configurable = False
+    # permissions = 'activities.can_admin' => useless because views check that.
+
+    def detailview_display(self, context):
+        svalues = SettingValue.objects.get_4_keys(
+            {'key': setting_keys.unsuccessful_subtype_key},
+            {'key': setting_keys.unsuccessful_title_key},
+            {'key': setting_keys.unsuccessful_status_key},
+            {'key': setting_keys.unsuccessful_duration_key},
+        )
+
+        # TODO: factorise (form, view)
+        try:
+            sub_type = ActivitySubType.objects.get(
+                uuid=svalues[setting_keys.unsuccessful_subtype_key.id].value,
+            )
+        except (ActivitySubType.DoesNotExist, ValidationError):
+            sub_type = None
+
+        try:
+            status = Status.objects.get(
+                uuid=svalues[setting_keys.unsuccessful_status_key.id].value,
+            )
+        except (Status.DoesNotExist, ValidationError):
+            status = None
+
+        return self._render(self.get_template_context(
+            context,
+            sub_type=sub_type,
+            status=status,
+            title=svalues[setting_keys.unsuccessful_title_key.id].value,
+            duration=svalues[setting_keys.unsuccessful_duration_key.id].value,
+        ))

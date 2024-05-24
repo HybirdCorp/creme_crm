@@ -101,6 +101,12 @@ class Populator(BasePopulator):
             description=pgettext('activities-status', 'Cancelled'),
             is_custom=False,
         ),
+        Status(
+            uuid=constants.UUID_STATUS_UNSUCCESSFUL,
+            name=pgettext('activities-status', 'Unsuccessful'),
+            description=_('Used by default by the button «Create an unsuccessful phone call»'),
+            is_custom=False,
+        ),
     ]
     ACTIVITY_TYPES = [
         [
@@ -481,6 +487,23 @@ class Populator(BasePopulator):
         create_svalue = SettingValue.objects.get_or_create
         create_svalue(key_id=setting_keys.review_key.id,        defaults={'value': True})
         create_svalue(key_id=setting_keys.auto_subjects_key.id, defaults={'value': True})
+
+        create_svalue(
+            key_id=setting_keys.unsuccessful_subtype_key.id,
+            defaults={'value': constants.UUID_SUBTYPE_PHONECALL_OUTGOING},
+        )
+        create_svalue(
+            key_id=setting_keys.unsuccessful_title_key.id,
+            defaults={'value': _('Unsuccessful call')},
+        )
+        create_svalue(
+            key_id=setting_keys.unsuccessful_status_key.id,
+            defaults={'value': constants.UUID_STATUS_UNSUCCESSFUL},
+        )
+        create_svalue(
+            key_id=setting_keys.unsuccessful_duration_key.id,
+            defaults={'value': 3},
+        )
 
     def _populate_menu_config(self):
         create_mitem = MenuConfigItem.objects.create

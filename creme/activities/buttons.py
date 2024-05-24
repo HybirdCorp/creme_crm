@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -99,3 +99,22 @@ class AddTaskButton(AddRelatedActivityButton):
     )
     # activity_type = constants.ACTIVITYTYPE_TASK
     activity_type = constants.UUID_TYPE_TASK
+
+
+class AddUnsuccessfulPhoneCallButton(AddRelatedActivityButton):
+    id = Button.generate_id('activities', 'add_unsuccessful_phonecall')
+    verbose_name = _('Create an unsuccessful phone call')
+    template_name = 'activities/buttons/add-unsuccessful-phonecall.html'
+    permissions = build_creation_perm(Activity)
+    description = _(
+        'This button creates a short phone call (kind of activity) which was '
+        'not successful (in order to keep an history).\n'
+        'The current contact participates to the created call, & you too.\n'
+        'The fields values can be set in the configuration of «Activities».\n'
+        'App: Activities'
+    )
+
+    def get_ctypes(self):
+        from creme.persons import get_contact_model
+
+        return [get_contact_model()]

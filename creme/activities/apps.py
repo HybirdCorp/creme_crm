@@ -78,6 +78,7 @@ class ActivitiesConfig(CremeAppConfig):
             buttons.AddMeetingButton,
             buttons.AddPhoneCallButton,
             buttons.AddTaskButton,
+            buttons.AddUnsuccessfulPhoneCallButton,
         )
 
     def register_creme_config(self, config_registry):
@@ -120,6 +121,7 @@ class ActivitiesConfig(CremeAppConfig):
         config_registry.register_app_bricks(
             'activities',
             bricks.CalendarConfigItemsBrick,
+            bricks.UnsuccessfulButtonConfigBrick,
         )
 
     def register_custom_forms(self, cform_registry):
@@ -242,6 +244,11 @@ class ActivitiesConfig(CremeAppConfig):
         setting_key_registry.register(
             setting_keys.review_key,
             setting_keys.auto_subjects_key,
+
+            setting_keys.unsuccessful_subtype_key,
+            setting_keys.unsuccessful_title_key,
+            setting_keys.unsuccessful_status_key,
+            setting_keys.unsuccessful_duration_key,
         )
 
     def register_statistics(self, statistics_registry):
