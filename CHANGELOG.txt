@@ -4,6 +4,8 @@
   ------------
     # An useless/empty message panel in the errors-popup for bulk-update has been removed.
     # Apps :
+        * Activities :
+            - The "automatic subject" feature avoids deleted Organisations.
         * Tickets :
             - In list-view, the background color for important tickets was broken.
         * Emails :
