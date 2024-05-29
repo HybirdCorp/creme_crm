@@ -3,6 +3,8 @@
   Users side :
   ------------
     # Apps :
+        * Activities :
+            - The "automatic subject" feature avoids deleted Organisations.
         * Tickets :
             - In list-view, the background color for important tickets was broken.
 
