@@ -21,6 +21,7 @@
 
     Non breaking changes :
     ----------------------
+        # The detection of empty paginated bricks has been fixed.
         # The deprecated method 'creme_core.tests.base._CremeTestCase.login()' was broken.
 
 
