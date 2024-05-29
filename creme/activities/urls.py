@@ -47,17 +47,17 @@ calendar_patterns = [
         name='activities__link_calendar',
     ),
     re_path(
-        r'^calendar/settings/edit/(?P<item_id>\d+)[/]?$',
+        r'^settings/edit/(?P<item_id>\d+)[/]?$',
         calendar.CalendarConfigItemEdition.as_view(),
         name='activities__edit_calendar_settings',
     ),
     re_path(
-        r'^calendar/settings/add[/]?$',
+        r'^settings/add[/]?$',
         calendar.CalendarConfigItemCreation.as_view(),
         name='activities__add_calendar_settings',
     ),
     re_path(
-        r'^calendar/settings/delete[/]?$',
+        r'^settings/delete[/]?$',
         calendar.CalendarConfigItemDeletion.as_view(),
         name='activities__delete_calendar_settings',
     )
