@@ -314,14 +314,13 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         add_url = self._build_add_url(contact)
 
         detail_response = self.assertGET200(contact.get_absolute_url())
-        # TODO: add an assertion for that?
-        for button_node in self.iter_button_nodes(
-            self.get_instance_buttons_node(self.get_html_tree(detail_response.content))
-        ):
-            if button_node.tag == 'a' and button_node.attrib.get('href') == add_url:
-                break
-        else:
-            self.fail('<Add call> button not found!')
+        self.assertTrue(
+            [*self.iter_button_nodes(
+                self.get_instance_buttons_node(self.get_html_tree(detail_response.content)),
+                tags=['a'], href=add_url,
+            )],
+            msg='<Add call> button not found!',
+        )
 
         self.assertGET405(add_url)
 

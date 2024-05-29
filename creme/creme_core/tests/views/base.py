@@ -1,5 +1,7 @@
+import logging
 import warnings
 from tempfile import NamedTemporaryFile
+from xml.etree import ElementTree
 
 import openpyxl
 from django.contrib.contenttypes.models import ContentType
@@ -15,6 +17,8 @@ from creme.creme_core.utils.xlwt_utils import XlwtWriter
 from creme.documents.models import Document, Folder, FolderCategory
 
 from ..base import CremeTestCase
+
+logger = logging.getLogger(__name__)
 
 
 class AppPermissionBrick(Brick):
@@ -246,29 +250,57 @@ class ButtonTestCaseMixin:
 
         self.fail('The instance buttons node has not been found.')
 
-    @staticmethod
+    # @staticmethod
     # def iter_instance_button_nodes(instances_button_node, *, data_action=None):
-    def iter_button_nodes(buttons_node, *, data_action=None):
-        # for a_node in instances_button_node.findall('.//a'):
-        for a_node in buttons_node.findall('.//a'):
-            classes_attr = a_node.attrib.get('class')
-            if classes_attr is None:
-                continue
+    #     for a_node in instances_button_node.findall('.//a'):
+    #         classes_attr = a_node.attrib.get('class')
+    #         if classes_attr is None:
+    #             continue
+    #
+    #         if (
+    #             'menu_button' in classes_attr.split()
+    #             and (
+    #                 not data_action
+    #                 or data_action == a_node.attrib.get('data-action')
+    #             )
+    #         ):
+    #             yield a_node
+    #
+    #     for span_node in instances_button_node.findall('.//span'):
+    #         classes_attr = span_node.attrib.get('class')
+    #         if classes_attr and 'menu_button' in classes_attr.split():
+    #             yield span_node
+    @staticmethod
+    def iter_button_nodes(buttons_node, *, tags=('a', 'span'), data_action=None, href=None):
+        if 'a' in tags:
+            for a_node in buttons_node.findall('.//a'):
+                classes_attr = a_node.attrib.get('class')
+                if classes_attr:
+                    if (
+                        'menu_button' in classes_attr.split()
+                        and (
+                            not data_action
+                            or data_action == a_node.attrib.get('data-action')
+                        ) and (
+                            href is None
+                            or href == a_node.attrib.get('href')
+                        )
+                    ):
+                        yield a_node
 
-            if (
-                'menu_button' in classes_attr.split()
-                and (
-                    not data_action
-                    or data_action == a_node.attrib.get('data-action')
-                )
-            ):
-                yield a_node
+        if 'span' in tags:
+            for span_node in buttons_node.findall('.//span'):
+                classes_attr = span_node.attrib.get('class')
+                if classes_attr:
+                    classes = classes_attr.split()
+                    if 'menu_button' in classes:
+                        if 'forbidden' not in classes:
+                            logger.warning(
+                                'A <span> button without "forbidden" class has been found: %s',
+                                ElementTree.tostring(span_node),
+                            )
 
-        # for span_node in instances_button_node.findall('.//span'):
-        for span_node in buttons_node.findall('.//span'):
-            classes_attr = span_node.attrib.get('class')
-            if classes_attr and 'menu_button' in classes_attr.split():
-                yield span_node
+                        yield span_node
 
 
 class MassImportBaseTestCaseMixin:

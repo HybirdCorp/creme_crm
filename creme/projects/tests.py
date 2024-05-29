@@ -1397,14 +1397,13 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         close_url = reverse('projects__close_project', args=(project.id,))
 
         detail_response1 = self.assertGET200(detail_url)
-        button_nodes1 = self.get_instance_buttons_node(
-            self.get_html_tree(detail_response1.content)
+        self.assertTrue(
+            [*self.iter_button_nodes(
+                self.get_instance_buttons_node(self.get_html_tree(detail_response1.content)),
+                tags=['a'], href=close_url,
+            )],
+            msg='<Close> button not found!',
         )
-        for button_node in self.iter_button_nodes(button_nodes1):
-            if button_node.tag == 'a' and button_node.attrib.get('href') == close_url:
-                break
-        else:
-            self.fail('<Close> button not found!')
 
         # ---
         self.assertGET405(close_url)
@@ -1417,12 +1416,13 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         self.assertDatetimesAlmostEqual(now(), project.effective_end_date)
 
         detail_response2 = self.assertGET200(detail_url)
-        button_nodes2 = self.get_instance_buttons_node(
-            self.get_html_tree(detail_response2.content)
+        self.assertFalse(
+            [*self.iter_button_nodes(
+                self.get_instance_buttons_node(self.get_html_tree(detail_response2.content)),
+                tags=['a'], href=close_url,
+            )],
+            msg='<Close> button found!',
         )
-        for button_node in self.iter_button_nodes(button_nodes2):
-            if button_node.tag == 'a' and button_node.attrib.get('href') == close_url:
-                self.fail('<Close> button found!')
 
         # Already closed
         self.assertPOST409(close_url, follow=True)
