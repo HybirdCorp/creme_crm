@@ -5,7 +5,7 @@
 {% block brick_extra_class %}{{block.super}} activities-calendar-config-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Configured calendar view') plural=_('{count} Configured calendar views') empty=verbose_name icon='config' %}
+    {% brick_header_title title=_('{count} Configured calendar view') plural=_('{count} Configured calendar views') empty=verbose_name icon='calendar' %}
 {% endblock %}
 
 {% block brick_header_actions %}
@@ -27,24 +27,24 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{% with admin_perm=user|has_perm_to_admin:'activities' %}
-    {% if default %}
-        <tr>
-            <td {% brick_table_data_status primary %} class="calendar-config-default">{% translate 'Default configuration' %}</td>
-            <td>{{ default.view_label }}</td>
-            <td>{{ default.week_days_labels|join:", " }}</td>
-            <td>{{ default.week_start_label }}</td>
-            <td>{{ default.day_start }} — {{ default.day_end }}</td>
-            <td>{{ default.slot_duration }}</td>
-            <td><input type="checkbox" disabled {% if default.allow_event_move %}checked{% endif %} /></td>
-            <td><input type="checkbox" disabled {% if default.allow_keep_state %}checked{% endif %} /></td>
-            <td {% brick_table_data_status action %}>&nbsp;</td>
-            <td {% brick_table_data_status action %}>
-                {% brick_table_action id='edit' url='activities__edit_calendar_settings'|url:default.pk label=_('Edit this configuration') enabled=admin_perm %}
-            </td>
-        </tr>
-    {% endif %}
-    {% if superuser %}
+ {% with admin_perm=user|has_perm_to_admin:'activities' %}
+  {% if default %}
+    <tr>
+        <td {% brick_table_data_status primary %} class="calendar-config-default">{% translate 'Default configuration' %}</td>
+        <td>{{ default.view_label }}</td>
+        <td>{{ default.week_days_labels|join:", " }}</td>
+        <td>{{ default.week_start_label }}</td>
+        <td>{{ default.day_start }} — {{ default.day_end }}</td>
+        <td>{{ default.slot_duration }}</td>
+        <td><input type="checkbox" disabled {% if default.allow_event_move %}checked{% endif %} /></td>
+        <td><input type="checkbox" disabled {% if default.allow_keep_state %}checked{% endif %} /></td>
+        <td {% brick_table_data_status action %}>&nbsp;</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='activities__edit_calendar_settings'|url:default.pk label=_('Edit this configuration') enabled=admin_perm %}
+        </td>
+    </tr>
+  {% endif %}
+  {% if superuser %}
     <tr>
         <td {% brick_table_data_status primary %} class="calendar-config-superuser">{% translate 'Superuser configuration' %}</td>
         <td>{{ superuser.view_label }}</td>
@@ -61,32 +61,32 @@
             {% brick_table_action id='delete' url='activities__delete_calendar_settings'|url __id=superuser.pk label=_('Delete this configuration') enabled=admin_perm %}
         </td>
     </tr>
-    {% endif %}
-    {% for config in page.object_list %}
-        <tr>
-            <td {% brick_table_data_status primary %} class="calendar-config-role">{{config.role}}</td>
-            <td>{{ config.view_label }}</td>
-            <td>{{ config.week_days_labels|join:", " }}</td>
-            <td>{{ config.week_start_label }}</td>
-            <td>{{ config.day_start }} — {{ superuser.day_end }}</td>
-            <td>{{ config.slot_duration }}</td>
-            <td><input type="checkbox" disabled {% if config.allow_event_move %}checked{% endif %} /></td>
-            <td><input type="checkbox" disabled {% if config.allow_keep_state %}checked{% endif %} /></td>
-            <td {% brick_table_data_status action %}>
-                {% brick_table_action id='edit' url='activities__edit_calendar_settings'|url:config.pk label=_('Edit this configuration') enabled=admin_perm %}
-            </td>
-            <td {% brick_table_data_status action %}>
-                {% brick_table_action id='delete' url='activities__delete_calendar_settings'|url __id=config.pk label=_('Delete this configuration') enabled=admin_perm %}
-            </td>
-        </tr>
-    {% endfor %}
-{% endwith %}
+  {% endif %}
+  {% for config in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %} class="calendar-config-role">{{config.role}}</td>
+        <td>{{ config.view_label }}</td>
+        <td>{{ config.week_days_labels|join:", " }}</td>
+        <td>{{ config.week_start_label }}</td>
+        <td>{{ config.day_start }} — {{ superuser.day_end }}</td>
+        <td>{{ config.slot_duration }}</td>
+        <td><input type="checkbox" disabled {% if config.allow_event_move %}checked{% endif %} /></td>
+        <td><input type="checkbox" disabled {% if config.allow_keep_state %}checked{% endif %} /></td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='activities__edit_calendar_settings'|url:config.pk label=_('Edit this configuration') enabled=admin_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url='activities__delete_calendar_settings'|url __id=config.pk label=_('Delete this configuration') enabled=admin_perm %}
+        </td>
+    </tr>
+  {% endfor %}
+ {% endwith %}
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% if error %}
-        <div class="brick-error">{{error}}</div>
-    {% else %}
-        {% translate 'No configuration for the moment' %}
-    {% endif %}
+  {% if error %}
+    <div class="brick-error">{{error}}</div>
+  {% else %}
+    {% translate 'No configuration for the moment' %}
+  {% endif %}
 {% endblock %}
