@@ -312,7 +312,7 @@ class CalendarConfigItemsBrick(QuerysetBrick):
     def detailview_display(self, context):
         user = context['user']
         configs = CalendarConfigItem.objects.filter(
-            role__isnull=False, superuser=False
+            role__isnull=False, superuser=False,
         ).order_by('role__name')
 
         brick_context = self.get_template_context(
