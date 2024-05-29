@@ -67,15 +67,15 @@ class SettingValueManager(models.Manager):
             if value is None:
                 self.filter(key_id=key_id).delete()
             else:
-                # TODO: create_or_update()?
-                setting, created = self.get_or_create(
-                    key_id=key_id,
-                    defaults={'value': value},
-                )
-
-                if not created:
-                    setting.value = value
-                    setting.save()
+                # setting, created = self.get_or_create(
+                #     key_id=key_id,
+                #     defaults={'value': value},
+                # )
+                #
+                # if not created:
+                #     setting.value = value
+                #     setting.save()
+                self.update_or_create(key_id=key_id, defaults={'value': value})
 
         # Clear setting key cache
         cache = get_per_request_cache()
