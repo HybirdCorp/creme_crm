@@ -1222,12 +1222,16 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         address_count = Address.objects.count()
 
+        default_status = self.get_object_or_fail(InvoiceStatus, is_default=True)
         currency = Currency.objects.create(
             name='Martian dollar', local_symbol='M$',
             international_symbol='MUSD', is_custom=True,
         )
         invoice = self.create_invoice(
-            user=user, name='Invoice001', source=source, target=target, currency=currency,
+            user=user, name='Invoice001',
+            source=source, target=target,
+            currency=currency,
+            status=InvoiceStatus.objects.filter(is_default=False).first().id,
         )
         invoice.additional_info = AdditionalInformation.objects.all()[0]
         invoice.payment_terms = PaymentTerms.objects.all()[0]
@@ -1253,8 +1257,9 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = self.refresh(invoice)
 
         self.assertNotEqual(invoice, cloned)  # Not the same pk
-        self.assertEqual(invoice.name,     cloned.name)
-        self.assertEqual(currency,         cloned.currency)
+        self.assertEqual(invoice.name,   cloned.name)
+        self.assertEqual(currency,       cloned.currency)
+        self.assertEqual(default_status, cloned.status)
         self.assertIsNone(cloned.additional_info)  # Should not be cloned
         self.assertIsNone(cloned.payment_terms)    # Should not be cloned
         self.assertEqual(source, cloned.source)

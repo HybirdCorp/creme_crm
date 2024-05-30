@@ -371,7 +371,15 @@ class Base(CremeEntity):
         if save:
             self.save()
 
-    # TODO: Can not we really factorise with clone()
+    # NB: build is used by:
+    #   - conversion (e.g. Quote => Invoice)
+    #   - AbstractTemplateBase.create_entity() (recurrent generation)
+    # So it's different from cloning (e.g. we could have different behaviour
+    # for field "status" or "issuing_date").
+    # TODO: stop using *clone*() methods?
+    # TODO: build a better Clone system with a registry & Cloner objects
+    #       (instead of relying on methods overriding)
+    #       and same thing to replace build() (separate conversion & recurrent gen?)
     def build(self, template: Base):
         self._address_auto_copy = False
 
