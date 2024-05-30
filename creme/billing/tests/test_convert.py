@@ -434,7 +434,8 @@ class ConvertTestCase(_BillingTestCase):
         "Quote -> Invoice : status id can not be converted (bugfix)."
         user = self.login_as_root_and_get()
 
-        pk = 12
+        # pk = 12
+        pk = 1024
         self.assertFalse(InvoiceStatus.objects.filter(pk=pk).exists())
 
         with self.assertNoException():

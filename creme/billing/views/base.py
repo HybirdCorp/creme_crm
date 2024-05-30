@@ -34,6 +34,7 @@ class BaseCreation(generic.EntityCreation):
     def get_initial(self):
         initial = super().get_initial()
         # initial['status'] = self.initial_status
+        # TODO: in models instead?
         status = (
             self.model._meta.get_field('status')
                             .related_model.objects.filter(is_default=True)

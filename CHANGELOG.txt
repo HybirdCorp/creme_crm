@@ -62,6 +62,7 @@
         * Billing :
             - You can now define the default statuses (which are notably used as initial values in creation forms).
               You can also define the Invoice status to use when a number ins generated.
+            - When you clone an Invoice, the status is not copied anymore; the new Invoice gets the default status instead.
         * Emails :
             - The spam score of sent emails should be better :
                 - the header contains a "Message-ID" which matches the host domain.

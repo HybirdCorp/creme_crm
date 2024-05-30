@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -27,6 +29,8 @@ from .. import get_template_base_model
 from ..constants import DEFAULT_DECIMAL
 from .base import Base
 from .other_models import InvoiceStatus
+
+logger = logging.getLogger(__name__)
 
 
 class AbstractInvoice(Base):
@@ -52,6 +56,18 @@ class AbstractInvoice(Base):
         abstract = True
         verbose_name = _('Invoice')
         verbose_name_plural = _('Invoices')
+
+    def _pre_save_clone(self, source):
+        super()._pre_save_clone(source=source)
+
+        # TODO: <.set_tags(clonable=False)> + default in FK?
+        status = InvoiceStatus.objects.filter(is_default=True).first()
+        if status:
+            self.status = status
+        else:
+            logger.critical('AbstractInvoice._pre_save_clone(): cannot find a default status')
+
+        # TODO: what about "issuing_date"? should we copy it?
 
     def _get_total(self):
         lines_total, creditnotes_total = self._get_lines_total_n_creditnotes_total()

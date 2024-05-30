@@ -58,13 +58,15 @@ class TemplateBaseTestCase(_BillingTestCase):
         )
 
     def test_detailview(self):
-        invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
+        # invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
+        invoice_status = InvoiceStatus.objects.filter(is_default=False).first()
         tpl = self._create_templatebase(Invoice, invoice_status.id)
         response = self.assertGET200(tpl.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_template.html')
 
     def test_status_function_field(self):
-        status = self.get_object_or_fail(InvoiceStatus, pk=3)
+        # status = self.get_object_or_fail(InvoiceStatus, pk=3)
+        status = InvoiceStatus.objects.filter(is_default=False).first()
         tpl = self._create_templatebase(Invoice, status.id)
 
         with self.assertNoException():
@@ -98,7 +100,8 @@ class TemplateBaseTestCase(_BillingTestCase):
 
     @skipIfCustomInvoice
     def test_create_invoice01(self):
-        invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
+        # invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
+        invoice_status = InvoiceStatus.objects.filter(is_default=False).first()
         comment = '*Insert a comment here*'
         tpl = self._create_templatebase(
             Invoice, invoice_status.id, comment,
@@ -129,7 +132,8 @@ class TemplateBaseTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     def test_create_invoice02(self):
         "Bad status id."
-        pk = 12
+        # pk = 12
+        pk = 1024
         self.assertFalse(InvoiceStatus.objects.filter(pk=pk))
 
         tpl = self._create_templatebase(Invoice, pk)
@@ -137,7 +141,8 @@ class TemplateBaseTestCase(_BillingTestCase):
         with self.assertNoException():
             invoice = tpl.create_entity()
 
-        self.assertEqual(1, invoice.status_id)
+        # self.assertEqual(1, invoice.status_id)
+        self.assertTrue(invoice.status.is_default)
 
     @skipIfCustomInvoice
     @override_settings(INVOICE_NUMBER_PREFIX='INV')
@@ -145,7 +150,8 @@ class TemplateBaseTestCase(_BillingTestCase):
         "Source is managed."
         self._set_managed(self.source)
 
-        invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
+        # invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
+        invoice_status = InvoiceStatus.objects.filter(is_default=False).first()
 
         tpl = self._create_templatebase(Invoice, invoice_status.id)
         self.assertEqual('', tpl.number)
@@ -159,7 +165,8 @@ class TemplateBaseTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     def test_create_invoice04(self):
         "Source is not managed + fallback number."
-        invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
+        # invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
+        invoice_status = InvoiceStatus.objects.filter(is_default=False).first()
         number = 'INV132'
         tpl = self._create_templatebase(Invoice, invoice_status.id, number=number)
 
@@ -170,7 +177,8 @@ class TemplateBaseTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     def test_create_quote01(self):
-        quote_status = self.get_object_or_fail(QuoteStatus, pk=2)
+        # quote_status = self.get_object_or_fail(QuoteStatus, pk=2)
+        quote_status = QuoteStatus.objects.filter(is_default=False).first()
         comment = '*Insert an nice comment here*'
         tpl = self._create_templatebase(Quote, quote_status.id, comment)
 
@@ -184,7 +192,8 @@ class TemplateBaseTestCase(_BillingTestCase):
     @skipIfCustomQuote
     def test_create_quote02(self):
         "Bad status id."
-        pk = 8
+        # pk = 8
+        pk = 1024
         self.assertFalse(QuoteStatus.objects.filter(pk=pk))
 
         tpl = self._create_templatebase(Quote, pk)
@@ -194,7 +203,7 @@ class TemplateBaseTestCase(_BillingTestCase):
 
         status = quote.status
         self.assertIsNotNone(status)
-        self.assertEqual(pk,    status.id)
+        self.assertEqual(pk,       status.id)
         self.assertEqual(_('N/A'), status.name)
 
     @skipIfCustomQuote
@@ -203,7 +212,8 @@ class TemplateBaseTestCase(_BillingTestCase):
         "Source is managed."
         self._set_managed(self.source)
 
-        quote_status = self.get_object_or_fail(QuoteStatus, pk=2)
+        # quote_status = self.get_object_or_fail(QuoteStatus, pk=2)
+        quote_status = QuoteStatus.objects.filter(is_default=False).first()
         comment = '*Insert an nice comment here*'
         tpl = self._create_templatebase(Quote, quote_status.id, comment)
 
@@ -217,7 +227,8 @@ class TemplateBaseTestCase(_BillingTestCase):
 
     @skipIfCustomSalesOrder
     def test_create_order01(self):
-        order_status = self.get_object_or_fail(SalesOrderStatus, pk=4)
+        # order_status = self.get_object_or_fail(SalesOrderStatus, pk=4)
+        order_status = SalesOrderStatus.objects.filter(is_default=False).first()
         tpl = self._create_templatebase(SalesOrder, order_status.id)
 
         with self.assertNoException():
@@ -229,7 +240,8 @@ class TemplateBaseTestCase(_BillingTestCase):
     @skipIfCustomSalesOrder
     def test_create_order02(self):
         "Bad status id."
-        pk = 8
+        # pk = 8
+        pk = 1024
         self.assertFalse(SalesOrder.objects.filter(pk=pk))
 
         tpl = self._create_templatebase(SalesOrder, pk)
@@ -241,7 +253,8 @@ class TemplateBaseTestCase(_BillingTestCase):
 
     @skipIfCustomCreditNote
     def test_create_cnote(self):
-        cnote_status = self.get_object_or_fail(CreditNoteStatus, pk=2)
+        # cnote_status = self.get_object_or_fail(CreditNoteStatus, pk=2)
+        cnote_status = CreditNoteStatus.objects.filter(is_default=False).first()
         comment = '*Insert an nice comment here*'
         tpl = self._create_templatebase(CreditNote, cnote_status.id, comment)
 
@@ -255,8 +268,11 @@ class TemplateBaseTestCase(_BillingTestCase):
     def test_editview(self):
         user = self.user
 
-        invoice_status1 = self.get_object_or_fail(InvoiceStatus, pk=3)
-        invoice_status2 = self.get_object_or_fail(InvoiceStatus, pk=2)
+        # invoice_status1 = self.get_object_or_fail(InvoiceStatus, pk=3)
+        # invoice_status2 = self.get_object_or_fail(InvoiceStatus, pk=2)
+        invoice_status1, invoice_status2 = InvoiceStatus.objects.filter(
+            is_default=False,
+        ).order_by('-id')[:2]
 
         name = 'My template'
         tpl = self._create_templatebase(Invoice, invoice_status1.id, name=name)
