@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load i18n creme_bricks creme_widgets %}
 {% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} activities-calendar-config-brick{% endblock %}
@@ -10,7 +10,7 @@
 
 {% block brick_header_actions %}
 {% if not error %}
-    {% brick_header_action id='add' url='activities__add_calendar_settings'|url label=_('Create for a role') enabled=user|has_perm_to_admin:'activities' %}
+    {% brick_header_action id='add' url='activities__add_calendar_settings'|url label=_('Create for a role') %}
 {% endif %}
 {% endblock %}
 
@@ -27,7 +27,6 @@
 {% endblock %}
 
 {% block brick_table_rows %}
- {% with admin_perm=user|has_perm_to_admin:'activities' %}
   {% if default %}
     <tr>
         <td {% brick_table_data_status primary %} class="calendar-config-default">{% translate 'Default configuration' %}</td>
@@ -40,7 +39,7 @@
         <td><input type="checkbox" disabled {% if default.allow_keep_state %}checked{% endif %} /></td>
         <td {% brick_table_data_status action %}>&nbsp;</td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='edit' url='activities__edit_calendar_settings'|url:default.pk label=_('Edit this configuration') enabled=admin_perm %}
+            {% brick_table_action id='edit' url='activities__edit_calendar_settings'|url:default.pk label=_('Edit this configuration') %}
         </td>
     </tr>
   {% endif %}
@@ -55,10 +54,10 @@
         <td><input type="checkbox" disabled {% if superuser.allow_event_move %}checked{% endif %} /></td>
         <td><input type="checkbox" disabled {% if superuser.allow_keep_state %}checked{% endif %} /></td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='edit' url='activities__edit_calendar_settings'|url:superuser.pk label=_('Edit this configuration') enabled=admin_perm %}
+            {% brick_table_action id='edit' url='activities__edit_calendar_settings'|url:superuser.pk label=_('Edit this configuration') %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url='activities__delete_calendar_settings'|url __id=superuser.pk label=_('Delete this configuration') enabled=admin_perm %}
+            {% brick_table_action id='delete' url='activities__delete_calendar_settings'|url __id=superuser.pk label=_('Delete this configuration') %}
         </td>
     </tr>
   {% endif %}
@@ -73,15 +72,14 @@
         <td><input type="checkbox" disabled {% if config.allow_event_move %}checked{% endif %} /></td>
         <td><input type="checkbox" disabled {% if config.allow_keep_state %}checked{% endif %} /></td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='edit' url='activities__edit_calendar_settings'|url:config.pk label=_('Edit this configuration') enabled=admin_perm %}
+            {% brick_table_action id='edit' url='activities__edit_calendar_settings'|url:config.pk label=_('Edit this configuration') %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url='activities__delete_calendar_settings'|url __id=config.pk label=_('Delete this configuration') enabled=admin_perm %}
+            {% brick_table_action id='delete' url='activities__delete_calendar_settings'|url __id=config.pk label=_('Delete this configuration') %}
         </td>
     </tr>
   {% endfor %}
- {% endwith %}
-{% endblock %}
+ {% endblock %}
 
 {% block brick_table_empty %}
   {% if error %}
