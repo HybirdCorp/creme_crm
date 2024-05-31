@@ -1,3 +1,30 @@
+== Version 2.5.9 ==
+
+  Users side :
+  ------------
+    # The settings ALLOWED_IMAGES_EXTENSIONS & ALLOWED_EXTENSIONS have been cleaned.
+        - ".webp" has been added has allowed extension for images.
+        - ".psd" & ".tga" are not used as image anymore.
+        - ".js" & other code extensions have been removed.
+    # An useless/empty message panel in the errors-popup for bulk-update has been removed.
+    # Apps :
+        * Activities :
+            - The "automatic subject" feature avoids deleted Organisations.
+        * Tickets :
+            - In list-view, the background color for important tickets was broken.
+        * Emails :
+            - The render of the signatures has been improved (some line breaks have been added).
+            - The images in the signatures' preview have been enlarged.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The detection of empty paginated bricks has been fixed.
+        # The deprecated method 'creme_core.tests.base._CremeTestCase.login()' was broken.
+
+
 == Version 2.5.8 ==
 
   Users side :

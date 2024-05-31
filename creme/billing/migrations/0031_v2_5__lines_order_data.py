@@ -1,27 +1,11 @@
 from django.db import migrations
+from django.db.models import F
 
 
 def generate_line_ordering(apps, schema_editor):
-    from ..constants import REL_OBJ_HAS_LINE
-
-    doc_models = [
-        apps.get_model('billing', name)
-        for name in ('Invoice', 'Quote', 'CreditNote', 'SalesOrder')
-    ]
-    line_models = [
-        apps.get_model('billing', name)
-        for name in ('ProductLine', 'ServiceLine')
-    ]
-
-    for doc_model in doc_models:
-        for doc_id in doc_model.objects.values_list('pk', flat=True):
-            for line_model in line_models:
-                for order, line in enumerate(line_model.objects.filter(
-                    relations__type=REL_OBJ_HAS_LINE,
-                    relations__object_entity=doc_id,
-                ), start=1):
-                    line.order = order
-                    line.save()
+    # Updating the order with the primary key a correct & efficient approximation.
+    apps.get_model('billing', 'ProductLine').objects.update(order=F('pk'))
+    apps.get_model('billing', 'ServiceLine').objects.update(order=F('pk'))
 
 
 class Migration(migrations.Migration):
