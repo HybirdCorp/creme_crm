@@ -1,3 +1,18 @@
+== Version 2.4.16 ==
+
+  Users side :
+  ------------
+    # The settings ALLOWED_IMAGES_EXTENSIONS & ALLOWED_EXTENSIONS have been cleaned.
+        - ".webp" has been added has allowed extension for images.
+        - ".psd" & ".tga" are not used as image anymore.
+        - ".js" & other code extensions have been removed.
+    # Apps :
+        * Activities :
+            - The "automatic subject" feature avoids deleted Organisations.
+        * Tickets :
+            - In list-view, the background color for important tickets was broken.
+
+
 == Version 2.4.15 ==
 
   Users side :

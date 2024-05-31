@@ -464,19 +464,43 @@ INSTALLED_CREME_APPS = [
 ]
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
 
+# You should use image formats which browsers can display
 ALLOWED_IMAGES_EXTENSIONS = [
-    'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'psd', 'tif', 'tiff', 'tga', 'svg',
+    'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'tif', 'tiff', 'svg', 'webp',
 ]
 ALLOWED_EXTENSIONS = [
-    'pdf', 'rtf', 'xps', 'eml',
-    'psd',
-    'gtar', 'gz', 'tar', 'zip', 'rar', 'ace', 'torrent', 'tgz', 'bz2',
-    '7z', 'txt', 'c', 'cpp', 'hpp', 'diz', 'csv', 'ini', 'log', 'js',
-    'xml', 'xls', 'xlsx', 'xlsm', 'xlsb', 'doc', 'docx', 'docm', 'dot',
-    'dotx', 'dotm', 'pdf', 'ai', 'ps', 'ppt', 'pptx', 'pptm', 'odg',
-    'odp', 'ods', 'odt', 'rtf', 'rm', 'ram', 'wma', 'wmv', 'swf', 'mov',
-    'm4v', 'm4a', 'mp4', '3gp', '3g2', 'qt', 'avi', 'mpeg', 'mpg', 'mp3',
-    'ogg', 'ogm',
+    # Plain text
+    'txt', 'csv', 'ini', 'log', 'xml',
+
+    # Archive
+    'gtar', 'gz', 'tar', 'zip', 'rar', 'ace', 'tgz', 'bz2', '7z',
+    'diz',  # Zipped text
+
+    # Source code
+    # 'c', 'cpp', 'hpp',  'js',
+
+    # Office
+    'rtf',
+    'pdf', 'ps', 'xps',
+    'odg', 'odp', 'ods', 'odt',
+    'xls', 'xlsx', 'xlsm', 'xlsb',
+    'doc', 'docx', 'docm', 'dot', 'dotx', 'dotm',
+    'ppt', 'pptx', 'pptm',
+
+    # Multimedia
+    'avi', 'mpeg', 'mpg', 'mp3', 'mp4', 'ogg', 'ogm',
+    'rm', 'ram', 'wma', 'wmv', 'mov', 'm4v', 'm4a', '3gp', '3g2', 'qt',
+    'swf',
+    'tga',
+
+    # Image editor
+    'xcf', 'kra',
+    'psd', 'ai',
+
+    # Misc
+    'eml',  # Email transfer
+    'torrent',
+
     *ALLOWED_IMAGES_EXTENSIONS,
 ]
 

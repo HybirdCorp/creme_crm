@@ -401,10 +401,11 @@ class ActivityTestCase(_ActivitiesTestCase):
         akane = create_contact(first_name='Akane', last_name='Tendo')
 
         create_orga = partial(Organisation.objects.create, user=user)
-        dojo_t = create_orga(name='Tendo Dojo')
-        dojo_s = create_orga(name='Saotome Dojo')
-        school = create_orga(name='Furinkan High')
-        rest   = create_orga(name='Okonomiyaki tenshi')
+        dojo_t  = create_orga(name='Tendo Dojo')
+        dojo_s  = create_orga(name='Saotome Dojo')
+        school  = create_orga(name='Furinkan High')
+        rest    = create_orga(name='Okonomiyaki tenshi')
+        deleted = create_orga(name='Deleted', is_deleted=True)
 
         mngd = Organisation.objects.filter_managed_by_creme()[0]
 
@@ -413,6 +414,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         create_rel(subject_entity=ranma, type_id=REL_SUB_EMPLOYED_BY, object_entity=dojo_s)
         create_rel(subject_entity=akane, type_id=REL_SUB_EMPLOYED_BY, object_entity=school)
         create_rel(subject_entity=akane, type_id=REL_SUB_EMPLOYED_BY, object_entity=dojo_t)
+        create_rel(subject_entity=akane, type_id=REL_SUB_EMPLOYED_BY, object_entity=deleted)
         # 2 employees for the same organisations:
         create_rel(subject_entity=genma, type_id=REL_SUB_MANAGES,     object_entity=school)
         create_rel(subject_entity=genma, type_id=REL_SUB_EMPLOYED_BY, object_entity=rest)
@@ -480,6 +482,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertRelationCount(0, mngd,   constants.REL_SUB_ACTIVITY_SUBJECT,  act)
         # Auto subject #3 -> no duplicate
         self.assertRelationCount(1, rest,   constants.REL_SUB_ACTIVITY_SUBJECT,  act)
+        # No auto subject with deleted organisations
+        self.assertRelationCount(0, deleted, constants.REL_SUB_ACTIVITY_SUBJECT, act)
 
         self.assertEqual(8, Relation.objects.filter(subject_entity=act.id).count())
 
