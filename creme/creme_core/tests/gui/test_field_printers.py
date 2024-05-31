@@ -693,10 +693,13 @@ class FieldsPrintersTestCase(CremeTestCase):
         user = self.get_root_user()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
-        file_name = 'add_16.png'
+        # file_name = 'add_16.png'
         file_path = self.create_uploaded_file(
-            file_name=file_name, dir_name='gui',
-            content=[settings.CREME_ROOT, 'static', 'chantilly', 'images', file_name],
+            # file_name=file_name, dir_name='gui',
+            file_name='my_super_name.PNG',  # Notice extension in caps
+            dir_name='gui',
+            # content=[settings.CREME_ROOT, 'static', 'chantilly', 'images', file_name],
+            content=[settings.CREME_ROOT, 'static', 'chantilly', 'images', 'add_16.png'],
         )
 
         doc1 = FakeDocument.objects.create(

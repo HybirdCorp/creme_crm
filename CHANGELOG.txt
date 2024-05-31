@@ -1,5 +1,10 @@
 == Version 2.5.10 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Images with an extension in uppercase (e.g. "my_pic.JPG") are correctly displayed now.
+
+
 == Version 2.5.9 ==
 
   Users side :
