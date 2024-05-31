@@ -453,6 +453,7 @@ POPULATORS = {
 }
 
 # You should use image formats which browsers can display
+# It's useless to add uppercase versions, code is not case-sensitive.
 ALLOWED_IMAGES_EXTENSIONS = [
     'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'tif', 'tiff', 'svg', 'webp',
 ]

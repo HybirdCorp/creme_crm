@@ -194,7 +194,8 @@ class FileFieldPrinterForHTML:
         if ext:
             ext = ext[1:]  # remove '.'
 
-        if ext in settings.ALLOWED_IMAGES_EXTENSIONS:
+        # if ext in settings.ALLOWED_IMAGES_EXTENSIONS:
+        if ext.lower() in settings.ALLOWED_IMAGES_EXTENSIONS:
             # return format_html(
             #     """<a onclick="creme.dialogs.image('{url}').open();">"""
             #     """<img src="{url}" {size} alt="{label}"/>"""
