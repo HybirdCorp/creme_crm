@@ -1,4 +1,4 @@
-== Version 2.6 Work in progress (not released -- this is a draft) ==
+== Version 2.6 ==
 
   Users side :
   ------------
@@ -117,12 +117,11 @@
                   Then stop using the base class 'FieldTestCase' & 'FieldTestCaseMixin'.
                 - The class 'views.ViewsTestCase' is deprecated ;
                   use the new method 'CremeTestCase.add_credentials()' instead.
-            - Javascript :
-                * jQuery 3.x :
-                    - '$.mouseover()' is deprecated; use '$.trigger("mouseover")' instead.
-                    - '$.mouseenter()' is deprecated; use '$.trigger("mouseenter")' instead.
-                    - '$.mouseleave()' is deprecated; use '$.trigger("mouseleave")' instead.
-                    - '$.focusout()' is deprecated; use '$.trigger("focusout")' instead.
+            - In Javascript, the use of jQuery 3.x makes the following methods deprecated :
+                - '$.mouseover()' ; use '$.trigger("mouseover")' instead.
+                - '$.mouseenter()' ; use '$.trigger("mouseenter")' instead.
+                - '$.mouseleave()' ; use '$.trigger("mouseleave")' instead.
+                - '$.focusout()' ; use '$.trigger("focusout")' instead.
             - Apps :
                 * Persons :
                     - The form class 'forms.contact.ContactNamesForm' is now deprecated.
@@ -362,7 +361,7 @@
             - The method 'views.base.ButtonTestCaseMixin.iter_instance_button_nodes()' has been renamed 'iter_button_nodes()'
               (because of the new method 'get_global_buttons_node()').
         # The template "creme_core/templates/creme_core/view_property_type.html" is now "creme_core/templates/creme_core/detail/property-type.html".
-        # These obsolete javascript tools have been removed (because all browsers are supporting flexbox, table layout and ResizeObserver) :
+        # These obsolete JavaScript tools have been removed (because all browsers are supporting flexbox, table layout and ResizeObserver) :
             - creme.widget.Container
             - creme.layout.LayoutResizeSensor
         # Some icons which were unused (& not in the 2 themes) were moved in "creme/media/warehouse/" : pin.svg, print.svg, buyer.svg, training.svg...
