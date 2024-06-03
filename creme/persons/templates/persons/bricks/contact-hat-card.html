@@ -5,7 +5,6 @@
 {% block brick_extra_class %}{{block.super}} persons-contact-card-brick{% endblock %}
 
 {% block card_intro_content %}
-{# {% include 'persons/bricks/frags/card-last-activity.html' %} #}
     {% if intro_summary.template_name %}{% include intro_summary.template_name with summary=intro_summary %}{% endif %}
 {% endblock %}
 
@@ -13,7 +12,6 @@
     {{object|persons_pretty_contact}}
     {% if not object.is_deleted and not object.sandbox %}
      {% with edition_perm=user|has_perm_to_change:object %}
-{#      {% brick_card_action url='persons__edit_contact_names'|url:object.id enabled=edition_perm %} #}
       {% cell_4_regularfield instance=object field="last_name" as lname_cell %}
       {% cell_4_regularfield instance=object field="first_name" as fname_cell %}
       {% cell_4_regularfield instance=object field="position" as pos_cell %}
@@ -120,11 +118,6 @@
 {% endblock %}
 
 {% block card_summary %}
-{% comment %}
-    {% include 'persons/bricks/frags/card-summary-acts.html' %}
-    {% include 'persons/bricks/frags/card-summary-opportunities.html' %}
-    {% include 'persons/bricks/frags/card-summary-next-activity.html' %}
-{% endcomment %}
   {% for summary_ctxt in summaries %}
     {% if summary_ctxt.template_name %}{% include summary_ctxt.template_name with summary=summary_ctxt %}{% endif %}
   {% endfor %}

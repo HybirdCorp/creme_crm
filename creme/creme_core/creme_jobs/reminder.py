@@ -27,7 +27,6 @@ from .base import JobType
 
 class _ReminderType(JobType):
     id           = JobType.generate_id('creme_core', 'reminder')
-    # verbose_name = _('Reminders (notification emails)')
     verbose_name = _('Reminders')
     periodic     = JobType.PSEUDO_PERIODIC
 
@@ -35,7 +34,6 @@ class _ReminderType(JobType):
 
     def _execute(self, job):
         for reminder in self.reminder_registry:
-            # reminder.execute(job)
             reminder.execute()
 
     def get_description(self, job):

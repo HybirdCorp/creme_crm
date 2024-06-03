@@ -28,7 +28,6 @@ SMSCampaign   = sms.get_smscampaign_model()
 MessagingList = sms.get_messaginglist_model()
 
 
-# class _RelatedEntitesBrick(QuerysetBrick):
 class _RelatedEntitiesBrick(QuerysetBrick):
     permissions = 'sms'
 
@@ -45,7 +44,6 @@ class _RelatedEntitiesBrick(QuerysetBrick):
         return self._render(btc)
 
 
-# class MessagingListsBlock(_RelatedEntitesBrick):
 class MessagingListsBlock(_RelatedEntitiesBrick):
     id = QuerysetBrick.generate_id('sms', 'messaging_lists')
     verbose_name = _('Messaging lists')
@@ -81,7 +79,6 @@ class RecipientsBrick(QuerysetBrick):
         ))
 
 
-# class ContactsBrick(_RelatedEntitesBrick):
 class ContactsBrick(_RelatedEntitiesBrick):
     id = QuerysetBrick.generate_id('sms', 'contacts')
     verbose_name = _('Contact-recipients')

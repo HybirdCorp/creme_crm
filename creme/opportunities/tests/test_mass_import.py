@@ -4,9 +4,7 @@ from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 from creme.documents import get_document_model
 from creme.opportunities.models import SalesPhase
@@ -340,17 +338,6 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
             creatable_models=[Opportunity, get_document_model()],  # Not Organisation
         )
         role = user.role
-        # SetCredentials.objects.create(
-        #     role=role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(role, all='*')
 
         # TODO: factorise

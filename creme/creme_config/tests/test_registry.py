@@ -609,16 +609,11 @@ class RegistryTestCase(CremeTestCase):
             permissions = ['persons', 'documents']
 
         brick_registry = _BrickRegistry()
-        # brick_registry.register(TestUserBrick1, TestUserBrick2)
-
         registry = _ConfigRegistry(brick_registry)
-
         registry.register_user_bricks(
             TestUserBrick1, TestUserBrick2, TestUserBrick3, TestUserBrick4, TestUserBrick5,
         )
-        # bricks = [*registry.user_bricks]
         bricks = [*registry.get_user_bricks(user)]
-        # self.assertEqual(2, len(bricks))
         self.assertEqual(5, len(bricks))
         self.assertIsInstance(bricks[0], TestUserBrick1)
         self.assertIsInstance(bricks[1], TestUserBrick2)

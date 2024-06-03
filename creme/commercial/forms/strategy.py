@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -145,15 +145,9 @@ class SegmentCreationForm(_SegmentForm):
         name = self.cleaned_data['name']
 
         # TODO: factorise with market_segment.MarketSegmentForm ???
-        # is_custom=False ==> CremePropertyType won't be deletable
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='commercial-segment', generate_pk=True,
-        #     text=MarketSegment.generate_property_text(name),
-        #     is_custom=False,
-        # )
         ptype = CremePropertyType.objects.create(
             text=MarketSegment.generate_property_text(name),
-            is_custom=False,
+            is_custom=False,  # Instance won't be deletable
             app_label='commercial',
         )
 

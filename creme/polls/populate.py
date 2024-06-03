@@ -27,7 +27,6 @@ from creme import persons, polls
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-# from creme.creme_core.utils import create_if_needed
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CustomFormConfigItem,
@@ -63,7 +62,6 @@ class Populator(BasePopulator):
         self.PollReply    = polls.get_pollreply_model()
 
     def _already_populated(self):
-        # return PollType.objects.exists()
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_PFORM).exists()
 
     def _populate(self):
@@ -71,9 +69,6 @@ class Populator(BasePopulator):
         self._populate_poll_types()
 
     def _populate_poll_types(self):
-        # create_if_needed(PollType, {'pk': 1}, name=_('Survey'))
-        # create_if_needed(PollType, {'pk': 2}, name=_('Monitoring'))
-        # create_if_needed(PollType, {'pk': 3}, name=_('Assessment'))
         self._save_minions(self.POLL_TYPES)
 
     def _populate_header_filters(self):

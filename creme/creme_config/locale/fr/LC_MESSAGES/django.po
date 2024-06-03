@@ -2628,9 +2628,6 @@ msgstr "Modifier la configuration de l'instance"
 #~ msgid "Text"
 #~ msgstr "Texte"
 
-#~ msgid "For example: 'is pretty'"
-#~ msgstr "Par exemple: 'est joli'"
-
 #~ msgid "Is copiable"
 #~ msgstr "Est copiable"
 
@@ -2641,33 +2638,6 @@ msgstr "Modifier la configuration de l'instance"
 
 #~ msgid "There is already a fields configuration for the model «{}»."
 #~ msgstr "Il y a déjà une configuration de champs pour le modèle «{}»"
-
-#~ msgid ""
-#~ "The configuration of blocks for detailed-views cannot be exported because "
-#~ "it contains references to some instance-blocks ({blocks}), which are not "
-#~ "managed, for the following cases: {models}."
-#~ msgstr ""
-#~ "La configuration des blocs pour les vues détaillées ne peut pas être "
-#~ "exportée car elle contient des références à des bloc d'instance "
-#~ "({blocks}), qui ne sont pas gérés, pour les cas suivants : {models}."
-
-#~ msgid ""
-#~ "The configuration of blocks for Home cannot be exported because it "
-#~ "contains references to some instance-blocks ({blocks}), which are not "
-#~ "managed."
-#~ msgstr ""
-#~ "La configuration des blocs pour l'Accueil ne peut pas être exportée car "
-#~ "elle contient des références à des blocs d'instance ({blocks}), qui ne "
-#~ "sont pas gérés."
-
-#~ msgid ""
-#~ "The configuration of blocks for «My page» cannot be exported because it "
-#~ "contains references to some instance-blocks ({blocks}), which are not "
-#~ "managed."
-#~ msgstr ""
-#~ "La configuration des blocs pour «Ma page» ne peut pas être exportée car "
-#~ "elle contient des références à des blocs d'instance ({blocks}), qui ne "
-#~ "sont pas gérés."
 
 #~ msgid "No filter"
 #~ msgstr "Pas de filtre"

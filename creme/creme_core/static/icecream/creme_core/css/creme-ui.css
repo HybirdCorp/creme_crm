@@ -422,12 +422,6 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 /*---------------------------------*/
-/*
-.ui-creme-checklistselect {
-    padding: 1px;
-}
-*/
-
 .ui-creme-checklistselect .checklist-header {
     float: right;
     color: #777;

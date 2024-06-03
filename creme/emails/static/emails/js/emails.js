@@ -57,7 +57,6 @@ creme.emails.LinkEMailToAction = creme.component.Action.sub({
     }
 });
 
-/* $(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) { */
 $(document).on('brick-setup-actions', '.creme_core-buttons-brick', function(e, brick, actions) {
     actions.register('emails-hatmenubar-linkto', function(url, options, data, e) {
         return new creme.emails.LinkEMailToAction({

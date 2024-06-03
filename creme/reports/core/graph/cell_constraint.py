@@ -39,7 +39,6 @@ from creme.creme_core.models import (
     RelationType,
 )
 from creme.creme_core.utils.meta import ModelFieldEnumerator, is_date_field
-# from creme.reports import constants
 from creme.reports.constants import AbscissaGroup, OrdinateAggregator
 
 

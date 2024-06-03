@@ -20,7 +20,6 @@ from __future__ import annotations
 
 from datetime import timedelta
 
-# from django.db.models.functions import Now
 from django.utils.timezone import now
 
 from creme.creme_core.models import CremeEntity, Imprint

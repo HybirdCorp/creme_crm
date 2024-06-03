@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,15 +61,11 @@ Activity = get_activity_model()
 
 
 def fromRFC3339(timestamp: str) -> datetime:
-    # "@raise ValueError."
-    # JS gives us milliseconds
-    # return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000))
     if timestamp is None:
         return None
 
     res = datetime.fromisoformat(timestamp[:-2] if timestamp[-1] == 'Z' else timestamp)
     return res.replace(tzinfo=get_current_timezone())
-    # return make_aware(datetime.fromtimestamp(float(timestamp) / 1000))
 
 
 def toRFC3339(value: datetime) -> str:

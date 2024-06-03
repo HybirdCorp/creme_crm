@@ -1,6 +1,5 @@
 from datetime import date, timedelta
 from functools import partial
-# from urllib.parse import urlencode
 from unittest import skipIf
 
 from django.apps import apps
@@ -10,8 +9,6 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth import EntityCredentials
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     FieldsConfig,
@@ -265,11 +262,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
     @skipIfCustomActivity
     def test_contact_hat_card_brick_activities02(self):
         user = self.login_as_standard(allowed_apps=['persons', 'activities'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
         root = self.get_root_user()
@@ -357,11 +349,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
     @skipIfCustomActivity
     def test_orga_hat_card_brick_activities(self):
         user = self.login_as_standard(allowed_apps=['persons', 'activities'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
         root = self.get_root_user()
@@ -982,13 +969,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         buttons_node = self.get_brick_header_buttons(brick_node1)
         self.assertBrickHeaderHasButton(
             buttons_node,
-            # url='{}?{}'.format(
-            #     reverse(
-            #         'persons__create_related_contact',
-            #         args=(o1.id, constants.REL_OBJ_MANAGES),
-            #     ),
-            #     urlencode({'callback_url': url}),
-            # ),
             url=reverse(
                 'persons__create_related_contact',
                 args=(o1.id, constants.REL_OBJ_MANAGES),
@@ -1031,11 +1011,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
 
     def test_managers_brick02(self):
         user = self.login_as_persons_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         c = Contact.objects.create(
@@ -1101,13 +1076,6 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         # TODO: test comeback?
         self.assertBrickHeaderHasButton(
             buttons_node,
-            # url='{}?{}'.format(
-            #     reverse(
-            #         'persons__create_related_contact',
-            #         args=(o1.id, constants.REL_OBJ_EMPLOYED_BY),
-            #     ),
-            #     urlencode({'callback_url': url}),
-            # ),
             url=reverse(
                 'persons__create_related_contact',
                 args=(o1.id, constants.REL_OBJ_EMPLOYED_BY),
@@ -1188,8 +1156,6 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            # type_id=act_constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01', start=tomorrow,
             end=tomorrow + timedelta(hours=2),
@@ -1226,8 +1192,6 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            # type_id=act_constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01', start=yesterday,
             end=yesterday + timedelta(hours=2),
@@ -1252,8 +1216,6 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            # type_id=act_constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01', start=tomorrow,
             end=tomorrow + timedelta(hours=2),
@@ -1298,8 +1260,6 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         sub_type1 = self._get_meeting_subtype()
         meeting = create_activity(
             title='meet01',
-            # type_id=act_constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type1.type_id, sub_type=sub_type1,
             end=tomorrow + timedelta(hours=2),
         )
@@ -1308,8 +1268,6 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         )
         phonecall = create_activity(
             title='call01',
-            # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-            # sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
             type_id=sub_type2.type_id, sub_type=sub_type2,
             end=tomorrow + timedelta(minutes=15),
         )
@@ -1361,8 +1319,6 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            # type_id=act_constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_MEETING,
             type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01', start=tomorrow,
             end=tomorrow + timedelta(hours=2),
@@ -1431,8 +1387,6 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            # type_id=act_constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01',
             start=one_month_ago,
@@ -1462,8 +1416,6 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            # type_id=act_constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01',
             start=one_week_ago,
@@ -1490,8 +1442,6 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         sub_type = self._get_meeting_subtype()
         meeting = Activity.objects.create(
             user=user,
-            # type_id=act_constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
             title='meet01',
             start=one_month_ago,

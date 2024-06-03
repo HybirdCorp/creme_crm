@@ -12,7 +12,6 @@ from creme.billing.forms.mass_import import (
 )
 from creme.billing.tests.base import ProductLine
 from creme.creme_core.models import Vat
-# from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.base import CremeTestCase
 
 MODE_NO_TOTAL = '1'
@@ -21,7 +20,6 @@ MODE_COMPUTE_TOTAL_NO_VAT = '3'
 MODE_COMPUTE_VAT = '4'
 
 
-# class TotalsExtractorFieldTestCase(FieldTestCase):
 class TotalsExtractorFieldTestCase(CremeTestCase):
     choices = [(0, 'No column'), (1, 'Column #1'), (2, 'Column #2')]
 

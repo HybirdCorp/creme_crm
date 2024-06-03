@@ -51,8 +51,6 @@ class CremePropertyTypeManager(models.Manager):
     # TODO: add a method CremePropertyType.set_subjects_models()? (& remove this method)?
     def smart_update_or_create(
         self, *,
-        # str_pk: str,
-        # generate_pk: bool = False,
         uuid: str = '',
         text: str,
         app_label: str = '',
@@ -69,24 +67,6 @@ class CremePropertyTypeManager(models.Manager):
         @param is_custom: Used to fill <CremePropertyType.is_custom>.
         @param is_copiable: Used to fill <CremePropertyType.is_copiable>.
         """
-        # if not generate_pk:
-        #     property_type = self.update_or_create(
-        #         id=str_pk,
-        #         defaults={
-        #             'text': text,
-        #             'is_custom': is_custom,
-        #             'is_copiable': is_copiable,
-        #         },
-        #     )[0]
-        # else:
-        #     from creme.creme_core.utils.id_generator import (
-        #         generate_string_id_and_save,
-        #     )
-        #
-        #     property_type = self.model(
-        #         text=text, is_custom=is_custom, is_copiable=is_copiable,
-        #     )
-        #     generate_string_id_and_save(CremePropertyType, [property_type], str_pk)
         if uuid:
             property_type = self.update_or_create(
                 uuid=uuid,
@@ -212,7 +192,6 @@ class CremePropertyManager(models.Manager):
 
 
 class CremePropertyType(CremeModel):
-    # id = models.CharField(primary_key=True, max_length=100)
     uuid = models.UUIDField(unique=True, editable=False, default=uuid4)
     # The label is used by the command "creme_uninstall".
     # Empty string means <type created by a user>.
@@ -227,7 +206,6 @@ class CremePropertyType(CremeModel):
 
     subject_ctypes = models.ManyToManyField(
         ContentType, blank=True,
-        # verbose_name=_('Applies on entities with following types'),
         verbose_name=_('Related to types of entities'),
         related_name='subject_ctypes_creme_property_set',  # TODO: '+'
         help_text=_('No selected type means that all types are accepted'),
@@ -314,14 +292,9 @@ def _handle_merge(sender, other_entity, **kwargs):
     """Delete 'Duplicated' CremeProperties (i.e. exist in the removed entity &
     the remaining entity).
     """
-    # from .history import HistoryLine
     from ..core.history import toggle_history
 
     ptype_ids = sender.properties.values_list('type', flat=True)
-
-    # for prop in other_entity.properties.filter(type__in=ptype_ids):
-    #     HistoryLine.disable(prop)
-    #     prop.delete()
 
     # Duplicates' deletion would be confusing to the user (the
     # property type is still related to the remaining entity). So we
@@ -338,7 +311,6 @@ def _handle_replacement(sender, old_instance, new_instance, **kwargs):
     """
     from django.db.models import Count
 
-    # from .history import HistoryLine
     from ..core.history import toggle_history
 
     # IDs of entities with duplicates
@@ -350,9 +322,6 @@ def _handle_replacement(sender, old_instance, new_instance, **kwargs):
         prop_count__gte=2,
     ).values_list('id', flat=True)
 
-    # for prop in CremeProperty.objects.filter(creme_entity__in=e_ids, type=old_instance):
-    #     HistoryLine.disable(prop)  # See _handle_merge()
-    #     prop.delete()
     with toggle_history(enabled=False):  # See _handle_merge()
         for prop in CremeProperty.objects.filter(creme_entity__in=e_ids, type=old_instance):
             prop.delete()

@@ -175,14 +175,6 @@ class AbstractActivity(CremeEntity):
             allowed_internal=[*allowed_internal, REL_OBJ_PART_2_ACTIVITY],
         )
 
-    # def _pre_delete(self):
-    #     relations = self.relations.filter(
-    #         type__in=(REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT)
-    #     )
-    #
-    #     for relation in relations:
-    #         relation._delete_without_transaction()
-
 
 class Activity(AbstractActivity):
     class Meta(AbstractActivity.Meta):

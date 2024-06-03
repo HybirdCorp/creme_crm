@@ -231,19 +231,14 @@ class TypeOverrider(FieldOverrider):
     def formfield(self, instances, user, **kwargs):
         unav_type = ActivityType.objects.get(uuid=constants.UUID_TYPE_UNAVAILABILITY)
         field = fields.ActivitySubTypeField(
-            # label=_('Type'), limit_choices_to=~Q(type__id=constants.ACTIVITYTYPE_INDISPO),
             label=_('Type'), limit_choices_to=~Q(type=unav_type),
         )
 
-        unavailability_count = sum(
-            # a.type_id == constants.ACTIVITYTYPE_INDISPO for a in instances
-            a.type_id == unav_type.id for a in instances
-        )
+        unavailability_count = sum(a.type_id == unav_type.id for a in instances)
 
         if unavailability_count:
             if unavailability_count == len(instances):
                 # All entities are Unavailability, so we propose to change the subtype.
-                # field.limit_choices_to = Q(type__id=constants.ACTIVITYTYPE_INDISPO)
                 field.limit_choices_to = Q(type=unav_type)
             else:
                 self._mixed_unavailability = True
@@ -263,12 +258,8 @@ class TypeOverrider(FieldOverrider):
         return field
 
     def post_clean_instance(self, *, instance, value, form):
-        # if instance.pk is None:
-        #     return
-
         if (
             self._mixed_unavailability
-            # and instance.type_id == constants.ACTIVITYTYPE_INDISPO
             and str(instance.type.uuid) == constants.UUID_TYPE_UNAVAILABILITY
         ):
             raise ValidationError(

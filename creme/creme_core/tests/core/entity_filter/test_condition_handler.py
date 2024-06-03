@@ -11,8 +11,6 @@ from django.utils.translation import gettext as _
 
 import creme.creme_core.forms.entity_filter.fields as ef_fields
 import creme.creme_core.forms.entity_filter.widgets as ef_widgets
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
@@ -31,7 +29,6 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RelationSubFilterConditionHandler,
     SubFilterConditionHandler,
 )
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -225,9 +222,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
     def test_regularfield_get_q__m2m(self):
         user = self.get_root_user()
 
-        # create_cat = FakeDocumentCategory.objects.create
-        # cat1 = create_cat(name='Picture')
-        # cat2 = create_cat(name='Music')
         cat_id1 = 12
         cat_id2 = 45
 
@@ -692,7 +686,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition, EntityFilterCondition)
         self.assertIsNone(condition.pk)
-        # self.assertEqual(EF_USER,                              condition.filter_type)
         self.assertEqual(EF_REGULAR,                           condition.filter_type)
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(fname, condition.name)
@@ -998,9 +991,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
     def test_regularfield_description04(self):
         "ForeignKey to CremeEntity."
         user = self.login_as_standard()
-        # SetCredentials.objects.create(
-        #     role=user.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         create_folder = partial(FakeFolder.objects.create, user=user)
@@ -1250,7 +1240,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        # self.assertEqual(EF_USER,                                  condition1.filter_type)
         self.assertEqual(EF_REGULAR,                               condition1.filter_type)
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition1.type)
         self.assertEqual(fname1,                                   condition1.name)
@@ -1459,7 +1448,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         rname = 'customfieldboolean'
         handler = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field.uuid,
             operator_id=operator_id,
             values=[value],
@@ -1469,7 +1457,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(FakeOrganisation, handler.model)
         self.assertIsNone(handler.subfilter_id)
         self.assertIs(handler.subfilter, False)
-        # self.assertEqual(custom_field.id, handler._custom_field_id)
         self.assertEqual(custom_field.uuid, handler._custom_field_uuid)
         self.assertEqual(operator_id,       handler._operator_id)
         self.assertEqual([value],           handler._values)
@@ -1487,7 +1474,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
         # ---
-        # with self.assertNumQueries(1):
         with self.assertNumQueries(0):
             cfield2 = handler.custom_field
 
@@ -1500,7 +1486,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         with self.assertRaises(TypeError):
             CustomFieldConditionHandler(
                 # model=FakeOrganisation,  # <== missing
-                # custom_field=custom_field.id,
                 custom_field=custom_field.uuid,
                 operator_id=operator_id,
                 values=[value],
@@ -1511,7 +1496,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         with self.assertRaises(TypeError):
             CustomFieldConditionHandler(
                 model=FakeOrganisation,
-                # custom_field=custom_field.id,
                 custom_field=custom_field.uuid,
                 operator_id=operator_id,
                 values=[value],
@@ -1534,7 +1518,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
         self.assertEqual(FakeOrganisation,     handler.model)
-        # self.assertEqual(custom_field.id,      handler._custom_field_id)
         self.assertEqual(custom_field.uuid,    handler._custom_field_uuid)
         self.assertEqual('customfieldboolean', handler._related_name)
 
@@ -1556,7 +1539,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # ---
         handler2 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field.uuid,
             operator_id=operators.EQUALS,
             values=['True'],
@@ -1565,14 +1547,12 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual("related_name 'invalid' is invalid", handler2.error)
 
     def test_customfield_build01(self):
-        # cfield_id = 6
         cfield_uuid = uuid4()
         operator_id = operators.GT
         value = 25
         rname = 'customfieldinteger'
         handler = CustomFieldConditionHandler.build(
             model=FakeContact,
-            # name=str(cfield_id),
             name=str(cfield_uuid),
             data={
                 'operator': operator_id,
@@ -1582,7 +1562,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertEqual(FakeContact, handler.model)
         self.assertIsNone(handler.subfilter_id)
-        # self.assertEqual(cfield_id,   handler._custom_field_id)
         self.assertEqual(cfield_uuid, handler._custom_field_uuid)
         self.assertEqual(operator_id, handler._operator_id)
         self.assertEqual([value],     handler._values)
@@ -1696,7 +1675,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         handler1 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field,
             operator_id=operators.EQUALS,
             values=[4],
@@ -1709,7 +1687,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # String format ---
         handler2 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field,
             operator_id=operators.EQUALS,
             values=['4'],
@@ -1742,7 +1719,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         handler1 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field.uuid,
             operator_id=operators.EQUALS,
             values=[True],
@@ -1755,7 +1731,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # String format ---
         handler2 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field.uuid,
             operator_id=operators.EQUALS,
             values=['True'],
@@ -1788,7 +1763,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         handler = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field,
             operator_id=operators.LTE,
             values=['2000'],
@@ -1825,7 +1799,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # EQUALS ---
         handler1 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field,
             operator_id=operators.EQUALS,
             values=[enum_small.id, enum_medium.id],
@@ -1838,7 +1811,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # ISEMPTY ---
         handler2 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field,
             operator_id=operators.ISEMPTY,
             values=[True],
@@ -1851,7 +1823,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # String format ---
         handler3 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field,
             operator_id=operators.EQUALS,
             values=[str(enum_small.id), str(enum_medium.id)],
@@ -1889,7 +1860,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # EQUALS ---
         handler1 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field,
             operator_id=operators.EQUALS,
             values=[enum_attack.id, enum_fret.id],
@@ -1902,7 +1872,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # ISEMPTY ---
         handler2 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field,
             operator_id=operators.ISEMPTY,
             values=[True],
@@ -1915,7 +1884,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # String format ---
         handler3 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field,
             operator_id=operators.EQUALS,
             values=[str(enum_attack.id), str(enum_fret.id)],
@@ -1928,7 +1896,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # ISEMPTY (False) ---
         handler4 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field,
             operator_id=operators.ISEMPTY,
             values=[False],
@@ -1954,10 +1921,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition, EntityFilterCondition)
         self.assertIsNone(condition.pk)
-        # self.assertEqual(EF_USER,                             condition.filter_type)
         self.assertEqual(EF_REGULAR,                          condition.filter_type)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        # self.assertEqual(str(custom_field.id),                condition.name)
         self.assertEqual(str(custom_field.uuid),              condition.name)
         self.assertDictEqual(
             {
@@ -1977,7 +1942,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(FakeContact, handler.model)
         self.assertIsNone(handler.subfilter_id)
         self.assertIs(handler.subfilter, False)
-        # self.assertEqual(custom_field.id, handler._custom_field_id)
         self.assertEqual(custom_field.uuid, handler._custom_field_uuid)
         self.assertEqual(operator_id,       handler._operator_id)
         self.assertEqual([str(value)],      handler._values)
@@ -2001,7 +1965,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsNone(condition.pk)
         self.assertEqual(EF_CREDENTIALS, condition.filter_type)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        # self.assertEqual(str(custom_field.id), condition.name)
         self.assertEqual(str(custom_field.uuid), condition.name)
         self.assertDictEqual(
             {
@@ -2116,7 +2079,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         handler2 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field,
             operator_id=operators.EQUALS,
             values=[False],
@@ -2130,7 +2092,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         # String format
         handler3 = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field,
             operator_id=operators.EQUALS,
             values=['False'],
@@ -2283,7 +2244,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
         handler = CustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=1025,
             custom_field=uuid4(),
             related_name='customfieldinteger',
             operator_id=operators.EQUALS,
@@ -2312,7 +2272,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(FakeOrganisation, handler.model)
         self.assertIsNone(handler.subfilter_id)
         self.assertIs(handler.subfilter, False)
-        # self.assertEqual(custom_field.id, handler._custom_field_id)
         self.assertEqual(custom_field.uuid, handler._custom_field_uuid)
         self.assertEqual(rname,             handler._related_name)
         self.assertEqual(range_name,        handler._range_name)
@@ -2354,7 +2313,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
         self.assertEqual(FakeOrganisation,      handler.model)
-        # self.assertEqual(custom_field.id,       handler._custom_field_id)
         self.assertEqual(custom_field.uuid,     handler._custom_field_uuid)
         self.assertEqual('customfielddatetime', handler._related_name)
         self.assertIsNone(handler._range_name)
@@ -2379,7 +2337,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         range_name = 'previous_year'
         handler = DateCustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=custom_field.id,
             custom_field=custom_field.uuid,
             related_name=rname,
             date_range=range_name,
@@ -2388,7 +2345,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(FakeOrganisation, handler.model)
         self.assertIsNone(handler.subfilter_id)
         self.assertIs(handler.subfilter, False)
-        # self.assertEqual(custom_field.id, handler._custom_field_id)
         self.assertEqual(custom_field.uuid, handler._custom_field_uuid)
         self.assertEqual(rname,             handler._related_name)
         self.assertEqual(range_name,        handler._range_name)
@@ -2399,7 +2355,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         "<error> property."
         handler = DateCustomFieldConditionHandler(
             model=FakeOrganisation,
-            # custom_field=12,
             custom_field=uuid4(),
             date_range='yesterday',
             related_name='invalid',  # <===
@@ -2408,13 +2363,11 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_datecustomfield_build01(self):
         "DATETIME."
-        # cfield_id = 6
         cfield_uuid = uuid4()
         range_name = 'today'
         rname = 'customfielddatetime'
         handler = DateCustomFieldConditionHandler.build(
             model=FakeContact,
-            # name=str(cfield_id),
             name=str(cfield_uuid),
             data={
                 'rname': rname,
@@ -2423,7 +2376,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertEqual(FakeContact, handler.model)
         self.assertIsNone(handler.subfilter_id)
-        # self.assertEqual(cfield_id,   handler._custom_field_id)
         self.assertEqual(cfield_uuid, handler._custom_field_uuid)
         self.assertEqual(rname,       handler._related_name)
         self.assertEqual(range_name,  handler._range_name)
@@ -2432,13 +2384,11 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_datecustomfield_build02(self):
         "DATE."
-        # cfield_id = 6
         cfield_uuid = uuid4()
         range_name = 'today'
         rname = 'customfielddate'
         handler = DateCustomFieldConditionHandler.build(
             model=FakeContact,
-            # name=str(cfield_id),
             name=str(cfield_uuid),
             data={
                 'rname': rname,
@@ -2447,7 +2397,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertEqual(FakeContact, handler.model)
         self.assertIsNone(handler.subfilter_id)
-        # self.assertEqual(cfield_id,   handler._custom_field_id)
         self.assertEqual(cfield_uuid, handler._custom_field_uuid)
         self.assertEqual(rname,       handler._related_name)
         self.assertEqual(range_name,  handler._range_name)
@@ -2510,10 +2459,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        # self.assertEqual(EF_USER,                                 condition1.filter_type)
         self.assertEqual(EF_REGULAR,                              condition1.filter_type)
         self.assertEqual(DateCustomFieldConditionHandler.type_id, condition1.type)
-        # self.assertEqual(str(custom_field.id),                    condition1.name)
         self.assertEqual(str(custom_field.uuid),                  condition1.name)
         self.assertDictEqual(
             {
@@ -2532,7 +2479,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(FakeContact, handler1.model)
         self.assertIsNone(handler1.subfilter_id)
         self.assertIs(handler1.subfilter, False)
-        # self.assertEqual(custom_field.id, handler1._custom_field_id)
         self.assertEqual(custom_field.uuid, handler1._custom_field_uuid)
         self.assertEqual(rname,             handler1._related_name)
         self.assertIsNone(handler1._range_name)
@@ -2564,10 +2510,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        # self.assertEqual(EF_USER,                                 condition1.filter_type)
         self.assertEqual(EF_REGULAR,                              condition1.filter_type)
         self.assertEqual(DateCustomFieldConditionHandler.type_id, condition1.type)
-        # self.assertEqual(str(custom_field.id),                    condition1.name)
         self.assertEqual(str(custom_field.uuid),                  condition1.name)
         self.assertDictEqual(
             {
@@ -2586,7 +2530,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(FakeContact, handler1.model)
         self.assertIsNone(handler1.subfilter_id)
         self.assertIs(handler1.subfilter, False)
-        # self.assertEqual(custom_field.id, handler1._custom_field_id)
         self.assertEqual(custom_field.uuid, handler1._custom_field_uuid)
         self.assertEqual(rname,             handler1._related_name)
         self.assertIsNone(handler1._range_name)
@@ -2773,7 +2716,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         handler = DateCustomFieldConditionHandler(
             model=FakeOrganisation,
             related_name='customfielddatetime',
-            # custom_field=self.UNUSED_PK,
             custom_field=uuid4(),
             date_range='previous_year',
         )
@@ -2797,9 +2739,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler1.subfilter, False)
         self.assertEqual(rtype.id, handler1._rtype_id)
         self.assertIs(handler1._exclude, False)
-        # self.assertIsNone(handler1._ct_id)
         self.assertIsNone(handler1._ct_key)
-        # self.assertIsNone(handler1._entity_id)
         self.assertIsNone(handler1._entity_uuid)
 
         self.assertIsNone(handler1.error)
@@ -2835,7 +2775,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
         self.assertIs(handler2._exclude, True)
-        # self.assertEqual(ctype_id, handler2._ct_id)
         self.assertEqual(ctype_id, handler2._ct_key)
 
         # ---
@@ -2843,12 +2782,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         handler3 = RelationConditionHandler(
             model=FakeOrganisation,
             rtype=rtype.id,
-            # entity=entity.id,
             entity=entity.uuid,
         )
 
         self.assertIs(handler3._exclude, False)
-        # self.assertEqual(entity.id, handler3._entity_id)
         self.assertEqual(entity.uuid, handler3._entity_uuid)
 
         # ---
@@ -2893,7 +2830,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
         self.assertEqual(FakeOrganisation, handler.model)
-        # self.assertEqual(ctype.id, handler._ct_id)
         self.assertEqual(ctype.natural_key(), handler._ct_key)
         self.assertEqual(ctype, handler.content_type)
 
@@ -2905,14 +2841,11 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             model=FakeOrganisation,
             rtype='creme_core-subject_type1',
             entity=entity,
-            # ctype=12,  # <= should not be used
             ctype=entity.entity_type_id,  # <= should not be used
         )
 
         self.assertEqual(FakeOrganisation, handler.model)
-        # self.assertEqual(entity.id, handler._entity_id)
         self.assertEqual(entity.uuid, handler._entity_uuid)
-        # self.assertIsNone(handler._ct_id)
         self.assertIsNone(handler._ct_key)
 
         # --
@@ -2931,15 +2864,12 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIsNone(handler1.subfilter_id)
         self.assertEqual(rtype_id1,  handler1._rtype_id)
         self.assertFalse(handler1._exclude)
-        # self.assertIsNone(handler1._ct_id)
         self.assertIsNone(handler1._ct_key)
         self.assertIsNone(handler1.content_type)
-        # self.assertIsNone(handler1._entity_id)
         self.assertIsNone(handler1._entity_uuid)
 
         # --
         rtype_id2 = 'creme_core-subject_test2'
-        # ct_id = 56
         handler2 = RelationConditionHandler.build(
             model=FakeOrganisation,
             name=rtype_id2,
@@ -2952,13 +2882,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(FakeOrganisation, handler2.model)
         self.assertEqual(rtype_id2,  handler2._rtype_id)
         self.assertTrue(handler2._exclude)
-        # self.assertEqual(ct_id, handler2._ct_id)
         self.assertEqual(['creme_core', 'fakeorganisation'], handler2._ct_key)
-        # self.assertIsNone(handler2._entity_id)
         self.assertIsNone(handler2._entity_uuid)
 
         # --
-        # entity_id = 564
         entity_uuid = uuid4()
         handler3 = RelationConditionHandler.build(
             model=FakeOrganisation,
@@ -2968,9 +2895,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 'entity': str(entity_uuid),
             },
         )
-        # self.assertIsNone(handler3._ct_id)
         self.assertIsNone(handler3._ct_key)
-        # self.assertEqual(entity_id, handler3._entity_id)
         self.assertEqual(entity_uuid, handler3._entity_uuid)
 
     def test_relation_build02(self):
@@ -3004,7 +2929,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 name=rtype_id,
                 data={
                     'has':   False,
-                    # 'ct_id': 'notanint',  # <==
                     'ct': 123,  # <== not a string
                 },
             )
@@ -3025,7 +2949,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
                 name=rtype_id,
                 data={
                     'has': False,
-                    # 'entity_id': 'notanint',  # <==
                     'entity': 'notauuid',  # <==
                 },
             )
@@ -3061,7 +2984,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         condition1 = build_cond(rtype=loves, has=True)
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        # self.assertEqual(EF_USER,                          condition1.filter_type)
         self.assertEqual(EF_REGULAR,                       condition1.filter_type)
         self.assertEqual(RelationConditionHandler.type_id, condition1.type)
         self.assertEqual(loves.id,                         condition1.name)
@@ -3078,10 +3000,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler1.subfilter, False)
         self.assertEqual(loves.id, handler1._rtype_id)
         self.assertIs(handler1._exclude, False)
-        # self.assertIsNone(handler1._ct_id)
         self.assertIsNone(handler1._ct_key)
         self.assertIsNone(handler1.content_type)
-        # self.assertIsNone(handler1._entity_id)
         self.assertIsNone(handler1._entity_uuid)
 
         # ---
@@ -3101,7 +3021,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         ct = ContentType.objects.get_for_model(FakeContact)
         condition3 = build_cond(rtype=loves, ct=ct)
         self.assertEqual(loves.id, condition3.name)
-        # self.assertDictEqual({'has': True, 'ct_id': ct.id}, condition3.value)
         self.assertDictEqual({'has': True, 'ct': 'creme_core.fakecontact'}, condition3.value)
 
         handler3 = RelationConditionHandler.build(
@@ -3109,7 +3028,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             name=condition3.name,
             data=condition3.value,
         )
-        # self.assertEqual(ct.id, handler3._ct_id)
         self.assertListEqual(['creme_core', 'fakecontact'], handler3._ct_key)
         self.assertEqual(ct, handler3.content_type)
 
@@ -3119,7 +3037,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         condition4 = build_cond(rtype=loves, ct=ct, entity=orga)
         self.assertEqual(loves.id, condition4.name)
         self.assertDictEqual(
-            # {'has': True, 'entity_id': orga.id}, condition4.value,
             {'has': True, 'entity': str(orga.uuid)}, condition4.value,
         )
 
@@ -3128,10 +3045,8 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             name=condition4.name,
             data=condition4.value,
         )
-        # self.assertIsNone(handler4._ct_id)
         self.assertIsNone(handler4._ct_key)
         self.assertIsNone(handler4.content_type)
-        # self.assertEqual(orga.id, handler4._entity_id)
         self.assertEqual(orga.uuid, handler4._entity_uuid)
 
     def test_relation_get_q(self):
@@ -3199,7 +3114,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         handler4 = RelationConditionHandler(
             model=FakeContact,
             rtype=loves.id,
-            # entity=rei.id,
             entity=rei,
         )
         self.assertQEqual(
@@ -3373,7 +3287,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             ('test-object_love',  'Is loved by'),
         )[0]
         entity = FakeContact.objects.create(
-            # user=self.other_user,
             user=self.get_root_user(),
             last_name='Ayanami', first_name='Rei',
         )
@@ -3424,7 +3337,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         handler3 = RelationConditionHandler(
             model=FakeOrganisation,
             rtype=rtype,
-            # ctype=self.UNUSED_PK,
             ctype=('invalid_app', 'invalid_model'),
             exclude=True,
         )
@@ -3605,12 +3517,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         condition1 = SubFilterConditionHandler.build_condition(sub_efilter)
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        # self.assertEqual(EF_USER,                           condition1.filter_type)
         self.assertEqual(EF_REGULAR,                        condition1.filter_type)
         self.assertEqual(SubFilterConditionHandler.type_id, condition1.type)
         self.assertEqual(sub_efilter.id,                    condition1.name)
-        # self.assertEqual('',                                condition1.raw_value)
-        # self.assertIsNone(condition1.value)
         self.assertDictEqual({}, condition1.value)
 
         handler1 = SubFilterConditionHandler.build(
@@ -3845,7 +3754,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        # self.assertEqual(EF_USER,                                   condition1.filter_type)
         self.assertEqual(EF_REGULAR,                                condition1.filter_type)
         self.assertEqual(RelationSubFilterConditionHandler.type_id, condition1.type)
         self.assertEqual(loves.id,                                  condition1.name)
@@ -4035,9 +3943,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_property_init01(self):
         "Pass a UUID instance."
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_kawaii', text='Kawaii',
-        # )
         ptype = CremePropertyType.objects.create(text='Kawaii')
 
         handler = PropertyConditionHandler(
@@ -4049,7 +3954,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(FakeOrganisation, handler.model)
         self.assertIsNone(handler.subfilter_id)
         self.assertIs(handler.subfilter, False)
-        # self.assertEqual(ptype.id, handler._ptype_id)
         self.assertEqual(ptype.uuid, handler._ptype_uuid)
         self.assertIs(handler._exclude, False)
 
@@ -4072,9 +3976,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_property_init02(self):
         "Pass a CremePropertyType instance."
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_kawaii', text='Kawaii',
-        # )
         ptype = CremePropertyType.objects.create(text='Kawaii')
 
         handler = PropertyConditionHandler(
@@ -4084,7 +3985,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
 
         self.assertEqual(FakeContact, handler.model)
-        # self.assertEqual(ptype.id, handler._ptype_id)
         self.assertEqual(ptype.uuid, handler._ptype_uuid)
         self.assertIs(handler._exclude, True)
 
@@ -4107,33 +4007,25 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(ptype.uuid, handler._ptype_uuid)
 
     def test_property_build01(self):
-        # ptype_id1 = 'creme_core-test1'
         ptype_uuid1 = '5fc20397-ab37-43a8-8abc-42a7218e89d0'
         handler1 = PropertyConditionHandler.build(
             model=FakeOrganisation,
-            # name=ptype_id1,
             name=ptype_uuid1,
-            # data=True,
             data={'has': True},
         )
         self.assertEqual(FakeOrganisation, handler1.model)
         self.assertIsNone(handler1.subfilter_id)
-        # self.assertEqual(ptype_id1, handler1._ptype_id)
         self.assertEqual(UUID(ptype_uuid1), handler1._ptype_uuid)
         self.assertFalse(handler1._exclude)
 
         # --
-        # ptype_id2 = 'creme_core-test2'
         ptype_uuid2 = 'd8acaa7b-7c9f-465c-8200-02c5540e5959'
         handler2 = PropertyConditionHandler.build(
             model=FakeContact,
-            # name=ptype_id2,
             name=ptype_uuid2,
-            # data=False,
             data={'has': False},
         )
         self.assertEqual(FakeContact, handler2.model)
-        # self.assertEqual(ptype_id2,   handler2._ptype_id)
         self.assertEqual(UUID(ptype_uuid2), handler2._ptype_uuid)
         self.assertTrue(handler2._exclude)
 
@@ -4166,9 +4058,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_property_condition(self):
         "Build condition."
-        # ptype1 = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_kawaii', text='Kawaii',
-        # )
         ptype1 = CremePropertyType.objects.create(text='Kawaii')
 
         condition1 = PropertyConditionHandler.build_condition(
@@ -4176,12 +4065,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         )
         self.assertIsInstance(condition1, EntityFilterCondition)
         self.assertIsNone(condition1.pk)
-        # self.assertEqual(EF_USER,                          condition1.filter_type)
         self.assertEqual(EF_REGULAR,                       condition1.filter_type)
         self.assertEqual(PropertyConditionHandler.type_id, condition1.type)
-        # self.assertEqual(ptype1.id,                        condition1.name)
         self.assertEqual(str(ptype1.uuid), condition1.name)
-        # self.assertEqual(True,                             condition1.value)
         self.assertDictEqual({'has': True}, condition1.value)
 
         handler1 = PropertyConditionHandler.build(
@@ -4193,23 +4079,17 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(FakeContact, handler1.model)
         self.assertIsNone(handler1.subfilter_id)
         self.assertIs(handler1.subfilter, False)
-        # self.assertEqual(ptype1.id, handler1._ptype_id)
         self.assertEqual(ptype1.uuid, handler1._ptype_uuid)
         self.assertIs(handler1._exclude, False)
 
         # ---
-        # ptype2 = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_cute', text='Cute',
-        # )
         ptype2 = CremePropertyType.objects.create(text='Cute')
         condition2 = PropertyConditionHandler.build_condition(
             model=FakeContact, ptype=ptype2, has=False,
             filter_type=EF_CREDENTIALS,
         )
         self.assertEqual(EF_CREDENTIALS, condition2.filter_type)
-        # self.assertEqual(ptype2.id,      condition2.name)
         self.assertEqual(str(ptype2.uuid), condition2.name)
-        # self.assertIs(condition2.value, False)
         self.assertDictEqual({'has': False}, condition2.value)
 
         handler2 = PropertyConditionHandler.build(
@@ -4217,7 +4097,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             name=condition2.name,
             data=condition2.value,
         )
-        # self.assertEqual(ptype2.id, handler2._ptype_id)
         self.assertEqual(ptype2.uuid, handler2._ptype_uuid)
         self.assertIs(handler2._exclude, True)
 
@@ -4225,9 +4104,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         "get_q() not empty."
         user = self.get_root_user()
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # cute  = create_ptype(str_pk='test-prop_cute',  text='Cute')
-        # pilot = create_ptype(str_pk='test-prop_pilot', text='Pilot')
         create_ptype = CremePropertyType.objects.create
         cute  = create_ptype(text='Cute')
         pilot = create_ptype(text='Pilot')
@@ -4267,9 +4143,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_property_accept(self):
         user = self.get_root_user()
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # cute = create_ptype(str_pk='test-prop_cute',  text='Cute')
-        # pilot = create_ptype(str_pk='test-prop_pilot', text='Pilot')
         create_ptype = CremePropertyType.objects.create
         cute  = create_ptype(text='Cute')
         pilot = create_ptype(text='Pilot')
@@ -4296,9 +4169,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_property_description01(self):
         user = self.get_root_user()
-        # cute = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_cute', text='Cute',
-        # )
         cute = CremePropertyType.objects.create(text='Cute')
         handler = PropertyConditionHandler(
             model=FakeOrganisation,
@@ -4312,9 +4182,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_property_description02(self):
         user = self.get_root_user()
-        # cute = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_kawaii', text='Kawaii',
-        # )
         cute = CremePropertyType.objects.create(text='Kawaii')
         handler = PropertyConditionHandler(
             model=FakeOrganisation,
@@ -4331,7 +4198,6 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         user = self.get_root_user()
         handler = PropertyConditionHandler(
             model=FakeOrganisation,
-            # ptype='doesnotexist',
             ptype=UUID('e61782ee-cc12-4239-9274-bd464c21f473'),
         )
         self.assertEqual('???', handler.description(user))

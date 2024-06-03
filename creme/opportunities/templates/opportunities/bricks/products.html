@@ -43,10 +43,6 @@
             {% for cell in cells %}<td>{{HIDDEN_VALUE}}</td>{% endfor %}
         {% endif %}
         <td {% brick_table_data_status action %}>
-{% comment %}
-          {% if cells %}{% inner_edition_uri instance=product cells=cells callback_url=object.get_absolute_url as edition_uri %}
-            {% brick_table_action id='edit' url=edition_uri label=_('Edit this product') enabled=user|has_perm_to_change:product %}
-{% endcomment %}
           {% if cells %}{% inner_edition_uri instance=product cells=cells as edition_uri %}
             {% brick_table_action id='edit' url=edition_uri comeback=True label=_('Edit this product') enabled=user|has_perm_to_change:product %}
           {% else %}

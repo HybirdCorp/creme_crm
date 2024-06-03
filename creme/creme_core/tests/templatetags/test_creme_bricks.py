@@ -192,26 +192,20 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_brick_get_by_ids01(self):
-        # rtype = RelationType.objects.get(id=REL_SUB_HAS)
-        # rbi = RelationBrickItem.objects.create(relation_type=rtype)
-
         with self.assertNoException():
             render = Template(
                 '{% load creme_bricks %}'
                 '{% brick_get_by_ids brick_id1 brick_id2 as bricks %}'
-                # '{{bricks.0.verbose_name}}##{{bricks.1.config_item.brick_id}}'
                 '{{bricks.0.verbose_name}}##{{bricks.1.verbose_name}}'
             ).render(RequestContext(
                 self.build_request(user=self.get_root_user()),
                 {
                     'brick_id1': HistoryBrick.id,
-                    # 'brick_id2': rbi.brick_id,
                     'brick_id2': StatisticsBrick.id,
                 },
             ))
 
         self.assertEqual(
-            # f'{HistoryBrick.verbose_name}##{rbi.brick_id}',
             f'{HistoryBrick.verbose_name}##{StatisticsBrick.verbose_name}',
             render.strip(),
         )

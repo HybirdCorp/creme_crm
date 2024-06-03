@@ -26,7 +26,6 @@ from creme.creme_core.utils.dates import dt_to_ISO8601
 from ..base import CremeTestCase
 
 
-# class MenuDisplayTestCase(CremeTestCase):
 class MenuTestCase(CremeTestCase):
     css_class_prefix = 'ui-creme-navigation-item'
 

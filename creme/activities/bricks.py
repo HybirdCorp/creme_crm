@@ -269,16 +269,9 @@ class UserCalendarsBrick(QuerysetBrick):
     order_by = 'name'
 
     def detailview_display(self, context):
-        user = context['user']
-        # has_app_perm = user.has_perm_to_access('activities')
-        #
-        # if not has_app_perm:
-        #     return ''
-
         return self._render(self.get_template_context(
             context,
-            Calendar.objects.filter(user=user),
-            # has_app_perm=has_app_perm,
+            Calendar.objects.filter(user=context['user']),
         ))
 
 

@@ -38,7 +38,6 @@ class CrmButton(Button):
     def get_context(self, **kwargs):
         context = super().get_context(**kwargs)
         context['managed_orga'] = self.__managed_orga
-        # context['rtype'] = RelationType.objects.get(id=self.relation_type_id)
         context['rtype'] = RelationType.objects.get(id=self.relation_type_deps[0])
 
         return context
@@ -46,7 +45,6 @@ class CrmButton(Button):
     def ok_4_display(self, entity):
         # TODO: only one query ??
         already_linked_pk = Relation.objects.filter(
-            # type=self.relation_type_id,
             type=self.relation_type_deps[0],
             subject_entity=entity,
         ).values_list('object_entity_id', flat=True)
@@ -71,7 +69,6 @@ class BecomeCustomerButton(CrmButton):
         'using the relationship type «is a customer of».\n'
         'App: Accounts and Contacts'
     )
-    # relation_type_id = constants.REL_SUB_CUSTOMER_SUPPLIER
     relation_type_deps = (constants.REL_SUB_CUSTOMER_SUPPLIER,)
 
 
@@ -83,7 +80,6 @@ class BecomeProspectButton(CrmButton):
         'using the relationship type «is a prospect of».\n'
         'App: Accounts and Contacts'
     )
-    # relation_type_id = constants.REL_SUB_PROSPECT
     relation_type_deps = (constants.REL_SUB_PROSPECT,)
 
 
@@ -95,7 +91,6 @@ class BecomeSuspectButton(CrmButton):
         'using the relationship type «is a suspect of».\n'
         'App: Accounts and Contacts'
     )
-    # relation_type_id = constants.REL_SUB_SUSPECT
     relation_type_deps = (constants.REL_SUB_SUSPECT,)
 
 
@@ -107,7 +102,6 @@ class BecomeInactiveButton(CrmButton):
         'using the relationship type «is an inactive customer of».\n'
         'App: Accounts and Contacts'
     )
-    # relation_type_id = constants.REL_SUB_INACTIVE
     relation_type_deps = (constants.REL_SUB_INACTIVE,)
 
 
@@ -119,7 +113,6 @@ class BecomeSupplierButton(CrmButton):
         'using the relationship type «is a supplier of».\n'
         'App: Accounts and Contacts'
     )
-    # relation_type_id = constants.REL_OBJ_CUSTOMER_SUPPLIER
     relation_type_deps = (constants.REL_OBJ_CUSTOMER_SUPPLIER,)
 
 

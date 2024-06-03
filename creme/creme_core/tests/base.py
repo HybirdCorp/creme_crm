@@ -301,47 +301,6 @@ class _CremeTestCase:
 
         return user
 
-    # def login(self, is_superuser=True, is_staff=False, allowed_apps=('creme_core',),
-    #           creatable_models=None, admin_4_apps=()):
-    #     warnings.warn(
-    #         f'The method {type(self).__name__}.login() is deprecated;'
-    #         f'use the methods login_as_*() instead.',
-    #         DeprecationWarning
-    #     )
-    #     self.password = password = 'test'
-    #
-    #     superuser = self.create_user(
-    #         index=0,
-    #         is_staff=is_staff,
-    #     )
-    #
-    #     role = UserRole(name='Basic')
-    #     role.allowed_apps = allowed_apps
-    #     role.admin_4_apps = admin_4_apps
-    #     role.save()
-    #
-    #     if creatable_models is not None:
-    #         get_ct = ContentType.objects.get_for_model
-    #         role.creatable_ctypes.set([get_ct(model) for model in creatable_models])
-    #
-    #     self.role = role
-    #
-    #     basic_user = self.create_user(
-    #         index=1,
-    #         role=role,
-    #     )
-    #
-    #     self.user, self.other_user = (
-    #         superuser, basic_user,
-    #     ) if is_superuser else (
-    #         basic_user, superuser,
-    #     )
-    #
-    #     logged = self.client.login(username=self.user.username, password=password)
-    #     self.assertTrue(logged, 'Not logged in')
-    #
-    #     return self.user
-
     def assertCountOccurrences(self, member, container, count, msg=None):
         """Like <self.assertEqual(count, container.count(member))>
         but with a nicer default message.
@@ -764,21 +723,10 @@ class _CremeTestCase:
 
     # def assertHasProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | str):
     def assertHasProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | int | str):
-        # if not CremeProperty.objects.filter(
-        #     type_id=ptype.id if isinstance(ptype, CremePropertyType) else ptype,
-        #     creme_entity_id=entity.id if isinstance(entity, CremeEntity) else entity,
-        # ).exists():
-        #     self.fail(f'<{entity}> has no property with type <{ptype}>')
         if not self.__get_creme_properties(entity=entity, ptype=ptype).exists():
             self.fail(f'<{entity}> has no property with type <{ptype}>')
 
-    # def assertHasNoProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | str):
     def assertHasNoProperty(self, entity: CremeEntity | int, ptype: CremePropertyType | int | str):
-        # if CremeProperty.objects.filter(
-        #     type_id=ptype.id if isinstance(ptype, CremePropertyType) else ptype,
-        #     creme_entity_id=entity.id if isinstance(entity, CremeEntity) else entity,
-        # ).exists():
-        #     self.fail(f'<{entity}> has property with type <{ptype}>')
         if self.__get_creme_properties(entity=entity, ptype=ptype).exists():
             self.fail(f'<{entity}> has property with type <{ptype}>')
 
@@ -942,27 +890,14 @@ class _CremeTestCase:
         return reverse('creme_core__merge_entities') + f'?id1={id1}&id2={id2}'
 
     @classmethod
-    # def build_request(self, *, user, url='/', data=None):
     def build_request(cls, *, user, url='/', data=None):
-        # request = self.request_factory.get(url, data=data)
         request = cls.request_factory.get(url, data=data)
         request.session = SessionBase()
-
-        # if user is None:
-        #     warnings.warn(
-        #         f'Passing no "user" argument to the method '
-        #         f'{type(self).__name__}.build_request() is deprecated.',
-        #         DeprecationWarning
-        #     )
-        #     request.user = self.user
-        # else:
-        #     request.user = user
         request.user = user
 
         return request
 
     @classmethod
-    # def build_context(self, user, url=None, instance=None, request_data=None):
     def build_context(cls, user, url=None, instance=None, request_data=None):
         from django.template.context import make_context
         from django.template.engine import Engine
@@ -970,7 +905,6 @@ class _CremeTestCase:
         if not url:
             url = reverse('creme_core__home') if instance is None else instance.get_absolute_url()
 
-        # request = self.build_request(url=url, user=user, data=request_data)
         request = cls.build_request(url=url, user=user, data=request_data)
 
         context = make_context({}, request)
@@ -1071,16 +1005,10 @@ class _CremeTestCase:
             rt.object_ctypes.order_by('id'),
         )
 
-        # self.assertCountEqual(
-        #     sub_props, rt.subject_properties.values_list('id', flat=True),
-        # )
         self.assertCountEqual(
             [ptype if isinstance(ptype, str) else str(ptype.uuid) for ptype in sub_props],
             [str(uid) for uid in rt.subject_properties.values_list('uuid', flat=True)],
         )
-        # self.assertCountEqual(
-        #     obj_props, rt.object_properties.values_list('id', flat=True),
-        # )
         self.assertCountEqual(
             [ptype if isinstance(ptype, str) else str(ptype.uuid) for ptype in obj_props],
             [str(uid) for uid in rt.object_properties.values_list('uuid', flat=True)],
@@ -1093,16 +1021,13 @@ class _CremeTestCase:
 
         return rt
 
-    # def get_propertytype_or_fail(self, pk, models=()):
     def get_propertytype_or_fail(self,
                                  uid: str | UUID,
                                  models: Iterable[type[CremeEntity]] = (),
                                  ):
         try:
-            # pt = CremePropertyType.objects.get(pk=pk)
             pt = CremePropertyType.objects.get(uuid=uid)
         except CremePropertyType.DoesNotExist:
-            # self.fail(f'Bad populate: unfoundable CremePropertyType with pk={pk}')
             self.fail(f'Bad populate: CremePropertyType with uuid="{uid}" cannot be found')
 
         get_ct = ContentType.objects.get_for_model

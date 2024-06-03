@@ -1,4 +1,4 @@
-<!DOCTYPE html>{% load i18n creme_ctype creme_perms mobile_tags %}{# {% load has_perm_to from creme_core_tags %} #}
+<!DOCTYPE html>{% load i18n creme_ctype creme_perms mobile_tags %}
 <html class="{% mobile_document_class request %}" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
@@ -25,7 +25,6 @@
   {% include 'mobile/frags/search_div.html' %}
 
   <section class="hideable-content">
-{#    {% has_perm_to create contact_model as contact_creation_perm %}{% has_perm_to create orga_model as orga_creation_perm %} #}
    {% ctype_for_swappable 'PERSONS_CONTACT_MODEL' as contact_ctype %}{% ctype_for_swappable 'PERSONS_ORGANISATION_MODEL' as orga_ctype %}
    {% with contact_creation_perm=user|has_perm_to_create:contact_ctype orga_creation_perm=user|has_perm_to_create:orga_ctype %}
     {% if contact_creation_perm or orga_creation_perm %}

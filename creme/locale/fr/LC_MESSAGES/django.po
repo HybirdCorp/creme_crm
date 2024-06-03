@@ -132,13 +132,6 @@ msgstr "À propos"
 msgid "Forum"
 msgstr "Forum"
 
-#~ msgid "Format: Day-Month-Year (Ex:31-12-2022)"
-#~ msgstr "Format : Jour-Mois-Année (Ex:31-12-2022)"
-
-#~ msgid "Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2022 23:59:59)"
-#~ msgstr ""
-#~ "Format : Jour-Mois-Année Heure:Minute:Seconde (Ex:31-12-2022 23:59:59)"
-
 #~ msgid "Username"
 #~ msgstr "Nom d'utilisateur"
 
