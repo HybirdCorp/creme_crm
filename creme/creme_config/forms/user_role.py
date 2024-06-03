@@ -398,14 +398,6 @@ class UserRoleCloningForm(CremeModelForm):
             MenuConfigItem.clone_for_role(qs=self._menu_items, role=instance)
 
         if cdata.get('copy_bricks', False):
-            # for location in self._brick_detail_locations:
-            #     BrickDetailviewLocation.objects.create(
-            #         content_type=location.content_type,
-            #         role=instance,
-            #         brick_id=location.brick_id,
-            #         zone=location.zone,
-            #         order=location.order,
-            #     )
             BrickDetailviewLocation.objects.bulk_create([
                 location.clone_for_role(instance)
                 for location in self._brick_detail_locations

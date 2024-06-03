@@ -31,7 +31,7 @@ from creme.creme_core.models import CREME_REPLACE, CremeEntity
 from ..constants import UUID_STATUS_OPEN
 from .criticity import Criticity
 from .priority import Priority
-from .status import Status  # OPEN_PK
+from .status import Status
 
 
 class TicketNumber(models.Model):
@@ -106,9 +106,6 @@ class AbstractTicket(TicketMixin):
     def get_html_attrs(self, context):
         attrs = super().get_html_attrs(context)
 
-        # if self.status_id == OPEN_PK and \
-        #    (context['today'] - self.created) > timedelta(days=settings.TICKETS_COLOR_DELAY):
-        #     attrs['data-color'] = 'tickets-important'
         if (
             str(self.status.uuid) == UUID_STATUS_OPEN
             and (context['today'] - self.created) > timedelta(days=settings.TICKETS_COLOR_DELAY)
@@ -125,7 +122,6 @@ class AbstractTicket(TicketMixin):
                 if update_fields is not None:
                     update_fields = {'closing_date', *update_fields}
         else:  # Creation
-            # self.status_id = self.status_id or OPEN_PK
             if not self.status_id:
                 self.status = Status.objects.get(uuid=UUID_STATUS_OPEN)
 

@@ -43,7 +43,6 @@ from .base import ConfigPortal
 logger = logging.getLogger(__name__)
 
 
-# class Portal(generic.BricksView):
 class Portal(ConfigPortal):
     template_name = 'creme_config/portals/user-role.html'
     brick_classes = [UserRolesBrick]

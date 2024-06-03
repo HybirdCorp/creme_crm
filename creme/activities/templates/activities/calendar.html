@@ -81,11 +81,6 @@
                 <div class="my-calendars menu-sublist toggle-target">
                   {% for calendar in my_calendars %}
                     <div class="calendar-menu-item">
-{% comment %}
-                        <div class="colored-square" style="background-color:#{{calendar.color}};"></div>
-                        <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="calendar_id"{% if calendar.id in my_selected_calendar_ids %} checked{% endif %}/>
-                        <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
-{% endcomment %}
                         <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" style="color:#{{calendar.color}};" name="calendar_id"{% if calendar.id in my_selected_calendar_ids %} checked{% endif %}/>
                         <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
                     </div>
@@ -108,11 +103,6 @@
                         <h5 class="calendar-menu-usergroup-label">{{user}}</h5>
                         {% for calendar in calendars %}
                         <div class="calendar-menu-item" data-user="{{user_key}}" data-calendar="{{calendar.id}}">
-                            {% comment %}
-                            <div class="colored-square" style="background-color:#{{calendar.color}};"></div>
-                            <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" name="calendar_id"{% if calendar.id in others_selected_calendar_ids %} checked{% endif %}/>
-                            <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
-                            {% endcomment %}
                             <input type="checkbox" value="{{calendar.id}}" id="id_calendar_{{calendar.id}}" style="color:#{{calendar.color}};" name="calendar_id"{% if calendar.id in others_selected_calendar_ids %} checked{% endif %}/>
                             <label for="id_calendar_{{calendar.id}}">{{calendar}}</label>
                         </div>

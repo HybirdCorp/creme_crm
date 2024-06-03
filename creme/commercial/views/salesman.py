@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,6 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremePropertyType
 
 from .. import gui
-# from ..constants import PROP_IS_A_SALESMAN
 from ..constants import UUID_PROP_IS_A_SALESMAN
 
 
@@ -50,8 +49,6 @@ class SalesManCreation(contact_views.ContactCreation):
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
-
-        # ptype = get_object_or_404(CremePropertyType, id=PROP_IS_A_SALESMAN)
         ptype = self.get_ptype()
 
         if not ptype.enabled:
@@ -64,7 +61,6 @@ class SalesManCreation(contact_views.ContactCreation):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        # kwargs['forced_ptypes'] = [PROP_IS_A_SALESMAN]
         kwargs['forced_ptypes'] = [self.get_ptype().id]
 
         return kwargs
@@ -72,7 +68,6 @@ class SalesManCreation(contact_views.ContactCreation):
 
 class SalesMenList(contact_views.ContactsList):
     title = _('List of salesmen')
-    # internal_q = Q(properties__type=PROP_IS_A_SALESMAN)
     internal_q = Q(properties__type__uuid=UUID_PROP_IS_A_SALESMAN)
 
     def get_buttons(self):

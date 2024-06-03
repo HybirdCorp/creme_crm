@@ -144,9 +144,7 @@ class SettingValueTestCase(CremeTestCase):
         sv.save()
 
         sv = self.refresh(sv)
-        # self.assertEqual('', sv.value_str)
         self.assertEqual('', sv.json_value)
-        # self.assertIsNone(sv.value)
         self.assertEqual('', sv.value)
         self.assertEqual('', sv.as_html)
 
@@ -166,7 +164,6 @@ class SettingValueTestCase(CremeTestCase):
         sv = SettingValue(key=sk)
 
         with self.assertRaises(ValueError):
-            # sv.value = None
             sv.value = ''
 
         value = '111'

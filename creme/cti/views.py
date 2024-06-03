@@ -90,7 +90,6 @@ class AnswerToACall(generic.BricksView):
 
 
 class CallersBrickReloading(BricksReloading):
-    # check_bricks_permission = False
     number_url_kwarg = 'number'
 
     def get_bricks(self):
@@ -107,9 +106,7 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
                         generic.base.TitleMixin,
                         generic.CheckedView):
     permissions = ['activities', cperm(Activity)]
-    # phonecall_status_id = act_constants.STATUS_IN_PROGRESS
     phonecall_status_uuid = act_constants.UUID_STATUS_IN_PROGRESS
-    # phonecall_subtype_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING
     phonecall_subtype_uuid = act_constants.UUID_SUBTYPE_PHONECALL_INCOMING
     title = _('Call to {entity}')  # Phone Call title
 
@@ -124,10 +121,7 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
             user=self.request.user,
             title=self.get_title(),
             description=_('Automatically created by CTI'),
-            # status_id=self.get_phonecall_status_id(),
             status=get_object_or_404(Status, uuid=self.get_phonecall_status_uuid()),
-            # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-            # sub_type_id=self.get_phonecall_subtype_id(),
             type_id=sub_type.type_id,
             sub_type=sub_type,
             start=now_value,
@@ -170,13 +164,9 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
 
         return pcall
 
-    # def get_phonecall_status_id(self) -> int:
-    #     return self.phonecall_status_id
     def get_phonecall_status_uuid(self) -> str:
         return self.phonecall_status_uuid
 
-    # def get_phonecall_subtype_id(self) -> str:
-    #     return self.phonecall_subtype_id
     def get_phonecall_subtype_uuid(self) -> str:
         return self.phonecall_subtype_uuid
 
@@ -191,7 +181,6 @@ class PhoneCallCreation(generic.base.EntityRelatedMixin,
 class AsCallerPhoneCallCreation(PhoneCallCreation):
     response_class = CremeJsonResponse
     entity_id_arg = 'entity_id'
-    # phonecall_subtype_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING
     phonecall_subtype_uuid = act_constants.UUID_SUBTYPE_PHONECALL_OUTGOING
 
     def get_related_entity_id(self):

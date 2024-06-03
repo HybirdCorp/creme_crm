@@ -3,8 +3,6 @@ from functools import partial
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.tests.base import CremeTestCase
 
 from .base import (
@@ -155,11 +153,6 @@ class SMSCampaignTestCase(CremeTestCase):
     def test_messaging_list02(self):
         "Remove list from campaign."
         user = self.login_as_standard(allowed_apps=('sms',))
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE'])
 
         create_ml = partial(MessagingList.objects.create, user=user)
@@ -179,11 +172,6 @@ class SMSCampaignTestCase(CremeTestCase):
     def test_ml_and_campaign03(self):
         "Not allowed to change the campaign."
         user = self.login_as_standard(allowed_apps=('sms',))
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,  # Not CHANGE
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW'])  # 'CHANGE'
 
         mlist = MessagingList.objects.create(user=user, name='Ml01')

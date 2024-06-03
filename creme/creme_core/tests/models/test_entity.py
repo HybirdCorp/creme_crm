@@ -223,9 +223,6 @@ class EntityTestCase(CremeTestCase):
             is_internal=True,
         )
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # self.ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats')
-        # self.ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
         create_ptype = CremePropertyType.objects.create
         self.ptype01 = create_ptype(text='wears strange hats')
         self.ptype02 = create_ptype(text='wears strange pants')
@@ -284,12 +281,6 @@ class EntityTestCase(CremeTestCase):
         self.assertTrue(get_field('username').get_tag(FieldTag.VIEWABLE))
         self.assertFalse(get_field('id').get_tag(FieldTag.VIEWABLE))
         self.assertFalse(get_field('password').get_tag(FieldTag.VIEWABLE))
-        # self.assertFalse(get_field('is_active').get_tag(FieldTag.VIEWABLE))
-        # self.assertFalse(get_field('is_superuser').get_tag(FieldTag.VIEWABLE))
-        # self.assertFalse(get_field('is_staff').get_tag(FieldTag.VIEWABLE))
-        # self.assertFalse(get_field('last_login').get_tag(FieldTag.VIEWABLE))
-        # self.assertFalse(get_field('date_joined').get_tag(FieldTag.VIEWABLE))
-        # self.assertFalse(get_field('role').get_tag(FieldTag.VIEWABLE))
         self.assertTrue(get_field('is_active').get_tag(FieldTag.VIEWABLE))
         self.assertTrue(get_field('is_superuser').get_tag(FieldTag.VIEWABLE))
         self.assertFalse(get_field('is_staff').get_tag(FieldTag.VIEWABLE))
@@ -502,13 +493,10 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual(_('Properties'), str(pp_ff.verbose_name))
         self.assertFalse(pp_ff.is_hidden)
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
         create_ptype = CremePropertyType.objects.create
-        # ptype1 = create_ptype(str_pk='test-prop_awesome', text='Awesome')
         ptype1 = create_ptype(text='Awesome')
         CremeProperty.objects.create(type=ptype1, creme_entity=entity)
 
-        # ptype2 = create_ptype(str_pk='test-prop_wonderful', text='Wonderful')
         ptype2 = create_ptype(text='Wonderful')
         CremeProperty.objects.create(type=ptype2, creme_entity=entity)
 
@@ -533,9 +521,6 @@ class EntityTestCase(CremeTestCase):
 
         pp_ff = function_field_registry.get(CremeEntity, 'get_pretty_properties')
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_awesome',   text='Awesome')
-        # ptype2 = create_ptype(str_pk='test-prop_wonderful', text='Wonderful')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Awesome')
         ptype2 = create_ptype(text='Wonderful')

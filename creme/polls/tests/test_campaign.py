@@ -5,8 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.commercial.models import MarketSegment
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import CremePropertyType  # SetCredentials
+from creme.creme_core.models import CremePropertyType
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from ..bricks import PollCampaignRepliesBrick
@@ -25,9 +24,6 @@ from .base import (
 class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
     @staticmethod
     def _create_segment(name, label):  # TODO: inline ?
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk=f'polls-prop_{name}', text=f'is from segment "{label}"',
-        # )
         ptype = CremePropertyType.objects.create(text=f'is from segment "{label}"')
         return MarketSegment.objects.create(name=label, property_type=ptype)
 
@@ -237,17 +233,6 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
     def test_create_preply_from_campaign02(self):
         "Not superuser."
         user = self.login_as_polls_user(creatable_models=[PollReply])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='*')
 
         pform, camp = self._create_pform_n_campaign(user=user)
@@ -258,17 +243,6 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
     def test_create_preply_from_campaign03(self):
         "Creation credentials are needed."
         user = self.login_as_polls_user()  # creatable_models=[PollReply]
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='*')
 
         pform, camp = self._create_pform_n_campaign(user=user)
@@ -280,17 +254,6 @@ class PollCampaignsTestCase(BrickTestCaseMixin, _PollsTestCase):
     def test_create_preply_from_campaign04(self):
         "LINK credentials are needed."
         user = self.login_as_polls_user(creatable_models=[PollReply])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #         # | EntityCredentials.LINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='!LINK')
 
         pform, camp = self._create_pform_n_campaign(user=user)

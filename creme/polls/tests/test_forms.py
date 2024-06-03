@@ -4,7 +4,6 @@ from json import dumps as json_dump
 from django.forms import Field
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.base import CremeTestCase
 
 from ..core import PollLineType
@@ -13,7 +12,6 @@ from ..models import PollFormLine, PollFormLineCondition
 from .base import PollForm, skipIfCustomPollForm
 
 
-# class PollFormLineConditionsFieldTestCase(FieldTestCase):
 class PollFormLineConditionsFieldTestCase(CremeTestCase):
     @staticmethod
     def build_data(*info):

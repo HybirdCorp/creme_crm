@@ -25,7 +25,7 @@
                 {% blocktranslate with account=payment_info.account_number|default:'—' %}N° {{account}}{% endblocktranslate %}
             </div>
             {% if payment_info.is_default %}
-            <div {# class="billing-group-value" #}>
+            <div>
                 {% translate 'Is default account' %}
             </div>
             {% endif %}

@@ -22,5 +22,4 @@ UUID_CHANNEL_REMINDERS = 'b52ea0d1-6ce5-43c5-87b0-40845671b916'
 DEFAULT_CURRENCY_PK = 1
 DISPLAY_CURRENCY_LOCAL_SYMBOL = 'creme_core-display_currency_local_symbol'
 
-# MODELBRICK_ID = 'modelblock'
 MODELBRICK_ID = 'model'

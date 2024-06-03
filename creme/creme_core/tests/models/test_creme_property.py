@@ -18,15 +18,12 @@ from ..base import CremeTestCase
 
 class CremePropertyTypeTestCase(CremeTestCase):
     def test_manager_smart_update_or_create01(self):
-        # pk = 'test-prop_foobar'
         uid = 'f4dc2004-30d1-46b2-95e0-7164bf286969'
         text = 'is delicious'
 
-        # ptype = CremePropertyType.objects.smart_update_or_create(str_pk=pk, text=text)
         ptype = CremePropertyType.objects.smart_update_or_create(uuid=uid, text=text)
 
         self.assertIsInstance(ptype, CremePropertyType)
-        # self.assertEqual(pk, ptype.id)
         self.assertEqual(uid, ptype.uuid)
         self.assertEqual('', ptype.app_label)
         self.assertEqual(text, ptype.text)
@@ -46,7 +43,6 @@ class CremePropertyTypeTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         orga_ct = get_ct(FakeOrganisation)
         ptype = CremePropertyType.objects.smart_update_or_create(
-            # str_pk=pk,
             uuid=uid,
             text=text,
             app_label=label,
@@ -67,15 +63,12 @@ class CremePropertyTypeTestCase(CremeTestCase):
 
     def test_manager_smart_update_or_create03(self):
         "Update existing."
-        # pk = 'test-prop_foobar'
         uid = '85df6868-beee-41b3-a263-a139f6dfde27'
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        # create_ptype(str_pk=pk, text='is delicious', subject_ctypes=[FakeOrganisation])
         create_ptype(uuid=uid, text='is delicious', subject_ctypes=[FakeOrganisation])
 
         text = 'is very delicious'
         ptype = create_ptype(
-            # str_pk=pk,
             uuid=uid,
             text=text,
             is_copiable=False,
@@ -88,16 +81,6 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertFalse(ptype.is_copiable)
         self.assertListEqual([FakeContact], [*ptype.subject_models])
 
-    # def test_manager_smart_update_or_create04(self):
-    #     "Generate pk."
-    #     pk = 'test-prop_foobar'
-    #     create_ptype = CremePropertyType.objects.smart_update_or_create
-    #     create_ptype(str_pk=pk, text='is delicious')
-    #
-    #     text = 'is wonderful'
-    #     ptype = create_ptype(str_pk=pk, text=text, generate_pk=True)
-    #     self.assertEqual(pk + '1', ptype.id)
-    #     self.assertEqual(text, ptype.text)
     def test_manager_smart_update_or_create04(self):
         "Generate uuid."
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -134,12 +117,6 @@ class CremePropertyTypeTestCase(CremeTestCase):
 
     def test_manager_compatible(self):
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
-        # ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
-        # ptype3 = create_ptype(
-        #     str_pk='test-prop_wonderful', text='is wonderful',
-        #     subject_ctypes=[FakeContact],
-        # )
         ptype1 = create_ptype(text='is delicious')
         ptype2 = create_ptype(text='is happy')
         ptype3 = create_ptype(text='is wonderful', subject_ctypes=[FakeContact])
@@ -174,9 +151,6 @@ class CremePropertyTestCase(CremeTestCase):
         text = 'is delicious'
 
         with self.assertNoException():
-            # ptype = CremePropertyType.objects.smart_update_or_create(
-            #     str_pk='test-prop_foobar', text=text,
-            # )
             ptype = CremePropertyType.objects.create(text=text)
             entity = CremeEntity.objects.create(user=self.get_root_user())
             CremeProperty.objects.create(type=ptype, creme_entity=entity)
@@ -206,9 +180,6 @@ class CremePropertyTestCase(CremeTestCase):
     def test_manager_safe_create(self):
         text = 'is happy'
 
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_foobar', text=text,
-        # )
         ptype = CremePropertyType.objects.create(text=text)
         entity = CremeEntity.objects.create(user=self.get_root_user())
 
@@ -221,9 +192,6 @@ class CremePropertyTestCase(CremeTestCase):
     def test_manager_safe_get_or_create(self):
         text = 'is happy'
 
-        # ptype  = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_foobar', text=text,
-        # )
         ptype  = CremePropertyType.objects.create(text=text)
         entity = CremeEntity.objects.create(user=self.get_root_user())
 
@@ -242,9 +210,6 @@ class CremePropertyTestCase(CremeTestCase):
         self.assertEqual(prop1, prop2)
 
     def test_manager_safe_multi_save01(self):
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
-        # ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='is delicious')
         ptype2 = create_ptype(text='is happy')
@@ -267,9 +232,6 @@ class CremePropertyTestCase(CremeTestCase):
 
     def test_manager_safe_multi_save02(self):
         "De-duplicates arguments."
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
-        # ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='is delicious')
         ptype2 = create_ptype(text='is happy')
@@ -289,9 +251,6 @@ class CremePropertyTestCase(CremeTestCase):
 
     def test_manager_safe_multi_save03(self):
         "Avoid creating existing properties."
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
-        # ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='is delicious')
         ptype2 = create_ptype(text='is happy')
@@ -323,9 +282,6 @@ class CremePropertyTestCase(CremeTestCase):
 
     def test_manager_safe_multi_save05(self):
         "Argument <check_existing>."
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_delicious', text='is delicious')
-        # ptype2 = create_ptype(str_pk='test-prop_happy',     text='is happy')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='is delicious')
         ptype2 = create_ptype(text='is happy')

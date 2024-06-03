@@ -331,7 +331,6 @@ class GuiTestCase(CremeTestCase):
         "Un-registration."
         registry = QuickFormsRegistry()
 
-        # with self.assertRaises(registry.RegistrationError):
         with self.assertRaises(registry.UnRegistrationError) as cm:
             registry.unregister(FakeContact)
 

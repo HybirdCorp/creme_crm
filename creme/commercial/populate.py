@@ -40,7 +40,6 @@ from creme.creme_core.models import (
     SettingValue,
 )
 from creme.creme_core.registry import creme_registry
-# from creme.creme_core.utils import create_if_needed
 from creme.creme_core.utils.date_period import date_period_registry
 
 from . import (
@@ -108,8 +107,6 @@ class Populator(BasePopulator):
         )
 
     def _populate_act_types(self):
-        # for i, title in enumerate([_('Phone calls'), _('Show'), _('Demo')], start=1):
-        #     create_if_needed(ActType, {'pk': i}, title=title, is_custom=False)
         self._save_minions(self.ACT_TYPES)
 
     def _populate_relation_types(self):

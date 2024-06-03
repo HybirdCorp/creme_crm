@@ -93,32 +93,26 @@ class BrickTestCaseMixin:
     def get_brick_node(self, tree, brick):
         brick_id = getattr(brick, 'id', brick)
 
-        # brick_node = tree.find(f".//div[@id='{brick_id}']")
         brick_node = tree.find(f".//div[@id='brick-{brick_id}']")
         if brick_node is None:
-            # self.fail(f'The brick id="{brick_id}" is not found.')
             self.fail(f'The brick node id="brick-{brick_id}" is not found.')
 
         classes = brick_node.attrib.get('class')
         if classes is None:
             self.fail(
-                # f'The brick id="{brick_id}" is not a valid brick (no "class" attribute).'
                 f'The brick node id="brick-{brick_id}" is invalid (no "class" attribute).'
             )
 
         if 'brick' not in classes.split():
             self.fail(
-                # f'The brick id="{brick_id}" is not a valid brick (no "brick" class).'
                 f'The brick node id="brick-{brick_id}" is invalid (no "brick" class).'
             )
 
         return brick_node
 
     def assertNoBrick(self, tree, brick_id):
-        # if tree.find(f".//div[@id='{brick_id}']") is not None:
         if tree.find(f".//div[@id='brick-{brick_id}']") is not None:
             self.fail(
-                # f'The brick id="{brick_id}" has been unexpectedly found.'
                 f'The brick node id="brick-{brick_id}" has been unexpectedly found.'
             )
 
@@ -250,26 +244,6 @@ class ButtonTestCaseMixin:
 
         self.fail('The instance buttons node has not been found.')
 
-    # @staticmethod
-    # def iter_instance_button_nodes(instances_button_node, *, data_action=None):
-    #     for a_node in instances_button_node.findall('.//a'):
-    #         classes_attr = a_node.attrib.get('class')
-    #         if classes_attr is None:
-    #             continue
-    #
-    #         if (
-    #             'menu_button' in classes_attr.split()
-    #             and (
-    #                 not data_action
-    #                 or data_action == a_node.attrib.get('data-action')
-    #             )
-    #         ):
-    #             yield a_node
-    #
-    #     for span_node in instances_button_node.findall('.//span'):
-    #         classes_attr = span_node.attrib.get('class')
-    #         if classes_attr and 'menu_button' in classes_attr.split():
-    #             yield span_node
     @staticmethod
     def iter_button_nodes(buttons_node, *, tags=('a', 'span'), data_action=None, href=None):
         if 'a' in tags:
@@ -317,17 +291,7 @@ class MassImportBaseTestCaseMixin:
 
         return tmpfile
 
-    # def _build_doc(self, tmpfile, user=None):
     def _build_doc(self, tmpfile, user):
-        # if user is None:
-        #     warnings.warn(
-        #         f'Passing no "user" argument to the methods '
-        #         f'{type(self).__name__}._build_*doc() is deprecated.',
-        #         DeprecationWarning
-        #     )
-        #
-        #     user = self.user
-
         tmpfile.file.seek(0)
         category = FolderCategory.objects.create(id=10, name='Test category')
         folder = Folder.objects.create(
@@ -354,7 +318,6 @@ class MassImportBaseTestCaseMixin:
 
         return doc
 
-    # def _build_csv_doc(self, lines, *, user=None, separator=',', extension='csv'):
     def _build_csv_doc(self, lines, *, user, separator=',', extension='csv'):
         content = '\n'.join(
             separator.join(f'"{item}"' for item in line) for line in lines
@@ -363,7 +326,6 @@ class MassImportBaseTestCaseMixin:
 
         return self._build_doc(tmpfile, user=user)
 
-    # def _build_xls_doc(self, lines, *, user=None, extension='xls'):
     def _build_xls_doc(self, lines, *, user, extension='xls'):
         tmpfile = self._build_file(b'', extension)
         wb = XlwtWriter()

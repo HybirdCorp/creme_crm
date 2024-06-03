@@ -34,8 +34,6 @@ if TYPE_CHECKING:
     from .operators import ConditionOperator
 
 logger = logging.getLogger(__name__)
-# EF_CREDENTIALS = 0
-# EF_USER = 1  # Deprecated (see below)
 EF_REGULAR = 'creme_core-regular'
 EF_CREDENTIALS = 'creme_core-credentials'
 
@@ -68,7 +66,6 @@ class _EntityFilterRegistry:
     class RegistrationError(Exception):
         pass
 
-    # id: int
     id: str
     verbose_name: str
     detail_url_name: str
@@ -76,7 +73,6 @@ class _EntityFilterRegistry:
     deletion_url_name: str
     tag: str
 
-    # def __init__(self, *, id: int, verbose_name: str):
     def __init__(self, *,
                  id: str, verbose_name: str,
                  detail_url_name: str = '',
@@ -286,7 +282,6 @@ class _EntityFilterSuperRegistry:
     def __init__(self):
         self._registries = OrderedDict()
 
-    # def __getitem__(self, registry_id: int) -> _EntityFilterRegistry:
     def __getitem__(self, registry_id: str) -> _EntityFilterRegistry:
         return self._registries[registry_id]
 
@@ -305,7 +300,6 @@ class _EntityFilterSuperRegistry:
 
         return self
 
-    # def unregister(self, *registry_ids: int) -> None:
     def unregister(self, *registry_ids: str) -> None:
         registries = self._registries
 
@@ -324,7 +318,6 @@ entity_filter_registries = _EntityFilterSuperRegistry().register(
         verbose_name=_('Credentials filter'),
     ),
     _EntityFilterRegistry(
-        # id=EF_USER,
         id=EF_REGULAR,
         verbose_name=_('Regular filter (usable in list-view)'),
         detail_url_name='creme_core__efilter',

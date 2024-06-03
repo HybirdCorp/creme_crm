@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,17 +23,12 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-# from creme.creme_core.models import CremeModel, MinionModel
 from creme.creme_core.models import MinionModel
 from creme.creme_core.models import fields as core_fields
 
 
 # TODO: rename to ActivityKind ??
-# class ActivityType(CremeModel):
 class ActivityType(MinionModel):
-    # id = models.CharField(
-    #     primary_key=True, max_length=100, editable=False,
-    # ).set_tags(viewable=False)
     uuid = models.UUIDField(
         unique=True, editable=False, default=uuid.uuid4,
     ).set_tags(viewable=False)
@@ -73,11 +68,7 @@ class ActivityType(MinionModel):
         )
 
 
-# class ActivitySubType(CremeModel):
 class ActivitySubType(MinionModel):
-    # id = models.CharField(
-    #     primary_key=True, max_length=100, editable=False,
-    # ).set_tags(viewable=False)
     uuid = models.UUIDField(
         unique=True, editable=False, default=uuid.uuid4,
     ).set_tags(viewable=False)

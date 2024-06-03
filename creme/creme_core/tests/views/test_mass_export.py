@@ -49,11 +49,9 @@ from creme.creme_core.utils.content_type import as_ctype
 from creme.creme_core.utils.queries import QSerializer
 from creme.creme_core.utils.xlrd_utils import XlrdReader
 
-# from .base import ViewsTestCase
 from ..base import CremeTestCase
 
 
-# class MassExportViewsTestCase(ViewsTestCase):
 class MassExportViewsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
@@ -72,9 +70,6 @@ class MassExportViewsTestCase(CremeTestCase):
             ('test-object_pilots',  'is piloted by'),
         )[0]
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype_beautiful = create_ptype(str_pk='test-prop_beautiful', text='is beautiful')
-        # ptype_girl      = create_ptype(str_pk='test-prop_girl',      text='is a girl')
         create_ptype = CremePropertyType.objects.create
         ptype_beautiful = create_ptype(text='is beautiful')
         ptype_girl      = create_ptype(text='is a girl')
@@ -407,7 +402,6 @@ class MassExportViewsTestCase(CremeTestCase):
     def test_list_view_export_fk_entity(self):
         "FK field on CremeEntity."
         user = self.login_as_standard()
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
         user.role.exportable_ctypes.set([self.ct])
 
@@ -853,21 +847,12 @@ class MassExportViewsTestCase(CremeTestCase):
                 (EntityCellRegularField, {'name': 'languages'}),
             ],
         )
-        # response = self.client.get(self._build_contact_dl_url(
         response = self.assertGET200(self._build_contact_dl_url(
             hfilter_id=hf.id,
             # sort_key='regular_field-...',
             sort_order='ASC',
             **{'search-regular_field-phone': '123'}
         ))
-        # self.assertContains(
-        #     response,
-        #     _(
-        #         'The file cannot be generated because your list is not ordered '
-        #         '(hint: chose a column in the list header then try to download the file again).'
-        #     ),
-        #     status_code=409, html=True,
-        # )
         self.assertListEqual(
             [f'"{l1.name}"', f'"{l2.name}"'],
             [force_str(line) for line in response.content.splitlines()[1:]],

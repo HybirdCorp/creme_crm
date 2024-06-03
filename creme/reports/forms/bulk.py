@@ -74,9 +74,6 @@ class ReportFilterOverrider(FieldOverrider):
         self._has_same_report_ct = all(e.ct == first_ct for e in instances)
 
         if self._has_same_report_ct:
-            # field.queryset = EntityFilter.objects.filter_by_user(user).filter(
-            #     entity_type=first_ct,
-            # )
             field.queryset = EntityFilter.objects.filter_by_user(
                 user, types=[EF_REGULAR, EF_REPORTS],
             ).filter(entity_type=first_ct)

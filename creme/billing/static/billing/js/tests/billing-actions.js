@@ -291,162 +291,6 @@ QUnit.test('creme.billing.brick (billing-line-clearonfly)', function(assert) {
     equal(false, addonflyLink.is('.forbidden'));
 });
 
-/*
-QUnit.test('creme.billing.hatmenubar.invoice-number (fail)', function(assert) {
-    var widget = this.createHatMenuBar({
-        buttons: [
-            this.createHatMenuActionButton({
-                url: 'mock/invoice/generatenumber/12/fail',
-                action: 'billing-hatmenubar-invoice-number'
-            })
-        ]
-    });
-
-    $(widget.element).find('a.menu_button').trigger('click');
-
-    this.assertOpenedAlertDialog('Unable to generate invoice number');
-    this.closeDialog();
-
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12/fail'));
-    deepEqual([], this.mockRedirectCalls());
-});
-
-QUnit.test('creme.billing.hatmenubar.invoice-number (ok)', function(assert) {
-    var current_url = window.location.href;
-    var widget = this.createHatMenuBar({
-        buttons: [
-            this.createHatMenuActionButton({
-                url: 'mock/invoice/generatenumber/12',
-                action: 'billing-hatmenubar-invoice-number'
-            })
-        ]
-    });
-
-    $(widget.element).find('a.menu_button').trigger('click');
-
-    this.assertClosedDialog();
-
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
-    deepEqual([current_url], this.mockReloadCalls());
-});
-
-QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, cancel)', function(assert) {
-    var widget = this.createHatMenuBar({
-        buttons: [
-            this.createHatMenuActionButton({
-                url: 'mock/invoice/generatenumber/12/fail',
-                action: 'billing-hatmenubar-invoice-number',
-                options: {
-                    confirm: 'Are you sure ?'
-                }
-            })
-        ]
-    });
-
-    $(widget.element).find('a.menu_button').trigger('click');
-
-    this.assertOpenedConfirmDialog('Are you sure ?');
-    this.closeDialog();
-
-    deepEqual([], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
-    deepEqual([], this.mockReloadCalls());
-});
-
-QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, fail)', function(assert) {
-    var widget = this.createHatMenuBar({
-        buttons: [
-            this.createHatMenuActionButton({
-                url: 'mock/invoice/generatenumber/12/fail',
-                action: 'billing-hatmenubar-invoice-number',
-                options: {
-                    confirm: 'Are you sure ?'
-                }
-            })
-        ]
-    });
-
-    $(widget.element).find('a.menu_button').trigger('click');
-
-    this.assertOpenedConfirmDialog('Are you sure ?');
-    this.acceptConfirmDialog();
-
-    this.assertOpenedAlertDialog('Unable to generate invoice number');
-    this.closeDialog();
-
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12/fail'));
-    deepEqual([], this.mockRedirectCalls());
-});
-
-QUnit.test('creme.billing.hatmenubar.invoice-number (confirm, ok)', function(assert) {
-    var current_url = window.location.href;
-    var widget = this.createHatMenuBar({
-        buttons: [
-            this.createHatMenuActionButton({
-                url: 'mock/invoice/generatenumber/12',
-                action: 'billing-hatmenubar-invoice-number',
-                options: {
-                    confirm: 'Are you sure ?'
-                }
-            })
-        ]
-    });
-
-    $(widget.element).find('a.menu_button').trigger('click');
-
-    this.assertOpenedConfirmDialog('Are you sure ?');
-    this.acceptConfirmDialog();
-
-    this.assertClosedDialog();
-
-    deepEqual([['POST', {}]], this.mockBackendUrlCalls('mock/invoice/generatenumber/12'));
-    deepEqual([current_url], this.mockReloadCalls());
-});
-*/
-/*
-QUnit.test('creme.billing.hatmenubar.convert (fail)', function(assert) {
-    var widget = this.createHatMenuBar({
-        buttons: [
-            this.createHatMenuActionButton({
-                url: 'mock/quote/convert/12/fail',
-                action: 'billing-hatmenubar-convert',
-                data: {
-                    type: 'invoice'
-                }
-            })
-        ]
-    });
-
-    $(widget.element).find('a.menu_button').trigger('click');
-
-    this.assertOpenedAlertDialog('Unable to convert this quote');
-    this.closeDialog();
-
-    deepEqual([['POST', {type: 'invoice'}]], this.mockBackendUrlCalls('mock/quote/convert/12/fail'));
-    deepEqual([], this.mockRedirectCalls());
-});
-
-QUnit.test('creme.billing.hatmenubar.convert (ok)', function(assert) {
-    var widget = this.createHatMenuBar({
-        buttons: [
-            this.createHatMenuActionButton({
-                url: 'mock/quote/convert/12',
-                action: 'billing-hatmenubar-convert',
-                data: {
-                    type: 'invoice'
-                }
-            })
-        ]
-    });
-
-    $(widget.element).find('a.menu_button').trigger('click');
-
-    this.assertClosedDialog();
-
-    deepEqual([['POST', {type: 'invoice'}]], this.mockBackendUrlCalls('mock/quote/convert/12'));
-    deepEqual(['mock/quote/invoice'], this.mockRedirectCalls());
-});
-*/
-
 QUnit.test('creme.billing.AddDocumentAction', function(assert) {
     this.createBrickWidget({
         deps: ['creme_core.relation']
@@ -480,7 +324,6 @@ QUnit.test('creme.billing.AddDocumentAction', function(assert) {
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -529,7 +372,6 @@ QUnit.test('creme.billing.AddDocumentAction (deps)', function(assert) {
     ], this.mockBackendUrlCalls('mock/billing/document/add'));
 
     deepEqual([
-//        ['GET', {"brick_id": ["brick-for-test", "brick-for-test-B"], "extra_data": "{}"}]
         ['GET', {"brick_id": ["creme_core-test", "brick-for-test-B"], "extra_data": "{}"}]
     ], this.mockBackendUrlCalls('mock/brick/all/reload'));
 });
@@ -588,20 +430,6 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document', function(
         deps: ['my_app-modelA']
     }).brick();
 
-/*
-    var widget = this.createHatMenuBar({
-        buttons: [
-            this.createHatMenuActionButton({
-                url: 'mock/billing/document/add',
-                action: 'billing-hatmenubar-add-document',
-                data: {
-                    rtype_id: ['rtype-C'],
-                    model_id: ['my_app-modelA']
-                }
-            })
-        ]
-    });
-*/
     var widget = this.createButtonsBrick({
         buttons: [
             this.createHatMenuActionButton({
@@ -646,21 +474,6 @@ QUnit.test('creme.billing.hatmenubar.billing-hatmenubar-add-document (with redir
     var POSTBackends = {};  // TODO:  {[creationURL]: ...}  when IE is dead
     POSTBackends[creationURL] = this.backend.response(200, quoteURL);
     this.setMockBackendPOST(POSTBackends);
-
-/*
-    var widget = this.createHatMenuBar({
-        buttons: [
-            this.createHatMenuActionButton({
-                url: creationURL + '?redirection=true',
-                action: 'billing-hatmenubar-add-document',
-                data: {
-                    rtype_id: ['rtype-C'],
-                    model_id: ['model-A']
-                }
-            })
-        ]
-    });
-*/
 
     var widget = this.createButtonsBrick({
         buttons: [

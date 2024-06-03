@@ -477,7 +477,6 @@ class DBTestCase(CremeTestCase):
 
         with self.assertNumQueries(0):
             role2 = u2.role
-        # self.assertEqual(self.role, role2)
         self.assertEqual(role, role2)
 
     def test_populate_related09(self):

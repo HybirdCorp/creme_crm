@@ -173,7 +173,6 @@ class Brick:
     # An empty value (like the default empty string) means "No special permission required".
     permissions: str | Sequence[str] = ''
 
-    # GENERIC_HAT_BRICK_ID: str = 'hatbrick'
     GENERIC_HAT_BRICK_ID: str = 'hat'
 
     def __init__(self):
@@ -211,7 +210,6 @@ class Brick:
 
     @staticmethod
     def generate_id(app_name: str, name: str) -> str:  # TODO: rename _generate_id ?
-        # return f'block_{app_name}-{name}'
         return f'regular-{app_name}-{name}'
 
     @classmethod
@@ -545,13 +543,11 @@ class SpecificRelationsBrick(QuerysetBrick):
         "configuration, or in the block's menu which appears when you click on the "
         "block's icon)."
     )
-    # # order_by = 'type'
     # order_by = '...' We use a multi column order manually
     template_name = 'creme_core/bricks/specific-relations.html'
 
     def __init__(self, relationbrick_item: RelationBrickItem):
         super().__init__()
-        # self.id_ = relationbrick_item.brick_id
         self.id = relationbrick_item.brick_id
         self.config_item = relationbrick_item
 
@@ -569,10 +565,6 @@ class SpecificRelationsBrick(QuerysetBrick):
             "configuration, or in the block's menu which appears when you click on the "
             "block's icon)."
         ).format(predicate=rtype.predicate)
-
-    # @staticmethod
-    # def generate_id(app_name: str, name: str) -> str:
-    #     return f'specificblock_{app_name}-{name}'
 
     def detailview_display(self, context) -> str:
         # TODO: check the constraints (ContentType & CremeProperties) for 'entity'
@@ -645,7 +637,6 @@ class InstanceBrick(Brick):
     def __init__(self, instance_brick_config_item: InstanceBrickConfigItem):
         super().__init__()
         self.config_item = instance_brick_config_item
-        # self.id_ = instance_brick_config_item.brick_id
         self.id = instance_brick_config_item.brick_id
 
 
@@ -789,19 +780,6 @@ class _BrickRegistry:
             brick_id = brick_cls.id
 
             if not brick_id:
-                # try:
-                #     brick_cls.id_  # NOQA
-                # except AttributeError:
-                #     raise self.RegistrationError(
-                #         f'Brick class with empty ID: {brick_cls}'
-                #     )
-                # else:
-                #     logger.critical(
-                #         'The brick class %s uses the old "id_" attribute; '
-                #         'use an attribute "id" instead (brick is ignored).',
-                #         brick_cls,
-                #     )
-                #     continue
                 raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
 
             if setdefault(brick_id, brick_cls) is not brick_cls:
@@ -823,19 +801,6 @@ class _BrickRegistry:
             brick_id = brick_cls.id
 
             if not brick_id:
-                # try:
-                #     brick_cls.id_  # NOQA
-                # except AttributeError:
-                #     raise self.RegistrationError(
-                #         f'Brick class with empty ID: {brick_cls}'
-                #     )
-                # else:
-                #     logger.critical(
-                #         'The brick class %s uses the old "id_" attribute; '
-                #         'use an attribute "id" instead (brick is ignored).',
-                #         brick_cls,
-                #     )
-                #     continue
                 raise self.RegistrationError(f'Brick class with empty ID: {brick_cls}')
 
             if setdefault(brick_id, brick_cls) is not brick_cls:
@@ -890,19 +855,6 @@ class _BrickRegistry:
             assert issubclass(brick_cls, Brick)
 
             brick_id = brick_cls.id
-
-            # if not brick_id:
-            #     try:
-            #         brick_id = brick_cls.id_
-            #     except AttributeError:
-            #         pass
-            #     else:
-            #         logger.critical(
-            #             'The brick class %s uses the old "id_" attribute; '
-            #             'use an attribute "id" instead (brick is ignored).',
-            #             brick_cls,
-            #         )
-            #         continue
 
             if not brick_id or not brick_id.startswith(Brick.GENERIC_HAT_BRICK_ID + '-'):
                 raise self.RegistrationError(
@@ -1016,34 +968,12 @@ class _BrickRegistry:
         @param entity: if the bricks are displayed of the detail-view of an
                entity, it should be given.
         """
-        # rtypes_item_ids = [
-        #     *filter(None, map(RelationBrickItem.id_from_brick_id, brick_ids)),
-        # ]
-        # instance_item_ids = [
-        #     *filter(None, map(InstanceBrickConfigItem.id_from_brick_id, brick_ids)),
-        # ]
-        # custom_item_ids  = [
-        #     *filter(None, map(CustomBrickConfigItem.id_from_brick_id, brick_ids)),
-        # ]
-
-        # relation_bricks_items = {
-        #     rbi.brick_id: rbi
-        #     for rbi in RelationBrickItem.objects
-        #                                 .filter(id__in=rtypes_item_ids)
-        #                                 .prefetch_related('relation_type')
-        # } if rtypes_item_ids else {}
         relation_bricks_items = {
             rbi.brick_id: rbi
             for rbi in RelationBrickItem.objects
                                         .for_brick_ids(brick_ids)
                                         .prefetch_related('relation_type')
         }
-        # instance_bricks_items = {
-        #     ibi.brick_id: ibi
-        #     for ibi in InstanceBrickConfigItem.objects
-        #                                       .filter(id__in=instance_item_ids)
-        #                                       .prefetch_related('entity')
-        # } if instance_item_ids else {}
         instance_bricks_items = {
             ibi.brick_id: ibi
             # TODO: CremeEntity.populate_real_entities
@@ -1051,10 +981,6 @@ class _BrickRegistry:
                                               .for_brick_ids(brick_ids)
                                               .prefetch_related('entity')
         }
-        # custom_bricks_items = {
-        #     cbci.brick_id: cbci
-        #     for cbci in CustomBrickConfigItem.objects.filter(id__in=custom_item_ids)
-        # } if custom_item_ids else {}
         custom_bricks_items = {
             cbci.brick_id: cbci
             for cbci in CustomBrickConfigItem.objects.for_brick_ids(brick_ids)
@@ -1120,7 +1046,6 @@ class _BrickRegistry:
                 logger.warning('Brick seems deprecated: %s', id_)
                 yield Brick()
             else:
-                # yield brick_cls()
                 brick = brick_cls()
 
                 if user and not brick.has_perms(user=user):

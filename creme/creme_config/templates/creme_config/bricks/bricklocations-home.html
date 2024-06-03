@@ -21,7 +21,6 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-{# {% with admin_perm=user|has_perm_to_admin:'creme_core' delete_url='creme_config__delete_home_brick'|url %} #}
  {% with admin_perm=user|has_perm_to_admin:'creme_core' delete_url='creme_config__delete_home_bricks'|url %}
     {% if not page.number or page.number < 2 %}
         <tr>

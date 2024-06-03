@@ -169,7 +169,6 @@ class FunctionFieldsTestCase(CremeTestCase):
             name = 'ff_name'
             verbose_name = 'Verbose name'
 
-        # with self.assertRaises(_FunctionFieldRegistry.RegistrationError):
         with self.assertRaises(_FunctionFieldRegistry.UnRegistrationError) as cm:
             registry.unregister(Klass, TestFunctionField)
 
@@ -181,19 +180,12 @@ class FunctionFieldsTestCase(CremeTestCase):
     def test_result(self):
         value = 'My value'
         result = FunctionFieldResult(value)
-        # self.assertEqual(value, result.for_csv())
-        # self.assertEqual(value, result.for_html())
         self.assertEqual(value, result.render(ViewTag.HTML_DETAIL))
         self.assertEqual(value, result.render(ViewTag.TEXT_PLAIN))
 
     def test_result_decimal(self):
         value = Decimal('1234.45')
         result = FunctionFieldDecimal(value)
-        # self.assertEqual(
-        #     number_format(value, force_grouping=True),
-        #     result.for_html(),
-        # )
-        # self.assertEqual(number_format(value), result.for_csv())
         self.assertEqual(number_format(value), result.render(ViewTag.TEXT_PLAIN))
         self.assertEqual(
             number_format(value, force_grouping=True),
@@ -205,8 +197,6 @@ class FunctionFieldsTestCase(CremeTestCase):
         label = 'My Contacts'
         url = reverse('creme_core__list_fake_contacts')
         result = FunctionFieldLink(label=label, url=url)
-        # self.assertEqual(label, result.for_csv())
-        # self.assertHTMLEqual(f'<a href="{url}">{label}</a>', result.for_html())
         self.assertEqual(label, result.render(ViewTag.TEXT_PLAIN))
         self.assertHTMLEqual(
             f'<a href="{url}">{label}</a>', result.render(ViewTag.HTML_DETAIL),
@@ -250,12 +240,7 @@ class FunctionFieldsTestCase(CremeTestCase):
             FunctionFieldResult(value1),
             FunctionFieldResult(value2),
         ])
-        # self.assertEqual(f'{value1}/{value2}', result.for_csv())
         self.assertEqual(f'{value1}/{value2}', result.render(ViewTag.TEXT_PLAIN))
-        # self.assertHTMLEqual(
-        #     f'<ul><li>{value1}</li><li>{value2}</li></ul>',
-        #     result.for_html(),
-        # )
         self.assertHTMLEqual(
             f'<ul><li>{value1}</li><li>{value2}</li></ul>',
             result.render(ViewTag.HTML_DETAIL),
@@ -278,29 +263,16 @@ class FunctionFieldsTestCase(CremeTestCase):
         entity = CremeEntity.objects.create(user=user)
         result = ffield(entity, user)
         self.assertIsInstance(result, FunctionFieldResult)
-        # self.assertEqual(entity.get_delete_absolute_url(), result.for_csv())
         self.assertEqual(entity.get_delete_absolute_url(), result.render(ViewTag.TEXT_PLAIN))
 
     def test_properties_field(self):
         user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_foo', text='Foo')
         ptype1 = create_ptype(text='Foo')
-        ptype2 = create_ptype(
-            # str_pk='test-prop_bar',
-            text='Bar', subject_ctypes=[FakeContact, FakeOrganisation],
-        )
-
-        # ptype3 = create_ptype(str_pk='test-prop_del', text='Deleted')
-        # ptype3.enabled = False
-        # ptype3.save()
+        ptype2 = create_ptype(text='Bar', subject_ctypes=[FakeContact, FakeOrganisation])
         ptype3 = CremePropertyType.objects.create(text='Deleted', enabled=False)
-
-        ptype4 = create_ptype(
-            # str_pk='test-prop_baz',
-            text='Baz', subject_ctypes=[FakeOrganisation],
-        )
+        ptype4 = create_ptype(text='Baz', subject_ctypes=[FakeOrganisation])
 
         # --
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -321,7 +293,6 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertIsInstance(result1, FunctionFieldResultsList)
         self.assertEqual(
             f'{ptype2.text}/{ptype3.text}/{ptype1.text}',
-            # result1.for_csv(),
             result1.render(ViewTag.TEXT_PLAIN),
         )
         self.assertHTMLEqual(
@@ -332,7 +303,6 @@ class FunctionFieldsTestCase(CremeTestCase):
             f' </li>'
             f' <li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li>'
             f'</ul>',
-            # result1.for_html(),
             result1.render(ViewTag.HTML_DETAIL),
         )
 
@@ -380,7 +350,6 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertQEqual(Q(), to_python(value=''))
 
         value = ptype1.id
-        # self.assertQEqual(Q(properties__type=value), to_python(value=value))
         self.assertQEqual(Q(properties__type=value), to_python(value=str(value)))
 
         self.assertQEqual(Q(properties__isnull=True), to_python(value='NULL'))

@@ -10,10 +10,9 @@ from django.utils.translation import gettext as _
 from creme.activities import get_activity_model
 from creme.activities.models import ActivitySubType, ActivityType
 from creme.activities.tests.base import skipIfCustomActivity
-# from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms.fields import GenericEntityField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-from creme.creme_core.models import FieldsConfig  # SetCredentials
+from creme.creme_core.models import FieldsConfig
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons import get_contact_model, get_organisation_model
 from creme.persons.tests.base import (
@@ -77,7 +76,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         # Beware: source are not compared (would need a pk translation)
         self.assertListEqual(
             [*line1.conditions.values('operator', 'raw_answer')],
-            [*line2.conditions.values('operator', 'raw_answer')]
+            [*line2.conditions.values('operator', 'raw_answer')],
         )
 
     @staticmethod
@@ -285,13 +284,11 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def _create_activity(self, user):
         atype = ActivityType.objects.create(
-            # pk='polls-test-type',
             name="Queen's blade",
             default_day_duration=7, default_hour_duration="00:00:00",
             is_custom=True,
         )
         sub_type = ActivitySubType.objects.create(
-            # pk='polls-test-sub_type',
             name='Pool', type=atype, is_custom=True,
         )
 
@@ -748,17 +745,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_create_from_pollform07(self):
         "Not superuser."
         user = self.login_as_polls_user(creatable_models=[PollReply])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='*')
 
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -771,17 +757,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_create_from_pollform08(self):
         "Creation creds are needed."
         user = self.login_as_polls_user()  # creatable_models=[PollReply],
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='*')
 
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -794,17 +769,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_create_from_pollform09(self):
         "LINK creds are needed."
         user = self.login_as_polls_user(creatable_models=[PollReply])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #         # | EntityCredentials.LINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='!LINK')
 
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -864,11 +828,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_link_to_creds(self):
         "Not super-user."
         user = self.login_as_polls_user(allowed_apps=('creme_core', 'persons'))
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
@@ -878,21 +837,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_link_to_error01(self):
         "CHANGE credentials error."
         user = self.login_as_polls_user(allowed_apps=('creme_core', 'persons'))
-
-        # create_sc = partial(SetCredentials.objects.create, role=user.role)
-        # create_sc(
-        #     value=EntityCredentials.CHANGE, set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #         # | EntityCredentials.CHANGE
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='!CHANGE', own=['CHANGE'])
 
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -919,11 +863,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_link_to_error03(self):
         "LINK credentials are needed."
         user = self.login_as_polls_user(allowed_apps=('creme_core', 'persons'))
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE'])
 
         leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
@@ -993,17 +932,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_create_from_person04(self):
         "Not super-user."
         user = self.login_as_polls_user(allowed_apps=['persons'], creatable_models=[PollReply])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='*')
 
         orga = Organisation.objects.create(user=user, name='Gaimos')
@@ -1015,17 +943,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             allowed_apps=['persons'],
             # creatable_models=[PollReply],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='*')
 
         orga = Organisation.objects.create(user=user, name='Gaimos')
@@ -1037,17 +954,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             allowed_apps=['persons'],
             creatable_models=[PollReply],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #         # | EntityCredentials.LINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='!LINK')
 
         orga = Organisation.objects.create(user=user, name='Gaimos')
@@ -1122,17 +1028,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_editview03(self):
         "Permissions for new related person."
         user = self.login_as_polls_user(allowed_apps=('creme_core', 'persons'))
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='*')
 
         create_contact = partial(Contact.objects.create, last_name='Vance')
@@ -1170,17 +1065,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_editview04(self):
         "No permissions checking on related person when not changed."
         user = self.login_as_polls_user(allowed_apps=('creme_core', 'persons'))
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='*')
 
         leina = Contact.objects.create(
@@ -1297,18 +1181,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_inneredit04(self):
         "Inner edition: 'person' field + not superuser."
         user = self.login_as_polls_user(allowed_apps=('creme_core', 'persons'))
-        # create_sc = partial(SetCredentials.objects.create, role=user.role)
-        # create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.UNLINK
-        #         # | EntityCredentials.LINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='!LINK', own=['LINK'])
 
         pform  = PollForm.objects.create(user=user, name='Form#1')
@@ -2156,17 +2028,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def test_edit_answer_not_superuser01(self):
         user = self.login_as_polls_user(creatable_models=[PollReply])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='*')
 
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -2185,17 +2046,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_edit_answer_not_superuser02(self):
         "Edition permission on PollReply is needed."
         user = self.login_as_polls_user(creatable_models=[PollReply])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #         # | EntityCredentials.CHANGE
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='!CHANGE')
 
         pform = PollForm.objects.create(user=user, name='Form#1')
