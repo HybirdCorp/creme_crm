@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import logging
 import warnings
-# from dataclasses import dataclass
 from email.mime.image import MIMEImage
 from email.utils import make_msgid, parseaddr
 from os.path import basename, join
@@ -30,7 +29,6 @@ from string import ascii_letters, digits
 from typing import TYPE_CHECKING, Iterable, Iterator
 
 from django.conf import settings
-# from django.core.mail import EmailMultiAlternatives
 from django.core.mail import EmailMessage, SafeMIMEMultipart, SafeMIMEText
 from django.template.loader import get_template
 from django.utils.timezone import now
@@ -136,7 +134,6 @@ class SignatureImage:
         return mime_image
 
     def _build_content_id(self):
-        # return f'img_{self.entity.id}'
         # TODO use make_msgid()?
         return f'img_{self.entity.id}@{self.domain}'
 
@@ -146,26 +143,7 @@ class SignatureRenderer:
     html_template_name = 'emails/signature/content.html'
     html_preview_template_name = 'emails/signature/preview.html'
 
-    # @dataclass
-    # class Image:
-    #     entity: AbstractDocument
-    #     mime: MIMEImage
     image_cls = SignatureImage
-
-    # def __init__(self, signature):
-    #     self._signature = signature
-    #     self._images = images = []
-    #
-    #     for image_entity in signature.images.all():
-    #         mime_image = get_mime_image(image_entity)
-    #
-    #         if mime_image is None:
-    #             logger.error(
-    #                 'Error during reading attached image in signature: %s',
-    #                 image_entity,
-    #             )
-    #         else:
-    #             images.append(self.Image(entity=image_entity, mime=mime_image))
 
     def __init__(self, signature, domain: str = ''):
         if not domain:
@@ -187,7 +165,6 @@ class SignatureRenderer:
                 images.append(img)
 
     @property
-    # def images(self) -> Iterator[Image]:
     def images(self) -> Iterator[SignatureImage]:
         yield from self._images
 
@@ -256,16 +233,6 @@ class EMailSender:
             logger.error('Mail already sent to the recipient')
         else:
             body, body_html = self._process_bodies(mail)
-
-            # msg = EmailMultiAlternatives(
-            #     self.get_subject(mail), body, mail.sender, [mail.recipient],
-            #     connection=connection,
-            # )
-            # msg.attach_alternative(body_html, 'text/html')
-            #
-            # if self._signature_renderer:
-            #     for image in self._signature_renderer.images:
-            #         msg.attach(image.mime)
 
             # In order to improve the render of inlined images inline (on some
             # mail clients, they can be not displayed & added as attachment instead)

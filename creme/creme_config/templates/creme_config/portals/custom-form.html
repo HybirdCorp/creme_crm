@@ -1,15 +1,8 @@
 {% extends 'creme_config/portals/base.html' %}
-{% load i18n %}{# creme_bricks #}
+{% load i18n %}
 
 {% block page_title %}{% translate 'Configuration of custom forms' %} - {% endblock %}
 
 {% block title %}
     {{block.super}}{% translate 'Custom forms' %}
 {% endblock %}
-
-{% comment %}
-{% block portal_bricks %}
-    {% brick_import app='creme_config' name='custom_forms' as cforms_brick %}
-    {% brick_display cforms_brick %}
-{% endblock %}
-{% endcomment %}

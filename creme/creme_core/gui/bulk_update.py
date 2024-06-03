@@ -35,9 +35,6 @@ from ..core.entity_cell import (
 from ..forms import base
 from ..models import CremeEntity, CustomField, FieldsConfig
 
-# class FieldNotAllowed(Exception):
-#     pass
-
 
 class FieldOverrider:
     """In inner/bulk edition forms, this class is used to manage the model

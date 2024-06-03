@@ -625,15 +625,6 @@ msgstr "Enregistrer la modification"
 #~ msgid "Already filled"
 #~ msgstr "Déjà rempli"
 
-#~ msgid "Add a campaign"
-#~ msgstr "Ajouter une campagne"
-
-#~ msgid "Add a form"
-#~ msgstr "Ajouter un formulaire"
-
-#~ msgid "Add replies"
-#~ msgstr "Ajouter des réponses"
-
 #~ msgid "No available answer"
 #~ msgstr "Pas de réponse disponible"
 
@@ -642,9 +633,3 @@ msgstr "Enregistrer la modification"
 
 #~ msgid "Related person"
 #~ msgstr "Personne liée"
-
-#~ msgid "Add a reply"
-#~ msgstr "Ajouter une réponse"
-
-#~ msgid "New reply"
-#~ msgstr "Ajouter une réponse"

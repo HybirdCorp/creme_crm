@@ -102,16 +102,10 @@ var hatmenubarActions = {
             organisations: data.organisations
         });
 
-/*
-        return action.onDone(function() {
-            creme.utils.reload();
-        });
- */
         return action.onDone(this._refreshBrick.bind(this));
     }
 };
 
-/* $(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) { */
 $(document).on('brick-setup-actions', '.creme_core-buttons-brick', function(e, brick, actions) {
     actions.registerAll(hatmenubarActions);
 });

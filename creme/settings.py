@@ -44,7 +44,6 @@ DATABASES = {
     'default': {
         # Possible backends: 'postgresql', 'mysql', 'sqlite3'.
         # NB: 'oracle' backend is not working with creme for now.
-        # 'ENGINE': 'django.db.backends.mysql',
         'ENGINE': 'django.db.backends.sqlite3',
 
         # Name of the database, or path to the database file if using 'sqlite3'.
@@ -465,9 +464,6 @@ ALLOWED_EXTENSIONS = [
     'gtar', 'gz', 'tar', 'zip', 'rar', 'ace', 'tgz', 'bz2', '7z',
     'diz',  # Zipped text
 
-    # Source code
-    # 'c', 'cpp', 'hpp',  'js',
-
     # Office
     'rtf',
     'pdf', 'ps', 'xps',
@@ -496,7 +492,6 @@ ALLOWED_EXTENSIONS = [
 IMPORT_BACKENDS = [
     'creme.creme_core.backends.csv_import.CSVImportBackend',
     'creme.creme_core.backends.xls_import.XLSImportBackend',
-    # 'creme.creme_core.backends.xls_import.XLSXImportBackend',
     'creme.creme_core.backends.xlsx_import.XLSXImportBackend',
 ]
 EXPORT_BACKENDS = [
@@ -783,9 +778,6 @@ CREME_OPT_CSS = [  # APPS
     ('creme.sketch',    'sketch/css/sketch.css'),
 
     ('creme.activities',       'activities/css/activities.css'),
-    # DEPRECATED: to be removed in creme 2.7
-    # ('creme.activities',       'activities/css/fullcalendar-3.10.2.css'),
-    # ('creme.activities',       'activities/css/fc3-creme.css'),
     ('creme.activities', 'activities/css/fullcalendar-5.11.4.css'),
     ('creme.activities', 'activities/css/fc5-creme.css'),
 
@@ -928,8 +920,6 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/entityselector.js',
     'creme_core/js/widgets/pselect.js',
     'creme_core/js/widgets/actionlist.js',
-    # 'creme_core/js/widgets/scrollactivator.js',
-    # 'creme_core/js/widgets/container.js',
     'creme_core/js/widgets/editor.js',
 
     'creme_core/js/menu.js',
@@ -950,8 +940,6 @@ CREME_CORE_JS = [
 ]
 
 CREME_OPTLIB_JS = [
-    # DEPRECATED: to be removed in creme 2.7
-    # ('creme.activities', 'activities/js/lib/fullcalendar-3.10.2.js'),
     ('creme.activities', 'activities/js/lib/fullcalendar-5.11.4.js'),
     ('creme.geolocation', 'geolocation/js/lib/leaflet-1.9.4.js'),
     ('creme.sketch', 'sketch/js/lib/d3-7.8.5.js'),
@@ -990,8 +978,6 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.persons',       'persons/js/persons.js'),
 
     ('creme.activities',    'activities/js/activities.js'),
-    # DEPRECATED: to be removed in creme 2.7
-    # ('creme.activities',    'activities/js/activities-calendar-v3.js'),
     ('creme.activities',    'activities/js/activities-calendar.js'),
 
     ('creme.billing',       'billing/js/billing.js'),

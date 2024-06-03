@@ -1,5 +1,5 @@
 {% extends 'creme_config/portals/base.html' %}
-{% load i18n creme_widgets %}{# creme_bricks #}
+{% load i18n creme_widgets %}
 
 {% block page_title %}{% translate 'Configuration of history' %} - {% endblock %}
 
@@ -10,12 +10,3 @@
 {% block portal_help %}
     {% widget_help_sign message=_('When an entity is modified, if it has some relationships (the entity is the subject) with a type from the configured ones, the related entities get a line in their history which indicates this modification.') %}
 {% endblock %}
-
-{% comment %}
-{% block portal_bricks %}
-    {% widget_help_sign message=_('When an entity is modified, if it has some relationships (the entity is the subject) with a type from the configured ones, the related entities get a line in their history which indicates this modification.') %}
-
-    {% brick_import app='creme_config' name='historyconfig' as historyconfig_brick %}
-    {% brick_display historyconfig_brick %}
-{% endblock %}
-{% endcomment %}

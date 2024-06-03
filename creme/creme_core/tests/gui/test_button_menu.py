@@ -347,12 +347,10 @@ class ButtonMenuTestCase(CremeTestCase):
 
         assertButtonsEqual(
             [TestButton1, TestButton2, TestButton3],
-            # [*registry.mandatory_buttons(model=FakeContact)],
             [*registry.mandatory_buttons(entity=FakeContact())],
         )
         assertButtonsEqual(
             [TestButton1, TestButton4, TestButton2, TestButton3],
-            # [*registry.mandatory_buttons(model=FakeOrganisation)],
             [*registry.mandatory_buttons(entity=FakeOrganisation())],
         )
 
@@ -381,24 +379,20 @@ class ButtonMenuTestCase(CremeTestCase):
         registry.unregister_mandatory(TestButton2)
         assertButtonsEqual(
             [TestButton1, TestButton3],
-            # [*registry.mandatory_buttons(model=FakeContact)],
             [*registry.mandatory_buttons(entity=FakeContact())],
         )
         assertButtonsEqual(
             [TestButton1, TestButton4, TestButton3],
-            # [*registry.mandatory_buttons(model=FakeOrganisation)],
             [*registry.mandatory_buttons(entity=FakeOrganisation())],
         )
 
         # Unregistering (Button with related model) ---
         registry.unregister_mandatory(TestButton3)
         assertButtonsEqual(
-            # [TestButton1], [*registry.mandatory_buttons(model=FakeContact)],
             [TestButton1], [*registry.mandatory_buttons(entity=FakeContact())],
         )
         assertButtonsEqual(
             [TestButton1, TestButton4],
-            # [*registry.mandatory_buttons(model=FakeOrganisation)],
             [*registry.mandatory_buttons(entity=FakeOrganisation())],
         )
 

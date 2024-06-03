@@ -4,7 +4,6 @@ from functools import partial
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-# from django.core import mail
 from django.db.models.query_utils import Q
 from django.forms import ChoiceField
 from django.test.utils import override_settings
@@ -26,7 +25,6 @@ from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.fields import RelativeDatePeriodField
 from creme.creme_core.forms.listview import TextLVSWidget
 from creme.creme_core.gui.view_tag import ViewTag
-# from creme.creme_core.models import DateReminder
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -37,7 +35,6 @@ from creme.creme_core.models import (
     FieldsConfig,
     Notification,
 )
-# from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.date_period import (
     DatePeriodRegistry,
@@ -225,7 +222,6 @@ class ModelRelativeDatePeriodWidgetTestCase(AssistantsTestCase):
         )
 
 
-# class ModelRelativeDatePeriodFieldTestCase(FieldTestCase):
 class ModelRelativeDatePeriodFieldTestCase(AssistantsTestCase):
     def test_model_relativedate_period(self):
         RPeriod = RelativeDatePeriodField.RelativeDatePeriod
@@ -524,7 +520,6 @@ class ModelRelativeDatePeriodFieldTestCase(AssistantsTestCase):
         self.assertListEqual(choices, [*field.widget.relative_choices])
 
 
-# class AbsoluteOrRelativeDatetimeFieldTestCase(FieldTestCase):
 class AbsoluteOrRelativeDatetimeFieldTestCase(AssistantsTestCase):
     def test_ok(self):
         field = AbsoluteOrRelativeDatetimeField(model=FakeOrganisation)
@@ -1237,7 +1232,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(body, content.get_body(user=user))
         self.assertEqual(body, content.get_html_body(user=user))
 
-    # @override_settings(DEFAULT_TIME_ALERT_REMIND=60, SOFTWARE_LABEL='My CRM')
     @override_settings(DEFAULT_TIME_ALERT_REMIND=60)
     def test_reminder01(self):
         user = self.user
@@ -1247,7 +1241,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertIsNone(reminder_job.user)
         self.assertIsNone(reminder_job.type.next_wakeup(reminder_job, now_value))
 
-        # reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
         notif_qs = Notification.objects.filter(channel__uuid=UUID_CHANNEL_REMINDERS, user=user)
         self.assertFalse(notif_qs.all())
 
@@ -1264,10 +1257,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         # ---
         self.execute_reminder_job(reminder_job)
 
-        # reminder = self.get_alone_element(DateReminder.objects.exclude(id__in=reminder_ids))
-        # self.assertEqual(alert1, reminder.object_of_reminder)
-        # self.assertEqual(1,      reminder.ident)
-        # self.assertDatetimesAlmostEqual(now_value, reminder.date_of_remind, seconds=60)
         notif = self.get_alone_element(notif_qs.all())
         self.assertFalse(notif.discarded)
         self.assertEqual(Notification.Level.NORMAL, notif.level)
@@ -1278,23 +1267,9 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertTrue(self.refresh(alert1).reminded)
         self.assertFalse(self.refresh(alert2).reminded)
 
-        # message = self.get_alone_element(mail.outbox)
-        # self.assertEqual([user.email], message.to)
-        #
-        # software = 'My CRM'
-        # self.assertEqual(
-        #     _('Reminder concerning a {software} alert related to {entity}').format(
-        #         software=software, entity=self.entity,
-        #     ),
-        #     message.subject,
-        # )
-        # self.assertIn(alert1.title, message.body)
-        # self.assertIn(software,     message.body)
-
     def test_reminder02(self):
         "With null trigger date."
         job = self.get_reminder_job()
-        # reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
 
         Alert.objects.create(
             user=self.user,
@@ -1309,8 +1284,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
 
         self.execute_reminder_job(job)
-        # self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
-        # self.assertFalse(mail.outbox)
         self.assertFalse(Notification.objects.filter(
             channel__uuid=UUID_CHANNEL_REMINDERS, user=self.user,
         ))
@@ -1324,7 +1297,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         entity.user = other_user
         entity.save()
 
-        # reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
         notif_qs = Notification.objects.filter(
             channel__uuid=UUID_CHANNEL_REMINDERS, user=other_user,
         )
@@ -1333,11 +1305,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         Alert.objects.create(real_entity=entity, trigger_date=now())
 
         self.execute_reminder_job(self.get_reminder_job())
-        # self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
         self.get_alone_element(notif_qs.all())
-
-        # message = self.get_alone_element(mail.outbox)
-        # self.assertEqual([other_user.email], message.to)
 
     @override_settings(DEFAULT_TIME_ALERT_REMIND=30)
     def test_next_wakeup01(self):

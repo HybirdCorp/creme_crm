@@ -96,20 +96,6 @@ class AbstractEvent(CremeEntity):
     def __str__(self):
         return self.name
 
-    # def _pre_delete(self):
-    #     for relation in Relation.objects.filter(
-    #         type__in=[
-    #             constants.REL_OBJ_IS_INVITED_TO,
-    #             constants.REL_OBJ_ACCEPTED_INVITATION,
-    #             constants.REL_OBJ_REFUSED_INVITATION,
-    #             constants.REL_OBJ_CAME_EVENT,
-    #             constants.REL_OBJ_NOT_CAME_EVENT,
-    #             constants.REL_OBJ_GEN_BY_EVENT,
-    #         ],
-    #         subject_entity=self,
-    #     ):
-    #         relation._delete_without_transaction()
-
     def clean(self):
         end = self.end_date
 
@@ -142,7 +128,6 @@ class AbstractEvent(CremeEntity):
             ).values_list(
                 'id', 'relations_count',
             )
-            # .order_by()  # NB: do not use Meta.ordering (remove when use Django 3.1)
         )
         get_count = types_count.get
 

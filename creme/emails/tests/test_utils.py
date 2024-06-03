@@ -102,7 +102,6 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
         self.assertHTMLEqual(
             f'<div class="creme-emails-signature" id="signature-{signature.id}">'
             f'<p><br>--<br>{escape(signature.body)}</p>'
-            # f'<br/><img src="cid:img_{img1.id}" /><br/><img src="cid:img_{img2.id}" />'
             f'<br/><img src="cid:img_{img1.id}@{domain}" />'
             f'<br/><img src="cid:img_{img2.id}@{domain}" />'
             f'</div>',
@@ -155,11 +154,8 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
 
         message = messages[0]
         self.assertEqual(MySender.subject, message.subject)
-        # self.assertEqual(body,             message.body)
         self.assertEqual(mail.sender,      message.from_email)
         self.assertEqual([mail.recipient], message.recipients())
-        # self.assertEqual([(body_html, 'text/html')], message.alternatives)
-        # self.assertFalse(message.attachments)
         self.assertBodiesEqual(message, body=body, body_html=body_html)
         self.assertEqual(1, len(message.attachments))
 
@@ -188,27 +184,7 @@ class UtilsTestCase(_EmailsTestCase, _DocumentsTestCase):
         message = self.get_alone_element(django_mail.outbox)
 
         self.assertEqual(MySender.subject, message.subject)
-        # # self.assertEqual(f'{body}\n--\n{signature.body}', message.body)
-        # self.assertEqual(f'{body}\n\n--\n{signature.body}', message.body)
         self.assertEqual(mail.sender, message.from_email)
-
-        # alternative = self.get_alone_element(message.alternatives)
-        # self.assertEqual('text/html', alternative[1])
-        # self.maxDiff = None
-        # self.assertHTMLEqual(
-        #     f'{body_html}'
-        #     f'<div class="creme-emails-signature" id="signature-{signature.id}">'
-        #     f'<p><br>--<br>{escape(signature.body)}</p>'
-        #     f'<br/><img src="cid:img_{img1.id}" /><br/><img src="cid:img_{img2.id}" />'
-        #     f'</div>',
-        #     alternative[0],
-        # )
-        #
-        # attachments = message.attachments
-        # self.assertEqual(2, len(attachments))
-        # self.assertIsInstance(attachments[0], MIMEImage)
-        # self.assertIsInstance(attachments[1], MIMEImage)
-
         self.assertBodiesEqual(
             message,
             body=f'{body}\n\n--\n{signature.body}',

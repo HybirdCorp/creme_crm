@@ -198,12 +198,8 @@
     max-width: 300px;
 }
 
-/* .listview thead tr.lv-search-header, */
 .listview thead tr.lv-search-header th {
     padding-top: 5px !important;
-/*    padding-bottom: 5px !important; */
-
-/*    background: white !important; */
 }
 
 .listview .lv-state-form {
@@ -259,11 +255,6 @@
 
 .listview .lv-search-header th.search input,
 .listview .lv-search-header th.search select {
-/*
-    background-color: #FCD3CF;
-    color: #C05C50;
-    border: 1px solid #D87D72;
-*/
     background-color: #e3ffdb;
     color: #51a937;
     border: 2px solid #51ad36;
@@ -599,46 +590,16 @@
 .listview td.actions,
 .listview th.actions {
     width: 125px !important;
-/*
-    padding-left: 10px;
-    padding-right: 10px;
-*/
 }
 
 .listview td.actions {
     padding-top: 3px !important;
-/*    border-left-color: rgba(84, 130, 149, 0.1) !important; */
 }
-
-/*
-.listview td.choices {
-    padding-top: 7px !important;
-}
-*/
 
 .listview td.choices,
 .listview th.choices {
     width: 19px !important;
 }
-
-/*
-.listview td.lv-cell,
-.listview td.actions,
-.listview td.choices {
-    vertical-align: top;
-}
-*/
-
-/*
-.listview td.lv-cell {
-    padding-top: 7px !important;
-}
-
-.listview-selection-multiple td.lv-cell:not(:first-child),
-.listview td.lv-cell + td.lv-cell {
-    border-left-color: rgba(84, 130, 149, 0.1) !important;
-}
-*/
 
 /* Listview - general cell styling - end */
 

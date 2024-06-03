@@ -60,7 +60,6 @@ class AbstractSalesOrder(Base):
     def build(self, template):
         # Specific recurrent generation rules
         # TODO: factorise with Invoice.build()
-        # status_id = 1
         status_id = None
 
         if isinstance(template, TemplateBase):
@@ -68,7 +67,6 @@ class AbstractSalesOrder(Base):
             if SalesOrderStatus.objects.filter(pk=tpl_status_id).exists():
                 status_id = tpl_status_id
 
-        # self.status_id = status_id
         if status_id:
             self.status_id = status_id
         else:

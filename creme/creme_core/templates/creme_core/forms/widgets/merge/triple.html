@@ -1,9 +1,5 @@
-{# <ul name="{{widget.name}}"{% include 'django/forms/widgets/attrs.html' %}> #}
 <ul data-name="{{widget.name}}"{% include 'django/forms/widgets/attrs.html' %}>
-{#    <li class="li_merge_entity1">{% with widget=widget.first %}{% include widget.template_name %}{% endwith %}</li> #}
     <li class="merge-field-container merge-field-1">{% with widget=widget.first %}{% include widget.template_name %}{% endwith %}</li>
-{#    <li class="li_merge_result">{% with widget=widget.merged %}{% include widget.template_name %}{% endwith %}</li> #}
     <li class="merge-field-container merge-field-result">{% with widget=widget.merged %}{% include widget.template_name %}{% endwith %}</li>
-{#    <li class="li_merge_entity2">{% with widget=widget.second %}{% include widget.template_name %}{% endwith %}</li> #}
     <li class="merge-field-container merge-field-2">{% with widget=widget.second %}{% include widget.template_name %}{% endwith %}</li>
 </ul>

@@ -10,7 +10,6 @@ from django.utils.html import escape, format_html
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-# from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.bricks import HistoryBrick
 from creme.creme_core.global_info import clear_global_info
 from creme.creme_core.gui.history import (
@@ -18,7 +17,6 @@ from creme.creme_core.gui.history import (
     HistoryRegistry,
     html_history_registry,
 )
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -474,11 +472,6 @@ class HistoryRenderTestCase(CremeTestCase):
     def test_render_edition_fk01(self):
         # new value format '["Hayao Miyazaki", ["position_id", X], ["image_id", X]]'
         user = self.login_as_standard()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         hayao = FakeContact.objects.create(
@@ -552,11 +545,6 @@ class HistoryRenderTestCase(CremeTestCase):
         # new value format '["Hayao Miyazaki", ["position_id", X], ["image_id", X]]'
         # old value format '["Hayao Miyazaki", ["position", X], ["image", X]]'
         user = self.login_as_standard()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         img = FakeImage.objects.create(user=user, name='<b>Grumpy</b> Hayao')
@@ -605,11 +593,6 @@ class HistoryRenderTestCase(CremeTestCase):
     def test_render_edition_fk02(self):
         "Not allowed to see."
         user = self.login_as_standard()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         hayao = FakeContact.objects.create(
@@ -739,11 +722,6 @@ class HistoryRenderTestCase(CremeTestCase):
     def test_render_edition_m2m03(self):
         "M2M to entities."
         user = self.login_as_standard()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         ml = FakeMailingList.objects.create(user=user, name='Nerds')
@@ -1142,8 +1120,6 @@ class HistoryRenderTestCase(CremeTestCase):
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
 
         text = 'Make <i>anime</i> series'
-        # ptype_id = 'test-prop_make_anime'
-        # ptype = CremePropertyType.objects.smart_update_or_create(str_pk=ptype_id, text=text)
         ptype = CremePropertyType.objects.create(text=text)
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
 
@@ -1174,8 +1150,6 @@ class HistoryRenderTestCase(CremeTestCase):
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
 
         text = 'Make <i>anime</i> series'
-        # ptype_id = 'test-prop_make_anime'
-        # ptype = CremePropertyType.objects.smart_update_or_create(str_pk=ptype_id, text=text)
         ptype = CremePropertyType.objects.create(text=text)
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
 
@@ -1206,9 +1180,6 @@ class HistoryRenderTestCase(CremeTestCase):
         user = self.get_root_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_make_anime', text='Makes anime series')
-        # ptype2 = create_ptype(str_pk='test-prop_make_film', text='Makes film')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Makes anime series')
         ptype2 = create_ptype(text='Makes film')

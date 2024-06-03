@@ -29,11 +29,9 @@ from creme.creme_core.views import generic
 
 class BaseCreation(generic.EntityCreation):
     model = Base
-    # initial_status = 1
 
     def get_initial(self):
         initial = super().get_initial()
-        # initial['status'] = self.initial_status
         # TODO: in models instead?
         status = (
             self.model._meta.get_field('status')
@@ -49,7 +47,6 @@ class BaseCreation(generic.EntityCreation):
 class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
     model = Base
     permissions: str | Sequence[str] = 'billing'  # Need creation perm too
-    # initial_status = 1
     entity_id_url_kwarg = 'target_id'
     entity_classes = [
         persons.get_organisation_model(),
@@ -59,7 +56,6 @@ class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
 
     def get_initial(self):
         initial = super().get_initial()
-        # initial['status'] = self.initial_status
         status = (
             self.model._meta.get_field('status')
             .related_model.objects.filter(is_default=True)

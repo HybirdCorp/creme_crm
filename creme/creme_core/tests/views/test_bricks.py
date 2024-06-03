@@ -3,18 +3,15 @@ from json import dumps as json_dump
 
 from django.urls import reverse
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.bricks import RelationsBrick
 from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-# from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.bricks import (
     Brick,
     BricksManager,
     InstanceBrick,
     _BrickRegistry,
 )
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickState,
@@ -69,11 +66,9 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(BrickState.objects.get_for_brick_id(brick_id=brick_id, user=user).is_open)
         self.assertFalse(BrickState.objects.all())
 
-        # self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 1})
         self.assertPOST200(self.SET_STATE_URL, data={'brick_id': brick_id, 'is_open': 1})
         self.assertFalse(BrickState.objects.all())
 
-        # self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id, 'is_open': 0})
         self.assertPOST200(self.SET_STATE_URL, data={'brick_id': brick_id, 'is_open': 0})
         self.assertEqual(1, BrickState.objects.count())
 
@@ -81,7 +76,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(bstate.is_open)
         self.assertTrue(bstate.show_empty_fields)
 
-        # self.assertPOST200(self.SET_STATE_URL, data={'id': brick_id})  # No data
         self.assertPOST200(self.SET_STATE_URL, data={'brick_id': brick_id})  # No data
         self.assertEqual(1, BrickState.objects.count())
 
@@ -101,7 +95,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         # ---
         self.assertPOST200(
             self.SET_STATE_URL,
-            # data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
             data={'brick_id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
         )
         self.assertFalse(BrickState.objects.all())
@@ -109,7 +102,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         # ---
         self.assertPOST200(
             self.SET_STATE_URL,
-            # data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 0},
             data={'brick_id': brick_id, 'is_open': 1, 'show_empty_fields': 0},
         )
         bstate = self.get_object_or_fail(BrickState, user=user, brick_id=brick_id)
@@ -125,7 +117,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.client.post(
             self.SET_STATE_URL,
-            # data={'id': brick_id, 'is_open': 0, 'show_empty_fields': 0},
             data={'brick_id': brick_id, 'is_open': 0, 'show_empty_fields': 0},
         )
 
@@ -169,7 +160,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertPOST200(
             self.SET_STATE_URL,
-            # data={'id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
             data={'brick_id': brick_id, 'is_open': 1, 'show_empty_fields': 1},
         )
 
@@ -184,7 +174,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             id = Brick.generate_id('creme_core', 'test_bricks_reload_basic01_2')
             permissions = ['creme_core', 'creme_core.add_fakecontact']
 
-        # brick_registry.register(FoobarBrick1, FoobarBrick2)
         self.brick_registry.register(FoobarBrick1, FoobarBrick2)
 
         response = self.assertGET200(
@@ -210,12 +199,8 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             id = Brick.generate_id('creme_core', 'test_bricks_reload_basic02')
             permissions = 'persons'
 
-        # brick_registry.register(FoobarBrick1)
         self.brick_registry.register(FoobarBrick1)
 
-        # self.assertGET403(
-        #   reverse('creme_core__reload_bricks'), data={'brick_id': FoobarBrick1.id},
-        #  )
         content = self.assertGET200(
             reverse('creme_core__reload_bricks'), data={'brick_id': FoobarBrick1.id},
         ).json()
@@ -238,7 +223,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             id = Brick.generate_id('creme_core', 'test_bricks_reload_basic03')
             permissions = app_name
 
-        # brick_registry.register(FoobarBrick1)
         self.brick_registry.register(FoobarBrick1)
 
         response = self.assertGET200(
@@ -265,7 +249,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                 nonlocal received_extra_data
                 received_extra_data = info
 
-        # brick_registry.register(FoobarBrick)
         self.brick_registry.register(FoobarBrick)
 
         response = self.assertGET200(
@@ -304,7 +287,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
                 return super().detailview_display(context)
 
-        # brick_registry.register(FoobarBrick)
         self.brick_registry.register(FoobarBrick)
 
         self.assertGET200(
@@ -330,7 +312,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                 FoobarBrick.contact = context.get('object')
                 return super().detailview_display(context)
 
-        # brick_registry.register(FoobarBrick)
         self.brick_registry.register(FoobarBrick)
 
         response = self.assertGET200(
@@ -373,7 +354,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                 FoobarBrick3.contact = context.get('object')
                 return super().detailview_display(context)
 
-        # brick_registry.register(FoobarBrick1, FoobarBrick2, FoobarBrick3)
         self.brick_registry.register(FoobarBrick1, FoobarBrick2, FoobarBrick3)
 
         response = self.assertGET200(
@@ -405,7 +385,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         class FoobarBrick(self.TestBrick):
             id = Brick.generate_id('creme_core', 'test_bricks_reload_detailview03')
 
-        # brick_registry.register(FoobarBrick)
         self.brick_registry.register(FoobarBrick)
 
         self.assertGET403(
@@ -416,9 +395,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_reload_detailview04(self):
         "Not superuser."
         user = self.login_as_standard()
-        # SetCredentials.objects.create(
-        #     role=user.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW'])
 
         atom = FakeContact.objects.create(
@@ -429,7 +405,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         class FoobarBrick(self.TestBrick):
             id = Brick.generate_id('creme_core', 'test_bricks_reload_detailview04')
 
-        # brick_registry.register(FoobarBrick)
         self.brick_registry.register(FoobarBrick)
 
         response = self.assertGET200(
@@ -477,7 +452,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
                 nonlocal received_extra_data
                 received_extra_data = info
 
-        # brick_registry.register(FoobarBrick)
         self.brick_registry.register(FoobarBrick)
 
         response = self.assertGET200(
@@ -574,7 +548,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         class FoobarBrick2(self.TestBrick):
             id = Brick.generate_id('creme_core', 'test_bricks_reload_home01_2')
 
-        # brick_registry.register(FoobarBrick1, FoobarBrick2)
         self.brick_registry.register(FoobarBrick1, FoobarBrick2)
 
         response = self.assertGET200(
@@ -707,7 +680,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBrickConfigItem.objects.create(
-            # id='tests-contacts1',
             name='Contact info',
             content_type=FakeContact,
             cells=[
@@ -743,7 +715,6 @@ class BrickViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         build_cell = EntityCellRegularField.build
         cbc_item = CustomBrickConfigItem.objects.create(
-            # id='tests-contacts1',
             name='Contact info',
             content_type=FakeContact,
             cells=[

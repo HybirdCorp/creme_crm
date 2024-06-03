@@ -67,7 +67,6 @@ class _LineMultipleAddForm(core_forms.CremeForm):
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.billing_document = entity
-        # self.fields['vat'].initial = Vat.objects.default()
 
     def save(self):
         cdata = self.cleaned_data
@@ -182,8 +181,6 @@ class LineEditionForm(core_forms.CremeModelForm):
         discount_unit_f = fields['discount_unit']
         discount_unit_f.choices = discount_units
         discount_unit_f.widget.attrs = {'class': 'bound'}
-
-        # fields['vat_value'].initial = Vat.objects.default()
 
     def save(self, *args, **kwargs):
         instance = self.instance

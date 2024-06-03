@@ -3,8 +3,6 @@ from functools import partial
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import FieldsConfig, SettingValue
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import skipIfCustomOrganisation
@@ -124,18 +122,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Organisation, Invoice],
         )
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role, set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-        #     ctype=Invoice,
-        # )
-        # create_sc(
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     ctype=Organisation,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'], model=Organisation)
         self.add_credentials(user.role, all=['VIEW', 'CHANGE'],         model=Invoice)
 
@@ -172,18 +158,6 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Organisation, Invoice],
         )
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role, set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-        #     ctype=Invoice,
-        # )
-        # create_sc(
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,  # No CHANGE
-        #     ctype=Organisation,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'LINK'], model=Organisation)  # Not 'CHANGE'
         self.add_credentials(user.role, all=['VIEW', 'CHANGE'], model=Invoice)
 
@@ -467,12 +441,9 @@ class PaymentInformationTestCase(BrickTestCaseMixin, _BillingTestCase):
     #     organisation = Organisation.objects.create(user=user, name='Nintendo')
     #     pi = PaymentInformation.objects.create(organisation=organisation, name='RIB 1')
     #
-    #     # build_url = self.build_inneredit_url
     #     build_uri = self.build_inneredit_uri
-    #     # url = build_url(pi, 'name')
     #     field_name = 'name'
     #     uri = build_uri(pi, field_name)
-    #     # self.assertGET200(url)
     #     self.assertGET200(uri)
     #
     #     name = pi.name + ' (default)'

@@ -6,9 +6,7 @@ from django.template import Context, Template
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.gui.view_tag import ViewTag
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     Currency,
@@ -532,17 +530,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['billing', 'persons'],
             creatable_models=[Invoice],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='*')
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice0001', discount=0)[0]
@@ -554,23 +541,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['billing', 'persons'],
             creatable_models=[Invoice],
         )
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role, set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     ctype=Organisation,
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         # | EntityCredentials.LINK   # <==
-        #         | EntityCredentials.UNLINK
-        #     ),
-        # )
         self.add_credentials(user.role, all='!LINK')
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'], model=Organisation)
 
@@ -813,11 +783,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['billing', 'persons'],
             creatable_models=[CreditNote],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]
@@ -829,11 +794,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['billing', 'persons'],
             creatable_models=[CreditNote],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,  # Not CHANGE
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'LINK'])  # Not 'CHANGE'
 
         credit_note = self.create_credit_note_n_orgas(user=user, name='Credit Note 001')[0]

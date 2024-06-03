@@ -20,8 +20,6 @@ from __future__ import annotations
 
 import collections
 import logging
-# import warnings
-# from datetime import date
 from datetime import datetime, timedelta
 
 from django.db.models import Q, QuerySet

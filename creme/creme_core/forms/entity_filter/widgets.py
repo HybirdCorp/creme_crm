@@ -32,7 +32,6 @@ from django.db.models.fields.related import RelatedField as ModelRelatedField
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
     EF_REGULAR,
     _EntityFilterRegistry,
@@ -84,7 +83,6 @@ _HAS_RELATION_OPTIONS = OrderedDict([
 class UserEnumerableSelect(EnumerableSelect):
     is_required = True
 
-    # def __init__(self, field, filter_type=EF_USER, attrs=None):
     def __init__(self, field, filter_type=EF_REGULAR, attrs=None):
         user_ctype = ContentType.objects.get_for_model(field.model)
         user_choices_url = reverse(
@@ -139,7 +137,6 @@ class FieldConditionSelector(ChainedInput):
             model=CremeEntity,
             fields=(),
             operators=(),
-            # filter_type=EF_USER,
             filter_type=EF_REGULAR,
             attrs=None,
             autocomplete=False):
@@ -374,7 +371,6 @@ class RegularFieldsConditionsWidget(ConditionListWidget):
         self.model = model
         self.fields = fields
         self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-            # id=-1,
             id='creme_core-default',
             verbose_name='Default for RegularFieldsConditionsWidget',
         )
@@ -656,7 +652,6 @@ class RelationSubfiltersConditionsWidget(ConditionListWidget):
         )
         add_dselect(
             'filter',
-            # options=reverse('creme_core__efilters') + '?ct_id=${%s}' % ctype_name,
             options=reverse('creme_core__efilters') + '?' + urlencode(
                 {'ct_id': '${%s}' % ctype_name, 'type': self.efilter_types},
                 doseq=True, safe='${}',

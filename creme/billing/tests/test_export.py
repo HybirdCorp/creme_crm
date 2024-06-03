@@ -23,10 +23,7 @@ from creme.billing.models import (
     PaymentInformation,
     SettlementTerms,
 )
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import FileRef, Vat
-# from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.xlrd_utils import XlrdReader
 from creme.persons.tests.base import (
@@ -81,7 +78,6 @@ else:
     )
 
 
-# class ExporterLocalisationFieldTestCase(FieldTestCase):
 class ExporterLocalisationFieldTestCase(_BillingTestCase):
     def test_clean_empty_required(self):
         field = ExporterLocalisationField(required=True)
@@ -1509,12 +1505,6 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Organisation],
         )
-
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK | EntityCredentials.UNLINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'LINK', 'UNLINK'])
 
         invoice, source, target = self.create_invoice_n_orgas(
@@ -1538,11 +1528,6 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Organisation],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK | EntityCredentials.UNLINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'LINK', 'UNLINK'])
 
         invoice, source, target = self.create_invoice_n_orgas(
@@ -1569,11 +1554,6 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Organisation],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK | EntityCredentials.UNLINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'LINK', 'UNLINK'])
 
         invoice, source, target = self.create_invoice_n_orgas(

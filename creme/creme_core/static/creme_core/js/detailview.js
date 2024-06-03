@@ -77,21 +77,7 @@
 
         'creme_core-hatmenubar-update': function(url, options, data) {
             return this._postQueryAction(url, options, data);
-        }/*, // NB: This action is only meaningful with CremeEntities, so we can remove it
-
-        'creme_core-hatmenubar-addrelationships': function(url, options, data) {
-            var action = new creme.relations.AddRelationToAction({
-                subject_id: data.subject_id,
-                rtype_id: data.rtype_id,
-                ctype_id: data.ctype_id,
-                addto_url: url,
-                selector_url: data.selector_url,
-                multiple: true,
-                reloadOnSuccess: true
-            });
-
-            return action;
-        } */
+        }
     };
 
     creme.views.HatMenuBar = creme.widget.declare('ui-creme-hatmenubar', {

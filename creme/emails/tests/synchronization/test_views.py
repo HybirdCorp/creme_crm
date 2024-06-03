@@ -6,8 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext, pgettext
 
-# from creme.creme_core.auth import EntityCredentials
-from creme.creme_core.models import FileRef  # SetCredentials
+from creme.creme_core.models import FileRef
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.file_handling import FileCreator
 from creme.documents import get_document_model
@@ -430,15 +429,6 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @skipIfCustomContact
     def test_edit_person01(self):
         user = self.login_as_emails_user(allowed_apps=['persons'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.LINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'CHANGE', 'LINK'])
 
         e2s = EmailToSync.objects.create(user=user, subject='I want a swordfish II')
@@ -511,14 +501,6 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_edit_person03(self):
         "LINK credentials."
         user = self.login_as_emails_user(allowed_apps=['persons'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW | EntityCredentials.CHANGE
-        #         # | EntityCredentials.LINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])  # Not 'LINK'
 
         e2s = EmailToSync.objects.create(user=user, subject='I want a swordfish II')
@@ -542,14 +524,6 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_edit_person04(self):
         "CHANGE credentials if email must be set."
         user = self.login_as_emails_user(allowed_apps=['persons'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW | EntityCredentials.LINK
-        #         # | EntityCredentials.CHANGE
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'LINK'])  # Not 'CHANGE'
 
         e2s = EmailToSync.objects.create(user=user, subject='I want a swordfish II')
@@ -791,11 +765,6 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
     def test_fix_email_to_sync01(self):
         user = self.login_as_emails_user(allowed_apps=['persons'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'LINK'])
 
         linked_contact = user.linked_contact

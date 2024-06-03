@@ -9,7 +9,6 @@
 {% endblock %}
 
 {% block brick_content %}
-{# {% url 'creme_core__delete_efilter' as deletion_url %} #}
   {% for ctw in page.object_list %}
    {% with ctype=ctw.ctype %}
     <div class="brick-list-item entityfilter-config-item entityfilter-config-item-{{ctype.app_label}}-{{ctype.model}}">
@@ -29,9 +28,7 @@
                   {% for efilter in ctw.all_users_filters %}
                     <li data-efilter-id="{{efilter.id}}">
                         {% widget_hyperlink efilter %}
-{#                        {% brick_action id='edit' url='creme_config__edit_efilter'|url:efilter.id enabled=efilter.edition_perm %} #}
                         {% brick_action id='edit' url=efilter.edition_url enabled=efilter.edition_perm %}
-{#                        {% brick_action id='delete' url=deletion_url __id=efilter.id enabled=efilter.deletion_perm %} #}
                         {% brick_action id='delete' url=efilter.get_delete_absolute_url enabled=efilter.deletion_perm %}
                     </li>
                   {% endfor %}
@@ -45,9 +42,7 @@
                   {% for efilter in efilters %}
                     <li data-efilter-id="{{efilter.id}}">
                         {% if efilter.view_perm %}{% widget_hyperlink efilter %}{% else %}{{efilter}}{% endif %}{% if efilter.is_private %}&nbsp;<span class="entityfilter-config-private">{% translate '(private)' %}</span>{% endif %}
-{#                        {% brick_action id='edit' url='creme_config__edit_efilter'|url:efilter.id enabled=efilter.edition_perm %} #}
                         {% brick_action id='edit' url=efilter.edition_url enabled=efilter.edition_perm %}
-{#                        {% brick_action id='delete' url=deletion_url __id=efilter.id enabled=efilter.deletion_perm %} #}
                         {% brick_action id='delete' url=efilter.get_delete_absolute_url enabled=efilter.deletion_perm %}
                     </li>
                   {% endfor %}

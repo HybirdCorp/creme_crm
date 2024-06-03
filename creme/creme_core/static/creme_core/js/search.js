@@ -164,7 +164,6 @@ creme.search.SearchBox = creme.component.Component.sub({
         if (results.count > 0) {
             this._allResultsGroup.after(results.items);
 
-//            var url = new creme.ajax.URL(this.advancedSearchUrl).searchData({research: results.query});
             var url = new creme.ajax.URL(this.advancedSearchUrl).searchData({search: results.query});
 
             this._allResultsLink.attr('href', url);
@@ -275,7 +274,6 @@ creme.search.SearchBox = creme.component.Component.sub({
             for (idx in data.results) {
                 var ct = data.results[idx];
 
-//                var ctResultsUrl = searchUrl.searchData({ct_id: ct.id, research: query}).toString();
                 var ctResultsUrl = searchUrl.searchData({ct_id: ct.id, search: query}).toString();
                 var ctResults = ct.results.map(function(ctResult) {
                     return "<li class='search-result'><a href='${url}'${attrs}>${label}</a></li>".template({

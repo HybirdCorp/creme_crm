@@ -88,16 +88,6 @@ class Line(CremeEntity):
         verbose_name_plural = _('Lines')
         ordering = ('created',)
 
-    # def _pre_delete(self):
-    #     for relation in Relation.objects.filter(
-    #         type__in=[
-    #             constants.REL_OBJ_HAS_LINE,
-    #             constants.REL_SUB_LINE_RELATED_ITEM,
-    #         ],
-    #         subject_entity=self.id,
-    #     ):
-    #         relation._delete_without_transaction()
-
     def _pre_save_clone(self, source):
         self.related_document = source._new_related_document
         self.related_item     = source.related_item
@@ -203,7 +193,7 @@ class Line(CremeEntity):
                 related = self.relations.get(
                     type=constants.REL_OBJ_HAS_LINE,
                     subject_entity=self.id,
-                ).real_object  # .object_entity.get_real_entity()
+                ).real_object
             except Relation.DoesNotExist:
                 related = None
 

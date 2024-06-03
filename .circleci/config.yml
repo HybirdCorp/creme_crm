@@ -155,7 +155,6 @@ commands:
 
 orbs:
 # See https://circleci.com/developer/orbs/orb/circleci/browser-tools
-#  browser-tools: circleci/browser-tools@1.4.3
   browser-tools: circleci/browser-tools@1.4.8
 
 jobs:
@@ -391,7 +390,6 @@ jobs:
 
   docker-build-creme-demo:
     machine:
-#      image: ubuntu-2004:202107-02
       image: ubuntu-2204:current
       docker_layer_caching: true
     environment:
@@ -411,7 +409,6 @@ jobs:
 
   docker-push-creme-demo:
     machine:
-#      image: ubuntu-2004:202107-02
       image: ubuntu-2204:current
       docker_layer_caching: true
     environment:

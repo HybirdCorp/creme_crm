@@ -48,8 +48,6 @@ msgstr "Localisation manuelle"
 msgid "Partially matching location"
 msgstr "Localisation incomplète"
 
-#~| msgid "%0$d address from"
-#~| msgid_plural "%0$d addresses from"
 #~ msgid "%0$d addresses from"
 #~ msgstr "%0$d adresse de"
 

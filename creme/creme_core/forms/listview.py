@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2023  Hybird
+#    Copyright (C) 2019-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import decimal
 import logging
-from collections import OrderedDict  # defaultdict
+from collections import OrderedDict
 from datetime import datetime
 from functools import partial
 from re import compile as compile_re
@@ -148,16 +148,6 @@ class SelectLVSWidget(ListViewSearchWidget):
         self.choices = choices
 
     def _build_groups(self, choices, selected_value):
-        # groups = defaultdict(list)  # TODO: keeps order like dict?
-        #
-        # for choice in choices:
-        #     value = str(choice['value'])
-        #     groups[choice.get('group')].append(
-        #         {'value': value,
-        #          'text': choice['label'],
-        #          'selected': selected_value == value,
-        #         }
-        #     )
         groups = OrderedDict()
 
         for choice in choices:

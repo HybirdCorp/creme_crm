@@ -256,7 +256,6 @@ input[type="radio"] {
     padding-left: 20px;
 }
 
-/* ul.radio_select, */
 ul.multi-select {
     list-style-type: none;
     padding: 0;
@@ -449,7 +448,6 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
 }
 
 /* MERGE TOOL */
-/* .li_merge_entity_header1 { */
 .merge-field-header-1 {
     display: inline;
     width: 33%;
@@ -461,7 +459,6 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     text-align: center;
 }
 
-/* .li_merge_entity_header2 { */
 .merge-field-header-2 {
     display: inline;
     width: 33%;
@@ -473,7 +470,6 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     text-align: center;
 }
 
-/* .li_merge_result_header { */
 .merge-field-header-result {
     display: inline;
     width: 32%;
@@ -484,21 +480,16 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     text-align: center;
 }
 
-/* .li_merge_entity1,
-.li_merge_entity2,
-.li_merge_result { */
 .merge-field-1,
 .merge-field-2,
 .merge-field-result {
     width: 30%;
 }
 
-/* .li_merge_button { */
 .merge-field-button {
     max-width: 5%;
 }
 
-/* .li_merge_button > button { */
 .merge-field-button > button {
     padding: 9px 4px;
 
@@ -513,8 +504,6 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     cursor: pointer;
 }
 
-/*.li_merge_button .merge-right-arrow,
-.li_merge_button .merge-left-arrow { */
 .merge-field-button .merge-right-arrow,
 .merge-field-button .merge-left-arrow {
     width: 0;
@@ -526,18 +515,14 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     pointer-events: none;
 }
 
-/* .li_merge_button .merge-right-arrow { */
 .merge-field-button .merge-right-arrow {
     border-left: 5px solid #40687e9c;
 }
 
-/* .li_merge_button .merge-left-arrow { */
 .merge-field-button .merge-left-arrow {
     border-right: 5px solid #40687e9c;
 }
 
-/* .form-container .form-block .li_merge_entity1 input,
-.form-container .form-block .li_merge_entity1 textarea { */
 .form-container .form-block .merge-field-1 input,
 .form-container .form-block .merge-field-1 textarea {
     color: #4bb77c;
@@ -545,8 +530,6 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     border: 1px solid #8ee3b4;
 }
 
-/* .form-container .form-block .li_merge_entity2 input,
-.form-container .form-block .li_merge_entity2 textarea { */
 .form-container .form-block .merge-field-2 input,
 .form-container .form-block .merge-field-2 textarea {
     color: #d87d72;
@@ -554,8 +537,6 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     border: 1px solid #f9c9c4;
 }
 
-/* .form-container .form-block .li_merge_entity1 .ui-creme-entityselector>button[type="button"][disabled],
-.form-container .form-block .li_merge_entity1 .select-wrapper select { */
 .form-container .form-block .merge-field-1 .ui-creme-entityselector>button[type="button"][disabled],
 .form-container .form-block .merge-field-1 .select-wrapper select {
     background: linear-gradient(#dcffec, #94ffc4);
@@ -566,8 +547,6 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     color: #0f4427;
 }
 
-/* .form-container .form-block .li_merge_entity2 .ui-creme-entityselector>button[type="button"][disabled],
-.form-container .form-block .li_merge_entity2 .select-wrapper select { */
 .form-container .form-block .merge-field-2 .ui-creme-entityselector>button[type="button"][disabled],
 .form-container .form-block .merge-field-2 .select-wrapper select {
     background: linear-gradient(#ffedeb, #ffe0dc);
@@ -578,38 +557,28 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     color: #760f03;
 }
 
-/* .form-container .form-block .li_merge_entity1 .select2-container--disabled span.select2-selection { */
 .form-container .form-block .merge-field-1 .select2-container--disabled span.select2-selection {
     background: linear-gradient(#dcffec, #94ffc4);
 
     border: 1px solid #71c396;
     border-bottom: 1px solid #4bb77c;
 }
-/*.form-container .form-block .li_merge_entity1 .ui-creme-checklistselect .checklist-content .checkbox-label,
-.form-container .form-block .li_merge_entity1 .select2-container--disabled .select2-selection__rendered { */
 .form-container .form-block .merge-field-1 .ui-creme-checklistselect .checklist-content .checkbox-label,
 .form-container .form-block .merge-field-1 .select2-container--disabled .select2-selection__rendered {
     color: #03622e;
 }
 
-/* .form-container .form-block .li_merge_entity2 .select2-container--disabled span.select2-selection { */
 .form-container .form-block .merge-field-2 .select2-container--disabled span.select2-selection {
     background: linear-gradient(#ffedeb, #ffe0dc);
 
     border: 1px solid #f59d94;
     border-bottom: 1px solid #eb7a6f;
 }
-/* .form-container .form-block .li_merge_entity2 .ui-creme-checklistselect .checklist-content .checkbox-label,
-.form-container .form-block .li_merge_entity2 .select2-container--disabled .select2-selection__rendered { */
 .form-container .form-block .merge-field-2 .ui-creme-checklistselect .checklist-content .checkbox-label,
 .form-container .form-block .merge-field-2 .select2-container--disabled .select2-selection__rendered {
     color: #760f03;
 }
 
-/* .form-container .li_merge_entity1 .help-text,
-.form-container .li_merge_entity1 .help-text-format,
-.form-container .li_merge_entity2 .help-text,
-.form-container .li_merge_entity2 .help-text-format { */
 .form-container .merge-field-1 .help-text,
 .form-container .merge-field-1 .help-text-format,
 .form-container .merge-field-2 .help-text,

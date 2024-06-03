@@ -5,10 +5,9 @@ from django.forms.widgets import TextInput
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.gui.quick_forms import quickforms_registry
-from creme.creme_core.models import Relation  # SetCredentials
+from creme.creme_core.models import Relation
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
 from ..base import (
@@ -74,13 +73,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
         "1 Contact & 1 Organisation created."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         count = Contact.objects.count()
-
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role, set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_sc(value=EntityCredentials.VIEW)
-        # create_sc(value=EntityCredentials.LINK)
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         orga_name = 'Bebop'
@@ -116,12 +108,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
         "1 Contact created and link with an existing Organisation"
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
         count = Contact.objects.count()
-
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         orga_name = 'Bebop'
@@ -156,12 +142,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
     def test_quickform04(self):
         "No permission to create Organisation."
         user = self.login_as_persons_user(creatable_models=[Contact])  # <== not 'Organisation'
-
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'LINK'])
 
         orga_name = 'Bebop'
@@ -202,12 +182,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
     def test_quickform05(self):
         "No permission to link Organisation"
         user = self.login_as_persons_user(creatable_models=[Contact])
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role, set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(value=EntityCredentials.VIEW)
-        # create_sc(value=EntityCredentials.LINK, ctype=Contact)
         self.add_credentials(user.role, all=['VIEW'])
         self.add_credentials(user.role, all=['LINK'], model=Contact)
 
@@ -246,12 +220,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
     def test_quickform06(self):
         "No permission to link Contact in general."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role, set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(value=EntityCredentials.VIEW)
-        # create_sc(value=EntityCredentials.LINK, ctype=Organisation)
         self.add_credentials(user.role, all=['VIEW'])
         self.add_credentials(user.role, all=['LINK'], model=Organisation)
 
@@ -269,18 +237,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
     def test_quickform07(self):
         "No permission to link Contact with a specific owner."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
-        # create_sc = partial(SetCredentials.objects.create, role=user.role)
-        # create_sc(
-        #     value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(
-        #     value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL,
-        #     ctype=Organisation,
-        # )
-        # create_sc(
-        #     value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN,
-        #     ctype=Contact,
-        # )
         self.add_credentials(user.role, all=['VIEW'])
         self.add_credentials(user.role, all=['LINK'], model=Organisation)
         self.add_credentials(user.role, own=['LINK'], model=Contact)
@@ -297,7 +253,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
         first_name = 'Faye'
         last_name = 'Valentine'
         data = {
-            # 'user':       self.other_user.id,
             'user':       self.get_root_user().id,
             'first_name': 'Faye',
             'last_name':  'Valentine',
@@ -344,10 +299,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
     def test_quickform09(self):
         "Multiple Organisations found, only one linkable (so we use it)."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
-
-        # create_sc = partial(SetCredentials.objects.create, role=user.role)
-        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
-        # create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
         self.add_credentials(user.role, all=['VIEW'], own=['LINK'])
 
         orga_name = 'Bebop'
@@ -377,10 +328,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
     def test_quickform10(self):
         "Multiple Organisations found, but none of them is linkable."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
-
-        # create_sc = partial(SetCredentials.objects.create, role=user.role)
-        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
-        # create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
         self.add_credentials(user.role, all=['VIEW'], own=['LINK'])
 
         orga_name = 'Bebop'
@@ -406,11 +353,6 @@ class ContactQuickFormTestCase(_BaseTestCase):
     def test_quickform11(self):
         "Have to create an Organisations, but can not link to it."
         user = self.login_as_persons_user(creatable_models=[Contact, Organisation])
-
-        # create_sc = partial(SetCredentials.objects.create, role=user.role)
-        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
-        # create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=Contact)
-        # create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
         self.add_credentials(user.role, all=['VIEW'], own=['LINK'])
         self.add_credentials(user.role, all=['LINK'], model=Contact)
 
@@ -471,11 +413,6 @@ class ContactNamesEditionTestCase(_BaseTestCase):
 
     def test_edit01(self):
         user = self.login_as_persons_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
         contact = Contact.objects.create(user=user, first_name='Fay', last_name='Valentin')
@@ -508,11 +445,6 @@ class ContactNamesEditionTestCase(_BaseTestCase):
     def test_edit02(self):
         "No permission."
         user = self.login_as_persons_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,  # No EntityCredentials.CHANGE
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])  # 'CHANGE'
 
         contact = Contact.objects.create(user=user, first_name='Fay', last_name='Valentin')

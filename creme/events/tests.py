@@ -7,9 +7,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme import persons
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import FieldsConfig, Relation, RelationType
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -426,27 +424,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         "Credentials errors."
         user = self.login_as_standard(allowed_apps=['persons', 'events'])
         other_user = self.get_root_user()
-
-        # create_creds = partial(SetCredentials.objects.create, role=user.role)
-        # create_creds(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_creds(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #     ),  # No LINK
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='!LINK', own='*')
 
         create_contact = Contact.objects.create
@@ -548,27 +525,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         "Credentials errors."
         user = self.login_as_standard(allowed_apps=['persons', 'events'])
         other_user = self.get_root_user()
-
-        # create_creds = partial(SetCredentials.objects.create, role=user.role)
-        # create_creds(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_creds(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #     ),  # No LINK
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='!LINK', own='*')
 
         etype = EventType.objects.all()[0]
@@ -772,17 +728,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_link_contacts04(self):
         "Link credentials error."
         user = self.login_as_standard(allowed_apps=['persons', 'events'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #         # | EntityCredentials.LINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='!LINK')
 
         event = Event.objects.create(
@@ -1012,11 +957,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             allowed_apps=['persons', 'opportunities', 'events'],
             creatable_models=[Opportunity],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
@@ -1033,15 +973,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             allowed_apps=['persons', 'opportunities', 'events'],
             # creatable_models=[Opportunity],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.LINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
@@ -1058,11 +989,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             allowed_apps=['persons', 'opportunities', 'events'],
             creatable_models=[Opportunity],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,  # EntityCredentials.LINK
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE'])  # 'LINK'
 
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
@@ -1079,15 +1005,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             allowed_apps=['persons', 'opportunities', 'events'],
             creatable_models=[Opportunity],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.LINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'CHANGE', 'LINK'])
 
         casca = Contact.objects.create(

@@ -2631,9 +2631,6 @@ msgstr "Modifier la configuration de l'instance"
 #~ msgid "Text"
 #~ msgstr "Texte"
 
-#~ msgid "For example: 'is pretty'"
-#~ msgstr "Par exemple: 'est joli'"
-
 #~ msgid "Is copiable"
 #~ msgstr "Est copiable"
 

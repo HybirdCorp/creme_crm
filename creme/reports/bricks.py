@@ -86,7 +86,6 @@ class ReportGraphChartListBrick(ReportGraphMixin, core_bricks.QuerysetBrick):
     template_name = 'reports/bricks/report-chart-list.html'
     target_ctypes = (Report,)
     permissions = 'reports'
-    # order_by = 'name'
     order_by = 'created'
 
     def detailview_display(self, context):
@@ -101,7 +100,6 @@ class ReportGraphChartListBrick(ReportGraphMixin, core_bricks.QuerysetBrick):
         counter = Counter(
             InstanceBrickConfigItem.objects.filter(
                 entity__in=[g.id for g in graphs],
-                # brick_class_id=ReportGraphChartInstanceBrick.id_,
                 brick_class_id=ReportGraphChartInstanceBrick.id,
             ).values_list('entity', flat=True)
         )
@@ -277,10 +275,6 @@ class ReportGraphChartBrick(ReportGraphMixin, core_bricks.Brick):
                 name: chart.props(graph, data) for name, chart in report_chart_registry
             }
         ))
-
-    # @property
-    # def target_ctypes(self):
-    #     return (ReportGraph,)
 
 
 class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):

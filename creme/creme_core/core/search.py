@@ -138,7 +138,6 @@ class Searcher:
         "View on the models this Searcher use."
         return self._search_map.keys()
 
-    # def search(self, model: type[Model], research: str) -> QuerySet | None:
     def search(self, model: type[Model], searched: str) -> QuerySet | None:
         """Return a query with the models which fields contain the wanted value.
         @param model: Class inheriting django.db.Model (CremeEntity)
@@ -149,7 +148,6 @@ class Searcher:
 
         assert cells is not None  # search on a disabled model ?
 
-        # strings = smart_split(research)
         strings = smart_split(searched)
 
         # TODO: distinct() only if there is a JOIN...

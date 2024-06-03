@@ -1,7 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template
 
-# from creme.creme_core.models import SearchConfigItem
 from creme.creme_core.models import (
     FakeContact,
     FakeDocument,
@@ -13,21 +12,14 @@ from creme.creme_core.tests.base import CremeTestCase
 
 class CremeSearchTagsTestCase(CremeTestCase):
     def test_search_form01(self):
-        # user = self.get_root_user()
         get_ct = ContentType.objects.get_for_model
         contact_ct_id = get_ct(FakeContact).id
-
-        # create_sci = SearchConfigItem.objects.create_if_needed
-        # create_sci(model=FakeContact,      fields=['last_name', 'first_name'])
-        # create_sci(model=FakeOrganisation, fields=['name'])
 
         with self.assertNoException():
             render = Template(
                 r'{% load creme_search %}'
-                # r'{% search_form user=user selected_ct_id=ct_id search_terms=terms %}'
                 r'{% search_form models=models selected_ct_id=ct_id search_terms=terms %}'
             ).render(Context({
-                # 'user': user,
                 'models': [FakeContact, FakeOrganisation],
                 'terms': ['Acme', 'super2000'],
                 'ct_id': contact_ct_id,
@@ -35,7 +27,6 @@ class CremeSearchTagsTestCase(CremeTestCase):
 
         tree = self.get_html_tree(render)
 
-        # input_node = self.get_html_node_or_fail(tree, './/input[@name="research"]')
         input_node = self.get_html_node_or_fail(tree, './/input[@name="search"]')
         self.assertEqual("['Acme', 'super2000']", input_node.attrib.get('value'))
         self.assertEqual('3', input_node.attrib.get('minlength'))
@@ -73,31 +64,14 @@ class CremeSearchTagsTestCase(CremeTestCase):
         )
 
     def test_search_form02(self):
-        # user = self.get_root_user()
-        #
-        # SearchConfigItem.objects.create_if_needed(
-        #     model=FakeContact,
-        #     fields=(),
-        #     role='superuser',
-        #     disabled=True,
-        # )
-        # SearchConfigItem.objects.create_if_needed(
-        #     model=FakeOrganisation,
-        #     fields=(),
-        #     role='superuser',
-        #     disabled=False,
-        # )
-
         get_ct = ContentType.objects.get_for_model
         contact_ct_id = get_ct(FakeContact).id
 
         with self.assertNoException():
             render = Template(
                 r'{% load creme_search %}'
-                # r'{% search_form user=user selected_ct_id=None search_terms=terms %}'
                 r'{% search_form models=models selected_ct_id=None search_terms=terms %}'
             ).render(Context({
-                # 'user': user,
                 'models': [FakeOrganisation],
                 'terms': ['Acme', 'super2000'],
             }))

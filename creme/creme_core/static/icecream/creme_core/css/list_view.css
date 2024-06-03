@@ -90,13 +90,6 @@
     margin-right: 5px;
 }
 
-/*
-.list-control-group select {
-    margin-left: 10px;
-    max-width: 200px;
-}
-*/
-
 .list-control-group a {
     position: relative;
     top: 5px;
@@ -110,12 +103,6 @@
     cursor: default;
     cursor: not-allowed;
 }
-
-/*
-.list-control-group select + a {
-    margin-left: 20px;
-}
-*/
 
 .list-control-group a img {
     width:  20px;
@@ -771,7 +758,6 @@
 
 .listview-selection-multiple td.lv-cell:not(:first-child),
 .listview td.lv-cell + td.lv-cell {
-/*        border-left: 0 !important;*/
     border-left-color: rgba(84, 130, 149, 0.1) !important;
 }
 

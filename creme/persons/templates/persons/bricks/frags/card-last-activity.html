@@ -12,22 +12,3 @@
   {% endif %}
 </span>
 {% endwith %}
-
-{% comment %}
-{% load i18n creme_widgets %}
-{% if activities %}
-    <span class='card-info-key'>{% translate 'Last action' %}</span>
-    {% with last_activity=activities.last %}
-    <span class='card-info-value'>
-        {% if last_activity %}
-        {% widget_icon instance=last_activity size='brick-hat-card-intro' %} {{last_activity.type}}
-        <a href="{{last_activity.get_absolute_url}}" class='last-action-link'>
-            <span class="history-info-value">{{last_activity.start|date:'DATE_FORMAT'}}</span> {% translate 'at' %} <span class="history-info-value">{{last_activity.start|time:'H:i'}}</span>
-        </a> {% translate 'by' %} <span class="history-info-value"><a href='{{last_activity.user.linked_contact.get_absolute_url}}'>{{last_activity.user}}</a></span>
-        {% else %}
-        —
-        {% endif %}
-    </span>
-    {% endwith %}
-{% endif %}
-{% endcomment %}

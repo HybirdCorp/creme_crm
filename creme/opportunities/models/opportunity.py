@@ -147,12 +147,6 @@ class AbstractOpportunity(core_models.CremeEntity):
             if not self._opp_target:
                 raise ValidationError(gettext('Target is required.'))
 
-    # def _pre_delete(self):
-    #     for relation in self.relations.filter(
-    #         type__in=(constants.REL_SUB_TARGETS, constants.REL_OBJ_EMIT_ORGA),
-    #     ):
-    #         relation._delete_without_transaction()
-
     def _pre_save_clone(self, source):
         self.emitter = source.emitter
         self.target  = source.target
