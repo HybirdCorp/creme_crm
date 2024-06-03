@@ -292,38 +292,6 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 }
 */
 
-/*
-.ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creme {
-    margin-right: 11px;
-}
-
-.ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creation {
-    margin-left: 11px;
-}
-
-
-.ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creme:before {
-    right: -6px;
-}
-
-.ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creation::before {
-    left: -6px;
-}
-
-.ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creme:before,
-.ui-creme-navigation-item-level0.ui-creme-navigation-item-id_creation:before {
-    content: "";
-    width: 1px;
-
-    position: absolute;
-    top: 1px;
-    bottom: 5px;
-
-    background: #bbb;
-    pointer-events: none;
-}
-*/
-
 /* Menu [END] ----------------------------------------------------------------*/
 
 /* Creation popup ------------------------------------------------------------*/

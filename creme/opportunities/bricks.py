@@ -21,7 +21,6 @@ from __future__ import annotations
 from datetime import timedelta
 
 from django.apps import apps
-# from django.core.paginator import Paginator
 from django.db.models.query_utils import FilteredRelation, Q
 from django.utils.translation import gettext_lazy as _
 
@@ -39,7 +38,6 @@ from creme.creme_core.gui.bricks import (
 )
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.paginators import OnePagePaginator
-# from creme.persons.bricks import Activities4Card, CommercialActs4Card
 from creme.persons import bricks as persons_bricks
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
@@ -81,7 +79,6 @@ class ContactsSummary(_RelatedToOpportunity, persons_bricks.CardSummary):
 
     def get_context(self, *, entity, brick_context):
         context = super().get_context(entity=entity, brick_context=brick_context)
-        # context['contacts'] = Paginator(
         context['contacts'] = OnePagePaginator(
             self.get_related_queryset(
                 opportunity=entity,
@@ -96,27 +93,20 @@ class ContactsSummary(_RelatedToOpportunity, persons_bricks.CardSummary):
         return context
 
 
-# class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
 class OpportunityCardHatBrick(_RelatedToOpportunity, persons_bricks._PersonsCardHatBrick):
-    # id = Brick._generate_hat_id('opportunities', 'opportunity_card')
     id = persons_bricks._PersonsCardHatBrick._generate_hat_id('opportunities', 'opportunity_card')
     verbose_name = _('Card header block')
     dependencies = [
         Opportunity,
         Organisation, Contact,
         Relation,
-        # *Activities4Card.dependencies,
-        # *CommercialActs4Card.dependencies,
     ]
     relation_type_deps = [
         REL_SUB_EMPLOYED_BY,
         constants.REL_OBJ_LINKED_CONTACT,
-        # *Activities4Card.relation_type_deps,
-        # *CommercialActs4Card.relation_type_deps,
     ]
     template_name = 'opportunities/bricks/opportunity-hat-card.html'
 
-    # displayed_contacts_number = 5  # deleted; see ContactsSummary now.
     summaries = [
         persons_bricks.NextActivitySummary,
         ContactsSummary,
@@ -125,7 +115,6 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, persons_bricks._PersonsCard
 
     def detailview_display(self, context):
         opportunity = context['object']
-        # is_hidden = context['fields_configs'].get_for_model(Opportunity).is_fieldname_hidden
 
         # TODO: extract indicator
         if apps.is_installed('creme.activities'):
@@ -142,25 +131,10 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, persons_bricks._PersonsCard
 
         return self._render(self.get_template_context(
             context,
-            # hidden_fields={
-            #     fname
-            #     for fname in ('estimated_sales', 'made_sales')
-            #     if is_hidden(fname)
-            # },
             hidden_fields=context['fields_configs'].get_for_model(Opportunity).hidden_field_names,
             is_neglected=is_neglected,
             target=target,
             target_is_organisation=isinstance(target, Organisation),
-            # contacts=Paginator(
-            #     self.get_related_queryset(
-            #         opportunity=opportunity,
-            #         model=Contact,
-            #         rtype_id=constants.REL_SUB_LINKED_CONTACT,
-            #     ),
-            #     per_page=self.displayed_contacts_number,
-            # ).page(1),
-            # activities=Activities4Card.get(context, opportunity),
-            # acts=CommercialActs4Card.get(context, opportunity),
         ))
 
 
@@ -200,7 +174,6 @@ class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
 
         cells = []
         for cell_class, cell_name in self.cells_desc:
-            # cell = cell_class.build(Contact, cell_name)
             cell = cell_class.build(self.dependencies[1], cell_name)
             if cell is not None and not cell.is_excluded:
                 cells.append(cell)
@@ -312,7 +285,6 @@ class TargetingOpportunitiesBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         entity = context['object']
-        # is_hidden = context['fields_configs'].get_for_model(Opportunity).is_fieldname_hidden
 
         return self._render(self.get_template_context(
             context,
@@ -324,11 +296,6 @@ class TargetingOpportunitiesBrick(QuerysetBrick):
                 relations__type=constants.REL_SUB_TARGETS,
             ),
             predicate_id=self.relation_type_deps[0],
-            # hidden_fields={
-            #     fname
-            #     for fname in ('estimated_sales', 'made_sales')
-            #     if is_hidden(fname)
-            # },
             hidden_fields=context['fields_configs'].get_for_model(Opportunity).hidden_field_names,
             is_organisation=isinstance(object, Organisation),
             is_contact=isinstance(object, Contact),

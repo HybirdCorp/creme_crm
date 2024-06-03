@@ -1,5 +1,3 @@
-# import logging
-
 from django.urls import reverse
 
 from ..models import ActivitySubType, ActivityType
@@ -9,16 +7,11 @@ from .base import _ActivitiesTestCase
 class ActivityTypeTestCase(_ActivitiesTestCase):
     def test_save(self):
         atype = ActivityType.objects.create(
-            # id='test-activity_martial',
-            name='Martial arts',
-            default_day_duration=0, default_hour_duration='00:15:00',
+            name='Martial arts', default_day_duration=0, default_hour_duration='00:15:00',
         )
         self.assertTrue(atype.is_custom)
 
-        sub_type = ActivitySubType(
-            # id='test-activity_karate',
-            name='Karate session', type=atype,
-        )
+        sub_type = ActivitySubType(name='Karate session', type=atype)
         self.assertTrue(sub_type.is_custom)
 
         with self.assertNoException():
@@ -73,9 +66,7 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
     def test_edit_type(self):
         self.login_as_root()
 
-        # type_id = 'test-activity_awesome'
         atype = ActivityType.objects.create(
-            # pk=type_id,
             name='karate session',
             default_day_duration=0,
             default_hour_duration='00:15:00',
@@ -114,7 +105,6 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         ))
 
         atype = ActivityType.objects.create(
-            # pk='test-activity_karate',
             name='Karate session',
             default_day_duration=0,
             default_hour_duration='00:15:00',
@@ -137,16 +127,12 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         self.login_as_root()
 
         atype = ActivityType.objects.create(
-            # pk='test-activity_karate',
             name='karate session',
             default_day_duration=0,
             default_hour_duration='00:15:00',
             is_custom=True,
         )
-        satype = ActivitySubType.objects.create(
-            # pk='test-activity_fight',
-            type=atype, name='Fightoo',
-        )
+        satype = ActivitySubType.objects.create(type=atype, name='Fightoo')
 
         url = reverse(
             'creme_config__edit_instance',

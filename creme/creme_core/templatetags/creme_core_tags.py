@@ -293,9 +293,7 @@ def verbose_models(models):
 
 # TODO unit test
 @register.filter
-# def allowed_str(entity, user):
 def allowed_str(instance, user):
-    # return entity.allowed_str(user)
     return instance.allowed_str(user) if hasattr(instance, 'allowed_str') else instance
 
 

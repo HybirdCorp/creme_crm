@@ -126,7 +126,6 @@ class QuerySorterTestCase(CremeTestCase):
         # Fast mode -------------------
         sortinfo2 = sorter.get(
             model=FakeOrganisation, cells=cells, cell_key=key,
-            # order='ASC',
             order=Order(),
             fast_mode=True,
         )

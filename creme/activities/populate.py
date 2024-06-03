@@ -43,7 +43,6 @@ from creme.creme_core.models import (
     SearchConfigItem,
     SettingValue,
 )
-# from creme.creme_core.utils import create_if_needed
 from creme.persons.constants import FILTER_CONTACT_ME
 
 from . import (
@@ -294,19 +293,6 @@ class Populator(BasePopulator):
         super()._populate()
 
     def _populate_status(self):
-        # def create_status(pk, name):
-        #     create_if_needed(
-        #         Status,
-        #         {'pk': pk},
-        #         name=name, description=name, is_custom=False,
-        #     )
-        #
-        # create_status(constants.STATUS_PLANNED,     pgettext('activities-status', 'Planned')),
-        # create_status(constants.STATUS_IN_PROGRESS,
-        #               pgettext('activities-status', 'In progress')),
-        # create_status(constants.STATUS_DONE,        pgettext('activities-status', 'Done')),
-        # create_status(constants.STATUS_DELAYED,     pgettext('activities-status', 'Delayed')),
-        # create_status(constants.STATUS_CANCELLED,   pgettext('activities-status', 'Cancelled')),
         self._save_minions(self.STATUSES)
 
     def _populate_activity_types_and_sub_types(self):
@@ -396,22 +382,6 @@ class Populator(BasePopulator):
         Activity = self.Activity
         create_efilter = EntityFilter.objects.smart_update_or_create
 
-        # for pk, name, atype_id in [
-        #     (constants.EFILTER_MEETINGS,   _('Meetings'),    constants.ACTIVITYTYPE_MEETING),
-        #     (constants.EFILTER_PHONECALLS, _('Phone calls'), constants.ACTIVITYTYPE_PHONECALL),
-        #     (constants.EFILTER_TASKS,      _('Tasks'),       constants.ACTIVITYTYPE_TASK),
-        # ]:
-        #     create_efilter(
-        #         pk, name=name, model=Activity, is_custom=False, user='admin',
-        #         conditions=[
-        #             condition_handler.RegularFieldConditionHandler.build_condition(
-        #                 model=Activity,
-        #                 operator=operators.EqualsOperator,
-        #                 field_name='type',
-        #                 values=[atype_id],
-        #             ),
-        #         ],
-        #     )
         for pk, name, atype_uuid in [
             (constants.EFILTER_MEETINGS,   _('Meetings'),    constants.UUID_TYPE_MEETING),
             (constants.EFILTER_PHONECALLS, _('Phone calls'), constants.UUID_TYPE_PHONECALL),
@@ -424,7 +394,6 @@ class Populator(BasePopulator):
                         model=Activity,
                         operator=operators.EqualsOperator,
                         field_name='type',
-                        # values=[act_types[atype_uuid].id],
                         # NB: EntityFilterForm creates string in this case. So we use string:
                         #     - to be consistent
                         #     - to avoid the creation of new filters with version suffix "[2.6]"
@@ -439,7 +408,6 @@ class Populator(BasePopulator):
             conditions=[
                 condition_handler.RelationSubFilterConditionHandler.build_condition(
                     model=Activity,
-                    # rtype=rt_obj_part_2_activity,
                     rtype=RelationType.objects.get(id=constants.REL_OBJ_PART_2_ACTIVITY),
                     subfilter=EntityFilter.objects.get_latest_version(FILTER_CONTACT_ME),
                 ),
@@ -458,12 +426,10 @@ class Populator(BasePopulator):
                 (EntityCellRegularField, {'name': 'type'}),
                 EntityCellRelation(
                     model=Activity,
-                    # rtype=rt_obj_part_2_activity,
                     rtype=RelationType.objects.get(id=constants.REL_OBJ_PART_2_ACTIVITY),
                 ),
                 EntityCellRelation(
                     model=Activity,
-                    # rtype=rt_obj_activity_subject,
                     rtype=RelationType.objects.get(id=constants.REL_OBJ_ACTIVITY_SUBJECT),
                 ),
                 (EntityCellRegularField, {'name': 'user'}),

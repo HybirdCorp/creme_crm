@@ -98,11 +98,7 @@ td p {
 
     text-align: center;
     text-decoration: none;
-/*
-    font-size: 12px;
-    font-weight: 600;
-    color: #333;
-*/
+
     font-size: 12.5px;
     font-weight: 500;
     color: #34687e;
@@ -374,14 +370,6 @@ a.image-file img {
 }
 
 /* Title bar */
-
-/*
-.global-buttons + .hat-bar-container {
-    border-top-color: rgb(204, 204, 204);
-    border-top-style: solid;
-    border-top-width: 1px;
-}
-*/
 
 .hat-bar-container {
     margin-bottom: 10px;

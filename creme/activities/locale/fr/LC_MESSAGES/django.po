@@ -1187,67 +1187,17 @@ msgstr "Créer une configuration de calendrier pour un rôle"
 #~ msgid "End time"
 #~ msgstr "Heure de fin"
 
-#~ msgid ""
-#~ "In the activities form, propose to keep users informed with user messages "
-#~ "(the application «Assistants» is needed). DEPRECATED (use custom forms "
-#~ "instead)."
-#~ msgstr ""
-#~ "Dans le formulaire des activités, proposer de tenir les utilisateurs "
-#~ "informés avec des messages utilisateurs (l'application «Assistants» est "
-#~ "nécessaire). OBSOLÈTE (utilisez les formulaires personnalisés à la place)"
-
 #~ msgid "iCalendar file"
 #~ msgstr "Fichier iCalendar"
 
 #~ msgid "New activity"
 #~ msgstr "Nouvelle activité"
 
-#~ msgctxt "activities-stats"
-#~ msgid "{count} in all"
-#~ msgstr "{count} en tout"
-
-#~ msgctxt "activities-stats"
-#~ msgid "%s in all"
-#~ msgstr "%s en tout"
-
 #~ msgid "Alert related to %s"
 #~ msgstr "Alerte en rapport avec %s"
 
-#~ msgid "Portal of activities"
-#~ msgstr "Portail des activités"
-
 #~ msgid "All activities"
 #~ msgstr "Lister les activités"
-
-#~ msgid "All meetings"
-#~ msgstr "Lister les rendez-vous"
-
-#~ msgid "Activities portal"
-#~ msgstr "Portail Activités"
-
-#~ msgid "Meetings count"
-#~ msgstr "Nombre de rendez-vous"
-
-#~ msgid "Phone calls count"
-#~ msgstr "Nombre d'appels téléphoniques"
-
-#~ msgid "Tasks count"
-#~ msgstr "Nombre de tâches"
-
-#~ msgid "No entity"
-#~ msgstr "Aucune fiche"
-
-#~ msgid "%s Future activity for me"
-#~ msgstr "%s Activité future pour moi"
-
-#~ msgid "%s Future activities for me"
-#~ msgstr "%s Activités futures pour moi"
-
-#~ msgid "%s Future related activity"
-#~ msgstr "%s Activité future liée"
-
-#~ msgid "%s Future related activities"
-#~ msgstr "%s Activités futures liées"
 
 #~ msgid "Subject(s)"
 #~ msgstr "Sujet(s)"
@@ -1258,24 +1208,6 @@ msgstr "Créer une configuration de calendrier pour un rôle"
 #~ msgid "Related to"
 #~ msgstr "Relié(s)"
 
-#~ msgid "%s Participant"
-#~ msgstr "%s Participant"
-
-#~ msgid "%s Participants"
-#~ msgstr "%s Participants"
-
-#~ msgid "%s Past activity for me"
-#~ msgstr "%s Activité passée pour moi"
-
-#~ msgid "%s Past activities for me"
-#~ msgstr "%s Activités passées pour moi"
-
-#~ msgid "%s Past related activity"
-#~ msgstr "%s Activité passée liée"
-
-#~ msgid "%s Past related activities"
-#~ msgstr "%s Activités passées liées"
-
 #~ msgid "Present in %s of my Calendars"
 #~ msgstr "Présent dans %s de mes Calendriers"
 
@@ -1285,32 +1217,8 @@ msgstr "Créer une configuration de calendrier pour un rôle"
 #~ msgid "%s Subjects"
 #~ msgstr "%s Sujets"
 
-#~ msgid "%s Calendar"
-#~ msgstr "%s Calendrier"
-
-#~ msgid "%s Calendars"
-#~ msgstr "%s Calendriers"
-
-#~ msgid "Edit"
-#~ msgstr "Modifier"
-
-#~ msgid "Edit calendar"
-#~ msgstr "Modifier calendrier"
-
 #~ msgid "Error"
 #~ msgstr "Erreur"
-
-#~ msgid "Add a meeting"
-#~ msgstr "Ajouter un rendez-vous"
-
-#~ msgid "Add a phone call"
-#~ msgstr "Ajouter un appel téléphonique"
-
-#~ msgid "Add a task"
-#~ msgstr "Ajouter une tâche"
-
-#~ msgid "Add a phonecall"
-#~ msgstr "Ajouter un appel téléphonique"
 
 #~ msgid "Alert day"
 #~ msgstr "Jour de l'alerte"
@@ -1397,12 +1305,6 @@ msgstr "Créer une configuration de calendrier pour un rôle"
 #~ msgid "December"
 #~ msgstr "Décembre"
 
-#~ msgid "Show the users list"
-#~ msgstr "Afficher la liste des utilisateurs"
-
-#~ msgid "Hide the users list"
-#~ msgstr "Cacher la liste des utilisateurs"
-
 #~ msgid "Show the list of my calendars"
 #~ msgstr "Afficher la liste de mes calendriers"
 
@@ -1420,15 +1322,3 @@ msgstr "Créer une configuration de calendrier pour un rôle"
 
 #~ msgid "See my selected calendars"
 #~ msgstr "Voir mes calendriers sélectionnés"
-
-#~ msgid "None for the moment"
-#~ msgstr "Aucun pour le moment"
-
-#~ msgid "Activity's nomenclature"
-#~ msgstr "Nomenclature d'activité"
-
-#~ msgid "Activity types"
-#~ msgstr "Types d'activité"
-
-#~ msgid "No one"
-#~ msgstr "Aucun"

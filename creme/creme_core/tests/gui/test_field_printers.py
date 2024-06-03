@@ -16,7 +16,6 @@ from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
 from django.utils.translation import pgettext
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.download import filefield_download_registry
 from creme.creme_core.core.entity_filter import operators
 from creme.creme_core.core.entity_filter.condition_handler import (
@@ -49,7 +48,6 @@ from creme.creme_core.gui.field_printers import (
     simple_print_html,
     simple_print_text,
 )
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     EntityFilter,
@@ -345,10 +343,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             DATETIME_FORMAT='j F Y H:i',
             DATETIME_INPUT_FORMATS=['%d-%m-%Y %H:%M:%S'],
         ):
-            # self.assertEqual(
-            #     date_format(value, 'DATETIME_FORMAT'),
-            #     print_datetime_html(instance=a, value=value, user=user, field=field),
-            # )
             self.assertHTMLEqual(
                 # TODO: localtime() ??
                 '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
@@ -360,10 +354,6 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         with override_settings(USE_L10N=True):
             with override_language('en'):
-                # self.assertEqual(
-                #     date_format(value, 'DATETIME_FORMAT'),
-                #     print_datetime_html(instance=a, value=value, user=user, field=field),
-                # )
                 self.assertHTMLEqual(
                     '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
                         seconds=_('Seconds: {}').format(value.second),
@@ -542,9 +532,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             filedata=file_path,
         )
         self.assertHTMLEqual(
-            # """<a onclick="creme.dialogs.image('{url}').open();">
-            #     <img src="{url}" alt="{label}" width="200.0" height="200.0" />
-            # </a>""".format(
             """<a class="image-file" onclick="creme.dialogs.image('{url}').open();">
                 <img src="{url}" alt="{label}" />
             </a>""".format(
@@ -648,12 +635,9 @@ class FieldsPrintersTestCase(CremeTestCase):
         user = self.get_root_user()
         folder = FakeFolder.objects.create(user=user, title='TestGui')
 
-        # file_name = 'add_16.png'
         file_path = self.create_uploaded_file(
-            # file_name=file_name, dir_name='gui',
             file_name='my_super_name.PNG',  # Notice extension in caps
             dir_name='gui',
-            # content=[settings.CREME_ROOT, 'static', 'chantilly', 'images', file_name],
             content=[settings.CREME_ROOT, 'static', 'chantilly', 'images', 'add_16.png'],
         )
 
@@ -663,9 +647,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             filedata=file_path,
         )
         self.assertHTMLEqual(
-            # """<a onclick="creme.dialogs.image('{url}').open();">
-            #     <img src="{url}" alt="{label}" width="200.0" height="200.0" />
-            # </a>""".format(
             """<a class="image-file" onclick="creme.dialogs.image('{url}').open();">
                 <img src="{url}" alt="{label}" />
             </a>""".format(
@@ -840,7 +821,6 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = r._meta.get_field('efilter')
         fmt_value = _('«{enum_value}»').format
         self.assertHTMLEqual(
-            # '<div class="entity_filter-summary">{name}'
             '<div class="entity_filter-summary">'
             '  <a href="{url}">{name}</a>'
             '  <ul>'
@@ -959,11 +939,6 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_many2many_printer_html03(self):
         "Entity printer."
         user = self.login_as_standard()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         prod = FakeProduct.objects.create(user=user, name='Bebop')
@@ -1019,11 +994,6 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_many2many_printer_text02(self):
         "Entity printer."
         user = self.login_as_standard()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         printer = M2MPrinterForText(
@@ -1052,10 +1022,7 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_registry(self):
         "Default."
         user = self.get_root_user()
-
         registry = _FieldPrintersRegistry()
-        # as_html = registry.get_html_field_value  # DEPRECATED
-        # as_csv = registry.get_csv_field_value  # DEPRECATED
 
         sector = FakeSector.objects.all()[0]
         img = FakeImage.objects.create(user=user, name='Mars pix')
@@ -1065,30 +1032,18 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
         render_field = partial(registry.get_field_value, instance=o, user=user)
-
-        # self.assertEqual(o.name, as_html(o, 'name', user))
-        # self.assertEqual(o.name, as_csv(o, 'name', user))
         self.assertEqual(o.name, render_field(field_name='name', tag=ViewTag.HTML_DETAIL))
         self.assertEqual(o.name, render_field(field_name='name', tag=ViewTag.TEXT_PLAIN))
 
-        # self.assertHTMLEqual(
-        #     '<a href="{url}" target="_blank">{url}</a>'.format(url=o.url_site),
-        #     as_html(o, 'url_site', user),
-        # )
         self.assertHTMLEqual(
             '<a href="{url}" target="_blank">{url}</a>'.format(url=o.url_site),
             render_field(field_name='url_site', tag=ViewTag.HTML_DETAIL),
         )
-        # self.assertEqual(o.url_site, as_csv(o, 'url_site', user))
         self.assertEqual(o.url_site, render_field(field_name='url_site', tag=ViewTag.TEXT_PLAIN))
 
-        # self.assertEqual(sector.title, as_html(o, 'sector', user))
-        # self.assertEqual(sector.title, as_csv(o, 'sector', user))
         self.assertEqual(sector.title, render_field(field_name='sector', tag=ViewTag.HTML_DETAIL))
         self.assertEqual(sector.title, render_field(field_name='sector', tag=ViewTag.TEXT_PLAIN))
 
-        # self.assertEqual(sector.title, as_html(o, 'sector__title', user))
-        # self.assertEqual(sector.title, as_csv(o, 'sector__title', user))
         self.assertEqual(
             sector.title, render_field(field_name='sector__title', tag=ViewTag.HTML_DETAIL),
         )
@@ -1508,10 +1463,6 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
         local_dt = localtime(casca.created)
-        # self.assertEqual(
-        #     date_format(local_dt, 'DATETIME_FORMAT'),
-        #     render_field(field_name='created'),
-        # )
         self.assertHTMLEqual(
             '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
                 seconds=_('Seconds: {}').format(local_dt.second),
@@ -1631,11 +1582,6 @@ class FieldsPrintersTestCase(CremeTestCase):
     def test_registry_m2m_entity02(self):
         "Credentials."
         user = self.login_as_standard()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         create_ml = FakeMailingList.objects.create
@@ -1688,17 +1634,6 @@ class FieldsPrintersTestCase(CremeTestCase):
 
     def test_registry_credentials(self):
         user = self.login_as_standard(allowed_apps=['creme_core'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='*')
 
         field_printers_registry = _FieldPrintersRegistry()

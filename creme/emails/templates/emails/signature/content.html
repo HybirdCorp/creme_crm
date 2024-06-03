@@ -1,5 +1,4 @@
 <div class="creme-emails-signature" id="signature-{{signature.id}}">
     <p><br>--<br>{{signature.body|linebreaksbr}}</p>
-{#    {% for image in images %}<br/><img src="cid:img_{{image.entity.id}}" />{% endfor %} #}
     {% for image in images %}<br/><img src="cid:{{image.content_id}}" />{% endfor %}
 </div>

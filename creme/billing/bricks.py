@@ -149,17 +149,10 @@ class CreditNotesBrick(PaginatedBrick):
     permissions = 'billing'
 
     def detailview_display(self, context):
-        # is_hidden = context['fields_configs'].get_for_model(CreditNote).is_fieldname_hidden
         return self._render(self.get_template_context(
             context,
             context['object'].get_credit_notes(),
             rtype_id=self.relation_type_deps[0],
-            # add_title=_('Create a credit note'),
-            # hidden_fields={
-            #     fname
-            #     for fname in ('issuing_date', 'expiration_date', 'comment')
-            #     if is_hidden(fname)
-            # },
             hidden_fields=context['fields_configs'].get_for_model(CreditNote).hidden_field_names,
         ))
 
@@ -204,14 +197,12 @@ class ReceivedInvoicesBrick(QuerysetBrick):
     order_by = '-expiration_date'
 
     def detailview_display(self, context):
-        # is_hidden = context['fields_configs'].get_for_model(Invoice).is_fieldname_hidden
         return self._render(self.get_template_context(
             context,
             Invoice.objects.filter(
                 relations__object_entity=context['object'].id,  # Contact/Organisation
                 relations__type=constants.REL_SUB_BILL_RECEIVED,
             ).select_related('status', 'currency'),
-            # hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
             hidden_fields=context['fields_configs'].get_for_model(Invoice).hidden_field_names,
         ))
 
@@ -234,7 +225,6 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         model = self._billing_model
-        # is_hidden = context['fields_configs'].get_for_model(model).is_fieldname_hidden
 
         return self._render(self.get_template_context(
             context,
@@ -246,7 +236,6 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
             title_plural=self._title_plural,
             empty_title=self._empty_title,
             empty_msg=self._empty_msg,
-            # hidden_fields={fname for fname in ('expiration_date',) if is_hidden(fname)},
             hidden_fields=context['fields_configs'].get_for_model(model).hidden_field_names,
         ))
 

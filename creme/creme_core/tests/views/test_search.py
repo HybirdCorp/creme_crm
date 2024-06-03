@@ -4,13 +4,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellFunctionField,
 )
 from creme.creme_core.gui.bricks import QuerysetBrick
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CustomField,
     CustomFieldEnum,
@@ -24,17 +22,13 @@ from creme.creme_core.models import (
 )
 
 from ..base import CremeTestCase
-# from .base import ViewsTestCase
 from .base import BrickTestCaseMixin
 
 
-# class SearchViewTestCase(BrickTestCaseMixin, ViewsTestCase):
 class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
     LIGHT_URL = reverse('creme_core__light_search')
 
-    # CONTACT_BRICKID = 'block_creme_core-found-creme_core-fakecontact-'
     CONTACT_BRICKID = 'found-creme_core-fakecontact-'
-    # ORGA_BRICKID    = 'block_creme_core-found-creme_core-fakeorganisation-'
     ORGA_BRICKID    = 'found-creme_core-fakeorganisation-'
 
     @classmethod
@@ -69,12 +63,10 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         for div_node in tree.findall('.//div'):
             if (
                 'brick' in div_node.attrib.get('class', '')
-                # and div_node.attrib.get('id', '').startswith(brick_id_prefix)
                 and div_node.attrib.get('id', '').startswith(prefix)
             ):
                 return div_node
 
-        # self.fail(f'No brick found for prefix "{brick_id_prefix}".')
         self.fail(f'No brick found for prefix "{prefix}".')
 
     def assertNoSearchBrick(self, tree, brick_id_prefix):
@@ -83,7 +75,6 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         for div_node in tree.findall('.//div'):
             if (
                 'brick' in div_node.attrib.get('class', '')
-                # and div_node.attrib.get('id', '').startswith(brick_id_prefix)
                 and div_node.attrib.get('id', '').startswith(prefix)
             ):
                 self.fail(f'A brick unexpectedly found for prefix "{brick_id_prefix}".')
@@ -120,12 +111,9 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.linusfo = create_orga(name='FoobarLinusFoundation')
         self.coxco   = create_orga(name='StuffCoxCorp')
 
-    # def _search(self, research=None, ct_id=None):
     def _search(self, searched=None, ct_id=None):
         data = {}
 
-        # if research is not None:
-        #     data['research'] = research
         if searched is not None:
             data['search'] = searched
 
@@ -145,7 +133,6 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
 
         ctxt = response.context
         self.assertEqual(self.contact_ct_id, ctxt.get('selected_ct_id'))
-        # self.assertEqual(term,               ctxt.get('research'))
         self.assertEqual(term,               ctxt.get('searched'))
 
         with self.assertNoException():
@@ -154,7 +141,6 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
             bricks = ctxt['bricks']
             reload_url = ctxt['bricks_reload_url']
 
-        # self.assertListEqual(['Test Contact'], models)
         self.assertListEqual([FakeContact], models)
         self.assertListEqual(['Test Contact'], verbose_names)
         self.assertEqual(
@@ -211,9 +197,6 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertInstanceLinkNoLabel(brick_node2, entity=self.coxco)
         self.assertNoInstanceLink(brick_node2, entity=self.linusfo)
 
-        # vnames = {str(vname) for vname in context['models']}
-        # self.assertIn('Test Contact', vnames)
-        # self.assertIn('Test Organisation', vnames)
         self.assertCountEqual({FakeContact, FakeOrganisation}, context['models'])
         self.assertCountEqual(
             [FakeContact._meta.verbose_name, FakeOrganisation._meta.verbose_name],
@@ -274,9 +257,6 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertNoSearchBrick(tree, brick_id_prefix=self.CONTACT_BRICKID)
 
-        # vnames = {str(vname) for vname in context['models']}
-        # self.assertIn(FakeOrganisation._meta.verbose_name, vnames)
-        # self.assertNotIn(FakeContact._meta.verbose_name, vnames)
         self.assertListEqual([FakeOrganisation], context['models'])
         self.assertListEqual(
             [FakeOrganisation._meta.verbose_name],
@@ -417,7 +397,6 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
         "Empty page"
         self.login_as_root()
 
-        # response = self._search(research='', ct_id='')
         response = self._search(searched='', ct_id='')
         self.assertEqual(200, response.status_code)
         self.assertTemplateUsed(response, 'creme_core/search_results.html')
@@ -677,11 +656,6 @@ class SearchViewTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_light_search02(self):
         "Credentials."
         user = self.login_as_standard(allowed_apps=['creme_core'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         self._setup_contacts(user=self.get_root_user())

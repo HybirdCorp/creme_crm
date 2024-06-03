@@ -20,11 +20,6 @@ QUnit.test('creme.widget.AutoSizedTextArea.create (default)', function(assert) {
     equal(widget.layout()._min, 2);
     equal(widget.layout()._max, undefined);
 
-//    if (BrowserVersion.isFirefox()) {
-//        equal(element.attr('rows'), String(2 - 1));
-//    } else {
-//        equal(element.attr('rows'), String(2));
-//    }
     equal(element.attr('rows'), String(2));
 });
 

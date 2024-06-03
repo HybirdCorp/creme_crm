@@ -29,9 +29,3 @@ class XLSImportBackend(XlrdReader, ImportBackend):
         'XLS is a file extension for a spreadsheet file format created by '
         'Microsoft for use with Microsoft Excel ® (Excel 97-2003 Workbook).'
     )
-
-
-# class XLSXImportBackend(XlrdReader, ImportBackend):
-#     id = 'xlsx'
-#     verbose_name = _('XLSX File')
-#     help_text = _('XLSX file extension introduced by Microsoft Excel 2007.')

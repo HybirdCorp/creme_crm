@@ -4,7 +4,6 @@ from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
     EF_REGULAR,
     _EntityFilterRegistry,
@@ -19,7 +18,6 @@ from creme.creme_core.tests.base import CremeTestCase
 class OperatorTestCase(CremeTestCase):
     @staticmethod
     def get_operator(op_id):
-        # return entity_filter_registries[EF_USER].get_operator(op_id)
         return entity_filter_registries[EF_REGULAR].get_operator(op_id)
 
     def test_base(self):
@@ -107,7 +105,6 @@ class OperatorTestCase(CremeTestCase):
     def test_validate_field_values04(self):
         "Operand."
         user = self.get_root_user()
-        # registry = _EntityFilterRegistry(id=10, verbose_name='Test')
         registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         op = operators.ConditionOperator()

@@ -16,9 +16,7 @@ from django.utils.translation import gettext as _
 from parameterized import parameterized
 
 from creme.activities.models.config import CalendarConfigItem
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.creme_jobs import deletor_type
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import DeletionCommand, Job, Relation
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -35,29 +33,6 @@ Activity = get_activity_model()
 
 
 class CalendarManagerTestCase(_ActivitiesTestCase):
-    # def test_deprecated_constants(self):
-    #     with self.assertWarnsMessage(
-    #         expected_warning=DeprecationWarning,
-    #         expected_message='DEFAULT_CALENDAR_COLOR is deprecated.'
-    #     ):
-    #         from ..constants import DEFAULT_CALENDAR_COLOR
-    #
-    #     self.assertEqual('C1D9EC', DEFAULT_CALENDAR_COLOR)
-    #
-    #     # ---
-    #     with self.assertWarnsMessage(
-    #         expected_warning=DeprecationWarning,
-    #         expected_message='COLOR_POOL is deprecated.'
-    #     ):
-    #         from ..constants import COLOR_POOL
-    #
-    #     self.assertIsInstance(COLOR_POOL, tuple)
-    #     self.assertIn('c1d9ec', COLOR_POOL)
-    #
-    #     # ---
-    #     with self.assertRaises(ImportError):
-    #         from ..constants import UNKNOWN  # NOQA
-
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_mngr_create_default_calendar01(self):
         user = self.create_user()
@@ -246,7 +221,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @staticmethod
     def _build_ts(dt):
         return dt.isoformat()
-        # return float(int(dt.timestamp())) * 1000  # Simulates JS that sends milliseconds
 
     @staticmethod
     def build_link_url(activity_id):
@@ -429,16 +403,12 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sub_type2 = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_QUALIFICATION)
         create_act = partial(
             Activity.objects.create, user=user,
-            # type_id=constants.ACTIVITYTYPE_PHONECALL,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
             type_id=sub_type1.type_id, sub_type=sub_type1,
             floating_type=constants.FLOATING,
         )
         act1 = create_act(title='Act#1')
         act2 = create_act(
             title='Act#2',
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
             type_id=sub_type2.type_id, sub_type=sub_type2,
         )
         act3 = create_act(title='Act#3', is_deleted=True)
@@ -494,8 +464,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         def create_act(i):
             act = Activity.objects.create(
                 user=user, title=f'Floating Act#{i}',
-                # type_id=constants.ACTIVITYTYPE_MEETING,
-                # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
                 type_id=sub_type.type_id,
                 sub_type=sub_type,
                 floating_type=constants.FLOATING,
@@ -707,8 +675,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         act = Activity.objects.create(
             user=user, title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
         )
         act.calendars.add(cal)
@@ -849,8 +815,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK)
         act = Activity.objects.create(
             user=user, title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
             type_id=sub_type.type_id, sub_type=sub_type,
         )
         act.calendars.add(default_calendar)
@@ -889,8 +853,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_QUALIFICATION)
         act = Activity.objects.create(
             user=user, title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
             type_id=sub_type.type_id, sub_type=sub_type,
         )
         act.calendars.set([default_calendar, cal1])
@@ -903,29 +865,14 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_change_activity_calendar03(self):
         "Credentials: user can always change its calendars"
         user = self.login_as_activities_user()
-        default_calendar = Calendar.objects.get_default_calendar(user)
-
-        # create_sc = partial(SetCredentials.objects.create, role=user.role)
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
         self.add_credentials(user.role, all=['VIEW'], own='*')
 
+        default_calendar = Calendar.objects.get_default_calendar(user)
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_CONFERENCE)
         act = Activity.objects.create(
             user=self.get_root_user(), title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_PHONECALL,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
             type_id=sub_type.type_id, sub_type=sub_type,
         )
         self.assertFalse(user.has_perm_to_change(act))
@@ -941,18 +888,11 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_change_activity_calendar04(self):
         "App credentials needed."
         user = self.login_as_standard(allowed_apps=['creme_core'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         act = Activity.objects.create(
             user=self.get_root_user(), title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
         )
         act.calendars.add(Calendar.objects.get_default_calendar(user))
@@ -1022,8 +962,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             activity = Activity.objects.create(
                 title='Act#1',
                 user=user,
-                # type_id=constants.ACTIVITYTYPE_PHONECALL,
-                # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
                 type_id=sub_type.type_id,
                 sub_type=sub_type,
                 start=start,
@@ -1075,8 +1013,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create = partial(
             Activity.objects.create,
             user=user,
-            # type_id=constants.ACTIVITYTYPE_PHONECALL,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
             type_id=sub_type1.type_id,
             sub_type=sub_type1,
         )
@@ -1096,8 +1032,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             title='Act#3',
             start=start + timedelta(days=2), end=end + timedelta(days=1),
             is_all_day=True,
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
             type_id=sub_type3.type_id,
             sub_type=sub_type3,
         )
@@ -1203,10 +1137,7 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
         create = partial(
             Activity.objects.create,
-            user=user,
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
-            type_id=sub_type.type_id, sub_type=sub_type,
+            user=user, type_id=sub_type.type_id, sub_type=sub_type,
         )
         act1 = create(
             title='Act#1', start=start + timedelta(days=1), end=start + timedelta(days=2),
@@ -1231,10 +1162,7 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         unav_stype = self._get_sub_type(constants.UUID_SUBTYPE_UNAVAILABILITY)
         create_unav = partial(
             Activity.objects.create,
-            user=user,
-            # type_id=constants.ACTIVITYTYPE_INDISPO,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_UNAVAILABILITY,
-            type_id=unav_stype.type_id, sub_type=unav_stype,
+            user=user, type_id=unav_stype.type_id, sub_type=unav_stype,
         )
         act6 = create_unav(
             title='Ind#1', start=start + timedelta(days=5), end=start + timedelta(days=6),
@@ -1286,8 +1214,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create = partial(
             Activity.objects.create,
             user=user,
-            # type_id=constants.ACTIVITYTYPE_PHONECALL,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
             type_id=sub_type.type_id,
             sub_type=sub_type,
         )
@@ -1402,8 +1328,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         act = Activity.objects.create(
             user=user, title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
             start=start, end=end, floating_type=constants.FLOATING,
         )
@@ -1438,8 +1362,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         create_act = partial(
             Activity.objects.create, user=user, busy=True,
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
         )
         create_dt = self.create_datetime
@@ -1480,8 +1402,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         act = Activity.objects.create(
             user=user, title='Act#1', start=start, end=end,
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
         )
 
@@ -1663,8 +1583,6 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         act = Activity.objects.create(
             user=user, title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
         )
         act.calendars.add(cal3)
@@ -1698,8 +1616,7 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         # POST ---
         response = self.client.post(
-            url,
-            data={'replace_activities__activity_calendars': cal2.id},
+            url, data={'replace_activities__activity_calendars': cal2.id},
         )
         self.assertNoFormError(response)
 

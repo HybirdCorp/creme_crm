@@ -2,8 +2,6 @@ from functools import partial
 
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import CremePropertyType, Relation, RelationType
 from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
@@ -133,8 +131,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertEqual(len(lines), len(results))
 
         act1 = self.get_object_or_fail(Activity, title=title1)
-        # self.assertEqual(constants.ACTIVITYTYPE_MEETING, act1.type_id)
-        # self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_OTHER, act1.sub_type_id)
         self.assertEqual(sub_type.type_id, act1.type_id)
         self.assertEqual(sub_type.id,      act1.sub_type_id)
         self.assertIsNone(act1.start)
@@ -270,7 +266,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             **self.lv_import_data,
             'document': doc.id,
             'user': other_user.id,
-            # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
             'type_selector': sub_type.id,
 
             'my_participation_0': True,
@@ -314,8 +309,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         act1 = self.get_object_or_fail(Activity, title=title1)
         self.assertEqual(other_user, act1.user)
-        # self.assertEqual(constants.ACTIVITYTYPE_MEETING, act1.type_id)
-        # self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, act1.sub_type_id)
         self.assertEqual(sub_type.type_id, act1.type_id)
         self.assertEqual(sub_type.id,      act1.sub_type_id)
 
@@ -422,7 +415,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK).id,
 
                 'participants_mode': '2',  # Search with pattern
@@ -500,7 +492,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             **self.lv_import_data,
             'document': doc.id,
             'user': user.id,
-            # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
             'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK).id,
 
             'participants_mode': 2,  # Search with pattern
@@ -542,7 +533,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                # 'type_selector': constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
                 'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_OUTGOING).id,
 
                 'participants_mode': 1,  # Search with 1 or 2 columns
@@ -581,7 +571,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_MEETING,
                 'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING).id,
 
                 'participants_mode': 2,  # Search with pattern
@@ -608,11 +597,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             allowed_apps=('documents',),
             creatable_models=[Activity, Document],  # Not Contact
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         title = 'Task#1'
@@ -625,7 +609,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                # 'type_selector': constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
                 'type_selector': self._get_sub_type(
                     constants.UUID_SUBTYPE_PHONECALL_CONFERENCE,
                 ).id,
@@ -646,9 +629,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         "Property creation (regular post creation handler should be called)"
         user = self.login_as_root_and_get()
 
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_imported', text='Has been imported',
-        # )
         ptype = CremePropertyType.objects.create(text='Has been imported')
 
         title = 'Task#1'
@@ -659,7 +639,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 'type_selector': self._get_sub_type(
                     constants.UUID_SUBTYPE_MEETING_QUALIFICATION
                 ).id,
@@ -680,22 +659,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             allowed_apps=('documents',),
             creatable_models=[Activity, Document],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     ctype=Contact,
-        #     forbidden=True,
-        # )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'LINK'])
         self.add_credentials(user.role, forbidden_all=['LINK'], model=Contact)
 
-        # other_user = self.other_user
         other_user = self.get_root_user()
         my_calendar = Calendar.objects.get_default_calendar(user)
         doc = self._build_csv_doc([('Meeting#1',)], user=user)
@@ -706,7 +672,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK).id,
 
                 'my_participation_0': True,
@@ -770,7 +735,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
                 'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER).id,
 
                 'subjects_colselect': 2,
@@ -851,7 +815,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
                 'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER).id,
 
                 'subjects_colselect': 2,
@@ -871,11 +834,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             allowed_apps=('documents',),
             creatable_models=[Activity, Document],  # Not Organisation
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         title = 'Task#1'
@@ -887,7 +845,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
                 'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER).id,
 
                 'subjects_colselect': 2,
@@ -906,11 +863,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         user = self.login_as_activities_user(
             allowed_apps=('documents',), creatable_models=[Activity, Document],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         title = 'My Task'
@@ -927,7 +879,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
                 'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER).id,
 
                 'subjects_colselect': 2,
@@ -958,8 +909,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         create_act = partial(
             Activity.objects.create,
             user=user,
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
             type_id=sub_type.type_id, sub_type=sub_type,
         )
         act1 = create_act(title='Fight against demons#1')
@@ -992,7 +941,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 'user': user.id,
                 'key_fields': ['title'],
 
-                # 'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 'type_selector': self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK).id,
 
                 'participants_mode': 1,  # Search with 1 or 2 columns
@@ -1181,11 +1129,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     def test_participants_multicol_extractor02(self):
         "View credentials."
         user = self.login_as_activities_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         last_name = 'Kunieda'
@@ -1202,13 +1145,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     def test_participants_multicol_extractor03(self):
         "Link credentials."
         user = self.login_as_activities_user()
-
-        # create_sc = partial(SetCredentials.objects.create, role=user.role)
-        # create_sc(
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
         self.add_credentials(user.role, own=['VIEW', 'LINK'], all=['VIEW'])
 
         ext = MultiColumnsParticipantsExtractor(0, 1)
@@ -1310,11 +1246,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     def test_participants_singlecol_extractor02(self):
         "SplitColumnParticipantsExtractor + credentials"
         user = self.login_as_activities_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         create_contact = partial(Contact.objects.create, last_name='Kunieda')
@@ -1373,12 +1304,6 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             allowed_apps=('documents',),
             creatable_models=[Activity, Document],
         )
-        # create_sc = partial(SetCredentials.objects.create, role=user.role)
-        # create_sc(
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
         self.add_credentials(user.role, own=['VIEW', 'LINK'], all=['VIEW'])
 
         ext = SubjectsExtractor(1, '/')
@@ -1432,7 +1357,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 _('Too many «{models}» were found for the search «{search}»').format(
                     models=_('Contacts'),
                     search=last_name,
-                )
+                ),
             ],
             err_msg,
         )

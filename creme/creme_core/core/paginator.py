@@ -146,19 +146,6 @@ class FlowPaginator:
         # TODO: if related_model is not None ?
         last_field = field_info[-1]
 
-        # if last_field.is_relation:
-        #     subfield_model = last_field.remote_field.model
-        #     subfield_ordering = subfield_model._meta.ordering
-        #
-        #     if not subfield_ordering:
-        #         raise ValueError(
-        #             f'Invalid key: related field model "{subfield_model}" '
-        #             f'should have Meta.ordering'
-        #         )
-        #
-        #     attr_name += '__' + subfield_ordering[0]
-        #     field_info = FieldInfo(self.queryset.model, attr_name)
-
         # TODO: other check?
         # NB: if the attribute name is different, it means the user talks
         #     about the low-level value "stuff_id", not the ForeignKey "stuff".

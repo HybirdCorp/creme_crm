@@ -163,34 +163,9 @@ class Populator(BasePopulator):
             self._populate_report_n_graphes()
 
     def _populate_phases(self):
-        # create_sphase = SalesPhase.objects.create
-        # create_sphase(order=1, name=_('Forthcoming'))
-        # create_sphase(order=2, name=_('In progress'))
-        # create_sphase(order=3, name=_('Under negotiation'))
-        # create_sphase(
-        #     order=4, name=pgettext('opportunities-sales_phase', 'Abandoned'),
-        # )
-        # create_sphase(
-        #     order=5, name=pgettext('opportunities-sales_phase', 'Won'),
-        #     won=True, color='1dd420',
-        # )
-        # create_sphase(
-        #     order=6, name=pgettext('opportunities-sales_phase', 'Lost'),
-        #     lost=True, color='ae4444',
-        # )
         self._save_minions(self.SALES_PHASES)
 
     def _populate_origins(self):
-        # create_origin = Origin.objects.create
-        # create_origin(name=pgettext('opportunities-origin', 'None'))
-        # create_origin(name=_('Web site'))
-        # create_origin(name=_('Mouth'))
-        # create_origin(name=_('Show'))
-        # create_origin(name=_('Direct email'))
-        # create_origin(name=_('Direct phone call'))
-        # create_origin(name=_('Employee'))
-        # create_origin(name=_('Partner'))
-        # create_origin(name=pgettext('opportunities-origin', 'Other'))
         self._save_minions(self.ORIGINS)
 
     def _populate_relation_types(self):
@@ -199,7 +174,6 @@ class Populator(BasePopulator):
         Organisation = self.Organisation
 
         create_rtype = RelationType.objects.smart_update_or_create
-        # rt_sub_targets = create_rtype(...)[0]
         create_rtype(
             (
                 constants.REL_SUB_TARGETS,
@@ -213,7 +187,6 @@ class Populator(BasePopulator):
             is_internal=True,
             minimal_display=(True, True),
         )
-        # rt_obj_emit_orga = create_rtype(...)[1]
         create_rtype(
             (
                 constants.REL_SUB_EMIT_ORGA,
@@ -366,7 +339,6 @@ class Populator(BasePopulator):
             name=_('Opportunity view'),
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
-                # EntityCellRelation(model=self.Opportunity, rtype=rt_sub_targets),
                 EntityCellRelation(
                     model=self.Opportunity,
                     rtype=RelationType.objects.get(id=constants.REL_SUB_TARGETS),
@@ -544,7 +516,6 @@ class Populator(BasePopulator):
             model=self.Organisation,
         )
 
-    # def create_report_n_graphes(self, rt_obj_emit_orga):
     def _populate_report_n_graphes(self):
         "Create the report 'Opportunities' and 2 ReportGraphs."
         # NB: the fixed UUIDs were added with Creme2.5 in order to facilitate
@@ -580,7 +551,6 @@ class Populator(BasePopulator):
         create_field(name='estimated_sales',   order=2)
         create_field(name='made_sales',        order=3)
         create_field(name='sales_phase__name', order=4)
-        # create_field(name=rt_obj_emit_orga.id, order=5, type=RFT_RELATION)
         create_field(name=constants.REL_OBJ_EMIT_ORGA, order=5, type=RFT_RELATION)
 
         # Create 2 graphs ------------------------------------------------------

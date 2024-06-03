@@ -208,7 +208,6 @@ class FieldInfoTestCase(CremeTestCase):
             FieldInfo(FakeContact, 'first_name').value_from(al),
         )
         self.assertEqual(user, FieldInfo(FakeContact, 'user').value_from(al))
-        # self.assertEqual(user, FieldInfo(FakeContact, 'user_id').value_from(al))
         self.assertEqual(user.id, FieldInfo(FakeContact, 'user_id').value_from(al))
         self.assertEqual(
             user.username,
@@ -239,10 +238,6 @@ class FieldInfoTestCase(CremeTestCase):
             FieldInfo(FakeContact, 'cremeentity_ptr').value_from(al),
             CremeEntity,
         )
-        # self.assertIsInstance(
-        #     FieldInfo(FakeContact, 'cremeentity_ptr_id').value_from(al),
-        #     CremeEntity,
-        # )
         self.assertIsInstance(al.pk, int)
         self.assertEqual(al.pk, FieldInfo(FakeContact, 'cremeentity_ptr_id').value_from(al))
 

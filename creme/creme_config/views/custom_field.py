@@ -67,7 +67,6 @@ class CustomFieldCreation(EntityCTypeRelatedMixin,
         )
 
 
-# class Portal(generic.BricksView):
 class Portal(base.ConfigPortal):
     template_name = 'creme_config/custom_field/portal.html'
     brick_classes = [bricks.CustomFieldsBrick]
@@ -219,7 +218,6 @@ class CustomEnumDeletion(base.ConfigModelEdition):
 
 class CustomEnumBrickReloading(BricksReloading):
     permissions = base._PERM
-    # check_bricks_permission = False
     pk_url_kwarg = 'field_id'
 
     def get_bricks_context(self):

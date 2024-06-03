@@ -31,12 +31,6 @@
                     return backend.responseJSON(200, self.mockBrickState);
                 },
                 'mock/brick/all/reload': function(url, data, options) {
-/*
-                    var brickContents = (data.brick_id || []).map(function(id) {
-                        var content = self._brickReloadContent[id];
-                        return [id, content || MOCK_BRICK_CONTENT.template({id: id})];
-                    });
-*/
                     var brickContents = (data.brick_id || []).map(function(brick_type_id) {
                         var content = self._brickReloadContent['brick-' + brick_type_id];
                         return [brick_type_id, content || MOCK_BRICK_CONTENT.template({id: brick_type_id})];

@@ -182,7 +182,6 @@ class _HistoryLineType:
             for field in instance._meta.fields:
                 # use get_attname instead of name to check ids for foreignkeys
                 # instead of the entity to optimize queries' number
-                # fname = field.name
                 fname = field.get_attname()
 
                 if fname in excluded_fields or not field.get_tag(FieldTag.VIEWABLE):
@@ -191,10 +190,6 @@ class _HistoryLineType:
                 old_value = getattr(old_instance, fname)
                 new_value = getattr(instance, fname)
 
-                # if isinstance(field, ForeignKey):
-                #     old_value = old_value and old_value.pk
-                #     new_value = new_value and new_value.pk
-                # else:
                 if not isinstance(field, ForeignKey):
                     try:
                         # Sometimes a form sets a string representing an int in
@@ -623,11 +618,6 @@ class _HLTSymRelationDeletion(_HLTRelationDeletion):
 class _HLTAuxCreation(_HistoryLineType):
     verbose_name = _('Auxiliary (creation)')
 
-    # @staticmethod
-    # def _model_info(ct_id):
-    #     model_class = ContentType.objects.get_for_id(ct_id).model_class()
-    #     return model_class, model_class._meta.verbose_name
-
     @staticmethod
     def _build_modifs(related):
         return [_get_ct(related).id, related.pk, str(related)]
@@ -807,8 +797,6 @@ class HistoryLine(Model):
 
     type  = models.PositiveSmallIntegerField(_('Type'))  # See TYPE_*
     value = models.TextField(null=True)  # TODO: use a JSONField ? (see EntityFilter)
-
-    # ENABLED: bool = True  (see is_history_enabled())
 
     _line_type: _HistoryLineType | None = None
     _entity_repr: str | None = None
@@ -1061,7 +1049,6 @@ class HistoryLine(Model):
         if update_fields is not None:
             raise ValueError('Argument "update_fields" not managed.')
 
-        # if self.ENABLED:
         if is_history_enabled():
             # if self.pk is None: TODO ?
             user = get_global_info('user')
@@ -1111,7 +1098,6 @@ def _prepare_log(sender, instance, **kwargs):
         return
 
     if hasattr(instance, 'get_related_entity'):
-        # _HistoryLineType._create_entity_backup(instance)
         if instance.id:
             _HistoryLineType._create_entity_backup(instance)
     elif isinstance(instance, CremeEntity) and instance.id and _final_entity(instance):

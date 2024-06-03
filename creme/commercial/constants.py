@@ -1,4 +1,3 @@
-# PROP_IS_A_SALESMAN = 'commercial-is_a_salesman'
 UUID_PROP_IS_A_SALESMAN = '042e6f86-c40d-4e29-a18b-24fe05ad2193'
 
 REL_SUB_SOLD = 'commercial-subject_sold_by'  # NB: keep the value (wrong "_by") for compatibility

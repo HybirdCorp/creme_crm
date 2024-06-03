@@ -802,7 +802,6 @@ class EntityFilterTestCase(test_base.BrickTestCaseMixin,
         self.assertEqual(reverse('reports__edit_efilter', args=(efilter.id,)), url)
 
         response1 = self.assertGET200(url)
-        # self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit.html')
         self.assertTemplateUsed(response1, 'creme_core/forms/entity-filter.html')
 
         context1 = response1.context

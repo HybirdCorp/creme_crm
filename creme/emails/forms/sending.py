@@ -309,30 +309,6 @@ class SendingCreationForm(core_forms.CremeModelForm):
             *self._get_variables(template.body_html),
         ]
 
-        # disable_history = HistoryLine.disable
-        #
-        # for address, recipient_entity in instance.campaign.all_recipients():
-        #     mail = LightWeightEmail(
-        #         sending=instance,
-        #         sender=instance.sender,
-        #         recipient=address,
-        #         sending_date=instance.sending_date,
-        #         real_recipient=recipient_entity,
-        #     )
-        #
-        #     if recipient_entity:
-        #         context = {}
-        #
-        #         for var_name in var_names:
-        #             val = getattr(recipient_entity, var_name, None)
-        #             if val:
-        #                 context[var_name] = str(val)
-        #
-        #         if context:
-        #             mail.body = json_dump(context, separators=(',', ':'))
-        #
-        #     disable_history(mail)
-        #     mail.genid_n_save()
         with toggle_history(enabled=False):
             for address, recipient_entity in instance.campaign.all_recipients():
                 mail = LightWeightEmail(

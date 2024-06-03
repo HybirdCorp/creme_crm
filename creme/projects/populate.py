@@ -34,7 +34,6 @@ from creme.creme_core.models import (
     RelationType,
     SearchConfigItem,
 )
-# from creme.creme_core.utils import create_if_needed
 from creme.persons import get_contact_model
 
 from . import (
@@ -152,19 +151,9 @@ class Populator(BasePopulator):
         self._populate_task_statuses()
 
     def _populate_project_statuses(self):
-        # for pk, (name, description) in enumerate(self.PROJECT_STATUSES, start=1):
-        #     create_if_needed(
-        #         ProjectStatus, {'pk': pk},
-        #         name=name, order=pk, description=description,
-        #     )
         self._save_minions(self.PROJECT_STATUSES)
 
     def _populate_task_statuses(self):
-        # for pk, statusdesc in constants.TASK_STATUS.items():
-        #     create_if_needed(
-        #         TaskStatus, {'pk': pk}, name=str(statusdesc.name), order=pk,
-        #         description=str(statusdesc.verbose_name), is_custom=False,
-        #     )
         self._save_minions(self.TASK_STATUSES)
 
     def _populate_relation_types(self):

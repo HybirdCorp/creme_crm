@@ -37,7 +37,6 @@ from ..utils.unicode_collation import collator
 from .bricks import BricksReloading
 from .generic import base
 
-# MIN_RESEARCH_LENGTH = 3
 MIN_SEARCH_LENGTH = 3
 logger = logging.getLogger(__name__)
 
@@ -47,39 +46,18 @@ class FoundEntitiesBrick(QuerysetBrick):
 
     id_prefix = 'found'
 
-    # def __init__(self, searcher, model, research, user, id=None):
     def __init__(self, searcher, model, searched, user, id=None):
         super().__init__()
         # dependencies  = (...,)  # TODO: ??
         self.searcher = searcher
         self.model = model
-        # self.research = research
         self.searched = searched
         self.user = user
         ctype = ContentType.objects.get_for_model(model)
-        # self.id = id or self.generate_id(
-        #     'creme_core',
-        #     f'found-{ctype.app_label}-{ctype.model}-{int(time())}',
-        # )
         # We generate a unique ID for each search, in order
         # to avoid sharing state (e.g. page number) between researches.
         self.id = id or f'{self.id_prefix}-{ctype.app_label}-{ctype.model}-{int(time())}'
 
-    # @staticmethod
-    # def parse_brick_id(brick_id) -> ContentType | None:
-    #     parts = brick_id.split('-')
-    #     ctype = None
-    #
-    #     if len(parts) == 5 and parts[4]:
-    #         try:
-    #             tmp_ctype = ContentType.objects.get_by_natural_key(parts[2], parts[3])
-    #         except ContentType.DoesNotExist:
-    #             pass
-    #         else:
-    #             if issubclass(tmp_ctype.model_class(), CremeEntity):
-    #                 ctype = tmp_ctype
-    #
-    #     return ctype
     @classmethod
     def parse_brick_id(cls, brick_id) -> ContentType | None:
         """Extract info from brick ID.
@@ -117,10 +95,8 @@ class FoundEntitiesBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         model = self.model
-        # research = self.research
         searched = self.searched
         searcher = self.searcher
-        # results = searcher.search(model, research)
         results = searcher.search(model, searched)
 
         if results is None:
@@ -139,12 +115,10 @@ class SearcherMixin:
     searchable_models_registry = creme_registry
 
     def get_raw_models(self):
-        # models = [*self.searchable_models_registry.iter_entity_models()]
         role = self.request.user.role
         models = [*creme_registry.iter_entity_models(
             app_labels=role.allowed_apps if role else None
         )]
-        # models.sort(key=lambda m: m._meta.verbose_name)
         sort_key = collator.sort_key
         models.sort(key=lambda m: sort_key(str(m._meta.verbose_name)))
 
@@ -181,7 +155,6 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
             ResultBrick = partial(
                 self.brick_class,
                 searcher=searcher,
-                # research=self.get_search_terms(),
                 searched=self.get_search_terms(),
                 user=searcher.user,
             )
@@ -198,10 +171,8 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context['research'] = self.get_search_terms()
         context['searched'] = self.get_search_terms()
         context['error_message'] = self.get_search_error()
-        # context['models'] = [m._meta.verbose_name for m in self.get_searcher().models]
         context['models'] = models = [*self.get_searcher().models]
         context['verbose_names'] = [str(model._meta.verbose_name) for model in models]
 
@@ -217,8 +188,6 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
         ctype = self.get_ctype()
 
         if ctype is None:
-            # models = [*creme_registry.iter_entity_models()]
-            # models.sort(key=lambda m: m._meta.verbose_name)
             models = super().get_raw_models()
         else:
             models = [ctype.model_class()]
@@ -230,11 +199,6 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
 
         if error is None:
             self.search_error = error = (
-                # gettext(
-                #     'Please enter at least {count} characters'
-                # ).format(count=MIN_RESEARCH_LENGTH)
-                # if len(self.get_search_terms()) < MIN_RESEARCH_LENGTH else
-                # ''
                 gettext(
                     'Please enter at least {count} characters'
                 ).format(count=MIN_SEARCH_LENGTH)
@@ -248,15 +212,12 @@ class Search(SearcherMixin, base.EntityCTypeRelatedMixin, base.BricksView):
         terms = self.search_terms
 
         if terms is None:
-            # self.search_terms = terms = self.request.GET.get('research', '')
             self.search_terms = terms = self.request.GET.get('search', '')  # TODO: attribute
 
         return terms
 
 
 class SearchBricksReloading(BricksReloading):
-    # check_bricks_permission = False
-
     def get_bricks(self):
         bricks = []
         request = self.request
@@ -271,11 +232,8 @@ class SearchBricksReloading(BricksReloading):
 
             user.has_perm_to_access_or_die(ctype.app_label)
 
-            # search = GET.get('search', '')
             searched = GET.get('search', '')
 
-            # if len(search) < MIN_RESEARCH_LENGTH:
-            #     raise Http404(f'Please enter at least {MIN_RESEARCH_LENGTH} characters')
             if len(searched) < MIN_SEARCH_LENGTH:
                 raise Http404(f'Please enter at least {MIN_SEARCH_LENGTH} characters')
 
@@ -283,7 +241,6 @@ class SearchBricksReloading(BricksReloading):
             bricks.append(
                 FoundEntitiesBrick(
                     searcher=Searcher([model], user), model=model,
-                    # searched=search, user=user, id=brick_id,
                     searched=searched, user=user, id=brick_id,
                 )
             )
@@ -322,8 +279,6 @@ class LightSearch(SearcherMixin, base.CheckedView):
 
         if not terms:
             data['error'] = self.error_msg_empty
-        # elif len(terms) < MIN_RESEARCH_LENGTH:
-        #     data['error'] = self.error_msg_length.format(count=MIN_RESEARCH_LENGTH)
         elif len(terms) < MIN_SEARCH_LENGTH:
             data['error'] = self.error_msg_length.format(count=MIN_SEARCH_LENGTH)
         else:

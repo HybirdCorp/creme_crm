@@ -30,7 +30,6 @@ from ..forms import button_menu as button_forms
 from . import base
 
 
-# class Portal(generic.BricksView):
 class Portal(base.ConfigPortal):
     template_name = 'creme_config/portals/button-menu.html'
     brick_classes = [ButtonMenuBrick]

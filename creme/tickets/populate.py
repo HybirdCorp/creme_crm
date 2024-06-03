@@ -26,7 +26,6 @@ import creme.creme_core.bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-# from creme.creme_core.utils import create_if_needed
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     ButtonMenuItem,
@@ -46,7 +45,6 @@ from . import (
     get_tickettemplate_model,
 )
 from .menu import TicketsEntry
-# from .models.status import BASE_STATUS
 from .models import Criticity, Priority, Status
 
 logger = logging.getLogger(__name__)
@@ -125,16 +123,6 @@ class Populator(BasePopulator):
         self._populate_fields_config()
 
     def _populate_statuses(self):
-        # for pk, name, is_closed, color in BASE_STATUS:
-        #     create_if_needed(
-        #         Status,
-        #         {'pk': pk},
-        #         name=str(name),
-        #         is_closed=is_closed,
-        #         color=color,
-        #         is_custom=False,
-        #         order=pk,
-        #     )
         self._save_minions(self.STATUSES)
 
     def _populate_fields_config(self):
@@ -145,13 +133,9 @@ class Populator(BasePopulator):
             )
 
     def _populate_priorities(self):
-        # for i, name in enumerate(self.PRIORITIES, start=1):
-        #     create_if_needed(Priority, {'pk': i}, name=name, order=i)
         self._save_minions(self.PRIORITIES)
 
     def _populate_criticality(self):
-        # for i, name in enumerate(self.CRITICALITY, start=1):
-        #     create_if_needed(Criticity, {'pk': i}, name=name, order=i)
         self._save_minions(self.CRITICALITY)
 
     def _populate_relation_types(self):

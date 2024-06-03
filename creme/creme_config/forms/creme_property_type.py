@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,75 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.forms import BooleanField, CharField
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.forms import (
-#     CremeForm,
-#     CremeModelForm,
-#     MultiEntityCTypeChoiceField,
-# )
 from creme.creme_core import forms as core_forms
 from creme.creme_core.models import CremePropertyType
 
 
-# class _CremePropertyTypeBaseForm(CremeForm):
-#     text = CharField(label=_('Text'), help_text=_("For example: 'is pretty'"))
-#     is_copiable = BooleanField(
-#         label=_('Is copiable'), initial=True, required=False,
-#         help_text=_(
-#             'Are the properties with this type copied when an entity is cloned?'
-#         ),
-#     )
-#     subject_ctypes = MultiEntityCTypeChoiceField(
-#         label=_('Related to types of entities'),
-#         help_text=_('No selected type means that all types are accepted'),
-#         required=False,
-#     )
-#
-#     def __init__(self, instance=None, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.instance = instance
-#
-#
-# class CremePropertyTypeCreationForm(_CremePropertyTypeBaseForm):
-#     def save(self):
-#         get_data = self.cleaned_data.get
-#         ptype = CremePropertyType.objects.smart_update_or_create(
-#             str_pk='creme_config-userproperty',
-#             text=get_data('text'),
-#             subject_ctypes=get_data('subject_ctypes'),
-#             is_custom=True, generate_pk=True,
-#             is_copiable=get_data('is_copiable'),
-#         )
-#         super().save()
-#
-#         return ptype
-#
-#
-# class CremePropertyTypeEditionForm(_CremePropertyTypeBaseForm):
-#     def __init__(self, instance, *args, **kwargs):
-#         super().__init__(instance=instance, *args, **kwargs)
-#         fields = self.fields
-#
-#         fields['text'].initial = instance.text
-#         fields['is_copiable'].initial = instance.is_copiable
-#         fields['subject_ctypes'].initial = [
-#             ct.id for ct in instance.subject_ctypes.all()
-#         ]
-#
-#     def save(self):
-#         get_data = self.cleaned_data.get
-#         ptype = CremePropertyType.objects.smart_update_or_create(
-#             str_pk=self.instance.id,
-#             text=get_data('text'),
-#             subject_ctypes=get_data('subject_ctypes'),
-#             is_custom=True,
-#             is_copiable=get_data('is_copiable'),
-#         )
-#         super().save()
-#
-#         return ptype
 class CremePropertyForm(core_forms.CremeModelForm):
     # TODO: formfield_callback???
     subject_ctypes = core_forms.MultiEntityCTypeChoiceField(

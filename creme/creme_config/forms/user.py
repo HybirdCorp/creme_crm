@@ -149,15 +149,6 @@ class UserEditionForm(CremeModelForm):
 
         return cdata
 
-    # def save(self, *args, **kwargs):
-    #     instance = self.instance
-    #     # NB: needed with django 1.8 when we reset to 'None'
-    #     #     (the value seems skipped) => is it a bug ??
-    #     instance.role = role = self.cleaned_data['role']
-    #     instance.is_superuser = (role is None)
-    #
-    #     return super().save(*args, **kwargs)
-
 
 # NB: we cannot use django.contrib.auth.forms.AdminPasswordChangeForm, because it defines a 'user'
 #     attribute like us (but it corresponds to our 'user2edit' one, not our 'user' one)
@@ -168,7 +159,6 @@ class UserPasswordChangeForm(CremeForm):
     }
 
     old_password = CharField(
-        # label=_('Old password'),
         label=_('Your old password'),
         strip=False,
         widget=PasswordInput(attrs={'autocomplete': 'current-password', 'autofocus': True}),

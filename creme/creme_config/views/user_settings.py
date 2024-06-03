@@ -38,7 +38,6 @@ from ..forms.setting import UserSettingForm
 
 
 class UserSettings(generic.BricksView):
-    # template_name = 'creme_config/user_settings.html'
     template_name = 'creme_config/user-settings.html'
     bricks_reload_url_name = 'creme_config__reload_user_settings_bricks'
 
@@ -65,8 +64,6 @@ class UserSettings(generic.BricksView):
             context['displayed_name_form'] = settings_forms.UserDisplayedNameForm(
                 user=user, instance=user,
             ).as_div()
-
-        # context['apps_usersettings_bricks'] = [*self.config_registry.user_bricks]
 
         return context
 

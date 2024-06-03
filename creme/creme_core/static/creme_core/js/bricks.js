@@ -282,7 +282,6 @@ creme.bricks.BrickTable = creme.component.Component.sub({
           // TODO: simpler param -> key == 'order_by' ??
           var params = {};
           var order = ascending ? '' : '-';
-//          params[this._brick.id() + '_order'] = order + field;
           params[this._brick.type_id() + '_order'] = order + field;
 
           this._brick.refresh(params);
@@ -528,7 +527,6 @@ creme.bricks.Brick = creme.component.Component.sub({
         this._pager = new creme.list.Pager()
                                       .on('refresh', function(event, page) {
                                            var data = {};
-//                                           data[self._id + '_page'] = page;
                                            data[self.type_id() + '_page'] = page;
                                            self.refresh(data);
                                        });
@@ -731,7 +729,6 @@ creme.bricks.Brick = creme.component.Component.sub({
 
             if (!Object.isEmpty(this._stateSaveURL)) {
                 creme.ajax.query(this._stateSaveURL, {action: 'post'}, {
-//                               id:                this._id,
                                brick_id:          this.type_id(),
                                is_open:           state.collapsed ? 0 : 1,
                                show_empty_fields: state.reduced ? 0 : 1
@@ -996,16 +993,12 @@ creme.bricks.BricksReloader.prototype = {
 
         $('.brick.widget-ready', this._bricksContainer).each(function() {
             var brick = $(this).creme().widget().brick();
-//            var brick_id = brick.id();
-
-//            if (brickFilter(brick) && !Object.isEmpty(brick_id)) {
             if (brickFilter(brick) && !Object.isEmpty(brick.id()) && !Object.isEmpty(brick.type_id())) {
                 bricks.push(brick);
 
                 var brick_extra_data = brick.reloadingInfo();
 
                 if (!Object.isEmpty(brick_extra_data)) {
-//                    extra_data[brick_id] = brick_extra_data;
                     extra_data[brick.type_id()] = brick_extra_data;
                 }
             }
@@ -1057,7 +1050,6 @@ creme.bricks.BricksReloader.prototype = {
                          .onDone(function(event, data) {
                               data.forEach(function(entry) {
                                   creme.bricks.replaceContent(
-//                                      $('[id="' + entry[0] + '"]'),
                                       $('[id="brick-' + entry[0] + '"]'),
                                       $((entry[1] || '').trim())
                                   );

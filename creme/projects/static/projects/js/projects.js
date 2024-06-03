@@ -22,21 +22,6 @@
 
 creme.projects = creme.projects || {};
 
-/*
-$(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) {
-    actions.register('projects-hatmenubar-close', function(url, options, data, e) {
-        options = $.extend({
-            action: 'post',
-            confirm: gettext('Do you really want to close this project?'),
-            reloadOnSuccess: true,
-            warnOnFail: true
-        }, options || {});
-
-        return creme.utils.ajaxQuery(url, options, data);
-    });
-});
-*/
-
 $(document).on('listview-setup-actions', '.ui-creme-listview', function(e, actions) {
     actions.register('projects-close', function(url, options, data, e) {
         var list = this._list;

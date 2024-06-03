@@ -4,9 +4,8 @@ from django.template import Context, Template
 from django.utils.translation import gettext as _
 
 from creme import persons
-# from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.models import Relation  # SetCredentials
+from creme.creme_core.models import Relation
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 from creme.persons.models import Civility
 
@@ -210,11 +209,6 @@ class PersonsTagsTestCase(_BaseTestCase):
         other_user = self.get_root_user()
         contact = Contact.objects.create(user=user, first_name='Homer', last_name='Simpson')
 
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         create_orga = Organisation.objects.create

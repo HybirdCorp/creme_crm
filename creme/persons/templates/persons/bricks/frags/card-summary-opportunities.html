@@ -23,23 +23,3 @@
     </div>
 </div>
 {% endwith %}
-
-{% comment %}
-{% load i18n creme_widgets %}
-{% if opportunities is not None %}
-    <div class="card-info-field">
-        <div class="card-info-field">
-            <span class='card-info-key'>
-                {% if opportunities|length == 0 %}
-                    {% translate 'Opportunities' %}
-                {% else %}
-                    {% blocktranslate count count=opportunities|length %}{{count}} Opportunity{% plural %}{{count}} Opportunities{% endblocktranslate %}
-                {% endif %}
-            </span>
-            <span class='card-info-value'>
-                {% for opp in opportunities %}{% widget_join %}{% widget_entity_hyperlink opp user %}{% end_widget_join %}{% empty %}—{% endfor %}
-            </span>
-        </div>
-    </div>
-{% endif %}
-{% endcomment %}

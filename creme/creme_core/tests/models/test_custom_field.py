@@ -171,8 +171,6 @@ class CustomFieldsTestCase(CremeTestCase):
 
         value = cf_value.value + 1
 
-        # HistoryLine.disable(cf_value)
-        # with self.assertNumQueries(1):
         # 2: value + history
         with self.assertNumQueries(2):
             cf_value.set_value_n_save(value)
@@ -374,8 +372,6 @@ by a man named Tochiro.
             value=False,
         )
 
-        # HistoryLine.disable(cf_value)
-
         with self.assertNumQueries(1):
             cf_value.set_value_n_save(True)
 
@@ -448,8 +444,6 @@ by a man named Tochiro.
             value=enum_value1,
         )
 
-        # HistoryLine.disable(cf_value)
-        # with self.assertNumQueries(1):
         # 2: value + history
         with self.assertNumQueries(2):
             cf_value.set_value_n_save(str(enum_value2.id))
@@ -520,10 +514,6 @@ by a man named Tochiro.
             custom_field=cfield,
             entity=orga,
         )
-
-        # HistoryLine.disable(cf_value)
-        # with self.assertNumQueries(3):
-        #     cf_value.set_value_n_save([enum_value1, enum_value2])
 
         # 3 queries to select & save the values
         # 1 to create history line

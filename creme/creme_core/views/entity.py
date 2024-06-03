@@ -37,7 +37,6 @@ from django.db.models import ProtectedError, Q
 from django.db.transaction import atomic
 from django.forms.fields import ChoiceField
 from django.forms.models import modelform_factory
-# from django.http import HttpResponseBadRequest
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -330,12 +329,6 @@ class NextEntityVisiting(base.EntityCTypeRelatedMixin, base.CheckedView):
         )
 
     def get_paginator(self, *, queryset, ordering: Sequence[str]) -> FlowPaginator:
-        # if ordering == ('cremeentity_ptr_id',):
-        #     raise ConflictError(_(
-        #         'The exploration mode cannot be used because your list is not ordered '
-        #         '(hint: chose a column in the list header then try to enter in the mode again).'
-        #     ))
-
         # NB: we use the smartness of FlowPaginator to retrieve only 3 entities
         #  (page size + 1), instead of juste using an index + whole queryset.
         #  it retrieves the value of the key field, & it takes cares about
@@ -678,8 +671,6 @@ class SearchAndView(base.CheckedView):
 # TODO: remove when bulk_update_registry has been rework to manage different
 #       types of cells (e.g. RelationType => LINK)
 def _bulk_has_perm(entity, user):  # NB: indeed 'entity' can be a simple model...
-    # owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity
-    # return user.has_perm_to_change(owner) if isinstance(owner, CremeEntity) else False
     try:
         return user.has_perm_to_change(entity)
     except TypeError as e:
@@ -748,12 +739,6 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
 
     results_template_name = 'creme_core/bulk-update-results.html'
     max_errors = 100
-
-    # def dispatch(self, *args, **kwargs):
-    #     try:
-    #         return super().dispatch(*args, **kwargs)
-    #     except (FieldDoesNotExist, bulk_update.FieldNotAllowed) as e:
-    #         return HttpResponseBadRequest(str(e))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -861,8 +846,6 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
         entities = self.entities
         kwargs['instances'] = entities
 
-        # if len(entities) == 1:
-        #     kwargs['instance'] = entities[0]
         if entities:
             # NB:
             #  - if we let an empty instance of <self.get_ctype().model_class()>
@@ -1224,11 +1207,9 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
 
     def check_related_entity_permissions(self, entity, user):
         if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
-            # raise Http404(gettext('This model does not use the generic deletion view.'))
             raise ConflictError(gettext('This model does not use the generic deletion view.'))
 
         if hasattr(entity, 'get_related_entity'):
-            # raise Http404('Can not restore an auxiliary entity')
             raise ConflictError('Can not restore an auxiliary entity')  # See trash_entity()
 
         user.has_perm_to_delete_or_die(entity)

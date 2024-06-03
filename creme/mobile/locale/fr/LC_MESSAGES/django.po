@@ -442,21 +442,3 @@ msgstr "échoué"
 #, python-brace-format
 msgid "Call to {person} from {software} Mobile"
 msgstr "Appel vers {person} depuis {software} Mobile"
-
-#~ msgid "This contact is a favorite for %s user"
-#~ msgstr "Ce contact est un favori pour %s utilisateur"
-
-#~ msgid "This contact is a favorite for %s users"
-#~ msgstr "Ce contact est un favori pour %s utilisateurs"
-
-#~ msgid "This organisation is a favorite for %s user"
-#~ msgstr "Cette société est une favorite pour %s utilisateur"
-
-#~ msgid "This organisation is a favorite for %s users"
-#~ msgstr "Cette société est une favorite pour %s utilisateurs"
-
-#~ msgid "This entity is a favorite for %s user"
-#~ msgstr "Cette fiche est une favorite pour %s utilisateur"
-
-#~ msgid "This entity is a favorite for %s users"
-#~ msgstr "Cette fiche est une favorite pour %s utilisateurs"

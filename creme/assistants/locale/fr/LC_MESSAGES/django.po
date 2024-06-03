@@ -640,51 +640,8 @@ msgstr "Vous n'avez pas la permission de supprimer ce message: {}"
 #~ msgid "User message from {software}: {title}"
 #~ msgstr "Message utilisateur de {software}: {title}"
 
-#~ msgid ""
-#~ "{user} sent you the following message:\n"
-#~ "{body}"
-#~ msgstr ""
-#~ "{user} vous a envoyé le message suivant:\n"
-#~ "{body}"
-
 #~ msgid "An error occurred while sending emails"
 #~ msgstr "Une erreur s'est produite pendant l'envoi des e-mails"
-
-#~ msgid ""
-#~ "This mail is automatically sent by {software} to remind you that an alert "
-#~ "concerning {entity} will expire.\n"
-#~ "            Alert : {title}.\n"
-#~ "            which description is : {description}.\n"
-#~ "\n"
-#~ "            which is related to the entity : {entity}"
-#~ msgstr ""
-#~ "Ce mail est envoyé automatiquement par {software} pour vous rappeler "
-#~ "qu'une alerte concernant {entity} va arriver à échéance.\n"
-#~ "            Alerte : {title}.\n"
-#~ "            dont la description est : {description}.\n"
-#~ "\n"
-#~ "            qui est rattachée à la fiche : {entity}"
-
-#~ msgid "Reminder concerning a {software} alert related to {entity}"
-#~ msgstr "Rappel concernant une alerte {software} à propos de {entity}"
-
-#~ msgid ""
-#~ "This mail is automatically sent by {software} to remind you that a todo "
-#~ "concerning {entity} will expire.\n"
-#~ "            Todo : {title}.\n"
-#~ "            which description is : {description}.\n"
-#~ "\n"
-#~ "            which is related to the entity : {entity}"
-#~ msgstr ""
-#~ "Ce mail est envoyé automatiquement par {software} pour vous rappeler "
-#~ "qu'une todo concernant {entity} va arriver à échéance.\n"
-#~ "            Todo : {title}. \n"
-#~ "            dont la description est : {description}.\n"
-#~ "\n"
-#~ "            qui est rattachée à la fiche : {entity}"
-
-#~ msgid "Reminder concerning a {software} todo related to {entity}"
-#~ msgstr "Rappel concernant une todo {software} à propos de {entity}"
 
 #~ msgid "Reactions"
 #~ msgstr "Réactions"
@@ -728,56 +685,14 @@ msgstr "Vous n'avez pas la permission de supprimer ce message: {}"
 #~ msgid "Treated?"
 #~ msgstr "Traitée ?"
 
-#~ msgid "%s Memo"
-#~ msgstr "%s Mémo"
-
-#~ msgid "%s Memos"
-#~ msgstr "%s Mémos"
-
-#~ msgid "%s User message"
-#~ msgstr "%s Message utilisateur"
-
-#~ msgid "%s User messages"
-#~ msgstr "%s Messages utilisateur"
-
 #~ msgid "Message"
 #~ msgstr "Message"
-
-#~ msgid "Delete"
-#~ msgstr "Supprimer"
-
-#~ msgid "%s Todo"
-#~ msgstr "%s Todo"
-
-#~ msgid "%s Todos"
-#~ msgstr "%s Todos"
 
 #~ msgid "The Todo is validated."
 #~ msgstr "Le Todo est validé."
 
-#~ msgid "Submit"
-#~ msgstr "Envoyer"
-
 #~ msgid "Users to keep informed"
 #~ msgstr "Les utilisateurs à tenir informés"
-
-#~ msgid "[Creme] Activity created: %s"
-#~ msgstr "[Creme] Activité créée: %s"
-
-#~ msgid ""
-#~ "A new activity has been created: %(activity)s.\n"
-#~ "    Description: %(description)s.\n"
-#~ "    Start: %(start)s.\n"
-#~ "    End: %(end)s.\n"
-#~ "    Subjects: %(subjects)s.\n"
-#~ "    Participants: %(participants)s."
-#~ msgstr ""
-#~ "Une nouvelle activité a été créée: %(activity)s.\n"
-#~ "    Description: %(description)s.\n"
-#~ "    Début: %(start)s.\n"
-#~ "    Fin: %(end)s.\n"
-#~ "    Sujets: %(subjects)s.\n"
-#~ "    Participants: %(participants)s."
 
 #~ msgid "not specified"
 #~ msgstr "non renseigné"

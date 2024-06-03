@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import logging
 import warnings
-# from json import loads as json_load
 from typing import TYPE_CHECKING, Iterable
 
 from django.contrib.contenttypes.models import ContentType
@@ -31,7 +30,6 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-# from ..utils.serializers import json_encode
 from . import CremeEntity, CremeUser
 from . import fields as core_fields
 
@@ -177,7 +175,6 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
     )
 
     # TODO: CellsField? (what about auto saving on invalid cells?)
-    # json_cells = models.TextField(editable=False, null=True)
     json_cells = models.JSONField(editable=False, default=list)
 
     # Can be used by third party code to store the data they want,
@@ -194,11 +191,6 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
     class Meta:
         app_label = 'creme_core'
         ordering = ('name',)
-
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     if self.json_cells is None:
-    #         self.cells = []
 
     def __str__(self):
         return self.name
@@ -233,11 +225,8 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
     def can_view(self,
                  user: CremeUser,
-                 # content_type: ContentType | None = None,
                  content_type=_NOT_PASSED,
                  ) -> tuple[bool, str]:
-        # if content_type and content_type != self.entity_type:
-        #     return False, 'Invalid entity type'
         if content_type is not _NOT_PASSED:
             warnings.warn(
                 'In HeaderFilter.can_view(), the argument "content_type" is deprecated.',
@@ -250,7 +239,6 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
         return self.can_edit(user)
 
     def _dump_cells(self, cells: Iterable[EntityCell]) -> None:
-        # self.json_cells = json_encode([cell.to_dict() for cell in cells])
         self.json_cells = [cell.to_dict() for cell in cells]
 
     @property
@@ -262,7 +250,6 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
             cells, errors = CELLS_MAP.build_cells_from_dicts(
                 model=self.entity_type.model_class(),
-                # dicts=json_load(self.json_cells),
                 dicts=self.json_cells,
             )
 

@@ -25,7 +25,6 @@ from typing import Iterable
 from django.db import models
 from django.db.transaction import atomic
 from django.utils.timezone import now
-# from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -115,7 +114,6 @@ class UserMessage(core_models.CremeModel):
     recipient = creme_fields.CremeUserForeignKey(
         verbose_name=_('Recipient'), related_name='received_assistants_messages_set',
     )
-    # email_sent = models.BooleanField(default=False)
 
     entity_content_type = creme_fields.EntityCTypeForeignKey(
         null=True, related_name='+', editable=False,
@@ -141,73 +139,3 @@ class UserMessage(core_models.CremeModel):
 
     def __str__(self):
         return self.title
-
-    # @classmethod
-    # @atomic
-    # def create_messages(cls, users, title, body, priority_id, sender, entity):
-    #     """Create UserMessages instances to sent to several users.
-    #     Notice that teams are treated as several Users.
-    #     @param users: A sequence of CremeUser objects ; duplicates are removed.
-    #     """
-    #     users_map = {}
-    #     for user in users:
-    #         if user.is_team:
-    #             users_map.update(user.teammates)
-    #         else:
-    #             users_map[user.id] = user
-    #
-    #     build_msg = partial(
-    #         cls,
-    #         creation_date=now(),
-    #         title=title,
-    #         body=body,
-    #         priority_id=priority_id,
-    #         sender=sender,
-    #         real_entity=entity,
-    #     )
-    #     cls.objects.bulk_create(
-    #         build_msg(recipient=user) for user in users_map.values()
-    #     )
-    #
-    #     from ..creme_jobs import usermessages_send_type
-    #     usermessages_send_type.refresh_job()
-
-    # @classmethod
-    # def send_mails(cls, job):
-    #     from django.conf import settings
-    #     from django.core.mail import EmailMessage, get_connection
-    #
-    #     user_messages = [*cls.objects.filter(email_sent=False)]
-    #
-    #     if not user_messages:
-    #         return
-    #
-    #     subject_format = gettext('User message from {software}: {title}')
-    #     body_format    = gettext('{user} sent you the following message:\n{body}')
-    #     EMAIL_SENDER   = settings.EMAIL_SENDER
-    #
-    #     messages = [
-    #         EmailMessage(
-    #             subject_format.format(software=settings.SOFTWARE_LABEL, title=msg.title),
-    #             body_format.format(user=msg.sender, body=msg.body),
-    #             EMAIL_SENDER,
-    #             [msg.recipient.email],
-    #         ) for msg in user_messages if msg.recipient.email
-    #     ]
-    #
-    #     try:
-    #         with get_connection() as connection:
-    #             connection.send_messages(messages)
-    #     except Exception as e:
-    #         logger.critical('Error while sending user-messages emails (%s)', e)
-    #         core_models.JobResult.objects.create(
-    #             job=job,
-    #             messages=[
-    #                 gettext('An error occurred while sending emails'),
-    #                 gettext('Original error: {}').format(e),
-    #             ],
-    #         )
-    #
-    #     cls.objects.filter(
-    #         pk__in=[m.id for m in user_messages],
-    #     ).update(email_sent=True)

@@ -73,12 +73,12 @@ class Base(CremeEntity):
 
     billing_address = models.ForeignKey(
         settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Billing address'),
-        null=True, editable=False,  # blank=True
+        null=True, editable=False,
         related_name='+', on_delete=models.SET_NULL,
     ).set_tags(enumerable=False)
     shipping_address = models.ForeignKey(
         settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Shipping address'),
-        null=True, editable=False,  # blank=True
+        null=True, editable=False,
         related_name='+', on_delete=models.SET_NULL,
     ).set_tags(enumerable=False)
 
@@ -170,14 +170,8 @@ class Base(CremeEntity):
 
         # TODO: see remark to _DELETABLE_INTERNAL_RTYPE_IDS
         for relation in Relation.objects.filter(
-                # type__in=[
-                #     REL_SUB_BILL_ISSUED,
-                #     REL_SUB_BILL_RECEIVED,
-                #     REL_SUB_HAS_LINE,
-                #     REL_OBJ_LINE_RELATED_ITEM,
-                # ],
-                type=REL_SUB_HAS_LINE,
-                subject_entity=self.id):
+            type=REL_SUB_HAS_LINE, subject_entity=self.id
+        ):
             relation._delete_without_transaction()
 
         for line in lines:

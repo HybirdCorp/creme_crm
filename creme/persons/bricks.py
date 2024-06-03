@@ -70,33 +70,6 @@ if apps.is_installed('creme.activities'):
 
     Activity = get_activity_model()
 
-    # class Activities4Card:
-    #     dependencies = [Activity]
-    #     relation_type_deps = [
-    #         activities_constants.REL_SUB_PART_2_ACTIVITY,
-    #         activities_constants.REL_SUB_ACTIVITY_SUBJECT,
-    #         activities_constants.REL_SUB_LINKED_2_ACTIVITY,
-    #     ]
-    #
-    #     @staticmethod
-    #     def get(context, entity):
-    #         now = context['today']
-    #         user = context['user']
-    #
-    #         if isinstance(entity, Organisation):
-    #             past = Activity.objects.past_linked_to_organisation
-    #             future = Activity.objects.future_linked_to_organisation
-    #         else:
-    #             past = Activity.objects.past_linked
-    #             future = Activity.objects.future_linked
-    #
-    #         return {
-    #             'last': EntityCredentials.filter(user, past(entity, now)).first(),
-    #             'next': EntityCredentials.filter(user, future(entity, now)).first(),
-    #             # NB: we avoid a templatetag from activities, because dynamic
-    #             #     {% load %} is not possible.
-    #             'NARROW': NARROW,
-    #         }
     class _ActivitySummary(CardSummary):
         dependencies = [Activity]
         # TODO: what if one RelationType.enable == False?
@@ -171,13 +144,6 @@ else:
         def label(self):
             return ''
 
-    # class Activities4Card:
-    #     dependencies: list[type[CremeEntity]] = []
-    #     relation_type_deps: list[str] = []
-    #
-    #     @staticmethod
-    #     def get(context, entity):
-    #         return {}
     class LastActivityIntroSummary(CardSummary):
         pass
 
@@ -190,24 +156,6 @@ if apps.is_installed('creme.opportunities'):
 
     Opportunity = get_opportunity_model()
 
-    # class Opportunities4Card:
-    #     dependencies = [Opportunity]
-    #     relation_type_deps = [opp_constants.REL_OBJ_TARGETS]
-    #
-    #     @staticmethod
-    #     def get(context, entity):
-    #         return EntityCredentials.filter(
-    #             context['user'],
-    #             Opportunity.objects.annotate(
-    #                 relations_w_person=FilteredRelation(
-    #                     'relations',
-    #                     condition=Q(relations__object_entity=entity.id),
-    #                 ),
-    #             ).filter(
-    #                 is_deleted=False,
-    #                 relations_w_person__type=opp_constants.REL_SUB_TARGETS,
-    #             )
-    #         )
     class OpportunitiesSummary(CardSummary):
         dependencies = [Opportunity]
         relation_type_deps = [opp_constants.REL_OBJ_TARGETS]
@@ -234,13 +182,6 @@ if apps.is_installed('creme.opportunities'):
 
             return context
 else:
-    # class Opportunities4Card:
-    #     dependencies: list[type[CremeEntity]] = []
-    #     relation_type_deps: list[str] = []
-    #
-    #     @staticmethod
-    #     def get(context, entity):
-    #         return None
     class OpportunitiesSummary(CardSummary):
         pass
 
@@ -250,24 +191,6 @@ if apps.is_installed('creme.commercial'):
 
     Act = get_act_model()
 
-    # class CommercialActs4Card:
-    #     dependencies = [Act]
-    #     relation_type_deps = [commercial_constants.REL_SUB_COMPLETE_GOAL]
-    #
-    #     @staticmethod
-    #     def get(context, entity):
-    #         return EntityCredentials.filter(
-    #             context['user'],
-    #             Act.objects.annotate(
-    #                 relations_w_person=FilteredRelation(
-    #                     'relations',
-    #                     condition=Q(relations__object_entity=entity.id),
-    #                 ),
-    #             ).filter(
-    #                 is_deleted=False,
-    #                 relations_w_person__type=commercial_constants.REL_OBJ_COMPLETE_GOAL,
-    #             )
-    #         )
     class CommercialActsSummary(CardSummary):
         dependencies = [Act]
         # TODO: what if RelationType.enable == False?
@@ -299,13 +222,6 @@ if apps.is_installed('creme.commercial'):
 
             return context
 else:
-    # class CommercialActs4Card:
-    #     dependencies: list[type[CremeEntity]] = []
-    #     relation_type_deps: list[str] = []
-    #
-    #     @staticmethod
-    #     def get(context, entity):
-    #         return None
     class CommercialActsSummary(CardSummary):
         pass
 
@@ -356,23 +272,15 @@ class _PersonsCardHatBrick(Brick):
         return context
 
 
-# class ContactCardHatBrick(Brick):
 class ContactCardHatBrick(_PersonsCardHatBrick):
-    # id = Brick._generate_hat_id('persons', 'contact_card')
     id = _PersonsCardHatBrick._generate_hat_id('persons', 'contact_card')
     verbose_name = _('Card header block')
     dependencies = [
         Contact, Organisation, Relation,
-        # *Activities4Card.dependencies,
-        # *Opportunities4Card.dependencies,
-        # *CommercialActs4Card.dependencies
     ]
     relation_type_deps = [
         constants.REL_SUB_EMPLOYED_BY,
         constants.REL_SUB_MANAGES,
-        # *Activities4Card.relation_type_deps,
-        # *Opportunities4Card.relation_type_deps,
-        # *CommercialActs4Card.relation_type_deps,
     ]
     template_name = 'persons/bricks/contact-hat-card.html'
 
@@ -382,7 +290,6 @@ class ContactCardHatBrick(_PersonsCardHatBrick):
         contact = context['object']
         user = context['user']
         managed_orgas = Organisation.objects.filter_managed_by_creme()
-        # is_hidden = context['fields_configs'].get_for_model(Contact).is_fieldname_hidden
         max_organisations = self.max_related_organisations
 
         def retrieve_organisations_n_count(rtype_id):
@@ -407,11 +314,6 @@ class ContactCardHatBrick(_PersonsCardHatBrick):
         return self._render(self.get_template_context(
             context,
             # TODO: only with templatetags?
-            # hidden_fields={
-            #     fname
-            #     for fname in ('phone', 'mobile', 'email', 'position', 'full_position')
-            #     if is_hidden(fname)
-            # },
             hidden_fields=context['fields_configs'].get_for_model(Contact).hidden_field_names,
 
             max_organisations=max_organisations,
@@ -433,23 +335,14 @@ class ContactCardHatBrick(_PersonsCardHatBrick):
             ).exists(),
 
             neglected_indicator=NeglectedContactIndicator(context, contact),
-
-            # activities=Activities4Card.get(context, contact),
-            # opportunities=Opportunities4Card.get(context, contact),
-            # acts=CommercialActs4Card.get(context, contact),
         ))
 
 
-# class OrganisationCardHatBrick(Brick):
 class OrganisationCardHatBrick(_PersonsCardHatBrick):
-    # id = Brick._generate_hat_id('persons', 'organisation_card')
     id = _PersonsCardHatBrick._generate_hat_id('persons', 'organisation_card')
     verbose_name = _('Card header block')
     dependencies = [
         Organisation, Contact, Address, Relation,
-        # *Activities4Card.dependencies,
-        # *Opportunities4Card.dependencies,
-        # *CommercialActs4Card.dependencies,
     ]
     # TODO: what if RelationType.enable == False?
     relation_type_deps = [
@@ -457,9 +350,6 @@ class OrganisationCardHatBrick(_PersonsCardHatBrick):
         constants.REL_SUB_CUSTOMER_SUPPLIER,
         constants.REL_OBJ_MANAGES,
         constants.REL_OBJ_EMPLOYED_BY,
-        # *Activities4Card.relation_type_deps,
-        # *Opportunities4Card.relation_type_deps,
-        # *CommercialActs4Card.relation_type_deps,
     ]
     template_name = 'persons/bricks/organisation-hat-card.html'
 
@@ -471,7 +361,6 @@ class OrganisationCardHatBrick(_PersonsCardHatBrick):
         managed_orgas = Organisation.objects.filter_managed_by_creme()
 
         get_fconfigs = context['fields_configs'].get_for_model
-        # is_hidden = get_fconfigs(Organisation).is_fieldname_hidden
 
         max_contacts = self.max_related_contacts
 
@@ -489,11 +378,6 @@ class OrganisationCardHatBrick(_PersonsCardHatBrick):
 
         return self._render(self.get_template_context(
             context,
-            # hidden_fields={
-            #     fname
-            #     for fname in ('phone', 'billing_address', 'legal_form')
-            #     if is_hidden(fname)
-            # },
             hidden_fields=get_fconfigs(Organisation).hidden_field_names,
             position_is_hidden=get_fconfigs(Contact).is_fieldname_hidden('position'),
 
@@ -513,10 +397,6 @@ class OrganisationCardHatBrick(_PersonsCardHatBrick):
             employees=employees,
             employees_count=employees_count,
             REL_SUB_EMPLOYED_BY=constants.REL_SUB_EMPLOYED_BY,
-
-            # activities=Activities4Card.get(context, organisation),
-            # opportunities=Opportunities4Card.get(context, organisation),
-            # acts=CommercialActs4Card.get(context, organisation)
         ))
 
 
@@ -759,7 +639,6 @@ brick_classes: list[type[Brick]] = [
     PrettyOtherAddressesBrick,
     ManagersBrick,
     EmployeesBrick,
-    # ManagedOrganisationsBrick,
 ]
 
 if apps.is_installed('creme.activities'):

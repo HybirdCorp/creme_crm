@@ -10,8 +10,6 @@ from django.utils.translation import gettext as _
 from parameterized import parameterized
 
 from creme.billing import bricks
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import FakeOrganisation, Relation, Vat
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.models import Contact, Organisation
@@ -247,17 +245,6 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='*')
 
         invoice = self.create_invoice_n_orgas(name='Invoice001', user=self.get_root_user())[0]
@@ -270,28 +257,6 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice],
         )
-        # create_sc = partial(
-        #     SetCredentials.objects.create, role=user.role, set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     ctype=Organisation,
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #         # Not LINK
-        #     ),
-        # )
         self.add_credentials(user.role, all='!LINK')
         self.add_credentials(user.role, all='*', model=Organisation)
 
@@ -401,7 +366,6 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(_('Save the lines'), context.get('submit_label'))
 
         # ---
-        # self.assertFalse(invoice.get_lines(Service))
         with self.assertRaises(AssertionError):
             invoice.get_lines(Service)
 
@@ -626,16 +590,6 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Organisation]
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),  # Not CHANGE
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='!CHANGE')
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001', discount=0)[0]
@@ -789,17 +743,6 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Contact, Organisation],  # Not 'Product'
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='*')
 
         invoice  = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
@@ -822,17 +765,6 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Contact, Organisation],  # Not 'Service'
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='*')
 
         invoice  = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
@@ -1010,16 +942,6 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Contact, Organisation],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, all='!CHANGE')
 
         invoice  = self.create_invoice_n_orgas(user=user, name='Invoice001')[0]
@@ -1454,16 +1376,6 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice, Organisation]
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),  # Not CHANGE
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='!CHANGE')
 
         invoice = self.create_invoice_n_orgas(user=user, name='Invoice001', discount=0)[0]

@@ -30,7 +30,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from ..utils import bool_as_html  # bool_from_str
+from ..utils import bool_as_html
 from ..utils.serializers import json_encode
 
 logger = logging.getLogger(__name__)
@@ -57,7 +57,6 @@ class _SettingKey:
     _CASTORS: dict[int, Callable[[str], Any]] = {
         STRING: str,
         INT:    int,
-        # BOOL:   bool_from_str,
         BOOL:   bool,
         HOUR:   int,  # TODO: validate 0 =< x =< 23  ??
         EMAIL:  str,  # TODO: validate email?
@@ -125,8 +124,6 @@ class _SettingKey:
         )
 
     # TODO: rework? (now we take casted value from formfield & deserialized JSON)
-    # def cast(self, value_str: str):
-    #     return self._castor(value_str)
     def cast(self, value: Any):
         return self._castor(value)
 
@@ -153,13 +150,6 @@ class SettingKey(_SettingKey):
 
 
 class UserSettingKey(_SettingKey):
-    # _CASTORS = {
-    #     _SettingKey.STRING: str,
-    #     _SettingKey.INT:    int,
-    #     _SettingKey.BOOL:   bool,
-    #     _SettingKey.HOUR:   int,
-    #     _SettingKey.EMAIL:  str,
-    # }
     pass
 
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,6 @@ class EntitiesHeaderWidget(Widget):
 
     def get_context(self, name, value, attrs):
         # TODO: remove 'ui-layout hbox'?
-        # extra_attrs = {'class': 'merge_entity_field ui-layout hbox'}
         extra_attrs = {'class': 'merge-field ui-layout hbox'}
         if attrs is not None:
             extra_attrs.update(attrs)
@@ -62,7 +61,6 @@ class MergeWidget(Widget):
 
     def get_context(self, name, value, attrs):
         # TODO: see EntitiesHeaderWidget
-        # extra_attrs = {'class': 'merge_entity_field ui-layout hbox'}
         extra_attrs = {'class': 'merge-field ui-layout hbox'}
         if attrs is not None:
             extra_attrs.update(attrs)

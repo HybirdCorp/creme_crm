@@ -1,18 +1,8 @@
 {% extends 'creme_config/portals/base.html' %}
-{% load i18n %}{# creme_bricks #}
+{% load i18n %}
 
 {% block page_title %}{% translate 'Configuration of relationships' %} - {% endblock %}
 
 {% block title %}
     {{block.super}}{% translate 'Types of relationship' %}
 {% endblock %}
-
-{% comment %}
-{% block portal_bricks %}
-    {% brick_import app='creme_config' name='relation_types' as rtypes_brick %}
-    {% brick_import app='creme_config' name='custom_relation_types' as custom_rtypes_brick %}
-    {% brick_import app='creme_config' name='semifixed_relation_types' as semifixed_rtypes_brick %}
-
-    {% brick_display rtypes_brick custom_rtypes_brick semifixed_rtypes_brick %}
-{% endblock %}
-{% endcomment %}

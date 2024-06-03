@@ -18,7 +18,6 @@ else:
     from django.utils.translation import pgettext_lazy
 
     from ..constants import DEFAULT_CURRENCY_PK
-    # from ..core.entity_filter import EF_USER
     from ..core.entity_filter import EF_REGULAR
     from ..models import (
         CremeEntity,
@@ -215,7 +214,6 @@ else:
 
         # def get_edit_absolute_url(self):
 
-    # class FakeCivility(CremeModel):
     class FakeCivility(MinionModel):
         title = models.CharField(_('Title'), max_length=100)
         shortcut = models.CharField(_('Shortcut'), max_length=100)
@@ -235,7 +233,6 @@ else:
             verbose_name_plural = 'Test civilities'
             ordering = ('title',)
 
-    # class FakePosition(CremeModel):
     class FakePosition(MinionModel):
         title = models.CharField(_('Title'), max_length=100)
 
@@ -248,11 +245,8 @@ else:
             verbose_name_plural = 'Test People positions'
             ordering = ('title',)
 
-    # class FakeSector(CremeModel):
     class FakeSector(MinionModel):
         title = models.CharField(_('Title'), max_length=100)
-        # # Used by creme_config
-        # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
         order = core_fields.BasicAutoField()  # Used by creme_config
 
         creation_label = _('Create a sector')
@@ -307,7 +301,6 @@ else:
         def get_related_entity(self):  # For generic views
             return self.entity
 
-    # class FakeCountry(CremeModel):
     class FakeCountry(MinionModel):
         name = models.CharField(_('Name'), max_length=100)
 
@@ -396,7 +389,6 @@ else:
             ordering = ('last_name', 'first_name')
             verbose_name = 'Test Contact'
             verbose_name_plural = 'Test Contacts'
-            # index_together = ('last_name', 'first_name', 'cremeentity_ptr')
             indexes = [
                 models.Index(
                     fields=['last_name', 'first_name', 'cremeentity_ptr'],
@@ -427,7 +419,6 @@ else:
         def get_lv_absolute_url():
             return reverse('creme_core__list_fake_contacts')
 
-    # class FakeLegalForm(CremeModel):
     class FakeLegalForm(MinionModel):
         title = models.CharField(_('Title'), max_length=100)
 
@@ -518,7 +509,6 @@ else:
         def get_lv_absolute_url():
             return reverse('creme_core__list_fake_organisations')
 
-    # class FakeActivityType(CremeModel):
     class FakeActivityType(MinionModel):
         name = models.CharField(_('Name'), max_length=100, unique=True)
         order = core_fields.BasicAutoField()  # Used by creme_config
@@ -637,11 +627,11 @@ else:
 
         total_vat = core_fields.MoneyField(
             _('Total with VAT'), max_digits=14, decimal_places=2,
-            null=True, editable=False, default=0,  # blank=True
+            null=True, editable=False, default=0,
         )
         total_no_vat = core_fields.MoneyField(
             _('Total without VAT'), max_digits=14, decimal_places=2,
-            null=True, editable=False, default=0,  # blank=True
+            null=True, editable=False, default=0,
         ).set_tags(optional=True)
 
         class Meta:
@@ -701,7 +691,6 @@ else:
         def get_related_entity(self):  # For generic views & delete
             return self.linked_invoice
 
-    # class FakeProductType(CremeModel):
     class FakeProductType(MinionModel):
         name = models.CharField(_('Name'), max_length=100)
 
@@ -766,12 +755,9 @@ else:
         def get_absolute_url(self):
             return reverse('creme_core__view_fake_report', args=(self.id,))
 
-    # class FakeTicketStatus(CremeModel):
     class FakeTicketStatus(MinionModel):
         name = models.CharField(_('Name'), max_length=100)
         color = core_fields.ColorField(verbose_name=_('Color'), default='ff0000')
-        # # NB: used by creme_config
-        # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
         class Meta:
             app_label = 'creme_core'
@@ -782,11 +768,8 @@ else:
         def __str__(self):
             return self.name
 
-    # class FakeTicketPriority(CremeModel):
     class FakeTicketPriority(MinionModel):
         name = models.CharField(_('Name'), max_length=100)
-        # # NB: used by creme_config
-        # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
         class Meta:
             app_label = 'creme_core'
@@ -834,7 +817,6 @@ else:
             verbose_name_plural = 'Test Ingredient Groups'
             ordering = ('name',)
 
-    # class FakeIngredient(CremeModel):
     class FakeIngredient(MinionModel):
         name = models.CharField(_('Name'), max_length=100)
         group = models.ForeignKey(

@@ -281,14 +281,6 @@ class EntityCellTestCase(CremeTestCase):
             DATE_FORMAT='j F Y',
             DATE_INPUT_FORMATS=[date_input_format],
         ):
-            # self.assertEqual(
-            #     date_format(birthday, 'DATE_FORMAT'),
-            #     cell.render_html(entity=yoko, user=user),
-            # )
-            # self.assertEqual(
-            #     birthday.strftime(date_input_format),
-            #     cell.render_csv(entity=yoko, user=user),
-            # )
             self.assertEqual(
                 date_format(birthday, 'DATE_FORMAT'),
                 cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
@@ -383,13 +375,10 @@ class EntityCellTestCase(CremeTestCase):
         # Render ---
         user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
-        # self.assertEqual('', cell.render_html(entity=yoko, user=user))
         self.assertEqual('', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
 
         customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=152)
         yoko = self.refresh(yoko)  # Reset caches
-        # self.assertEqual('152', cell.render_html(entity=yoko, user=user))
-        # self.assertEqual('152', cell.render_csv(entity=yoko, user=user))
         self.assertEqual('152', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
         self.assertEqual('152', cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
@@ -440,10 +429,6 @@ class EntityCellTestCase(CremeTestCase):
             DATETIME_FORMAT='j F Y H:i',
             DATETIME_INPUT_FORMATS=[dt_input_format],
         ):
-            # self.assertEqual(
-            #     date_format(local_dt, 'DATETIME_FORMAT'),
-            #     cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
-            # )
             self.assertHTMLEqual(
                 '<span class="datetime-field" title="{seconds}">{dt}</span>'.format(
                     seconds=_('Seconds: {}').format(local_dt.second),
@@ -814,17 +799,13 @@ class EntityCellTestCase(CremeTestCase):
         # Render ---
         user = self.get_root_user()
         contact = FakeContact.objects.create(
-            user=user, first_name='Nagate',  last_name='Tanikaze',
+            user=user, first_name='Nagate', last_name='Tanikaze',
         )
+
         create_ptype = CremePropertyType.objects.create
-        ptype1 = create_ptype(
-            # pk='creme_core-test_functionfield01_1',
-            text='Is a pilot',
-        )
-        ptype2 = create_ptype(
-            # pk='creme_core-test_functionfield01_2',
-            text='Is a clone',
-        )
+        ptype1 = create_ptype(text='Is a pilot')
+        ptype2 = create_ptype(text='Is a clone')
+
         create_prop = partial(CremeProperty.objects.create, creme_entity=contact)
         create_prop(type=ptype1)
         create_prop(type=ptype2)

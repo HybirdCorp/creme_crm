@@ -10,11 +10,9 @@ from django.utils.translation import gettext as _
 
 from creme import products
 from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.view_tag import ViewTag
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     Currency,
@@ -286,16 +284,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             allowed_apps=['opportunities'],
             creatable_models=[Opportunity],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #     ),  # Not LINK
-        #     set_type=SetCredentials.ESET_OWN
-        # )
         self.add_credentials(user.role, own='!LINK')
 
         target, emitter = self._create_target_n_emitter(user=user)
@@ -460,16 +448,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             allowed_apps=['opportunities'],
             creatable_models=[Opportunity],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #     ),  # Not LINK
-        #     set_type=SetCredentials.ESET_OWN
-        # )
         self.add_credentials(user.role, own='!LINK')
 
         target = Organisation.objects.create(user=user, name='Target renegade')
@@ -482,11 +460,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             allowed_apps=['persons', 'opportunities'],
             # creatable_models=[Opportunity],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         target = Organisation.objects.create(user=user, name='Target renegade')
@@ -592,16 +565,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             allowed_apps=['persons', 'opportunities'],
             creatable_models=[Opportunity],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #     ),  # not LINK
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='!LINK')
 
         target = Contact.objects.create(

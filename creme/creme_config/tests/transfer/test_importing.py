@@ -17,7 +17,6 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
     EntityCellRelation,
 )
-# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
@@ -330,7 +329,6 @@ class ImportingTestCase(TransferBaseTestCase):
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertNoFormError(response)
 
-        # role = self.get_object_or_fail(UserRole, name=name)
         role = self.get_object_or_fail(UserRole, uuid=uid)
         self.assertEqual(name, role.name)
         self.assertSetEqual({'persons', 'documents'}, role.allowed_apps)
@@ -377,8 +375,6 @@ class ImportingTestCase(TransferBaseTestCase):
     def test_roles02(self):
         "Role with same name already exists => override it."
         self.login_as_super(is_staff=True)
-        # get_ct = ContentType.objects.get_for_model
-        # contact_ct = get_ct(FakeContact)
 
         role = self.create_role(
             name='Superhero',
@@ -387,12 +383,6 @@ class ImportingTestCase(TransferBaseTestCase):
             creatable_models=[FakeContact],
             exportable_models=[FakeContact],
         )
-        # SetCredentials.objects.create(
-        #     role=role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        #     ctype=contact_ct,
-        # )
         self.add_credentials(role, own=['VIEW', 'CHANGE', 'LINK'], model=FakeContact)
 
         data = {
@@ -426,14 +416,12 @@ class ImportingTestCase(TransferBaseTestCase):
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertNoFormError(response)
 
-        # role = self.get_object_or_fail(UserRole, name=role.name)
         role = self.get_object_or_fail(UserRole, uuid=role.uuid)
         self.assertSetEqual({'persons', 'documents'}, role.allowed_apps)
         self.assertSetEqual({'documents'},            role.admin_4_apps)
 
         get_ct = ContentType.objects.get_for_model
         orga_ct = get_ct(FakeOrganisation)
-        # self.assertCountEqual([contact_ct, orga_ct], role.creatable_ctypes.all())
         self.assertCountEqual([get_ct(FakeContact), orga_ct], role.creatable_ctypes.all())
         self.assertCountEqual([orga_ct],                      role.exportable_ctypes.all())
 
@@ -456,13 +444,10 @@ class ImportingTestCase(TransferBaseTestCase):
         efilter_name = 'Lovers'
 
         role_uuid = str(uuid4())
-        # role_name = 'Lover users'
-
         data = {
             'version': self.VERSION,
             'roles': [{
                 'uuid': role_uuid,
-                # 'name': role_name,
                 'name': 'Lover users',
 
                 'allowed_apps': ['persons'],
@@ -527,7 +512,6 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(rtype_id, condition.name)
 
         # ---
-        # role = self.get_object_or_fail(UserRole, name=role_name)
         role = self.get_object_or_fail(UserRole, uuid=role_uuid)
 
         credentials = self.get_alone_element(role.credentials.all())
@@ -578,7 +562,6 @@ class ImportingTestCase(TransferBaseTestCase):
         self.login_as_super(is_staff=True)
         role1 = self.create_role(name='Test')
 
-        # role_name2 = 'Super-hero'
         role_uid2 = str(uuid4())
 
         container_label1 = 'My entries'
@@ -628,12 +611,10 @@ class ImportingTestCase(TransferBaseTestCase):
             {
                 'order': 1,
                 'id': RecentEntitiesEntry.id,
-                # 'role': role1.name,
                 'role': str(role1.uuid),
             }, {
                 'order': 2,
                 'id': ContainerEntry.id,
-                # 'role': role1.name,
                 'role': str(role1.uuid),
                 'data': {'label': container_label3},
                 'children': [
@@ -645,12 +626,10 @@ class ImportingTestCase(TransferBaseTestCase):
             {
                 'order': 2,
                 'id': RecentEntitiesEntry.id,
-                # 'role': role_name2,
                 'role': role_uid2,
             }, {
                 'order': 3,
                 'id': ContainerEntry.id,
-                # 'role': role_name2,
                 'role': role_uid2,
                 'data': {'label': container_label4},
                 'children': [
@@ -664,7 +643,6 @@ class ImportingTestCase(TransferBaseTestCase):
             'menu': menu_data,
             'roles': [{
                 'uuid': role_uid2,
-                # 'name': role_name2,
                 'name': 'Super-hero',
                 'allowed_apps': ['persons'],
                 'creatable_ctypes': ['creme_core.fakecontact'],
@@ -744,7 +722,6 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertEqual(role1, role1_child1.role)
 
         # ---
-        # role2 = UserRole.objects.get(name=role_name2)
         role2 = UserRole.objects.get(uuid=role_uid2)
 
         role2_items = MenuConfigItem.objects.filter(parent=None, role=role2)
@@ -822,7 +799,6 @@ class ImportingTestCase(TransferBaseTestCase):
                 ],
             }, {
                 'ctype': 'creme_core.fakeorganisation',
-                # 'role': role.name,
                 'role': str(role.uuid),
                 'cells': [{'type': 'regular_field', 'value': 'name'}],
             }, {
@@ -886,7 +862,6 @@ class ImportingTestCase(TransferBaseTestCase):
         search_data = [
             {
                 'ctype': 'creme_core.fakecontact',
-                # 'role': role_name,
                 'role': role_uuid,
                 'cells': [
                     {'type': 'regular_field', 'value': 'last_name'},
@@ -929,7 +904,6 @@ class ImportingTestCase(TransferBaseTestCase):
         sci = self.get_object_or_fail(
             SearchConfigItem,
             content_type=ContentType.objects.get_for_model(FakeContact),
-            # role__name=role_name, superuser=False,
             role__uuid=role_uuid, superuser=False,
         )
         self.assertListEqual(
@@ -940,19 +914,12 @@ class ImportingTestCase(TransferBaseTestCase):
     def test_property_types01(self):
         self.login_as_super(is_staff=True)
 
-        # pk_fmt = 'creme_config-test_import_property_type01_{}'.format
-        # pk1 = pk_fmt(1)
-        # pk2 = pk_fmt(2)
-        # pk3 = pk_fmt(3)
         def uid():
             return str(uuid4())
 
-        # ptype3_data = {'id': pk3, 'text': 'Is cool', 'is_copiable': True}
         ptype3_data = {'uuid': uid(), 'text': 'Is cool', 'is_copiable': True}
         ptypes_data = [
-            # {'id': pk1, 'text': 'Is important', 'is_copiable': True},
             {'uuid': uid(), 'text': 'Is important', 'is_copiable': True},
-            # {'id': pk2, 'text': 'Is funny',     'is_copiable': False},
             {'uuid': uid(), 'text': 'Is funny',     'is_copiable': False},
             {
                 **ptype3_data,
@@ -980,12 +947,9 @@ class ImportingTestCase(TransferBaseTestCase):
         "Uniqueness of text."
         self.login_as_super(is_staff=True)
 
-        # pk = 'creme_config-test_import_property_type02'
         uid = str(uuid4())
 
         ptypes_data = [
-            # {'id': pk, 'text': 'Is important', 'is_copiable': True},
-            # {'id': pk, 'text': 'Is funny',     'is_copiable': False},
             {'uuid': uid, 'text': 'Is important', 'is_copiable': True},
             {'uuid': uid, 'text': 'Is funny', 'is_copiable': False},
         ]
@@ -1001,12 +965,8 @@ class ImportingTestCase(TransferBaseTestCase):
         "Do no override a not custom ptype."
         self.login_as_super(is_staff=True)
 
-        # ptype = CremePropertyType.objects.create(
-        #     pk='creme_config-test_import_property_types03', text='Sugoi !',
-        # )
         ptype = CremePropertyType.objects.create(text='Sugoi!')
 
-        # ptypes_data = [{'id': ptype.id, 'text': 'Is important', 'is_copiable': True}]
         ptypes_data = [{'uuid': str(ptype.uuid), 'text': 'Is important', 'is_copiable': True}]
         json_file = StringIO(json_dump({'version': self.VERSION, 'property_types': ptypes_data}))
         json_file.name = 'config-25-10-2017.csv'
@@ -1021,13 +981,6 @@ class ImportingTestCase(TransferBaseTestCase):
     def test_relations_types01(self):
         self.login_as_super(is_staff=True)
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # pt_id_fmt = 'creme_config-test_import_relation_types01_{}'.format
-        # ptype1 = create_ptype(str_pk=pt_id_fmt(1), text='Is very important')
-        # ptype2 = create_ptype(str_pk=pt_id_fmt(2), text='Is important', is_custom=True)
-        # ptype3 = create_ptype(str_pk=pt_id_fmt(3), text='Is hot',       is_custom=True)
-        # ptype4 = create_ptype(str_pk=pt_id_fmt(4), text='Is bad',       is_custom=True)
-        # ptype5 = create_ptype(str_pk=pt_id_fmt(5), text='Is nasty',     is_custom=True)
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Is very important')
         ptype2 = create_ptype(text='Is important', is_custom=True)
@@ -1044,13 +997,9 @@ class ImportingTestCase(TransferBaseTestCase):
                 'id':          pk1a, 'predicate':       'loves',
                 'is_copiable': True, 'minimal_display': False,
 
-                # 'subject_properties': [ptype1.id, ptype2.id],
-                # 'object_properties':  [ptype3.id],
                 'subject_properties': [str(ptype1.uuid), str(ptype2.uuid)],
                 'object_properties': [str(ptype3.uuid)],
 
-                # 'subject_forbidden_properties': [ptype4.id],
-                # 'object_forbidden_properties':  [ptype5.id],
                 'subject_forbidden_properties': [str(ptype4.uuid)],
                 'object_forbidden_properties': [str(ptype5.uuid)],
 
@@ -1177,7 +1126,6 @@ class ImportingTestCase(TransferBaseTestCase):
         "Invalid property types."
         self.login_as_super(is_staff=True)
 
-        # ptype_pk = 'creme_config-test_import_relation_types_04_doesnotexist'
         ptype_uuid = uuid4()
         rtypes_data = [{
             'id':         'creme_config-subject_test_import_relations_types04',
@@ -1185,7 +1133,6 @@ class ImportingTestCase(TransferBaseTestCase):
             'is_copiable': True,
             'minimal_display': False,
 
-            # 'subject_properties': [ptype_pk],
             'subject_properties': [str(ptype_uuid)],
 
             'symmetric':   {
@@ -1200,7 +1147,6 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertFormError(
             response.context['form'],
             field='config',
-            # errors=_('This property type PKs are invalid: {}.').format(ptype_pk),
             errors=_('This property type UUIDs are invalid: {}.').format(ptype_uuid),
         )
 
@@ -1208,11 +1154,6 @@ class ImportingTestCase(TransferBaseTestCase):
         "A related property types is imported"
         self.login_as_super(is_staff=True)
 
-        # ptype1 = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='creme_config-test_import_relation_types05_1',
-        #     text='Is very important',
-        # )
-        # ptype2_id = 'creme_config-test_import_relations_types05_2'
         ptype1 = CremePropertyType.objects.create(text='Is very important')
         ptype2_uuid = str(uuid4())
 
@@ -1222,7 +1163,6 @@ class ImportingTestCase(TransferBaseTestCase):
             'is_copiable': True,
             'minimal_display': False,
 
-            # 'subject_properties': [ptype1.id, ptype2_id],
             'subject_properties': [str(ptype1.uuid), ptype2_uuid],
 
             'symmetric': {
@@ -1232,7 +1172,6 @@ class ImportingTestCase(TransferBaseTestCase):
         data = {
             'version': self.VERSION,
             'property_types': [
-                # {'id': ptype2_id, 'text': 'Is important', 'is_copiable': True},
                 {'uuid': ptype2_uuid, 'text': 'Is important', 'is_copiable': True},
             ],
             'relation_types': rtypes_data,
@@ -1249,7 +1188,6 @@ class ImportingTestCase(TransferBaseTestCase):
             RelationType,
             is_custom=True, id=rtype_data['id'], predicate=rtype_data['predicate'],
         )
-        # ptype2 = self.get_object_or_fail(CremePropertyType, id=ptype2_id)
         ptype2 = self.get_object_or_fail(CremePropertyType, uuid=ptype2_uuid)
         self.assertCountEqual([ptype1, ptype2], rtype.subject_properties.all())
 
@@ -1346,7 +1284,6 @@ class ImportingTestCase(TransferBaseTestCase):
             }, {
                 'uuid': str(uuid4()), 'ctype': ct_str_c, 'name': 'Languages',
                 'type': CustomField.ENUM,
-                # 'choices': ['C', 'Python'],
                 'choices': [
                     {
                         'uuid': str(uuid_enum11),
@@ -1359,7 +1296,6 @@ class ImportingTestCase(TransferBaseTestCase):
             }, {
                 'uuid': str(uuid4()), 'ctype': ct_str_c, 'name': 'Hobbies',
                 'type': CustomField.MULTI_ENUM,
-                # 'choices': ['Programming', 'Reading'],
                 'choices': [
                     {
                         'uuid': str(uuid_enum21),
@@ -1398,7 +1334,6 @@ class ImportingTestCase(TransferBaseTestCase):
         cfield3 = self.get_object_or_fail(CustomField, name=cfield_data['name'])
         self.assertCountEqual(
             cfield_data['choices'],
-            # cfield3.customfieldenumvalue_set.values_list('value', flat=True),
             [
                 {
                     'uuid': str(uid),
@@ -1411,7 +1346,6 @@ class ImportingTestCase(TransferBaseTestCase):
         cfield4 = self.get_object_or_fail(CustomField, name=cfield_data['name'])
         self.assertCountEqual(
             cfield_data['choices'],
-            # cfield4.customfieldenumvalue_set.values_list('value', flat=True),
             [
                 {
                     'uuid': str(uid),
@@ -1908,13 +1842,8 @@ class ImportingTestCase(TransferBaseTestCase):
         cf_uuid2 = str(uuid4())
 
         rtype_id1 = 'creme_config-subject_test_import_entityfilter01'
-        # ptype_id1 = 'creme_config-test_import_entityfilter01'
         ptype_uuid1 = str(uuid4())
 
-        # ptype2 = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='creme_config-test_import_entityfilter01_1',
-        #     text='Is very important',
-        # )
         ptype2 = CremePropertyType.objects.create(text='Is very important')
 
         rtype2 = RelationType.objects.filter(is_internal=False).first()
@@ -1943,12 +1872,10 @@ class ImportingTestCase(TransferBaseTestCase):
                         'value': {'has': True},
                     }, {
                         'type':  PropertyConditionHandler.type_id,
-                        # 'name':  ptype_id1,
                         'name':  ptype_uuid1,
                         'value': True,
                     }, {
                         'type': PropertyConditionHandler.type_id,
-                        # 'name':  ptype2.id,
                         'name':  str(ptype2.uuid),
                         'value': False,
                     },
@@ -1979,7 +1906,6 @@ class ImportingTestCase(TransferBaseTestCase):
                     }, {
                         'type': RelationConditionHandler.type_id,
                         'name':  rtype2.id,
-                        # 'value': {'has': True, 'entity_uuid': str(contact.uuid)},
                         'value': {'has': True, 'entity': str(contact.uuid)},
                     },
                 ],
@@ -2053,7 +1979,6 @@ class ImportingTestCase(TransferBaseTestCase):
                 },
             ],
             'property_types': [
-                # {'id': ptype_id1, 'text': 'Is important', 'is_copiable': True},
                 {'uuid': ptype_uuid1, 'text': 'Is important', 'is_copiable': True},
             ],
         }
@@ -2070,7 +1995,6 @@ class ImportingTestCase(TransferBaseTestCase):
         efilter_data1 = efilters_data[0]
         ef1 = self.get_object_or_fail(EntityFilter, id=efilter_data1['id'])
         self.assertEqual(efilter_data1['name'], ef1.name)
-        # self.assertEqual(EF_USER, ef1.filter_type)
         self.assertEqual(EF_REGULAR, ef1.filter_type)
         self.assertEqual(ct_contact, ef1.entity_type)
         self.assertTrue(ef1.is_custom)
@@ -2105,22 +2029,17 @@ class ImportingTestCase(TransferBaseTestCase):
 
         condition1_4 = conditions1[3]
         self.assertEqual(PropertyConditionHandler.type_id, condition1_4.type)
-        # self.assertEqual(ptype_id1, condition1_4.name)
         self.assertEqual(ptype_uuid1, condition1_4.name)
-        # self.assertEqual(True, condition1_4.value)
         self.assertEqual({'has': True}, condition1_4.value)
 
         condition1_5 = conditions1[4]
-        # self.assertEqual(ptype2.id, condition1_5.name)
         self.assertEqual(str(ptype2.uuid), condition1_5.name)
-        # self.assertEqual(False, condition1_5.value)
         self.assertEqual({'has': False}, condition1_5.value)
 
         # --
         efilter_data2 = efilters_data[1]
         ef2 = self.get_object_or_fail(EntityFilter, id=efilter_data2['id'])
         self.assertEqual(efilter_data2['name'], ef2.name)
-        # self.assertEqual(EF_USER, ef2.filter_type)
         self.assertEqual(EF_REGULAR, ef2.filter_type)
         self.assertEqual(get_ct(FakeOrganisation), ef2.entity_type)
         self.assertTrue(ef2.is_custom)
@@ -2148,7 +2067,6 @@ class ImportingTestCase(TransferBaseTestCase):
         condition2_4 = conditions2[3]
         self.assertEqual(rtype2.id, condition2_4.name)
         self.assertDictEqual(
-            # {'has': False, 'ct_id': ct_contact.id},
             {'has': False, 'ct': 'creme_core.fakecontact'},
             condition2_4.value,
         )
@@ -2156,7 +2074,6 @@ class ImportingTestCase(TransferBaseTestCase):
         condition2_5 = conditions2[4]
         self.assertEqual(rtype2.id, condition2_5.name)
         self.assertDictEqual(
-            # {'has': True, 'entity_id': contact.id},
             {'has': True, 'entity': str(contact.uuid)},
             condition2_5.value,
         )
@@ -2176,7 +2093,6 @@ class ImportingTestCase(TransferBaseTestCase):
 
         cfield1 = self.get_object_or_fail(CustomField, uuid=cf_uuid1)
         condition3_1 = conditions3[0]
-        # self.assertEqual(str(cfield1.id), condition3_1.name)
         self.assertEqual(str(cfield1.uuid), condition3_1.name)
         self.assertDictEqual(
             {
@@ -2193,7 +2109,6 @@ class ImportingTestCase(TransferBaseTestCase):
             DateCustomFieldConditionHandler.type_id,
             condition3_2.type,
         )
-        # self.assertEqual(str(cfield2.id), condition3_2.name)
         self.assertEqual(str(cfield2.uuid), condition3_2.name)
         self.assertDictEqual(
             {
@@ -2505,7 +2420,6 @@ class ImportingTestCase(TransferBaseTestCase):
         "Invalid condition: property."
         self.login_as_super(is_staff=True)
 
-        # ptype_id = 'creme_config-test_import_entityfilter03'  # does not exist/not imported
         ptype_uuid = str(uuid4())  # does not exist/not imported
         ef_id = 'creme_config-test_import_entityfilters_error03'
         efilters_data = [{
@@ -2514,7 +2428,6 @@ class ImportingTestCase(TransferBaseTestCase):
             'ctype':      'creme_core.fakecontact',
             'conditions': [{
                 'type':  PropertyConditionHandler.type_id,
-                # 'name':  ptype_id,
                 'name':  ptype_uuid,
                 'value': True,
             }],
@@ -2527,10 +2440,6 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertFormError(
             response.context['form'],
             field='config',
-            # errors=_(
-            #     'The condition on property-type="{ptype}" is invalid '
-            #     'in the filter id="{id}".'
-            # ).format(ptype=ptype_id, id=ef_id),
             errors=_(
                 'The condition on property-type="{ptype}" is invalid '
                 'in the filter id="{id}".'
@@ -2586,7 +2495,6 @@ class ImportingTestCase(TransferBaseTestCase):
             'conditions': [{
                 'type':  RelationConditionHandler.type_id,
                 'name':  rtype.id,
-                # 'value': {'has': True, 'entity_uuid': uuid_str},
                 'value': {'has': True, 'entity': uuid_str},
             }],
         }]
@@ -2795,7 +2703,6 @@ class ImportingTestCase(TransferBaseTestCase):
         desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM
         cf_uuid = '6a52b4db-f838-489f-b6df-d1558b3938d6'
 
-        # role_name = 'Super-hero'
         role_uuid = str(uuid4())
         gname1 = 'Main'
         gname2 = 'General'
@@ -2804,7 +2711,6 @@ class ImportingTestCase(TransferBaseTestCase):
             'version': self.VERSION,
             'roles': [{
                 'uuid': role_uuid,
-                # 'name': role_name,
                 'name': 'Super-hero',
 
                 'allowed_apps': ['persons'],
@@ -2860,7 +2766,6 @@ class ImportingTestCase(TransferBaseTestCase):
                     ],
                 }, {
                     'descriptor': desc.id,
-                    # 'role': role_name,
                     'role': role_uuid,
                     'groups': [
                         {
@@ -2938,7 +2843,6 @@ class ImportingTestCase(TransferBaseTestCase):
         )
 
         # ---
-        # role = self.get_object_or_fail(UserRole, name=role_name)
         role = self.get_object_or_fail(UserRole, uuid=role_uuid)
         self.get_object_or_fail(
             CustomFormConfigItem,
@@ -3202,24 +3106,20 @@ class ImportingTestCase(TransferBaseTestCase):
         create_ibi(entity=contact1)
         create_ibi(entity=contact2)
 
-        # ibi_id1 = 1
         ibi_uuid1 = uuid4()
         extra_data1 = {'foo': 128}
 
-        # ibi_id2 = 2
         ibi_uuid2 = uuid4()
         e_uuid2 = uuid4()
         self.assertFalse(CremeEntity.objects.filter(uuid=e_uuid2).exists())
 
         ibi_data = [
             {
-                # 'id': ibi_id1,
                 'uuid': str(ibi_uuid1),
                 'brick_class': TransferInstanceBrick.id,
                 'entity': str(contact1.uuid),
                 'extra_data': extra_data1,
             }, {
-                # 'id': ibi_id2,
                 'uuid': str(ibi_uuid2),
                 'brick_class': TransferInstanceBrick.id,
                 'entity': str(e_uuid2),
@@ -3230,26 +3130,20 @@ class ImportingTestCase(TransferBaseTestCase):
         instance_prefix = InstanceBrickConfigItem._brick_id_prefix
         detail_bricks_data = [
             {'id': constants.MODELBRICK_ID,    'order': 1, 'zone': LEFT},
-            # {'id': f'{instance_prefix}-{ibi_id1}', 'order': 2, 'zone': LEFT},
             {'id': f'{instance_prefix}-{ibi_uuid1}', 'order': 2, 'zone': LEFT},
             # Should be dropped
-            # {'id': f'{instance_prefix}-{ibi_id2}', 'order': 3, 'zone': LEFT},
             {'id': f'{instance_prefix}-{ibi_uuid2}', 'order': 3, 'zone': LEFT},
         ]
         home_bricks_data = [
             {'id': bricks.StatisticsBrick.id,  'order': 1},
-            # {'id': f'{instance_prefix}-{ibi_id1}', 'order': 2},
             {'id': f'{instance_prefix}-{ibi_uuid1}', 'order': 2},
             # Should be dropped
-            # {'id': f'{instance_prefix}-{ibi_id2}', 'order': 3},
             {'id': f'{instance_prefix}-{ibi_uuid2}', 'order': 3},
         ]
         mypage_bricks_data = [
             {'id': bricks.HistoryBrick.id,     'order': 1},
-            # {'id': f'{instance_prefix}-{ibi_id1}', 'order': 2},
             {'id': f'{instance_prefix}-{ibi_uuid1}', 'order': 2},
             # Should be dropped
-            # {'id': f'{instance_prefix}-{ibi_id2}', 'order': 3},
             {'id': f'{instance_prefix}-{ibi_uuid2}', 'order': 3},
         ]
 
@@ -3266,36 +3160,26 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertNoFormError(response)
 
         ibi = self.get_alone_element(InstanceBrickConfigItem.objects.all())
-        # self.assertEqual(ibi_id1,                  ibi.id)
         self.assertEqual(ibi_uuid1,                ibi.uuid)
         self.assertEqual(contact1.id,              ibi.entity_id)
         self.assertEqual(TransferInstanceBrick.id, ibi.brick_class_id)
         self.assertDictEqual(extra_data1, ibi.json_extra_data)
 
-        # self.assertFalse(InstanceBrickConfigItem.objects.filter(id=ibi_id2))
         self.assertFalse(InstanceBrickConfigItem.objects.filter(uuid=ibi_uuid2))
 
         self.assertListEqual(
-            # TODO: Not ..._data[2] ? (should be ignored at render)
-            # [detail_bricks_data[0]['id'], detail_bricks_data[1]['id']],  # Not ..._data[2]
             [data['id'] for data in detail_bricks_data],
             [
                 *BrickDetailviewLocation.objects.filter(
                     content_type=None, role=None, superuser=False, zone=LEFT,
-                ).values_list('brick_id', flat=True)
+                ).values_list('brick_id', flat=True),
             ],
         )
         self.assertListEqual(
-            # TODO: Not ..._data[2] ?
-            # [home_bricks_data[0]['id'], home_bricks_data[1]['id']],  # Not ..._data[2]
             [data['id'] for data in home_bricks_data],
-            [
-                *BrickHomeLocation.objects.values_list('brick_id', flat=True)
-            ],
+            [*BrickHomeLocation.objects.values_list('brick_id', flat=True)],
         )
         self.assertListEqual(
-            # TODO: Not ..._data[2] ?
-            # [mypage_bricks_data[0]['id'], mypage_bricks_data[1]['id']],  # Not ..._data[2]
             [data['id'] for data in mypage_bricks_data],  # Not ..._data[2]
             [
                 *BrickMypageLocation.objects.filter(user=None).values_list('brick_id', flat=True)
@@ -3306,7 +3190,6 @@ class ImportingTestCase(TransferBaseTestCase):
         self.login_as_super(is_staff=True)
 
         old_cbci = CustomBrickConfigItem.objects.create(
-            # id='creme_core-fake_orga_info',
             name='FakeOrganisation information',
             content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
@@ -3322,12 +3205,10 @@ class ImportingTestCase(TransferBaseTestCase):
             },
         ]
 
-        # cbci_id = 'creme_core-fake_contact_info'
         cbci_uuid = uuid4()
         name = 'FakeContact information'
         cbci_data = [
             {
-                # 'id': cbci_id,
                 'uuid': str(cbci_uuid),
                 'content_type': ct_str,
                 'name': name,
@@ -3335,7 +3216,7 @@ class ImportingTestCase(TransferBaseTestCase):
                     {'type': EntityCellRegularField.type_id, 'value': 'first_name'},
                     {'type': EntityCellRegularField.type_id, 'value': 'last_name'},
                     {'type': EntityCellCustomField.type_id,  'value': str(cf_uuid)},
-                ]
+                ],
             },
         ]
 
@@ -3353,7 +3234,6 @@ class ImportingTestCase(TransferBaseTestCase):
 
         cfield = self.get_object_or_fail(CustomField, uuid=cf_uuid)
 
-        # cbci = self.get_object_or_fail(CustomBrickConfigItem, id=cbci_id)
         cbci = self.get_object_or_fail(CustomBrickConfigItem, uuid=cbci_uuid)
         self.assertEqual(name,        cbci.name)
         self.assertEqual(FakeContact, cbci.content_type.model_class())
@@ -3399,19 +3279,15 @@ class ImportingTestCase(TransferBaseTestCase):
             # FakeContact for existing role
             {
                 'id': bricks.RelationsBrick.id,    'order': 2, 'zone': TOP,
-                # 'ctype': ct_str, 'role': role.name,
                 'ctype': ct_str, 'role': role_uuid,
             }, {
                 'id': bricks.CustomFieldsBrick.id, 'order': 2, 'zone': LEFT,
-                # 'ctype': ct_str, 'role': role.name,
                 'ctype': ct_str, 'role': role_uuid,
             }, {
-                'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
-                # 'ctype': ct_str, 'role': role.name,
+                'id': constants.MODELBRICK_ID,     'order': 2, 'zone': RIGHT,
                 'ctype': ct_str, 'role': role_uuid,
             }, {
                 'id': bricks.HistoryBrick.id,      'order': 2, 'zone': BOTTOM,
-                # 'ctype': ct_str, 'role': role.name,
                 'ctype': ct_str, 'role': role_uuid,
             },
 
@@ -3423,7 +3299,7 @@ class ImportingTestCase(TransferBaseTestCase):
                 'id': bricks.CustomFieldsBrick.id, 'order': 2, 'zone': LEFT,
                 'ctype': ct_str, 'superuser': True,
             }, {
-                'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
+                'id': constants.MODELBRICK_ID,     'order': 2, 'zone': RIGHT,
                 'ctype': ct_str, 'superuser': True,
             }, {
                 'id': bricks.HistoryBrick.id,      'order': 2, 'zone': BOTTOM,
@@ -3479,7 +3355,6 @@ class ImportingTestCase(TransferBaseTestCase):
         ):
             role_contact_bricks_data[bdl.zone].append({
                 'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
-                # 'ctype': ct_str, 'role': role.name,
                 'ctype': ct_str, 'role': str(role.uuid),
             })
 
@@ -3519,7 +3394,6 @@ class ImportingTestCase(TransferBaseTestCase):
         BOTTOM = BrickDetailviewLocation.BOTTOM
 
         ct_str = 'creme_core.fakecontact'
-        # role_name = 'Super-hero'
         role_uuid = str(uuid4())
         bricks_data = [
             # Default
@@ -3532,19 +3406,15 @@ class ImportingTestCase(TransferBaseTestCase):
             # FakeContact for our role
             {
                 'id': bricks.RelationsBrick.id,    'order': 2, 'zone': TOP,
-                # 'ctype': ct_str, 'role': role_name,
                 'ctype': ct_str, 'role': role_uuid,
             }, {
                 'id': bricks.CustomFieldsBrick.id, 'order': 2, 'zone': LEFT,
-                # 'ctype': ct_str, 'role': role_name,
                 'ctype': ct_str, 'role': role_uuid,
             }, {
-                'id': constants.MODELBRICK_ID,      'order': 2, 'zone': RIGHT,
-                # 'ctype': ct_str, 'role': role_name,
+                'id': constants.MODELBRICK_ID,     'order': 2, 'zone': RIGHT,
                 'ctype': ct_str, 'role': role_uuid,
             }, {
                 'id': bricks.HistoryBrick.id,      'order': 2, 'zone': BOTTOM,
-                # 'ctype': ct_str, 'role': role_name,
                 'ctype': ct_str, 'role': role_uuid,
             },
         ]
@@ -3552,7 +3422,6 @@ class ImportingTestCase(TransferBaseTestCase):
             'version': self.VERSION,
             'roles': [{
                 'uuid': role_uuid,
-                # 'name': role_name,
                 'name': 'Super-hero',
 
                 'allowed_apps': ['persons'],
@@ -3585,13 +3454,11 @@ class ImportingTestCase(TransferBaseTestCase):
         role_contact_bricks_data = defaultdict(list)
         for bdl in BrickDetailviewLocation.objects.filter(
             content_type=ContentType.objects.get_for_model(FakeContact),
-            # role__name=role_name,
             role__uuid=role_uuid,
             superuser=False,
         ):
             role_contact_bricks_data[bdl.zone].append({
                 'id': bdl.brick_id, 'order': bdl.order, 'zone': bdl.zone,
-                # 'ctype': ct_str, 'role': role_name,
                 'ctype': ct_str, 'role': role_uuid,
             })
 
@@ -3629,9 +3496,7 @@ class ImportingTestCase(TransferBaseTestCase):
         role_uid = str(role.uuid)
 
         bricks_data = [
-            # {'id': bricks.HistoryBrick.id,    'order': 5,  'role': role.name},
             {'id': bricks.HistoryBrick.id,    'order': 5,  'role': role_uid},
-            # {'id': bricks.StatisticsBrick.id, 'order': 15, 'role': role.name},
             {'id': bricks.StatisticsBrick.id, 'order': 15, 'role': role_uid},
         ]
 
@@ -3643,22 +3508,18 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertListEqual(
             bricks_data,
             [
-                # {'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
                 {'id': loc.brick_id, 'order': loc.order, 'role': str(loc.role.uuid)}
                 for loc in BrickHomeLocation.objects.filter(role=role, superuser=False)
-            ]
+            ],
         )
 
     def test_home_bricks03(self):
         "Config per role (role is imported)."
         self.login_as_super(is_staff=True)
 
-        # role_name = 'Super-hero'
         role_uuid = str(uuid4())
         bricks_data = [
-            # {'id': bricks.HistoryBrick.id,    'order': 5,  'role': role_name},
             {'id': bricks.HistoryBrick.id,    'order': 5,  'role': role_uuid},
-            # {'id': bricks.StatisticsBrick.id, 'order': 15, 'role': role_name},
             {'id': bricks.StatisticsBrick.id, 'order': 15, 'role': role_uuid},
         ]
 
@@ -3666,7 +3527,6 @@ class ImportingTestCase(TransferBaseTestCase):
             'version': self.VERSION,
             'roles': [{
                 'uuid': role_uuid,
-                # 'name': role_name,
                 'name': 'Super-hero',
 
                 'allowed_apps': ['persons'],
@@ -3697,7 +3557,6 @@ class ImportingTestCase(TransferBaseTestCase):
         self.assertListEqual(
             bricks_data,
             [
-                # {'id': loc.brick_id, 'order': loc.order, 'role': loc.role.name}
                 {'id': loc.brick_id, 'order': loc.order, 'role': str(loc.role.uuid)}
                 for loc in BrickHomeLocation.objects.filter(role__isnull=False, superuser=False)
             ],

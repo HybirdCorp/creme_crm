@@ -68,7 +68,6 @@ class FieldInfo:
     so naturally the fields which can have "sub-fields" are fields like
     ForeignKeys or ManyToManyFields.
     """
-    # __slots__ = ('_model', '__fields')
     __slots__ = ('_model', '__fields', '__attnames')
 
     def __init__(self, model: type[Model], field_name: str):
@@ -82,7 +81,6 @@ class FieldInfo:
 
         self.__fields = fields
         self._model: type[Model] = model
-        # subfield_names = field_name.split('__')
         self.__attnames = subfield_names = field_name.split('__')
 
         for subfield_name in subfield_names[:-1]:
@@ -140,7 +138,6 @@ class FieldInfo:
     def __repr__(self):
         return 'FieldInfo(model={}, field_name="{}")'.format(
             self._model.__name__,
-            # '__'.join(f.name for f in self.__fields),
             '__'.join(self.__attnames),
         )
 
@@ -164,16 +161,13 @@ class FieldInfo:
 
         result = instance
 
-        # for subfield in self:
         for attname, subfield in zip(self.__attnames, self.__fields):
             if result is None:
                 break
 
             if isinstance(result, list):
-                # result = [getattr(elt, subfield.name) for elt in result]
                 result = [getattr(elt, attname) for elt in result]
             else:
-                # result = getattr(result, subfield.name)
                 result = getattr(result, attname)
 
                 if subfield.many_to_many:

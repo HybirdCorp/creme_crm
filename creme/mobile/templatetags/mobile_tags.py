@@ -22,7 +22,6 @@ from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.template import Library
 
-# from creme.activities.constants import ACTIVITYTYPE_PHONECALL, STATUS_IN_PROGRESS,
 from creme.activities.constants import (
     NARROW,
     REL_SUB_ACTIVITY_SUBJECT,
@@ -140,7 +139,6 @@ def mobile_activity_card(context, activity,
                          ):
     extra_classes = ''
 
-    # if activity.type_id == ACTIVITYTYPE_PHONECALL:
     if str(activity.type.uuid) == UUID_TYPE_PHONECALL:
         if button_panel == START_STOP_BUTTONS:
             button_panel = NO_BUTTON
@@ -156,7 +154,6 @@ def mobile_activity_card(context, activity,
         # TODO: test with is staff
         'user_contact_id':    linked_contact.id if linked_contact else None,
         'activity':           activity,
-        # 'STATUS_IN_PROGRESS': STATUS_IN_PROGRESS,
         'is_floating':        activity.floating_type != NARROW,
         'buttons_template':   _BUTTONS[button_panel],
         'show_date':          show_date,

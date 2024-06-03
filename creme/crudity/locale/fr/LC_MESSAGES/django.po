@@ -202,12 +202,6 @@ msgstr ""
 #~ msgid "Invalid email"
 #~ msgstr "E-mail invalide"
 
-#~ msgid "Enter a valid email address. For example: creme@crm.org"
-#~ msgstr "Entrez une adresse e-mail valide. Par exemple: creme@crm.org"
-
-#~ msgid "Select..."
-#~ msgstr "Sélectionner..."
-
 #~ msgid "Email waiting actions"
 #~ msgstr "Actions en attente pour les e-mails"
 
@@ -219,16 +213,6 @@ msgstr ""
 
 #~ msgid "Ressource's type"
 #~ msgstr "Type de ressource"
-
-#~ msgid "{count} History item - {ctype}"
-#~ msgid_plural "{count} History items - {ctype}"
-#~ msgstr[0] "{count} entrée d'historique - {ctype}"
-#~ msgstr[1] "{count} entrées d'historique - {ctype}"
-
-#~ msgid "{count} Waiting action - {ctype} - {source}"
-#~ msgid_plural "{count} Waiting actions - %(ctype)s - %(source)s"
-#~ msgstr[0] "{count} Action en attente - {ctype} - {source}"
-#~ msgstr[1] "{count} Actions en attente - {ctype} - {source}"
 
 #~ msgid "View entity's file"
 #~ msgstr "Voir la fiche de la fiche"
@@ -248,10 +232,6 @@ msgstr ""
 #~ msgid "Delete the selection"
 #~ msgstr "Supprimer la sélection"
 
-#~ msgid "No waiting action for %(ct_name)s from %(backend_source)s"
-#~ msgstr ""
-#~ "Aucune action en attente pour %(ct_name)s venant de %(backend_source)s"
-
 #~ msgid "Read"
 #~ msgstr "Lire"
 
@@ -260,9 +240,6 @@ msgstr ""
 
 #~ msgid "Backend's name"
 #~ msgstr "Nom du backend"
-
-#~ msgid "No waiting action for %(crud_type)s %(ct_name)s"
-#~ msgstr "Aucune action en attente pour %(crud_type)s %(ct_name)s"
 
 #~ msgid "Portal"
 #~ msgstr "Portail"

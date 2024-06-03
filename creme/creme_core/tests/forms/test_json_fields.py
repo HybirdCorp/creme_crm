@@ -22,7 +22,6 @@ from creme.creme_core.forms.fields import (
     RelationEntityField,
 )
 from creme.creme_core.gui.quick_forms import quickforms_registry
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -37,26 +36,12 @@ from creme.creme_core.models import (
 from creme.creme_core.utils.content_type import entity_ctypes
 
 from .. import fake_forms
-# from .base import FieldTestCase
 from ..base import CremeTestCase
 
 
-# class _JSONFieldBaseTestCase(FieldTestCase):
 class _JSONFieldBaseTestCase(CremeTestCase):
     def login_as_basic_user(self):
         user = self.login_as_standard()
-
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='*')
 
         return user
@@ -67,10 +52,8 @@ class _JSONFieldBaseTestCase(CremeTestCase):
             first_name='Eikichi',
             last_name='Onizuka',
             ptypes=(),
-            # user=None,
             **kwargs):
         contact = FakeContact.objects.create(
-            # user=user or self.user,
             user=user,
             first_name=first_name, last_name=last_name,
             **kwargs
@@ -351,7 +334,6 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
             json_load(field.from_python(contact)),
         )
 
-        # field.user = self.user
         field.user = user
         expected = {
             'ctype': {
@@ -548,12 +530,6 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_with_permission03(self):
         "Perm checking: VIEW."
         user = self.login_as_basic_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     ctype=FakeContact,
-        # )
         self.add_credentials(user.role, all=['VIEW'], model=FakeContact)
 
         other_user = self.get_root_user()
@@ -580,12 +556,6 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_with_permission04(self):
         "Perm checking: CHANGE."
         user = self.login_as_basic_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.CHANGE,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     ctype=FakeContact,
-        # )
         self.add_credentials(user.role, all=['CHANGE'], model=FakeContact)
 
         other_user = self.create_user(index=1)
@@ -613,14 +583,6 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         "Perm checking: perm combo."
         user = self.login_as_basic_user()
         other_user = self.get_root_user()
-
-        # get_ct = ContentType.objects.get_for_model
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role, set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(value=EntityCredentials.VIEW, ctype=get_ct(FakeContact))
-        # create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
         self.add_credentials(user.role, all=['VIEW'], model=FakeContact)
         self.add_credentials(user.role, all=['LINK'], model=FakeOrganisation)
 
@@ -996,14 +958,6 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_with_permission03(self):
         "Perm checking: perm combo."
         user = self.login_as_basic_user()
-
-        # get_ct = ContentType.objects.get_for_model
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role, set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(value=EntityCredentials.VIEW, ctype=get_ct(FakeContact))
-        # create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
         self.add_credentials(user.role, all=['VIEW'], model=FakeContact)
         self.add_credentials(user.role, all=['LINK'], model=FakeOrganisation)
 
@@ -1291,10 +1245,6 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_properties_constraint_error(self):
         user = self.get_root_user()
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
-        # ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
-        # ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Is strong')
         ptype2 = create_ptype(text='Is cute')
@@ -1321,10 +1271,6 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_properties_constraint(self):
         user = self.get_root_user()
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
-        # ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
-        # ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Is strong')
         ptype2 = create_ptype(text='Is cute')
@@ -1343,16 +1289,9 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_forbidden_properties_constraint_error(self):
         user = self.get_root_user()
-
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_strong', text='Is not kind',
-        # )
         ptype = CremePropertyType.objects.create(text='Is not kind')
-
         rtype, sym_rtype = self.create_loves_rtype(object_forbidden_ptypes=ptype)
-        # contact = self.create_contact(ptypes=ptype)
         contact = self.create_contact(user=user, ptypes=ptype)
-
         self.assertFormfieldError(
             field=RelationEntityField(allowed_rtypes=[rtype.pk], user=user),
             value=self._build_data(rtype.id, contact),
@@ -1369,9 +1308,6 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_forbidden_properties_constraint(self):
         user = self.get_root_user()
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_strong', text='Is not kind')
-        # ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Is not kind')
         ptype2 = create_ptype(text='Is cute')
@@ -1766,10 +1702,6 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_properties_constraint_error(self):
         user = self.get_root_user()
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
-        # ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
-        # ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Is strong')
         ptype2 = create_ptype(text='Is cute')
@@ -1801,10 +1733,6 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_properties_constraint(self):
         user = self.get_root_user()
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
-        # ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
-        # ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Is strong')
         ptype2 = create_ptype(text='Is cute')
@@ -1830,9 +1758,6 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_forbidden_properties_constraint_error(self):
         user = self.get_root_user()
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_strong', text='Is not kind',
-        # )
         ptype = CremePropertyType.objects.create(text='Is not kind')
 
         rtype_constr    = self.create_loves_rtype(object_forbidden_ptypes=[ptype])[0]

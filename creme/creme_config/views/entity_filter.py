@@ -30,7 +30,6 @@ from ..bricks import EntityFiltersBrick
 from .base import ConfigPortal
 
 
-# class Portal(generic.BricksView):
 class Portal(ConfigPortal):
     template_name = 'creme_config/portals/entity-filter.html'
     brick_classes = [EntityFiltersBrick]
@@ -88,12 +87,6 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEditionPopup):
         context['help_message'] = self.get_case_sensitivity_message()
 
         return context
-
-    # def get_object(self, *args, **kwargs):
-    #     efilter = super().get_object(*args, **kwargs)
-    #     self.check_filter_permissions(filter_obj=efilter, user=self.request.user)
-    #
-    #     return efilter
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

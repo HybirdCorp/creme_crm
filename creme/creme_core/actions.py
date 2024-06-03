@@ -172,7 +172,6 @@ class MergeAction(BulkEntityAction):
     merge_form_registry = merge_form_registry
 
     def _model_can_be_merged(self) -> bool:
-        # return self.merge_form_registry.get(self.model) is not None
         return self.model in self.merge_form_registry
 
     @property

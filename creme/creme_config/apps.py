@@ -108,10 +108,8 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.BrickDetailviewLocationsBrick,
             bricks.BrickHomeLocationsBrick,
             bricks.BrickDefaultMypageLocationsBrick,
-            # bricks.BrickMypageLocationsBrick,
             bricks.RelationBricksConfigBrick,
             bricks.InstanceBricksConfigBrick,
-            # bricks.ExportButtonBrick,
             bricks.FieldsConfigsBrick,
             bricks.CustomBricksConfigBrick,
             bricks.MenuBrick,
@@ -122,7 +120,6 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.SearchConfigBrick,
             bricks.HistoryConfigBrick,
             bricks.UserRolesBrick,
-            # bricks.UserSettingValuesBrick,
             bricks.EntityFiltersBrick,
             bricks.HeaderFiltersBrick,
         )

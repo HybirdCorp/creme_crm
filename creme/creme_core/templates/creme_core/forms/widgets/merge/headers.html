@@ -1,10 +1,7 @@
 {% with labels=widget.labels %}
 <ul {% include 'django/forms/widgets/attrs.html' %}>
-{#    <li class="li_merge_entity_header1">{{labels.0}}</li> #}
     <li class="merge-field-header merge-field-header-1">{{labels.0}}</li>
-{#    <li class="li_merge_result_header">{{labels.2}}</li> #}
     <li class="merge-field-header merge-field-header-result">{{labels.2}}</li>
-{#    <li class="li_merge_entity_header2">{{labels.1}}</li> #}
     <li class="merge-field-header merge-field-header-2">{{labels.1}}</li>
 </ul>
 {% endwith %}

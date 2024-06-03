@@ -32,7 +32,6 @@ from creme.creme_core.models import (
 )
 
 from .. import fake_constants
-# from .base import FieldTestCase
 from ..base import CremeTestCase
 
 
@@ -476,7 +475,6 @@ class EntityCellsWidgetTestCase(CremeTestCase):
     # TODO: test render
 
 
-# class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
     def test_clean_empty_required(self):
         field = EntityCellsField(required=True, model=FakeContact)
@@ -503,7 +501,6 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase):
         self.assertCellNotInChoices('regular_field-entity_type', choices=choices)
         self.assertCellInChoices('regular_field-user',           choices=choices)
         self.assertCellInChoices('regular_field-user__username', choices=choices)
-        # self.assertCellNotInChoices('regular_field-user__role',  choices=choices)
         self.assertCellNotInChoices('regular_field-user__is_staff', choices=choices)
 
         self.assertListEqual(

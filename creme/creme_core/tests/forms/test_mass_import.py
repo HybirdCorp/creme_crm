@@ -20,7 +20,6 @@ from creme.creme_core.models import (
     FakeSector,
 )
 
-# from .base import FieldTestCase
 from ..base import CremeTestCase
 
 # TODO: complete
@@ -408,7 +407,6 @@ class CustomFieldExtractorTestCase(CremeTestCase):
         self.assertEqual(line3[2], eval3.value)
 
 
-# class ExtractorFieldTestCase(FieldTestCase):
 class ExtractorFieldTestCase(CremeTestCase):
     def test_attributes(self):
         user = self.get_root_user()
@@ -505,7 +503,6 @@ class ExtractorFieldTestCase(CremeTestCase):
         self.assertEqual(first_name, value)
 
 
-# class CustomfieldExtractorFieldTestCase(FieldTestCase):
 class CustomfieldExtractorFieldTestCase(CremeTestCase):
     def test_attributes(self):
         user = self.get_root_user()

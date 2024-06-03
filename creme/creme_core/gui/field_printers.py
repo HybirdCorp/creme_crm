@@ -85,8 +85,6 @@ if TYPE_CHECKING:
     M2MInstancePrinter = Callable[[Model, Model, Manager, CremeUser, Field], str]
 
 
-# MAX_HEIGHT: int = 200
-# MAX_WIDTH: int = 200
 def __getattr__(name):
     if name == 'MAX_HEIGHT':
         warnings.warn('"MAX_HEIGHT" is deprecated', DeprecationWarning)
@@ -99,7 +97,6 @@ def __getattr__(name):
     raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
 
 
-# def image_size(image, max_h: int = MAX_HEIGHT, max_w: int = MAX_WIDTH) -> str:
 def image_size(image, max_h: int = 200, max_w: int = 200) -> str:
     warnings.warn(
         'creme_core.gui.field_printers.image_size() is deprecated.',
@@ -193,16 +190,7 @@ class FileFieldPrinterForHTML:
         if ext:
             ext = ext[1:]  # remove '.'
 
-        # if ext in settings.ALLOWED_IMAGES_EXTENSIONS:
         if ext.lower() in settings.ALLOWED_IMAGES_EXTENSIONS:
-            # return format_html(
-            #     """<a onclick="creme.dialogs.image('{url}').open();">"""
-            #     """<img src="{url}" {size} alt="{label}"/>"""
-            #     """</a>""",
-            #     url=url,
-            #     label=_('Download «{file}»').format(file=file_name),
-            #     size=image_size(dl_filefield.file),
-            # )
             return format_html(
                 """<a class="image-file" onclick="creme.dialogs.image('{url}').open();">"""
                 """<img src="{url}" alt="{label}"/>"""
@@ -259,7 +247,6 @@ def print_unchecked_url_html(*, value, **kwargs) -> str:
 
 
 def print_datetime_html(*, value, **kwargs) -> str:
-    # return date_format(localtime(value), 'DATETIME_FORMAT') if value else ''
     return format_html(
         '<span class="datetime-field" title="{}">{}</span>',
         # No "precise" (with seconds/milliseconds) format in Django's ones; should be enough
@@ -758,21 +745,6 @@ class _FieldPrintersRegistry:
             default=css_default_header,
         )
 
-    # def register(self, field, printer, output='html'):
-    #     warnings.warn(
-    #         'The method _FieldPrintersRegistry.register() is deprecated ; '
-    #         'use register_model_field_type() instead.',
-    #         DeprecationWarning,
-    #     )
-    #     if output == 'html':
-    #         tag = 'html*'
-    #     elif output == 'csv':
-    #         tag = ViewTag.TEXT_PLAIN
-    #     else:
-    #         raise KeyError(f'Invalid output value: "{output}"')
-    #
-    #     return self.register_model_field_type(type=field, printer=printer, tags=tag)
-
     def register_model_field_type(self, *,
                                   type: type[models.Field],
                                   printer: FieldPrinter,
@@ -812,7 +784,6 @@ class _FieldPrintersRegistry:
 
     def register_choice_printer(self,
                                 printer: FieldPrinter,
-                                # output: str = 'html',
                                 tags: ViewTag | Iterable[ViewTag] | str,
                                 ) -> _FieldPrintersRegistry:
         """Register a printer for fields with a "choices" attribute.
@@ -859,36 +830,6 @@ class _FieldPrintersRegistry:
         return self._printers[tag].build_field_printer(
             field_info=FieldInfo(model, field_name),
         )
-
-    # def get_html_field_value(self,
-    #                          obj: models.Model,
-    #                          field_name: str,
-    #                          user: CremeUser,
-    #                          ) -> str:
-    #     warnings.warn(
-    #         'The method _FieldPrintersRegistry.get_html_field_value() is deprecated ; '
-    #         'use get_field_value() instead.',
-    #         DeprecationWarning
-    #     )
-    #
-    #     return self.build_field_printer(
-    #         model=obj.__class__, field_name=field_name, tag=ViewTag.HTML_DETAIL,
-    #     )(obj, user)
-
-    # def get_csv_field_value(self,
-    #                         obj: models.Model,
-    #                         field_name: str,
-    #                         user: CremeUser,
-    #                         ) -> str:
-    #     warnings.warn(
-    #         'The method _FieldPrintersRegistry.get_csv_field_value() is deprecated ; '
-    #         'use get_field_value() instead.',
-    #         DeprecationWarning
-    #     )
-    #
-    #     return self.build_field_printer(
-    #         model=obj.__class__, field_name=field_name, tag=ViewTag.TEXT_PLAIN,
-    #     )(obj, user)
 
     def get_field_value(self, *,
                         instance: models.Model,

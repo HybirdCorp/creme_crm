@@ -25,7 +25,6 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import CREME_REPLACE, CremeEntity, Relation
 
-# from ..constants import CANCELED_PK, COMPLETED_PK
 from ..constants import (
     REL_OBJ_LINKED_2_PTASK,
     REL_SUB_PART_AS_RESOURCE,
@@ -92,13 +91,6 @@ class AbstractProjectTask(CremeEntity):
 
     def get_related_entity(self):
         return self.linked_project
-
-    # def _pre_delete(self):
-    #     for resource in self.get_resources():
-    #         resource.delete()
-    #
-    #     for relation in self.relations.filter(type=REL_OBJ_LINKED_2_PTASK):
-    #         relation._delete_without_transaction()
 
     def get_parents(self):
         if self.parents is None:
@@ -174,7 +166,6 @@ class AbstractProjectTask(CremeEntity):
     # TODO: property
     def is_alive(self):
         # TODO: boolean field if TaskStatus instead?
-        # return self.tstatus_id not in (COMPLETED_PK, CANCELED_PK)
         return str(self.tstatus.uuid) not in (UUID_TSTATUS_COMPLETED, UUID_TSTATUS_CANCELED)
 
     def _clone_m2m(self, source):  # Handled manually in clone_scope

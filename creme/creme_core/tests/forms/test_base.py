@@ -10,11 +10,9 @@ from creme.creme_config.forms.fields import (
     CreatorCustomEnumerableChoiceField,
     CustomMultiEnumChoiceField,
 )
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.forms.enumerable import EnumerableChoice
 from creme.creme_core.forms.widgets import Label
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremePropertyType,
     CustomField,
@@ -383,24 +381,10 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(
-            # str_pk='test-prop_spirit',
-            text='Haunted by a spirit',
-        )
-        ptype02 = create_ptype(
-            # str_pk='test-prop_bakemono',
-            text='Cursed by a bakemono',
-        )
-        ptype03 = create_ptype(
-            # str_pk='test-prop_see',
-            text='See the yokai',
-            subject_ctypes=[FakeContact],
-        )
-        ptype04 = create_ptype(
-            # str_pk='test-prop_license',
-            text='Has a license',
-            subject_ctypes=[FakeOrganisation],
-        )
+        ptype01 = create_ptype(text='Haunted by a spirit')
+        ptype02 = create_ptype(text='Cursed by a bakemono')
+        ptype03 = create_ptype(text='See the yokai', subject_ctypes=[FakeContact])
+        ptype04 = create_ptype(text='Has a license', subject_ctypes=[FakeOrganisation])
 
         form1 = FakeContactForm(user=user)
 
@@ -452,18 +436,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(
-            # str_pk='test-prop_spirit',
-            text='Haunted by a spirit',
-        )
-        ptype02 = create_ptype(
-            # str_pk='test-prop_bakemono',
-            text='Cursed by a bakemono',
-        )
-        ptype03 = create_ptype(
-            # str_pk='test-prop_see',
-            text='See the yokai', subject_ctypes=[FakeContact],
-        )
+        ptype01 = create_ptype(text='Haunted by a spirit')
+        ptype02 = create_ptype(text='Cursed by a bakemono')
+        ptype03 = create_ptype(text='See the yokai', subject_ctypes=[FakeContact])
 
         form = FakeContactForm(user=user, forced_ptypes=[ptype02.id])
 
@@ -483,18 +458,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.get_root_user()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(
-            # str_pk='test-prop_spirit',
-            text='Haunted by a spirit',
-        )
-        ptype02 = create_ptype(
-            # str_pk='test-prop_bakemono',
-            text='Cursed by a bakemono',
-        )
-        ptype03 = create_ptype(
-            # str_pk='test-prop_see',
-            text='See the yokai', subject_ctypes=[FakeContact],
-        )
+        ptype01 = create_ptype(text='Haunted by a spirit')
+        ptype02 = create_ptype(text='Cursed by a bakemono')
+        ptype03 = create_ptype(text='See the yokai', subject_ctypes=[FakeContact])
 
         form = FakeContactForm(user=user, forced_ptypes=[ptype02])
 
@@ -514,11 +480,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         "Forced CremePropertyTypes + no <properties> field."
         user = self.get_root_user()
 
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_spirit', text='Haunted by a spirit',
-        # )
         ptype = CremePropertyType.objects.create(text='Haunted by a spirit')
-
         form = FakeContactForm(
             user=user, forced_ptypes=[ptype.id],
             data={
@@ -824,17 +786,6 @@ class CremeEntityFormTestCase(CremeTestCase):
 
     def test_relations_credentials01(self):
         user = self.login_as_standard(creatable_models=[FakeContact])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='*')
 
         create_contact = FakeContact.objects.create
@@ -871,16 +822,6 @@ class CremeEntityFormTestCase(CremeTestCase):
     def test_relations_credentials02(self):
         "Label if we cannot link the future entity."
         user = self.login_as_standard(creatable_models=[FakeContact])
-        # create_creds = partial(SetCredentials.objects.create, role=user.role)
-        # create_creds(
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_creds(
-        #     value=EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     ctype=FakeContact, forbidden=True,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'CHANGE', 'LINK'])
         self.add_credentials(user.role, forbidden_all=['LINK'], model=FakeContact)
 
@@ -930,12 +871,6 @@ class CremeEntityFormTestCase(CremeTestCase):
     def test_relations_credentials03(self):
         "Link credentials on the created entity."
         user = self.login_as_standard(creatable_models=[FakeContact])
-        # create_creds = partial(SetCredentials.objects.create, role=user.role)
-        # create_creds(
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
         self.add_credentials(user.role, all=['VIEW'], own=['VIEW', 'LINK'])
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
@@ -971,12 +906,6 @@ class CremeEntityFormTestCase(CremeTestCase):
     def test_relations_credentials04(self):
         "Link credentials on the created entity (semi-fixed version)."
         user = self.login_as_standard(creatable_models=[FakeContact])
-        # create_creds = partial(SetCredentials.objects.create, role=user.role)
-        # create_creds(
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
         self.add_credentials(user.role, all=['VIEW'], own=['VIEW', 'LINK'])
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
@@ -1015,12 +944,6 @@ class CremeEntityFormTestCase(CremeTestCase):
     def test_relations_credentials05(self):
         "No link credentials on the created entity but no relation wanted."
         user = self.login_as_standard(creatable_models=[FakeContact])
-        # create_creds = partial(SetCredentials.objects.create, role=user.role)
-        # create_creds(
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
         self.add_credentials(user.role, all=['VIEW'], own=['VIEW', 'LINK'])
 
         form = FakeContactForm(
@@ -1036,12 +959,6 @@ class CremeEntityFormTestCase(CremeTestCase):
     def test_relations_credentials06(self):
         "Link credentials on the created entity + forced relationships."
         user = self.login_as_standard(creatable_models=[FakeContact])
-        # create_creds = partial(SetCredentials.objects.create, role=user.role)
-        # create_creds(
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_creds(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
         self.add_credentials(user.role, all=['VIEW'], own=['VIEW', 'LINK'])
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
@@ -1133,9 +1050,6 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Bebop')
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
-        # ptype2 = create_ptype(str_pk='test-prop_strong',  text='Is strong')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Is a captain')
         ptype2 = create_ptype(text='Is strong')
@@ -1153,7 +1067,6 @@ class CremeEntityFormTestCase(CremeTestCase):
         sfrt = SemiFixedRelationType.objects.create(
             predicate='Registered the Bebop',
             relation_type=rtype1,
-            # object_entity=orga,
             real_object=orga,
         )
 
@@ -1260,9 +1173,6 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Bebop')
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
-        # ptype2 = create_ptype(str_pk='test-prop_doctor',  text='Is a doctor')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Is a captain')
         ptype2 = create_ptype(text='Is a doctor')
@@ -1367,10 +1277,6 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Bebop')
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
-        # ptype2 = create_ptype(str_pk='test-prop_strong',  text='Is strong')
-        # ptype3 = create_ptype(str_pk='test-prop_weak',    text='Is weak')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Is a captain')
         ptype2 = create_ptype(text='Is strong')

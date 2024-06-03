@@ -26,7 +26,6 @@ from creme.creme_core.gui.menu import ContainerEntry, menu_registry
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import MenuConfigItem
 from creme.creme_core.utils import get_from_POST_or_404
-# from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import PermissionsMixin
 from creme.creme_core.views.generic.order import ReorderInstances
 
@@ -36,7 +35,6 @@ from . import base
 from .bricks import RoleRelatedMixin
 
 
-# class Portal(generic.BricksView):
 class Portal(base.ConfigPortal):
     template_name = 'creme_config/portals/menu.html'
     brick_classes = [MenuBrick]

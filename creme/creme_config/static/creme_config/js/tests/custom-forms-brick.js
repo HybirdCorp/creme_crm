@@ -75,7 +75,6 @@ QUnit.module("creme.FormGroupsController", new QUnitMixin(QUnitEventMixin,
                             '<span>Creation form</span>' +
                         '</div>' +
                         '<div class="customform-config-items">' +
-/*                            '<div class="customform-config-item customform-config-item-collapsed">' + */
                             '<div class="customform-config-item customform-config-collapsed">' +
                                 '<div class="customform-config-item-title">' +
                                     '<div class="toggle-icon-container toggle-icon-expand" data-item-id="${itemId}" title="Show this form"><div class="toggle-icon"></div></div>' +
@@ -324,7 +323,6 @@ QUnit.test('creme.FormGroupsController (reorder groups)', function(assert) {
         [
             'mock/brick/all/reload',
             'GET',
-//            {brick_id: ['brick-for-test'], extra_data: '{}'},
             {brick_id: ['creme_core-test'], extra_data: '{}'},
             {dataType: 'json', delay: 0, enableUriSearch: false, sync: true}
           ]
@@ -404,15 +402,12 @@ QUnit.test('creme.FormGroupsController (toggle item)', function(assert) {
     controller.bind(brick);
 
     var item = controller.ctype(ctypeIdA).find('.customform-config-item').first();
-//    equal(item.is('.customform-config-item-collapsed'), true);
     equal(item.is('.customform-config-collapsed'), true);
 
     item.find('.toggle-icon-expand').trigger('click');
-//    equal(item.is('.customform-config-item-collapsed'), false);
     equal(item.is('.customform-config-collapsed'), false);
 
     item.find('.toggle-icon-collapse').trigger('click');
-//    equal(item.is('.customform-config-item-collapsed'), true);
     equal(item.is('.customform-config-collapsed'), true);
 });
 

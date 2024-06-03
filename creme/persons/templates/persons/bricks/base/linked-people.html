@@ -1,15 +1,12 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
 {% load i18n creme_bricks creme_cells creme_perms creme_widgets %}
-{% load and_op inner_edition_uri url from creme_core_tags %}{# url_join #}
+{% load and_op inner_edition_uri url from creme_core_tags %}
 
 {% block brick_header_actions %}
  {% if relation_type.enabled %}
   {% with obj_link_perm=user|has_perm_to_link:object contact_link_perm=user|has_perm_to_link:objects_ctype creation_perm=user|has_perm_to_create:objects_ctype %}
     {% url 'persons__create_related_contact' object.id relation_type.id as people_creation_url %}
-{#    {% url_join people_creation_url callback_url=object.get_absolute_url as creation_uri %} #}
-
     {% brick_header_action id='add-relationships' label=_('Link to contacts') icon='link' enabled=obj_link_perm|and_op:contact_link_perm __subject_id=object.id __rtype_id=relation_type.id __ctype_id=objects_ctype.id __multiple=True %}
-{#    {% brick_header_action id='redirect' url=creation_uri type='add' label=add_title enabled=creation_perm %} #}
     {% brick_header_action id='redirect' url=people_creation_url comeback=True type='add' label=add_title enabled=creation_perm %}
   {% endwith %}
  {% endif %}
@@ -48,10 +45,6 @@
             {% for cell in cells %}<td>{{HIDDEN_VALUE}}</td>{% endfor %}
          {% endif %}
         <td {% brick_table_data_status action %}>
-{% comment %}
-          {% if cells %}{% inner_edition_uri instance=people cells=cells callback_url=object.get_absolute_url as edition_uri %}
-            {% brick_table_action id='edit' url=edition_uri label=_('Edit this contact') enabled=user|has_perm_to_change:people %}
-{% endcomment %}
           {% if cells %}{% inner_edition_uri instance=people cells=cells as edition_uri %}
             {% brick_table_action id='edit' url=edition_uri comeback=True label=_('Edit this contact') enabled=user|has_perm_to_change:people %}
           {% else %}

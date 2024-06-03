@@ -140,7 +140,6 @@ class CremeEntity(CremeModel):
         # (e.g.:this problem appears when deleting an EmailCampaign with Sendings)
         _get_deleted_entity_ids().add(self.id)
 
-        # for relation in self.relations.exclude(type__is_internal=True):
         for relation in self.relations.filter(
             Q(type__is_internal=False) | Q(type__in=self._DELETABLE_INTERNAL_RTYPE_IDS)
         ):

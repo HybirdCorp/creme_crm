@@ -35,7 +35,6 @@ from creme.creme_core.core.entity_cell import (
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
-# from creme.creme_core.utils import create_if_needed
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -285,122 +284,24 @@ class Populator(BasePopulator):
             )
 
     def _populate_payment_terms(self):
-        # create_if_needed(
-        #     PaymentTerms, {'pk': 1}, name=_('Deposit'),
-        #     description=_(r'20% deposit will be required'),
-        #     is_custom=False,
-        # )
         self._save_minions(self.PAYMENT_TERMS)
 
     def _populate_settlement_terms(self):
-        # create_if_needed(SettlementTerms, {'pk': 1}, name=_('30 days'))
-        # create_if_needed(SettlementTerms, {'pk': 2}, name=_('Cash'))
-        # create_if_needed(SettlementTerms, {'pk': 3}, name=_('45 days'))
-        # create_if_needed(SettlementTerms, {'pk': 4}, name=_('60 days'))
-        # create_if_needed(SettlementTerms, {'pk': 5}, name=_('30 days, end month the 10'))
         self._save_minions(self.SETTLEMENT_TERMS)
 
     def _populate_additional_information(self):
-        # create_if_needed(
-        #     AdditionalInformation,
-        #     {'pk': 1}, name=_('Trainer accreditation'),
-        #     description=_('being certified trainer courses could be supported by your OPCA'),
-        # )
         self._save_minions(self.ADDITIONAL_INFORMATION)
 
     def _populate_creditnote_statuses(self):
-        # def create_cnote_status(pk, name, **kwargs):
-        #     create_if_needed(CreditNoteStatus, {'pk': pk}, name=name, **kwargs)
-        #
-        # create_cnote_status(
-        #     1, pgettext('billing-creditnote', 'Draft'),
-        #     order=1, is_custom=False, is_default=True,
-        # )
-        #
-        # if not self.already_populated:
-        #     create_cnote_status(2, pgettext('billing-creditnote', 'Issued'),      order=2)
-        #     create_cnote_status(3, pgettext('billing-creditnote', 'Consumed'),    order=3)
-        #     create_cnote_status(4, pgettext('billing-creditnote', 'Out of date'), order=4)
         self._save_minions(self.CREDIT_NOTE_STATUSES)
 
     def _populate_invoice_statuses(self):
-        # def create_invoice_status(pk, name, **kwargs):
-        #     create_if_needed(InvoiceStatus, {'pk': pk}, name=name, **kwargs)
-        #
-        # create_invoice_status(
-        #     1, pgettext('billing-invoice', 'Draft'),
-        #     order=1, is_custom=False, is_default=True,
-        # )
-        # create_invoice_status(
-        #     2, pgettext('billing-invoice', 'To be sent'),
-        #     order=2, is_custom=False, is_validated=True,
-        # )
-        #
-        # if not self.already_populated:
-        #     create_invoice_status(
-        #         3, pgettext('billing-invoice', 'Sent'),
-        #         order=3, pending_payment=True,
-        #     )
-        #     create_invoice_status(
-        #         4, pgettext('billing-invoice', 'Resulted'),
-        #         order=5,
-        #     )
-        #     create_invoice_status(
-        #         5, pgettext('billing-invoice', 'Partly resulted'),
-        #         order=4, pending_payment=True,
-        #     )
-        #     create_invoice_status(
-        #         6, _('Collection'),
-        #         order=7,
-        #     )
-        #     create_invoice_status(
-        #         7, _('Resulted collection'),
-        #         order=6,
-        #     )
-        #     create_invoice_status(
-        #         8, pgettext('billing-invoice', 'Canceled'),
-        #         order=8,
-        #     )
         self._save_minions(self.INVOICE_STATUSES)
 
     def _populate_quote_statuses(self):
-        # if not self.already_populated:
-        #     def create_quote_status(pk, name, **kwargs):
-        #         create_if_needed(QuoteStatus, {'pk': pk}, name=name, **kwargs)
-        #
-        #     # Default status
-        #     create_quote_status(
-        #         1, pgettext('billing-quote', 'Pending'),
-        #         order=2, is_default=True,
-        #     )
-        #
-        #     create_quote_status(
-        #         2, pgettext('billing-quote', 'Accepted'),
-        #         order=3, won=True, color='1dd420',
-        #     )
-        #     create_quote_status(
-        #         3, pgettext('billing-quote', 'Rejected'),
-        #         order=4,
-        #     )
-        #     create_quote_status(
-        #         4, pgettext('billing-quote', 'Created'),
-        #         order=1,
-        #     )
         self._save_minions(self.QUOTE_STATUSES)
 
     def _populate_order_statuses(self):
-        # def create_order_status(pk, name, **kwargs):
-        #     create_if_needed(SalesOrderStatus, {'pk': pk}, name=name, **kwargs)
-        #
-        # # NB: pk=1 + is_custom=False --> default status
-        # #     (used when a quote is converted in invoice for example)
-        # create_order_status(
-        #     1, pgettext('billing-salesorder', 'Issued'), order=1, is_custom=False)
-        #
-        # if not self.already_populated:
-        #     create_order_status(2, pgettext('billing-salesorder', 'Accepted'), order=3)
-        #     create_order_status(3, pgettext('billing-salesorder', 'Rejected'), order=4)
-        #     create_order_status(4, pgettext('billing-salesorder', 'Created'),  order=2)
         self._save_minions(self.SALES_ORDER_STATUSES)
 
     def _populate_relation_types(self):
@@ -771,10 +672,6 @@ class Populator(BasePopulator):
             uuid=uuid,
             name=name,
             content_type=model,
-            # cells=build_cells(
-            #     CreditNote,
-            #     build_cell(CreditNote, 'status'),
-            # ),
             cells=[
                 build_cell(model, 'name'),
                 build_cell(model, 'number'),
@@ -827,7 +724,6 @@ class Populator(BasePopulator):
         Invoice = self.Invoice
         cbci = self._create_custom_brick_item(
             model=Invoice,
-            # id='billing-invoice_info',
             uuid='d1ae20ac-98b5-4c4b-bf32-8c284c6eadae',
             name=_('Invoice information'),
             extra_cells=(
@@ -842,7 +738,6 @@ class Populator(BasePopulator):
         Quote = self.Quote
         cbci = self._create_custom_brick_item(
             model=Quote,
-            # id='billing-quote_info',
             uuid='eb3e5fcc-e929-4a15-b859-207a093bc4cb',
             name=_('Quote information'),
             extra_cells=(
@@ -856,7 +751,6 @@ class Populator(BasePopulator):
         SalesOrder = self.SalesOrder
         cbci = self._create_custom_brick_item(
             model=SalesOrder,
-            # id='billing-salesorder_info',
             uuid='5e5b19c9-fa6e-43cf-a798-8b51b2ff73ce',
             name=_('Salesorder information'),
             extra_cells=(
@@ -869,7 +763,6 @@ class Populator(BasePopulator):
         CreditNote = self.CreditNote
         cbci = self._create_custom_brick_item(
             model=CreditNote,
-            # id='billing-creditnote_info',
             uuid='b3233bc2-cda8-4b07-ae4b-617b177120fc',
             name=_('Credit note information'),
             extra_cells=(
@@ -882,7 +775,6 @@ class Populator(BasePopulator):
         TemplateBase = self.TemplateBase
         cbci = self._create_custom_brick_item(
             model=TemplateBase,
-            # id='billing-templatebase_info',
             uuid='4653dc10-f2ce-455c-a0b2-30ff957e8f68',
             name=pgettext('billing', 'Template information'),
             extra_cells=(
@@ -906,11 +798,6 @@ class Populator(BasePopulator):
         if apps.is_installed('creme.assistants'):
             self._populate_bricks_config_for_assistants()
 
-    # def create_reports(self,
-    #                    rt_sub_bill_received,
-    #                    current_year_invoice_filter,
-    #                    current_year_unpaid_invoice_filter,
-    #                    ):
     def _populate_reports(self):
         logger.info(
             'Reports app is installed '
@@ -941,12 +828,9 @@ class Populator(BasePopulator):
             )
             return
 
-        # rt_sub_bill_received = RelationType.objects.get(id=constants.REL_SUB_BILL_RECEIVED)
-
         def create_report_columns(report):
             create_field = partial(Field.objects.create, report=report, type=RFT_FIELD)
             create_field(name='name',            order=1)
-            # create_field(name=rt_sub_bill_received.id, order=2, type=RFT_RELATION)
             create_field(name=constants.REL_SUB_BILL_RECEIVED, order=2, type=RFT_RELATION)
             create_field(name='number',          order=3)
             create_field(name='status',          order=4)

@@ -283,9 +283,6 @@ class ButtonsRegistry:
         for button_id in id_list:
             button_cls = button_classes.get(button_id)
 
-            # if button_cls is None:
-            #     logger.warning('Button seems deprecated: %s', button_id)
-            #     continue
             if button_cls is None:
                 prio_n_cls = (
                     mandatory_classes[None].get(button_id)

@@ -17,7 +17,6 @@ from creme.creme_core.core.setting_key import (
     _SettingKeyRegistry,
     user_setting_key_registry,
 )
-# from creme.creme_core.models import EntityCredentials, SetCredentials
 from creme.creme_core.models import BrickState, CremeEntity
 from creme.creme_core.models import CremeUser as User
 from creme.creme_core.models import (
@@ -391,9 +390,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Not superuser; special chars in username; displayed_name."
         user = self.login_as_root_and_get()
         role = self.create_role(name='Mangaka', allowed_apps=['persons'])
-        # SetCredentials.objects.create(
-        #     role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(role, all=['VIEW'])
 
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -756,9 +752,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login_as_root_and_get()
 
         role1 = self.create_role(name='Master', allowed_apps=['persons'])
-        # SetCredentials.objects.create(
-        #     role=role1, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL
-        # )
         self.add_credentials(role1, all=['VIEW'])
 
         other_user = User.objects.create(
@@ -861,9 +854,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login_as_config_admin()
 
         role1 = self.create_role(name='Lieutenant', allowed_apps=['persons'])
-        # SetCredentials.objects.create(
-        #     role=role1, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(role1, all=['VIEW'])
 
         other_user = User.objects.create(username='deunan', role=role1)
@@ -1321,9 +1311,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_as_root()
 
         role = self.create_role(allowed_apps=['creme_core'])
-        # SetCredentials.objects.create(
-        #     role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(role, own=['VIEW'])
 
         user1 = self.create_user(0, role=role)
@@ -1591,14 +1578,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
 
 class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     super().setUpClass()
-    #     cls.user = cls.get_root_user()
-
     def setUp(self):
         super().setUp()
-        # self.login_as_root()
         self._registered_skey = []
 
     def tearDown(self):
@@ -1612,11 +1593,9 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_user_settings01(self):
         self.login_as_root()
         response = self.assertGET200(reverse('creme_config__user_settings'))
-        # self.assertTemplateUsed(response, 'creme_config/user_settings.html')
         self.assertTemplateUsed(response, 'creme_config/user-settings.html')
 
         get = response.context.get
-        # self.assertEqual(reverse('creme_core__reload_bricks'), get('bricks_reload_url'))
         self.assertEqual(
             reverse('creme_config__reload_user_settings_bricks'),
             get('bricks_reload_url'),
@@ -1638,8 +1617,6 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStartsWith(dname_form, '<div>')
         self.assertIn('<label for="id_displayed_name">', dname_form)
 
-        # self.assertIsList(get('apps_usersettings_bricks'))
-
         doc = self.get_html_tree(response.content)
         self.get_brick_node(doc, brick=BrickMypageLocationsBrick)
         self.get_brick_node(doc, brick=NotificationChannelConfigItemsBrick)
@@ -1659,7 +1636,6 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         ('chantilly', 'Chantilly'),
     ])
     def test_change_theme(self):
-        # user = self.user
         user = self.login_as_root_and_get()
         self.assertEqual(settings.THEMES[0][0], user.theme)
 
@@ -1674,7 +1650,6 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         post('icecream')
 
     def test_change_timezone(self):
-        # user = self.user
         user = self.login_as_root_and_get()
         self.assertEqual(settings.TIME_ZONE, user.time_zone)
 
@@ -1835,7 +1810,6 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         return reverse('creme_config__edit_user_setting', args=(setting_key.id,))
 
     def test_edit_user_setting_value01(self):
-        # user = self.user
         user = self.login_as_root_and_get()
         sk = UserSettingKey(
             id='creme_config-test_edit_user_setting_value01',
@@ -1896,7 +1870,6 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_user_setting_value04(self):
         "Blank + STRING."
-        # user = self.user
         user = self.login_as_root_and_get()
         sk = UserSettingKey(
             id='creme_config-test_edit_user_setting_value04',
@@ -1922,7 +1895,6 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_edit_user_setting_value05(self):
         "Blank + INT."
-        # user = self.user
         user = self.login_as_root_and_get()
         sk = UserSettingKey(
             id='creme_config-test_edit_user_setting_value05',
@@ -1988,7 +1960,6 @@ class UserSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         setattr(brick, reg_attname, registry)
 
-        # context = self.build_context(user=self.user)
         context = self.build_context(user=user)
 
         # with self.assertNumQueries(6):

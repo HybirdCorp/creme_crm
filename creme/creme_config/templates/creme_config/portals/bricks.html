@@ -1,26 +1,8 @@
 {% extends 'creme_config/portals/base.html' %}
-{% load i18n %}{# creme_bricks #}
+{% load i18n %}
 
 {% block page_title %}{% translate 'Configuration of blocks' %} - {% endblock %}
 
 {% block title %}
     {{block.super}}{% translate 'Blocks' %}
 {% endblock %}
-
-{% comment %}
-{% block portal_bricks %}
-    {% brick_import app='creme_config' name='blocks_dv_locations' as blocks_dv_locations_brick %}
-    {% brick_import app='creme_config' name='blocks_home_locations' as blocks_home_locations_brick %}
-    {% brick_import app='creme_config' name='blocks_default_mypage_locations' as blocks_mypage_locations_brick %}
-    {% brick_import app='creme_config' name='relation_blocks_config' as rblocks_config_brick %}
-    {% brick_import app='creme_config' name='instance_blocks_config' as iblocks_config_brick %}
-    {% brick_import app='creme_config' name='custom_blocks_config' as cblocks_config_brick %}
-
-    {% brick_display blocks_dv_locations_brick %}
-    {% brick_display blocks_home_locations_brick %}
-    {% brick_display blocks_mypage_locations_brick %}
-    {% brick_display rblocks_config_brick %}
-    {% brick_display iblocks_config_brick %}
-    {% brick_display cblocks_config_brick %}
-{% endblock %}
-{% endcomment %}

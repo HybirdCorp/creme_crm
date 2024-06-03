@@ -52,6 +52,3 @@ msgstr ""
 
 msgid "Please select at least one email."
 msgstr "Veuillez sélectionner au moins un e-mail."
-
-#~ msgid "Process done"
-#~ msgstr "Opération effectuée"

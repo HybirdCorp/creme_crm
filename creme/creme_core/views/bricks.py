@@ -21,7 +21,6 @@ from __future__ import annotations
 import logging
 from json import loads as json_load
 
-# from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
 from django.http.response import Http404, HttpResponse, HttpResponseBase
 from django.template.context import make_context
@@ -50,9 +49,6 @@ class BricksReloading(generic.CheckedView):
     # Name of the Brick's render method to use ;
     # classically: "detailview_display" or "home_display".
     brick_render_method: str = 'detailview_display'
-    # # A boolean indicating if the attribute 'permission' of the bricks
-    # # instances has to be checked.
-    # check_bricks_permission: bool = True
 
     def get_brick_ids(self) -> list[str]:
         # TODO: filter empty IDs ??
@@ -82,21 +78,6 @@ class BricksReloading(generic.CheckedView):
         context = self.get_bricks_context().flatten()
         bricks_manager = BricksManager.get(context)
 
-        # if self.check_bricks_permission:
-        #     user = request.user
-        #
-        #     for brick in bricks:
-        #         permissions = brick.permissions
-        #
-        #         if permissions and not (
-        #             user.has_perm(permissions)
-        #             if isinstance(permissions, str) else
-        #             user.has_perms(permissions)
-        #         ):
-        #             raise PermissionDenied(
-        #                 f'Error: you are not allowed to view this brick: {brick.id}'
-        #             )
-
         all_reloading_info = {}
         all_reloading_info_json = request.GET.get('extra_data')
         if all_reloading_info_json is not None:
@@ -112,7 +93,6 @@ class BricksReloading(generic.CheckedView):
 
         # TODO: only one group (add_group should not take *bricks, because the length is limited)
         for brick in bricks:
-            # bricks_manager.add_group(brick.id, brick)
             bricks_manager.add_group(f'group-{id(brick)}', brick)
 
         render_method = self.brick_render_method
@@ -154,8 +134,6 @@ class BricksReloading(generic.CheckedView):
 
 
 class DetailviewBricksReloading(generic.base.EntityRelatedMixin, BricksReloading):
-    # check_bricks_permission = False
-
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)
 
@@ -185,12 +163,10 @@ class DetailviewBricksReloading(generic.base.EntityRelatedMixin, BricksReloading
 
 
 class HomeBricksReloading(BricksReloading):
-    # check_bricks_permission = False
     brick_render_method = 'home_display'
 
 
 class BrickStateSetting(generic.CheckedView):
-    # brick_id_arg: str = 'id'
     brick_id_arg: str = 'brick_id'
     FIELDS: list[tuple[str, str]] = [
         # MODEL FIELD         POST ARGUMENT
