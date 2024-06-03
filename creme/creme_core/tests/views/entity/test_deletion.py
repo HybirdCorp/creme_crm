@@ -7,10 +7,8 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from parameterized import parameterized
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.bricks import EntityJobErrorsBrick, TrashBrick
 from creme.creme_core.creme_jobs import reminder_type, trash_cleaner_type
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -30,11 +28,9 @@ from creme.creme_core.models import (
     history,
 )
 from creme.creme_core.tests.base import CremeTestCase
-# from creme.creme_core.tests.views.base import ViewsTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 
-# class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     DEL_ENTITIES_URL = reverse('creme_core__delete_entities')
     EMPTY_TRASH_URL  = reverse('creme_core__empty_trash')
@@ -58,11 +54,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         dep_2_str = TestMixin().dependencies_to_str
 
         user = self.login_as_standard()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -197,7 +188,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_delete_entity__permissions(self):
         "No DELETE credentials."
         user = self.login_as_standard()
-        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.DELETE)
         self.add_credentials(user.role, all='!DELETE')
 
         entity = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -487,7 +477,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_delete_entities_not_allowed(self):
         "Some entities deletion is not allowed."
         user = self.login_as_standard()
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
 
         forbidden = CremeEntity.objects.create(user=self.get_root_user())
@@ -830,20 +819,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         "Credentials on specific ContentType."
         # NB: can delete ESET_OWN
         user = self.login_as_standard(allowed_apps=('creme_core',))
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        #     ctype=FakeOrganisation,
-        # )
         self.add_credentials(user.role, all='*', model=FakeOrganisation)
 
         other_user = self.get_root_user()

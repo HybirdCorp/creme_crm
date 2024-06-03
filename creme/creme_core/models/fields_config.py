@@ -157,9 +157,6 @@ class FieldsConfig(CremeModel):
     HIDDEN = 'hidden'
     REQUIRED = 'required'
 
-    # _excluded_fnames: set[str] | None = None
-    # _required_fnames: frozenset[str] | None = None
-
     class Meta:
         app_label = 'creme_core'
 
@@ -353,17 +350,6 @@ class FieldsConfig(CremeModel):
             for app in get_apps(field_name=field.name)
         ]
 
-    # def _get_hidden_field_names(self) -> set[str]:
-    #     excluded = self._excluded_fnames
-    #
-    #     if excluded is None:
-    #         HIDDEN = self.HIDDEN
-    #         self._excluded_fnames = excluded = {
-    #             fname
-    #             for fname, attrs in self.descriptions if attrs.get(HIDDEN, False)
-    #         }
-    #
-    #     return excluded
     @cached_property
     def hidden_field_names(self) -> frozenset[str]:
         """Get the names of fields which are hidden by configuration."""
@@ -372,22 +358,6 @@ class FieldsConfig(CremeModel):
             fname for fname, attrs in self.descriptions if attrs.get(HIDDEN, False)
         )
 
-    # @property
-    # def required_field_names(self) -> frozenset[str]:
-    #     """Get the names of fields which are required by configuration.
-    #     Notice that fields which are "naturally" required are ignored, only the
-    #     configured ones are returned.
-    #     """
-    #     required = self._required_fnames
-    #
-    #     if required is None:
-    #         REQUIRED = self.REQUIRED
-    #         self._required_fnames = required = frozenset(
-    #             fname
-    #             for fname, attrs in self.descriptions if attrs.get(REQUIRED, False)
-    #         )
-    #
-    #     return required
     @cached_property
     def required_field_names(self) -> frozenset[str]:
         """Get the names of fields which are required by configuration.
@@ -403,7 +373,6 @@ class FieldsConfig(CremeModel):
     def hidden_fields(self) -> Iterator[Field]:
         get_field = self.content_type.model_class()._meta.get_field
 
-        # for field_name in self._get_hidden_field_names():
         for field_name in self.hidden_field_names:
             yield get_field(field_name)
 
@@ -416,7 +385,6 @@ class FieldsConfig(CremeModel):
             yield get_field(field_name)
 
     def is_field_hidden(self, field: Field) -> bool:
-        # return field.name in self._get_hidden_field_names()
         return field.name in self.hidden_field_names
 
     def is_field_required(self, field: Field) -> bool:
@@ -446,27 +414,6 @@ class FieldsConfig(CremeModel):
 
         return self.is_field_required(field)
 
-    # def update_form_fields(self, form_fields) -> None:
-    #     for field_name in self._get_hidden_field_names():
-    #         form_fields.pop(field_name, None)
-    #
-    #     for field_name in self.required_field_names:
-    #         try:
-    #             form_fields[field_name].required = True
-    #         except KeyError:
-    #             logger.critical(
-    #                 'The field "%s" has been configured to be required '
-    #                 'but the current form does not use this field ; '
-    #                 'please contact your administrator.',
-    #                 field_name,
-    #             )
-    #             form_fields[field_name] = (
-    #                 self.content_type
-    #                     .model_class()
-    #                     ._meta
-    #                     .get_field(field_name)
-    #                     .formfield(required=True)
-    #             )
     def update_form_fields(self, form) -> None:
         form_fields = form.fields
 

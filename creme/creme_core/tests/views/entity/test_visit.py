@@ -7,10 +7,8 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core import entity_filter
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     EntityFilter,
     FakeContact,
@@ -19,13 +17,11 @@ from creme.creme_core.models import (
     Relation,
     RelationType,
 )
-# from creme.creme_core.tests.views.base import ViewsTestCase
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.utils.queries import QSerializer
 from creme.creme_core.views.generic.detailview import EntityVisitor
 
 
-# class VisitTestCase(ViewsTestCase):
 class VisitTestCase(CremeTestCase):
     def assertVisitRedirects(self, response, *,
                              entity, sort, index, hfilter,
@@ -264,11 +260,6 @@ class VisitTestCase(CremeTestCase):
 
     def test_view_credentials(self):
         user = self.login_as_standard()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         create_orga = FakeOrganisation.objects.create
@@ -353,14 +344,6 @@ class VisitTestCase(CremeTestCase):
             self._build_visit_uri(FakeContact, sort='', hfilter=hfilter.pk),
             follow=True,
         )
-        # self.assertContains(
-        #     response1,
-        #     _(
-        #         'The exploration mode cannot be used because your list is not ordered '
-        #         '(hint: chose a column in the list header then try to enter in the mode again).'
-        #     ),
-        #     status_code=409, html=True,
-        # )
         self.assertVisitRedirects(
             response1, entity=first, hfilter=hfilter, sort='', index=0,
         )

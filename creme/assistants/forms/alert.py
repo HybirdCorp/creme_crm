@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -174,7 +174,6 @@ class ModelRelativeDatePeriodField(fields.MultiValueField):
         )
 
         self.period_names = period_names
-        # self.relative_choices = [(-1, _('Before')), (1, _('After'))]
         self.relative_choices = RelativeDatePeriodField.RelativeDatePeriod.choices()
         self.model = model
         self.non_hiddable_cell = non_hiddable_cell
@@ -277,7 +276,6 @@ class ModelRelativeDatePeriodField(fields.MultiValueField):
         ) if data_list and all(data_list) else None
 
     def validate(self, value):
-        # if self.required and not value[1]:
         if self.required and not value:
             raise ValidationError(self.error_messages['required'], code='required')
 

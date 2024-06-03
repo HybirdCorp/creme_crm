@@ -143,7 +143,6 @@ class SpecialContainerAddingForm(CremeModelForm):
 
     excluded_entry_ids = {ContainerEntry.id}
 
-    # def __init__(self, *args, **kwargs):
     def __init__(self, role=None, superuser=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

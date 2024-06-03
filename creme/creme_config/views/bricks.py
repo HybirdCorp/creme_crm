@@ -37,7 +37,6 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.content_type import get_ctype_or_404
-# from creme.creme_core.views.generic import BricksView
 from creme.creme_core.views.generic.base import EntityCTypeRelatedMixin
 
 from .. import bricks
@@ -45,7 +44,6 @@ from ..forms import bricks as bricks_forms
 from . import base
 
 
-# class Portal(BricksView):
 class Portal(base.ConfigPortal):
     template_name = 'creme_config/portals/bricks.html'
     brick_classes = [

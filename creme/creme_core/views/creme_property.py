@@ -98,7 +98,6 @@ class PropertiesAdding(generic.RelatedToEntityFormPopup):
 
 class PropertyTypeCreation(generic.CremeModelCreation):
     model = CremePropertyType
-    # form_class = ptype_forms.CremePropertyTypeCreationForm
     form_class = ptype_forms.CremePropertyForm
     permissions = 'creme_core.can_admin'
 
@@ -106,7 +105,6 @@ class PropertyTypeCreation(generic.CremeModelCreation):
 class PropertyTypeEdition(generic.CremeModelEdition):
     # model = CremePropertyType
     queryset = CremePropertyType.objects.filter(is_custom=True, enabled=True)
-    # form_class = ptype_forms.CremePropertyTypeEditionForm
     form_class = ptype_forms.CremePropertyForm
     pk_url_kwarg = 'ptype_id'
     permissions = 'creme_core.can_admin'
@@ -212,7 +210,6 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
 
 
 class PropertyTypeInfoBrick(Brick):
-    # id = Brick.generate_id('creme_core', 'property_type_info')
     id = 'property_type_info'
     dependencies = '*'
     read_only = True
@@ -242,28 +239,9 @@ class TaggedEntitiesBrick(QuerysetBrick):
         super().__init__()
         self.ptype = ptype
         self.ctype = ctype
-        # self.id = self.generate_id(
-        #     'creme_core',
-        #     f'tagged-{ctype.app_label}-{ctype.model}',
-        # )
         self.id = f'{self.id_prefix}-{ctype.app_label}-{ctype.model}'
         self.dependencies = (ctype.model_class(),)
 
-    # @staticmethod
-    # def parse_brick_id(brick_id) -> ContentType | None:
-    #     parts = brick_id.split('-')
-    #     ctype = None
-    #
-    #     if len(parts) == 4:
-    #         try:
-    #             tmp_ctype = ContentType.objects.get_by_natural_key(parts[2], parts[3])
-    #         except ContentType.DoesNotExist:
-    #             pass
-    #         else:
-    #             if issubclass(tmp_ctype.model_class(), CremeEntity):
-    #                 ctype = tmp_ctype
-    #
-    #     return ctype
     @classmethod
     def parse_brick_id(cls, brick_id) -> ContentType | None:
         """Extract info from brick ID.
@@ -313,7 +291,6 @@ class TaggedEntitiesBrick(QuerysetBrick):
 
 
 class TaggedMiscEntitiesBrick(QuerysetBrick):
-    # id = QuerysetBrick.generate_id('creme_core', 'misc_tagged_entities')
     id = 'misc_tagged_entities'
     dependencies = (CremeEntity,)
     template_name = 'creme_core/bricks/tagged-entities.html'
@@ -340,31 +317,14 @@ class TaggedMiscEntitiesBrick(QuerysetBrick):
 
 class PropertyTypeDetail(generic.CremeModelDetail):
     model = CremePropertyType
-    # template_name = 'creme_core/view_property_type.html'
     template_name = 'creme_core/detail/property-type.html'
     pk_url_kwarg = 'ptype_id'
     bricks_reload_url_name = 'creme_core__reload_ptype_bricks'
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['bricks'] = self.get_bricks()
-    #     context['bricks_reload_url'] = self.get_bricks_reload_url()
-    #
-    #     return context
 
     def get_bricks(self):
         ptype = self.object
         ctypes = ptype.subject_ctypes.all()
 
-        # bricks = [
-        #     PropertyTypeInfoBrick(ptype, ctypes),
-        #     *(
-        #         TaggedEntitiesBrick(ptype, ctype)
-        #         for ctype in (ctypes or entity_ctypes())
-        #     ),
-        # ]
-        # if ctypes:
-        #     bricks.append(TaggedMiscEntitiesBrick(ptype, excluded_ctypes=ctypes))
         bricks = [PropertyTypeInfoBrick(ptype, ctypes)]
         user = self.request.user
 

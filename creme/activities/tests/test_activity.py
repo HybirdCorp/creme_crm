@@ -13,7 +13,6 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from PIL.ImageColor import getrgb
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.creme_jobs import trash_cleaner_type
 from creme.creme_core.forms import LAYOUT_REGULAR, ReadonlyMessageField
@@ -22,7 +21,6 @@ from creme.creme_core.gui import actions
 from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.gui.custom_form import FieldGroup, FieldGroupList
 from creme.creme_core.gui.view_tag import ViewTag
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CustomFormConfigItem,
     EntityFilter,
@@ -61,7 +59,6 @@ from .base import (
 )
 
 if apps.is_installed('creme.assistants'):
-    # from creme.assistants.constants import PRIO_NOT_IMP_PK
     from creme.assistants.constants import UUID_PRIORITY_NOT_IMPORTANT
     from creme.assistants.models import Alert, UserMessage
 
@@ -71,20 +68,10 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     ADD_UNAVAILABILITY_URL = reverse('activities__create_unavailability')
 
     @staticmethod
-    # def _build_add_related_uri(related, act_type_id=None):
     def _build_add_related_uri(related, type_uuid=None):
         url = reverse('activities__create_related_activity', args=(related.id,))
 
-        # return url if not act_type_id else f'{url}?activity_type={act_type_id}'
         return url if not type_uuid else f'{url}?activity_type={type_uuid}'
-
-    # @staticmethod
-    # def get_types_of_choices(choices):
-    #     return ActivityType.objects.filter(
-    #         pk__in=ActivitySubType.objects.filter(
-    #             pk__in=[c.value for c in choices]
-    #         ).values_list('type_id', flat=True)
-    #     )
 
     @staticmethod
     def _get_types_uuids_for_field(type_field):
@@ -99,15 +86,12 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             self,
             user,
             title='Call01',
-            # subtype_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
             subtype=constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
             hour=14):
         create_dt = self.create_datetime
         return Activity.objects.create(
-            # user=self.user,
             user=user,
             title=title,
-            # type_id=constants.ACTIVITYTYPE_PHONECALL, sub_type_id=subtype_id,
             type=ActivityType.objects.get(uuid=constants.UUID_TYPE_PHONECALL),
             sub_type=(
                 self._get_sub_type(uid=subtype)
@@ -120,14 +104,11 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     def _create_task(self, user, title='Task01', day=1):
         create_dt = self.create_datetime
-        # type_id = constants.ACTIVITYTYPE_TASK
         atype = ActivityType.objects.get(uuid=constants.UUID_TYPE_TASK)
         return Activity.objects.create(
             user=user,
             title=title,
-            # type_id=type_id,
             type=atype,
-            # sub_type=ActivitySubType.objects.filter(type_id=type_id).first(),
             sub_type=ActivitySubType.objects.filter(type=atype).first(),
             start=create_dt(year=2013, month=4, day=day, hour=8,  minute=0),
             end=create_dt(year=2013,   month=4, day=day, hour=18, minute=0),
@@ -141,19 +122,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         ]
         self.assertEqual(len(rtypes_pks), RelationType.objects.filter(pk__in=rtypes_pks).count())
 
-        # acttypes_pks = [
-        #     constants.ACTIVITYTYPE_TASK,
-        #     constants.ACTIVITYTYPE_MEETING,
-        #     constants.ACTIVITYTYPE_PHONECALL,
-        #     constants.ACTIVITYTYPE_GATHERING,
-        #     constants.ACTIVITYTYPE_SHOW,
-        #     constants.ACTIVITYTYPE_DEMO,
-        #     constants.ACTIVITYTYPE_INDISPO,
-        # ]
-        # self.assertEqual(
-        #     len(acttypes_pks),
-        #     ActivityType.objects.filter(pk__in=acttypes_pks).count()
-        # )
         acttypes_uuids = [
             constants.UUID_TYPE_TASK,
             constants.UUID_TYPE_MEETING,
@@ -165,20 +133,9 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         ]
         self.assertEqual(
             len(acttypes_uuids),
-            ActivityType.objects.filter(uuid__in=acttypes_uuids).count()
+            ActivityType.objects.filter(uuid__in=acttypes_uuids).count(),
         )
 
-        # subtype_ids = [
-        #     constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-        #     constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-        #     constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
-        #     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-        #     constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-        # ]
-        # self.assertEqual(
-        #     len(subtype_ids),
-        #     ActivitySubType.objects.filter(pk__in=subtype_ids).count()
-        # )
         subtype_uuids = [
             constants.UUID_SUBTYPE_PHONECALL_INCOMING,
             constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
@@ -196,22 +153,18 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         acts = [
             self._create_meeting(
                 user=user, title='Meeting01',
-                # subtype_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK, hour=14,
                 subtype=constants.UUID_SUBTYPE_MEETING_NETWORK, hour=14,
             ),
             self._create_meeting(
                 user=user, title='Meeting02',
-                # subtype_id=constants.ACTIVITYSUBTYPE_MEETING_REVIVAL, hour=15,
                 subtype=constants.UUID_SUBTYPE_MEETING_REVIVAL, hour=15,
             ),
             self._create_phonecall(
                 user=user, title='Call01',
-                # subtype_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, hour=14,
                 subtype=constants.UUID_SUBTYPE_PHONECALL_OUTGOING, hour=14,
             ),
             self._create_phonecall(
                 user=user, title='Call02',
-                # subtype_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, hour=15,
                 subtype=constants.UUID_SUBTYPE_PHONECALL_OUTGOING, hour=15,
             ),
             self._create_task(user=user, title='Task01', day=1),
@@ -364,8 +317,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         # POST ---
         title = 'My task'
         status = Status.objects.all()[0]
-        # type_id = constants.ACTIVITYTYPE_MEETING
-        # sub_type_id = constants.ACTIVITYSUBTYPE_MEETING_MEETING
         sub_type = ActivitySubType.objects.get(uuid=constants.UUID_SUBTYPE_MEETING_MEETING)
         response2 = self.client.post(
             url,
@@ -374,7 +325,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'user':  user.pk,
                 'title': title,
 
-                # self.EXTRA_SUBTYPE_KEY: sub_type_id,
                 self.EXTRA_SUBTYPE_KEY: sub_type.id,
                 'status':               status.pk,
 
@@ -396,9 +346,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         act = self.get_object_or_fail(Activity, title=title)
         self.assertEqual(sub_type, act.sub_type)
-        # self.assertEqual(type_id, act.type_id)
         self.assertEqual(sub_type.type_id, act.type_id)
-        # self.assertEqual(sub_type_id, act.sub_type_id)
         self.assertEqual(status, act.status)
         self.assertEqual(constants.NARROW, act.floating_type)
         self.assertEqual(
@@ -432,7 +380,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_createview02(self):
         "Credentials errors."
         user = self.login_as_activities_user(creatable_models=[Activity])
-        # self._build_nolink_setcreds(user=user)
         self.add_credentials(user.role, own=['LINK'], all='!LINK')
 
         other_user = self.get_root_user()
@@ -456,7 +403,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'user':  user.pk,
                 'title': 'Fight !!',
 
-                # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 self.EXTRA_SUBTYPE_KEY: self._get_sub_type(
                     constants.UUID_SUBTYPE_MEETING_QUALIFICATION
                 ).id,
@@ -534,14 +480,12 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         status = Status.objects.all()[0]
         my_calendar = Calendar.objects.get_default_calendar(user)
         a_type = ActivityType.objects.create(
-            # id='activities-activity_custom_1',
             name='Karate session',
             default_day_duration=1,
             default_hour_duration='00:15:00',
             is_custom=True,
         )
         sub_type = ActivitySubType.objects.create(
-            # id='activities-activity_custom_1',
             type=a_type,
             name='Kick session',
             is_custom=True,
@@ -550,9 +494,9 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             self.ACTIVITY_CREATION_URL,
             follow=True,
             data={
-                'user':               user.id,
-                'title':              title,
-                'status':             status.pk,
+                'user':   user.id,
+                'title':  title,
+                'status': status.pk,
 
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 26),
                 f'{self.EXTRA_START_KEY}_1': '12:10:00',
@@ -637,7 +581,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         "default_day_duration=1 + FLOATING_TIME."
         user = self.login_as_root_and_get()
 
-        # atype = self.get_object_or_fail(ActivityType, id=constants.ACTIVITYTYPE_SHOW)
         atype = self._get_type(constants.UUID_TYPE_SHOW)
         self.assertEqual(1,          atype.default_day_duration)
         self.assertEqual('00:00:00', atype.default_hour_duration)
@@ -645,8 +588,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         act = self._create_activity_by_view(
             user=user,
             title='TGS',
-            # atype_id=atype.id,
-            # subtype_id='activities-activitysubtype_show_exhibitor',  # see populate
             sub_type=ActivitySubType.objects.filter(type=atype).first(),
             **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 3)}
         )
@@ -659,7 +600,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         "default_day_duration=1 + is_all_day."
         user = self.login_as_root_and_get()
 
-        # atype = self.get_object_or_fail(ActivityType, id=constants.ACTIVITYTYPE_SHOW)
         atype = self._get_type(constants.UUID_TYPE_SHOW)
         self.assertEqual(1, atype.default_day_duration)
         self.assertEqual('00:00:00', atype.default_hour_duration)
@@ -667,8 +607,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         act = self._create_activity_by_view(
             user=user,
             title='TGS',
-            # atype_id=atype.id,
-            # subtype_id='activities-activitysubtype_show_exhibitor',  # see populate
             subtype=ActivitySubType.objects.filter(type=atype).first(),
             is_all_day=True,
             **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 3)}
@@ -683,14 +621,12 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         user = self.login_as_root_and_get()
 
         atype = ActivityType.objects.create(
-            # pk='activities-activity_custom_1',
             name='Big Show',
             default_day_duration=1,
             default_hour_duration='12:00:00',
             is_custom=True,
         )
         sub_type = ActivitySubType.objects.create(
-            # pk='activities-activity_custom_1',
             name='Big Show for Open source',
             type=atype,
             is_custom=True,
@@ -699,7 +635,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         act = self._create_activity_by_view(
             user=user,
             title='TGS',
-            # atype_id=atype.id, subtype_id=sub_type.id,
             subtype=sub_type,
             **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 3)}
         )
@@ -713,14 +648,12 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         user = self.login_as_root_and_get()
 
         atype = ActivityType.objects.create(
-            # pk='activities-activity_custom_1',
             name='Big Show',
             default_day_duration=0,
             default_hour_duration='00:00:00',
             is_custom=True,
         )
         sub_type = ActivitySubType.objects.create(
-            # pk='activities-activity_custom_1',
             name='Big Show for Open source',
             type=atype,
             is_custom=True,
@@ -729,7 +662,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         act = self._create_activity_by_view(
             user=user,
             title='TGS',
-            # atype_id=atype.id, subtype_id=sub_type.id,
             subtype=sub_type,
             **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 3)}
         )
@@ -770,7 +702,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'title': title,
                 'status': Status.objects.all()[0].pk,
 
-                # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_MEETING,
                 self.EXTRA_SUBTYPE_KEY: self._get_sub_type(
                     constants.UUID_SUBTYPE_MEETING_MEETING,
                 ).id,
@@ -811,7 +742,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
                 self.EXTRA_PARTUSERS_KEY: [team.id],
 
-                # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 self.EXTRA_SUBTYPE_KEY: sub_type.id,
             },
         )
@@ -889,8 +819,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
             # POST ---
             title = 'My task'
-            # type_id = constants.ACTIVITYTYPE_MEETING
-            # sub_type_id = constants.ACTIVITYSUBTYPE_MEETING_OTHER
             sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
             other_contact = Contact.objects.create(
                 user=user, first_name='Ranma', last_name='Saotome',
@@ -903,7 +831,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                     'title': title,
                     'status': Status.objects.all()[0].pk,
 
-                    # self.EXTRA_SUBTYPE_KEY: sub_type_id,
                     self.EXTRA_SUBTYPE_KEY: sub_type.id,
 
                     f'{self.EXTRA_MYPART_KEY}_0': True,
@@ -920,7 +847,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
             self.assertNoFormError(response2)
 
-            # act = self.get_object_or_fail(Activity, type=type_id, title=title)
             act = self.get_object_or_fail(Activity, sub_type=sub_type, title=title)
             self.assertRelationCount(
                 1, user.linked_contact, constants.REL_SUB_PART_2_ACTIVITY, act,
@@ -932,7 +858,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             rtype.save()
 
     @skipIfCustomContact
-    # @skipIfCustomOrganisation
     def test_createview__is_staff(self):
         user = self.login_as_super(is_staff=True)
         root = self.get_root_user()
@@ -983,7 +908,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             'user': user.pk,
             'title': 'My task',
 
-            # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             self.EXTRA_SUBTYPE_KEY: self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER).id,
 
             f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2013, 3, 29),
@@ -1002,7 +926,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         response2 = self.assertPOST200(
             url, follow=True,
-            # data={**data, f'{self.EXTRA_START_KEY}_0': '2013-3-30'},
             data={**data, f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 30)},
         )
         self.assertFormError(
@@ -1035,7 +958,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'user': user.pk,
                 'title': 'My task',
 
-                # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_MEETING,
                 self.EXTRA_SUBTYPE_KEY: self._get_sub_type(
                     constants.UUID_SUBTYPE_MEETING_MEETING
                 ).id,
@@ -1095,7 +1017,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'user':  user.id,
                 'title': 'My task',
 
-                # self.EXTRA_SUBTYPE_KEY:  constants.ACTIVITYTYPE_TASK,
                 self.EXTRA_SUBTYPE_KEY: self._get_sub_type(
                     constants.UUID_SUBTYPE_MEETING_MEETING
                 ).id,
@@ -1128,7 +1049,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'user':  user.id,
                 'title': title,
 
-                # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 self.EXTRA_SUBTYPE_KEY: sub_type.id,
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
 
@@ -1148,8 +1068,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         act = self.get_object_or_fail(Activity, title=title)
         create_dt = self.create_datetime
         self.assertEqual(create_dt(year=2010, month=1, day=10), act.start)
-        # self.assertEqual(constants.ACTIVITYTYPE_MEETING, act.type.id)
-        # self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION, act.sub_type.id)
         self.assertEqual(sub_type.type_id, act.type_id)
         self.assertEqual(sub_type.id,      act.sub_type_id)
 
@@ -1195,7 +1113,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'user':  user.pk,
                 'title': title,
 
-                # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 self.EXTRA_SUBTYPE_KEY: self._get_sub_type(
                     constants.UUID_SUBTYPE_MEETING_QUALIFICATION
                 ).id,
@@ -1228,7 +1145,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'user':  user.id,
                 'title': title,
 
-                # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 self.EXTRA_SUBTYPE_KEY: self._get_sub_type(
                     constants.UUID_SUBTYPE_MEETING_QUALIFICATION
                 ).id,
@@ -1315,10 +1231,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
         self.assertNoFormError(response)
 
-        meeting = self.get_object_or_fail(
-            Activity, title=title,
-            # type=constants.ACTIVITYTYPE_MEETING,
-        )
+        meeting = self.get_object_or_fail(Activity, title=title)
 
         self.assertRelationCount(1, me,    constants.REL_SUB_PART_2_ACTIVITY,  meeting)
         self.assertRelationCount(1, ranma, constants.REL_SUB_PART_2_ACTIVITY,  meeting)
@@ -1338,9 +1251,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             message.title,
         )
         self.assertDatetimesAlmostEqual(now(), message.creation_date)
-        # self.assertEqual(PRIO_NOT_IMP_PK,  message.priority_id)
         self.assertUUIDEqual(UUID_PRIORITY_NOT_IMPORTANT, message.priority.uuid)
-        # self.assertFalse(message.email_sent)
         self.assertEqual(meeting.id,             message.entity_id)
         self.assertEqual(meeting.entity_type_id, message.entity_content_type_id)
 
@@ -1358,14 +1269,10 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_create_view_meeting(self):
         user = self.login_as_root_and_get()
 
-        # atype = self.get_object_or_fail(ActivityType, pk=constants.ACTIVITYTYPE_MEETING)
         atype = self._get_type(constants.UUID_TYPE_MEETING)
         self.assertEqual(0,          atype.default_day_duration)
         self.assertEqual('00:15:00', atype.default_hour_duration)  # TODO: timedelta instead ??
 
-        # subtype = self.get_object_or_fail(
-        #     ActivitySubType, pk=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-        # )
         subtype = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK)
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -1381,7 +1288,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         with self.assertNoException():
             subtype_f = response1.context['form'].fields[self.EXTRA_SUBTYPE_KEY]
 
-        # self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_MEETING, subtype_f.initial)
         self.assertEqual(
             ActivitySubType.objects.get(uuid=constants.UUID_SUBTYPE_MEETING_MEETING).id,
             subtype_f.initial,
@@ -1437,11 +1343,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     def test_create_view_phonecall(self):
         user = self.login_as_root_and_get()
-
-        # type_id = constants.ACTIVITYTYPE_PHONECALL
-        # subtype = self.get_object_or_fail(
-        #     ActivitySubType, pk=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-        # )
         subtype = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_OUTGOING)
 
         url = reverse('activities__create_activity', args=('phonecall',))
@@ -1451,7 +1352,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         with self.assertNoException():
             subtype_f = response1.context['form'].fields[self.EXTRA_SUBTYPE_KEY]
 
-        # self.assertEqual(constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, subtype_f.initial)
         self.assertEqual(
             self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_OUTGOING).id,
             subtype_f.initial,
@@ -1468,7 +1368,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
                 self.EXTRA_SUBTYPE_KEY: subtype.id,
 
-                # f'{self.EXTRA_START_KEY}_0': '2013-4-12',
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 4, 12),
                 f'{self.EXTRA_START_KEY}_1': '10:00:00',
 
@@ -1477,7 +1376,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         )
         self.assertNoFormError(response2)
-        # self.get_object_or_fail(Activity, type=type_id, title=title)
         activity = self.get_object_or_fail(Activity, title=title)
         self.assertUUIDEqual(constants.UUID_TYPE_PHONECALL, activity.type.uuid)
 
@@ -1487,7 +1385,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     def test_create_view_task(self):
         user = self.login_as_root_and_get()
-        # type_id = constants.ACTIVITYTYPE_TASK
 
         url = reverse('activities__create_activity', args=('task',))
         response1 = self.assertGET200(url)
@@ -1497,7 +1394,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             subtype_f = response1.context['form'].fields[self.EXTRA_SUBTYPE_KEY]
 
         sub_type = ActivitySubType.objects.filter(type__uuid=constants.UUID_TYPE_TASK)[0]
-        # self.assertEqual('activities-activitysubtype_task', subtype_f.initial)
         self.assertEqual(sub_type.id, subtype_f.initial)
 
         title = 'My call'
@@ -1519,7 +1415,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
 
         # ---
-        # sub_type = ActivitySubType.objects.filter(type=type_id).first()
         response3 = self.client.post(
             url,
             follow=True,
@@ -1529,7 +1424,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         )
         self.assertNoFormError(response3)
-        # self.get_object_or_fail(Activity, type=type_id, title=title)
         activity = self.get_object_or_fail(Activity, title=title)
         self.assertEqual(sub_type.type_id, activity.type_id)
         self.assertEqual(sub_type.id,      activity.sub_type_id)
@@ -1560,7 +1454,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'user':  user.id,
                 'title': title,
 
-                # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
                 self.EXTRA_SUBTYPE_KEY: sub_type.id,
 
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
@@ -1577,10 +1470,8 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         meeting = self.get_object_or_fail(Activity, title=title)
         self.assertEqual(
             self.create_datetime(year=2010, month=1, day=10, hour=17, minute=30),
-            meeting.start
+            meeting.start,
         )
-        # self.assertEqual(constants.ACTIVITYTYPE_MEETING,            meeting.type.pk)
-        # self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_REVIVAL, meeting.sub_type_id)
         self.assertEqual(sub_type.type_id, meeting.type_id)
         self.assertEqual(sub_type.id,      meeting.sub_type_id)
 
@@ -1599,7 +1490,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         response = self.assertGET200(self._build_add_related_uri(
             related=other_user.linked_contact,
-            # act_type_id=constants.ACTIVITYTYPE_MEETING,
             type_uuid=constants.UUID_TYPE_MEETING,
         ))
 
@@ -1615,7 +1505,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         dojo = Organisation.objects.create(user=user, name='Tendo no dojo')
         response = self.assertGET200(
-            # self._build_add_related_uri(dojo, constants.ACTIVITYTYPE_MEETING),
             self._build_add_related_uri(dojo, type_uuid=constants.UUID_TYPE_MEETING),
         )
         self.assertListEqual(
@@ -1630,11 +1519,8 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         linked = Activity.objects.create(
             user=user, title='Meet01',
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
         )
-        # url = self._build_add_related_uri(linked, constants.ACTIVITYTYPE_PHONECALL)
         url = self._build_add_related_uri(linked, type_uuid=constants.UUID_TYPE_PHONECALL)
         response1 = self.assertGET200(url)
 
@@ -1659,22 +1545,12 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_createview_related05(self):
         "Not allowed LINKing."
         user = self.login_as_activities_user(creatable_models=[Activity])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     # Not LINK
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='!LINK')
 
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         linked = Activity.objects.create(
-            user=user, title='Meet01',
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
-            type_id=sub_type.type_id, sub_type=sub_type,
+            user=user, title='Meet01', type_id=sub_type.type_id, sub_type=sub_type,
         )
-        # self.assertGET403(self._build_add_related_uri(linked, constants.ACTIVITYTYPE_PHONECALL))
         self.assertGET403(self._build_add_related_uri(linked, constants.UUID_TYPE_PHONECALL))
 
     @skipIfCustomContact
@@ -1685,7 +1561,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
 
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_REVIVAL)
-        # uri = self._build_add_related_uri(ryoga, constants.ACTIVITYTYPE_MEETING)
         uri = self._build_add_related_uri(ryoga, type_uuid=constants.UUID_TYPE_MEETING)
         title = 'My meeting'
         my_calendar = Calendar.objects.get_default_calendar(user)
@@ -1696,7 +1571,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'user': user.pk,
                 'title': title,
 
-                # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
                 self.EXTRA_SUBTYPE_KEY: sub_type.id,
 
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 5, 21),
@@ -1711,10 +1585,8 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         meeting = self.get_object_or_fail(Activity, title=title)
         self.assertEqual(
             self.create_datetime(year=2013, month=5, day=21, hour=9, minute=30),
-            meeting.start
+            meeting.start,
         )
-        # self.assertEqual(constants.ACTIVITYTYPE_MEETING,            meeting.type.pk)
-        # self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_REVIVAL, meeting.sub_type_id)
         self.assertEqual(sub_type.type_id, meeting.type_id)
         self.assertEqual(sub_type.id,      meeting.sub_type_id)
 
@@ -1726,9 +1598,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
         build_url = partial(self._build_add_related_uri, ryoga)
-        # self.assertGET200(build_url(constants.ACTIVITYTYPE_PHONECALL))
-        # self.assertGET200(build_url(constants.ACTIVITYTYPE_TASK))
-        # self.assertGET404(build_url('foobar'))
         self.assertGET200(build_url(type_uuid=constants.UUID_TYPE_PHONECALL))
         self.assertGET200(build_url(type_uuid=constants.UUID_TYPE_TASK))
         self.assertGET404(build_url(type_uuid=str(uuid.uuid4())))
@@ -1740,8 +1609,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
         activity = Activity.objects.create(
             user=user, title='Meet01',
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
             type_id=sub_type.type_id, sub_type=sub_type,
             start=create_dt(hour=14, minute=0),
             end=create_dt(hour=15, minute=0),
@@ -1758,12 +1625,9 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_dt = partial(self.create_datetime, year=2013, month=10, day=1)
         start = create_dt(hour=22, minute=0)
         end = create_dt(hour=23, minute=0)
-        # type_id = constants.ACTIVITYTYPE_MEETING
-        # sub_type_id = constants.ACTIVITYSUBTYPE_MEETING_MEETING
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
         activity = Activity.objects.create(
             user=user, title=title,
-            # type_id=type_id, sub_type_id=sub_type_id,
             type_id=sub_type.type_id, sub_type=sub_type,
             start=start, end=end,
         )
@@ -1787,7 +1651,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertEqual(1,  end_f.initial[0].day)
         self.assertEqual(23, end_f.initial[1].hour)
 
-        # self.assertEqual(sub_type_id, subtype_f.initial)
         self.assertEqual(sub_type.id, subtype_f.initial)
 
         # ---
@@ -1799,7 +1662,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'user': user.pk,
                 'title': title,
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2011, 2, 22),
-                # self.EXTRA_SUBTYPE_KEY: sub_type_id,
                 self.EXTRA_SUBTYPE_KEY: sub_type.id,
             },
         ))
@@ -1807,8 +1669,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         activity = self.refresh(activity)
         self.assertEqual(title, activity.title)
         self.assertEqual(create_dt(year=2011, month=2, day=22), activity.start)
-        # self.assertEqual(type_id,     activity.type.id)
-        # self.assertEqual(sub_type_id, activity.sub_type.id)
         self.assertEqual(sub_type.type_id, activity.type.id)
         self.assertEqual(sub_type.id,      activity.sub_type_id)
 
@@ -1828,8 +1688,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             user=user, title=title,
             start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
             end=create_dt(year=2010, month=10, day=1, hour=15, minute=0),
-            # type_id=constants.ACTIVITYTYPE_PHONECALL,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
             type_id=sub_type1.type_id, sub_type=sub_type1,
         )
 
@@ -1842,7 +1700,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'user':  user.pk,
                 'title': title,
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2011, 2, 22),
-                # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 self.EXTRA_SUBTYPE_KEY: sub_type2.id,
             },
         ))
@@ -1850,8 +1707,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         activity = self.refresh(activity)
         self.assertEqual(title, activity.title)
         self.assertEqual(create_dt(year=2011, month=2, day=22), activity.start)
-        # self.assertEqual(constants.ACTIVITYTYPE_MEETING,            activity.type_id)
-        # self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, activity.sub_type_id)
         self.assertEqual(sub_type2.type_id, activity.type_id)
         self.assertEqual(sub_type2.id,      activity.sub_type_id)
 
@@ -1863,11 +1718,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         def create_meeting(**kwargs):
             task = Activity.objects.create(
-                user=user,
-                # type_id=constants.ACTIVITYTYPE_MEETING,
-                # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
-                type_id=sub_type.type_id, sub_type=sub_type,
-                **kwargs
+                user=user, type_id=sub_type.type_id, sub_type=sub_type, **kwargs
             )
             Relation.objects.create(
                 subject_entity=contact, user=user,
@@ -1951,15 +1802,13 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             user=user, title='act01',
             start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
             end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-            # type_id=constants.ACTIVITYTYPE_INDISPO,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_UNAVAILABILITY,
             type_id=sub_type1.type_id, sub_type=sub_type1,
         )
 
         url = activity.get_edit_absolute_url()
         data = {
-            'user':       user.pk,
-            'title':      activity.title,
+            'user':  user.pk,
+            'title': activity.title,
 
             f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2015, 1, 1),
             f'{self.EXTRA_START_KEY}_1': '14:30:00',
@@ -1973,7 +1822,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             follow=True,
             data={
                 **data,
-                # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
                 self.EXTRA_SUBTYPE_KEY: self._get_sub_type(
                     constants.UUID_SUBTYPE_PHONECALL_INCOMING
                 ).id,
@@ -1986,20 +1834,13 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
 
         # ---
-        # subtype = ActivitySubType.objects.create(
-        #     id='holidays', name='Holidays', type_id=constants.ACTIVITYTYPE_INDISPO,
-        # )
         sub_type2 = ActivitySubType.objects.create(
             name='Holidays', type_id=sub_type1.type_id,
         )
         response2 = self.client.post(
             url,
             follow=True,
-            data={
-                **data,
-                # self.EXTRA_SUBTYPE_KEY: subtype.id,
-                self.EXTRA_SUBTYPE_KEY: sub_type2.id,
-            },
+            data={**data, self.EXTRA_SUBTYPE_KEY: sub_type2.id},
         )
         self.assertNoFormError(response2)
 
@@ -2008,8 +1849,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             create_dt(year=2015, month=1, day=1, hour=14, minute=30),
             activity.start,
         )
-        # self.assertEqual(constants.ACTIVITYTYPE_INDISPO, activity.type_id)
-        # self.assertEqual(subtype, activity.sub_type)
         self.assertEqual(sub_type2.type_id, activity.type_id)
         self.assertEqual(sub_type2.id,      activity.sub_type_id)
 
@@ -2149,8 +1988,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             user=user, title='act01',
             start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
             end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-            # type_id=constants.ACTIVITYTYPE_PHONECALL,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
             type_id=sub_type1.type_id, sub_type=sub_type1,
         )
 
@@ -2167,16 +2004,12 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertEqual(activity.sub_type_id, type_f.initial)
 
         # POST ---
-        # a_type_id    = constants.ACTIVITYTYPE_MEETING
-        # a_subtype_id = constants.ACTIVITYSUBTYPE_MEETING_NETWORK
         sub_type2 = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK)
         self.assertNoFormError(self.client.post(
             uri, data={form_field_name: sub_type2.id},
         ))
 
         activity = self.refresh(activity)
-        # self.assertEqual(a_type_id,    activity.type_id)
-        # self.assertEqual(a_subtype_id, activity.sub_type_id)
         self.assertEqual(sub_type2.type_id, activity.type_id)
         self.assertEqual(sub_type2.id,      activity.sub_type_id)
 
@@ -2198,8 +2031,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             user=user, title='act01',
             start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
             end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-            # type_id=constants.ACTIVITYTYPE_PHONECALL,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
             type_id=sub_type.type_id, sub_type=sub_type,
         )
 
@@ -2210,7 +2041,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )[0]
         response = self.assertPOST200(
             self.build_inneredit_uri(activity, field_name),
-            # data={form_field_name: constants.ACTIVITYTYPE_INDISPO},
             data={form_field_name: excluded_sub_type.id},
         )
         self.assertFormError(
@@ -2223,10 +2053,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         "Unavailability type cannot be changed, the sub_type can."
         user = self.login_as_root_and_get()
 
-        # subtype = ActivitySubType.objects.create(
-        #     id='holidays', name='Holidays',
-        #     type_id=constants.ACTIVITYTYPE_INDISPO,
-        # )
         unav_type = self._get_type(constants.UUID_TYPE_UNAVAILABILITY)
         sub_type1 = self._get_sub_type(constants.UUID_SUBTYPE_UNAVAILABILITY)
         sub_type2 = ActivitySubType.objects.create(name='Holidays', type=unav_type)
@@ -2236,8 +2062,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             user=user, title='act01',
             start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
             end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-            # type_id=constants.ACTIVITYTYPE_INDISPO,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_UNAVAILABILITY,
             type=unav_type, sub_type=sub_type1,
         )
 
@@ -2245,7 +2069,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         form_field_name = f'override-{field_name}'
         uri = self.build_inneredit_uri(activity, 'type')
         response = self.assertPOST200(
-            # uri, data={form_field_name: constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING},
             uri,
             data={
                 form_field_name: self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_INCOMING).id,
@@ -2257,11 +2080,9 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
 
-        # self.assertNoFormError(self.client.post(uri, data={form_field_name: subtype.id}))
         self.assertNoFormError(self.client.post(uri, data={form_field_name: sub_type2.id}))
+
         activity = self.refresh(activity)
-        # self.assertEqual(constants.ACTIVITYTYPE_INDISPO, activity.type_id)
-        # self.assertEqual(subtype,                        activity.sub_type)
         self.assertEqual(unav_type.id, activity.type_id)
         self.assertEqual(sub_type2.id, activity.sub_type_id)
 
@@ -2278,19 +2099,11 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
         sub_type1 = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         activity1 = create_activity(
-            title='act01',
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            type_id=sub_type1.type_id,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
-            sub_type=sub_type1,
+            title='act01', type_id=sub_type1.type_id, sub_type=sub_type1,
         )
         sub_type2 = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_INCOMING)
         activity2 = create_activity(
-            title='act02',
-            # type_id=constants.ACTIVITYTYPE_PHONECALL,
-            type_id=sub_type2.type_id,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-            sub_type=sub_type2,
+            title='act02', type_id=sub_type2.type_id, sub_type=sub_type2,
         )
 
         field_name = 'type'
@@ -2303,10 +2116,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         self.assertIsInstance(type_f, ActivitySubTypeField)
 
-        # type_ids = {atype.id for atype in self.get_types_of_choices(type_f.choices)}
-        # self.assertIn(constants.ACTIVITYTYPE_PHONECALL, type_ids)
-        # self.assertIn(constants.ACTIVITYTYPE_MEETING,   type_ids)
-        # self.assertNotIn(constants.ACTIVITYTYPE_INDISPO, type_ids)
         type_uuids = self._get_types_uuids_for_field(type_f)
         self.assertIn(constants.UUID_TYPE_PHONECALL, type_uuids)
         self.assertIn(constants.UUID_TYPE_MEETING,   type_uuids)
@@ -2320,20 +2129,15 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             build_uri(),
             data={
                 'entities': [activity1.pk, activity2.pk],
-                # formfield_name: constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 formfield_name: sub_type3.id,
             },
         ))
 
         activity1 = self.refresh(activity1)
-        # self.assertEqual(constants.ACTIVITYTYPE_MEETING,            activity1.type_id)
-        # self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, activity1.sub_type_id)
         self.assertEqual(sub_type3.type_id, activity1.type_id)
         self.assertEqual(sub_type3.id,      activity1.sub_type_id)
 
         activity2 = self.refresh(activity2)
-        # self.assertEqual(constants.ACTIVITYTYPE_MEETING,            activity2.type_id)
-        # self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, activity2.sub_type_id)
         self.assertEqual(sub_type3.type_id, activity2.type_id)
         self.assertEqual(sub_type3.id,      activity2.sub_type_id)
 
@@ -2346,9 +2150,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         unav_subtype = self._get_sub_type(constants.UUID_SUBTYPE_UNAVAILABILITY)
         activity1 = create_activity(
             title='act01',
-            # type_id=constants.ACTIVITYTYPE_INDISPO,
             type=unav_subtype.type,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_UNAVAILABILITY,
             sub_type=unav_subtype,
             start=create_dt(year=2024, month=1, day=1, hour=14, minute=0),
             end=create_dt(year=2024, month=1, day=1, hour=15, minute=0),
@@ -2356,9 +2158,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         phonecall_subtype = self._get_sub_type(constants.UUID_SUBTYPE_PHONECALL_INCOMING)
         activity2 = create_activity(
             title='act02',
-            # type_id=constants.ACTIVITYTYPE_PHONECALL,
             type=phonecall_subtype.type,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
             sub_type=phonecall_subtype,
             # More recent, so ordered before activity1, so used as reference
             # instance for global validation
@@ -2376,10 +2176,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         self.assertIsInstance(type_f, ActivitySubTypeField)
 
-        # type_ids = {atype.id for atype in self.get_types_of_choices(type_f.choices)}
-        # self.assertIn(constants.ACTIVITYTYPE_PHONECALL, type_ids)
-        # self.assertIn(constants.ACTIVITYTYPE_MEETING,   type_ids)
-        # self.assertNotIn(constants.ACTIVITYTYPE_INDISPO, type_ids)
         type_uuids = self._get_types_uuids_for_field(type_f)
         self.assertIn(constants.UUID_TYPE_PHONECALL, type_uuids)
         self.assertIn(constants.UUID_TYPE_MEETING,   type_uuids)
@@ -2402,17 +2198,14 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             build_uri(),
             data={
                 'entities': [activity1.pk, activity2.pk],
-                # formfield_name: constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 formfield_name: meeting_sub_type.id,
             },
         ))
-        # self.assertEqual(constants.ACTIVITYTYPE_MEETING, self.refresh(activity2).type_id)
         activity2 = self.refresh(activity2)
         self.assertEqual(meeting_sub_type.type_id, activity2.type_id)
         self.assertEqual(meeting_sub_type.id,      activity2.sub_type_id)
 
         # No change
-        # self.assertEqual(constants.ACTIVITYTYPE_INDISPO, self.refresh(activity1).type_id)
         activity1 = self.refresh(activity1)
         self.assertEqual(unav_subtype.type_id, activity1.type_id)
         self.assertEqual(unav_subtype.id,      activity1.sub_type_id)
@@ -2421,21 +2214,13 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         "Unavailability type can be changed when they are not mixed with other types."
         user = self.login_as_root_and_get()
 
-        # ACTIVITYTYPE_INDISPO = constants.ACTIVITYTYPE_INDISPO
         unav_type = self._get_type(constants.UUID_TYPE_UNAVAILABILITY)
-        # ACTIVITYSUBTYPE_UNAVAILABILITY = constants.ACTIVITYSUBTYPE_UNAVAILABILITY
         subtype1 = self._get_sub_type(constants.UUID_SUBTYPE_UNAVAILABILITY)
-        # subtype = ActivitySubType.objects.create(
-        #     id='holidays', name='Holidays', type_id=ACTIVITYTYPE_INDISPO,
-        # )
         subtype2 = ActivitySubType.objects.create(name='Holidays', type=unav_type)
 
         create_dt = self.create_datetime
         create_unav = partial(
-            Activity.objects.create,
-            user=user,
-            # type_id=ACTIVITYTYPE_INDISPO, sub_type_id=ACTIVITYSUBTYPE_UNAVAILABILITY,
-            type=unav_type, sub_type=subtype1,
+            Activity.objects.create, user=user, type=unav_type, sub_type=subtype1,
         )
         activity1 = create_unav(
             title='Unavailability01',
@@ -2456,10 +2241,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         with self.assertNoException():
             type_f = response1.context['form'].fields[formfield_name]
 
-        # self.assertListEqual(
-        #     [constants.ACTIVITYTYPE_INDISPO],
-        #     [atype.id for atype in self.get_types_of_choices(type_f.choices)],
-        # )
         self.assertSetEqual(
             {constants.UUID_TYPE_UNAVAILABILITY}, self._get_types_uuids_for_field(type_f),
         )
@@ -2475,14 +2256,10 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         ))
         activity1 = self.refresh(activity1)
-        # self.assertEqual(ACTIVITYTYPE_INDISPO, activity1.type_id)
-        # self.assertEqual(subtype,              activity1.sub_type)
         self.assertEqual(unav_type.id, activity1.type_id)
         self.assertEqual(subtype2.id,  activity1.sub_type_id)
 
         activity2 = self.refresh(activity2)
-        # self.assertEqual(ACTIVITYTYPE_INDISPO, activity2.type_id)
-        # self.assertEqual(subtype,              activity2.sub_type)
         self.assertEqual(unav_type.id, activity2.type_id)
         self.assertEqual(subtype2.id, activity2.sub_type_id)
 
@@ -2497,16 +2274,12 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         acts = [
             create_act(
                 title='call01',
-                # type_id=constants.ACTIVITYTYPE_PHONECALL,
-                # sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
                 type_id=sub_type1.type_id, sub_type=sub_type1,
                 start=create_dt(year=2010, month=10, day=1, hour=12, minute=0),
                 end=create_dt(year=2010, month=10, day=1, hour=13, minute=0),
             ),
             create_act(
                 title='meet01',
-                # type_id=constants.ACTIVITYTYPE_MEETING,
-                # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
                 type_id=sub_type2.type_id, sub_type=sub_type2,
                 start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
                 end=create_dt(year=2010, month=10, day=1, hour=15, minute=0),
@@ -2567,7 +2340,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 'title': 'Away',
                 'status': status.pk,
 
-                # self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYTYPE_INDISPO,
                 self.EXTRA_SUBTYPE_KEY: self._get_type(
                     constants.UUID_TYPE_UNAVAILABILITY
                 ).activitysubtype_set.first().id,
@@ -2641,20 +2413,12 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         # ---
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_UNAVAILABILITY)
         response3 = self.client.post(
-            url,
-            follow=True,
-            data={
-                **data,
-                # key: constants.ACTIVITYSUBTYPE_UNAVAILABILITY,
-                key: sub_type.id,
-            },
+            url, follow=True, data={**data, key: sub_type.id},
         )
         self.assertNoFormError(response3)
 
-        # act = self.get_object_or_fail(Activity, type=constants.ACTIVITYTYPE_INDISPO, title=title)
         act = self.get_object_or_fail(Activity, title=title)
         self.assertEqual(sub_type.type_id, act.type_id)
-        # self.assertEqual(constants.ACTIVITYSUBTYPE_UNAVAILABILITY, act.sub_type_id)
         self.assertEqual(sub_type.id, act.sub_type_id)
         self.assertIsNone(act.status)
         self.assertFalse(act.is_all_day)
@@ -2683,9 +2447,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         user = self.login_as_root_and_get()
 
         title = 'AFK'
-        # subtype = ActivitySubType.objects.create(
-        #     id='holidays', name='Holidays', type_id=constants.ACTIVITYTYPE_INDISPO,
-        # )
         unav_type = self._get_type(constants.UUID_TYPE_UNAVAILABILITY)
         subtype = ActivitySubType.objects.create(name='Holidays', type=unav_type)
         response = self.client.post(
@@ -2706,7 +2467,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
         self.assertNoFormError(response)
 
-        # act = self.get_object_or_fail(Activity, type=constants.ACTIVITYTYPE_INDISPO, title=title)
         act = self.get_object_or_fail(Activity, title=title)
         self.assertEqual(unav_type, act.type)
         self.assertEqual(subtype, act.sub_type)
@@ -2737,15 +2497,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     def test_detete_activity_type01(self):
         self.login_as_root()
 
-        # atype = ActivityType.objects.update_or_create(
-        #     id='activities-activity_custom_1',
-        #     defaults={
-        #         'name':                 'Karate session',
-        #         'default_day_duration':  0,
-        #         'default_hour_duration': '00:15:00',
-        #         'is_custom':             True,
-        #     },
-        # )[0]
         atype = ActivityType.objects.create(
             name='Karate session',
             default_day_duration=0, default_hour_duration='00:15:00',
@@ -2765,14 +2516,12 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         user = self.login_as_root_and_get()
 
         atype = ActivityType.objects.create(
-            # id='activities-activity_custom_1',
             name='Karate session',
             default_day_duration=0,
             default_hour_duration='00:15:00',
             is_custom=True,
         )
         sub_type = ActivitySubType.objects.create(
-            # id='activities-activity_custom_1',
             type=atype,
             name='Kick session',
             is_custom=True,
@@ -2797,8 +2546,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_act = partial(
             Activity.objects.create,
             user=user, busy=True,
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
             type_id=sub_type.type_id, sub_type=sub_type,
         )
         create_dt = self.create_datetime
@@ -2860,8 +2607,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_dt = self.create_datetime
         activity1 = Activity.objects.create(
             user=user,
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
             title='Meeting', description='Desc',
             start=create_dt(year=2015, month=3, day=20, hour=9),
@@ -2903,8 +2648,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
         create_activity = partial(
             Activity.objects.create, user=user,
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
             type_id=sub_type.type_id, sub_type=sub_type,
             start=today + timedelta(hours=3),
             end=today + timedelta(hours=4),
@@ -2974,8 +2717,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING)
         create_activity = partial(
             Activity.objects.create, user=user,
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
             type_id=sub_type.type_id, sub_type=sub_type,
             start=today - timedelta(hours=24),
             end=today - timedelta(hours=23),
@@ -3051,8 +2792,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_activity = partial(
             Activity.objects.create,
             user=user,
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id, sub_type=sub_type,
             start=today + timedelta(hours=3),
             end=today   + timedelta(hours=4),
@@ -3125,7 +2864,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         self.assertListEqual(
             [activity6, activity1],
-            [*Activity.objects.future_linked_to_organisation(orga1, today=today)]
+            [*Activity.objects.future_linked_to_organisation(orga1, today=today)],
         )
 
         self.assertFalse(Relation.objects.filter(subject_entity=activity2, object_entity=orga2))
@@ -3163,8 +2902,6 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_activity = partial(
             Activity.objects.create,
             user=user,
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
             type_id=sub_type.type_id, sub_type=sub_type,
             start=today - timedelta(hours=16),
             end=today   - timedelta(hours=15),

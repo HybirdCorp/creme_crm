@@ -136,7 +136,6 @@ class BillingConfig(CremeAppConfig):
             bricks.ReceivedCreditNotesBrick,
             bricks.BillingDetailedAddressBrick,
             bricks.BillingPrettyAddressBrick,
-            # bricks.BillingExportersBrick,
             bricks.PersonsStatisticsBrick,
         ).register_invalid_models(
             self.ProductLine, self.ServiceLine,

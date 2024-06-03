@@ -1012,7 +1012,6 @@ class OptionalWidget(widgets.MultiWidget):
     def __init__(self, sub_widget=widgets.TextInput, attrs=None, sub_label=''):
         super().__init__(
             widgets=(
-                # widgets.CheckboxInput(attrs={'class': 'optional-widget-trigger'}),
                 widgets.CheckboxInput(attrs={'class': 'optional-toggle'}),
                 sub_widget,
             ),

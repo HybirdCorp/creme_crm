@@ -59,7 +59,6 @@ class AbstractCreditNote(Base):
     # TODO: factorise the build() methods
     def build(self, template):
         # Specific recurrent generation rules
-        # status_id = 1  # Default status (see populate.py)
         status_id = None
 
         if isinstance(template, get_template_base_model()):
@@ -68,7 +67,6 @@ class AbstractCreditNote(Base):
             if CreditNoteStatus.objects.filter(pk=tpl_status_id).exists():
                 status_id = tpl_status_id
 
-        # self.status_id = status_id
         if status_id:
             self.status_id = status_id
         else:

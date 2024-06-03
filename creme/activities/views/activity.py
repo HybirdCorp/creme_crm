@@ -21,13 +21,11 @@ from __future__ import annotations
 from datetime import time
 from functools import partial
 
-# from dateutil.parser import isoparse
 from django.db.models import Q
 from django.forms.forms import BaseForm
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-# from django.utils.timezone import get_current_timezone, is_naive, make_naive
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import EntityCredentials
@@ -55,45 +53,31 @@ class ActivityCreation(generic.EntityCreation):
     type_name_url_kwarg = 'act_type'
 
     allowed_activity_types = {
-        # 'meeting':   constants.ACTIVITYTYPE_MEETING,
-        # 'phonecall': constants.ACTIVITYTYPE_PHONECALL,
-        # 'task':      constants.ACTIVITYTYPE_TASK,
         'meeting':   constants.UUID_TYPE_MEETING,
         'phonecall': constants.UUID_TYPE_PHONECALL,
         'task':      constants.UUID_TYPE_TASK,
     }
     # TODO: add a field <ActivitySubType.is_default> instead.
     default_activity_subtypes = {
-        # constants.ACTIVITYTYPE_MEETING:   constants.ACTIVITYSUBTYPE_MEETING_MEETING,
-        # constants.ACTIVITYTYPE_PHONECALL: constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
         constants.UUID_TYPE_MEETING:   constants.UUID_SUBTYPE_MEETING_MEETING,
         constants.UUID_TYPE_PHONECALL: constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
     }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.type_id = None
         self.type_uuid = None
 
     def get(self, request, *args, **kwargs):
-        # self.type_id = self.get_type_id()
         self.type_uuid = self.get_type_uuid()
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        # self.type_id = self.get_type_id()
         self.type_uuid = self.get_type_uuid()
         return super().post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
-        # type_id = self.type_id
-        # if type_id:
-        #     subtype_id = self.default_activity_subtypes.get(type_id)
-        #     kwargs['sub_type'] = get_object_or_404(
-        #         ActivitySubType, id=subtype_id,
-        #     ) if subtype_id else ActivitySubType.objects.filter(type=type_id).first()
         type_uuid = self.type_uuid
         if type_uuid:
             subtype_uuid = self.default_activity_subtypes.get(type_uuid)
@@ -105,18 +89,6 @@ class ActivityCreation(generic.EntityCreation):
 
         return kwargs
 
-    # def get_type_id(self):
-    #     act_type = self.kwargs.get(self.type_name_url_kwarg)
-    #
-    #     if act_type is None:
-    #         type_id = None
-    #     else:
-    #         type_id = self.allowed_activity_types.get(act_type)
-    #
-    #         if not type_id:
-    #             raise Http404(f'No activity type matches with: {act_type}')
-    #
-    #     return type_id
     def get_type_uuid(self):
         act_type = self.kwargs.get(self.type_name_url_kwarg)
 
@@ -131,7 +103,6 @@ class ActivityCreation(generic.EntityCreation):
         return type_uuid
 
     def get_title(self):
-        # return Activity.get_creation_title(self.type_id)
         return Activity.get_creation_title(self.type_uuid)
 
 
@@ -144,20 +115,10 @@ class ActivityCreationPopup(generic.EntityCreationPopup):
         request = self.request
 
         if request.method == 'GET':
-            # tz = get_current_timezone()
             get = partial(get_from_GET_or_404, GET=request.GET)
             initial['is_all_day'] = get(
                 key='allDay', default='0', cast=bool_from_str_extended,
             )
-
-            # def isoparse_naive(value):
-            #     if value is not None:
-            #        value = isoparse(value)
-
-            #     if not is_naive(value):
-            #        value = make_naive(value, tz)
-
-            #    return value
 
             def _set_datefield(request_key, field_name, **kwargs):
                 value = get(key=request_key, cast=fromRFC3339, **kwargs)
@@ -187,8 +148,6 @@ class ActivityCreationPopup(generic.EntityCreationPopup):
 class UnavailabilityCreation(ActivityCreation):
     form_class = custom_forms.UNAVAILABILITY_CREATION_CFORM
 
-    # def get_type_id(self):
-    #     return constants.ACTIVITYTYPE_INDISPO
     def get_type_uuid(self):
         return constants.UUID_TYPE_UNAVAILABILITY
 
@@ -260,13 +219,6 @@ class RelatedActivityCreation(ActivityCreation):
 
         return rtype_id
 
-    # def get_type_id(self):
-    #     type_id = self.request.GET.get('activity_type')
-    #
-    #     if type_id:
-    #         get_object_or_404(ActivityType, pk=type_id)
-    #
-    #     return type_id
     def get_type_uuid(self):
         type_uuid = self.request.GET.get('activity_type')  # TODO: attribute
 

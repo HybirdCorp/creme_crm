@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2023  Hybird
+#    Copyright (C) 2017-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 
 from __future__ import annotations
 
-# import warnings
 import logging
 
 from django.template import Library
@@ -176,7 +175,6 @@ __RENDER_ARGS_MAP = {
     'cell':     'cell_var',
     'instance': 'instance_var',
     'user':     'user_var',
-    # 'output':   'output_var',
     'tag':      'tag_var',
 }
 
@@ -231,23 +229,16 @@ def do_render(parser, token):
 
         kwargs[arg_name] = parser.compile_filter(value)
 
-    # if 'tag_var' in kwargs and 'output_var' in kwargs:
-    #     raise TemplateSyntaxError(
-    #         '"cell_render" tag use 2 incompatible arguments: tag & output.'
-    #     )
-
     return CellRenderNode(**kwargs)
 
 
 class CellRenderNode(TemplateNode):
     def __init__(self, cell_var, instance_var, user_var,
-                 # output_var=None,
                  tag_var=None, asvar_name=None,
                  ):
         self.cell_var = cell_var
         self.instance_var = instance_var
         self.user_var = user_var
-        # self.output_var = output_var
         self.tag_var = tag_var
 
         self.asvar_name = asvar_name
@@ -258,29 +249,6 @@ class CellRenderNode(TemplateNode):
     def render(self, context):
         cell = self.cell_var.resolve(context)
 
-        # tag = ViewTag.HTML_DETAIL
-        # tag_var = self.tag_var
-        # if tag_var is None:
-        #     output_var = self.output_var
-        #     if output_var is not None:
-        #         warnings.warn(
-        #             '{% cell_render %}: The argument "output" is deprecated; '
-        #             'use "tag" instead.',
-        #             DeprecationWarning,
-        #         )
-        #
-        #         output = output_var.resolve(context)
-        #         if output == 'html':
-        #             pass
-        #         elif output == 'csv':
-        #             tag = ViewTag.TEXT_PLAIN
-        #         else:
-        #             raise ValueError(
-        #                 r'{% cell_render %}: '
-        #                 f'invalid output "{output}" (must be in ["html", "csv"]).'
-        #             )
-        # else:
-        #     tag = tag_var.resolve(context)
         tag_var = self.tag_var
         tag = ViewTag.HTML_DETAIL if tag_var is None else tag_var.resolve(context)
 

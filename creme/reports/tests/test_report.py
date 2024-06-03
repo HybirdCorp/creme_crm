@@ -15,7 +15,6 @@ from django.utils.translation import override as override_language
 from django.utils.translation import pgettext
 
 from creme.creme_config.forms.fields import CreatorModelChoiceField
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import REL_SUB_HAS
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.core.entity_filter import (
@@ -26,7 +25,6 @@ from creme.creme_core.core.entity_filter import (
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.forms import ReadonlyMessageField
 from creme.creme_core.gui import actions
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -156,11 +154,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             allowed_apps=('creme_core', 'reports'),
             **kwargs
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         return user
@@ -1360,14 +1353,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
         self.assertNoFormError(response)
         self.assertEqual(
-            # '{url}?doc_type=csv'
-            # '&date_field={date}'
-            # '&date_filter_0='
-            # '&date_filter_1=01-01-1990'
-            # '&date_filter_2=31-12-1990'.format(
-            #     url=reverse('reports__export_report', args=(report.id,)),
-            #     date=date_field,
-            # ),
             '{url}?doc_type=csv'
             '&date_field={field}'
             '&date_filter_0='
@@ -1383,11 +1368,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_export_filter_not_superuser01(self):
         user = self.login_as_standard(allowed_apps=['reports'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW'])
 
         report = Report.objects.create(name='Report', user=user, ct=self.ct_orga)
@@ -2119,11 +2099,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_edit_fields_not_super_user01(self):
         user = self.login_as_standard(allowed_apps=['reports'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
         report = Report.objects.create(name='Contact report', user=user, ct=self.ct_contact)
@@ -2132,11 +2107,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_edit_fields_not_super_user02(self):
         "Edition permission on Report are needed."
         user = self.login_as_standard(allowed_apps=['reports'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,  # EntityCredentials.CHANGE
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])  # 'CHANGE'
 
         report = Report.objects.create(name='Contact report', user=user, ct=self.ct_contact)
@@ -2259,11 +2229,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
     def test_link_report_not_superuser01(self):
         user = self.login_as_standard(allowed_apps=['reports'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'LINK'])
 
         report = Report.objects.create(user=user, name='Report', ct=self.ct_contact)
@@ -2276,11 +2241,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_link_report_not_superuser02(self):
         "LINK permission."
         user = self.login_as_standard(allowed_apps=['reports'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,  # EntityCredentials.LINK
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])  # 'LINK'
 
         report = Report.objects.create(user=user, name='Report', ct=self.ct_contact)
@@ -3031,9 +2991,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def _aux_test_fetch_m2m(self):
         user = self.login_as_root_and_get()
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # self.ptype1 = create_ptype(str_pk='test-prop_important',    text='Important')
-        # self.ptype2 = create_ptype(str_pk='test-prop_notimportant', text='Not important')
         create_ptype = CremePropertyType.objects.create
         self.ptype1 = create_ptype(text='Important')
         self.ptype2 = create_ptype(text='Not important')
@@ -3350,10 +3307,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             user=user, report_4_contact=False, create_contacts=False, create_relations=False,
         )
 
-        ptype = CremePropertyType.objects.create(
-            # pk='reports-test_fetch_funcfield_01',
-            text='I am not dead !',
-        )
+        ptype = CremePropertyType.objects.create(text='I am not dead!')
         CremeProperty.objects.create(type=ptype, creme_entity=self.starks)
 
         report = self.report_orga
@@ -3402,10 +3356,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             sub_report=report_img, selected=True,
         )
 
-        ptype = CremePropertyType.objects.create(
-            # pk='reports-test_fetch_funcfield_02',
-            text='I am waiting the winter',
-        )
+        ptype = CremePropertyType.objects.create(text='I am waiting the winter')
 
         create_prop = partial(CremeProperty.objects.create, type=ptype)
         create_prop(creme_entity=aria_face)
@@ -3491,9 +3442,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         user = self.login_as_basic_user()
         self._aux_test_fetch_persons(user=user)
 
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_dwarf', text='Dwarf',
-        # )
         ptype = CremePropertyType.objects.create(text='Dwarf')
         CremeProperty.objects.create(type=ptype, creme_entity=self.tyrion)
 
@@ -3559,9 +3507,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         tyrion.image = tyrion_face
         tyrion.save()
 
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_dwarf', text='Is a dwarf',
-        # )
         ptype = CremePropertyType.objects.create(text='Is a dwarf')
         CremeProperty.objects.create(type=ptype, creme_entity=self.tyrion)
 

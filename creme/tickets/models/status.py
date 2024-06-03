@@ -23,20 +23,6 @@ from django.utils.translation import pgettext_lazy
 from creme.creme_core.models import MinionModel
 from creme.creme_core.models import fields as core_fields
 
-# OPEN_PK       = 1
-# CLOSED_PK     = 2
-# INVALID_PK    = 3
-# DUPLICATED_PK = 4
-# WONTFIX_PK    = 5
-#
-# BASE_STATUS = (
-#     (OPEN_PK,        pgettext_lazy('tickets-status', 'Open'),       False, 'f8f223'),
-#     (CLOSED_PK,      pgettext_lazy('tickets-status', 'Closed'),     True,  '1dd420'),
-#     (INVALID_PK,     pgettext_lazy('tickets-status', 'Invalid'),    False, 'adadad'),
-#     (DUPLICATED_PK,  pgettext_lazy('tickets-status', 'Duplicated'), False, 'ababab'),
-#     (WONTFIX_PK,     _("Won't fix"),                                False, 'a387ab'),
-# )
-
 
 class Status(MinionModel):
     """Status of a ticket: open, closed, invalid..."""

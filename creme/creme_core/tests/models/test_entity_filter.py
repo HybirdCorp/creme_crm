@@ -9,7 +9,6 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme import __version__
-# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
@@ -238,7 +237,6 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertIsInstance(efilter, EntityFilter)
         self.assertEqual(pk,      efilter.id)
         self.assertEqual(name,    efilter.name)
-        # self.assertEqual(EF_USER, efilter.filter_type)
         self.assertEqual(EF_REGULAR, efilter.filter_type)
         self.assertEqual(model, efilter.entity_type.model_class())
         self.assertIsNone(efilter.user)
@@ -246,7 +244,6 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertIs(efilter.is_custom,  False)
         self.assertIs(efilter.is_private, False)
 
-        # self.assertEqual(entity_filter_registries[EF_USER], efilter.registry)
         self.assertEqual(entity_filter_registries[EF_REGULAR], efilter.registry)
         self.assertEqual(
             reverse('creme_core__efilter', args=(efilter.id,)),
@@ -444,9 +441,6 @@ class EntityFiltersTestCase(CremeTestCase):
             [build_cond(operator=operators.CONTAINS)],
         ))
 
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_kawaii', text='Kawaii',
-        # )
         ptype = CremePropertyType.objects.create(text='Kawaii')
         hates = RelationType.objects.smart_update_or_create(
             ('test-subject_hate', 'Is hating'),
@@ -468,14 +462,12 @@ class EntityFiltersTestCase(CremeTestCase):
             model=FakeContact,
             type=type_id,
             name='first_name',
-            # raw_value='{"operator": 1, "values": ["Ikari"]}',
             value={'operator': 1, 'values': ['Ikari']},
         )
         cond2 = EntityFilterCondition(
             model=FakeContact,
             type=type_id,
             name='first_name',
-            # raw_value='{"operator": 1, "values": ["Ikari"]}',
             value={'operator': 1, 'values': ['Ikari']},
         )
         cond3 = EntityFilterCondition(
@@ -483,7 +475,6 @@ class EntityFiltersTestCase(CremeTestCase):
             type=type_id,
             name='first_name',
             # Different strings, but same JSONified dict....
-            # raw_value='{"values": ["Ikari"], "operator": 1}',
             value={'values': ['Ikari'], 'operator': 1},
         )
         self.assertTrue(equal([cond1], [cond2]))
@@ -1741,7 +1732,6 @@ class EntityFiltersTestCase(CremeTestCase):
         condition1.save()
 
         condition2 = self.get_alone_element(self.refresh(efilter).get_conditions())
-        # EntityFilterCondition.objects.filter(id=condition2.id).update(raw_value='[]')
         EntityFilterCondition.objects.filter(id=condition2.id).update(value=[])
         self.assertFalse(self.refresh(efilter).get_conditions())
 
@@ -1927,9 +1917,6 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
 
     def test_properties01(self):
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_kawaii', text='Kawaii',
-        # )
         ptype = CremePropertyType.objects.create(text='Kawaii')
         cute_ones = ('faye', 'rei', 'misato', 'asuka')
 
@@ -1954,9 +1941,6 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_properties02(self):
         "Several conditions on properties."
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_pretty',    text='Pretty')
-        # ptype2 = create_ptype(str_pk='test-prop_beautiful', text='Beautiful')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Pretty')
         ptype2 = create_ptype(text='Beautiful')
@@ -1985,9 +1969,6 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_property_deletion01(self):
         "Delete CremePropertyType => delete related conditions."
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_pretty',    text='Pretty')
-        # ptype2 = create_ptype(str_pk='test-prop_beautiful', text='Beautiful')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Pretty')
         ptype2 = create_ptype(text='Beautiful')
@@ -2013,7 +1994,6 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertCountEqual(
             [
                 (SubFilterConditionHandler.type_id, str(subfilter.id)),
-                # (PropertyConditionHandler.type_id,  ptype2.id),
                 (PropertyConditionHandler.type_id, str(ptype2.uuid)),
             ],
             efilter.conditions.values_list('type', 'name'),
@@ -2888,7 +2868,6 @@ class EntityFiltersTestCase(CremeTestCase):
                 EntityFilterCondition(
                     type=20,
                     model=FakeContact,
-                    # name=str(custom_field.id),
                     name=str(custom_field.uuid),
                     value={
                         'operator': operators.EQUALS,
@@ -2982,7 +2961,6 @@ class EntityFiltersTestCase(CremeTestCase):
 
         # We want a condition with the same name as the one for custom_field01
         subfilter = EntityFilter.objects.create(
-            # id=str(custom_field01.id),
             id=str(custom_field01.uuid),
             name='Do not delete me please',
             entity_type=FakeContact,
@@ -3005,7 +2983,6 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertCountEqual(
             [
                 (SubFilterConditionHandler.type_id,   str(subfilter.id)),
-                # (CustomFieldConditionHandler.type_id, str(custom_field02.id)),
                 (CustomFieldConditionHandler.type_id, str(custom_field02.uuid)),
             ],
             efilter.conditions.values_list('type', 'name'),
@@ -3676,10 +3653,8 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter2 = efilter1.clone()
         self.assertIsInstance(efilter2, EntityFilter)
-        # self.assertEqual('test-1',      efilter2.pk)
         self.assertStartsWith(efilter2.id, 'test-')
         self.assertEqual(efilter1.name, efilter2.name)
-        # self.assertEqual(EF_USER,       efilter2.filter_type)
         self.assertEqual(EF_REGULAR,    efilter2.filter_type)
         self.assertFalse(efilter2.is_custom)
         self.assertIsNone(efilter2.user)
@@ -3721,7 +3696,6 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter1.filter_type = EF_CREDENTIALS
 
         efilter2 = efilter1.clone()
-        # self.assertEqual('creme_core-cloned-1', efilter2.pk)
         self.assertStartsWith(efilter2.id, 'creme_core-cloned-')
         self.assertEqual(efilter1.name, efilter2.name)
         self.assertEqual(EF_CREDENTIALS, efilter2.filter_type)

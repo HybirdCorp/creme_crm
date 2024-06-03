@@ -7,9 +7,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 from parameterized import parameterized
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_filter import condition_handler, operators
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     EntityFilter,
     FakeOrganisation,
@@ -148,11 +146,6 @@ class MessagingListTestCase(CremeTestCase):
     @skipIfCustomContact
     def test_ml_contacts01(self):
         user = self.login_as_standard(allowed_apps=('sms', 'persons'))
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         mlist = MessagingList.objects.create(user=user, name='ml01')
@@ -310,11 +303,6 @@ class MessagingListTestCase(CremeTestCase):
     def test_ml_contacts_rm(self):
         "Not allowed to change the list."
         user = self.login_as_standard(allowed_apps=('sms', 'persons'))
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'LINK'])
 
         contact = Contact.objects.create(

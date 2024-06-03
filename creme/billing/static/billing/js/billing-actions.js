@@ -61,27 +61,6 @@ creme.billing.AddDocumentAction = creme.component.Action.sub({
 });
 
 var hatmenubarActions = {
-/*
-    'billing-hatmenubar-invoice-number': function(url, options, data, e) {
-        return creme.utils.ajaxQuery(url, $.extend({
-            action: 'post',
-            warnOnFail: true,
-            reloadOnSuccess: true
-        }, options || {}));
-    },
-*/
-/*
-    'billing-hatmenubar-convert': function(url, options, data, e) {
-        var action = creme.utils.ajaxQuery(url, $.extend({
-            action: 'post',
-            warnOnFail: true
-        }, options || {}), data);
-
-        return action.onDone(function(event, data) {
-            creme.utils.goTo(data);
-        });
-    },
-*/
     'billing-hatmenubar-add-document': function(url, options, data, e) {
         return new creme.billing.AddDocumentAction({
             url: url,
@@ -94,7 +73,6 @@ var hatmenubarActions = {
     }
 };
 
-/* $(document).on('hatmenubar-setup-actions', '.ui-creme-hatmenubar', function(e, actions) { */
 $(document).on('brick-setup-actions', '.creme_core-buttons-brick', function(e, brick, actions) {
     actions.registerAll(hatmenubarActions);
 });

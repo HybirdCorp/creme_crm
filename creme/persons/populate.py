@@ -49,7 +49,6 @@ from creme.creme_core.models import (
     RelationType,
     SearchConfigItem,
 )
-# from creme.creme_core.utils import create_if_needed
 from creme.documents.models import DocumentCategory
 
 from . import bricks, buttons, constants, custom_forms, menu
@@ -173,28 +172,9 @@ class Populator(BasePopulator):
         self._populate_managed_organisation()
 
     def _populate_doc_categories(self) -> None:
-        # create_doc_cat = DocumentCategory.objects.get_or_create
-        # create_doc_cat(
-        #     uuid=constants.UUID_DOC_CAT_IMG_ORGA,
-        #     defaults={
-        #         'name': _('Organisation logo'),
-        #         'is_custom': False,
-        #     },
-        # )
-        # create_doc_cat(
-        #     uuid=constants.UUID_DOC_CAT_IMG_CONTACT,
-        #     defaults={
-        #         'name': _('Contact photograph'),
-        #         'is_custom': False,
-        #     },
-        # )
         self._save_minions(self.DOC_CATEGORIES)
 
     def _populate_civilities(self):
-        # create_if_needed(Civility, {'pk': 1}, title=_('Madam'),  shortcut=_('Mrs.'))
-        # create_if_needed(Civility, {'pk': 2}, title=_('Miss'),   shortcut=_('Ms.'))
-        # create_if_needed(Civility, {'pk': 3}, title=_('Mister'), shortcut=_('Mr.'))
-        # create_if_needed(Civility, {'pk': 4}, title=_('N/A'),    shortcut='')
         self._save_minions(self.CIVILITIES)
 
     def _populate_managed_organisation(self):
@@ -207,33 +187,15 @@ class Populator(BasePopulator):
             )
 
     def _populate_positions(self):
-        # create_if_needed(Position, {'pk': 1}, title=_('CEO'))
-        # create_if_needed(Position, {'pk': 2}, title=_('Secretary'))
-        # create_if_needed(Position, {'pk': 3}, title=_('Technician'))
         self._save_minions(self.POSITIONS)
 
     def _populate_sectors(self):
-        # create_if_needed(Sector, {'pk': 1}, title=_('Food Industry'))
-        # create_if_needed(Sector, {'pk': 2}, title=_('Industry'))
-        # create_if_needed(Sector, {'pk': 3}, title=_('Software'))
-        # create_if_needed(Sector, {'pk': 4}, title=_('Telecom'))
-        # create_if_needed(Sector, {'pk': 5}, title=_('Restoration'))
         self._save_minions(self.SECTORS)
 
     def _populate_legal_forms(self):
-        # create_if_needed(LegalForm, {'pk': 1}, title='SARL')
-        # create_if_needed(LegalForm, {'pk': 2}, title='Association loi 1901')
-        # create_if_needed(LegalForm, {'pk': 3}, title='SA')
-        # create_if_needed(LegalForm, {'pk': 4}, title='SAS')
         self._save_minions(self.LEGAL_FORMS)
 
     def _populate_staff_sizes(self):
-        # create_if_needed(StaffSize, {'pk': 1}, size='1 - 5',     order=1)
-        # create_if_needed(StaffSize, {'pk': 2}, size='6 - 10',    order=2)
-        # create_if_needed(StaffSize, {'pk': 3}, size='11 - 50',   order=3)
-        # create_if_needed(StaffSize, {'pk': 4}, size='51 - 100',  order=4)
-        # create_if_needed(StaffSize, {'pk': 5}, size='100 - 500', order=5)
-        # create_if_needed(StaffSize, {'pk': 6}, size='> 500',     order=6)
         self._save_minions(self.STAFF_SIZES)
 
     def _populate_relation_types(self):
@@ -428,7 +390,6 @@ class Populator(BasePopulator):
         build_cell = EntityCellRegularField.build
 
         create_cbci(
-            # id='persons-contact_main_info',
             uuid='9d945cba-f604-4552-a28c-28eb67ec4a73',
             name=_('Contact information'),
             content_type=Contact,
@@ -452,7 +413,6 @@ class Populator(BasePopulator):
             ],
         )
         create_cbci(
-            # id='persons-contact_details',
             uuid='4092894e-358c-4970-ad55-151862dee576',
             name=_('Contact details'),
             content_type=Contact,
@@ -466,7 +426,6 @@ class Populator(BasePopulator):
             ],
         )
         cbci_contact_extra = create_cbci(
-            # id='persons-contact_complementary',
             uuid='4c6eb2a7-d7d4-4c19-a485-ad8da84f1211',
             name=_('Contact complementary information'),
             content_type=Contact,
@@ -515,7 +474,6 @@ class Populator(BasePopulator):
         build_cell = EntityCellRegularField.build
 
         create_cbci(
-            # id='persons-organisation_main_info',
             uuid='05af52f4-fce8-4eca-b06a-49ea65186722',
             name=_('Organisation information'),
             content_type=Organisation,
@@ -544,7 +502,6 @@ class Populator(BasePopulator):
             ],
         )
         create_cbci(
-            # id='persons-organisation_details',
             uuid='32446dad-ef2b-4099-aa71-573dc9d1099a',
             name=_('Organisation details'),
             content_type=Organisation,
@@ -556,7 +513,6 @@ class Populator(BasePopulator):
             ],
         )
         cbci_orga_extra = create_cbci(
-            # id='persons-organisation_complementary',
             uuid='2a0f4a73-094f-492f-8fbd-125cb5ff30ed',
             name=_('Organisation complementary information'),
             content_type=Organisation,

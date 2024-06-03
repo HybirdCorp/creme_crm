@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,12 +21,10 @@ import logging
 from django.core.exceptions import BadRequest
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-# from django.utils.translation import gettext as _
 from django.utils.encoding import smart_str
 
 from ..backends import export_backend_registry
 from ..core import sorter
-# from ..core.exceptions import ConflictError
 from ..core.paginator import FlowPaginator
 from ..forms.listview import ListViewSearchForm
 from ..gui.listview import search_field_registry
@@ -114,12 +112,6 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
         )
 
     def get_paginator(self, *, queryset, ordering):
-        # if ordering == ('cremeentity_ptr_id',):
-        #     raise ConflictError(_(
-        #         'The file cannot be generated because your list is not ordered '
-        #         '(hint: chose a column in the list header then try to download the file again).'
-        #     ))
-
         return FlowPaginator(
             queryset=queryset.order_by(*ordering),
             key=ordering[0],

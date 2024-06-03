@@ -28,7 +28,6 @@ from ..forms import world_settings as world_forms
 from .base import ConfigPortal
 
 
-# class Portal(generic.BricksView):
 class Portal(ConfigPortal):
     template_name = 'creme_config/portals/world-settings.html'
     brick_classes = [WorldSettingsBrick]

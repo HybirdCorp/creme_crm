@@ -8,15 +8,6 @@ from django.urls import reverse
 from django.utils.timezone import localtime, make_aware, now
 from django.utils.translation import gettext as _
 
-# from creme.activities.constants import (
-#     ACTIVITYTYPE_PHONECALL,
-#     ACTIVITYSUBTYPE_PHONECALL_FAILED,
-#     ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-#     STATUS_CANCELLED,
-#     STATUS_DONE,
-#     STATUS_IN_PROGRESS,
-#     STATUS_PLANNED,
-# )
 from creme.activities.constants import (
     FLOATING_TIME,
     NARROW,
@@ -32,8 +23,7 @@ from creme.activities.constants import (
 )
 from creme.activities.models import Calendar, Status
 from creme.activities.tests.base import skipIfCustomActivity
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import Relation  # SetCredentials
+from creme.creme_core.models import Relation
 from creme.persons.tests.base import (
     skipIfCustomContact,
     skipIfCustomOrganisation,
@@ -62,9 +52,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     @staticmethod
     def _existing_pcall_ids():
         return [
-            # *Activity.objects
-            #          .filter(type=ACTIVITYTYPE_PHONECALL)
-            #          .values_list('id', flat=True),
             *Activity.objects
                      .filter(type__uuid=UUID_TYPE_PHONECALL)
                      .values_list('id', flat=True),
@@ -73,7 +60,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     def _get_created_pcalls(self, existing_pcall_ids):
         with self.assertNoException():
             return Activity.objects.filter(
-                # type=ACTIVITYTYPE_PHONECALL,
                 type__uuid=UUID_TYPE_PHONECALL,
             ).exclude(id__in=existing_pcall_ids)
 
@@ -99,7 +85,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         meeting = self.refresh(meeting)
         self.assertDatetimesAlmostEqual(now(), meeting.start)
         self.assertEqual(meeting.type.as_timedelta(), meeting.end - meeting.start)
-        # self.assertEqual(STATUS_IN_PROGRESS, meeting.status_id)
         self.assertUUIDEqual(UUID_STATUS_IN_PROGRESS, meeting.status.uuid)
 
         self.assertRedirects(
@@ -174,17 +159,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     def test_start_activity05(self):
         "Not allowed."
         user = self.login_as_mobile_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         # | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        # )
         self.add_credentials(user.role, all='!CHANGE')
 
         meeting = self._create_meeting(
@@ -198,11 +172,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     def test_start_activity06(self):
         "Not super-user."
         user = self.login_as_mobile_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     value=EntityCredentials.CHANGE,
-        # )
         self.add_credentials(user.role, all=['CHANGE'])
 
         meeting = self._create_meeting(
@@ -227,7 +196,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         response = self.assertPOST200(url, follow=True)
         meeting = self.refresh(meeting)
-        # self.assertEqual(STATUS_DONE, meeting.status_id)
         self.assertUUIDEqual(UUID_STATUS_DONE, meeting.status.uuid)
         self.assertDatetimesAlmostEqual(now(), meeting.end)
 
@@ -249,17 +217,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     def test_stop_activity03(self):
         "Not allowed."
         user = self.login_as_mobile_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         # | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        # )
         self.add_credentials(user.role, all='!CHANGE')
 
         meeting = self._create_meeting(
@@ -273,11 +230,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     def test_stop_activity04(self):
         "Not super-user."
         user = self.login_as_mobile_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     value=EntityCredentials.CHANGE,
-        # )
         self.add_credentials(user.role, all=['CHANGE'])
 
         meeting = self._create_meeting(
@@ -312,23 +264,15 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         done_status    = self.get_object_or_fail(Status, uuid=UUID_STATUS_DONE)
         cancelled_status    = self.get_object_or_fail(Status, uuid=UUID_STATUS_CANCELLED)
 
-        # pc1 = create_pc(start=yesterday_noon, status_id=STATUS_PLANNED)
         pc1 = create_pc(start=yesterday_noon, status=planned_status)
         pc2 = create_pc(start=yesterday_noon - timedelta(hours=1))  # 1h older than pc1 -> before
-        # create_pc(start=yesterday_noon, status_id=STATUS_DONE)  # Done -> excluded
         create_pc(start=yesterday_noon, status=done_status)  # Done -> excluded
-        # create_pc(start=yesterday_noon, status_id=STATUS_CANCELLED)  # Cancelled -> excluded
         create_pc(start=yesterday_noon, status=cancelled_status)  # Cancelled -> excluded
         create_pc(
-            # start=yesterday_noon, status_id=STATUS_PLANNED,
             start=yesterday_noon, status=planned_status,
             participant=other_contact,
         )  # I do not participate
-        tom1 = create_pc(
-            start=tomorrow_noon,
-            # status_id=STATUS_PLANNED,
-            status=planned_status,
-        )  # Tomorrow
+        tom1 = create_pc(start=tomorrow_noon, status=planned_status)  # Tomorrow
 
         expected_pcalls = [
             pc2,  # yesterday at 11:00
@@ -351,9 +295,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         f2 = create_floating(title='Floating A', participant=contact)
         f3 = create_floating(title='Floating C', participant=contact)
         create_floating(title='Floating #4', participant=other_contact)  # I do not participate
-        # create_floating(title='Floating #5', participant=contact, status_id=STATUS_DONE)
         create_floating(title='Floating #5', participant=contact, status=done_status)
-        # create_floating(title='Floating #6', participant=contact, status_id=STATUS_CANCELLED)
         create_floating(title='Floating #6', participant=contact, status=cancelled_status)
 
         # Tomorrow activities --------------------------------------------------
@@ -448,14 +390,12 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         with self.assertNoException():
             context = response.context
-            # type_id    = context['type_id']
             call_start = context['call_start']
             contact    = context['called_contact']
             number     = context['number']
             contacts   = context['participant_contacts']
             user_contact_id = context['user_contact_id']
 
-        # self.assertEqual(ACTIVITYTYPE_PHONECALL, type_id)
         self.assertEqual(
             self.create_datetime(
                 utc=True,
@@ -577,14 +517,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     def test_phone_call_panel05(self):
         "Not super-user."
         user = self.login_as_mobile_user()
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     value=EntityCredentials.VIEW,
-        # )
-        # create_sc(ctype=Activity)
-        # create_sc(ctype=Organisation)
         self.add_credentials(user.role, all=['VIEW'], model=Activity)
         self.add_credentials(user.role, all=['VIEW'], model=Organisation)
 
@@ -613,7 +545,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertGET405(url)
 
         response = self.assertPOST200(url, follow=True)
-        # self.assertEqual(STATUS_DONE, self.refresh(pcall).status_id)
         self.assertUUIDEqual(UUID_STATUS_DONE, self.refresh(pcall).status.uuid)
 
         self.assertRedirects(response, self.PORTAL_URL)  # TODO: test with other REFERRER
@@ -638,12 +569,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     def test_phone_call_wf_done03(self):
         "Not usper-user."
         user = self.login_as_mobile_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     value=EntityCredentials.CHANGE,
-        #     ctype=Activity,
-        # )
         self.add_credentials(user.role, all=['CHANGE'], model=Activity)
 
         pcall = self._create_pcall(
@@ -680,9 +605,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self.refresh(pcall)
-        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
         self.assertUUIDEqual(UUID_SUBTYPE_PHONECALL_FAILED, pcall.sub_type.uuid)
-        # self.assertEqual(STATUS_DONE,                   pcall.status_id)
         self.assertUUIDEqual(UUID_STATUS_DONE,              pcall.status.uuid)
         self.assertEqual(minutes, pcall.minutes)
 
@@ -723,9 +646,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self._get_created_pcall(pcall_ids)
-        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
         self.assertUUIDEqual(UUID_SUBTYPE_PHONECALL_FAILED, pcall.sub_type.uuid)
-        # self.assertEqual(STATUS_DONE,                   pcall.status_id)
         self.assertUUIDEqual(UUID_STATUS_DONE,              pcall.status.uuid)
         self.assertEqual(minutes, pcall.minutes)
         self.assertSetEqual(
@@ -797,7 +718,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         pcall = self._create_pcall(
             user=user,
             title='Phone call#1',
-            # status_id=STATUS_PLANNED,
             status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
             participant=contact,
             description='blablabla',
@@ -817,9 +737,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self.refresh(pcall)
-        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, pcall.sub_type_id)
         self.assertUUIDEqual(UUID_SUBTYPE_PHONECALL_FAILED, pcall.sub_type.uuid)
-        # self.assertEqual(STATUS_DONE,                   pcall.status_id)
         self.assertUUIDEqual(UUID_STATUS_DONE,              pcall.status.uuid)
         self.assertEqual(NARROW, pcall.floating_type)
 
@@ -833,7 +751,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(pcall.description, pcall2.description)
         self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, pcall)
 
-        # self.assertEqual(STATUS_PLANNED, pcall2.status_id)
         self.assertUUIDEqual(UUID_STATUS_PLANNED, pcall2.status.uuid)
         self.assertEqual(FLOATING_TIME,  pcall2.floating_type)
 
@@ -872,9 +789,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(2, len(pcalls))
 
         failed_pcall = pcalls[0]
-        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_FAILED, failed_pcall.sub_type_id)
         self.assertUUIDEqual(UUID_SUBTYPE_PHONECALL_FAILED, failed_pcall.sub_type.uuid)
-        # self.assertEqual(STATUS_DONE,                   failed_pcall.status_id)
         self.assertUUIDEqual(UUID_STATUS_DONE,              failed_pcall.status.uuid)
         self.assertEqual(NARROW, failed_pcall.floating_type)
         self.assertSetEqual(
@@ -901,9 +816,8 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(start, failed_pcall.end)
 
         pp_pcall = pcalls[1]
-        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pp_pcall.sub_type_id)
         self.assertUUIDEqual(UUID_SUBTYPE_PHONECALL_OUTGOING, pp_pcall.sub_type.uuid)
-        self.assertEqual(FLOATING_TIME,                   pp_pcall.floating_type)
+        self.assertEqual(FLOATING_TIME, pp_pcall.floating_type)
         self.assertIsNone(pp_pcall.status_id)
         self.assertSetEqual(
             participants,
@@ -936,7 +850,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         pcall = self._create_pcall(
             user=user, title='Phone call#1',
-            # status_id=STATUS_PLANNED,
             status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
             participant=user.linked_contact,
         )
@@ -952,7 +865,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self.refresh(pcall)
-        # self.assertEqual(STATUS_DONE, pcall.status_id)
         self.assertUUIDEqual(UUID_STATUS_DONE, pcall.status.uuid)
 
         create_dt = partial(
@@ -969,7 +881,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         pcall = self._create_pcall(
             user=user, title='Phone call#1',
-            # status_id=STATUS_PLANNED,
             status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
             participant=user.linked_contact,
         )
@@ -1000,9 +911,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self._get_created_pcall(pcall_ids)
-        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type_id)
         self.assertUUIDEqual(UUID_SUBTYPE_PHONECALL_OUTGOING, pcall.sub_type.uuid)
-        # self.assertEqual(STATUS_DONE, pcall.status_id)
         self.assertUUIDEqual(UUID_STATUS_DONE, pcall.status.uuid)
         self.assertEqual(minutes, pcall.minutes)
         self.assertSetEqual(
@@ -1043,7 +952,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         pcall = self._create_pcall(
             user=user, title='Phone call#1',
-            # status_id=STATUS_PLANNED,
             status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
             participant=user.linked_contact,
         )
@@ -1058,7 +966,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self.refresh(pcall)
-        # self.assertEqual(STATUS_DONE, pcall.status_id)
         self.assertUUIDEqual(UUID_STATUS_DONE, pcall.status.uuid)
         # NB: MySQL does not record milliseconds...
         self.assertDatetimesAlmostEqual(start, pcall.start)
@@ -1071,7 +978,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         pcall = self._create_pcall(
             user=user, title='Phone call#1', participant=contact,
-            # status_id=STATUS_PLANNED,
             status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
         )
 
@@ -1090,7 +996,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self.refresh(pcall)
-        # self.assertEqual(STATUS_DONE, pcall.status_id)
         self.assertUUIDEqual(UUID_STATUS_DONE, pcall.status.uuid)
         self.assertEqual(minutes, pcall.minutes)
 
@@ -1124,9 +1029,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self._get_created_pcall(pcall_ids)
-        # self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type_id)
         self.assertUUIDEqual(UUID_SUBTYPE_PHONECALL_OUTGOING, pcall.sub_type.uuid)
-        # self.assertEqual(STATUS_DONE, pcall.status_id)
         self.assertUUIDEqual(UUID_STATUS_DONE, pcall.status.uuid)
         self.assertSetEqual(
             {user.linked_contact, other_contact},
@@ -1152,7 +1055,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         pcall = self._create_pcall(
             user=user, title='Phone call#1',
-            # status_id=STATUS_PLANNED,
             status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
             participant=contact, minutes='Will be OK...',
         )
@@ -1168,8 +1070,5 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         pcall = self.refresh(pcall)
-        # self.assertEqual(STATUS_DONE, pcall.status_id)
         self.assertUUIDEqual(UUID_STATUS_DONE, pcall.status.uuid)
-        self.assertEqual(
-            'Will be OK...\nnoooooo !', pcall.minutes,
-        )
+        self.assertEqual('Will be OK...\nnoooooo !', pcall.minutes)

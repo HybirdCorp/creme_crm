@@ -200,7 +200,6 @@ class JobsInformation(generic.CheckedView):
 
 
 class JobBricksReloading(bricks_views.BricksReloading):
-    # check_bricks_permission = False
     job_id_url_kwarg = 'job_id'
 
     def __init__(self, **kwargs):

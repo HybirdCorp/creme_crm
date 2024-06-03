@@ -1,5 +1,5 @@
 {% extends 'creme_config/portals/base.html' %}
-{% load i18n creme_widgets %}{# creme_bricks #}
+{% load i18n creme_widgets %}
 
 {% block page_title %}{% translate 'Configuration of buttons' %} - {% endblock %}
 
@@ -12,14 +12,3 @@
 Notice: the buttons of the default configuration are always placed at the beginning, before the buttons specific to a type of entity.{% endblocktranslate %}
     {% widget_help_sign message=help_msg %}
 {% endblock %}
-
-{% comment %}
-{% block portal_bricks %}
-{% blocktranslate asvar help_msg %}Here you can configure the buttons displayed on detailed views, just below the header block.
-Notice: the buttons of the default configuration are always placed at the beginning, before the buttons specific to a type of entity.{% endblocktranslate %}
-    {% widget_help_sign message=help_msg %}
-
-    {% brick_import app='creme_config' name='button_menu' as button_menu_brick %}
-    {% brick_display button_menu_brick %}
-{% endblock %}
-{% endcomment %}

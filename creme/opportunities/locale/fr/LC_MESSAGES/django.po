@@ -766,14 +766,8 @@ msgstr "Nouvelle opportunité ciblant «{entity}»"
 #~ msgid "{count} in all"
 #~ msgstr "{count} en tout"
 
-#~ msgid "Portal of opportunities"
-#~ msgstr "Portail des opportunités"
-
 #~ msgid "All opportunities"
 #~ msgstr "Lister les opportunités"
-
-#~ msgid "Opportunities portal"
-#~ msgstr "Portail Opportunités"
 
 #~ msgid "List of opportunities"
 #~ msgstr "Liste des opportunités"
@@ -802,14 +796,8 @@ msgstr "Nouvelle opportunité ciblant «{entity}»"
 #~ msgid "Delete the opportunity"
 #~ msgstr "Supprimer l'opportunité"
 
-#~ msgid "Products"
-#~ msgstr "Produits"
-
 #~ msgid "Link to an existing product"
 #~ msgstr "Lier à un produit existant"
-
-#~ msgid "Quotes"
-#~ msgstr "Devis"
 
 #~ msgid "Link to an existing quote"
 #~ msgstr "Lier à un devis existant"
@@ -820,29 +808,17 @@ msgstr "Nouvelle opportunité ciblant «{entity}»"
 #~ msgid "No quote for the moment"
 #~ msgstr "Aucun devis enregistré pour le moment"
 
-#~ msgid "Responsibles"
-#~ msgstr "Chargés d'affaire"
-
-#~ msgid "No responsible for the moment"
-#~ msgstr "Aucun chargé d'affaire enregistré pour le moment"
-
 #~ msgid "Sales orders"
 #~ msgstr "Bons de commande"
 
 #~ msgid "Link to an existing salesorder"
 #~ msgstr "Lier à un bon existant"
 
-#~ msgid "Service"
-#~ msgstr "Service"
-
 #~ msgid "Link to an existing service"
 #~ msgstr "Lier à un service existant"
 
 #~ msgid "Target & source"
 #~ msgstr "Cible et source"
-
-#~ msgid "Delete"
-#~ msgstr "Supprimer"
 
 #~ msgid "Add a linked opportunity"
 #~ msgstr "Ajouter une opportunité liée"
@@ -868,14 +844,5 @@ msgstr "Nouvelle opportunité ciblant «{entity}»"
 #~ msgid "Use Product and Service lines"
 #~ msgstr "Utiliser les lignes Produit et Service"
 
-#~ msgid "Sales phase - Name"
-#~ msgstr "Phase de vente - Nom"
-
 #~ msgid "Closing date"
 #~ msgstr "Date de signature"
-
-#~ msgid "Portal"
-#~ msgstr "Portail"
-
-#~ msgid "Become (fordidden)"
-#~ msgstr "Le devenir (interdit)"

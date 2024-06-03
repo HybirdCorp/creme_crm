@@ -193,8 +193,6 @@ class SettingTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(self._build_edit_url(sv), data={'value': ''}))
 
         sv = self.refresh(sv)
-        # self.assertEqual('', sv.value_str)
-        # self.assertIsNone(sv.value)
         self.assertEqual('', sv.json_value)
         self.assertEqual('', sv.value)
 
@@ -215,7 +213,6 @@ class SettingTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(self._build_edit_url(sv)))
 
         sv = self.refresh(sv)
-        # self.assertEqual('', sv.value_str)
         self.assertIsNone(sv.json_value)
         self.assertIsNone(sv.value)
 
@@ -223,7 +220,6 @@ class SettingTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(self._build_edit_url(sv), data={'value': ''}))
 
         sv = self.refresh(sv)
-        # self.assertEqual('', sv.value_str)
         self.assertIsNone(sv.json_value)
         self.assertIsNone(sv.value)
 

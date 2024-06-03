@@ -168,7 +168,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         brick_registry.register_4_instance(HomeInstanceBrick)
 
         cls.user = cls.get_root_user()
-        # cls.role = cls.create_role()
         cls.role = cls.get_regular_role()
 
         get_ct = ContentType.objects.get_for_model
@@ -205,7 +204,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @staticmethod
     def _build_adddetail_url(ct):
-        # return reverse('creme_config__create_detailviews_bricks', args=(ct.id,))
         return reverse('creme_config__create_detailview_bricks', args=(ct.id,))
 
     @staticmethod
@@ -1690,14 +1688,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         bhl03 = create_bhl(superuser=True)
         bhl04 = create_bhl(role=role, brick_id=bricks[1].id, order=2)
 
-        # self.assertGET405(reverse('creme_config__delete_home_brick'))
         self.assertGET405(reverse('creme_config__delete_home_bricks'))
-        # self.assertGET405(reverse('creme_config__delete_home_brick'), data={'role': role.id})
         self.assertGET405(reverse('creme_config__delete_home_bricks'), data={'role': role.id})
-        # self.assertPOST404(reverse('creme_config__delete_home_brick'))
         self.assertPOST404(reverse('creme_config__delete_home_bricks'))
 
-        # self.assertPOST200(reverse('creme_config__delete_home_brick'), data={'role': role.id})
         self.assertPOST200(reverse('creme_config__delete_home_bricks'), data={'role': role.id})
         self.assertDoesNotExist(bhl02)
         self.assertDoesNotExist(bhl04)
@@ -1722,7 +1716,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         bhl04 = create_bhl(superuser=True, brick_id=bricks[1].id, order=2)
 
         self.assertPOST200(
-            # reverse('creme_config__delete_home_brick'), data={'role': 'superuser'}
             reverse('creme_config__delete_home_bricks'), data={'role': 'superuser'},
         )
         self.assertDoesNotExist(bhl02)
@@ -2931,7 +2924,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(3, len(contact_rows))
 
         # ---
-        # contact_def_row = contact_rows[0]
         contact_def_row = contact_rows.pop(0)
         self.assertEqual(
             _('Default configuration for «%(ctype)s»') % {'ctype': 'Test Contact'},
@@ -2953,15 +2945,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             for tr_node in contact_rows
         }
 
-        # contact_super_row = contact_rows[1]
         contact_super_row = contact_rows_per_title.get(_('Superuser'))
-        # self.assertEqual(
-        #     _('Superuser'),
-        #     self.get_html_node_or_fail(
-        #         contact_super_row,
-        #         './/td[@class="brickloc-config-role brickloc-config-role-superuser"]',
-        #     ).text,
-        # )
         self.get_html_node_or_fail(
             contact_super_row,
             './/td[@class="brickloc-config-role brickloc-config-role-superuser"]',
@@ -2978,15 +2962,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         # ---
-        # contact_role_row = contact_rows[2]
         contact_role_row = contact_rows_per_title.get(role.name)
-        # self.assertEqual(
-        #     role.name,
-        #     self.get_html_node_or_fail(
-        #         contact_role_row,
-        #         './/td[@class="brickloc-config-role"]',
-        #     ).text,
-        # )
         self.get_html_node_or_fail(
             contact_role_row, './/td[@class="brickloc-config-role"]',
         )

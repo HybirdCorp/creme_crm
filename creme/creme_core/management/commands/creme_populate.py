@@ -77,8 +77,6 @@ class BasePopulator:
         self.dependencies = deps
 
     def populate(self) -> None:
-        # raise NotImplementedError
-
         self.already_populated = already = self._already_populated()
         self._populate()
 

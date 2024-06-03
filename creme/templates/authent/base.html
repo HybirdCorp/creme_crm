@@ -458,51 +458,6 @@
     <script type="text/javascript">
     {% block script %}
         document.getElementById('id_username').focus();
-
-{% comment %}
-        function debounce(func, wait, immediate) {
-            var timeout;
-            return function() {
-                var context = this, args = arguments;
-                var later = function() {
-                    timeout = null;
-                    if (!immediate) func.apply(context, args);
-                };
-                var callNow = immediate && !timeout;
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-                if (callNow) func.apply(context, args);
-            };
-        }
-
-        function placeDecorationsAtBottom() {
-            var pageDecorationsHeight = 269 /* footer height */ + 15 /* footer margin */ + 24 /* page decoration height */ + 15 /* page decoration margin */; // 324
-            var minViewportHeight = 500 /* form height */ + 50 /* form margins */ + pageDecorationsHeight - 15 /* collapsed page decoration margin */; // modulo errors, around 858
-
-            var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-
-            var decoration = document.querySelector('.page-decoration');
-            var existingPadding = parseInt(decoration.style.paddingTop) || 0;
-
-            var padding = 0;
-            if (viewportHeight > minViewportHeight) {
-                padding = viewportHeight - minViewportHeight;
-            }
-
-            if (existingPadding === padding) {
-                return;
-            }
-
-            decoration.style.paddingTop = padding + 'px';
-        }
-
-        var updateLayout = debounce(function(e) {
-            placeDecorationsAtBottom();
-        }, 200);
-
-        window.addEventListener("resize", updateLayout, false);
-        placeDecorationsAtBottom();
-{% endcomment %}
     {% endblock %}
     </script>
 </body>

@@ -454,8 +454,6 @@ class ReportHandTestCase(CremeTestCase):
         self.assertIsNone(hand.get_linkable_ctypes())
 
         create_ptype = CremePropertyType.objects.create
-        # ptype1 = create_ptype(id='creme_core-sword',   text='Knows sword')
-        # ptype2 = create_ptype(id='creme_core-costume', text='Knows costume')
         ptype1 = create_ptype(text='Knows sword')
         ptype2 = create_ptype(text='Knows costume')
 
@@ -468,7 +466,6 @@ class ReportHandTestCase(CremeTestCase):
         create_prop(type=ptype2)
 
         self.assertCountEqual(
-            # f'{ptype1.text}/{ptype2.text}',
             [ptype1.text, ptype2.text],  # TODO: sort alphabetically ??
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all()).split('/')
         )

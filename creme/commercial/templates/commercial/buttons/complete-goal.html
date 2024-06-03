@@ -2,7 +2,6 @@
 {% with link_perm=user|has_perm_to_link:object %}{% ctype_for_swappable 'COMMERCIAL_ACT_MODEL' as act_ctype %}
 <a class="menu_button menu-button-icon{% if not button.is_allowed or not link_perm or not button.rtype.enabled %} forbidden is-disabled{% endif %}{% if not button.rtype.enabled %} menu-button-error{% endif %}"
    title="{% if not button.is_allowed %}{% translate 'You are not allowed to access to the app «Commercial strategy»' %}{% elif not link_perm %}{% translate 'You are not allowed to link this entity' %}{% elif not button.rtype.enabled %}{% blocktranslate with predicate=button.rtype.predicate %}The relationship type «{{predicate}}» is disabled{% endblocktranslate %}{% else %}{{button.description}}{% endif %}"
-{#   data-action="creme_core-hatmenubar-addrelationships"> #}
    data-action="add-relationships">
     {% widget_icon name='commercial' size='instance-button' label=_('Commercial Action') %}
     {% translate 'Completes a goal' %}

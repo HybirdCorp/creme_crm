@@ -1,6 +1,5 @@
 {% load i18n %}
 <div class="card-container">
-{#  <div class="card card-activity activity-type-{{type_id}} call-in-progress activity-with-actions{% if not participant_contacts and not participant_organisations %} activity-without-participants{% endif %}" #}
   <div class="card card-activity activity-type-phonecall call-in-progress activity-with-actions{% if not participant_contacts and not participant_organisations %} activity-without-participants{% endif %}"
        {% if phone_call %}data-activity-id="{{phone_call.id}}"{% endif %}>
     <div class="activity-summary card-component">

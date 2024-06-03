@@ -544,7 +544,6 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     #
     #     name = comp01.name.title()
     #     response = self.client.post(
-    #         # url,
     #         uri,
     #         data={
     #             # 'entities_lbl': [str(comp01)],

@@ -61,54 +61,6 @@ QUnit.test('creme.detailview.hatmenubar (no action)', function(assert) {
     deepEqual([], widget.delegate._actionlinks);
 });
 
-/*
-QUnit.test('creme.detailview.hatmenubar (addrelationships)', function(assert) {
-    var widget = this.createHatMenuBar({
-        buttons: [
-            this.createHatMenuActionButton({
-                url: '/mock/relation/add',
-                action: 'creme_core-hatmenubar-addrelationships',
-                data: {
-                    subject_id: '74', rtype_id: 'rtypes.1', objects_ct_id: '5'
-                }
-            })
-        ]
-    });
-
-    this.assertActive(widget.element);
-    this.assertReady(widget.element);
-
-    deepEqual(1, widget.delegate._actionlinks.length);
-
-    var link = widget.delegate._actionlinks[0];
-
-    equal(true, link.isBound());
-    equal(false, link.isDisabled());
-
-    $(widget.element).find('a.menu_button').trigger('click');
-
-    deepEqual([
-        ['GET', {subject_id: '74', rtype_id: 'rtypes.1', selection: 'multiple'}]
-    ], this.mockBackendUrlCalls('mock/relation/selector'));
-
-    var dialog = this.assertOpenedListViewDialog();
-    var list = $(dialog).find('.ui-creme-listview').list_view('instance');
-
-    this.setListviewSelection(list, ['2', '3']);
-
-    equal(2, list.selectedRowsCount());
-    deepEqual(['2', '3'], list.selectedRows());
-
-    this.validateListViewSelectionDialog(dialog);
-    this.assertClosedDialog();
-
-    deepEqual([
-        ['mock/relation/selector', 'GET', {subject_id: '74', rtype_id: 'rtypes.1', selection: 'multiple'}],
-        ['mock/relation/add', 'POST', {entities: ['2', '3'], predicate_id: 'rtypes.1', subject_id: '74'}]
-    ], this.mockBackendUrlCalls());
-});
-*/
-
 QUnit.test('creme.detailview.hatmenubar (view)', function(assert) {
     var widget = this.createHatMenuBar({
         buttons: [

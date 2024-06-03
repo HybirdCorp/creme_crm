@@ -10,13 +10,11 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellRegularField,
 )
 from creme.creme_core.core.entity_filter import condition_handler, operators
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -1757,7 +1755,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             model=FakeOrganisation,
             expected_q=Q(
                 customfielddatetime__custom_field=cf.id,
-                # customfielddatetime__value__range=['2013-12-21', '2014-01-04'],
                 customfielddatetime__value__range=[
                     '2013-12-21T00:00:00.000000Z',
                     '2014-01-04T00:00:00.000000Z',
@@ -2562,32 +2559,25 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         # ASC -----------------------------------------------------------------
         x_asc, y_asc = rgraph.fetch(user=user)
-        # self.assertEqual(2, len(x_asc))
-        # lannisters_idx = self.assertIndex(str(lannisters), x_asc)
-        # starks_idx     = self.assertIndex(str(starks),     x_asc)
         self.assertEqual([str(lannisters), str(starks)], x_asc)
 
         fmt = '/tests/contacts?q_filter={}&filter=test-filter'.format
         self.assertListEqual(
-            # [1, fmt(self._serialize_qfilter(pk__in=[tyrion.id]))],
             [
                 1,
                 fmt(self._serialize_qfilter(
                     relations__type_id=rtype_id, relations__object_entity_id=lannisters.id,
                 ))
             ],
-            # y_asc[lannisters_idx],
             y_asc[0],
         )
         self.assertListEqual(
-            # [2, fmt(self._serialize_qfilter(pk__in=[ned.id, aria.id, jon.id]))],
             [
                 2,
                 fmt(self._serialize_qfilter(
                     relations__type_id=rtype_id, relations__object_entity_id=starks.id,
                 ))
             ],
-            # y_asc[starks_idx],
             y_asc[1],
         )  # Not 3, because of the filter
 
@@ -2605,7 +2595,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListviewURL(
             url=xtra_url,
             model=FakeContact,
-            # expected_q=extra_q & Q(pk__in=[ned.id, aria.id, jon.id]),
             expected_q=extra_q & Q(
                 relations__type_id=rtype_id, relations__object_entity_id=starks.id,
             ),
@@ -2646,32 +2635,25 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         # ASC -----------------------------------------------------------------
         x_asc, y_asc = rgraph.fetch(user)
-        # self.assertEqual(2, len(x_asc))
-        # ned_index   = self.assertIndex(str(ned),   x_asc)
-        # tywin_index = self.assertIndex(str(tywin), x_asc)
         self.assertEqual([str(ned), str(tywin)], x_asc)
 
         fmt = '/tests/organisations?q_filter={}'.format
         self.assertListEqual(
-            # [100, fmt(self._serialize_qfilter(pk__in=[lannisters.pk]))],
             [
                 100,
                 fmt(self._serialize_qfilter(
                     relations__type_id=rtype.id, relations__object_entity_id=tywin.id,
                 ))
             ],
-            # y_asc[tywin_index],
             y_asc[1],
         )
         self.assertListEqual(
-            # [90,  fmt(self._serialize_qfilter(pk__in=[starks.id, tullies.id]))],
             [
                 90,
                 fmt(self._serialize_qfilter(
                     relations__type_id=rtype.id, relations__object_entity_id=ned.id,
                 ))
             ],
-            # y_asc[ned_index],
             y_asc[0],
         )
 
@@ -2728,32 +2710,26 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         x_asc, y_asc = rgraph.fetch(user)
-        # self.assertCountEqual([str(lannisters), str(starks)], x_asc)
         self.assertListEqual([str(lannisters), str(starks)], x_asc)
 
-        # index = x_asc.index
         fmt = '/tests/contacts?q_filter={}'.format
         self.assertListEqual(
-            # [600, fmt(self._serialize_qfilter(pk__in=[jaime.id, tyrion.id]))],
             [
                 600,
                 fmt(self._serialize_qfilter(
                     relations__type_id=rtype_id, relations__object_entity_id=lannisters.id,
                 ))
             ],
-            # y_asc[index(str(lannisters))],
             y_asc[0],  # lannisters
         )
         self.assertListEqual(
-            # [800, fmt(self._serialize_qfilter(pk__in=[ned.id, robb.id]))],
             [
                 800,
                 fmt(self._serialize_qfilter(
                     relations__type_id=rtype_id, relations__object_entity_id=starks.id,
                 ))
             ],
-            # y_asc[index(str(starks))],
-            y_asc[1],  # starks
+            y_asc[1],
         )
 
     def test_fetch_by_relation04(self):
@@ -3165,11 +3141,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
     def test_credentials01(self):
         "Filter retrieved entities with permission."
         user = self.login_as_standard(allowed_apps=['creme_core', 'reports'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
         other_user = self.get_root_user()

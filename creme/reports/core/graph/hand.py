@@ -28,7 +28,6 @@ from django.utils.formats import get_format
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
-# from creme.creme_core.models import CremeEntity
 from creme.creme_core.models import CustomFieldEnumValue, Relation
 from creme.creme_core.models.fields import ColorField
 from creme.reports.constants import AbscissaGroup
@@ -628,27 +627,6 @@ class RGHRelation(ReportGraphHand):
         self._rtype = rtype
 
     def _fetch(self, *, entities, order, user, extra_q):
-        # build_url = self._listview_url_builder(extra_q=extra_q)
-        # relations = Relation.objects.filter(
-        #     type=self._rtype, subject_entity__entity_type=self._graph.linked_report.ct,
-        # )
-        # rel_filter = relations.filter
-        # ce_objects_get = CremeEntity.objects.get
-        # entities_filter = entities.filter
-        # y_value_func = self._y_calculator.aggregate
-        #
-        # for obj_id in relations.values_list('object_entity', flat=True).distinct():
-        #     subj_ids = rel_filter(
-        #         object_entity=obj_id,
-        #     ).order_by('subject_entity__id').values_list('subject_entity')
-        #
-        #     yield (
-        #         str(ce_objects_get(pk=obj_id).get_real_entity()),
-        #         [
-        #             y_value_func(entities_filter(pk__in=subj_ids)),
-        #             build_url({'pk__in': [e[0] for e in subj_ids]}),
-        #         ],
-        #     )
         rtype_id = self._rtype.id
         build_url = self._listview_url_builder(extra_q=extra_q)
         entities_filter = entities.filter
