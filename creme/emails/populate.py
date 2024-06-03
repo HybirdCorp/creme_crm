@@ -220,7 +220,6 @@ class Populator(BasePopulator):
         EntityEmail = self.EntityEmail
         build_cell = EntityCellRegularField.build
         cbci = CustomBrickConfigItem.objects.create(
-            # id='emails-entityemail_info',
             uuid='dbabb94a-a92e-41af-89ee-b18a6a920345',
             name=_('Email information'),
             content_type=EntityEmail,
@@ -279,7 +278,6 @@ class Populator(BasePopulator):
         EmailTemplate = self.EmailTemplate
         build_cell = EntityCellRegularField.build
         cbci = CustomBrickConfigItem.objects.create(
-            # id='emails-emailtemplate_info',
             uuid='b1bf8a0a-26ef-4f05-a666-a328da6c52fd',
             name=_('Email template information'),
             content_type=EmailTemplate,

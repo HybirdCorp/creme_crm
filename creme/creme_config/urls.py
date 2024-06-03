@@ -430,7 +430,6 @@ bricks_patterns = [
     re_path(
         r'^detailview/add/(?P<ct_id>\d+)[/]?$',
         bricks.BrickDetailviewLocationsCreation.as_view(),
-        # name='creme_config__create_detailviews_bricks',
         name='creme_config__create_detailview_bricks',
     ),
     re_path(
@@ -462,7 +461,6 @@ bricks_patterns = [
     re_path(
         r'^home/delete[/]?$',
         bricks.HomeDeletion.as_view(),
-        # name='creme_config__delete_home_brick',
         name='creme_config__delete_home_bricks',
     ),
 

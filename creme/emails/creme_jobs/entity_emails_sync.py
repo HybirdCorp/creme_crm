@@ -64,7 +64,6 @@ class _EmailAsKeyDict:
             # TODO: what about disabled users?
             users = self._users = {
                 user.email: user
-                # for user in get_user_model().objects.all()
                 for user in get_user_model().objects.filter(is_staff=False)
             }
 

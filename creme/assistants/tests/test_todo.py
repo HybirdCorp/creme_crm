@@ -4,8 +4,6 @@ from unittest import SkipTest
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-# from django.core import mail
-# from django.core.mail.backends.locmem import EmailBackend
 from django.db.models.query import Q, QuerySet
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -21,7 +19,6 @@ from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.listview import TextLVSWidget
 from creme.creme_core.gui.view_tag import ViewTag
-# from creme.creme_core.models import DateReminder
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -53,15 +50,6 @@ from .base import AssistantsTestCase
 
 
 class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     super().setUpClass()
-    #     cls.original_send_messages = EmailBackend.send_messages
-    #
-    # def tearDown(self):
-    #     super().tearDown()
-    #     EmailBackend.send_messages = self.original_send_messages
-
     @staticmethod
     def _build_add_url(entity):
         return reverse('assistants__create_todo', args=(entity.id,))
@@ -585,7 +573,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(body, content.get_body(user=user))
         self.assertEqual(body, content.get_html_body(user=user))
 
-    # @override_settings(SOFTWARE_LABEL='My CRM')
     def test_reminder01(self):
         user = self.user
         now_value = now()
@@ -594,7 +581,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         sv.value = localtime(now_value).hour
         sv.save()
 
-        # DateReminder.objects.all().delete()
         notif_qs = Notification.objects.filter(channel__uuid=UUID_CHANNEL_REMINDERS, user=user)
         self.assertFalse(notif_qs.all())
 
@@ -612,10 +598,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.execute_reminder_job(job)
         self.assertIsNone(job.user)
 
-        # reminder = self.get_alone_element(DateReminder.objects.all())
-        # self.assertEqual(todo1, reminder.object_of_reminder)
-        # self.assertEqual(1,     reminder.ident)
-        # self.assertDatetimesAlmostEqual(now_value, reminder.date_of_remind, seconds=60)
         notif = self.get_alone_element(notif_qs.all())
         self.assertFalse(notif.discarded)
         self.assertEqual(Notification.Level.NORMAL, notif.level)
@@ -625,19 +607,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.assertTrue(self.refresh(todo1).reminded)
         self.assertFalse(self.refresh(todo4).reminded)
-
-        # message = self.get_alone_element(mail.outbox)
-        # self.assertEqual([user.email], message.to)
-        #
-        # software = 'My CRM'
-        # self.assertEqual(
-        #     _('Reminder concerning a {software} todo related to {entity}').format(
-        #         software=software, entity=self.entity,
-        #     ),
-        #     message.subject,
-        # )
-        # self.assertIn(todo1.title, message.body)
-        # self.assertIn(software,    message.body)
 
         self.assertFalse(JobResult.objects.filter(job=job))
 
@@ -673,62 +642,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
 
         self.execute_reminder_job(job)
-        # self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
         self.assertFalse(notif_qs.all())
 
-    # def test_reminder03(self):
-    #     "Mails error."
-    #     now_value = now()
-    #
-    #     sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
-    #     sv.value = max(localtime(now_value).hour - 1, 0)
-    #     sv.save()
-    #
-    #     reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
-    #
-    #     def create_todo(title):
-    #         ToDo.objects.create(
-    #             title=title, deadline=now_value,
-    #             real_entity=self.entity, user=self.user,
-    #         )
-    #
-    #     create_todo('Todo#1')
-    #
-    #     send_messages_called = False
-    #     err_msg = 'Sent error'
-    #
-    #     def send_messages(this, messages):
-    #         nonlocal send_messages_called
-    #         send_messages_called = True
-    #         raise Exception(err_msg)
-    #
-    #     EmailBackend.send_messages = send_messages
-    #
-    #     job = self.execute_reminder_job()
-    #
-    #     self.assertTrue(send_messages_called)
-    #     self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
-    #
-    #     jresult = self.get_alone_element(JobResult.objects.filter(job=job))
-    #     self.assertListEqual(
-    #         [
-    #             _(
-    #                 'An error occurred while sending emails related to «{model}»'
-    #             ).format(model=ToDo._meta.verbose_name),
-    #             _('Original error: {}').format(err_msg),
-    #         ],
-    #         jresult.messages,
-    #     )
-    #
-    #     EmailBackend.send_messages = self.original_send_messages
-    #
-    #     create_todo('Todo#2')
-    #     job = self.execute_reminder_job()
-    #     self.assertEqual(1, len(mail.outbox))
-    #     self.assertEqual(2, DateReminder.objects.exclude(id__in=reminder_ids).count())
-    #     self.assertFalse(JobResult.objects.filter(job=job))
-
-    # def test_reminder04(self):
     def test_reminder03(self):
         "Teams."
         user = self.user
@@ -746,17 +661,12 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
 
         self.execute_reminder_job()
-        # self.assertCountEqual(
-        #     [(teammate.email,), (user.email,)],
-        #     [tuple(m.to) for m in mail.outbox],
-        # )
 
         uid = UUID_CHANNEL_REMINDERS
         self.get_object_or_fail(Notification, channel__uuid=uid, user=user)
         self.get_object_or_fail(Notification, channel__uuid=uid, user=teammate)
         self.assertFalse(Notification.objects.filter(channel__uuid=uid, user=team).exists())
 
-    # def test_reminder05(self):
     def test_reminder04(self):
         "Dynamic user."
         other_user = self.create_user()

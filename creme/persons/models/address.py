@@ -112,11 +112,9 @@ class AbstractAddress(CremeModel):
     @classmethod
     def info_field_names(cls) -> tuple[str, ...]:
         is_field_hidden = FieldsConfig.objects.get_for_model(cls).is_field_hidden
-        # excluded = {'id', 'content_type', 'object'}
         return tuple(
             f.name
             for f in cls._meta.fields
-            # if f.name not in excluded and not is_field_hidden(f)
             if f.get_tag(FieldTag.VIEWABLE) and not is_field_hidden(f)
         )
 

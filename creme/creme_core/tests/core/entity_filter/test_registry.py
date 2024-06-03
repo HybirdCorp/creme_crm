@@ -37,7 +37,6 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
     def test_handlers01(self):
         name = 'Common'
-        # registry = _EntityFilterRegistry(id=None, verbose_name=name)
         registry = _EntityFilterRegistry(id='creme_core-default', verbose_name=name)
         self.assertEqual(name, registry.verbose_name)
 
@@ -78,7 +77,6 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
     def test_handlers02(self):
         "ID collision."
-        # registry = _EntityFilterRegistry(id=None, verbose_name='Test')
         registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         cls1 = RegularFieldConditionHandler
@@ -94,7 +92,6 @@ class EntityFilterRegistryTestCase(CremeTestCase):
     def test_handlers03(self):
         "get_handler() + invalid data."
         registry = _EntityFilterRegistry(
-            # id=None, verbose_name='Test',
             id='creme_core-default', verbose_name='Test',
         ).register_condition_handlers(RegularFieldConditionHandler)
 
@@ -106,7 +103,6 @@ class EntityFilterRegistryTestCase(CremeTestCase):
         self.assertIsNone(handler)
 
     def test_operands01(self):
-        # registry = _EntityFilterRegistry(id=None, verbose_name='Test')
         registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         cls1 = operands.CurrentUserOperand
@@ -127,7 +123,6 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
     def test_operands02(self):
         "ID collision."
-        # registry = _EntityFilterRegistry(id=None, verbose_name='Test')
         registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         cls1 = operands.CurrentUserOperand
@@ -141,7 +136,6 @@ class EntityFilterRegistryTestCase(CremeTestCase):
             registry.register_operands(TestOperand)
 
     def test_operator01(self):
-        # registry = _EntityFilterRegistry(id=None, verbose_name='Test')
         registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         cls1 = operators.EqualsOperator
@@ -159,7 +153,6 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
     def test_operators02(self):
         "ID collision."
-        # registry = _EntityFilterRegistry(id=None, verbose_name='Test')
         registry = _EntityFilterRegistry(id='creme_core-default', verbose_name='Test')
 
         class TestOperator(operators.EqualsOperator):
@@ -205,9 +198,6 @@ class EntityFilterRegistryTestCase(CremeTestCase):
 
 class EntityFilterSuperRegistryTestCase(CremeTestCase):
     def test_main(self):
-        # rid1 = 42
-        # rid2 = 49
-        # rid3 = 36
         rid1 = 'creme_core-normal'
         rid2 = 'creme_core-system'
         rid3 = 'documents-specific'
@@ -222,7 +212,6 @@ class EntityFilterSuperRegistryTestCase(CremeTestCase):
         self.assertIs(registry02, registries[rid2])
 
         with self.assertRaises(KeyError):
-            # registries[2]  # NOQA
             registries['creme_core-unkknown']  # NOQA
 
         self.assertListEqual(
@@ -234,7 +223,6 @@ class EntityFilterSuperRegistryTestCase(CremeTestCase):
         registries.unregister(rid1, rid3)
         self.assertListEqual([registry02], [*registries])
 
-        # with self.assertRaises(KeyError):
         with self.assertRaises(registries.UnRegistrationError) as cm:
             registries.unregister(rid1)
 
@@ -244,7 +232,6 @@ class EntityFilterSuperRegistryTestCase(CremeTestCase):
         )
 
     def test_id_collision(self):
-        # rid = 42
         rid = 'creme_core-listview'
         registry01 = _EntityFilterRegistry(id=rid, verbose_name='Test01')
         registry02 = _EntityFilterRegistry(id=rid, verbose_name='Test02')

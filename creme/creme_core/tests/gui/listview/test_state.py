@@ -22,7 +22,6 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertIsNone(lvs.sort_order)
         self.assertIsNone(lvs.sort_cell_key)
         self.assertEqual({}, lvs.search)
-        # self.assertIsNone(lvs.extra_q)
 
     def _build_request(self):
         url = self.url

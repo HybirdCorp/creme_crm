@@ -2070,9 +2070,6 @@ class AuthTestCase(CremeTestCase):
         self.assertFalse(has_perm_to_create(CremePropertyType))
 
         entity = CremeEntity.objects.create(user=user)
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_foobar', text='text',
-        # )
         ptype = CremePropertyType.objects.create(text='text')
         prop  = CremeProperty.objects.create(type=ptype, creme_entity=entity)
         self.assertTrue(has_perm_to_create(prop))
@@ -3760,21 +3757,16 @@ class AuthTestCase(CremeTestCase):
         CHANGE = EntityCredentials.CHANGE
         DELETE = EntityCredentials.DELETE
 
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_kawaii', text='Kawaii',
-        # )
         ptype = CremePropertyType.objects.create(text='Kawaii')
 
         efilter = EntityFilter.objects.create(
             id='creme_core-test_auth_combo',
             name='Is strong',
             entity_type=FakeContact,
-            # entity_type=CremeEntity,
             filter_type=EF_CREDENTIALS,
         ).set_conditions(
             [
                 condition_handler.PropertyConditionHandler.build_condition(
-                    # model=CremeEntity,
                     model=FakeContact,
                     ptype=ptype, has=True,
                     filter_type=EF_CREDENTIALS,

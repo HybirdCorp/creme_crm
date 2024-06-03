@@ -246,7 +246,6 @@ class InstanceBrickConfigItemExporter(CellsExporterMixin, Exporter):
         assert isinstance(instance, models.InstanceBrickConfigItem)
 
         return {
-            # 'id':          instance.id,
             'uuid':        str(instance.uuid),
             'brick_class': instance.brick_class_id,
             'entity':      str(instance.entity.uuid),
@@ -305,7 +304,6 @@ class BrickDetailviewLocationExporter(BrickExporterMixin, Exporter):
 
         role = instance.role
         if role:
-            # data['role'] = role.name
             data['role'] = str(role.uuid)
         elif instance.superuser:
             data['superuser'] = True
@@ -331,7 +329,6 @@ class BrickHomeLocationExporter(BrickExporterMixin, Exporter):
         # TODO: factorise
         role = instance.role
         if role:
-            # data['role'] = role.name
             data['role'] = str(role.uuid)
         elif instance.superuser:
             data['superuser'] = True
@@ -374,7 +371,6 @@ class MenuItemExporter(Exporter):
         if dump_role:
             role = instance.role
             if role:
-                # data['role'] = role.name
                 data['role'] = str(role.uuid)
             elif instance.superuser:
                 data['superuser'] = True
@@ -427,7 +423,6 @@ class SearchConfigItemExporter(CellsExporterMixin, Exporter):
 
         role = instance.role
         if role:
-            # data['role'] = role.name
             data['role'] = str(role.uuid)
         elif instance.superuser:
             data['superuser'] = True
@@ -499,33 +494,19 @@ class RelationTypeExporter(Exporter):
         if object_ctypes:
             data['object_ctypes'] = [*map(dump_ct, object_ctypes)]
 
-        # subject_properties = instance.subject_properties.values_list('id', flat=True)
-        # if subject_properties:
-        #     data['subject_properties'] = [*subject_properties]
         subject_prop_uuids = instance.subject_properties.values_list('uuid', flat=True)
         if subject_prop_uuids:
             data['subject_properties'] = [*map(str, subject_prop_uuids)]
 
-        # subject_forbidden_properties = instance.subject_forbidden_properties\
-        #                                        .values_list('id', flat=True)
-        # if subject_forbidden_properties:
-        #     data['subject_forbidden_properties'] = [*subject_forbidden_properties]
         subject_forbidden_prop_uuids = instance.subject_forbidden_properties\
                                                .values_list('uuid', flat=True)
         if subject_forbidden_prop_uuids:
             data['subject_forbidden_properties'] = [*map(str, subject_forbidden_prop_uuids)]
 
-        # object_properties = instance.object_properties.values_list('id', flat=True)
-        # if object_properties:
-        #     data['object_properties'] = [*object_properties]
         object_prop_uuids = instance.object_properties.values_list('uuid', flat=True)
         if object_prop_uuids:
             data['object_properties'] = [*map(str, object_prop_uuids)]
 
-        # object_forbidden_properties = instance.object_forbidden_properties\
-        #                                       .values_list('id', flat=True)
-        # if object_forbidden_properties:
-        #     data['object_forbidden_properties'] = [*object_forbidden_properties]
         object_forbidden_pro_uuids = instance.object_forbidden_properties\
                                              .values_list('uuid', flat=True)
         if object_forbidden_pro_uuids:
@@ -569,9 +550,6 @@ class CustomFieldExporter(Exporter):
 
         if cf_type in self.enum_types:
             data['choices'] = [
-                # *instance.customfieldenumvalue_set
-                #          .order_by('id')
-                #          .values_list('value', flat=True)
                 # NB: .values('uuid', 'value') is not serializable with the UUID objects
                 {
                     'uuid': str(uid),
@@ -615,34 +593,12 @@ class HeaderFilterExporter(CellsExporterMixin, Exporter):
         return data
 
 
-# def _export_efc_relation(cond: models.EntityFilterCondition) -> dict:
-#     value = cond.value
-#
-#     dumped_value = {'has': value['has']}
-#
-#     entity_id = value.get('entity_id')
-#     if entity_id:
-#         dumped_value['entity_uuid'] = str(
-#             models.CremeEntity.objects.filter(id=entity_id).values_list('uuid', flat=True)[0]
-#         )
-#     else:
-#         ct_id = value.get('ct_id')
-#         if ct_id:
-#             dumped_value['ct'] = dump_ct(ContentType.objects.get_for_id(ct_id))
-#
-#     return {
-#         'name': cond.name,
-#         'value': dumped_value,
-#     }
-
-
 def _export_efc_customfield(cond: models.EntityFilterCondition) -> dict:
     value = cond.value
     del value['rname']
 
     return {
         # TODO: 'uuid' key instead of 'name' to avoid confusion ??
-        # 'name': str(models.CustomField.objects.get(id=cond.name).uuid),
         'name': cond.name,
         'value': value,
     }
@@ -654,7 +610,6 @@ def _export_efc_datecustomfield(cond: models.EntityFilterCondition) -> dict:
 
     return {
         # TODO: 'uuid' key instead of 'name' to avoid confusion ??
-        # 'name': str(models.CustomField.objects.get(id=cond.name).uuid),
         'name': cond.name,
         'value': value,
     }
@@ -665,7 +620,6 @@ class EntityFilterExporter(Exporter):
     model = models.EntityFilter
 
     condition_exporters: dict[int, Callable[[models.EntityFilterCondition], dict]] = {
-        # condition_handler.RelationConditionHandler.type_id:        _export_efc_relation,
         condition_handler.CustomFieldConditionHandler.type_id:     _export_efc_customfield,
         condition_handler.DateCustomFieldConditionHandler.type_id: _export_efc_datecustomfield,
     }
@@ -752,7 +706,6 @@ class CustomFormsExporter(CellsExporterMixin, Exporter):
         if instance.superuser:
             data['superuser'] = True
         elif instance.role:
-            # data['role'] = instance.role.name
             data['role'] = str(instance.role.uuid)
 
         return data

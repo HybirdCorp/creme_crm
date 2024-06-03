@@ -68,37 +68,6 @@ endif
 	creme generatemedia --settings=${DJANGO_SETTINGS_MODULE}
 
 
-## Run the Django test suite
-## .PHONY: test
-## test:
-## 	creme test --keepdb --noinput \
-## 	    \
-## 	    --parallel=${MAKE_NPROCS} \
-## 	    $(filter-out $@,$(MAKECMDGOALS))
-
-
-## Run the Django test suite and generate coverage reports
-## .PHONY: test-cov
-## test-cov:
-## 	$(eval targets := $(filter-out $@,$(MAKECMDGOALS)))
-##
-## 	COVERAGE_PROCESS_START=setup.cfg \
-## 	    coverage run --source creme/ creme/manage.py test --noinput --keepdb \
-## 	        \
-## 	        --parallel=${MAKE_NPROCS} \
-## 	        ${targets}
-##
-## 	@if [ "$(targets)" ]; then\
-## 		coverage combine -a;\
-## 	else \
-## 		coverage combine;\
-## 	fi
-##
-## 	coverage report
-## 	coverage html
-## 	@echo "file://$(shell pwd)/artifacts/coverage_html/index.html"
-
-
 ## Cleanup karma coverage html output
 .PHONY: karma-clean
 karma-clean:
@@ -126,28 +95,10 @@ karma-browsers: __media karma-clean
 	@echo "file://$(shell pwd)/artifacts/karma_coverage/html/index.html"
 
 
-## Run the Javascript test suite in CI (generatemedia is supposed to be already done)
-## .PHONY: karma-ci
-## karma-ci:
-##	node_modules/.bin/karma start .circleci/.karma.conf.js --targets=$(filter-out $@,$(MAKECMDGOALS))
-
-
 ## Run the application
 .PHONY: serve
 serve: __media
 	creme runserver ${PORT}
-
-
-## Run the jobs
-## .PHONY: serve-jobs
-## serve-jobs:
-## 	creme creme_job_manager
-
-
-## Run shell
-## .PHONY: shell
-## shell:
-## 	creme shell_plus
 
 
 ## Run the Javascript linters

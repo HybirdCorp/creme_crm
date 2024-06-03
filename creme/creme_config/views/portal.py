@@ -37,7 +37,6 @@ class Portal(BricksView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context['app_bricks'] = [*config_registry.portal_bricks]
 
         sort_key = collator.sort_key
         context['app_configs'] = sorted(

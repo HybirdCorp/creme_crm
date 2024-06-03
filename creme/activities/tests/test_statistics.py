@@ -30,10 +30,7 @@ class StatisticsTestCase(_ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_OTHER)
         create_activity = partial(
             Activity.objects.create,
-            user=self.get_root_user(),
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
-            type_id=sub_type.type_id, sub_type=sub_type,
+            user=self.get_root_user(), type_id=sub_type.type_id, sub_type=sub_type,
         )
 
         for i in range(1, 13):
@@ -67,8 +64,6 @@ class StatisticsTestCase(_ActivitiesTestCase):
         create_activity = partial(
             Activity.objects.create,
             user=self.get_root_user(),
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type1.type_id, sub_type=sub_type1,
         )
 
@@ -91,8 +86,6 @@ class StatisticsTestCase(_ActivitiesTestCase):
             create_activity(
                 title=f'Task #{i}',
                 start=now_value - relativedelta(months=i),
-                # type_id=constants.ACTIVITYTYPE_TASK,
-                # sub_type_id='activities-activitysubtype_task',
                 type_id=task_type.id,
                 sub_type=task_stype,
             )
@@ -119,19 +112,9 @@ class StatisticsTestCase(_ActivitiesTestCase):
         atype = self._get_type(constants.UUID_TYPE_TASK)
         create_activity(
             title='Task', start=now_value - relativedelta(months=1),
-            # type_id=constants.ACTIVITYTYPE_TASK,
-            # sub_type_id='activities-activitysubtype_task',
-            type=atype,
-            # sub_type=ActivitySubType.objects
-            sub_type=atype.activitysubtype_set.first(),
+            type=atype, sub_type=atype.activitysubtype_set.first(),
         )  # Should not be counted
 
-        # sub_type_ids = [
-        #     constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-        #     constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-        #     constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
-        #     constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,
-        # ]
         sub_types = [
             self._get_sub_type(uid) for uid in (
                 constants.UUID_SUBTYPE_PHONECALL_INCOMING,
@@ -145,10 +128,7 @@ class StatisticsTestCase(_ActivitiesTestCase):
             create_activity(
                 title=f'Phone call#{i}',
                 start=now_value - relativedelta(months=i),
-                # type_id=constants.ACTIVITYTYPE_PHONECALL,
-                # sub_type_id=sub_type_ids[i % len(sub_type_ids)],
-                type_id=sub_type.type_id,
-                sub_type=sub_type,
+                type_id=sub_type.type_id, sub_type=sub_type,
             )
 
         self.assertListEqual(

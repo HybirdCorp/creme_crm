@@ -70,25 +70,12 @@ class Populator(BasePopulator):
         super()._populate()
 
     def _populate_message_priorities(self):
-        # for pk, title in constants.USERMESSAGE_PRIORITIES.items():
-        #     create_if_needed(
-        #         UserMessagePriority, {'pk': pk}, title=str(title), is_custom=False,
-        #     )
         self._save_minions(self.PRIORITIES)
 
     def _populate_setting_values(self):
         SettingValue.objects.get_or_create(
             key_id=todo_reminder_key.id, defaults={'value': 9},
         )
-
-    # def _populate_jobs(self):
-    #     Job.objects.get_or_create(
-    #         type_id=usermessages_send_type.id,
-    #         defaults={
-    #             'language': settings.LANGUAGE_CODE,
-    #             'status':   Job.STATUS_OK,
-    #         },
-    #     )
 
     def _populate_notification_channels(self) -> None:
         NotificationChannel.objects.get_or_create(

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2023  Hybird
+#    Copyright (C) 2018-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,6 @@ class AveragePerMonthStatistics:
     label = _('Activities (since one year)')
     items = [
         {
-            # 'type_id': constants.ACTIVITYTYPE_MEETING,
             'type_uuid': constants.UUID_TYPE_MEETING,
             'empty': _('No meeting since one year'),
             'messages': ngettext_lazy(
@@ -39,7 +38,6 @@ class AveragePerMonthStatistics:
             'months': 12,
         },
         {
-            # 'type_id': constants.ACTIVITYTYPE_PHONECALL,
             'type_uuid': constants.UUID_TYPE_PHONECALL,
             'empty': _('No phone call since one year'),
             'messages': ngettext_lazy(
@@ -56,7 +54,6 @@ class AveragePerMonthStatistics:
     def _get_stat(self, item, now_value):
         months = item['months']
         count = self.activity_model.objects.filter(
-            # type_id=item['type_id'],
             type__uuid=item['type_uuid'],
             start__gte=(
                 now_value - relativedelta(months=months)

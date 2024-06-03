@@ -76,18 +76,12 @@ class RelationTypeTestCase(CremeTestCase):
         "Property types (mandatory & forbidden)."
         create_pt = CremePropertyType.objects.smart_update_or_create
         pt_sub = create_pt(
-            # str_pk='test-pt_sub',
-            text='has cash',
-            subject_ctypes=[FakeOrganisation],
+            text='has cash', subject_ctypes=[FakeOrganisation],
         )
         pt_obj = create_pt(
-            # str_pk='test-pt_obj',
-            text='need cash',
-            subject_ctypes=[FakeContact],
+            text='need cash', subject_ctypes=[FakeContact],
         )
 
-        # forbidden_pt_sub = create_pt(str_pk='test-pt_forb_sub', text='is greedy')
-        # forbidden_pt_obj = create_pt(str_pk='test-pt_forb_obj', text='is shy')
         forbidden_pt_sub = create_pt(text='is greedy')
         forbidden_pt_obj = create_pt(text='is shy')
 
@@ -104,9 +98,6 @@ class RelationTypeTestCase(CremeTestCase):
 
             'subject_properties': [pt_sub.id],
             'object_properties': [pt_obj.id],
-
-            # 'subject_forbidden_properties': [forbidden_pt_sub.id],
-            # 'object_forbidden_properties': [forbidden_pt_obj.id],
 
             'object_is_copiable': 'on',
         }

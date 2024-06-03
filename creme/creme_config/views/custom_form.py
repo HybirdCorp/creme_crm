@@ -47,7 +47,6 @@ from ..forms import custom_form as forms
 from . import base
 
 
-# class Portal(generic.BricksView):
 class Portal(base.ConfigPortal):
     template_name = 'creme_config/portals/custom-form.html'
     brick_classes = [CustomFormsBrick]

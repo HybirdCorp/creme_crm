@@ -5,11 +5,9 @@ from django.conf import settings
 from django.urls import reverse
 
 from creme.creme_core.models import FakeContact, FakeOrganisation, FieldsConfig
-# from creme.creme_core.tests.views.base import ViewsTestCase
 from creme.creme_core.tests.base import CremeTestCase
 
 
-# class SearchAndViewTestCase(ViewsTestCase):
 class SearchAndViewTestCase(CremeTestCase):
     SEARCHNVIEW_URL  = reverse('creme_core__search_n_view_entities')
 
@@ -121,7 +119,6 @@ class SearchAndViewTestCase(CremeTestCase):
 
     def test_credentials(self):
         user = self.login_as_standard()
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
 
         phone = '44444'

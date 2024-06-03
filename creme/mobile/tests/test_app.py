@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 
-# STATUS_IN_PROGRESS, STATUS_PLANNED, STATUS_CANCELLED, STATUS_DONE,
 from creme.activities.constants import (
     FLOATING_TIME,
     UUID_STATUS_CANCELLED,
@@ -80,7 +79,6 @@ class MobileAppTestCase(MobileBaseTestCase):
         m2 = create_m(
             title='Meeting: Anime',
             start=today_in_the_past(2),
-            # status_id=STATUS_PLANNED,
             status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
         )
         m3 = create_m(
@@ -91,7 +89,6 @@ class MobileAppTestCase(MobileBaseTestCase):
         m4 = create_m(
             title='Meeting: Figures',
             start=today_in_the_future(3),
-            # status_id=STATUS_IN_PROGRESS,
             status=self.get_object_or_fail(Status, uuid=UUID_STATUS_IN_PROGRESS),
         )
         m5 = create_m(
@@ -104,19 +101,16 @@ class MobileAppTestCase(MobileBaseTestCase):
         create_m(
             title='Meeting: Tezuka manga',
             start=today(9),
-            # participant=self.other_user.linked_contact,
             participant=Contact.objects.create(user=user, first_name='Gally', last_name='Alita'),
         )  # I do not participate
         create_m(
             title='Meeting: Comics',
             start=today(7),
-            # status_id=STATUS_DONE,
             status=self.get_object_or_fail(Status, uuid=UUID_STATUS_DONE),
         )  # Done are excluded
         create_m(
             title='Meeting: Manhua',
             start=today(10),
-            # status_id=STATUS_CANCELLED,
             status=self.get_object_or_fail(Status, uuid=UUID_STATUS_CANCELLED),
         )  # Cancelled are excluded
         create_m(title='Meeting: Manga again',  start=now_val - oneday)  # Yesterday

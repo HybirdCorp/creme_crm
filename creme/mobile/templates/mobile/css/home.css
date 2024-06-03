@@ -24,10 +24,6 @@
   -webkit-user-select: none;
 
   opacity: 0;
-{% comment %}
-  -webkit-transition: opacity 0.1s ease-out;
-     -moz-transition: opacity 0.1s ease-out;
-{% endcomment %}
   transition: opacity 0.1s ease-out;
 }
 

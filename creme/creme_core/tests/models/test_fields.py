@@ -340,33 +340,6 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
 
         dojo = FakeOrganisation.objects.create(user=user, name='Tendo no dojo')
 
-        # # Reference ------------------------------------------------------------
-        # from creme.creme_core.models import DateReminder
-        #
-        # self.assertTrue(hasattr(DateReminder, 'model_content_type'))
-        # self.assertTrue(hasattr(DateReminder, 'model_id'))
-        # self.assertTrue(hasattr(DateReminder, 'object_of_reminder'))
-        #
-        # create_reminder = DateReminder.objects.create
-        # rem1 = create_reminder(ident='123', object_of_reminder=akane)
-        # create_reminder(ident='789', object_of_reminder=dojo)
-        # create_reminder(ident='456', object_of_reminder=ranma)
-        #
-        # self.assertTrue(hasattr(rem1, 'object_of_reminder'))
-        #
-        # with self.assertNumQueries(3):
-        #     rems = [
-        #         *DateReminder.objects
-        #                      .order_by('id')
-        #                      .prefetch_related('object_of_reminder'),
-        #     ]
-        #
-        # with self.assertNumQueries(0):
-        #     entities = [rem.object_of_reminder for rem in rems]
-        #
-        # self.assertListEqual([akane, dojo, ranma], entities)
-        # ----------------------------------------------------------------------
-
         meta = FakeTodo._meta
         with self.assertNoException():
             meta.get_field('entity_content_type')

@@ -11,11 +11,9 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.bricks import JobErrorsBrick, MassImportJobErrorsBrick
 from creme.creme_core.constants import UUID_CHANNEL_JOBS
 from creme.creme_core.creme_jobs import batch_process_type, mass_import_type
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -45,7 +43,6 @@ from creme.documents.models import Document
 from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 
 from ..base import CremeTestCase
-# from .base import ViewsTestCase
 from .base import BrickTestCaseMixin, MassImportBaseTestCaseMixin
 
 
@@ -53,7 +50,6 @@ from .base import BrickTestCaseMixin, MassImportBaseTestCaseMixin
 @skipIfCustomFolder
 class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                               BrickTestCaseMixin,
-                              # ViewsTestCase):
                               CremeTestCase):
     lv_import_data = {
         'step': 1,
@@ -277,24 +273,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         sector_ids   = [*FakeSector.objects.values_list('id', flat=True)]
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(
-            # str_pk='test-prop_cute',
-            text='Really cute in her suit',
-        )
-        ptype2 = create_ptype(
-            # str_pk='test-prop_accurate',
-            text='Great accuracy',
-            subject_ctypes=[FakeContact],
-        )
-        ptype3 = create_ptype(
-            # str_pk='test-prop_international',
-            text='International',
-            subject_ctypes=[FakeOrganisation],
-        )
-
-        # ptype4 = create_ptype(str_pk='test-prop_disabled', text='Disabled')
-        # ptype4.enabled = False
-        # ptype4.save()
+        ptype1 = create_ptype(text='Really cute in her suit')
+        ptype2 = create_ptype(text='Great accuracy', subject_ctypes=[FakeContact])
+        ptype3 = create_ptype(text='International', subject_ctypes=[FakeOrganisation])
         ptype4 = CremePropertyType.objects.create(text='Disabled', enabled=False)
 
         create_rtype = RelationType.objects.smart_update_or_create
@@ -1346,7 +1327,6 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             allowed_apps=['creme_core', 'documents'],
             creatable_models=[FakeContact, Document],
         )
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct)
@@ -1718,7 +1698,6 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             allowed_apps=['creme_core', 'documents'],
             creatable_models=[FakeContact, FakeOrganisation, Document],
         )
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
 
         doc = self._build_csv_doc([('Ayanami', 'Rei', 'Piloting')], user=user)
@@ -1747,7 +1726,6 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             allowed_apps=['creme_core', 'documents'],
             creatable_models=[FakeContact, Document],  # Not Organisation
         )
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
 
         employed = RelationType.objects.smart_update_or_create(
@@ -1990,27 +1968,13 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             allowed_apps=['creme_core', 'documents'],
             creatable_models=[FakeContact, Document],
         )
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         # | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        #     ctype=FakeContact,
-        # )
         self.add_credentials(user.role, all='!CHANGE', model=FakeContact)
 
         last_name = 'Ayanami'
         first_name = 'Rei'
 
         c = FakeContact.objects.create(
-            # user=self.other_user, last_name=last_name, first_name='Lei',
             user=self.get_root_user(), last_name=last_name, first_name='Lei',
         )
         self.assertTrue(user.has_perm_to_view(c))
@@ -2285,8 +2249,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         last_name = 'Kan-u'
         birthday = '1995'
         lines = [('First name',   'Last name', 'Birthday')] if header else []
-        lines.append((first_name, last_name,   birthday))      # Error
-        # lines.append(('Asuka',    'Langley',   '01-02-1997'))  # OK
+        lines.append((first_name, last_name,   birthday))  # Error
         lines.append(('Asuka',    'Langley',   self.formfield_value_date(1997, 2, 1)))  # OK
 
         doc = doc_builder(lines, user=user)

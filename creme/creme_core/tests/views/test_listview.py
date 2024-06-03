@@ -65,12 +65,10 @@ from creme.creme_core.utils.profiling import CaptureQueriesContext
 from creme.creme_core.utils.queries import QSerializer
 
 from .. import fake_constants
-# from .base import ViewsTestCase
 from ..base import CremeTestCase
 
 
 @override_settings(LISTVIEW_ENUMERABLE_LIMIT=50)
-# class ListViewTestCase(ViewsTestCase):
 class ListViewTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
@@ -114,7 +112,6 @@ class ListViewTestCase(CremeTestCase):
 
         optimized_counts = []
         for sql in captured_sql:
-            # if sql.startswith('SELECT COUNT(*)') and sql != trash_sql:
             if entities_q_re.match(sql) is not None and sql != trash_sql:
                 if 'INNER JOIN' in sql:
                     self.fail(f'slow COUNT query found: {sql}')
@@ -293,9 +290,6 @@ class ListViewTestCase(CremeTestCase):
         )
 
         # Property
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk='test-prop_red',  text='is red')
-        # ptype2 = create_ptype(str_pk='test-prop_fast', text='is fast')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='is red')
         ptype2 = create_ptype(text='is fast')
@@ -1087,11 +1081,6 @@ class ListViewTestCase(CremeTestCase):
                 },
             )
 
-        # main_sql_match = re.compile(
-        #     r'SELECT .creme_core_cremeentity.\..id., .*'
-        #     r'.creme_core_fakecontact.\..last_name., .*'
-        #     r'WHERE NOT .creme_core_cremeentity.\..is_deleted'
-        # ).match
         db_engine = settings.DATABASES['default']['ENGINE']
         if db_engine == 'django.db.backends.mysql':
             main_sql_match = re.compile(
@@ -2861,9 +2850,6 @@ class ListViewTestCase(CremeTestCase):
         eva01     = create_orga(name='Eva01')
         eva02     = create_orga(name='Eva02')
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # is_red  = create_ptype(str_pk='test-prop_red',  text='is red')
-        # is_fast = create_ptype(str_pk='test-prop_fast', text='is fast')
         create_ptype = CremePropertyType.objects.create
         is_red  = create_ptype(text='is red')
         is_fast = create_ptype(text='is fast')

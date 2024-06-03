@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,6 @@ from creme.creme_core.models.entity_filter import (
     EntityFilter,
     EntityFilterList,
 )
-# from creme.creme_core.utils.queries import QSerializer
 from creme.creme_core.models.header_filter import (
     HeaderFilter,
     HeaderFilterList,
@@ -48,7 +47,6 @@ class ListViewState:
         self.sort_cell_key = get_arg('sort_cell_key')
         self.url = get_arg('url')
         self.search = {}
-        # self.extra_q = None
 
     def __repr__(self):
         return (
@@ -59,19 +57,11 @@ class ListViewState:
             f'rows={self.rows}, '
             f'sort={self.sort_order}{self.sort_cell_key}, '
             f'url={self.url}, '
-            # f'search={self.search}, '
             f'search={self.search}'
-            # f'extra_q={self.extra_q}'
             f')>'
         )
 
     def register_in_session(self, request) -> None:
-        # serialized = {**self.__dict__}
-        #
-        # if self.extra_q is not None:
-        #     serialized['extra_q'] = QSerializer().dumps(self.extra_q)
-        #
-        # request.session[self.url] = serialized
         request.session[self.url] = self.__dict__
 
     @classmethod
@@ -84,9 +74,6 @@ class ListViewState:
 
             for k, v in data.items():
                 setattr(lvs, k, v)
-
-            # if lvs.extra_q is not None:
-            #     lvs.extra_q = QSerializer().loads(lvs.extra_q)
 
         return lvs
 
@@ -110,7 +97,6 @@ class ListViewState:
 
     def set_headerfilter(self,
                          header_filters: HeaderFilterList,
-                         # id=-1,
                          id: str = '',
                          default_id: str = '',
                          ) -> HeaderFilter:

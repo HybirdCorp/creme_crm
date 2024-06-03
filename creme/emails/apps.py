@@ -69,7 +69,6 @@ class EmailsConfig(CremeAppConfig):
             bricks.ChildListsBrick,
             bricks.ParentListsBrick,
             bricks.AttachmentsBrick,
-            # bricks.SendingConfigItemsBrick,
             bricks.SendingsBrick,
             bricks.SendingBrick,
             bricks.MailsBrick,
@@ -77,8 +76,6 @@ class EmailsConfig(CremeAppConfig):
             bricks.MailPopupBrick,
             bricks.LwMailPopupBrick,
             bricks.LwMailsHistoryBrick,
-            # bricks.MySignaturesBrick,
-            # bricks.EmailSyncConfigItemsBrick,
             bricks.EmailsToSyncBrick,
         ).register_hat(
             self.EntityEmail,

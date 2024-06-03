@@ -65,12 +65,6 @@ class CremeHistoryTagsTestCase(CremeTestCase):
         "No stored history lines."
         user = self.get_root_user()
 
-        # togame = FakeContact(
-        #     user=user, first_name='Togame', last_name='Kisakushi',
-        #     created=now() - timedelta(hours=2),
-        # )
-        # HistoryLine.disable(togame)
-        # togame.save()
         with toggle_history(enabled=False):
             togame = FakeContact.objects.create(
                 user=user, first_name='Togame', last_name='Kisakushi',

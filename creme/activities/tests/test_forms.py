@@ -1,7 +1,6 @@
 from copy import deepcopy
 from datetime import date, time
 
-# from django.core.exceptions import ValidationError
 from django.db.models.expressions import Q
 from django.forms import Field
 from django.test.utils import override_settings
@@ -9,11 +8,8 @@ from django.utils.translation import gettext as _
 
 from creme.activities.forms.fields import ActivitySubTypeField
 from creme.activities.models.activity import Activity
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.forms.enumerable import NO_LIMIT  # EnumerableChoiceField
+from creme.creme_core.forms.enumerable import NO_LIMIT
 from creme.creme_core.forms.widgets import Label
-# from creme.creme_core.models import SetCredentials
-# from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.base import CremeTestCase
 
 from .. import constants
@@ -26,20 +22,17 @@ from ..models import ActivitySubType, ActivityType, Calendar
 from .base import _ActivitiesTestCase
 
 
-# class ActivitySubTypeFieldTestCase(FieldTestCase):
 class ActivitySubTypeFieldTestCase(_ActivitiesTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
         cls.atype = ActivityType.objects.create(
-            # id='meeting',
             name='Meeting',
             default_day_duration=0,
             default_hour_duration='01:00:00',
         )
         cls.subtype = ActivitySubType.objects.create(
-            # id='rendezvous', name='Rendez-vous', type=cls.atype,
             name='Rendez-vous', type=cls.atype,
         )
 
@@ -47,16 +40,6 @@ class ActivitySubTypeFieldTestCase(_ActivitiesTestCase):
         field = ActivitySubTypeField()
         self.assertEqual(Activity._meta.get_field('sub_type'), field.enum.field)
         self.assertEqual(NO_LIMIT, field.limit)
-        # self.assertListEqual(
-        #     sorted([
-        #         ('', field.empty_label, None),
-        #         *(
-        #             (c.pk, str(c), str(c.type))
-        #             for c in ActivitySubType.objects.all()
-        #         ),
-        #     ]),
-        #     sorted((c.value, c.label, c.group) for c in field.choices),
-        # )
         self.assertCountEqual(
             [
                 ('', field.empty_label, None),
@@ -68,23 +51,10 @@ class ActivitySubTypeFieldTestCase(_ActivitiesTestCase):
     def test_limit_choices_to(self):
         field = ActivitySubTypeField(
             model=Activity, field_name='sub_type',
-            # limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO)
             limit_choices_to=Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY)
         )
 
         self.assertEqual(field.limit, NO_LIMIT)
-        # self.assertListEqual(
-        #     sorted([
-        #         ('', field.empty_label, None),
-        #         *(
-        #             (c.pk, str(c), str(c.type))
-        #             for c in ActivitySubType.objects.filter(
-        #                 type_id=constants.ACTIVITYTYPE_INDISPO,
-        #             )
-        #         ),
-        #     ]),
-        #     sorted((c.value, c.label, c.group) for c in field.choices),
-        # )
         self.assertCountEqual(
             [
                 ('', field.empty_label, None),
@@ -132,22 +102,11 @@ class ActivitySubTypeFieldTestCase(_ActivitiesTestCase):
 
     def test_clean__limit_choices_to(self):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_UNAVAILABILITY)
-        field = ActivitySubTypeField(
-            # limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO),
-            limit_choices_to=Q(type_id=sub_type.type_id),
-        )
-
-        # self.assertEqual(
-        #     ActivitySubType.objects.get(pk=constants.ACTIVITYSUBTYPE_UNAVAILABILITY),
-        #     field.clean(constants.ACTIVITYSUBTYPE_UNAVAILABILITY),
-        # )
+        field = ActivitySubTypeField(limit_choices_to=Q(type_id=sub_type.type_id))
         self.assertEqual(
             sub_type,
             field.clean(sub_type.id),
         )
-
-        # with self.assertRaises(ValidationError):
-        #     field.clean(constants.ACTIVITYSUBTYPE_MEETING_MEETING)
         self.assertFormfieldError(
             field=field,
             value=self._get_sub_type(constants.UUID_SUBTYPE_MEETING_MEETING).id,
@@ -158,7 +117,6 @@ class ActivitySubTypeFieldTestCase(_ActivitiesTestCase):
         )
 
 
-# class DateWithOptionalTimeFieldTestCase(FieldTestCase):
 class DateWithOptionalTimeFieldTestCase(CremeTestCase):
     def test_result(self):
         DWOT = DateWithOptionalTimeField.DateWithOptionalTime
@@ -243,7 +201,6 @@ class DateWithOptionalTimeFieldTestCase(CremeTestCase):
         )
 
 
-# class UserParticipationFieldTestCase(FieldTestCase):
 class UserParticipationFieldTestCase(CremeTestCase):
     def test_clean_empty(self):
         user = self.get_root_user()
@@ -258,12 +215,6 @@ class UserParticipationFieldTestCase(CremeTestCase):
         user = self.create_user(
             role=self.create_role(allowed_apps=('persons', 'activities')),
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     ctype=type(user.linked_contact),
-        # )
         self.add_credentials(user.role, all=['VIEW', 'LINK'], model=type(user.linked_contact))
 
         create_cal = Calendar.objects.create
@@ -298,11 +249,6 @@ class UserParticipationFieldTestCase(CremeTestCase):
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_not_linkable(self):
         role = self.create_role(allowed_apps=('persons', 'activities'))
-        # SetCredentials.objects.create(
-        #     role=role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(role, all=['VIEW'])
 
         user = self.create_user(role=role)
@@ -334,7 +280,6 @@ class UserParticipationFieldTestCase(CremeTestCase):
         self.assertEqual(opt, field.clean([True, cal.id]))
 
 
-# class ParticipatingUsersFieldTestCase(FieldTestCase):
 class ParticipatingUsersFieldTestCase(CremeTestCase):
     def test_clean_empty(self):
         user = self.get_root_user()
@@ -347,12 +292,6 @@ class ParticipatingUsersFieldTestCase(CremeTestCase):
 
     def test_clean(self):
         user = self.login_as_standard(allowed_apps=('persons', 'activities'))
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     ctype=type(user.linked_contact),
-        # )
         self.add_credentials(user.role, all=['VIEW', 'LINK'], model=type(user.linked_contact))
 
         other_user = self.get_root_user()
@@ -408,11 +347,6 @@ class ParticipatingUsersFieldTestCase(CremeTestCase):
 
     def test_not_linkable(self):
         user = self.login_as_standard(allowed_apps=('persons', 'activities'))
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW'])
         self.assertFormfieldError(
             field=ParticipatingUsersField(user=user),

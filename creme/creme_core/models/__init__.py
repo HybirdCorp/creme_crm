@@ -38,7 +38,6 @@ from .notification import (  # NOQA
     NotificationChannelConfigItem,
 )
 from .relation import Relation, RelationType, SemiFixedRelationType  # NOQA
-# from .reminder import DateReminder  # NOQA
 from .search import SearchConfigItem  # NOQA
 from .setting_value import SettingValue  # NOQA
 from .vat import Vat  # NOQA

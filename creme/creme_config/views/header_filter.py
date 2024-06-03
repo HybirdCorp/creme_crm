@@ -29,7 +29,6 @@ from ..bricks import HeaderFiltersBrick
 from .base import ConfigPortal
 
 
-# class Portal(generic.BricksView):
 class Portal(ConfigPortal):
     template_name = 'creme_config/portals/header-filter.html'
     brick_classes = [HeaderFiltersBrick]

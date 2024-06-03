@@ -34,7 +34,6 @@ import creme.creme_core.forms.base as core_forms
 import creme.creme_core.models as core_models
 from creme.creme_core import get_world_settings_model
 from creme.creme_core.core import setting_key
-# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import EF_REGULAR
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.core.notification import notification_registry
@@ -590,7 +589,6 @@ class TeamsBrick(_ConfigAdminBrick):
 
 
 class BrickDetailviewLocationsBrick(PaginatedBrick):
-    # id = PaginatedBrick.generate_id('creme_config', 'blocks_dv_locations')
     id = PaginatedBrick.generate_id('creme_config', 'detailview_bricks_locations')
     verbose_name = 'Blocks locations on detailed views'
     dependencies = (core_models.BrickDetailviewLocation,)
@@ -642,7 +640,6 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
         ctypes_wrappers = btc['page'].object_list
         display_clone_button = False
 
-        # brick_counts[content_type.id][(role_id, superuser)] -> count
         brick_counts = defaultdict(lambda: defaultdict(int))
         role_ids = set()
 
@@ -687,7 +684,6 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
 
 
 class BrickHomeLocationsBrick(_ConfigAdminBrick):
-    # id = _ConfigAdminBrick.generate_id('creme_config', 'blocks_home_locations')
     id = _ConfigAdminBrick.generate_id('creme_config', 'home_bricks_locations')
     verbose_name = _('Blocks on home')
     dependencies = (core_models.BrickHomeLocation,)
@@ -729,7 +725,6 @@ class BrickHomeLocationsBrick(_ConfigAdminBrick):
 
 
 class BrickDefaultMypageLocationsBrick(_ConfigAdminBrick):
-    # id = _ConfigAdminBrick.generate_id('creme_config', 'blocks_default_mypage_locations')
     id = _ConfigAdminBrick.generate_id('creme_config', 'default_mypage_bricks_locations')
     verbose_name = _('Blocks on default «My page»')
     dependencies = (core_models.BrickMypageLocation,)
@@ -743,7 +738,6 @@ class BrickDefaultMypageLocationsBrick(_ConfigAdminBrick):
 
 
 class BrickMypageLocationsBrick(_ConfigAdminBrick):
-    # id = _ConfigAdminBrick.generate_id('creme_config', 'blocks_mypage_locations')
     id = _ConfigAdminBrick.generate_id('creme_config', 'mypage_bricks_locations')
     verbose_name = _('Blocks on «My page»')
     dependencies = (core_models.BrickMypageLocation,)
@@ -757,7 +751,6 @@ class BrickMypageLocationsBrick(_ConfigAdminBrick):
 
 
 class RelationBricksConfigBrick(_ConfigAdminBrick):
-    # id = _ConfigAdminBrick.generate_id('creme_config', 'relation_blocks_config')
     id = _ConfigAdminBrick.generate_id('creme_config', 'relation_bricks_config')
     verbose_name = 'Relation blocks configuration'
     dependencies = (core_models.RelationBrickItem, core_models.BrickDetailviewLocation)
@@ -773,7 +766,6 @@ class RelationBricksConfigBrick(_ConfigAdminBrick):
 
 
 class InstanceBricksConfigBrick(_ConfigAdminBrick):
-    # id = _ConfigAdminBrick.generate_id('creme_config', 'instance_blocks_config')
     id = _ConfigAdminBrick.generate_id('creme_config', 'instance_bricks_config')
     verbose_name = _("Instances' blocks")
     dependencies = (core_models.InstanceBrickConfigItem,)
@@ -793,7 +785,6 @@ class InstanceBricksConfigBrick(_ConfigAdminBrick):
 
 
 class CustomBricksConfigBrick(PaginatedBrick):
-    # id = _ConfigAdminBrick.generate_id('creme_config', 'custom_blocks_config')
     id = _ConfigAdminBrick.generate_id('creme_config', 'custom_bricks_config')
     verbose_name = _('Custom blocks')
     dependencies = (core_models.CustomBrickConfigItem,)
@@ -1148,7 +1139,6 @@ class UserSettingValuesBrick(Brick):
         return self._render(self.get_template_context(
             context,
             values_per_app=[
-                # (get_app_config(app_label).verbose_name, svalues)
                 (app_label, get_app_config(app_label).verbose_name, svalues)
                 for app_label, svalues in sv_info_per_app.items()
             ],
@@ -1202,7 +1192,6 @@ class EntityFiltersBrick(PaginatedBrick):
         user_ids = set()
 
         for efilter in core_models.EntityFilter.objects.filter(
-            # filter_type=EF_USER,
             filter_type=self.filter_type,
             entity_type__in=[ctw.ctype for ctw in ctypes_wrappers],
         ):
@@ -1282,7 +1271,6 @@ class HeaderFiltersBrick(PaginatedBrick):
         user_ids = set()
 
         for hfilter in core_models.HeaderFilter.objects.filter(
-            # filter_type=EF_USER,
             entity_type__in=[ctw.ctype for ctw in ctypes_wrappers],
         ):
             # TODO: templatetags instead ?

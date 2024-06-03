@@ -1,5 +1,3 @@
-# from json import dumps as json_dump
-# from json import loads as json_load
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
@@ -47,7 +45,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertIs(hf.is_custom, True)
         self.assertIs(hf.is_private, False)
         self.assertDictEqual({}, hf.extra_data)
-        # self.assertEqual('[]', hf.json_cells)
         self.assertListEqual([], hf.json_cells)
         self.assertFalse(hf.cells)
         self.assertListEqual([], hf.filtered_cells)
@@ -59,7 +56,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(1, len(hf.cells))
 
         with self.assertNoException():
-            # deserialized = json_load(hf.json_cells)
             deserialized = hf.json_cells
 
         self.assertListEqual(
@@ -124,7 +120,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         )
 
         hf = HeaderFilter.objects.create_if_needed(
-            # pk=pk, name='Contact view edited', user=self.user,
             pk=pk, name='Contact view edited', user=self.get_root_user(),
             model=FakeContact, is_custom=False,
             cells_desc=[
@@ -162,7 +157,6 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_can_edit__root(self):
         root = self.get_root_user()
-        # other = self.user
         other = self.create_user()
         team1 = self.create_team('team A', other, root)
         team2 = self.create_team('team B', other)
@@ -266,10 +260,7 @@ class HeaderFiltersTestCase(CremeTestCase):
             ],
         )
 
-        # json_data = hf.json_cells
-
         with self.assertNoException():
-            # deserialized = json_load(json_data)
             deserialized1 = hf.json_cells
 
         self.assertListEqual(
@@ -277,7 +268,6 @@ class HeaderFiltersTestCase(CremeTestCase):
                 {'type': 'function_field', 'value': ffield_name},
                 {'type': 'regular_field',  'value': rfield_name},
             ],
-            # deserialized,
             deserialized1,
         )
 
@@ -285,7 +275,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         # methods and inject errors : it simulates a human that modifies
         # directly the DB column.
         HeaderFilter.objects.filter(id=hf.id).update(
-            # json_cells=json_data.replace('function_field', 'invalid_type'),
             json_cells=[
                 {
                     'type': 'invalid_type',  # <===
@@ -299,15 +288,11 @@ class HeaderFiltersTestCase(CremeTestCase):
         valid_cells = [EntityCellRegularField.build(model=FakeContact, name=rfield_name)]
         self.assertListEqual(valid_cells, hf.cells)
 
-        # json_data = hf.json_cells
-
         with self.assertNoException():
-            # deserialized = json_load(json_data)
             deserialized2 = hf.json_cells
 
         self.assertListEqual(
             [{'type': 'regular_field',  'value': rfield_name}],
-            # deserialized,
             deserialized2,
         )
 
@@ -315,10 +300,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         HeaderFilter.objects.filter(
             id=hf.id,
         ).update(
-            # json_cells=json_dump([
-            #     {'type': 'function_field'},
-            #     {'type': 'regular_field', 'value': rfield_name},
-            # ]),
             json_cells=[
                 {'type': 'function_field'},
                 {'type': 'regular_field', 'value': rfield_name},
@@ -330,10 +311,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         HeaderFilter.objects.filter(
             id=hf.id,
         ).update(
-            # json_cells=json_dump([
-            #     {'type': 'function_field'},  # Not 'value' key
-            #     {'type': 'regular_field', 'value': rfield_name},
-            # ]),
             json_cells=[
                 {'type': 'function_field'},  # Not 'value' key
                 {'type': 'regular_field', 'value': rfield_name},
@@ -345,10 +322,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         HeaderFilter.objects.filter(
             id=hf.id,
         ).update(
-            # json_cells=json_dump([
-            #     {},  # No 'type' key
-            #     {'type': 'regular_field', 'value': rfield_name},
-            # ]),
             json_cells=[
                 {},  # No 'type' key
                 {'type': 'regular_field', 'value': rfield_name},
@@ -357,12 +330,10 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertListEqual(valid_cells, self.refresh(hf).cells)
 
         # ---------------------------------------------------------------------
-        # HeaderFilter.objects.filter(id=hf.id).update(json_cells=json_dump([1]))  # Not a dict
         HeaderFilter.objects.filter(id=hf.id).update(json_cells=[1])  # Not a dict
         self.assertFalse(self.refresh(hf).cells)
 
         # ---------------------------------------------------------------------
-        # HeaderFilter.objects.filter(id=hf.id).update(json_cells=json_dump(1))  # Not a list
         HeaderFilter.objects.filter(id=hf.id).update(json_cells=1)  # Not a list
         self.assertFalse(self.refresh(hf).cells)
 
@@ -475,7 +446,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertListEqual([cell1], new_cells)
 
         with self.assertNoException():
-            # deserialized = json_load(hf.json_cells)
             deserialized = hf.json_cells
 
         self.assertListEqual(

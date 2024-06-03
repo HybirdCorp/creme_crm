@@ -1,7 +1,6 @@
 from functools import partial
 
 from django.conf import settings
-# from django.core import mail
 from django.core.mail.backends.locmem import EmailBackend
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -15,7 +14,6 @@ from creme.creme_core.core.notification import (
     OUTPUT_WEB,
     notification_registry,
 )
-# from creme.creme_core.models import Job, JobResult,
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -27,7 +25,6 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from ..bricks import UserMessagesBrick
 from ..constants import UUID_CHANNEL_USERMESSAGES
-# from ..creme_jobs import usermessages_send_type
 from ..models import UserMessage, UserMessagePriority
 from ..notification import MessageSentContent, UserMessagesChannelType
 from .base import AssistantsTestCase
@@ -66,9 +63,6 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             },
         )
         self.assertNoFormError(response)
-
-    # def _get_usermessages_job(self):
-    #     return self.get_object_or_fail(Job, type_id=usermessages_send_type.id)
 
     def test_message_sent_content01(self):
         sender = self.get_root_user()
@@ -199,7 +193,6 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(title,    message.title)
         self.assertEqual(body,     message.body)
         self.assertEqual(priority, message.priority)
-        # self.assertFalse(message.email_sent)
 
         self.assertEqual(entity.id,             message.entity_id)
         self.assertEqual(entity.entity_type_id, message.entity_content_type_id)
@@ -211,8 +204,6 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.assertEqual(title, str(message))
 
-        # job, _data = self.get_alone_element(queue.refreshed_jobs)
-        # self.assertEqual(self._get_usermessages_job(), job)
         notif1 = self.get_object_or_fail(
             Notification,
             user=user1, channel__uuid=UUID_CHANNEL_USERMESSAGES, output=OUTPUT_WEB,
@@ -228,15 +219,10 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
     @override_settings(SOFTWARE_LABEL='My CRM')
     def test_create02(self):
         "2 users."
-        # now_value = now()
         priority = UserMessagePriority.objects.create(title='Important')
 
         user1 = self.create_user(index=0)
         user2 = self.create_user(index=1)
-
-        # job = self._get_usermessages_job()
-        # self.assertIsNone(job.user)
-        # self.assertIsNone(job.type.next_wakeup(job, now_value))
 
         title = 'TITLE'
         body  = 'BODY'
@@ -244,33 +230,6 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         messages = UserMessage.objects.all()
         self.assertCountEqual([user1, user2], [msg.recipient for msg in messages])
-
-        # self.assertIs(now_value, job.type.next_wakeup(job, now_value))
-
-        # usermessages_send_type.execute(job)
-
-        # messages = mail.outbox
-        # self.assertEqual(len(messages), 2)
-        #
-        # message = messages[0]
-        # software = 'My CRM'
-        # self.assertEqual(
-        #     _('User message from {software}: {title}').format(software=software, title=title),
-        #     message.subject,
-        # )
-        # self.assertEqual(
-        #     _('{user} sent you the following message:\n{body}').format(
-        #         user=self.user,
-        #         body=body,
-        #     ),
-        #     message.body,
-        # )
-        # self.assertEqual(settings.EMAIL_SENDER, message.from_email)
-        # self.assertHasNoAttr(message, 'alternatives')
-        # self.assertFalse(message.attachments)
-        #
-        # for user_msg in UserMessage.objects.all():
-        #     self.assertTrue(user_msg.email_sent)
 
     def test_create03(self):
         "Without related entity."
@@ -465,36 +424,3 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             field='replace_assistants__usermessage_priority',
             errors=_('Deletion is not possible.'),
         )
-
-    # def test_job(self):
-    #     "Error on email sending."
-    #     priority = UserMessagePriority.objects.create(title='Important')
-    #     user1 = self.create_user()
-    #
-    #     self._create_usermessage('TITLE', 'BODY', priority, [user1], None)
-    #
-    #     self.send_messages_called = False
-    #     err_msg = 'Sent error'
-    #
-    #     def send_messages(this, messages):
-    #         self.send_messages_called = True
-    #         raise Exception(err_msg)
-    #
-    #     EmailBackend.send_messages = send_messages
-    #
-    #     job = self._get_usermessages_job()
-    #     usermessages_send_type.execute(job)
-    #
-    #     self.assertTrue(self.send_messages_called)
-    #
-    #     message = self.get_alone_element(UserMessage.objects.all())
-    #     self.assertTrue(message.email_sent)
-    #
-    #     jresult = self.get_alone_element(JobResult.objects.filter(job=job))
-    #     self.assertListEqual(
-    #         [
-    #             _('An error occurred while sending emails'),
-    #             _('Original error: {}').format(err_msg),
-    #         ],
-    #         jresult.messages,
-    #     )

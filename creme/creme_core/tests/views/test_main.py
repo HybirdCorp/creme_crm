@@ -19,11 +19,9 @@ from creme.creme_core.models import (
 from creme.creme_core.utils.media import get_creme_media_url
 from creme.creme_core.views.testjs import js_testview_or_404
 
-# from .base import ViewsTestCase
 from ..base import CremeTestCase
 
 
-# class MiscViewsTestCase(ViewsTestCase):
 class MiscViewsTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
@@ -99,7 +97,6 @@ class MiscViewsTestCase(CremeTestCase):
         'entityselector',
         'filterselector',
         'frame',
-        # 'layout',
         'listview',
         'model',
         'polymorphicselector',
@@ -261,16 +258,14 @@ class LanguageTestCase(CremeTestCase):
         self.assertGET200(url)
 
         name = 'Klingon'
-        # code = 'KLN'
-        response = self.assertPOST200(url, data={'name': name})  # 'code': code
+        response = self.assertPOST200(url, data={'name': name})
         self.assertNoFormError(response)
 
-        self.get_object_or_fail(Language, name=name)  # code=code
+        self.get_object_or_fail(Language, name=name)
 
     def test_edit(self):
         name = 'klingon'
-        # code = 'KLGN'
-        language = Language.objects.create(name=name)  # code=code
+        language = Language.objects.create(name=name)
 
         url = reverse(
             'creme_config__edit_instance',
@@ -298,7 +293,6 @@ class LanguageTestCase(CremeTestCase):
         self.assertDoesNotExist(language)
 
 
-# class CurrencyTestCase(ViewsTestCase):
 class CurrencyTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()

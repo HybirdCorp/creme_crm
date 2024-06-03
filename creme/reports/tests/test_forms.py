@@ -3,7 +3,6 @@ from json import dumps as json_dump
 from json import loads as json_load
 
 from django.contrib.contenttypes.models import ContentType
-# from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 from parameterized import parameterized
@@ -30,7 +29,6 @@ from creme.creme_core.tests.fake_constants import (
     FAKE_REL_SUB_BILL_ISSUED,
     FAKE_REL_SUB_EMPLOYED_BY,
 )
-# from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.reports import constants
 from creme.reports.bricks import ReportGraphChartInstanceBrick
 from creme.reports.core.graph import AbscissaInfo, OrdinateInfo
@@ -1990,7 +1988,6 @@ class OrdinateFieldTestCase(AxisFieldsMixin, CremeTestCase):
         )
 
 
-# class GraphFetcherFieldTestCase(FieldTestCase):
 class GraphFetcherFieldTestCase(CremeTestCase):
     def _build_graph(self):
         user = self.get_root_user()

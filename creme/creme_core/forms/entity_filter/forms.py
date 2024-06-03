@@ -130,7 +130,6 @@ class EntityFilterCreationForm(_EntityFilterForm):
         super().save(commit=False, *args, **kwargs)
         generate_string_id_and_save(
             EntityFilter, [instance],
-            # f'creme_core-userfilter_{ct.app_label}-{ct.model}',
             f'{self.pk_prefix}{ct.app_label}-{ct.model}',
         )
 
@@ -144,7 +143,6 @@ class EntityFilterCreationForm(_EntityFilterForm):
         return instance
 
 
-# class EntityFilterEditForm(_EntityFilterForm):
 class EntityFilterEditionForm(_EntityFilterForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -164,10 +164,6 @@ def portal(request):
                         build_dt(23, 59, 59),
                     ),
                 ).exclude(
-                    # status__in=(
-                    #     act_constants.STATUS_DONE,
-                    #     act_constants.STATUS_CANCELLED,
-                    # ),
                     status__uuid__in=(
                         act_constants.UUID_STATUS_DONE,
                         act_constants.UUID_STATUS_CANCELLED,
@@ -339,7 +335,6 @@ def start_activity(request, activity_id):
         activity.end = activity.start + activity.type.as_timedelta()
 
     activity.floating_type = act_constants.NARROW
-    # activity.status_id = act_constants.STATUS_IN_PROGRESS
     activity.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_IN_PROGRESS)
     activity.save()
 
@@ -361,7 +356,6 @@ def stop_activity(request, activity_id):
         raise ConflictError('This activity cannot be stopped before it is started.')
 
     activity.end = now_val
-    # activity.status_id = act_constants.STATUS_DONE
     activity.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
     activity.save()
 
@@ -379,7 +373,6 @@ def activities_portal(request):
         relations__type=act_constants.REL_OBJ_PART_2_ACTIVITY,
         relations__object_entity=user.linked_contact,
     ).exclude(
-        # status__in=(act_constants.STATUS_DONE, act_constants.STATUS_CANCELLED),
         status__uuid__in=(
             act_constants.UUID_STATUS_DONE,
             act_constants.UUID_STATUS_CANCELLED,
@@ -387,7 +380,6 @@ def activities_portal(request):
     ).order_by('start').select_related('type')  # select_related() => see tag mobile_activity_card
 
     phone_calls = cred_filter(activities.filter(
-        # type=act_constants.ACTIVITYTYPE_PHONECALL,
         type__uuid=act_constants.UUID_TYPE_PHONECALL,
         start__lte=now_val,
     ))[:10]
@@ -450,7 +442,6 @@ def phonecall_panel(request):
     number = get_from_GET_or_404(GET, 'number')
 
     context = {
-        # 'type_id':         act_constants.ACTIVITYTYPE_PHONECALL,
         'call_start':      call_start,
         'number':          number,
         'user_contact_id': user.linked_contact.id,
@@ -460,10 +451,7 @@ def phonecall_panel(request):
     pcall_id = GET.get('pcall_id')
     if pcall_id is not None:
         context['phone_call'] = pcall = get_object_or_404(
-            Activity,
-            id=pcall_id,
-            # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-            type__uuid=act_constants.UUID_TYPE_PHONECALL,
+            Activity, id=pcall_id, type__uuid=act_constants.UUID_TYPE_PHONECALL,
         )
         user.has_perm_to_view_or_die(pcall)
 
@@ -499,9 +487,7 @@ def _get_pcall(request):
 
     pcall = get_object_or_404(
         Activity.objects.select_for_update(),
-        id=pcall_id,
-        # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-        type__uuid=act_constants.UUID_TYPE_PHONECALL,
+        id=pcall_id, type__uuid=act_constants.UUID_TYPE_PHONECALL,
     )
 
     request.user.has_perm_to_change_or_die(pcall)  # TODO: test
@@ -513,15 +499,10 @@ def _get_pcall(request):
 @require_POST
 def phonecall_workflow_done(request, pcall_id):
     pcall = get_object_or_404(
-        Activity,
-        # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-        type__uuid=act_constants.UUID_TYPE_PHONECALL,
-        id=pcall_id,
+        Activity, type__uuid=act_constants.UUID_TYPE_PHONECALL, id=pcall_id,
     )
-
     request.user.has_perm_to_change_or_die(pcall)
 
-    # pcall.status_id = act_constants.STATUS_DONE
     pcall.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
     pcall.save()
 
@@ -605,7 +586,6 @@ def _phonecall_workflow_set_end(request, end_function):
     status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
 
     if pcall is not None:
-        # pcall.status_id = act_constants.STATUS_DONE
         pcall.status = status
         pcall.start = start
         pcall.end = end
@@ -627,11 +607,8 @@ def _phonecall_workflow_set_end(request, end_function):
                 person=person,
                 software=settings.SOFTWARE_LABEL,
             ),
-            # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-            # sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
             type_id=sub_type.type_id,
             sub_type=sub_type,
-            # status_id=act_constants.STATUS_DONE,
             status=status,
             start=start,
             end=end,
@@ -672,11 +649,8 @@ def _create_failed_pcall(request):
             person=person,
             software=settings.SOFTWARE_LABEL,
         ),
-        # type_id=act_constants.ACTIVITYTYPE_PHONECALL,
-        # sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,
         type_id=sub_type.type_id,
         sub_type=sub_type,
-        # status_id=act_constants.STATUS_DONE,
         status=get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE),
         start=start,
         end=start,
@@ -690,11 +664,9 @@ def _create_failed_pcall(request):
 def _set_pcall_as_failed(pcall, request):
     POST = request.POST
 
-    # pcall.sub_type_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED
     pcall.sub_type = get_object_or_404(
         ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_FAILED,
     )
-    # pcall.status_id = act_constants.STATUS_DONE
     pcall.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
     pcall.floating_type = act_constants.NARROW
     pcall.start = pcall.end = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))
@@ -738,7 +710,6 @@ def phonecall_workflow_postponed(request):
         postponed.title = _('Call to {person} from {software} Mobile').format(
             person=person, software=settings.SOFTWARE_LABEL,
         )
-        # postponed.sub_type_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING
         postponed.sub_type = get_object_or_404(
             ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_OUTGOING,
         )

@@ -14,7 +14,6 @@ from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellRegularField,
 )
-# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
@@ -282,19 +281,15 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertIsList(roles_info, length=2)
         self.assertIsInstance(roles_info[0], dict)
 
-        # roles_info_per_name = {role_info.get('name'): role_info for role_info in roles_info}
         roles_info_per_uuid = {role_info.get('uuid'): role_info for role_info in roles_info}
         role_info1 = roles_info_per_uuid.get('a97a66aa-a2c0-42bf-a6d0-a4d99b604cb3')
         self.assertEqual(_('Regular user'), role_info1.get('name'))
         self.assertIn('creme_core', role_info1.get('allowed_apps'))
         self.assertListEqual([], role_info1.get('admin_4_apps'))
 
-        # role_info = roles_info[0]
-        # role_info = roles_info_per_name.get(role.name)
         role_info2 = roles_info_per_uuid.get(str(role.uuid))
         self.assertIsNotNone(role_info2)
         self.assertIsInstance(role_info2, dict)
-        # self.assertEqual(role.name, role_info.get('name'))
         self.assertCountEqual(
             ['creme_core', 'persons'],
             role_info2.get('allowed_apps'),
@@ -436,7 +431,6 @@ class ExportingTestCase(TransferBaseTestCase):
         )
 
         cbci = CustomBrickConfigItem.objects.create(
-            # id='creme_core-fake_contact_info',
             name='FakeContact information',
             content_type=FakeContact,
             cells=[
@@ -457,7 +451,6 @@ class ExportingTestCase(TransferBaseTestCase):
             all_cbci_info01 = [
                 dumped_cbci
                 for dumped_cbci in custom_bricks_info
-                # if dumped_cbci['id'] == cbci.id
                 if dumped_cbci['uuid'] == b_uuid
             ]
 
@@ -745,12 +738,10 @@ class ExportingTestCase(TransferBaseTestCase):
             brick_id = data.get('id')
 
             try:
-                # role_name = data['role']
                 role_uuid = data['role']
             except KeyError:
                 norole_brick_ids.discard(brick_id)
             else:
-                # self.assertEqual(role.name, role_name)
                 self.assertEqual(str(role.uuid), role_uuid)
                 role_brick_ids.append(brick_id)
 
@@ -840,7 +831,6 @@ class ExportingTestCase(TransferBaseTestCase):
             ]
 
         ibci_info01 = self.get_alone_element(my_ibci_info01)
-        # self.assertEqual(ibi.id,         ibci_info01.get('id'))
         self.assertEqual(str(ibi.uuid),  ibci_info01.get('uuid'))
         self.assertEqual(str(naru.uuid), ibci_info01.get('entity'))
         self.assertDictEqual(ibi.json_extra_data, ibci_info01.get('extra_data'))
@@ -892,7 +882,6 @@ class ExportingTestCase(TransferBaseTestCase):
             ]
 
         ibci_info01 = self.get_alone_element(my_ibci_info01)
-        # self.assertEqual(ibi.id,         ibci_info01.get('id'))
         self.assertEqual(str(ibi.uuid),  ibci_info01.get('uuid'))
         self.assertEqual(str(naru.uuid), ibci_info01.get('entity'))
         self.assertDictEqual({}, ibci_info01.get('extra_data'))
@@ -1025,16 +1014,13 @@ class ExportingTestCase(TransferBaseTestCase):
         role_uuid = str(role.uuid)
         self.assertListEqual(
             [
-                # {'id': 'creme_core-creme',      'order': 1, 'role': role.name},
                 {'id': 'creme_core-creme',      'order': 1, 'role': role_uuid},
-                # {'id': 'creme_core-separator0', 'order': 2, 'role': role.name},
                 {'id': 'creme_core-separator0', 'order': 2, 'role': role_uuid},
                 {
-                    # 'id': 'creme_core-container', 'order': 3, 'role': role.name,
                     'id': 'creme_core-container', 'order': 3, 'role': role_uuid,
                     'data': {'label': 'Directory'},
                     'children': [
-                        {'id': 'creme_core-list_contact', 'order': 1},  # 'role': role.name
+                        {'id': 'creme_core-list_contact', 'order': 1},
                     ],
                 },
             ],
@@ -1167,23 +1153,15 @@ class ExportingTestCase(TransferBaseTestCase):
     def test_property_types(self):
         self.login_as_super(is_staff=True)
 
-        CremePropertyType.objects.create(
-            # pk='creme_config_export-test_export_entityfilters',
-            text='Sugoi!',
-        )
+        CremePropertyType.objects.create(text='Sugoi!')
 
         self.assertTrue(CremePropertyType.objects.filter(is_custom=False))
 
-        # pk_fmt = 'creme_config_export-test_export_property_types{}'.format
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype1 = create_ptype(str_pk=pk_fmt(1), text='Is important', is_custom=True)
+
         ptype1 = create_ptype(text='Is important', is_custom=True)
-        ptype2 = create_ptype(
-            # str_pk=pk_fmt(2),
-            text='Is funny', is_custom=True, is_copiable=False,
-        )
+        ptype2 = create_ptype(text='Is funny', is_custom=True, is_copiable=False)
         ptype3 = create_ptype(
-            # str_pk=pk_fmt(3),
             text='Is cool', is_custom=True,
             subject_ctypes=[FakeContact, FakeOrganisation],
         )
@@ -1192,25 +1170,19 @@ class ExportingTestCase(TransferBaseTestCase):
         content = response.json()
 
         with self.assertNoException():
-            # loaded_ptypes = {d['id']: d for d in content.get('property_types')}
             loaded_ptypes = {d['uuid']: d for d in content.get('property_types')}
 
         self.assertEqual(3, len(loaded_ptypes))
         self.assertDictEqual(
-            # {'id': ptype1.id, 'text': ptype1.text, 'is_copiable': True},
             {'uuid': str(ptype1.uuid), 'text': ptype1.text, 'is_copiable': True},
-            # loaded_ptypes.get(ptype1.id),
             loaded_ptypes.get(str(ptype1.uuid)),
         )
         self.assertDictEqual(
-            # {'id': ptype2.id, 'text': ptype2.text, 'is_copiable': False},
             {'uuid': str(ptype2.uuid), 'text': ptype2.text, 'is_copiable': False},
-            # loaded_ptypes.get(ptype2.id),
             loaded_ptypes.get(str(ptype2.uuid)),
         )
 
         with self.assertNoException():
-            # subject_ctypes = {*loaded_ptypes.get(ptype3.id)['subject_ctypes']}
             subject_ctypes = {*loaded_ptypes[str(ptype3.uuid)]['subject_ctypes']}
 
         self.assertSetEqual(
@@ -1223,12 +1195,6 @@ class ExportingTestCase(TransferBaseTestCase):
 
         self.assertTrue(RelationType.objects.filter(is_custom=False))
 
-        # create_ptype = CremePropertyType.objects.smart_update_or_create
-        # pt_id_fmt = 'creme_config_export-test_export_relation_types_{}'.format
-        # ptype1 = create_ptype(str_pk=pt_id_fmt(1), text='Sugoi!')
-        # ptype2 = create_ptype(str_pk=pt_id_fmt(2), text='Is important', is_custom=True)
-        # ptype3 = create_ptype(str_pk=pt_id_fmt(3), text='Nope')
-        # ptype4 = create_ptype(str_pk=pt_id_fmt(3), text='Never')
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Sugoi!')
         ptype2 = create_ptype(text='Is important', is_custom=True)
@@ -1292,10 +1258,6 @@ class ExportingTestCase(TransferBaseTestCase):
             },
             rtype1_data,
         )
-        # self.assertEqual([ptype1.id], subject_ptypes1a)
-        # self.assertEqual([ptype2.id], object_ptypes1a)
-        # self.assertEqual([ptype3.id], subject_forbidden_ptypes1a)
-        # self.assertEqual([ptype4.id], object_forbidden_ptypes1a)
         self.assertEqual([str(ptype1.uuid)], subject_ptypes1a)
         self.assertEqual([str(ptype2.uuid)], object_ptypes1a)
         self.assertEqual([str(ptype3.uuid)], subject_forbidden_ptypes1a)
@@ -1397,7 +1359,6 @@ class ExportingTestCase(TransferBaseTestCase):
                 }, {
                     'uuid': str(cfield3.uuid), 'ctype': ct_str1,
                     'name': cfield3.name, 'type': cfield3.field_type,
-                    # 'choices': [eval1.value, eval2.value],
                     'choices': [
                         {
                             'uuid': str(eval1.uuid),
@@ -1410,7 +1371,6 @@ class ExportingTestCase(TransferBaseTestCase):
                 }, {
                     'uuid': str(cfield4.uuid), 'ctype': ct_str1,
                     'name': cfield4.name, 'type': cfield4.field_type,
-                    # 'choices': [eval3.value, eval4.value],
                     'choices': [
                         {
                             'uuid': str(eval3.uuid),
@@ -1523,7 +1483,6 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertFalse(EntityFilter.objects.filter(is_custom=True))
 
         ct_contact = ContentType.objects.get_for_model(FakeContact)
-        # contact = user.linked_contact
         contact = FakeContact.objects.create(
             user=other_user, first_name='Naru', last_name='Narusegawa',
         )
@@ -1532,9 +1491,6 @@ class ExportingTestCase(TransferBaseTestCase):
         cfield1 = create_cfield(name='Rating', field_type=CustomField.INT)
         cfield2 = create_cfield(name='Party',  field_type=CustomField.DATETIME)
 
-        # ptype = CremePropertyType.objects.create(
-        #     pk='creme_config_export-test_export_entityfilters', text='Sugoi !',
-        # )
         ptype = CremePropertyType.objects.create(text='Sugoi!')
         rtype = RelationType.objects.filter(is_internal=False).first()
 
@@ -1625,7 +1581,6 @@ class ExportingTestCase(TransferBaseTestCase):
                 'id':    ef1.id,
                 'name':  ef1.name,
                 'ctype': ct_str_c,
-                # 'filter_type': EF_USER,
                 'filter_type': EF_REGULAR,
                 'use_or': False,
                 'conditions': [
@@ -1651,16 +1606,13 @@ class ExportingTestCase(TransferBaseTestCase):
                 'id':    ef2.id,
                 'name':  ef2.name,
                 'ctype': ct_str_o,
-                # 'filter_type': EF_USER,
                 'filter_type': EF_REGULAR,
                 'user':  other_user.username,
                 'use_or': True,
                 'conditions': [
                     {
                         'type':  PropertyConditionHandler.type_id,
-                        # 'name':  ptype.id,
                         'name': str(ptype.uuid),
-                        # 'value': True,
                         'value': {'has': True},
                     }, {
                         'type':  RelationConditionHandler.type_id,
@@ -1673,7 +1625,6 @@ class ExportingTestCase(TransferBaseTestCase):
                     }, {
                         'type':  RelationConditionHandler.type_id,
                         'name':  rtype.id,
-                        # 'value': {'has': True, 'entity_uuid': str(contact.uuid)},
                         'value': {'has': True, 'entity': str(contact.uuid)},
                     },
                 ],
@@ -1685,7 +1636,6 @@ class ExportingTestCase(TransferBaseTestCase):
                 'id':    ef3.id,
                 'name':  ef3.name,
                 'ctype': ct_str_o,
-                # 'filter_type': EF_USER,
                 'filter_type': EF_REGULAR,
                 'user':  other_user.username,
                 'is_private': True,

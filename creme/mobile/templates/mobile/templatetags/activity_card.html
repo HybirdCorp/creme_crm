@@ -1,7 +1,6 @@
 {% load i18n creme_perms mobile_tags %}{% load and_op from creme_core_tags %}
 {% with participant_relations=activity.get_participant_relations organisations=activity|mobile_organisation_subjects edit_perm=user|has_perm_to_change:activity %}
 {% with has_button=buttons_template|and_op:edit_perm start=activity.start %}
-{# <div class="card card-activity {{extra_classes}} activity-type-{{activity.type_id}}{% if is_floating %} activity-floating{% endif %}{% if activity.is_all_day %} activity-all-day{% endif %}{% if has_button %} activity-with-actions{% endif %}{% if not participant_relations and not organisations %} activity-without-participants{% endif %}" #}
 <div class="card card-activity {{extra_classes}} activity-type-{{activity|mobile_activity_type_str}}{% if is_floating %} activity-floating{% endif %}{% if activity.is_all_day %} activity-all-day{% endif %}{% if has_button %} activity-with-actions{% endif %}{% if not participant_relations and not organisations %} activity-without-participants{% endif %}"
      id="activity_{{activity.id}}" data-activity-id="{{activity.id}}"
      {% if shortcut and not is_floating %}data-shortcut="{{start|date:'H'}}"{% endif %}>

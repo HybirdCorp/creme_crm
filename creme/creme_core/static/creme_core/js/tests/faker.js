@@ -452,27 +452,6 @@ QUnit.test('PropertyFaker (add)', function(assert) {
     ok(!('c' in data));
 });
 
-/*
-QUnit.test('PropertyFaker (not configurable)', function(assert) {
-    var data = {};
-    Object.defineProperty(data, 'irremovable', {
-        value: 12,
-        configurable: false
-    });
-
-    var faker = new PropertyFaker({
-        instance: data,
-        props: {irremovable: 'fake!'}
-    });
-
-    equal(data.irremovable, 12);
-
-    this.assertRaises(function() {
-        faker.with(function() {});
-    }, Error, 'Error: The property "irremovable" is not configurable');
-});
-*/
-
 QUnit.parametrize('DateFaker (invalid date)', [
     ['invalid', 'The value "invalid" is not a valid date'],
     ['2020-10-32', 'The value "2020-10-32" is not a valid date'],

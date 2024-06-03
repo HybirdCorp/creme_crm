@@ -22,7 +22,6 @@ import logging
 import warnings
 from copy import deepcopy
 from itertools import zip_longest
-# from json import loads as json_load
 from re import compile as compile_re
 from typing import TYPE_CHECKING, Iterable, Iterator, Literal, Type
 
@@ -32,12 +31,10 @@ from django.db import models
 from django.db.models import Q, QuerySet
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-# from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext, pgettext_lazy
 
-# from ..core.entity_filter import EF_USER
 from ..core.entity_filter import (
     EF_REGULAR,
     TYPE_ID_MAX_LENGTH,
@@ -47,7 +44,6 @@ from ..core.entity_filter import (
 from ..global_info import get_global_info
 from ..utils import update_model_instance
 from ..utils.id_generator import generate_string_id_and_save
-# from ..utils.serializers import json_encode
 from . import CremeEntity, CremeUser
 from . import fields as core_fields
 
@@ -67,7 +63,6 @@ class EntityFilterList(list):
     Indeed, it's as a cache.
     """
     # TODO: "model" instead of "content_type"?
-    # def __init__(self, content_type: ContentType, user):
     def __init__(self,
                  content_type: ContentType,
                  user: CremeUser,
@@ -166,7 +161,6 @@ class EntityFilterManager(models.Manager):
                 f'user cannot be a team ({user})'
             )
 
-        # qs = self.filter(filter_type=EF_USER)
         qs = self.all() if types is None else self.filter(filter_type__in=types)
 
         return (
@@ -332,10 +326,6 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     ).set_tags(viewable=False)
     name = models.CharField(max_length=100, verbose_name=_('Name'))
 
-    # filter_type = models.PositiveSmallIntegerField(
-    #     editable=False, default=EF_USER,
-    #     choices=[(registry.id, registry.verbose_name) for registry in entity_filter_registries],
-    # ).set_tags(viewable=False)
     filter_type = models.CharField(
         max_length=TYPE_ID_MAX_LENGTH,
         editable=False, default=EF_REGULAR,
@@ -399,7 +389,6 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         pass
 
     def __str__(self):
-        # return self.name
         tag = self.registry.tag
 
         return f'{self.name} [{tag}]' if tag else self.name
@@ -440,9 +429,6 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     def can_edit(self, user: CremeUser) -> tuple[bool, str]:
         assert not user.is_team
 
-        # if self.filter_type != EF_USER:
-        #     return False, gettext('You cannot edit/delete a system filter')
-
         if not user.has_perm(self.entity_type.app_label):
             return False, gettext('You are not allowed to access to this app')
 
@@ -463,10 +449,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
 
         return False, gettext('You are not allowed to view/edit/delete this filter')
 
-    # def can_view(self, user, content_type: ContentType | None = None) -> tuple[bool, str]:
     def can_view(self, user: CremeUser, content_type=_NOT_PASSED) -> tuple[bool, str]:
-        # if content_type and content_type != self.entity_type:
-        #     return False, 'Invalid entity type'
         if content_type is not _NOT_PASSED:
             warnings.warn(
                 'In EntityFilter.can_view(), the argument "content_type" is deprecated.',
@@ -755,7 +738,6 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         return self.registry.detail_url(self)
 
     def get_edit_absolute_url(self):
-        # return reverse('creme_core__edit_efilter', args=(self.id,))
         return self.registry.edition_url(self)
 
     def get_delete_absolute_url(self) -> str:
@@ -873,7 +855,6 @@ class EntityFilterCondition(models.Model):
 
     # TODO: we could probably reduce the length (UUID=>32, what about "deep" field name?)
     name = models.CharField(max_length=100)
-    # raw_value = models.TextField()
     value = models.JSONField(default=dict)
 
     efilter_registries = entity_filter_registries
@@ -884,7 +865,6 @@ class EntityFilterCondition(models.Model):
     class Meta:
         app_label = 'creme_core'
 
-    # def __init__(self, *args, model=None, filter_type=EF_USER, **kwargs):
     def __init__(self, *args,
                  model: Type[CremeEntity] | None = None,
                  filter_type=EF_REGULAR,
@@ -952,7 +932,6 @@ class EntityFilterCondition(models.Model):
             filter=efilter,
             type=self.type,
             name=self.name,
-            # raw_value=self.raw_value,
             value=deepcopy(self.value),
         )
 
@@ -1019,15 +998,6 @@ class EntityFilterCondition(models.Model):
                 changed = True
 
         return changed
-
-    # @property
-    # def value(self):
-    #     raw_value = self.raw_value
-    #     return json_load(raw_value) if raw_value else None
-    #
-    # @value.setter
-    # def value(self, raw_value) -> None:
-    #     self.raw_value = json_encode(raw_value)
 
 
 # TODO: manage also deletion of:

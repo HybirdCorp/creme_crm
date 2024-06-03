@@ -5,12 +5,10 @@ from django.forms import Field
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.tests.forms.base import FieldTestCaseMixin
 from ..forms.fields import ImageEntityField, MultiImageEntityField
 from .base import Document, _DocumentsTestCase
 
 
-# class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 class ImageEntityFieldTestCase(_DocumentsTestCase):
     def setUp(self):
         super().setUp()
@@ -207,7 +205,6 @@ class ImageEntityFieldTestCase(_DocumentsTestCase):
         self.assertEqual(_('Create an image'), field.widget.creation_label)
 
 
-# class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 class MultiImageEntityFieldTestCase(_DocumentsTestCase):
     def setUp(self):
         super().setUp()

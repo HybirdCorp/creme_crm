@@ -548,15 +548,6 @@ msgstr ""
 #~ msgid "Resource"
 #~ msgstr "Ressource"
 
-#~ msgid "Back to the project: '%(project)s'"
-#~ msgstr "Retour au projet: '%(project)s'"
-
-#~ msgid "Back"
-#~ msgstr "Retour"
-
-#~ msgid "Hourly cost (in €)"
-#~ msgstr "Coût horaire (en €)"
-
 #~ msgid "Statuses of task"
 #~ msgstr "Statuts de tâche"
 
@@ -574,12 +565,6 @@ msgstr ""
 
 #~ msgid "Working periods"
 #~ msgstr "Périodes de travail"
-
-#~ msgid "Edition of a working period"
-#~ msgstr "Modification d'une période travaillée"
-
-#~ msgid "Calendars"
-#~ msgstr "Calendriers"
 
 #~ msgid "Estimated duration (in hours)"
 #~ msgstr "Durée prévue (en heures)"

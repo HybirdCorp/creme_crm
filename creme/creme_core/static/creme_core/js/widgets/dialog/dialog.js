@@ -23,13 +23,6 @@ creme.dialog = creme.dialog || {};
 
 var _DIALOG_SCROLLTYPES = ['frame', 'background'];
 
-/*
-var clamp = function(value, min, max) {
-    value = _.isNumber(max) ? (max > value ? value : max) : value;
-    return _.isNumber(min) ? (min < value ? value : min) : value;
-};
-*/
-
 creme.dialog.Dialog = creme.component.Component.sub({
     _init_: function(options) {
         this._events = new creme.component.EventHandler();

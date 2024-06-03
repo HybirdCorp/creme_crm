@@ -1,7 +1,6 @@
 {% load i18n creme_perms creme_widgets %}
 {% translate 'Linked contact' as img_title %}
 {% if button.is_allowed and user|has_perm_to_link:object and button.contact_link_perm %}
-{# <a class="menu_button menu-button-icon" title="{{button.description}}" href="{% url 'persons__create_related_contact' object.id %}?callback_url={{request.get_full_path}}"> #}
 <a class="menu_button menu-button-icon" title="{{button.description}}" data-action="redirect" href="{% url 'persons__create_related_contact' object.id %}?callback_url=${location}">
     {% widget_icon name='contact' size='instance-button' label=img_title %}
     {{button.verbose_name}}

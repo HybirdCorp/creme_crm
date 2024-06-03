@@ -143,7 +143,6 @@ class _BillingTestCaseMixin:
             data={
                 'user':   user.pk,
                 'name':   name,
-                # 'status': 1,
                 'status': InvoiceStatus.objects.first().id,
 
                 'issuing_date':    self.formfield_value_date(2010,  9,  7),
@@ -191,13 +190,10 @@ class _BillingTestCaseMixin:
         response = self.client.post(
             reverse('billing__create_quote'), follow=True,
             data={
-                # 'user':   self.user.pk,
                 'user':   user.pk,
                 'name':   name,
                 'status': status.id,
 
-                # 'issuing_date':    '2011-3-15',
-                # 'expiration_date': '2012-4-22',
                 'issuing_date':    self.formfield_value_date(2011, 3, 15),
                 'expiration_date': self.formfield_value_date(2012, 4, 22),
 
@@ -263,7 +259,6 @@ class _BillingTestCaseMixin:
             data={
                 'user':    user.pk,
                 'name':    name,
-                # 'status': status.id if status else 1,
                 'status': status.id if status else SalesOrderStatus.objects.first().id,
 
                 'issuing_date':    self.formfield_value_date(2012, 1, 5),
@@ -822,7 +817,6 @@ class _BillingTestCase(_BillingTestCaseMixin,
     def assertConvertButtons(self, response, expected):
         found = []
 
-        # for button_node in self.iter_instance_button_nodes(
         for button_node in self.iter_button_nodes(
             self.get_instance_buttons_node(self.get_html_tree(response.content)),
         ):
@@ -834,8 +828,6 @@ class _BillingTestCase(_BillingTestCaseMixin,
                     'disabled': ('is-disabled' in button_node.attrib.get('class').split()),
                 })
             else:
-                # self.assertEqual('span', button_node.tag)
-                # self.assertIn('forbidden', button_node.attrib.get('class').split())
                 found.append({
                     'label': self.get_alone_element(
                         filter(None, (txt.strip() for txt in button_node.itertext()))

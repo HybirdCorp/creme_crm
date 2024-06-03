@@ -110,8 +110,6 @@ class NotificationTestCase(CremeTestCase):
 
         # ---
         get_ct_cls = registry.get_content_class
-        # self.assertIsNone(get_ct_cls(output=TEST_OUTPUT_HTTP, content_id=DummyContent.id))
-        # self.assertIsNone(get_ct_cls(output=TEST_OUTPUT_SMTP, content_id=DummyContent.id))
 
         # First registered => default
         registry.register_content(

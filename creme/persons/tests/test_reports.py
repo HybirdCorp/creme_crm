@@ -67,7 +67,6 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoFormError(self.client.post(url, data={'fetcher': RGF_OWNED}))
 
         ibci = self.get_object_or_fail(InstanceBrickConfigItem, entity=graph.id)
-        # self.assertEqual('instanceblock_reports-graph', ibci.brick_class_id)
         self.assertEqual('instance-reports-graph', ibci.brick_class_id)
         self.assertEqual(RGF_OWNED, ibci.get_extra_data('type'))
         self.assertIsNone(ibci.get_extra_data('value'))

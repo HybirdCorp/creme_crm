@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Creme is a free/open-source Customer Relationship Management software
- * Copyright (C) 2022-2023 Hybird
+ * Copyright (C) 2022-2024 Hybird
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -143,37 +143,6 @@ function convertToSelect2Data(data) {
 
     return options;
 }
-
-/*
-function mergeSelect2Data(initial, items) {
-    var output = [];
-    var groups = {};
-
-    initial.forEach(function (item) {
-        if (item.children) {
-            groups[item.text] = item;
-        }
-
-        output.push(item);
-    });
-
-    items.forEach(function(item) {
-        if (item.children) {
-            var group = groups[item.text];
-
-            if (group) {
-                group.children = group.children.concat(item.children);
-            } else {
-                output.push(item);
-            }
-        } else {
-            output.push(item);
-        }
-    });
-
-    return output;
-}
-*/
 
 function renderSelect2Result(state) {
     if (state.pinned) {
@@ -560,23 +529,7 @@ S2.define('select2/dropdown/creator', [], function () {
             this._lastCreatorText = null;
         }.bind(this));
     };
-/*
-    CreatorButton.prototype.addItems = function(decorated, items, container) {
-        var dataAdapter = this._dataAdapter;
-        var initial = this.$element.children().map(function() {
-            return dataAdapter.item($(this));
-        }).get();
 
-        container.trigger('results:all', {
-            query: {
-                term: ''
-            },
-            data: {
-                results: mergeSelect2Data(initial, items)
-            }
-        });
-    };
-*/
     CreatorButton.prototype.allItems = function(decorated) {
         var dataAdapter = this._dataAdapter;
         return this.$element.children().map(function () {

@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from collections import OrderedDict
 from copy import copy
 from functools import partial
@@ -442,25 +441,6 @@ class HookableFormMixin:
         for callback in self._creme_post_save_callbacks:
             callback(self)
 
-    # def as_span(self) -> str:
-    #     """Returns this form rendered as HTML <span>s."""
-    #     warnings.warn(
-    #         'The method HookableFormMixin.as_span() is deprecated ; '
-    #         'use as_div()/as_ul()/... instead.',
-    #         DeprecationWarning
-    #     )
-    #
-    #     assert isinstance(self, forms.BaseForm), \
-    #            f'HookableFormMixin has not been used as Form mixin: {type(self)}.'
-    #
-    #     return self._html_output(
-    #         normal_row='<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
-    #         error_row='%s',
-    #         row_ender='</span>',
-    #         help_text_html=' <span class="helptext">%s</span>',
-    #         errors_on_separate_row=False,
-    #     )
-
 
 # class SpanRenderableFormMixin:
 #     template_name_span = 'creme_core/forms/span.html'
@@ -525,7 +505,6 @@ class CremeModelForm(HookableFormMixin, forms.ModelForm):
     def _build_required_fields(self):
         # NB: not <type(self.instance)> because it returns an instance of
         #     SimpleLazyObject for User, which causes an error.
-        # self.fields_configs.get_for_model(self.instance.__class__).update_form_fields(self.fields)
         self.fields_configs.get_for_model(self.instance.__class__).update_form_fields(self)
 
     def clean(self):

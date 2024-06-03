@@ -916,17 +916,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             allowed_apps=['products', 'documents'],
             creatable_models=[Product, get_document_model()],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='*')
 
         count = Product.objects.count()

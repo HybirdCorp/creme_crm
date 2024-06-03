@@ -4,12 +4,10 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.forms.batch_process import BatchActionsField
 
-# from .base import FieldTestCase
 from ..base import CremeTestCase
 from ..fake_models import FakeContact, FakeEmailCampaign
 
 
-# class BatchActionsFieldTestCase(FieldTestCase):
 class BatchActionsFieldTestCase(CremeTestCase):
     @staticmethod
     def build_data(name, operator, value):

@@ -1313,18 +1313,10 @@ class FieldGroupListTestCase(CremeTestCase):
         model = FakeContact
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        # ptype01 = create_ptype(str_pk='test-prop_smokes',  text='Smokes')
         ptype01 = create_ptype(text='Smokes')
-        # ptype02 = create_ptype(str_pk='test-prop_glasses', text='Wears glasses')
         ptype02 = create_ptype(text='Wears glasses')
-        ptype03 = create_ptype(
-            # str_pk='test-prop_gun',
-            text='Has a gun', subject_ctypes=[model],
-        )
-        ptype04 = create_ptype(
-            # str_pk='test-prop_ship',
-            text='Is a ship', subject_ctypes=[FakeOrganisation],
-        )
+        ptype03 = create_ptype(text='Has a gun', subject_ctypes=[model])
+        ptype04 = create_ptype(text='Is a ship', subject_ctypes=[FakeOrganisation])
 
         group_name1 = 'Main fields'
         group_name2 = 'Properties'
@@ -1480,19 +1472,16 @@ class FieldGroupListTestCase(CremeTestCase):
         sfrt1 = create_strt(
             predicate='Lives at April',
             relation_type=rtype2,
-            # object_entity=orga2,
             real_object=orga2,
         )
         sfrt2 = create_strt(
             predicate='Hamato Yoshi is a sensei',
             relation_type=rtype1,
-            # object_entity=contact2,
             real_object=contact2,
         )
         create_strt(
             predicate='Do not use me',
             relation_type=sym_rtype2,
-            # object_entity=contact2,
             real_object=contact2,
         )
 

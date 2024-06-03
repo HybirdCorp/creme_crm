@@ -105,7 +105,6 @@ class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
             self.IMPORT_URL,
             follow=True,
             data={
-                # 'user':     self.user,
                 'user':     user,
                 'vcf_step': 0,
                 'vcf_file': filedata,

@@ -1,17 +1,11 @@
 {% extends 'creme_core/bricks/base/table.html' %}
-{% load i18n creme_bricks %}{# creme_widgets #}
+{% load i18n creme_bricks %}
 
 {% block brick_extra_class %}{{block.super}} brick-scrollable creme_core-bulk-errors-brick{% endblock %}
 
 {% block brick_header_title %}
     {% brick_header_title title=_('{count} Error') plural=_('{count} Errors') count=errors|length %}
 {% endblock %}
-
-{% comment %}
-{% block brick_before %}
-    {% widget_help_sign message=summary %}
-{% endblock %}
-{% endcomment %}
 
 {% block brick_content_extra_class %}brick-scrollable-container{% endblock %}
 

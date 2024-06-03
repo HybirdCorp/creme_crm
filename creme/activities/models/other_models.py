@@ -22,17 +22,12 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-# from creme.creme_core.models import CremeModel
 from creme.creme_core.models import MinionModel
 from creme.creme_core.models import fields as core_fields
 
 
 # TODO: rename to ActivityKind ??
-# class ActivityType(CremeModel):
 class ActivityType(MinionModel):
-    # id = models.CharField(
-    #     primary_key=True, max_length=100, editable=False,
-    # ).set_tags(viewable=False)
     name = models.CharField(_('Name'), max_length=100)
 
     # TODO: improve the values in save() (ex: <62 minutes> => <1 hour, 2 minutes>)?
@@ -42,9 +37,6 @@ class ActivityType(MinionModel):
     default_hour_duration = core_fields.DurationField(
         _('Default hour duration'), max_length=15,  # TODO: default='0:15:0',
     ).set_tags(viewable=False)
-
-    # is_custom = models.BooleanField(default=True, editable=False).set_tags(viewable=False)
-    # extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-type', 'Create a type')
 
@@ -66,18 +58,11 @@ class ActivityType(MinionModel):
         )
 
 
-# class ActivitySubType(CremeModel):
 class ActivitySubType(MinionModel):
-    # id = models.CharField(
-    #     primary_key=True, max_length=100, editable=False,
-    # ).set_tags(viewable=False)
     name = models.CharField(_('Name'), max_length=100)
     type = models.ForeignKey(
         ActivityType, verbose_name=_('Type of activity'), on_delete=models.CASCADE,
     ).set_tags(viewable=False)
-
-    # is_custom = models.BooleanField(default=True, editable=False).set_tags(viewable=False)
-    # extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-type', 'Create a sub-type')
 

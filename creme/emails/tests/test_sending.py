@@ -20,12 +20,10 @@ from django.utils.timezone import (
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import UUID_CHANNEL_JOBS
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.gui.history import html_history_registry
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     FakeOrganisation,
@@ -34,7 +32,6 @@ from creme.creme_core.models import (
     Notification,
 )
 from creme.creme_core.models.history import TYPE_AUX_CREATION
-# from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.models import Civility
@@ -303,7 +300,6 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(host,      item.host)
         self.assertEqual(username,  item.username)
         self.assertEqual(password,  item.password)  # No change
-        # self.assertEqual(port,     item.port)
         self.assertIsNone(item.port)
         self.assertFalse(item.use_tls)
 
@@ -445,7 +441,6 @@ class SendingConfigTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertStillExists(item)
 
 
-# class SendingConfigFieldTestCase(FieldTestCase):
 class SendingConfigFieldTestCase(CremeTestCase):
     @classmethod
     def setUpTestData(cls):
@@ -1035,10 +1030,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         message = messages[0]
         self.assertEqual(template.subject, message.subject)
-        # self.assertEqual(template.body,    message.body)
         self.assertEqual(sender,           message.from_email)
-        # self.assertListEqual([('', 'text/html')], message.alternatives)
-        # self.assertFalse(message.attachments)
         self.assertBodiesEqual(message, body=template.body, body_html='')
         self.assertEqual(1, len(message.attachments))
 
@@ -1220,11 +1212,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         self._send_mails(self._get_job())
         message = self.get_alone_element(django_mail.outbox)
-        # self.assertEqual('Hello Spike Spiegel !', message.body)
-        # self.assertListEqual(
-        #     [('<b>Hello</b> Spike Spiegel !', 'text/html')],
-        #     message.alternatives,
-        # )
         self.assertBodiesEqual(
             message,
             body='Hello Spike Spiegel !',
@@ -1310,11 +1297,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_view_lw_email01(self):
         "Not super-user"
         user = self.login_as_emails_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         camp = EmailCampaign.objects.create(user=user, name='Camp#1')
@@ -1344,11 +1326,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_view_lw_email02(self):
         "Cannot view the campaign => error."
         user = self.login_as_emails_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         camp = EmailCampaign.objects.create(user=self.get_root_user(), name='Camp#1')
@@ -1405,11 +1382,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_reload_sending_bricks01(self):
         "Not super-user."
         user = self.login_as_emails_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         camp = EmailCampaign.objects.create(user=user, name='Camp#1')
@@ -1433,7 +1405,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         brick_data = content[0]
         self.assertEqual(2, len(brick_data))
         self.assertEqual(MailsBrick.id, brick_data[0])
-        # self.assertIn(f' id="{MailsBrick.id}"', brick_data[1])
         self.assertIn(f' id="brick-{MailsBrick.id}"', brick_data[1])
         self.assertIn(f' data-brick-id="{MailsBrick.id}"', brick_data[1])
 
@@ -1442,11 +1413,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     def test_reload_sending_bricks02(self):
         "Can not see the campaign."
         user = self.login_as_emails_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         camp = EmailCampaign.objects.create(user=self.get_root_user(), name='Camp#1')
@@ -1619,7 +1585,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         response = self.client.post(
             self._build_add_url(camp),
             data={
-                # 'sender': 'vicious@reddragons.mrs',
                 'config_0': item.id,
                 'config_1': 'vicious@reddragons.mrs',
 
@@ -1663,7 +1628,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertNoFormError(self.client.post(
             self._build_add_url(camp),
             data={
-                # 'sender': 'vicious@reddragons.mrs',
                 'config_0': item.id,
                 'config_1': 'vicious@reddragons.mrs',
 

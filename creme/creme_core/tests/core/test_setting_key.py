@@ -189,18 +189,14 @@ class SettingKeyTestCase(CremeTestCase):
             app_label='creme_core',
             type=SettingKey.BOOL,
         )
-        # self.assertIs(sk.cast('true'),  True)
-        # self.assertIs(sk.cast('false'), False)
         self.assertIs(sk.cast(True),  True)
         self.assertIs(sk.cast(False), False)
 
-        # self.assertRaises(ValueError, sk.cast, '1')
         self.assertIs(sk.cast('1'), True)  # Not really useful test...
 
         # ---
         self.assertEqual(
             f'<input type="checkbox" checked disabled/>{_("Yes")}',
-            # sk.value_as_html('true'),
             sk.value_as_html(True),
         )
 

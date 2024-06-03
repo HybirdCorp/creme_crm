@@ -18,7 +18,6 @@
 
 from __future__ import annotations
 
-# import warnings
 from copy import deepcopy
 
 from django.db.models.base import Model
@@ -231,22 +230,6 @@ class CreatorCustomEnumerableChoiceField(CreatorCustomEnumChoiceMixin,
     def to_python(self, value):
         value = super().to_python(value)
         return value.pk if value else None
-
-
-# class CustomEnumChoiceField(CreatorCustomEnumChoiceMixin,
-#                             fields.TypedChoiceField):
-#     widget = widgets.CreatorModelChoiceWidget
-#
-#     def __init__(self, *, custom_field=None, user=None, **kwargs):
-#         warnings.warn(
-#             'CustomEnumChoiceField is deprecated; '
-#             'use CreatorCustomEnumerableChoiceField instead.',
-#             DeprecationWarning,
-#         )
-#
-#         super().__init__(coerce=int, **kwargs)
-#         self.custom_field = custom_field
-#         self.user = user
 
 
 class CustomMultiEnumChoiceField(CreatorCustomEnumChoiceMixin,

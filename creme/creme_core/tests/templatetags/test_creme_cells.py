@@ -250,56 +250,6 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
         self.assertEqual(ripley.email, render.strip())
 
-    # def test_cell_render_output01(self):
-    #     "Direct render ; html output."
-    #     user = self.get_root_user()
-    #     ripley = FakeContact(
-    #         user=user, first_name='Helen', last_name='Ripley', email='hripley@nostromo.corp',
-    #     )
-    #     cell = EntityCellRegularField.build(model=FakeContact, name='email')
-    #
-    #     with self.assertNoException():
-    #         template = Template(
-    #             r'{% load creme_cells %}'
-    #             r'{% cell_render cell=cell instance=helen user=user output="html" %}'
-    #         )
-    #         render = template.render(Context({
-    #             'cell': cell, 'helen': ripley, 'user': user,
-    #         }))
-    #
-    #     self.assertEqual(
-    #         '<a href="mailto:hripley@nostromo.corp">hripley@nostromo.corp</a>',
-    #         render.strip()
-    #     )
-    #
-    # def test_cell_render_output02(self):
-    #     "Direct render ; CSV output."
-    #     user = self.get_root_user()
-    #     ripley = FakeContact(
-    #         user=user, first_name='Helen', last_name='Ripley',
-    #         email='hripley@nostromo.corp',
-    #     )
-    #     cell = EntityCellRegularField.build(model=FakeContact, name='email')
-    #
-    #     with self.assertNoException():
-    #         template = Template(
-    #             r'{% load creme_cells %}'
-    #             r'{% cell_render cell=cell instance=helen user=user output="csv" %}'
-    #         )
-    #         render = template.render(Context({
-    #             'cell': cell, 'helen': ripley, 'user': user,
-    #         }))
-    #
-    #     self.assertEqual(ripley.email, render.strip())
-    #
-    # def test_cell_render_output03(self):
-    #     "output & tag at the same time => error."
-    #     with self.assertRaises(TemplateSyntaxError):
-    #         Template(
-    #             r'{% load creme_cells %}'
-    #             r'{% cell_render cell=cell instance=helen user=user output="html" tag=tag %}'
-    #         )
-
     def test_cell_render_assignment(self):
         user = self.get_root_user()
         ripley = FakeContact(
@@ -366,24 +316,6 @@ class CremeCellsTagsTestCase(CremeTestCase):
             '"cell_render" tag has an invalid argument name: <object>.',
             str(cm3.exception),
         )
-
-    # def test_cell_render_dyn_errors(self):
-    #     user = self.get_root_user()
-    #     ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
-    #     cell = EntityCellRegularField.build(model=FakeContact, name='last_name')
-    #
-    #     with self.assertRaises(ValueError) as cm:
-    #         Template(
-    #             r'{% load creme_cells %}'
-    #             r'{% cell_render cell=cell instance=helen user=user output="ini" %}'
-    #         ).render(Context({
-    #             'cell': cell, 'helen': ripley, 'user': user,
-    #         }))
-    #
-    #     self.assertStartsWith(
-    #         str(cm.exception),
-    #         '{% cell_render %}: invalid output "ini" (must be in ',
-    #     )
 
     def test_cell_is_sortable(self):
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)

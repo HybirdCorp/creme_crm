@@ -130,7 +130,6 @@ class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_my_page(self):
         self.login_as_root()
-        # response = self.assertGET200('/my_page')
         response = self.assertGET200(reverse('creme_core__my_page'))
         self.assertTemplateUsed(response, 'creme_core/my_page.html')
 

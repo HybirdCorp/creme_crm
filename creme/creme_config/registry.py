@@ -348,7 +348,6 @@ class _AppConfigRegistry:
         self.verbose_name = verbose_name
         self._models: dict[type[Model], _ModelConfig] = {}
         self._config_registry = config_registry
-        # self._brick_ids: list[str] = []
         self._brick_classes: dict[str, type[Brick]] = {}
 
     @property
@@ -387,8 +386,6 @@ class _AppConfigRegistry:
     def models(self) -> Iterator[_ModelConfig]:
         return iter(self._models.values())
 
-    # def _register_bricks(self, brick_ids: Iterable[str]) -> None:
-    #     self._brick_ids.extend(brick_ids)
     def _register_bricks(self, brick_classes: Iterable[type[Brick]]) -> None:
         setdefault = self._brick_classes.setdefault
 
@@ -432,7 +429,6 @@ class _AppConfigRegistry:
     @property
     def bricks(self) -> Iterator[Brick]:
         """Generator yielding the extra-bricks to configure the app."""
-        # return self._config_registry._brick_registry.get_bricks(self._brick_ids)
         global_classes = self._config_registry._brick_registry._brick_classes
 
         for brick_cls in self._brick_classes.values():
@@ -457,7 +453,6 @@ class _AppConfigRegistry:
         """Is the configuration portal of the app empty."""
         return not bool(
             self._models
-            # or self._brick_ids
             or self._brick_classes
             # TODO: factorise with SettingsBrick ;
             #       pass the _ConfigRegistry to SettingsBrick everywhere
@@ -490,9 +485,7 @@ class _ConfigRegistry:
         self._brick_registry = brick_registry
         self._skey_registry = setting_key_registry
         self._apps: dict[str, _AppConfigRegistry] = {}
-        # self._user_brick_ids: list[str] = []
         self._user_brick_classes: dict[str, type[Brick]] = {}
-        # self._portal_brick_ids: list[str] = []
         self._portal_brick_classes: dict[str, type[Brick]] = {}
 
     def get_app_registry(self, app_label: str, create=False) -> _AppConfigRegistry:
@@ -567,18 +560,6 @@ class _ConfigRegistry:
     def _get_brick_id(self, brick_cls: type[Brick]) -> str:
         brick_id = brick_cls.id
 
-        # if not brick_id:
-        #     try:
-        #         brick_id = brick_cls.id_
-        #     except AttributeError:
-        #         pass
-        #     else:
-        #         logger.critical(
-        #             'The brick class %s uses the old "id_" attribute; '
-        #             'use an attribute "id" instead (brick is ignored).',
-        #             brick_cls,
-        #         )
-
         if not hasattr(brick_cls, 'detailview_display'):
             raise ValueError(
                 '_ConfigRegistry: brick with id="{}" has no '
@@ -599,12 +580,6 @@ class _ConfigRegistry:
         @param brick_classes: Classes inheriting <creme_core.gui.Brick> with a
                method detailview_display().
         """
-        # self.get_app_registry(
-        #     app_label=app_label,
-        #     create=True,
-        # )._register_bricks(
-        #     map(self._get_brick_id, brick_classes)
-        # )
         app_registry = self.get_app_registry(app_label=app_label, create=True)
 
         try:
@@ -619,7 +594,6 @@ class _ConfigRegistry:
         @param brick_classes: Classes inheriting <creme_core.gui.Brick> with a
                method detailview_display().
         """
-        # self._portal_brick_ids.extend(map(self._get_brick_id, brick_classes))
         setdefault = self._portal_brick_classes.setdefault
 
         for brick_cls in brick_classes:
@@ -645,7 +619,6 @@ class _ConfigRegistry:
                HINT: fill the attribute "permissions" of the classes if they
                      are closely related to their app.
         """
-        # self._user_brick_ids.extend(map(self._get_brick_id, brick_classes))
         setdefault = self._user_brick_classes.setdefault
 
         for brick_cls in brick_classes:
@@ -717,7 +690,6 @@ class _ConfigRegistry:
         """Get the instances of extra Bricks to display on
         "General configuration" page.
         """
-        # return self._brick_registry.get_bricks(self._portal_brick_ids)
         for brick_cls in self._portal_brick_classes.values():
             brick = brick_cls()
 
@@ -735,9 +707,6 @@ class _ConfigRegistry:
 
             yield brick
 
-    # @property
-    # def user_bricks(self) -> Iterator[Brick]:
-    #     return self._brick_registry.get_bricks(self._user_brick_ids)
     def get_user_bricks(self, user: CremeUser) -> Iterator[Brick]:
         """Get the instances of extra Bricks to display on
         "My settings" page.

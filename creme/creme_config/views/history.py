@@ -20,7 +20,6 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.models import HistoryConfigItem
-# from creme.creme_core.views.generic import BricksView
 from creme.creme_core.utils import get_from_POST_or_404
 
 from ..bricks import HistoryConfigBrick
@@ -34,7 +33,6 @@ class HistoryConfigCreation(base.ConfigCreation):
     title = _('New relation types')
 
 
-# class Portal(BricksView):
 class Portal(base.ConfigPortal):
     template_name = 'creme_config/portals/history.html'
     brick_classes = [HistoryConfigBrick]

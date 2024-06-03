@@ -35,7 +35,6 @@ from django.forms.fields import CallableChoiceIterator
 from django.utils.formats import get_format
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.core.entity_filter import EF_USER, _EntityFilterRegistry
 from creme.creme_core.core.entity_filter import (
     EF_REGULAR,
     condition_handler,
@@ -71,7 +70,6 @@ class _ConditionsField(JSONField):
     def __init__(self, *,
                  model=CremeEntity,
                  efilter_registry=None,
-                 # efilter_type=EF_USER,
                  condition_cls=EntityFilterCondition,
                  **kwargs):
         """Constructor.
@@ -81,11 +79,7 @@ class _ConditionsField(JSONField):
         """
         super().__init__(**kwargs)
         self.model = model
-        # self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-        #     id=-1, verbose_name='Default for _ConditionsField',
-        # )
         self.efilter_registry = efilter_registry or entity_filter_registries[EF_REGULAR]
-        # self.efilter_type = efilter_type
         self.condition_cls = condition_cls
 
     @property
@@ -522,7 +516,6 @@ class CustomFieldsConditionsField(_ConditionsField):
 
     # TODO: way to express is_date_customfield()?
     _NOT_ACCEPTED_TYPES = frozenset((CustomField.DATE, CustomField.DATETIME))
-    # _non_hiddable_cfield_ids = ()
     _non_hiddable_cfield_uuids = ()
 
     @_ConditionsField.model.setter
@@ -538,7 +531,6 @@ class CustomFieldsConditionsField(_ConditionsField):
         ).exclude(
             field_type__in=self._NOT_ACCEPTED_TYPES,
         ).filter(
-            # Q(is_deleted=False) | Q(id__in=self._non_hiddable_cfield_ids)
             Q(is_deleted=False) | Q(uuid__in=self._non_hiddable_cfield_uuids)
         )
 
@@ -554,7 +546,6 @@ class CustomFieldsConditionsField(_ConditionsField):
             operator = get_op(operator_id)
 
             field_type = customfield_rname_choicetype(search_info['rname'])
-            # field_entry = {'id': int(condition.name), 'type': field_type}
             field_entry = {'id': condition.handler.custom_field.id, 'type': field_type}
 
             value = ','.join(str(v) for v in search_info['values'])
@@ -673,7 +664,6 @@ class CustomFieldsConditionsField(_ConditionsField):
         filtered_conds = [c for c in conditions if c.type == type_id]
         if filtered_conds:
             self.initial = filtered_conds
-            # self._non_hiddable_cfield_ids = {int(c.name) for c in filtered_conds}
             self._non_hiddable_cfield_uuids = {c.name for c in filtered_conds}
 
 
@@ -697,7 +687,6 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         ).filter(
             field_type__in=(CustomField.DATE, CustomField.DATETIME),
         ).filter(
-            # Q(is_deleted=False) | Q(id__in=self._non_hiddable_cfield_ids)
             Q(is_deleted=False) | Q(uuid__in=self._non_hiddable_cfield_uuids)
         )
 
@@ -709,7 +698,6 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
             get = condition.value.get
 
             dicts.append({
-                # 'field': int(condition.name),
                 'field': condition.handler.custom_field.id,
                 'range': {
                     'type':  get('name', ''),
@@ -770,7 +758,6 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         filtered_conds = [c for c in conditions if c.type == type_id]
         if filtered_conds:
             self.initial = filtered_conds
-            # self._non_hiddable_cfield_ids = {int(c.name) for c in filtered_conds}
             self._non_hiddable_cfield_uuids = {c.name for c in filtered_conds}
 
 
@@ -800,7 +787,6 @@ class RelationsConditionsField(_ConditionsField):
 
     def _condition_to_dict(self, condition):
         value = condition.value
-        # ctype_id = value.get('ct_id', 0)
         ctype = condition.handler.content_type
         ctype_id = ctype.id if ctype else 0
 
@@ -1004,7 +990,6 @@ class PropertiesConditionsField(_ConditionsField):
         'invalidptype': _('This property type is invalid with this model.'),
     }
 
-    # _non_disabled_ptype_ids = ()
     _non_disabled_ptype_uuids = ()
 
     @_ConditionsField.model.setter
@@ -1016,7 +1001,6 @@ class PropertiesConditionsField(_ConditionsField):
 
     def _get_ptypes(self):
         return CremePropertyType.objects.compatible(self._model).filter(
-            # Q(enabled=True) | Q(id__in=self._non_disabled_ptype_ids)
             Q(enabled=True) | Q(uuid__in=self._non_disabled_ptype_uuids)
         )
 
@@ -1024,7 +1008,6 @@ class PropertiesConditionsField(_ConditionsField):
         return [
             {
                 'ptype': condition.name,
-                # 'has':   boolean_str(condition.value),
                 'has':   boolean_str(condition.value['has']),
             } for condition in value
         ]
@@ -1063,7 +1046,6 @@ class PropertiesConditionsField(_ConditionsField):
     def _set_initial_conditions(self, conditions):
         type_id = condition_handler.PropertyConditionHandler.type_id
         self.initial = f_conds = [c for c in conditions if c.type == type_id]
-        # self._non_disabled_ptype_ids = {c.name for c in f_conds}
         self._non_disabled_ptype_uuids = {c.name for c in f_conds}
 
 
@@ -1074,18 +1056,13 @@ class SubfiltersConditionsField(ModelMultipleChoiceField):
     def __init__(self, *,
                  model=CremeEntity,
                  efilter_registry=None,
-                 # efilter_type=EF_USER,
                  condition_cls=EntityFilterCondition,
                  user=None,
                  **kwargs):
         super().__init__(queryset=EntityFilter.objects.none(), **kwargs)
         self.user = user
         self.model = model
-        # self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-        #     id=-1, verbose_name='Default for SubfiltersConditionsField',
-        # )
         self.efilter_registry = efilter_registry or entity_filter_registries[EF_REGULAR]
-        # self.efilter_type = efilter_type
         self.condition_cls = condition_cls
 
     @property

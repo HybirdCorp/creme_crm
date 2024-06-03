@@ -4,16 +4,13 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core import models
 from creme.creme_core.core.entity_filter import operators
-# from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.core.entity_filter.condition_handler import (
     RegularFieldConditionHandler,
 )
 
-# from .base import ViewsTestCase
 from ..base import CremeTestCase
 
 
-# class EnumerableViewsTestCase(ViewsTestCase):
 class EnumerableViewsTestCase(CremeTestCase):
     @staticmethod
     def _build_choices_url(model, field_name):

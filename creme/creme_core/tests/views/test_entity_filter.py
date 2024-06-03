@@ -10,7 +10,6 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext, pgettext
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     EF_REGULAR,
@@ -48,12 +47,10 @@ from creme.creme_core.models import (
 from creme.creme_core.utils.translation import get_model_verbose_name
 from creme.creme_core.views import entity_filter as efilter_views
 
-# from .base import ViewsTestCase
 from ..base import CremeTestCase
 from .base import BrickTestCaseMixin, ButtonTestCaseMixin
 
 
-# class EntityFilterViewsTestCase(ViewsTestCase):
 class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTestCase):
     @classmethod
     def setUpClass(cls):
@@ -73,7 +70,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
 
     @staticmethod
     def _build_get_filter_url(ct, all_=None, types=None):
-        # return reverse('creme_core__efilters') + f'?ct_id={ct.id}'
         params = {'ct_id': ct.id}
 
         if all_ is not None:
@@ -427,9 +423,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_kawaii', text='Kawaii',
-        # )
         ptype = CremePropertyType.objects.create(text='Kawaii')
 
         create_cf = partial(CustomField.objects.create, content_type=ct)
@@ -523,7 +516,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
 
         condition = next(iter_conds)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        # self.assertEqual(str(custom_field.id),                condition.name)
         self.assertEqual(str(custom_field.uuid),              condition.name)
         self.assertDictEqual(
             {
@@ -536,7 +528,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
 
         condition = next(iter_conds)
         self.assertEqual(DateCustomFieldConditionHandler.type_id, condition.type)
-        # self.assertEqual(str(datecfield.id),                      condition.name)
         self.assertEqual(str(datecfield.uuid),                    condition.name)
         self.assertDictEqual(
             {'rname': 'customfielddatetime', 'name': datecfield_rtype},
@@ -558,9 +549,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
 
         condition = next(iter_conds)
         self.assertEqual(PropertyConditionHandler.type_id, condition.type)
-        # self.assertEqual(ptype.id,                         condition.name)
         self.assertEqual(str(ptype.uuid), condition.name)
-        # self.assertIs(condition.value, True)
         self.assertDictEqual({'has': True}, condition.value)
 
         condition = next(iter_conds)
@@ -1169,9 +1158,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by')
         )
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_kawaii', text='Kawaii',
-        # )
         ptype = CremePropertyType.objects.create(text='Kawaii')
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct_contact)
@@ -1327,7 +1313,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
 
         condition = next(iter_conds)
         self.assertEqual(CustomFieldConditionHandler.type_id, condition.type)
-        # self.assertEqual(str(custom_field.id),                condition.name)
         self.assertEqual(str(custom_field.uuid),              condition.name)
         self.assertDictEqual(
             {
@@ -1340,7 +1325,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
 
         condition = next(iter_conds)
         self.assertEqual(DateCustomFieldConditionHandler.type_id, condition.type)
-        # self.assertEqual(str(datecfield.id),                      condition.name)
         self.assertEqual(str(datecfield.uuid),                    condition.name)
         self.assertDictEqual(
             {'rname': 'customfielddatetime', 'name': datecfield_rtype},
@@ -1362,9 +1346,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
 
         condition = next(iter_conds)
         self.assertEqual(PropertyConditionHandler.type_id, condition.type)
-        # self.assertEqual(ptype.id,                         condition.name)
         self.assertEqual(str(ptype.uuid), condition.name)
-        # self.assertIs(condition.value, False)
         self.assertDictEqual({'has': False}, condition.value)
 
         condition = next(iter_conds)
@@ -1587,7 +1569,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             entity_type=FakeContact, is_custom=True,
             filter_type=EF_CREDENTIALS,
         )
-        # self.assertGET403(efilter.get_edit_absolute_url())
         self.assertEqual('', efilter.get_edit_absolute_url())
         self.assertGET409(reverse('creme_core__edit_efilter', args=(efilter.id,)))
 
@@ -1791,13 +1772,9 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         response2 = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
         self.assertNoFormError(response2)
 
-    # def _delete(self, efilter, **kwargs):
     def _delete(self, efilter):
         return self.client.post(
-            # reverse('creme_core__delete_efilter'),
-            # data={'id': efilter.id},
             reverse('creme_core__delete_efilter', args=(efilter.id,)),
-            # **kwargs
         )
 
     def test_delete(self):
@@ -1806,8 +1783,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Filter 01', FakeContact, is_custom=True,
         )
-        # response = self._delete(efilter, follow=True)
-        # self.assertEqual(200, response.status_code)
         url = efilter.get_delete_absolute_url()
         self.assertEqual(reverse('creme_core__delete_efilter', args=(efilter.id,)), url)
 
@@ -2008,18 +1983,10 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         pk_fmt = 'test-contact_filter{}'.format
         efilter1 = create_efilter(pk=pk_fmt(1), name='Filter 1')
         efilter2 = create_efilter(pk=pk_fmt(2), name='Filter 2', is_custom=False)
-        # .set_conditions([
-        #     RegularFieldConditionHandler.build_condition(
-        #         model=FakeContact, field_name='first_name',
-        #         operator=operators.EQUALS, values=['Misato'],
-        #     ),
-        # ])
         create_efilter(pk='test-orga_filter', name='Orga Filter', entity_type=FakeOrganisation)
         efilter3 = create_efilter(pk=pk_fmt(3), name='Filter 3', is_private=True, user=user)
         create_efilter(
-            pk=pk_fmt(4), name='Private',
-            # is_private=True, user=self.other_user,
-            is_private=True, user=self.create_user(),
+            pk=pk_fmt(4), name='Private', is_private=True, user=self.create_user(),
         )
         cred_filter = create_efilter(pk=pk_fmt(5), name='System', filter_type=EF_CREDENTIALS)
 
@@ -2098,9 +2065,7 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         self.assertEqual(expected, response_bool_cap.json())
 
 
-# class UserChoicesTestCase(ViewsTestCase):
 class UserChoicesTestCase(CremeTestCase):
-    # EF_TEST = 26
     EF_TEST = 'creme_core-test_user_choices'
 
     @classmethod
@@ -2184,15 +2149,10 @@ class UserChoicesTestCase(CremeTestCase):
         self.assertGreater(user_index,  first_index)
 
         # "filter_type" ---
-        choices2 = self.assertGET200(
-            # f'{url}?filter_type={EF_USER}'
-            f'{url}?filter_type={EF_REGULAR}'
-        ).json()
+        choices2 = self.assertGET200(f'{url}?filter_type={EF_REGULAR}').json()
         self.assertEqual(choices1, choices2)
 
-        choices3 = self.assertGET200(
-            f'{url}?filter_type={EF_CREDENTIALS}'
-        ).json()
+        choices3 = self.assertGET200(f'{url}?filter_type={EF_CREDENTIALS}').json()
         self.assertEqual(choices1, choices3)
 
         self.assertGET(400, url + '?filter_type=1024')

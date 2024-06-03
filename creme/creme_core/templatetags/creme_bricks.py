@@ -732,7 +732,6 @@ def brick_tile_for_cell(cell, instance, user):
         {% endblock %}
     """
     try:
-        # content = cell.render_html(instance, user)
         content = cell.render(instance, user, tag=ViewTag.HTML_DETAIL)
     except Exception:
         logger.exception('Error when rendering cell in {% brick_tile_for_cell %}')

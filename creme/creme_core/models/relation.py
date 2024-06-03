@@ -375,7 +375,6 @@ class RelationType(CremeModel):
         super(RelationType, sym_type).delete(using=using)
         super().delete(using=using, keep_parents=keep_parents)
 
-    # def is_compatible(self, value) -> bool:
     def is_compatible(self, value, /) -> bool:
         """Can an instance of a given model be the subject of a Relation with this type.
 
@@ -610,7 +609,6 @@ class Relation(CremeModel):
                 type=self.type.symmetric_type,
                 symmetric_relation=self,
                 subject_entity=self.object_entity,
-                # object_entity=self.subject_entity,
                 real_object=self.subject_entity,
             )
             super(cls, sym_relation).save(using=using, force_insert=force_insert)
@@ -686,14 +684,6 @@ def _handle_merge(sender, other_entity, **kwargs):
     del entities_per_rtype_ids  # free memory
 
     if duplicates_q:
-        # for relation in other_entity.relations.filter(duplicates_q) \
-        #                             .select_related('symmetric_relation'):
-        #     # NB: HistoryLine.disable() work only on the '-subject_' side of the Relation
-        #     if '-subject_' not in relation.type_id:
-        #         relation = relation.symmetric_relation
-        #
-        #     HistoryLine.disable(relation)
-        #     relation.delete()
         with toggle_history(enabled=False):
             for relation in other_entity.relations.filter(
                 duplicates_q

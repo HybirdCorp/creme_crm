@@ -92,10 +92,6 @@ class Messages(generic.CremeModelDetailPopup):
     def check_instance_permissions(self, instance, user):
         user.has_perm_to_view_or_die(instance.campaign)
 
-    # def get_brick_ids(self):
-    #     return (
-    #         MessagesBrick.id,
-    #     )
     # TODO: bricks classes in a class attribute
     def get_bricks(self):
         return [MessagesBrick()]
@@ -124,7 +120,6 @@ def delete_message(request):
 
 class MessagesBrickReloading(BricksReloading):
     permissions = 'sms'
-    # check_bricks_permission = False
     sending_id_url_kwarg = 'sending_id'
 
     def __init__(self, **kwargs):
@@ -133,15 +128,6 @@ class MessagesBrickReloading(BricksReloading):
 
     # TODO: use the (future) class attribute of Messages (see above)
     def get_bricks(self):
-        #   for brick_id in self.get_brick_ids():
-        #       try:
-        #           brick_cls = allowed_bricks[brick_id]
-        #       except KeyError as e:
-        #           raise Http404('Invalid brick ID') from e
-        #
-        #       bricks.append(brick_cls())
-        #
-        #   return bricks
         return [MessagesBrick()]
 
     def get_bricks_context(self):

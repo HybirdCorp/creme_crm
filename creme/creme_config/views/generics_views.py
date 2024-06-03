@@ -341,15 +341,11 @@ class AppPortal(AppRegistryMixin, generic.BricksView):
 
 
 class ModelBrickReloading(ModelConfMixin, bricks_views.BricksReloading):
-    # check_bricks_permission = False
-
     def get_bricks(self):
         return [self.get_model_conf().get_brick()]
 
 
 class AppBricksReloading(AppRegistryMixin, bricks_views.BricksReloading):
-    # check_bricks_permission = False
-
     def get_bricks(self):
         bricks = []
         app_registry = self.get_app_registry()

@@ -30,7 +30,6 @@ from ..forms import creme_property_type as ptype_forms
 from . import base
 
 
-# class Portal(generic.BricksView):
 class Portal(base.ConfigPortal):
     template_name = 'creme_config/portals/property-type.html'
     brick_classes = [PropertyTypesBrick]
@@ -38,7 +37,6 @@ class Portal(base.ConfigPortal):
 
 class PropertyTypeCreation(base.ConfigModelCreation):
     model = CremePropertyType
-    # form_class = ptype_forms.CremePropertyTypeCreationForm
     form_class = ptype_forms.CremePropertyForm
     title = _('New custom type of property')
 
@@ -46,7 +44,6 @@ class PropertyTypeCreation(base.ConfigModelCreation):
 class PropertyTypeEdition(base.ConfigModelEdition):
     # model = CremePropertyType
     queryset = CremePropertyType.objects.filter(is_custom=True, enabled=True)
-    # form_class = ptype_forms.CremePropertyTypeEditionForm
     form_class = ptype_forms.CremePropertyForm
     pk_url_kwarg = 'ptype_id'
     title = pgettext_lazy('creme_config-property', 'Edit the type «{object}»')

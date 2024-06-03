@@ -8,8 +8,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import Relation, RelationType, SettingValue, Vat
 from creme.opportunities import constants
 from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT
@@ -233,31 +231,15 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertPOST403(url)
 
         role = user.role
-        # get_ct = ContentType.objects.get_for_model
-        # quote_ct = get_ct(Quote)
-        # role.creatable_ctypes.add(quote_ct)
         role.creatable_ctypes.add(ContentType.objects.get_for_model(Quote))
         self.assertPOST403(url)
 
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=role, set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #     ),
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'DELETE'])
         self.assertPOST403(url)
 
-        # create_sc(value=EntityCredentials.LINK, ctype=get_ct(Opportunity))
         self.add_credentials(user.role, all=['LINK'], model=Opportunity)
         self.assertPOST403(url)
 
-        # create_sc(value=EntityCredentials.LINK, ctype=quote_ct)
         self.add_credentials(user.role, all=['LINK'], model=Quote)
         self.assertPOST200(url, follow=True)
 

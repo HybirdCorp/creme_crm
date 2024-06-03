@@ -78,10 +78,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_portal(self, superuser):
         if superuser:
             self.login_as_super()
-            # role = self.create_role()
         else:
-            # user = self.login_as_standard(admin_4_apps=['creme_config'])
-            # role = user.role
             self.login_as_standard(admin_4_apps=['creme_config'])
 
         role = UserRole.objects.first()
@@ -99,7 +96,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertBrickTitleEqual(
             brick_node,
-            # count=1,
             count=1 if superuser else 2,
             title='{count} Role', plural_title='{count} Roles',
         )
@@ -108,10 +104,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             url=self.ROLE_CREATION_URL,
             label=_('New role'),
         )
-        # self.assertListEqual(
-        #     [role.name],
-        #     [n.text for n in brick_node.findall('.//td[@class="role-name"]')],
-        # )
         self.assertIn(
             role.name,
             [n.text for n in brick_node.findall('.//td[@class="role-name"]')],
@@ -856,7 +848,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(name, efilter.name)
         self.assertTrue(efilter.is_custom)
         self.assertFalse(efilter.use_or)
-        # self.assertEqual(f'creme_core-credentials_{role.id}-1', efilter.id)
         self.assertStartsWith(efilter.id, f'creme_core-credentials_{role.id}-')
         self.assertEqual(EF_CREDENTIALS, efilter.filter_type)
 
@@ -882,9 +873,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             ('test-subject_recruited', 'Has recruited'),
             ('test-object_recruited',  'Has been recruited by'),
         )[0]
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_is_secret', text='Is secret',
-        # )
         ptype = CremePropertyType.objects.create(text='Is secret')
         custom_field = CustomField.objects.create(
             name='Number of agents', content_type=ctype,
@@ -982,9 +970,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             condition_handler.PropertyConditionHandler.type_id,
             condition3.type,
         )
-        # self.assertEqual(ptype.id, condition3.name)
         self.assertEqual(str(ptype.uuid), condition3.name)
-        # self.assertIs(condition3.value, True)
         self.assertDictEqual({'has': True}, condition3.value)
 
     def test_add_credentials_with_filter03(self):
@@ -1290,7 +1276,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsInstance(efilter, EntityFilter)
         self.assertEqual(name, efilter.name)
         self.assertTrue(efilter.use_or)
-        # self.assertEqual(f'creme_core-credentials_{role.id}-1', efilter.id)
         self.assertStartsWith(efilter.id, f'creme_core-credentials_{role.id}-')
         self.assertEqual(EF_CREDENTIALS, efilter.filter_type)
 
@@ -1313,9 +1298,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             ('test-subject_recruited', 'Has been recruited by'),
             ('test-object_recruited',  'Has recruited'),
         )[0]
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_is_nice', text='Is nice',
-        # )
         ptype = CremePropertyType.objects.create(text='Is nice')
         custom_field = CustomField.objects.create(
             name='Number of ties', content_type=FakeContact,
@@ -1433,7 +1415,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             condition_handler.CustomFieldConditionHandler.type_id,
             condition1.type
         )
-        # self.assertEqual(str(custom_field.id), condition1.name)
         self.assertEqual(str(custom_field.uuid), condition1.name)
         self.assertDictEqual(
             {
@@ -1457,18 +1438,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             condition_handler.PropertyConditionHandler.type_id,
             condition3.type,
         )
-        # self.assertEqual(ptype.id, condition3.name)
         self.assertEqual(str(ptype.uuid), condition3.name)
-        # self.assertIs(condition3.value, True)
         self.assertEqual({'has': True}, condition3.value)
 
     def test_edit_credentials_with_filter03(self):
         "Change existing ctype & filter + conditions on CustomField/Relation/CremeProperty."
         self.login_as_root()
 
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_is_secret', text='Is secret',
-        # )
         ptype = CremePropertyType.objects.create(text='Is secret')
 
         role = self.create_role(name='CEO', allowed_apps=['creme_core'])
@@ -1563,9 +1539,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             condition_handler.PropertyConditionHandler.type_id,
             condition.type,
         )
-        # self.assertEqual(ptype.id, condition.name)
         self.assertEqual(str(ptype.uuid), condition.name)
-        # self.assertIs(condition.value, True)
         self.assertEqual({'has': True}, condition.value)
 
     def test_edit_credentials_with_filter04(self):
@@ -1636,9 +1610,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_edit_credentials_with_filter05(self):
         "Content type is CremeEntity."
         self.login_as_root()
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_is_secret', text='Is secret',
-        # )
         ptype = CremePropertyType.objects.create(text='Is secret')
 
         role = self.create_role(name='CEO', allowed_apps=['creme_core'])
@@ -1733,9 +1704,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             condition_handler.PropertyConditionHandler.type_id,
             condition.type,
         )
-        # self.assertEqual(ptype.id, condition.name)
         self.assertEqual(str(ptype.uuid), condition.name)
-        # self.assertIs(condition.value, True)
         self.assertEqual({'has': True}, condition.value)
 
     def test_edit_credentials_with_filter06(self):
@@ -2033,7 +2002,6 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login_not_as_superuser()
 
         role = self.create_role(name='Test')
-        # url = self._build_del_role_url(self.role)
         url = self._build_del_role_url(role)
         self.assertGET403(url)
         self.assertPOST403(url)

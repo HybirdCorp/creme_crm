@@ -107,7 +107,6 @@
 
 .calendar-menu .floating-event {
     padding: 4px 5px;
-/*    cursor: move; */
     cursor: grab;
 }
 
@@ -132,10 +131,6 @@
     border: dashed 1px #666;
     padding: 2px 20px !important;
     cursor: grabbing;
-/*
-    cursor:    -moz-grabbing;
-    cursor: -webkit-grabbing;
-*/
 }
 
 .calendar-menu .menu-group-title {
@@ -170,15 +165,6 @@
 .calendar-menu .toggle-collapsed .menu-group-label:before {
     content: "➕";
 }
-
-/* TODO : remove */
-/*
-.calendar-menu .colored-square {
-    width: 13px;
-    height: 13px;
-    display: inline-block;
-}
-*/
 
 .calendar-menu .calendar-menu-item {
     padding-left: 5px;

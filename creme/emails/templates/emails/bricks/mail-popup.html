@@ -15,14 +15,6 @@
     {% cell_4_regularfield instance=object field='subject'        as subject_cell %}{% brick_tile_for_cell subject_cell object user %}
     {% cell_4_regularfield instance=object field='reception_date' as rdate_cell   %}{% brick_tile_for_cell rdate_cell   object user %}
 
-{% comment %}
-    <div class="brick-tile brick-tile-multiline-value {% if not object.attachments.count %}brick-tile-empty-value{% endif %}" data-field="attachments">
-        <span class="brick-tile-name">{% translate 'Attachments' %}</span>
-        <span class="brick-tile-value">
-            {% for attachment in object.attachments.all %}{% widget_join %}{% widget_entity_hyperlink attachment user %}{% end_widget_join %}{% empty %}—{% endfor %}
-        </span>
-    </div>
-{% endcomment %}
     {% cell_4_regularfield instance=object field='attachments' as attachments_cell %}{% brick_tile_for_cell attachments_cell object user %}
 
     {% if object.body_html %}

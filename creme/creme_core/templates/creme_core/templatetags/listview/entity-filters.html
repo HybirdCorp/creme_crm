@@ -26,12 +26,6 @@
         <a href="{{efilter.get_edit_absolute_url}}" data-action="redirect" class="{% if not can_edit %}is-disabled{% endif %}">
             {% widget_icon name='edit' label=_('Edit this filter') size='listview-filter-action' %}
         </a>
-{% comment %}
-        <a href="{% url 'creme_core__delete_efilter' %}" data-action="delete" class="{% if not can_delete %}is-disabled{% endif %}">
-            {% widget_icon name='delete' label=_('Delete this custom filter') size='listview-filter-action' %}
-            {% blockjsondata class='listview-action-data' %}{"data": {"id": "{{efilter_id}}"}}{% endblockjsondata %}
-        </a>
-{% endcomment %}
         <a href="{{efilter.get_delete_absolute_url}}" data-action="delete" class="{% if not can_delete %}is-disabled{% endif %}">
             {% widget_icon name='delete' label=_('Delete this custom filter') size='listview-filter-action' %}
         </a>

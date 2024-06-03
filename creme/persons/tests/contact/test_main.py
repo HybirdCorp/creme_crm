@@ -6,10 +6,8 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.gui.view_tag import ViewTag
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -854,18 +852,6 @@ class ContactTestCase(_BaseTestCase):
     def test_create_linked_contact_error01(self):
         "No LINK credentials."
         user = self.login_as_persons_user(creatable_models=[Contact])
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role, set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #     ),  # Not 'LINK'
-        # )
         self.add_credentials(user.role, own='!LINK')
 
         orga = Organisation.objects.create(user=user, name='Acme')
@@ -878,20 +864,17 @@ class ContactTestCase(_BaseTestCase):
         self.assertGET403(url2)
 
         # --
-        # create_sc(value=EntityCredentials.LINK, ctype=Organisation)
         self.add_credentials(user.role, own=['LINK'], model=Organisation)
         self.assertGET403(url1)
         self.assertGET403(url2)
 
         # --
-        # create_sc(value=EntityCredentials.LINK, ctype=Contact)
         self.add_credentials(user.role, own=['LINK'], model=Contact)
         self.assertGET200(url1)
         self.assertGET200(url2)
 
         # --
         data = {
-            # 'user': self.other_user.pk,
             'user': self.get_root_user().pk,
             'first_name': 'Bugs',
             'last_name': 'Bunny',
@@ -917,18 +900,6 @@ class ContactTestCase(_BaseTestCase):
     def test_create_linked_contact_error02(self):
         "Cannot VIEW the organisation."
         user = self.login_as_persons_user(creatable_models=[Contact])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     ctype=Contact,  # Not Organisation
-        # )
         self.add_credentials(user.role, all='*', model=Contact)  # Not Organisation
 
         orga = Organisation.objects.create(user=user, name='Acme')
@@ -948,29 +919,6 @@ class ContactTestCase(_BaseTestCase):
     def test_create_linked_contact_error03(self):
         "Cannot LINK the organisation."
         user = self.login_as_persons_user(creatable_models=[Contact])
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role, set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     ctype=Contact,  # Not Organisation
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #     ),  # Not LINK
-        #     ctype=Organisation,
-        # )
         self.add_credentials(user.role, all='*',     model=Contact)
         self.add_credentials(user.role, all='!LINK', model=Organisation)
 
@@ -1472,12 +1420,6 @@ class ContactTestCase(_BaseTestCase):
         "Cannot see the contact => fallback to user + no <a>."
         user = self.login_as_persons_user()
         other_user = self.get_root_user()
-
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     set_type=SetCredentials.ESET_OWN,
-        #     value=EntityCredentials.VIEW,
-        # )
         self.add_credentials(user.role, own=['VIEW'])
 
         viewable_contact = user.linked_contact
@@ -1573,9 +1515,4 @@ class ContactTestCase(_BaseTestCase):
         self.assertIs(user.is_superuser, True)
         self.assertIs(user.is_staff, True)
 
-        # contact = self.get_object_or_fail(Contact, is_user=user)
-        # self.assertEqual(first_name,  contact.first_name)
-        # self.assertEqual(last_name,   contact.last_name)
-        # self.assertEqual(email,       contact.email)
-        # self.assertEqual(super_user1, contact.user)
         self.assertFalse(Contact.objects.filter(is_user=user))

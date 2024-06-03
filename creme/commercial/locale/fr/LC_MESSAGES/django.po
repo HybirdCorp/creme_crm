@@ -848,20 +848,11 @@ msgstr ""
 #~ msgid "Strong charms"
 #~ msgstr "Attraits Forts"
 
-#~ msgid "Pool segment(s) [1]"
-#~ msgstr "Segment(s) réservoir(s) [1]"
-
-#~ msgid "Priority segment(s)"
-#~ msgstr "Segment(s) prioritaire(s)"
-
 #~ msgid "Weak charms"
 #~ msgstr "Attraits faibles"
 
 #~ msgid "Abandoned segment(s)"
 #~ msgstr "Segment(s) abandonné(s)"
-
-#~ msgid "Pool segment(s) [2]"
-#~ msgstr "Segment(s) réservoir(s) [2]"
 
 #~ msgid "Weak assets"
 #~ msgstr "Atouts faibles"
@@ -874,12 +865,6 @@ msgstr ""
 
 #~ msgid "TOTAL"
 #~ msgstr "TOTAL"
-
-#~ msgid "%s Segment charm"
-#~ msgstr "%s Attrait de segment"
-
-#~ msgid "%s Segment charms"
-#~ msgstr "%s Attraits de segment"
 
 #~ msgid "Charms / Segments"
 #~ msgstr "Attraits / Segments"
@@ -899,12 +884,6 @@ msgstr ""
 #~ msgid "Forbidden"
 #~ msgstr "Interdit"
 
-#~ msgid "%s Objective"
-#~ msgstr "%s Objectif"
-
-#~ msgid "%s Objectives"
-#~ msgstr "%s Objectifs"
-
 #~ msgid "%s Related opportunity"
 #~ msgstr "%s Opportunité liée"
 
@@ -923,20 +902,8 @@ msgstr ""
 #~ msgid "%s Market segments"
 #~ msgstr "%s Segments de marché"
 
-#~ msgid "Pool segment [1]"
-#~ msgstr "Segment réservoir [1]"
-
-#~ msgid "Pool segment [2]"
-#~ msgstr "Segment réservoir [2]"
-
 #~ msgid "Commercial objective patterns"
 #~ msgstr "Modèles d'objectif commercial"
-
-#~ msgid "Save the opportunity"
-#~ msgstr "Enregistrer l'opportunité"
-
-#~ msgid "Enable email reminder for commercial approaches"
-#~ msgstr "Activer le rappel pour les approches commerciales"
 
 #~ msgid "is related to the commercial action"
 #~ msgstr "est lié à l'action commerciale"

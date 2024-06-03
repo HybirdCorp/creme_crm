@@ -1,5 +1,4 @@
 import string
-# from datetime import timedelta
 from datetime import date, datetime
 from functools import partial
 from os.path import join
@@ -9,16 +8,12 @@ from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-# from django.utils.timezone import is_aware, is_naive
-# from django.utils.timezone import override as override_tz
 from django.utils.timezone import make_aware, zoneinfo
 from django.utils.translation import gettext, gettext_lazy
 from django.utils.translation import override as override_language
 from PIL.Image import open as open_img
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.global_info import clear_global_info
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import FakeCivility, FakeContact, FakeOrganisation
 from creme.creme_core.utils import (
     as_int,
@@ -35,7 +30,6 @@ from creme.creme_core.utils import (
     update_model_instance,
 )
 from creme.creme_core.utils.crypto import SymmetricEncrypter
-# from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.utils.dates import (
     date_2_dict,
     date_from_ISO8601,
@@ -672,45 +666,6 @@ class DatesTestCase(CremeTestCase):
             '0999-02-03',
             date_to_ISO8601(date(year=999, month=2, day=3)),
         )
-
-    # @override_tz('Europe/London')
-    # def test_make_aware_dt01(self):
-    #     dt = datetime(year=2016, month=12, day=13, hour=14, minute=35)
-    #     self.assertTrue(is_naive(dt))
-    #
-    #     dt2 = make_aware_dt(dt)
-    #     self.assertTrue(is_aware(dt2))
-    #     self.assertEqual(2016, dt2.year)
-    #     self.assertEqual(12,   dt2.month)
-    #     self.assertEqual(13,   dt2.day)
-    #     self.assertEqual(14,   dt2.hour)
-    #     self.assertEqual(35,   dt2.minute)
-    #     self.assertEqual(timedelta(hours=0), dt2.tzinfo.utcoffset(dt2))
-    #
-    # @override_tz('Europe/Paris')
-    # def test_make_aware_dt02(self):
-    #     dt = make_aware_dt(datetime(year=2016, month=12, day=13, hour=14, minute=35))
-    #     self.assertTrue(is_aware(dt))
-    #     self.assertEqual(2016, dt.year)
-    #     self.assertEqual(12,   dt.month)
-    #     self.assertEqual(13,   dt.day)
-    #     self.assertEqual(14,   dt.hour)
-    #     self.assertEqual(35,   dt.minute)
-    #     self.assertEqual(timedelta(hours=1), dt.tzinfo.utcoffset(dt))
-    #
-    # @override_tz('Europe/Paris')  # This Time zone uses daylight saving time (DST)
-    # def test_make_aware_dt03(self):
-    #     with self.assertNoException():
-    #         # NB: date of change for the UTC offset
-    #         dt = make_aware_dt(datetime(year=2016, month=10, day=30, hour=2, minute=30))
-    #
-    #     self.assertTrue(is_aware(dt))
-    #     self.assertEqual(2016, dt.year)
-    #     self.assertEqual(10,   dt.month)
-    #     self.assertEqual(30,   dt.day)
-    #     self.assertEqual(2,    dt.hour)
-    #     self.assertEqual(30,   dt.minute)
-    #     self.assertEqual(timedelta(hours=2), dt.tzinfo.utcoffset(dt))
 
 
 class UnicodeCollationTestCase(CremeTestCase):

@@ -1094,9 +1094,6 @@ about this fantastic animation studio."""
         gainax = self.create_old(FakeOrganisation, user=user, name='Gainax')
         old_count = HistoryLine.objects.count()
 
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_make_animes', text='Make anime series',
-        # )
         ptype = CremePropertyType.objects.create(text='Make anime series')
         CremeProperty.objects.create(type=ptype, creme_entity=gainax)
 
@@ -1116,9 +1113,6 @@ about this fantastic animation studio."""
         gainax = self.create_old(FakeOrganisation, user=user, name='Gainax')
         old_count = HistoryLine.objects.count()
 
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_make_animes', text='make animes',
-        # )
         ptype = CremePropertyType.objects.create(text='Make anime series')
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
 
@@ -1715,9 +1709,6 @@ about this fantastic animation studio."""
             user=user, first_name='Hayao', last_name='Miyazaki',
         )
 
-        # ptype = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='test-prop_make_animes', text='Make animes',
-        # )
         ptype = CremePropertyType.objects.create(text='Make anime series')
         old_count = HistoryLine.objects.count()
 

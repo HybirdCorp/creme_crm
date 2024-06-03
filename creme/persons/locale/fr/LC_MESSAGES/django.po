@@ -1114,15 +1114,6 @@ msgstr "Vous devez avoir au moins une société gérée."
 #~ msgid "Order"
 #~ msgstr "Ordre"
 
-#~ msgid "Create a suspect / prospect / customer"
-#~ msgstr "Créer un suspect / prospect / client"
-
-#~ msgid "Suspect / prospect / customer"
-#~ msgstr "Suspect / prospect / client"
-
-#~ msgid "List of my suspects / prospects / customers"
-#~ msgstr "Liste de mes suspects / prospects / clients"
-
 #~ msgid "Concerned organisation"
 #~ msgstr "Société concernée"
 
@@ -1174,14 +1165,8 @@ msgstr "Vous devez avoir au moins une société gérée."
 #~ msgid "Information"
 #~ msgstr "Informations"
 
-#~ msgid "Photo"
-#~ msgstr "Photo"
-
 #~ msgid "Name of the organisation"
 #~ msgstr "Nom de la société"
-
-#~ msgid "Intra VAT"
-#~ msgstr "TVA Intra"
 
 #~ msgid "Please enter the web site address"
 #~ msgstr "Veuillez entrez l'adresse du site web"

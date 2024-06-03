@@ -65,9 +65,6 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         name = 'Industry'
         pname = _('is in the segment «{}»').format(name)
-        # CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='commercial-marketsegmenttestcase01', text=pname,
-        # )
         CremePropertyType.objects.create(text=pname)
 
         response = self.assertPOST200(self.ADD_SEGMENT_URL, data={'name': name})
@@ -161,9 +158,6 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         name = 'Industry'
         pname = _('is in the segment «{}»').format(name)
-        # CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='commercial-marketsegmenttestcase01', text=pname,
-        # )
         CremePropertyType.objects.create(text=pname)
 
         response = self.assertPOST200(
@@ -223,10 +217,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         "No app permission."
         self.login_as_standard()  # allowed_apps=['commercial']
 
-        ptype = CremePropertyType.objects.create(
-            # pk='commercial-test_market_segment_test_edit_07',
-            text='Is an otaku',
-        )
+        ptype = CremePropertyType.objects.create(text='Is an otaku')
         segment = MarketSegment.objects.create(name='Otakus', property_type=ptype)
         self.assertGET403(segment.get_edit_absolute_url())
 

@@ -1152,17 +1152,9 @@ class SearchFieldsTestCase(CremeTestCase):
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ct_orga = ContentType.objects.get_for_model(FakeOrganisation)
-        # ptype1 = create_ptype(str_pk='test-cool', text='is cool')
         ptype1 = create_ptype(text='is cool')
-        ptype2 = create_ptype(
-            # str_pk='test-beautiful',
-            text='is beautiful',
-            subject_ctypes=[ct_orga, FakeContact],
-        )
-        ptype3 = create_ptype(
-            # str_pk='test-is_a_trust',
-            text='is a trust', subject_ctypes=[ct_orga],
-        )
+        ptype2 = create_ptype(text='is beautiful', subject_ctypes=[ct_orga, FakeContact])
+        ptype3 = create_ptype(text='is a trust', subject_ctypes=[ct_orga])
 
         funfield = PropertiesField()
         cell = EntityCellFunctionField(model=FakeContact, func_field=funfield)
@@ -1194,7 +1186,6 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value=''))
         self.assertEqual(Q(), to_python(value='invalid'))
 
-        # self.assertEqual(Q(properties__type=ptype1.id), to_python(value=ptype1.id))
         self.assertEqual(Q(properties__type=ptype1.id), to_python(value=str(ptype1.id)))
         self.assertEqual(Q(properties__isnull=True), to_python(value=lv_forms.NULL))
 

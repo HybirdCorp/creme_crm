@@ -9,8 +9,6 @@ from django.utils.encoding import force_str
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -156,7 +154,6 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(quote.total_vat,    invoice.total_vat)
         self.assertEqual(quote.total_no_vat, invoice.total_no_vat)
         self.assertEqual(currency,           invoice.currency)
-        # self.assertEqual(1,                  invoice.status_id)
         self.assertEqual(def_status,         invoice.status)
         self.assertEqual(quote.payment_info, invoice.payment_info)
         self.assertIsNone(invoice.additional_info)
@@ -217,17 +214,6 @@ class ConvertTestCase(_BillingTestCase):
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'], creatable_models=[Quote, SalesOrder],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='*')
 
         def_status = SalesOrderStatus.objects.create(name='OK', is_default=True)
@@ -252,17 +238,6 @@ class ConvertTestCase(_BillingTestCase):
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'], creatable_models=[Quote, SalesOrder],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='*')
 
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
@@ -283,17 +258,6 @@ class ConvertTestCase(_BillingTestCase):
             allowed_apps=['billing', 'persons'],
             creatable_models=[Quote],  # Not Invoice
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='*')
 
         quote = self.create_quote_n_orgas(user=user, name='My Quote')[0]
@@ -306,17 +270,6 @@ class ConvertTestCase(_BillingTestCase):
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'], creatable_models=[Quote, Invoice],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='*')
 
         source, target = self.create_orgas(user=user)

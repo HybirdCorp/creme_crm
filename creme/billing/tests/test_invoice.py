@@ -12,10 +12,8 @@ from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
 from creme.billing import bricks
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui import actions
 from creme.creme_core.gui.view_tag import ViewTag
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CremeEntity,
@@ -145,7 +143,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = Invoice.objects.create(
             user=user,
             name=name,
-            # status_id=1,
             status=self.get_object_or_fail(InvoiceStatus, is_default=True),
             source=source,
             target=target,
@@ -181,7 +178,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         build_invoice = partial(
             Invoice, user=user, name='Invoice001',
-            # status_id=1
             status=self.get_object_or_fail(InvoiceStatus, is_default=True),
         )
 
@@ -213,7 +209,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = Invoice.objects.create(
             user=user,
             name=name,
-            # status_id=1,
             status=self.get_object_or_fail(InvoiceStatus, is_default=True),
             source=source1,
             target=target1,
@@ -246,7 +241,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice = Invoice.objects.create(
             user=user,
             name=name,
-            # status_id=1,
             status=self.get_object_or_fail(InvoiceStatus, is_default=True),
             source=source1,
             target=target1,
@@ -442,26 +436,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         user = self.login_as_standard(
             allowed_apps=['persons', 'billing'], creatable_models=[Invoice],
         )
-        # create_sc = partial(SetCredentials.objects.create, role=user.role)
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #     ),  # Not LINK
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, all='!LINK', own='*')
 
         other_user = self.get_root_user()
@@ -601,17 +575,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='*')
 
         source, target = self.create_orgas(user=user)
@@ -625,17 +588,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             # creatable_models=[Invoice],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='*')
 
         source, target = self.create_orgas(user=user)
@@ -649,17 +601,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             allowed_apps=['persons', 'billing'],
             creatable_models=[Invoice],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         # | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='!CHANGE')
 
         source, target = self.create_orgas(user=user)
@@ -1070,7 +1011,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         # status_id = invoice.status_id
         status = invoice.status
         self.assertTrue(number)
-        # self.assertEqual(2,            status_id)
         self.assertEqual(validated_status, status)
         self.assertEqual(issuing_date, invoice.issuing_date)
 
@@ -1078,7 +1018,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertPOST409(url, follow=True)
         invoice = self.refresh(invoice)
         self.assertEqual(number, invoice.number)
-        # self.assertEqual(status_id, invoice.status_id)
         self.assertEqual(status, invoice.status)
 
     def test_generate_number02(self):
@@ -1685,17 +1624,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_brick03(self):
         "No VIEW permission."
         user = self.login_as_standard(allowed_apps=['persons', 'billing'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own='*')
 
         source, target = self.create_orgas(user=user)

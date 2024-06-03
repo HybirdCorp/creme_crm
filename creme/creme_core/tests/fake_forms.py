@@ -121,8 +121,6 @@ class BaseFakeActivityCustomForm(core_forms.CremeEntityForm):
 
 
 # ---
-
-
 def get_csv_form_builder(header_dict, choices):
     get_field = fake_models.FakeAddress._meta.get_field
     attrs = {

@@ -5,12 +5,6 @@ from django.urls import reverse
 from django.utils.timezone import now
 
 from creme.activities import get_activity_model
-# from creme.activities.constants import (
-#     ACTIVITYSUBTYPE_MEETING_NETWORK,
-#     ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-#     ACTIVITYTYPE_MEETING,
-#     ACTIVITYTYPE_PHONECALL,
-# )
 from creme.activities.constants import (
     FLOATING,
     REL_SUB_PART_2_ACTIVITY,
@@ -36,16 +30,12 @@ class MobileBaseTestCase(CremeTestCase):
             **kwargs
         )
 
-    # def _create_floating(self, user, title, participant, status_id=None):
     def _create_floating(self, user, title, participant, status=None):
         sub_type = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_MEETING_NETWORK)
         activity = Activity.objects.create(
             user=user, title=title,
-            # type_id=ACTIVITYTYPE_MEETING,
-            # sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
             type_id=sub_type.type_id,
             sub_type=sub_type,
-            # status_id=status_id,
             status=status,
             floating_type=FLOATING,
         )
@@ -58,7 +48,6 @@ class MobileBaseTestCase(CremeTestCase):
 
         return activity
 
-    # def _create_pcall(self, user, title, start=None, participant=None, status_id=None,
     def _create_pcall(self, user, title, start=None, participant=None, status=None,
                       **kwargs):
         if start is None:
@@ -68,11 +57,8 @@ class MobileBaseTestCase(CremeTestCase):
         sub_type = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_PHONECALL_OUTGOING)
         activity = Activity.objects.create(
             user=user, title=title,
-            # type_id=ACTIVITYTYPE_PHONECALL,
-            # sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
             type_id=sub_type.type_id,
             sub_type=sub_type,
-            # status_id=status_id,
             status=status,
             start=start,
             end=start + timedelta(hours=1),
@@ -101,11 +87,8 @@ class MobileBaseTestCase(CremeTestCase):
         sub_type = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_MEETING_NETWORK)
         activity = Activity.objects.create(
             user=user, title=title,
-            # type_id=ACTIVITYTYPE_MEETING,
-            # sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
             type_id=sub_type.type_id,
             sub_type=sub_type,
-            # status_id=status_id,
             status=status,
             start=start,
             end=end,

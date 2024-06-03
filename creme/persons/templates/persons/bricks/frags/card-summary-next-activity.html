@@ -13,23 +13,3 @@
     </span>
     {% endwith %}
 </div>
-
-{% comment %}
-{% load i18n creme_widgets %}
-{% if activities %}
-    <div class="card-info-field">
-        <span class='card-info-key'>{% translate 'Next action' %}</span>
-        {% with next_activity=activities.next %}
-        <span class='card-info-value next-action-value'>
-            {% if next_activity %}
-            {% widget_icon instance=next_activity size='brick-hat-card-summary' %}
-            <span class="next-action-type">{{next_activity.type}}</span>
-            <a href="{{next_activity.get_absolute_url}}"><span class="history-info-value">{{next_activity.start|date:'DATE_FORMAT'}}</span>{% if next_activity.floating_type == activities.NARROW %} {% translate 'at' %} <span class="history-info-value">{{next_activity.start|time:'H:i'}}</span>{% endif %}</a>
-            {% else %}
-            —
-            {% endif %}
-        </span>
-        {% endwith %}
-    </div>
-{% endif %}
-{% endcomment %}

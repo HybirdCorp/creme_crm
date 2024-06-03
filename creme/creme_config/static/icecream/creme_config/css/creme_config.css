@@ -111,15 +111,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-property-types-brick .property-label,
 .creme_config-property-types-brick .property-count {
-/*    width: 15%; */
     white-space: nowrap;
 }
-
-/*
-.creme_config-property-types-brick .property-subjects {
-    width: 100%;
-}
-*/
 
 .creme_config-property-types-brick .property-type-disabled,
 .creme_config-property-types-brick .property-type-disabled span.enumerator-empty,

@@ -5,7 +5,6 @@
 {% block brick_extra_class %}{{block.super}} opportunities-card-brick{% endblock %}
 
 {% block card_intro_content %}
-{# {% include 'persons/bricks/frags/card-last-activity.html' %} #}
     {% if intro_summary.template_name %}{% include intro_summary.template_name with summary=intro_summary %}{% endif %}
 {% endblock %}
 
@@ -82,27 +81,6 @@
 {% endblock %}
 
 {% block card_summary %}
-{% comment %}
-    {% include 'persons/bricks/frags/card-summary-acts.html' %}
-    {% with paginator=contacts.paginator %}
-        <div class="card-info-field">
-            <div class="card-info-field">
-                <span class='card-info-key'>
-                    {% if paginator.count == 0 %}
-                        {% translate 'Linked contacts' %}
-                    {% else %}
-                        {% blocktranslate count count=paginator.count %}{{count}} Linked contact{% plural %}{{count}} Linked contacts{% endblocktranslate %}
-                    {% endif %}
-                </span>
-                <span class='card-info-value'>
-                    {% for contact in contacts.object_list %}{% widget_join %}{% widget_entity_hyperlink contact user %}{% end_widget_join %}{% empty %}—{% endfor %}
-                    {% if paginator.num_pages > 1 %}…{% endif %}
-                </span>
-            </div>
-        </div>
-    {% endwith %}
-    {% include 'persons/bricks/frags/card-summary-next-activity.html' %}
-{% endcomment %}
   {% for summary_ctxt in summaries %}
     {% if summary_ctxt.template_name %}{% include summary_ctxt.template_name with summary=summary_ctxt %}{% endif %}
   {% endfor %}

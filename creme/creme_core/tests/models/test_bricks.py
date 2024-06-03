@@ -79,7 +79,6 @@ class BrickTestCase(CremeTestCase):
     def test_populate(self):
         self.assertLessEqual(
             {
-                # 'modelblock', CustomFieldsBrick.id, RelationsBrick.id,
                 'model', CustomFieldsBrick.id, RelationsBrick.id,
                 PropertiesBrick.id, HistoryBrick.id,
             },
@@ -200,7 +199,6 @@ class BrickTestCase(CremeTestCase):
 
         loc = self.get_alone_element(
             BrickDetailviewLocation.objects.filter(
-                # brick_id=MyBrick.id_,
                 brick_id=MyBrick.id,
                 content_type=ContentType.objects.get_for_model(FakeContact),
                 role=None, superuser=True,
@@ -238,7 +236,6 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(1, BrickDetailviewLocation.objects.count())
 
         loc = self.get_object_or_fail(BrickDetailviewLocation, pk=loc.id)
-        # self.assertEqual('modelblock', loc.brick_id)
         self.assertEqual('model', loc.brick_id)
         self.assertEqual(model,   loc.content_type.model_class())
         self.assertEqual(order,   loc.order)
@@ -250,7 +247,6 @@ class BrickTestCase(CremeTestCase):
             order=8, zone=BrickDetailviewLocation.BOTTOM, model=None,
         )
         self.assertEqual(1, BrickDetailviewLocation.objects.count())
-        # self.assertEqual('modelblock', loc.brick_id)
         self.assertEqual('model', loc.brick_id)
         self.assertIsNone(loc.content_type)
 
@@ -262,7 +258,6 @@ class BrickTestCase(CremeTestCase):
             order=8, zone=BrickDetailviewLocation.BOTTOM,
         )
         self.assertEqual(1, BrickDetailviewLocation.objects.count())
-        # self.assertEqual('modelblock', loc.brick_id)
         self.assertEqual('model', loc.brick_id)
         self.assertEqual(role,    loc.role)
 
@@ -304,7 +299,6 @@ class BrickTestCase(CremeTestCase):
         self.assertIsNone(loc3.content_type)
         self.assertIsNone(loc3.role)
         self.assertFalse(loc3.superuser)
-        # self.assertEqual('modelblock', loc3.brick_id)
         self.assertEqual('model', loc3.brick_id)
         self.assertEqual(order3,  loc3.order)
         self.assertEqual(zone3,   loc3.zone)
@@ -337,7 +331,6 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(ct, loc1.content_type)
         self.assertIsNone(loc2.role)
         self.assertTrue(loc2.superuser)
-        # self.assertEqual('modelblock', loc2.brick_id)
         self.assertEqual('model', loc2.brick_id)
         self.assertEqual(order2,  loc2.order)
         self.assertEqual(zone2,   loc2.zone)
@@ -561,18 +554,8 @@ class BrickTestCase(CremeTestCase):
         self.assertIsInstance(rbi.uuid, UUID)
         self.assertEqual(rtype.id, rbi.relation_type_id)
 
-        # brick_id = f'rtype_brick-{rbi.id}'
         brick_id = f'rtype-{rbi.uuid}'
         self.assertEqual(brick_id, rbi.brick_id)
-
-        # id_from_brick_id = RelationBrickItem.id_from_brick_id
-        # self.assertEqual(rbi.id, id_from_brick_id(brick_id))
-        # self.assertIsNone(id_from_brick_id('invalid'))
-        # self.assertIsNone(id_from_brick_id(f'invalid-{rbi.id}'))
-        # self.assertIsNone(id_from_brick_id('rtype_brick-notanint'))
-
-        # with self.assertRaises(ValueError):
-        #     _ = RelationBrickItem(relation_type=rtype).brick_id
 
         get_ct = ContentType.objects.get_for_model
         ct_contact = get_ct(FakeContact)
@@ -785,11 +768,9 @@ class BrickTestCase(CremeTestCase):
 
     def test_custom_brick(self):
         cbci = CustomBrickConfigItem.objects.create(
-            # id='tests-organisations01',
             name='General', content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
         )
-        # self.assertEqual(f'customblock-{cbci.id}', cbci.brick_id)
         self.assertEqual(f'custom-{cbci.uuid}', cbci.brick_id)
 
         cell = self.get_alone_element(self.refresh(cbci).cells)
@@ -798,7 +779,6 @@ class BrickTestCase(CremeTestCase):
 
     def test_custom_brick_errors01(self):
         cbci = CustomBrickConfigItem.objects.create(
-            # id='tests-organisations01',
             name='General', content_type=FakeOrganisation,
             cells=[
                 EntityCellRegularField.build(FakeOrganisation, 'name'),
@@ -910,19 +890,9 @@ class BrickTestCase(CremeTestCase):
             entity=brick_entity,
         )
 
-        # with self.assertRaises(ValueError):
-        #     ibi.brick_id  # NOQA
-
         ibi.save()
-        # brick_id = f'instanceblock-{ibi.id}'
         brick_id = f'instance-{ibi.uuid}'
         self.assertEqual(brick_id, ibi.brick_id)
-
-        # id_from_brick_id = InstanceBrickConfigItem.id_from_brick_id
-        # self.assertEqual(ibi.id, id_from_brick_id(brick_id))
-        # self.assertIsNone(id_from_brick_id('invalid'))
-        # self.assertIsNone(id_from_brick_id(f'invalid-{ibi.id}'))
-        # self.assertIsNone(id_from_brick_id('instanceblock-notanint'))
 
         brick = ibi.brick
         self.assertIsInstance(brick, Brick)
@@ -1120,12 +1090,6 @@ class BrickTestCase(CremeTestCase):
         self.assertStillExists(loc2)
 
     def test_instance_brick_manager(self):
-        # id_from_brick_id = InstanceBrickConfigItem.id_from_brick_id
-        # self.assertEqual(ibi.id, id_from_brick_id(brick_id))
-        # self.assertIsNone(id_from_brick_id('invalid'))
-        # self.assertIsNone(id_from_brick_id(f'invalid-{ibi.id}'))
-        # self.assertIsNone(id_from_brick_id('instanceblock-notanint'))
-
         user = self.get_root_user()
         naru = FakeContact.objects.create(
             user=user, first_name='Naru', last_name='Narusegawa',

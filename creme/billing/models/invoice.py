@@ -102,7 +102,6 @@ class AbstractInvoice(Base):
 
     def build(self, template):
         # Specific recurrent generation rules
-        # status_id = 1
         status_id = None
 
         if isinstance(template, get_template_base_model()):
@@ -110,7 +109,6 @@ class AbstractInvoice(Base):
             if InvoiceStatus.objects.filter(pk=tpl_status_id).exists():
                 status_id = tpl_status_id
 
-        # self.status_id = status_id
         if status_id:
             self.status_id = status_id
         else:

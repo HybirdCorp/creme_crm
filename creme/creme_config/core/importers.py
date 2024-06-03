@@ -34,7 +34,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core import entity_cell
-# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import EF_REGULAR
 from creme.creme_core.core.entity_filter.condition_handler import (
     CustomFieldConditionHandler,
@@ -491,7 +490,6 @@ class UserRolesImporter(Importer):
         for role_data in self._data:
             role, created = UserRole.objects.update_or_create(
                 uuid=role_data['uuid'],
-                # name=role_data['name'],
                 defaults={
                     'name': role_data['name'],
                     'allowed_apps': role_data['allowed_apps'],
@@ -521,16 +519,11 @@ class MenuConfigImporter(Importer):
                 'entry_data': info.get('data') or {},
             }
 
-            # role_name = info.get('role')
             role_uuid = info.get('role')
-            # if role_name:
             if role_uuid:
-                # if role_name in validated_data[UserRole]:
                 if role_uuid in validated_data[UserRole]:
-                    # data['role_name'] = role_name
                     data['role_uuid'] = role_uuid
                 else:
-                    # data['role'] = UserRole.objects.get(name=role_name)
                     data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
             elif info.get('superuser'):
                 data['superuser'] = True
@@ -556,11 +549,8 @@ class MenuConfigImporter(Importer):
         for data in self._data:
             children = data.pop('children')
 
-            # role_name = data.pop('role_name', None)
             role_uuid = data.pop('role_uuid', None)
-            # if role_name:
             if role_uuid:
-                # data['role'] = UserRole.objects.get(name=role_name)
                 data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
 
             parent = create_item(**data)
@@ -624,16 +614,11 @@ class SearchConfigImporter(Importer):
                 ),
             }
 
-            # role_name = sci_info.get('role')
             role_uuid = sci_info.get('role')
-            # if role_name:
             if role_uuid:
-                # if role_name in validated_data[UserRole]:
                 if role_uuid in validated_data[UserRole]:
-                    # data['role_name'] = role_name
                     data['role_uuid'] = role_uuid
                 else:
-                    # data['role'] = UserRole.objects.get(name=role_name)
                     data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
             elif sci_info.get('superuser'):
                 data['superuser'] = True
@@ -647,11 +632,8 @@ class SearchConfigImporter(Importer):
 
     def save(self):
         for data in self._data:
-            # role_name = data.pop('role_name', None)
             role_uuid = data.pop('role_uuid', None)
-            # if role_name:
             if role_uuid:
-                # data['role'] = UserRole.objects.get(name=role_name)
                 data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
 
             data['cells'] = [
@@ -664,10 +646,8 @@ class SearchConfigImporter(Importer):
 @IMPORTERS.register(data_id=constants.ID_PROPERTY_TYPES)
 class PropertyTypesImporter(Importer):
     def load_ptype(self, ptype_info: dict) -> dict:
-        # ptype_id = ptype_info['id']
         ptype_uuid = ptype_info['uuid']
 
-        # ptype = CremePropertyType.objects.filter(id=ptype_id, is_custom=False).first()
         ptype = CremePropertyType.objects.filter(uuid=ptype_uuid, is_custom=False).first()
         if ptype is not None:
             raise ValidationError(
@@ -675,7 +655,6 @@ class PropertyTypesImporter(Importer):
             )
 
         return {
-            # 'id': ptype_id,
             'uuid': ptype_uuid,
             'text': ptype_info['text'],
             'is_copiable': bool(ptype_info['is_copiable']),
@@ -686,15 +665,12 @@ class PropertyTypesImporter(Importer):
 
     def _validate_section(self, deserialized_section, validated_data):
         self._data = [*map(self.load_ptype, deserialized_section)]
-        # validated_data[CremePropertyType].update(d['id'] for d in self._data)
         validated_data[CremePropertyType].update(d['uuid'] for d in self._data)
 
     def save(self):
         for data in self._data:
-            # ptype_id       = data.pop('id')
             ptype_uuid       = data.pop('uuid')
             subject_ctypes = data.pop('subject_ctypes')
-            # ptype = CremePropertyType.objects.update_or_create(id=ptype_id, defaults=data)[0]
             ptype = CremePropertyType.objects.update_or_create(uuid=ptype_uuid, defaults=data)[0]
             ptype.subject_ctypes.set(subject_ctypes)
 
@@ -704,41 +680,8 @@ class RelationTypesImporter(Importer):
     dependencies = [constants.ID_PROPERTY_TYPES]
 
     def _validate_section(self, deserialized_section, validated_data):
-        # created_ptype_ids = {*validated_data[CremePropertyType]}
         created_ptype_uuids = {*validated_data[CremePropertyType]}
 
-        # def load_ptypes(ptype_ids):
-        #     if not isinstance(ptype_ids, list) or \
-        #        not all(isinstance(pt_id, str) for pt_id in ptype_ids):
-        #         raise ValueError(
-        #             f'RelationTypesImporter: '
-        #             f'*_ptypes values must be list of strings: {ptype_ids}'
-        #         )
-        #
-        #     ptypes = [
-        #         *CremePropertyType.objects.filter(pk__in=ptype_ids),
-        #     ] if ptype_ids else []
-        #
-        #     if len(ptypes) != len(ptype_ids):
-        #         non_existings_ids = {*ptype_ids} - {pt.id for pt in ptypes}
-        #         imported_ids = [
-        #             pt_id
-        #             for pt_id in non_existings_ids
-        #             if pt_id in created_ptype_ids
-        #         ]
-        #
-        #         non_existings_ids.difference_update(imported_ids)
-        #
-        #         if non_existings_ids:
-        #             raise ValidationError(
-        #                 _('This property type PKs are invalid: {}.').format(
-        #                     ', '.join(non_existings_ids)
-        #                 )
-        #             )
-        #
-        #         ptypes.extend(imported_ids)
-        #
-        #     return ptypes
         def load_ptypes(ptype_uuids):
             # TODO: try to cast in UUIDs ?
             if not isinstance(ptype_uuids, list) or \
@@ -839,18 +782,14 @@ class RelationTypesImporter(Importer):
                     data['id'],
                     data['predicate'],
                     data.get('subject_models'),
-                    # data.get('subject_ptypes'),
                     get_ptypes(data.get('subject_ptypes')),
-                    # data.get('subject_forbidden_ptypes'),
                     get_ptypes(data.get('subject_forbidden_ptypes')),
                 ),
                 (
                     sym_data['id'],
                     sym_data['predicate'],
                     data.get('object_models'),
-                    # data.get('object_ptypes'),
                     get_ptypes(data.get('object_ptypes')),
-                    # data.get('object_forbidden_ptypes'),
                     get_ptypes(data.get('object_forbidden_ptypes')),
                 ),
                 is_custom=True,
@@ -915,7 +854,6 @@ class CustomFieldsImporter(Importer):
         }
 
         if field_type in self.ENUM_TYPES:
-            # data['choices'] = cfield_info['choices']
             data['choices'] = [
                 {
                     'value': choice['value'],
@@ -938,7 +876,6 @@ class CustomFieldsImporter(Importer):
             cfield = CustomField.objects.create(**data)
 
             for choice in choices:
-                # CustomFieldEnumValue.objects.create(custom_field=cfield, value=choice)
                 CustomFieldEnumValue.objects.create(custom_field=cfield, **choice)
 
 
@@ -1206,7 +1143,6 @@ class ConditionProxyRelation(ConditionProxy):
         self.has = bool(value['has'])
         self.entity = None
 
-        # entity_uuid = value.get('entity_uuid')
         entity_uuid = value.get('entity')
         if entity_uuid:
             self.entity = entity = CremeEntity.objects.filter(uuid=entity_uuid).first()
@@ -1315,17 +1251,6 @@ class ConditionProxyProperty(ConditionProxy):
         self.has = bool(self.value)
         self.ptype = None
 
-        # ptype_id = self.name
-        # if ptype_id not in validated_data[CremePropertyType]:
-        #     self.ptype = ptype = CremePropertyType.objects.filter(id=ptype_id).first()
-        #
-        #     if ptype is None:
-        #         raise ValidationError(
-        #             _(
-        #                 'The condition on property-type="{ptype}" is invalid in '
-        #                 'the filter id="{id}".'
-        #             ).format(ptype=ptype_id, id=self.efilter_id)
-        #         )
         ptype_uuid = self.name
         if ptype_uuid not in validated_data[CremePropertyType]:
             self.ptype = ptype = CremePropertyType.objects.filter(uuid=ptype_uuid).first()
@@ -1341,7 +1266,6 @@ class ConditionProxyProperty(ConditionProxy):
     def build_condition(self):
         return PropertyConditionHandler.build_condition(
             model=self.model,
-            # ptype=self.ptype or CremePropertyType.objects.get(id=self.name),
             ptype=self.ptype or CremePropertyType.objects.get(uuid=self.name),
             has=self.has,
         )
@@ -1462,7 +1386,6 @@ class EntityFiltersImporter(Importer):
             data = {
                 'id':         efilter_id,
                 'model':      model,
-                # 'filter_type': efilter_info.get('filter_type', EF_USER),
                 'filter_type': efilter_info.get('filter_type', EF_REGULAR),
                 'name':       str(efilter_info['name']),
                 'user':       None,
@@ -1599,14 +1522,6 @@ class CustomFormsImporter(Importer):
 
         data['descriptor'] = desc
         data['superuser'] = bool(cform_item_info.get('superuser'))
-
-        # TODO:
-        #    role_name = cform_item_info.get('role', None)
-        #    if role_name in validated_data[UserRole]:
-        #        data['role_name'] = role_name
-        #    else:
-        #        data['role'] = UserRole.objects.get(name=role_name)
-        # data['role_name'] = cform_item_info.get('role', None)
         data['role_uuid'] = cform_item_info.get('role', None)
 
         def load_group(group_info):
@@ -1636,7 +1551,6 @@ class CustomFormsImporter(Importer):
 
     def save(self):
         instances = {
-            # (cfci.descriptor_id, getattr(cfci.role, 'name', None), cfci.superuser): cfci
             (cfci.descriptor_id, getattr(cfci.role, 'uuid', None), cfci.superuser): cfci
             for cfci in CustomFormConfigItem.objects.select_related('role')
         }
@@ -1660,16 +1574,12 @@ class CustomFormsImporter(Importer):
             descriptor = data['descriptor']
             superuser = data['superuser']
 
-            # role_name = data.pop('role_name', None)
             role_uuid = data.pop('role_uuid', None)
-            # if role_name:
             if role_uuid:
-                # role = UserRole.objects.get(name=role_name)
                 role = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
             else:
                 role = None
 
-            # instance = instances.get((descriptor.id, role_name, superuser))
             instance = instances.get((descriptor.id, role_uuid, superuser))
             if instance is None:
                 instance = CustomFormConfigItem(
@@ -1761,14 +1671,12 @@ class InstanceBrickConfigItemsImporter(Importer):
                 )
             else:
                 data.append({
-                    # 'id': info['id'],
                     'uuid': info['uuid'],
                     'brick_class_id': info['brick_class'],
                     'entity_id': entity.id,
                     'json_extra_data': info['extra_data'],
                 })
 
-        # validated_data[InstanceBrickConfigItem].update(d['id'] for d in self._data)
         validated_data[InstanceBrickConfigItem].update(d['uuid'] for d in self._data)
 
     def save(self):
@@ -1795,13 +1703,11 @@ class CustomBrickConfigItemsImporter(Importer):
             ctype = load_ct(info['content_type'])
 
             data.append({
-                # 'id': cbci_id,
                 'uuid': cbci_uuid,
                 'name': info['name'],
                 'content_type': ctype,
                 'cells': self.cells_proxies_registry.build_proxies_from_dicts(
                     model=ctype.model_class(),
-                    # container_label=_('custom block with id="{id}"').format(id=cbci_id),
                     container_label=_('custom block with uuid="{uuid}"').format(uuid=cbci_uuid),
                     cell_dicts=info['cells'],
                     validated_data=validated_data,
@@ -1855,16 +1761,11 @@ class DetailviewBricksLocationsImporter(Importer):
             if natural_ctype:
                 data['content_type'] = load_ct(natural_ctype)
 
-            # role_name = info.get('role')
             role_uuid = info.get('role')
-            # if role_name:
             if role_uuid:
-                # if role_name in validated_data[UserRole]:
                 if role_uuid in validated_data[UserRole]:
-                    # data['role_name'] = role_name
                     data['role_uuid'] = role_uuid
                 else:
-                    # data['role'] = UserRole.objects.get(name=role_name)
                     data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
             elif info.get('superuser'):
                 data['superuser'] = True
@@ -1877,11 +1778,8 @@ class DetailviewBricksLocationsImporter(Importer):
         BrickDetailviewLocation.objects.all().delete()  # TODO: recycle instances
 
         for data in self._data:
-            # role_name = data.pop('role_name', None)
             role_uuid = data.pop('role_uuid', None)
-            # if role_name:
             if role_uuid:
-                # data['role'] = UserRole.objects.get(name=role_name)
                 data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
 
             BrickDetailviewLocation.objects.create(**data)
@@ -1906,16 +1804,11 @@ class HomeBricksLocationsImporter(Importer):
                 'order':    int(info['order']),
             }
 
-            # role_name = info.get('role')
             role_uuid = info.get('role')
-            # if role_name:
             if role_uuid:
-                # if role_name in validated_data[UserRole]:
                 if role_uuid in validated_data[UserRole]:
-                    # data['role_name'] = role_name
                     data['role_uuid'] = role_uuid
                 else:
-                    # data['role'] = UserRole.objects.get(name=role_name)
                     data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
             elif info.get('superuser'):
                 data['superuser'] = True
@@ -1928,11 +1821,8 @@ class HomeBricksLocationsImporter(Importer):
         BrickHomeLocation.objects.all().delete()  # TODO: recycle instances
 
         for data in self._data:
-            # role_name = data.pop('role_name', None)
             role_uuid = data.pop('role_uuid', None)
-            # if role_name:
             if role_uuid:
-                # data['role'] = UserRole.objects.get(name=role_name)
                 data['role'] = UserRole.objects.get(uuid=role_uuid)  # TODO: cache
 
             BrickHomeLocation.objects.create(**data)

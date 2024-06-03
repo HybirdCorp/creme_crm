@@ -30,7 +30,6 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.core.entity_filter import EF_REGULAR
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import (
@@ -55,7 +54,6 @@ class AbstractReport(CremeEntity):
     filter = models.ForeignKey(
         EntityFilter, verbose_name=_('Filter'),
         blank=True, null=True, on_delete=models.PROTECT,
-        # limit_choices_to={'filter_type': EF_USER},
         limit_choices_to={'filter_type__in': [EF_REGULAR, EF_REPORTS]},
     ).set_null_label(_('No filter'))
 

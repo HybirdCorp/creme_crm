@@ -1,5 +1,5 @@
 {% extends 'creme_config/portals/base.html' %}
-{% load i18n creme_widgets %}{# creme_bricks #}
+{% load i18n creme_widgets %}
 
 {% block page_title %}{% translate 'Configuration of roles' %} - {% endblock %}
 
@@ -12,14 +12,3 @@
 If you have many users, it's a good practice to use roles.{% endblocktranslate %}
     {% widget_help_sign message=help_msg %}
 {% endblock %}
-
-{% comment %}
-{% block portal_bricks %}
-{% blocktranslate asvar help_msg %}The users which are not super-users must have a role. It limits what the concerned users can see, edit, delete…
-If you have many users, it's a good practice to use roles.{% endblocktranslate %}
-    {% widget_help_sign message=help_msg %}
-
-    {% brick_import app='creme_config' name='user_roles' as roles_brick %}
-    {% brick_display roles_brick %}
-{% endblock %}
-{% endcomment %}

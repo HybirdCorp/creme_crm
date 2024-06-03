@@ -34,7 +34,6 @@ from creme.creme_core.utils.db import (
 )
 from creme.creme_core.utils.meta import FieldInfo
 
-# from . import EF_USER, entity_filter_registries
 from . import EF_REGULAR, entity_filter_registries
 
 # IDs
@@ -101,8 +100,6 @@ class ConditionOperator:
     The main feature is the method <get_q()> with provides a <Q> instance to
     perform the wanted SQL query.
     """
-    # __slots__ = ('name', '_accept_subpart', '_exclude', '_key_pattern', '_allowed_fieldtypes')
-
     # Fields for which the subpart of a valid value is not valid
     _NO_SUBPART_VALIDATION_FIELDS = {
         models.EmailField,
@@ -200,7 +197,6 @@ class ConditionOperator:
         return query
 
     def validate_field_values(self, *, field, values, user=None,
-                              # efilter_registry=entity_filter_registries[EF_USER],
                               efilter_registry=entity_filter_registries[EF_REGULAR],
                               ):
         """Raises a ValidationError to notify of a problem with 'values'.
@@ -458,7 +454,6 @@ class IEndsWithNotOperator(IEndsWithOperator):
 
 class BooleanOperatorBase(ConditionOperator):
     def validate_field_values(self, *, field, values, user=None,
-                              # efilter_registry=entity_filter_registries[EF_USER],
                               efilter_registry=entity_filter_registries[EF_REGULAR],
                               ):
         if len(values) != 1 or not isinstance(values[0], bool):
@@ -533,7 +528,6 @@ class RangeOperator(ConditionOperator):
         )
 
     def validate_field_values(self, *, field, values, user=None,
-                              # efilter_registry=entity_filter_registries[EF_USER],
                               efilter_registry=entity_filter_registries[EF_REGULAR],
                               ):
         if len(values) != 2:
