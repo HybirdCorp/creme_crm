@@ -12,7 +12,6 @@ class PortalTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_config/portal.html')
 
         get = response.context.get
-        # self.assertEqual(reverse('creme_core__reload_bricks'), get('bricks_reload_url'))
         self.assertEqual(
             reverse('creme_config__reload_portal_bricks'),
             get('bricks_reload_url'),
@@ -23,7 +22,6 @@ class PortalTestCase(CremeTestCase):
         self.assertIsInstance(app_configs[0], _AppConfigRegistry)
         self.assertIn('creme_core', (r.name for r in app_configs))
 
-        # self.assertIsList(get('app_bricks'))
         bricks = get('bricks')
         self.assertIsList(bricks)
         self.assertIn(FakePortalBrick, [type(brick) for brick in bricks])

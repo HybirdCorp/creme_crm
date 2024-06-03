@@ -1,14 +1,10 @@
 from django.urls import reverse
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import FakeDocument, FakeFolder, FileRef
 
-# from .base import ViewsTestCase
 from ..base import CremeTestCase
 
 
-# class DownloadViewTestCase(ViewsTestCase):
 class DownloadViewTestCase(CremeTestCase):
     def test_download_filefield01(self):
         "Errors."
@@ -85,12 +81,6 @@ class DownloadViewTestCase(CremeTestCase):
     def test_download_filefield04(self):
         "Not super-user."
         user = self.login_as_standard()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     ctype=FakeDocument,
-        # )
         self.add_credentials(user.role, all=['VIEW'], model=FakeDocument)
 
         path = self.create_uploaded_file(

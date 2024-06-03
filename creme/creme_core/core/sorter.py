@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# from collections import OrderedDict
 from functools import partial
 from typing import Iterable
 
@@ -234,7 +233,6 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
             to_register: Iterable[
                 tuple[type[Field], type[AbstractCellSorter]]
             ] = DEFAULT_SORTERS):
-        # self._sorters_4_modelfields: dict[Field, AbstractCellSorter] = OrderedDict()
         self._sorters_4_modelfields: dict[Field, AbstractCellSorter] = {}
         self._sorters_4_modelfieldtypes: ClassKeyedMap = ClassKeyedMap(default=None)
 
@@ -429,7 +427,6 @@ class QuerySorter:
                         cells_dict: dict[str, EntityCell],
                         cell_key: str | None,
                         ) -> str | None:
-        # if cell_key is None:
         if not cell_key:
             return None
 

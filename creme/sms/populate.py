@@ -50,7 +50,6 @@ class Populator(BasePopulator):
         self.MessageTemplate = sms.get_messagetemplate_model()
 
     def _already_populated(self):
-        # return BrickDetailviewLocation.objects.filter_for_model(self.SMSCampaign).exists()
         return HeaderFilter.objects.filter(id=constants.DEFAULT_HFILTER_MLIST).exists()
 
     def _populate_header_filters(self):

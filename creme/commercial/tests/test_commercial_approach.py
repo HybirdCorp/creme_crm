@@ -10,7 +10,6 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
-# ACTIVITYSUBTYPE_MEETING_QUALIFICATION, ACTIVITYTYPE_MEETING,
 from creme.activities.constants import (
     REL_SUB_PART_2_ACTIVITY,
     UUID_SUBTYPE_MEETING_QUALIFICATION,
@@ -198,10 +197,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                 'title':  title,
                 'status': Status.objects.all()[0].pk,
 
-                # 'cform_extra-activities_start_0': '2011-5-18',
                 'cform_extra-activities_start_0': self.formfield_value_date(2011, 5, 18),
 
-                # 'cform_extra-activities_subtype': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 'cform_extra-activities_subtype': sub_type.id,
 
                 'cform_extra-activities_my_participation_0': True,
@@ -211,7 +208,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertNoFormError(response2)
-        # self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
         self.get_object_or_fail(Activity, sub_type_id=sub_type.id, title=title)
         self.assertFalse(CommercialApproach.objects.all())
 
@@ -246,7 +242,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
                 'cform_extra-activities_start_0': self.formfield_value_date(2011, 5, 18),
 
-                # 'cform_extra-activities_subtype': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 'cform_extra-activities_subtype': sub_type.id,
 
                 'cform_extra-activities_my_participation_0': True,
@@ -264,7 +259,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         self.assertNoFormError(response)
 
-        # meeting = self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
         meeting = self.get_object_or_fail(Activity, sub_type=sub_type, title=title)
 
         comapps = CommercialApproach.objects.filter(related_activity=meeting)
@@ -293,8 +287,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         meeting = Activity.objects.create(
             user=user, title=title, description=description,
-            # type_id=ACTIVITYTYPE_MEETING,
-            # sub_type_id=ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
             type_id=sub_type.type_id,
             sub_type=sub_type,
             start=create_dt(year=2011, month=5, day=18, hour=14, minute=0),

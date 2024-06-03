@@ -112,7 +112,6 @@ def ctype_can_be_merged(ctype: ContentType) -> bool:
     """
     from ..gui.merge import merge_form_registry
 
-    # return merge_form_registry.get(ctype.model_class()) is not None
     return ctype.model_class() in merge_form_registry
 
 
@@ -130,7 +129,6 @@ def ctype_can_be_mass_imported(ctype: ContentType) -> bool:
     """
     from ..gui.mass_import import import_form_registry
 
-    # return import_form_registry.is_registered(ctype)
     return ctype.model_class() in import_form_registry
 
 

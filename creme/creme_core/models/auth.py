@@ -25,7 +25,6 @@ from functools import reduce
 from operator import or_ as or_op
 from typing import TYPE_CHECKING
 
-# import pytz
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import (
@@ -936,29 +935,29 @@ class CremeUser(AbstractBaseUser):
             'If you do not fill this field, an automatic name will be used '
             '(«John Doe» will be displayed as «John D.»).'
         ),
-    )  # .set_tags(viewable=False)
+    )
 
     date_joined = models.DateTimeField(
         _('Date joined'), default=now,
-    )  # .set_tags(viewable=False)
+    )
 
     is_active = models.BooleanField(
         _('Active?'), default=True,
-    )  # .set_tags(viewable=False)
+    )
 
     is_staff = models.BooleanField(
         _('Is staff?'), default=False
     ).set_tags(viewable=False)
     is_superuser = models.BooleanField(
         _('Is a superuser?'), default=False,
-    )  # .set_tags(viewable=False)
+    )
     role = models.ForeignKey(
         UserRole, verbose_name=_('Role'), null=True, on_delete=models.PROTECT,
-    )  # .set_tags(viewable=False)
+    )
 
     is_team = models.BooleanField(
         verbose_name=_('Is a team?'), default=False,
-    )  # .set_tags(viewable=False)
+    )
     teammates_set = models.ManyToManyField(
         'self', verbose_name=_('Teammates'), symmetrical=False, related_name='teams_set',
     ).set_tags(viewable=False)
@@ -1257,14 +1256,6 @@ class CremeUser(AbstractBaseUser):
         @param entity: An instance of CremeEntity, or an auxiliary instance
                (i.e. with a method get_related_entity()).
         """
-        # if entity.is_deleted:
-        #     return False
-        #
-        # main_entity = (
-        #     entity.get_real_entity().get_related_entity()
-        #     if hasattr(entity.entity_type.model_class(), 'get_related_entity')
-        #     else entity
-        # )
         main_entity = self._get_main_entity(entity)
 
         return False if main_entity.is_deleted else self._get_credentials(main_entity).can_change()
@@ -1273,7 +1264,6 @@ class CremeUser(AbstractBaseUser):
         if not self.has_perm_to_change(entity):
             raise PermissionDenied(
                 gettext('You are not allowed to edit this entity: {}').format(
-                    # entity.allowed_str(self),
                     self._get_main_entity(entity).allowed_str(self),
                 )
             )
@@ -1299,12 +1289,6 @@ class CremeUser(AbstractBaseUser):
         @param entity: An instance of CremeEntity, or an auxiliary instance
                (i.e. with a method get_related_entity()).
         """
-        # if hasattr(entity.entity_type.model_class(), 'get_related_entity'):
-        #     return self._get_credentials(
-        #         entity.get_real_entity().get_related_entity(),
-        #     ).can_change()
-        #
-        # return self._get_credentials(entity).can_delete()
         if not isinstance(entity, CremeEntity):
             return self._get_credentials(self._get_related_entity(entity)).can_change()
 
@@ -1319,7 +1303,6 @@ class CremeUser(AbstractBaseUser):
         if not self.has_perm_to_delete(entity):
             raise PermissionDenied(
                 gettext('You are not allowed to delete this entity: {}').format(
-                    # entity.allowed_str(self),
                     self._get_main_entity(entity).allowed_str(self),
                 )
             )
@@ -1416,11 +1399,6 @@ class CremeUser(AbstractBaseUser):
             )
 
 
-# get_user_field = CremeUser._meta.get_field
-# for fname in ('password', 'last_login'):
-#     get_user_field(fname).set_tags(viewable=False)
-#
-# del get_user_field
 CremeUser._meta.get_field('password').set_tags(viewable=False)
 
 

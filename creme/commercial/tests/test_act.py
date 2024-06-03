@@ -5,18 +5,15 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-# ACTIVITYSUBTYPE_MEETING_OTHER, ACTIVITYTYPE_MEETING,
 from creme.activities.constants import (
     REL_SUB_ACTIVITY_SUBJECT,
     UUID_SUBTYPE_MEETING_OTHER,
 )
 from creme.activities.models import ActivitySubType
 from creme.activities.tests.base import skipIfCustomActivity
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.entity_filter import condition_handler, operators
 from creme.creme_core.forms.widgets import Label
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     EntityFilter,
     FakeOrganisation,
@@ -309,28 +306,6 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             allowed_apps=('commercial', 'opportunities'),
             creatable_models=[Opportunity],
         )
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role, set_type=SetCredentials.ESET_ALL,
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #     ),  # NB: Not EntityCredentials.LINK
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     ctype=Opportunity,
-        # )
         self.add_credentials(user.role, all='!LINK')
         self.add_credentials(user.role, all='*', model=Opportunity)
 
@@ -354,18 +329,6 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             allowed_apps=('commercial', 'opportunities'),
             creatable_models=[Opportunity],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        #     ctype=Act,
-        # )
         self.add_credentials(user.role, all='*', model=Act)
 
         act = self.create_act(user=user)

@@ -23,7 +23,6 @@
 
 from __future__ import annotations
 
-# import warnings
 from datetime import date, datetime, timedelta, timezone
 from time import strptime as time_strptime
 
@@ -61,7 +60,6 @@ def dt_to_ISO8601(dt: datetime) -> str:
     if is_aware(dt):
         dt = to_utc(dt)
 
-    # return dt.strftime(DATETIME_ISO8601_FMT)
     # return dt.strftime(f'%4Y-%m-%dT%H:%M:%S.%fZ')
     # The behaviour of strftime for '%4Y' is not consistent between OS
     # (see https://bugs.python.org/issue13305)
@@ -81,7 +79,6 @@ def date_to_ISO8601(d: date) -> str:
     """Converts a <datetime.date> instance to a string, using the ISO 8601 format
     (only the date part of the format).
     """
-    # return d.strftime(DATE_ISO8601_FMT)
     return d.strftime('%4Y-%m-%d')
 
 
@@ -92,7 +89,6 @@ def dt_from_str(dt_str: str) -> datetime | None:
     dt = parse_datetime(dt_str)
 
     if dt:
-        # return make_aware_dt(dt) if is_naive(dt) else dt
         return make_aware(dt) if is_naive(dt) else dt
 
     for fmt_name in ('DATETIME_INPUT_FORMATS', 'DATE_INPUT_FORMATS'):
@@ -118,23 +114,6 @@ def date_from_str(d_str: str) -> date | None:
             break
 
     return None
-
-
-# def make_aware_dt(dt: datetime, is_dst: bool | None = False) -> datetime:
-#     """Returns an aware datetime in the current time-zone.
-#     @param dt: A (naive) datetime instance.
-#     @param is_dst: If there is an ambiguity on DST transition
-#            False => force the post-DST side of the DST transition [default].
-#            True => force the pre-DST side.
-#            None => raise an exception.
-#     @return A (aware) datetime.
-#     """
-#     warnings.warn(
-#         'creme_core.utils.dates.make_aware_dt() is deprecated ; '
-#         'use django.utils.timezone.make_aware() instead.',
-#         DeprecationWarning
-#     )
-#     return make_aware(dt, is_dst=is_dst)
 
 
 def to_utc(dt: datetime) -> datetime:

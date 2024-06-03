@@ -1,8 +1,5 @@
-# from functools import partial
 from unittest import skipIf
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
 from creme.documents import get_document_model
 from creme.documents.tests.base import _DocumentsTestCase
@@ -29,28 +26,6 @@ class _ProductsTestCase(_DocumentsTestCase, MassImportBaseTestCaseMixin):
             allowed_apps=['products', 'documents'],
             creatable_models=[creatable_model, get_document_model()],
         )
-
-        # create_sc = partial(SetCredentials.objects.create, role=user.role)
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #         # | EntityCredentials.LINK
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='!LINK', own='*')
 
         return user

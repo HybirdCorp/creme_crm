@@ -48,7 +48,6 @@
 
 {% block brick_script %}
 <script type="text/javascript">
-{# $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick) { #}
 $('.brick[data-brick-id="{{brick_id}}"]').on('brick-ready', function(e, brick) {
     var element = $(this);
     var url = '{% url 'commercial__set_segment_category' strategy.id %}';

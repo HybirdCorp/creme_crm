@@ -160,7 +160,6 @@ class ActionsValidation(RegistryMixin, ActionsMixin, generic.CheckedView):
 
 
 class ActionsBricksReloading(PortalBricksMixin, BricksReloading):
-    # check_bricks_permission = False
     permissions = 'crudity'
 
     def get_bricks(self):

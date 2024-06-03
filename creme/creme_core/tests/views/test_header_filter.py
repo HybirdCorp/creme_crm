@@ -28,11 +28,9 @@ from creme.creme_core.models import (
     RelationType,
 )
 from creme.creme_core.tests.base import CremeTestCase
-# from creme.creme_core.tests.views.base import ViewsTestCase
 from creme.creme_core.tests.fake_constants import FAKE_REL_SUB_EMPLOYED_BY
 
 
-# class HeaderFilterViewsTestCase(ViewsTestCase):
 class HeaderFilterViewsTestCase(CremeTestCase):
     DELETE_URL = reverse('creme_core__delete_hfilter')
 

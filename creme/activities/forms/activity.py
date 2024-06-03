@@ -62,7 +62,6 @@ class ActivitySubTypeSubCell(CustomFormExtraSubCell):
     def formfield(self, instance, user, **kwargs):
         type_id = instance.type_id
 
-        # if type_id and (instance.pk is None or type_id == constants.ACTIVITYTYPE_INDISPO):
         if type_id and (
             instance.pk is None
             or str(instance.type.uuid) == constants.UUID_TYPE_UNAVAILABILITY
@@ -70,7 +69,6 @@ class ActivitySubTypeSubCell(CustomFormExtraSubCell):
             # TODO: improve help_text of end (we know the type default duration)
             limit_choices_to = Q(type_id=type_id)
         else:
-            # limit_choices_to = ~Q(type_id=constants.ACTIVITYTYPE_INDISPO)
             limit_choices_to = ~Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY)
 
         return ActivitySubTypeField(
@@ -97,7 +95,6 @@ class UnavailabilityTypeSubCell(CustomFormExtraSubCell):
             user=user,
             label=self.verbose_name,
             required=True,
-            # limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO),
             limit_choices_to=Q(type__uuid=constants.UUID_TYPE_UNAVAILABILITY),
         )
 
@@ -297,7 +294,6 @@ class _AssistantSubCell(CustomFormExtraSubCell):
         Alert.objects.create(
             user=activity.user,
             trigger_date=trigger_date,
-            # creme_entity=activity,
             real_entity=activity,
             title=gettext('Alert of activity'),
             description=gettext('Alert related to {activity}').format(activity=activity),
@@ -389,7 +385,6 @@ class UserMessagesSubCell(_AssistantSubCell):
 
     def post_save_instance(self, *, instance: AbstractActivity, value, form):
         if value:
-            # from creme.assistants.constants import PRIO_NOT_IMP_PK
             from creme.assistants.constants import UUID_PRIORITY_NOT_IMPORTANT
             from creme.assistants.models import (
                 UserMessage,
@@ -421,11 +416,9 @@ class UserMessagesSubCell(_AssistantSubCell):
             )
 
             # TODO: sender = the real user that created the activity ???
-            # UserMessage.create_messages(
             UserMessage.objects.create_for_users(
                 users=value, title=title,
                 body=body,
-                # priority_id=PRIO_NOT_IMP_PK,
                 priority=UserMessagePriority.objects.get(uuid=UUID_PRIORITY_NOT_IMPORTANT),
                 sender=instance.user, entity=instance,
             )
@@ -501,7 +494,6 @@ class BaseCustomForm(core_forms.CremeEntityForm):
 
             floating_type = (
                 constants.NARROW
-                # if start_time or end_time or is_all_day else
                 if start_time or is_all_day else
                 constants.FLOATING_TIME
             )

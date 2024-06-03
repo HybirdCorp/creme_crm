@@ -5,7 +5,6 @@
 {% block brick_extra_class %}{{block.super}} persons-organisation-card-brick{% endblock %}
 
 {% block card_intro_content %}
-{# {% include 'persons/bricks/frags/card-last-activity.html' %} #}
     {% if intro_summary.template_name %}{% include intro_summary.template_name with summary=intro_summary %}{% endif %}
 {% endblock %}
 
@@ -90,11 +89,6 @@
 {% endblock %}
 
 {% block card_summary %}
-{% comment %}
-    {% include 'persons/bricks/frags/card-summary-acts.html' %}
-    {% include 'persons/bricks/frags/card-summary-opportunities.html' %}
-    {% include 'persons/bricks/frags/card-summary-next-activity.html' %}
-{% endcomment %}
   {% for summary_ctxt in summaries %}
     {% if summary_ctxt.template_name %}{% include summary_ctxt.template_name with summary=summary_ctxt %}{% endif %}
   {% endfor %}

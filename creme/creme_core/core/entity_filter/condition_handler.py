@@ -57,7 +57,6 @@ from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.utils.dates import date_2_dict
 from creme.creme_core.utils.meta import FieldInfo, is_date_field
 
-# from . import EF_USER
 from . import (
     EF_REGULAR,
     _EntityFilterRegistry,
@@ -82,8 +81,7 @@ class FilterConditionHandler:
     All child-classes are registered in an instance of
     <creme_core.core.entity_filter._EntityFilterRegistry>.
     """
-    type_id: int  # = None
-    # efilter_registry = entity_filter_registries[EF_USER]
+    type_id: int
     efilter_registry = entity_filter_registries[EF_REGULAR]
 
     class DataError(Exception):
@@ -242,7 +240,6 @@ class SubFilterConditionHandler(FilterConditionHandler):
     @classmethod
     def build_condition(cls,
                         subfilter: EntityFilter,
-                        # filter_type: int = EF_USER,
                         filter_type: str = EF_REGULAR,
                         condition_cls=EntityFilterCondition,
                         ):
@@ -502,7 +499,6 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         if values is None:
             last_field = finfo[-1]
 
-            # if isinstance(last_field, (ForeignKey, ManyToManyField)):
             if (
                 isinstance(last_field, (ForeignKey, ManyToManyField))
                 # TODO: meh; need a better API in operators
@@ -555,10 +551,6 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
 
             self._verbose_values = values
 
-        # return self.get_operator(self._operator_id).description(
-        #     field_vname=finfo.verbose_name,
-        #     values=values,
-        # )
         return operator.description(
             field_vname=finfo.verbose_name,
             values=values,
@@ -740,7 +732,6 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
     @classmethod
     def build_condition(cls, model, field_name,
                         date_range=None, start=None, end=None,
-                        # filter_type=EF_USER,
                         filter_type=EF_REGULAR,
                         condition_cls=EntityFilterCondition,
                         ):
@@ -810,7 +801,6 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
         """
         if isinstance(custom_field, CustomField):
             super().__init__(model=custom_field.content_type.model_class())
-            # self._custom_field_id = custom_field.id
             self._custom_field_uuid = custom_field.uuid
             self._custom_field = custom_field
             self._related_name = custom_field.value_class.get_related_name()
@@ -827,7 +817,6 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
                 )
 
             super().__init__(model=model)
-            # self._custom_field_id = custom_field
             self._custom_field_uuid = custom_field
             self._custom_field = None
             self._related_name = related_name
@@ -840,9 +829,6 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
     def custom_field(self) -> CustomField | bool:
         cfield = self._custom_field
         if cfield is None:
-            # self._custom_field = cfield = CustomField.objects.get_for_model(
-            #     self.model
-            # ).get(self._custom_field_id, False)
             self._custom_field = cfield = next(
                 (
                     cfield
@@ -866,7 +852,6 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
     def query_for_related_conditions(cls, instance):
         return Q(
             type=cls.type_id,
-            # name=str(instance.id),
             name=str(instance.uuid),
         ) if isinstance(instance, CustomField) else Q()
 
@@ -936,7 +921,6 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
     @classmethod
     def build(cls, *, model, name, data):
         try:
-            # cf_id = int(name)
             cf_uuid = UUID(name)
             kwargs = {
                 'operator_id':  int(data['operator']),
@@ -948,13 +932,11 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
                 f'{cls.__name__}.build(): invalid data ({e})'
             )
 
-        # return cls(model=model, custom_field=cf_id, **kwargs)
         return cls(model=model, custom_field=cf_uuid, **kwargs)
 
     @classmethod
     def build_condition(cls, *, custom_field, operator, values,
                         user=None,
-                        # filter_type=EF_USER,
                         filter_type=EF_REGULAR,
                         condition_cls=EntityFilterCondition,
                         ):
@@ -1031,7 +1013,6 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             filter_type=filter_type,
             model=custom_field.content_type.model_class(),
             type=cls.type_id,
-            # name=str(custom_field.id),
             name=str(custom_field.uuid),
             value={
                 'operator': operator_id,
@@ -1092,7 +1073,6 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         if isinstance(operator, operators.IsEmptyOperator):
             query = Q(**{f'{related_name}__isnull': resolved_values[0]})
         else:
-            # query = Q(**{f'{related_name}__custom_field': self._custom_field_id})
             query = Q(**{f'{related_name}__custom_field': self.custom_field})
             key = operator.key_pattern.format(fname)
             value_q = Q()
@@ -1139,7 +1119,6 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
     def build(cls, *, model, name, data):
         kwargs = cls._load_daterange_kwargs(data)  # It tests if it's a dict too
         try:
-            # cf_id = int(name)
             cf_id = UUID(name)
             rname = data['rname']
         except (KeyError, ValueError) as e:
@@ -1152,7 +1131,6 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
     @classmethod
     def build_condition(cls, *, custom_field,
                         date_range=None, start=None, end=None,
-                        # filter_type=EF_USER,
                         filter_type=EF_REGULAR,
                         condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
@@ -1182,7 +1160,6 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
             filter_type=filter_type,
             model=custom_field.content_type.model_class(),
             type=cls.type_id,
-            # name=str(custom_field.id),
             name=str(custom_field.uuid),
             value=value,
         )
@@ -1207,7 +1184,6 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
         fname = f'{related_name}__value'
 
         q_dict = self._get_date_range().get_q_dict(field=fname, now=now())
-        # q_dict[f'{related_name}__custom_field'] = self._custom_field_id
         q_dict[f'{related_name}__custom_field'] = self.custom_field
 
         return Q(
@@ -1282,16 +1258,12 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         super().__init__(model=model, rtype=rtype, exclude=exclude)
 
         if isinstance(entity, CremeEntity):
-            # self._entity_id = entity.id
             self._entity_uuid = entity.uuid
             self._entity = entity
-            # self._ct_id = None
             self._ct_key = None
         else:
-            # self._entity_id = entity
             self._entity_uuid = entity
             self._entity = None
-            # self._ct_id = ctype.id if isinstance(ctype, ContentType) else ctype
             self._ct_key = ctype.natural_key() if isinstance(ctype, ContentType) else ctype
 
     def accept(self, *, entity, user):
@@ -1300,15 +1272,11 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         # TODO: add a system to populate relations when checking several entities
         relations = entity.get_relations(relation_type_id=self._rtype_id)
 
-        # if self._entity_id:
         if self._entity_uuid:
-            # entity_id = self.entity_id
             entity = self.entity
             entity_id = entity.id if entity else None
             found = any(r.object_entity_id == entity_id for r in relations)
-        # elif self._ct_id:
         elif self._ct_key:
-            # ct_id = self._ct_id
             ct = self.content_type
             ct_id = ct.id if ct else None
             # TODO: get_relations() with real_obj_entities==False does not select_related()
@@ -1323,18 +1291,6 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
     @classmethod
     def build(cls, *, model, name, data):
-        # try:
-        #     has = data['has']
-        #
-        #     ct_id = data.get('ct_id')
-        #     if ct_id is not None:
-        #         ct_id = int(ct_id)
-        #
-        #     entity_id = data.get('entity_id')
-        #     if entity_id is not None:
-        #         entity_id = int(entity_id)
-        # except (TypeError, KeyError, ValueError) as e:
-        #     raise cls.DataError(f'{cls.__name__}.build(): invalid data ({e})')
         if not isinstance(data, dict):
             raise cls.DataError(f'{cls.__name__}.build(): data must be a dictionary')
 
@@ -1372,15 +1328,12 @@ class RelationConditionHandler(BaseRelationConditionHandler):
             model=model,
             rtype=name,
             exclude=not has,
-            # ctype=ct_id,
             ctype=ct_key,
-            # entity=entity_id,
             entity=entity_uuid,
         )
 
     @classmethod
     def build_condition(cls, *, model, rtype, has=True, ct=None, entity=None,
-                        # filter_type=EF_USER,
                         filter_type=EF_REGULAR,
                         condition_cls=EntityFilterCondition,
                         ):
@@ -1402,10 +1355,8 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         value = {'has': bool(has)}
 
         if entity:
-            # value['entity_id'] = entity.id
             value['entity'] = str(entity.uuid)
         elif ct:
-            # value['ct_id'] = ct.id
             # TODO: factorise with creme_config exporter?
             value['ct'] = '.'.join(ct.natural_key())
 
@@ -1419,10 +1370,8 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
     @property
     def content_type(self) -> ContentType | None | bool:
-        # ct_id = self._ct_id
         ct_key = self._ct_key
         try:
-            # return ContentType.objects.get_for_id(ct_id) if ct_id else None
             return ContentType.objects.get_by_natural_key(*ct_key) if ct_key else None
         except ContentType.DoesNotExist:
             return False
@@ -1461,7 +1410,6 @@ class RelationConditionHandler(BaseRelationConditionHandler):
 
         entity = self._entity
         if entity is None:
-            # e = CremeEntity.objects.filter(id=self._entity_id).first()
             e = CremeEntity.objects.filter(uuid=self._entity_uuid).first()
             self._entity = entity = e.get_real_entity() if e is not None else False
 
@@ -1484,13 +1432,9 @@ class RelationConditionHandler(BaseRelationConditionHandler):
     def get_q(self, user):
         kwargs = {'type': self._rtype_id}
 
-        # if self._entity_id:
         if self._entity_uuid:
-            # kwargs['object_entity'] = self._entity_id
             kwargs['object_entity'] = self.entity.id if self.entity else 0
-        # elif self._ct_id:
         elif self._ct_key:
-            # kwargs['object_entity__entity_type'] = self._ct_id
             kwargs['object_entity__entity_type'] = self.content_type
 
         query = Q(
@@ -1553,7 +1497,6 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
 
     @classmethod
     def build_condition(cls, *, model, rtype, subfilter, has=True,
-                        # filter_type=EF_USER,
                         filter_type=EF_REGULAR,
                         condition_cls=EntityFilterCondition,
                         ):
@@ -1662,23 +1605,19 @@ class PropertyConditionHandler(FilterConditionHandler):
         """
         super().__init__(model=model)
         if isinstance(ptype, CremePropertyType):
-            # self._ptype_id = ptype.id
             self._ptype_uuid = ptype.uuid
             self._ptype = ptype
         else:
-            # self._ptype_id = ptype
             self._ptype_uuid = ptype if isinstance(ptype, UUID) else UUID(ptype)
             self._ptype = None
 
         self._exclude = exclude
 
     def accept(self, *, entity, user):
-        # ptype_id = self._ptype_id
         ptype_uuid = self._ptype_uuid
         # NB: we use get_properties() in order to get a cached result, & so avoid
         #     additional queries when calling several times this method.
         # TODO: add a system to populate properties when checking several entities
-        # accepted = any(prop.type_id == ptype_id for prop in entity.get_properties())
         accepted = any(prop.type.uuid == ptype_uuid for prop in entity.get_properties())
 
         return not accepted if self._exclude else accepted
@@ -1689,11 +1628,6 @@ class PropertyConditionHandler(FilterConditionHandler):
 
     @classmethod
     def build(cls, *, model, name, data):
-        # if not isinstance(data, bool):
-        #     raise cls.DataError(
-        #         f'{cls.__name__}.build(): invalid data (not boolean)'
-        #     )
-        # return cls(model=model, ptype=name, exclude=not data)
         try:
             has = data['has']
         except (TypeError, KeyError) as e:
@@ -1706,7 +1640,6 @@ class PropertyConditionHandler(FilterConditionHandler):
 
     @classmethod
     def build_condition(cls, *, model, ptype, has=True,
-                        # filter_type=EF_USER,
                         filter_type=EF_REGULAR,
                         condition_cls=EntityFilterCondition,
                         ):
@@ -1723,9 +1656,7 @@ class PropertyConditionHandler(FilterConditionHandler):
             filter_type=filter_type,
             model=model,
             type=cls.type_id,
-            # name=ptype.id,
             name=str(ptype.uuid),
-            # value=bool(has),
             value={'has': bool(has)},
         )
 
@@ -1741,11 +1672,6 @@ class PropertyConditionHandler(FilterConditionHandler):
 
     # TODO: see remark on RelationConditionHandler._get_q()
     def get_q(self, user):
-        # query = Q(
-        #     pk__in=CremeProperty.objects
-        #                         .filter(type=self._ptype_id)
-        #                         .values_list('creme_entity_id', flat=True),
-        # )
         query = Q(
             pk__in=CremeProperty.objects
                                 .filter(type__uuid=self._ptype_uuid)
@@ -1763,7 +1689,6 @@ class PropertyConditionHandler(FilterConditionHandler):
         ptype = self._ptype
         if ptype is None:
             self._ptype = ptype = CremePropertyType.objects.filter(
-                # id=self._ptype_id,
                 uuid=self._ptype_uuid,
             ).first() or False
 
@@ -1771,10 +1696,6 @@ class PropertyConditionHandler(FilterConditionHandler):
 
     @classmethod
     def query_for_related_conditions(cls, instance):
-        # return Q(
-        #     type=cls.type_id,
-        #     name=instance.id,
-        # ) if isinstance(instance, CremePropertyType) else Q()
         return Q(
             type=cls.type_id,
             name=instance.uuid,

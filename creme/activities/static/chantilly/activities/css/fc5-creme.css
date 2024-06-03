@@ -197,15 +197,12 @@
 
 .fc-creme .fc-event .fc-event-type {
     display: block;
-    /* background: #777777; */
-    /* color: white; */
     font-weight: 600;
     font-size: 0.9em;
     text-transform: uppercase;
     width: fit-content;
     border-radius: 2px;
     padding: 2px 1px 0 1px;
-    /* margin-bottom: 2px; */
     white-space: nowrap;
 }
 

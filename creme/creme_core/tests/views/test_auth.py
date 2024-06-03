@@ -6,13 +6,11 @@ from django.utils.translation import gettext as _
 from creme.creme_core import constants, get_world_settings_model
 from creme.creme_core.views.auth import PasswordReset
 
-# from .base import ViewsTestCase
 from ..base import CremeTestCase
 
 WorldSettings = get_world_settings_model()
 
 
-# class AuthViewsTestCase(ViewsTestCase):
 class AuthViewsTestCase(CremeTestCase):
     @override_settings(DEFAULT_FROM_EMAIL='admin@mycompagny.org')
     def test_reset_password01(self):

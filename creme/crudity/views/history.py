@@ -43,7 +43,6 @@ class History(BricksView):
 
 
 class HistoryBricksReloading(BricksReloading):
-    # check_bricks_permission = False
     permissions = 'crudity'
 
     def get_bricks(self):
@@ -53,7 +52,6 @@ class HistoryBricksReloading(BricksReloading):
             for backend in registry.crudity_registry.get_backends()
             if backend.model
         }
-        # prefix = 'block_crudity-'
         prefix = 'regular-crudity-'
 
         for brick_id in self.get_brick_ids():

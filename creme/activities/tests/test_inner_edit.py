@@ -5,7 +5,6 @@ from django.utils.translation import gettext as _
 from parameterized import parameterized
 
 from creme.creme_core.models import Relation
-# from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.creme_core.tests.base import CremeTestCase
 
 from .. import constants
@@ -15,7 +14,6 @@ from ..models import ActivitySubType, ActivityType
 from .base import Activity, _ActivitiesTestCase, skipIfCustomActivity
 
 
-# class ActivityRangeFieldTestCase(FieldTestCase):
 class ActivityRangeFieldTestCase(CremeTestCase):
     def test_range(self):
         DWOT = DateWithOptionalTimeField.DateWithOptionalTime
@@ -396,16 +394,11 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         user = self.login_as_root_and_get()
 
         atype = ActivityType.objects.create(
-            # id='test-activity_contest',
             name='Martial contest',
             default_day_duration=2,
             default_hour_duration='00:00:00',
         )
-        sub_type = ActivitySubType.objects.create(
-            # id='test-activity_contest',
-            name='Karate contest',
-            type=atype,
-        )
+        sub_type = ActivitySubType.objects.create(name='Karate contest', type=atype)
 
         create_dt = self.create_datetime
         activity = Activity.objects.create(
@@ -490,16 +483,11 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         user = self.login_as_root_and_get()
 
         atype = ActivityType.objects.create(
-            # id='test-activity_contest',
             name='Martial contest',
             default_day_duration=2,
             default_hour_duration='00:00:00',
         )
-        sub_type = ActivitySubType.objects.create(
-            # id='test-activity_contest',
-            name='Karate contest',
-            type=atype,
-        )
+        sub_type = ActivitySubType.objects.create(name='Karate contest', type=atype)
 
         create_dt = self.create_datetime
         activity = Activity.objects.create(
@@ -536,10 +524,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         sub_type = self._get_sub_type(constants.UUID_SUBTYPE_MEETING_NETWORK)
         create_activity = partial(
             Activity.objects.create,
-            user=user,
-            # type_id=constants.ACTIVITYTYPE_MEETING,
-            # sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-            type_id=sub_type.type_id, sub_type=sub_type,
+            user=user, type_id=sub_type.type_id, sub_type=sub_type,
         )
         create_dt = self.create_datetime
         activity1 = create_activity(

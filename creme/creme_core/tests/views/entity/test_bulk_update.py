@@ -15,7 +15,6 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 import creme.creme_config.forms.fields as config_fields
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui import bulk_update
 from creme.creme_core.models import (
     CustomField,
@@ -43,12 +42,10 @@ from creme.creme_core.models import (
     FieldsConfig,
 )
 from creme.creme_core.tests.base import CremeTestCase
-# from creme.creme_core.tests.views.base import ViewsTestCase
 from creme.creme_core.utils.collections import LimitedList
 from creme.creme_core.views.entity import BulkUpdate, InnerEdition
 
 
-# class _BulkEditTestCase(ViewsTestCase):
 class _BulkEditTestCase(CremeTestCase):
     @staticmethod
     def get_cf_values(cf, entity):
@@ -272,7 +269,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         with self.assertNoException():
             form = context1['form']
 
-        # self.assertDictEqual({}, form.initial)
         self.assertDictEqual({'first_name': 'Luigi'}, form.initial)
 
         # ---
@@ -305,7 +301,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
     def test_regular_field_not_super_user01(self):
         user = self.login_as_standard()
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
 
         mario = FakeContact.objects.create(user=user, first_name='Mario', last_name='Bros')
@@ -502,7 +497,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
     def test_regular_field_ignore_forbidden_entity(self):
         user = self.login_as_standard()
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
         other_user = self.get_root_user()
 
@@ -581,7 +575,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
     def test_regular_field_ignore_forbidden_field(self):
         user = self.login_as_standard()
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
         other_user = self.get_root_user()
 
@@ -1384,7 +1377,6 @@ class InnerEditTestCase(_BulkEditTestCase):
             creatable_models=[FakeContact],
             allowed_apps=['documents'],
         )
-        # self._set_all_creds_except_one(user=user, excluded=EntityCredentials.CHANGE)
         self.add_credentials(user.role, all='!CHANGE')
 
         mario = self.create_contact(user=user)

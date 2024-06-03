@@ -50,10 +50,6 @@ def mass_import(request, ct_id):
     ct = get_ctype_or_404(ct_id)
     model = ct.model_class()
 
-    # try:
-    #     import_form_registry.get(ct)
-    # except import_form_registry.UnregisteredCTypeException as e:
-    #     raise Http404(e) from e
     try:
         import_form_registry[model]
     except KeyError as e:

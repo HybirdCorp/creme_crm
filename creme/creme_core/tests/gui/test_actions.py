@@ -4,7 +4,6 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core import actions
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui.actions import (
     ActionRegistrationError,
     ActionsChain,
@@ -13,7 +12,6 @@ from creme.creme_core.gui.actions import (
     UIAction,
 )
 from creme.creme_core.gui.merge import merge_form_registry
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     CremeEntity,
     FakeActivity,
@@ -822,41 +820,10 @@ class ActionsTestCase(CremeTestCase):
 
 
 class BuiltinActionsTestCase(CremeTestCase):
-    # @classmethod
-    # def _create_role(cls, name,
-    #                  allowed_apps=(),
-    #                  admin_4_apps=(),
-    #                  set_creds=(),
-    #                  creatable_models=(),
-    #                  ):
-    #     role = cls.create_role(
-    #         name=name, allowed_apps=allowed_apps, admin_4_apps=admin_4_apps,
-    #         creatable_models=creatable_models,
-    #     )
-    #
-    #     for sc in set_creds:
-    #         if len(sc) == 2:
-    #             value, set_type = sc
-    #             ctype = None
-    #         else:
-    #             value, set_type, model = sc
-    #             ctype = ContentType.objects.get_for_model(model)
-    #
-    #         SetCredentials.objects.create(role=role, value=value, set_type=set_type, ctype=ctype)
-    #
-    #     return role
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
-        # role = cls._create_role(
-        #     'Action view only', ['creme_core'],
-        #     set_creds=[
-        #         (EntityCredentials._ALL_CREDS, SetCredentials.ESET_OWN),
-        #     ],
-        #     creatable_models=[FakeContact],
-        # )
         role = cls.create_role(
             name='Action view only', allowed_apps=['creme_core'], creatable_models=[FakeContact],
         )

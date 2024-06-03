@@ -89,7 +89,6 @@ class ChildFoldersBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             Folder.objects.filter(parent_folder=folder),
-            # folder_model=Folder,
         ))
 
 

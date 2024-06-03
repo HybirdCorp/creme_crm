@@ -12,7 +12,6 @@
       {% else %}
         {% blocktranslate asvar help_msg %}You have no email server configured; you can configure them <a href="{{config_url}}">here</a>.{% endblocktranslate %}
       {% endif %}
-{#      {% widget_help_sign message=help_msg|safe %} #}
       {% widget_help_sign message=help_msg %}
     {% endwith %}
 

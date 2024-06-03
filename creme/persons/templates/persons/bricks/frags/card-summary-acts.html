@@ -23,23 +23,3 @@
     </div>
 </div>
 {% endwith %}
-
-{% comment %}
-{% load i18n creme_widgets %}
-{% if acts is not None %}
-    <div class="card-info-field">
-        <div class="card-info-field">
-            <span class='card-info-key'>
-                {% if acts|length == 0 %}
-                    {% translate 'Commercial actions' %}
-                {% else %}
-                    {% blocktranslate count count=acts|length %}{{count}} Commercial action{% plural %}{{count}} Commercial actions{% endblocktranslate %}
-                {% endif %}
-            </span>
-            <span class='card-info-value'>
-                {% for act in acts %}{% widget_join %}{% widget_entity_hyperlink act user %}{% end_widget_join %}{% empty %}—{% endfor %}
-            </span>
-        </div>
-    </div>
-{% endif %}
-{% endcomment %}

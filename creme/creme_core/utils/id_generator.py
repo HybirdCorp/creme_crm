@@ -39,41 +39,6 @@ def generate_string_id_and_save(model: type[Model],
 
     assert not prefix[-1].isdigit()
 
-    # prefix_len = len(prefix)
-    # id_list = [
-    #     int(suffix)
-    #     for suffix in (
-    #         id_str[prefix_len:]
-    #         for id_str in model.objects.filter(id__startswith=prefix)
-    #                                    .values_list('id', flat=True)
-    #     )
-    #     if suffix.isdigit()
-    # ]
-    # index = max(id_list, default=0)
-    # last_exception: BaseException = RuntimeError('No previous error ?!')
-    #
-    # for obj in objects:
-    #     for i in range(1000):  # Avoid infinite loop
-    #         index += 1
-    #         obj.id = prefix + str(index)
-    #
-    #         try:
-    #             # We use transaction because the IntegrityError aborts the
-    #             # current transaction on PGSQL
-    #             with atomic():
-    #                 obj.save(force_insert=True)
-    #         except IntegrityError as e:  # An object with this id already exists
-    #             logger.debug(
-    #                 'generate_string_id_and_save(): id "%s" already exists ? (%s)',
-    #                 obj.id, e,
-    #             )
-    #             last_exception = e
-    #             obj.pk = None
-    #         else:
-    #             break
-    #     else:
-    #         raise last_exception
-
     pk_field = model._meta.pk
     assert isinstance(pk_field, CharField)
 

@@ -93,7 +93,6 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         user = self.login_as_root_and_get()
 
         brick_cls = bricks.OpportunityCardHatBrick
-        # self.assertEqual(5, brick_cls.displayed_contacts_number)
         self.assertEqual(5, bricks.ContactsSummary.displayed_contacts_number)
 
         opp1, target, emitter = self._create_opportunity_n_organisations(user=user, name='Opp#1')
@@ -146,7 +145,6 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         user = self.login_as_root_and_get()
 
         brick_cls = bricks.OpportunityCardHatBrick
-        # brick_cls.displayed_contacts_number = 1
 
         old_contacts_number = bricks.ContactsSummary.displayed_contacts_number
         try:

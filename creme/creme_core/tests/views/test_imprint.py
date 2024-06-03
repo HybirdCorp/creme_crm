@@ -13,11 +13,9 @@ from creme.creme_core.models import (
     Imprint,
 )
 from creme.creme_core.tests.base import CremeTestCase
-# from creme.creme_core.tests.views.base import ViewsTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 
-# class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 class ImprintViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     @classmethod
     def setUpClass(cls):
@@ -99,7 +97,6 @@ class ImprintViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_brick03(self):
         "Not visible for regular users."
         user = self.login_as_standard()
-        # self._set_all_perms_on_own(user)
         self.add_credentials(user.role, own='*')
 
         orga = FakeOrganisation.objects.create(user=user, name='Middle Earth')

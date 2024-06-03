@@ -13,12 +13,10 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from PIL.Image import open as open_img
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.gui import actions
 from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.gui.view_tag import ViewTag
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CremeEntity,
@@ -428,17 +426,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
     def test_add_related_document02(self):
         "Creation credentials."
         user = self.login_as_standard(allowed_apps=['documents', 'creme_core'])
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     set_type=SetCredentials.ESET_ALL,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        # )
         self.add_credentials(user.role, all='*')
 
         entity = CremeEntity.objects.create(user=user)
@@ -450,19 +437,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             allowed_apps=['documents', 'creme_core'],
             creatable_models=[Document],
         )
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role, set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #         # | EntityCredentials.LINK
-        #     ),
-        # )
         self.add_credentials(user.role, own='!LINK')
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
@@ -472,12 +446,9 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         url = self._build_addrelated_url(orga)
         self.assertGET403(url)
 
-        # get_ct = ContentType.objects.get_for_model
-        # create_sc(value=EntityCredentials.LINK, ctype=get_ct(FakeOrganisation))
         self.add_credentials(user.role, own=['LINK'], model=FakeOrganisation)
         self.assertGET403(url)
 
-        # create_sc(value=EntityCredentials.LINK, ctype=get_ct(Document))
         self.add_credentials(user.role, own=['LINK'], model=Document)
         self.assertGET200(url)
 
@@ -508,29 +479,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             allowed_apps=['documents', 'creme_core'],
             creatable_models=[Document],
         )
-        # create_sc = partial(
-        #     SetCredentials.objects.create,
-        #     role=user.role, set_type=SetCredentials.ESET_OWN,
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #         # | EntityCredentials.LINK
-        #     ),
-        # )
-        # create_sc(
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     ctype=Document,
-        # )
         self.add_credentials(user.role, own='!LINK')
         self.add_credentials(user.role, own='*', model=Document)
 
@@ -547,17 +495,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             allowed_apps=['documents', 'creme_core'],
             creatable_models=[Document],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=(
-        #         EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #         # | EntityCredentials.VIEW
-        #     ),
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all='!VIEW')
 
         orga = FakeOrganisation.objects.create(user=self.get_root_user(), name='NERV')
@@ -741,17 +678,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
         other_user = self.create_user(role=role)
 
-        # SetCredentials.objects.create(
-        #     role=role,
-        #     value=(
-        #         EntityCredentials.VIEW
-        #         | EntityCredentials.CHANGE
-        #         | EntityCredentials.DELETE
-        #         | EntityCredentials.LINK
-        #         | EntityCredentials.UNLINK
-        #     ),
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(role, own='*')
 
         create_img = self._create_image
@@ -816,11 +742,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             allowed_apps=('documents', 'products'),
             creatable_models=[Document],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'CHANGE', 'LINK'])
 
         folder = Folder.objects.create(user=user, title='My docs')

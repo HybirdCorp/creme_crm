@@ -37,7 +37,6 @@ from django.utils.translation import pgettext, pgettext_lazy
 
 from .. import utils
 from ..auth.decorators import login_required
-# from ..core.entity_filter import EF_USER, entity_filter_registries
 from ..core.entity_filter import EF_REGULAR, entity_filter_registries
 from ..core.exceptions import BadRequestError, ConflictError
 from ..enumerators import UserEnumerator
@@ -130,12 +129,10 @@ class FilterMixin:
 
 
 class EntityFilterMixin(FilterMixin):
-    # efilter_registry = entity_filter_registries[EF_USER]
     efilter_registries = entity_filter_registries
     efilter_type: str = EF_REGULAR
 
     def get_efilter_registry(self):
-        # return self.efilter_registry
         return self.efilter_registries[self.efilter_type]
 
 
@@ -347,7 +344,6 @@ class EntityFilterBricksReloading(BricksReloading):
             efilter = get_object_or_404(
                 EntityFilter,
                 id=self.kwargs[self.efilter_id_url_kwarg],
-                # filter_type=EF_USER,
                 filter_type=self.filter_type,
             )
             self.check_instance_permissions(instance=efilter, user=self.request.user)
@@ -410,12 +406,6 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
         context['help_message'] = self.get_case_sensitivity_message()
 
         return context
-
-    # def get_object(self, *args, **kwargs):
-    #     efilter = super().get_object(*args, **kwargs)
-    #     self.check_filter_permissions(filter_obj=efilter, user=self.request.user)
-    #
-    #     return efilter
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -529,10 +519,6 @@ class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
     def get_choices(self):
         choices = [('', self.all_label)] if self.get_include_all() else []
         choices.extend(
-            # EntityFilter.objects
-            #             .filter_by_user(self.request.user)
-            #             .filter(entity_type=self.get_ctype())
-            #             .values_list('id', 'name')
             (efilter.id, str(efilter))
             for efilter in EntityFilter.objects.filter_by_user(
                 self.request.user, types=self.get_efilter_types(),
@@ -552,7 +538,6 @@ class EntityFilterUserEnumerator(UserEnumerator):
     def __init__(
         self,
         field: Field,
-        # filter_type=EF_USER,
         filter_type=EF_REGULAR,
         search_fields=None,
         limit_choices_to=None
@@ -610,10 +595,6 @@ class UserChoicesView(FieldChoicesView):
         return EntityFilterUserEnumerator(field, filter_type=self.filter_type)
 
     def get(self, request, *args, **kwargs):
-        # try:
-        #     self.filter_type = int(request.GET.get('filter_type', EF_USER))
-        # except ValueError as e:
-        #     raise BadRequestError(e) from e
         # TODO: check type?
         self.filter_type = request.GET.get('filter_type', EF_REGULAR)
 

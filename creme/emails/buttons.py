@@ -46,15 +46,8 @@ class EntityEmailLinkButton(Button):
     template_name = 'emails/buttons/entityemail-link.html'
     permissions = build_link_perm(EntityEmail)
 
-    # rtype_ids = [
-    #     constants.REL_SUB_MAIL_SENT,
-    #     constants.REL_SUB_MAIL_RECEIVED,
-    #     constants.REL_SUB_RELATED_TO,
-    # ]
-
     def get_context(self, **kwargs):
         context = super().get_context(**kwargs)
-        # context['rtypes'] = self.rtype_ids
         context['rtypes'] = self.relation_type_deps
 
         return context

@@ -193,12 +193,6 @@ class AbstractEntityEmail(_Email, CremeEntity):
             entity_emails_send_type.refresh_job()
 
     def send(self):
-        # sender = self.email_sender_cls(
-        #     body=self.body,
-        #     body_html=self.body_html,
-        #     signature=self.signature,
-        #     attachments=self.attachments.all(),
-        # )
         sender = self.email_sender_cls(self)
 
         if sender.send(self):

@@ -27,11 +27,9 @@ from creme.creme_core.models import EntityJobResult, FakeOrganisation, Job
 from creme.creme_core.utils.dates import dt_to_ISO8601
 
 from ..base import CremeTestCase
-# from .base import ViewsTestCase
 from .base import BrickTestCaseMixin
 
 
-# class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     LIST_URL = reverse('creme_core__jobs')
     MINE_URL = reverse('creme_core__my_jobs')
@@ -413,7 +411,6 @@ class JobViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             n.text for n in brick_node.findall('.//td[@class="job-type"]')
         )
         self.assertEqual(1, counter[_('Temporary files cleaner')])
-        # self.assertEqual(1, counter[_('Reminders (notification emails)')])
         self.assertEqual(1, counter[_('Reminders')])
         self.assertEqual(2, counter[str(batch_process_type.verbose_name)])
 

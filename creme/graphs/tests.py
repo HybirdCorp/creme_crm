@@ -4,8 +4,6 @@ from unittest import skipIf
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.auth.entity_credentials import EntityCredentials
-# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
@@ -332,11 +330,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_delete_rootnode01(self):
         "Not superuser."
         user = self.login_as_graphs_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
@@ -353,11 +346,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_delete_rootnode02(self):
         "Not superuser + cannot change Graph => error."
         user = self.login_as_graphs_user()
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE,
-        #     set_type=SetCredentials.ESET_OWN,
-        # )
         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')

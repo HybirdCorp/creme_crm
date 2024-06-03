@@ -190,15 +190,6 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         atom  = create_contact(first_name='Atom', last_name='Tenma')
         tenma = create_contact(first_name='Dr',   last_name='Tenma')
 
-        # ptype1 = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='creme_core-robot', text='Is a robot',
-        # )
-        # ptype2 = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='creme_core-human', text='Is a human',
-        # )
-        # ptype3 = CremePropertyType.objects.smart_update_or_create(
-        #     str_pk='creme_core-cool', text='Is cool',
-        # )
         create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Is a robot')
         ptype2 = create_ptype(text='Is a human')
@@ -371,7 +362,6 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         so the RelationType is excluded.
         """
         user = self.login_as_root_and_get()
-        # rbrick_id = RelationsBrick.id_
         rbrick_id = RelationsBrick.id
 
         create_rtype = RelationType.objects.smart_update_or_create

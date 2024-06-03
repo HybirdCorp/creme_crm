@@ -16,24 +16,3 @@
     {% brick_import app='reports' name='graph-chart' as graph_chart_brick %}
     {% brick_display graph_chart_brick %}
 {% endblock %}
-
-{% comment %}
-{% extends BASE_HTML %}
-{% load i18n creme_widgets creme_bricks %}
-
-{% block content %}
-    <div class="buttons-list global-buttons">
-        <ul>
-            <li>
-                <a class="menu_button menu-button-icon" href="{{object.linked_report.get_absolute_url}}">{% translate 'Back to the report' as back_label %}
-                    {% widget_icon name='previous' size='global-button' label=back_label %}
-                    {{back_label}}
-                </a>
-            </li>
-        </ul>
-    </div>
-
-    {% brick_import app='reports' name='graph-chart' as graph_chart_brick %}
-    {% brick_display graph_chart_brick %}
-{% endblock %}
-{% endcomment %}

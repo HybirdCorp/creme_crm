@@ -121,7 +121,6 @@ class FilterSubCell(CustomFormExtraSubCell):
             help_text=mfield.help_text
         )
 
-        # choice_field.queryset = mfield.related_model.objects.filter_by_user(user).filter(
         choice_field.queryset = mfield.related_model.objects.filter_by_user(
             user, types=[EF_REGULAR, EF_REPORTS],
         ).filter(
@@ -639,17 +638,6 @@ class ReportExportPreviewFilterForm(CremeForm):
         fields['doc_type'].choices = self._backend_choices()
 
     def _date_field_choices(self, report):
-        # model = report.ct.model_class()
-        # is_field_hidden = FieldsConfig.objects.get_for_model(model).is_field_hidden
-        #
-        # return [
-        #     ('', pgettext_lazy('reports-date_filter', 'None')),
-        #     *(
-        #         (field.name, field.verbose_name)
-        #         for field in model._meta.fields
-        #         if is_date_field(field) and not is_field_hidden(field)
-        #     ),
-        # ]
         get_fconf = FieldsConfig.LocalCache().get_for_model
         enumerator = ModelFieldEnumerator(
             model=report.ct.model_class(), depth=1, only_leaves=True,
@@ -720,8 +708,6 @@ class ReportExportPreviewFilterForm(CremeForm):
             date_format = get_format('DATE_INPUT_FORMATS')[0]
             data.extend([
                 ('date_filter_0', d_range),
-                # ('date_filter_1', start.strftime('%d-%m-%Y') if start else ''),
-                # ('date_filter_2', end.strftime('%d-%m-%Y') if end else ''),
                 ('date_filter_1', start.strftime(date_format) if start else ''),
                 ('date_filter_2', end.strftime(date_format) if end else ''),
             ])
