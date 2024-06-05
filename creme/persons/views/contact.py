@@ -18,8 +18,7 @@
 
 from __future__ import annotations
 
-import warnings
-
+# import warnings
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -246,19 +245,19 @@ class ContactEdition(generic.EntityEdition):
     pk_url_kwarg = 'contact_id'
 
 
-class ContactNamesEdition(generic.EntityEditionPopup):
-    model = Contact
-    form_class: type[c_forms.ContactNamesForm] = c_forms.ContactNamesForm
-    pk_url_kwarg = 'contact_id'
-
-    def dispatch(self, request, *args, **kwargs):
-        warnings.warn(
-            'The view ContactNamesEdition is deprecated; '
-            'use multi inner-edition instead.',
-            DeprecationWarning,
-        )
-
-        return super().dispatch(request, *args, **kwargs)
+# class ContactNamesEdition(generic.EntityEditionPopup):
+#     model = Contact
+#     form_class: type[c_forms.ContactNamesForm] = c_forms.ContactNamesForm
+#     pk_url_kwarg = 'contact_id'
+#
+#     def dispatch(self, request, *args, **kwargs):
+#         warnings.warn(
+#             'The view ContactNamesEdition is deprecated; '
+#             'use multi inner-edition instead.',
+#             DeprecationWarning,
+#         )
+#
+#         return super().dispatch(request, *args, **kwargs)
 
 
 class ContactsList(generic.EntitiesList):
