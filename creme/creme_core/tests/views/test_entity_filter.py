@@ -1943,9 +1943,12 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         )
         self.assertEqual('', efilter.get_delete_absolute_url())
         # self.assertPOST403(
+        #     reverse('creme_core__delete_efilter'),
+        #     data={'id': efilter.id},
+        #     follow=True,
+        # )
         self.assertPOST409(
-            reverse('creme_core__delete_efilter'),
-            data={'id': efilter.id},
+            reverse('creme_core__delete_efilter', args=(efilter.id,)),
             follow=True,
         )
         self.assertStillExists(efilter)
