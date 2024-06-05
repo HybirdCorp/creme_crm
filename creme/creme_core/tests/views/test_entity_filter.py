@@ -1893,19 +1893,19 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         self._delete(efilter01)
         self.assertStillExists(efilter01)
 
-    def test_delete__deprecated(self):
-        self.login_as_root()
-
-        efilter = EntityFilter.objects.smart_update_or_create(
-            'test-filter01', 'Filter 01', FakeContact, is_custom=True,
-        )
-        response = self.assertPOST200(
-            reverse('creme_core__delete_efilter'),
-            data={'id': efilter.id},
-            follow=True,
-        )
-        self.assertRedirects(response, FakeContact.get_lv_absolute_url())
-        self.assertDoesNotExist(efilter)
+    # def test_delete__deprecated(self):
+    #     self.login_as_root()
+    #
+    #     efilter = EntityFilter.objects.smart_update_or_create(
+    #         'test-filter01', 'Filter 01', FakeContact, is_custom=True,
+    #     )
+    #     response = self.assertPOST200(
+    #         reverse('creme_core__delete_efilter'),
+    #         data={'id': efilter.id},
+    #         follow=True,
+    #     )
+    #     self.assertRedirects(response, FakeContact.get_lv_absolute_url())
+    #     self.assertDoesNotExist(efilter)
 
     def test_delete__credentials(self):
         "Cannot delete a credentials filter with the regular view."
@@ -1917,11 +1917,6 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
             filter_type=EF_CREDENTIALS,
         )
         self.assertEqual('', efilter.get_delete_absolute_url())
-        # self.assertPOST403(
-        #     reverse('creme_core__delete_efilter'),
-        #     data={'id': efilter.id},
-        #     follow=True,
-        # )
         self.assertPOST409(
             reverse('creme_core__delete_efilter', args=(efilter.id,)),
             follow=True,

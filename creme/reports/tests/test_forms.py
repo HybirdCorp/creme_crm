@@ -68,7 +68,6 @@ from .base import (
 )
 
 
-# class ReportHandsFieldTestCase(FieldTestCase):
 class ReportHandsFieldTestCase(CremeTestCase):
     # TODO: factorise with EntityCellsFieldTestCase
     def _find_sub_widget(self, field, cell_class_type_id):

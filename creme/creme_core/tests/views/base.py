@@ -1,5 +1,5 @@
 import logging
-import warnings
+# import warnings
 from tempfile import NamedTemporaryFile
 from xml.etree import ElementTree
 
@@ -8,16 +8,15 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.creme_jobs.mass_import import mass_import_type
 from creme.creme_core.gui.bricks import Brick
-from creme.creme_core.models import MassImportJobResult, SetCredentials
+from creme.creme_core.models import MassImportJobResult  # SetCredentials
 from creme.creme_core.utils.translation import plural
 from creme.creme_core.utils.xlwt_utils import XlwtWriter
 from creme.documents.models import Document, Folder, FolderCategory
 
-from ..base import CremeTestCase
-
+# from ..base import CremeTestCase
 logger = logging.getLogger(__name__)
 
 
@@ -36,57 +35,57 @@ class AppPermissionBrick(Brick):
         return self.home_str.format(id=self.id)
 
 
-class ViewsTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        warnings.warn(
-            'The class ViewsTestCase is deprecated; use CremeTestCase instead.',
-            DeprecationWarning,
-        )
-
-    def _set_all_perms_on_own(self, user):
-        warnings.warn(
-            'The method ViewsTestCase._set_all_perms_on_own() is deprecated; '
-            'use CremeTestCase.add_credentials() instead.',
-            DeprecationWarning,
-        )
-
-        SetCredentials.objects.create(
-            role=user.role,
-            value=(
-                EntityCredentials.VIEW
-                | EntityCredentials.CHANGE
-                | EntityCredentials.DELETE
-                | EntityCredentials.LINK
-                | EntityCredentials.UNLINK
-            ),
-            set_type=SetCredentials.ESET_OWN,
-        )
-
-    def _set_all_creds_except_one(self, *, user, excluded):
-        warnings.warn(
-            'The method ViewsTestCase._set_all_creds_except_one() is deprecated; '
-            'use CremeTestCase.add_credentials() instead.',
-            DeprecationWarning,
-        )
-
-        value = EntityCredentials.NONE
-
-        for cred in (
-                EntityCredentials.VIEW,
-                EntityCredentials.CHANGE,
-                EntityCredentials.DELETE,
-                EntityCredentials.LINK,
-                EntityCredentials.UNLINK,
-        ):
-            if cred != excluded:
-                value |= cred
-
-        SetCredentials.objects.create(
-            role=user.role, value=value,
-            set_type=SetCredentials.ESET_ALL,
-        )
+# class ViewsTestCase(CremeTestCase):
+#     @classmethod
+#     def setUpClass(cls):
+#         super().setUpClass()
+#         warnings.warn(
+#             'The class ViewsTestCase is deprecated; use CremeTestCase instead.',
+#             DeprecationWarning,
+#         )
+#
+#     def _set_all_perms_on_own(self, user):
+#         warnings.warn(
+#             'The method ViewsTestCase._set_all_perms_on_own() is deprecated; '
+#             'use CremeTestCase.add_credentials() instead.',
+#             DeprecationWarning,
+#         )
+#
+#         SetCredentials.objects.create(
+#             role=user.role,
+#             value=(
+#                 EntityCredentials.VIEW
+#                 | EntityCredentials.CHANGE
+#                 | EntityCredentials.DELETE
+#                 | EntityCredentials.LINK
+#                 | EntityCredentials.UNLINK
+#             ),
+#             set_type=SetCredentials.ESET_OWN,
+#         )
+#
+#     def _set_all_creds_except_one(self, *, user, excluded):
+#         warnings.warn(
+#             'The method ViewsTestCase._set_all_creds_except_one() is deprecated; '
+#             'use CremeTestCase.add_credentials() instead.',
+#             DeprecationWarning,
+#         )
+#
+#         value = EntityCredentials.NONE
+#
+#         for cred in (
+#                 EntityCredentials.VIEW,
+#                 EntityCredentials.CHANGE,
+#                 EntityCredentials.DELETE,
+#                 EntityCredentials.LINK,
+#                 EntityCredentials.UNLINK,
+#         ):
+#             if cred != excluded:
+#                 value |= cred
+#
+#         SetCredentials.objects.create(
+#             role=user.role, value=value,
+#             set_type=SetCredentials.ESET_ALL,
+#         )
 
 
 class BrickTestCaseMixin:
