@@ -312,7 +312,7 @@ QUnit.test('creme.billing.restoreInitialValues', function(assert) {
 
     creme.billing.restoreInitialValues('line-0', 'form-0');
 
-    this.assertOpenedDialog(gettext('Do you really want to restore initial values of this line ?'));
+    this.assertOpenedDialog(gettext('Do you really want to restore initial values of this line?'));
     this.acceptConfirmDialog();
 
     equal(element.find('[name="form-0-DELETE"]').prop('checked'), false);
@@ -330,7 +330,7 @@ QUnit.test('creme.billing.restoreInitialValues', function(assert) {
 
     creme.billing.restoreInitialValues('line-1', 'form-1');
 
-    this.assertOpenedDialog(gettext('Do you really want to restore initial values of this line ?'));
+    this.assertOpenedDialog(gettext('Do you really want to restore initial values of this line?'));
     this.acceptConfirmDialog();
 
     equal(element.find('[name="form-0-DELETE"]').prop('checked'), false);
