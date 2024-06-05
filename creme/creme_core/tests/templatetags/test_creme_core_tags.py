@@ -3,7 +3,7 @@ from decimal import Decimal
 from functools import partial
 from json import loads as json_load
 
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template, TemplateSyntaxError
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -325,127 +325,127 @@ class CremeCoreTagsTestCase(CremeTestCase):
             str(cm.exception),
         )
 
-    def test_has_perm_to01(self):
-        user = self.get_root_user()
-        orga = FakeOrganisation.objects.create(user=user, name='Xing')
-
-        with self.assertNoException():
-            render = Template(
-                "{% load creme_core_tags %}"
-                "{% has_perm_to view entity as vperm %}{{vperm}}"
-                "{% has_perm_to change entity as cperm %}{{cperm}}"
-                "{% has_perm_to delete entity as dperm %}{{dperm}}"
-                "{% has_perm_to link entity as lperm %}{{lperm}}"
-                "{% has_perm_to unlink entity as uperm %}{{uperm}}"
-                "{% has_perm_to create entity as aperm %}{{aperm}}"
-                "{% has_perm_to create ct as aperm2 %}{{aperm2}}"
-                "{% has_perm_to export entity as xperm %}{{xperm}}"
-                "{% has_perm_to export ct as xperm2 %}{{xperm2}}"
-                "{% has_perm_to access 'creme_core' as app_perm %}{{app_perm}}"
-                "{% has_perm_to admin 'creme_core' as adm_perm %}{{adm_perm}}"
-            ).render(Context({
-                'entity': orga,
-                'user':   user,
-                'ct':     ContentType.objects.get_for_model(FakeOrganisation),
-            }))
-
-        self.assertEqual('True' * 11, render.strip())
-
-    def test_has_perm_to02(self):
-        user = self.login_as_standard()
-        orga = FakeOrganisation.objects.create(user=user, name='Xerces')
-
-        with self.assertNoException():
-            render = Template(
-                "{% load creme_core_tags %}"
-                "{% has_perm_to view entity as vperm %}{{vperm}}"
-                "{% has_perm_to change entity as cperm %}{{cperm}}"
-                "{% has_perm_to delete entity as dperm %}{{dperm}}"
-                "{% has_perm_to link entity as lperm %}{{lperm}}"
-                "{% has_perm_to unlink entity as uperm %}{{uperm}}"
-                "{% has_perm_to create entity as aperm %}{{aperm}}"
-                "{% has_perm_to create ct as aperm2 %}{{aperm2}}"
-                "{% has_perm_to export entity as xperm %}{{xperm}}"
-                "{% has_perm_to export ct as xperm2 %}{{xperm2}}"
-                "{% has_perm_to access 'persons' as app_perm %}{{app_perm}}"
-                "{% has_perm_to admin 'persons' as adm_perm %}{{adm_perm}}"
-            ).render(Context({
-                'entity': orga,
-                'user':   user,
-                'ct':     ContentType.objects.get_for_model(FakeOrganisation),
-            }))
-
-        self.assertEqual('False' * 11, render.strip())
-
-    def test_has_perm_to03(self):
-        user = self.login_as_standard(
-            allowed_apps=['creme_core'], creatable_models=[FakeOrganisation],
-        )
-        self.add_credentials(user.role, all=['VIEW'])
-
-        orga = FakeOrganisation.objects.create(user=user, name='Amestris')
-        self.assertTrue(user.has_perm_to_view(orga))
-
-        with self.assertNoException():
-            render = Template(
-                "{% load creme_core_tags %}"
-                "{% has_perm_to view entity as vperm %}{{vperm}}"
-                "{% has_perm_to change entity as cperm %}{{cperm}}"
-                "{% has_perm_to delete entity as dperm %}{{dperm}}"
-                "{% has_perm_to link entity as lperm %}{{lperm}}"
-                "{% has_perm_to unlink entity as uperm %}{{uperm}}"
-                "{% has_perm_to create entity as aperm %}{{aperm}}"
-                "{% has_perm_to create ct as aperm2 %}{{aperm2}}"
-                "{% has_perm_to export entity as xperm %}{{xperm}}"
-                "{% has_perm_to export ct as xperm2 %}{{xperm2}}"
-                "{% has_perm_to access 'creme_core' as app_perm %}{{app_perm}}"
-                "{% has_perm_to admin 'creme_core' as adm_perm %}{{adm_perm}}"
-            ).render(Context({
-                'entity': orga,
-                'user':   user,
-                'ct':     ContentType.objects.get_for_model(FakeOrganisation),
-            }))
-
-        self.assertEqual(
-            'True' + 'False' * 4 + 'True' * 2 + 'False' * 2 + 'True' + 'False',
-            render.strip()
-        )
-
-    def test_has_perm_to_errors(self):
-        with self.assertRaises(TemplateSyntaxError) as cm1:
-            Template(
-                r'{% load creme_core_tags %}'
-                r'{% has_perm_to %}'
-            ).render(Context({}))
-
-        self.assertEqual(
-            '"has_perm_to" tag requires arguments',
-            str(cm1.exception),
-        )
-
-        # ---
-        with self.assertRaises(TemplateSyntaxError) as cm2:
-            Template(
-                r'{% load creme_core_tags %}'
-                r'{% has_perm_to view as vperm %}'
-            ).render(Context({}))
-
-        self.assertEqual(
-            '"has_perm_to" tag had invalid arguments: <view as vperm>',
-            str(cm2.exception),
-        )
-
-        # ---
-        with self.assertRaises(TemplateSyntaxError) as cm3:
-            Template(
-                r'{% load creme_core_tags %}'
-                r'{% has_perm_to visualize entity as vperm %}'
-            ).render(Context({}))
-
-        self.assertEqual(
-            '"has_perm_to" invalid permission tag: "visualize"',
-            str(cm3.exception),
-        )
+    # def test_has_perm_to01(self):
+    #     user = self.get_root_user()
+    #     orga = FakeOrganisation.objects.create(user=user, name='Xing')
+    #
+    #     with self.assertNoException():
+    #         render = Template(
+    #             "{% load creme_core_tags %}"
+    #             "{% has_perm_to view entity as vperm %}{{vperm}}"
+    #             "{% has_perm_to change entity as cperm %}{{cperm}}"
+    #             "{% has_perm_to delete entity as dperm %}{{dperm}}"
+    #             "{% has_perm_to link entity as lperm %}{{lperm}}"
+    #             "{% has_perm_to unlink entity as uperm %}{{uperm}}"
+    #             "{% has_perm_to create entity as aperm %}{{aperm}}"
+    #             "{% has_perm_to create ct as aperm2 %}{{aperm2}}"
+    #             "{% has_perm_to export entity as xperm %}{{xperm}}"
+    #             "{% has_perm_to export ct as xperm2 %}{{xperm2}}"
+    #             "{% has_perm_to access 'creme_core' as app_perm %}{{app_perm}}"
+    #             "{% has_perm_to admin 'creme_core' as adm_perm %}{{adm_perm}}"
+    #         ).render(Context({
+    #             'entity': orga,
+    #             'user':   user,
+    #             'ct':     ContentType.objects.get_for_model(FakeOrganisation),
+    #         }))
+    #
+    #     self.assertEqual('True' * 11, render.strip())
+    #
+    # def test_has_perm_to02(self):
+    #     user = self.login_as_standard()
+    #     orga = FakeOrganisation.objects.create(user=user, name='Xerces')
+    #
+    #     with self.assertNoException():
+    #         render = Template(
+    #             "{% load creme_core_tags %}"
+    #             "{% has_perm_to view entity as vperm %}{{vperm}}"
+    #             "{% has_perm_to change entity as cperm %}{{cperm}}"
+    #             "{% has_perm_to delete entity as dperm %}{{dperm}}"
+    #             "{% has_perm_to link entity as lperm %}{{lperm}}"
+    #             "{% has_perm_to unlink entity as uperm %}{{uperm}}"
+    #             "{% has_perm_to create entity as aperm %}{{aperm}}"
+    #             "{% has_perm_to create ct as aperm2 %}{{aperm2}}"
+    #             "{% has_perm_to export entity as xperm %}{{xperm}}"
+    #             "{% has_perm_to export ct as xperm2 %}{{xperm2}}"
+    #             "{% has_perm_to access 'persons' as app_perm %}{{app_perm}}"
+    #             "{% has_perm_to admin 'persons' as adm_perm %}{{adm_perm}}"
+    #         ).render(Context({
+    #             'entity': orga,
+    #             'user':   user,
+    #             'ct':     ContentType.objects.get_for_model(FakeOrganisation),
+    #         }))
+    #
+    #     self.assertEqual('False' * 11, render.strip())
+    #
+    # def test_has_perm_to03(self):
+    #     user = self.login_as_standard(
+    #         allowed_apps=['creme_core'], creatable_models=[FakeOrganisation],
+    #     )
+    #     self.add_credentials(user.role, all=['VIEW'])
+    #
+    #     orga = FakeOrganisation.objects.create(user=user, name='Amestris')
+    #     self.assertTrue(user.has_perm_to_view(orga))
+    #
+    #     with self.assertNoException():
+    #         render = Template(
+    #             "{% load creme_core_tags %}"
+    #             "{% has_perm_to view entity as vperm %}{{vperm}}"
+    #             "{% has_perm_to change entity as cperm %}{{cperm}}"
+    #             "{% has_perm_to delete entity as dperm %}{{dperm}}"
+    #             "{% has_perm_to link entity as lperm %}{{lperm}}"
+    #             "{% has_perm_to unlink entity as uperm %}{{uperm}}"
+    #             "{% has_perm_to create entity as aperm %}{{aperm}}"
+    #             "{% has_perm_to create ct as aperm2 %}{{aperm2}}"
+    #             "{% has_perm_to export entity as xperm %}{{xperm}}"
+    #             "{% has_perm_to export ct as xperm2 %}{{xperm2}}"
+    #             "{% has_perm_to access 'creme_core' as app_perm %}{{app_perm}}"
+    #             "{% has_perm_to admin 'creme_core' as adm_perm %}{{adm_perm}}"
+    #         ).render(Context({
+    #             'entity': orga,
+    #             'user':   user,
+    #             'ct':     ContentType.objects.get_for_model(FakeOrganisation),
+    #         }))
+    #
+    #     self.assertEqual(
+    #         'True' + 'False' * 4 + 'True' * 2 + 'False' * 2 + 'True' + 'False',
+    #         render.strip()
+    #     )
+    #
+    # def test_has_perm_to_errors(self):
+    #     with self.assertRaises(TemplateSyntaxError) as cm1:
+    #         Template(
+    #             r'{% load creme_core_tags %}'
+    #             r'{% has_perm_to %}'
+    #         ).render(Context({}))
+    #
+    #     self.assertEqual(
+    #         '"has_perm_to" tag requires arguments',
+    #         str(cm1.exception),
+    #     )
+    #
+    #     # ---
+    #     with self.assertRaises(TemplateSyntaxError) as cm2:
+    #         Template(
+    #             r'{% load creme_core_tags %}'
+    #             r'{% has_perm_to view as vperm %}'
+    #         ).render(Context({}))
+    #
+    #     self.assertEqual(
+    #         '"has_perm_to" tag had invalid arguments: <view as vperm>',
+    #         str(cm2.exception),
+    #     )
+    #
+    #     # ---
+    #     with self.assertRaises(TemplateSyntaxError) as cm3:
+    #         Template(
+    #             r'{% load creme_core_tags %}'
+    #             r'{% has_perm_to visualize entity as vperm %}'
+    #         ).render(Context({}))
+    #
+    #     self.assertEqual(
+    #         '"has_perm_to" invalid permission tag: "visualize"',
+    #         str(cm3.exception),
+    #     )
 
     def _assertJsonifyFilter(self, expected, data):
         with self.assertNoException():

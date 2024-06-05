@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from builtins import getattr
 from datetime import date, datetime, time
 from decimal import Decimal
@@ -762,13 +762,13 @@ def is_history_enabled() -> bool:
 
     Hint: if you want to enable/disable the history, see 'creme_core.core.history'.
     """
-    if hasattr(HistoryLine, 'ENABLED'):
-        warnings.warn(
-            'HistoryLine.ENABLED is deprecated ;'
-            'use creme.creme_core.models.toggle_history instead.',
-            DeprecationWarning,
-        )
-        return HistoryLine.ENABLED
+    # if hasattr(HistoryLine, 'ENABLED'):
+    #     warnings.warn(
+    #         'HistoryLine.ENABLED is deprecated ;'
+    #         'use creme.creme_core.models.toggle_history instead.',
+    #         DeprecationWarning,
+    #     )
+    #     return HistoryLine.ENABLED
 
     cache = get_per_request_cache()
 
@@ -868,18 +868,18 @@ class HistoryLine(Model):
             if not progress:
                 break
 
-    @staticmethod
-    def disable(instance) -> None:
-        """Disable history for this instance.
-        @type instance: Can be an instance of CremeEntity, Relation,
-              CremeProperty, an auxiliary model.
-        """
-        instance._hline_disabled = True
-        warnings.warn(
-            'HistoryLine.disable() is deprecated; '
-            'use creme.creme_core.core.history.toggle_history instead.',
-            DeprecationWarning,
-        )
+    # @staticmethod
+    # def disable(instance) -> None:
+    #     """Disable history for this instance.
+    #     @type instance: Can be an instance of CremeEntity, Relation,
+    #           CremeProperty, an auxiliary model.
+    #     """
+    #     instance._hline_disabled = True
+    #     warnings.warn(
+    #         'HistoryLine.disable() is deprecated; '
+    #         'use creme.creme_core.core.history.toggle_history instead.',
+    #         DeprecationWarning,
+    #     )
 
     @staticmethod
     def mark_as_reassigned(instance, old_reference, new_reference, field_name: str):
@@ -1092,10 +1092,8 @@ def _prepare_log(sender, instance, **kwargs):
     if not is_history_enabled():
         return
 
-    # TODO: disabling history per entity is deprecated (see HistoryLine.disable()).
-    #       To be removed in Creme2.7
-    if getattr(instance, '_hline_disabled', False):
-        return
+    # if getattr(instance, '_hline_disabled', False):
+    #     return
 
     if hasattr(instance, 'get_related_entity'):
         if instance.id:
@@ -1126,10 +1124,8 @@ def _log_creation_edition(sender, instance, created, **kwargs):
     if not is_history_enabled():
         return
 
-    # TODO: disabling history per entity is deprecated (see HistoryLine.disable()).
-    #       To be removed in Creme2.7
-    if getattr(instance, '_hline_disabled', False):
-        return
+    # if getattr(instance, '_hline_disabled', False):
+    #     return
 
     try:
         if isinstance(instance, CremeProperty):
@@ -1161,10 +1157,8 @@ def _log_m2m_edition(sender, instance, action, pk_set, **kwargs):
     if not is_history_enabled():
         return
 
-    # TODO: disabling history per entity is deprecated (see HistoryLine.disable()).
-    #       To be removed in Creme2.7
-    if getattr(instance, '_hline_disabled', False):
-        return
+    # if getattr(instance, '_hline_disabled', False):
+    #     return
 
     if hasattr(instance, 'get_related_entity'):
         create = partial(_HLTAuxEdition.create_line_for_m2m, related=instance)
@@ -1220,10 +1214,8 @@ def _log_deletion(sender, instance, **kwargs):
     if not is_history_enabled():
         return
 
-    # TODO: disabling history per entity is deprecated (see HistoryLine.disable()).
-    #       To be removed in Creme2.7
-    if getattr(instance, '_hline_disabled', False):
-        return
+    # if getattr(instance, '_hline_disabled', False):
+    #     return
 
     # When we are dealing with CremeEntities, we check that we are dealing
     # with the final class, because the signal is sent several times, with

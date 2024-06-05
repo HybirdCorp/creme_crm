@@ -736,7 +736,6 @@ else:
         efilter = models.ForeignKey(
             EntityFilter, verbose_name=_('Filter'),
             blank=True, null=True, on_delete=models.PROTECT,
-            # limit_choices_to={'filter_type': EF_USER},
             limit_choices_to={'filter_type': EF_REGULAR},
         ).set_null_label(_('No filter'))
 

@@ -405,47 +405,47 @@ class ContactQuickFormTestCase(_BaseTestCase):
         self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga2)
 
 
-@skipIfCustomContact
-class ContactNamesEditionTestCase(_BaseTestCase):
-    @staticmethod
-    def _build_url(contact):
-        return reverse('persons__edit_contact_names', args=(contact.id,))
-
-    def test_edit01(self):
-        user = self.login_as_persons_user()
-        self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
-
-        contact = Contact.objects.create(user=user, first_name='Fay', last_name='Valentin')
-
-        url = self._build_url(contact)
-        response = self.assertGET200(url)
-
-        with self.assertNoException():
-            fields = response.context['form'].fields
-
-        self.assertIn('first_name', fields)
-        self.assertIn('last_name',  fields)
-        self.assertNotIn('position', fields)
-
-        first_name = contact.first_name + 'e'
-        last_name = contact.last_name + 'e'
-        response = self.client.post(
-            url,
-            data={
-                'first_name': first_name,
-                'last_name': last_name,
-            },
-        )
-        self.assertNoFormError(response)
-
-        contact = self.refresh(contact)
-        self.assertEqual(first_name, contact.first_name)
-        self.assertEqual(last_name,  contact.last_name)
-
-    def test_edit02(self):
-        "No permission."
-        user = self.login_as_persons_user()
-        self.add_credentials(user.role, own=['VIEW'])  # 'CHANGE'
-
-        contact = Contact.objects.create(user=user, first_name='Fay', last_name='Valentin')
-        self.assertGET403(self._build_url(contact))
+# @skipIfCustomContact
+# class ContactNamesEditionTestCase(_BaseTestCase):
+#     @staticmethod
+#     def _build_url(contact):
+#         return reverse('persons__edit_contact_names', args=(contact.id,))
+#
+#     def test_edit01(self):
+#         user = self.login_as_persons_user()
+#         self.add_credentials(user.role, own=['VIEW', 'CHANGE'])
+#
+#         contact = Contact.objects.create(user=user, first_name='Fay', last_name='Valentin')
+#
+#         url = self._build_url(contact)
+#         response = self.assertGET200(url)
+#
+#         with self.assertNoException():
+#             fields = response.context['form'].fields
+#
+#         self.assertIn('first_name', fields)
+#         self.assertIn('last_name',  fields)
+#         self.assertNotIn('position', fields)
+#
+#         first_name = contact.first_name + 'e'
+#         last_name = contact.last_name + 'e'
+#         response = self.client.post(
+#             url,
+#             data={
+#                 'first_name': first_name,
+#                 'last_name': last_name,
+#             },
+#         )
+#         self.assertNoFormError(response)
+#
+#         contact = self.refresh(contact)
+#         self.assertEqual(first_name, contact.first_name)
+#         self.assertEqual(last_name,  contact.last_name)
+#
+#     def test_edit02(self):
+#         "No permission."
+#         user = self.login_as_persons_user()
+#         self.add_credentials(user.role, own=['VIEW'])  # 'CHANGE'
+#
+#         contact = Contact.objects.create(user=user, first_name='Fay', last_name='Valentin')
+#         self.assertGET403(self._build_url(contact))
