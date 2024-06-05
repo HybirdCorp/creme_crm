@@ -40,7 +40,6 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=PROTECT, verbose_name='Filter', blank=True,
                         to='creme_core.EntityFilter', null=True,
-                        # limit_choices_to={'filter_type': EF_USER},
                         limit_choices_to={'filter_type__in': [EF_REGULAR, EF_REPORTS]},
                     )
                 ),

@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-import warnings
+# import warnings
 from functools import partial
 from os.path import splitext
 from typing import TYPE_CHECKING, Iterable
@@ -85,47 +85,47 @@ if TYPE_CHECKING:
     M2MInstancePrinter = Callable[[Model, Model, Manager, CremeUser, Field], str]
 
 
-def __getattr__(name):
-    if name == 'MAX_HEIGHT':
-        warnings.warn('"MAX_HEIGHT" is deprecated', DeprecationWarning)
-        return 200
+# def __getattr__(name):
+#     if name == 'MAX_HEIGHT':
+#         warnings.warn('"MAX_HEIGHT" is deprecated', DeprecationWarning)
+#         return 200
+#
+#     if name == 'MAX_WIDTH':
+#         warnings.warn('"MAX_WIDTH" is deprecated', DeprecationWarning)
+#         return 200
+#
+#     raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
 
-    if name == 'MAX_WIDTH':
-        warnings.warn('"MAX_WIDTH" is deprecated', DeprecationWarning)
-        return 200
 
-    raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
-
-
-def image_size(image, max_h: int = 200, max_w: int = 200) -> str:
-    warnings.warn(
-        'creme_core.gui.field_printers.image_size() is deprecated.',
-        DeprecationWarning,
-    )
-
-    if hasattr(image, 'height'):
-        h = image.height
-    elif hasattr(image, 'height_field'):
-        h = image.height_field
-    else:
-        h = max_h
-    if hasattr(image, 'width'):
-        w = image.width
-    elif hasattr(image, 'width_field'):
-        w = image.width_field
-    else:
-        w = max_w
-
-    h = float(h)
-    w = float(w)
-
-    ratio = max(h / max_h, w / max_w)
-
-    if ratio >= 1.0:
-        h /= ratio
-        w /= ratio
-
-    return format_html('height="{}" width="{}"', h, w)
+# def image_size(image, max_h: int = 200, max_w: int = 200) -> str:
+#     warnings.warn(
+#         'creme_core.gui.field_printers.image_size() is deprecated.',
+#         DeprecationWarning,
+#     )
+#
+#     if hasattr(image, 'height'):
+#         h = image.height
+#     elif hasattr(image, 'height_field'):
+#         h = image.height_field
+#     else:
+#         h = max_h
+#     if hasattr(image, 'width'):
+#         w = image.width
+#     elif hasattr(image, 'width_field'):
+#         w = image.width_field
+#     else:
+#         w = max_w
+#
+#     h = float(h)
+#     w = float(w)
+#
+#     ratio = max(h / max_h, w / max_w)
+#
+#     if ratio >= 1.0:
+#         h /= ratio
+#         w /= ratio
+#
+#     return format_html('height="{}" width="{}"', h, w)
 
 
 def simple_print_html(*, instance: Model, value: Any, user, field: Field) -> str:
