@@ -10,10 +10,12 @@ from creme.creme_core.gui.bricks import Brick, brick_registry
 from creme.creme_core.models import BrickHomeLocation, BrickMypageLocation
 from creme.creme_core.views.index import Home, MyPage
 
-from .base import AppPermissionBrick, BrickTestCaseMixin, ViewsTestCase
+from ..base import CremeTestCase
+from .base import AppPermissionBrick, BrickTestCaseMixin  # ViewsTestCase
 
 
-class IndexViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
+# class IndexViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
+class IndexViewsTestCase(BrickTestCaseMixin, CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
