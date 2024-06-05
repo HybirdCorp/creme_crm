@@ -7,12 +7,13 @@ from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.gui.fields_config import fields_config_registry
 from creme.creme_core.models import (
     CremeEntity,
+    FakeActivity,
     FakeContact,
     FakeOrganisation,
+    FakeSector,
     FieldsConfig,
 )
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.fake_models import FakeActivity, FakeSector
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 

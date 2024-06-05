@@ -29,6 +29,7 @@ from creme.creme_core.models import (
     FakeInvoice,
     FakeInvoiceLine,
     FakeOrganisation,
+    FakeTodo,
     Relation,
     Sandbox,
     SetCredentials,
@@ -39,7 +40,6 @@ from creme.documents.models import Document, Folder
 from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 
 from ..base import CremeTestCase, skipIfNotInstalled
-from ..fake_models import FakeTodo
 
 
 class AuthTestCase(CremeTestCase):

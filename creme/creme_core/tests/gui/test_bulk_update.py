@@ -18,10 +18,8 @@ from creme.creme_core.gui.bulk_update import (
     FieldOverrider,
     _BulkUpdateRegistry,
 )
-from creme.creme_core.models import CustomField, FieldsConfig, Language
-
-from ..base import CremeTestCase
-from ..fake_models import (
+from creme.creme_core.models import (
+    CustomField,
     FakeActivity,
     FakeActivityType,
     FakeCivility,
@@ -30,7 +28,11 @@ from ..fake_models import (
     FakeImage,
     FakeOrganisation,
     FakeSector,
+    FieldsConfig,
+    Language,
 )
+
+from ..base import CremeTestCase
 
 
 class BulkUpdateRegistryTestCase(CremeTestCase):

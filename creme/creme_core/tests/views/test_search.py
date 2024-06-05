@@ -16,12 +16,14 @@ from creme.creme_core.models import (
     CustomFieldEnum,
     CustomFieldEnumValue,
     CustomFieldMultiEnum,
+    FakeContact,
+    FakeOrganisation,
+    FakeSector,
     FieldsConfig,
     SearchConfigItem,
 )
 
 from ..base import CremeTestCase
-from ..fake_models import FakeContact, FakeOrganisation, FakeSector
 # from .base import ViewsTestCase
 from .base import BrickTestCaseMixin
 

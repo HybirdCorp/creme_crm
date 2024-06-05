@@ -13,9 +13,8 @@ else:
     from django.urls import reverse
     from django.utils.translation import gettext_lazy as _
 
-    from creme.creme_core.models import CremeEntity
+    from creme.creme_core.models import CremeEntity, FakeContact
     from creme.creme_core.models import fields as core_fields
-    from creme.creme_core.tests.fake_models import FakeContact
 
     __all__ = ('FakeReportsColorCategory', 'FakeReportsFolder', 'FakeReportsDocument', 'Guild')
 

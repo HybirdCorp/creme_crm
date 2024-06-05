@@ -1,4 +1,4 @@
-from creme.creme_core.tests.fake_models import FakeContact
+from creme.creme_core.models import FakeContact
 
 from .. import registry
 from ..backends.models import CrudityBackend

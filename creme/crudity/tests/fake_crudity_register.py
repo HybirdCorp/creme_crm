@@ -2,11 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from creme.creme_core.tests.fake_models import (
-    FakeContact,
-    FakeDocument,
-    FakeOrganisation,
-)
+from creme.creme_core.models import FakeContact, FakeDocument, FakeOrganisation
 
 from ..backends.models import CrudityBackend
 from ..fetchers.base import CrudityFetcher

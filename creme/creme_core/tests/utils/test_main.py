@@ -18,7 +18,8 @@ from PIL.Image import open as open_img
 
 # from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.global_info import clear_global_info
-from creme.creme_core.models import FakeOrganisation  # SetCredentials
+# from creme.creme_core.models import SetCredentials
+from creme.creme_core.models import FakeCivility, FakeContact, FakeOrganisation
 from creme.creme_core.utils import (
     as_int,
     create_if_needed,
@@ -56,7 +57,6 @@ from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.utils.url import TemplateURLBuilder, parse_path
 
 from ..base import CremeTestCase
-from ..fake_models import FakeCivility, FakeContact
 
 
 class MiscTestCase(CremeTestCase):

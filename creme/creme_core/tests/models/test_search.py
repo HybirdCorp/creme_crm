@@ -4,10 +4,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.models import FieldsConfig, SearchConfigItem
+from creme.creme_core.models import (
+    FakeContact,
+    FakeOrganisation,
+    FieldsConfig,
+    SearchConfigItem,
+)
 
 from ..base import CremeTestCase
-from ..fake_models import FakeContact, FakeOrganisation
 
 
 class SearchConfigTestCase(CremeTestCase):

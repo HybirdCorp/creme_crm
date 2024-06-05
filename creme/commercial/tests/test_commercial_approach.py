@@ -24,6 +24,7 @@ from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
     CustomFormConfigItem,
+    FakeOrganisation,
     Job,
     JobResult,
     Relation,
@@ -31,7 +32,6 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.models.history import TYPE_DELETION, HistoryLine
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.fake_models import FakeOrganisation
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.opportunities.models import SalesPhase
 from creme.opportunities.tests.base import skipIfCustomOpportunity

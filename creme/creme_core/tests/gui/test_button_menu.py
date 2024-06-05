@@ -1,10 +1,9 @@
 from django.test import RequestFactory
 
 from creme.creme_core.gui.button_menu import Button, ButtonsRegistry
-from creme.creme_core.models import FakeContact
+from creme.creme_core.models import FakeContact, FakeOrganisation
 
 from ..base import CremeTestCase
-from ..fake_models import FakeOrganisation
 
 
 class ButtonMenuTestCase(CremeTestCase):
