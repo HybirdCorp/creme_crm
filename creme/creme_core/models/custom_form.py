@@ -134,7 +134,6 @@ class CustomFormConfigItem(models.Model):
             f')'
         )
 
-    # TODO: deprecate?
     def groups_as_dicts(self) -> list[dict]:
         return self.json_groups
 

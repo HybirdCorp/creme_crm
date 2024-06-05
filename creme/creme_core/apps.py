@@ -413,7 +413,6 @@ class CremeCoreConfig(CremeAppConfig):
         self.hook_textfield_formfield()
         self.hook_datetime_widgets()
         self.hook_multiselection_widgets()
-        # self.hook_select_template()
         self.hook_nullboolean_widget()
         self.hook_typedchoice_widget()
 
