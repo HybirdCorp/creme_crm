@@ -104,12 +104,6 @@
                   use the template-filters of the new library "creme_perms" instead.
                 - The templatetag {% menu_buttons_display %} (from the library "creme_menu") is deprecated;
                   see the new brick 'creme_core.bricks.ButtonsBrick'.
-            - In detail-view for CremeEntities, these actions for the "instance" buttons are deprecated (use regular Brick actions instead) :
-                - "creme_core-hatmenubar-addrelationships" => "add-relationships"
-                - "creme_core-hatmenubar-form" => "add"/"edit"
-                - "creme_core-hatmenubar-update" => "update"
-                - "creme_core-hatmenubar-view" => "view"
-                Notice that the actions are not deprecated for models which do not inherit 'CremeEntity' (i.e. do not use the template "view_entity.html").
             - The function 'creme_core.utils.bool_from_str()' is deprecated.
             - In 'creme_core.tests' :
                 - The module 'forms.base' is deprecated.
@@ -117,6 +111,12 @@
                   Then stop using the base class 'FieldTestCase' & 'FieldTestCaseMixin'.
                 - The class 'views.ViewsTestCase' is deprecated ;
                   use the new method 'CremeTestCase.add_credentials()' instead.
+            - In detail-view for CremeEntities, these actions for the "instance" buttons are deprecated (use regular Brick actions instead) :
+                - "creme_core-hatmenubar-addrelationships" => "add-relationships"
+                - "creme_core-hatmenubar-form" => "add"/"edit"
+                - "creme_core-hatmenubar-update" => "update"
+                - "creme_core-hatmenubar-view" => "view"
+                Notice that the actions are not deprecated for models which do not inherit 'CremeEntity' (i.e. do not use the template "view_entity.html").
             - In Javascript, the use of jQuery 3.x makes the following methods deprecated :
                 - '$.mouseover()' ; use '$.trigger("mouseover")' instead.
                 - '$.mouseenter()' ; use '$.trigger("mouseenter")' instead.
