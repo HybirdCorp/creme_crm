@@ -135,7 +135,7 @@ class CremeEntity(CremeModel):
     def delete(self, using=None, keep_parents=False):
         from .history import _get_deleted_entity_ids
 
-        # Pre-delete signal is sent to auxiliary _before_, then sent to the entity
+        # Pre-delete signal is sent to auxiliary _before_, then sent to the entity,
         # so it causes problem with aux_deletion line that reference the entity
         # (e.g.:this problem appears when deleting an EmailCampaign with Sendings)
         _get_deleted_entity_ids().add(self.id)

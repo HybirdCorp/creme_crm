@@ -1641,7 +1641,7 @@ class CustomFormsImporter(Importer):
             for cfci in CustomFormConfigItem.objects.select_related('role')
         }
 
-        # NB: yes we build cell from dicts a then rebuild dicts ;
+        # NB: yes we build cells from dicts & then rebuild dicts;
         #     it's not optimal, but we avoid doing things manually.
         def finalize_group_info(group_info):
             if 'cells' in group_info:

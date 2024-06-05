@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,7 @@ class AddContactsForm(CremeForm):
     def save(self):
         contacts = self.messaging_list.contacts
 
-        # TODO: check if email if ok ????
+        # TODO: check if email is OK?
         for contact in self.cleaned_data['recipients']:
             contacts.add(contact)
 
