@@ -1,5 +1,52 @@
 == Version 2.7 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+
+    Breaking changes :
+    ------------------
+        # Deprecated stuffs which have been removed :
+            - In 'creme_core.gui' :
+                - In 'field_printers', the function 'image_size()' & the constants MAX_HEIGHT/MAX_WIDTH has been removed.
+                - In the class 'mass_import.FormRegistry' :
+                    - The methods 'get()' & 'is_registered()' have been removed.
+                    - The class 'UnregisteredCTypeException' has been removed.
+            - In 'creme_core.models' :
+                - In the methods 'HeaderFilter.can_view()' & 'creme_core.models.EntityFilter.can_view()',
+                  the argument "content_type" has been removed.
+                - Setting the class attribute 'HistoryLine.ENABLED' is now useless.
+                  The method 'HistoryLine.disable()' has been removed.
+            - The function 'creme_core.utils.create_if_needed()' has been removed.
+            - The constant 'creme_core.core.entity_filter.EF_USER' has been removed.
+            - In the class-view 'creme_core.views.entity_filter.EntityFilterDeletion',
+              the ID of the EntityFilter cannot be passed in the POST data anymore.
+            - In 'creme_core.templatetags' :
+                - The templatetag {% has_perm_to %} has been removed.
+                - The templatetag {% menu_buttons_display %} (from the library "creme_menu") has been removed.
+            - The function 'creme_core.utils.bool_from_str()' has been removed.
+            - In 'creme_core.tests' :
+                - The module 'forms.base' has been removed.
+                - The class 'views.ViewsTestCase' has been removed.
+            - In detail-view for CremeEntities, these actions for the "instance" buttons are not available anymore :
+                - "creme_core-hatmenubar-addrelationships"
+                - "creme_core-hatmenubar-form"
+                - "creme_core-hatmenubar-update"
+                - "creme_core-hatmenubar-view"
+            - Apps :
+                * Persons :
+                    - The form class 'forms.contact.ContactNamesForm' has been removed.
+                    - The class-view 'views.contact.ContactNamesEdition' has been removed.
+                * Emails :
+                    - The function 'utils.get_mime_image()' has been removed.
+                    - In the constructor of 'utils.SignatureRenderer' the argument "domain" is now required.
+
+
 == Version 2.6 ==
 
   UPGRADE NOTES :

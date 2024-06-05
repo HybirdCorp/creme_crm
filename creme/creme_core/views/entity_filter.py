@@ -18,8 +18,8 @@
 
 from __future__ import annotations
 
+# import warnings
 import logging
-import warnings
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -430,18 +430,18 @@ class EntityFilterDeletion(EntityDeletionMixin,
             raise PermissionDenied(msg)
 
     def get_query_kwargs(self):
-        try:
-            kwargs = {'pk': self.kwargs[self.pk_url_kwarg]}
-        except KeyError:
-            # TODO: Remove in Creme 2.7
-            warnings.warn(
-                'EntityFilterDeletion with ID as POST argument is deprecated; '
-                'set it in the URL instead.',
-                DeprecationWarning
-            )
-            kwargs = super().get_query_kwargs()
-
-        return kwargs
+        # try:
+        #     kwargs = {'pk': self.kwargs[self.pk_url_kwarg]}
+        # except KeyError:
+        #     warnings.warn(
+        #         'EntityFilterDeletion with ID as POST argument is deprecated; '
+        #         'set it in the URL instead.',
+        #         DeprecationWarning
+        #     )
+        #     kwargs = super().get_query_kwargs()
+        #
+        # return kwargs
+        return {'pk': self.kwargs[self.pk_url_kwarg]}
 
     def get_success_url(self):
         # TODO: callback_url?

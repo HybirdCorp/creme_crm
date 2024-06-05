@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Iterator
 
@@ -40,12 +40,12 @@ EF_CREDENTIALS = 'creme_core-credentials'
 TYPE_ID_MAX_LENGTH = 36
 
 
-def __getattr__(name):
-    if name == 'EF_USER':
-        warnings.warn('"EF_USER" is deprecated; use EF_REGULAR instead.', DeprecationWarning)
-        return EF_REGULAR
-
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+# def __getattr__(name):
+#     if name == 'EF_USER':
+#         warnings.warn('"EF_USER" is deprecated; use EF_REGULAR instead.', DeprecationWarning)
+#         return EF_REGULAR
+#
+#     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 class _EntityFilterRegistry:

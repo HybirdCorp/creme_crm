@@ -357,7 +357,6 @@ class RegularFieldsConditionsFieldTestCase(CremeTestCase):
         )
         self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(name,                                 condition.name)
-        # self.assertEqual(EF_USER,                              condition.filter_type)
         self.assertEqual(efilter_registry.id,                  condition.filter_type)
         self.assertDictEqual(
             {'operator': operator, 'values': [value]},
@@ -2522,7 +2521,6 @@ class RelationsConditionsFieldTestCase(CremeTestCase):
         condition1 = conditions[0]
         self.assertEqual(type_id,   condition1.type)
         self.assertEqual(rtype1.id, condition1.name)
-        # self.assertEqual(EF_USER,   condition1.filter_type)
         self.assertEqual(EF_REGULAR, condition1.filter_type)
         self.assertDictEqual({'has': True}, condition1.value)
 

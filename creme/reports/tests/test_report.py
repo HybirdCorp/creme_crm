@@ -1073,9 +1073,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             user=user, name='My awesome report', efilter=efilter,
         )
 
-        # url = reverse('creme_core__delete_efilter')
-        # data = {'id': efilter.id}
-        # self.assertPOST409(url, data=data, follow=True)
         url = reverse('creme_core__delete_efilter', args=(efilter.id,))
         self.assertPOST409(url, follow=True)
         self.assertStillExists(efilter)
@@ -1083,9 +1080,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         # AJAX version
         self.assertPOST409(
-            # url, data=data, follow=True,
-            url, follow=True,
-            headers={'X-Requested-With': 'XMLHttpRequest'},
+            url, follow=True, headers={'X-Requested-With': 'XMLHttpRequest'},
         )
         self.assertStillExists(efilter)
         self.assertStillExists(report)
