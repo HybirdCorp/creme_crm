@@ -439,7 +439,9 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
     def test_createview_error(self):
         "Credentials errors with Organisation."
-        user = self.login_as_standard(allowed_apps=['billing'], creatable_models=[Invoice])
+        user = self.login_as_standard(
+            allowed_apps=['persons', 'billing'], creatable_models=[Invoice],
+        )
         # create_sc = partial(SetCredentials.objects.create, role=user.role)
         # create_sc(
         #     value=(
@@ -460,11 +462,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         #     ),
         #     set_type=SetCredentials.ESET_OWN,
         # )
-        self.add_credentials(
-            user.role,
-            all=['VIEW', 'CHANGE', 'DELETE', 'UNLINK'],  # Not 'LINK'
-            own='*',
-        )
+        self.add_credentials(user.role, all='!LINK', own='*')
 
         other_user = self.get_root_user()
         source = Organisation.objects.create(user=other_user, name='Source Orga')
@@ -498,16 +496,18 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         form = response2.context['form']
         link_error = _('You are not allowed to link this entity: {}')
-        not_viewable_error = _('Entity #{id} (not viewable)').format
+        # not_viewable_error = _('Entity #{id} (not viewable)').format
         self.assertFormError(
             form,
             field=self.SOURCE_KEY,
-            errors=link_error.format(not_viewable_error(id=source.id)),
+            # errors=link_error.format(not_viewable_error(id=source.id)),
+            errors=link_error.format(source),
         )
         self.assertFormError(
             form,
             field=self.TARGET_KEY,
-            errors=link_error.format(not_viewable_error(id=target.id)),
+            # errors=link_error.format(not_viewable_error(id=target.id)),
+            errors=link_error.format(target),
         )
 
     def test_createview_payment_info01(self):
