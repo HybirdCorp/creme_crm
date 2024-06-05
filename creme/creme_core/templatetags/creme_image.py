@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2020-2022 Hybird
+# Copyright (c) 2020-2024 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ register = template.Library()
 
 @register.simple_tag
 def image_size(*, path: str) -> tuple[int, int]:
-    """Get the size of a image from it's file path."""
+    """Get the size of an image from its file path."""
     with open_img(path) as img:
         size = img.size
 
