@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from email.mime.image import MIMEImage
 from email.utils import make_msgid, parseaddr
 from os.path import basename, join
@@ -73,27 +73,27 @@ class ImageFromHTMLError(Exception):
         return self._filename
 
 
-def get_mime_image(image_entity: AbstractDocument) -> MIMEImage | None:
-    warnings.warn(
-        'get_mime_image() is deprecated; use SignatureImage instead',
-        DeprecationWarning,
-    )
-
-    mime_image = None
-
-    try:
-        with image_entity.filedata.open() as image_file:
-            mime_image = MIMEImage(image_file.read())
-            mime_image.add_header(
-                'Content-ID', f'<img_{image_entity.id}>',
-            )
-            mime_image.add_header(
-                'Content-Disposition', 'inline', filename=basename(image_file.name),
-            )
-    except OSError as e:
-        logger.error('Exception when reading image: %s', e)
-
-    return mime_image
+# def get_mime_image(image_entity: AbstractDocument) -> MIMEImage | None:
+#     warnings.warn(
+#         'get_mime_image() is deprecated; use SignatureImage instead',
+#         DeprecationWarning,
+#     )
+#
+#     mime_image = None
+#
+#     try:
+#         with image_entity.filedata.open() as image_file:
+#             mime_image = MIMEImage(image_file.read())
+#             mime_image.add_header(
+#                 'Content-ID', f'<img_{image_entity.id}>',
+#             )
+#             mime_image.add_header(
+#                 'Content-Disposition', 'inline', filename=basename(image_file.name),
+#             )
+#     except OSError as e:
+#         logger.error('Exception when reading image: %s', e)
+#
+#     return mime_image
 
 
 # NB: not <class SignatureImage(MIMEImage):> because it would interact badly
@@ -145,12 +145,13 @@ class SignatureRenderer:
 
     image_cls = SignatureImage
 
-    def __init__(self, signature, domain: str = ''):
-        if not domain:
-            warnings.warn(
-                'SignatureRenderer with empty domain is deprecated',
-                DeprecationWarning,
-            )
+    # def __init__(self, signature, domain: str = ''):
+    def __init__(self, signature, domain: str):
+        # if not domain:
+        #     warnings.warn(
+        #         'SignatureRenderer with empty domain is deprecated',
+        #         DeprecationWarning,
+        #     )
 
         self._signature = signature
         self._images = images = []

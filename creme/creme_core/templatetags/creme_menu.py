@@ -16,18 +16,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# import warnings
+# from collections import OrderedDict
 import logging
-import warnings
-from collections import OrderedDict
 
 from django.db.models import Q
 from django.template import Library
 from django.utils.functional import partition
 
 from ..core.notification import OUTPUT_WEB
-from ..gui import button_menu
+# from ..gui import button_menu
 from ..gui.menu import menu_registry
-from ..models import ButtonMenuItem, MenuConfigItem, Notification
+# from ..models import ButtonMenuItem
+from ..models import MenuConfigItem, Notification
 
 logger = logging.getLogger(__name__)
 register = Library()
@@ -51,40 +52,40 @@ def menu_display(context):
     return context
 
 
-@register.inclusion_tag(
-    'creme_core/templatetags/detailview-buttons.html', takes_context=True,
-)
-def menu_buttons_display(context):
-    warnings.warn(
-        'The templatetag {% menu_buttons_display %} is deprecated; '
-        'see the new brick <creme.creme_core.bricks.ButtonsBrick>.',
-        DeprecationWarning,
-    )
-
-    entity = context['object']
-    button_ids = ButtonMenuItem.objects.filter(
-        Q(content_type=entity.entity_type)
-        | Q(content_type__isnull=True)
-    ).exclude(
-        button_id='',
-    ).order_by(
-        'order',
-    ).values_list(
-        'button_id', flat=True,
-    )
-
-    buttons = OrderedDict()
-    request = context['request']
-
-    for button in button_menu.button_registry.mandatory_buttons(entity=entity):
-        buttons[button.id] = button.get_context(entity=entity, request=request)
-
-    for button in button_menu.button_registry.get_buttons(button_ids, entity):
-        buttons[button.id] = button.get_context(entity=entity, request=request)
-
-    context['buttons'] = [*buttons.values()]
-
-    return context
+# @register.inclusion_tag(
+#     'creme_core/templatetags/detailview-buttons.html', takes_context=True,
+# )
+# def menu_buttons_display(context):
+#     warnings.warn(
+#         'The templatetag {% menu_buttons_display %} is deprecated; '
+#         'see the new brick <creme.creme_core.bricks.ButtonsBrick>.',
+#         DeprecationWarning,
+#     )
+#
+#     entity = context['object']
+#     button_ids = ButtonMenuItem.objects.filter(
+#         Q(content_type=entity.entity_type)
+#         | Q(content_type__isnull=True)
+#     ).exclude(
+#         button_id='',
+#     ).order_by(
+#         'order',
+#     ).values_list(
+#         'button_id', flat=True,
+#     )
+#
+#     buttons = OrderedDict()
+#     request = context['request']
+#
+#     for button in button_menu.button_registry.mandatory_buttons(entity=entity):
+#         buttons[button.id] = button.get_context(entity=entity, request=request)
+#
+#     for button in button_menu.button_registry.get_buttons(button_ids, entity):
+#         buttons[button.id] = button.get_context(entity=entity, request=request)
+#
+#     context['buttons'] = [*buttons.values()]
+#
+#     return context
 
 
 @register.simple_tag
