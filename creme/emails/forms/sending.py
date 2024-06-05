@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,8 +28,9 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core import forms as core_forms
 from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.core.history import toggle_history
+# from creme.creme_core.models import HistoryLine
 from creme.creme_core.forms.widgets import CalendarWidget, PrettySelect
-from creme.creme_core.models import HistoryLine
 
 from .. import get_emailtemplate_model
 from ..models import EmailSending, EmailSendingConfigItem, LightWeightEmail
@@ -308,30 +309,52 @@ class SendingCreationForm(core_forms.CremeModelForm):
             *self._get_variables(template.body_html),
         ]
 
-        disable_history = HistoryLine.disable
+        # disable_history = HistoryLine.disable
+        #
+        # for address, recipient_entity in instance.campaign.all_recipients():
+        #     mail = LightWeightEmail(
+        #         sending=instance,
+        #         sender=instance.sender,
+        #         recipient=address,
+        #         sending_date=instance.sending_date,
+        #         real_recipient=recipient_entity,
+        #     )
+        #
+        #     if recipient_entity:
+        #         context = {}
+        #
+        #         for var_name in var_names:
+        #             val = getattr(recipient_entity, var_name, None)
+        #             if val:
+        #                 context[var_name] = str(val)
+        #
+        #         if context:
+        #             mail.body = json_dump(context, separators=(',', ':'))
+        #
+        #     disable_history(mail)
+        #     mail.genid_n_save()
+        with toggle_history(enabled=False):
+            for address, recipient_entity in instance.campaign.all_recipients():
+                mail = LightWeightEmail(
+                    sending=instance,
+                    sender=instance.sender,
+                    recipient=address,
+                    sending_date=instance.sending_date,
+                    real_recipient=recipient_entity,
+                )
 
-        for address, recipient_entity in instance.campaign.all_recipients():
-            mail = LightWeightEmail(
-                sending=instance,
-                sender=instance.sender,
-                recipient=address,
-                sending_date=instance.sending_date,
-                real_recipient=recipient_entity,
-            )
+                if recipient_entity:
+                    context = {}
 
-            if recipient_entity:
-                context = {}
+                    for var_name in var_names:
+                        val = getattr(recipient_entity, var_name, None)
+                        if val:
+                            context[var_name] = str(val)
 
-                for var_name in var_names:
-                    val = getattr(recipient_entity, var_name, None)
-                    if val:
-                        context[var_name] = str(val)
+                    if context:
+                        mail.body = json_dump(context, separators=(',', ':'))
 
-                if context:
-                    mail.body = json_dump(context, separators=(',', ':'))
-
-            disable_history(mail)
-            mail.genid_n_save()
+                mail.genid_n_save()
 
         return instance
 

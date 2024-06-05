@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -314,16 +314,21 @@ def _handle_merge(sender, other_entity, **kwargs):
     """Delete 'Duplicated' CremeProperties (i.e. exist in the removed entity &
     the remaining entity).
     """
-    from .history import HistoryLine
+    # from .history import HistoryLine
+    from ..core.history import toggle_history
 
     ptype_ids = sender.properties.values_list('type', flat=True)
 
-    for prop in other_entity.properties.filter(type__in=ptype_ids):
-        # Duplicates' deletion would be confusing to the user (the
-        # property type is still related to the remaining entity). So we
-        # disable the history for it.
-        HistoryLine.disable(prop)
-        prop.delete()
+    # for prop in other_entity.properties.filter(type__in=ptype_ids):
+    #     HistoryLine.disable(prop)
+    #     prop.delete()
+
+    # Duplicates' deletion would be confusing to the user (the
+    # property type is still related to the remaining entity). So we
+    # disable the history for it.
+    with toggle_history(enabled=False):
+        for prop in other_entity.properties.filter(type__in=ptype_ids):
+            prop.delete()
 
 
 @receiver(signals.pre_replace_related, sender=CremePropertyType)
@@ -333,7 +338,8 @@ def _handle_replacement(sender, old_instance, new_instance, **kwargs):
     """
     from django.db.models import Count
 
-    from .history import HistoryLine
+    # from .history import HistoryLine
+    from ..core.history import toggle_history
 
     # IDs of entities with duplicates
     e_ids = CremeEntity.objects.filter(
@@ -344,6 +350,9 @@ def _handle_replacement(sender, old_instance, new_instance, **kwargs):
         prop_count__gte=2,
     ).values_list('id', flat=True)
 
-    for prop in CremeProperty.objects.filter(creme_entity__in=e_ids, type=old_instance):
-        HistoryLine.disable(prop)  # See _handle_merge()
-        prop.delete()
+    # for prop in CremeProperty.objects.filter(creme_entity__in=e_ids, type=old_instance):
+    #     HistoryLine.disable(prop)  # See _handle_merge()
+    #     prop.delete()
+    with toggle_history(enabled=False):  # See _handle_merge()
+        for prop in CremeProperty.objects.filter(creme_entity__in=e_ids, type=old_instance):
+            prop.delete()

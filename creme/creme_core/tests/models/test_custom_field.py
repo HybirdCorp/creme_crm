@@ -13,6 +13,8 @@ from creme.creme_config.forms.fields import (
     CreatorCustomEnumerableChoiceField,
     CustomMultiEnumChoiceField,
 )
+from creme.creme_core.core.history import toggle_history
+# from creme.creme_core.models import HistoryLine
 from creme.creme_core.models import (
     CremeEntity,
     CustomField,
@@ -29,7 +31,6 @@ from creme.creme_core.models import (
     CustomFieldURL,
     FakeContact,
     FakeOrganisation,
-    HistoryLine,
 )
 
 from ..base import CremeTestCase
@@ -170,9 +171,10 @@ class CustomFieldsTestCase(CremeTestCase):
 
         value = cf_value.value + 1
 
-        HistoryLine.disable(cf_value)
-
-        with self.assertNumQueries(1):
+        # HistoryLine.disable(cf_value)
+        # with self.assertNumQueries(1):
+        # 2: value + history
+        with self.assertNumQueries(2):
             cf_value.set_value_n_save(value)
 
         self.assertEqual(value, self.refresh(cf_value).value)
@@ -354,6 +356,7 @@ by a man named Tochiro.
         self.assertIsInstance(formfield, forms.BooleanField)
         self.assertFalse(formfield.required)
 
+    @toggle_history(enabled=False)
     def test_bool02(self) -> None:
         "set_value_n_save()."
         cfield = CustomField.objects.create(
@@ -369,7 +372,7 @@ by a man named Tochiro.
             value=False,
         )
 
-        HistoryLine.disable(cf_value)
+        # HistoryLine.disable(cf_value)
 
         with self.assertNumQueries(1):
             cf_value.set_value_n_save(True)
@@ -443,9 +446,10 @@ by a man named Tochiro.
             value=enum_value1,
         )
 
-        HistoryLine.disable(cf_value)
-
-        with self.assertNumQueries(1):
+        # HistoryLine.disable(cf_value)
+        # with self.assertNumQueries(1):
+        # 2: value + history
+        with self.assertNumQueries(2):
             cf_value.set_value_n_save(str(enum_value2.id))
 
         self.assertEqual(enum_value2, self.refresh(cf_value).value)
@@ -515,9 +519,15 @@ by a man named Tochiro.
             entity=orga,
         )
 
-        HistoryLine.disable(cf_value)
+        # HistoryLine.disable(cf_value)
+        # with self.assertNumQueries(3):
+        #     cf_value.set_value_n_save([enum_value1, enum_value2])
 
-        with self.assertNumQueries(3):
+        # 3 queries to select & save the values
+        # 1 to create history line
+        # 5. SELECT "creme_core_historyconfigitem"."relation_type_id" FROM
+        #    "creme_core_historyconfigitem"  => is it OK?
+        with self.assertNumQueries(5):
             cf_value.set_value_n_save([enum_value1, enum_value2])
 
         self.assertCountEqual(
