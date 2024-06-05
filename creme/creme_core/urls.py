@@ -308,11 +308,6 @@ entity_filter_patterns = [
         entity_filter.EntityFilterEdition.as_view(),
         name='creme_core__edit_efilter',
     ),
-    re_path(  # DEPRECATED
-        r'^delete[/]?$',
-        entity_filter.EntityFilterDeletion.as_view(),
-        name='creme_core__delete_efilter',
-    ),
     re_path(
         r'^delete/(?P<efilter_id>.+)[/]?$',
         entity_filter.EntityFilterDeletion.as_view(),

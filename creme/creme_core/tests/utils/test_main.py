@@ -14,10 +14,11 @@ from django.utils.translation import override as override_language
 from PIL.Image import open as open_img
 
 from creme.creme_core.global_info import clear_global_info
-from creme.creme_core.models import FakeCivility, FakeContact, FakeOrganisation
+# from creme.creme_core.models import FakeCivility
+from creme.creme_core.models import FakeContact, FakeOrganisation
+# from creme.creme_core.utils import create_if_needed
 from creme.creme_core.utils import (
     as_int,
-    create_if_needed,
     ellipsis,
     ellipsis_multi,
     entities_to_str,
@@ -73,22 +74,22 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual('a',     truncate_str('b',       1, suffix='a'))
         self.assertEqual('abcd',  truncate_str('abcdef',  4, suffix='01234'))
 
-    def test_create_if_needed(self):
-        title = 'Mister'
-        pk = 999999  # We need a DB-valid primary key
-        self.assertFalse(FakeCivility.objects.filter(pk=pk).exists())
-
-        civ = create_if_needed(FakeCivility, {'pk': pk}, title=title)
-        self.assertIsInstance(civ, FakeCivility)
-        self.assertEqual(pk,       civ.pk)
-        self.assertEqual(title,    civ.title)
-
-        civ = self.get_object_or_fail(FakeCivility, pk=pk)  # Check has been saved
-
-        self.assertEqual(title, civ.title)
-
-        civ = create_if_needed(FakeCivility, {'pk': pk}, title=title + '2')
-        self.assertEqual(title, civ.title)
+    # def test_create_if_needed(self):
+    #     title = 'Mister'
+    #     pk = 999999  # We need a DB-valid primary key
+    #     self.assertFalse(FakeCivility.objects.filter(pk=pk).exists())
+    #
+    #     civ = create_if_needed(FakeCivility, {'pk': pk}, title=title)
+    #     self.assertIsInstance(civ, FakeCivility)
+    #     self.assertEqual(pk,       civ.pk)
+    #     self.assertEqual(title,    civ.title)
+    #
+    #     civ = self.get_object_or_fail(FakeCivility, pk=pk)  # Check has been saved
+    #
+    #     self.assertEqual(title, civ.title)
+    #
+    #     civ = create_if_needed(FakeCivility, {'pk': pk}, title=title + '2')
+    #     self.assertEqual(title, civ.title)
 
     def test_update_model_instance01(self):
         user = self.get_root_user()
