@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import warnings
-# import warnings
 from functools import partial
 from os.path import splitext
 from typing import TYPE_CHECKING, Iterable

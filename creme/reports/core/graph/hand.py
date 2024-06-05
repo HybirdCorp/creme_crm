@@ -656,7 +656,6 @@ class RGHRelation(ReportGraphHand):
 
         # NB: we assume the field "header_filter_search_field" is up-to-date
         #     (it should be in the absolute, but it's not the responsibility of this code)
-        # TODO: order_by 'header_filter_search_field'
         # TODO: limit + warning message (in UI) when the limit is reached?
         for obj_id, obj_str in Relation.objects.filter(
             type_id=rtype_id, subject_entity__entity_type=self._graph.linked_report.ct,
