@@ -145,7 +145,7 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         )
         satype = ActivitySubType.objects.create(
             # pk='test-activity_fight',
-            type=atype, name='Figtho',
+            type=atype, name='Fightoo',
         )
 
         url = reverse(
@@ -154,7 +154,7 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         )
         self.assertGET200(url)
 
-        name = 'Figtho'
+        name = 'Fight!!'
         self.assertNoFormError(
             self.client.post(url, data={'type': atype.id, 'name': name})
         )

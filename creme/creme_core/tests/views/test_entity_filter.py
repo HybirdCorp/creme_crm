@@ -2052,13 +2052,16 @@ class EntityFilterViewsTestCase(BrickTestCaseMixin, ButtonTestCaseMixin, CremeTe
         self.login_as_root()
 
         build_url = partial(self._build_get_filter_url, ct=self.ct_contact)
-        response1 = self.client.get(build_url(all_='invalid'))
-        # self.assertContains(response1, 'Problem with argument "all"', html=True, status_code=404)
-        self.assertIn(b'Problem with argument &quot;all&quot;', response1.content)
-
-        # ---
-        response2 = self.client.get(build_url(types=['invalid']))
-        self.assertIn(b'Invalid type of filter &quot;invalid&quot;', response2.content)
+        self.assertContains(
+            self.client.get(build_url(all_='invalid')),
+            text='Problem with argument &quot;all&quot;',
+            status_code=404,
+        )
+        self.assertContains(
+            self.client.get(build_url(types=['invalid'])),
+            text='Invalid type of filter &quot;invalid&quot;',
+            status_code=404,
+        )
 
     def test_filters_for_ctype__app_perm(self):
         self.login_as_standard(allowed_apps=['documents'])
