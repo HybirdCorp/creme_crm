@@ -1,14 +1,13 @@
 from functools import partial
 
 from creme.creme_core import creme_jobs
-from creme.creme_core.models import Job
+from creme.creme_core.models import FakeContact, Job
 from creme.creme_core.models.history import (
     TYPE_AUX_CREATION,
     TYPE_DELETION,
     HistoryLine,
 )
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.fake_models import FakeContact
 
 
 class AssistantsTestCase(CremeTestCase):

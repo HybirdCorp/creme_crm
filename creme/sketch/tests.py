@@ -2,9 +2,9 @@ from django.urls.base import reverse
 from parameterized import parameterized
 
 from creme.creme_core.gui.bricks import brick_registry
+from creme.creme_core.models import FakeContact
 from creme.creme_core.templatetags.creme_core_tags import jsondata
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.fake_models import FakeContact
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.sketch import bricks
 

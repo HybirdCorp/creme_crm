@@ -4,8 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.timezone import now
 
-from creme.creme_core.models import CremeEntity
-from creme.creme_core.tests.fake_models import FakeContact
+from creme.creme_core.models import CremeEntity, FakeContact
 
 from ..models import WaitingAction
 from .base import CrudityTestCase

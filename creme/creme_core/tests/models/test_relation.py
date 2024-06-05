@@ -11,6 +11,7 @@ from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
     FakeContact,
+    FakeDocument,
     FakeOrganisation,
     Relation,
     RelationType,
@@ -18,7 +19,6 @@ from creme.creme_core.models import (
 from creme.creme_core.utils.profiling import CaptureQueriesContext
 
 from ..base import CremeTestCase
-from ..fake_models import FakeDocument
 
 
 class RelationsTestCase(CremeTestCase):

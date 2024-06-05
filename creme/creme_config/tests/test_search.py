@@ -8,14 +8,16 @@ from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellRegularField,
 )
-from creme.creme_core.models import CustomField, FieldsConfig, SearchConfigItem
-from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.fake_models import (
+from creme.creme_core.models import (
+    CustomField,
     FakeContact,
     FakeInvoice,
     FakeInvoiceLine,
     FakeOrganisation,
+    FieldsConfig,
+    SearchConfigItem,
 )
+from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.unicode_collation import collator

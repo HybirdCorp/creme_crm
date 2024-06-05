@@ -23,11 +23,10 @@ from creme.creme_core.creme_jobs import (
     temp_files_cleaner_type,
 )
 from creme.creme_core.creme_jobs.base import JobType
-from creme.creme_core.models import EntityJobResult, Job
+from creme.creme_core.models import EntityJobResult, FakeOrganisation, Job
 from creme.creme_core.utils.dates import dt_to_ISO8601
 
 from ..base import CremeTestCase
-from ..fake_models import FakeOrganisation
 # from .base import ViewsTestCase
 from .base import BrickTestCaseMixin
 

@@ -1,10 +1,9 @@
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.gui.button_menu import Button
-from creme.creme_core.models import ButtonMenuItem
+from creme.creme_core.models import ButtonMenuItem, FakeContact
 
 from ..base import CremeTestCase
-from ..fake_models import FakeContact
 
 
 class ButtonMenuItemTestCase(CremeTestCase):

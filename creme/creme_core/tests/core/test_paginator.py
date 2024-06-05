@@ -12,9 +12,7 @@ from creme.creme_core.core.paginator import (
     InvalidPage,
     LastPage,
 )
-from creme.creme_core.models import UserRole
-from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.fake_models import (
+from creme.creme_core.models import (
     FakeContact,
     FakeDocument,
     FakeFolder,
@@ -23,7 +21,9 @@ from creme.creme_core.tests.fake_models import (
     FakeInvoiceLine,
     FakeOrganisation,
     FakeSector,
+    UserRole,
 )
+from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.utils.profiling import CaptureQueriesContext
 
 
