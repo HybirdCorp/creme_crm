@@ -162,7 +162,7 @@ class FilterConditionHandler:
 
     @classmethod
     def query_for_related_conditions(cls, instance: Model) -> Q:
-        """"Get a Q instance to retrieve EntityFilterConditions which are
+        """Get a Q instance to retrieve EntityFilterConditions which are
         related to an instance.
         It's useful to delete useless conditions (their related instance is deleted).
         """
@@ -170,7 +170,7 @@ class FilterConditionHandler:
 
     @classmethod
     def query_for_parent_conditions(cls, ctype: ContentType) -> Q:
-        """"Get a Q instance to retrieve EntityFilterConditions which have
+        """Get a Q instance to retrieve EntityFilterConditions which have
         potentially sub-filters for a given ContentType.
         It's useful to build EntityFilters tree (to check cycle etc...).
         """
