@@ -114,8 +114,8 @@ class MergeViewsTestCase(CremeTestCase):
             ('test-object_sponsors',  'is sponsored by', [FakeContact]),
         )[0]
         rtype03 = create_rtype(
-            ('test-subject_hight_member', 'is a hight member of',  [FakeContact]),
-            ('test-object_hight_member',  'has as a hight member', [FakeOrganisation]),
+            ('test-subject_high_member', 'is a high member of',  [FakeContact]),
+            ('test-object_high_member',  'has as a high member', [FakeOrganisation]),
         )[0]
 
         create_ptype = CremePropertyType.objects.create

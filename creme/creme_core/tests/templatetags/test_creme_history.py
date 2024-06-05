@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.utils.timezone import now
 
+from creme.creme_core.core.history import toggle_history
 from creme.creme_core.models.history import (
     TYPE_CREATION,
     TYPE_EDITION,
@@ -64,12 +65,18 @@ class CremeHistoryTagsTestCase(CremeTestCase):
         "No stored history lines."
         user = self.get_root_user()
 
-        togame = FakeContact(
-            user=user, first_name='Togame', last_name='Kisakushi',
-            created=now() - timedelta(hours=2),
-        )
-        HistoryLine.disable(togame)
-        togame.save()
+        # togame = FakeContact(
+        #     user=user, first_name='Togame', last_name='Kisakushi',
+        #     created=now() - timedelta(hours=2),
+        # )
+        # HistoryLine.disable(togame)
+        # togame.save()
+        with toggle_history(enabled=False):
+            togame = FakeContact.objects.create(
+                user=user, first_name='Togame', last_name='Kisakushi',
+                created=now() - timedelta(hours=2),
+            )
+
         self.assertFalse(HistoryLine.objects.filter(entity=togame.id))
 
         summary = creme_history.history_summary(entity=togame, user=user)

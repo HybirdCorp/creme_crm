@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -661,7 +661,8 @@ def _handle_merge(sender, other_entity, **kwargs):
       - it updates the relationships which reference the removed entity to
         reference the remaining entity (History is managed by hand).
     """
-    from .history import HistoryLine, _HLTRelation
+    from ..core.history import toggle_history
+    from .history import _HLTRelation  # HistoryLine
 
     # Deletion of duplicates ---------------------------------------------------
     # Key#1 => relation-type ID
@@ -685,14 +686,19 @@ def _handle_merge(sender, other_entity, **kwargs):
     del entities_per_rtype_ids  # free memory
 
     if duplicates_q:
-        for relation in other_entity.relations.filter(duplicates_q) \
-                                    .select_related('symmetric_relation'):
-            # NB: HistoryLine.disable() work only on the '-subject_' side of the Relation
-            if '-subject_' not in relation.type_id:
-                relation = relation.symmetric_relation
-
-            HistoryLine.disable(relation)
-            relation.delete()
+        # for relation in other_entity.relations.filter(duplicates_q) \
+        #                             .select_related('symmetric_relation'):
+        #     # NB: HistoryLine.disable() work only on the '-subject_' side of the Relation
+        #     if '-subject_' not in relation.type_id:
+        #         relation = relation.symmetric_relation
+        #
+        #     HistoryLine.disable(relation)
+        #     relation.delete()
+        with toggle_history(enabled=False):
+            for relation in other_entity.relations.filter(
+                duplicates_q
+            ).select_related('symmetric_relation'):
+                relation.delete()
 
     # Replacement of ForeignKeys -----------------------------------------------
 
