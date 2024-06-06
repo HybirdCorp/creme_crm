@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2023 Hybird
+# Copyright (c) 2016-2024 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -244,6 +244,8 @@ class FlowPaginator:
                 page_obj = self.page(page_info)
             except LastPage:
                 page_obj = self.last_page()
+            except FirstPage:
+                page_obj = self.page()
             except InvalidPage:
                 logger.exception('FlowPagination.get_page(): invalid page')
                 page_obj = self.page()
