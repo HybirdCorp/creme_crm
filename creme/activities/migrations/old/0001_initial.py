@@ -2,7 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import migrations, models
-from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
+from django.db.models.deletion import CASCADE, PROTECT
 
 import creme.creme_core.models.fields as creme_fields
 from creme.creme_core.models import CREME_REPLACE_NULL
@@ -11,11 +11,8 @@ from creme.creme_core.models import CREME_REPLACE_NULL
 class Migration(migrations.Migration):
     # replaces = [
     #     ('activities', '0001_initial'),
-    #     ('activities', '0015_v2_4__minion_models01'),
-    #     ('activities', '0016_v2_4__minion_models02'),
-    #     ('activities', '0017_v2_4__minion_models03'),
-    #     ('activities', '0018_v2_4__not_null_subtype01'),
-    #     ('activities', '0019_v2_4__not_null_subtype02'),
+    #     ('activities', '0020_v2_5__status_color01'),
+    #     ('activities', '0021_v2_5__status_color02'),
     # ]
 
     initial = True
@@ -92,6 +89,13 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('description', models.TextField(verbose_name='Description')),
+                (
+                    'color',
+                    creme_fields.ColorField(
+                        default=creme_fields.ColorField.random,
+                        max_length=6, verbose_name='Color',
+                    )
+                ),
                 ('is_custom', models.BooleanField(default=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
@@ -181,7 +185,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'is_all_day',
-                    models.BooleanField(default=False, verbose_name='All day?')  # blank=True
+                    models.BooleanField(default=False, verbose_name='All day?')
                 ),
                 ('busy', models.BooleanField(default=False, verbose_name='Busy?')),
                 (
@@ -199,10 +203,6 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'sub_type',
-                    # models.ForeignKey(
-                    #     verbose_name='Activity sub-type', to='activities.ActivitySubType',
-                    #     blank=True, null=True, on_delete=SET_NULL,
-                    # ),
                     models.ForeignKey(
                         to='activities.activitysubtype',
                         verbose_name='Activity sub-type',

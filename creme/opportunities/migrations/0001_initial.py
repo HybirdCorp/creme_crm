@@ -10,10 +10,9 @@ from creme.creme_core.models import CREME_REPLACE_NULL
 class Migration(migrations.Migration):
     # replaces = [
     #     ('opportunities', '0001_initial'),
-    #     ('opportunities', '0015_v2_5__salesphase_color01'),
-    #     ('opportunities', '0016_v2_5__salesphase_color02'),
+    #     ('opportunities', '0017_v2_6__fix_uuids'),
+    #     ('opportunities', '0018_v2_6__settingvalue_json'),
     # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),

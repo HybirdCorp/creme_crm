@@ -9,15 +9,7 @@ from creme.emails.utils import generate_id
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('emails', '0001_initial'),
-    #     ('emails', '0021_v2_5__sync_status_update'),
-    #     ('emails', '0022_emailsending_config_item01'),
-    #     ('emails', '0023_emailsending_config_item02'),
-    #     ('emails', '0024_v2_5__sync_models_pw'),
-    #     ('emails', '0025_v2_5__emailsending_config_item03'),
-    # ]
-
+    # Memo: last migration was "0025_v2_5__emailsending_config_item03"
     initial = True
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

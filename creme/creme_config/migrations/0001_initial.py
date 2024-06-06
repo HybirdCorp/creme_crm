@@ -3,11 +3,7 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #   ('creme_config', '0001_initial')
-    #   ('creme_config', '0002_v2_4__cforms_brick_state')
-    # ]
-
+    # Memo: last migration was "0002_v2_4__cforms_brick_state"
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),

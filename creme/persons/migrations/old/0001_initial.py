@@ -12,11 +12,7 @@ from creme.documents.models.fields import ImageEntityForeignKey
 class Migration(migrations.Migration):
     # replaces = [
     #     ('persons', '0001_initial'),
-    #     ('persons', '0002_v2_4__unique_user_email'),
-    #     ('persons', '0028_v2_4__minion_models01'),
-    #     ('persons', '0029_v2_4__minion_models02'),
-    #     ('persons', '0030_v2_4__minion_models03'),
-    #     ('persons', '0031_v2_4__fix_edition_cforms'),
+    #     ('persons', '0032_v2_5__django42_indexes'),
     # ]
 
     initial = True
@@ -98,7 +94,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('size', models.CharField(max_length=100, verbose_name='Size')),
-                # ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True)),
@@ -214,7 +209,13 @@ class Migration(migrations.Migration):
                 'ordering': ('last_name', 'first_name'),
                 'verbose_name': 'Contact',
                 'verbose_name_plural': 'Contacts',
-                'index_together': {('last_name', 'first_name', 'cremeentity_ptr')},
+                # 'index_together': {('last_name', 'first_name', 'cremeentity_ptr')},
+                'indexes': [
+                    models.Index(
+                        fields=['last_name', 'first_name', 'cremeentity_ptr'],
+                        name='persons__contact__default_lv',
+                    ),
+                ],
             },
             bases=('creme_core.cremeentity',),
         ),
@@ -298,7 +299,12 @@ class Migration(migrations.Migration):
                 'ordering': ('name',),
                 'verbose_name': 'Organisation',
                 'verbose_name_plural': 'Organisations',
-                'index_together': {('name', 'cremeentity_ptr')},
+                # 'index_together': {('name', 'cremeentity_ptr')},
+                'indexes': [
+                    models.Index(
+                        fields=['name', 'cremeentity_ptr'], name='persons__orga__default_lv',
+                    ),
+                ],
             },
             bases=('creme_core.cremeentity',),
         ),
