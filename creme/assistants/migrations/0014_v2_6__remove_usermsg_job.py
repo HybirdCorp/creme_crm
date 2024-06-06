@@ -1,7 +1,7 @@
 from django.db import migrations
 
 
-def set_version(apps, schema_editor):
+def delete_job(apps, schema_editor):
     apps.get_model('creme_core', 'Job').objects.filter(
         type_id='assistants-usermessages_send',
     ).delete()
@@ -14,5 +14,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(set_version),
+        migrations.RunPython(delete_job),
     ]
