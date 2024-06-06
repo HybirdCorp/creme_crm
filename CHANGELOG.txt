@@ -3,6 +3,7 @@
   Users side :
   ------------
     # Images with an extension in uppercase (e.g. "my_pic.JPG") are correctly displayed now.
+    # A scary log with fast pagination has been removed.
 
 
 == Version 2.5.9 ==
