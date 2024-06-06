@@ -831,7 +831,7 @@ CREME_LIB_JS = [
     'creme_core/js/lib/momentjs/locale/en-us.js',
     'creme_core/js/lib/momentjs/locale/fr-fr.js',
     'creme_core/js/lib/editor/tinymce.3.4.9.js',
-    'creme_core/js/lib/Sortable/Sortable-1.15.0.js',
+    'creme_core/js/lib/Sortable/Sortable-1.15.2.js',
     'creme_core/js/lib/select2/select2-4.0.13.full.js',
     'creme_core/js/lib/select2/select2-jquery-3.6.0.js',
 ]
