@@ -10,8 +10,11 @@ from creme.documents.models.fields import ImageEntityManyToManyField
 class Migration(migrations.Migration):
     # replaces = [
     #     ('products', '0001_initial'),
-    #     ('products', '0015_v2_6__fix_categories_uuids'),
+    #     ('products', '0012_v2_4__minion_categories01'),
+    #     ('products', '0013_v2_4__minion_categories02'),
+    #     ('products', '0014_v2_4__minion_categories03'),
     # ]
+
     initial = True
     dependencies = [
         migrations.swappable_dependency(settings.DOCUMENTS_DOCUMENT_MODEL),

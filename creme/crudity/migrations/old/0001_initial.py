@@ -7,10 +7,6 @@ import creme.creme_core.models.fields as core_fields
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('crudity', '0001_initial'),
-    #     ('crudity', '0008_v2_6__settingvalue_json'),
-    # ]
     initial = True
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

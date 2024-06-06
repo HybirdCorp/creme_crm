@@ -9,8 +9,11 @@ from creme.creme_core.models import CREME_REPLACE
 class Migration(migrations.Migration):
     # replaces = [
     #     ('events', '0001_initial'),
-    #     ('events', '0008_v2_6__fix_event_type_uuids'),
+    #     ('events', '0005__v2_4__minion_type01'),
+    #     ('events', '0006__v2_4__minion_type02'),
+    #     ('events', '0007__v2_4__minion_type03'),
     # ]
+
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
