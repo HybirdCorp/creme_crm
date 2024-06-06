@@ -400,7 +400,9 @@ class MySignaturesBrick(QuerysetBrick):
         )
 
         for signature in btc['page'].object_list:
-            signature.renderer = self.signature_render_cls(signature)
+            signature.renderer = self.signature_render_cls(
+                signature=signature, domain='test.org',
+            )
 
         return self._render(btc)
 
