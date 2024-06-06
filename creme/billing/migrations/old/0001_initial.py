@@ -8,15 +8,16 @@ from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
 import creme.creme_core.models.fields as core_fields
 from creme.billing.models.fields import BillingDiscountField
 from creme.creme_core.models import CREME_REPLACE, CREME_REPLACE_NULL
+from creme.creme_core.models.vat import get_default_vat_pk
 
 
 class Migration(migrations.Migration):
     # replaces = [
     #     ('billing', '0001_initial'),
-    #     ('billing', '0024_v2_4__delete_cloned_addresses'),
-    #     ('billing', '0025_v2_4__minion_models01'),
-    #     ('billing', '0026_v2_4__minion_models02'),
-    #     ('billing', '0027_v2_4__minion_models03'),
+    #     ('billing', '0028_v2_5__colored_statuses01'),
+    #     ('billing', '0029_v2_5__colored_statuses02'),
+    #     ('billing', '0030_v2_5__lines_order'),
+    #     ('billing', '0031_v2_5__lines_order_data'),
     # ]
 
     initial = True
@@ -127,8 +128,14 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+                (
+                    'color',
+                    core_fields.ColorField(
+                        default=core_fields.ColorField.random,
+                        max_length=6, verbose_name='Color',
+                    )
+                ),
                 ('is_custom', models.BooleanField(default=True)),
-                # ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
@@ -251,8 +258,14 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+                (
+                    'color',
+                    core_fields.ColorField(
+                        default=core_fields.ColorField.random,
+                        max_length=6, verbose_name='Color',
+                    )
+                ),
                 ('is_custom', models.BooleanField(default=True)),
-                # ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('pending_payment', models.BooleanField(default=False, verbose_name='Pending payment')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
@@ -371,8 +384,14 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+                (
+                    'color',
+                    core_fields.ColorField(
+                        default=core_fields.ColorField.random,
+                        max_length=6, verbose_name='Color',
+                    )
+                ),
                 ('is_custom', models.BooleanField(default=True)),
-                # ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('won', models.BooleanField(default=False, verbose_name='Won')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
@@ -494,8 +513,14 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
+                (
+                    'color',
+                    core_fields.ColorField(
+                        default=core_fields.ColorField.random,
+                        max_length=6, verbose_name='Color',
+                    )
+                ),
                 ('is_custom', models.BooleanField(default=True)),
-                # ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
@@ -735,16 +760,25 @@ class Migration(migrations.Migration):
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
                 (
                     'quantity',
-                    models.DecimalField(default=Decimal('1.00'), verbose_name='Quantity', max_digits=10, decimal_places=2)
+                    models.DecimalField(
+                        verbose_name='Quantity',
+                        default=Decimal('1.00'), max_digits=10, decimal_places=2,
+                    )
                 ),
                 (
                     'unit_price',
-                    models.DecimalField(default=Decimal('0'), verbose_name='Unit price', max_digits=10, decimal_places=2)
+                    models.DecimalField(
+                        verbose_name='Unit price',
+                        default=Decimal('0'), max_digits=10, decimal_places=2,
+                    )
                 ),
                 ('unit', models.CharField(max_length=100, verbose_name='Unit', blank=True)),
                 (
                     'discount',
-                    models.DecimalField(default=Decimal('0'), verbose_name='Discount', max_digits=10, decimal_places=2)
+                    models.DecimalField(
+                        verbose_name='Discount',
+                        default=Decimal('0'), max_digits=10, decimal_places=2,
+                    )
                 ),
                 (
                     'discount_unit',
@@ -754,7 +788,15 @@ class Migration(migrations.Migration):
                         verbose_name='Discount Unit',
                     )
                 ),
-                ('vat_value', models.ForeignKey(default=1, on_delete=PROTECT, verbose_name='VAT', to='creme_core.Vat')),
+                (
+                    'vat_value',
+                    models.ForeignKey(
+                        to='creme_core.Vat', verbose_name='VAT', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_vat_pk,
+                    )
+                ),
+                ('order', models.PositiveIntegerField(default=0, editable=False)),
             ],
             options={
                 'swappable': 'BILLING_PRODUCT_LINE_MODEL',
@@ -778,11 +820,17 @@ class Migration(migrations.Migration):
                 ('comment', models.TextField(verbose_name='Comment', blank=True)),
                 (
                     'quantity',
-                    models.DecimalField(default=Decimal('1.00'), verbose_name='Quantity', max_digits=10, decimal_places=2)
+                    models.DecimalField(
+                        verbose_name='Quantity',
+                        default=Decimal('1.00'), max_digits=10, decimal_places=2,
+                    )
                 ),
                 (
                     'unit_price',
-                    models.DecimalField(default=Decimal('0'), verbose_name='Unit price', max_digits=10, decimal_places=2)
+                    models.DecimalField(
+                        verbose_name='Unit price',
+                        default=Decimal('0'), max_digits=10, decimal_places=2,
+                    )
                 ),
                 (
                     'unit',
@@ -790,7 +838,10 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'discount',
-                    models.DecimalField(default=Decimal('0'), verbose_name='Discount', max_digits=10, decimal_places=2)
+                    models.DecimalField(
+                        verbose_name='Discount',
+                        default=Decimal('0'), max_digits=10, decimal_places=2,
+                    )
                 ),
                 (
                     'discount_unit',
@@ -800,7 +851,15 @@ class Migration(migrations.Migration):
                         verbose_name='Discount Unit',
                     )
                 ),
-                ('vat_value', models.ForeignKey(default=1, on_delete=PROTECT, verbose_name='VAT', to='creme_core.Vat')),
+                (
+                    'vat_value',
+                    models.ForeignKey(
+                        to='creme_core.Vat', verbose_name='VAT', on_delete=PROTECT,
+                        # default=1,
+                        default=get_default_vat_pk,
+                    )
+                ),
+                ('order', models.PositiveIntegerField(default=0, editable=False)),
             ],
             options={
                 'swappable': 'BILLING_SERVICE_LINE_MODEL',
