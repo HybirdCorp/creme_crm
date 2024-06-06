@@ -27,10 +27,19 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the generator', blank=True)),
                 ('first_generation', models.DateTimeField(verbose_name='Date of the first generation')),
-                ('last_generation', models.DateTimeField(verbose_name='Date of the last generation', null=True, editable=False)),
+                (
+                    'last_generation',
+                    models.DateTimeField(verbose_name='Date of the last generation', null=True, editable=False)
+                ),
                 ('periodicity', core_fields.DatePeriodField(verbose_name='Periodicity of the generation')),
                 ('is_working', models.BooleanField(default=True, verbose_name='Active?', editable=False)),
-                ('ct', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType', verbose_name='Type of the recurrent resource')),
+                (
+                    'ct',
+                    core_fields.CTypeForeignKey(
+                        to='contenttypes.ContentType',
+                        editable=False, verbose_name='Type of the recurrent resource'
+                    )
+                ),
                 (
                     'template',
                     models.ForeignKey(

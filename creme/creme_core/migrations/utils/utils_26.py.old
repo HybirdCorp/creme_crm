@@ -1,5 +1,3 @@
-# Will be removed in Creme 2.7
-
 # HINT: use this function in your own migrations
 def fill_json_for_setting_key(apps, setting_key):
     from creme.creme_core.core.setting_key import _SettingKey
