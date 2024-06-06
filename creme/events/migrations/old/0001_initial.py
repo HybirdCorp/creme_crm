@@ -9,8 +9,11 @@ from creme.creme_core.models import CREME_REPLACE
 class Migration(migrations.Migration):
     # replaces = [
     #     ('events', '0001_initial'),
-    #     ('events', '0008_v2_6__fix_event_type_uuids'),
+    #     ('events', '0005__v2_4__minion_type01'),
+    #     ('events', '0006__v2_4__minion_type02'),
+    #     ('events', '0007__v2_4__minion_type03'),
     # ]
+
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -23,7 +26,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=50, verbose_name='Name')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('is_custom', models.BooleanField(default=True)),
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
             options={

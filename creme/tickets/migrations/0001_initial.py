@@ -10,10 +10,8 @@ from creme.creme_core.models import CREME_REPLACE
 class Migration(migrations.Migration):
     # replaces = [
     #     ('tickets', '0001_initial'),
-    #     ('tickets', '0013_v2_5__status_color01'),
-    #     ('tickets', '0014_v2_5__status_color02'),
+    #     ('tickets', '0015_v2_6__fix_uuids'),
     # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -108,7 +106,10 @@ class Migration(migrations.Migration):
                 ('number', models.PositiveIntegerField(verbose_name='Number', unique=True, editable=False)),
                 ('title', models.CharField(max_length=100, verbose_name='Title', blank=True)),
                 ('solution', models.TextField(verbose_name='Solution', blank=True)),
-                ('closing_date', models.DateTimeField(verbose_name='Closing date', null=True, editable=False, blank=True)),
+                (
+                    'closing_date',
+                    models.DateTimeField(verbose_name='Closing date', null=True, editable=False, blank=True)
+                ),
                 (
                     'criticity',
                     models.ForeignKey(on_delete=CREME_REPLACE, verbose_name='Criticality', to='tickets.Criticity')

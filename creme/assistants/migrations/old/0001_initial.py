@@ -9,13 +9,6 @@ import creme.creme_core.models.fields as creme_fields
 
 
 class Migration(migrations.Migration):
-    # replaces=[
-    #   ('assistants', '0001_initial'),
-    #   ('assistants', '0014_v2_6__remove_usermsg_job'),
-    #   ('assistants', '0015_v2_6__remove_usermessage_email_sent'),
-    #   ('assistants', '0016_v_2_6__fix_priority_uuids'),
-    #   ('assistants', '0017_v2_6__settingvalue_json'),
-    # ]
     initial = True
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -104,6 +97,7 @@ class Migration(migrations.Migration):
                         default=False, editable=False, verbose_name='Notification sent',
                     )
                 ),
+                # ('trigger_date', models.DateTimeField(verbose_name='Trigger date')),
                 ('trigger_date', models.DateTimeField(editable=False, null=True, verbose_name='Trigger date')),
                 (
                     'trigger_offset',
@@ -125,6 +119,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'user',
+                    # creme_fields.CremeUserForeignKey(
+                    #     verbose_name='Owner user', to=settings.AUTH_USER_MODEL,
+                    # )
                     creme_fields.CremeUserForeignKey(
                         verbose_name='Owner user', to=settings.AUTH_USER_MODEL,
                         blank=True, null=True,
@@ -149,7 +146,9 @@ class Migration(migrations.Migration):
                 ('content', models.TextField(verbose_name='Content')),
                 (
                     'on_homepage',
-                    models.BooleanField(default=False, verbose_name='Displayed on homepage')
+                    models.BooleanField(
+                        default=False, verbose_name='Displayed on homepage',  # blank=True,
+                    )
                 ),
                 (
                     'creation_date',
@@ -228,6 +227,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'user',
+                    # creme_fields.CremeUserForeignKey(
+                    #     verbose_name='Owner user', to=settings.AUTH_USER_MODEL,
+                    # )
                     creme_fields.CremeUserForeignKey(
                         verbose_name='Owner user', to=settings.AUTH_USER_MODEL,
                         blank=True, null=True,
@@ -250,7 +252,7 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('title', models.CharField(max_length=200, verbose_name='Title')),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('is_custom', models.BooleanField(default=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
@@ -273,7 +275,7 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=200, verbose_name='Title')),
                 ('body', models.TextField(verbose_name='Message body')),
                 ('creation_date', models.DateTimeField(verbose_name='Creation date')),
-                # ('email_sent', models.BooleanField(default=False)),
+                ('email_sent', models.BooleanField(default=False)),
                 (
                     'entity',
                     models.ForeignKey(

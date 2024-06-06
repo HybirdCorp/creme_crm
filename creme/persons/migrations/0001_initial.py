@@ -12,9 +12,9 @@ from creme.documents.models.fields import ImageEntityForeignKey
 class Migration(migrations.Migration):
     # replaces = [
     #     ('persons', '0001_initial'),
-    #     ('persons', '0032_v2_5__django42_indexes'),
+    #     ('persons', '0033_v2_6__is_staff_contact'),
+    #     ('persons', '0034_v2_6__fix_uuids'),
     # ]
-
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),
@@ -118,8 +118,20 @@ class Migration(migrations.Migration):
                 ('department', models.CharField(max_length=100, verbose_name='Department', blank=True)),
                 ('state', models.CharField(max_length=100, verbose_name='State', blank=True)),
                 ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
-                ('object', models.ForeignKey(editable=False, on_delete=CASCADE, to='creme_core.CremeEntity', related_name='persons_addresses')),
-                ('content_type', core_fields.EntityCTypeForeignKey(editable=False, on_delete=CASCADE, related_name='+', to='contenttypes.ContentType')),
+                (
+                    'object',
+                    models.ForeignKey(
+                        to='creme_core.CremeEntity',
+                        editable=False, on_delete=CASCADE, related_name='persons_addresses'
+                    )
+                ),
+                (
+                    'content_type',
+                    core_fields.EntityCTypeForeignKey(
+                        to='contenttypes.ContentType',
+                        editable=False, on_delete=CASCADE, related_name='+',
+                    )
+                ),
             ],
             options={
                 'ordering': ('id',),
@@ -209,7 +221,6 @@ class Migration(migrations.Migration):
                 'ordering': ('last_name', 'first_name'),
                 'verbose_name': 'Contact',
                 'verbose_name_plural': 'Contacts',
-                # 'index_together': {('last_name', 'first_name', 'cremeentity_ptr')},
                 'indexes': [
                     models.Index(
                         fields=['last_name', 'first_name', 'cremeentity_ptr'],
@@ -299,7 +310,6 @@ class Migration(migrations.Migration):
                 'ordering': ('name',),
                 'verbose_name': 'Organisation',
                 'verbose_name_plural': 'Organisations',
-                # 'index_together': {('name', 'cremeentity_ptr')},
                 'indexes': [
                     models.Index(
                         fields=['name', 'cremeentity_ptr'], name='persons__orga__default_lv',
