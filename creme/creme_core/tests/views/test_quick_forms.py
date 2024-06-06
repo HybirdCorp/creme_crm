@@ -13,8 +13,8 @@ from creme.creme_core.models import (
     FieldsConfig,
 )
 
+from ..base import CremeTestCase
 from ..fake_forms import FakeContactQuickForm
-from .base import CremeTestCase
 
 
 class QuickFormTestCase(CremeTestCase):
