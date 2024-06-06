@@ -10,8 +10,11 @@ from creme.documents.models.fields import ImageEntityManyToManyField
 class Migration(migrations.Migration):
     # replaces = [
     #     ('products', '0001_initial'),
-    #     ('products', '0015_v2_6__fix_categories_uuids'),
+    #     ('products', '0012_v2_4__minion_categories01'),
+    #     ('products', '0013_v2_4__minion_categories02'),
+    #     ('products', '0014_v2_4__minion_categories03'),
     # ]
+
     initial = True
     dependencies = [
         migrations.swappable_dependency(settings.DOCUMENTS_DOCUMENT_MODEL),
@@ -26,7 +29,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name of the category')),
                 ('description', models.CharField(max_length=100, verbose_name='Description', blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('is_custom', models.BooleanField(default=True)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
@@ -44,7 +47,7 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(max_length=100, verbose_name='Description', blank=True)),
                 ('category', models.ForeignKey(verbose_name='Parent category', to='products.Category', on_delete=CASCADE)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('is_custom', models.BooleanField(default=True)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={

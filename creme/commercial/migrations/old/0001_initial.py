@@ -11,14 +11,11 @@ import creme.creme_core.models.fields as core_fields
 class Migration(migrations.Migration):
     # replaces = [
     #     ('commercial', '0001_initial'),
-    #     ('commercial', '0016_v2_6__ptype_uuid01'),
-    #     ('commercial', '0017_v2_6__ptype_uuid02'),
-    #     ('commercial', '0018_v2_6__ptype_uuid03'),
-    #     ('commercial', '0019_v2_6__ptype_uuid04'),
-    #     ('commercial', '0020_v2_6__ptype_uuid05'),
-    #     ('commercial', '0021_v2_6__fix_act_type_uuids'),
-    #     ('commercial', '0022_v2_6__settingvalue_json'),
+    #     ('commercial', '0013_v2_4__minion_type01'),
+    #     ('commercial', '0014_v2_4__minion_type02'),
+    #     ('commercial', '0015_v2_4__minion_type03'),
     # ]
+
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),
@@ -33,13 +30,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                (
-                    'property_type',
-                    models.ForeignKey(
-                        to='creme_core.CremePropertyType',
-                        editable=False, null=True, on_delete=CASCADE,
-                    )
-                ),
+                ('property_type', models.ForeignKey(editable=False, to='creme_core.CremePropertyType', null=True, on_delete=CASCADE)),
             ],
             options={
                 'ordering': ('name',),
@@ -53,7 +44,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=75, verbose_name='Title')),
-                ('is_custom', models.BooleanField(default=True, editable=False)),
+                ('is_custom', models.BooleanField(default=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
@@ -76,22 +67,11 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the commercial action')),
                 ('expected_sales', models.PositiveIntegerField(verbose_name='Expected sales')),
-                (
-                    'cost',
-                    models.PositiveIntegerField(
-                        verbose_name='Cost of the commercial action', null=True, blank=True,
-                    )
-                ),
+                ('cost', models.PositiveIntegerField(null=True, verbose_name='Cost of the commercial action', blank=True)),
                 ('goal', models.TextField(verbose_name='Goal of the action', blank=True)),
                 ('start', models.DateField(verbose_name='Start')),
                 ('due_date', models.DateField(verbose_name='Due date')),
-                (
-                    'segment',
-                    models.ForeignKey(
-                        to='commercial.MarketSegment',
-                        on_delete=PROTECT, verbose_name='Related segment',
-                    )
-                ),
+                ('segment', models.ForeignKey(on_delete=PROTECT, verbose_name='Related segment', to='commercial.MarketSegment')),
                 ('act_type', models.ForeignKey(on_delete=PROTECT, verbose_name='Type', to='commercial.ActType')),
             ],
             options={
@@ -111,10 +91,7 @@ class Migration(migrations.Migration):
                 ('counter_goal', models.PositiveIntegerField(default=1, verbose_name='Value to reach')),
                 (
                     'act',
-                    models.ForeignKey(
-                        to=settings.COMMERCIAL_ACT_MODEL,
-                        related_name='objectives', editable=False, on_delete=CASCADE,
-                    ),
+                    models.ForeignKey(related_name='objectives', editable=False, to=settings.COMMERCIAL_ACT_MODEL, on_delete=CASCADE),
                 ),
                 (
                     'ctype',
@@ -126,8 +103,7 @@ class Migration(migrations.Migration):
                 (
                     'filter',
                     models.ForeignKey(
-                        to='creme_core.EntityFilter',
-                        on_delete=PROTECT, blank=True, editable=False,
+                        on_delete=PROTECT, blank=True, editable=False, to='creme_core.EntityFilter',
                         null=True, verbose_name='Filter on counted entities',
                     ),
                 ),
@@ -152,10 +128,7 @@ class Migration(migrations.Migration):
                 ('average_sales', models.PositiveIntegerField(verbose_name='Average sales')),
                 (
                     'segment',
-                    models.ForeignKey(
-                        to='commercial.MarketSegment',
-                        verbose_name='Related segment', on_delete=CASCADE,
-                    ),
+                    models.ForeignKey(verbose_name='Related segment', to='commercial.MarketSegment', on_delete=CASCADE),
                 ),
             ],
             options={
@@ -172,13 +145,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('success_rate', models.PositiveIntegerField(verbose_name='Success rate')),
-                (
-                    'ctype',
-                    core_fields.CTypeForeignKey(
-                        to='contenttypes.ContentType', verbose_name='Counted type',
-                        blank=True, editable=False, null=True,
-                    )
-                ),
+                ('ctype', core_fields.CTypeForeignKey(blank=True, editable=False, to='contenttypes.ContentType', null=True, verbose_name='Counted type')),
                 (
                     'filter',
                     models.ForeignKey(
@@ -196,8 +163,7 @@ class Migration(migrations.Migration):
                 (
                     'pattern',
                     models.ForeignKey(
-                        to=settings.COMMERCIAL_PATTERN_MODEL,
-                        related_name='components', editable=False, on_delete=CASCADE,
+                        related_name='components', editable=False, to=settings.COMMERCIAL_PATTERN_MODEL, on_delete=CASCADE,
                     )
                 ),
             ],
@@ -212,29 +178,24 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 (
                     'creation_date',
-                    core_fields.CreationDateTimeField(
-                        default=now, verbose_name='Creation date', editable=False, blank=True,
-                    ),
+                    core_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True),
                 ),
                 (
                     'entity',
                     models.ForeignKey(
-                        to='creme_core.CremeEntity',
-                        editable=False, on_delete=CASCADE, related_name='commercial_approaches',
+                        editable=False, on_delete=CASCADE, to='creme_core.CremeEntity', related_name='commercial_approaches',
                     ),
                 ),
                 (
                     'entity_content_type',
                     core_fields.EntityCTypeForeignKey(
-                        to='contenttypes.ContentType',
-                        editable=False, on_delete=CASCADE, related_name='+',
+                        editable=False, on_delete=CASCADE, related_name='+', to='contenttypes.ContentType',
                     )
                 ),
                 (
                     'related_activity',
                     models.ForeignKey(
-                        to=settings.ACTIVITIES_ACTIVITY_MODEL,
-                        editable=False, null=True, on_delete=CASCADE,
+                        editable=False, to=settings.ACTIVITIES_ACTIVITY_MODEL, null=True, on_delete=CASCADE,
                     ),
                 ),
             ],
@@ -258,8 +219,7 @@ class Migration(migrations.Migration):
                 (
                     'evaluated_orgas',
                     models.ManyToManyField(
-                        to=settings.PERSONS_ORGANISATION_MODEL,
-                        verbose_name='Evaluated organisation(s)', editable=False,
+                        verbose_name='Evaluated organisation(s)', editable=False, to=settings.PERSONS_ORGANISATION_MODEL,
                     ),
                 ),
             ],
@@ -302,8 +262,7 @@ class Migration(migrations.Migration):
                 (
                     'strategy',
                     models.ForeignKey(
-                        to=settings.COMMERCIAL_STRATEGY_MODEL,
-                        related_name='assets', editable=False, on_delete=CASCADE,
+                        related_name='assets', editable=False, to=settings.COMMERCIAL_STRATEGY_MODEL, on_delete=CASCADE,
                     ),
                 ),
             ],
@@ -345,8 +304,7 @@ class Migration(migrations.Migration):
                 (
                     'strategy',
                     models.ForeignKey(
-                        to=settings.COMMERCIAL_STRATEGY_MODEL,
-                        related_name='charms', editable=False, on_delete=CASCADE,
+                        related_name='charms', editable=False, to=settings.COMMERCIAL_STRATEGY_MODEL, on_delete=CASCADE,
                     ),
                 ),
             ],

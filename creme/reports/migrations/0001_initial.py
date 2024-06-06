@@ -9,7 +9,6 @@ from creme.creme_core.core.entity_filter import EF_REGULAR
 from creme.reports.constants import EF_REPORTS
 
 
-# EF_USER = 1
 class Migration(migrations.Migration):
     # Memo: last migration was '0013_v2_2__instance_bricks_data'
 
@@ -88,7 +87,6 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the graph')),
                 (
-                    # 'abscissa',
                     'abscissa_cell_value',
                     models.CharField(verbose_name='X axis (field)', max_length=100, editable=False)
                 ),
@@ -111,7 +109,6 @@ class Migration(migrations.Migration):
                     models.CharField(verbose_name='Y axis (field)', editable=False, max_length=100, default='')
                 ),
                 (
-                    # 'type',
                     'abscissa_type',
                     models.PositiveIntegerField(
                         verbose_name='X axis (grouping)', editable=False,

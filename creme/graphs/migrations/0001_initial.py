@@ -6,14 +6,7 @@ from creme.creme_core.models.fields import EntityCTypeForeignKey
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('graphs', '0001_initial'),
-    #     ('graphs', '0002_v2_4__rootnode_entity_ctype01'),
-    #     ('graphs', '0003_v2_4__rootnode_entity_ctype02'),
-    #     ('graphs', '0004_v2_4__rootnode_entity_ctype03'),
-    #     ('graphs', '0005_v2_4__graph_brick_in_old_configs'),
-    # ]
-
+    # Memo: last migration was "0005_v2_4__graph_brick_in_old_configs"
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
