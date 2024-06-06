@@ -10,7 +10,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
 )
 
 # from .base import ViewsTestCase
-from .base import CremeTestCase
+from ..base import CremeTestCase
 
 
 # class EnumerableViewsTestCase(ViewsTestCase):
