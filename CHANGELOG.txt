@@ -25,6 +25,7 @@
     # The button menu has been reworked; it can now be reloaded dynamically
       (e.g. some buttons reloaded the whole page in order to be hidden -- or change their label -- once they did their job).
     # Seconds are now displayed as tool-tip for datetime fields.
+    # The command "creme_populate" now returns a correct error code if an error happened.
     # The JQPlot compatibility has been dropped.
     # Apps :
         * Creme_config :
