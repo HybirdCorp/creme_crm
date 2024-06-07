@@ -272,11 +272,16 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         position_ids = [*FakePosition.objects.values_list('id', flat=True)]
         sector_ids   = [*FakeSector.objects.values_list('id', flat=True)]
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(text='Really cute in her suit')
+        # ptype2 = create_ptype(text='Great accuracy', subject_ctypes=[FakeContact])
+        # ptype3 = create_ptype(text='International', subject_ctypes=[FakeOrganisation])
+        # ptype4 = CremePropertyType.objects.create(text='Disabled', enabled=False)
+        create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Really cute in her suit')
-        ptype2 = create_ptype(text='Great accuracy', subject_ctypes=[FakeContact])
-        ptype3 = create_ptype(text='International', subject_ctypes=[FakeOrganisation])
-        ptype4 = CremePropertyType.objects.create(text='Disabled', enabled=False)
+        ptype2 = create_ptype(text='Great accuracy').set_subject_ctypes(FakeContact)
+        ptype3 = create_ptype(text='International').set_subject_ctypes(FakeOrganisation)
+        ptype4 = create_ptype(text='Disabled', enabled=False)
 
         create_rtype = RelationType.objects.smart_update_or_create
         employed = create_rtype(

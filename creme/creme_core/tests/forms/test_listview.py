@@ -1,7 +1,7 @@
 from decimal import Decimal
 from functools import partial
 
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.test.utils import override_settings
 from django.utils.formats import get_format, number_format
@@ -1150,11 +1150,16 @@ class SearchFieldsTestCase(CremeTestCase):
         from creme.creme_core.function_fields import PropertiesField
         from creme.creme_core.models import CremePropertyType
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ct_orga = ContentType.objects.get_for_model(FakeOrganisation)
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        create_ptype = CremePropertyType.objects.create
+        # ct_orga = ContentType.objects.get_for_model(FakeOrganisation)
         ptype1 = create_ptype(text='is cool')
-        ptype2 = create_ptype(text='is beautiful', subject_ctypes=[ct_orga, FakeContact])
-        ptype3 = create_ptype(text='is a trust', subject_ctypes=[ct_orga])
+        # ptype2 = create_ptype(text='is beautiful', subject_ctypes=[ct_orga, FakeContact])
+        # ptype3 = create_ptype(text='is a trust', subject_ctypes=[ct_orga])
+        ptype2 = create_ptype(text='is beautiful').set_subject_ctypes(
+            FakeOrganisation, FakeContact,
+        )
+        ptype3 = create_ptype(text='is a trust').set_subject_ctypes(FakeOrganisation)
 
         funfield = PropertiesField()
         cell = EntityCellFunctionField(model=FakeContact, func_field=funfield)

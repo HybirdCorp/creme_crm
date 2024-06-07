@@ -139,13 +139,19 @@ class Populator(BasePopulator):
         )
 
     def _populate_property_types(self):
-        CremePropertyType.objects.smart_update_or_create(
-            # str_pk=constants.PROP_IS_A_SALESMAN,
+        # CremePropertyType.objects.smart_update_or_create(
+        #     uuid=constants.UUID_PROP_IS_A_SALESMAN,
+        #     app_label='commercial',
+        #     text=_('is a salesman'),
+        #     subject_ctypes=[self.Contact],
+        # )
+        CremePropertyType.objects.update_or_create(
             uuid=constants.UUID_PROP_IS_A_SALESMAN,
-            app_label='commercial',
-            text=_('is a salesman'),
-            subject_ctypes=[self.Contact],
-        )
+            defaults={
+                'text': _('is a salesman'),
+                'app_label': 'commercial',
+            },
+        )[0].set_subject_ctypes(self.Contact)
 
     def _populate_header_filters_for_act(self):
         HeaderFilter.objects.create_if_needed(

@@ -74,13 +74,12 @@ class RelationTypeTestCase(CremeTestCase):
 
     def test_create02(self):
         "Property types (mandatory & forbidden)."
-        create_pt = CremePropertyType.objects.smart_update_or_create
-        pt_sub = create_pt(
-            text='has cash', subject_ctypes=[FakeOrganisation],
-        )
-        pt_obj = create_pt(
-            text='need cash', subject_ctypes=[FakeContact],
-        )
+        # create_pt = CremePropertyType.objects.smart_update_or_create
+        # pt_sub = create_pt(text='has cash', subject_ctypes=[FakeOrganisation])
+        # pt_obj = create_pt(text='need cash', subject_ctypes=[FakeContact])
+        create_pt = CremePropertyType.objects.create
+        pt_sub = create_pt(text='has cash').set_subject_ctypes(FakeOrganisation)
+        pt_obj = create_pt(text='need cash').set_subject_ctypes(FakeContact)
 
         forbidden_pt_sub = create_pt(text='is greedy')
         forbidden_pt_obj = create_pt(text='is shy')
