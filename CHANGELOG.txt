@@ -1,5 +1,10 @@
 == Version 2.5.21 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # The command "creme_populate" now returns a correct error code if an error happened.
+      It's a backport from Creme 2.6
+
 
 == Version 2.5.20 ==
 
