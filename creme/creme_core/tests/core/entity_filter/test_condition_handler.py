@@ -487,7 +487,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler.accept(entity=r3, user=user), False)
 
     def test_regularfield_accept_fk05(self):
-        "Primary key is a CharField => BEWARE to ISEMPTY which need boolean value."
+        "Primary key is a CharField => BEWARE of ISEMPTY which needs a boolean value."
         user = self.get_root_user()
 
         create_efilter = partial(EntityFilter.objects.create, entity_type=FakeContact)
