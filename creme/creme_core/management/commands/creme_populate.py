@@ -306,6 +306,7 @@ class Command(BaseCommand):
         )
 
         # ----------------------------------------------------------------------
+        fatal_error = False
         self.models = set()
         dispatch_uid = 'creme_core-populate_command'
 
@@ -326,8 +327,11 @@ class Command(BaseCommand):
                         ''.join(format_exception(exc_type, exc_value, exc_traceback))
                     )
 
-            if verbosity >= 1:
-                self.stdout.write(' OK', self.style.SUCCESS)
+                fatal_error = True
+                break
+            else:
+                if verbosity >= 1:
+                    self.stdout.write(' OK', self.style.SUCCESS)
 
         pre_save.disconnect(dispatch_uid=dispatch_uid)
 
@@ -362,7 +366,9 @@ class Command(BaseCommand):
                     self.stdout.write(message)
 
         # ----------------------------------------------------------------------
-        if verbosity >= 1:
+        if fatal_error:
+            raise CommandError('Populate has been interrupted (see error above).')
+        elif verbosity >= 1:
             self.stdout.write(self.style.SUCCESS('Populate is OK.'))
 
     def _get_populator(self,
