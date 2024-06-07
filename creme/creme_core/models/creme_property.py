@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from typing import Iterable
 from uuid import uuid4
 
@@ -45,10 +46,6 @@ class CremePropertyTypeManager(models.Manager):
             | Q(subject_ctypes__isnull=True)
         )
 
-    # TODO: split into 2 methods (smart_create & smart_update_or_create)?
-    #       avoid retrieving the instance again in CremePropertyTypeEditForm.save()
-    #       (use a True model-form + improve CremePropertyType.save() ?)?
-    # TODO: add a method CremePropertyType.set_subjects_models()? (& remove this method)?
     def smart_update_or_create(
         self, *,
         uuid: str = '',
@@ -67,6 +64,12 @@ class CremePropertyTypeManager(models.Manager):
         @param is_custom: Used to fill <CremePropertyType.is_custom>.
         @param is_copiable: Used to fill <CremePropertyType.is_copiable>.
         """
+        warnings.warn(
+            'CremePropertyTypeManager.smart_update_or_create() is deprecated; '
+            'use create()/update_or_create() instead '
+            '(& eventually CremePropertyType.set_subject_ctypes() too).'
+        )
+
         if uuid:
             property_type = self.update_or_create(
                 uuid=uuid,
@@ -258,6 +261,17 @@ class CremePropertyType(CremeModel):
     def subject_models(self):
         for ctype in self.subject_ctypes.all():
             yield ctype.model_class()
+
+    def set_subject_ctypes(self,
+                           *ctypes_or_models: Iterable[ContentType | type[CremeEntity]],
+                           ) -> CremePropertyType:
+        get_ct = ContentType.objects.get_for_model
+        self.subject_ctypes.set([
+            ct_or_model if isinstance(ct_or_model, ContentType) else get_ct(ct_or_model)
+            for ct_or_model in ctypes_or_models
+        ])
+
+        return self
 
 
 class CremeProperty(CremeModel):

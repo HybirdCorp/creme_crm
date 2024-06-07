@@ -34,7 +34,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertFalse([*ptype.subject_models])
 
     def test_manager_smart_update_or_create02(self):
-        "ContentTypes& app label."
+        "ContentTypes & app label."
         # pk = 'test-prop_foo'
         uid = '73b2c0b5-10a8-443a-9e07-1f2398e889ea'
         text = 'is wonderful'
@@ -116,10 +116,12 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertNotEqual(ptype1.uuid, ptype2.uuid)
 
     def test_manager_compatible(self):
-        create_ptype = CremePropertyType.objects.smart_update_or_create
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='is delicious')
         ptype2 = create_ptype(text='is happy')
-        ptype3 = create_ptype(text='is wonderful', subject_ctypes=[FakeContact])
+        # ptype3 = create_ptype(text='is wonderful', subject_ctypes=[FakeContact])
+        ptype3 = create_ptype(text='is wonderful').set_subject_ctypes(FakeContact)
 
         # ---
         ptypes1 = CremePropertyType.objects.compatible(FakeContact)
@@ -144,6 +146,17 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertIn(ptype1.id, ptype_ids2)
         self.assertIn(ptype2.id, ptype_ids2)
         self.assertNotIn(ptype3.id, ptype_ids2)
+
+    def test_set_subjects_ctypes(self):
+        get_ct = ContentType.objects.get_for_model
+        orga_ct = get_ct(FakeOrganisation)
+        ptype = CremePropertyType.objects.create(
+            text='is wonderful',
+        ).set_subject_ctypes(FakeContact, orga_ct)
+        self.assertIsInstance(ptype, CremePropertyType)
+        self.assertCountEqual(
+            [get_ct(FakeContact), orga_ct], [*ptype.subject_ctypes.all()],
+        )
 
 
 class CremePropertyTestCase(CremeTestCase):

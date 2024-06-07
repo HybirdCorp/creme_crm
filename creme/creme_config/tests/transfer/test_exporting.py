@@ -1153,17 +1153,24 @@ class ExportingTestCase(TransferBaseTestCase):
     def test_property_types(self):
         self.login_as_super(is_staff=True)
 
-        CremePropertyType.objects.create(text='Sugoi!')
-
+        # CremePropertyType.objects.create(text='Sugoi!')
+        # self.assertTrue(CremePropertyType.objects.filter(is_custom=False))
+        #
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(text='Is important', is_custom=True)
+        # ptype2 = create_ptype(text='Is funny', is_custom=True, is_copiable=False)
+        # ptype3 = create_ptype(
+        #     text='Is cool', is_custom=True,
+        #     subject_ctypes=[FakeContact, FakeOrganisation],
+        # )
+        create_ptype = CremePropertyType.objects.create
+        create_ptype(text='Sugoi!')
         self.assertTrue(CremePropertyType.objects.filter(is_custom=False))
-
-        create_ptype = CremePropertyType.objects.smart_update_or_create
 
         ptype1 = create_ptype(text='Is important', is_custom=True)
         ptype2 = create_ptype(text='Is funny', is_custom=True, is_copiable=False)
-        ptype3 = create_ptype(
-            text='Is cool', is_custom=True,
-            subject_ctypes=[FakeContact, FakeOrganisation],
+        ptype3 = create_ptype(text='Is cool', is_custom=True).set_subject_ctypes(
+            FakeContact, FakeOrganisation,
         )
 
         response = self.assertGET200(self.URL)

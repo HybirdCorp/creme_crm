@@ -9,6 +9,10 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
+            - The method 'creme_core.models.creme_property.CremePropertyTypeManager.smart_update_or_create() is deprecated;
+              use the classical methods 'create()' or 'update_or_create()' instead.
+              Notice: if you still want to set the field "subject_ctypes" from models like before,
+                      you can use the new method 'CremePropertyType.set_subject_ctypes()'.
             - The method 'creme_core.tests.base._CremeTestCase.assertRelationCount' is deprecated;
               use the new methods 'assertHaveRelation()' & 'assertHaveNoRelation()' instead.
 
