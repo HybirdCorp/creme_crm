@@ -268,11 +268,16 @@ class FunctionFieldsTestCase(CremeTestCase):
     def test_properties_field(self):
         user = self.get_root_user()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        # ptype1 = create_ptype(text='Foo')
+        # ptype2 = create_ptype(text='Bar', subject_ctypes=[FakeContact, FakeOrganisation])
+        # ptype3 = CremePropertyType.objects.create(text='Deleted', enabled=False)
+        # ptype4 = create_ptype(text='Baz', subject_ctypes=[FakeOrganisation])
+        create_ptype = CremePropertyType.objects.create
         ptype1 = create_ptype(text='Foo')
-        ptype2 = create_ptype(text='Bar', subject_ctypes=[FakeContact, FakeOrganisation])
-        ptype3 = CremePropertyType.objects.create(text='Deleted', enabled=False)
-        ptype4 = create_ptype(text='Baz', subject_ctypes=[FakeOrganisation])
+        ptype2 = create_ptype(text='Bar').set_subject_ctypes(FakeContact, FakeOrganisation)
+        ptype3 = create_ptype(text='Deleted', enabled=False)
+        ptype4 = create_ptype(text='Baz').set_subject_ctypes(FakeOrganisation)
 
         # --
         create_contact = partial(FakeContact.objects.create, user=user)

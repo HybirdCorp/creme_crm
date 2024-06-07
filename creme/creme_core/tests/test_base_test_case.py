@@ -1063,9 +1063,12 @@ class BaseTestCaseTestCase(CremeTestCase):
         )
 
         # ---
-        ptype = CremePropertyType.objects.smart_update_or_create(
-            uuid=uid, text='Military', subject_ctypes=[FakeContact, FakeOrganisation],
-        )
+        # ptype = CremePropertyType.objects.smart_update_or_create(
+        #     uuid=uid, text='Military', subject_ctypes=[FakeContact, FakeOrganisation],
+        # )
+        ptype = CremePropertyType.objects.create(
+            uuid=uid, text='Military',
+        ).set_subject_ctypes(FakeContact, FakeOrganisation)
 
         with self.assertNoException():
             result = self.get_propertytype_or_fail(uid, models=[FakeContact, FakeOrganisation])

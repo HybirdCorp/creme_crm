@@ -380,11 +380,14 @@ class CremeEntityFormTestCase(CremeTestCase):
     def test_properties01(self):
         user = self.get_root_user()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        create_ptype = CremePropertyType.objects.create
         ptype01 = create_ptype(text='Haunted by a spirit')
         ptype02 = create_ptype(text='Cursed by a bakemono')
-        ptype03 = create_ptype(text='See the yokai', subject_ctypes=[FakeContact])
-        ptype04 = create_ptype(text='Has a license', subject_ctypes=[FakeOrganisation])
+        # ptype03 = create_ptype(text='See the yokai', subject_ctypes=[FakeContact])
+        # ptype04 = create_ptype(text='Has a license', subject_ctypes=[FakeOrganisation])
+        ptype03 = create_ptype(text='See the yokai').set_subject_ctypes(FakeContact)
+        ptype04 = create_ptype(text='Has a license').set_subject_ctypes(FakeOrganisation)
 
         form1 = FakeContactForm(user=user)
 
@@ -435,10 +438,12 @@ class CremeEntityFormTestCase(CremeTestCase):
         "Forced CremePropertyTypes (IDs)."
         user = self.get_root_user()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        create_ptype = CremePropertyType.objects.create
         ptype01 = create_ptype(text='Haunted by a spirit')
         ptype02 = create_ptype(text='Cursed by a bakemono')
-        ptype03 = create_ptype(text='See the yokai', subject_ctypes=[FakeContact])
+        # ptype03 = create_ptype(text='See the yokai', subject_ctypes=[FakeContact])
+        ptype03 = create_ptype(text='See the yokai').set_subject_ctypes(FakeContact)
 
         form = FakeContactForm(user=user, forced_ptypes=[ptype02.id])
 
@@ -457,10 +462,12 @@ class CremeEntityFormTestCase(CremeTestCase):
         "Forced CremePropertyTypes (instances)."
         user = self.get_root_user()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        create_ptype = CremePropertyType.objects.create
         ptype01 = create_ptype(text='Haunted by a spirit')
         ptype02 = create_ptype(text='Cursed by a bakemono')
-        ptype03 = create_ptype(text='See the yokai', subject_ctypes=[FakeContact])
+        # ptype03 = create_ptype(text='See the yokai', subject_ctypes=[FakeContact])
+        ptype03 = create_ptype(text='See the yokai').set_subject_ctypes(FakeContact)
 
         form = FakeContactForm(user=user, forced_ptypes=[ptype02])
 

@@ -95,11 +95,13 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login_as_root()
 
         get_ct = ContentType.objects.get_for_model
-        pt = CremePropertyType.objects.smart_update_or_create(
-            # str_pk='test-foobar',
-            text='is beautiful',
-            subject_ctypes=[get_ct(FakeContact)], is_custom=True,
-        )
+        # pt = CremePropertyType.objects.smart_update_or_create(
+        #     text='is beautiful',
+        #     subject_ctypes=[get_ct(FakeContact)], is_custom=True,
+        # )
+        pt = CremePropertyType.objects.create(
+            text='is beautiful', is_custom=True,
+        ).set_subject_ctypes(FakeContact)
         url = self._build_edit_url(pt)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
@@ -130,12 +132,14 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         "Edit a not custom type."
         self.login_as_root()
 
-        get_ct = ContentType.objects.get_for_model
-        pt = CremePropertyType.objects.smart_update_or_create(
-            # str_pk='test-foobar',
-            text='is beautiful',
-            subject_ctypes=[get_ct(FakeContact)], is_custom=False,
-        )
+        # get_ct = ContentType.objects.get_for_model
+        # pt = CremePropertyType.objects.smart_update_or_create(
+        #     text='is beautiful',
+        #     subject_ctypes=[get_ct(FakeContact)], is_custom=False,
+        # )
+        pt = CremePropertyType.objects.create(
+            text='is beautiful', is_custom=False,
+        ).set_subject_ctypes(FakeContact)
 
         self.assertGET404(self._build_edit_url(pt))
 

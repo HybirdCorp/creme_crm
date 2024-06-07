@@ -2279,10 +2279,13 @@ class PropertiesConditionsFieldTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
 
-        create_ptype = CremePropertyType.objects.smart_update_or_create
+        # create_ptype = CremePropertyType.objects.smart_update_or_create
+        create_ptype = CremePropertyType.objects.create
         self.ptype01 = create_ptype(text='Is active')
-        self.ptype02 = create_ptype(text='Is cute', subject_ctypes=[FakeContact])
-        self.ptype03 = create_ptype(text='Is evil', subject_ctypes=[FakeOrganisation])
+        # self.ptype02 = create_ptype(text='Is cute', subject_ctypes=[FakeContact])
+        # self.ptype03 = create_ptype(text='Is evil', subject_ctypes=[FakeOrganisation])
+        self.ptype02 = create_ptype(text='Is cute').set_subject_ctypes(FakeContact)
+        self.ptype03 = create_ptype(text='Is evil').set_subject_ctypes(FakeOrganisation)
 
     def test_clean_empty_required(self):
         with self.assertNumQueries(0):
