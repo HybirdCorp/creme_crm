@@ -11,6 +11,9 @@
     # A scary log with fast pagination has been removed.
     # The setting SOFTWARE_LABEL in now used for the title of the login page.
     # A warning in the JavaScript console about Select2 & its locale has been removed.
+    # Apps :
+        * Sketch :
+            - The display of numbers between 5000 and 10000 has been improved.
 
   Developers side :
   -----------------
