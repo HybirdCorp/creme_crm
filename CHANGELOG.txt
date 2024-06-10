@@ -5,6 +5,14 @@
     # Images with an extension in uppercase (e.g. "my_pic.JPG") are correctly displayed now.
     # A scary log with fast pagination has been removed.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The lib 'xhtml2pdf' has been upgraded to the version '0.2.16'
+          (so more recent versions of ReportLab can be used).
+
 
 == Version 2.5.9 ==
 
