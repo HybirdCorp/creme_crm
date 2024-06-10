@@ -310,7 +310,7 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         self.assertEqual(create_dt(year=2010, month=10, day=11), project.start_date)
         self.assertEqual(create_dt(year=2010, month=12, day=31), project.end_date)
 
-        self.assertRelationCount(1, project, REL_OBJ_PROJECT_MANAGER, manager)
+        self.assertHaveRelation(subject=project, type=REL_OBJ_PROJECT_MANAGER, object=manager)
 
     def test_project_createview02(self):
         "Credentials error."
@@ -873,9 +873,9 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         self.assertEqual(create_dt(year=2015, month=5, day=19), activity.start)
         self.assertEqual(create_dt(year=2015, month=6, day=3),  activity.end)
 
-        self.assertRelationCount(1, activity, REL_SUB_LINKED_2_PTASK, task)
-        self.assertRelationCount(1, worker, REL_SUB_PART_2_ACTIVITY, activity)
-        self.assertRelationCount(1, worker, REL_SUB_PART_AS_RESOURCE, activity)
+        self.assertHaveRelation(subject=activity, type=REL_SUB_LINKED_2_PTASK,   object=task)
+        self.assertHaveRelation(subject=worker,   type=REL_SUB_PART_2_ACTIVITY,  object=activity)
+        self.assertHaveRelation(subject=worker,   type=REL_SUB_PART_AS_RESOURCE, object=activity)
 
         self.assertEqual(8,   task.get_effective_duration())
         self.assertEqual(800, task.get_task_cost())  # 8 * 100
@@ -965,8 +965,8 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
 
         activity = self.refresh(activity)
         self.assertEqual(10, activity.duration)
-        self.assertRelationCount(1, worker, REL_SUB_PART_2_ACTIVITY, activity)
-        self.assertRelationCount(1, worker, REL_SUB_PART_AS_RESOURCE, activity)
+        self.assertHaveRelation(subject=worker, type=REL_SUB_PART_2_ACTIVITY,  object=activity)
+        self.assertHaveRelation(subject=worker, type=REL_SUB_PART_AS_RESOURCE, object=activity)
 
     @skipIfCustomActivity
     @skipIfCustomTask
@@ -975,7 +975,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         user = self.login_as_root_and_get()
 
         project = self.create_project(user=user, name='Eva02')[0]
-        # status = self.get_object_or_fail(TaskStatus, id=COMPLETED_PK)
         status = self.get_object_or_fail(TaskStatus, uuid=UUID_TSTATUS_COMPLETED)
         task = self.create_task(project, 'legs', status=status)
 
@@ -1069,11 +1068,11 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         )
         self.assertNoFormError(response)
 
-        self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
-        self.assertRelationCount(1, worker2, REL_SUB_PART_AS_RESOURCE, activity)
+        self.assertHaveRelation(subject=worker2, type=REL_SUB_PART_2_ACTIVITY,  object=activity)
+        self.assertHaveRelation(subject=worker2, type=REL_SUB_PART_AS_RESOURCE, object=activity)
 
-        self.assertRelationCount(0, worker1, REL_SUB_PART_2_ACTIVITY, activity)
-        self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
+        self.assertHaveNoRelation(subject=worker1, type=REL_SUB_PART_2_ACTIVITY,  object=activity)
+        self.assertHaveNoRelation(subject=worker1, type=REL_SUB_PART_AS_RESOURCE, object=activity)
 
         # Alright the project Activities can be on no Calendar
         self.assertFalse(activity.calendars.all())
@@ -1117,11 +1116,11 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         )
         self.assertNoFormError(response)
 
-        self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
-        self.assertRelationCount(1, worker2, REL_SUB_PART_AS_RESOURCE, activity)
+        self.assertHaveRelation(subject=worker2, type=REL_SUB_PART_2_ACTIVITY,  object=activity)
+        self.assertHaveRelation(subject=worker2, type=REL_SUB_PART_AS_RESOURCE, object=activity)
 
-        self.assertRelationCount(1, worker1, REL_SUB_PART_2_ACTIVITY, activity)
-        self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
+        self.assertHaveRelation(subject=worker1, type=REL_SUB_PART_2_ACTIVITY,  object=activity)
+        self.assertHaveNoRelation(subject=worker1, type=REL_SUB_PART_AS_RESOURCE, object=activity)
 
         self.assertListEqual(
             [Calendar.objects.get_default_calendar(other_user)],
@@ -1323,11 +1322,11 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         # activity of the resource => changes
         activity1 = self.get_alone_element(task1.related_activities)
 
-        self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity1)
-        self.assertRelationCount(1, worker2, REL_SUB_PART_AS_RESOURCE, activity1)
+        self.assertHaveRelation(subject=worker2, type=REL_SUB_PART_2_ACTIVITY,  object=activity1)
+        self.assertHaveRelation(subject=worker2, type=REL_SUB_PART_AS_RESOURCE, object=activity1)
 
-        self.assertRelationCount(0, worker1, REL_SUB_PART_2_ACTIVITY, activity1)
-        self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity1)
+        self.assertHaveNoRelation(subject=worker1, type=REL_SUB_PART_2_ACTIVITY,  object=activity1)
+        self.assertHaveNoRelation(subject=worker1, type=REL_SUB_PART_AS_RESOURCE, object=activity1)
 
         self.assertListEqual(
             [Calendar.objects.get_default_calendar(other_user)],
@@ -1337,8 +1336,8 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         # activity of the other resource => no change
         activity2 = self.get_alone_element(task2.related_activities)
 
-        self.assertRelationCount(1, worker1, REL_SUB_PART_2_ACTIVITY, activity2)
-        self.assertRelationCount(1, worker1, REL_SUB_PART_AS_RESOURCE, activity2)
+        self.assertHaveRelation(subject=worker1, type=REL_SUB_PART_2_ACTIVITY,  object=activity2)
+        self.assertHaveRelation(subject=worker1, type=REL_SUB_PART_AS_RESOURCE, object=activity2)
 
     @skipIfCustomActivity
     @skipIfCustomTask
@@ -1373,11 +1372,11 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         self.assertEqual(worker2, resource1.linked_contact)
 
         activity = self.get_alone_element(task.related_activities)
-        self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
-        self.assertRelationCount(1, worker2, REL_SUB_PART_AS_RESOURCE, activity)
+        self.assertHaveRelation(subject=worker2, type=REL_SUB_PART_2_ACTIVITY,  object=activity)
+        self.assertHaveRelation(subject=worker2, type=REL_SUB_PART_AS_RESOURCE, object=activity)
 
-        self.assertRelationCount(1, worker1, REL_SUB_PART_2_ACTIVITY, activity)
-        self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
+        self.assertHaveRelation(subject=worker1, type=REL_SUB_PART_2_ACTIVITY, object=activity)
+        self.assertHaveNoRelation(subject=worker1, type=REL_SUB_PART_AS_RESOURCE, object=activity)
 
         get_cal = Calendar.objects.get_default_calendar
         self.assertCountEqual(
@@ -1679,8 +1678,8 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         self.assertPOST200(url, data=data, follow=True)
         self.assertDoesNotExist(resource1)
 
-        self.assertRelationCount(1, worker2, REL_SUB_PART_2_ACTIVITY, activity)
-        self.assertRelationCount(1, worker2, REL_SUB_PART_AS_RESOURCE, activity)
+        self.assertHaveRelation(subject=worker2, type=REL_SUB_PART_2_ACTIVITY,  object=activity)
+        self.assertHaveRelation(subject=worker2, type=REL_SUB_PART_AS_RESOURCE, object=activity)
 
     @skipIfCustomActivity
     @skipIfCustomTask
@@ -1701,8 +1700,8 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         self.assertPOST409(self.DELETE_RESOURCE_URL, data={'id': resource.id})
         self.assertStillExists(resource)
 
-        self.assertRelationCount(1, worker, REL_SUB_PART_2_ACTIVITY,  activity)
-        self.assertRelationCount(1, worker, REL_SUB_PART_AS_RESOURCE, activity)
+        self.assertHaveRelation(subject=worker, type=REL_SUB_PART_2_ACTIVITY,  object=activity)
+        self.assertHaveRelation(subject=worker, type=REL_SUB_PART_AS_RESOURCE, object=activity)
 
     @skipIfCustomActivity
     @skipIfCustomTask
@@ -1712,11 +1711,6 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
             allowed_apps=['persons'],
             creatable_models=[Project, ProjectTask],
         )
-        # SetCredentials.objects.create(
-        #     role=user.role,
-        #     value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
-        #     set_type=SetCredentials.ESET_ALL,
-        # )
         self.add_credentials(user.role, all=['VIEW', 'CHANGE', 'LINK'])
 
         project = self.create_project(user=user, name='Eva02')[0]

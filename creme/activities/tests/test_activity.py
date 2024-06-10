@@ -363,11 +363,16 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
 
         REL_SUB_PART_2_ACTIVITY = constants.REL_SUB_PART_2_ACTIVITY
-        self.assertRelationCount(1, user.linked_contact,       REL_SUB_PART_2_ACTIVITY, act)
-        self.assertRelationCount(1, genma,                     REL_SUB_PART_2_ACTIVITY, act)
-        self.assertRelationCount(1, other_user.linked_contact, REL_SUB_PART_2_ACTIVITY, act)
-        self.assertRelationCount(1, ranma, constants.REL_SUB_ACTIVITY_SUBJECT,  act)
-        self.assertRelationCount(1, dojo,  constants.REL_SUB_LINKED_2_ACTIVITY, act)
+        # self.assertRelationCount(1, user.linked_contact,       REL_SUB_PART_2_ACTIVITY, act)
+        # self.assertRelationCount(1, genma,                     REL_SUB_PART_2_ACTIVITY, act)
+        # self.assertRelationCount(1, other_user.linked_contact, REL_SUB_PART_2_ACTIVITY, act)
+        # self.assertRelationCount(1, ranma, constants.REL_SUB_ACTIVITY_SUBJECT,  act)
+        # self.assertRelationCount(1, dojo,  constants.REL_SUB_LINKED_2_ACTIVITY, act)
+        self.assertHaveRelation(user.linked_contact,       REL_SUB_PART_2_ACTIVITY, act)
+        self.assertHaveRelation(genma,                     REL_SUB_PART_2_ACTIVITY, act)
+        self.assertHaveRelation(other_user.linked_contact, REL_SUB_PART_2_ACTIVITY, act)
+        self.assertHaveRelation(ranma, constants.REL_SUB_ACTIVITY_SUBJECT,  act)
+        self.assertHaveRelation(dojo,  constants.REL_SUB_LINKED_2_ACTIVITY, act)
 
         # * 2: relations have their symmetric ones
         self.assertEqual(5 * 2, Relation.objects.count())
@@ -520,22 +525,24 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertEqual(create_dt(year=2013, month=3, day=26, hour=12, minute=10), act.start)
         self.assertEqual(create_dt(year=2013, month=3, day=27, hour=12, minute=25), act.end)
 
-        self.assertRelationCount(1, me,     constants.REL_SUB_PART_2_ACTIVITY,   act)
-        self.assertRelationCount(1, genma,  constants.REL_SUB_PART_2_ACTIVITY,   act)
-        self.assertRelationCount(1, akane,  constants.REL_SUB_PART_2_ACTIVITY,   act)
-        self.assertRelationCount(1, ranma,  constants.REL_SUB_ACTIVITY_SUBJECT,  act)
-        self.assertRelationCount(1, dojo_s, constants.REL_SUB_LINKED_2_ACTIVITY, act)
-        self.assertRelationCount(0, dojo_s, constants.REL_SUB_ACTIVITY_SUBJECT,  act)
-        # Auto subject #1
-        self.assertRelationCount(1, dojo_t, constants.REL_SUB_ACTIVITY_SUBJECT,  act)
-        # Auto subject #2
-        self.assertRelationCount(1, school, constants.REL_SUB_ACTIVITY_SUBJECT,  act)
+        PARTICIPATES = constants.REL_SUB_PART_2_ACTIVITY
+        SUBJECT = constants.REL_SUB_ACTIVITY_SUBJECT
+        LINKED = constants.REL_SUB_LINKED_2_ACTIVITY
+        self.assertHaveRelation(subject=me,     type=PARTICIPATES,   object=act)
+        self.assertHaveRelation(subject=genma,  type=PARTICIPATES,   object=act)
+        self.assertHaveRelation(subject=akane,  type=PARTICIPATES,   object=act)
+        self.assertHaveRelation(subject=ranma,  type=SUBJECT,        object=act)
+        self.assertHaveRelation(subject=dojo_s, type=LINKED,         object=act)
+        self.assertHaveNoRelation(subject=dojo_s, type=SUBJECT, object=act)
+        # Auto subject #1 & #2
+        self.assertHaveRelation(subject=dojo_t, type=SUBJECT, object=act)
+        self.assertHaveRelation(subject=school, type=SUBJECT, object=act)
         # No auto subject with managed organisations
-        self.assertRelationCount(0, mngd,   constants.REL_SUB_ACTIVITY_SUBJECT,  act)
-        # Auto subject #3 -> no duplicate
-        self.assertRelationCount(1, rest,   constants.REL_SUB_ACTIVITY_SUBJECT,  act)
+        self.assertHaveNoRelation(subject=mngd, type=SUBJECT, object=act)
+        # Auto subject #3 (no duplicate error)
+        self.assertHaveRelation(subject=rest, type=SUBJECT, object=act)
         # No auto subject with deleted organisations
-        self.assertRelationCount(0, deleted, constants.REL_SUB_ACTIVITY_SUBJECT, act)
+        self.assertHaveNoRelation(subject=deleted, type=SUBJECT, object=act)
 
         self.assertEqual(8, Relation.objects.filter(subject_entity=act.id).count())
 
@@ -713,8 +720,10 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertNoFormError(response2)
 
         act = self.get_object_or_fail(Activity, title=title)
-        self.assertRelationCount(1, me,   constants.REL_SUB_PART_2_ACTIVITY,  act)
-        self.assertRelationCount(0, dojo, constants.REL_SUB_ACTIVITY_SUBJECT, act)
+        self.assertHaveRelation(subject=me, type=constants.REL_SUB_PART_2_ACTIVITY, object=act)
+        self.assertHaveNoRelation(
+            subject=dojo, type=constants.REL_SUB_ACTIVITY_SUBJECT, object=act,
+        )
 
         # Better in a teardown method...
         sv.value = True
@@ -848,11 +857,15 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             self.assertNoFormError(response2)
 
             act = self.get_object_or_fail(Activity, sub_type=sub_type, title=title)
-            self.assertRelationCount(
-                1, user.linked_contact, constants.REL_SUB_PART_2_ACTIVITY, act,
+            self.assertHaveRelation(
+                subject=user.linked_contact, type=constants.REL_SUB_PART_2_ACTIVITY, object=act,
             )
-            self.assertRelationCount(1, dojo, constants.REL_SUB_ACTIVITY_SUBJECT,  act)
-            self.assertRelationCount(0, other_contact, constants.REL_SUB_LINKED_2_ACTIVITY, act)
+            self.assertHaveRelation(
+                subject=dojo, type=constants.REL_SUB_ACTIVITY_SUBJECT, object=act,
+            )
+            self.assertHaveNoRelation(
+                subject=other_contact, type=constants.REL_SUB_LINKED_2_ACTIVITY, object=act,
+            )
         finally:
             rtype.enabled = True
             rtype.save()
@@ -1233,10 +1246,10 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         meeting = self.get_object_or_fail(Activity, title=title)
 
-        self.assertRelationCount(1, me,    constants.REL_SUB_PART_2_ACTIVITY,  meeting)
-        self.assertRelationCount(1, ranma, constants.REL_SUB_PART_2_ACTIVITY,  meeting)
-        self.assertRelationCount(1, genma, constants.REL_SUB_PART_2_ACTIVITY,  meeting)
-        self.assertRelationCount(1, akane, constants.REL_SUB_ACTIVITY_SUBJECT, meeting)
+        self.assertHaveRelation(me,    constants.REL_SUB_PART_2_ACTIVITY,  meeting)
+        self.assertHaveRelation(ranma, constants.REL_SUB_PART_2_ACTIVITY,  meeting)
+        self.assertHaveRelation(genma, constants.REL_SUB_PART_2_ACTIVITY,  meeting)
+        self.assertHaveRelation(akane, constants.REL_SUB_ACTIVITY_SUBJECT, meeting)
 
         messages = UserMessage.objects.all()
         self.assertEqual(2, len(messages))
@@ -1334,12 +1347,10 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             meeting.end,
         )
 
-        self.assertRelationCount(
-            1, user.linked_contact, constants.REL_SUB_PART_2_ACTIVITY, meeting,
-        )
-        self.assertRelationCount(1, genma, constants.REL_SUB_PART_2_ACTIVITY, meeting)
-        self.assertRelationCount(1, ranma, constants.REL_SUB_ACTIVITY_SUBJECT, meeting)
-        self.assertRelationCount(1, dojo, constants.REL_SUB_LINKED_2_ACTIVITY, meeting)
+        self.assertHaveRelation(user.linked_contact, constants.REL_SUB_PART_2_ACTIVITY,   meeting)
+        self.assertHaveRelation(genma,               constants.REL_SUB_PART_2_ACTIVITY,   meeting)
+        self.assertHaveRelation(ranma,               constants.REL_SUB_ACTIVITY_SUBJECT,  meeting)
+        self.assertHaveRelation(dojo,                constants.REL_SUB_LINKED_2_ACTIVITY, meeting)
 
     def test_create_view_phonecall(self):
         user = self.login_as_root_and_get()
@@ -2435,12 +2446,8 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             create_dt(day=12, hour=6, minute=5, second=4), act.end,
         )
 
-        self.assertRelationCount(
-            1, user.linked_contact, constants.REL_SUB_PART_2_ACTIVITY, act,
-        )
-        self.assertRelationCount(
-            1, other_user.linked_contact, constants.REL_SUB_PART_2_ACTIVITY, act,
-        )
+        self.assertHaveRelation(user.linked_contact,       constants.REL_SUB_PART_2_ACTIVITY, act)
+        self.assertHaveRelation(other_user.linked_contact, constants.REL_SUB_PART_2_ACTIVITY, act)
 
     def test_unavailability_createview03(self):
         "Is all day."

@@ -342,8 +342,8 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
         self.assertEqual(end - timedelta(minutes=3), activity.start)
 
         REL_SUB_PART_2_ACTIVITY = constants.REL_SUB_PART_2_ACTIVITY
-        self.assertRelationCount(1, user.linked_contact, REL_SUB_PART_2_ACTIVITY, activity)
-        self.assertRelationCount(1, contact,             REL_SUB_PART_2_ACTIVITY, activity)
+        self.assertHaveRelation(user.linked_contact, REL_SUB_PART_2_ACTIVITY, activity)
+        self.assertHaveRelation(contact,             REL_SUB_PART_2_ACTIVITY, activity)
 
         self.assertListEqual(
             [Calendar.objects.get_default_calendar(user)],

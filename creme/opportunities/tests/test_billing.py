@@ -138,12 +138,13 @@ class BillingTestCase(OpportunitiesBaseTestCase):
             f'{quote.number} — {opportunity.name}', quote.name
         )
 
-        self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   emitter)
-        self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(1, quote, constants.REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(1, quote, constants.REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertHaveRelation(quote, type=REL_SUB_BILL_ISSUED,   object=emitter)
+        self.assertHaveRelation(quote, type=REL_SUB_BILL_RECEIVED, object=target)
 
-        self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
+        self.assertHaveRelation(quote, type=constants.REL_SUB_LINKED_QUOTE,  object=opportunity)
+        self.assertHaveRelation(quote, type=constants.REL_SUB_CURRENT_DOC,   object=opportunity)
+
+        self.assertHaveRelation(target, type=REL_SUB_PROSPECT, object=emitter)
 
         lines = [*quote.iter_all_lines()]
         self.assertEqual(2, len(lines))
@@ -172,17 +173,17 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.client.post(url)
         quote2 = self.get_alone_element(Quote.objects.exclude(pk=quote1.id))
 
-        self.assertRelationCount(1, quote2, REL_SUB_BILL_ISSUED,   emitter)
-        self.assertRelationCount(1, quote2, REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(1, quote2, constants.REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertHaveRelation(quote2, type=REL_SUB_BILL_ISSUED,   object=emitter)
+        self.assertHaveRelation(quote2, type=REL_SUB_BILL_RECEIVED, object=target)
+        self.assertHaveRelation(quote2, type=constants.REL_SUB_LINKED_QUOTE, object=opportunity)
+        self.assertHaveRelation(quote2, type=constants.REL_SUB_CURRENT_DOC,  object=opportunity)
 
-        self.assertRelationCount(1, quote1, REL_SUB_BILL_ISSUED,   emitter)
-        self.assertRelationCount(1, quote1, REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(1, quote1, constants.REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(1, quote1, constants.REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertHaveRelation(quote1, type=REL_SUB_BILL_ISSUED,   object=emitter)
+        self.assertHaveRelation(quote1, type=REL_SUB_BILL_RECEIVED, object=target)
+        self.assertHaveRelation(quote1, type=constants.REL_SUB_LINKED_QUOTE, object=opportunity)
+        self.assertHaveRelation(quote1, type=constants.REL_SUB_CURRENT_DOC,  object=opportunity)
 
-        self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
+        self.assertHaveRelation(subject=target, type=REL_SUB_PROSPECT, object=emitter)
 
     @skipIfCustomOrganisation
     def test_generate_new_doc03(self):
@@ -197,15 +198,16 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.client.post(url)
         invoice2 = self.get_alone_element(Invoice.objects.exclude(pk=invoice1.id))
 
-        self.assertRelationCount(1, invoice2, REL_SUB_BILL_ISSUED,    emitter)
-        self.assertRelationCount(1, invoice2, REL_SUB_BILL_RECEIVED,  target)
-        self.assertRelationCount(1, invoice2, constants.REL_SUB_LINKED_INVOICE, opportunity)
+        LINKED = constants.REL_SUB_LINKED_INVOICE
+        self.assertHaveRelation(subject=invoice2, type=REL_SUB_BILL_ISSUED,    object=emitter)
+        self.assertHaveRelation(subject=invoice2, type=REL_SUB_BILL_RECEIVED,  object=target)
+        self.assertHaveRelation(subject=invoice2, type=LINKED, object=opportunity)
 
-        self.assertRelationCount(1, invoice1, REL_SUB_BILL_ISSUED,    emitter)
-        self.assertRelationCount(1, invoice1, REL_SUB_BILL_RECEIVED,  target)
-        self.assertRelationCount(1, invoice1, constants.REL_SUB_LINKED_INVOICE, opportunity)
+        self.assertHaveRelation(subject=invoice1, type=REL_SUB_BILL_ISSUED,    object=emitter)
+        self.assertHaveRelation(subject=invoice1, type=REL_SUB_BILL_RECEIVED,  object=target)
+        self.assertHaveRelation(subject=invoice1, type=LINKED, object=opportunity)
 
-        self.assertRelationCount(1, target, REL_SUB_CUSTOMER_SUPPLIER, emitter)
+        self.assertHaveRelation(subject=target, type=REL_SUB_CUSTOMER_SUPPLIER, object=emitter)
 
     @skipIfCustomOrganisation
     def test_generate_new_doc_error01(self):
@@ -273,24 +275,24 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.client.post(gendoc_url)
         quote2 = Quote.objects.exclude(pk=quote1.id)[0]
 
-        self.assertRelationCount(1, quote2, REL_SUB_BILL_ISSUED,   emitter)
-        self.assertRelationCount(1, quote2, REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(1, quote2, constants.REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertHaveRelation(quote2, type=REL_SUB_BILL_ISSUED,            object=emitter)
+        self.assertHaveRelation(quote2, type=REL_SUB_BILL_RECEIVED,          object=target)
+        self.assertHaveRelation(quote2, type=constants.REL_SUB_LINKED_QUOTE, object=opportunity)
+        self.assertHaveRelation(quote2, type=constants.REL_SUB_CURRENT_DOC,  object=opportunity)
 
         url = self._build_currentquote_url(opportunity, quote1)
         self.assertGET405(url)
         self.assertPOST200(url, follow=True)
 
-        self.assertRelationCount(1, quote2, REL_SUB_BILL_ISSUED,   emitter)
-        self.assertRelationCount(1, quote2, REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(1, quote2, constants.REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertHaveRelation(quote2, type=REL_SUB_BILL_ISSUED,             object=emitter)
+        self.assertHaveRelation(quote2, type=REL_SUB_BILL_RECEIVED,           object=target)
+        self.assertHaveRelation(quote2, type=constants.REL_SUB_LINKED_QUOTE,  object=opportunity)
+        self.assertHaveRelation(quote2, type=constants.REL_SUB_CURRENT_DOC,   object=opportunity)
 
-        self.assertRelationCount(1, quote1, REL_SUB_BILL_ISSUED,   emitter)
-        self.assertRelationCount(1, quote1, REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(1, quote1, constants.REL_SUB_LINKED_QUOTE,  opportunity)
-        self.assertRelationCount(1, quote1, constants.REL_SUB_CURRENT_DOC,   opportunity)
+        self.assertHaveRelation(quote1, type=REL_SUB_BILL_ISSUED,             object=emitter)
+        self.assertHaveRelation(quote1, type=REL_SUB_BILL_RECEIVED,           object=target)
+        self.assertHaveRelation(quote1, type=constants.REL_SUB_LINKED_QUOTE,  object=opportunity)
+        self.assertHaveRelation(quote1, type=constants.REL_SUB_CURRENT_DOC,   object=opportunity)
 
     @skipIfCustomOrganisation
     def test_current_quote_02(self):
@@ -480,7 +482,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
             type=constants.REL_OBJ_LINKED_QUOTE,
         )
         quote1 = linked_rel1.real_object
-        self.assertRelationCount(1, quote1, constants.REL_SUB_CURRENT_DOC, opp1)
+        self.assertHaveRelation(subject=quote1, type=constants.REL_SUB_CURRENT_DOC, object=opp1)
 
         ServiceLine.objects.create(
             user=user, related_document=quote1,
@@ -494,11 +496,12 @@ class BillingTestCase(OpportunitiesBaseTestCase):
             subject_entity=opp2.id, type=constants.REL_OBJ_LINKED_QUOTE,
         )
         quote2 = linked_rel2.real_object
-        self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC, opp2)
+        self.assertHaveRelation(subject=quote2, type=constants.REL_SUB_CURRENT_DOC, object=opp2)
 
         linked_rel1.delete()
-        self.assertRelationCount(0, quote1, constants.REL_SUB_CURRENT_DOC, opp1)
-        self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC, opp2)  # Not deleted
+        self.assertHaveNoRelation(quote1, type=constants.REL_SUB_CURRENT_DOC, object=opp1)
+        # Not deleted
+        self.assertHaveRelation(quote2, type=constants.REL_SUB_CURRENT_DOC, object=opp2)
 
         self.assertFalse(self.refresh(opp1).estimated_sales)  # estimated_sales refreshed
 

@@ -998,8 +998,8 @@ better &amp; lighter than the previous one.
         )
         self.assertNoFormError(response2)
         self.assertEqual(2, contact.relations.count())
-        self.assertRelationCount(1, contact, REL_OBJ_MAIL_RECEIVED, email1)
-        self.assertRelationCount(1, contact, REL_OBJ_RELATED_TO,    email2)
+        self.assertHaveRelation(subject=contact, type=REL_OBJ_MAIL_RECEIVED, object=email1)
+        self.assertHaveRelation(subject=contact, type=REL_OBJ_RELATED_TO,    object=email2)
 
     def test_link_to_emails02(self):
         "Invoice => only one relation type proposed."

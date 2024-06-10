@@ -361,16 +361,11 @@ class OrganisationTestCase(_BaseTestCase):
         url = reverse(url_name, args=(customer.id,))
         data = {'id': mng_orga.id}
         self.assertPOST200(url, data=data, follow=True)
-        self.get_object_or_fail(
-            Relation,
-            subject_entity=customer, object_entity=mng_orga, type=relation_type_id,
-        )
+        self.assertHaveRelation(subject=customer, type=relation_type_id, object=mng_orga)
 
         # POST twice
         self.assertPOST200(url, data=data, follow=True)
-        self.assertRelationCount(
-            1, subject_entity=customer, object_entity=mng_orga, type_id=relation_type_id,
-        )
+        self.assertHaveRelation(subject=customer, type=relation_type_id, object=mng_orga)
 
     def test_get_employees(self):
         user = self.login_as_root_and_get()
@@ -658,18 +653,18 @@ class OrganisationTestCase(_BaseTestCase):
 
         # ----
         orga1 = post(managed2, name='Bebop')
-        self.assertRelationCount(0, orga1, constants.REL_SUB_CUSTOMER_SUPPLIER, managed2)
-        self.assertRelationCount(0, orga1, constants.REL_SUB_PROSPECT,          managed2)
-        self.assertRelationCount(1, orga1, constants.REL_SUB_SUSPECT,           managed2)
+        self.assertHaveNoRelation(orga1, constants.REL_SUB_CUSTOMER_SUPPLIER, managed2)
+        self.assertHaveNoRelation(orga1, constants.REL_SUB_PROSPECT,          managed2)
+        self.assertHaveRelation(orga1, constants.REL_SUB_SUSPECT, managed2)
 
-        self.assertRelationCount(0, orga1, constants.REL_SUB_CUSTOMER_SUPPLIER, managed1)
-        self.assertRelationCount(0, orga1, constants.REL_SUB_PROSPECT,          managed1)
-        self.assertRelationCount(0, orga1, constants.REL_SUB_SUSPECT,           managed1)
+        self.assertHaveNoRelation(orga1, constants.REL_SUB_CUSTOMER_SUPPLIER, managed1)
+        self.assertHaveNoRelation(orga1, constants.REL_SUB_PROSPECT,          managed1)
+        self.assertHaveNoRelation(orga1, constants.REL_SUB_SUSPECT,           managed1)
 
         # ----
         orga2 = post(managed1, name='Red dragons')
-        self.assertRelationCount(1, orga2, constants.REL_SUB_SUSPECT, managed1)
-        self.assertRelationCount(0, orga2, constants.REL_SUB_SUSPECT, managed2)
+        self.assertHaveRelation(subject=orga2, type=constants.REL_SUB_SUSPECT, object=managed1)
+        self.assertHaveNoRelation(subject=orga2, type=constants.REL_SUB_SUSPECT, object=managed2)
 
     def test_create_customer02(self):
         "Not super-user."
@@ -724,7 +719,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertNoFormError(response3)
 
         orga = self.get_object_or_fail(Organisation, name=name)
-        self.assertRelationCount(1, orga, constants.REL_SUB_SUSPECT, managed2)
+        self.assertHaveRelation(subject=orga, type=constants.REL_SUB_SUSPECT, object=managed2)
 
     def test_create_customer03(self):
         "Can never link."

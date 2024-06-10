@@ -393,10 +393,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             self.assertIsNone(contact.position)
             self.assertEqual(sector,      contact.sector)
             self.assertHasProperty(entity=contact, ptype=ptype1)
-            self.assertRelationCount(1, contact, loves.id, shinji)
+            self.assertHaveRelation(subject=contact, type=loves, object=shinji)
 
-        self.assertRelationCount(1, created_contacts['Rei'],   employed.id, nerv)
-        self.assertRelationCount(0, created_contacts['Asuka'], employed.id, nerv)
+        self.assertHaveRelation(subject=created_contacts['Rei'], type=employed, object=nerv)
+        self.assertHaveNoRelation(subject=created_contacts['Asuka'], type=employed, object=nerv)
 
         # Header must not be used
         self.assertFalse(FakeContact.objects.filter(last_name=lines[0][1]))
@@ -572,7 +572,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self._execute_job(response)
 
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, rei, employed.id, nerv)  # Not 2
+        self.assertHaveRelation(subject=rei, type=employed, object=nerv)  # Not duplicate error
 
     def test_relations_with_property_constraint_object01(self):
         "Constraint on object."
@@ -645,8 +645,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         job = self._execute_job(response2)
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, rei, employed.id, seele)
-        self.assertRelationCount(0, rei, employed.id, nerv)
+        self.assertHaveRelation(subject=rei, type=employed, object=seele)
+        self.assertHaveNoRelation(subject=rei, type=employed, object=nerv)
 
         result = self.get_alone_element(self._get_job_results(job))
         self.assertListEqual(
@@ -731,8 +731,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         job = self._execute_job(response2)
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, rei, employed.id, seele)
-        self.assertRelationCount(0, rei, employed.id, nerv)
+        self.assertHaveRelation(subject=rei, type=employed, object=seele)
+        self.assertHaveNoRelation(subject=rei, type=employed, object=nerv)
 
         result = self.get_alone_element(self._get_job_results(job))
         self.assertListEqual(
@@ -775,7 +775,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         job = self._execute_job(response)
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(0, rei, employed.id, nerv)
+        self.assertHaveNoRelation(subject=rei, type=employed, object=nerv)
 
         result = self.get_alone_element(self._get_job_results(job))
         self.assertListEqual(
@@ -820,7 +820,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         self._execute_job(response)
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, rei, employed.id, nerv)
+        self.assertHaveRelation(subject=rei, type=employed, object=nerv)
 
     def test_relations_with_property_constraint_subject03(self):
         "Constraint on subject: dynamic relationships + error."
@@ -854,7 +854,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         job = self._execute_job(response)
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(0, rei, employed.id, nerv)
+        self.assertHaveNoRelation(subject=rei, type=employed, object=nerv)
 
         result = self.get_alone_element(self._get_job_results(job))
         self.assertListEqual(
@@ -898,7 +898,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         self._execute_job(response)
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, rei, employed.id, nerv)
+        self.assertHaveRelation(subject=rei, type=employed, object=nerv)
 
     def test_relations_with_forbidden_property_constraint_subject01(self):
         "Fixed relationships + error."
@@ -927,7 +927,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         job = self._execute_job(response)
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(0, rei, employed.id, nerv)
+        self.assertHaveNoRelation(subject=rei, type=employed, object=nerv)
 
         result = self.get_alone_element(self._get_job_results(job))
         self.assertListEqual(
@@ -972,7 +972,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         self._execute_job(response)
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, rei, employed.id, nerv)
+        self.assertHaveRelation(subject=rei, type=employed, object=nerv)
 
     def test_relations_with_forbidden_property_constraint_subject03(self):
         "Dynamic relationships + error."
@@ -1005,7 +1005,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         job = self._execute_job(response)
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(0, rei, employed.id, nerv)
+        self.assertHaveNoRelation(subject=rei, type=employed, object=nerv)
 
         result = self.get_alone_element(self._get_job_results(job))
         self.assertListEqual(
@@ -1053,7 +1053,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         self._execute_job(response)
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, rei, employed.id, nerv)
+        self.assertHaveRelation(subject=rei, type=employed, object=nerv)
 
     def test_default_value(self):
         "Use default value when CSV value is empty (+ fix unicode bug)."
@@ -1835,8 +1835,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(rei_info['phone'], rei.phone)
         self.assertEqual(rei_mobile,        rei.mobile)  # Value not erased (no column)
         self.assertEqual(rei_email,         rei.email)   # Value not erased (empty cell)
-        self.assertRelationCount(1, rei, loves.id, gendo)
-        self.assertRelationCount(1, rei, loves.id, shinji)  # <== not 2 !
+        self.assertHaveRelation(subject=rei, type=loves, object=gendo)
+        self.assertHaveRelation(subject=rei, type=loves, object=shinji)  # <== not IntegrityError
         self.assertHasProperty(entity=rei, ptype=ptype2)
         self.assertHasProperty(entity=rei, ptype=ptype1)  # <= no IntegrityError (2 prop) !
 

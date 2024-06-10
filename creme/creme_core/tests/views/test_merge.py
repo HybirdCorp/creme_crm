@@ -224,8 +224,8 @@ class MergeViewsTestCase(CremeTestCase):
         self.assertDoesNotExist(rel2_2.symmetric_relation)
         self.assertDoesNotExist(rel2_2)
 
-        self.assertRelationCount(1, contact01, rtype01.id, orga01)
-        self.assertRelationCount(1, orga01,    rtype02.id, contact01)
+        self.assertHaveRelation(subject=contact01, type=rtype01.id, object=orga01)
+        self.assertHaveRelation(subject=orga01,    type=rtype02.id, object=contact01)
 
         rel3_1 = self.assertStillExists(rel3_1)
         self.assertEqual(contact01.id,  rel3_1.subject_entity_id)

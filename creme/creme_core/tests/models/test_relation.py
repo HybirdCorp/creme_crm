@@ -741,8 +741,8 @@ class RelationsTestCase(CremeTestCase):
                 [build_rel(type=rtype2)], check_existing=False,
             )
 
-        self.assertRelationCount(1, subject_entity=ryuko, type_id=rtype1.id, object_entity=satsuki)
-        self.assertRelationCount(1, subject_entity=ryuko, type_id=rtype2.id, object_entity=satsuki)
+        self.assertHaveRelation(subject=ryuko, type=rtype1.id, object=satsuki)
+        self.assertHaveRelation(subject=ryuko, type=rtype2.id, object=satsuki)
 
         self.assertEqual(len(ctxt1), len(ctxt2) + 1)
 

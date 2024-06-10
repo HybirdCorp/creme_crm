@@ -216,10 +216,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         line0, line1 = lines
         self.assertEqual(quantity, line0.quantity)
         self.assertEqual(quantity, line1.quantity)
-        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line0)
-        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line1)
-        self.assertRelationCount(1, line0,   REL_SUB_LINE_RELATED_ITEM, product1)
-        self.assertRelationCount(1, line1,   REL_SUB_LINE_RELATED_ITEM, product2)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_HAS_LINE,          object=line0)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_HAS_LINE,          object=line1)
+        self.assertHaveRelation(subject=line0,   type=REL_SUB_LINE_RELATED_ITEM, object=product1)
+        self.assertHaveRelation(subject=line1,   type=REL_SUB_LINE_RELATED_ITEM, object=product2)
 
         self.assertEqual(Decimal('3.2'),  invoice.total_no_vat)  # 2 * 0.8 + 2 * 0.8
         self.assertEqual(Decimal('3.38'), invoice.total_vat)  # 3.2 * 1.07 = 3.38
@@ -391,10 +391,10 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         line1 = lines[1]
         self.assertEqual(quantity, line0.quantity)
         self.assertEqual(quantity, line1.quantity)
-        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line0)
-        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line1)
-        self.assertRelationCount(1, line0,   REL_SUB_LINE_RELATED_ITEM, service1)
-        self.assertRelationCount(1, line1,   REL_SUB_LINE_RELATED_ITEM, service2)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_HAS_LINE,          object=line0)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_HAS_LINE,          object=line1)
+        self.assertHaveRelation(subject=line0,   type=REL_SUB_LINE_RELATED_ITEM, object=service1)
+        self.assertHaveRelation(subject=line1,   type=REL_SUB_LINE_RELATED_ITEM, object=service2)
 
         self.assertEqual(Decimal('21.6'),  invoice.total_no_vat)  # 2 * 5.4 + 2 * 5.4
         self.assertEqual(Decimal('25.84'), invoice.total_vat)  # 21.6 * 1.196 = 25.84
@@ -424,7 +424,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             user=user, related_document=invoice, on_the_fly_item='Flyyyyy',
         )
         self.assertEqual(invoice, product_line.related_document)
-        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE, product_line)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_HAS_LINE, object=product_line)
 
     @skipIfCustomProduct
     @skipIfCustomProductLine
@@ -438,7 +438,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             user=user, related_document=invoice, related_item=product,
         )
         self.assertEqual(product, product_line.related_item)
-        self.assertRelationCount(1, product_line, REL_SUB_LINE_RELATED_ITEM, product)
+        self.assertHaveRelation(product_line, type=REL_SUB_LINE_RELATED_ITEM, object=product)
 
         product_line = self.refresh(product_line)
         with self.assertNumQueries(2):

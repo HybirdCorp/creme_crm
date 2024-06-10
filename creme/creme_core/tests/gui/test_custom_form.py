@@ -1545,10 +1545,10 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertIsInstance(instance, model)
 
         self.assertEqual(4, instance.relations.count())
-        self.assertRelationCount(1, instance, rtype1, contact1)
-        self.assertRelationCount(1, instance, rtype1, contact2)
-        self.assertRelationCount(1, instance, rtype2, orga1)
-        self.assertRelationCount(1, instance, rtype2, orga2)
+        self.assertHaveRelation(subject=instance, type=rtype1, object=contact1)
+        self.assertHaveRelation(subject=instance, type=rtype1, object=contact2)
+        self.assertHaveRelation(subject=instance, type=rtype2, object=orga1)
+        self.assertHaveRelation(subject=instance, type=rtype2, object=orga2)
 
         # Edition ---
         form3 = form_cls(user=user, instance=instance)
@@ -1635,7 +1635,7 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertFalse(form2.errors)
 
         instance = form2.save()
-        self.assertRelationCount(1, instance, rtype, orga)
+        self.assertHaveRelation(subject=instance, type=rtype, object=orga)
 
     def test_form_relations04(self):
         "Properties constraints."

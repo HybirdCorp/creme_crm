@@ -168,13 +168,13 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('0',   quote.number)
         self.assertEqual(terms, quote.payment_type)
 
-        self.assertRelationCount(1, quote,  REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, quote,  REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(1, target, REL_SUB_PROSPECT,      source)
+        self.assertHaveRelation(subject=quote,  type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=quote,  type=REL_SUB_BILL_RECEIVED, object=target)
+        self.assertHaveRelation(subject=target, type=REL_SUB_PROSPECT,      object=source)
 
         # ---
         quote2, source2, target2 = self.create_quote_n_orgas(user=user, name='My Quote Two')
-        self.assertRelationCount(1, target2, REL_SUB_PROSPECT, source2)
+        self.assertHaveRelation(subject=target2, type=REL_SUB_PROSPECT, object=source2)
 
     def test_createview02(self):
         "Source is managed + no number given + other default status."
@@ -201,9 +201,9 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('DE1', quote.number)
         self.assertIsNone(quote.payment_type)
 
-        self.assertRelationCount(1, quote,  REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, quote,  REL_SUB_BILL_RECEIVED, target1)
-        self.assertRelationCount(1, target1, REL_SUB_PROSPECT,     source)
+        self.assertHaveRelation(subject=quote,   type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=quote,   type=REL_SUB_BILL_RECEIVED, object=target1)
+        self.assertHaveRelation(subject=target1, type=REL_SUB_PROSPECT,      object=source)
 
         self.assertEqual([1], [*algo_qs.values_list('last_number', flat=True)])
 
@@ -213,7 +213,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             user=user, name='My second Quote', source=source, target=target2,
         )
 
-        self.assertRelationCount(1, target2, REL_SUB_PROSPECT, source)
+        self.assertHaveRelation(subject=target2, type=REL_SUB_PROSPECT, object=source)
         self.assertEqual('DE2', quote2.number)
 
     def test_createview03(self):
@@ -325,8 +325,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(currency, quote.currency)
         self.assertEqual(status,   quote.status)
 
-        self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
+        self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_RECEIVED, object=target)
 
     def test_create_related02(self):
         "Not a super-user + other default status."
@@ -428,8 +428,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(currency,                         quote.currency)
         self.assertEqual(status,                           quote.status)
 
-        self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
+        self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_RECEIVED, object=target)
 
     def test_editview02(self):
         "Change source/target + perms."
@@ -472,11 +472,11 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         source2, target2 = self.create_orgas(user=user)
         self.assertNoFormError(post(source2, target2))
 
-        self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   source2)
-        self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target2)
+        self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_ISSUED,   object=source2)
+        self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_RECEIVED, object=target2)
 
-        self.assertRelationCount(0, quote, REL_SUB_BILL_ISSUED,   source1)
-        self.assertRelationCount(0, quote, REL_SUB_BILL_RECEIVED, target1)
+        self.assertHaveNoRelation(subject=quote, type=REL_SUB_BILL_ISSUED,   object=source1)
+        self.assertHaveNoRelation(subject=quote, type=REL_SUB_BILL_RECEIVED, object=target1)
 
     def test_editview03(self):
         "Change source/target + perms: unlinkable but not changed."
@@ -510,8 +510,8 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
         self.assertNoFormError(response)
         self.assertEqual(status, self.refresh(quote).status)
-        self.assertRelationCount(1, quote, REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, quote, REL_SUB_BILL_RECEIVED, target)
+        self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_RECEIVED, object=target)
 
     def test_listview(self):
         user = self.login_as_root_and_get()

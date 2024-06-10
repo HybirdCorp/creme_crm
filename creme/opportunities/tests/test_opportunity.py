@@ -183,13 +183,13 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(date(2010, 10, 11), opportunity.closing_date)
         self.assertEqual(date(2010, 7,  13), opportunity.first_action_date)
 
-        self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
+        self.assertHaveRelation(target, type=constants.REL_OBJ_TARGETS, object=opportunity)
         self.assertEqual(target, opportunity.target)
 
-        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
+        self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
         self.assertEqual(emitter, opportunity.emitter)
 
-        self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
+        self.assertHaveRelation(target, type=REL_SUB_PROSPECT, object=emitter)
 
         # --
         response = self.assertGET200(opportunity.get_absolute_url())
@@ -225,9 +225,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(date(2010, 10, 11), opportunity.closing_date)
         self.assertEqual(date(2010, 7,  13), opportunity.first_action_date)
 
-        self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
-        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
-        self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
+        self.assertHaveRelation(target,  type=constants.REL_OBJ_TARGETS,   object=opportunity)
+        self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
+        self.assertHaveRelation(target,  type=REL_SUB_PROSPECT,            object=emitter)
 
         with self.assertNumQueries(1):
             prop_emitter = opportunity.emitter
@@ -377,9 +377,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase, opportunity.sales_phase)
 
-        self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
-        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
-        self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
+        self.assertHaveRelation(target,  type=constants.REL_OBJ_TARGETS,   object=opportunity)
+        self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
+        self.assertHaveRelation(target,  type=REL_SUB_PROSPECT,            object=emitter)
 
         response = self.client.post(
             url,
@@ -396,7 +396,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             },
         )
         self.assertNoFormError(response)
-        self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
+        self.assertHaveRelation(subject=target, type=REL_SUB_PROSPECT, object=emitter)
 
     @skipIfCustomOrganisation
     def test_add_to_orga02(self):
@@ -438,9 +438,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase, opportunity.sales_phase)
 
-        self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
-        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
-        self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
+        self.assertHaveRelation(target,  type=constants.REL_OBJ_TARGETS,   object=opportunity)
+        self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
+        self.assertHaveRelation(target,  type=REL_SUB_PROSPECT,            object=emitter)
 
     def test_add_to_orga03(self):
         "Try to add with wrong credentials (no link credentials)."
@@ -504,9 +504,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase, opportunity.sales_phase)
 
-        self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
-        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
-        self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
+        self.assertHaveRelation(target,  type=constants.REL_OBJ_TARGETS,   object=opportunity)
+        self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
+        self.assertHaveRelation(target,  type=REL_SUB_PROSPECT,            object=emitter)
 
         response = self.client.post(
             url,
@@ -523,7 +523,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             },
         )
         self.assertNoFormError(response)
-        self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
+        self.assertHaveRelation(subject=target, type=REL_SUB_PROSPECT, object=emitter)
 
     @skipIfCustomContact
     def test_add_to_contact02(self):
@@ -554,9 +554,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase, opportunity.sales_phase)
 
-        self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
-        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
-        self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
+        self.assertHaveRelation(target,  type=constants.REL_OBJ_TARGETS,   object=opportunity)
+        self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
+        self.assertHaveRelation(target,  type=REL_SUB_PROSPECT,            object=emitter)
 
     @skipIfCustomContact
     def test_add_to_contact03(self):
@@ -632,7 +632,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         self.assertEqual(target, opp.target)
         self.assertStillExists(target_rel)
-        self.assertRelationCount(1, opp, constants.REL_SUB_TARGETS, target)
+        self.assertHaveRelation(subject=opp, type=constants.REL_SUB_TARGETS, object=target)
 
     @skipIfCustomOrganisation
     @skipIfCustomContact
@@ -664,7 +664,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertNoFormError(response)
         self.assertEqual(target2, self.refresh(opp).target)
         self.assertDoesNotExist(target_rel)
-        self.assertRelationCount(1, target2, REL_SUB_PROSPECT, emitter)
+        self.assertHaveRelation(subject=target2, type=REL_SUB_PROSPECT, object=emitter)
 
     @skipIfCustomOrganisation
     def test_listview(self):
@@ -725,11 +725,12 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(opportunity.sales_phase,  cloned.sales_phase)
         self.assertEqual(opportunity.closing_date, cloned.closing_date)
 
-        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
-        self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, cloned)
+        self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=opportunity)
+        self.assertHaveRelation(emitter, type=constants.REL_SUB_EMIT_ORGA, object=cloned)
 
-        self.assertRelationCount(1, target, constants.REL_OBJ_TARGETS, opportunity)
-        self.assertRelationCount(1, target, constants.REL_OBJ_TARGETS, cloned)  # <== internal
+        self.assertHaveRelation(target, type=constants.REL_OBJ_TARGETS, object=opportunity)
+        # Internal
+        self.assertHaveRelation(target, type=constants.REL_OBJ_TARGETS, object=cloned)
 
     @skipIfCustomOrganisation
     def test_get_weighted_sales01(self):

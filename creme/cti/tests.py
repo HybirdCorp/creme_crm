@@ -95,10 +95,9 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDatetimesAlmostEqual(now(), pcall.start)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
-        self.assertRelationCount(
-            1, user.linked_contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall,
-        )
-        self.assertRelationCount(1, contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
+        PARTICIPATES = a_constants.REL_SUB_PART_2_ACTIVITY
+        self.assertHaveRelation(subject=user.linked_contact, type=PARTICIPATES, object=pcall)
+        self.assertHaveRelation(subject=contact,             type=PARTICIPATES, object=pcall)
 
         calendar = Calendar.objects.get_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
@@ -122,8 +121,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         pcall = self.get_alone_element(
             Activity.objects.filter(type__uuid=a_constants.UUID_TYPE_PHONECALL)
         )
-        self.assertRelationCount(0, orga, a_constants.REL_SUB_PART_2_ACTIVITY,   pcall)
-        self.assertRelationCount(1, orga, a_constants.REL_SUB_LINKED_2_ACTIVITY, pcall)
+        self.assertHaveNoRelation(orga, type=a_constants.REL_SUB_PART_2_ACTIVITY, object=pcall)
+        self.assertHaveRelation(orga, type=a_constants.REL_SUB_LINKED_2_ACTIVITY, object=pcall)
 
     @skipIfCustomContact
     def test_respond_to_a_call01(self):
@@ -301,10 +300,9 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDatetimesAlmostEqual(now(), pcall.start)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
-        self.assertRelationCount(
-            1, user.linked_contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall,
-        )
-        self.assertRelationCount(1, contact, a_constants.REL_SUB_PART_2_ACTIVITY, pcall)
+        PARTICIPATES = a_constants.REL_SUB_PART_2_ACTIVITY
+        self.assertHaveRelation(subject=user.linked_contact, type=PARTICIPATES, object=pcall)
+        self.assertHaveRelation(subject=contact,             type=PARTICIPATES, object=pcall)
 
         calendar = Calendar.objects.get_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
@@ -317,7 +315,9 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertPOST(302, self._build_add_pcall_url(contact))
 
         phone_call = self.get_alone_element(Activity.objects.all())
-        self.assertRelationCount(1, contact, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call)
+        self.assertHaveRelation(
+            subject=contact, type=a_constants.REL_SUB_PART_2_ACTIVITY, object=phone_call,
+        )
 
         calendar = Calendar.objects.get_default_calendar(user)
         self.assertTrue(phone_call.calendars.filter(pk=calendar.id).exists())
@@ -333,12 +333,9 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(1, Activity.objects.count())
 
         phone_call = Activity.objects.all()[0]
-        self.assertRelationCount(
-            1, user.linked_contact, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call,
-        )
-        self.assertRelationCount(
-            1, other_user_contact, a_constants.REL_SUB_PART_2_ACTIVITY, phone_call,
-        )
+        PARTICIPATES = a_constants.REL_SUB_PART_2_ACTIVITY
+        self.assertHaveRelation(subject=user.linked_contact, type=PARTICIPATES, object=phone_call)
+        self.assertHaveRelation(subject=other_user_contact,  type=PARTICIPATES, object=phone_call)
 
         get_cal = Calendar.objects.get_default_calendar
         filter_calendars = phone_call.calendars.filter

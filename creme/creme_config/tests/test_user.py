@@ -382,7 +382,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             Contact,
             is_user=user, first_name=first_name, last_name=last_name, email=email,
         )
-        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
+        self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=orga)
 
     @skipIfNotCremeUser
     @skipIfCustomContact
@@ -430,7 +430,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(user, contact.is_user)
-        self.assertRelationCount(1, contact, REL_SUB_MANAGES, orga)
+        self.assertHaveRelation(subject=contact, type=REL_SUB_MANAGES, object=orga)
 
     @skipIfNotCremeUser
     def test_create_user_required_fields(self):

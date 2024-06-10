@@ -500,10 +500,10 @@ class CreationTestCase(CremeTestCase):
         )
 
         self.assertEqual(4, subject.relations.count())
-        self.assertRelationCount(1, subject, rtype1, contact1)
-        self.assertRelationCount(1, subject, rtype1, contact2)
-        self.assertRelationCount(1, subject, rtype2, orga1)
-        self.assertRelationCount(1, subject, rtype2, orga2)
+        self.assertHaveRelation(subject=subject, type=rtype1, object=contact1)
+        self.assertHaveRelation(subject=subject, type=rtype1, object=contact2)
+        self.assertHaveRelation(subject=subject, type=rtype2, object=orga1)
+        self.assertHaveRelation(subject=subject, type=rtype2, object=orga2)
 
     @override_settings(FORMS_RELATION_FIELDS=False)
     def test_entity_creation_no_relation_field(self):

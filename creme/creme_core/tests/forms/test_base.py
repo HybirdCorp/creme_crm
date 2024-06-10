@@ -549,8 +549,8 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         subject = form2.save()
         self.assertEqual(2, subject.relations.count())
-        self.assertRelationCount(1, subject, rtype1, contact)
-        self.assertRelationCount(1, subject, rtype2, orga)
+        self.assertHaveRelation(subject=subject, type=rtype1, object=contact)
+        self.assertHaveRelation(subject=subject, type=rtype2, object=orga)
 
     def test_relations02(self):
         "Semi-fixed."
@@ -617,8 +617,8 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         subject = form2.save()
         self.assertEqual(2, subject.relations.count())
-        self.assertRelationCount(1, subject, rtype1, contact)
-        self.assertRelationCount(1, subject, rtype2, orga)
+        self.assertHaveRelation(subject=subject, type=rtype1, object=contact)
+        self.assertHaveRelation(subject=subject, type=rtype2, object=orga)
 
     def test_relations03(self):
         "Fixed & semi-fixed."
@@ -664,8 +664,8 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         subject = form.save()
         self.assertEqual(2, subject.relations.count())
-        self.assertRelationCount(1, subject, rtype1, contact)
-        self.assertRelationCount(1, subject, rtype2, orga)
+        self.assertHaveRelation(subject=subject, type=rtype1, object=contact)
+        self.assertHaveRelation(subject=subject, type=rtype2, object=orga)
 
     def test_relations04(self):
         "Forced Relations."
@@ -735,9 +735,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertFalse(form.errors)
 
         subject = form.save()
-        self.assertRelationCount(1, subject, rtype1, contact1)
-        self.assertRelationCount(1, subject, rtype1, contact2)
-        self.assertRelationCount(1, subject, rtype2, orga)
+        self.assertHaveRelation(subject=subject, type=rtype1, object=contact1)
+        self.assertHaveRelation(subject=subject, type=rtype1, object=contact2)
+        self.assertHaveRelation(subject=subject, type=rtype2, object=orga)
 
     @override_settings(FORMS_RELATION_FIELDS=False)
     def test_relations05(self):
@@ -898,7 +898,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertFalse(form2.errors)
 
         subject = form2.save()
-        self.assertRelationCount(1, subject, rtype, orga)
+        self.assertHaveRelation(subject=subject, type=rtype, object=orga)
 
     def test_relations_credentials04(self):
         "Link credentials on the created entity (semi-fixed version)."
@@ -936,7 +936,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertFalse(form2.errors)
 
         subject = form2.save()
-        self.assertRelationCount(1, subject, rtype, orga)
+        self.assertHaveRelation(subject=subject, type=rtype, object=orga)
 
     def test_relations_credentials05(self):
         "No link credentials on the created entity but no relation wanted."
@@ -996,7 +996,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertFalse(form2.errors)
 
         subject = form2.save()
-        self.assertRelationCount(1, subject, rtype, orga)
+        self.assertHaveRelation(subject=subject, type=rtype, object=orga)
 
     def test_relations_error01(self):
         "ContentType constraint error."
@@ -1297,6 +1297,6 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertFalse(form.errors)
 
         subject = form.save()
-        self.assertRelationCount(1, subject, rtype, orga)
+        self.assertHaveRelation(subject=subject, type=rtype, object=orga)
 
     # TODO: test edition

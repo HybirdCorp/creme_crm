@@ -989,12 +989,12 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertIsNone(email1.reception_date)
         self.assertIs(email1.synchronised, True)
 
-        self.assertRelationCount(1, email1, REL_SUB_MAIL_SENT,     sender_contact)
-        self.assertRelationCount(0, email1, REL_SUB_MAIL_RECEIVED, sender_contact)
+        self.assertHaveRelation(email1, type=REL_SUB_MAIL_SENT,     object=sender_contact)
+        self.assertHaveNoRelation(email1, type=REL_SUB_MAIL_RECEIVED, object=sender_contact)
 
-        self.assertRelationCount(1, email1, REL_SUB_MAIL_RECEIVED, contact1)
-        self.assertRelationCount(0, email1, REL_SUB_MAIL_SENT,     contact1)
-        self.assertRelationCount(1, email1, REL_SUB_MAIL_RECEIVED, contact2)
+        self.assertHaveRelation(email1, type=REL_SUB_MAIL_RECEIVED, object=contact1)
+        self.assertHaveNoRelation(email1, type=REL_SUB_MAIL_SENT,     object=contact1)
+        self.assertHaveRelation(email1, type=REL_SUB_MAIL_RECEIVED, object=contact2)
 
         attachment = self.get_alone_element(email1.attachments.all())
         self.assertEqual(file_name, attachment.title)

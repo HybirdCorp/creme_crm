@@ -391,7 +391,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             return self.get_object_or_fail(Document, title=title)
 
         doc1 = post('Related doc')
-        self.assertRelationCount(1, entity, REL_SUB_RELATED_2_DOC, doc1)
+        self.assertHaveRelation(subject=entity, type=REL_SUB_RELATED_2_DOC, object=doc1)
 
         entity_folder = doc1.linked_folder
         self.assertIsNotNone(entity_folder)

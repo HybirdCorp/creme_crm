@@ -91,7 +91,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
             first_name=first_name, last_name=last_name,
         )
         self.assertEqual(user, may.user)
-        self.assertRelationCount(1, may, REL_SUB_EMPLOYED_BY, kof)
+        self.assertHaveRelation(subject=may, type=REL_SUB_EMPLOYED_BY, object=kof)
         self.assertFalse(user.mobile_favorite.all())
 
         self.assertRedirects(response, self.PERSONS_PORTAL_URL)
@@ -141,7 +141,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         self.assertEqual(email, may.email)
 
         kof = self.get_object_or_fail(Organisation, name=orga_name)
-        self.assertRelationCount(1, may, REL_SUB_EMPLOYED_BY, kof)
+        self.assertHaveRelation(subject=may, type=REL_SUB_EMPLOYED_BY, object=kof)
 
         self.assertListEqual(
             [may],
