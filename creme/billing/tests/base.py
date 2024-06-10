@@ -780,11 +780,11 @@ class _BillingTestCase(_BillingTestCaseMixin,
         bdoc = self.refresh(bdoc)
         self.assertEqual(number, bdoc.number)
 
-        self.assertRelationCount(1, bdoc, REL_SUB_BILL_ISSUED, source2)
-        self.assertRelationCount(0, bdoc, REL_SUB_BILL_ISSUED, source1)
+        self.assertHaveRelation(subject=bdoc, type=REL_SUB_BILL_ISSUED, object=source2)
+        self.assertHaveNoRelation(subject=bdoc, type=REL_SUB_BILL_ISSUED, object=source1)
 
-        self.assertRelationCount(1, bdoc, REL_SUB_BILL_RECEIVED, target2)
-        self.assertRelationCount(0, bdoc, REL_SUB_BILL_RECEIVED, target1)
+        self.assertHaveRelation(subject=bdoc, type=REL_SUB_BILL_RECEIVED, object=target2)
+        self.assertHaveNoRelation(subject=bdoc, type=REL_SUB_BILL_RECEIVED, object=target1)
 
         b_addr = bdoc.billing_address
         self.assertIsNotNone(b_addr)

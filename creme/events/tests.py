@@ -485,7 +485,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self._set_presence_status(event, casca, constants.PRES_STATUS_DONT_KNOW)
         self.assertEqual(0, event.get_stats()['visitors_count'])
-        self.assertRelationCount(0, casca, constants.REL_SUB_NOT_CAME_EVENT, event)
+        self.assertHaveNoRelation(casca, type=constants.REL_SUB_NOT_CAME_EVENT, object=event)
 
     @skipIfCustomContact
     def test_set_presence_status02(self):
@@ -499,11 +499,11 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self._set_presence_status(event, casca, constants.PRES_STATUS_NOT_COME)
         self.assertEqual(0, event.get_stats()['visitors_count'])
-        self.assertRelationCount(1, casca, constants.REL_SUB_NOT_CAME_EVENT, event)
+        self.assertHaveRelation(casca, type=constants.REL_SUB_NOT_CAME_EVENT, object=event)
 
         self._set_presence_status(event, casca, constants.PRES_STATUS_DONT_KNOW)
         self.assertEqual(0, event.get_stats()['visitors_count'])
-        self.assertRelationCount(0, casca, constants.REL_SUB_NOT_CAME_EVENT, event)
+        self.assertHaveNoRelation(casca, type=constants.REL_SUB_NOT_CAME_EVENT, object=event)
 
     @skipIfCustomContact
     def test_set_presence_status03(self):
@@ -514,11 +514,11 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self._set_presence_status(event, casca, constants.PRES_STATUS_NOT_COME)
         self.assertEqual(0, event.get_stats()['visitors_count'])
-        self.assertRelationCount(1, casca, constants.REL_SUB_NOT_CAME_EVENT, event)
+        self.assertHaveRelation(casca, type=constants.REL_SUB_NOT_CAME_EVENT, object=event)
 
         self._set_presence_status(event, casca, constants.PRES_STATUS_COME)
         self.assertEqual(1, event.get_stats()['visitors_count'])
-        self.assertRelationCount(0, casca, constants.REL_SUB_NOT_CAME_EVENT, event)
+        self.assertHaveNoRelation(casca, type=constants.REL_SUB_NOT_CAME_EVENT, object=event)
 
     @skipIfCustomContact
     def test_set_presence_status04(self):
@@ -851,7 +851,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         opp = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase, opp.sales_phase)
-        self.assertRelationCount(1, opp, constants.REL_SUB_GEN_BY_EVENT, event)
+        self.assertHaveRelation(opp, type=constants.REL_SUB_GEN_BY_EVENT, object=event)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -910,7 +910,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoFormError(response)
 
         opp = self.get_object_or_fail(Opportunity, name=name)
-        self.assertRelationCount(1, opp, constants.REL_SUB_GEN_BY_EVENT, event)
+        self.assertHaveRelation(subject=opp, type=constants.REL_SUB_GEN_BY_EVENT, object=event)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation

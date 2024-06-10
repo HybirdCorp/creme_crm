@@ -690,7 +690,8 @@ END:VCARD"""
             first_name=first_name, last_name=last_name,
             phone=phone, mobile=mobile, fax=fax, email=email,
         )
-        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
+        # self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
+        self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=orga)
         self.assertRedirects(response, contact.get_absolute_url())
 
     @skipIfCustomContact
@@ -760,7 +761,7 @@ END:VCARD"""
             first_name=first_name, last_name=last_name,
             phone=phone, mobile=mobile, fax=fax, email=email,
         )
-        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
+        self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=orga)
 
         orga_not_edited = self.refresh(orga)
         self.assertEqual(orga.name,     orga_not_edited.name)

@@ -101,7 +101,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
         contact = self.get_object_or_fail(
             Contact, first_name=first_name, last_name=last_name,
         )
-        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, created_orga)
+        self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=created_orga)
 
     @skipIfCustomOrganisation
     def test_quickform03(self):
@@ -136,8 +136,8 @@ class ContactQuickFormTestCase(_BaseTestCase):
         contact = self.get_object_or_fail(
             Contact, first_name=first_name, last_name=last_name,
         )
-        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga1)
-        self.assertRelationCount(0, contact, REL_SUB_EMPLOYED_BY, orga2)
+        self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=orga1)
+        self.assertHaveNoRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=orga2)
 
     def test_quickform04(self):
         "No permission to create Organisation."
@@ -322,7 +322,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
         contact = self.get_object_or_fail(
             Contact, first_name=first_name, last_name=last_name,
         )
-        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga1)
+        self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=orga1)
 
     @skipIfCustomOrganisation
     def test_quickform10(self):
@@ -402,7 +402,7 @@ class ContactQuickFormTestCase(_BaseTestCase):
         contact = self.get_object_or_fail(
             Contact, first_name=first_name, last_name=last_name,
         )
-        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga2)
+        self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=orga2)
 
 
 # @skipIfCustomContact

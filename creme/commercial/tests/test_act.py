@@ -298,7 +298,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(target,  opp.target)
         self.assertEqual(emitter, opp.emitter)
 
-        self.assertRelationCount(1, opp, REL_SUB_COMPLETE_GOAL, act)
+        self.assertHaveRelation(subject=opp, type=REL_SUB_COMPLETE_GOAL, object=act)
 
     def test_create_linked_opportunity02(self):
         "Cannot link the Act."
@@ -794,7 +794,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertNoFormError(response)
 
         nerv = self.get_object_or_fail(Organisation, name=name)
-        self.assertRelationCount(1, nerv, REL_SUB_COMPLETE_GOAL, act)
+        self.assertHaveRelation(subject=nerv, type=REL_SUB_COMPLETE_GOAL, object=act)
 
     def test_objective_create_entity02(self):
         "Not a relationships counter objective."
@@ -1144,8 +1144,6 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         sub_type = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_MEETING_OTHER)
         meeting = Activity.objects.create(
             user=user, title='Meeting #01',
-            # type_id=ACTIVITYTYPE_MEETING,
-            # sub_type_id=ACTIVITYSUBTYPE_MEETING_OTHER,
             type_id=sub_type.type_id,
             sub_type=sub_type,
             start=create_dt(year=2011, month=5, day=20, hour=14, minute=0),
@@ -1153,5 +1151,5 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
 
         create_rel(type_id=REL_SUB_ACTIVITY_SUBJECT, object_entity=meeting)
-        self.assertRelationCount(1, meeting, REL_SUB_COMPLETE_GOAL, act1)
-        self.assertRelationCount(1, meeting, REL_SUB_COMPLETE_GOAL, act2)
+        self.assertHaveRelation(subject=meeting, type=REL_SUB_COMPLETE_GOAL, object=act1)
+        self.assertHaveRelation(subject=meeting, type=REL_SUB_COMPLETE_GOAL, object=act2)

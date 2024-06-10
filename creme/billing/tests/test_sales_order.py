@@ -121,8 +121,8 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(currency,                         order.currency)
         self.assertEqual(status,                           order.status)
 
-        self.assertRelationCount(1, order, REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
+        self.assertHaveRelation(subject=order, type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=order, type=REL_SUB_BILL_RECEIVED, object=target)
 
     def test_create_related01(self):
         user = self.login_as_root_and_get()
@@ -172,8 +172,8 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(currency, order.currency)
         self.assertEqual(status,   order.status)
 
-        self.assertRelationCount(1, order, REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
+        self.assertHaveRelation(subject=order, type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=order, type=REL_SUB_BILL_RECEIVED, object=target)
 
         self.assertEqual(order.get_absolute_url(), response.content.decode())
 
@@ -210,8 +210,8 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(currency, order.currency)
         self.assertEqual(status,   order.status)
 
-        self.assertRelationCount(1, order, REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
+        self.assertHaveRelation(subject=order, type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=order, type=REL_SUB_BILL_RECEIVED, object=target)
 
     def test_create_related03(self):
         "Not a super-user."

@@ -594,8 +594,8 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(currency,                         cnote.currency)
         self.assertEqual(status,                           cnote.status)
 
-        self.assertRelationCount(1, cnote, REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, cnote, REL_SUB_BILL_RECEIVED, target)
+        self.assertHaveRelation(subject=cnote, type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=cnote, type=REL_SUB_BILL_RECEIVED, object=target)
 
     @skipIfCustomInvoice
     def test_addrelated_view_badrelated(self):

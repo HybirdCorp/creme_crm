@@ -72,14 +72,8 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         self.assertFalse(contact.email)
         self.assertFalse(contact.phone)
         self.assertFalse(contact.mobile)
-        self.assertRelationCount(
-            subject_entity=contact, type_id=REL_SUB_LINKED_CONTACT, object_entity=opp,
-            count=1,
-        )
-        self.assertRelationCount(
-            subject_entity=contact, type_id=REL_SUB_EMPLOYED_BY, object_entity=target,
-            count=0,
-        )
+        self.assertHaveRelation(subject=contact, type=REL_SUB_LINKED_CONTACT, object=opp)
+        self.assertHaveNoRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=target)
 
     def test_create_related_contact02(self):
         "Employed by the target Organisation."
@@ -120,10 +114,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(email, contact.email)
         self.assertEqual(phone, contact.phone)
         self.assertEqual(mobile, contact.mobile)
-        self.assertRelationCount(
-            subject_entity=contact, type_id=REL_SUB_EMPLOYED_BY, object_entity=target,
-            count=1,
-        )
+        self.assertHaveRelation(subject=contact, type=REL_SUB_EMPLOYED_BY, object=target)
 
     def test_create_related_contact03(self):
         "Target is a Contact."
@@ -153,10 +144,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         contact = self.get_object_or_fail(
             Contact, first_name=first_name, last_name=last_name,
         )
-        self.assertRelationCount(
-            subject_entity=contact, type_id=REL_SUB_EMPLOYED_BY, object_entity=target,
-            count=0,
-        )
+        self.assertHaveNoRelation(contact, type=REL_SUB_EMPLOYED_BY, object=target)
 
     def test_create_related_contact04(self):
         "No credentials to create the Contact."

@@ -788,7 +788,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             self._build_add_participants_url(activity),
             data={'participants': self.formfield_value_multi_creator_entity(akane)},
         ))
-        self.assertRelationCount(1, dojo, REL_SUB_ACTIVITY_SUBJECT, activity)
+        self.assertHaveRelation(subject=dojo, type=REL_SUB_ACTIVITY_SUBJECT, object=activity)
 
     def test_add_participants08(self):
         "I already participate + the selected team includes me."
@@ -811,12 +811,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             self._build_add_participants_url(activity),
             data={'participating_users': [team.id]},
         ))
-        self.assertRelationCount(
-            1, user.linked_contact, REL_SUB_PART_2_ACTIVITY, activity,
-        )
-        self.assertRelationCount(
-            1, other_user.linked_contact, REL_SUB_PART_2_ACTIVITY, activity,
-        )
+        self.assertHaveRelation(user.linked_contact,       REL_SUB_PART_2_ACTIVITY, activity)
+        self.assertHaveRelation(other_user.linked_contact, REL_SUB_PART_2_ACTIVITY, activity)
         self.assertCountEqual(
             # [cal1, get_default_calendar(other_user)],
             [cal1, get_default_calendar(other_user), get_default_calendar(team)],
@@ -851,18 +847,15 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
 
         # Logged user, set in his calendar
-        self.assertRelationCount(1, logged,   REL_SUB_PART_2_ACTIVITY, phone_call)
-        # Other contact user, set in his calendar too
-        self.assertRelationCount(1, other,    REL_SUB_PART_2_ACTIVITY, phone_call)
-        # Regular contact, has no calendar
-        self.assertRelationCount(1, contact3, REL_SUB_PART_2_ACTIVITY, phone_call)
-        self.assertEqual(2, phone_call.calendars.count())
-
-        sym_rel = Relation.objects.get(
-            subject_entity=logged,
-            type=REL_SUB_PART_2_ACTIVITY,
-            object_entity=phone_call,
+        sym_rel = self.get_object_or_fail(
+            Relation,
+            subject_entity=logged, type=REL_SUB_PART_2_ACTIVITY, object_entity=phone_call,
         )
+        # Other contact user, set in his calendar too
+        self.assertHaveRelation(subject=other, type=REL_SUB_PART_2_ACTIVITY, object=phone_call)
+        # Regular contact, has no calendar
+        self.assertHaveRelation(subject=contact3, type=REL_SUB_PART_2_ACTIVITY, object=phone_call)
+        self.assertEqual(2, phone_call.calendars.count())
 
         del_url = self.RM_PARTICIPANT_URL
         self.assertGET405(del_url)

@@ -151,8 +151,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(name, invoice.name)
         self.assertEqual(1,    invoice.status_id)
 
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED, target)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED, object=target)
 
         with self.assertNumQueries(0):
             gotten_source = invoice.source
@@ -221,8 +221,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice.source = source2
         invoice.save()
 
-        self.assertRelationCount(0, invoice, REL_SUB_BILL_ISSUED, source1)
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED, source2)
+        self.assertHaveNoRelation(subject=invoice, type=REL_SUB_BILL_ISSUED, object=source1)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_ISSUED, object=source2)
 
         # ---
         invoice = self.refresh(invoice)
@@ -230,8 +230,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice.target = target2
         invoice.save()
 
-        self.assertRelationCount(0, invoice, REL_SUB_BILL_RECEIVED, target1)
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED, target2)
+        self.assertHaveNoRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED, object=target1)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED, object=target2)
 
     def test_source_n_target04(self):
         "Several save without refreshing."
@@ -252,11 +252,11 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice.target = target2
         invoice.save()
 
-        self.assertRelationCount(0, invoice, REL_SUB_BILL_ISSUED, source1)
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED, source2)
+        self.assertHaveNoRelation(invoice, REL_SUB_BILL_ISSUED, source1)
+        self.assertHaveRelation(invoice, REL_SUB_BILL_ISSUED, source2)
 
-        self.assertRelationCount(0, invoice, REL_SUB_BILL_RECEIVED, target1)
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED, target2)
+        self.assertHaveNoRelation(invoice, REL_SUB_BILL_RECEIVED, target1)
+        self.assertHaveRelation(invoice, REL_SUB_BILL_RECEIVED, target2)
 
         # ---
         source3, target3 = self.create_orgas(user=user, index=3)
@@ -264,11 +264,11 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         invoice.target = target3
         invoice.save()
 
-        self.assertRelationCount(0, invoice, REL_SUB_BILL_ISSUED, source2)
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED, source3)
+        self.assertHaveNoRelation(invoice, REL_SUB_BILL_ISSUED, source2)
+        self.assertHaveRelation(invoice, REL_SUB_BILL_ISSUED, source3)
 
-        self.assertRelationCount(0, invoice, REL_SUB_BILL_RECEIVED, target2)
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED, target3)
+        self.assertHaveNoRelation(invoice, REL_SUB_BILL_RECEIVED, target2)
+        self.assertHaveRelation(invoice, REL_SUB_BILL_RECEIVED, target3)
 
     def test_createview01(self):
         "Source is not managed."
@@ -304,9 +304,9 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertIsNone(invoice.payment_info)
         self.assertEqual('', invoice.buyers_order_number)
 
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,       source)
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED,     target)
-        self.assertRelationCount(1, target,  REL_SUB_CUSTOMER_SUPPLIER, source)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_ISSUED,       object=source)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED,     object=target)
+        self.assertHaveRelation(subject=target,  type=REL_SUB_CUSTOMER_SUPPLIER, object=source)
 
         self.assertEqual(source, invoice.source)
         self.assertEqual(target, invoice.target)
@@ -328,7 +328,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.create_invoice(
             user=user, name='Invoice002', source=source, target=target, currency=currency,
         )
-        self.assertRelationCount(1, target, REL_SUB_CUSTOMER_SUPPLIER, source)
+        self.assertHaveRelation(subject=target, type=REL_SUB_CUSTOMER_SUPPLIER, object=source)
 
     def test_createview02(self):
         "Source is managed => no number anyway."
@@ -566,8 +566,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(currency, invoice.currency)
         self.assertEqual(status,   invoice.status)
 
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED, target)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED, object=target)
 
     def test_create_related02(self):
         "Not a super-user."
@@ -766,8 +766,8 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(source2, invoice.source)
         self.assertEqual(target2, invoice.target)
 
-        self.assertRelationCount(1, source2, REL_OBJ_BILL_ISSUED,   invoice)
-        self.assertRelationCount(1, target2, REL_OBJ_BILL_RECEIVED, invoice)
+        self.assertHaveRelation(subject=source2, type=REL_OBJ_BILL_ISSUED,   object=invoice)
+        self.assertHaveRelation(subject=target2, type=REL_OBJ_BILL_RECEIVED, object=invoice)
 
         billing_address = invoice.billing_address
         self.assertIsInstance(billing_address, Address)
@@ -1276,10 +1276,10 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         cloned_source = source.clone()
         cloned_target = target.clone()
 
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED, target)
-        self.assertRelationCount(0, invoice, REL_SUB_BILL_ISSUED,   cloned_source)
-        self.assertRelationCount(0, invoice, REL_SUB_BILL_RECEIVED, cloned_target)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED, object=target)
+        self.assertHaveNoRelation(invoice, type=REL_SUB_BILL_ISSUED,   object=cloned_source)
+        self.assertHaveNoRelation(invoice, type=REL_SUB_BILL_RECEIVED, object=cloned_target)
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
