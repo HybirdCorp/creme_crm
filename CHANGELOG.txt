@@ -553,6 +553,8 @@
                 - The templatetag "mobile_activity_card" does not inject "STATUS_IN_PROGRESS" in the context anymore.
             * Projects :
                 - In JavaScript, the action "projects-hatmenubar-close" has been removed.
+            * Sketch :
+                - In Javascript, improve the behaviour of creme.d3NumericFormat in some usecases with data min/max range is between 5000 and 10000.
 
 
 == Version 2.5 ==
