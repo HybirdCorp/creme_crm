@@ -159,10 +159,10 @@ class ConvertTestCase(_BillingTestCase):
         self.assertIsNone(invoice.additional_info)
         self.assertIsNone(invoice.payment_terms)
 
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,        source)
-        self.assertRelationCount(1, invoice, REL_SUB_INVOICE_FROM_QUOTE, quote)
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED,      target)
-        self.assertRelationCount(1, target,  REL_SUB_CUSTOMER_SUPPLIER,  source)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_ISSUED,        object=source)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_INVOICE_FROM_QUOTE, object=quote)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED,      object=target)
+        self.assertHaveRelation(subject=target,  type=REL_SUB_CUSTOMER_SUPPLIER,  object=source)
 
         # Addresses are cloned
         self.assertEqual(address_count + 4, Address.objects.count())
@@ -204,7 +204,7 @@ class ConvertTestCase(_BillingTestCase):
             rtype.save()
 
         invoice = self.get_alone_element(Invoice.objects.all())
-        self.assertRelationCount(0, invoice, REL_SUB_INVOICE_FROM_QUOTE, quote)
+        self.assertHaveNoRelation(subject=invoice, type=REL_SUB_INVOICE_FROM_QUOTE, object=quote)
 
     @skipIfCustomQuote
     @skipIfCustomSalesOrder
@@ -229,7 +229,7 @@ class ConvertTestCase(_BillingTestCase):
         order = self.get_alone_element(SalesOrder.objects.all())
         self.assertEqual('ORD1', order.number)
         self.assertEqual(def_status, order.status)
-        self.assertRelationCount(0, order, REL_SUB_INVOICE_FROM_QUOTE, quote)
+        self.assertHaveNoRelation(subject=order, type=REL_SUB_INVOICE_FROM_QUOTE, object=quote)
 
     @skipIfCustomQuote
     @skipIfCustomSalesOrder
@@ -355,8 +355,8 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(quote.total_no_vat,    invoice.total_no_vat)
         self.assertEqual(quote.total_vat,       invoice.total_vat)
 
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED, target)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED, object=target)
 
         self.assertCountEqual(
             [quote_property.type_id],

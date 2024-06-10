@@ -731,6 +731,11 @@ class _CremeTestCase:
             self.fail(f'<{entity}> has property with type <{ptype}>')
 
     def assertRelationCount(self, count, subject_entity, type_id, object_entity):
+        warnings.warn(
+            'assertRelationCount() is deprecated;'
+            'use assertHaveRelation()/assertHaveNoRelation() instead.',
+            DeprecationWarning
+        )
         self.assertEqual(
             count,
             Relation.objects.filter(
@@ -739,6 +744,26 @@ class _CremeTestCase:
                 object_entity=object_entity.id,
             ).count(),
         )
+
+    def assertHaveRelation(self,
+                           subject: CremeEntity | int,
+                           type: RelationType | str,
+                           object: CremeEntity | int,
+                           ):
+        if not Relation.objects.filter(
+            subject_entity=subject, type=type, object_entity=object,
+        ).exists():
+            self.fail(f'<{subject}> is not related to <{object}> with type <{type}>')
+
+    def assertHaveNoRelation(self,
+                             subject: CremeEntity | int,
+                             type: RelationType | str,
+                             object: CremeEntity | int,
+                             ):
+        if Relation.objects.filter(
+            subject_entity=subject, type=type, object_entity=object,
+        ).exists():
+            self.fail(f'<{subject}> is related to <{object}> with type <{type}>')
 
     def assertSameProperties(self, entity1, entity2):
         self.assertCountEqual(

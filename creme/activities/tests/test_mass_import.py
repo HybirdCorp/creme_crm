@@ -312,11 +312,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertEqual(sub_type.type_id, act1.type_id)
         self.assertEqual(sub_type.id,      act1.sub_type_id)
 
-        REL_OBJ_PART_2_ACTIVITY = constants.REL_OBJ_PART_2_ACTIVITY
-        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, user_contact)
-        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, other_contact)
-        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, furuichi.linked_contact)
-        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, chiaki.linked_contact)
+        PARTICIPATES = constants.REL_SUB_PART_2_ACTIVITY
+        self.assertHaveRelation(subject=user_contact,            type=PARTICIPATES, object=act1)
+        self.assertHaveRelation(subject=other_contact,           type=PARTICIPATES, object=act1)
+        self.assertHaveRelation(subject=furuichi.linked_contact, type=PARTICIPATES, object=act1)
+        self.assertHaveRelation(subject=chiaki.linked_contact,   type=PARTICIPATES, object=act1)
 
         get_def_calendar = Calendar.objects.get_default_calendar
         self.assertCountEqual(
@@ -330,16 +330,18 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             act1.calendars.all(),
         )
 
-        self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, participant1)
-        self.assertRelationCount(0, act1, REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertHaveRelation(subject=participant1,   type=PARTICIPATES, object=act1)
+        self.assertHaveNoRelation(subject=participant2, type=PARTICIPATES, object=act1)
 
-        self.assertRelationCount(1, act1, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
+        self.assertHaveRelation(
+            subject=subject, type=constants.REL_SUB_ACTIVITY_SUBJECT, object=act1,
+        )
 
         # ---------
         act2 = self.get_object_or_fail(Activity, title=title2)
-        self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, user_contact)
-        self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, other_contact)
-        self.assertRelationCount(1, act2, REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertHaveRelation(user_contact,  PARTICIPATES, act2)
+        self.assertHaveRelation(other_contact, PARTICIPATES, act2)
+        self.assertHaveRelation(participant2,  PARTICIPATES, act2)
 
         # ---------
         act3 = self.get_object_or_fail(Activity, title=title3)
@@ -357,8 +359,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         # ---------
         act4 = self.get_object_or_fail(Activity, title=title4)
-        # Not 2
-        self.assertRelationCount(1, act4, constants.REL_OBJ_PART_2_ACTIVITY, user_contact)
+        # Not duplicate error
+        self.assertHaveRelation(subject=user_contact, type=PARTICIPATES, object=act4)
 
     @skipIfCustomContact
     def test_import03(self):
@@ -429,14 +431,14 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         # ---------
         act1 = self.get_object_or_fail(Activity, title=title1)
-        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
-        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertHaveRelation(act1, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
+        self.assertHaveRelation(act1, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
 
         # ---------
         act2 = self.get_object_or_fail(Activity, title=title2)
-        self.assertRelationCount(0, act2, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
+        self.assertHaveNoRelation(act2, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
 
-        self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, other_contact)
+        self.assertHaveRelation(act2, constants.REL_OBJ_PART_2_ACTIVITY, other_contact)
         self.assertListEqual(
             [Calendar.objects.get_default_calendar(other_user)],
             [*act2.calendars.all()],
@@ -444,13 +446,13 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         # ---------
         act3 = self.get_object_or_fail(Activity, title=title3)
-        self.assertRelationCount(0, act3, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
-        self.assertRelationCount(1, act3, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertHaveNoRelation(act3, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
+        self.assertHaveRelation(act3, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
 
         # ---------
         act4 = self.get_object_or_fail(Activity, title=title4)
-        self.assertRelationCount(0, act4, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
-        self.assertRelationCount(1, act4, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertHaveNoRelation(act4, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
+        self.assertHaveRelation(act4, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
 
         self.assertFalse(Contact.objects.filter(last_name=unfoundable1).exists())
 
@@ -469,8 +471,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         # ---------
         act5 = self.get_object_or_fail(Activity, title=title5)
-        self.assertRelationCount(1, act5, constants.REL_OBJ_PART_2_ACTIVITY, participant3)
-        self.assertRelationCount(1, act5, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
+        self.assertHaveRelation(act5, constants.REL_OBJ_PART_2_ACTIVITY, participant3)
+        self.assertHaveRelation(act5, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
 
     @skipIfCustomContact
     def test_import04(self):
@@ -512,7 +514,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self._execute_job(response2)
 
         act1 = self.get_object_or_fail(Activity, title=title1)
-        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, aoi)
+        self.assertHaveRelation(subject=act1, type=constants.REL_OBJ_PART_2_ACTIVITY, object=aoi)
 
     @skipIfCustomOrganisation
     def test_import05(self):
@@ -548,8 +550,12 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         task = self.get_object_or_fail(Activity, title=title)
         aoi = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, task, constants.REL_OBJ_PART_2_ACTIVITY, aoi)
-        self.assertRelationCount(0, task, constants.REL_OBJ_ACTIVITY_SUBJECT, orga)
+        self.assertHaveRelation(
+            subject=task, type=constants.REL_OBJ_PART_2_ACTIVITY, object=aoi,
+        )
+        self.assertHaveNoRelation(
+            subject=task, type=constants.REL_OBJ_ACTIVITY_SUBJECT, object=orga,
+        )
 
     @skipIfCustomContact
     def test_import06(self):
@@ -586,10 +592,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self._assertNoResultError(self._get_job_results(job))
 
         task = self.get_object_or_fail(Activity, title=title)
-        self.assertRelationCount(1, task, constants.REL_OBJ_PART_2_ACTIVITY, aoi)
+        self.assertHaveRelation(subject=task, type=constants.REL_OBJ_PART_2_ACTIVITY, object=aoi)
 
         oga = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, task, constants.REL_OBJ_PART_2_ACTIVITY, oga)
+        self.assertHaveRelation(subject=task, type=constants.REL_OBJ_PART_2_ACTIVITY, object=oga)
 
     def test_import07(self):
         "Search on first_name/last_name + not creation credentials."
@@ -745,28 +751,29 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         job = self._execute_job(response)
 
+        SUBJECT = constants.REL_SUB_ACTIVITY_SUBJECT
         task1 = self.get_object_or_fail(Activity, title=title1)
-        self.assertRelationCount(1, task1, constants.REL_OBJ_ACTIVITY_SUBJECT, aoi)
+        self.assertHaveRelation(subject=aoi, type=SUBJECT, object=task1)
 
         task2 = self.get_object_or_fail(Activity, title=title2)
-        self.assertRelationCount(1, task2, constants.REL_OBJ_ACTIVITY_SUBJECT, aoi)
+        self.assertHaveRelation(subject=aoi, type=SUBJECT, object=task2)
 
         task3 = self.get_object_or_fail(Activity, title=title3)
-        self.assertRelationCount(0, task3, constants.REL_OBJ_ACTIVITY_SUBJECT, aoi)
+        self.assertHaveNoRelation(subject=aoi, type=SUBJECT, object=task3)
         self.assertFalse(Organisation.objects.filter(name__icontains=name))
 
         task4 = self.get_object_or_fail(Activity, title=title4)
-        self.assertRelationCount(1, task4, constants.REL_OBJ_ACTIVITY_SUBJECT, clan1)
-        self.assertRelationCount(1, task4, constants.REL_OBJ_ACTIVITY_SUBJECT, clan2)
+        self.assertHaveRelation(subject=clan1, type=SUBJECT, object=task4)
+        self.assertHaveRelation(subject=clan2, type=SUBJECT, object=task4)
 
         task5 = self.get_object_or_fail(Activity, title=title5)
-        self.assertRelationCount(1, task5, constants.REL_OBJ_ACTIVITY_SUBJECT, furyo1)
-        self.assertRelationCount(1, task5, constants.REL_OBJ_ACTIVITY_SUBJECT, furyo2)
+        self.assertHaveRelation(subject=furyo1, type=SUBJECT, object=task5)
+        self.assertHaveRelation(subject=furyo2, type=SUBJECT, object=task5)
 
         task6 = self.get_object_or_fail(Activity, title=title6)
-        self.assertRelationCount(1, task6, constants.REL_OBJ_ACTIVITY_SUBJECT, aoi)
-        self.assertRelationCount(1, task6, constants.REL_OBJ_ACTIVITY_SUBJECT, clan1)
-        self.assertRelationCount(1, task6, constants.REL_OBJ_ACTIVITY_SUBJECT, clan2)
+        self.assertHaveRelation(subject=aoi,   type=SUBJECT, object=task6)
+        self.assertHaveRelation(subject=clan1, type=SUBJECT, object=task6)
+        self.assertHaveRelation(subject=clan2, type=SUBJECT, object=task6)
 
         results = self._get_job_results(job)
         jr_errors = [r for r in results if r.messages]
@@ -826,7 +833,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self._execute_job(response)
         task = self.get_object_or_fail(Activity, title=title)
         orga = self.get_object_or_fail(Organisation, name=name)
-        self.assertRelationCount(1, task, constants.REL_OBJ_ACTIVITY_SUBJECT, orga)
+        self.assertHaveRelation(
+            subject=orga, type=constants.REL_SUB_ACTIVITY_SUBJECT, object=task,
+        )
 
     def test_import_subjects03(self):
         "Subject: creation credentials."
@@ -890,8 +899,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self._assertNoResultError(self._get_job_results(job))
 
         task = self.get_object_or_fail(Activity, title=title)
-        self.assertRelationCount(1, task, constants.REL_OBJ_ACTIVITY_SUBJECT, orga1)
-        self.assertRelationCount(0, task, constants.REL_OBJ_ACTIVITY_SUBJECT, orga2)
+        SUBJECT = constants.REL_SUB_ACTIVITY_SUBJECT
+        self.assertHaveRelation(subject=orga1, type=SUBJECT, object=task)
+        self.assertHaveNoRelation(subject=orga2, type=SUBJECT, object=task)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -958,59 +968,15 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         act1 = self.refresh(act1)
         self.assertEqual(place, act1.place)
 
-        # Not 2:
-        self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant1)
-
-        self.assertRelationCount(0, act1, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
-        self.assertRelationCount(1, act1, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
+        PARTICIPATES = constants.REL_SUB_PART_2_ACTIVITY
+        SUBJECT = constants.REL_SUB_ACTIVITY_SUBJECT
+        self.assertHaveRelation(subject=participant1, type=PARTICIPATES, object=act1)
+        self.assertHaveNoRelation(subject=participant2, type=PARTICIPATES, object=act1)
+        self.assertHaveRelation(subject=subject, type=SUBJECT, object=act1)
 
         act2 = self.refresh(act2)
-        self.assertRelationCount(1, act2, constants.REL_OBJ_PART_2_ACTIVITY, participant2)
-
-        # Not 2
-        self.assertRelationCount(1, act2, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
-
-    # TODO: uncomment if REL_OBJ_ACTIVITY_SUBJECT is not internal anymore
-    # @skipIfCustomContact
-    # @skipIfCustomOrganisation
-    # def test_import_duplicated_subjects(self):
-    #     "Dynamic & fixed subjects are duplicated in creation."
-    #     user = self.login_as_root_and_get()
-    #
-    #     participant = Contact.objects.create(user=user, first_name='Tatsumi', last_name='Oga')
-    #     subject = Organisation.objects.create(user=user, name='Ishiyama')
-    #
-    #     title = 'My Meeting'
-    #     doc = self._build_csv_doc([
-    #         (title, participant.first_name, participant.last_name, subject.name),
-    #     ])
-    #     response = self.client.post(
-    #         self._build_import_url(Activity), follow=True,
-    #         data={
-    #             **self.lv_import_data,
-    #             'document': doc.id,
-    #             'user': user.id,
-    #
-    #             'fixed_relations': self.formfield_value_multi_relation_entity(
-    #                 [constants.REL_OBJ_ACTIVITY_SUBJECT, subject],
-    #             ),
-    #
-    #             'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-    #
-    #             'participants_mode': 1,  # Search with 1 or 2 columns
-    #             'participants_first_name_colselect': 2,
-    #             'participants_last_name_colselect': 3,
-    #
-    #             'subjects_colselect': 4,
-    #         },
-    #     )
-    #     self.assertNoFormError(response)
-    #
-    #     self._execute_job(response)
-    #     activity = self.get_object_or_fail(Activity, title=title)
-    #
-    #     # Not 2
-    #     self.assertRelationCount(1, activity, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
+        self.assertHaveRelation(subject=participant2, type=PARTICIPATES, object=act2)
+        self.assertHaveRelation(subject=subject,      type=SUBJECT, object=act2)
 
     def test_pattern1(self):
         "Pattern #1: 'Civility FirstName LastName'"

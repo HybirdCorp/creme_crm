@@ -8,6 +8,9 @@
 
     Non breaking changes :
     ----------------------
+        # Deprecations :
+            - The method 'creme_core.tests.base._CremeTestCase.assertRelationCount' is deprecated;
+              use the new methods 'assertHaveRelation()' & 'assertHaveNoRelation()' instead.
 
     Breaking changes :
     ------------------

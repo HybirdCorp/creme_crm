@@ -86,11 +86,13 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
         target = create_orga(name='Target')
 
         workflow.transform_target_into_prospect(source, target, user)
-        self.assertRelationCount(1, target, constants.REL_SUB_PROSPECT, source)
+        # self.assertRelationCount(1, target, constants.REL_SUB_PROSPECT, source)
+        self.assertHaveRelation(subject=target, type=constants.REL_SUB_PROSPECT, object=source)
 
         # Do not create duplicate
         workflow.transform_target_into_prospect(source, target, user)
-        self.assertRelationCount(1, target, constants.REL_SUB_PROSPECT, source)
+        # self.assertRelationCount(1, target, constants.REL_SUB_PROSPECT, source)
+        self.assertHaveRelation(subject=target, type=constants.REL_SUB_PROSPECT, object=source)
 
     def test_transform_target_into_customer01(self):
         user = self.login_as_root_and_get()
@@ -100,11 +102,12 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
         target = create_orga(name='Target')
 
         workflow.transform_target_into_customer(source, target, user)
-        self.assertRelationCount(1, target, constants.REL_SUB_CUSTOMER_SUPPLIER, source)
+        type_id = constants.REL_SUB_CUSTOMER_SUPPLIER
+        self.assertHaveRelation(subject=target, type=type_id, object=source)
 
         # Do not create duplicate
         workflow.transform_target_into_prospect(source, target, user)
-        self.assertRelationCount(1, target, constants.REL_SUB_CUSTOMER_SUPPLIER, source)
+        self.assertHaveRelation(subject=target, type=type_id, object=source)
 
     def test_user_contact_menu_entry01(self):
         user = self.login_as_persons_user()

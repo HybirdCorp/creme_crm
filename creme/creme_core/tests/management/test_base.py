@@ -60,6 +60,4 @@ class CSVImportCommandTestCase(base.CremeTestCase):
         contact = self.get_object_or_fail(
             persons.get_contact_model(), first_name='Gendô', last_name='IKARI',
         )
-        self.assertRelationCount(
-            1, subject_entity=contact, type_id=REL_SUB_MANAGES, object_entity=orga,
-        )
+        self.assertHaveRelation(subject=contact, type=REL_SUB_MANAGES, object=orga)

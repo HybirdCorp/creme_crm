@@ -749,7 +749,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         pcall2 = self._get_created_pcall(pcall_ids)
         self.assertEqual(pcall.description, pcall2.description)
-        self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, pcall)
+        self.assertHaveRelation(subject=contact, type=REL_SUB_PART_2_ACTIVITY, object=pcall)
 
         self.assertUUIDEqual(UUID_STATUS_PLANNED, pcall2.status.uuid)
         self.assertEqual(FLOATING_TIME,  pcall2.floating_type)

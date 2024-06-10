@@ -683,7 +683,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertRedirects(response, cb_url)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name)
-        self.assertRelationCount(1, orga, REL_OBJ_EMPLOYED_BY, contact)
+        self.assertHaveRelation(subject=orga, type=REL_OBJ_EMPLOYED_BY, object=contact)
         self.assertEqual(last_name, contact.last_name)
 
     @skipIfCustomOrganisation
@@ -748,7 +748,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertNoFormError(response)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, orga, REL_OBJ_EMPLOYED_BY, contact)
+        self.assertHaveRelation(subject=orga, type=REL_OBJ_EMPLOYED_BY, object=contact)
 
     @skipIfCustomOrganisation
     def test_create_linked_contact_property_constraint01(self):
@@ -779,7 +779,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertNoFormError(response)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, contact, rtype.id, orga)
+        self.assertHaveRelation(subject=contact, type=rtype.id, object=orga)
 
     @skipIfCustomOrganisation
     @override_settings(FORMS_RELATION_FIELDS=True)
@@ -813,7 +813,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertNoFormError(response)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, contact, rtype.id, orga)
+        self.assertHaveRelation(subject=contact, type=rtype.id, object=orga)
         self.assertCountEqual(
             [ptype], [p.type for p in contact.properties.all()],
         )
@@ -846,7 +846,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertNoFormError(response)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-        self.assertRelationCount(1, contact, rtype.id, orga)
+        self.assertHaveRelation(subject=contact, type=rtype.id, object=orga)
 
     @skipIfCustomOrganisation
     def test_create_linked_contact_error01(self):
