@@ -196,6 +196,11 @@ relation_type_patterns = [
         name='creme_config__edit_rtype',
     ),
     re_path(
+        r'^edit_not_custom/(?P<rtype_id>[\w-]+)[/]?$',
+        relation_type.NotCustomRelationTypeEdition.as_view(),
+        name='creme_config__edit_not_custom_rtype',
+    ),
+    re_path(
         r'^delete[/]?$',
         relation_type.RelationTypeDeletion.as_view(),
         name='creme_config__delete_rtype',

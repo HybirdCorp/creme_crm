@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-07 10:59+0200\n"
+"POT-Creation-Date: 2024-08-07 14:58+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -717,6 +717,17 @@ msgstr "Verbe/Prédicat"
 
 msgid "Object"
 msgstr "Objet"
+
+msgid "…the subject's page"
+msgstr "…sur la page du sujet"
+
+msgid "…the object's page"
+msgstr "…sur la page de l'objet"
+
+#. Translators: the end of the sentence is "…the subject's page" or
+#. "…the object's page".
+msgid "Display once on…"
+msgstr "Afficher une seule fois sur…"
 
 msgid "Type and object"
 msgstr "Type et objet"
@@ -2568,6 +2579,11 @@ msgstr[1] ""
 #, python-brace-format
 msgid "Configure the channel «{object}»"
 msgstr "Configurer le canal «{object}»"
+
+#, python-brace-format
+msgctxt "creme_config-relationship"
+msgid "Edit the standard type «{object}»"
+msgstr "Modifier le type standard «{object}»"
 
 #, python-brace-format
 msgctxt "creme_config-relationship"

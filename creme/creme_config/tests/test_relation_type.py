@@ -22,6 +22,10 @@ class RelationTypeTestCase(CremeTestCase):
         self.login_as_root()
 
     @staticmethod
+    def _build_edit_not_custom_url(rtype):
+        return reverse('creme_config__edit_not_custom_rtype', args=(rtype.id,))
+
+    @staticmethod
     def _build_edit_url(rtype):
         return reverse('creme_config__edit_rtype', args=(rtype.id,))
 
@@ -199,6 +203,104 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertFalse(sym_type.is_copiable)
         self.assertTrue(sym_type.minimal_display)
 
+    def test_edit_not_custom01(self):
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subfoo', 'subject_predicate', [FakeContact]),
+            ('test-objfoo', 'object_predicate'),
+            is_custom=False,
+            minimal_display=(False, True),
+        )[0]
+
+        # Normal edition should not work
+        self.assertGET404(self._build_edit_url(rt))
+
+        url = self._build_edit_not_custom_url(rt)
+        context1 = self.assertGET200(url).context
+        self.assertEqual(
+            pgettext(
+                'creme_config-relationship', 'Edit the standard type «{object}»',
+            ).format(object=rt),
+            context1.get('title'),
+        )
+
+        with self.assertNoException():
+            fields = context1['form'].fields
+            subject_min_display_f = fields['subject_min_display']
+            object_min_display_f = fields['object_min_display']
+
+        self.assertFalse(subject_min_display_f.initial)
+        self.assertTrue(object_min_display_f.initial)
+        self.assertEqual(2, len(fields))
+
+        # ---
+        response2 = self.client.post(
+            url,
+            follow=True,
+            data={
+                'subject_min_display': 'on',
+                'object_min_display': '',
+            },
+        )
+        self.assertNoFormError(response2)
+
+        rt: RelationType = self.refresh(rt)
+        self.assertTrue(rt.minimal_display)
+        self.assertFalse(rt.is_custom)
+        self.assertFalse(rt.is_internal)
+        self.assertListEqual([FakeContact], [*rt.subject_models])
+
+        self.assertFalse(rt.symmetric_type.minimal_display)
+
+    def test_edit_not_custom02(self):
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate', [FakeContact]),
+            is_custom=False,
+            minimal_display=(True, False),
+        )[0]
+
+        url = self._build_edit_not_custom_url(rt)
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            subject_min_display_f = fields['subject_min_display']
+            object_min_display_f = fields['object_min_display']
+
+        self.assertTrue(subject_min_display_f.initial)
+        self.assertFalse(object_min_display_f.initial)
+
+        # ---
+        response2 = self.client.post(
+            url,
+            follow=True,
+            data={
+                'subject_min_display': '',
+                'object_min_display': 'on',
+            },
+        )
+        self.assertNoFormError(response2)
+
+        rt: RelationType = self.refresh(rt)
+        self.assertFalse(rt.minimal_display)
+
+        sym_rt = rt.symmetric_type
+        self.assertTrue(sym_rt.minimal_display)
+        self.assertFalse(sym_rt.is_custom)
+        self.assertFalse(sym_rt.is_internal)
+        self.assertListEqual([FakeContact], [*sym_rt.subject_models])
+
+    def test_edit_not_custom__disable(self):
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate', [FakeContact]),
+            is_custom=False,
+        )[0]
+        rt.enabled = False
+        rt.save()
+
+        self.assertGET404(self._build_edit_not_custom_url(rt))
+
     def test_edit(self):
         "Edit a custom type."
         rt = RelationType.objects.smart_update_or_create(
@@ -206,6 +308,8 @@ class RelationTypeTestCase(CremeTestCase):
             ('test-objfoo', 'object_predicate'),
             is_custom=True,
         )[0]
+        self.assertGET404(self._build_edit_not_custom_url(rt))
+
         url = self._build_edit_url(rt)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
@@ -235,16 +339,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertEqual(subject_pred, rel_type.predicate)
         self.assertEqual(object_pred,  rel_type.symmetric_type.predicate)
 
-    def test_edit_error01(self):
-        "Edit a not custom type."
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-            is_custom=False,
-        )[0]
-        self.assertGET404(self._build_edit_url(rt))
-
-    def test_edit_error02(self):
+    def test_edit__disable(self):
         "Edit a disabled type."
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),

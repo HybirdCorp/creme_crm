@@ -6,6 +6,7 @@
         * Creme_config :
             - In the bricks configuration, default configuration is used as initial value when it's relevant
               (instead of starting with an empty configuration).
+            - In the relation types configuration, you can now edit the "minimal display" value for standard types.
             - A view which displays all "FileRefs" (temporary files) has been added; it's only available for staff users.
         * Opportunities :
             - You can now create unsuccessful phone calls from an Opportunity's detail-view :
