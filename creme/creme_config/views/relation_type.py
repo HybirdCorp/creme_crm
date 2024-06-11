@@ -52,6 +52,14 @@ class SemiFixedRelationTypeCreation(base.ConfigModelCreation):
     form_class = rtype_forms.SemiFixedRelationTypeCreationForm
 
 
+class NotCustomRelationTypeEdition(base.ConfigModelEdition):
+    model = RelationType
+    queryset = RelationType.objects.filter(is_custom=False, enabled=True)
+    form_class = rtype_forms.NotCustomRelationTypeEditionForm
+    pk_url_kwarg = 'rtype_id'
+    title = pgettext_lazy('creme_config-relationship', 'Edit the standard type «{object}»')
+
+
 class RelationTypeEdition(base.ConfigModelEdition):
     # model = RelationType
     queryset = RelationType.objects.filter(is_custom=True, enabled=True)

@@ -19,6 +19,7 @@
 from functools import partial
 
 from django.core.exceptions import ValidationError
+from django.db.transaction import atomic
 from django.forms import BooleanField, CharField, ModelMultipleChoiceField
 from django.utils.translation import gettext_lazy as _
 
@@ -236,6 +237,54 @@ class RelationTypeEditionForm(_RelationTypeForm):
             pk_object=instance.symmetric_type_id,
             generate_pk=False,
         )
+
+
+class NotCustomRelationTypeEditionForm(CremeForm):
+    subject_min_display = BooleanField(
+        label=_("…the subject's page"), required=False,
+        help_text=_(
+            'Do not display in the «Relationships» block (detail-view of '
+            'subject) when it is already displayed by another block.'
+        ),
+    )
+    object_min_display = BooleanField(
+        label=_("…the object's page"), required=False,
+        help_text=_(
+            'Do not display in the «Relationships» block (detail-view of '
+            'object) when it is already displayed by another block.'
+        ),
+    )
+
+    blocks = FieldBlockManager(
+        {
+            'id': 'minimal_display',
+            # Translators: the end of the sentence is "…the subject's page" or
+            # "…the object's page".
+            'label': _('Display once on…'),
+            'fields': ['subject_min_display', 'object_min_display'],
+        },
+    )
+
+    def __init__(self, instance, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instance = instance
+
+        fields = self.fields
+        fields['subject_min_display'].initial = instance.minimal_display
+        fields['object_min_display'].initial = instance.symmetric_type.minimal_display
+
+    @atomic
+    def save(self, *args, **kwargs):
+        instance: RelationType = self.instance
+        get_data = self.cleaned_data.get
+        instance.minimal_display = get_data('subject_min_display')
+        instance.save()
+
+        sym = instance.symmetric_type
+        sym.minimal_display = get_data('object_min_display')
+        sym.save()
+
+        return instance
 
 
 class SemiFixedRelationTypeCreationForm(CremeModelForm):
