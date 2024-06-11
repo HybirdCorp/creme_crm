@@ -12,6 +12,9 @@
     ----------------------
         # The lib 'xhtml2pdf' has been upgraded to the version '0.2.16'
           (so more recent versions of ReportLab can be used).
+        # The management of custom "FunctionFieldResult" classes which define methods
+          'for_html()/for_csv()' has been improved; these methods are now called
+          by 'render()', with a warning, to facilitate code upgrade.
 
 
 == Version 2.5.9 ==

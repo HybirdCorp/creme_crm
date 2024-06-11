@@ -249,6 +249,40 @@ class FunctionFieldsTestCase(CremeTestCase):
             result.for_html(),
         )
 
+    def test_result_custom(self):
+        "A result child class which keeps the old for_html()/for_csv() methods."
+        html_value = '<em>I am custom</em>'
+        csv_value = 'I am custom'
+
+        class DeprecatedFieldResult(FunctionFieldResult):
+            def for_html(this):
+                return html_value
+
+            def for_csv(this):
+                return csv_value
+
+        result = DeprecatedFieldResult('I should not be used')
+
+        with self.assertWarnsMessage(
+            expected_warning=DeprecationWarning,
+            expected_message=(
+                'Defining a method "for_html()" in a FunctionFieldResult child class '
+                'is deprecated; define a method "render()" instead.'
+            ),
+        ):
+            render1 = result.render(ViewTag.HTML_DETAIL)
+        self.assertEqual(html_value, render1)
+
+        with self.assertWarnsMessage(
+            expected_warning=DeprecationWarning,
+            expected_message=(
+                'Defining a method "for_csv()" in a FunctionFieldResult child class '
+                'is deprecated; define a method "render()" instead.'
+            ),
+        ):
+            render2 = result.render(ViewTag.TEXT_PLAIN)
+        self.assertEqual(csv_value, render2)
+
     def test_field(self):
         fname = 'get_delete_absolute_url'
         label = 'URL'
