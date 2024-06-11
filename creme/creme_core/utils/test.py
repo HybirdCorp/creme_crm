@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2023  Hybird
+#    Copyright (C) 2015-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from tempfile import mkdtemp
 from django.apps import apps
 from django.conf import settings
 from django.core.mail.backends import locmem
-from django.core.management import call_command
+from django.core.management import CommandError, call_command
 from django.test.runner import DiscoverRunner, ParallelTestSuite, _init_worker
 
 from ..management.commands.creme_populate import Command as PopulateCommand
@@ -63,7 +63,12 @@ def creme_test_populate():
     populate_command = PopulateCommand()
     populate_command.requires_system_checks = False
     populate_command.requires_migrations_checks = False
-    call_command(populate_command, verbosity=0)
+
+    try:
+        call_command(populate_command, verbosity=0)
+    except CommandError:
+        print('... populate failed.')
+
     # The cache seems corrupted when we switch to the test DB
     reset_contenttype_cache()
 
@@ -162,7 +167,8 @@ class CremeDiscoverRunner(DiscoverRunner):
 
     def setup_databases(self, **kwargs):
         ret = super().setup_databases(**kwargs)
-        creme_test_populate()
+        if ret:
+            creme_test_populate()
 
         return ret
 
