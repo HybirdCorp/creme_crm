@@ -1,5 +1,14 @@
 == Version 2.4.17 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Some issues with the populating of the test DB have been fixed.
+          For example, the 'populate' was made even if the test DB creation failed (leading to confusion).
+
+
 == Version 2.4.16 ==
 
   Users side :
