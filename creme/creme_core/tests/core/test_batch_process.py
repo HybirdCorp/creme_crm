@@ -131,7 +131,7 @@ class BatchActionTestCase(CremeTestCase):
             BatchAction(FakeContact, 'last_name', 'rm_start', value='three')  # Not int
 
         self.assertEqual(
-            _('{operator} : {message}.').format(
+            _('{operator}: {message}.').format(
                 operator=_('Remove the start (N characters)'),
                 message=_('enter a whole number'),
             ),
@@ -142,7 +142,7 @@ class BatchActionTestCase(CremeTestCase):
             BatchAction(FakeContact, 'last_name', 'rm_end', value='-3')  # Not positive
 
         self.assertEqual(
-            _('{operator} : {message}.').format(
+            _('{operator}: {message}.').format(
                 operator=_('Remove the end (N characters)'),
                 message=_('enter a positive number'),
             ),

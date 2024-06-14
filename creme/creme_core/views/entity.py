@@ -1273,14 +1273,14 @@ class EntityDeletionMixin:
 
             if not user.has_perm_to_change(related):
                 raise PermissionDenied(
-                    gettext('{entity} : <b>Permission denied</b>').format(
+                    gettext('{entity}: <b>Permission denied</b>').format(
                         entity=entity.allowed_str(user),
                     )
                 )
         else:
             if not user.has_perm_to_delete(entity):
                 raise PermissionDenied(
-                    gettext('{entity} : <b>Permission denied</b>').format(
+                    gettext('{entity}: <b>Permission denied</b>').format(
                         entity=entity.allowed_str(user),
                     )
                 )

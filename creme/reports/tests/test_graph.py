@@ -837,7 +837,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(
             _(
                 'If you use a field related to money, the entities should use the same '
-                'currency or the result will be wrong. Concerned fields are : {}'
+                'currency or the result will be wrong. Concerned fields are: {}'
             ).format('{}, {}'.format(_('Total with VAT'), _('Total without VAT'))),
             ordinate_f.help_text,
         )

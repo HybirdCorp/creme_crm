@@ -224,7 +224,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertIs(ibrick1.__class__, InstanceBrick)
         self.assertEqual('??', ibrick1.verbose_name)
         self.assertListEqual(
-            [_('Unknown type of block (bad uninstall ?)')],
+            [_('Unknown type of block (bad uninstall?)')],
             ibrick1.errors,
         )
 
@@ -1310,7 +1310,7 @@ class BrickRegistryTestCase(CremeTestCase):
         self.assertIsNone(ibrick21.errors)
 
         self.assertListEqual(
-            [_('Unknown type of block (bad uninstall ?)')],
+            [_('Unknown type of block (bad uninstall?)')],
             copied.get_brick_4_instance(ibci2).errors,
         )
 

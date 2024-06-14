@@ -1235,7 +1235,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertPOST200(url, data=data)
         self.assertFormError(
             response.context['form'],
-            field='locations', errors=_('Your configuration is empty !'),
+            field='locations', errors=_('Your configuration is empty!'),
         )
 
     def test_edit_detailview__invalid_json(self):

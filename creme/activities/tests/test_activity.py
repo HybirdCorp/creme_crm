@@ -2607,7 +2607,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertTrue(p_user_f.required)
         self.assertEqual(
             _(
-                'An unavailability always busies its participants ; mark it as '
+                'An unavailability always busies its participants; mark it as '
                 '«all day» if you do not set the start/end times.'
             ),
             allday_f.help_text,

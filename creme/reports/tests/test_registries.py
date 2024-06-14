@@ -84,7 +84,7 @@ class GraphFetcherRegistryTestCase(CremeTestCase):
 
         self.assertIsInstance(fetcher1, SimpleGraphFetcher)
         self.assertEqual(
-            _('Invalid volatile link ; please contact your administrator.'),
+            _('Invalid volatile link; please contact your administrator.'),
             fetcher1.error
         )
         self.assertIn(
@@ -114,7 +114,7 @@ class GraphFetcherRegistryTestCase(CremeTestCase):
 
         self.assertIsInstance(fetcher3, SimpleGraphFetcher)
         self.assertEqual(
-            _('Invalid volatile link ; please contact your administrator.'),
+            _('Invalid volatile link; please contact your administrator.'),
             fetcher3.error
         )
         self.assertIn(

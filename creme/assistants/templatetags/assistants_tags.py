@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2022  Hybird
+#    Copyright (C) 2021-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -67,7 +67,7 @@ def assistants_brick_menu_hide_validated_todos_action(context, url, hidden):
 def assistants_verbose_date_offset(offset_dict, entity):
     # Translators: Used in small popover panel to display relative trigger dates for Alerts
     # period: a (translated) string, like "1 hour" or "2 weeks".
-    # relative: "after" or "before" (translated too ; see msgid in the same .po file)
+    # relative: "after" or "before" (translated too; see msgid in the same .po file)
     # field: verbose name of a field, like "date of creation".
     return gettext('{period} {relative} «{field}»').format(
         period=date_period_registry.deserialize(offset_dict['period']),

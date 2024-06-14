@@ -387,7 +387,7 @@ class Migration(migrations.Migration):
                     models.BooleanField(
                         default=False, verbose_name='Is required?',
                         help_text=(
-                            'A required custom-field must be filled when a new entity is created ; '
+                            'A required custom-field must be filled when a new entity is created; '
                             'existing entities are not immediately impacted.'
                         ),
                     )

@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CTI' APP
-# Copyright (C) 2023 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the PACKAGE package.
 #
 # > django-admin makemessages -l fr -i "tests.py" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme CTI 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-08 13:58+0100\n"
+"POT-Creation-Date: 2024-06-14 17:20+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -22,9 +22,9 @@ msgstr "Couplage Téléphonique Informatique"
 msgid "Potential callers"
 msgstr "Appelants possibles"
 
-msgid "All phone fields are hidden ; please contact your administrator."
+msgid "All phone fields are hidden; please contact your administrator."
 msgstr ""
-"Tous les champs téléphoniques sont cachés ; veuillez contacter votre "
+"Tous les champs téléphoniques sont cachés ; veuillez contacter votre "
 "administrateur."
 
 #, python-brace-format
@@ -45,8 +45,8 @@ msgid "Create a phone call"
 msgstr "Créer un appel téléphonique"
 
 #, python-format
-msgid "No contact/organisation corresponds to this number : %(number)s"
-msgstr "Aucun contact/société ne correspond à ce numéro : %(number)s"
+msgid "No contact/organisation corresponds to this number: %(number)s"
+msgstr "Aucun contact/société ne correspond à ce numéro : %(number)s"
 
 msgid "Call"
 msgstr "Appeler"

@@ -88,7 +88,7 @@ creme.utils.loading = function(div_id, is_loaded, params) {
 };
 
 creme.utils.confirmSubmit = function(atag, msg) {
-    creme.dialogs.confirm(msg || gettext('Are you sure ?'))
+    creme.dialogs.confirm(msg || gettext('Are you sure?'))
                  .onOk(function() {
                       $('form', $(atag)).trigger('submit');
                   })
@@ -232,7 +232,7 @@ creme.utils.ajaxQuery = function(url, options, data) {
         }
 
         if (options.confirm) {
-            var confirmMessage = Object.isString(options.confirm) ? options.confirm : gettext("Are you sure ?");
+            var confirmMessage = Object.isString(options.confirm) ? options.confirm : gettext("Are you sure?");
 
             creme.dialogs.confirm('<h4>%s</h4>'.format(confirmMessage))
                          .onOk(function() { query.start(); })

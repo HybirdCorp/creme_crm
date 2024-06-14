@@ -120,11 +120,11 @@ msgstr "Annuler"
 msgid "Close"
 msgstr "Fermer"
 
-msgid "Are you sure ?"
-msgstr "Êtes-vous sûr ?"
+msgid "Are you sure?"
+msgstr "Êtes-vous sûr ?"
 
 msgid "Do you really want to clone this entity?"
-msgstr "Voulez-vous vraiment cloner cette fiche ?"
+msgstr "Voulez-vous vraiment cloner cette fiche ?"
 
 msgid "Chose the type of entity to create"
 msgstr "Choisir le type de fiche à créer"
@@ -171,10 +171,10 @@ msgid "Best result"
 msgstr "Meilleur résultat"
 
 msgid "Error!"
-msgstr "Erreur !"
+msgstr "Erreur !"
 
 msgid "The page will be reloaded!"
-msgstr "La page va être rechargée !"
+msgstr "La page va être rechargée !"
 
 msgid "Add"
 msgstr "Ajouter"
@@ -367,11 +367,6 @@ msgstr "Supprimer"
 
 #~ msgid "Actions"
 #~ msgstr "Actions"
-
-#~ msgid "Search results: %d entity"
-#~ msgid_plural "Search results: %d entities"
-#~ msgstr[0] "Résultats de recherche : %d fiche"
-#~ msgstr[1] "Résultats de recherche : %d fiches"
 
 #~ msgid "Today"
 #~ msgstr "Aujourd'hui"

@@ -147,7 +147,7 @@ class BatchActionsFieldTestCase(CremeTestCase):
                 value='notanint',  # <===
             ),
             messages=_('Invalid value => %(error)s') % {
-                'error': _('{operator} : {message}.').format(
+                'error': _('{operator}: {message}.').format(
                     operator=_('Remove the start (N characters)'),
                     message=_('enter a whole number'),
                 ),

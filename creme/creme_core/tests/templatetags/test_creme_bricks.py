@@ -461,7 +461,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             )
         )
         self.assertBrickActionHTML(
-            "{% brick_action 'add' label='Add something' confirm='Are you sure ?' %}",
+            "{% brick_action 'add' label='Add something' confirm='Are you sure?' %}",
             '''<a href="" title="{label}" class="brick-action action-type-add  "
                   data-action="add">
                 <script class="brick-action-data" type="application/json">
@@ -474,7 +474,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                 icon_url=icon.url,
                 icon_size=icon.size,
                 json_data=json_encode({
-                    'options': {'confirm': 'Are you sure ?'},
+                    'options': {'confirm': 'Are you sure?'},
                     'data': {},
                 }),
             )

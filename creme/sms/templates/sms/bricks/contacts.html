@@ -25,7 +25,7 @@
 {% block brick_table_rows %}
  {% if field_hidden %}
     <tr>
-        <td class="brick-table-data-error">{% translate "The field «Mobile» of Contact is hidden ; in order to use this block, you have to reactivate it (so please contact your administrator)." %}</td>
+        <td class="brick-table-data-error">{% translate "The field «Mobile» of Contact is hidden; in order to use this block, you have to reactivate it (so please contact your administrator)." %}</td>
     </tr>
  {% else %}
   {% with edit_perm=user|has_perm_to_change:object rm_contact_url='sms__remove_contact_from_mlist'|url:object.id %}

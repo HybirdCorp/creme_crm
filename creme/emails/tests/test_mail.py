@@ -651,7 +651,7 @@ better &amp; lighter than the previous one.
         self.assertIsInstance(recip_field.widget, Label)
         self.assertEqual(
             _(
-                'Beware: the field «Email address» is hidden ; '
+                'Beware: the field «Email address» is hidden; '
                 'please contact your administrator.'
             ),
             recip_field.initial,
@@ -695,7 +695,7 @@ better &amp; lighter than the previous one.
         self.assertIsInstance(recip_field.widget, Label)
         self.assertEqual(
             _(
-                'Beware: the field «Email address» is hidden ; '
+                'Beware: the field «Email address» is hidden; '
                 'please contact your administrator.'
             ),
             recip_field.initial,

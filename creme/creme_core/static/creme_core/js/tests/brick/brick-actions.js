@@ -445,7 +445,7 @@ QUnit.test('creme.bricks.Brick.action (update, with confirmation, not confirmed)
 
     brick.action('update', 'mock/brick/update', {confirm: true}).on(this.brickActionListeners).start();
 
-    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+    this.assertOpenedConfirmDialog(gettext('Are you sure?'));
 
     deepEqual([], this.mockListenerCalls('action-cancel'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));
@@ -467,7 +467,7 @@ QUnit.test('creme.bricks.Brick.action (update, with confirmation, confirmed)', f
 
     brick.action('update', 'mock/brick/update', {confirm: true}).on(this.brickActionListeners).start();
 
-    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+    this.assertOpenedConfirmDialog(gettext('Are you sure?'));
 
     deepEqual([], this.mockListenerCalls('action-cancel'));
     deepEqual([], this.mockBackendUrlCalls('mock/brick/all/reload'));

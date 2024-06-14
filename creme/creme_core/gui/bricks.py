@@ -988,7 +988,7 @@ class _BrickRegistry:
             brick = InstanceBrick(ibi)
             brick.verbose_name = '??'
             # TODO: add this attribute to the class
-            brick.errors = [_('Unknown type of block (bad uninstall ?)')]
+            brick.errors = [_('Unknown type of block (bad uninstall?)')]
         else:
             brick = brick_class(ibi)
 

@@ -831,7 +831,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertContains(
             response,
             _(
-                'The engine is not configured ; '
+                'The engine is not configured; '
                 'go to the configuration of the app «Billing».'
             ),
             status_code=409,
@@ -853,7 +853,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertContains(
             response,
             _(
-                'The configured exporter is invalid ; '
+                'The configured exporter is invalid; '
                 'go to the configuration of the app «Billing».'
             ),
             status_code=409,
@@ -880,7 +880,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertContains(
             response,
             _(
-                'The configured exporter is invalid ; '
+                'The configured exporter is invalid; '
                 'go to the configuration of the app «Billing».'
             ),
             status_code=409,

@@ -1324,7 +1324,7 @@ QUnit.test('creme.listview.core (hatbar controls, entityfilter, delete)', functi
 
     link.trigger('click');
 
-    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+    this.assertOpenedConfirmDialog(gettext('Are you sure?'));
     this.acceptConfirmDialog();
 
     deepEqual([
@@ -1449,7 +1449,7 @@ QUnit.test('creme.listview.core (hatbar controls, view, delete)', function(asser
 
     link.trigger('click');
 
-    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+    this.assertOpenedConfirmDialog(gettext('Are you sure?'));
     this.acceptConfirmDialog();
 
     deepEqual([

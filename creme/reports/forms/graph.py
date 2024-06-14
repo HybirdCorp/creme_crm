@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -711,7 +711,7 @@ class ReportGraphForm(CremeModelForm):
         if money_fields:
             ordinate_f.help_text = gettext(
                 'If you use a field related to money, the entities should use the same '
-                'currency or the result will be wrong. Concerned fields are : {}'
+                'currency or the result will be wrong. Concerned fields are: {}'
             ).format(', '.join(str(field.verbose_name) for field in money_fields))
 
         # Initial data ---------------------------------------------------------
