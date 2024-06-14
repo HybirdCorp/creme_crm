@@ -1,5 +1,9 @@
 == Version 2.4.17 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # The setting SOFTWARE_LABEL in now used for the title of the login page.
+
   Developers side :
   -----------------
 
