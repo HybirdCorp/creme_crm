@@ -4,6 +4,7 @@
   ------------
     # Images with an extension in uppercase (e.g. "my_pic.JPG") are correctly displayed now.
     # A scary log with fast pagination has been removed.
+    # The setting SOFTWARE_LABEL in now used for the title of the login page.
 
   Developers side :
   -----------------
