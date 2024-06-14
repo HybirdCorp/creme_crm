@@ -84,7 +84,7 @@ class CustomField(CremeModel):
     is_required = models.BooleanField(
         _('Is required?'), default=False,
         help_text=_(
-            'A required custom-field must be filled when a new entity is created ; '
+            'A required custom-field must be filled when a new entity is created; '
             'existing entities are not immediately impacted.'
         ),
     )

@@ -7,7 +7,7 @@
 {% block title %}
     {% if user|has_perm_to_access:'creme_config' %}<a href="{% url 'creme_config__portal' %}">{% translate 'Configuration' %} > </a>{% endif %}
     <a href="{% url 'creme_config__app_portal' app_name %}">{{app_verbose_name}} > </a>
-    {% blocktranslate with model_name=model|get_meta_value:'verbose_name' %}Type : {{model_name}}{% endblocktranslate %}
+    {% blocktranslate with model_name=model|get_meta_value:'verbose_name' %}Type: {{model_name}}{% endblocktranslate %}
 {% endblock %}
 
 {% block portal_bricks %}

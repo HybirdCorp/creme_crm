@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'GEOLOCATION' APP (JavaScript only)
-# Copyright (C) 2021-2023 Hybird
+# Copyright (C) 2023 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -d djangojs -l fr -i "static/geolocation/js/tests/*" --no-location

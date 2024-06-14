@@ -363,7 +363,7 @@ class RelationViewsTestCase(CremeTestCase):
         self.assertFormError(
             response.context['form'],
             field='relations',
-            errors=_('An entity can not be linked to itself : %(entities)s') % {
+            errors=_('An entity can not be linked to itself: %(entities)s') % {
                 'entities': subject,
             },
         )
@@ -1241,7 +1241,7 @@ class RelationViewsTestCase(CremeTestCase):
         self.assertFormError(
             response.context['form'],
             field='relations',
-            errors=_('An entity can not be linked to itself : %(entities)s') % {
+            errors=_('An entity can not be linked to itself: %(entities)s') % {
                 'entities': f'{subject1}, {subject2}',
             },
         )

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,7 +59,7 @@ class TodosBrick(_AssistantsBrick):
     description = _(
         'Allows to add Todos to the current entity, which help you to remind '
         'some things to achieve.\n'
-        'Hint #1: Todos can have a deadline ; emails are sent to the owners of the '
+        'Hint #1: Todos can have a deadline; emails are sent to the owners of the '
         'Todos which are not marked as done and near of their deadline (see the '
         'job «Reminders»).\n'
         'Hint #2: if the owner of a Todo is a team, emails are sent to all the '
@@ -198,7 +198,7 @@ class ActionsOnTimeBrick(_ActionsBrick):
     id = QuerysetBrick.generate_id('assistants', 'actions_it')
     verbose_name = _('Actions on time')
     description = _(
-        'Allows to add Actions to the current entity ; Actions expect a re-action '
+        'Allows to add Actions to the current entity; Actions expect a re-action '
         'to be done by another user before a given deadline.\n'
         'This block displays Actions which have no re-action yet & with a deadline '
         'which has not been reached.\n'
@@ -221,7 +221,7 @@ class ActionsNotOnTimeBrick(_ActionsBrick):
     id = QuerysetBrick.generate_id('assistants', 'actions_nit')
     verbose_name = _('Reactions not on time')
     description = _(
-        'Allows to add Actions to the current entity ; Actions expect a re-action '
+        'Allows to add Actions to the current entity; Actions expect a re-action '
         'to be done by another user before a given deadline.\n'
         'This block displays Actions which have no re-action yet & with a deadline '
         'which has been exceeded.\n'

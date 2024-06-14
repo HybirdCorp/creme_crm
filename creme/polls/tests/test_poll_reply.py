@@ -1440,8 +1440,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit.html')
 
         context = response.context
-        self.assertEqual(_('Answers of the form : {}').format(preply), context.get('title'))
-        self.assertEqual(preply.get_absolute_url(),                    context.get('cancel_url'))
+        self.assertEqual(_('Answers of the form: {}').format(preply), context.get('title'))
+        self.assertEqual(preply.get_absolute_url(),                   context.get('cancel_url'))
         self.assertIsNone(context.get('help_message'))
 
         with self.assertNoException():

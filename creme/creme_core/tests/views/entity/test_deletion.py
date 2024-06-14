@@ -502,7 +502,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
             {
                 'count': 2,
                 'errors': [
-                    _('{entity} : <b>Permission denied</b>').format(
+                    _('{entity}: <b>Permission denied</b>').format(
                         entity=forbidden.allowed_str(user),
                     ),
                 ],

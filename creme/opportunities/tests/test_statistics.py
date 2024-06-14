@@ -211,6 +211,6 @@ class StatisticsTestCase(OpportunitiesBaseTestCase):
         )
 
         self.assertListEqual(
-            [_('The field «Actual closing date» is hidden ; these statistics are not available.')],
+            [_('The field «Actual closing date» is hidden; these statistics are not available.')],
             CurrentYearStatistics(Opportunity, Organisation)(),
         )

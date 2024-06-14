@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2023  Hybird
+#    Copyright (C) 2012-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -75,7 +75,7 @@ def _format_previous_answered_question(preply_id, line, style):
         '<b>{title}</b><br>'
         '{label} : {number} {question}<br>'
         '{answer_str} : {answer} <a class="add" href="{url}">{icon}</a>',
-        title=gettext('Reminder of the previous answered question :'),
+        title=gettext('Reminder of the previous answered question:'),
         label=gettext('Question'),
         number=f'{number} -' if number != 'None' else '',
         question=line.question,
@@ -149,7 +149,7 @@ def edit_line_wizard(request, preply_id, line_id):
     return render(
         request, 'creme_core/generics/blockform/edit.html',
         {
-            'title':        gettext('Answers of the form : {}').format(preply),
+            'title':        gettext('Answers of the form: {}').format(preply),
             'form':         form,
             'help_message': previous_answer,
             'cancel_url':   preply.get_absolute_url(),
@@ -213,7 +213,7 @@ def fill(request, preply_id):
     return render(
         request, 'creme_core/generics/blockform/edit.html',
         {
-            'title':        gettext('Answers of the form : {}').format(preply),
+            'title':        gettext('Answers of the form: {}').format(preply),
             'form':         form,
             'help_message': previous_answer,
             'cancel_url':   preply.get_absolute_url(),

@@ -1382,7 +1382,7 @@ class BricksConfigFieldTestCase(_ConfigFieldTestCase):
         self.assertFormfieldError(
             field=BricksConfigField(choices=self.choices),
             value=value,
-            messages=_('Your configuration is empty !'),
+            messages=_('Your configuration is empty!'),
             codes='required',
         )
 
@@ -1428,7 +1428,7 @@ class BricksConfigFieldTestCase(_ConfigFieldTestCase):
         self.assertFormfieldError(
             field=BricksConfigField(choices=self.choices),
             value=json_dump({'top': [], 'left': []}),
-            messages=_('Your configuration is empty !'),
+            messages=_('Your configuration is empty!'),
             codes='required',
         )
 

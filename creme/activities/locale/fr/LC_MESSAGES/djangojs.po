@@ -108,6 +108,3 @@ msgstr "Aucun évènement à afficher"
 
 msgid "Please select at least a line in order to export."
 msgstr "Veuillez sélectionner au moins une ligne pour pouvoir exporter."
-
-#~ msgid "Loading..."
-#~ msgstr "Chargement..."

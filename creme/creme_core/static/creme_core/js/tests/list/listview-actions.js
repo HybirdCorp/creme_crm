@@ -800,7 +800,7 @@ QUnit.test('creme.listview.row-action (delete, canceled)', function(assert) {
 
     this.assertClosedPopover();
 
-    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+    this.assertOpenedConfirmDialog(gettext('Are you sure?'));
     this.closeDialog();
 
     deepEqual([], this.mockBackendUrlCalls('mock/entity/delete'));
@@ -820,7 +820,7 @@ QUnit.test('creme.listview.row-action (delete)', function(assert) {
 
     this.assertClosedPopover();
 
-    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+    this.assertOpenedConfirmDialog(gettext('Are you sure?'));
     this.acceptConfirmDialog();
 
     deepEqual([
@@ -1065,7 +1065,7 @@ QUnit.test('creme.listview.header-actions (open menu, click)', function(assert) 
     popover.find('.listview-action [data-action="delete-selection"]').trigger('click');
     this.assertClosedPopover();
 
-    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+    this.assertOpenedConfirmDialog(gettext('Are you sure?'));
     this.closeDialog();
 
     $('.header-actions-trigger', widget.element).trigger('click');

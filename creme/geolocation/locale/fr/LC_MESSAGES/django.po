@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'GEOLOCATION' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Geolocation 2.3\n"
+"Project-Id-Version: Creme Geolocation 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-03 09:32+0100\n"
+"POT-Creation-Date: 2024-06-14 17:27+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -108,10 +108,10 @@ msgid "Longitude"
 msgstr "Longitude"
 
 msgid "Is this marker draggable in maps?"
-msgstr "Ce curseur peut-il être déplacé ?"
+msgstr "Ce curseur peut-il être déplacé ?"
 
 msgid "Geocoded from address?"
-msgstr "Géolocalisé à partir de l'adresse ?"
+msgstr "Géolocalisé à partir de l'adresse ?"
 
 msgctxt "geolocation"
 msgid "Status"

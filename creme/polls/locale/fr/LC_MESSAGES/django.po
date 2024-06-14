@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Polls 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-29 21:20+0200\n"
+"POT-Creation-Date: 2024-06-17 17:53+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -113,7 +113,7 @@ msgstr "Liste de choix multiples ({})"
 
 #, python-brace-format
 msgid "Multiple choice list ({choices}) (deleted: {del_choices})"
-msgstr "Liste de choix multiples ({choices}) (supprimé(s) : {del_choices})"
+msgstr "Liste de choix multiples ({choices}) (supprimé(s) : {del_choices})"
 
 msgid "Choice list with free choice"
 msgstr "Liste de choix avec choix libre"
@@ -124,7 +124,7 @@ msgstr "Liste de choix avec choix libre ({})"
 #, python-brace-format
 msgid "Choice list with free choice ({choices}) (deleted: {del_choices})"
 msgstr ""
-"Liste de choix avec choix libre ({choices}) (supprimé(s) : {del_choices})"
+"Liste de choix avec choix libre ({choices}) (supprimé(s) : {del_choices})"
 
 msgid "Other"
 msgstr "Autre"
@@ -176,7 +176,7 @@ msgstr ""
 
 #, python-brace-format
 msgid "Before: «{question}» (#{number})"
-msgstr "Avant : «{question}» (n°{number})"
+msgstr "Avant : «{question}» (n°{number})"
 
 msgid "Start of section"
 msgstr "Début de section"
@@ -442,7 +442,7 @@ msgid "Disable this question"
 msgstr "Désactiver cette question"
 
 msgid "Are you sure?"
-msgstr "Êtes-vous sûr ?"
+msgstr "Êtes-vous sûr ?"
 
 msgid "No question or section for the moment"
 msgstr "Pas de question ou de section pour le moment"
@@ -534,15 +534,15 @@ msgstr "Conditions pour «{entity}»"
 msgid "Save the conditions"
 msgstr "Enregistrer les conditions"
 
-msgid "Reminder of the previous answered question :"
-msgstr "Rappel de la Question/Réponse précédente :"
+msgid "Reminder of the previous answered question:"
+msgstr "Rappel de la Question/Réponse précédente :"
 
 # Already in crem_core
 msgid "Edit"
 msgstr ""
 
-msgid "Answers of the form : {}"
-msgstr "Réponses à un formulaire : {}"
+msgid "Answers of the form: {}"
+msgstr "Réponses à un formulaire : {}"
 
 #, python-brace-format
 msgid "New replies for «{entity}»"

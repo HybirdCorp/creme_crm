@@ -934,7 +934,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual('??', brick.verbose_name)
 
         self.assertListEqual(
-            [_('Unknown type of block (bad uninstall ?)')],
+            [_('Unknown type of block (bad uninstall?)')],
             getattr(brick, 'errors', None),
         )
 

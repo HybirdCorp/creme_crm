@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2021  Hybird
+#    Copyright (C) 2018-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ class CurrentYearStatistics:
     label = _('Opportunities (current year)')
     relation_type_id = REL_OBJ_EMIT_ORGA
     invalid_message = _(
-        'The field «Actual closing date» is hidden ; '
+        'The field «Actual closing date» is hidden; '
         'these statistics are not available.'
     )
     message_format = _('For {organisation}: {won_stats} / {lost_stats}')

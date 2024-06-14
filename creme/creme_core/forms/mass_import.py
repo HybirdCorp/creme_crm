@@ -126,7 +126,7 @@ class UploadForm(CremeForm):
         credentials=EntityCredentials.VIEW,
     )
     has_header = forms.BooleanField(
-        label=_('Header present ?'), required=False,
+        label=_('Header present?'), required=False,
         help_text=_(
             'Does the first line of the line contain '
             'the header of the columns (e.g. "Last name","First name")?'

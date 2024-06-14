@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,7 @@ class _RelationsForm(base.CremeForm):
 
     error_messages = {
         'duplicates': _('There are duplicates: %(duplicates)s'),
-        'link_themselves': _('An entity can not be linked to itself : %(entities)s'),
+        'link_themselves': _('An entity can not be linked to itself: %(entities)s'),
         'empty': _('You must give one relationship at least.'),
     }
 
@@ -218,7 +218,7 @@ class RelationsBulkAddingForm(_RelationsForm):
         fields = self.fields
         fields['entities_lbl'].initial = entities_to_str(
             subjects, user,
-        ) if subjects else gettext('NONE !')
+        ) if subjects else gettext('NONE!')
 
         if forbidden_subjects:
             fields['bad_entities_lbl'] = core_fields.ReadonlyMessageField(

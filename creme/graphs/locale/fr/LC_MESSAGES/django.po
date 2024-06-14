@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'GRAPHS' APP
-# Copyright (C) 2022 Hybird
+# Copyright (C) 2024 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i tests.py --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Graphs 2.5\n"
+"Project-Id-Version: Creme Graphs 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-06 13:44+0100\n"
+"POT-Creation-Date: 2024-06-14 17:30+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -137,7 +137,7 @@ msgid "No type of relationship"
 msgstr "Pas de type de relation"
 
 msgid "Disabled types:"
-msgstr "Types désactivés :"
+msgstr "Types désactivés :"
 
 msgid "Edit this node"
 msgstr "Modifier ce nœud"
@@ -164,14 +164,14 @@ msgstr "Modifier le nœud racine pour «{entity}»"
 #~ msgstr "Télécharger sous forme de fichier PNG"
 
 #~ msgid ""
-#~ "The package \"pygraphviz\" is not installed ; please contact your "
+#~ "The package \"pygraphviz\" is not installed; please contact your "
 #~ "administrator."
 #~ msgstr ""
-#~ "Le paquet \"pygraphviz\" n'est pas installé ; veuillez contacter votre "
+#~ "Le paquet \"pygraphviz\" n'est pas installé ; veuillez contacter votre "
 #~ "administrateur."
 
 #~ msgid "This graph is too big!"
-#~ msgstr "Ce graphe est trop gros !"
+#~ msgstr "Ce graphe est trop gros !"
 
 #~ msgid "Roots nodes of a graph"
 #~ msgstr "Nœuds racines d'un graphe"

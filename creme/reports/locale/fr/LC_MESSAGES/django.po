@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-29 17:46+0200\n"
+"POT-Creation-Date: 2024-06-14 18:06+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -71,7 +71,7 @@ msgid ""
 msgstr ""
 "Affiche & modifie les colonnes d'un rapport.\n"
 "Les colonnes correspondent aux champs, champs personnalisés, relations…\n"
-"App : Rapports"
+"App : Rapports"
 
 msgid "Report's graphs"
 msgstr "Graphiques de rapport"
@@ -85,7 +85,7 @@ msgstr ""
 "Ajoute & modifie des graphes liés à un rapport.\n"
 "Un graphe affiche visuellement des valeurs calculées, comme le nombre de "
 "Factures créées par mois par exemple.\n"
-"App : Rapports"
+"App : Rapports"
 
 #, python-brace-format
 msgid ""
@@ -94,7 +94,7 @@ msgid ""
 "App: Reports"
 msgstr ""
 "Ce bloc affiche le graphe «{graph}», contenu par le rapport «{report}».\n"
-"App : Rapports"
+"App : Rapports"
 
 msgid "Report's graph"
 msgstr "Graphique de rapport"
@@ -269,13 +269,13 @@ msgstr ""
 "Lorsque le graphique est affiché sur la vue détaillée d'une fiche, seules "
 "les fiches reliées à cette fiche par le lien ci-dessous sont utilisées pour "
 "calculer le graphique.\n"
-"Remarque : si vous choisissez «Pas de colonne volatile», le bloc affichera "
+"Remarque : si vous choisissez «Pas de colonne volatile», le bloc affichera "
 "les mêmes données sur l'Accueil & sur les vues détaillées (ça peut cependant "
 "être utile en tant que rappel des données générales)."
 
 #, python-brace-format
 msgid "The instance block for «{graph}» with these parameters already exists!"
-msgstr "Le bloc d'instance pour «{graph}» avec ces paramètres existe déjà !"
+msgstr "Le bloc d'instance pour «{graph}» avec ces paramètres existe déjà !"
 
 msgid ""
 "Filter field can only be updated when reports target the same type of "
@@ -301,10 +301,10 @@ msgid_plural ""
 "Beware! The filters of {count} reports cannot be changed because they are "
 "private."
 msgstr[0] ""
-"Attention ! Le filtre de {count} rapport ne peut pas être changé car il est "
+"Attention ! Le filtre de {count} rapport ne peut pas être changé car il est "
 "privé."
 msgstr[1] ""
-"Attention ! Les filtres de {count} rapports ne peuvent pas être changés car "
+"Attention ! Les filtres de {count} rapports ne peuvent pas être changés car "
 "ils sont privés."
 
 msgid "The parameter is invalid. {}"
@@ -321,11 +321,11 @@ msgstr "Axe Y"
 
 msgid ""
 "If you use a field related to money, the entities should use the same "
-"currency or the result will be wrong. Concerned fields are : {}"
+"currency or the result will be wrong. Concerned fields are: {}"
 msgstr ""
 "Si vous utilisez un champ relatif à de l'argent, les fiches devraient "
 "utiliser la même monnaie, ou alors le résultat sera faux. Les champs "
-"concernés sont : {}"
+"concernés sont : {}"
 
 msgid "Entity type & filter"
 msgstr "Type de fiche & filtre"
@@ -379,8 +379,8 @@ msgctxt "reports-date_filter"
 msgid "None"
 msgstr "Aucun"
 
-msgid "Invalid volatile link ; please contact your administrator."
-msgstr "Lien volatile invalide ; veuillez contacter votre administrateur."
+msgid "Invalid volatile link; please contact your administrator."
+msgstr "Lien volatile invalide ; veuillez contacter votre administrateur."
 
 msgctxt "reports-graphs"
 msgid "Name of the graph"
@@ -437,11 +437,11 @@ msgstr "Vue de Rapport"
 
 #, python-brace-format
 msgid "Filters: {count} configurable type of resource"
-msgstr "Filtres : {count} type de ressource configurable"
+msgstr "Filtres : {count} type de ressource configurable"
 
 #, python-brace-format
 msgid "Filters: {count} configurable types of resource"
-msgstr "Filtres : {count} types de ressource configurables"
+msgstr "Filtres : {count} types de ressource configurables"
 
 msgid ""
 "These filters can only be used in Reports; so they cannot be used in list-"
@@ -451,7 +451,7 @@ msgid ""
 "They can reference regular filters as sub-filters, but regular filters "
 "cannot reference them."
 msgstr ""
-"Ces filtres peuvent seulement être utilisés dans les Rapports ; donc ils ne "
+"Ces filtres peuvent seulement être utilisés dans les Rapports ; donc ils ne "
 "peuvent pas être utilisés dans les vues en liste.\n"
 "Ils sont utiles pour éviter d'avoir beaucoup de filtres disponibles dans les "
 "vues en liste qui sont uniquement destinés aux Rapports.\n"
@@ -479,7 +479,7 @@ msgid "Action"
 msgstr ""
 
 msgid "Expand?"
-msgstr "Développer ?"
+msgstr "Développer ?"
 
 msgid "No column set for the moment"
 msgstr "Aucune colonne définie pour le moment"
@@ -644,11 +644,11 @@ msgstr "Valeurs agrégées"
 
 #, python-format
 msgid "Invalid abscissa: %(error)s"
-msgstr "Abscisse invalide : %(error)s"
+msgstr "Abscisse invalide : %(error)s"
 
 #, python-format
 msgid "Invalid ordinate: %(error)s"
-msgstr "Ordonnée invalide : %(error)s"
+msgstr "Ordonnée invalide : %(error)s"
 
 msgid "Export parameters"
 msgstr "Paramètres d'export"
@@ -666,7 +666,7 @@ msgstr "Retour au rapport"
 
 #, python-format
 msgid "Preview of the report «%(title)s»"
-msgstr "Aperçu du rapport : «%(title)s»"
+msgstr "Aperçu du rapport : «%(title)s»"
 
 msgid "Download as file"
 msgstr "Télécharger en tant que fichier"
@@ -731,12 +731,6 @@ msgstr "Modifier les colonnes de «{object}»"
 #~ msgid "View"
 #~ msgstr "Voir"
 
-#~ msgid "Beware: there is an error with the X axis: %(error)s"
-#~ msgstr "Attention : il y a une erreur avec l'axe X : %(error)s"
-
-#~ msgid "Beware: there is an error with the Y axis: %(error)s"
-#~ msgstr "Attention : il y a une erreur avec l'axe Y : %(error)s"
-
 #~ msgid "Name"
 #~ msgstr "Nom"
 
@@ -749,14 +743,8 @@ msgstr "Modifier les colonnes de «{object}»"
 #~ msgid "Rendered %(object)s"
 #~ msgstr "Aperçu %(object)s"
 
-#~ msgid "Rendered %(verbose_name)s : %(title)s"
-#~ msgstr "Aperçu %(verbose_name)s : %(title)s"
-
 #~ msgid "deleted"
 #~ msgstr "supprimé"
-
-#~ msgid "Beware !"
-#~ msgstr "Attention !"
 
 #~ msgid "Choose an abscissa field"
 #~ msgstr "Choisir un champ d'abscisse"
@@ -779,9 +767,6 @@ msgstr "Modifier les colonnes de «{object}»"
 #~ msgid "Entities count"
 #~ msgstr "Comptage de fiches"
 
-#~ msgid "Make a count instead of aggregate?"
-#~ msgstr "Effectuer un comptage à la place des valeurs calculées ?"
-
 #~ msgid "No field is usable for aggregation"
 #~ msgstr "Aucun n'est utilisable pour une agrégation"
 
@@ -792,14 +777,6 @@ msgstr "Modifier les colonnes de «{object}»"
 
 #~ msgid "This field is required if you choose a field to aggregate."
 #~ msgstr "Ce champ est obligatoire si vous choisissez un champ à aggréger."
-
-#~ msgid ""
-#~ "If you don't choose an ordinate field (or none available) you have to "
-#~ "check 'Make a count instead of aggregate ?'"
-#~ msgstr ""
-#~ "Si vous ne choisissez aucun champ d'ordonnée (ou qu'aucun n'est "
-#~ "disponible) vous devez cocher 'Effectuer un comptage à la place des "
-#~ "valeurs calculées ?'"
 
 #~ msgid "Grouping"
 #~ msgstr "Groupage"
@@ -841,9 +818,6 @@ msgstr "Modifier les colonnes de «{object}»"
 #~ msgid "Go to %(graph)s's file"
 #~ msgstr "Aller sur la fiche de %(graph)s"
 
-#~ msgid "Volatile column : %(vc)s"
-#~ msgstr "Colonne volatile : %(vc)s"
-
 #~ msgid "Reduce"
 #~ msgstr "Réduire"
 
@@ -867,9 +841,6 @@ msgstr "Modifier les colonnes de «{object}»"
 
 #~ msgid "Abscissa field"
 #~ msgstr "Champ d'abscisse"
-
-#~ msgid "Abscissa : Group by"
-#~ msgstr "Abscisse : Grouper par"
 
 #~ msgid "Abscissa axis"
 #~ msgstr "Axe des abscisses"

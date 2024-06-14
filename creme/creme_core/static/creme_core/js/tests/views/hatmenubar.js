@@ -156,7 +156,7 @@ QUnit.test('creme.detailview.hatmenubar (confirm update)', function(assert) {
 
     $(widget.element).find('a.menu_button').trigger('click');
 
-    this.assertOpenedConfirmDialog(gettext('Are you sure ?'));
+    this.assertOpenedConfirmDialog(gettext('Are you sure?'));
 
     deepEqual([], this.mockBackendUrlCalls());
 

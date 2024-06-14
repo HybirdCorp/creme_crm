@@ -23,12 +23,12 @@ QUnit.test('creme.billing.listview.actions (billing-invoice-number, ok)', functi
 
     ok(Object.isFunc(builder));
     var action = builder('mock/invoice/12/number', {
-        confirm: 'Are you sure ?'
+        confirm: 'Are you sure?'
     });
 
     action.start();
 
-    this.assertOpenedConfirmDialog('Are you sure ?');
+    this.assertOpenedConfirmDialog('Are you sure?');
     this.acceptConfirmDialog();
 
     this.assertClosedDialog();
@@ -57,12 +57,12 @@ QUnit.test('creme.billing.listview.actions (billing-invoice-number, fail)', func
 
     ok(Object.isFunc(builder));
     var action = builder('mock/invoice/12/number/fail', {
-        confirm: 'Are you sure ?'
+        confirm: 'Are you sure?'
     });
 
     action.start();
 
-    this.assertOpenedConfirmDialog('Are you sure ?');
+    this.assertOpenedConfirmDialog('Are you sure?');
     this.acceptConfirmDialog();
 
     this.assertOpenedAlertDialog('Unable to generate invoice number');

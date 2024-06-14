@@ -152,7 +152,7 @@ def download_errors(request, job_id):
     )
 
     if not export_backend_class:
-        return ConflictError(_('Unknown file type ; please contact your administrator.'))
+        return ConflictError(_('Unknown file type; please contact your administrator.'))
 
     writer = export_backend_class()
     writerow = writer.writerow

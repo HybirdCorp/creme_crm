@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -84,7 +84,7 @@ class Export(base.EntityRelatedMixin, base.CheckedView):
         engine_id = config_item.engine_id
         if not engine_id:
             raise ConflictError(_(
-                'The engine is not configured ; '
+                'The engine is not configured; '
                 'go to the configuration of the app «Billing».'
             ))
 
@@ -96,7 +96,7 @@ class Export(base.EntityRelatedMixin, base.CheckedView):
 
         if exporter is None:
             raise ConflictError(_(
-                'The configured exporter is invalid ; '
+                'The configured exporter is invalid; '
                 'go to the configuration of the app «Billing».'
             ))
 

@@ -82,7 +82,7 @@
                     </div>
                 </li>
             {% empty %}
-                {% brick_table_action id='edit' url='emails__fix_email_to_sync'|url:email_to_sync.id label=_('Fix the forwarded email') display='text' class='emails-sync-fix' help_text=_('This email has only been sent to the synchronisation address ; fix it by setting the true sender & recipient.') %}
+                {% brick_table_action id='edit' url='emails__fix_email_to_sync'|url:email_to_sync.id label=_('Fix the forwarded email') display='text' class='emails-sync-fix' help_text=_('This email has only been sent to the synchronisation address; fix it by setting the true sender & recipient.') %}
             {% endfor %}
             </ul>
         </td>

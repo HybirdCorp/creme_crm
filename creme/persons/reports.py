@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2022  Hybird
+#    Copyright (C) 2020-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,7 @@ class OwnedGraphFetcher(GraphFetcher):
         if not isinstance(entity, Contact):
             raise self.IncompatibleContentType(gettext(
                 "The volatile link «Belongs to the Contact/User» is only "
-                "compatible with Contacts ; you should fix your blocks' configuration."
+                "compatible with Contacts; you should fix your blocks' configuration."
             ))
 
         owner = entity.is_user

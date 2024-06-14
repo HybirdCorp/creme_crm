@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -145,7 +145,7 @@ class _ComApproachesEmailsSendType(JobType):
             ).format(self.list_target_orga[0][1]),
             gettext(
                 "Hint: to create commercial approaches, activate the field "
-                "«Is a commercial approach?» in the configuration of Activities' forms ; "
+                "«Is a commercial approach?» in the configuration of Activities' forms; "
                 "so when you create an Activity, if you check the box, some approaches "
                 "will be created for participants, subjects & linked entities."
             ),
