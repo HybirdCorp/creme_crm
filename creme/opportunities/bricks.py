@@ -22,6 +22,7 @@ from datetime import timedelta
 
 from django.apps import apps
 from django.db.models.query_utils import FilteredRelation, Q
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons, products
@@ -36,12 +37,13 @@ from creme.creme_core.gui.bricks import (
     QuerysetBrick,
     SimpleBrick,
 )
-from creme.creme_core.models import Relation, RelationType
+from creme.creme_core.models import Relation, RelationType, SettingValue
 from creme.creme_core.utils.paginators import OnePagePaginator
 from creme.persons import bricks as persons_bricks
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
 from . import constants, get_opportunity_model
+from .setting_keys import unsuccessful_key
 
 Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
@@ -168,6 +170,12 @@ class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
             exclude_deleted=self.exclude_deleted,
         )
 
+    # TODO: this method will be useless when the render of Bricks will be like
+    #       widgets or Button (i.e. the class only generates a context, the
+    #       render is done in templates).
+    def _extra_context(self, context) -> dict:
+        return {}
+
     def detailview_display(self, context):
         entity = context['object']
         relation_type = RelationType.objects.get(id=self.relation_type_deps[0])
@@ -183,6 +191,7 @@ class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
             self._get_queryset(opportunity=entity, rtype=relation_type),
             relation_type=relation_type,
             cells=cells,
+            **self._extra_context(context),
         ))
 
 
@@ -205,6 +214,26 @@ class LinkedContactsBrick(_LinkedStuffBrick):
         (EntityCellRegularField, 'phone'),
         (EntityCellRegularField, 'mobile'),
     ]
+
+    def _extra_context(self, context):
+        extra = super()._extra_context(context=context)
+        extra['unsuccessful_url'] = ''
+
+        if apps.is_installed('creme.activities'):
+            from creme.activities import get_activity_model
+
+            Activity = get_activity_model()
+
+            if SettingValue.objects.get_4_key(unsuccessful_key).value:
+                self.dependencies = (*self.dependencies, Activity)
+
+                extra['unsuccessful_url'] = reverse(
+                    'opportunities__create_unsuccessful_phone_call',
+                    args=(context['object'].id,),
+                )
+                extra['activity_creation_perm'] = context['user'].has_perm_to_create(Activity)
+
+        return extra
 
 
 class LinkedProductsBrick(_LinkedStuffBrick):

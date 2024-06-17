@@ -94,3 +94,14 @@ if apps.is_installed('creme.billing'):
             name='opportunities__select_billing_objs_to_link',
         ),
     ]
+
+if apps.is_installed('creme.activities'):
+    from .views import activity
+
+    urlpatterns += [
+        re_path(
+            r'^add_unsuccessful_call/(?P<opp_id>\d+)[/]?$',
+            activity.UnsuccessfulPhoneCallCreation.as_view(),
+            name='opportunities__create_unsuccessful_phone_call',
+        ),
+    ]

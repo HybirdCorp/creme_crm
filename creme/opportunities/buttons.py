@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,12 +16,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
+from django.apps import apps
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.auth import build_creation_perm as cperm
+from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.gui.button_menu import Button
 
 from . import get_opportunity_model
+
+Opportunity = get_opportunity_model()
 
 
 class LinkedOpportunityButton(Button):
@@ -33,7 +38,7 @@ class LinkedOpportunityButton(Button):
         'App: Opportunities'
     )
     template_name = 'opportunities/buttons/linked-opp.html'
-    permissions = cperm(get_opportunity_model())
+    permissions = build_creation_perm(Opportunity)
 
     def get_ctypes(self):
         from creme import persons
@@ -41,3 +46,34 @@ class LinkedOpportunityButton(Button):
             persons.get_organisation_model(),
             persons.get_contact_model(),
         )
+
+
+button_classes: list[type[Button]] = [
+    LinkedOpportunityButton,
+]
+
+
+if apps.is_installed('creme.activities'):
+    from creme.activities import get_activity_model
+
+    Activity = get_activity_model()
+
+    class AddUnsuccessfulPhoneCallButton(Button):
+        id = Button.generate_id('opportunities', 'add_unsuccessful_phonecall')
+        verbose_name = _('Create an unsuccessful phone call')
+        template_name = 'opportunities/buttons/add-unsuccessful-phonecall.html'
+        permissions = build_creation_perm(Activity)
+        description = _(
+            'This button creates a short phone call (kind of activity) which was '
+            'not successful (in order to keep an history).\n'
+            'All the contacts linked to the current Opportunity participate in '
+            'the created call, & you too.\n'
+            'The fields values can be set in the configuration of «Activities».\n'
+            'App: Opportunities'
+        )
+        dependencies = (Activity,)
+
+        def get_ctypes(self):
+            return [Opportunity]
+
+    button_classes.append(AddUnsuccessfulPhoneCallButton)

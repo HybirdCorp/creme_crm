@@ -30,7 +30,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm
 from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import Relation, RelationType, SettingValue
+from creme.creme_core.models import CremeEntity, Relation, SettingValue
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views import generic
 from creme.persons import get_contact_model
@@ -49,24 +49,40 @@ class UnsuccessfulPhoneCallCreation(generic.base.EntityRelatedMixin, generic.Che
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_link_or_die(entity)
-        if entity == user.linked_contact:
+        # if entity == user.linked_contact:
+        #     raise ConflictError(gettext(
+        #         'The current contact is you; '
+        #         'the button has to be used with a different contact'
+        #     ))
+
+    def _get_participants(self, user, entity: CremeEntity) -> list[CremeEntity]:
+        linked_contact = user.linked_contact
+
+        if entity == linked_contact:
             raise ConflictError(gettext(
                 'The current contact is you; '
                 'the button has to be used with a different contact'
             ))
 
-    @atomic
-    def post(self, request, *args, **kwargs):
-        user = request.user
-        contact = self.get_related_entity()
+        return [linked_contact, entity]
 
+    def _get_subjects(self, user, entity: CremeEntity) -> list[CremeEntity]:
+        return []
+
+    def _get_linked_entities(self, user, entity: CremeEntity) -> list[CremeEntity]:
+        return []
+
+    def _get_setting_values(self):
+        return SettingValue.objects.get_4_keys(
+            {'key': setting_keys.unsuccessful_subtype_key},
+            {'key': setting_keys.unsuccessful_status_key},
+            {'key': setting_keys.unsuccessful_title_key},
+            {'key': setting_keys.unsuccessful_duration_key},
+        )
+
+    def _build_activity(self, user) -> Activity:
         try:
-            values = SettingValue.objects.get_4_keys(
-                {'key': setting_keys.unsuccessful_subtype_key},
-                {'key': setting_keys.unsuccessful_status_key},
-                {'key': setting_keys.unsuccessful_title_key},
-                {'key': setting_keys.unsuccessful_duration_key},
-            )
+            self.setting_values = values = self._get_setting_values()
 
             sub_type = ActivitySubType.objects.get(
                 uuid=values[setting_keys.unsuccessful_subtype_key.id].value,
@@ -98,18 +114,55 @@ class UnsuccessfulPhoneCallCreation(generic.base.EntityRelatedMixin, generic.Che
             field_name='title',
             value=values[setting_keys.unsuccessful_title_key.id].value,
         )
-        activity.save()
 
-        create_rel = partial(
-            Relation.objects.create,
-            user=user,
-            type=RelationType.objects.get(id=constants.REL_SUB_PART_2_ACTIVITY),
-            object_entity=activity,
+        return activity
+
+    def _pre_creation(self, user, entity):
+        self.participants = self._get_participants(user=user, entity=entity)
+        self.subjects = self._get_subjects(user=user, entity=entity)
+        self.linked_entities = self._get_linked_entities(user=user, entity=entity)
+
+    def _post_creation_relations(self, user, activity):
+        build_rel = partial(Relation, user=user, object_entity=activity)
+        Relation.objects.safe_multi_save(
+            [
+                *(
+                    build_rel(
+                        subject_entity=subject, type_id=constants.REL_SUB_ACTIVITY_SUBJECT
+                    ) for subject in self.subjects
+                ),
+                *(
+                    build_rel(
+                        subject_entity=participant, type_id=constants.REL_SUB_PART_2_ACTIVITY
+                    ) for participant in self.participants
+                ),
+                *(
+                    build_rel(
+                        subject_entity=linked_entity,
+                        type_id=constants.REL_SUB_LINKED_2_ACTIVITY,
+                    ) for linked_entity in self.linked_entities
+                ),
+            ],
+            check_existing=False,
         )
-        create_rel(subject_entity=user.linked_contact)
-        create_rel(subject_entity=contact)
 
+    def _post_creation_calendar(self, user, activity):
         activity.calendars.add(Calendar.objects.get_default_calendar(user))
+
+    def _post_creation(self, user, activity):
+        self._post_creation_relations(user=user, activity=activity)
+        self._post_creation_calendar(user=user, activity=activity)
+
+    # @atomic
+    def post(self, request, *args, **kwargs):
+        entity = self.get_related_entity()
+        user = request.user
+        self._pre_creation(user=user, entity=entity)
+
+        with atomic():
+            activity = self._build_activity(user)
+            activity.save()
+            self._post_creation(user=user, activity=activity)
 
         return HttpResponse()
 

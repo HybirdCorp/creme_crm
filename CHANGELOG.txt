@@ -6,6 +6,10 @@
         * Creme_config :
             - In the bricks configuration, default configuration is used as initial value when it's relevant
               (instead of starting with an empty configuration).
+        * Opportunities :
+            - You can now create unsuccessful phone calls from an Opportunity's detail-view :
+                - A button has been added (not enabled in default installations).
+                - In the block "Linked Contacts", you can activate an new action in the configuration (idem).
 
   Developers side :
   -----------------
@@ -56,6 +60,9 @@
                 * Emails :
                     - The function 'utils.get_mime_image()' has been removed.
                     - In the constructor of 'utils.SignatureRenderer' the argument "domain" is now required.
+        # Apps :
+            * Activities :
+                - Some small changes have been made in the class 'views.buttons.UnsuccessfulPhoneCallCreation'.
 
 
 == Version 2.6 ==
