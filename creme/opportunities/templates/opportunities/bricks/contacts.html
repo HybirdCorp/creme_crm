@@ -29,11 +29,15 @@
 {% block brick_table_columns %}
     {% brick_table_column title=_('Name') status='primary nowrap' %}
     {% for cell in cells %}{% brick_table_column_for_cell cell=cell %}{% endfor %}
-    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+    {% if unsuccessful_url %}
+     {% brick_table_column title=_('Actions') status='action' colspan=3 %}
+    {% else %}
+     {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+    {% endif %}
 {% endblock %}
 
 {% block brick_table_rows %}
- {% with unlink_perm=user|has_perm_to_unlink:object delete_relation_url='creme_core__delete_similar_relations'|url %}
+ {% with link_perm=user|has_perm_to_link:object unlink_perm=user|has_perm_to_unlink:object delete_relation_url='creme_core__delete_similar_relations'|url %}
   {% for contact in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink contact user %}</td>
@@ -45,6 +49,13 @@
           {% endfor %}
         {% else %}
             {% for cell in cells %}<td>{{HIDDEN_VALUE}}</td>{% endfor %}
+        {% endif %}
+        {% if unsuccessful_url %}
+        <td {% brick_table_data_status action %}>
+          {% if contact != user.linked_contact %}
+            {% brick_table_action id='update' url=unsuccessful_url __participant=contact.id label=_('Create an unsuccessful phone call with this contact') icon='phone' enabled=activity_creation_perm|and_op:link_perm %}
+          {% endif %}
+        </td>
         {% endif %}
         <td {% brick_table_data_status action %}>
           {% if cells %}{% inner_edition_uri instance=contact cells=cells as edition_uri %}
