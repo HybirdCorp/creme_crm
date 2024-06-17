@@ -210,7 +210,8 @@ class Populator(BasePopulator):
         )
         create_rtype(
             (constants.REL_SUB_LINKED_CONTACT, _('involves in the opportunity'),  [Contact]),
-            (constants.REL_OBJ_LINKED_CONTACT, _('stages'),                       [Opportunity])),
+            (constants.REL_OBJ_LINKED_CONTACT, _('stages'),                       [Opportunity]),
+        ),
         create_rtype(
             (constants.REL_SUB_RESPONSIBLE,    _('is responsible for'),           [Contact]),
             (constants.REL_OBJ_RESPONSIBLE,    _('has as responsible contact'),   [Opportunity]),
@@ -365,6 +366,7 @@ class Populator(BasePopulator):
         create_sv(key_id=setting_keys.quote_key.id,              defaults={'value': False})
         create_sv(key_id=setting_keys.target_constraint_key.id,  defaults={'value': True})
         create_sv(key_id=setting_keys.emitter_constraint_key.id, defaults={'value': True})
+        create_sv(key_id=setting_keys.unsuccessful_key.id,       defaults={'value': False})
 
     def _populate_menu_config(self):
         menu_container = MenuConfigItem.objects.get_or_create(
