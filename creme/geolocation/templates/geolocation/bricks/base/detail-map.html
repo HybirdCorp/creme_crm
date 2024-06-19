@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block brick_script %}
-    {% if addresses %}
+    {% if addresses and not object.is_deleted %}
         {% block brick_geolocation_script %}{% endblock %}
     {% endif %}
 {% endblock %}

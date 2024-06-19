@@ -71,6 +71,8 @@
             - The render of inlined images has been improved.
         * Geolocation :
             - The bricks which use OpenStreetMap are now used in the default installation (instead of the GoogleMaps ones).
+            - Javascript :
+            	- Remove setup of geolocation blocks when the entity is deleted (fix a crash).
 
   Developers side :
   -----------------
