@@ -5,6 +5,9 @@
   Users side :
   ------------
     # The setting SOFTWARE_LABEL in now used for the title of the login page.
+    # Apps :
+        * Geolocation :
+            - A crash in the JavaScript code of blocks when the entity is deleted has been fixed.
 
   Developers side :
   -----------------
