@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 # ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('color_code', core_fields.ColorField(max_length=6, verbose_name='Color', blank=True)),
                 ('description', models.TextField(verbose_name='Description')),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 # ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),

@@ -252,7 +252,7 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('title', models.CharField(max_length=200, verbose_name='Title')),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],

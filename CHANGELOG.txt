@@ -287,6 +287,9 @@
                 - In the method 'execute()' the argument "job" has been removed.
             - In the method 'search.Searcher.search()', the argument "research" has been renamed "searched".
         # In 'creme_core.models' :
+            - In the abstract class 'MinionModel' the field "is_custom" is now marked <editable=False> ;
+              it will at least need a migration (or a manual change in the existing migrations because
+              it has no consequence on the DB).
             - The model 'CremePropertyType' uses now a classical AutoField (i.e. integers) for primary key, and gets an UUIDField.
               A CharField "app_label" has been added too (the app label was given is the previous string primary key).
               The parameters of the method 'CremePropertyTypeManager.smart_update_or_create()' have changed ;

@@ -66,6 +66,7 @@ class _ModelConfigAction:
         model = self._model
         get_field = model._meta.get_field
 
+        # TODO: remove this block now that <MinionModel.is_custom> is not editable?
         # TODO: test
         try:
             get_field('is_custom')

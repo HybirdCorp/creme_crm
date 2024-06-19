@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name of the category')),
                 ('description', models.CharField(max_length=100, verbose_name='Description', blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(max_length=100, verbose_name='Description', blank=True)),
                 ('category', models.ForeignKey(verbose_name='Parent category', to='products.Category', on_delete=CASCADE)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
