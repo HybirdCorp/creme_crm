@@ -345,7 +345,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Currency')),
                 ('local_symbol', models.CharField(max_length=100, verbose_name='Local symbol')),
                 ('international_symbol', models.CharField(max_length=100, verbose_name='International symbol')),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
@@ -765,7 +765,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
@@ -985,7 +985,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('value', models.DecimalField(default=Decimal('20.0'), verbose_name='VAT', max_digits=4, decimal_places=2)),
                 ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
@@ -1178,7 +1178,7 @@ class Migration(migrations.Migration):
                     ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
                     ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True)),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
@@ -1360,7 +1360,7 @@ class Migration(migrations.Migration):
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True)),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
@@ -1429,7 +1429,7 @@ class Migration(migrations.Migration):
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('shortcut', models.CharField(max_length=100, verbose_name='Shortcut')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True)),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
@@ -1445,7 +1445,7 @@ class Migration(migrations.Migration):
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True)),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
@@ -1461,7 +1461,7 @@ class Migration(migrations.Migration):
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True)),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
@@ -1478,7 +1478,7 @@ class Migration(migrations.Migration):
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True)),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
@@ -1717,7 +1717,7 @@ class Migration(migrations.Migration):
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True)),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
@@ -1791,7 +1791,7 @@ class Migration(migrations.Migration):
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True)),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
@@ -1866,7 +1866,7 @@ class Migration(migrations.Migration):
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('color', core_fields.ColorField(verbose_name='Color', default='ff0000')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True)),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
@@ -1882,7 +1882,7 @@ class Migration(migrations.Migration):
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True)),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={
@@ -1955,7 +1955,7 @@ class Migration(migrations.Migration):
                         )
                     ),
                     ('extra_data', models.JSONField(default=dict, editable=False)),
-                    ('is_custom', models.BooleanField(default=True)),
+                    ('is_custom', models.BooleanField(default=True, editable=False)),
                     ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
                 ],
                 options={

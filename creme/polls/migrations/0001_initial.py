@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=80, verbose_name='Name')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
             options={

@@ -96,7 +96,7 @@ class Migration(migrations.Migration):
                         max_length=6, verbose_name='Color',
                     )
                 ),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],

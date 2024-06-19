@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Origin')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                 ('won', models.BooleanField(default=False, verbose_name='Won')),
                 ('lost', models.BooleanField(default=False, verbose_name='Lost')),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
+                ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={

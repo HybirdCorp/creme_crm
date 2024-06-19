@@ -105,7 +105,7 @@ class MinionModel(CremeModel):
     ).set_tags(viewable=False)
 
     # Used by creme_config (if is_custom is False, the instance cannot be deleted)
-    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
+    is_custom = models.BooleanField(editable=False, default=True).set_tags(viewable=False)
 
     # Can be used by third party code to store the data they want,
     # without having to modify the code.

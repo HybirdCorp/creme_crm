@@ -122,11 +122,12 @@ class CremeModelFormTestCase(CremeTestCase):
         fields = form2.fields
 
         with self.assertNoException():
-            order_f = fields['title']
+            title_f = fields['title']
 
-        self.assertEqual(user, order_f.user)
-        self.assertIn('is_custom', fields)
-        self.assertNotIn('order',  fields)
+        self.assertEqual(user, title_f.user)
+        # self.assertIn('is_custom', fields)
+        self.assertNotIn('is_custom', fields)
+        self.assertNotIn('order',     fields)
 
         # ---
         blocks = form2.get_blocks()
@@ -134,7 +135,8 @@ class CremeModelFormTestCase(CremeTestCase):
             general_group = blocks['general']
 
         self.assertEqual(_('General information'), general_group.label)
-        self.assertEqual(2, len(general_group.bound_fields))
+        # self.assertEqual(2, len(general_group.bound_fields))
+        self.assertEqual(1, len(general_group.bound_fields))
 
         # --
         form1 = FakeSectorForm(user=user, data={})
@@ -148,7 +150,8 @@ class CremeModelFormTestCase(CremeTestCase):
         sector = form2.save()
         self.assertIsInstance(sector, FakeSector)
         self.assertEqual(title, sector.title)
-        self.assertFalse(sector.is_custom)
+        # self.assertFalse(sector.is_custom)
+        self.assertTrue(sector.is_custom)
         self.assertIsNotNone(sector.id)
 
     def test_hook(self):
