@@ -259,9 +259,8 @@ class NotificationManager(models.Manager):
         #     avoid to wait <settings.PSEUDO_PERIOD> before the emails are sent).
         OUTPUT_EMAIL = notification.OUTPUT_EMAIL
         if any(
-            output == OUTPUT_EMAIL
+            OUTPUT_EMAIL in config_item.outputs
             for config_item in config_items.values()
-            for output in config_item.outputs
         ):
             from .. import creme_jobs
             creme_jobs.notification_emails_sender_type.refresh_job()
