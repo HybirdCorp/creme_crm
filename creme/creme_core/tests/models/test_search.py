@@ -3,8 +3,12 @@ from functools import partial
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
-from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
+    EntityCellRegularField,
+)
 from creme.creme_core.models import (
+    CustomField,
     FakeContact,
     FakeOrganisation,
     FieldsConfig,
@@ -33,22 +37,21 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertIs(sc_item.disabled, False)
 
         cells = [*sc_item.cells]
-        self.assertEqual(2, len(cells))
-
-        fn_cell = cells[0]
-        self.assertIsInstance(fn_cell, EntityCellRegularField)
-        self.assertEqual(FakeContact,     fn_cell.model)
-        self.assertEqual('first_name',    fn_cell.value)
-
-        self.assertEqual('last_name',  cells[1].value)
-
+        self.assertListEqual(
+            [
+                EntityCellRegularField.build(FakeContact, 'first_name'),
+                EntityCellRegularField.build(FakeContact, 'last_name'),
+            ],
+            cells,
+        )
         self.assertListEqual(cells, [*sc_item.refined_cells])
 
         self.assertEqual(
             _('Default search configuration for «{model}»').format(model='Test Contact'),
-            str(sc_item)
+            str(sc_item),
         )
 
+        # ---
         SearchConfigItem.objects.create_if_needed(FakeContact, ['first_name', 'last_name'])
         self.assertEqual(count + 1, SearchConfigItem.objects.count())
 
@@ -98,18 +101,20 @@ class SearchConfigTestCase(CremeTestCase):
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeContact, ['invalid_field', 'first_name'],
         )
-
-        cell = self.get_alone_element(sc_item.cells)
-        self.assertEqual('first_name', cell.value)
+        self.assertListEqual(
+            [EntityCellRegularField.build(FakeContact, 'first_name')],
+            [*sc_item.cells],
+        )
 
     def test_manager_create_if_needed05(self):
-        "Invalid fields : no subfield."
+        "Invalid fields: no subfield."
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeContact, ['last_name__invalid', 'first_name'],
         )
-
-        cell = self.get_alone_element(sc_item.cells)
-        self.assertEqual('first_name', cell.value)
+        self.assertListEqual(
+            [EntityCellRegularField.build(FakeContact, 'first_name')],
+            [*sc_item.cells],
+        )
 
     def test_manager_create_if_needed06(self):
         "Disabled."
@@ -226,6 +231,37 @@ class SearchConfigTestCase(CremeTestCase):
         build_cell = partial(EntityCellRegularField.build, FakeOrganisation)
         self.assertListEqual(
             [build_cell('name'), build_cell('phone')],
+            [*sc_item.cells],
+        )
+
+    def test_cells_property__portable(self):
+        sc_item = SearchConfigItem.objects.create_if_needed(FakeContact, ['last_name'])
+
+        cfield = CustomField.objects.create(
+            name='Size (cm)',
+            field_type=CustomField.INT,
+            content_type=FakeContact,
+        )
+        sc_item.cells = [
+            EntityCellRegularField.build(FakeContact, 'last_name'),
+            EntityCellCustomField(customfield=cfield),
+        ]
+        sc_item.save()
+
+        sc_item = self.refresh(sc_item)
+        self.assertListEqual(
+            [
+                {'type': 'regular_field', 'value': 'last_name'},
+                # {'type': 'custom_field', 'value': str(cfield.id)},
+                {'type': 'custom_field', 'value': str(cfield.uuid)},
+            ],
+            sc_item.json_cells,
+        )
+        self.assertListEqual(
+            [
+                EntityCellRegularField.build(FakeContact, 'last_name'),
+                EntityCellCustomField(customfield=cfield),
+            ],
             [*sc_item.cells],
         )
 
@@ -346,10 +382,11 @@ class SearchConfigTestCase(CremeTestCase):
         create_sci(FakeContact, ['last_name'])
         create_sci(FakeOrganisation, ['name'])
 
-        configs = [
-            *SearchConfigItem.objects
-                             .iter_for_models([FakeContact, FakeOrganisation], user)
-        ]
-        self.assertEqual(2, len(configs))
-        self.assertEqual(FakeContact,      configs[0].content_type.model_class())
-        self.assertEqual(FakeOrganisation, configs[1].content_type.model_class())
+        models = [FakeContact, FakeOrganisation]
+        self.assertListEqual(
+            models,
+            [
+                sci.content_type.model_class()
+                for sci in SearchConfigItem.objects.iter_for_models(models, user)
+            ],
+        )

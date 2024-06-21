@@ -238,7 +238,8 @@ class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
         return self.can_edit(user)
 
     def _dump_cells(self, cells: Iterable[EntityCell]) -> None:
-        self.json_cells = [cell.to_dict() for cell in cells]
+        # self.json_cells = [cell.to_dict() for cell in cells]
+        self.json_cells = [cell.to_dict(portable=True) for cell in cells]
 
     @property
     def cells(self) -> list[EntityCell]:

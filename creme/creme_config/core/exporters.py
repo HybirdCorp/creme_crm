@@ -26,14 +26,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, QuerySet
 
 from creme.creme_core import models
-from creme.creme_core.core import entity_cell
+# from creme.creme_core.core import entity_cell
 from creme.creme_core.core.entity_filter import condition_handler
+# from creme.creme_core.gui.custom_form import (
+#     FieldGroup,
+#     FieldGroupList,
+#     customform_descriptor_registry,
+# )
 from creme.creme_core.gui.bricks import brick_registry
-from creme.creme_core.gui.custom_form import (
-    FieldGroup,
-    FieldGroupList,
-    customform_descriptor_registry,
-)
 
 from .. import constants
 
@@ -44,21 +44,20 @@ def dump_ct(ctype: ContentType) -> str:
     return '.'.join(ctype.natural_key())
 
 
-class CellsExporterMixin:
-    cell_exporters = {
-        # TODO: 'uuid' key instead of 'value' to avoid confusion ??
-        entity_cell.EntityCellCustomField.type_id: lambda cell: {
-            'type': cell.type_id,
-            'value': str(cell.custom_field.uuid),
-        },
-    }
-
-    def dump_cell(self, cell):
-        assert isinstance(cell, entity_cell.EntityCell)
-
-        exporter = self.cell_exporters.get(cell.type_id)
-
-        return cell.to_dict() if exporter is None else exporter(cell)
+# class CellsExporterMixin:
+#     cell_exporters = {
+#         entity_cell.EntityCellCustomField.type_id: lambda cell: {
+#             'type': cell.type_id,
+#             'value': str(cell.custom_field.uuid),
+#         },
+#     }
+#
+#     def dump_cell(self, cell):
+#         assert isinstance(cell, entity_cell.EntityCell)
+#
+#         exporter = self.cell_exporters.get(cell.type_id)
+#
+#         return cell.to_dict() if exporter is None else exporter(cell)
 
 
 class Exporter:
@@ -216,7 +215,8 @@ class UserRoleExporter(Exporter):
 
 
 @EXPORTERS.register(data_id=constants.ID_RTYPE_BRICKS)
-class RelationBrickItemExporter(CellsExporterMixin, Exporter):
+# class RelationBrickItemExporter(CellsExporterMixin, Exporter):
+class RelationBrickItemExporter(Exporter):
     model = models.RelationBrickItem
 
     def dump_instance(self, instance):
@@ -229,8 +229,12 @@ class RelationBrickItemExporter(CellsExporterMixin, Exporter):
 
         ctypes_cells = [*instance.iter_cells()]
         if ctypes_cells:
+            # data['cells'] = [
+            #     [dump_ct(ctype), [*map(self.dump_cell, cells)]]
+            #     for ctype, cells in ctypes_cells
+            # ]
             data['cells'] = [
-                [dump_ct(ctype), [*map(self.dump_cell, cells)]]
+                [dump_ct(ctype), [cell.to_dict(portable=True) for cell in cells]]
                 for ctype, cells in ctypes_cells
             ]
 
@@ -238,7 +242,8 @@ class RelationBrickItemExporter(CellsExporterMixin, Exporter):
 
 
 @EXPORTERS.register(data_id=constants.ID_INSTANCE_BRICKS)
-class InstanceBrickConfigItemExporter(CellsExporterMixin, Exporter):
+# class InstanceBrickConfigItemExporter(CellsExporterMixin, Exporter):
+class InstanceBrickConfigItemExporter(Exporter):
     model = models.InstanceBrickConfigItem
 
     def dump_instance(self, instance):
@@ -253,19 +258,20 @@ class InstanceBrickConfigItemExporter(CellsExporterMixin, Exporter):
 
 
 @EXPORTERS.register(data_id=constants.ID_CUSTOM_BRICKS)
-class CustomBrickConfigItemExporter(CellsExporterMixin, Exporter):
+# class CustomBrickConfigItemExporter(CellsExporterMixin, Exporter):
+class CustomBrickConfigItemExporter(Exporter):
     model = models.CustomBrickConfigItem
 
     def dump_instance(self, instance):
         assert isinstance(instance, models.CustomBrickConfigItem)
 
         return {
-            # 'id':   instance.id,
             'uuid': str(instance.uuid),
             'name': instance.name,
 
             'content_type': dump_ct(instance.content_type),
-            'cells': [*map(self.dump_cell, instance.cells)],
+            # 'cells': [*map(self.dump_cell, instance.cells)],
+            'cells': instance.json_cells,
         }
 
 
@@ -409,7 +415,8 @@ class ButtonMenuItemExporter(Exporter):
 
 
 @EXPORTERS.register(data_id=constants.ID_SEARCH)
-class SearchConfigItemExporter(CellsExporterMixin, Exporter):
+# class SearchConfigItemExporter(CellsExporterMixin, Exporter):
+class SearchConfigItemExporter(Exporter):
     model = models.SearchConfigItem
 
     def dump_instance(self, instance):
@@ -417,7 +424,8 @@ class SearchConfigItemExporter(CellsExporterMixin, Exporter):
 
         data = {
             'ctype': dump_ct(instance.content_type),
-            'cells': [*map(self.dump_cell, instance.cells)],
+            # 'cells': [*map(self.dump_cell, instance.cells)],
+            'cells': instance.json_cells,
         }
 
         role = instance.role
@@ -562,7 +570,8 @@ class CustomFieldExporter(Exporter):
 
 
 @EXPORTERS.register(data_id=constants.ID_HEADER_FILTERS)
-class HeaderFilterExporter(CellsExporterMixin, Exporter):
+# class HeaderFilterExporter(CellsExporterMixin, Exporter):
+class HeaderFilterExporter(Exporter):
     model = models.HeaderFilter
 
     def get_queryset(self):
@@ -575,7 +584,8 @@ class HeaderFilterExporter(CellsExporterMixin, Exporter):
             'id':    instance.id,
             'name':  instance.name,
             'ctype': dump_ct(instance.entity_type),
-            'cells': [*map(self.dump_cell, instance.cells)],
+            # 'cells': [*map(self.dump_cell, instance.cells)],
+            'cells': instance.json_cells,
         }
 
         user = instance.user
@@ -670,36 +680,38 @@ class EntityFilterExporter(Exporter):
 
 
 @EXPORTERS.register(data_id=constants.ID_CUSTOM_FORMS)
-class CustomFormsExporter(CellsExporterMixin, Exporter):
+# class CustomFormsExporter(CellsExporterMixin, Exporter):
+class CustomFormsExporter(Exporter):
     model = models.CustomFormConfigItem
-    cform_registry = customform_descriptor_registry
+    # cform_registry = customform_descriptor_registry
 
-    def dump_group(self, group):
-        return {
-            'name': group.name,
-            'layout': group.layout,
-            'cells': [self.dump_cell(cell) for cell in group.cells],
-        } if isinstance(group, FieldGroup) else group.as_dict()
+    # def dump_group(self, group):
+    #     return {
+    #         'name': group.name,
+    #         'layout': group.layout,
+    #         'cells': [self.dump_cell(cell) for cell in group.cells],
+    #     } if isinstance(group, FieldGroup) else group.as_dict()
 
-    def dump_groups(self, item):
-        descriptor = self.cform_registry.get(item.descriptor_id)
-
-        return [
-            self.dump_group(group)
-            for group in FieldGroupList.from_dicts(
-                model=descriptor.model,
-                data=item.groups_as_dicts(),
-                cell_registry=descriptor.build_cell_registry(),
-                allowed_extra_group_classes=(*descriptor.extra_group_classes,)
-            )
-        ]
+    # def dump_groups(self, item):
+    #     descriptor = self.cform_registry.get(item.descriptor_id)
+    #
+    #     return [
+    #         self.dump_group(group)
+    #         for group in FieldGroupList.from_dicts(
+    #             model=descriptor.model,
+    #             data=item.groups_as_dicts(),
+    #             cell_registry=descriptor.build_cell_registry(),
+    #             allowed_extra_group_classes=(*descriptor.extra_group_classes,)
+    #         )
+    #     ]
 
     def dump_instance(self, instance):
         assert isinstance(instance, models.CustomFormConfigItem)
 
         data = {
             'descriptor': instance.descriptor_id,
-            'groups': self.dump_groups(instance),
+            # 'groups': self.dump_groups(instance),
+            'groups': instance.json_groups,
         }
 
         if instance.superuser:
@@ -711,7 +723,8 @@ class CustomFormsExporter(CellsExporterMixin, Exporter):
 
 
 @EXPORTERS.register(data_id=constants.ID_CHANNELS)
-class NotificationChannelsExporter(CellsExporterMixin, Exporter):
+# class NotificationChannelsExporter(CellsExporterMixin, Exporter):
+class NotificationChannelsExporter(Exporter):
     model = models.NotificationChannel
 
     def get_queryset(self):

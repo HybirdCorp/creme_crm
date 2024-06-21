@@ -122,12 +122,12 @@ class CellProxy:
     # Override this in child classes
     cell_cls: type[entity_cell.EntityCell] = entity_cell.EntityCell
 
-    def __init__(
-            self,
-            container_label: str,
-            model: type[CremeEntity],
-            value: str,
-            validated_data: ValidatedData):
+    def __init__(self,
+                 container_label: str,
+                 model: type[CremeEntity],
+                 value: str,
+                 validated_data: ValidatedData,
+                 ):
         """Constructor.
 
         @param container_label: String used by error messages to identify related
@@ -161,7 +161,7 @@ class CellProxy:
 class CellProxiesRegistry:
     """Registry for CellProxy classes.
 
-    Can be used as a decorator (see __call__() ).
+    Can be used as a decorator (see <__call__()>).
     """
     def __init__(self) -> None:
         self._proxies_classes: dict[str, type[CellProxy]] = {}
@@ -233,8 +233,8 @@ class CellProxyCustomField(CellProxy):
                 ).format(uuid=value, container=self.container_label)
             )
 
-    def build_cell(self):
-        return self.cell_cls(CustomField.objects.get(uuid=self.value))
+    # def build_cell(self):
+    #     return self.cell_cls(CustomField.objects.get(uuid=self.value))
 
 
 @CELL_PROXIES
