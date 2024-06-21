@@ -406,7 +406,7 @@ class AlertForm(CremeModelForm):
                 cell=cell, sign=sign, period=period,
             )
             instance.trigger_offset = {
-                'cell': cell.to_dict(),
+                'cell': cell.to_dict(portable=True),
                 'sign': sign,
                 'period': period.as_dict(),
             }

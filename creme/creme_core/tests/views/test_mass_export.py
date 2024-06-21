@@ -105,7 +105,8 @@ class MassExportViewsTestCase(CremeTestCase):
             EntityCellRelation(model=FakeContact, rtype=rtype_pilots),
             # TODO: EntityCellCustomField
             EntityCellFunctionField.build(
-                model=FakeContact, func_field_name='get_pretty_properties',
+                # model=FakeContact, func_field_name='get_pretty_properties',
+                model=FakeContact, name='get_pretty_properties',
             ),
         ]
         hf = HeaderFilter.objects.create_if_needed(

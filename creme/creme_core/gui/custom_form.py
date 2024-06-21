@@ -292,7 +292,8 @@ class FieldGroup(AbstractFieldGroup):
         return {
             'name': self._name,
             'layout': self._layout,
-            'cells': [cell.to_dict() for cell in self._cells],
+            # 'cells': [cell.to_dict() for cell in self._cells],
+            'cells': [cell.to_dict(portable=True) for cell in self._cells],
         }
 
     @property
