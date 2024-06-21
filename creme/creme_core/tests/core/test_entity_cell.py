@@ -263,6 +263,11 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIs(cell.is_excluded, False)
         self.assertIs(cell.is_multiline, False)
 
+        dict_cell = {'type': 'regular_field', 'value': field_name}
+        self.assertDictEqual(dict_cell, cell.to_dict())
+        self.assertDictEqual(dict_cell, cell.to_dict(portable=False))
+        self.assertDictEqual(dict_cell, cell.to_dict(portable=True))
+
     def test_regular_field_date(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='birthday')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,     cell.listview_css_class)
@@ -356,31 +361,60 @@ class EntityCellTestCase(CremeTestCase):
             content_type=self.contact_ct,
         )
 
-        cell = EntityCellCustomField(customfield)
-        self.assertIsInstance(cell, EntityCellCustomField)
-        self.assertEqual(str(customfield.id),              cell.value)
-        self.assertEqual(name,                             cell.title)
-        self.assertEqual(f'custom_field-{customfield.id}', cell.key)
-        self.assertIs(cell.is_multiline, False)
-        self.assertEqual(settings.CSS_NUMBER_LISTVIEW,         cell.listview_css_class)
-        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
+        cell1 = EntityCellCustomField(customfield)
+        self.assertIsInstance(cell1, EntityCellCustomField)
+        self.assertEqual(str(customfield.id),              cell1.value)
+        self.assertEqual(name,                             cell1.title)
+        self.assertEqual(f'custom_field-{customfield.id}', cell1.key)
+        self.assertIs(cell1.is_multiline, False)
+        self.assertEqual(settings.CSS_NUMBER_LISTVIEW,         cell1.listview_css_class)
+        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell1.header_listview_css_class)
 
-        cell = EntityCellCustomField.build(FakeContact, customfield.id)
-        self.assertIsInstance(cell, EntityCellCustomField)
-        self.assertEqual(str(customfield.id), cell.value)
+        dict_cell_id = {'type': 'custom_field', 'value': str(customfield.id)}
+        self.assertDictEqual(dict_cell_id, cell1.to_dict())
+        self.assertDictEqual(dict_cell_id, cell1.to_dict(portable=False))
+        self.assertDictEqual(
+            {'type': 'custom_field', 'value': str(customfield.uuid)},
+            cell1.to_dict(portable=True),
+        )
 
-        self.assertIsNone(EntityCellCustomField.build(FakeContact, 1000))
+        # --
+        # cell2 = EntityCellCustomField.build(FakeContact, customfield.id)
+        cell2 = EntityCellCustomField.build(FakeContact, str(customfield.id))
+        self.assertIsInstance(cell2, EntityCellCustomField)
+        self.assertEqual(str(customfield.id), cell2.value)
+
+        # self.assertIsNone(EntityCellCustomField.build(FakeContact, 1000))
+        self.assertIsNone(EntityCellCustomField.build(FakeContact, '1000'))
         self.assertIsNone(EntityCellCustomField.build(FakeContact, 'notanint'))
 
         # Render ---
         user = self.get_root_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
-        self.assertEqual('', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
+        self.assertEqual('', cell2.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
 
         customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=152)
         yoko = self.refresh(yoko)  # Reset caches
-        self.assertEqual('152', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
-        self.assertEqual('152', cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
+        self.assertEqual('152', cell2.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
+        self.assertEqual('152', cell2.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
+
+        # Build from portable value ---
+        cell3 = EntityCellCustomField.build(FakeContact, str(customfield.uuid))
+        self.assertIsInstance(cell3, EntityCellCustomField)
+        self.assertEqual(customfield, cell3.custom_field)
+
+        # Build from int (DEPRECATED) ---
+        with self.assertWarnsMessage(
+            expected_warning=DeprecationWarning,
+            expected_message=(
+                'EntityCellCustomField.build() with integer value is deprecated; '
+                'pass a string (ID ou UUID) instead.'
+            )
+        ):
+            cell4 = EntityCellCustomField.build(FakeContact, customfield.id)
+
+        self.assertIsInstance(cell4, EntityCellCustomField)
+        self.assertEqual(str(customfield.id), cell4.value)
 
     def test_customfield_decimal(self):
         customfield = CustomField.objects.create(
@@ -682,6 +716,11 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
 
+        dict_cell = {'type': 'relation', 'value': loved.id}
+        self.assertDictEqual(dict_cell, cell.to_dict())
+        self.assertDictEqual(dict_cell, cell.to_dict(portable=False))
+        self.assertDictEqual(dict_cell, cell.to_dict(portable=True))
+
         # Render ---
         user = self.get_root_user()
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -780,21 +819,29 @@ class EntityCellTestCase(CremeTestCase):
         funfield = function_field_registry.get(FakeContact, name)
         self.assertIsNotNone(funfield)
 
-        cell = EntityCellFunctionField(model=FakeContact, func_field=funfield)
-        self.assertIsInstance(cell, EntityCellFunctionField)
-        self.assertEqual(name,                              cell.value)
-        self.assertEqual(str(funfield.verbose_name),        cell.title)
-        self.assertEqual(f'function_field-{funfield.name}', cell.key)
-        self.assertIs(cell.is_hidden,    False)
-        self.assertIs(cell.is_multiline, True)
-        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
-        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
+        cell1 = EntityCellFunctionField(model=FakeContact, func_field=funfield)
+        self.assertIsInstance(cell1, EntityCellFunctionField)
+        self.assertEqual(name,                              cell1.value)
+        self.assertEqual(str(funfield.verbose_name),        cell1.title)
+        self.assertEqual(f'function_field-{funfield.name}', cell1.key)
+        self.assertIs(cell1.is_hidden,    False)
+        self.assertIs(cell1.is_multiline, True)
+        self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell1.listview_css_class)
+        self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell1.header_listview_css_class)
 
-        cell = EntityCellFunctionField.build(FakeContact, func_field_name=name)
-        self.assertIsInstance(cell, EntityCellFunctionField)
-        self.assertEqual(name, cell.value)
+        dict_cell = {'type': 'function_field', 'value': funfield.name}
+        self.assertDictEqual(dict_cell, cell1.to_dict())
+        self.assertDictEqual(dict_cell, cell1.to_dict(portable=False))
+        self.assertDictEqual(dict_cell, cell1.to_dict(portable=True))
 
-        self.assertIsNone(EntityCellFunctionField.build(FakeContact, func_field_name='invalid'))
+        # ---
+        # cell2 = EntityCellFunctionField.build(FakeContact, func_field_name=name)
+        cell2 = EntityCellFunctionField.build(FakeContact, name=name)
+        self.assertIsInstance(cell2, EntityCellFunctionField)
+        self.assertEqual(name, cell2.value)
+
+        # self.assertIsNone(EntityCellFunctionField.build(FakeContact, func_field_name='invalid'))
+        self.assertIsNone(EntityCellFunctionField.build(FakeContact, name='invalid'))
 
         # Render ---
         user = self.get_root_user()
@@ -812,14 +859,14 @@ class EntityCellTestCase(CremeTestCase):
 
         self.assertEqual(
             f'{ptype2.text}/{ptype1.text}',
-            cell.render(entity=contact, user=user, tag=ViewTag.TEXT_PLAIN),
+            cell2.render(entity=contact, user=user, tag=ViewTag.TEXT_PLAIN),
         )
         self.assertHTMLEqual(
             f'<ul>'
             f' <li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</li>'
             f' <li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</li>'
             f'</ul>',
-            cell.render(entity=contact, user=user, tag=ViewTag.HTML_DETAIL),
+            cell2.render(entity=contact, user=user, tag=ViewTag.HTML_DETAIL),
         )
 
     def test_functionfield02(self):

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -216,7 +216,8 @@ class SearchConfigItem(CremeModel):
     @cells.setter
     def cells(self, cells: Iterable[EntityCell]) -> None:
         self._cells = cells = [cell for cell in cells if cell]
-        self.json_cells = [cell.to_dict() for cell in cells]
+        # self.json_cells = [cell.to_dict() for cell in cells]
+        self.json_cells = [cell.to_dict(portable=True) for cell in cells]
 
     @property
     def refined_cells(self) -> Iterator[EntityCell]:

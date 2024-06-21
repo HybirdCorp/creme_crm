@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-# import warnings
+import warnings
 from collections import defaultdict
 from typing import DefaultDict, Iterable, Sequence
 
@@ -89,6 +89,7 @@ class EntityCell:
     _listview_css_class = None
     _header_listview_css_class = None
 
+    # TODO: keywords only?
     def __init__(self,
                  model: type[Model],
                  value: str = '',
@@ -100,7 +101,7 @@ class EntityCell:
         @param model: Related model.
         @param value: How to access to the instance's data
                (e.g. field's name, custom field's ID...).
-        @param is_hidden: Should the cell be visible ? Notice that a hidden cell
+        @param is_hidden: Should the cell be visible? Notice that a hidden cell
                will be present in the list-views with a style <display: none;>.
         @param is_excluded: Should the cell be totally ignored.
                (e.g. field hidden by configuration).
@@ -154,6 +155,12 @@ class EntityCell:
 
     @classmethod
     def build(cls, model: type[Model], name: str) -> EntityCell | None:
+        """Abstract helper method to build an EntityCell instance.
+
+        @param model: Class inheriting <CremeEntity>.
+        @param name: String containing an ID/UUID/name... (depending on the type of cell).
+        @return: An instance of EntityCell, or None (if an error occurred).
+        """
         raise NotImplementedError
 
     @property
@@ -224,8 +231,27 @@ class EntityCell:
     def title(self) -> str:
         raise NotImplementedError
 
-    def to_dict(self):
-        return {'type': self.type_id, 'value': self.value}
+    # TODO: property?
+    def _portable_value(self) -> str:
+        return self.value
+
+    def to_dict(self, portable=False) -> dict:
+        """Get a JSONifiable dictionary representation of the cell.
+        This dict can be given to <EntityCellsRegistry.build_cell_from_dict()>
+        (see "dict_cell" argument).
+
+        @param portable: If True, the value can be "easily" imported in another DB
+               (Creme will try to use this format for data stored in DB).
+               If False, the data could be local only (but shorter).
+               E.g. for CustomFields, UUID will be used in portable mode,
+               & ID in the other case.
+        @return: A dictionary indicating the type & the value of the cell.
+        """
+        # return {'type': self.type_id, 'value': self.value}
+        return {
+            'type': self.type_id,
+            'value': self._portable_value() if portable else self.value,
+        }
 
 
 class EntityCellsRegistry:
@@ -433,16 +459,22 @@ class EntityCellRegularField(EntityCell):
         )
 
     @classmethod
+    # def build(cls,
+    #           model: type[Model],
+    #           name: str,
+    #           is_hidden: bool = False,
+    #           ):
     def build(cls,
               model: type[Model],
               name: str,
+              *,
               is_hidden: bool = False,
-              ):
-        """ Helper function to build EntityCellRegularField instances.
+              ) -> EntityCellRegularField | None:
+        """Helper method to build an EntityCellRegularField instance.
 
         @param model: Class inheriting <django.db.models.Model>.
         @param name: String representing a 'chain' of fields, e.g. 'book__author__name'.
-        @param is_hidden: Boolean. See EntityCell.is_hidden.
+        @param is_hidden: See EntityCell.is_hidden.
         @return: An instance of EntityCellRegularField, or None (if an error occurred).
         """
         try:
@@ -454,7 +486,7 @@ class EntityCellRegularField(EntityCell):
             )
             return None
 
-        return cls(model, name, field_info, is_hidden)
+        return cls(model=model, name=name, field_info=field_info, is_hidden=is_hidden)
 
     @property
     def field_info(self) -> FieldInfo:
@@ -554,18 +586,51 @@ class EntityCellCustomField(EntityCell):
         self._printers = {}
 
     @classmethod
-    def build(cls,
-              model: type[Model],
-              customfield_id: str,
-              ) -> EntityCellCustomField | None:
+    # def build(cls,
+    #           model: type[Model],
+    #           customfield_id: str,
+    #           ) -> EntityCellCustomField | None:
+    #     try:
+    #         cfield = CustomField.objects.get_for_model(model)[int(customfield_id)]
+    #     except (KeyError, ValueError):
+    #         logger.warning(
+    #             'EntityCellCustomField: custom field id="%s" (on model %s) does not exist',
+    #             customfield_id, model,
+    #         )
+    #         return None
+    #
+    #     return cls(cfield)
+    def build(cls, model: type[Model], name: str) -> EntityCellCustomField | None:
+        """Helper method to build an EntityCellCustomField instance.
+
+        @param model: Class inheriting <CremeEntity>.
+        @param name: String containing the ID, or the UUID, of a CustomField instance.
+        @return: An instance of EntityCellCustomField, or None (if an error occurred).
+        """
+        cfield = None
+        cfields = CustomField.objects.get_for_model(model)
+
         # NB: we prefer use the cache with all model's CustomFields because of
         #     high probability to use several CustomFields in the same request.
-        try:
-            cfield = CustomField.objects.get_for_model(model)[int(customfield_id)]
-        except (KeyError, ValueError):
+        if isinstance(name, int):
+            warnings.warn(
+                'EntityCellCustomField.build() with integer value is deprecated; '
+                'pass a string (ID ou UUID) instead.',
+                DeprecationWarning
+            )
+            cfield = cfields.get(name)
+        elif name.isdigit():
+            cfield = cfields.get(int(name))
+        else:
+            for cf in cfields.values():
+                if str(cf.uuid) == name:
+                    cfield = cf
+                    break
+
+        if cfield is None:
             logger.warning(
-                'EntityCellCustomField: custom field id="%s" (on model %s) does not exist',
-                customfield_id, model,
+                'EntityCellCustomField: custom field (uu)id="%s" (on model %s) does not exist',
+                name, model,
             )
             return None
 
@@ -577,6 +642,9 @@ class EntityCellCustomField(EntityCell):
 
     def _get_field_class(self):
         return type(self._customfield.value_class._meta.get_field('value'))
+
+    def _portable_value(self):
+        return str(self._customfield.uuid)
 
     def render(self, entity, user, tag):
         printer = self._printers.get(tag)
@@ -651,14 +719,23 @@ class EntityCellFunctionField(EntityCell):
     @classmethod
     def build(cls,
               model: type[Model],
-              func_field_name: str,
+              # func_field_name: str,
+              name: str,
               ) -> EntityCellFunctionField | None:
-        func_field = cls.field_registry.get(model, func_field_name)
+        """Helper method to build an EntityCellFunctionField instance.
+
+        @param model: Class inheriting <CremeEntity>.
+        @param name: Name of a FunctionField class (i.e. string used to register it).
+        @return: An instance of EntityCellFunctionField, or None (if an error occurred).
+        """
+        # func_field = cls.field_registry.get(model, func_field_name)
+        func_field = cls.field_registry.get(model=model, name=name)
 
         if func_field is None:
             logger.warning(
                 'EntityCellFunctionField: function field "%s" does not exist',
-                func_field_name,
+                # func_field_name,
+                name,
             )
             return None
 
@@ -707,17 +784,40 @@ class EntityCellRelation(EntityCell):
         )
 
     @classmethod
+    # def build(cls,
+    #           model: type[Model],
+    #           rtype_id: str,
+    #           is_hidden: bool = False,
+    #           ) -> EntityCellRelation | None:
+    #     try:
+    #         rtype = RelationType.objects.get(pk=rtype_id)
+    #     except RelationType.DoesNotExist:
+    #         logger.warning(
+    #             'EntityCellRelation: relation type "%s" does not exist',
+    #             rtype_id,
+    #         )
+    #         return None
+    #
+    #     return cls(model=model, rtype=rtype, is_hidden=is_hidden)
     def build(cls,
               model: type[Model],
-              rtype_id: str,
+              name: str,
+              *,
               is_hidden: bool = False,
               ) -> EntityCellRelation | None:
+        """Helper method to build an EntityCellRelation instance.
+
+        @param model: Class inheriting <CremeEntity>.
+        @param value: ID of a RelationType instance.
+        @param: hidden: See EntityCell.is_hidden.
+        @return: An instance of EntityCellRelation, or None (if an error occurred).
+        """
         try:
-            rtype = RelationType.objects.get(pk=rtype_id)
+            rtype = RelationType.objects.get(pk=name)
         except RelationType.DoesNotExist:
             logger.warning(
                 'EntityCellRelation: relation type "%s" does not exist',
-                rtype_id,
+                name,
             )
             return None
 

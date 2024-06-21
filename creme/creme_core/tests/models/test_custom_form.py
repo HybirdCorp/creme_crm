@@ -119,7 +119,8 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
                 }, {
                     'name': group_name2,
                     'layout': LAYOUT_DUAL_SECOND,
-                    'cells': [{'type': 'custom_field', 'value': str(customfield.id)}],
+                    # 'cells': [{'type': 'custom_field', 'value': str(customfield.id)}],
+                    'cells': [{'type': 'custom_field', 'value': str(customfield.uuid)}],
                 },
             ],
             cfci.groups_as_dicts(),
@@ -443,12 +444,19 @@ class CustomFormConfigItemTestCase(CremeTestCase):
     def test_json(self):
         cfci = CustomFormConfigItem()
 
+        model = FakeContact
+        cfield = CustomField.objects.create(
+            name='Size (cm)',
+            field_type=CustomField.INT,
+            content_type=model,
+        )
+
         group_name1 = 'Main'
         group_name2 = 'Details'
-        build_cell = partial(EntityCellRegularField.build, model=FakeContact)
+        build_cell = partial(EntityCellRegularField.build, model=model)
         cfci.store_groups(
             FieldGroupList(
-                model=FakeContact,
+                model=model,
                 cell_registry=base_cell_registry,
                 groups=[
                     FieldGroup(
@@ -464,6 +472,7 @@ class CustomFormConfigItemTestCase(CremeTestCase):
                         cells=(
                             build_cell(name='first_name'),
                             build_cell(name='last_name'),
+                            EntityCellCustomField(customfield=cfield),
                         ),
                     ),
                 ]
@@ -485,6 +494,8 @@ class CustomFormConfigItemTestCase(CremeTestCase):
                     'cells': [
                         {'type': 'regular_field', 'value': 'first_name'},
                         {'type': 'regular_field', 'value': 'last_name'},
+                        # {'type': 'custom_field', 'value': str(cfield.id)},
+                        {'type': 'custom_field', 'value': str(cfield.uuid)},
                     ],
                 },
             ],
