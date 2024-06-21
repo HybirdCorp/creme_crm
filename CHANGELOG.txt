@@ -26,6 +26,8 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
+            - The method 'creme_core.core.entity_cell.EntityCellCustomField.build()' with integer "value" is deprecated;
+              pass a string (ID ou UUID) instead.
             - The method 'creme_core.models.creme_property.CremePropertyTypeManager.smart_update_or_create() is deprecated;
               use the classical methods 'create()' or 'update_or_create()' instead.
               Notice: if you still want to set the field "subject_ctypes" from models like before,
@@ -75,6 +77,12 @@
                 * Emails :
                     - The function 'utils.get_mime_image()' has been removed.
                     - In the constructor of 'utils.SignatureRenderer' the argument "domain" is now required.
+        # The format used to store 'EntityCells' in JSON has slightly changed (si in custom Brick configuration, global search configuration...).
+          When the cell is related to a 'CustomField', the key "value" contains now the UUID, not the ID anymore.
+          You won't be impacted unless you read the JSON directly (why would you do this bro?).
+        # In 'creme_core.core.entity_cell', in the methods 'EntityCell*.build()' :
+            - The second argument is now always named "name" (e.g. it was named "customfield_id" in 'EntityCellCustomField.build()').
+            - The extra arguments are now keyword only (.e.g. 'EntityCellRegularField' & "is_hidden").
         # Apps :
             * Activities :
                 - Some small changes have been made in the class 'views.buttons.UnsuccessfulPhoneCallCreation'.
@@ -84,6 +92,9 @@
     (they should not cause problem if you have not deeply modified the source code of Creme)
 
         # The method 'creme_core.models.CremeModel._delete_stored_file()' is not static anymore.
+        # Apps :
+            * Creme_config :
+                - In 'core.exporters', the class 'CellsExporterMixin' has been removed.
 
 
 == Version 2.6 ==

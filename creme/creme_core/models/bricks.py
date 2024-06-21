@@ -518,8 +518,12 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
         return f'{self._brick_id_prefix}-{self.uuid}'
 
     def _dump_cells_map(self):
+        # self.json_cells_map = {
+        #     ct_id: [cell.to_dict() for cell in cells]
+        #     for ct_id, cells in self._cells_map.items()
+        # }
         self.json_cells_map = {
-            ct_id: [cell.to_dict() for cell in cells]
+            ct_id: [cell.to_dict(portable=True) for cell in cells]
             for ct_id, cells in self._cells_map.items()
         }
 
@@ -698,7 +702,8 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
     def _dump_cells(self, cells: Iterable[EntityCell]) -> None:
         # TODO: custom encoder instead?
-        self.json_cells = [cell.to_dict() for cell in cells]
+        # self.json_cells = [cell.to_dict() for cell in cells]
+        self.json_cells = [cell.to_dict(portable=True) for cell in cells]
 
     # TODO: factorise with HeaderFilter.cells
     @property

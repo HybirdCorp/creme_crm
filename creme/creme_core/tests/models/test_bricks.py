@@ -13,6 +13,7 @@ from creme.creme_core.bricks import (
     RelationsBrick,
 )
 from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
     EntityCellFunctionField,
     EntityCellRegularField,
 )
@@ -24,6 +25,7 @@ from creme.creme_core.models import (
     BrickState,
     CremeEntity,
     CustomBrickConfigItem,
+    CustomField,
     FakeContact,
     FakeImage,
     FakeOrganisation,
@@ -548,11 +550,18 @@ class BrickTestCase(CremeTestCase):
             ('test-object_loved',  'is loved by'),
         )[0]
 
+        cfield = CustomField.objects.create(
+            name='Size (cm)',
+            field_type=CustomField.INT,
+            content_type=FakeContact,
+        )
+
         rbi = RelationBrickItem.objects.create(relation_type=rtype)
         self.assertIsInstance(rbi, RelationBrickItem)
         self.assertIsNotNone(rbi.pk)
         self.assertIsInstance(rbi.uuid, UUID)
         self.assertEqual(rtype.id, rbi.relation_type_id)
+        self.assertDictEqual({}, rbi.json_cells_map)
 
         brick_id = f'rtype-{rbi.uuid}'
         self.assertEqual(brick_id, rbi.brick_id)
@@ -573,27 +582,44 @@ class BrickTestCase(CremeTestCase):
             [
                 EntityCellRegularField.build(FakeContact, 'last_name'),
                 EntityCellFunctionField.build(FakeContact, 'get_pretty_properties'),
+                EntityCellCustomField(customfield=cfield),
             ],
         )
         rbi.set_cells(ct_orga, [EntityCellRegularField.build(FakeOrganisation, 'name')])
         rbi.save()
+        self.assertDictEqual(
+            {
+                # ct_contact.id: [
+                #     {'type': 'regular_field', 'value': 'last_name'},
+                #     {'type': 'function_field', 'value': 'get_pretty_properties'},
+                #     {'type': 'custom_field', 'value': str(cfield.id)},
+                # ],
+                # ct_orga.id: [{'type': 'regular_field', 'value': 'name'}],
+                ct_contact.id: [
+                    {'type': 'regular_field', 'value': 'last_name'},
+                    {'type': 'function_field', 'value': 'get_pretty_properties'},
+                    {'type': 'custom_field', 'value': str(cfield.uuid)},
+                ],
+                ct_orga.id: [{'type': 'regular_field', 'value': 'name'}],
+            },
+            rbi.json_cells_map,
+        )
 
         rbi = self.refresh(rbi)  # Test persistence
         self.assertIsNone(rbi.get_cells(ct_img))
         self.assertIs(rbi.all_ctypes_configured, False)
-
-        cells_contact = rbi.get_cells(ct_contact)
-        self.assertEqual(2, len(cells_contact))
-
-        cell_contact = cells_contact[0]
-        self.assertIsInstance(cell_contact, EntityCellRegularField)
-        self.assertEqual('last_name', cell_contact.value)
-
-        cell_contact = cells_contact[1]
-        self.assertIsInstance(cell_contact, EntityCellFunctionField)
-        self.assertEqual('get_pretty_properties', cell_contact.value)
-
-        self.assertEqual(1, len(rbi.get_cells(ct_orga)))
+        self.assertListEqual(
+            [
+                EntityCellRegularField.build(FakeContact, 'last_name'),
+                EntityCellFunctionField.build(FakeContact, 'get_pretty_properties'),
+                EntityCellCustomField(customfield=cfield),
+            ],
+            rbi.get_cells(ct_contact),
+        )
+        self.assertListEqual(
+            [EntityCellRegularField.build(FakeOrganisation, 'name')],
+            rbi.get_cells(ct_orga),
+        )
 
     def test_relation_brick02(self):
         "All ctypes configured + Relation instance."
@@ -767,15 +793,37 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(0, count)
 
     def test_custom_brick(self):
+        model = FakeOrganisation
+        fname = 'name'
+        cfield = CustomField.objects.create(
+            name='Size (cm)',
+            field_type=CustomField.INT,
+            content_type=model,
+        )
         cbci = CustomBrickConfigItem.objects.create(
-            name='General', content_type=FakeOrganisation,
-            cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
+            name='General', content_type=model,
+            cells=[
+                EntityCellRegularField.build(model, fname),
+                EntityCellCustomField(customfield=cfield),
+            ],
         )
         self.assertEqual(f'custom-{cbci.uuid}', cbci.brick_id)
+        self.assertEqual(
+            [
+                {'type': 'regular_field', 'value': fname},
+                # {'type': 'custom_field', 'value': str(cfield.id)},
+                {'type': 'custom_field', 'value': str(cfield.uuid)},
+            ],
+            cbci.json_cells,
+        )
 
-        cell = self.get_alone_element(self.refresh(cbci).cells)
-        self.assertIsInstance(cell, EntityCellRegularField)
-        self.assertEqual('name', cell.value)
+        self.assertListEqual(
+            [
+                EntityCellRegularField.build(model, fname),
+                EntityCellCustomField(customfield=cfield),
+            ],
+            self.refresh(cbci).cells,
+        )
 
     def test_custom_brick_errors01(self):
         cbci = CustomBrickConfigItem.objects.create(

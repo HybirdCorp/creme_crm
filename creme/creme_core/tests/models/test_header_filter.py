@@ -5,11 +5,13 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.constants import REL_SUB_HAS
 from creme.creme_core.core.entity_cell import (
+    EntityCellCustomField,
     EntityCellFunctionField,
     EntityCellRegularField,
     EntityCellRelation,
 )
 from creme.creme_core.models import (
+    CustomField,
     FakeCivility,
     FakeContact,
     FakeOrganisation,
@@ -90,7 +92,8 @@ class HeaderFiltersTestCase(CremeTestCase):
             cells_desc=[
                 (EntityCellRegularField, {'name': 'last_name'}),
                 EntityCellRelation(model=FakeContact, rtype=loves),
-                (EntityCellRelation, {'rtype_id': likes.id}),
+                # (EntityCellRelation, {'rtype_id': likes.id}),
+                (EntityCellRelation, {'name': likes.id}),
                 None,
             ],
             extra_data=extra_data,
@@ -214,19 +217,55 @@ class HeaderFiltersTestCase(CremeTestCase):
             hf.entity_type  # NOQA
 
     def test_cells_property01(self):
-        build_cell = partial(EntityCellRegularField.build, model=FakeContact)
-        cells = [build_cell(name=fn) for fn in ('first_name', 'last_name')]
+        model = FakeContact
+        fname1 = 'last_name'
+        cfield = CustomField.objects.create(
+            name='Size (cm)',
+            field_type=CustomField.INT,
+            content_type=model,
+        )
+
+        build_rcell = partial(EntityCellRegularField.build, model=model)
+        cells = [
+            build_rcell(name=fname1),
+            EntityCellCustomField(customfield=cfield),
+        ]
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf01', name='Contact view', model=FakeContact,
             cells_desc=cells,
         )
+        self.assertListEqual(
+            [
+                {'type': 'regular_field', 'value': fname1},
+                # {'type': 'custom_field', 'value': str(cfield.id)},
+                {'type': 'custom_field', 'value': str(cfield.uuid)},
+            ],
+            hf.json_cells,
+        )
 
-        cells.append(build_cell(name='description'))
+        # ---
+        fname2 = 'description'
+        cells.append(build_rcell(name=fname2))
         hf.cells = cells
         hf.save()
+
+        hf = self.refresh(hf)
+        self.assertEqual(
+            [
+                {'type': 'regular_field', 'value': fname1},
+                # {'type': 'custom_field', 'value': str(cfield.id)},
+                {'type': 'custom_field', 'value': str(cfield.uuid)},
+                {'type': 'regular_field', 'value': fname2},
+            ],
+            hf.json_cells,
+        )
         self.assertListEqual(
-            [build_cell(name=fn) for fn in ('first_name', 'last_name', 'description')],
-            self.refresh(hf).cells,
+            [
+                build_rcell(name=fname1),
+                EntityCellCustomField(customfield=cfield),
+                build_rcell(name=fname2),
+            ],
+            hf.cells,
         )
 
     def test_cells_property02(self):
@@ -255,7 +294,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         hf = HeaderFilter.objects.create_if_needed(
             pk='test-hf', name='Contact view', model=FakeContact,
             cells_desc=[
-                (EntityCellFunctionField, {'func_field_name': ffield_name}),
+                # (EntityCellFunctionField, {'func_field_name': ffield_name}),
+                (EntityCellFunctionField, {'name': ffield_name}),
                 (EntityCellRegularField,  {'name': rfield_name}),
             ],
         )

@@ -789,14 +789,15 @@ class ListViewTestCase(CremeTestCase):
             cells_desc=[
                 (EntityCellRegularField, {'name': 'name'}),
                 (EntityCellRegularField, {'name': fname}),
-                (EntityCellFunctionField, {'func_field_name': func_field_name}),
+                # (EntityCellFunctionField, {'func_field_name': func_field_name}),
+                (EntityCellFunctionField, {'name': func_field_name}),
             ],
         )
 
         url = FakeEmailCampaign.get_lv_absolute_url()
         # We just check that it does not crash
-        self.assertPOST200(url, data={'sort_key': 'regular_field-' + fname})
-        self.assertPOST200(url, data={'sort_key': 'function_field-' + func_field_name})
+        self.assertPOST200(url, data={'sort_key': f'regular_field-{fname}'})
+        self.assertPOST200(url, data={'sort_key': f'function_field-{func_field_name}'})
 
     @override_settings(FAST_QUERY_MODE_THRESHOLD=100000)
     def test_ordering_regularfield_fastmode(self):

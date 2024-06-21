@@ -341,6 +341,11 @@ class ExportingTestCase(TransferBaseTestCase):
         self.login_as_super(is_staff=True)
         get_ct = ContentType.objects.get_for_model
 
+        cfield = CustomField.objects.create(
+            content_type=ContentType.objects.get_for_model(FakeContact),
+            name='Rating', field_type=CustomField.INT,
+        )
+
         create_rtype = RelationType.objects.smart_update_or_create
         rtype01 = create_rtype(
             ('test-subfoo', 'subject_predicate01'),
@@ -360,6 +365,7 @@ class ExportingTestCase(TransferBaseTestCase):
             [
                 EntityCellRegularField.build(FakeContact, 'first_name'),
                 EntityCellRegularField.build(FakeContact, 'last_name'),
+                EntityCellCustomField(customfield=cfield),
             ],
         ).set_cells(
             get_ct(FakeOrganisation),
@@ -414,6 +420,8 @@ class ExportingTestCase(TransferBaseTestCase):
             [
                 {'type': 'regular_field', 'value': 'first_name'},
                 {'type': 'regular_field', 'value': 'last_name'},
+                # {'type': 'custom_field', 'value': str(cfield.id)},
+                {'type': 'custom_field', 'value': str(cfield.uuid)},
             ],
             find_cells_for_naturalkey('creme_core.fakecontact'),
         )
