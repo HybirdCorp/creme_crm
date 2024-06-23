@@ -2,11 +2,15 @@
 
     TODO: compile .po (creme_config)
 
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
   Users side :
   ------------
     # Images with an extension in uppercase (e.g. "my_pic.JPG") are correctly displayed now.
     # A scary log with fast pagination has been removed.
     # The setting SOFTWARE_LABEL in now used for the title of the login page.
+    # A warning in the JavaScript console about Select2 & its locale has been removed.
 
   Developers side :
   -----------------
