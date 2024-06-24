@@ -108,8 +108,8 @@ class AddUnsuccessfulPhoneCallButton(AddRelatedActivityButton):
     permissions = build_creation_perm(Activity)
     description = _(
         'This button creates a short phone call (kind of activity) which was '
-        'not successful (in order to keep an history).\n'
-        'The current contact participates to the created call, & you too.\n'
+        'not successful (in order to keep a history).\n'
+        'The current contact participates in the created call, & you too.\n'
         'The fields values can be set in the configuration of «Activities».\n'
         'App: Activities'
     )
