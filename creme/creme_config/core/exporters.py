@@ -758,7 +758,7 @@ class CustomFormsExporter(CellsExporterMixin, Exporter):
 
 
 @EXPORTERS.register(data_id=constants.ID_CHANNELS)
-class NotificationChannelsExporter(CellsExporterMixin, Exporter):
+class NotificationChannelsExporter(Exporter):
     model = models.NotificationChannel
 
     def get_queryset(self):
