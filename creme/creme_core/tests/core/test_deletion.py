@@ -1,12 +1,24 @@
+from functools import partial
+
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
+from django.db.models import ProtectedError
+from django.test.utils import override_settings
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.creme_core.core.deletion import (
     REPLACERS_MAP,
+    EntityDeletor,
+    EntityDeletorRegistry,
     FixedValueReplacer,
     SETReplacer,
+    entity_deletor_registry,
 )
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
     FakeCivility,
     FakeContact,
     FakeDocument,
@@ -15,9 +27,12 @@ from creme.creme_core.models import (
     FakeSector,
     FakeTicket,
     FakeTicketPriority,
+    Relation,
+    RelationType,
 )
 
 from ..base import CremeTestCase
+from ..fake_models import FakeInvoice, FakeInvoiceLine
 
 
 class DeletionTestCase(CremeTestCase):
@@ -217,3 +232,209 @@ class DeletionTestCase(CremeTestCase):
         d_replacer = replacers[0]
         self.assertIsInstance(d_replacer, SETReplacer)
         self.assertEqual(field, d_replacer.model_field)
+
+
+@override_settings(ENTITIES_DELETION_ALLOWED=True)
+class EntityDeletionTestCase(CremeTestCase):
+    def test_basic(self):
+        registry = EntityDeletorRegistry()
+        self.assertIsNone(registry.get(FakeOrganisation))
+
+        registry.register(FakeOrganisation)
+        deletor = registry.get(FakeOrganisation)
+        self.assertIsInstance(deletor, EntityDeletor)
+
+        root = self.get_root_user()
+        orga = FakeOrganisation.objects.create(user=root, name='Olympus')
+        self.assertIsNone(deletor.check_permissions(user=root, entity=orga))
+
+        # ---
+        role1 = self.create_role(name='Can delete own', allowed_apps=['creme_core'])
+        self.add_credentials(role1, all=['DELETE'])
+
+        basic_user = self.create_user(index=0, role=role1)
+        self.assertTrue(basic_user.has_perm_to_delete(orga))
+        with self.assertNoException():
+            deletor.check_permissions(user=basic_user, entity=orga)
+
+        # ---
+        role2 = self.create_role(name='Cannot delete', allowed_apps=['creme_core'])
+        self.add_credentials(role2, all='!DELETE', own='*')
+
+        forbidden_user = self.create_user(index=1, role=role2)
+        self.assertTrue(forbidden_user.has_perm_to_change(orga))
+        self.assertFalse(forbidden_user.has_perm_to_delete(orga))
+
+        with self.assertRaises(PermissionDenied) as cm:
+            deletor.check_permissions(user=forbidden_user, entity=orga)
+        self.assertEqual(
+            _('You are not allowed to delete this entity by your role'),
+            str(cm.exception),
+        )
+
+        # ---
+        deletor.perform(user=root, entity=orga)
+        orga = self.assertStillExists(orga)
+        self.assertTrue(orga.is_deleted)
+
+        deletor.perform(user=root, entity=orga)
+        self.assertDoesNotExist(orga)
+
+    def test_register_deletor(self):
+        class FakeDeletor(EntityDeletor):
+            pass
+
+        registry = EntityDeletorRegistry().register(
+            FakeOrganisation, deletor_class=FakeDeletor,
+        ).register(FakeContact)
+
+        orga_deletor = registry.get(FakeOrganisation)
+        self.assertIsInstance(orga_deletor, FakeDeletor)
+
+        contact_deletor = registry.get(FakeContact)
+        self.assertIsInstance(contact_deletor, EntityDeletor)
+        self.assertNotIsInstance(contact_deletor, FakeDeletor)
+
+        # ---
+        with self.assertRaises(registry.RegistrationError):
+            registry.register(FakeContact, deletor_class=FakeDeletor)
+
+    def test_unregister(self):
+        class FakeDeletor(EntityDeletor):
+            pass
+
+        registry = EntityDeletorRegistry().register(
+            FakeOrganisation, deletor_class=FakeDeletor,
+        ).register(FakeContact)
+
+        with self.assertNoException():
+            registry.unregister(FakeOrganisation)
+
+        self.assertIsNone(registry.get(FakeOrganisation))
+        self.assertIsNotNone(registry.get(FakeContact))
+
+        # ---
+        with self.assertRaises(registry.UnRegistrationError):
+            registry.unregister(FakeOrganisation)
+
+    @override_settings(ENTITIES_DELETION_ALLOWED=False)
+    def test_deletion_not_allowed(self):
+        registry = EntityDeletorRegistry().register(FakeOrganisation)
+        deletor = registry.get(FakeOrganisation)
+
+        root = self.get_root_user()
+        orga = FakeOrganisation.objects.create(user=root, name='Olympus')
+
+        with self.assertNoException():
+            deletor.check_permissions(user=root, entity=orga)
+
+        deletor.perform(user=root, entity=orga)
+        orga = self.assertStillExists(orga)
+        self.assertTrue(orga.is_deleted)
+
+        # ---
+        with self.assertRaises(ConflictError) as cm:
+            deletor.check_permissions(user=root, entity=orga)
+        self.assertEqual(
+            _('Deletion has been disabled by your administrator'),
+            str(cm.exception),
+        )
+
+        # ---
+        staff_user = self.create_user(is_staff=True)
+        with self.assertNoException():
+            deletor.check_permissions(user=staff_user, entity=orga)
+
+    def test_dependencies(self):
+        "Relations (not internal ones) & properties are deleted correctly."
+        user = self.get_root_user()
+        deletor = EntityDeletor()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        entity1 = create_orga(name='Nerv', is_deleted=True)
+        entity2 = create_orga(name='Seele')
+        entity3 = create_orga(name='Neo tokyo')
+
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1 = create_rtype(
+            ('test-subject_linked', 'is linked to'),
+            ('test-object_linked',  'is linked to'),
+            is_custom=True,
+        )[0]
+        rtype2 = create_rtype(
+            ('test-subject_provides', 'provides'),
+            ('test-object_provides',  'provided by'),
+            is_custom=False,
+        )[0]
+        create_rel = partial(Relation.objects.create, user=user, subject_entity=entity1)
+        rel1 = create_rel(type=rtype1, object_entity=entity2)
+        rel2 = create_rel(type=rtype2, object_entity=entity3)
+        rel3 = create_rel(type=rtype2, object_entity=entity3, subject_entity=entity2)
+
+        ptype = CremePropertyType.objects.create(text='has eva')
+        create_prop = partial(CremeProperty.objects.create, type=ptype)
+        prop1 = create_prop(creme_entity=entity1)
+        prop2 = create_prop(creme_entity=entity2)
+
+        deletor.perform(user=user, entity=entity1)
+        self.assertDoesNotExist(entity1)
+        self.assertStillExists(entity2)
+        self.assertStillExists(entity3)
+
+        self.assertDoesNotExist(rel1)
+        self.assertDoesNotExist(rel2)
+        self.assertStillExists(rel3)
+
+        self.assertDoesNotExist(prop1)
+        self.assertStillExists(prop2)
+
+    def test_dependencies__error(self):
+        "Dependencies problem (with internal Relations)."
+        user = self.get_root_user()
+        deletor = EntityDeletor()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        entity1 = create_orga(name='Nerv', is_deleted=True)
+        entity2 = create_orga(name='Seele')
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_daughter', 'is a daughter of'),
+            ('test-object_daughter',  'has a daughter'),
+            is_internal=True,
+        )[0]
+        rel = Relation.objects.create(
+            user=user, type=rtype, subject_entity=entity1, object_entity=entity2,
+        )
+
+        with self.assertRaises(ProtectedError) as cm:
+            deletor.perform(user=user, entity=entity1)
+
+        self.assertStillExists(entity1)
+        self.assertStillExists(entity2)
+
+        exc_args = cm.exception.args
+        self.assertIsTuple(exc_args, length=2)
+        self.assertIsInstance(exc_args[0], str)
+        self.assertSetEqual({rel, rel.symmetric_relation}, exc_args[1])
+
+    @parameterized.expand([True, False])
+    def test_delete_entity_auxiliary(self, deletion_allowed):
+        deletor = EntityDeletor()
+
+        user = self.get_root_user()
+        invoice = FakeInvoice.objects.create(user=user, name='Invoice#1')
+        line = FakeInvoiceLine.objects.create(user=user, linked_invoice=invoice)
+
+        with override_settings(ENTITIES_DELETION_ALLOWED=deletion_allowed):
+            with self.assertNoException():
+                deletor.check_permissions(user=user, entity=line)
+
+            deletor.perform(user=user, entity=line)
+
+        self.assertDoesNotExist(line)
+        self.assertStillExists(invoice)
+
+    def test_global_registry(self):
+        self.assertIsInstance(entity_deletor_registry, EntityDeletorRegistry)
+        self.assertIsNotNone(entity_deletor_registry.get(FakeContact))
+        self.assertIsNotNone(entity_deletor_registry.get(FakeOrganisation))

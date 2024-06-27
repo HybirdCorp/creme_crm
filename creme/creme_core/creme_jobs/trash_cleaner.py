@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2022  Hybird
+#    Copyright (C) 2020-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 import logging
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.db.models import F, ProtectedError
 from django.db.transaction import atomic
 from django.db.utils import NotSupportedError
@@ -27,6 +28,8 @@ from django.utils.translation import gettext_lazy, ngettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 
+from ..core.deletion import entity_deletor_registry
+from ..core.exceptions import ConflictError
 from ..core.paginator import FlowPaginator
 from ..models import CremeEntity, EntityJobResult, TrashCleaningCommand
 from .base import JobProgress, JobType
@@ -37,6 +40,8 @@ logger = logging.getLogger(__name__)
 class _TrashCleanerType(JobType):
     id = JobType.generate_id('creme_core', 'trash_cleaner')
     verbose_name = gettext_lazy('Trash cleaner')
+
+    deletor_registry = entity_deletor_registry
 
     def _execute(self, job):
         # NB 1: we try to delete the remaining entities (which could not be deleted
@@ -114,8 +119,26 @@ class _TrashCleanerType(JobType):
                         for entity in entity_class.objects.filter(
                             pk__in=entities_page.object_list
                         ).select_for_update():
+                            deletor = self.deletor = self.deletor_registry.get(model=type(entity))
+                            if deletor is None:
+                                create_error(
+                                    entity,
+                                    _(
+                                        'This type of entity does not use the '
+                                        'generic deletion way.'
+                                    ),
+                                )
+                                continue
+
                             try:
-                                entity.delete()
+                                deletor.check_permissions(user=user, entity=entity)
+                            except (PermissionDenied, ConflictError) as e:
+                                create_error(entity, e.args[0])
+                                continue
+
+                            try:
+                                # entity.delete()
+                                deletor.perform(entity=entity, user=user)
                             except ProtectedError:
                                 create_error(
                                     entity,

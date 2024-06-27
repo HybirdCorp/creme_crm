@@ -165,10 +165,8 @@ class AbstractTicketTemplate(TicketMixin):
     def get_edit_absolute_url(self):
         return reverse('tickets__edit_template', args=(self.id,))
 
-    def get_delete_absolute_url(self):
-        # Means that TicketTemplates can not be deleted directly
-        # (because they are closely linked to their RecurrentGenerator)
-        return ''
+    # def get_delete_absolute_url(self):
+    #     return ''
 
     @staticmethod
     def get_lv_absolute_url():

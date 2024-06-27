@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/base.html' %}
 {% load i18n creme_bricks creme_ctype creme_perms creme_widgets %}
-{% load url from creme_core_tags %}
+{% load get_deletion_info url from creme_core_tags %}
 
 {% block brick_extra_class %}brick-hat brick-hat-card{% endblock %}
 
@@ -85,48 +85,65 @@
         </div>
         <div class='hat-card-sidebar{% if not object.entity_type|ctype_can_be_merged %} hat-card-sidebar-narrow{% endif %}'>
             <div class='card-actions'>
-            {% block card_buttons %}
-              {% with edit_perm=user|has_perm_to_change:object delete_perm=user|has_perm_to_delete:object %}
-                {% if not object.is_deleted %}
-                  {% with edit_url=object.get_edit_absolute_url %}
-                    {% if edit_url %}
-                    <div class='card-action'>
-                      {% brick_card_button action='redirect' icon='edit' label=_('Edit') url=edit_url enabled=edit_perm comeback=True %}
-                    </div>
-                    {% endif %}
-                  {% endwith %}
+             {% block card_buttons %}
 
-                  {% with delete_url=object.get_delete_absolute_url %}
-                   {% if delete_url %}
-                    <div class='card-action'>{% brick_card_button action='creme_core-detailview-delete' label=_('Delete') url=delete_url icon='delete' confirm=_('Do you really want to send this entity to the trash?') enabled=delete_perm %}</div>
-                   {% endif %}
-                  {% endwith %}
+               {% block edit_button %}
+                {% with edit_url=object.get_edit_absolute_url %}
+                 {% if edit_url and not object.is_deleted %}
+                  <div class='card-action'>
+                      {% brick_card_button action='redirect' icon='edit' label=_('Edit') url=edit_url enabled=user|has_perm_to_change:object comeback=True %}
+                  </div>
+                 {% endif %}
+                {% endwith %}
+               {% endblock %}
 
-                  {% with clone_url=object.get_clone_absolute_url %}
-                   {% if clone_url %}
-                    <div class='card-action'>{% brick_card_button action='creme_core-detailview-clone' label=_('Clone') url=clone_url icon='clone' __id=object.id confirm=_('Do you really want to clone this entity?') enabled=user|has_perm_to_create:object.entity_type %}</div>
-                   {% endif %}
-                  {% endwith %}
+               {% block clone_button %}
+                {% with clone_url=object.get_clone_absolute_url %}
+                 {% if clone_url and not object.is_deleted %}
+                  <div class='card-action'>
+                      {% brick_card_button action='creme_core-detailview-clone' label=_('Clone') url=clone_url icon='clone' __id=object.id confirm=_('Do you really want to clone this entity?') enabled=user|has_perm_to_create:object.entity_type %}
+                  </div>
+                 {% endif %}
+                {% endwith %}
+               {% endblock %}
 
-                  {% if object.entity_type|ctype_can_be_merged %}
-                    <div class='card-action'>{% brick_card_button action='creme_core-detailview-merge' label=_('Merge') url='creme_core__merge_entities'|url icon='merge' __id=object.id __selection_url='creme_core__select_entity_for_merge'|url enabled=edit_perm %}</div>
-                  {% endif %}
-                {% else %}
-                    <div class='card-action'>{% brick_card_button action='creme_core-detailview-restore' label=_('Restore')            url='creme_core__restore_entity'|url:object.id icon='restore' confirm=_('Do you really want to restore this entity?')           enabled=delete_perm %}</div>
-                    {% if ENTITIES_DELETION_ALLOWED %}
-                    <div class='card-action'>{% brick_card_button action='creme_core-detailview-delete'  label=_('Delete permanently') url=object.get_delete_absolute_url             icon='delete'  confirm=_('Do you really want to delete this entity definitely?') enabled=delete_perm %}</div>
-                    {% endif %}
+               {% block merge_button %}
+                {% if object.entity_type|ctype_can_be_merged and not object.is_deleted %}
+                  <div class='card-action'>
+                      {% brick_card_button action='creme_core-detailview-merge' label=_('Merge') url='creme_core__merge_entities'|url icon='merge' __id=object.id __selection_url='creme_core__select_entity_for_merge'|url enabled=user|has_perm_to_change:object %}
+                  </div>
                 {% endif %}
-              {% endwith %}
-            {% endblock %}
+               {% endblock %}
+
+               {% block restore_button %}
+                {% if object.is_deleted %}
+                  <div class='card-action'>
+                      {% brick_card_button action='creme_core-detailview-restore' label=_('Restore') url='creme_core__restore_entity'|url:object.id icon='restore' confirm=_('Do you really want to restore this entity?') enabled=user|has_perm_to_delete:object %}
+                  </div>
+                {% endif %}
+               {% endblock %}
+
+               {% block delete_button %}
+                 {% get_deletion_info entity=object user=user as deletion %}
+                 {% if deletion.enabled %}
+                  <div class='card-action'>
+                    {% if deletion.error %}
+                      {% brick_card_button action='creme_core-detailview-delete' label=deletion.label help_text=deletion.error url='#' icon='delete' enabled=False %}
+                    {% else %}
+                      {% brick_card_button action='creme_core-detailview-delete' label=deletion.label url=deletion.url icon='delete' confirm=deletion.confirmation enabled=True %}
+                    {% endif %}
+                  </div>
+                 {% endif %}
+               {% endblock %}
+
+             {% endblock %}
             </div>
             {% block card_history %}
-            {% include 'creme_core/bricks/frags/hat-card-history.html' %}
+             {% include 'creme_core/bricks/frags/hat-card-history.html' %}
             {% endblock %}
         </div>
     </div>
 {% endblock %}
-
 
 {% comment %}
 {% block brick_script %}

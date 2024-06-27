@@ -800,8 +800,11 @@ else:
             verbose_name_plural = 'Test Tickets'
             ordering = ('title',)
 
-        def get_delete_absolute_url(self):
-            return ''
+        def __str__(self):
+            return self.title
+
+        # def get_delete_absolute_url(self):
+        #     return ''
 
     # TODO: MinionModel?
     class FakeIngredientGroup(CremeModel):

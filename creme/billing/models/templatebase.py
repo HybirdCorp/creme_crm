@@ -57,10 +57,8 @@ class AbstractTemplateBase(Base):
     def get_edit_absolute_url(self):
         return reverse('billing__edit_template', args=(self.id,))
 
-    def get_delete_absolute_url(self):
-        # Means that TemplateBase can not be deleted directly
-        # (because it is closely linked to its RecurrentGenerator)
-        return ''
+    # def get_delete_absolute_url(self):
+    #     return ''
 
     @staticmethod
     def get_lv_absolute_url():

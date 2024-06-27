@@ -2,6 +2,8 @@
 
   Users side :
   ------------
+    # The deletion buttons have been reworked in detailed views & lis-views;  they are now disabled when a rule
+      avoids you to delete them (e.g. a Contact corresponding to a user) & the reason is displayed as tool-tip.
     # Apps :
         * Creme_config :
             - In the bricks configuration, default configuration is used as initial value when it's relevant
@@ -88,6 +90,17 @@
                 * Emails :
                     - The function 'utils.get_mime_image()' has been removed.
                     - In the constructor of 'utils.SignatureRenderer' the argument "domain" is now required.
+        # The deletion of CremeEntities has been reworked in order to allow the customisation without having to write your own view.
+            - If your model could be deleted in Creme 2.5 with the generic deletion view (i.e. you did not define your own view)
+              you must now register your model in the new registry for deletion. In you "apps.py" :
+                  def register_deletors(self, entity_deletor_registry):
+                    entity_deletor_registry.register(model=MyModel)
+            - If you disabled the deletion with the method 'get_delete_absolute_url()' returning an empty string,
+              you should just remove this method to avoid some warning message.
+            - If you wrote your own deletion view (i.e. your model defines 'get_delete_absolute_url()'), you should
+              probably use the new 'Deletor' system to write your custom rules. You'll have less code to maintain,
+              and your checks will be used to disabled the deletion buttons or by the trash cleaner job.
+              Hint: see the method 'creme.persons.apps.PersonsConfig.register_deletors()' as example.
         # The format used to store 'EntityCells' in JSON has slightly changed (si in custom Brick configuration, global search configuration...).
           When the cell is related to a 'CustomField', the key "value" contains now the UUID, not the ID anymore.
           You won't be impacted unless you read the JSON directly (why would you do this bro?).
@@ -96,6 +109,16 @@
         # In 'creme_core.core.entity_cell', in the methods 'EntityCell*.build()' :
             - The second argument is now always named "name" (e.g. it was named "customfield_id" in 'EntityCellCustomField.build()').
             - The extra arguments are now keyword only (.e.g. 'EntityCellRegularField' & "is_hidden").
+        # In 'creme_core.views' :
+            - The class-view 'entity.EntityRestoration' now just checks the deletion credentials & the attribute "is_deleted".
+            - The mixin 'entity.EntityDeletionMixin' has been heavily reworked :
+                - The method 'delete_entity()' takes a new mandatory argument "deletor".
+                - The methods 'check_entity_for_deletion()' & 'move_to_trash()' have been removed.
+        # In templates :
+            - The buttons parts of the hat bricks have changed in order to manage the new deletion system
+              (good news, some {% block %} have been added) :
+                - "creme_core/bricks/base/hat-card.html"
+                - "creme_core/bricks/generic/hat-bar.html"
         # Apps :
             * Persons :
                 - In the method 'bricks.NextActivitySummary.get_context()', the returned context does not contain "NARROW" anymore.

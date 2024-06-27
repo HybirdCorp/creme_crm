@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CreatorEntityField
 from creme.creme_core.gui import actions
 from creme.creme_core.models import (
@@ -17,6 +18,7 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.documents import constants
 from creme.documents.actions import ExploreFolderAction
 from creme.documents.bricks import ChildFoldersBrick, FolderDocsBrick
+from creme.documents.deletors import FolderDeletor
 from creme.documents.models import FolderCategory
 
 from .base import (
@@ -839,3 +841,22 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         # Swapped
         self.assertEqual(folder1, getattr(form, 'entity1', None))
         self.assertEqual(folder3, getattr(form, 'entity2', None))
+
+    def test_deletor(self):
+        user = self.get_root_user()
+        folder1 = Folder.objects.create(user=user, title='Pix')
+        deletor = FolderDeletor()
+
+        with self.assertNoException():
+            deletor.check_permissions(user=user, entity=folder1)
+
+        # System folder ---
+        folder2 = self.get_object_or_fail(Folder, uuid=constants.UUID_FOLDER_IMAGES)
+
+        with self.assertRaises(ConflictError) as cm:
+            deletor.check_permissions(user=self.get_root_user(), entity=folder2)
+
+        self.assertEqual(
+            _('This folder is a system folder.'),
+            str(cm.exception),
+        )

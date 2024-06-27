@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 13-02-2024 pour la version 2.6 de Creme
+:Version: 02-09-2024 pour la version 2.7 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -591,6 +591,74 @@ Ainsi que la méthode ``get_edit_absolute_url`` : ::
 
         def get_edit_absolute_url(self):
             return reverse('beavers__edit_beaver', args=(self.id,))
+
+
+La vue de suppression
+~~~~~~~~~~~~~~~~~~~~~
+
+Pour le moment, quand vous allez sur la vue détaillée d'un castor, il n'y a pas
+de bouton permettant de le supprimer comme pour les autres types de fiche, comme
+les Contacts par exemple.
+
+En fait, les castors ne peuvent pas encore être supprimés ; dans certain cas
+c'est ce que vous voudrez. Mais en général, vous voudrez avoir la possibilité de
+supprimer des fiches. Modifiez votre fichier ``my_project/beavers/apps.py`` : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_deletors(self, entity_deletor_registry):
+            from .models import Beaver
+
+            entity_deletor_registry.register(model=Beaver)
+
+
+Le bouton de suppression est maintenant apparu sur votre vue détaillée, mais
+aussi la vue en liste.
+
+**Un peu plus loin** : à ce stade la suppression va se comporter comme pour les
+autres types de fiche, et principalement vérifier les droits de suppression de
+l'utilisateur. Dans certains cas vous voudrez personnaliser la suppression,
+notamment ajouter des vérification supplémentaires, empêchant des fiches d'être
+supprimées, ou d'être supprimées par certains utilisateurs.
+
+Créons un fichier ``my_project/beavers/deletors.py`` : ::
+
+    from django.utils.translation import gettext as _
+
+    from creme.creme_core.core.deletion import EntityDeletor
+    from creme.creme_core.core.exceptions import ConflictError
+
+
+    class BeaverDeletor(EntityDeletor):
+        def check_permissions(self, *, user, entity):
+            # On appelle la super-méthode pour être sûr que les vérifications
+            # de base sont faites...
+            super().check_permissions(user=user, entity=entity)
+
+            # ...et là on met des règles en plus.
+            # "entity" est une instance de Beaver
+            # "user" est l'utilisateur qui tente de supprimer
+            if entity.name == 'Betty':
+                raise ConflictError(_('Hey you cannot delete Betty!'))
+
+Il reste à indiquer quel comportement utiliser lors de la suppression d'un
+castor, dans ``my_project/beavers/apps.py`` : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_deletors(self, entity_deletor_registry):
+            from .models import Beaver
+            from . import deletors
+
+            entity_deletor_registry.register(
+                model=Beaver, deletor_class=deletors.BeaverDeletor,
+            )
 
 
 Faire apparaître les entrées dans le menu

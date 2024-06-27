@@ -36,7 +36,8 @@
             {% brick_table_action id='edit' url='reports__edit_graph'|url:graph.id enabled=user|has_perm_to_change:graph %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url='creme_core__delete_entity'|url:graph.id label=_('Delete this graph') enabled=user|has_perm_to_delete:graph %}
+{#            {% brick_table_action id='delete' url='creme_core__delete_entity'|url:graph.id label=_('Delete this graph') enabled=user|has_perm_to_delete:graph %} #}
+            {% brick_table_delete_entity_action entity=graph user=user label=_('Delete this graph') %}
         </td>
     </tr>
     <tr class="graph-row-title">

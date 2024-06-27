@@ -13,7 +13,11 @@ from .base import (  # NOQA
     CremeFormView,
     RelatedToEntityFormPopup,
 )
-from .delete import CremeDeletion, CremeModelDeletion  # NOQA
+from .delete import (  # NOQA
+    CremeDeletion,
+    CremeDeletionMixin,
+    CremeModelDeletion,
+)
 from .detailview import (  # NOQA
     CremeModelDetail,
     CremeModelDetailPopup,

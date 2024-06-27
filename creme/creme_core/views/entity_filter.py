@@ -51,7 +51,7 @@ from ..utils.unicode_collation import collator
 from . import generic
 from .bricks import BricksReloading
 from .decorators import jsonify
-from .entity import EntityDeletionMixin
+# from .entity import EntityDeletionMixin
 from .enumerable import FieldChoicesView
 from .generic import base
 
@@ -414,9 +414,10 @@ class EntityFilterEdition(EntityFilterMixin, generic.CremeModelEdition):
         return kwargs
 
 
-class EntityFilterDeletion(EntityDeletionMixin,
-                           EntityFilterMixin,
-                           generic.CremeModelDeletion):
+# class EntityFilterDeletion(EntityDeletionMixin,
+#                            EntityFilterMixin,
+#                            generic.CremeModelDeletion):
+class EntityFilterDeletion(EntityFilterMixin, generic.CremeModelDeletion):
     model = EntityFilter
     pk_url_kwarg = 'efilter_id'
 

@@ -4,14 +4,22 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.menu import CremeEntry
 from creme.creme_core.models import EntityFilter, HeaderFilter, UserRole
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from .. import bricks, constants, workflow
+from ..deletors import ContactDeletor, OrganisationDeletor
 from ..menu import UserContactEntry
 from ..models import Sector
-from .base import Contact, Organisation, _BaseTestCase
+from .base import (
+    Contact,
+    Organisation,
+    _BaseTestCase,
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 
 
 class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
@@ -158,3 +166,52 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
                 'user': user,
             }),
         )
+
+    @skipIfCustomContact
+    def test_contact_deletor(self):
+        user = self.get_root_user()
+        contact1 = Contact.objects.create(user=user, first_name='John', last_name='Doe')
+        deletor = ContactDeletor()
+        with self.assertNoException():
+            deletor.check_permissions(user=user, entity=contact1)
+
+        # ---
+        other_user = self.create_user()
+        with self.assertRaises(ConflictError) as cm:
+            deletor.check_permissions(user=user, entity=other_user.linked_contact)
+
+        self.assertEqual(
+            _('A user is associated with this contact.'),
+            str(cm.exception),
+        )
+
+    @skipIfCustomOrganisation
+    def test_organisation_deletor(self):
+        user = self.get_root_user()
+        orga = Organisation.objects.create(user=user, name='Acme')
+        deletor = OrganisationDeletor()
+
+        with self.assertNoException():
+            deletor.check_permissions(user=user, entity=orga)
+
+    @skipIfCustomOrganisation
+    def test_organisation_deletor__one_managed(self):
+        deletor = OrganisationDeletor()
+        managed = Organisation.objects.get(is_managed=True)
+
+        with self.assertRaises(ConflictError) as cm:
+            deletor.check_permissions(user=self.get_root_user(), entity=managed)
+
+        self.assertEqual(
+            _('The last managed organisation cannot be deleted.'),
+            str(cm.exception),
+        )
+
+    @skipIfCustomOrganisation
+    def test_organisation_deletor__several_managed(self):
+        user = self.get_root_user()
+        orga = Organisation.objects.create(user=user, name='Acme', is_managed=True)
+        deletor = OrganisationDeletor()
+
+        with self.assertNoException():
+            deletor.check_permissions(user=user, entity=orga)
