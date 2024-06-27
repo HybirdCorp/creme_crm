@@ -799,6 +799,7 @@ else:
             verbose_name_plural = 'Test Tickets'
             ordering = ('title',)
 
+        # TODO: delete in creme 2.8?
         def get_delete_absolute_url(self):
             return ''
 

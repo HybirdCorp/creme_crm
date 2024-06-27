@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2023 Hybird
+#    Copyright (C) 2019-2024 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,14 +19,22 @@
 from __future__ import annotations
 
 import logging
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext as _
+
+from creme.creme_core.core.exceptions import ConflictError
+
+if TYPE_CHECKING:
+    from creme.creme_core.models import CremeEntity, CremeUser
 
 logger = logging.getLogger(__name__)
 
 
+# Deletion of Minion & other small models registered in creme_config -----------
 class Replacer:
     type_id: str = 'OVERRIDE'
 
@@ -191,3 +199,113 @@ class SETReplacer(Replacer):
         )
 
         return captured_value
+
+
+# Deletion of entities ---------------------------------------------------------
+# TODO: better split for methods?
+class EntityDeletor:
+    # TODO: separated disabled() method?
+    def check_permissions(self, *, user: CremeUser, entity: CremeEntity) -> None:
+        "@raise PermissionDenied, ConflictError."
+        # TODO: complete + split methods
+        # if hasattr(entity, 'get_related_entity'):
+        #     related = entity.get_related_entity()
+        #
+        #     if related is None:
+        #         logger.critical(
+        #             'delete_entity(): an auxiliary entity seems orphan (id=%s)',
+        #             entity.id,
+        #         )
+        #         raise PermissionDenied(
+        #             gettext('You are not allowed to delete this entity: {}').format(
+        #                 entity.allowed_str(user),
+        #             )
+        #         )
+        #
+        #     if not user.has_perm_to_change(related):
+        #         raise PermissionDenied(
+        #             gettext('{entity}: <b>Permission denied</b>').format(
+        #                 entity=entity.allowed_str(user),
+        #             )
+        #         )
+        # else:
+        if not user.has_perm_to_delete(entity):
+            raise PermissionDenied(
+                _('You are not allowed to delete this entity by your role')
+            )
+
+        to_trash = self._move_to_trash(entity)
+
+        if (
+            not to_trash
+            and not settings.ENTITIES_DELETION_ALLOWED
+            and not user.is_staff
+            and not hasattr(entity, 'get_related_entity')
+        ):
+            raise ConflictError(
+                _('Deletion has been disabled by your administrator')
+            )
+
+    # NB: separated method which can be overridden by child classes
+    def _trash(self, user: CremeUser, entity: CremeEntity) -> None:
+        entity.trash()
+
+    # NB: separated method which can be overridden by child classes
+    def _delete(self, user: CremeUser, entity: CremeEntity) -> None:
+        entity.delete()
+
+    def perform(self, *, user: CremeUser,  entity: CremeEntity) -> None:
+        """Perform the operation (definitive deletion, move to trash etc...).
+
+        @param user: the logged user (could be used by some custom deletor
+               classes to make some check).
+        @param entity: Instance to delete.
+        @raise <django.db.models.deletion.ProtectedError> (it could be the child
+               class <creme.creme_core.core.exceptions.SpecificProtectedError>).
+        """
+        if self._move_to_trash(entity):
+            self._trash(user=user, entity=entity)
+        else:
+            self._delete(user=user, entity=entity)
+
+    def _move_to_trash(self, entity: CremeEntity) -> bool:
+        return False if hasattr(entity, 'get_related_entity') else not entity.is_deleted
+
+
+class EntityDeletorRegistry:
+    class RegistrationError(Exception):
+        pass
+
+    class UnRegistrationError(RegistrationError):
+        pass
+
+    def __init__(self):
+        self._deletor_classes: dict[type[CremeEntity], type[EntityDeletor]] = {}
+
+    def get(self, model: type[CremeEntity]) -> EntityDeletor | None:
+        cls = self._deletor_classes.get(model)
+
+        return None if cls is None else cls()
+
+    def register(self,
+                 model: type[CremeEntity],
+                 deletor_class=EntityDeletor,
+                 ) -> EntityDeletorRegistry:
+        if self._deletor_classes.setdefault(model, deletor_class) is not deletor_class:
+            raise self.RegistrationError(f'{model} has already a deletor')
+
+        return self
+
+    def unregister(self, model: type[CremeEntity]) -> EntityDeletorRegistry:
+        try:
+            del self._deletor_classes[model]
+        except KeyError as e:
+            raise self.UnRegistrationError(
+                f'{model} has no deletor (not registered or already unregistered)'
+            ) from e
+
+        return self
+
+
+# TODO: + apps registration
+entity_deletor_registry = EntityDeletorRegistry()

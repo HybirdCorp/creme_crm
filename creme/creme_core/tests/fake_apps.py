@@ -11,6 +11,7 @@ def ready():
 
     from creme.creme_config.tests.fake_models import FakeConfigEntity
 
+    from ..core.deletion import entity_deletor_registry
     from ..core.download import filefield_download_registry
     from ..core.function_field import function_field_registry
     from ..core.imprint import imprint_manager
@@ -69,6 +70,15 @@ def ready():
         # No (see creme_config.tests.test_fields_config.FieldsConfigTestCase.test_edit03)
         # fake_models.FakeActivity,
     )
+
+    entity_deletor_registry.register(
+        fake_models.FakeContact,
+    ).register(
+        fake_models.FakeOrganisation,
+    ).register(  # see EntityViewsTestCase.test_delete_entity_auxiliary_0
+        fake_models.FakeInvoiceLine,
+    )
+    # Not FakeTicket !
 
     icon_registry.register(
         fake_models.FakeContact, 'images/contact_%(size)s.png',

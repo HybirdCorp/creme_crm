@@ -53,6 +53,7 @@ from ..auth import SUPERUSER_PERM
 from ..auth.decorators import login_required
 from ..auth.entity_credentials import EntityCredentials
 from ..core import sorter
+from ..core.deletion import entity_deletor_registry
 from ..core.entity_cell import (
     CELLS_MAP,
     EntityCell,
@@ -1227,9 +1228,16 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
 
 
 # TODO: used by EntityFilterDeletion => split ? rename ?
+#       (useful for dependencies_to_str; see
+#       creme.reports.tests.test_report.ReportTestCase.test_delete_efilter)
 class EntityDeletionMixin:
+    deletor_registry = entity_deletor_registry
     dependencies_limit = 3
 
+    def get_deletor_for_entity(self, entity):
+        return self.deletor_registry.get(model=type(entity))  # None if error
+
+    # TODO: remove?
     def check_entity_for_deletion(self, entity, user):
         if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
             raise ConflictError(
@@ -1442,8 +1450,27 @@ class EntityDeletion(EntityDeletionMixin,
                      generic.CremeDeletion):
     entity_select_for_update = True
 
+    def get_deletor(self):
+        try:
+            deletor = self.deletor  # NOQA
+        except AttributeError:
+            entity = self.get_related_entity()
+            user = self.request.user
+            deletor = self.deletor = self.get_deletor_for_entity(entity=entity)
+            if deletor is None:
+                raise ConflictError(
+                    gettext('«{entity}» does not use the generic deletion view.').format(
+                        entity=entity.allowed_str(user),
+                    )
+                )
+
+            deletor.check_permissions(entity=entity, user=user)
+
+        return deletor
+
     def check_related_entity_permissions(self, entity, user):
-        self.check_entity_for_deletion(entity, user)
+        # self.check_entity_for_deletion(entity, user)
+        pass  # The permission are delegated to the deletor (& it needs the entity).
 
     def get_url_for_entity(self):
         entity = self.get_related_entity()
@@ -1476,9 +1503,15 @@ class EntityDeletion(EntityDeletionMixin,
     def get_success_url(self):
         return self.get_callback_url() or self.get_url_for_entity()
 
-    @atomic
+    # @atomic
+    # def perform_deletion(self, request):
+    #     self.delete_entity(entity=self.get_related_entity(), user=request.user)
     def perform_deletion(self, request):
-        self.delete_entity(entity=self.get_related_entity(), user=request.user)
+        entity = self.get_related_entity()
+        deletor = self.get_deletor()  # Permissions checking
+
+        with atomic():
+            deletor.perform(entity=entity, user=request.user)
 
 
 class RelatedToEntityDeletion(generic.base.ContentTypeRelatedMixin,

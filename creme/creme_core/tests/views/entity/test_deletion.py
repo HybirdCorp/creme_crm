@@ -245,10 +245,11 @@ class EntityViewsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertStillExists(entity)
         self.assertContains(
             response,
-            _(
-                '«{entity}» can not be deleted because the deletion has '
-                'been disabled by the administrator.'
-            ).format(entity=entity),
+            # _(
+            #     '«{entity}» can not be deleted because the deletion has '
+            #     'been disabled by the administrator.'
+            # ).format(entity=entity),
+            _('Deletion has been disabled by your administrator'),
             status_code=409,
             html=True,
         )
