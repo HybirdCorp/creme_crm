@@ -211,6 +211,21 @@ class BillingConfig(CremeAppConfig):
             custom_forms.BTEMPLATE_EDITION_CFORM,
         )
 
+    def register_deletors(self, entity_deletor_registry):
+        entity_deletor_registry.register(
+            model=self.Invoice,
+        ).register(
+            model=self.Quote,
+        ).register(
+            model=self.SalesOrder,
+        ).register(
+            model=self.ProductLine,
+        ).register(
+            model=self.ServiceLine,
+        )
+        # NB: TemplateBase can not be deleted directly
+        #     (because it is closely linked to its RecurrentGenerator)
+
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(
             self.Invoice,

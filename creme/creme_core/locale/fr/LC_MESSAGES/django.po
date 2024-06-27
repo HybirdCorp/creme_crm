@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-07 13:35+0200\n"
+"POT-Creation-Date: 2024-08-30 13:19+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -291,6 +291,12 @@ msgstr "Vider «{model}» - «{field}»"
 #, python-brace-format
 msgid "In «{model} - {field}», replace by a fallback value"
 msgstr "Dans «{model} - {field}», remplacer par une valeur de secours"
+
+msgid "You are not allowed to delete this entity by your role"
+msgstr "Votre rôle vous empêche de supprimer cette fiche"
+
+msgid "Deletion has been disabled by your administrator"
+msgstr "La suppression a été désactivée par votre administrateur."
 
 msgid "Actions"
 msgstr "Actions"
@@ -776,6 +782,9 @@ msgstr "Supprimer les vieux fichiers temporaires"
 
 msgid "Trash cleaner"
 msgstr "Videur de corbeille"
+
+msgid "This type of entity does not use the generic deletion way."
+msgstr "Ce type de fiche n'utilise pas la méthode de suppression générique."
 
 msgid "Can not be deleted because of its dependencies."
 msgstr "Ne peut être supprimé à cause de ses dépendances."
@@ -2825,9 +2834,6 @@ msgstr "%(software)s > Réinitialisation de votre mot de passe"
 msgid "Strategic summary"
 msgstr "Résumé stratégique"
 
-msgid "Do you really want to send this entity to the trash?"
-msgstr "Voulez-vous vraiment envoyer cette fiche dans la corbeille ?"
-
 msgid "Do you really want to clone this entity?"
 msgstr "Voulez-vous vraiment cloner cette fiche ?"
 
@@ -2839,12 +2845,6 @@ msgstr "Restaurer"
 
 msgid "Do you really want to restore this entity?"
 msgstr "Voulez-vous vraiment restaurer cette fiche ?"
-
-msgid "Delete permanently"
-msgstr "Supprimer définitivement"
-
-msgid "Do you really want to delete this entity definitely?"
-msgstr "Voulez-vous vraiment supprimer définitivement cette fiche ?"
 
 #, python-brace-format
 msgid "{count} Error"
@@ -2930,6 +2930,10 @@ msgstr "Fiche dans la corbeille"
 
 msgid "You are not allowed to view this block"
 msgstr "Vous n'avez pas la permission de voir ce bloc"
+
+#, python-format
+msgid "Deletion is forbidden (%(error)s)"
+msgstr "La suppression est interdite (%(error)s)"
 
 msgid "Concerned entity"
 msgstr "Fiche concernée"
@@ -3216,9 +3220,6 @@ msgstr "Vider la corbeille"
 
 msgid "Deletion date"
 msgstr "Date de suppression"
-
-msgid "Delete definitively"
-msgstr "Supprimer définitivement"
 
 msgid "The trash is empty"
 msgstr "La corbeille est vide"
@@ -3768,6 +3769,15 @@ msgstr "Montrer les champs vides"
 msgid "Sort «{model}» by «{field}»"
 msgstr "Trier «{model}» par «{field}»"
 
+msgid "Delete permanently"
+msgstr "Supprimer définitivement"
+
+msgid "Do you really want to delete this entity definitely?"
+msgstr "Voulez-vous vraiment supprimer définitivement cette fiche ?"
+
+msgid "Do you really want to send this entity to the trash?"
+msgstr "Voulez-vous vraiment envoyer cette fiche dans la corbeille ?"
+
 #, python-brace-format
 msgid "{number} day"
 msgid_plural "{number} days"
@@ -4001,55 +4011,32 @@ msgstr ""
 "Voulez-vous vraiment supprimer définitivement toutes les fiches dans la "
 "corbeille ?"
 
-msgid "This model does not use the generic deletion view."
+msgid "This type of entity does not use the generic deletion view."
 msgstr "Ce modèle n'utilise pas la vue de suppression générique."
 
 #, python-brace-format
-msgid "«{entity}» does not use the generic deletion view."
-msgstr "«{entity}» n'utilise pas la vue de suppression générique."
-
-#, python-brace-format
-msgid "{entity}: <b>Permission denied</b>"
-msgstr "{entity} : <b>Permission refusée</b>"
+msgid "This entity can not be deleted ({reason})"
+msgstr "Cette fiche ne peut être supprimée ({reason})"
 
 #, python-brace-format
 msgid ""
-"«{entity}» can not be deleted because the deletion has been disabled by the "
-"administrator."
+"This entity can not be deleted because of its dependencies ({dependencies})."
 msgstr ""
-"«{entity}» ne peut être supprimé car la suppression a été désactivée par "
-"l'administrateur."
+"Cette fiche ne peut être supprimée à cause de ses dépendances ({dependencies})."
 
 #, python-brace-format
-msgid "«{entity}» can not be deleted."
-msgstr "«{entity}» ne peut être supprimé."
-
-#, python-brace-format
-msgid ""
-"«{entity}» can not be deleted because of its dependencies ({dependencies})."
-msgstr ""
-"«{entity}» ne peut être supprimé à cause de ses dépendances ({dependencies})."
-
-#, python-brace-format
-msgid "«{entity}» deletion caused an unexpected error [{error}]."
-msgstr ""
-"La suppression de «{entity}» a provoqué une erreur inattendue [{error}]."
-
-#, python-brace-format
-msgid "«{object}» ({model})"
-msgstr "«{object}» ({model})"
-
-#, python-brace-format
-msgid "{count} not viewable entity"
-msgid_plural "{count} not viewable entities"
-msgstr[0] "{count} Fiche non visible"
-msgstr[1] "{count} Fiches non visibles"
+msgid "The deletion caused an unexpected error [{error}]."
+msgstr "La suppression a provoqué une erreur inattendue [{error}]."
 
 #, python-brace-format
 msgid "{count} entity doesn't exist or has been removed."
 msgid_plural "{count} entities don't exist or have been removed."
 msgstr[0] "{count} fiche n'existe pas ou a été supprimée."
 msgstr[1] "{count} fiches n'existent pas ou ont été supprimées."
+
+#, python-brace-format
+msgid "{entity}: {error}"
+msgstr "{entity} : {error}"
 
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
@@ -4104,6 +4091,16 @@ msgid ""
 msgstr ""
 "Aucun formulaire par défaut n'a été créé dans la Base de Données pour le "
 "modèle «{model}». Contactez votre administrateur."
+
+#, python-brace-format
+msgid "«{object}» ({model})"
+msgstr "«{object}» ({model})"
+
+#, python-brace-format
+msgid "{count} not viewable entity"
+msgid_plural "{count} not viewable entities"
+msgstr[0] "{count} Fiche non visible"
+msgstr[1] "{count} Fiches non visibles"
 
 #, python-brace-format
 msgid "Edit «{object}»"
@@ -4161,6 +4158,22 @@ msgstr "Veuillez entrer au moins {count} caractères"
 
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+#~ msgid "Delete definitively"
+#~ msgstr "Supprimer définitivement"
+
+#~ msgid "«{entity}» does not use the generic deletion view."
+#~ msgstr "«{entity}» n'utilise pas la vue de suppression générique."
+
+#~ msgid "{entity}: <b>Permission denied</b>"
+#~ msgstr "{entity} : <b>Permission refusée</b>"
+
+#~ msgid ""
+#~ "«{entity}» can not be deleted because the deletion has been disabled by "
+#~ "the administrator."
+#~ msgstr ""
+#~ "«{entity}» ne peut être supprimé car la suppression a été désactivée par "
+#~ "l'administrateur."
 
 #~ msgid "You cannot edit/delete a system filter"
 #~ msgstr "Vous ne pouvez pas modifier/supprimer un filtre système"
@@ -4365,9 +4378,6 @@ msgstr "Recherche vide…"
 
 #~ msgid "CSV file"
 #~ msgstr "Fichier CSV"
-
-#~ msgid "Delete all relationships (forbidden)"
-#~ msgstr "Supprimer toutes les relations (interdit)"
 
 #~ msgid "New (forbidden)"
 #~ msgstr "Nouveau (interdit)"

@@ -89,6 +89,13 @@ class ReportsConfig(CremeAppConfig):
             custom_forms.REPORT_EDITION_CFORM,
         )
 
+    def register_deletors(self, entity_deletor_registry):
+        entity_deletor_registry.register(
+            model=self.Report,
+        ).register(
+            model=self.ReportGraph,
+        )
+
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(
             self.Report,

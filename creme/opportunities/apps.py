@@ -91,6 +91,9 @@ class OpportunitiesConfig(CremeAppConfig):
             custom_forms.OPPORTUNITY_EDITION_CFORM,
         )
 
+    def register_deletors(self, entity_deletor_registry):
+        entity_deletor_registry.register(model=self.Opportunity)
+
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Opportunity)
 

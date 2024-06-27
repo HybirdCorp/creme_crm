@@ -15,11 +15,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
+from django.core.exceptions import PermissionDenied
 from django.urls.base import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from .core.deletion import entity_deletor_registry
+from .core.exceptions import ConflictError
 from .gui.actions import BulkEntityAction, EntityAction
 from .gui.merge import merge_form_registry
 
@@ -47,13 +49,29 @@ class DeleteAction(EntityAction):
     label = _('Delete')
     icon = 'delete'
 
+    deletor_registry = entity_deletor_registry
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        entity = self.instance
+        deletor = entity_deletor_registry.get(model=type(entity))
+        if deletor is None:
+            self.is_visible = False
+        else:
+            try:
+                deletor.check_permissions(entity=entity, user=self.user)
+            except (PermissionDenied, ConflictError) as e:
+                self.is_enabled = False
+                self.help_text = e.args[0]
+
     @property
     def url(self):
         return self.instance.get_delete_absolute_url()
 
-    @property
-    def is_enabled(self):
-        return bool(self.url) and self.user.has_perm_to_delete(self.instance)
+    # @property
+    # def is_enabled(self):
+    #     return bool(self.url) and self.user.has_perm_to_delete(self.instance)
 
 
 class ViewAction(EntityAction):
@@ -127,6 +145,12 @@ class BulkDeleteAction(BulkEntityAction):
 
     label = _('Multiple deletion')
     icon = 'delete'
+
+    deletor_registry = entity_deletor_registry
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.is_visible = (entity_deletor_registry.get(model=self.model) is not None)
 
 
 class BulkAddPropertyAction(BulkEntityAction):

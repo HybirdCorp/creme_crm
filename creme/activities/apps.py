@@ -134,6 +134,9 @@ class ActivitiesConfig(CremeAppConfig):
             custom_forms.ACTIVITY_EDITION_CFORM,
         )
 
+    def register_deletors(self, entity_deletor_registry):
+        entity_deletor_registry.register(model=self.Activity)
+
     def register_enumerable(self, enumerable_registry):
         from . import enumerators, models
 

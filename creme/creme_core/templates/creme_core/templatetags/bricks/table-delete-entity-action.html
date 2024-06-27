@@ -1,0 +1,11 @@
+{% load i18n creme_bricks %}
+{% load get_deletion_info from creme_core_tags %}
+{% get_deletion_info entity=entity.get_real_entity user=user as deletion %}
+{% if deletion.enabled %}
+  {% if deletion.error %}
+    {% blocktranslate asvar disabled_label with error=deletion.error %}Deletion is forbidden ({{error}}){% endblocktranslate %}
+    {% brick_table_action id='delete' label=disabled_label url='#' enabled=False %}
+  {% else %}
+    {% brick_table_action id='delete' label=label|default:deletion.label url=deletion.url confirm=deletion.confirmation enabled=True %}
+  {% endif %}
+{% endif %}

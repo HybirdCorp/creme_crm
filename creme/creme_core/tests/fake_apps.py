@@ -11,7 +11,9 @@ def ready():
 
     from creme.creme_config.tests.fake_models import FakeConfigEntity
 
+    from ..core.deletion import EntityDeletor, entity_deletor_registry
     from ..core.download import filefield_download_registry
+    from ..core.exceptions import ConflictError
     from ..core.function_field import function_field_registry
     from ..core.imprint import imprint_manager
     from ..gui.bricks import brick_registry
@@ -69,6 +71,22 @@ def ready():
         # No (see creme_config.tests.test_fields_config.FieldsConfigTestCase.test_edit03)
         # fake_models.FakeActivity,
     )
+
+    class FakeContactDeletor(EntityDeletor):
+        def check_permissions(self, *, user, entity):
+            super().check_permissions(user=user, entity=entity)
+
+            if entity.is_user_id is not None:
+                raise ConflictError('A user is associated with this contact.')
+
+    entity_deletor_registry.register(
+        model=fake_models.FakeContact, deletor_class=FakeContactDeletor,
+    ).register(
+        model=fake_models.FakeOrganisation,
+    ).register(  # see EntityViewsTestCase.test_delete_entity_auxiliary_0
+        model=fake_models.FakeInvoiceLine,
+    )
+    # Not FakeTicket!
 
     icon_registry.register(
         fake_models.FakeContact, 'images/contact_%(size)s.png',

@@ -14,6 +14,7 @@ from creme.creme_core.models import FakeContact, FakeOrganisation
 from creme.creme_core.utils.html import escapejson
 
 from ..base import CremeTestCase
+from ..fake_models import FakeTicket
 
 
 class CremeCoreTagsTestCase(CremeTestCase):
@@ -882,4 +883,85 @@ class CremeCoreTagsTestCase(CremeTestCase):
                 args=(orga.entity_type_id, orga.id)
             ) + f'?cell=regular_field-name&amp;callback_url={url}',
             render2.strip(),
+        )
+
+    def test_get_deletion_info(self):
+        user = self.get_root_user()
+        ticket = FakeTicket.objects.create(user=user, title='Golden ticket')
+
+        # Entity is not deletable ---
+        with self.assertNoException():
+            render1 = Template(
+                '{% load creme_core_tags %}'
+                '{% get_deletion_info entity=entity user=user as deletion %}'
+                '{% if not deletion.enabled %}NOPE{% endif %}'
+            ).render(Context({'user': user, 'entity': ticket}))
+
+        self.assertEqual('NOPE', render1.strip())
+
+        # Entity not in the trash ---
+        contact = FakeContact.objects.create(user=user, first_name='Ryu', last_name='Tadera')
+
+        template = Template(
+            '{% load creme_core_tags %}'
+            '{% get_deletion_info entity=entity user=user as deletion %}'
+            '{% if deletion.enabled %}'
+            '<a class="{% if deletion.allowed %}allowed{% endif %}"'
+            '   href="{{deletion.url}}"'
+            '   data-confirm="{{deletion.confirmation}}"'
+            '>{{deletion.label}}'
+            '</a>'
+            '{% endif %}'
+        )
+        ctxt = Context({'user': user, 'entity': contact})
+
+        with self.assertNoException():
+            render2 = template.render(ctxt)
+
+        self.assertHTMLEqual(
+            f'<a class="allowed" '
+            f'   href="{contact.get_delete_absolute_url()}" '
+            f'   data-confirm="{_("Do you really want to send this entity to the trash?")}" '
+            f'>{_("Delete")}</a>',
+            render2.strip(),
+        )
+
+        # Entity is in the trash ---
+        contact.is_deleted = True
+        contact.save()
+
+        with self.assertNoException():
+            render3 = template.render(ctxt)
+
+        self.assertHTMLEqual(
+            f'<a class="allowed" '
+            f'   href="{contact.get_delete_absolute_url()}" '
+            f'   data-confirm="{_("Do you really want to delete this entity definitely?")}" '
+            f'>{_("Delete permanently")}</a>',
+            render3.strip(),
+        )
+
+        # Forbidden ---
+        user_contact = FakeContact.objects.create(
+            user=user, first_name='Ryu', last_name='Tadera', is_user=user,
+        )
+
+        with self.assertNoException():
+            render3 = Template(
+                '{% load creme_core_tags %}'
+                '{% get_deletion_info entity=entity user=user as deletion %}'
+                '{% if deletion.enabled %}'
+                '<a class="{% if not deletion.allowed %}forbidden{% endif %}"'
+                '   href="{{deletion.url}}"'
+                '   data-error="{{deletion.error}}"'
+                '>{{deletion.label}}'
+                '</a>'
+                '{% endif %}'
+            ).render(Context({'user': user, 'entity': user_contact}))
+
+        self.assertHTMLEqual(
+            f'<a class="forbidden" href="" '
+            f'   data-error="A user is associated with this contact." '
+            f'>{_("Delete")}</a>',
+            render3.strip(),
         )

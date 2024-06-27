@@ -21,7 +21,7 @@ from __future__ import annotations
 import json
 import logging
 from collections import defaultdict
-from itertools import islice
+# from itertools import islice
 from typing import Iterable, Sequence
 from urllib.parse import urlencode
 
@@ -53,6 +53,7 @@ from ..auth import SUPERUSER_PERM
 from ..auth.decorators import login_required
 from ..auth.entity_credentials import EntityCredentials
 from ..core import sorter
+from ..core.deletion import EntityDeletor, entity_deletor_registry
 from ..core.entity_cell import (
     CELLS_MAP,
     EntityCell,
@@ -75,14 +76,15 @@ from ..gui import bulk_update
 from ..gui.listview import search
 from ..gui.merge import merge_form_registry
 from ..http import CremeJsonResponse, is_ajax
+# from ..models import Relation
 from ..models import (
     CremeEntity,
+    CremeUser,
     EntityFilter,
     EntityJobResult,
     FieldsConfig,
     HeaderFilter,
     Job,
-    Relation,
     Sandbox,
     TrashCleaningCommand,
 )
@@ -1205,104 +1207,147 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
     def build_related_entity_queryset(self, model):
         return super().build_related_entity_queryset(model=model).filter(is_deleted=True)
 
+    # TODO: should the deletors registry manage the perm to restore too?
     def check_related_entity_permissions(self, entity, user):
-        if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
-            raise ConflictError(gettext('This model does not use the generic deletion view.'))
-
-        if hasattr(entity, 'get_related_entity'):
-            raise ConflictError('Can not restore an auxiliary entity')  # See trash_entity()
+        # if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
+        #     raise ConflictError(gettext('This model does not use the generic deletion view.'))
+        #
+        # if hasattr(entity, 'get_related_entity'):
+        #     raise ConflictError('Can not restore an auxiliary entity')  # See trash_entity()
+        if not entity.is_deleted:
+            raise ConflictError('Can not restore an entity which is not in the trash')
 
         user.has_perm_to_delete_or_die(entity)
 
     @atomic
     def post(self, request, *args, **kwargs):
         entity = self.get_related_entity()
-
         entity.restore()
 
-        if is_ajax(request):
-            return HttpResponse()
-
-        return redirect(entity)
+        return HttpResponse() if is_ajax(request) else redirect(entity)
 
 
-# TODO: used by EntityFilterDeletion => split ? rename ?
-class EntityDeletionMixin:
-    dependencies_limit = 3
+# class EntityDeletionMixin:
+class EntityDeletionMixin(generic.CremeDeletionMixin):
+    deletor_registry = entity_deletor_registry
 
-    def check_entity_for_deletion(self, entity, user):
-        if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
-            raise ConflictError(
-                gettext('«{entity}» does not use the generic deletion view.').format(
-                    entity=entity.allowed_str(user),
-                )
-            )
+    def get_deletor_for_entity(self, entity: CremeEntity) -> EntityDeletor:
+        """Gets the deletor for an entity (based of its type).
+        @raise ConflictError if this tpe has not registered deletor.
+        """
+        deletor = self.deletor = self.deletor_registry.get(model=type(entity))
+        if deletor is None:
+            raise ConflictError(gettext(
+                'This type of entity does not use the generic deletion view.'
+            ))
 
-        if hasattr(entity, 'get_related_entity'):
-            related = entity.get_related_entity()
+        return deletor
 
-            if related is None:
-                logger.critical(
-                    'delete_entity(): an auxiliary entity seems orphan (id=%s)',
-                    entity.id,
-                )
-                raise PermissionDenied(
-                    gettext('You are not allowed to delete this entity: {}').format(
-                        entity.allowed_str(user),
-                    )
-                )
+    # def check_entity_for_deletion(self, entity, user):
+    #     if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
+    #         raise ConflictError(
+    #             gettext('«{entity}» does not use the generic deletion view.').format(
+    #                 entity=entity.allowed_str(user),
+    #             )
+    #         )
+    #
+    #     if hasattr(entity, 'get_related_entity'):
+    #         related = entity.get_related_entity()
+    #
+    #         if related is None:
+    #             logger.critical(
+    #                 'delete_entity(): an auxiliary entity seems orphan (id=%s)',
+    #                 entity.id,
+    #             )
+    #             raise PermissionDenied(
+    #                 gettext('You are not allowed to delete this entity: {}').format(
+    #                     entity.allowed_str(user),
+    #                 )
+    #             )
+    #
+    #         if not user.has_perm_to_change(related):
+    #             raise PermissionDenied(
+    #                 gettext('{entity}: <b>Permission denied</b>').format(
+    #                     entity=entity.allowed_str(user),
+    #                 )
+    #             )
+    #     else:
+    #         if not user.has_perm_to_delete(entity):
+    #             raise PermissionDenied(
+    #                 gettext('{entity}: <b>Permission denied</b>').format(
+    #                     entity=entity.allowed_str(user),
+    #                 )
+    #             )
 
-            if not user.has_perm_to_change(related):
-                raise PermissionDenied(
-                    gettext('{entity}: <b>Permission denied</b>').format(
-                        entity=entity.allowed_str(user),
-                    )
-                )
-        else:
-            if not user.has_perm_to_delete(entity):
-                raise PermissionDenied(
-                    gettext('{entity}: <b>Permission denied</b>').format(
-                        entity=entity.allowed_str(user),
-                    )
-                )
-
-    def delete_entity(self, entity, user):
-        to_trash = self.move_to_trash(entity)
-
-        if (
-            not to_trash
-            and not settings.ENTITIES_DELETION_ALLOWED
-            and not user.is_staff
-            and not hasattr(entity, 'get_related_entity')
-        ):
-            raise ConflictError(
-                gettext(
-                    '«{entity}» can not be deleted because the deletion has '
-                    'been disabled by the administrator.'
-                ).format(entity=entity.allowed_str(user)),
-            )
-
+    # def delete_entity(self, entity, user):
+    #     to_trash = self.move_to_trash(entity)
+    #
+    #     if (
+    #         not to_trash
+    #         and not settings.ENTITIES_DELETION_ALLOWED
+    #         and not user.is_staff
+    #         and not hasattr(entity, 'get_related_entity')
+    #     ):
+    #         raise ConflictError(
+    #             gettext(
+    #                 '«{entity}» can not be deleted because the deletion has '
+    #                 'been disabled by the administrator.'
+    #             ).format(entity=entity.allowed_str(user)),
+    #         )
+    #
+    #     try:
+    #         if to_trash:
+    #             entity.trash()
+    #         else:
+    #             entity.delete()
+    #     except SpecificProtectedError as e:
+    #         raise ConflictError(
+    #             '{} {}'.format(
+    #                 gettext('«{entity}» can not be deleted.').format(
+    #                     entity=entity.allowed_str(user),
+    #                 ),
+    #                 e.args[0],
+    #             ),
+    #         ) from e
+    #     except ProtectedError as e:
+    #         raise ConflictError(
+    #             gettext(
+    #                 '«{entity}» can not be deleted because of its dependencies '
+    #                 '({dependencies}).'
+    #             ).format(
+    #                 entity=entity.allowed_str(user),
+    #                 dependencies=self.dependencies_to_str(
+    #                     dependencies=e.args[1],
+    #                     user=user,
+    #                 ),
+    #             ),
+    #         ) from e
+    #     except Exception as e:
+    #         logger.exception('Error when trying delete "%s" (id=%s)', entity, entity.id)
+    #         raise ConflictError(
+    #             gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
+    #                 entity=entity.allowed_str(user),
+    #                 error=e,
+    #             ),
+    #         ) from e
+    def delete_entity(self, *,
+                      entity: CremeEntity, user: CremeUser, deletor: EntityDeletor,
+                      ) -> None:
+        """Performs the deletion of a CremeEntity instance.
+        @raise ConflictError.
+        """
         try:
-            if to_trash:
-                entity.trash()
-            else:
-                entity.delete()
+            deletor.perform(entity=entity, user=user)
         except SpecificProtectedError as e:
             raise ConflictError(
-                '{} {}'.format(
-                    gettext('«{entity}» can not be deleted.').format(
-                        entity=entity.allowed_str(user),
-                    ),
-                    e.args[0],
-                ),
+                gettext('This entity can not be deleted ({reason})').format(reason=e.args[0]),
             ) from e
         except ProtectedError as e:
             raise ConflictError(
                 gettext(
-                    '«{entity}» can not be deleted because of its dependencies '
+                    'This entity can not be deleted because of its dependencies '
                     '({dependencies}).'
                 ).format(
-                    entity=entity.allowed_str(user),
                     dependencies=self.dependencies_to_str(
                         dependencies=e.args[1],
                         user=user,
@@ -1312,68 +1357,17 @@ class EntityDeletionMixin:
         except Exception as e:
             logger.exception('Error when trying delete "%s" (id=%s)', entity, entity.id)
             raise ConflictError(
-                gettext('«{entity}» deletion caused an unexpected error [{error}].').format(
-                    entity=entity.allowed_str(user),
-                    error=e,
-                ),
+                gettext('The deletion caused an unexpected error [{error}].').format(error=e),
             ) from e
 
-    def dependencies_to_str(self, *, dependencies, user):
-        def deps_generator():
-            not_viewable_count = 0
-            can_view = user.has_perm_to_view
-
-            def is_printable_relation(dep):
-                return isinstance(dep, Relation) and '-object_' not in dep.type_id
-
-            for dep in dependencies:
-                if isinstance(dep, CremeEntity):
-                    if can_view(dep):
-                        yield gettext('«{object}» ({model})').format(
-                            object=dep, model=dep.entity_type,
-                        )
-                    else:
-                        not_viewable_count += 1
-
-            for dep in dependencies:
-                if is_printable_relation(dep) and can_view(dep.object_entity):
-                    yield f'{dep.type.predicate} «{dep.object_entity}»'
-
-            if not_viewable_count:
-                yield ngettext(
-                    '{count} not viewable entity',
-                    '{count} not viewable entities',
-                    not_viewable_count
-                ).format(count=not_viewable_count)
-
-            for dep in dependencies:
-                if is_printable_relation(dep) and not can_view(dep.object_entity):
-                    yield f'{dep.type.predicate} «{settings.HIDDEN_VALUE}»'
-
-            for dep in dependencies:
-                if not isinstance(dep, (CremeEntity, Relation)):
-                    yield str(dep)
-
-        limit = self.dependencies_limit
-        str_deps = [*islice(deps_generator(), limit + 1)]
-
-        do_ellipsis = False
-        if len(str_deps) > limit:
-            str_deps.pop()
-            do_ellipsis = True
-
-        result = ', '.join(str_deps[:limit])
-
-        return result + '…' if do_ellipsis else result
-
-    def move_to_trash(self, entity):
-        return False if hasattr(entity, 'get_related_entity') else not entity.is_deleted
+    # def move_to_trash(self, entity):
+    #     return False if hasattr(entity, 'get_related_entity') else not entity.is_deleted
 
 
 class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
     "Delete several CremeEntities, with an Ajax call (POST method)."
 
-    def get_entity_ids(self):
+    def get_entity_ids(self) -> list[int]:
         try:
             entity_ids = [
                 int(e_id)
@@ -1410,16 +1404,32 @@ class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
 
             CremeEntity.populate_real_entities(entities)
 
+            # for entity in entities:
+            #     real_entity = entity.get_real_entity()
+            #
+            #     try:
+            #         self.check_entity_for_deletion(entity=real_entity, user=user)
+            #         self.delete_entity(entity=entity.get_real_entity(), user=user)
+            #     except PermissionDenied as e:
+            #         errors[403].append(e.args[0])
+            #     except ConflictError as e:
+            #         errors[409].append(e.args[0])
+            error_msg = gettext('{entity}: {error}')
+
+            def format_error(entity, message):
+                return error_msg.format(entity=entity.allowed_str(user), error=message)
+
             for entity in entities:
                 real_entity = entity.get_real_entity()
 
                 try:
-                    self.check_entity_for_deletion(entity=real_entity, user=user)
-                    self.delete_entity(entity=entity.get_real_entity(), user=user)
+                    deletor = self.get_deletor_for_entity(entity=real_entity)
+                    deletor.check_permissions(entity=real_entity, user=user)
+                    self.delete_entity(entity=real_entity, user=user, deletor=deletor)
                 except PermissionDenied as e:
-                    errors[403].append(e.args[0])
+                    errors[403].append(format_error(entity=real_entity, message=e.args[0]))
                 except ConflictError as e:
-                    errors[409].append(e.args[0])
+                    errors[409].append(format_error(entity=real_entity, message=e.args[0]))
 
         if not errors:
             status = 200
@@ -1441,10 +1451,13 @@ class EntityDeletion(EntityDeletionMixin,
                      base.EntityRelatedMixin,
                      generic.CremeDeletion):
     entity_select_for_update = True
+    dependencies_limit = 10
 
     def check_related_entity_permissions(self, entity, user):
-        self.check_entity_for_deletion(entity, user)
+        # self.check_entity_for_deletion(entity, user)
+        pass  # The permission are delegated to the deletor (& it needs the entity).
 
+    # TODO: should the deletor be used to compute the URL?
     def get_url_for_entity(self):
         entity = self.get_related_entity()
 
@@ -1476,9 +1489,17 @@ class EntityDeletion(EntityDeletionMixin,
     def get_success_url(self):
         return self.get_callback_url() or self.get_url_for_entity()
 
-    @atomic
+    # @atomic
+    # def perform_deletion(self, request):
+    #     self.delete_entity(entity=self.get_related_entity(), user=request.user)
     def perform_deletion(self, request):
-        self.delete_entity(entity=self.get_related_entity(), user=request.user)
+        entity = self.get_related_entity()
+        deletor = self.get_deletor_for_entity(entity)
+        user = request.user
+        deletor.check_permissions(entity=entity, user=user)
+
+        with atomic():
+            self.delete_entity(entity=entity, user=user, deletor=deletor)
 
 
 class RelatedToEntityDeletion(generic.base.ContentTypeRelatedMixin,

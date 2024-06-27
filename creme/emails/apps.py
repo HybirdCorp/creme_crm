@@ -121,6 +121,19 @@ class EmailsConfig(CremeAppConfig):
             custom_forms.MAILINGLIST_EDITION_CFORM,
         )
 
+    def register_deletors(self, entity_deletor_registry):
+        entity_deletor_registry.register(
+            model=self.EntityEmail,
+        ).register(
+            model=self.MailingList,
+        ).register(
+            model=self.EmailTemplate,
+        ).register(
+            model=self.EmailCampaign,
+        ).register(
+            model=self.EntityEmail,
+        )
+
     def register_fields_config(self, fields_config_registry):
         from creme import persons
 

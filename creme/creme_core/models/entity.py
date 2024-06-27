@@ -216,8 +216,12 @@ class CremeEntity(CremeModel):
         return ''
 
     def get_delete_absolute_url(self) -> str:
-        """Returns the url of the deletion view (should use POST method) for this instance.
-        If '' (void string) is returned, the model can not be deleted directly.
+        # """Returns the url of the deletion view (should use POST method) for this instance.
+        # If '' (void string) is returned, the model can not be deleted directly.
+        # """
+        """You should probably not override this method in child classes.
+        Use the deletion system instead (see <creme_core.core.deletion> &
+        <creme_core.apps.CremeAppConfig.register_deletors()>).
         """
         return reverse('creme_core__delete_entity', args=(self.id,))
 

@@ -132,6 +132,9 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
         return self.name
 
     def _check_deletion(self):
+        # NB: it's important to NOT use a cached query, because the user could
+        #     try to delete several managed Organisations at once, so the
+        #     condition must be evaluated correctly before each deletion.
         if self.is_managed and self.__class__.objects.filter(is_managed=True).count() == 1:
             raise SpecificProtectedError(
                 gettext('The last managed organisation cannot be deleted.'),

@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 13-02-2024 for Creme 2.6
+:Version: 02-09-2024 for Creme 2.6
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -570,6 +570,71 @@ And the method ``get_edit_absolute_url``: ::
 
         def get_edit_absolute_url(self):
             return reverse('beavers__edit_beaver', args=(self.id,))
+
+
+The deletion view
+~~~~~~~~~~~~~~~~~
+
+Currently, when you go a a beaver's detailed view, there is no button which
+allows to delete it as in the other types of entity, like Contacts for example.
+
+Indeed, beavers cannot be deleted yet; in some cases that's what you'll want.
+But generally, you want to have the possibility to delete some entities. Edit
+your file ``my_project/beavers/apps.py`` : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_deletors(self, entity_deletor_registry):
+            from .models import Beaver
+
+            entity_deletor_registry.register(model=Beaver)
+
+
+The deletion button is now visible on your vue detailed view, and also on the
+list view.
+
+**Going further** : the deletion will currently behave as for the other types of
+entity, and will principally check the deletion credentials of the user. In some
+cases you want to customise the deletion, notably to add some additional checks
+which avoid some entities to be deleted, or to be deleted by some users.
+
+Create a file ``my_project/beavers/deletors.py`` : ::
+
+    from django.utils.translation import gettext as _
+
+    from creme.creme_core.core.deletion import EntityDeletor
+    from creme.creme_core.core.exceptions import ConflictError
+
+
+    class BeaverDeletor(EntityDeletor):
+        def check_permissions(self, *, user, entity):
+            # We call the super-method to be sure the base checks are made...
+            super().check_permissions(user=user, entity=entity)
+
+            # ...and we add some rules.
+            # "entity" is a Beaver instance
+            # "user" is the user who tries to delete
+            if entity.name == 'Betty':
+                raise ConflictError(_('Hey you cannot delete Betty!'))
+
+We just have now to indicate which behaviour to use during the deletion of a
+beaver, in ``my_project/beavers/apps.py`` : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_deletors(self, entity_deletor_registry):
+            from .models import Beaver
+            from . import deletors
+
+            entity_deletor_registry.register(
+                model=Beaver, deletor_class=deletors.BeaverDeletor,
+            )
 
 
 Add entries in the menu

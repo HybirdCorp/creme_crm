@@ -24,6 +24,7 @@ from urllib.parse import urlencode, urlsplit
 
 from django.apps import apps
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 # from django.contrib.contenttypes.models import ContentType
 from django.template import Library
 from django.template import Node as TemplateNode
@@ -34,10 +35,13 @@ from django.urls import reverse
 from django.utils.encoding import force_str
 from django.utils.html import escape, format_html_join
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 from mediagenerator.generators.bundles.utils import _render_include_media
 
+from ..core.deletion import entity_deletor_registry
 from ..core.entity_cell import EntityCell
+from ..core.exceptions import ConflictError
 from ..gui.bulk_update import bulk_update_registry
 from ..gui.field_printers import field_printers_registry
 from ..gui.view_tag import ViewTag
@@ -366,6 +370,43 @@ def jsondata(value, **kwargs):
 
 
 @register.simple_tag
+def get_deletion_info(entity, user):
+    url = entity.get_delete_absolute_url()
+
+    # TODO: remove in creme 2.8
+    if url == '':
+        logger.warning(
+            'The entity "%s" returns an empty deletion URL; it is now useless '
+            'with the deletion registry (just do not register this model).',
+            entity,
+        )
+
+    deletor = entity_deletor_registry.get(model=type(entity))
+    if deletor is None:
+        return {'enabled': False}
+
+    info = {'enabled': True}
+
+    try:
+        deletor.check_permissions(entity=entity, user=user)
+    except (PermissionDenied, ConflictError) as e:
+        info['allowed'] = False
+        info['error'] = e.args[0]
+    else:
+        info['allowed'] = True
+        info['url'] = url
+
+    if deletor.is_definitive(entity=entity, user=user):
+        info['label'] = _('Delete permanently')
+        info['confirmation'] = _('Do you really want to delete this entity definitely?')
+    else:
+        info['label'] = _('Delete')
+        info['confirmation'] = _('Do you really want to send this entity to the trash?')
+
+    return info
+
+
+@register.simple_tag
 def get_efilter_conditions(efilter, user):
     return [*efilter.get_verbose_conditions(user)]
 
@@ -441,7 +482,7 @@ def url_join(*args, **params):
     return mark_safe(uri)
 
 
-# TAG : "templatize"------------------------------------------------------------
+# TAG: "templatize"-------------------------------------------------------------
 _templatize_re = compile_re(r'(.*?) as (\w+)')
 
 
@@ -485,7 +526,7 @@ class TemplatizeNode(TemplateNode):
         return ''
 
 
-# TAG : "print_field"-----------------------------------------------------------
+# TAG: "print_field"------------------------------------------------------------
 
 # TODO: need a templatetag to build a ViewTag?
 # TODO: pass the registry in the context? pass the user as argument?

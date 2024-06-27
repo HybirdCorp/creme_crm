@@ -309,7 +309,7 @@ def brick_action(context, id, url='',
 
 @register.inclusion_tag(
     'creme_core/templatetags/bricks/header-action.html',
-    takes_context=True
+    takes_context=True,
 )
 def brick_header_action(context, display='both', **kwargs):
     """Action (see brick_brick_action()) for brick's header.
@@ -601,6 +601,15 @@ def brick_table_action(context, id, **kwargs):
         ...
     """
     return brick_action(context, id=id, **kwargs)
+
+
+@register.inclusion_tag('creme_core/templatetags/bricks/table-delete-entity-action.html')
+def brick_table_delete_entity_action(entity, user, label=None):
+    return {
+        'entity': entity,
+        'user': user,
+        'label': label,
+    }
 
 
 @register.tag

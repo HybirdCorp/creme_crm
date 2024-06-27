@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2023  Hybird
+#    Copyright (C) 2015-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -70,6 +70,11 @@ class TicketsConfig(CremeAppConfig):
             custom_forms.TTEMPLATE_CREATION_CFORM,
             custom_forms.TTEMPLATE_EDITION_CFORM,
         )
+
+    def register_deletors(self, entity_deletor_registry):
+        entity_deletor_registry.register(model=self.Ticket)
+        # NB: TicketTemplates can not be deleted directly
+        #     (because they are closely linked to their RecurrentGenerator)
 
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(

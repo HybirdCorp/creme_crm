@@ -20,6 +20,7 @@ from creme.creme_core.models import (
 )
 
 from ..base import CremeTestCase
+from ..fake_models import FakeTicket
 
 
 class MockAction(UIAction):
@@ -890,6 +891,7 @@ class BuiltinActionsTestCase(CremeTestCase):
         )
 
     def test_delete_action(self):
+        label = _('Delete')
         self.assertAction(
             actions.DeleteAction(self.user, FakeContact, instance=self.contact),
             model=FakeContact,
@@ -899,8 +901,9 @@ class BuiltinActionsTestCase(CremeTestCase):
             is_enabled=True,
             is_visible=True,
             is_default=False,
-            label=_('Delete'),
+            label=label,
             icon='delete',
+            help_text='',
         )
         self.assertAction(
             actions.DeleteAction(self.user, instance=self.contact_other),
@@ -911,8 +914,24 @@ class BuiltinActionsTestCase(CremeTestCase):
             is_enabled=False,
             is_visible=True,
             is_default=False,
-            label=_('Delete'),
+            label=label,
             icon='delete',
+            help_text=_('You are not allowed to delete this entity by your role'),
+        )
+
+        ticket = FakeTicket.objects.create(user=self.user, title='Golden ticket')
+        self.assertAction(
+            actions.DeleteAction(self.user, instance=ticket),
+            model=FakeTicket,
+            action_id='creme_core-delete',
+            action_type='delete',
+            url=ticket.get_delete_absolute_url(),
+            is_enabled=True,
+            is_visible=False,
+            is_default=False,
+            label=label,
+            icon='delete',
+            help_text='',
         )
 
     def test_view_action(self):
@@ -1013,14 +1032,16 @@ class BuiltinActionsTestCase(CremeTestCase):
         )
 
     def test_bulk_delete_action(self):
+        url = reverse('creme_core__delete_entities')
         self.assertAction(
             actions.BulkDeleteAction(self.user),
             model=CremeEntity,
             action_id='creme_core-bulk_delete',
             action_type='delete-selection',
-            url=reverse('creme_core__delete_entities'),
+            url=url,
             is_enabled=True,
-            is_visible=True,
+            # is_visible=True,
+            is_visible=False,
             is_default=False,
             label=_('Multiple deletion'),
             icon='delete',
@@ -1030,9 +1051,22 @@ class BuiltinActionsTestCase(CremeTestCase):
             model=FakeContact,
             action_id='creme_core-bulk_delete',
             action_type='delete-selection',
-            url=reverse('creme_core__delete_entities'),
+            url=url,
             is_enabled=True,
             is_visible=True,
+            is_default=False,
+            label=_('Multiple deletion'),
+            icon='delete',
+        )
+        # Not registered in deletor registry
+        self.assertAction(
+            actions.BulkDeleteAction(self.user, model=FakeTicket),
+            model=FakeTicket,
+            action_id='creme_core-bulk_delete',
+            action_type='delete-selection',
+            url=url,
+            is_enabled=True,
+            is_visible=False,
             is_default=False,
             label=_('Multiple deletion'),
             icon='delete',
