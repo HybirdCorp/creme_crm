@@ -239,7 +239,8 @@ class EntityRelatedMixin:
         @return: An instance of "real" entity.
         """
         try:
-            entity = getattr(self, 'related_entity')
+            # entity = getattr(self, 'related_entity')
+            entity = self.related_entity  # NOQA
         except AttributeError:
             entity_classes = self.entity_classes
             entity_id = self.get_related_entity_id()
@@ -305,7 +306,8 @@ class ContentTypeRelatedMixin:
 
     def get_ctype(self) -> ContentType:
         try:
-            ctype = getattr(self, 'related_ctype')
+            # ctype = getattr(self, 'related_ctype')
+            ctype = self.related_ctype
         except AttributeError:
             ct_id_str = self.get_ctype_id()
 

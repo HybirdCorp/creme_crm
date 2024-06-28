@@ -135,7 +135,8 @@ class RoleRelatedMixin:
 
     def get_role_info(self):
         try:
-            role_info = getattr(self, 'role_info')
+            # role_info = getattr(self, 'role_info')
+            role_info = self.role_info  # NOQA
         except AttributeError:
             role = self.kwargs[self.role_url_kwarg]
 

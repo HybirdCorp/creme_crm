@@ -170,7 +170,8 @@ class BaseEvaluatedOrganisationView(generic.BricksView):
 
     def get_organisation(self):
         try:
-            orga = getattr(self, 'organisation')
+            # orga = getattr(self, 'organisation')
+            orga = self.organisation  # NOQA
         except AttributeError:
             orga_id = self.kwargs[self.orga_id_url_kwarg]
             strategy = self.get_strategy()
@@ -190,7 +191,8 @@ class BaseEvaluatedOrganisationView(generic.BricksView):
 
     def get_strategy(self):
         try:
-            strategy = getattr(self, 'strategy')
+            # strategy = getattr(self, 'strategy')
+            strategy = self.strategy  # NOQA
         except AttributeError:
             self.strategy = strategy = get_object_or_404(
                 Strategy,

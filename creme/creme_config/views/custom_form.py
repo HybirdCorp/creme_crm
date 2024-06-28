@@ -68,7 +68,8 @@ class CustomFormMixin:
 
     def get_customform_descriptor(self):
         try:
-            desc = getattr(self, 'descriptor')
+            # desc = getattr(self, 'descriptor')
+            desc = self.descriptor  # NOQA
         except AttributeError:
             self.descriptor = desc = self.get_customform_descriptor_from_id(
                 self.object.descriptor_id,
@@ -78,7 +79,8 @@ class CustomFormMixin:
 
     def get_groups(self):
         try:
-            groups = getattr(self, 'groups')
+            # groups = getattr(self, 'groups')
+            groups = self.groups  # NOQA
         except AttributeError:
             self.groups = groups = self.get_customform_descriptor().groups(item=self.object)
 

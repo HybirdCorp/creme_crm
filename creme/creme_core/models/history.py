@@ -1077,7 +1077,8 @@ class HistoryLine(Model):
     @property
     def user(self):
         try:
-            user = getattr(self, '_user_cache')
+            # user = getattr(self, '_user_cache')
+            user = self._user_cache
         except AttributeError:
             username = self.username
             self._user_cache = user = get_user_model().objects.filter(
