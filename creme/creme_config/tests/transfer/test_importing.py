@@ -3109,7 +3109,8 @@ class ImportingTestCase(TransferBaseTestCase):
         # Will be removed
         rbi2 = RelationBrickItem.objects.create(relation_type=rtype02)
 
-        rbi_id3 = rbi2.id + 1
+        # rbi_id3 = rbi2.id + 1
+        rbi_uuid3 = uuid4()
 
         rtypes_data = [
             {
@@ -3125,10 +3126,12 @@ class ImportingTestCase(TransferBaseTestCase):
 
         rbi_data = [
             {
-                'id': rbi1.id,
+                # 'id': rbi1.id,
+                'uuid': str(rbi1.uuid),
                 'relation_type': rtype01.id,
             }, {
-                'id': rbi_id3,
+                # 'id': rbi_id3,
+                'uuid': str(rbi_uuid3),
                 'relation_type': rtype03_id,
                 'cells': [
                     [
@@ -3159,14 +3162,16 @@ class ImportingTestCase(TransferBaseTestCase):
 
         self.assertDoesNotExist(rbi2)
 
-        rbi1 = self.assertStillExists(rbi1)
+        # rbi1 = self.assertStillExists(rbi1) TODO: recycle instance?
+        rbi1 = self.get_object_or_fail(RelationBrickItem, uuid=rbi1.uuid)
         self.assertEqual(rtype01, rbi1.relation_type)
         self.assertFalse([*rbi1.iter_cells()])
 
         cfield = self.get_object_or_fail(CustomField, uuid=cf_uuid)
 
         rbi3 = self.get_object_or_fail(RelationBrickItem, relation_type_id=rtype03_id)
-        self.assertEqual(rbi_id3, rbi3.id)
+        # self.assertEqual(rbi_id3, rbi3.id)
+        self.assertEqual(rbi_uuid3, rbi3.uuid)
 
         def assert_cells(model, keys):
             cells = rbi3.get_cells(get_ct(model))
