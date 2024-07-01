@@ -1,3 +1,34 @@
+== Version 2.5.10 ==
+
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+    # Images with an extension in uppercase (e.g. "my_pic.JPG") are correctly displayed now.
+    # A scary log with fast pagination has been removed.
+    # The setting SOFTWARE_LABEL in now used for the title of the login page.
+    # A warning in the JavaScript console about Select2 & its locale has been removed.
+    # Apps :
+        * Geolocation :
+            - A crash in the JavaScript code of blocks when the entity is deleted has been fixed.
+        * Sketch :
+            - The display of numbers between 5000 and 10000 has been improved.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The lib 'xhtml2pdf' has been upgraded to the version '0.2.16'
+          (so more recent versions of ReportLab can be used).
+        # The management of custom "FunctionFieldResult" classes which define methods
+          'for_html()/for_csv()' has been improved; these methods are now called
+          by 'render()', with a warning, to facilitate code upgrade.
+        # Some issues with the populating of the test DB have been fixed.
+          For example, the 'populate' was made even if the test DB creation failed (leading to confusion).
+
+
 == Version 2.5.9 ==
 
   Users side :

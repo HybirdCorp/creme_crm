@@ -444,6 +444,7 @@ INSTALLED_CREME_APPS = [
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
 
 # You should use image formats which browsers can display
+# It's useless to add uppercase versions, code is not case-sensitive.
 ALLOWED_IMAGES_EXTENSIONS = [
     'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'tif', 'tiff', 'svg', 'webp',
 ]
@@ -822,6 +823,8 @@ CREME_LIB_JS = [
     'creme_core/js/lib/editor/tinymce.3.4.9.js',
     'creme_core/js/lib/Sortable/Sortable-1.15.0.js',
     'creme_core/js/lib/select2/select2-4.0.13.full.js',
+    'creme_core/js/lib/select2/i18n/en.js',
+    'creme_core/js/lib/select2/i18n/fr.js',
     'creme_core/js/lib/select2/select2-jquery-3.6.0.js',
 ]
 

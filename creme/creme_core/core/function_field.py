@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -62,7 +62,30 @@ class FunctionFieldResult:
         return self.render(ViewTag.TEXT_PLAIN)
 
     def render(self, tag: ViewTag):
-        return self._data if tag == ViewTag.TEXT_PLAIN else escape(self._data)
+        if tag == ViewTag.TEXT_PLAIN:
+            if getattr(type(self), 'for_csv') is not FunctionFieldResult.for_csv:
+                warnings.warn(
+                    'Defining a method "for_csv()" in a FunctionFieldResult child class '
+                    'is deprecated; define a method "render()" instead.',
+                    DeprecationWarning,
+                )
+                return self.for_csv()
+
+            return self._data
+
+        if getattr(type(self), 'for_html') is not FunctionFieldResult.for_html:
+            warnings.warn(
+                'Defining a method "for_html()" in a FunctionFieldResult child class '
+                'is deprecated; define a method "render()" instead.',
+                DeprecationWarning,
+            )
+
+            return self.for_html()
+
+        return escape(self._data)
+
+        # TODO: 2.6 version
+        # return self._data if tag == ViewTag.TEXT_PLAIN else escape(self._data)
 
 
 class FunctionFieldDecimal(FunctionFieldResult):

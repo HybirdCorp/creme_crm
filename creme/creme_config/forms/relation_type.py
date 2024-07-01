@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -90,7 +90,7 @@ class _RelationTypeForm(CremeForm):
         ),
     )
     object_min_display = BooleanField(
-        label=_("Display once on the subject's page"), required=False,
+        label=_("Display once on the object's page"), required=False,
         help_text=_(
             'Do not display in the «Relationships» block (detail-view of '
             'object) when it is already displayed by another block.'
