@@ -223,7 +223,8 @@ class RelationBrickItemExporter(CellsExporterMixin, Exporter):
         assert isinstance(instance, models.RelationBrickItem)
 
         data = {
-            'id':            instance.id,
+            # 'id':            instance.id,
+            'uuid':          str(instance.uuid),
             'relation_type': instance.relation_type_id,
         }
 
