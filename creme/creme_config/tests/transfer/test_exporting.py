@@ -387,7 +387,8 @@ class ExportingTestCase(TransferBaseTestCase):
             ]
 
         rbi_info01 = self.get_alone_element(all_rbi_info01)
-        self.assertEqual(rbi1.id, rbi_info01.get('id'))
+        # self.assertEqual(rbi1.id, rbi_info01.get('id'))
+        self.assertEqual(str(rbi1.uuid), rbi_info01.get('uuid'))
         self.assertNotIn('cells', rbi_info01)
 
         # ----
@@ -399,7 +400,8 @@ class ExportingTestCase(TransferBaseTestCase):
             ]
 
         rbi_info02 = self.get_alone_element(all_rbi_info02)
-        self.assertEqual(rbi2.id, rbi_info02.get('id'))
+        # self.assertEqual(rbi2.id, rbi_info02.get('id'))
+        self.assertEqual(str(rbi2.uuid), rbi_info02.get('uuid'))
 
         cells_info = rbi_info02.get('cells')
         self.assertIsList(cells_info, length=2)

@@ -1719,7 +1719,8 @@ class RelationBrickItemsImporter(Importer):
         for info in deserialized_section:
             rtype_id = info['relation_type']
             data.append({
-                'id': info['id'],
+                # 'id': info['id'],
+                'uuid': info['uuid'],
                 'relation_type_id': rtype_id,
                 'cells': [
                     load_ctype_cells(rtype_id, ctype_cells)
