@@ -33,6 +33,7 @@ from django.utils.translation import gettext_lazy as _
 import creme.creme_core.forms.base as core_forms
 import creme.creme_core.models as core_models
 from creme.creme_core import get_world_settings_model
+from creme.creme_core.auth import STAFF_PERM
 from creme.creme_core.core import setting_key
 from creme.creme_core.core.entity_filter import EF_REGULAR
 from creme.creme_core.core.field_tags import FieldTag
@@ -1302,3 +1303,19 @@ class HeaderFiltersBrick(PaginatedBrick):
             ]
 
         return self._render(btc)
+
+
+class FileRefsBrick(_ConfigAdminBrick):
+    id = _ConfigAdminBrick.generate_id('creme_config', 'file_refs')
+    verbose_name = _('Temporary files')
+    dependencies = (core_models.FileRef,)
+    order_by = '-created'
+    template_name = 'creme_config/bricks/file-refs.html'
+    permissions = STAFF_PERM
+
+    def detailview_display(self, context):
+        # TODO: display files' size?
+        return self._render(self.get_template_context(
+            context,
+            queryset=core_models.FileRef.objects.all(),
+        ))

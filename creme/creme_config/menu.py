@@ -209,6 +209,15 @@ class HeaderFiltersConfigEntry(_ConfigURLEntry):
     url_name = 'creme_config__hfilters'
 
 
+class FileRefsEntry(_ConfigURLEntry):
+    id = 'creme_config-file_refs'
+    label = _('Temporary files')
+    url_name = 'creme_config__file_refs'
+
+    def render(self, context):
+        return super().render(context=context) if context['user'].is_staff else ''
+
+
 class CremeConfigEntry(menu.ContainerEntry):
     id = 'creme_config-main'
     label = _('Configuration')
@@ -233,6 +242,22 @@ class CremeConfigEntry(menu.ContainerEntry):
     class ListviewsSeparatorEntry(menu.Separator1Entry):
         id = 'creme_config-listviews_separator'
         label = _('List-views management')
+
+    # NB: 'ContainerEntry.render()' always generates <li> tags, even for empty
+    #     entries, so we cannot use Separator1Entry because the top border will
+    #     always be displayed even for not staff users.
+    # TODO: we could entirely define 'CremeConfigEntry.render()', but improving
+    #       ContainerEntry would be better.
+    #       Idea: the property "children" could become a classical method like
+    #             "get_children(self, context)" to skip entries depending on the context.
+    #       (remove/rework the CSS class when it's done)
+    class StaffSeparatorEntry(menu.MenuEntry):
+        id = 'creme_config-staff_separator'
+        type = 'creme_config-staff_separator'
+        label = _('Staff tools')
+
+        def render(self, context):
+            return self.render_label(context) if context['user'].is_staff else ''
 
     children_classes = [
         ConfigPortalEntry,
@@ -260,6 +285,9 @@ class CremeConfigEntry(menu.ContainerEntry):
         ListviewsSeparatorEntry,
         EntityFiltersConfigEntry,
         HeaderFiltersConfigEntry,
+
+        StaffSeparatorEntry,
+        FileRefsEntry,
     ]
 
     def __init__(self, **kwargs):

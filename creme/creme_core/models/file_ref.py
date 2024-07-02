@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2023  Hybird
+#    Copyright (C) 2016-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,20 +21,24 @@ from os.path import basename
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from .fields import CremeUserForeignKey
 
 
 class FileRef(models.Model):  # NB: not a CremeModel, because it's used by CremeModel.delete()
-    filedata = models.FileField(max_length=200)
+    filedata = models.FileField(verbose_name=_('Path'), max_length=200)
 
     # True/user-friendly name of the file
     # (in 'filedata' there is the path uniqueness constraint).
     basename = models.CharField(max_length=200)
 
-    created = models.DateTimeField(auto_now_add=True)
-    user = CremeUserForeignKey(verbose_name='Owner user', null=True, on_delete=models.SET_NULL)
-    temporary = models.BooleanField(verbose_name='Is temporary?', default=True)
+    created = models.DateTimeField(
+        verbose_name=pgettext_lazy('creme_core-temporary_file', 'Created'), auto_now_add=True,
+    )
+    user = CremeUserForeignKey(verbose_name=_('Owner user'), null=True, on_delete=models.SET_NULL)
+    temporary = models.BooleanField(verbose_name=_('To be deleted by the job?'), default=True)
 
     # Can be used by third party code to store the data they want,
     # without having to modify the code.
