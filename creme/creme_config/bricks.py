@@ -1302,3 +1302,17 @@ class HeaderFiltersBrick(PaginatedBrick):
             ]
 
         return self._render(btc)
+
+
+class FileRefsBrick(_ConfigAdminBrick):
+    id = _ConfigAdminBrick.generate_id('creme_config', 'file_refs')
+    verbose_name = _('Temporary files')
+    dependencies = (core_models.FileRef,)
+    order_by = 'id'
+    template_name = 'creme_config/bricks/file-refs.html'
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            queryset=core_models.FileRef.objects.all(),
+        ))
