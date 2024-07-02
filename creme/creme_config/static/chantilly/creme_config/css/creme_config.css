@@ -4,6 +4,17 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     height: 14px;
 }
 
+.ui-creme-navigation ul li.ui-creme-navigation-item-id_creme_config-staff_separator {
+  margin-top: 5px;
+  padding: 5px 10px;
+
+  color: #ffd571;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-decoration: underline;
+}
+
 /* Portal */
 
 .creme_config-portal-general .help-text,

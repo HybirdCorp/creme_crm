@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Config 2.6\n"
+"Project-Id-Version: Creme Creme-Config 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-05 18:45+0200\n"
+"POT-Creation-Date: 2024-08-06 19:34+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -115,6 +115,9 @@ msgstr "Rôles"
 
 msgid "Setting values"
 msgstr "Valeurs de réglage"
+
+msgid "Temporary files"
+msgstr "Fichiers temporaires"
 
 #, python-brace-format
 msgid "The column with type=\"{type}\" is invalid in «{container}»."
@@ -1005,6 +1008,9 @@ msgstr "Gestion des droits"
 msgid "List-views management"
 msgstr "Gestion des vues en liste"
 
+msgid "Staff tools"
+msgstr "Outils administrateur"
+
 # Already in contrib.auth
 msgid "Password change"
 msgstr ""
@@ -1351,6 +1357,15 @@ msgstr ""
 
 msgid "No fields configuration for the moment"
 msgstr "Aucune configuration de champs pour le moment"
+
+msgid "{count} Temporary file"
+msgstr "{count} Fichier temporaire"
+
+msgid "{count} Temporary files"
+msgstr "{count} Fichiers temporaires"
+
+msgid "No file for the moment"
+msgstr "Aucun fichier pour le moment"
 
 msgid "No property constraint"
 msgstr "Pas de contrainte de propriété"
@@ -2217,6 +2232,9 @@ msgstr ""
 "remplir ce champ la prochaine fois qu'ils modifieront une fiche avec une "
 "valeur vide."
 
+msgid "Monitoring of temporary files"
+msgstr "Surveillance des fichiers temporaires"
+
 msgid "Configuration of views"
 msgstr "Configuration des vues"
 
@@ -2291,9 +2309,9 @@ msgid ""
 "better results visibility."
 msgstr ""
 "Créez des configurations de recherche afin de rendre la recherche globale "
-"(voir à droite du menu principal) plus rapide. Remarque : limitez le nombre de "
-"champs par type pour de meilleures performances et une meilleure visibilité "
-"des résultats."
+"(voir à droite du menu principal) plus rapide. Remarque : limitez le nombre "
+"de champs par type pour de meilleures performances et une meilleure "
+"visibilité des résultats."
 
 msgid "Configuration of roles"
 msgstr "Configuration des rôles"

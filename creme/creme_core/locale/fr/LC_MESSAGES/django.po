@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Core 2.6\n"
+"Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-07-05 14:30+0200\n"
+"POT-Creation-Date: 2024-08-06 19:43+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2368,6 +2368,16 @@ msgstr "Configuration de {model}"
 #, python-brace-format
 msgid "Warning: the app «{app}» need the field «{field}»."
 msgstr "Attention: l'app «{app}» a besoin du champ «{field}»."
+
+msgid "Path"
+msgstr "Chemin"
+
+msgctxt "creme_core-temporary_file"
+msgid "Created"
+msgstr "Créé"
+
+msgid "To be deleted by the job?"
+msgstr "Doit être supprimé par le job ?"
 
 msgid "Name of the view"
 msgstr "Nom de la vue"

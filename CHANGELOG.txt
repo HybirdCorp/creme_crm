@@ -6,6 +6,7 @@
         * Creme_config :
             - In the bricks configuration, default configuration is used as initial value when it's relevant
               (instead of starting with an empty configuration).
+            - A view which displays all "FileRefs" (temporary files) has been added; it's only available for staff users.
         * Opportunities :
             - You can now create unsuccessful phone calls from an Opportunity's detail-view :
                 - A button has been added (not enabled in default installations).

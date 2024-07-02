@@ -8,6 +8,7 @@ from .views import (
     custom_form,
     entity_filter,
     fields_config,
+    file_ref,
     generics_views,
     header_filter,
     history,
@@ -724,6 +725,10 @@ header_filters_patterns = [
     ),
 ]
 
+file_ref_patterns = [
+    re_path(r'^portal[/]?$', file_ref.Portal.as_view(), name='creme_config__file_refs'),
+]
+
 transfer_patterns = [
     re_path(
         r'^export[/]?$', transfer.ConfigExport.as_view(), name='creme_config__transfer_export',
@@ -766,6 +771,7 @@ urlpatterns = [
     re_path(r'^entity_filters/', include(entity_filters_patterns)),
     re_path(r'^header_filters/', include(header_filters_patterns)),
 
+    re_path(r'^file_ref/', include(file_ref_patterns)),
     re_path(r'^transfer/', include(transfer_patterns)),
 
     # Generic portal config

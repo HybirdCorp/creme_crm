@@ -122,6 +122,7 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.UserRolesBrick,
             bricks.EntityFiltersBrick,
             bricks.HeaderFiltersBrick,
+            bricks.FileRefsBrick,
         )
 
     def register_menu_entries(self, menu_registry):

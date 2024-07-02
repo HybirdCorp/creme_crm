@@ -1,0 +1,8 @@
+{% extends 'creme_config/portals/base.html' %}
+{% load i18n %}
+
+{% block page_title %}{% translate 'Monitoring of temporary files' %} - {% endblock %}
+
+{% block title %}
+    {{block.super}}{% translate 'Temporary files' %}
+{% endblock %}
