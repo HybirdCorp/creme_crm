@@ -625,12 +625,21 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             url,
             data={'participants': self.formfield_value_multi_creator_entity(c1, c2)},
         ))
+        # self.assertCountEqual(
+        #     [c1.id, c2.id],
+        #     [
+        #         *Relation.objects.filter(
+        #             object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
+        #         ).values_list('subject_entity_id', flat=True),
+        #     ],
+        # )
         self.assertCountEqual(
-            [c1.id, c2.id],
+            [c1, c2],
             [
-                *Relation.objects.filter(
+                r.subject_entity.get_real_entity()
+                for r in Relation.objects.filter(
                     object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
-                ).values_list('subject_entity_id', flat=True),
+                )
             ],
         )
 
@@ -772,7 +781,15 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 for r in Relation.objects.filter(
                     object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
                 )
-            ]
+            ],
+        )
+        self.assertCountEqual(
+            [
+                Calendar.objects.get_default_calendar(user)
+                # for user in (user1, user2, user3)
+                for user in (user1, user2, user3, team)
+            ],
+            activity.calendars.all(),
         )
 
     @skipIfCustomContact
@@ -809,7 +826,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             type_id=REL_SUB_PART_2_ACTIVITY,
             object_entity=activity,
         )
-        cal1 = Calendar.objects.get_default_calendar(user)
+        get_default_calendar = Calendar.objects.get_default_calendar
+        cal1 = get_default_calendar(user)
         activity.calendars.add(cal1)
 
         self.assertNoFormError(self.client.post(
@@ -823,7 +841,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             1, other_user.linked_contact, REL_SUB_PART_2_ACTIVITY, activity,
         )
         self.assertCountEqual(
-            [cal1, Calendar.objects.get_default_calendar(other_user)],
+            # [cal1, get_default_calendar(other_user)],
+            [cal1, get_default_calendar(other_user), get_default_calendar(team)],
             activity.calendars.all(),
         )
 

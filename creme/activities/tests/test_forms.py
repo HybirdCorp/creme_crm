@@ -339,8 +339,11 @@ class ParticipatingUsersFieldTestCase(CremeTestCase):
     def test_clean_empty(self):
         user = self.get_root_user()
         field = ParticipatingUsersField(user=user, required=False)
-        self.assertFalse(field.clean([]))
-        self.assertFalse(field.clean(None))
+        # self.assertFalse(field.clean([]))
+        empty = {'contacts': [], 'calendars': []}
+        self.assertDictEqual(empty, field.clean([]))
+        # self.assertFalse(field.clean(None))
+        self.assertDictEqual(empty, field.clean(None))
 
     def test_clean(self):
         user = self.login_as_standard(allowed_apps=('persons', 'activities'))
@@ -356,10 +359,21 @@ class ParticipatingUsersFieldTestCase(CremeTestCase):
         staff_user = self.create_user(index=2, is_staff=True)
 
         field = ParticipatingUsersField(user=user)
+        # self.assertCountEqual(
+        #     [user.linked_contact, other_user.linked_contact],
+        #     field.clean([user.id, other_user.id]),
+        # )
+        cleaned = field.clean([user.id, other_user.id])
+        self.assertIsDict(cleaned, length=2)
         self.assertCountEqual(
             [user.linked_contact, other_user.linked_contact],
-            field.clean([user.id, other_user.id]),
+            cleaned.get('contacts'),
         )
+        self.assertCountEqual(
+            [Calendar.objects.get_default_calendar(u) for u in (user, other_user)],
+            cleaned.get('calendars'),
+        )
+
         self.assertFormfieldError(
             field=field,
             value=[user.id, staff_user.id],
@@ -369,7 +383,7 @@ class ParticipatingUsersFieldTestCase(CremeTestCase):
             ) % {'value': staff_user.id},
         )
 
-    def test_clean_teamate(self):
+    def test_clean_teammate(self):
         user1 = self.login_as_root_and_get()
         user2 = self.create_user(0)
         user3 = self.create_user(1)
@@ -377,9 +391,19 @@ class ParticipatingUsersFieldTestCase(CremeTestCase):
         team = self.create_team('Samurais', user3, user4)
 
         field = ParticipatingUsersField(user=user1)
+        # self.assertCountEqual(
+        #     [u.linked_contact for u in (user2, user3, user4)],
+        #     field.clean([user2.id, team.id]),
+        # )
+        cleaned = field.clean([user2.id, team.id])
         self.assertCountEqual(
             [u.linked_contact for u in (user2, user3, user4)],
-            field.clean([user2.id, team.id]),
+            cleaned.get('contacts'),
+        )
+        get_default_calendar = Calendar.objects.get_default_calendar
+        self.assertCountEqual(
+            [get_default_calendar(u) for u in (user2, user3, user4, team)],
+            cleaned.get('calendars'),
         )
 
     def test_not_linkable(self):

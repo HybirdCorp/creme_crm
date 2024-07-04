@@ -572,6 +572,7 @@ class BaseCreationCustomForm(BaseCustomForm):
         super().__init__(*args, **kwargs)
         # All Contacts who participate: me, other users, other contacts
         self.participants: set[AbstractContact] = set()
+        self.calendars: list[Calendar] = []
 
         if sub_type:
             instance = self.instance
@@ -583,11 +584,16 @@ class BaseCreationCustomForm(BaseCustomForm):
         get_key = self.subcell_key
         participants = self.participants
 
-        participants.update(cdata.get(get_key(UsersSubCell), ()))
+        # participants.update(cdata.get(get_key(UsersSubCell), ()))
+        others_data = cdata.get(get_key(UsersSubCell))
+        if others_data:
+            participants.update(others_data['contacts'])
+            self.calendars.extend(others_data['calendars'])
 
         my_participation = cdata.get(get_key(MyParticipationSubCell))
         if my_participation and my_participation.is_set:
             participants.add(self.user.linked_contact)
+            self.calendars.append(my_participation.data)
 
         participants.update(cdata.get(get_key(OtherParticipantsSubCell), ()))
 
@@ -621,22 +627,29 @@ class BaseCreationCustomForm(BaseCustomForm):
             for entity in entities
         )
 
+    # def save(self, *args, **kwargs):
+    #     instance = super().save(*args, **kwargs)
+    #     cdata = self.cleaned_data
+    #     get_key = self.subcell_key
+    #     calendars = [
+    #         *Calendar.objects.get_default_calendars(
+    #             part_user.is_user
+    #             for part_user in cdata.get(get_key(UsersSubCell), ())
+    #         ).values()
+    #     ]
+    #
+    #     my_participation = cdata.get(get_key(MyParticipationSubCell))
+    #     if my_participation and my_participation.is_set:
+    #         calendars.append(my_participation.data)
+    #
+    #     for calendars_chunk in iter_as_chunk(calendars, 256):
+    #         instance.calendars.add(*calendars_chunk)
+    #
+    #     return instance
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
-        cdata = self.cleaned_data
-        get_key = self.subcell_key
-        calendars = [
-            *Calendar.objects.get_default_calendars(
-                part_user.is_user
-                for part_user in cdata.get(get_key(UsersSubCell), ())
-            ).values()
-        ]
 
-        my_participation = cdata.get(get_key(MyParticipationSubCell))
-        if my_participation and my_participation.is_set:
-            calendars.append(my_participation.data)
-
-        for calendars_chunk in iter_as_chunk(calendars, 256):
+        for calendars_chunk in iter_as_chunk(self.calendars, 256):
             instance.calendars.add(*calendars_chunk)
 
         return instance
