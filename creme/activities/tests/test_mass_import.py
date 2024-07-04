@@ -332,6 +332,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 get_def_calendar(other_user),
                 get_def_calendar(furuichi),
                 get_def_calendar(chiaki),
+                get_def_calendar(team),
             ],
             act1.calendars.all(),
         )

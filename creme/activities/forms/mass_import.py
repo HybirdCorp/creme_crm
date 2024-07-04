@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2023  Hybird
+#    Copyright (C) 2014-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 import logging
 from collections import OrderedDict
@@ -37,6 +39,7 @@ from creme.creme_core.forms.mass_import import (
 from creme.creme_core.forms.widgets import PrettySelect
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils import as_int
+from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.persons.models import Civility
 
 from .. import constants
@@ -611,13 +614,29 @@ def get_massimport_form_builder(header_dict, choices):
                     Calendar.objects.get_default_calendar(user).id,
                 )
 
-            self.user_participants = []
+            # self.user_participants: list[Contact] = []
+            self.user_participants: set[Contact] = set()
+            self.calendars: list[Calendar] = []
+
+        def clean_my_participation(self):
+            my_participation = self.cleaned_data['my_participation']
+
+            if my_participation.is_set:
+                self.user_participants.add(self.user.linked_contact)
+                self.calendars.append(my_participation.data)
+
+            return my_participation
 
         def clean_participating_users(self):
-            user_contacts = self.cleaned_data['participating_users']
-            self.user_participants.extend(user_contacts)
+            # user_contacts = self.cleaned_data['participating_users']
+            # self.user_participants.extend(user_contacts)
+            #
+            # return {contact.is_user for contact in user_contacts}
+            participants_data = self.cleaned_data['participating_users']
+            self.user_participants.update(participants_data['contacts'])
+            self.calendars.extend(participants_data['calendars'])
 
-            return {contact.is_user for contact in user_contacts}
+            return participants_data
 
         def _pre_instance_save(self, instance, line):
             sub_type = self.cleaned_data['type_selector']
@@ -681,14 +700,20 @@ def get_massimport_form_builder(header_dict, choices):
 
                 instance.calendars.add(calendar)
 
-            my_participation = cdata['my_participation']
-            if my_participation.is_set:
-                add_participant(self.user.linked_contact)
-                instance.calendars.add(my_participation.data)
-
+            # my_participation = cdata['my_participation']
+            # if my_participation.is_set:
+            #     add_participant(self.user.linked_contact)
+            #     instance.calendars.add(my_participation.data)
+            #
+            # for participant in self.user_participants:
+            #     add_participant(participant)
+            #     add_to_default_calendar(participant.is_user)
             for participant in self.user_participants:
                 add_participant(participant)
-                add_to_default_calendar(participant.is_user)
+
+            for calendars_chunk in iter_as_chunk(self.calendars, 256):
+                # TODO: add to default_calendars_cache?
+                instance.calendars.add(*calendars_chunk)
 
             dyn_participants, err_messages = cdata['participants'].extract_value(line, self.user)
 

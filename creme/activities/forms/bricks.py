@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2023  Hybird
+#    Copyright (C) 2012-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,7 @@ from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.persons import get_contact_model
 
 from .. import constants
-from ..models import Calendar
+# from ..models import Calendar
 from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
 from . import fields as act_fields
 
@@ -58,6 +58,7 @@ class ParticipantsAddingForm(CremeForm):
         super().__init__(*args, **kwargs)
         self.activity = entity
         self.participants = set()
+        self.calendars = []
 
         user_pk = self.user.pk
         fields = self.fields
@@ -95,20 +96,35 @@ class ParticipantsAddingForm(CremeForm):
     def clean_my_participation(self):
         my_participation = self.cleaned_data['my_participation']
 
-        # if my_participation[0]:
         if my_participation.is_set:
             self.participants.add(self.user.linked_contact)
+            self.calendars.append(my_participation.data)
 
         return my_participation
+
+    def clean_participating_users(self):
+        participants_data = self.cleaned_data['participating_users']
+
+        self.participants.update(participants_data['contacts'])
+        self.calendars.extend(participants_data['calendars'])
+
+        return participants_data
+
+    def clean_participants(self):
+        participants = self.cleaned_data['participants']
+
+        self.participants.update(participants)
+
+        return participants
 
     def clean(self):
         cleaned_data = super().clean()
 
         if not self._errors:
             activity = self.activity
-            extend_participants = self.participants.update
-            extend_participants(cleaned_data['participating_users'])
-            extend_participants(cleaned_data['participants'])
+            # extend_participants = self.participants.update
+            # extend_participants(cleaned_data['participating_users'])
+            # extend_participants(cleaned_data['participants'])
 
             collisions = check_activity_collisions(
                 activity.start, activity.end,
@@ -121,34 +137,49 @@ class ParticipantsAddingForm(CremeForm):
 
         return cleaned_data
 
+    # def save(self):
+    #     activity = self.activity
+    #     create_relation = partial(
+    #         Relation.objects.safe_create,
+    #         object_entity=activity,
+    #         type_id=constants.REL_SUB_PART_2_ACTIVITY,
+    #         user=activity.user,
+    #     )
+    #     me = self.user
+    #     other_users = []
+    #     calendars = []
+    #
+    #     for participant in self.participants:
+    #         user = participant.is_user
+    #         if user:
+    #             if user == me:
+    #                 my_participation = self.cleaned_data.get('my_participation')
+    #                 if my_participation:
+    #                     calendars.append(my_participation.data)
+    #                 else:
+    #                     continue  # Avoid an error message about relation uniqueness
+    #             else:
+    #                 other_users.append(user)
+    #
+    #         create_relation(subject_entity=participant)
+    #
+    #     calendars.extend(Calendar.objects.get_default_calendars(other_users).values())
+    #     for calendars_chunk in iter_as_chunk(calendars, 256):
+    #         activity.calendars.add(*calendars_chunk)
     def save(self):
         activity = self.activity
-        create_relation = partial(
-            Relation.objects.safe_create,
-            object_entity=activity,
-            type_id=constants.REL_SUB_PART_2_ACTIVITY,
-            user=activity.user,
+        user = activity.user
+
+        Relation.objects.safe_multi_save(
+            Relation(
+                subject_entity=participant,
+                type_id=constants.REL_SUB_PART_2_ACTIVITY,
+                object_entity=activity,
+                user=user,
+            ) for participant in self.participants
         )
-        me = self.user
-        other_users = []
-        calendars = []
 
-        for participant in self.participants:
-            user = participant.is_user
-            if user:
-                if user == me:
-                    my_participation = self.cleaned_data.get('my_participation')
-                    if my_participation:
-                        calendars.append(my_participation.data)
-                    else:
-                        continue  # Avoid an error message about relation uniqueness
-                else:
-                    other_users.append(user)
-
-            create_relation(subject_entity=participant)
-
-        calendars.extend(Calendar.objects.get_default_calendars(other_users).values())
-        for calendars_chunk in iter_as_chunk(calendars, 256):
+        for calendars_chunk in iter_as_chunk(self.calendars, 256):
             activity.calendars.add(*calendars_chunk)
 
 

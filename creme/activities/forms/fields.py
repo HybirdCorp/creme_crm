@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2023 Hybird
+#    Copyright (C) 2017-2024 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -163,19 +163,46 @@ class ParticipatingUsersField(forms.ModelMultipleChoiceField):
         super().__init__(queryset=queryset, **kwargs)
         self.user = user
 
+    # def clean(self, value):
+    #     user = self.user
+    #     assert user is not None
+    #
+    #     users = set()
+    #
+    #     for part_user in super().clean(value=value):
+    #         if not part_user.is_team:
+    #             users.add(part_user)
+    #         else:
+    #             users.update(part_user.teammates.values())
+    #
+    #     return validators.validate_linkable_entities(
+    #         get_contact_model().objects.filter(is_user__in=users).select_related('is_user'),
+    #         self.user,
+    #     )
     def clean(self, value):
         user = self.user
         assert user is not None
 
-        users = set()
+        contact_users = set()
+        teams = set()
 
         for part_user in super().clean(value=value):
-            if not part_user.is_team:
-                users.add(part_user)
+            if part_user.is_team:
+                contact_users.update(part_user.teammates.values())
+                teams.add(part_user)
             else:
-                users.update(part_user.teammates.values())
+                contact_users.add(part_user)
 
-        return validators.validate_linkable_entities(
-            get_contact_model().objects.filter(is_user__in=users).select_related('is_user'),
-            self.user,
-        )
+        return {
+            'contacts': [
+                *validators.validate_linkable_entities(
+                    entities=get_contact_model().objects
+                                                .filter(is_user__in=contact_users)
+                                                .select_related('is_user'),
+                    user=self.user,
+                ),
+            ],
+            'calendars': [
+                *Calendar.objects.get_default_calendars(contact_users | teams).values(),
+            ],
+        }

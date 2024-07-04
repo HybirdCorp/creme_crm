@@ -41,6 +41,8 @@
                 - Which days are active.
                 - What hour range to use.
                 - ...
+            - Teams have a default Calendar since years, but they were unused ;
+              now, when you select a team as a participant, the Activity is put on the team's Calendar too.
             - A new button, which can be displayed on Contacts' detail-views, is available: "Create an unsuccessful phone call".
             - The configuration block for Calendars has been improved.
         * Persons :
@@ -422,8 +424,10 @@
                 - The UUIDs of the instances of 'models.Status' created by the 'populate' script are now fixed (to be consistent between Creme instances).
                     - The constants 'STATUS_*' have been removed; you should use the new constants 'UUID_STATUS_*' instead.
                     - A data migration fixes the UUIDs of the 5 Statuses provided by default, and stores the old UUIDs in their field "meta_data".
+                - The method 'forms.fields.ParticipatingUsersField.clean()' now returns a dictionary containing the concerned Contacts & Calendars ;
+                  the forms manipulating participants have slightly changed their internal behaviour, beware if you inherit them.
                 - The brick 'bricks.UserCalendarsBrick' does not inject "has_app_perm" in its context anymore.
-                - The class 'buttons.AddRelatedActivityButton' has been rework to use 'ActivityType.uuid';
+                - The class 'buttons.AddRelatedActivityButton' has been reworked to use 'ActivityType.uuid';
                   e.g. the class attribute "activity_type" has been replaced by "activity_type_uuid".
                 - In 'views' :
                     - In 'activity', the class-view 'ActivityCreation' has been reworked to use 'ActivityType.uuid';
