@@ -301,7 +301,7 @@ class JobScheduler:
         #  data which should be used to compute the next wake up could be not
         #  available because of a transaction (i.e. the command has been sent
         #  during this transaction) ; we force a waking up in a short time & pray
-        #  that the migration is finished.
+        #  that the transaction is finished.
         #  TODO: improve this.
         #    => IDEA: create a transaction marker within the transaction, send
         #       its ID in the command, & wait for them to be reachable (so we
