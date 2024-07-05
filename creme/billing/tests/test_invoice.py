@@ -760,6 +760,12 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         name = 'Invoice001'
         invoice, source1, target1 = self.create_invoice_n_orgas(user=user, name=name)
 
+        original_b_addr = invoice.billing_address
+        self.assertIsInstance(original_b_addr, Address)
+
+        original_s_addr = invoice.shipping_address
+        self.assertIsInstance(original_s_addr, Address)
+
         url = invoice.get_edit_absolute_url()
         response1 = self.assertGET200(url)
 
@@ -777,6 +783,19 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         create_orga = partial(Organisation.objects.create, user=user)
         source2 = create_orga(name='Source Orga 2')
         target2 = create_orga(name='Target Orga 2')
+
+        create_address = Address.objects.create
+        target2.billing_address = b_addr2 = create_address(
+            name='Billing address #2', address='BA2 - Address',
+            city='BA2 - City', country='BA2 - Country',
+            owner=target2,
+        )
+        target2.shipping_address = s_addr2 = create_address(
+            name='Shipping address #2', address='SA2 - Address',
+            city='SA2 - City', country='SA2 - Country',
+            owner=target2,
+        )
+        target2.save()
 
         currency = Currency.objects.all()[0]
         response2 = self.client.post(
@@ -808,6 +827,24 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertRelationCount(1, source2, REL_OBJ_BILL_ISSUED,   invoice)
         self.assertRelationCount(1, target2, REL_OBJ_BILL_RECEIVED, invoice)
+
+        billing_address = invoice.billing_address
+        self.assertIsInstance(billing_address, Address)
+        self.assertEqual(invoice,         billing_address.owner)
+        self.assertEqual(b_addr2.name,    billing_address.name)
+        self.assertEqual(b_addr2.city,    billing_address.city)
+        self.assertEqual(b_addr2.country, billing_address.country)
+
+        shipping_address = invoice.shipping_address
+        self.assertIsInstance(shipping_address, Address)
+        self.assertEqual(invoice,            shipping_address.owner)
+        self.assertEqual(s_addr2.name,       shipping_address.name)
+        self.assertEqual(s_addr2.department, shipping_address.department)
+        self.assertEqual(s_addr2.country,    shipping_address.country)
+
+        # TODO: recycle instance instead?
+        self.assertDoesNotExist(original_b_addr)
+        self.assertDoesNotExist(original_s_addr)
 
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
@@ -1445,28 +1482,37 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self._aux_test_csv_import_update(
             user=user,
             model=Invoice, status_model=InvoiceStatus,
-            override_billing_addr=False,
-            override_shipping_addr=True,
+            target_billing_address=True,
+            # override_billing_addr=False,
+            # override_shipping_addr=True,
         )
 
+    # @skipIfCustomAddress
+    # def test_mass_import_update02(self):
+    #     user = self.login_as_root_and_get()
+    #     self._aux_test_csv_import_update(
+    #         user=user,
+    #         model=Invoice, status_model=InvoiceStatus,
+    #         override_billing_addr=True,
+    #         override_shipping_addr=False,
+    #     )
+    #
+    # @skipIfCustomAddress
+    # def test_mass_import_update03(self):
+    #     user = self.login_as_root_and_get()
+    #     self._aux_test_csv_import_update(
+    #         user=user,
+    #         model=Invoice, status_model=InvoiceStatus,
+    #         target_billing_address=False,
+    #         override_billing_addr=True,
+    #     )
     @skipIfCustomAddress
     def test_mass_import_update02(self):
         user = self.login_as_root_and_get()
         self._aux_test_csv_import_update(
             user=user,
             model=Invoice, status_model=InvoiceStatus,
-            override_billing_addr=True,
-            override_shipping_addr=False,
-        )
-
-    @skipIfCustomAddress
-    def test_mass_import_update03(self):
-        user = self.login_as_root_and_get()
-        self._aux_test_csv_import_update(
-            user=user,
-            model=Invoice, status_model=InvoiceStatus,
             target_billing_address=False,
-            override_billing_addr=True,
         )
 
     @skipIfCustomAddress

@@ -684,8 +684,9 @@ class _BillingTestCase(_BillingTestCaseMixin,
 
     def _aux_test_csv_import_update(self, *, user, model, status_model,
                                     target_billing_address=True,
-                                    override_billing_addr=False,
-                                    override_shipping_addr=False):
+                                    # override_billing_addr=False,
+                                    # override_shipping_addr=False,
+                                    ):
         create_orga = partial(Organisation.objects.create, user=user)
 
         source1 = create_orga(name='Nerv')
@@ -707,6 +708,9 @@ class _BillingTestCase(_BillingTestCaseMixin,
                 owner=target2,
                 name='BillingAddr1', address='Temple of sand', city='Suna',
             )
+        else:
+            b_addr1 = Address(address=_('Billing address'))
+
         target2.shipping_address = s_addr1 = create_addr(
             owner=target2,
             name='ShippingAddr1', address='Temple of fire', city='Konoha',
@@ -719,11 +723,11 @@ class _BillingTestCase(_BillingTestCaseMixin,
         )
         bdoc.shipping_address = s_addr2 = create_addr(
             owner=bdoc,
-            name='ShippingAddr2', address='Temple of ligthning', city='Kumo',
+            name='ShippingAddr2', address='Temple of lightning', city='Kumo',
         )
         bdoc.save()
 
-        addr_count = Address.objects.count()
+        # addr_count = Address.objects.count()
 
         number = 'B0001'
         doc = self._build_csv_doc(
@@ -771,8 +775,8 @@ class _BillingTestCase(_BillingTestCaseMixin,
                 'target_persons_contact_colselect':      0,
                 # 'target_persons_contact_create':         True,
 
-                'override_billing_addr':  'on' if override_billing_addr else '',
-                'override_shipping_addr': 'on' if override_shipping_addr else '',
+                # 'override_billing_addr':  'on' if override_billing_addr else '',
+                # 'override_shipping_addr': 'on' if override_shipping_addr else '',
             },
         )
         self.assertNoFormError(response)
@@ -795,19 +799,25 @@ class _BillingTestCase(_BillingTestCaseMixin,
         self.assertIsNotNone(s_addr)
         self.assertEqual(bdoc, s_addr.owner)
 
-        if target_billing_address:
-            expected_b_addr = b_addr1 if override_billing_addr else b_addr2
-            self.assertEqual(expected_b_addr.address, b_addr.address)
-            self.assertEqual(expected_b_addr.city,    b_addr.city)
-        else:
-            self.assertEqual(b_addr2, b_addr)  # No change
+        # if target_billing_address:
+        #     expected_b_addr = b_addr1 if override_billing_addr else b_addr2
+        #     self.assertEqual(expected_b_addr.address, b_addr.address)
+        #     self.assertEqual(expected_b_addr.city,    b_addr.city)
+        # else:
+        #     self.assertEqual(b_addr2, b_addr)  # No change
+        self.assertEqual(b_addr1.address, b_addr.address)
+        self.assertEqual(b_addr1.city,    b_addr.city)
 
-        expected_s_addr = s_addr1 if override_shipping_addr else s_addr2
-        self.assertEqual(expected_s_addr.address, s_addr.address)
-        self.assertEqual(expected_s_addr.city,    s_addr.city)
+        # expected_s_addr = s_addr1 if override_shipping_addr else s_addr2
+        # self.assertEqual(expected_s_addr.address, s_addr.address)
+        # self.assertEqual(expected_s_addr.city,    s_addr.city)
+        self.assertEqual(s_addr1.address, s_addr.address)
+        self.assertEqual(s_addr1.city,    s_addr.city)
 
         # No new Address should be created
-        self.assertEqual(addr_count, Address.objects.count())
+        # self.assertEqual(addr_count, Address.objects.count())
+        self.assertDoesNotExist(b_addr2)
+        self.assertDoesNotExist(s_addr2)
 
     def assertConvertButtons(self, response, expected):
         found = []

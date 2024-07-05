@@ -69,6 +69,8 @@
             - You can now define the default statuses (which are notably used as initial values in creation forms).
               You can also define the Invoice status to use when a number ins generated.
             - When you clone an Invoice, the status is not copied anymore; the new Invoice gets the default status instead.
+            - When you edit an Invoice/Quote/... & change the target, the addresses of the new target are copied.
+              In the CSV/XLS import, the options to enable the addresses overriding have been removed because they are now meaningless.
         * Emails :
             - The spam score of sent emails should be better :
                 - the header contains a "Message-ID" which matches the host domain.

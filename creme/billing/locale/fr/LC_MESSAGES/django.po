@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.6\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-14 16:20+0200\n"
+"POT-Creation-Date: 2024-07-05 18:30+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -287,8 +287,7 @@ msgid "Edition form for template"
 msgstr "Formulaire de modification de patron"
 
 msgid ""
-"The generation of the PDF file has failed; please contact your "
-"administrator."
+"The generation of the PDF file has failed; please contact your administrator."
 msgstr "La génération du PDF a échoué ; prévenez votre administrateur."
 
 msgid "An error happened while generating the PDF file."
@@ -420,20 +419,6 @@ msgstr "TVA"
 msgid "Beware: you are not allowed to create new VAT values"
 msgstr "Vous n'avez pas la permission de créer de nouvelles valeurs de TVA"
 
-msgid "Update the billing address"
-msgstr "Mettre à jour l'adresse de facturation"
-
-msgid "In update mode, update the billing address from the target."
-msgstr ""
-"En mode mise-à-jour, mettre à jour l'adresse de facturation depuis la cible."
-
-msgid "Update the shipping address"
-msgstr "Mettre à jour l'adresse de livraison"
-
-msgid "In update mode, update the shipping address from the target."
-msgstr ""
-"En mode mise-à-jour, mettre à jour l'adresse de livraison depuis la cible."
-
 msgid "Totals & VAT"
 msgstr "Totaux & TVA"
 
@@ -447,12 +432,6 @@ msgstr ""
 
 msgid "You cannot compute totals in update mode."
 msgstr "Vous ne pouvez pas calculer les totaux en mode mise-à-jour."
-
-msgid "Billing address"
-msgstr "Adresse de facturation"
-
-msgid "Shipping address"
-msgstr "Adresse de livraison"
 
 msgid "Status"
 msgstr "Statut"
@@ -502,6 +481,12 @@ msgstr "Échéance"
 
 msgid "Overall discount"
 msgstr "Remise globale"
+
+msgid "Billing address"
+msgstr "Adresse de facturation"
+
+msgid "Shipping address"
+msgstr "Adresse de livraison"
 
 msgid "Currency"
 msgstr "Devise"
@@ -1333,6 +1318,21 @@ msgstr "Créer un devis pour «{entity}»"
 #, python-brace-format
 msgid "Create a salesorder for «{entity}»"
 msgstr "Créer un bon de commande pour «{entity}»"
+
+#~ msgid "Update the billing address"
+#~ msgstr "Mettre à jour l'adresse de facturation"
+
+#~ msgid "In update mode, update the billing address from the target."
+#~ msgstr ""
+#~ "En mode mise-à-jour, mettre à jour l'adresse de facturation depuis la "
+#~ "cible."
+
+#~ msgid "Update the shipping address"
+#~ msgstr "Mettre à jour l'adresse de livraison"
+
+#~ msgid "In update mode, update the shipping address from the target."
+#~ msgstr ""
+#~ "En mode mise-à-jour, mettre à jour l'adresse de livraison depuis la cible."
 
 #~ msgid "Order"
 #~ msgstr "Ordre"
