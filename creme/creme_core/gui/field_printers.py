@@ -250,6 +250,14 @@ def print_url_html(*, value, **kwargs) -> str:
     return format_html('<a href="{url}" target="_blank">{url}</a>', url=value) if value else ''
 
 
+def print_unchecked_url_html(*, value, **kwargs) -> str:
+    return format_html(
+        '<a href="{href}" target="_blank">{url}</a>',
+        url=value,
+        href=value if '://' in value else f'//{value}',
+    ) if value else ''
+
+
 def print_datetime_html(*, value, **kwargs) -> str:
     # return date_format(localtime(value), 'DATETIME_FORMAT') if value else ''
     return format_html(
@@ -594,6 +602,7 @@ class _FieldPrintersRegistry:
             (models.TextField,          print_text_html),
             (models.EmailField,         print_email_html),
             (models.URLField,           print_url_html),
+            (fields.CremeURLField,      print_unchecked_url_html),
 
             (models.FileField,          print_file_html),
             (models.ImageField,         print_image_html),

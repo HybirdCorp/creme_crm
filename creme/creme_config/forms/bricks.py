@@ -45,6 +45,7 @@ from creme.creme_core.models import (
     RelationType,
     UserRole,
 )
+from creme.creme_core.models.fields import CremeURLField
 from creme.creme_core.registry import creme_registry
 # from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
@@ -510,7 +511,7 @@ class RTypeBrickItemCtypeEditionForm(base.CremeModelForm):
             # These fields are already rendered with <a> tag ; it would be better to
             # have a higher semantic (ask the fields printer how it renders theme?).
             if (
-                isinstance(field, (URLField, EmailField, ManyToManyField))
+                isinstance(field, (URLField, CremeURLField, EmailField, ManyToManyField))
                 or (
                     isinstance(field, ForeignKey)
                     and issubclass(field.remote_field.model, CremeEntity)

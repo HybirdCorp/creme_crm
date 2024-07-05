@@ -31,7 +31,7 @@ from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.models import CREME_REPLACE_NULL, CremeEntity, Language
-from creme.creme_core.models.fields import PhoneField
+from creme.creme_core.models import fields as core_fields
 from creme.creme_core.utils import update_model_instance
 from creme.documents.models.fields import ImageEntityForeignKey
 
@@ -54,11 +54,18 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     first_name = models.CharField(_('First name'), max_length=100, blank=True)
 
     skype    = models.CharField('Skype', max_length=100, blank=True).set_tags(optional=True)
-    phone    = PhoneField(_('Phone'), max_length=100, blank=True).set_tags(optional=True)
-    mobile   = PhoneField(_('Mobile'), max_length=100, blank=True).set_tags(optional=True)
+    phone    = core_fields.PhoneField(
+        _('Phone'), max_length=100, blank=True,
+    ).set_tags(optional=True)
+    mobile   = core_fields.PhoneField(
+        _('Mobile'), max_length=100, blank=True
+    ).set_tags(optional=True)
     fax      = models.CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)
     email    = models.EmailField(_('Email address'), blank=True).set_tags(optional=True)
-    url_site = models.URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)
+    # url_site = models.URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)
+    url_site = core_fields.CremeURLField(
+        _('Web Site'), max_length=500, blank=True,
+    ).set_tags(optional=True)
 
     position = models.ForeignKey(
         other_models.Position,

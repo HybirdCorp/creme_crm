@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,7 +26,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.global_info import cached_per_request
 from creme.creme_core.models import CREME_REPLACE_NULL, CremeEntity
-from creme.creme_core.models.fields import PhoneField
+from creme.creme_core.models import fields as core_fields
 from creme.creme_core.models.manager import CremeEntityManager
 from creme.documents.models.fields import ImageEntityForeignKey
 
@@ -51,10 +51,15 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
         default=False, editable=False,
     ).set_tags(clonable=False)
 
-    phone    = PhoneField(_('Phone'), max_length=100, blank=True).set_tags(optional=True)
+    phone    = core_fields.PhoneField(
+        _('Phone'), max_length=100, blank=True,
+    ).set_tags(optional=True)
     fax      = models.CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)
     email    = models.EmailField(_('Email address'), blank=True).set_tags(optional=True)
-    url_site = models.URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)
+    # url_site = models.URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)
+    url_site = core_fields.CremeURLField(
+        _('Web Site'), max_length=500, blank=True,
+    ).set_tags(optional=True)
 
     sector = models.ForeignKey(
         other_models.Sector,

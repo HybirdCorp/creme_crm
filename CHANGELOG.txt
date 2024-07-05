@@ -49,6 +49,9 @@
             - The staff users are not related to Contacts anymore.
               Note: the existing Contacts which were related to staff users are sent to the trash.
             - A button to transform a Contact into a user has been added.
+            - The URL fields of Contacts & Organisations is not validated anymore.
+              You can now omit the protocol (i.e. "http://"), or use local URLs without domain;
+              it should avoid some annoying errors when importing from csv/xls files.
         * Reports :
             - You can now create filters which are reserved to Reports.
             - The Graphes using Relationships have been improved :

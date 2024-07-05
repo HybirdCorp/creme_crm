@@ -344,7 +344,8 @@ else:
             _('Mobile'), max_length=100, blank=True,  # null=True,
         ).set_tags(optional=True)
         email = models.EmailField(_('Email address'), max_length=100, blank=True)
-        url_site = models.URLField(_('Web Site'), max_length=500, blank=True)
+        # url_site = models.URLField(_('Web Site'), max_length=500, blank=True)
+        url_site = core_fields.CremeURLField(_('Web Site'), max_length=500, blank=True)
 
         position = models.ForeignKey(
             FakePosition, verbose_name=_('Position'),

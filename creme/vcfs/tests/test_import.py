@@ -1357,11 +1357,11 @@ END:VCARD"""
         self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count,     Address.objects.count())
 
-        self.get_object_or_fail(
-            Contact,
-            first_name=first_name, last_name=last_name,
-            url_site='http://www.url.com',
+        contact = self.get_object_or_fail(
+            Contact, first_name=first_name, last_name=last_name,
         )
+        # self.assertEqual('http://www.url.com', contact.url_site)
+        self.assertEqual(url_site, contact.url_site)
 
     @skipIfCustomContact
     def test_add_contact_vcf13(self):

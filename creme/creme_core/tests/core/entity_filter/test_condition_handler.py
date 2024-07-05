@@ -825,7 +825,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             build(operator=operators.EQUALS, values=['misato@nerv.jp'])
 
     def test_regularfield_condition_urlfield(self):
-        "Email + sub-part validation."
+        "URL + sub-part validation."
         build = partial(
             RegularFieldConditionHandler.build_condition,
             model=FakeOrganisation, field_name='url_site',
