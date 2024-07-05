@@ -43,6 +43,7 @@ from creme.creme_core.gui.field_printers import (
     print_image_html,
     print_integer_html,
     print_text_html,
+    print_unchecked_url_html,
     print_unsafehtml_html,
     print_url_html,
     simple_print_html,
@@ -235,7 +236,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             print_url_html(instance=o, value=None, user=user, field=field)
         )
 
-        url1 = 'www.wikipedia.org'
+        url1 = 'http://www.wikipedia.org'
         self.assertEqual(
             f'<a href="{url1}" target="_blank">{url1}</a>',
             print_url_html(instance=o, value=url1, user=user, field=field)
@@ -245,6 +246,35 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual(
             '<a href="{url}" target="_blank">{url}</a>'.format(url=escape(url2)),
             print_url_html(instance=o, value=url2, user=user, field=field)
+        )
+
+    def test_print_unchecked_url_html(self):
+        o = FakeContact()
+        user = self.user
+        field = o._meta.get_field('url_site')
+        self.assertEqual(
+            '',
+            print_unchecked_url_html(instance=o, value=None, user=user, field=field)
+        )
+
+        url1 = 'http://www.wikipedia.org'
+        self.assertEqual(
+            f'<a href="{url1}" target="_blank">{url1}</a>',
+            print_unchecked_url_html(instance=o, value=url1, user=user, field=field)
+        )
+
+        url2 = '</a><script>Muhaha</script>'
+        self.assertEqual(
+            '<a href="{href}" target="_blank">{url}</a>'.format(
+                url=escape(url2), href=escape('//' + url2),
+            ),
+            print_unchecked_url_html(instance=o, value=url2, user=user, field=field)
+        )
+
+        url3 = 'www.wikipedia.org'
+        self.assertEqual(
+            f'<a href="//{url3}" target="_blank">{url3}</a>',
+            print_unchecked_url_html(instance=o, value=url3, user=user, field=field)
         )
 
     def test_print_date_html(self):

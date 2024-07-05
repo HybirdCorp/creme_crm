@@ -314,7 +314,8 @@ class RegularFieldsConditionsFieldTestCase(CremeTestCase):
 
     def test_clean_several_invalid_inputs(self):
         field = RegularFieldsConditionsField(
-            model=FakeContact,
+            # model=FakeContact,
+            model=FakeOrganisation,
             efilter_registry=efilter_registry,
         )
         error_fmt = _('Condition on field «{field}»: {error}').format

@@ -1505,7 +1505,8 @@ class Migration(migrations.Migration):
                     ('phone', core_fields.PhoneField(max_length=100, null=True, verbose_name='Phone', blank=True)),
                     ('mobile', core_fields.PhoneField(max_length=100, verbose_name='Mobile', blank=True)),
                     ('email', models.EmailField(max_length=100, verbose_name='Email address', blank=True)),
-                    ('url_site', models.URLField(max_length=500, verbose_name='Web Site', blank=True)),
+                    # ('url_site', models.URLField(max_length=500, verbose_name='Web Site', blank=True)),
+                    ('url_site', core_fields.CremeURLField(max_length=500, verbose_name='Web Site', blank=True)),
                     ('birthday', models.DateField(null=True, verbose_name='Birthday', blank=True)),
                     (
                         'address',
