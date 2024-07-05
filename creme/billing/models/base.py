@@ -421,6 +421,7 @@ class Base(CremeEntity):
         logger.debug('=> Clone properties')
         self._copy_properties(template)
 
+    # TODO: remove *args, **kwargs
     def _create_addresses(self, *args, **kwargs):
         from ..utils import copy_or_create_address
 
@@ -439,6 +440,13 @@ class Base(CremeEntity):
                 'update_fields': ('billing_address', 'shipping_address'),
             }
         )
+
+    def _update_addresses(self):
+        # TODO: recycle instance instead?
+        self.billing_address.delete()
+        self.shipping_address.delete()
+
+        self._create_addresses()
 
     def _set_basic_payment_info(self):
         source = self._source
@@ -514,3 +522,4 @@ class Base(CremeEntity):
                 self._target_rel = create_relation(
                     type_id=REL_SUB_BILL_RECEIVED, object_entity=target,
                 )
+                self._update_addresses()

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2023  Hybird
+#    Copyright (C) 2013-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -374,14 +374,14 @@ def get_import_form_builder(header_dict, choices):
             choices=choices, label=pgettext_lazy('billing', 'Target'),
         )
 
-        override_billing_addr = forms.BooleanField(
-            label=_('Update the billing address'), required=False,
-            help_text=_('In update mode, update the billing address from the target.'),
-        )
-        override_shipping_addr = forms.BooleanField(
-            label=_('Update the shipping address'), required=False,
-            help_text=_('In update mode, update the shipping address from the target.'),
-        )
+        # override_billing_addr = forms.BooleanField(
+        #     label=_('Update the billing address'), required=False,
+        #     help_text=_('In update mode, update the billing address from the target.'),
+        # )
+        # override_shipping_addr = forms.BooleanField(
+        #     label=_('Update the shipping address'), required=False,
+        #     help_text=_('In update mode, update the shipping address from the target.'),
+        # )
 
         totals = TotalsExtractorField(choices=choices, label=_('Totals & VAT'))
 
@@ -393,7 +393,7 @@ def get_import_form_builder(header_dict, choices):
                 'id': 'organisations_and_addresses',
                 'label': _('Organisations'),
                 'fields': [
-                    'source', 'target', 'override_billing_addr', 'override_shipping_addr',
+                    'source', 'target',  # 'override_billing_addr', 'override_shipping_addr',
                 ],
             },
             {
@@ -453,21 +453,21 @@ def get_import_form_builder(header_dict, choices):
                 for error in errors:
                     self.append_error(error)
 
-            if updated:
-                target = instance.target
-                b_change = s_change = False
-
-                if cdata['override_billing_addr']:
-                    b_change = _copy_or_update_address(
-                        target, instance, 'billing_address', _('Billing address'),
-                    )
-
-                if cdata['override_shipping_addr']:
-                    s_change = _copy_or_update_address(
-                        target, instance, 'shipping_address', _('Shipping address'),
-                    )
-
-                if b_change or s_change:
-                    instance.save()
+            # if updated:
+            #     target = instance.target
+            #     b_change = s_change = False
+            #
+            #     if cdata['override_billing_addr']:
+            #         b_change = _copy_or_update_address(
+            #             target, instance, 'billing_address', _('Billing address'),
+            #         )
+            #
+            #     if cdata['override_shipping_addr']:
+            #         s_change = _copy_or_update_address(
+            #             target, instance, 'shipping_address', _('Shipping address'),
+            #         )
+            #
+            #     if b_change or s_change:
+            #         instance.save()
 
     return BillingMassImportForm
