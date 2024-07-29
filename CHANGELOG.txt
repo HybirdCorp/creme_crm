@@ -44,8 +44,9 @@
                 - Which days are active.
                 - What hour range to use.
                 - ...
-            - Teams have a default Calendar since years, but they were unused ;
+            - Teams have a default Calendar since years, but they were unused;
               now, when you select a team as a participant, the Activity is put on the team's Calendar too.
+              The default Calendar of a team is always public, & a data migration remove the extra Calendars.
             - A new button, which can be displayed on Contacts' detail-views, is available: "Create an unsuccessful phone call".
             - The configuration block for Calendars has been improved.
         * Persons :
