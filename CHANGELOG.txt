@@ -13,10 +13,13 @@
       The mass-export & the exploration mode now accept to be used in this case.
     # In the detail-view for property type, a button to delete all the properties with this type
       (and related to a given entity type) has been added.
-    # A detail-view for EntityFilter has been added ; in addition to the usual information,
+    # A detail-view for EntityFilter has been added; in addition to the usual information,
       it displays the entities which are linked to the filter (currently only Reports).
     # A role "Regular user", which can do everything excepted administrating apps, is created in new installations.
-    # Many fields of User are now viewable ; it can be useful for particular filters.
+    # Many fields of User are now viewable; it can be useful for particular filters.
+    # The Custom-Fields with type 'URL' are not validated anymore.
+      You can now omit the protocol (i.e. "http://"), or use local URLs without domain;
+      it should avoid some annoying errors when importing from csv/xls files.
     # Thanks to the library "openpyxl", XLSX files should be better managed now for import, & export proposes this file format now.
       BEWARE: if you use a custom list for 'IMPORT_BACKENDS' in your settings,
               the value "creme.creme_core.backends.xls_import.XLSXImportBackend" is now invalid.
@@ -49,9 +52,7 @@
             - The staff users are not related to Contacts anymore.
               Note: the existing Contacts which were related to staff users are sent to the trash.
             - A button to transform a Contact into a user has been added.
-            - The URL fields of Contacts & Organisations is not validated anymore.
-              You can now omit the protocol (i.e. "http://"), or use local URLs without domain;
-              it should avoid some annoying errors when importing from csv/xls files.
+            - The URL fields of Contacts & Organisations are not validated anymore (see remarks about URL CustomFields above).
         * Reports :
             - You can now create filters which are reserved to Reports.
             - The Graphes using Relationships have been improved :
