@@ -484,7 +484,8 @@ class Migration(migrations.Migration):
             name='CustomFieldURL',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.URLField()),
+                # ('value', models.URLField()),
+                ('value', core_fields.CremeURLField(max_length=200)),
                 ('custom_field', models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CustomField')),
                 ('entity', models.ForeignKey(on_delete=models.CASCADE, to='creme_core.CremeEntity')),
             ],

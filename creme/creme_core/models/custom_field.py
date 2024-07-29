@@ -34,7 +34,7 @@ from ..global_info import get_per_request_cache
 from ..utils.content_type import as_ctype
 from .base import CremeModel
 from .entity import CremeEntity
-from .fields import CTypeForeignKey
+from .fields import CremeURLField, CTypeForeignKey
 
 __all__ = (
     'CustomField', 'CustomFieldValue',
@@ -269,16 +269,19 @@ class CustomFieldText(CustomFieldValue):
 
 
 class CustomFieldURL(CustomFieldValue):
-    value = models.URLField()
+    # value = models.URLField()
+    value = CremeURLField(max_length=200)
 
     verbose_name = _('URL (link)')
 
     class Meta:
         app_label = 'creme_core'
 
+    # TODO: make <@classmethod> & retrieve 200 in field/attribute
     @staticmethod
     def _get_formfield(**kwargs):
-        return forms.URLField(**kwargs)
+        # return forms.URLField(**kwargs)
+        return forms.CharField(max_length=200, **kwargs)
 
 
 class CustomFieldInteger(CustomFieldValue):

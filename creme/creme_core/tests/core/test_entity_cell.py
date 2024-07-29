@@ -583,7 +583,8 @@ class EntityCellTestCase(CremeTestCase):
             entity=yoko, custom_field=customfield, value=value,
         )
         self.assertHTMLEqual(
-            f'<a href="{value}" target="_blank">{value}</a>',
+            # f'<a href="{value}" target="_blank">{value}</a>',
+            f'<a href="//{value}" target="_blank">{value}</a>',
             cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
         )
         self.assertEqual(value, cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
