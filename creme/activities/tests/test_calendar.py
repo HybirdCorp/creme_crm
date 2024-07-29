@@ -18,7 +18,7 @@ from parameterized import parameterized
 from creme.activities.models.config import CalendarConfigItem
 # from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.creme_jobs import deletor_type
-# from creme.creme_core.models import SetCredentials,
+# from creme.creme_core.models import SetCredentials
 from creme.creme_core.models import DeletionCommand, Job, Relation
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -280,8 +280,13 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             if d.get('_auth_user_id') == user_id
         ]
 
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_user_default_calendar_auto__none(self):
+        user = self.create_user()
+        self.assertFalse(Calendar.objects.filter(user=user))
+
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
-    def test_user_default_calendar_auto01(self):
+    def test_user_default_calendar_auto__public(self):
         user = self.create_user()
 
         calendar = self.get_object_or_fail(Calendar, user=user)
@@ -291,7 +296,7 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertTrue(calendar.is_public)
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
-    def test_user_default_calendar_auto02(self):
+    def test_user_default_calendar_auto__private(self):
         "Private calendar."
         user = self.create_user()
 
@@ -302,16 +307,27 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertFalse(calendar.is_public)
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
-    def test_user_default_calendar_auto03(self):
+    def test_user_default_calendar_auto__staff(self):
         "Staff user => no calendar."
         user = self.create_user(is_staff=True)
         self.assertFalse(Calendar.objects.filter(user=user))
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
-    def test_user_default_calendar_auto04(self):
+    def test_user_default_calendar_auto__inactive(self):
         "Inactive user => no calendar."
         user = self.create_user(is_active=False)
         self.assertFalse(Calendar.objects.filter(user=user))
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
+    def test_user_default_calendar_auto__team(self):
+        user = self.get_root_user()
+
+        team = self.create_team('Roots', user)
+        calendar = self.get_object_or_fail(Calendar, user=team)
+        self.assertEqual(_("{user}'s calendar").format(user=team), calendar.name)
+        self.assertTrue(calendar.is_default)
+        self.assertFalse(calendar.is_custom)
+        self.assertTrue(calendar.is_public)  # <= forced
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=True)
     def test_save(self):
@@ -335,6 +351,30 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertTrue(calendar2.is_default)
 
         self.assertFalse(self.refresh(calendar1).is_default)
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_save__team(self):
+        user = self.get_root_user()
+
+        team = self.create_team('Roots', user)
+        self.assertFalse(Calendar.objects.filter(user=team))
+
+        name = 'First calendar'
+        color = '666666'
+        cal = Calendar.objects.create(
+            name=name,
+            color=color,
+            user=team,
+            is_default=True,
+            is_public=False,  # <== True will be forced
+            is_custom=True,
+        )
+        self.assertEqual(team, cal.user)
+        self.assertEqual(name, cal.name)
+        self.assertEqual(color, cal.color)
+        self.assertIs(cal.is_default, True)
+        self.assertIs(cal.is_custom, True)
+        self.assertIs(cal.is_public, True)
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=False)
     def test_calendar_view01(self):
@@ -556,7 +596,7 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
-    def test_add_user_calendar01(self):
+    def test_add_user_calendar(self):
         user = self.login_as_super()
         self.assertFalse(Calendar.objects.filter(is_default=True, user=user))
 
@@ -582,8 +622,7 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertIs(cal.is_public, False)
         self.assertIs(cal.is_custom, True)
 
-    def test_add_user_calendar02(self):
-        "Only one default calendar."
+    def test_add_user_calendar__new_default(self):
         user = self.login_as_activities_user()
         cal1 = Calendar.objects.get_default_calendar(user)
 
@@ -603,8 +642,7 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertTrue(cal2.is_public)
         self.assertFalse(self.refresh(cal1).is_default)
 
-    def test_add_user_calendar03(self):
-        "Not allowed."
+    def test_add_user_calendar__not_allowed(self):
         self.login_as_standard(allowed_apps=['persons'])
         self.assertGET403(self.ADD_URL)
 
@@ -1465,7 +1503,7 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertEqual(create_dt(hour=23, minute=59), act.end)
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
-    def test_config01(self):
+    def test_config_creation(self):
         user = self.login_as_super()
         staff = self.create_user(index=1, is_staff=True)
 
@@ -1505,7 +1543,7 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertTrue(cal.is_custom)
         self.assertFalse(cal.is_public)
 
-    def test_config02(self):
+    def test_config_creation__new_default(self):
         "Only one default."
         user = self.login_as_root_and_get()
         cal1 = Calendar.objects.get_default_calendar(user)
@@ -1529,8 +1567,43 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         self.assertFalse(self.refresh(cal1).is_default)
 
-    def test_config03(self):
-        "Edition"
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_config_creation__team(self):
+        user = self.login_as_super()
+
+        team = self.create_team('Roots', user)
+        self.assertFalse(Calendar.objects.filter(user=team))
+
+        url = self.CONF_ADD_URL
+        name = 'Team calendar'
+        color = '008800'
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'name': name,
+                'color': color,
+                'user': team.id,
+                'is_default': True,
+                'is_public': False,  # <== True will be forced
+            },
+        ))
+
+        cal = self.get_object_or_fail(Calendar, user=team)
+        self.assertEqual(name, cal.name)
+        self.assertEqual(color, cal.color)
+        self.assertIs(cal.is_default, True)
+        self.assertIs(cal.is_custom, True)
+        self.assertIs(cal.is_public, True)
+
+        # Cannot create a second one ---
+        response2 = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices = response2.context['form'].fields['user'].choices
+        self.assertNotInChoices(value=team.id, choices=choices)
+        self.assertInChoices(value=user.id, label=str(user), choices=choices)
+
+    def test_config_edition(self):
         user = self.login_as_root_and_get()
         cal1 = Calendar.objects.get_default_calendar(user)
 
@@ -1568,8 +1641,7 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         self.assertFalse(self.refresh(cal1).is_default)
 
-    def test_config04(self):
-        "Deletion."
+    def test_config_deletion(self):
         def get_url(cal):
             return reverse(
                 'creme_config__delete_instance',

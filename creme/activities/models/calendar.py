@@ -214,6 +214,10 @@ class Calendar(CremeModel):
             if update_fields is not None:
                 update_fields = {'is_default', *update_fields}
 
+        # TODO: help text to explain this behaviour?
+        if self.user.is_team:
+            self.is_public = True
+
         super().save(
             force_insert=force_insert,
             force_update=force_update,
