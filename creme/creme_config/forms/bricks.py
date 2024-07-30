@@ -211,7 +211,7 @@ class BrickDetailviewLocationsCreationForm(_BrickDetailviewLocationsForm):
         used_role_ids = {
             *BrickDetailviewLocation.objects
                                     .filter(content_type=self.ct)
-                                    .exclude(role__isnull=True, superuser=False)
+                                    .exclude(role=None, superuser=False)
                                     .values_list('role', flat=True),
         }
 
@@ -226,6 +226,20 @@ class BrickDetailviewLocationsCreationForm(_BrickDetailviewLocationsForm):
         hat_f = fields.get('hat')
         if hat_f:
             hat_f.initial = hat_f.choices[0][0]
+
+        # TODO: only one query
+        locations = BrickDetailviewLocation.objects.filter(
+            content_type=self.ct, role=None, superuser=False,
+        ) or BrickDetailviewLocation.objects.filter(
+            content_type=None, role=None, superuser=False,
+        )
+
+        initial_locations = {zone.value: [] for zone in self.locations_map.values()}
+        for bl in locations:
+            zone_name = self.locations_map.get(bl.zone)
+            if bl.brick_id and zone_name is not None:
+                initial_locations[zone_name.value].append(bl.brick_id)
+        fields['locations'].initial = initial_locations
 
     def save(self, *args, **kwargs):
         self.role = role = self.cleaned_data['role']
@@ -327,14 +341,13 @@ class BrickDetailviewLocationsEditionForm(_BrickDetailviewLocationsForm):
         self.superuser = superuser
 
         self.locations = locations = BrickDetailviewLocation.objects.filter(
-            content_type=self.ct,
-            role=role, superuser=superuser,
-        ).order_by('order')
+            content_type=self.ct, role=role, superuser=superuser,
+        )
 
         fields = self.fields
 
         initial_locations = {zone.value: [] for zone in self.locations_map.values()}
-        for bl in locations:
+        for bl in (locations or BrickDetailviewLocation.objects.filter(content_type=None)):
             zone_name = self.locations_map.get(bl.zone)
             if bl.brick_id and zone_name is not None:
                 initial_locations[zone_name.value].append(bl.brick_id)
@@ -359,10 +372,11 @@ class BrickHomeLocationsAddingForm(_BrickLocationsForm):
         super().__init__(*args, **kwargs)
         self._build_home_locations_field(field_name='bricks', brick_locations=())
 
-        role_f = self.fields['role']
+        fields = self.fields
+        role_f = fields['role']
         used_role_ids = {
             *BrickHomeLocation.objects
-                              .exclude(role__isnull=True, superuser=False)
+                              .exclude(role=None, superuser=False)
                               .values_list('role', flat=True),
         }
 
@@ -374,6 +388,14 @@ class BrickHomeLocationsAddingForm(_BrickLocationsForm):
             role_f.empty_label = '*{}*'.format(gettext('Superuser'))
 
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
+
+        # ---
+        # TODO: regroup queries?
+        fields['bricks'].initial = [
+            *BrickHomeLocation.objects
+                              .filter(role=None, superuser=False)
+                              .values_list('brick_id', flat=True)
+        ]
 
     def save(self, *args, **kwargs):
         role = self.cleaned_data['role']
