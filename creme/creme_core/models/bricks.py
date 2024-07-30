@@ -193,7 +193,7 @@ class BrickDetailviewLocation(CremeModel):
     def __repr__(self):
         return (
             'BrickDetailviewLocation('
-            'id={id}, content_type_id={ct_id}, role={role}, '
+            'id={id}, content_type_id={ct_id}, role="{role}", '
             'brick_id="{brick_id}", order={order}, zone={zone}'
             ')'.format(
                 id=self.id,

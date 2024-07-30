@@ -2,6 +2,10 @@
 
   Users side :
   ------------
+    # Apps :
+        * Creme_config :
+            - In the bricks configuration, default configuration is used as initial value when it's relevant
+              (instead of starting with an empty configuration).
 
   Developers side :
   -----------------
