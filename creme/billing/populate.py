@@ -26,7 +26,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
 import creme.creme_core.bricks as core_bricks
-from creme import billing, persons, products
+from creme import billing, persons  # products
 from creme.creme_core.core.entity_cell import (
     EntityCellFunctionField,
     EntityCellRegularField,
@@ -404,10 +404,9 @@ class Populator(BasePopulator):
         self._save_minions(self.SALES_ORDER_STATUSES)
 
     def _populate_relation_types(self):
-        Product = products.get_product_model()
-        Service = products.get_service_model()
-
-        line_entities = [*lines_registry]
+        # Product = products.get_product_model()
+        # Service = products.get_service_model()
+        line_models = [*lines_registry]
 
         create_rtype = RelationType.objects.smart_update_or_create
         create_rtype(
@@ -432,7 +431,7 @@ class Populator(BasePopulator):
         )
         create_rtype(
             (constants.REL_SUB_HAS_LINE, _('has the line'),   BILLING_MODELS),
-            (constants.REL_OBJ_HAS_LINE, _('is the line of'), line_entities),
+            (constants.REL_OBJ_HAS_LINE, _('is the line of'), line_models),
             is_internal=True,
             minimal_display=(True, True),
         )
@@ -440,12 +439,13 @@ class Populator(BasePopulator):
             (
                 constants.REL_SUB_LINE_RELATED_ITEM,
                 _('has the related item'),
-                line_entities,
+                line_models,
             ),
             (
                 constants.REL_OBJ_LINE_RELATED_ITEM,
                 _('is the related item of'),
-                [Product, Service],
+                # [Product, Service],
+                {line_model.related_item_class() for line_model in line_models},
             ),
             is_internal=True,
         )
