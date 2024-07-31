@@ -7,7 +7,6 @@ syntax: glob
 */media/static/*
 
 */local_settings.py
-*/_generated_media_names.py
 *.sqlite3
 
 # Python package

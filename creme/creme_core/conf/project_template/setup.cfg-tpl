@@ -51,7 +51,6 @@ use_parentheses = True
 [flake8]
 exclude =
     */migrations/*
-    _generated_media_names.py
 max-line-length = 99
 ignore =
     # Multiple spaces before operator

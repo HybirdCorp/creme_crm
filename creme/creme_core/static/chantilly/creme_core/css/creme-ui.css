@@ -179,7 +179,7 @@ ul.ui-creme-widget.is-readonly li {
     vertical-align: middle;
 }
 
-.ui-creme-overlay.overlay-active[status="wait"] { background-image: url("chantilly/images/wait.gif"); }
+.ui-creme-overlay.overlay-active[status="wait"] { background-image: url("../../images/wait.gif"); }
 
 /*----------------------------------*/
 .ui-dialog-scrollbackground {

@@ -30,19 +30,21 @@ USER creme_user
 COPY docker/docker_settings.py /srv/creme/docker_settings.py
 ENV DJANGO_SETTINGS_MODULE docker_settings
 
+COPY --chown=creme_user:creme_user . /srv/creme/src
 
-RUN --mount=type=bind,source=.,target=/tmp/src \
-    --mount=type=cache,target=/srv/creme/.cache,uid=1001 \
-    set -eux; \
+RUN set -eux; \
     mkdir -p /srv/creme/logs; \
-    mkdir -p /srv/creme/data; \
-    cp -r /tmp/src /srv/creme/src; \
+    mkdir -p /srv/creme/data;
+
+RUN --mount=type=cache,target=/srv/creme/.cache,uid=1001 \
+    set -eux; \
     python3 -m venv /srv/creme/venv; \
     /srv/creme/venv/bin/pip install --cache-dir=/srv/creme/.cache/pip --upgrade pip setuptools wheel; \
     /srv/creme/venv/bin/pip install --cache-dir=/srv/creme/.cache/pip /srv/creme/src[mysql,pgsql]; \
     /srv/creme/venv/bin/pip install --cache-dir=/srv/creme/.cache/pip --upgrade uWSGI supervisor; \
-    rm -rf /srv/creme/src; \
-    /srv/creme/venv/bin/creme generatemedia;
+    /srv/creme/venv/bin/creme generatemedia; \
+    /srv/creme/venv/bin/creme collectstatic; \
+    rm -rf /srv/creme/src;
 
 ENV PATH /srv/creme:/srv/creme/venv/bin:$PATH
 

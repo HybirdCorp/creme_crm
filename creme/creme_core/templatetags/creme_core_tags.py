@@ -35,8 +35,6 @@ from django.utils.encoding import force_str
 from django.utils.html import escape, format_html_join
 from django.utils.safestring import mark_safe
 
-from mediagenerator.generators.bundles.utils import _render_include_media
-
 from ..core.entity_cell import EntityCell
 from ..gui.bulk_update import bulk_update_registry
 from ..gui.field_printers import field_printers_registry
@@ -600,29 +598,6 @@ class HasPermToNode(TemplateNode):
         return ''
 
 # TAG : "has_perm_to [end]------------------------------------------------------
-
-
-@register.tag(name='include_creme_media')
-def do_include_creme_media(parser, token):
-    try:
-        # Splitting by None == splitting by spaces.
-        tag_name, arg = token.contents.split(None, 1)
-    except ValueError as e:
-        raise TemplateSyntaxError(
-            f'{token.contents.split()[0]!r} tag requires arguments'
-        ) from e
-
-    return MediaNode(TemplateLiteral(parser.compile_filter(arg), arg))
-
-
-class MediaNode(TemplateNode):
-    def __init__(self, bundle_var):
-        self.bundle_var = bundle_var
-
-    def render(self, context):
-        bundle = self.bundle_var.eval(context)
-
-        return _render_include_media(context['THEME_NAME'] + bundle, variation={})
 
 
 @register.simple_tag(name='scm_info')

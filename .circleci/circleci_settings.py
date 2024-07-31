@@ -21,13 +21,8 @@ INSTALLED_APPS.extend([
     'creme.mobile',
 ])
 
-GENERATED_MEDIA_NAMES_FILE = BASE_DIR / '_generated_media_names.py'
-# NB: "creme_project" same name in config.yml
-GENERATED_MEDIA_NAMES_MODULE = 'creme_project._generated_media_names'
-
-MEDIA_ROOT = BASE_DIR / 'media' / 'upload'
 STATIC_ROOT = BASE_DIR / 'media' / 'static'
-
+MEDIA_ROOT = BASE_DIR / 'media' / 'upload'
 # JOBMANAGER_BROKER = 'redis://@localhost:6379/0'
 
 GEOLOCATION_TOWNS = [

@@ -32,7 +32,7 @@
         return paths.map(function(path) {
             if (isDirectory(path)) {
                 if (path[path.length - 1] !== '/') {
-                    path = path + '/'; 
+                    path = path + '/';
                 }
 
                 if (path.indexOf('/js/tests/') !== -1) {
@@ -72,9 +72,9 @@ module.exports = function(config) {
 
     // TODO: use path from the config
     var commonfiles = [
-        staticsPath + '/l10n--' + language + '-*.js',
-        staticsPath + '/lib*.js',
-        staticsPath + '/main*.js'
+        staticsPath + '/' + language + '.js',
+        staticsPath + '/lib.js',
+        staticsPath + '/main.js'
     ];
 
     var qunitfiles = [
@@ -88,7 +88,7 @@ module.exports = function(config) {
         THEME_NAME: 'icecream'
     };
     var coverageFiles = [
-        staticsPath + '/main*.js'
+        staticsPath + '/main.js'
     ]
 
     var isEmpty = function(s) {

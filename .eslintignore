@@ -1,3 +1,4 @@
+**/*.min.js
 **/js/jquery/1.11/*
 **/js/jquery/1.12/*
 **/js/jquery/2.x/*
@@ -16,7 +17,7 @@
 **/js/jquery/ui/*
 **/js/lib/underscore/*
 **/js/lib/momentjs/*
-**/js/lib/leaflet*.js
+**/js/lib/leaflet/*
 **/js/lib/editor/*
 **/js/lib/Sortable/*
 **/js/lib/Select2/*

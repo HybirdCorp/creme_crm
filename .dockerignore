@@ -1,5 +1,5 @@
-__pycache__/
-*.py[cod]
+**/__pycache__/
+**/*.py[cod]
 
 .git/
 .githooks/
@@ -11,7 +11,6 @@ __pycache__/
 # creme/media/upload/*/*
 # creme/media/static/*
 # creme/local_settings.py
-# creme/_generated_media_names.py
 # *.sqlite
 # *.db
 

@@ -1,5 +1,5 @@
 # Django settings for creme project.
-
+import tempfile
 import warnings
 from os.path import abspath, dirname, join
 from sys import argv
@@ -201,6 +201,7 @@ MEDIA_URL = 'http://127.0.0.1:8000/site_media/'
 # Example: "/var/www/example.com/static/"
 STATIC_ROOT = join(CREME_ROOT, 'media', 'static')
 
+
 # Make this unique, and don't share it with anybody.
 # Use the command 'build_secret_key' to generate it.
 # e.g. SECRET_KEY = '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6('
@@ -298,11 +299,12 @@ INSTALLED_DJANGO_APPS = [
     'creme.creme_core.apps.ContentTypesConfig',  # Replaces 'django.contrib.contenttypes',
     'django.contrib.auth',
     'django.contrib.sessions',
+    'django.contrib.staticfiles',
 
     # EXTERNAL APPS
     'formtools',
-    'creme.creme_core.apps.MediaGeneratorConfig',  # It manages JS, CSS & static images
 ]
+
 INSTALLED_CREME_APPS = [
     # ----------------------
     # MANDATORY CREME APPS #
@@ -505,6 +507,15 @@ EXPORT_BACKENDS = [
     'creme.creme_core.backends.xls_export.XLSExportBackend',
     'creme.creme_core.backends.xlsx_export.XLSXExportBackend',
 ]
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+    },
+}
 
 # EMAILS [internal] ############################################################
 
@@ -729,12 +740,15 @@ SCM = 'git'  # Other possible values: 'hg'
 # GUI [END]#####################################################################
 
 # MEDIA GENERATOR & THEME SETTINGS #############################################
-# TODO: use STATIC_URL in future version? (but URL VS URL fragment)
 # URL fragment used to be build the URL of static media (see STATIC_ROOT).
 # Must start & end with "/".
-PRODUCTION_MEDIA_URL = '/static_media/'
+STATIC_URL = '/static/'
 
-GLOBAL_MEDIA_DIRS = [join(dirname(__file__), 'static')]
+CREME_STATICFILES_TMP_DIRECTORY = join(tempfile.gettempdir(), "creme-crm", "static")
+STATICFILES_DIRS = [
+    join(dirname(__file__), 'static'),
+    CREME_STATICFILES_TMP_DIRECTORY,
+]
 
 # Available themes. A theme is represented by (theme_dir, theme verbose name)
 # First theme is the default one.
@@ -750,464 +764,525 @@ CSS_DEFAULT_HEADER_LISTVIEW = 'hd_cl_lv'
 CSS_DATE_HEADER_LISTVIEW = 'hd_date_cl_lv'
 
 JQUERY_MIGRATE_MUTE = True
-
-# TODO: create a static/css/creme-minimal.css for login/logout ??
-CREME_CORE_CSS = [
-    # Name
-    'main.css',
-
-    # Content
-    'creme_core/css/jquery-css/creme-theme/jquery-ui-1.13.1.custom.css',
-    'creme_core/css/select2/select2-4.0.13.css',
-    'creme_core/css/select2/select2-creme.css',
-
-    'creme_core/css/creme.css',
-    'creme_core/css/creme-ui.css',
-
-    'creme_core/css/header_menu.css',
-    'creme_core/css/forms.css',
-    'creme_core/css/bricks.css',
-    'creme_core/css/home.css',
-    'creme_core/css/my_page.css',
-    'creme_core/css/list_view.css',
-    'creme_core/css/detail_view.css',
-    'creme_core/css/search_results.css',
-    'creme_core/css/popover.css',
-
-    'creme_config/css/creme_config.css',
-    'creme_config/css/widgets.css',
+CREME_STATICFILES_BUNDLES = [
+    {
+        "type": "stylesheet",
+        "filename": "icecream.css",
+        "files": {
+            "creme.creme_core": [
+                # Content
+                "icecream/creme_core/css/jquery-css/creme-theme/jquery-ui-1.13.1.custom.css",
+                "icecream/creme_core/css/select2/select2-4.0.13.css",
+                "icecream/creme_core/css/select2/select2-creme.css",
+                "icecream/creme_core/css/creme.css",
+                "icecream/creme_core/css/creme-ui.css",
+                "icecream/creme_core/css/header_menu.css",
+                "icecream/creme_core/css/forms.css",
+                "icecream/creme_core/css/bricks.css",
+                "icecream/creme_core/css/home.css",
+                "icecream/creme_core/css/my_page.css",
+                "icecream/creme_core/css/list_view.css",
+                "icecream/creme_core/css/detail_view.css",
+                "icecream/creme_core/css/search_results.css",
+                "icecream/creme_core/css/popover.css",
+                "icecream/creme_config/css/creme_config.css",
+                "icecream/creme_config/css/widgets.css",
+            ],
+            "creme.persons": [
+                "icecream/persons/css/persons.css",
+            ],
+            "creme.sketch": [
+                "icecream/sketch/css/sketch.css",
+            ],
+            "creme.activities": [
+                "icecream/activities/css/activities.css",
+                "icecream/activities/css/fullcalendar-5.11.4.css",
+                "icecream/activities/css/fc5-creme.css",
+            ],
+            "creme.billing": [
+                "icecream/billing/css/billing.css",
+            ],
+            "creme.opportunities": [
+                "icecream/opportunities/css/opportunities.css",
+            ],
+            "creme.commercial": [
+                "icecream/commercial/css/commercial.css",
+            ],
+            "creme.emails": [
+                "icecream/emails/css/emails.css",
+            ],
+            "creme.polls": [
+                "icecream/polls/css/polls.css",
+            ],
+            "creme.products": [
+                "icecream/products/css/products.css",
+            ],
+            "creme.projects": [
+                "icecream/projects/css/projects.css",
+            ],
+            "creme.graphs": [
+                "icecream/graphs/css/graphs.css",
+            ],
+            "creme.reports": [
+                "icecream/reports/css/reports.css",
+            ],
+            "creme.tickets": [
+                "icecream/tickets/css/tickets.css",
+            ],
+            "creme.mobile": [
+                "icecream/mobile/css/mobile.css",
+            ],
+            "creme.cti": [
+                "icecream/cti/css/cti.css",
+            ],
+            "creme.geolocation": [
+                "geolocation/css/lib/leaflet/leaflet-1.9.4/leaflet.css",
+                "icecream/geolocation/css/geolocation.css",
+            ],
+        },
+    },
+    {
+        "type": "stylesheet",
+        "filename": "chantilly.css",
+        "files": {
+            "creme.creme_core": [
+                # Content
+                "chantilly/creme_core/css/jquery-css/creme-theme/jquery-ui-1.13.1.custom.css",
+                "chantilly/creme_core/css/select2/select2-4.0.13.css",
+                "chantilly/creme_core/css/select2/select2-creme.css",
+                "chantilly/creme_core/css/creme.css",
+                "chantilly/creme_core/css/creme-ui.css",
+                "chantilly/creme_core/css/header_menu.css",
+                "chantilly/creme_core/css/forms.css",
+                "chantilly/creme_core/css/bricks.css",
+                "chantilly/creme_core/css/home.css",
+                "chantilly/creme_core/css/my_page.css",
+                "chantilly/creme_core/css/list_view.css",
+                "chantilly/creme_core/css/detail_view.css",
+                "chantilly/creme_core/css/search_results.css",
+                "chantilly/creme_core/css/popover.css",
+                "chantilly/creme_config/css/creme_config.css",
+                "chantilly/creme_config/css/widgets.css",
+            ],
+            "creme.persons": [
+                "chantilly/persons/css/persons.css",
+            ],
+            "creme.sketch": [
+                "chantilly/sketch/css/sketch.css",
+            ],
+            "creme.activities": [
+                "chantilly/activities/css/activities.css",
+                "chantilly/activities/css/fullcalendar-5.11.4.css",
+                "chantilly/activities/css/fc5-creme.css",
+            ],
+            "creme.billing": [
+                "chantilly/billing/css/billing.css",
+            ],
+            "creme.opportunities": [
+                "chantilly/opportunities/css/opportunities.css",
+            ],
+            "creme.commercial": [
+                "chantilly/commercial/css/commercial.css",
+            ],
+            "creme.emails": [
+                "chantilly/emails/css/emails.css",
+            ],
+            "creme.polls": [
+                "chantilly/polls/css/polls.css",
+            ],
+            "creme.products": [
+                "chantilly/products/css/products.css",
+            ],
+            "creme.projects": [
+                "chantilly/projects/css/projects.css",
+            ],
+            "creme.graphs": [
+                "chantilly/graphs/css/graphs.css",
+            ],
+            "creme.reports": [
+                "chantilly/reports/css/reports.css",
+            ],
+            "creme.tickets": [
+                "chantilly/tickets/css/tickets.css",
+            ],
+            "creme.mobile": [
+                "chantilly/mobile/css/mobile.css",
+            ],
+            "creme.cti": [
+                "chantilly/cti/css/cti.css",
+            ],
+            "creme.geolocation": [
+                "geolocation/css/lib/leaflet/leaflet-1.9.4/leaflet.css",
+                "chantilly/geolocation/css/geolocation.css",
+            ],
+        },
+    },
+    {
+        "type": "javascript",
+        "filename": "lib.js",
+        "files": {
+            "creme.creme_core": [
+                "creme_core/js/media.js",
+                "creme_core/js/lib/underscore/underscore-1.13.2.js",
+                "creme_core/js/jquery/3.x/jquery-3.7.1.js",
+                "creme_core/js/jquery/3.x/jquery-migrate-3.4.1.js",
+                "creme_core/js/jquery/ui/jquery-ui-1.13.1.js",
+                "creme_core/js/jquery/ui/jquery-ui-locale.js",
+                "creme_core/js/jquery/extensions/jquery.dragtable.js",
+                "creme_core/js/jquery/extensions/jquery.form-3.51.js",
+                "creme_core/js/jquery/extensions/jquery.floatthead-2.2.4.js",
+                "creme_core/js/lib/momentjs/moment-2.29.4.js",
+                "creme_core/js/lib/momentjs/locale/en-us.js",
+                "creme_core/js/lib/momentjs/locale/fr-fr.js",
+                "creme_core/js/lib/editor/tinymce.3.4.9.js",
+                "creme_core/js/lib/Sortable/Sortable-1.15.2.js",
+                "creme_core/js/lib/select2/select2-4.0.13.full.js",
+                "creme_core/js/lib/select2/i18n/en.js",
+                "creme_core/js/lib/select2/i18n/fr.js",
+                "creme_core/js/lib/select2/select2-jquery-3.6.0.js",
+            ],
+            "creme.activities": [
+                "activities/js/lib/fullcalendar-5.11.4.js",
+            ],
+            "creme.geolocation": [
+                "geolocation/js/lib/leaflet/leaflet-1.9.4/leaflet.js",
+            ],
+            "creme.sketch": [
+                "sketch/js/lib/d3-7.8.5.js",
+                "sketch/js/lib/filesaver-2.0.4.js",
+            ],
+        },
+    },
+    {
+        "type": "javascript",
+        "filename": "main.js",
+        "files": {
+            "creme.creme_core": [
+                # jQuery tools
+                "creme_core/js/jquery/extensions/jquery.toggle-attr.js",
+                # Base tools
+                "creme_core/js/lib/fallbacks/object-0.1.js",
+                "creme_core/js/lib/fallbacks/array-0.9.js",
+                "creme_core/js/lib/fallbacks/string-0.1.js",
+                "creme_core/js/lib/fallbacks/console.js",
+                "creme_core/js/lib/fallbacks/event-0.1.js",
+                "creme_core/js/lib/fallbacks/htmldocument-0.1.js",
+                "creme_core/js/lib/math.js",
+                "creme_core/js/lib/generators-0.1.js",
+                "creme_core/js/lib/color.js",
+                "creme_core/js/lib/assert.js",
+                "creme_core/js/lib/faker.js",
+                "creme_core/js/lib/browser.js",
+                # Legacy tools
+                "creme_core/js/creme.js",
+                "creme_core/js/utils.js",
+                "creme_core/js/forms.js",
+                "creme_core/js/widgets/base.js",
+                "creme_core/js/widgets/component/component.js",
+                "creme_core/js/widgets/component/factory.js",
+                "creme_core/js/widgets/component/events.js",
+                "creme_core/js/widgets/component/action.js",
+                "creme_core/js/widgets/component/action-registry.js",
+                "creme_core/js/widgets/component/action-link.js",
+                "creme_core/js/widgets/utils/template.js",
+                "creme_core/js/widgets/utils/lambda.js",
+                "creme_core/js/widgets/utils/converter.js",
+                "creme_core/js/widgets/utils/json.js",
+                "creme_core/js/widgets/utils/compare.js",
+                "creme_core/js/widgets/utils/history.js",
+                "creme_core/js/widgets/utils/plugin.js",
+                "creme_core/js/widgets/ajax/url.js",
+                "creme_core/js/widgets/ajax/backend.js",
+                "creme_core/js/widgets/ajax/mockbackend.js",
+                "creme_core/js/widgets/ajax/cachebackend.js",
+                "creme_core/js/widgets/ajax/query.js",
+                "creme_core/js/widgets/layout/layout.js",
+                "creme_core/js/widgets/layout/autosize.js",
+                "creme_core/js/widgets/model/collection.js",
+                "creme_core/js/widgets/model/array.js",
+                "creme_core/js/widgets/model/renderer.js",
+                "creme_core/js/widgets/model/query.js",
+                "creme_core/js/widgets/model/controller.js",
+                "creme_core/js/widgets/model/choice.js",
+                "creme_core/js/widgets/dialog/dialog.js",
+                "creme_core/js/widgets/dialog/overlay.js",
+                "creme_core/js/widgets/dialog/frame.js",
+                "creme_core/js/widgets/dialog/confirm.js",
+                "creme_core/js/widgets/dialog/form.js",
+                "creme_core/js/widgets/dialog/select.js",
+                "creme_core/js/widgets/dialog/glasspane.js",
+                "creme_core/js/widgets/dialog/popover.js",
+                "creme_core/js/widgets/list/pager.js",
+                "creme_core/js/widgets/form/select2.js",
+                "creme_core/js/widgets/form/dropdown.js",
+                "creme_core/js/widgets/frame.js",
+                "creme_core/js/widgets/toggle.js",
+                "creme_core/js/widgets/pluginlauncher.js",
+                "creme_core/js/widgets/dinput.js",
+                "creme_core/js/widgets/autosizedarea.js",
+                "creme_core/js/widgets/selectorinput.js",
+                "creme_core/js/widgets/dselect.js",
+                "creme_core/js/widgets/checklistselect.js",
+                "creme_core/js/widgets/ordered.js",
+                "creme_core/js/widgets/datetime.js",
+                "creme_core/js/widgets/daterange.js",
+                "creme_core/js/widgets/daterangeselector.js",
+                "creme_core/js/widgets/chainedselect.js",
+                "creme_core/js/widgets/selectorlist.js",
+                "creme_core/js/widgets/entityselector.js",
+                "creme_core/js/widgets/pselect.js",
+                "creme_core/js/widgets/actionlist.js",
+                # 'creme_core/js/widgets/scrollactivator.js',
+                # 'creme_core/js/widgets/container.js',
+                "creme_core/js/widgets/editor.js",
+                "creme_core/js/menu.js",
+                "creme_core/js/notification.js",
+                "creme_core/js/search.js",
+                "creme_core/js/bricks.js",
+                "creme_core/js/bricks-action.js",
+                "creme_core/js/list_view.core.js",
+                "creme_core/js/lv_widget.js",
+                "creme_core/js/detailview.js",
+                "creme_core/js/entity_cell.js",
+                "creme_core/js/export.js",
+                "creme_core/js/merge.js",
+                "creme_core/js/relations.js",
+                "creme_core/js/jobs.js",
+            ],
+            "creme.creme_config": [
+                "creme_config/js/custom-forms-brick.js",
+                "creme_config/js/button-menu-editor.js",
+                "creme_config/js/menu-brick.js",
+                "creme_config/js/menu-editor.js",
+                "creme_config/js/bricks-config-editor.js",
+                "creme_config/js/settings-menu.js",
+            ],
+            "creme.sketch": [
+                "sketch/js/lib/d3-radial-axis.js",
+                "sketch/js/utils.js",
+                "sketch/js/color.js",
+                "sketch/js/tooltip.js",
+                "sketch/js/invert.js",
+                "sketch/js/sketch.js",
+                "sketch/js/chart.js",
+                "sketch/js/bricks.js",
+                "sketch/js/draw/drawable.js",
+                "sketch/js/draw/legend.js",
+                "sketch/js/draw/limit.js",
+                "sketch/js/draw/axis.js",
+                "sketch/js/draw/text.js",
+                "sketch/js/draw/scroll.js",
+                "sketch/js/chart/areachart.js",
+                "sketch/js/chart/barchart.js",
+                "sketch/js/chart/donutchart.js",
+                "sketch/js/chart/linechart.js",
+                "sketch/js/chart/groupbarchart.js",
+                "sketch/js/chart/stackbarchart.js",
+            ],
+            "creme.persons": ["persons/js/persons.js"],
+            "creme.activities": [
+                "activities/js/activities.js",
+                "activities/js/activities-calendar.js",
+            ],
+            "creme.billing": [
+                "billing/js/billing.js",
+                "billing/js/billing-actions.js",
+            ],
+            "creme.opportunities": [
+                "opportunities/js/opportunities.js",
+            ],
+            "creme.commercial": ["commercial/js/commercial.js"],
+            "creme.projects": ["projects/js/projects.js"],
+            "creme.reports": [
+                "reports/js/reports.js",
+                "reports/js/reports-actions.js",
+                "reports/js/reports-brick.js",
+                "reports/js/chart/tubechart.js",
+            ],
+            "creme.graphs": ["graphs/js/chart/relation-chart.js"],
+            "creme.crudity": ["crudity/js/crudity.js"],
+            "creme.emails": ["emails/js/emails.js"],
+            "creme.cti": ["cti/js/cti.js"],
+            "creme.events": ["events/js/events.js"],
+            "creme.geolocation": [
+                "geolocation/js/geolocation.js",
+                "geolocation/js/geolocation-google.js",
+                "geolocation/js/geolocation-leaflet.js",
+                "geolocation/js/brick.js",
+            ],
+        },
+    },
+    {
+        "type": "javascript",
+        "filename": "testlib.js",
+        "files": {
+            "creme.creme_core": [
+                "creme_core/js/tests/qunit/qunit-1.23.1.js",
+                "creme_core/js/tests/qunit/qunit-parametrize.js",
+                "creme_core/js/tests/qunit/qunit-mixin.js",
+                "creme_core/js/tests/component/qunit-event-mixin.js",
+                "creme_core/js/tests/ajax/qunit-ajax-mixin.js",
+                "creme_core/js/tests/dialog/qunit-dialog-mixin.js",
+                "creme_core/js/tests/widgets/qunit-widget-mixin.js",
+                "creme_core/js/tests/list/qunit-listview-mixin.js",
+                "creme_core/js/tests/brick/qunit-brick-mixin.js",
+                "creme_core/js/tests/views/qunit-detailview-mixin.js",
+            ]
+        },
+    },
+    {
+        "type": "javascript",
+        "filename": "test.js",
+        "files": {
+            "creme.creme_core": [
+                "creme_core/js/tests/jquery/toggle-attr.js",
+                # Content
+                "creme_core/js/tests/component/component.js",
+                "creme_core/js/tests/component/events.js",
+                "creme_core/js/tests/component/action.js",
+                "creme_core/js/tests/component/actionregistry.js",
+                "creme_core/js/tests/component/actionlink.js",
+                "creme_core/js/tests/utils/template.js",
+                "creme_core/js/tests/utils/lambda.js",
+                "creme_core/js/tests/utils/converter.js",
+                "creme_core/js/tests/utils/utils.js",
+                "creme_core/js/tests/utils/plugin.js",
+                "creme_core/js/tests/ajax/mockajax.js",
+                "creme_core/js/tests/ajax/cacheajax.js",
+                "creme_core/js/tests/ajax/query.js",
+                "creme_core/js/tests/ajax/localize.js",
+                "creme_core/js/tests/ajax/utils.js",
+                "creme_core/js/tests/model/collection.js",
+                "creme_core/js/tests/model/renderer-list.js",
+                "creme_core/js/tests/model/renderer-choice.js",
+                "creme_core/js/tests/model/renderer-checklist.js",
+                "creme_core/js/tests/model/query.js",
+                "creme_core/js/tests/model/controller.js",
+                "creme_core/js/tests/layout/textautosize.js",
+                "creme_core/js/tests/dialog/frame.js",
+                "creme_core/js/tests/dialog/overlay.js",
+                "creme_core/js/tests/dialog/dialog.js",
+                "creme_core/js/tests/dialog/dialog-form.js",
+                "creme_core/js/tests/dialog/popover.js",
+                "creme_core/js/tests/dialog/glasspane.js",
+                "creme_core/js/tests/fallbacks.js",
+                "creme_core/js/tests/generators.js",
+                "creme_core/js/tests/color.js",
+                "creme_core/js/tests/assert.js",
+                "creme_core/js/tests/faker.js",
+                "creme_core/js/tests/browser.js",
+                "creme_core/js/tests/parametrize.js",
+                "creme_core/js/tests/widgets/base.js",
+                "creme_core/js/tests/widgets/widget.js",
+                "creme_core/js/tests/widgets/frame.js",
+                "creme_core/js/tests/widgets/toggle.js",
+                "creme_core/js/tests/widgets/dselect.js",
+                "creme_core/js/tests/widgets/dinput.js",
+                "creme_core/js/tests/widgets/pselect.js",
+                "creme_core/js/tests/widgets/entityselector.js",
+                "creme_core/js/tests/widgets/chainedselect.js",
+                "creme_core/js/tests/widgets/checklistselect.js",
+                "creme_core/js/tests/widgets/selectorlist.js",
+                "creme_core/js/tests/widgets/actionlist.js",
+                "creme_core/js/tests/widgets/entitycells.js",
+                "creme_core/js/tests/widgets/editor.js",
+                "creme_core/js/tests/widgets/datetimepicker.js",
+                "creme_core/js/tests/widgets/selectinput.js",
+                "creme_core/js/tests/widgets/ordered.js",
+                "creme_core/js/tests/widgets/daterangeselector.js",
+                "creme_core/js/tests/form/forms.js",
+                "creme_core/js/tests/form/select2.js",
+                "creme_core/js/tests/form/dropdown.js",
+                "creme_core/js/tests/list/list-pager.js",
+                "creme_core/js/tests/list/listview-actions.js",
+                "creme_core/js/tests/list/listview-header.js",
+                "creme_core/js/tests/list/listview-core.js",
+                "creme_core/js/tests/list/listview-dialog.js",
+                "creme_core/js/tests/brick/brick.js",
+                "creme_core/js/tests/brick/brick-actions.js",
+                "creme_core/js/tests/brick/brick-menu.js",
+                "creme_core/js/tests/brick/brick-table.js",
+                "creme_core/js/tests/brick/dependencies.js",
+                "creme_core/js/tests/views/detailview-actions.js",
+                "creme_core/js/tests/views/hatmenubar.js",
+                "creme_core/js/tests/views/jobs.js",
+                "creme_core/js/tests/views/menu.js",
+                "creme_core/js/tests/views/search.js",
+                "creme_core/js/tests/views/utils.js",
+            ],
+            "creme.activities": [
+                "activities/js/tests/activities-listview.js",
+                "activities/js/tests/activities-calendar.js",
+            ],
+            "creme.billing": [
+                "billing/js/tests/billing.js",
+                "billing/js/tests/billing-actions.js",
+                "billing/js/tests/billing-listview.js",
+            ],
+            "creme.commercial": [
+                "commercial/js/tests/commercial-score.js",
+            ],
+            "creme.creme_config": [
+                "creme_config/js/tests/brick-config-editor.js",
+                "creme_config/js/tests/brick-menu.js",
+                "creme_config/js/tests/button-menu-editor.js",
+                "creme_config/js/tests/custom-forms-brick.js",
+                "creme_config/js/tests/settings-menu.js",
+                "creme_config/js/tests/menu-editor.js",
+            ],
+            "creme.sketch": [
+                "sketch/js/tests/qunit-sketch-mixin.js",
+                "sketch/js/tests/utils.js",
+                "sketch/js/tests/sketch.js",
+                "sketch/js/tests/chart.js",
+                "sketch/js/tests/drawable.js",
+                "sketch/js/tests/bricks.js",
+                "sketch/js/tests/demo.js",
+                "sketch/js/tests/invert.js",
+            ],
+            "creme.crudity": [
+                "crudity/js/tests/crudity-actions.js",
+            ],
+            "creme.cti": [
+                "cti/js/tests/cti-actions.js",
+            ],
+            "creme.emails": [
+                "emails/js/tests/emails-actions.js",
+                "emails/js/tests/emails-listview.js",
+            ],
+            "creme.events": [
+                "events/js/tests/events-listview.js",
+            ],
+            "creme.geolocation": [
+                "geolocation/js/tests/qunit-geolocation-mixin.js",
+                "geolocation/js/tests/geolocation.js",
+                "geolocation/js/tests/geolocation-google.js",
+                "geolocation/js/tests/persons-brick.js",
+                "geolocation/js/tests/addresses-brick.js",
+                "geolocation/js/tests/persons-neighborhood-brick.js",
+            ],
+            "creme.graphs": [
+                "graphs/js/tests/relation-chart.js",
+            ],
+            "creme.opportunities": [
+                "opportunities/js/tests/opportunities.js",
+            ],
+            "creme.persons": [
+                "persons/js/tests/persons.js",
+                "persons/js/tests/persons-actions.js",
+            ],
+            "creme.projects": [
+                "projects/js/tests/projects.js",
+            ],
+            "creme.reports": [
+                "reports/js/tests/reports-actions.js",
+                "reports/js/tests/reports-listview.js",
+                "reports/js/tests/reports-brick.js",
+                "reports/js/tests/tube-chart.js",
+            ],
+        },
+    },
 ]
-
-CREME_OPT_CSS = [  # APPS
-    ('creme.persons',   'persons/css/persons.css'),
-    ('creme.sketch',    'sketch/css/sketch.css'),
-
-    ('creme.activities',       'activities/css/activities.css'),
-    # DEPRECATED: to be removed in creme 2.7
-    # ('creme.activities',       'activities/css/fullcalendar-3.10.2.css'),
-    # ('creme.activities',       'activities/css/fc3-creme.css'),
-    ('creme.activities', 'activities/css/fullcalendar-5.11.4.css'),
-    ('creme.activities', 'activities/css/fc5-creme.css'),
-
-    ('creme.billing',          'billing/css/billing.css'),
-    ('creme.opportunities',    'opportunities/css/opportunities.css'),
-    ('creme.commercial',       'commercial/css/commercial.css'),
-    ('creme.emails',           'emails/css/emails.css'),
-    ('creme.polls',            'polls/css/polls.css'),
-    ('creme.products',         'products/css/products.css'),
-    ('creme.projects',         'projects/css/projects.css'),
-    ('creme.graphs',           'graphs/css/graphs.css'),
-    ('creme.reports',          'reports/css/reports.css'),
-    ('creme.tickets',          'tickets/css/tickets.css'),
-    ('creme.mobile',           'mobile/css/mobile.css'),
-    ('creme.cti',              'cti/css/cti.css'),
-
-    ('creme.geolocation', 'geolocation/css/leaflet-1.9.4.css'),
-    ('creme.geolocation', 'geolocation/css/geolocation.css'),
-]
-
-CREME_I18N_JS = [
-    'l10n.js',
-
-    {'filter': 'mediagenerator.filters.i18n.I18N'},  # To build the i18n catalog statically.
-]
-
-CREME_LIB_JS = [
-    'lib.js',
-
-    # To get the media_url() function in JS.
-    {'filter': 'mediagenerator.filters.media_url.MediaURL'},
-
-    'creme_core/js/media.js',
-    'creme_core/js/lib/underscore/underscore-1.13.2.js',
-    'creme_core/js/jquery/3.x/jquery-3.7.1.js',
-    'creme_core/js/jquery/3.x/jquery-migrate-3.4.1.js',
-    'creme_core/js/jquery/ui/jquery-ui-1.13.1.js',
-    'creme_core/js/jquery/ui/jquery-ui-locale.js',
-    'creme_core/js/jquery/extensions/jquery.dragtable.js',
-    'creme_core/js/jquery/extensions/jquery.form-3.51.js',
-    'creme_core/js/jquery/extensions/jquery.floatthead-2.2.4.js',
-    'creme_core/js/lib/momentjs/moment-2.29.4.js',
-    'creme_core/js/lib/momentjs/locale/en-us.js',
-    'creme_core/js/lib/momentjs/locale/fr-fr.js',
-    'creme_core/js/lib/editor/tinymce.3.4.9.js',
-    'creme_core/js/lib/Sortable/Sortable-1.15.2.js',
-    'creme_core/js/lib/select2/select2-4.0.13.full.js',
-    'creme_core/js/lib/select2/i18n/en.js',
-    'creme_core/js/lib/select2/i18n/fr.js',
-    'creme_core/js/lib/select2/select2-jquery-3.6.0.js',
-]
-
-CREME_CORE_JS = [
-    # Name
-    'main.js',
-
-    # jQuery tools
-    'creme_core/js/jquery/extensions/jquery.toggle-attr.js',
-
-    # Base tools
-    'creme_core/js/lib/fallbacks/object-0.1.js',
-    'creme_core/js/lib/fallbacks/array-0.9.js',
-    'creme_core/js/lib/fallbacks/string-0.1.js',
-    'creme_core/js/lib/fallbacks/console.js',
-    'creme_core/js/lib/fallbacks/event-0.1.js',
-    'creme_core/js/lib/fallbacks/htmldocument-0.1.js',
-    'creme_core/js/lib/math.js',
-    'creme_core/js/lib/generators-0.1.js',
-    'creme_core/js/lib/color.js',
-    'creme_core/js/lib/assert.js',
-    'creme_core/js/lib/faker.js',
-    'creme_core/js/lib/browser.js',
-
-    # Legacy tools
-    'creme_core/js/creme.js',
-    'creme_core/js/utils.js',
-    'creme_core/js/forms.js',
-
-    'creme_core/js/widgets/base.js',
-
-    'creme_core/js/widgets/component/component.js',
-    'creme_core/js/widgets/component/factory.js',
-    'creme_core/js/widgets/component/events.js',
-    'creme_core/js/widgets/component/action.js',
-    'creme_core/js/widgets/component/action-registry.js',
-    'creme_core/js/widgets/component/action-link.js',
-
-    'creme_core/js/widgets/utils/template.js',
-    'creme_core/js/widgets/utils/lambda.js',
-    'creme_core/js/widgets/utils/converter.js',
-    'creme_core/js/widgets/utils/json.js',
-    'creme_core/js/widgets/utils/compare.js',
-    'creme_core/js/widgets/utils/history.js',
-    'creme_core/js/widgets/utils/plugin.js',
-
-    'creme_core/js/widgets/ajax/url.js',
-    'creme_core/js/widgets/ajax/backend.js',
-    'creme_core/js/widgets/ajax/mockbackend.js',
-    'creme_core/js/widgets/ajax/cachebackend.js',
-    'creme_core/js/widgets/ajax/query.js',
-
-    'creme_core/js/widgets/layout/layout.js',
-    'creme_core/js/widgets/layout/autosize.js',
-
-    'creme_core/js/widgets/model/collection.js',
-    'creme_core/js/widgets/model/array.js',
-    'creme_core/js/widgets/model/renderer.js',
-    'creme_core/js/widgets/model/query.js',
-    'creme_core/js/widgets/model/controller.js',
-    'creme_core/js/widgets/model/choice.js',
-
-    'creme_core/js/widgets/dialog/dialog.js',
-    'creme_core/js/widgets/dialog/overlay.js',
-    'creme_core/js/widgets/dialog/frame.js',
-    'creme_core/js/widgets/dialog/confirm.js',
-    'creme_core/js/widgets/dialog/form.js',
-    'creme_core/js/widgets/dialog/select.js',
-    'creme_core/js/widgets/dialog/glasspane.js',
-    'creme_core/js/widgets/dialog/popover.js',
-
-    'creme_core/js/widgets/list/pager.js',
-
-    'creme_core/js/widgets/form/select2.js',
-    'creme_core/js/widgets/form/dropdown.js',
-
-    'creme_core/js/widgets/frame.js',
-    'creme_core/js/widgets/toggle.js',
-    'creme_core/js/widgets/pluginlauncher.js',
-    'creme_core/js/widgets/dinput.js',
-    'creme_core/js/widgets/autosizedarea.js',
-    'creme_core/js/widgets/selectorinput.js',
-    'creme_core/js/widgets/dselect.js',
-    'creme_core/js/widgets/checklistselect.js',
-    'creme_core/js/widgets/ordered.js',
-    'creme_core/js/widgets/datetime.js',
-    'creme_core/js/widgets/daterange.js',
-    'creme_core/js/widgets/daterangeselector.js',
-    'creme_core/js/widgets/chainedselect.js',
-    'creme_core/js/widgets/selectorlist.js',
-    'creme_core/js/widgets/entityselector.js',
-    'creme_core/js/widgets/pselect.js',
-    'creme_core/js/widgets/actionlist.js',
-    # 'creme_core/js/widgets/scrollactivator.js',
-    # 'creme_core/js/widgets/container.js',
-    'creme_core/js/widgets/editor.js',
-
-    'creme_core/js/menu.js',
-    'creme_core/js/notification.js',
-    'creme_core/js/search.js',
-    'creme_core/js/bricks.js',
-    'creme_core/js/bricks-action.js',
-
-    'creme_core/js/list_view.core.js',
-    'creme_core/js/lv_widget.js',
-    'creme_core/js/detailview.js',
-
-    'creme_core/js/entity_cell.js',
-    'creme_core/js/export.js',
-    'creme_core/js/merge.js',
-    'creme_core/js/relations.js',
-    'creme_core/js/jobs.js',
-]
-
-CREME_OPTLIB_JS = [
-    # DEPRECATED: to be removed in creme 2.7
-    # ('creme.activities', 'activities/js/lib/fullcalendar-3.10.2.js'),
-    ('creme.activities', 'activities/js/lib/fullcalendar-5.11.4.js'),
-    ('creme.geolocation', 'geolocation/js/lib/leaflet-1.9.4.js'),
-    ('creme.sketch', 'sketch/js/lib/d3-7.8.5.js'),
-    ('creme.sketch', 'sketch/js/lib/filesaver-2.0.4.js'),
-]
-
-CREME_OPT_JS = [  # OPTIONAL APPS
-    ('creme.creme_config',  'creme_config/js/custom-forms-brick.js'),
-    ('creme.creme_config',  'creme_config/js/button-menu-editor.js'),
-    ('creme.creme_config',  'creme_config/js/menu-brick.js'),
-    ('creme.creme_config',  'creme_config/js/menu-editor.js'),
-    ('creme.creme_config',  'creme_config/js/bricks-config-editor.js'),
-    ('creme.creme_config',  'creme_config/js/settings-menu.js'),
-
-    ('creme.sketch',        'sketch/js/lib/d3-radial-axis.js'),
-    ('creme.sketch',        'sketch/js/utils.js'),
-    ('creme.sketch',        'sketch/js/color.js'),
-    ('creme.sketch',        'sketch/js/tooltip.js'),
-    ('creme.sketch',        'sketch/js/invert.js'),
-    ('creme.sketch',        'sketch/js/sketch.js'),
-    ('creme.sketch',        'sketch/js/chart.js'),
-    ('creme.sketch',        'sketch/js/bricks.js'),
-    ('creme.sketch',        'sketch/js/draw/drawable.js'),
-    ('creme.sketch',        'sketch/js/draw/legend.js'),
-    ('creme.sketch',        'sketch/js/draw/limit.js'),
-    ('creme.sketch',        'sketch/js/draw/axis.js'),
-    ('creme.sketch',        'sketch/js/draw/text.js'),
-    ('creme.sketch',        'sketch/js/draw/scroll.js'),
-    ('creme.sketch',        'sketch/js/chart/areachart.js'),
-    ('creme.sketch',        'sketch/js/chart/barchart.js'),
-    ('creme.sketch',        'sketch/js/chart/donutchart.js'),
-    ('creme.sketch',        'sketch/js/chart/linechart.js'),
-    ('creme.sketch',        'sketch/js/chart/groupbarchart.js'),
-    ('creme.sketch',        'sketch/js/chart/stackbarchart.js'),
-
-    ('creme.persons',       'persons/js/persons.js'),
-
-    ('creme.activities',    'activities/js/activities.js'),
-    # DEPRECATED: to be removed in creme 2.7
-    # ('creme.activities',    'activities/js/activities-calendar-v3.js'),
-    ('creme.activities',    'activities/js/activities-calendar.js'),
-
-    ('creme.billing',       'billing/js/billing.js'),
-    ('creme.billing',       'billing/js/billing-actions.js'),
-
-    ('creme.opportunities', 'opportunities/js/opportunities.js'),
-
-    ('creme.commercial',    'commercial/js/commercial.js'),
-
-    ('creme.projects',      'projects/js/projects.js'),
-
-    ('creme.reports',       'reports/js/reports.js'),
-    ('creme.reports',       'reports/js/reports-actions.js'),
-    ('creme.reports',       'reports/js/reports-brick.js'),
-    ('creme.reports',       'reports/js/chart/tubechart.js'),
-
-    ('creme.graphs',        'graphs/js/chart/relation-chart.js'),
-
-    ('creme.crudity',       'crudity/js/crudity.js'),
-
-    ('creme.emails',        'emails/js/emails.js'),
-
-    ('creme.cti',           'cti/js/cti.js'),
-
-    ('creme.events',        'events/js/events.js'),
-
-    ('creme.geolocation',   'geolocation/js/geolocation.js'),
-    ('creme.geolocation',   'geolocation/js/geolocation-google.js'),
-    ('creme.geolocation',   'geolocation/js/geolocation-leaflet.js'),
-    ('creme.geolocation',   'geolocation/js/brick.js'),
-]
-
-TEST_CREME_LIB_JS = [
-    # Name
-    'testlib.js',
-
-    # Content
-    'creme_core/js/tests/qunit/qunit-1.23.1.js',
-    'creme_core/js/tests/qunit/qunit-parametrize.js',
-    'creme_core/js/tests/qunit/qunit-mixin.js',
-    'creme_core/js/tests/component/qunit-event-mixin.js',
-    'creme_core/js/tests/ajax/qunit-ajax-mixin.js',
-    'creme_core/js/tests/dialog/qunit-dialog-mixin.js',
-    'creme_core/js/tests/widgets/qunit-widget-mixin.js',
-    'creme_core/js/tests/list/qunit-listview-mixin.js',
-    'creme_core/js/tests/brick/qunit-brick-mixin.js',
-    'creme_core/js/tests/views/qunit-detailview-mixin.js',
-]
-
-TEST_CREME_CORE_JS = [
-    # Name
-    'testcore.js',
-
-    'creme_core/js/tests/jquery/toggle-attr.js',
-
-    # Content
-    'creme_core/js/tests/component/component.js',
-    'creme_core/js/tests/component/events.js',
-    'creme_core/js/tests/component/action.js',
-    'creme_core/js/tests/component/actionregistry.js',
-    'creme_core/js/tests/component/actionlink.js',
-
-    'creme_core/js/tests/utils/template.js',
-    'creme_core/js/tests/utils/lambda.js',
-    'creme_core/js/tests/utils/converter.js',
-    'creme_core/js/tests/utils/utils.js',
-    'creme_core/js/tests/utils/plugin.js',
-
-    'creme_core/js/tests/ajax/mockajax.js',
-    'creme_core/js/tests/ajax/cacheajax.js',
-    'creme_core/js/tests/ajax/query.js',
-    'creme_core/js/tests/ajax/localize.js',
-    'creme_core/js/tests/ajax/utils.js',
-
-    'creme_core/js/tests/model/collection.js',
-    'creme_core/js/tests/model/renderer-list.js',
-    'creme_core/js/tests/model/renderer-choice.js',
-    'creme_core/js/tests/model/renderer-checklist.js',
-    'creme_core/js/tests/model/query.js',
-    'creme_core/js/tests/model/controller.js',
-
-    'creme_core/js/tests/layout/textautosize.js',
-
-    'creme_core/js/tests/dialog/frame.js',
-    'creme_core/js/tests/dialog/overlay.js',
-    'creme_core/js/tests/dialog/dialog.js',
-    'creme_core/js/tests/dialog/dialog-form.js',
-    'creme_core/js/tests/dialog/popover.js',
-    'creme_core/js/tests/dialog/glasspane.js',
-
-    'creme_core/js/tests/fallbacks.js',
-    'creme_core/js/tests/generators.js',
-    'creme_core/js/tests/color.js',
-    'creme_core/js/tests/assert.js',
-    'creme_core/js/tests/faker.js',
-    'creme_core/js/tests/browser.js',
-    'creme_core/js/tests/parametrize.js',
-
-    'creme_core/js/tests/widgets/base.js',
-    'creme_core/js/tests/widgets/widget.js',
-    'creme_core/js/tests/widgets/frame.js',
-    'creme_core/js/tests/widgets/toggle.js',
-    'creme_core/js/tests/widgets/dselect.js',
-    'creme_core/js/tests/widgets/dinput.js',
-    'creme_core/js/tests/widgets/pselect.js',
-    'creme_core/js/tests/widgets/entityselector.js',
-    'creme_core/js/tests/widgets/chainedselect.js',
-    'creme_core/js/tests/widgets/checklistselect.js',
-    'creme_core/js/tests/widgets/selectorlist.js',
-    'creme_core/js/tests/widgets/actionlist.js',
-    'creme_core/js/tests/widgets/entitycells.js',
-    'creme_core/js/tests/widgets/editor.js',
-    'creme_core/js/tests/widgets/datetimepicker.js',
-    'creme_core/js/tests/widgets/selectinput.js',
-    'creme_core/js/tests/widgets/ordered.js',
-    'creme_core/js/tests/widgets/daterangeselector.js',
-
-    'creme_core/js/tests/form/forms.js',
-    'creme_core/js/tests/form/select2.js',
-    'creme_core/js/tests/form/dropdown.js',
-
-    'creme_core/js/tests/list/list-pager.js',
-    'creme_core/js/tests/list/listview-actions.js',
-    'creme_core/js/tests/list/listview-header.js',
-    'creme_core/js/tests/list/listview-core.js',
-    'creme_core/js/tests/list/listview-dialog.js',
-
-    'creme_core/js/tests/brick/brick.js',
-    'creme_core/js/tests/brick/brick-actions.js',
-    'creme_core/js/tests/brick/brick-menu.js',
-    'creme_core/js/tests/brick/brick-table.js',
-    'creme_core/js/tests/brick/dependencies.js',
-
-    'creme_core/js/tests/views/detailview-actions.js',
-    'creme_core/js/tests/views/hatmenubar.js',
-    'creme_core/js/tests/views/jobs.js',
-    'creme_core/js/tests/views/menu.js',
-    'creme_core/js/tests/views/search.js',
-    'creme_core/js/tests/views/utils.js',
-]
-
-TEST_CREME_OPT_JS = [
-    # ('creme.my_app',       'my_app/js/tests/my_app.js'),
-    ('creme.activities',    'activities/js/tests/activities-listview.js'),
-    ('creme.activities',    'activities/js/tests/activities-calendar.js'),
-    ('creme.billing',       'billing/js/tests/billing.js'),
-    ('creme.billing',       'billing/js/tests/billing-actions.js'),
-    ('creme.billing',       'billing/js/tests/billing-listview.js'),
-    ('creme.commercial',    'commercial/js/tests/commercial-score.js'),
-    ('creme.creme_config',  'creme_config/js/tests/brick-config-editor.js'),
-    ('creme.creme_config',  'creme_config/js/tests/brick-menu.js'),
-    ('creme.creme_config',  'creme_config/js/tests/button-menu-editor.js'),
-    ('creme.creme_config',  'creme_config/js/tests/custom-forms-brick.js'),
-    ('creme.creme_config',  'creme_config/js/tests/settings-menu.js'),
-    ('creme.creme_config',  'creme_config/js/tests/menu-editor.js'),
-    ('creme.sketch',        'sketch/js/tests/qunit-sketch-mixin.js'),
-    ('creme.sketch',        'sketch/js/tests/utils.js'),
-    ('creme.sketch',        'sketch/js/tests/sketch.js'),
-    ('creme.sketch',        'sketch/js/tests/chart.js'),
-    ('creme.sketch',        'sketch/js/tests/drawable.js'),
-    ('creme.sketch',        'sketch/js/tests/bricks.js'),
-    ('creme.sketch',        'sketch/js/tests/demo.js'),
-    ('creme.sketch',        'sketch/js/tests/invert.js'),
-    ('creme.crudity',       'crudity/js/tests/crudity-actions.js'),
-    ('creme.cti',           'cti/js/tests/cti-actions.js'),
-    ('creme.emails',        'emails/js/tests/emails-actions.js'),
-    ('creme.emails',        'emails/js/tests/emails-listview.js'),
-    ('creme.events',        'events/js/tests/events-listview.js'),
-    ('creme.geolocation',   'geolocation/js/tests/qunit-geolocation-mixin.js'),
-    ('creme.geolocation',   'geolocation/js/tests/geolocation.js'),
-    ('creme.geolocation',   'geolocation/js/tests/geolocation-google.js'),
-    ('creme.geolocation',   'geolocation/js/tests/persons-brick.js'),
-    ('creme.geolocation',   'geolocation/js/tests/addresses-brick.js'),
-    ('creme.geolocation',   'geolocation/js/tests/persons-neighborhood-brick.js'),
-    ('creme.graphs',        'graphs/js/tests/relation-chart.js'),
-    ('creme.opportunities', 'opportunities/js/tests/opportunities.js'),
-    ('creme.persons',       'persons/js/tests/persons.js'),
-    ('creme.persons',       'persons/js/tests/persons-actions.js'),
-    ('creme.projects',      'projects/js/tests/projects.js'),
-    ('creme.reports',       'reports/js/tests/reports-actions.js'),
-    ('creme.reports',       'reports/js/tests/reports-listview.js'),
-    ('creme.reports',       'reports/js/tests/reports-brick.js'),
-    ('creme.reports',       'reports/js/tests/tube-chart.js'),
-]
-
-# Optional js/css bundles for extending projects.
-# Beware of clashes with existing bundles ('main.js', 'l10n.js').
-CREME_OPT_MEDIA_BUNDLES = []
-
-ROOT_MEDIA_FILTERS = {
-    # NB: Closure produces smaller JS files than RJSMin, but it needs Java 1.4+
-    #     to be installed, and the generation is slow.
-    #     Comparison of "main.js" sizes (measured during Creme 2.3 beta) :
-    #       - concatenated files (no minification):  822.0 Kb
-    #       - Closure:                               355.7 Kb
-    #       - rJSmin:                                457.5 Kb
-    # 'js':  'mediagenerator.filters.closure.Closure',
-    'js':  'mediagenerator.filters.rjsmin.RJSMin',
-
-    # NB: CSSCompressor gives a result slightly better than YUICompressor, & it
-    #     does not need Java...
-    # 'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
-    'css': 'mediagenerator.filters.csscompressor.CSSCompressor',
-}
-
-YUICOMPRESSOR_PATH = join(
-    dirname(__file__), 'static', 'utils', 'yui', 'yuicompressor-2.4.2.jar',
-)
-CLOSURE_COMPILER_PATH = join(
-    dirname(__file__), 'static', 'utils', 'closure', 'closure-compiler-v20240317.jar',
-)
-
-COPY_MEDIA_FILETYPES = {
-    'gif', 'jpg', 'jpeg', 'png', 'ico', 'cur',  # Images
-    'woff', 'ttf', 'eot',  # Fonts
-}
 
 # MEDIA GENERATOR & THEME SETTINGS [END] #######################################
 

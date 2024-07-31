@@ -4,27 +4,24 @@
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: 400;
-/*    src: url('common/fonts/OpenSans-Regular-400.eot'); IE9 Compat Modes */
-    src: url('common/fonts/OpenSans-Regular-400.woff') format('woff'), /* Modern Browsers */
-         url('common/fonts/OpenSans-Regular.ttf') format('truetype'); /* Safari, Android, iOS */
+    src: url('../../../common/fonts/OpenSans-Regular-400.woff') format('woff'), /* Modern Browsers */
+         url('../../../common/fonts/OpenSans-Regular.ttf') format('truetype'); /* Safari, Android, iOS */
 }
 
 @font-face {
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: 600;
-/*  src: url('common/fonts/OpenSans-Semibold-600.eot'); IE9 Compat Modes */
-    src: url('common/fonts/OpenSans-Semibold-600.woff') format('woff'), /* Modern Browsers */
-         url('common/fonts/OpenSans-Semibold.ttf') format('truetype'); /* Safari, Android, iOS */
+    src: url('../../../common/fonts/OpenSans-Semibold-600.woff') format('woff'), /* Modern Browsers */
+         url('../../../common/fonts/OpenSans-Semibold.ttf') format('truetype'); /* Safari, Android, iOS */
 }
 
 @font-face {
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: 700;
-/*  src: url('common/fonts/OpenSans-Bold-700.eot'); IE9 Compat Modes */
-    src: url('common/fonts/OpenSans-Bold-700.woff') format('woff'), /* Modern Browsers */
-         url('common/fonts/OpenSans-Bold.ttf') format('truetype'); /* Safari, Android, iOS */
+    src: url('../../../common/fonts/OpenSans-Bold-700.woff') format('woff'), /* Modern Browsers */
+         url('../../../common/fonts/OpenSans-Bold.ttf') format('truetype'); /* Safari, Android, iOS */
 }
 
 html, body {
@@ -275,7 +272,7 @@ button {
 }
 
 .wait {
-    list-style-image : url(icecream/images/wait.gif);
+    list-style-image : url("../../images/wait.gif");
 }
 
 /* .main_content { */
@@ -299,7 +296,7 @@ button {
 
 .errorlist {
     border: 1px solid #cd0a0a;
-    background: #fef1ec url(jquery-css/creme-theme/images/ui-bg_inset-soft_95_fef1ec_1x100.png) 50% bottom repeat-x;
+    background: #fef1ec url("jquery-css/creme-theme/images/ui-bg_inset-soft_95_fef1ec_1x100.png") 50% bottom repeat-x;
     color: #cd0a0a;
 }
 
@@ -325,7 +322,7 @@ button {
 
 .successlist {
     border: 1px solid #0b5d0b;
-    background: #aaf0a2 url(jquery-css/creme-theme/images/ui-bg_inset-soft_75_aaf0a2_1x100.png) 50% bottom repeat-x;
+    background: #aaf0a2 url("jquery-css/creme-theme/images/ui-bg_inset-soft_75_aaf0a2_1x100.png") 50% bottom repeat-x;
     color: #0b5d0b;
 }
 
@@ -334,13 +331,13 @@ button {
 }
 
 .successlist li {
-    list-style-image: url(icecream/images/ok_16.png);
+    list-style-image: url("../../images/ok_16.png");
     padding-top: 3px;
 }
 
 .infolist {
     border: 1px solid #56bbc8;
-    background: #e6f5f7 url(jquery-css/creme-theme/images/ui-bg_glass_65_f6fcff_1x400.png) 50% bottom repeat-x;
+    background: #e6f5f7 url("jquery-css/creme-theme/images/ui-bg_glass_65_f6fcff_1x400.png") 50% bottom repeat-x;
     color: #56bbc8;
 }
 
@@ -349,7 +346,7 @@ button {
 }
 
 .infolist li {
-    list-style-image: url(icecream/images/info_16.png);
+    list-style-image: url("../../images/info_16.png");
     padding-top: 3px;
 }
 
@@ -498,7 +495,7 @@ a[data-action] details {
     font-weight: 600;
 
     background-color: #333;
-    background-image: url(common/images/creme-pattern.png);
+    background-image: url(../../../common/images/creme-pattern.png);
     background-position: left -30px;
 }
 

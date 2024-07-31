@@ -54,6 +54,8 @@ reset-db:
 ## Install or upgrade nodejs requirements
 .PHONY: node-update
 node-update:
+	pip install --upgrade nodeenv
+	nodeenv -n 18.15.0 --prebuilt -p
 	npm install --no-save
 	npm run eslint-install
 
@@ -66,6 +68,7 @@ ifeq (${DJANGO_SETTINGS_MODULE},)
 endif
 	$(eval CREME_MEDIA ?= $(shell creme print_settings --settings=${DJANGO_SETTINGS_MODULE} --skip-checks --no-color STATIC_ROOT --format value))
 	creme generatemedia --settings=${DJANGO_SETTINGS_MODULE}
+	creme collectstatic --noinput
 
 
 ## Run the Django test suite

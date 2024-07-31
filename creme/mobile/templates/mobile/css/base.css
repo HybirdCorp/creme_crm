@@ -1,4 +1,4 @@
-{% load media %}
+{% load static %}
 * {
   box-sizing: border-box;
 }
@@ -510,7 +510,7 @@ html.ios .activity-actions-minutes .activity-minutes::-webkit-input-placeholder 
   width: 16px;
   float: right;
   background-size: 16px;
-  background-image: url({% media_url 'mobile/sprites_16.png' %});
+  background-image: url({% static 'mobile/sprites_16.png' %});
 }
 
 .activity-floating .activity-summary::before {
@@ -541,7 +541,7 @@ html.ios .activity-actions-minutes .activity-minutes::-webkit-input-placeholder 
   margin-right: 5px;
 
   background-size: 16px;
-  background-image: url({% media_url 'mobile/sprites_16.png' %});
+  background-image: url({% static 'mobile/sprites_16.png' %});
 }
 
 .card-list.list-orga .card-list-title::before,
@@ -558,27 +558,27 @@ only screen and (        min-device-pixel-ratio: 2),
 only screen and (                min-resolution: 2dppx),
 only screen and (                min-resolution: 192dpi) {
   .activity-floating .activity-summary::before {
-    background-image: url({% media_url 'mobile/sprites_32.png' %});
+    background-image: url({% static 'mobile/sprites_32.png' %});
   }
 
 /*  .activity-type-activities-activitytype_phonecall .activity-summary::before { */
   .activity-type-phonecall .activity-summary::before {
-    background-image: url({% media_url 'mobile/sprites_32.png' %});
+    background-image: url({% static 'mobile/sprites_32.png' %});
   }
 
 /*  .activity-type-activities-activitytype_meeting .activity-summary::before { */
   .activity-type-meeting .activity-summary::before {
-    background-image: url({% media_url 'mobile/sprites_32.png' %});
+    background-image: url({% static 'mobile/sprites_32.png' %});
   }
 
   .card-list.list-contact .card-list-title::before,
   .form-add-contact .form-title::before {
-    background-image: url({% media_url 'mobile/sprites_32.png' %});
+    background-image: url({% static 'mobile/sprites_32.png' %});
   }
 
   .card-list.list-orga .card-list-title::before,
   .form-add-orga .form-title::before {
-    background-image: url({% media_url 'mobile/sprites_32.png' %});
+    background-image: url({% static 'mobile/sprites_32.png' %});
   }
 }
 

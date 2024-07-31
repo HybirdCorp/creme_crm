@@ -1,7 +1,10 @@
-{% load media %}
-{% include_media 'l10n.js' language=LANGUAGE_CODE %}
-{% include_media 'lib.js' %}
-{% include_media 'main.js' %}
+{% load static %}
+
+{% with language_catalog=LANGUAGE_CODE|add:'.js' %}
+<script src="{% static language_catalog %}" type="text/javascript"></script>
+{% endwith %}
+<script src="{% static 'lib.js' %}" type="text/javascript"></script>
+<script src="{% static 'main.js' %}" type="text/javascript"></script>
 
 {# TODO : Remove this feature once JQuery is completely upgraded #}
 {% if JQUERY_MIGRATE_MUTE %}
