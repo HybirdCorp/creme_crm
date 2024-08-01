@@ -1055,8 +1055,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(sender2.email,    email2.sender)
         self.assertEqual(recipient2.email, email2.recipient)
 
-    def test_accept_email_to_syn02(self):
-        "Reception date."
+    def test_accept_email_to_sync02(self):
+        "Reception date + only one recipient."
         user = self.login()
 
         reception_date = self.create_datetime(
@@ -1082,7 +1082,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             type=EmailToSyncPerson.Type.RECIPIENT,
             email=recipient_contact.email,
             person=recipient_contact,
-            is_main=True,
+            # is_main=True, => not needed
         )
 
         self.assertPOST200(self.ACCEPT_EMAIL_URL, data={'ids': e2s.id})
@@ -1092,7 +1092,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(reception_date, email.reception_date)
 
     @skipIfCustomContact
-    def test_accept_email_to_sync02(self):
+    def test_accept_email_to_sync03(self):
         "Folder already exists."
         user = self.login()
         other_user = self.other_user
@@ -1259,7 +1259,10 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
         sender_contact = user.linked_contact
-        recipient_contact = self.other_user.linked_contact
+
+        # recipient_contact = self.other_user.linked_contact
+        recipient_contact1 = self.other_user.linked_contact
+        recipient_contact2 = self.create_user(2).linked_contact
 
         create_person = partial(EmailToSyncPerson.objects.create, email_to_sync=e2s)
         create_person(
@@ -1267,12 +1270,13 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             email=sender_contact.email,
             person=sender_contact,
         )
-        create_person(
-            type=EmailToSyncPerson.Type.RECIPIENT,
-            email=recipient_contact.email,
-            person=recipient_contact,
-            is_main=False,
-        )
+        for recipient_contact in (recipient_contact1, recipient_contact2):
+            create_person(
+                type=EmailToSyncPerson.Type.RECIPIENT,
+                email=recipient_contact.email,
+                person=recipient_contact,
+                is_main=False,
+            )
 
         response = self.assertPOST409(self.ACCEPT_EMAIL_URL, data={'ids': e2s.id})
         self.assertDictEqual(
