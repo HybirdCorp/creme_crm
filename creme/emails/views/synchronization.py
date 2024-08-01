@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -191,9 +191,14 @@ class EmailToSyncAcceptation(_BaseEmailToSyncMultiOperation):
                 gettext('The sender is not associated to a Contact/Organisation')
             )
 
-        main_recipients = [recipient for recipient in recipients if recipient.is_main]
-        if len(main_recipients) != 1:
-            raise ConflictError(gettext('There is no recipient marked as main'))
+        if len(recipients) == 1:
+            main_recipient = recipients[0]
+        else:
+            main_recipients = [recipient for recipient in recipients if recipient.is_main]
+            if len(main_recipients) != 1:
+                raise ConflictError(gettext('There is no recipient marked as main'))
+
+            main_recipient = main_recipients[0]
 
         # TODO: need only one complete recipient + ignore the incomplete ones?
         for recipient in recipients:
@@ -212,7 +217,7 @@ class EmailToSyncAcceptation(_BaseEmailToSyncMultiOperation):
             body=e2s.body,
             body_html=e2s.body_html,
             sender=senders[0].email,
-            recipient=main_recipients[0].email,
+            recipient=main_recipient.email,
             reception_date=e2s.date,
         )
         email.genid_n_save()
