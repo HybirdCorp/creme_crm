@@ -1,5 +1,14 @@
 == Version 2.5.11 Work in progress (not released -- this is a draft) ==
 
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+    # Apps :
+        * Emails :
+            - The display of error in email synchronisation, when using single actions (accept & delete), has been fixed.
+
 == Version 2.5.10 ==
 
   UPGRADE NOTE :
