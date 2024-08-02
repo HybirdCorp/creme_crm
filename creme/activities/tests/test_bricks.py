@@ -30,8 +30,8 @@ from ..bricks import (
     SubjectsBrick,
     UserCalendarsBrick,
 )
+# from ..constants import FLOATING
 from ..constants import (
-    FLOATING,
     REL_SUB_ACTIVITY_SUBJECT,
     REL_SUB_LINKED_2_ACTIVITY,
     REL_SUB_PART_2_ACTIVITY,
@@ -712,7 +712,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         activity = self._create_activity_by_view(user=user)
         self.assertIsNone(activity.start)
         self.assertIsNone(activity.end)
-        self.assertEqual(FLOATING, activity.floating_type)
+        # self.assertEqual(FLOATING, activity.floating_type)
+        self.assertEqual(Activity.FloatingType.FLOATING, activity.floating_type)
 
         create_contact = partial(Contact.objects.create, user=user)
         c1 = create_contact(first_name='Musashi', last_name='Miyamoto')

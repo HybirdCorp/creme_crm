@@ -410,8 +410,10 @@ class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView)
         activity = self.get_related_entity()
 
         # Dropping a floating Activity on the Calendar fixes it.
-        if activity.floating_type == constants.FLOATING:
-            activity.floating_type = constants.NARROW
+        # if activity.floating_type == constants.FLOATING:
+        #     activity.floating_type = constants.NARROW
+        if activity.floating_type == Activity.FloatingType.FLOATING:
+            activity.floating_type = Activity.FloatingType.NARROW
 
         activity.start = start
         activity.end = end

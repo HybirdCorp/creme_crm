@@ -404,7 +404,8 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_act = partial(
             Activity.objects.create, user=user,
             type_id=sub_type1.type_id, sub_type=sub_type1,
-            floating_type=constants.FLOATING,
+            # floating_type=constants.FLOATING,
+            floating_type=Activity.FloatingType.FLOATING,
         )
         act1 = create_act(title='Act#1')
         act2 = create_act(
@@ -413,7 +414,7 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
         act3 = create_act(title='Act#3', is_deleted=True)
         act4 = create_act(title='Act#4', user=other_user)
-        act5 = create_act(title='Act#5', floating_type=constants.NARROW)
+        act5 = create_act(title='Act#5', floating_type=Activity.FloatingType.NARROW)
 
         create_rel = partial(
             Relation.objects.create, user=user,
@@ -466,7 +467,8 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
                 user=user, title=f'Floating Act#{i}',
                 type_id=sub_type.type_id,
                 sub_type=sub_type,
-                floating_type=constants.FLOATING,
+                # floating_type=constants.FLOATING,
+                floating_type=Activity.FloatingType.FLOATING,
             )
             Relation.objects.create(
                 user=user,
@@ -1329,7 +1331,9 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         act = Activity.objects.create(
             user=user, title='Act#1',
             type_id=sub_type.type_id, sub_type=sub_type,
-            start=start, end=end, floating_type=constants.FLOATING,
+            start=start, end=end,
+            # floating_type=constants.FLOATING,
+            floating_type=Activity.FloatingType.FLOATING,
         )
 
         url = self.UPDATE_URL
@@ -1349,9 +1353,9 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
 
         act = self.refresh(act)
-        self.assertEqual(new_start,        act.start)
-        self.assertEqual(new_end,          act.end)
-        self.assertEqual(constants.NARROW, act.floating_type)
+        self.assertEqual(new_start, act.start)
+        self.assertEqual(new_end,   act.end)
+        self.assertEqual(Activity.FloatingType.NARROW, act.floating_type)
 
     @skipIfCustomActivity
     def test_update_activity_date02(self):

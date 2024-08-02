@@ -23,7 +23,6 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.template import Library
 
 from creme.activities.constants import (
-    NARROW,
     REL_SUB_ACTIVITY_SUBJECT,
     UUID_STATUS_IN_PROGRESS,
     UUID_TYPE_MEETING,
@@ -154,7 +153,8 @@ def mobile_activity_card(context, activity,
         # TODO: test with is staff
         'user_contact_id':    linked_contact.id if linked_contact else None,
         'activity':           activity,
-        'is_floating':        activity.floating_type != NARROW,
+        # 'is_floating':        activity.floating_type != NARROW,
+        'is_floating':        activity.floating_type != activity.FloatingType.NARROW,
         'buttons_template':   _BUTTONS[button_panel],
         'show_date':          show_date,
         'shortcut':           shortcut,

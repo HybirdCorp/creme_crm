@@ -121,7 +121,8 @@ class RangeOverrider(FieldOverrider):
                 dt = localtime(dt)
                 return (
                     dt.date(),
-                    None if first.floating_type == constants.FLOATING_TIME else dt.time(),
+                    # None if first.floating_type == constants.FLOATING_TIME else dt.time(),
+                    None if first.floating_type == first.FloatingType.FLOATING_TIME else dt.time(),
                 )
 
             field.initial = (
@@ -155,16 +156,21 @@ class RangeOverrider(FieldOverrider):
             if end_date:
                 raise ValidationError(self.error_messages['no_start'], code='no_start')
 
-            floating_type = constants.FLOATING
+            # floating_type = constants.FLOATING
+            floating_type = instance.FloatingType.FLOATING
         else:
             floating_type = (
-                constants.NARROW if start_time or is_all_day else constants.FLOATING_TIME
+                # constants.NARROW if start_time or is_all_day else constants.FLOATING_TIME
+                instance.FloatingType.NARROW
+                if start_time or is_all_day else
+                instance.FloatingType.FLOATING_TIME
             )
 
             # TODO: not start_date, not end_date, start time, end time =>
             #       floating activity with time set but lost in the process
 
-            if floating_type == constants.FLOATING_TIME and busy:
+            # if floating_type == constants.FLOATING_TIME and busy:
+            if floating_type == instance.FloatingType.FLOATING_TIME and busy:
                 raise ValidationError(
                     self.error_messages['floating_cannot_busy'],
                     code='floating_cannot_busy',
@@ -179,7 +185,10 @@ class RangeOverrider(FieldOverrider):
             else:
                 tdelta = instance.type.as_timedelta()
 
-                if (is_all_day or floating_type == constants.FLOATING_TIME) and tdelta.days:
+                # if (is_all_day or floating_type == constants.FLOATING_TIME) and tdelta.days:
+                if (
+                    is_all_day or floating_type == instance.FloatingType.FLOATING_TIME
+                ) and tdelta.days:
                     # In 'all day' mode, we round the number of day
                     # Activity already takes 1 day (we do not want it takes 2)
                     days = tdelta.days - 1
@@ -191,7 +200,8 @@ class RangeOverrider(FieldOverrider):
 
                 end = start + tdelta
 
-            if is_all_day or floating_type == constants.FLOATING_TIME:
+            # if is_all_day or floating_type == constants.FLOATING_TIME:
+            if is_all_day or floating_type == instance.FloatingType.FLOATING_TIME:
                 start = make_aware(datetime.combine(start, time(hour=0, minute=0)))
                 end   = make_aware(datetime.combine(end,   time(hour=23, minute=59)))
 
