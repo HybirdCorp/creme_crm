@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING
 from django.db.models import Model
 from django.utils.html import format_html
 
+from ..staticfiles import get_staticfile_url
 from ..utils.media import get_creme_media_url
 
 if TYPE_CHECKING:
@@ -268,22 +269,22 @@ def get_icon_by_name(name: str,
 
     def _get_image_url():
         try:
-            return get_creme_media_url(theme, f'images/{name}_{size_px}.png')
+            return get_staticfile_url(f'{theme}/images/{name}_{size_px}.png', verify=True)
         except KeyError:
             pass
 
         try:
-            return get_creme_media_url(theme, f'images/{name}.png')
+            return get_staticfile_url(f'{theme}/images/{name}.png', verify=True)
         except KeyError:
             pass
 
         try:
-            return get_creme_media_url(theme, f'images/{name}_{size_px}.gif')
+            return get_staticfile_url(f'{theme}/images/{name}_{size_px}.gif', verify=True)
         except KeyError:
             pass
 
         try:
-            return get_creme_media_url(theme, f'images/{name}.gif')
+            return get_staticfile_url(f'{theme}/images/{name}.gif', verify=True)
         except KeyError:
             pass
 
@@ -338,7 +339,7 @@ class IconRegistry:
             path = path_fmt % {'size': size_px}
 
             try:
-                url = get_creme_media_url(theme, path)
+                url = get_staticfile_url(f"{theme}/{path}", verify=True)
             except KeyError:
                 logger.warning('Missing image: %s', path)
 

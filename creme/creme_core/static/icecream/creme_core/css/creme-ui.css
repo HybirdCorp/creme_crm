@@ -275,7 +275,7 @@ ul.ui-creme-widget.is-readonly li {
     margin-left: 5px;
 }
 
-.ui-creme-overlay.overlay-active[status="wait"] { background-image: url("icecream/images/wait.gif"); }
+.ui-creme-overlay.overlay-active[status="wait"] { background-image: url("../../images/wait.gif"); }
 
 /*----------------------------------*/
 .ui-dialog-scrollbackground {

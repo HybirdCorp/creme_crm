@@ -1,5 +1,5 @@
 {% if not TEST_HEADLESS %}
-{% load include_creme_media url url_join from creme_core_tags %}
+{% load static %}{% load url url_join from creme_core_tags %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
@@ -10,6 +10,7 @@
         <title>{% block page_title %}{% endblock %}Creme CRM</title>
         <script type='text/javascript'>
             window.THEME_NAME = "{{THEME_NAME}}";
+            window.STATIC_URL = "{% get_static_prefix %}";
         </script>
         <!--
             Firebug for browsers without plugin/extension :
@@ -17,7 +18,10 @@
                 - add debug="true" to <html> tag
         -->
         <!--script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script-->
-        {% include_creme_media "main.css" %}
+
+        {% with theme_stylesheet=THEME_NAME|add:'.css' %}
+        <link rel="stylesheet" href="{% static theme_stylesheet %}">
+        {% endwith %}
         {% include "creme_core/frags/js_header.html" %}
 
         <style type="text/css">

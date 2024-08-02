@@ -97,6 +97,7 @@ commands:
     description: Setup Creme static resources
     steps:
       - run: creme generatemedia --settings=<< pipeline.parameters.instance_directory >>.settings
+      - run: creme collectstatic --settings=<< pipeline.parameters.instance_directory >>.settings --no-input
 
   setup-creme-unit-tests:
     description: Setup Creme database
@@ -109,6 +110,7 @@ commands:
       - run: creme migrate --settings=<< pipeline.parameters.instance_directory >>.settings
       - run: creme creme_populate --settings=<< pipeline.parameters.instance_directory >>.settings
       - run: creme generatemedia --settings=<< pipeline.parameters.instance_directory >>.settings
+      - run: creme collectstatic --settings=<< pipeline.parameters.instance_directory >>.settings --no-input
 
   run-creme-unit-tests:
     description: Run Creme unit tests

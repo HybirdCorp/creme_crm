@@ -34,11 +34,22 @@ class MiscViewsTestCase(CremeTestCase):
         super().tearDown()
         settings.FORCE_JS_TESTVIEW = self.FORCE_JS_TESTVIEW
 
-    def test_static_media(self):
-        response = self.assertGET200(
-            get_creme_media_url('chantilly', 'images/add_16.png')
-        )
+    @override_settings(DEBUG=False)
+    def test_static_media__no_debug(self):
+        url = get_creme_media_url('chantilly', 'images/add_16.png')
+        self.assertEqual(url, settings.STATIC_URL + "chantilly/images/add_16.bd989ae3ba25.png")
 
+        response = self.assertGET200(url)
+        f = BytesIO(b''.join(response.streaming_content))
+        img = Image.open(f)
+        self.assertEqual('PNG', img.format)
+
+    @override_settings(DEBUG=True)
+    def test_static_media__debug(self):
+        url = get_creme_media_url('chantilly', 'images/add_16.png')
+        self.assertEqual(url, settings.STATIC_URL + "chantilly/images/add_16.png")
+
+        response = self.assertGET200(url)
         f = BytesIO(b''.join(response.streaming_content))
         img = Image.open(f)
         self.assertEqual('PNG', img.format)

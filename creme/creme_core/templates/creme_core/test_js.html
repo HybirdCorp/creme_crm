@@ -1,4 +1,4 @@
-{% load media %}{% load include_creme_media from creme_core_tags %}
+{% load static %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
@@ -7,11 +7,17 @@
     <title>{% block page_title %}{% endblock %}Creme CRM</title>
     <script type='text/javascript'>
         window.THEME_NAME = "{{ THEME_NAME }}";
+        window.STATIC_URL = "{% get_static_prefix %}";
     </script>
-    {% include_creme_media "main.css" %}
-    {% include_media 'l10n.js' language=LANGUAGE_CODE %}
-    {% include_media 'lib.js' %}
-    {% include_media 'main.js' %}
+    {% with theme_stylesheet=THEME_NAME|add:'.css' %}
+    <link rel="stylesheet" href="{% static theme_stylesheet %}">
+    {% endwith %}
+
+    {% with language_catalog=LANGUAGE_CODE|add:'.js' %}
+    <script src="{% static language_catalog %}" type="text/javascript"></script>
+    {% endwith %}
+    <script src="{% static 'lib.js' %}" type="text/javascript"></script>
+    <script src="{% static 'main.js' %}" type="text/javascript"></script>
     <style type="text/css">
     /*!
     * QUnit 1.23.1
@@ -319,8 +325,9 @@
         height: 1000px;
     }
     </style>
-    {% include_media 'testlib.js' %}
-    {% include_media 'testcore.js' %}
+
+    <script src="{% static 'testlib.js' %}" type="text/javascript"></script>
+    <script src="{% static 'testcore.js' %}" type="text/javascript"></script>
 </head>
 <body>
     <h1 id="qunit-header">QUnit Test Suite</h1>

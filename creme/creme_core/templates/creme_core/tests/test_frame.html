@@ -1,5 +1,5 @@
 {% extends "creme_core/tests/testbase.html" %}
-{% load media %}
+{% load static %}
 
 {% block test_title %}Creme Frame Widget{% endblock %}
 
@@ -15,7 +15,7 @@
             width:640px;
             min-height: 200px;
         }
-        
+
         #popup > div {
             padding: 5px 0px 5px 5px;
         }
@@ -308,7 +308,7 @@
         });
 
         $('#popup button.popup-image').on('click', function() {
-            var url = '{% media_url "common/images/logos/hybird.png" %}';
+            var url = '{% static "common/images/logos/hybird.png" %}';
             var dialog = creme.dialogs.image(url, {
                 title: $('#popup  [name="image-title"]').is(':checked') ? url : false,
                 closeOnEscape: $('#popup input.popup-closeonescape').is(':checked'),
@@ -364,7 +364,7 @@
                         <option value="403">Forbidden</option>
                     </options>
                 </select>
-            </div> 
+            </div>
         </form>
     </script>
     <script type="text/html" id="mock-wizard-A">
@@ -414,7 +414,7 @@
     </script>
     <script type="text/html" id="mock-wizard-C">
         <div class="ui-creme-dialog-titlebar">
-            <a class="ui-creme-dialog-action" href="mock/wizard/A">Step A</a> − 
+            <a class="ui-creme-dialog-action" href="mock/wizard/A">Step A</a> −
             <a class="ui-creme-dialog-action" href="mock/wizard/B">Step B</a> − Step C
         </div>
         <form class="popup-form" action="mock/wizard/C">

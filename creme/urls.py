@@ -17,21 +17,23 @@ handler403 = permission_denied
 
 
 def __prepare_static_url():
-    static_url = settings.PRODUCTION_MEDIA_URL
+    static_url = settings.STATIC_URL
 
     if not isinstance(static_url, str):
         raise ImproperlyConfigured(
-            f"settings.PRODUCTION_MEDIA_URL must be a string ; "
+            f"settings.STATIC_URL must be a string ; "
             f"it's currently a {type(static_url)}."
         )
 
-    if not static_url.startswith('/') or not static_url.endswith('/'):
+    if not static_url.endswith('/'):
         raise ImproperlyConfigured(
-            f'settings.PRODUCTION_MEDIA_URL must starts & end with "/" '
+            f'settings.STATIC_URL must starts & end with "/" '
             f'(current value is "{static_url}").'
         )
 
-    return static_url[1:]
+    if static_url.startswith('/'):
+        return static_url[1:]
+    return static_url
 
 
 urlpatterns = [
@@ -57,14 +59,15 @@ urlpatterns = [
         r'^tiny_mce/(?P<path>.*)$', xframe_options_sameorigin(serve),
         {'document_root': Path(__file__).resolve().parent / 'media' / 'tiny_mce'},
     ),
-
-    # NB: in production, you can configure your web server to statically serve
-    #     the files in the directory 'media/static/' (and so the following line is never used).
+    # NB: in production, you should configure your web server to statically serve
+    #     the files in the directory 'settings.STATIC_ROOT'
+    #     so that the following line is never used.
     re_path(
         rf'^{__prepare_static_url()}(?P<path>.*)$',
         serve,
         {'document_root': settings.STATIC_ROOT},
     ),
+
 ]
 
 for app_config in creme_app_configs():

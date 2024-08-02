@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2020  Hybird
+    Copyright (C) 2020-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-/* global L creme_media_url */
+/* global L static_url */
 (function($, leaflet) {
 "use strict";
 
@@ -38,9 +38,9 @@ function __iconMark(options) {
 
 function __iconDefault() {
     return __iconMark({
-        iconUrl: creme_media_url('geolocation/images/marker-icon.png'),
-        iconRetinaUrl: creme_media_url('geolocation/images/marker-icon-2x.png'),
-        shadowUrl: creme_media_url('geolocation/images/marker-shadow.png')
+        iconUrl: static_url('geolocation/css/lib/leaflet/leaflet-1.9.4/images/marker-icon.png'),
+        iconRetinaUrl: static_url('geolocation/css/lib/leaflet/leaflet-1.9.4/images/marker-icon-2x.png'),
+        shadowUrl: static_url('geolocation/css/lib/leaflet/leaflet-1.9.4/images/marker-shadow.png')
     });
 }
 
@@ -53,9 +53,9 @@ var __ICONS = {
     },
     "target": function() {
         return __iconMark({
-            iconUrl: creme_media_url('geolocation/images/marker-icon-red.png'),
-            iconRetinaUrl: creme_media_url('geolocation/images/marker-icon-red-2x.png'),
-            shadowUrl: creme_media_url('geolocation/images/marker-shadow.png')
+            iconUrl: static_url('geolocation/css/lib/leaflet/leaflet-1.9.4/images/marker-icon-red.png'),
+            iconRetinaUrl: static_url('geolocation/css/lib/leaflet/leaflet-1.9.4/images/marker-icon-red-2x.png'),
+            shadowUrl: static_url('geolocation/css/lib/leaflet/leaflet-1.9.4/images/marker-shadow.png')
         });
     }
 };

@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/table.html' %}
-{% load i18n media creme_bricks %}
+{% load i18n static creme_bricks %}
 {% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} billing-exporters-brick{% endblock %}
@@ -24,8 +24,8 @@
                     <span class="billing-exporter-name">{{exporter.verbose_name}}</span>
                     <div class="billing-exporter-screenshots">
                         {% for img_src in exporter.screenshots %}
-                        <a onclick="creme.dialogs.image('{% media_url img_src %}').open();">
-                            <img style="max-width:200px;max-height:200px;" src="{% media_url img_src %}"/>
+                        <a onclick="creme.dialogs.image('{% static img_src %}').open();">
+                            <img style="max-width:200px;max-height:200px;" src="{% static img_src %}"/>
                         </a>
                         {% endfor %}
                     </div>
