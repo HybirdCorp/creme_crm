@@ -1,3 +1,5 @@
+import warnings
+
 from django.utils.translation import gettext_lazy as _
 
 REL_SUB_LINKED_2_ACTIVITY = 'activities-subject_linked_2_activity'
@@ -66,10 +68,9 @@ SETTING_UNSUCCESSFUL_STATUS_UUID  = 'activities-unsuccessful_call_status'
 SETTING_UNSUCCESSFUL_DURATION     = 'activities-unsuccessful_call_duration'
 
 # ------------------------------------------------------------------------------
-# Floating styles
-NARROW        = 1
-FLOATING_TIME = 2
-FLOATING      = 3
+# NARROW        = 1
+# FLOATING_TIME = 2
+# FLOATING      = 3
 
 EFILTER_MEETINGS    = 'activities-meetings'
 EFILTER_PHONECALLS  = 'activities-phonecalls'
@@ -77,3 +78,28 @@ EFILTER_TASKS       = 'activities-tasks'
 EFILTER_PARTICIPATE = 'activities-participate'
 
 DEFAULT_HFILTER_ACTIVITY = 'activities-hf_activity'
+
+
+def __getattr__(name):
+    if name == 'NARROW':
+        warnings.warn(
+            '"NARROW" is deprecated; use Activity.FloatingType.NARROW instead.',
+            DeprecationWarning,
+        )
+        return 1
+
+    if name == 'FLOATING_TIME':
+        warnings.warn(
+            '"FLOATING_TIME" is deprecated; use Activity.FloatingType.FLOATING_TIME instead.',
+            DeprecationWarning,
+        )
+        return 2
+
+    if name == 'FLOATING':
+        warnings.warn(
+            '"FLOATING" is deprecated; use Activity.FloatingType.FLOATING instead.',
+            DeprecationWarning,
+        )
+        return 3
+
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

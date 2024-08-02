@@ -145,7 +145,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         create_dt = self.create_datetime
         self.assertEqual(create_dt(year=2014, month=5, day=28, hour=15), act2.start)
         self.assertEqual(create_dt(year=2014, month=5, day=28, hour=17), act2.end)
-        self.assertEqual(constants.NARROW, act2.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, act2.floating_type)
 
         act3 = self.get_object_or_fail(Activity, title=title3)
         self.assertEqual(
@@ -156,7 +156,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             create_dt(year=2014, month=5, day=28, hour=19, minute=15),
             act3.end,
         )
-        self.assertEqual(constants.NARROW, act3.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, act3.floating_type)
 
         act4 = self.get_object_or_fail(Activity, title=title4)
         self.assertEqual(
@@ -167,7 +167,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             create_dt(year=2014, month=5, day=29, hour=12, minute=15),
             act4.end,
         )
-        self.assertEqual(constants.NARROW, act4.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, act4.floating_type)
 
         act5 = self.get_object_or_fail(Activity, title=title5)
         self.assertEqual(
@@ -178,7 +178,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             create_dt(year=2014, month=5, day=30, hour=23, minute=59),
             act5.end,
         )
-        self.assertEqual(constants.FLOATING_TIME, act5.floating_type)
+        self.assertEqual(Activity.FloatingType.FLOATING_TIME, act5.floating_type)
 
         act6 = self.get_object_or_fail(Activity, title=title6)
         self.assertEqual(
@@ -189,7 +189,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             create_dt(year=2014, month=6, day=1, hour=23, minute=59),
             act6.end,
         )
-        self.assertEqual(constants.FLOATING_TIME, act6.floating_type)
+        self.assertEqual(Activity.FloatingType.FLOATING_TIME, act6.floating_type)
 
         act7 = self.get_object_or_fail(Activity, title=title7)
         self.assertEqual(
@@ -200,7 +200,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             create_dt(year=2014, month=6, day=2, hour=18, minute=00),
             act7.end,
         )
-        self.assertEqual(constants.NARROW, act7.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, act7.floating_type)
 
         jr_error = self.get_alone_element(r for r in results if r.messages)
         self.assertListEqual(

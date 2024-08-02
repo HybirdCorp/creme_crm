@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Activities 2.6\n"
+"Project-Id-Version: Creme Activities 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-06 17:53+0200\n"
+"POT-Creation-Date: 2024-08-08 16:57+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -473,6 +473,17 @@ msgstr "Appels téléphoniques"
 msgid "Meetings"
 msgstr "Rendez-vous"
 
+msgctxt "activities-activity"
+msgid "Fixed"
+msgstr "Fixée"
+
+msgid "Floating time"
+msgstr "Heure flottante"
+
+msgctxt "activities-activity"
+msgid "Floating"
+msgstr "Flottante"
+
 msgid "Minutes"
 msgstr "Bilan"
 
@@ -503,8 +514,8 @@ msgstr "Toute la journée ?"
 msgid "Busy?"
 msgstr "Occupé ?"
 
-msgid "Floating type"
-msgstr "Type flottant"
+msgid "Fixed or floating?"
+msgstr "Fixée ou flottante ?"
 
 msgid "Create an activity"
 msgstr "Créer une activité"

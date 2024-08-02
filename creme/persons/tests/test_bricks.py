@@ -232,7 +232,7 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
             'persons/bricks/frags/card-summary-next-activity.html',
             sum_ctxt1.get('template_name'),
         )
-        self.assertEqual(act_constants.NARROW, sum_ctxt1.get('NARROW'))
+        self.assertEqual(Activity.FloatingType.NARROW, sum_ctxt1.get('NARROW'))
         self.assertIsNone(sum_ctxt1.get('activity', -1))
 
         # ----

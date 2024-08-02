@@ -114,6 +114,30 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             end=create_dt(year=2013,   month=4, day=day, hour=18, minute=0),
         )
 
+    def test_constants(self):  # DEPRECATED
+        with self.assertWarnsMessage(
+            expected_warning=DeprecationWarning,
+            expected_message='"NARROW" is deprecated; use Activity.FloatingType.NARROW instead.'
+        ):
+            from creme.activities.constants import NARROW
+        self.assertEqual(1, NARROW)
+
+        with self.assertWarnsMessage(
+                expected_warning=DeprecationWarning,
+                expected_message='"FLOATING_TIME" is deprecated; '
+                                 'use Activity.FloatingType.FLOATING_TIME instead.',
+        ):
+            from creme.activities.constants import FLOATING_TIME
+        self.assertEqual(2, FLOATING_TIME)
+
+        with self.assertWarnsMessage(
+                expected_warning=DeprecationWarning,
+                expected_message='"FLOATING" is deprecated; '
+                                 'use Activity.FloatingType.FLOATING instead.',
+        ):
+            from creme.activities.constants import FLOATING
+        self.assertEqual(3, FLOATING)
+
     def test_populate(self):
         rtypes_pks = [
             constants.REL_SUB_LINKED_2_ACTIVITY,
@@ -348,7 +372,8 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertEqual(sub_type, act.sub_type)
         self.assertEqual(sub_type.type_id, act.type_id)
         self.assertEqual(status, act.status)
-        self.assertEqual(constants.NARROW, act.floating_type)
+        self.assertEqual(constants.NARROW, act.floating_type)  # DEPRECATED
+        self.assertEqual(Activity.FloatingType.NARROW, act.floating_type)
         self.assertEqual(
             self.create_datetime(year=2010, month=1, day=10, hour=17, minute=30),
             act.start,
@@ -561,15 +586,16 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertEqual(create_dt(hour=14, minute=30), act.start)
         self.assertEqual(create_dt(hour=15, minute=45), act.end)
 
-    def test_createview05(self):
+    def test_createview__floating(self):
         "FLOATING type."
         user = self.login_as_root_and_get()
         act = self._create_activity_by_view(user=user)
         self.assertIsNone(act.start)
         self.assertIsNone(act.end)
-        self.assertEqual(constants.FLOATING, act.floating_type)
+        self.assertEqual(constants.FLOATING, act.floating_type)  # DEPRECATED
+        self.assertEqual(Activity.FloatingType.FLOATING, act.floating_type)
 
-    def test_createview06(self):
+    def test_createview__floating_time(self):
         "FLOATING_TIME type."
         user = self.login_as_root_and_get()
         act = self._create_activity_by_view(
@@ -582,7 +608,8 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         create_dt = partial(self.create_datetime, year=2013, month=3, day=30)
         self.assertEqual(create_dt(hour=0,  minute=0),  act.start)
         self.assertEqual(create_dt(hour=23, minute=59), act.end)
-        self.assertEqual(constants.FLOATING_TIME, act.floating_type)
+        self.assertEqual(constants.FLOATING_TIME, act.floating_type)  # DEPRECATED
+        self.assertEqual(Activity.FloatingType.FLOATING_TIME, act.floating_type)
 
     def test_createview_default_duration01(self):
         "default_day_duration=1 + FLOATING_TIME."
@@ -794,7 +821,8 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         self.assertIsNone(act.start)
         self.assertIsNone(act.end)
-        self.assertEqual(constants.FLOATING, act.floating_type)
+        # self.assertEqual(constants.FLOATING, act.floating_type)
+        self.assertEqual(Activity.FloatingType.FLOATING, act.floating_type)
 
     @skipIfCustomOrganisation
     def test_createview_disable_rtype(self):
@@ -1337,7 +1365,8 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         meeting = self.get_object_or_fail(Activity, type=atype, title=title)
 
         self.assertEqual(status, meeting.status)
-        self.assertEqual(constants.NARROW, meeting.floating_type)
+        self.assertEqual(constants.NARROW, meeting.floating_type)  # Deprecated
+        self.assertEqual(Activity.FloatingType.NARROW, meeting.floating_type)
         self.assertEqual(
             self.create_datetime(year=2013, month=4, day=12, hour=10, minute=00),
             meeting.start,
@@ -1789,7 +1818,7 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             user=user,
             **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 25)}
         )
-        self.assertEqual(constants.FLOATING_TIME, task.floating_type)
+        self.assertEqual(Activity.FloatingType.FLOATING_TIME, task.floating_type)
 
         response = self.assertGET200(task.get_edit_absolute_url())
 

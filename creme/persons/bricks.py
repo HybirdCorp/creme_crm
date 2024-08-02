@@ -66,7 +66,6 @@ if apps.is_installed('creme.activities'):
 
     import creme.activities.constants as activities_constants
     from creme.activities import get_activity_model
-    from creme.activities.constants import NARROW
 
     Activity = get_activity_model()
 
@@ -110,8 +109,7 @@ if apps.is_installed('creme.activities'):
                 user=brick_context['user'],
                 queryset=future(entity, brick_context['today']),
             ).first()
-            # TODO: templatetag from activities? Activity method is_narrow()?
-            context['NARROW'] = NARROW
+            # context['NARROW'] = activities_constants.NARROW
 
             return context
 

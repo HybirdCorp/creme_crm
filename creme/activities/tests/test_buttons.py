@@ -335,7 +335,7 @@ class UnsuccessfulPhoneCallTestCase(view_base.BrickTestCaseMixin,
             self.get_object_or_fail(Status, uuid=constants.UUID_STATUS_UNSUCCESSFUL),
             activity.status,
         )
-        self.assertEqual(constants.NARROW, activity.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, activity.floating_type)
 
         end = activity.end
         self.assertDatetimesAlmostEqual(end, now())

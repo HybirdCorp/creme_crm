@@ -18,7 +18,6 @@ import creme.projects.bricks as proj_bricks
 #     ACTIVITYTYPE_TASK,
 # )
 from creme.activities.constants import (
-    NARROW,
     REL_SUB_PART_2_ACTIVITY,
     UUID_SUBTYPE_MEETING_MEETING,
     UUID_TYPE_TASK,
@@ -854,18 +853,14 @@ class ProjectsTestCase(views_base.BrickTestCaseMixin,
         )
         self.assertEqual(Activity.save_label, context.get('submit_label'))
 
-        # atype = ACTIVITYTYPE_MEETING
-        # stype = ACTIVITYSUBTYPE_MEETING_MEETING
         stype = self.get_object_or_fail(ActivitySubType, uuid=UUID_SUBTYPE_MEETING_MEETING)
-        # self.create_activity(user=user, resource=resource, duration='8', sub_type_id=stype)
         self.create_activity(user=user, resource=resource, duration='8', sub_type_id=stype.id)
 
         activity = self.get_object_or_fail(Activity, title='Eva02 - legs - 001')
 
-        # self.assertEqual(atype, activity.type_id)
         self.assertEqual(stype.type_id, activity.type_id)
         self.assertEqual(stype.id,      activity.sub_type_id)
-        self.assertEqual(NARROW, activity.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, activity.floating_type)
         self.assertEqual(8, activity.duration)
         self.assertFalse(activity.busy)
 

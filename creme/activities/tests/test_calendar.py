@@ -413,7 +413,7 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
         act3 = create_act(title='Act#3', is_deleted=True)
         act4 = create_act(title='Act#4', user=other_user)
-        act5 = create_act(title='Act#5', floating_type=constants.NARROW)
+        act5 = create_act(title='Act#5', floating_type=Activity.FloatingType.NARROW)
 
         create_rel = partial(
             Relation.objects.create, user=user,
@@ -1349,9 +1349,9 @@ class CalendarTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
 
         act = self.refresh(act)
-        self.assertEqual(new_start,        act.start)
-        self.assertEqual(new_end,          act.end)
-        self.assertEqual(constants.NARROW, act.floating_type)
+        self.assertEqual(new_start, act.start)
+        self.assertEqual(new_end,   act.end)
+        self.assertEqual(Activity.FloatingType.NARROW, act.floating_type)
 
     @skipIfCustomActivity
     def test_update_activity_date02(self):

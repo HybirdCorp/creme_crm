@@ -116,7 +116,10 @@ class _ActivityDateSubCell(CustomFormExtraSubCell):
             dt = localtime(dt)
             field.initial = (
                 dt.date(),
-                None if instance.floating_type == constants.FLOATING_TIME else dt.time(),
+                # None if instance.floating_type == constants.FLOATING_TIME else dt.time(),
+                None
+                if instance.floating_type == Activity.FloatingType.FLOATING_TIME else
+                dt.time(),
             )
 
         return field
@@ -492,16 +495,22 @@ class BaseCustomForm(core_forms.CremeEntityForm):
         else:
             is_all_day = get_data('is_all_day', False)
 
+            # floating_type = (
+            #     constants.NARROW
+            #     if start_time or is_all_day else
+            #     constants.FLOATING_TIME
+            # )
             floating_type = (
-                constants.NARROW
+                Activity.FloatingType.NARROW
                 if start_time or is_all_day else
-                constants.FLOATING_TIME
+                Activity.FloatingType.FLOATING_TIME
             )
 
             # TODO: not start_date, not end_date, start time, end time =>
             #       floating activity with time set but lost in the process
 
-            if floating_type == constants.FLOATING_TIME and get_data('busy', False):
+            # if floating_type == constants.FLOATING_TIME and get_data('busy', False):
+            if floating_type == Activity.FloatingType.FLOATING_TIME and get_data('busy', False):
                 raise ValidationError(
                     self.error_messages['floating_cannot_busy'],
                     code='floating_cannot_busy',
@@ -516,7 +525,10 @@ class BaseCustomForm(core_forms.CremeEntityForm):
             else:
                 tdelta = activity_type.as_timedelta()
 
-                if (is_all_day or floating_type == constants.FLOATING_TIME) and tdelta.days:
+                # if (is_all_day or floating_type == constants.FLOATING_TIME) and tdelta.days:
+                if (
+                    is_all_day or floating_type == Activity.FloatingType.FLOATING_TIME
+                ) and tdelta.days:
                     # In 'all day' mode, we round the number of day
                     # Activity already takes 1 day (we do not want it takes 2)
                     days = tdelta.days - 1
@@ -528,7 +540,8 @@ class BaseCustomForm(core_forms.CremeEntityForm):
 
                 end = start + tdelta
 
-            if is_all_day or floating_type == constants.FLOATING_TIME:
+            # if is_all_day or floating_type == constants.FLOATING_TIME:
+            if is_all_day or floating_type == Activity.FloatingType.FLOATING_TIME:
                 start = make_aware(datetime.combine(start, time(hour=0, minute=0)))
                 end   = make_aware(datetime.combine(end,   time(hour=23, minute=59)))
 

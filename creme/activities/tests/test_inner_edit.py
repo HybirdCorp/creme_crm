@@ -194,7 +194,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
             self.create_datetime(year=2022, month=10, day=15, hour=8, minute=15),
             activity.end,
         )
-        self.assertEqual(constants.NARROW, activity.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, activity.floating_type)
         self.assertFalse(activity.is_all_day)
         self.assertFalse(activity.busy)
 
@@ -255,7 +255,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         ))
         activity = self.refresh(activity)
         self.assertTrue(activity.is_all_day)
-        self.assertEqual(constants.NARROW, activity.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, activity.floating_type)
         self.assertFalse(activity.busy)
 
         create_dt = partial(self.create_datetime, year=2022, month=10, day=14)
@@ -285,7 +285,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         activity = self.refresh(activity)
         self.assertTrue(activity.busy)
         self.assertFalse(activity.is_all_day)
-        self.assertEqual(constants.NARROW, activity.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, activity.floating_type)
 
         create_dt = partial(self.create_datetime, year=2022, month=10, day=19)
         self.assertEqual(create_dt(hour=8),  activity.start)
@@ -320,7 +320,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         self.assertNoFormError(self.client.post(url, data=data))
 
         activity = self.refresh(activity)
-        self.assertEqual(constants.FLOATING_TIME, activity.floating_type)
+        self.assertEqual(Activity.FloatingType.FLOATING_TIME, activity.floating_type)
         self.assertFalse(activity.is_all_day)
         self.assertFalse(activity.busy)
 
@@ -355,7 +355,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
             self.create_datetime(year=2022, month=9, day=17, hour=12, minute=15),
             activity.end,
         )
-        self.assertEqual(constants.NARROW, activity.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, activity.floating_type)
         self.assertFalse(activity.is_all_day)
         self.assertFalse(activity.busy)
 
@@ -386,7 +386,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
             self.create_datetime(year=2023, month=1, day=20, hour=8, minute=45),
             activity.end,
         )
-        self.assertEqual(constants.NARROW, activity.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, activity.floating_type)
         self.assertFalse(activity.is_all_day)
         self.assertFalse(activity.busy)
 
@@ -430,7 +430,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
             activity.end,
         )
         self.assertTrue(activity.is_all_day)
-        self.assertEqual(constants.NARROW, activity.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, activity.floating_type)
 
     def test_inner_edit_start_computed_end_all_day02(self):
         "Duration is not a round number of days."
@@ -516,7 +516,7 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
             activity.end,
         )
         self.assertFalse(activity.is_all_day)
-        self.assertEqual(constants.FLOATING_TIME, activity.floating_type)
+        self.assertEqual(Activity.FloatingType.FLOATING_TIME, activity.floating_type)
 
     def test_inner_edit_start_collision(self):
         user = self.login_as_root_and_get()
