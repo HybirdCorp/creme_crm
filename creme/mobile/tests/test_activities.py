@@ -9,8 +9,6 @@ from django.utils.timezone import localtime, make_aware, now
 from django.utils.translation import gettext as _
 
 from creme.activities.constants import (
-    FLOATING_TIME,
-    NARROW,
     REL_SUB_ACTIVITY_SUBJECT,
     REL_SUB_PART_2_ACTIVITY,
     UUID_STATUS_CANCELLED,
@@ -129,7 +127,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
             participant=user.linked_contact,
             start=today(0, 0),
             end=end,
-            floating_type=FLOATING_TIME,
+            floating_type=Activity.FloatingType.FLOATING_TIME,
         )
 
         self.assertPOST200(self._build_start_url(meeting), follow=True)
@@ -137,7 +135,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         meeting = self.refresh(meeting)
         self.assertDatetimesAlmostEqual(now(), meeting.start)
         self.assertEqual(end, meeting.end)
-        self.assertEqual(NARROW, meeting.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, meeting.floating_type)
 
     @skipIfCustomActivity
     def test_start_activity04(self):
@@ -153,7 +151,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         f_act = self.refresh(f_act)
         self.assertDatetimesAlmostEqual(now(), f_act.start)
         self.assertEqual(f_act.type.as_timedelta(), f_act.end - f_act.start)
-        self.assertEqual(NARROW, f_act.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, f_act.floating_type)
 
     @skipIfCustomActivity
     def test_start_activity05(self):
@@ -721,7 +719,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
             status=self.get_object_or_fail(Status, uuid=UUID_STATUS_PLANNED),
             participant=contact,
             description='blablabla',
-            floating_type=FLOATING_TIME,
+            floating_type=Activity.FloatingType.FLOATING_TIME,
         )
 
         url = self.WF_POSTPONED_URL
@@ -739,7 +737,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         pcall = self.refresh(pcall)
         self.assertUUIDEqual(UUID_SUBTYPE_PHONECALL_FAILED, pcall.sub_type.uuid)
         self.assertUUIDEqual(UUID_STATUS_DONE,              pcall.status.uuid)
-        self.assertEqual(NARROW, pcall.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, pcall.floating_type)
 
         start = self.create_datetime(
             utc=True, year=2014, month=4, day=22, hour=16, minute=17, second=28,
@@ -752,7 +750,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertHaveRelation(subject=contact, type=REL_SUB_PART_2_ACTIVITY, object=pcall)
 
         self.assertUUIDEqual(UUID_STATUS_PLANNED, pcall2.status.uuid)
-        self.assertEqual(FLOATING_TIME,  pcall2.floating_type)
+        self.assertEqual(Activity.FloatingType.FLOATING_TIME, pcall2.floating_type)
 
         tomorrow = (now() + relativedelta(days=1)).day
 
@@ -791,7 +789,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         failed_pcall = pcalls[0]
         self.assertUUIDEqual(UUID_SUBTYPE_PHONECALL_FAILED, failed_pcall.sub_type.uuid)
         self.assertUUIDEqual(UUID_STATUS_DONE,              failed_pcall.status.uuid)
-        self.assertEqual(NARROW, failed_pcall.floating_type)
+        self.assertEqual(Activity.FloatingType.NARROW, failed_pcall.floating_type)
         self.assertSetEqual(
             participants,
             {
@@ -817,7 +815,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
 
         pp_pcall = pcalls[1]
         self.assertUUIDEqual(UUID_SUBTYPE_PHONECALL_OUTGOING, pp_pcall.sub_type.uuid)
-        self.assertEqual(FLOATING_TIME, pp_pcall.floating_type)
+        self.assertEqual(Activity.FloatingType.FLOATING_TIME, pp_pcall.floating_type)
         self.assertIsNone(pp_pcall.status_id)
         self.assertSetEqual(
             participants,

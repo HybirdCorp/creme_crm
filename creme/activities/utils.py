@@ -35,7 +35,8 @@ from creme.creme_core.models import Relation, SettingValue
 from creme.creme_core.utils.dates import to_utc
 
 from . import get_activity_model
-from .constants import FLOATING_TIME, NARROW, REL_SUB_PART_2_ACTIVITY
+# from .constants import FLOATING_TIME, NARROW
+from .constants import REL_SUB_PART_2_ACTIVITY
 from .setting_keys import auto_subjects_key
 
 logger = logging.getLogger(__name__)
@@ -91,11 +92,16 @@ def check_activity_collisions(
         #           ).filter(collision_test)
         busy_args = {} if busy else {'busy': True}
         # TODO: test is_deleted=True
-        colliding_activity = get_activity_model().objects.filter(
+        Activity = get_activity_model()
+        colliding_activity = Activity.objects.filter(
             collision_test,
             is_deleted=False,
             pk__in=activity_ids,
-            floating_type__in=(NARROW, FLOATING_TIME),
+            # floating_type__in=(NARROW, FLOATING_TIME),
+            floating_type__in=(
+                Activity.FloatingType.NARROW,
+                Activity.FloatingType.FLOATING_TIME,
+            ),
             **busy_args
         ).first()
 

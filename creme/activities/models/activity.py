@@ -19,13 +19,14 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.models import CREME_REPLACE_NULL, CremeEntity
 from creme.creme_core.models.manager import CremeEntityManager
 
+# from ..constants import NARROW
 from ..constants import (
     CREATION_LABELS,
-    NARROW,
     REL_OBJ_ACTIVITY_SUBJECT,
     REL_OBJ_LINKED_2_ACTIVITY,
     REL_OBJ_PART_2_ACTIVITY,
@@ -74,7 +75,12 @@ class ActivityManager(CremeEntityManager):
 
 
 class AbstractActivity(CremeEntity):
-    """Activity : task, meeting, phone call, unavailability ..."""
+    """Activity: task, meeting, phone call, unavailability..."""
+    class FloatingType(models.IntegerChoices):
+        NARROW        = 1, pgettext_lazy('activities-activity', 'Fixed')
+        FLOATING_TIME = 2, _('Floating time')
+        FLOATING      = 3, pgettext_lazy('activities-activity', 'Floating')
+
     title = models.CharField(_('Title'), max_length=100)
     start = models.DateTimeField(_('Start'), blank=True, null=True)
     end = models.DateTimeField(_('End'), blank=True, null=True)
@@ -106,10 +112,14 @@ class AbstractActivity(CremeEntity):
 
     is_all_day = models.BooleanField(_('All day?'), default=False)
     busy = models.BooleanField(_('Busy?'), default=False)
-    # TODO: use choices ?
-    floating_type = models.PositiveIntegerField(
-        _('Floating type'), default=NARROW, editable=False,
-    ).set_tags(viewable=False)
+    # floating_type = models.PositiveIntegerField(
+    #     _('Floating type'), default=NARROW, editable=False,
+    # ).set_tags(viewable=False)
+    floating_type = models.PositiveSmallIntegerField(
+        _('Fixed or floating?'),
+        choices=FloatingType.choices, default=FloatingType.NARROW,
+        editable=False,
+    )
 
     objects = ActivityManager()
 

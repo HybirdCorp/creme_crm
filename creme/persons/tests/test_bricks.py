@@ -227,12 +227,13 @@ class BricksTestCase(BrickTestCaseMixin, _BaseTestCase):
         sum_ctxt1 = summary.get_context(
             entity=c, brick_context={'user': user, 'today': now_value},
         )
-        self.assertIsDict(sum_ctxt1, length=3)
+        # self.assertIsDict(sum_ctxt1, length=3)
+        self.assertIsDict(sum_ctxt1, length=2)
         self.assertEqual(
             'persons/bricks/frags/card-summary-next-activity.html',
             sum_ctxt1.get('template_name'),
         )
-        self.assertEqual(act_constants.NARROW, sum_ctxt1.get('NARROW'))
+        # self.assertEqual(Activity.FloatingType.NARROW, sum_ctxt1.get('NARROW'))
         self.assertIsNone(sum_ctxt1.get('activity', -1))
 
         # ----

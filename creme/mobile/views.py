@@ -181,7 +181,8 @@ def portal(request):
     #     activities which start at 0h00 will be in 'hot_activities').
     today_activities, hot_activities = partition(
         lambda a:
-            a.floating_type == act_constants.NARROW
+            # a.floating_type == act_constants.NARROW
+            a.floating_type == Activity.FloatingType.NARROW
             and (
                 # a.status_id == act_constants.STATUS_IN_PROGRESS
                 (a.status and str(a.status.uuid) == act_constants.UUID_STATUS_IN_PROGRESS)
@@ -194,7 +195,8 @@ def portal(request):
     used_worked_hours = frozenset(
         localtime(a.start).hour
         for a in today_activities
-        if a.floating_type == act_constants.NARROW
+        # if a.floating_type == act_constants.NARROW
+        if a.floating_type == Activity.FloatingType.NARROW
     )
     shortcuts_map = [
         (hour, hour in used_worked_hours)
@@ -334,7 +336,7 @@ def start_activity(request, activity_id):
     if not activity.end or activity.start >= activity.end:
         activity.end = activity.start + activity.type.as_timedelta()
 
-    activity.floating_type = act_constants.NARROW
+    activity.floating_type = Activity.FloatingType.NARROW
     activity.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_IN_PROGRESS)
     activity.save()
 
@@ -668,7 +670,8 @@ def _set_pcall_as_failed(pcall, request):
         ActivitySubType, uuid=act_constants.UUID_SUBTYPE_PHONECALL_FAILED,
     )
     pcall.status = get_object_or_404(Status, uuid=act_constants.UUID_STATUS_DONE)
-    pcall.floating_type = act_constants.NARROW
+    # pcall.floating_type = act_constants.NARROW
+    pcall.floating_type = Activity.FloatingType.NARROW
     pcall.start = pcall.end = _build_date_or_404(get_from_POST_or_404(POST, 'call_start'))
     _improve_minutes(pcall, POST.get('minutes', ''))
 
@@ -715,7 +718,8 @@ def phonecall_workflow_postponed(request):
         )
         postponed.status = None
 
-    postponed.floating_type = act_constants.FLOATING_TIME
+    # postponed.floating_type = act_constants.FLOATING_TIME
+    postponed.floating_type = Activity.FloatingType.FLOATING_TIME
 
     tomorrow = now() + timedelta(days=1)
     dt_combine = datetime.combine

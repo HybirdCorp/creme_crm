@@ -642,7 +642,8 @@ def get_massimport_form_builder(header_dict, choices):
             sub_type = self.cleaned_data['type_selector']
             instance.type, instance.sub_type = sub_type.type, sub_type
 
-            instance.floating_type = constants.NARROW
+            # instance.floating_type = constants.NARROW
+            instance.floating_type = instance.FloatingType.NARROW
             start = instance.start
             end = instance.end
 
@@ -651,14 +652,16 @@ def get_massimport_form_builder(header_dict, choices):
 
                 if start.time() == null_time and (not end or end.time() == null_time):
                     instance.end = make_aware(datetime.combine(start, time(hour=23, minute=59)))
-                    instance.floating_type = constants.FLOATING_TIME
+                    # instance.floating_type = constants.FLOATING_TIME
+                    instance.floating_type = instance.FloatingType.FLOATING_TIME
                 elif not end:
                     instance.end = start + instance.type.as_timedelta()
                 elif start > instance.end:
                     instance.end = start + instance.type.as_timedelta()
                     self.append_error(_('End time is before start time'))
             else:
-                instance.floating_type = constants.FLOATING
+                # instance.floating_type = constants.FLOATING
+                instance.floating_type = instance.FloatingType.FLOATING
 
         def _post_instance_creation(self, instance, line, updated):
             super()._post_instance_creation(instance, line, updated)

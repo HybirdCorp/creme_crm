@@ -7,7 +7,6 @@ from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 
 from creme.activities.constants import (
-    FLOATING_TIME,
     UUID_STATUS_CANCELLED,
     UUID_STATUS_DONE,
     UUID_STATUS_IN_PROGRESS,
@@ -17,7 +16,7 @@ from creme.activities.models import Status
 from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.models import UserRole
 
-from .base import Contact, MobileBaseTestCase
+from .base import Activity, Contact, MobileBaseTestCase
 
 
 class MobileAppTestCase(MobileBaseTestCase):
@@ -84,7 +83,7 @@ class MobileAppTestCase(MobileBaseTestCase):
         m3 = create_m(
             title='Meeting: Manga #2',
             start=past_midnight,
-            floating_type=FLOATING_TIME,
+            floating_type=Activity.FloatingType.FLOATING_TIME,
         )
         m4 = create_m(
             title='Meeting: Figures',

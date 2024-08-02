@@ -15,6 +15,8 @@
                 if you upgrade from an instance of Creme 2.6, you have to configure your blocks to display
                 this field if you want to see it. As the field is optional, you can also hide it to remove
                 it everywhere (notably forms).
+        * Activities :
+            - A field of 'Activity', "Fixed or floating?" (internal name: 'floating_type') is now visible.
         * Opportunities :
             - You can now create unsuccessful phone calls from an Opportunity's detail-view :
                 - A button has been added (not enabled in default installations).
@@ -34,6 +36,10 @@
                       you can use the new method 'CremePropertyType.set_subject_ctypes()'.
             - The method 'creme_core.tests.base._CremeTestCase.assertRelationCount' is deprecated;
               use the new methods 'assertHaveRelation()' & 'assertHaveNoRelation()' instead.
+            - App :
+                * Activities :
+                    - The constants 'NARROW', 'FLOATING_TIME' & 'FLOATING' are now deprecated;
+                      use 'Activity.FloatingType.*' instead.
         # The model 'creme_core.models.FileRef' get a new optional field "description";
           it's used by the new view which displays all FileRefs (so feel free to fill it).
         # Apps :
@@ -86,7 +92,11 @@
             - The second argument is now always named "name" (e.g. it was named "customfield_id" in 'EntityCellCustomField.build()').
             - The extra arguments are now keyword only (.e.g. 'EntityCellRegularField' & "is_hidden").
         # Apps :
+            * Persons :
+                - In the method 'bricks.NextActivitySummary.get_context()', the returned context does not contain "NARROW" anymore.
             * Activities :
+                - The field 'Activity.floating_type' got some light changes.
+                  It's now a 'PositiveSmallIntegerField', it ahs a 'choices' attribute & it's viewable.
                 - Some small changes have been made in the class 'views.buttons.UnsuccessfulPhoneCallCreation'.
 
     Internal breaking changes :
