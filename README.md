@@ -21,7 +21,7 @@ It provides apps (i.e. modules) to manage:
  - ...
 
 Lots of aspects can be configured through a graphical interface :
- - Detailed views for entities are built from blocks ; you can configure which blocks are
+ - Detailed views for entities are built from blocks; you can configure which blocks are
    displayed, you can create your own the blocks (chose the fields which are used)...
  - You can configure the columns of the list views (columns can be related to fields, custom-fields,
    relationships...), and filter the lines with powerful rules.
@@ -92,13 +92,13 @@ virtual env, in order to keep the old one working).
 Installation with 'pip':
  - You should probably use "virtualenv".
  - To install Creme itself :
-   - You can just install from pyPI: 'pip install creme-crm==2.5'
+   - You can just install from pyPI: 'pip install creme-crm==2.6'
    - If you retrieved the source, you can use the following command at the source's root: 'pip install -e .'
  - About DB server :
    - If you use MySQL/MariaDB, you must add the 'mysql' flag :
-     'pip install creme-crm[mysql]==2.5' (or 'pip install -e .[mysql]' with the source).
+     'pip install creme-crm[mysql]==2.6' (or 'pip install -e .[mysql]' with the source).
    - For PostGreSQL,  you must add the 'pgsql' flag :
-     'pip install creme-crm[pgsql]==2.5' (or 'pip install -e .[pgsql]' with the source).
+     'pip install creme-crm[pgsql]==2.6' (or 'pip install -e .[pgsql]' with the source).
    - SQLite doesn't require a specific flag (see RECOMMENDATIONS).
  - Notice some of these Python packages need system libraries to be installed.
    For example, here a list of Debian/Ubuntu packages you'll have to install before:
