@@ -62,7 +62,9 @@ virtual env, in order to keep the old one working).
 ### Dependencies
 
  - Python 3.8+
- - MySQL 8+ (or MariaDB 10.4+) or PostGreSQL 12+ (or SQLite which is included with Python)
+ - MySQL 8+ (or MariaDB 10.4+ but we do not advise you to use MariaDB because it regularly causes strange issues)
+   or PostGreSQL 12+
+   or SQLite (which is included with Python)
  - A web server compatible with Python, like Apache 2.4
  - Redis 3+
  - These Python packages :
