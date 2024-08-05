@@ -56,7 +56,7 @@ class CremePropertyTypeManager(models.Manager):
         uuid: str = '',
         text: str,
         app_label: str = '',
-        subject_ctypes: Iterable[ContentType | CremeEntity] = (),
+        subject_ctypes: Iterable[ContentType | type[CremeEntity]] = (),
         is_custom: bool = False,
         is_copiable: bool = True,
     ) -> CremePropertyType:
