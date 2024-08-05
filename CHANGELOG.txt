@@ -1,5 +1,14 @@
 == Version 2.6 ==
 
+  UPGRADE NOTES :
+    - You should create a all new virtual environment based on Python 3.8+ (as usual).
+    - Some MariaDB users encountered errors when running migrations.
+      The following workaround has worked for them:
+      First, try to run the migrations again (as long as the error is a new one).
+      It the same error is raised, get the raw SQL code with the command <creme sqlmigrate --settings=... app_label migration_name>
+      (with the name of the migration which fails of course), then execute line after line the SQL commands in a MariaDB shell.
+      You will get errors for things which have already be done, it's OK; then, you can run the command 'migrate' again.
+
   Users side :
   ------------
     # A notification system has been added. The notifications are sent to channels, and users can configure
