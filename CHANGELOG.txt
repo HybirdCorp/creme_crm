@@ -1,5 +1,7 @@
 == Version 2.6.1 Work in progress (not released -- this is a draft) ==
 
+  TODO: compile i18n (activities).
+
 
 == Version 2.6 ==
 
