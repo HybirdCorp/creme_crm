@@ -125,13 +125,16 @@
         {% endwith %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url=delete_url __ids=email_to_sync.id label=_('Delete this email') %}
+{#            {% brick_table_action id='delete' url=delete_url __ids=email_to_sync.id label=_('Delete this email') %} #}
+            {% brick_table_action id='emailsync-delete' url=delete_url __ids=email_to_sync.id icon='delete' label=_('Delete this email') %}
         </td>
         <td {% brick_table_data_status action %}>
           {% if email_to_sync.can_be_accepted  %}
-            {% brick_table_action id='delete' url=accept_url __ids=email_to_sync.id label=_('Accept') display='text' help_text=_('Convert into a true entity email') %}
+{#            {% brick_table_action id='delete' url=accept_url __ids=email_to_sync.id label=_('Accept') display='text' help_text=_('Convert into a true entity email') %} #}
+            {% brick_table_action id='emailsync-accept' url=accept_url __ids=email_to_sync.id label=_('Accept') display='text' help_text=_('Convert into a true entity email') %}
           {% else %}
-            {% brick_table_action id='delete' label=_('Accept') display='text' help_text=_('Cannot accept because there are errors') enabled=False %}
+{#            {% brick_table_action id='delete' label=_('Accept') display='text' help_text=_('Cannot accept because there are errors') enabled=False %} #}
+            {% brick_table_action id='emailsync-accept' label=_('Accept') display='text' help_text=_('Cannot accept because there are errors') enabled=False %}
           {% endif %}
         </td>
     </tr>

@@ -1,3 +1,17 @@
+== Version 2.4.18 ==
+
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+    # Apps :
+        * Emails :
+            - In email synchronisation:
+                - There was an error when accepting a fixed forwarded email.
+                - The display of error, when using single actions (accept & delete), has been fixed.
+
+
 == Version 2.4.17 ==
 
   Users side :

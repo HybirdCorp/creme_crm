@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -164,6 +164,32 @@ var emailSyncActions = {
 //
 //        return this._build_delete(url, {}, {ids: ids.join(',')}, e);
 //    }
+    // TODO: factorise !!
+    'emailsync-accept': function(url, options, data, e) {
+        var id = data.ids;
+
+        if (!id) {
+            return this._warningAction(gettext('No email is selected.'));
+        }
+
+        return new creme.emails.MultiSelectedAction(
+            this._brick, [id],
+            {
+                url: url,
+                successMessageBuilder: function(count) {
+                    return ngettext('%d email has been synchronised',
+                                    '%d emails have been synchronised',
+                                    count).format(count);
+                },
+                failMessageBuilder: function(count) {
+                    return ngettext('%d email cannot be synchronised.',
+                                    '%d emails cannot be synchronised.',
+                                    count).format(count);
+                }
+            }
+        );
+    },
+
     'emailsync-accept-multi': function(url, options, data, e) {
         var ids = _emailSyncSelection(this, data);
 
@@ -183,6 +209,32 @@ var emailSyncActions = {
                 failMessageBuilder: function(count) {
                     return ngettext('%d email cannot be synchronised.',
                                     '%d emails cannot be synchronised.',
+                                    count).format(count);
+                }
+            }
+        );
+    },
+
+    // TODO: factorise
+    'emailsync-delete': function(url, options, data, e) {
+        var id = data.ids;
+
+        if (!id) {
+            return this._warningAction(gettext('No email is selected.'));
+        }
+
+        return new creme.emails.MultiSelectedAction(
+            this._brick, [id],
+            {
+                url: url,
+                successMessageBuilder: function(count) {
+                    return ngettext('%d email has been deleted',
+                                    '%d emails have been deleted',
+                                    count).format(count);
+                },
+                failMessageBuilder: function(count) {
+                    return ngettext('%d email cannot be deleted.',
+                                    '%d emails cannot be deleted.',
                                     count).format(count);
                 }
             }
