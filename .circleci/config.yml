@@ -374,43 +374,43 @@ jobs:
           path: artifacts/karma_coverage
 
 
-  docker-build-creme-demo:
-    machine:
-      image: ubuntu-2004:202107-02
-      docker_layer_caching: true
-    environment:
-      DOCKER_BUILDKIT: 1
-      IMAGE_NAME: cremecrm/cremecrm-demo
-    steps:
-      - checkout
-      - run: docker build --target creme-demo --tag $IMAGE_NAME:$CIRCLE_BUILD_NUM .
-      - run: docker run --detach --name creme_demo --publish 8001:80 --volume creme_data:/srv/creme/data --env CREME_LANGUAGE_CODE=en $IMAGE_NAME:$CIRCLE_BUILD_NUM
-      - run: wget -c --retry-connrefused --waitretry 1 --tries 60 -O /dev/null http://127.0.0.1:8001
-      - run:
-          command: docker logs creme_demo
-          when: always
-      - run:
-          command: docker rm --force --volumes creme_demo
-          when: always
+#  docker-build-creme-demo:
+#    machine:
+#      image: ubuntu-2004:202107-02
+#      docker_layer_caching: true
+#    environment:
+#      DOCKER_BUILDKIT: 1
+#      IMAGE_NAME: cremecrm/cremecrm-demo
+#    steps:
+#      - checkout
+#      - run: docker build --target creme-demo --tag $IMAGE_NAME:$CIRCLE_BUILD_NUM .
+#      - run: docker run --detach --name creme_demo --publish 8001:80 --volume creme_data:/srv/creme/data --env CREME_LANGUAGE_CODE=en $IMAGE_NAME:$CIRCLE_BUILD_NUM
+#      - run: wget -c --retry-connrefused --waitretry 1 --tries 60 -O /dev/null http://127.0.0.1:8001
+#      - run:
+#          command: docker logs creme_demo
+#          when: always
+#      - run:
+#          command: docker rm --force --volumes creme_demo
+#          when: always
 
-  docker-push-creme-demo:
-    machine:
-      image: ubuntu-2004:202107-02
-      docker_layer_caching: true
-    environment:
-      DOCKER_BUILDKIT: 1
-      IMAGE_NAME: cremecrm/cremecrm-demo
-    steps:
-      - checkout
-      - run: docker build --target creme-demo --tag $IMAGE_NAME:$CIRCLE_TAG .
-      # See environment variables:
-      # - DOCKERHUB_ACCESS_TOKEN
-      # - DOCKERHUB_USERNAME
-      - run:
-          name: Publish Docker Image to Docker Hub
-          command: |
-            echo "$DOCKERHUB_ACCESS_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker push $IMAGE_NAME:$CIRCLE_TAG
+#  docker-push-creme-demo:
+#    machine:
+#      image: ubuntu-2004:202107-02
+#      docker_layer_caching: true
+#    environment:
+#      DOCKER_BUILDKIT: 1
+#      IMAGE_NAME: cremecrm/cremecrm-demo
+#    steps:
+#      - checkout
+#      - run: docker build --target creme-demo --tag $IMAGE_NAME:$CIRCLE_TAG .
+#      # See environment variables:
+#      # - DOCKERHUB_ACCESS_TOKEN
+#      # - DOCKERHUB_USERNAME
+#      - run:
+#          name: Publish Docker Image to Docker Hub
+#          command: |
+#            echo "$DOCKERHUB_ACCESS_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+#            docker push $IMAGE_NAME:$CIRCLE_TAG
 
 
   creme-package:
@@ -500,22 +500,22 @@ workflows:
           requires:
             - python38-lint-isort
             - python38-lint-flake8
-      - docker-build-creme-demo:
-          filters:
-            tags:
-              only: /.*/
-      - docker-push-creme-demo:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          requires:
-            - docker-build-creme-demo
-            - javascript-tests
-            - python38-tests-sqlite3
-            - python38-tests-mysql
-            - python38-tests-pgsql
+#      - docker-build-creme-demo:
+#          filters:
+#            tags:
+#              only: /.*/
+#      - docker-push-creme-demo:
+#          filters:
+#            tags:
+#              only: /.*/
+#            branches:
+#              ignore: /.*/
+#          requires:
+#            - docker-build-creme-demo
+#            - javascript-tests
+#            - python38-tests-sqlite3
+#            - python38-tests-mysql
+#            - python38-tests-pgsql
       - creme-package:
           filters:
             tags:
