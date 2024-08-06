@@ -1,4 +1,4 @@
-== Version 2.4.18 Work in progress (not released -- this is a draft) ==
+== Version 2.4.18 ==
 
   UPGRADE NOTE :
     - You should re-generate the media files (creme generatemedia --settings=[...]).
