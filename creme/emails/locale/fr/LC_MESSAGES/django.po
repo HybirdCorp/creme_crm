@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Emails 2.6\n"
+"Project-Id-Version: Creme Emails 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-14 17:25+0200\n"
+"POT-Creation-Date: 2024-08-07 13:37+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -156,6 +156,9 @@ msgstr "Envoyer les fiches e-mail"
 #, python-brace-format
 msgid "Synchronize externals emails with {software}"
 msgstr "Synchroniser des e-mails externes avec {software}"
+
+msgid "Attachment for email synchronization"
+msgstr "Pièce jointe pour synchronisation e-mail"
 
 #, python-brace-format
 msgid "There was no message on \"{host}\" for the user \"{user}\""

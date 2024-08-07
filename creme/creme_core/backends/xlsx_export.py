@@ -21,6 +21,7 @@ from os.path import basename, join
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import slugify
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from openpyxl import Workbook
 
@@ -50,6 +51,7 @@ class XLSXExportBackend(ExportBackend):
                 '/'.join(self.dir_parts),
                 basename(path),
             ),
+            description=gettext('Mass export'),  # TODO: possibility to pass the name?
         )
         self.response = HttpResponseRedirect(fileref.get_download_absolute_url())
         self._workbook.save(path)

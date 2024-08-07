@@ -24,6 +24,8 @@
                       you can use the new method 'CremePropertyType.set_subject_ctypes()'.
             - The method 'creme_core.tests.base._CremeTestCase.assertRelationCount' is deprecated;
               use the new methods 'assertHaveRelation()' & 'assertHaveNoRelation()' instead.
+        # The model 'creme_core.models.FileRef' get a new optional field "description";
+          it's used by the new view which displays all FileRefs (so feel free to fill it).
 
     Breaking changes :
     ------------------
@@ -64,6 +66,12 @@
         # Apps :
             * Activities :
                 - Some small changes have been made in the class 'views.buttons.UnsuccessfulPhoneCallCreation'.
+
+    Internal breaking changes :
+    ---------------------------
+    (they should not cause problem if you have not deeply modified the source code of Creme)
+
+        # The method 'creme_core.models.CremeModel._delete_stored_file()' is not static anymore.
 
 
 == Version 2.6 ==

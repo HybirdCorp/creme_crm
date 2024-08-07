@@ -914,6 +914,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertTrue(fileref.temporary)
         self.assertEqual(f"{_('Invoice')}_{invoice.id}.pdf", fileref.basename)
         self.assertEqual(user, fileref.user)
+        self.assertEqual(_('Latex export for «{}»').format(invoice), fileref.description)
 
         fullpath = Path(fileref.filedata.path)
         self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists?!')
@@ -959,6 +960,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertTrue(fileref.temporary)
         self.assertEqual('{}_{}.pdf'.format(_('Invoice'), invoice.id), fileref.basename)
         self.assertEqual(user, fileref.user)
+        self.assertEqual(_('Weasyprint export for «{}»').format(invoice), fileref.description)
 
         fullpath = Path(fileref.filedata.path)
         self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists?!')
@@ -1133,6 +1135,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertTrue(fileref.temporary)
         self.assertEqual(f"{_('Invoice')}_{invoice.id}.xls", fileref.basename)
         self.assertEqual(user, fileref.user)
+        self.assertEqual(_('Excel export for «{}»').format(invoice), fileref.description)
 
         full_path = Path(fileref.filedata.path)
         self.assertTrue(full_path.exists(), f'<{full_path}> does not exists?!')

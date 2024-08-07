@@ -40,6 +40,8 @@ class FileRef(models.Model):  # NB: not a CremeModel, because it's used by Creme
     user = CremeUserForeignKey(verbose_name=_('Owner user'), null=True, on_delete=models.SET_NULL)
     temporary = models.BooleanField(verbose_name=_('To be deleted by the job?'), default=True)
 
+    description = models.TextField(verbose_name=_('Description'))
+
     # Can be used by third party code to store the data they want,
     # without having to modify the code.
     extra_data = models.JSONField(editable=False, default=dict)

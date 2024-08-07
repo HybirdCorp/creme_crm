@@ -190,6 +190,7 @@ class _EntityEmailsSyncType(JobType):
                     #     if a crash happens before te FileRef is linked to the
                     #     EmailToSync instance.
                     temporary=True,
+                    description=gettext('Attachment for email synchronization'),
                 )
 
                 with open(abs_path, 'wb') as f:

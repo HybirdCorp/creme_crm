@@ -2,6 +2,7 @@ from datetime import timedelta
 from os.path import exists
 
 from django.db.transaction import atomic
+from django.utils.translation import gettext as _
 
 from creme.creme_core.creme_jobs import temp_files_cleaner_type
 from creme.creme_core.models import (
@@ -44,7 +45,9 @@ class FileRefTestCase(base.CremeTestCase):
         )
 
         with self.assertNoException():
-            FileRef.objects.create(filedata=path, basename='test_basename01.txt')
+            fileref = FileRef.objects.create(filedata=path, basename='test_basename01.txt')
+
+        self.assertEqual('', fileref.description)
 
     def test_basename02(self):
         name = 'FileRefTestCase_test_basename02.txt'
@@ -142,6 +145,10 @@ class FileRefTestCase(base.CremeTestCase):
         self.assertIsNone(file_ref.user)
         self.assertEqual(full_path, file_ref.filedata.path)
         self.assertTrue(exists(full_path))
+        self.assertEqual(
+            _('Deletion of «{}»').format(doc),
+            file_ref.description,
+        )
 
     def test_create_at_deletion02(self):
         "Empty FileField."

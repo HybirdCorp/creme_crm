@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2022  Hybird
+#    Copyright (C) 2020-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@ from os import path
 
 from django.conf import settings
 from django.template.loader import get_template
+from django.utils.translation import gettext as _
 from django.utils.translation import override
 from django.views.generic.base import ContextMixin
 from weasyprint import CSS, HTML
@@ -70,6 +71,7 @@ class WeasyprintExporter(ContextMixin, base.BillingExporter):
             user=user,
             filedata=f'billing/{path.basename(final_path)}',
             basename=basename,
+            description=_('Weasyprint export for «{}»').format(entity),
         )
 
         # TODO ?
