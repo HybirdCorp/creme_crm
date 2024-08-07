@@ -502,6 +502,94 @@ class RelationTypeTestCase(_RelationTypeBaseTestCase):
         self.assertTrue(rt.enabled)
         self.assertTrue(rt.symmetric_type.enabled)
 
+    def test_set_minimal_display_on(self):
+        self._login_as_admin()
+
+        rt, sym = RelationType.objects.smart_update_or_create(
+            ('test-subject_foo', 'subject_predicate'),
+            ('test-object_foo', 'object_predicate'),
+        )
+        self.assertFalse(rt.minimal_display)
+        self.assertFalse(sym.minimal_display)
+
+        url = reverse('creme_config__activate_rtype_minimal_display', args=(rt.id,))
+        self.assertGET405(url)
+
+        self.assertPOST200(url)
+
+        rt = self.refresh(rt)
+        self.assertTrue(rt.minimal_display)
+        self.assertFalse(rt.symmetric_type.minimal_display)
+
+        # Second time --
+        self.assertPOST200(url)
+
+        rt = self.refresh(rt)
+        self.assertTrue(rt.minimal_display)
+        self.assertFalse(rt.symmetric_type.minimal_display)
+
+        # Invalid ID ---
+        self.assertPOST404(
+            reverse('creme_config__activate_rtype_minimal_display', args=('test-subject_bar',))
+        )
+
+    def test_set_minimal_display_off(self):
+        self._login_as_admin()
+
+        rt, sym = RelationType.objects.smart_update_or_create(
+            ('test-subject_foo', 'subject_predicate'),
+            ('test-object_foo', 'object_predicate'),
+            minimal_display=(True, True),
+        )
+        self.assertTrue(rt.minimal_display)
+        self.assertTrue(sym.minimal_display)
+
+        url = reverse('creme_config__deactivate_rtype_minimal_display', args=(rt.id,))
+        self.assertGET405(url)
+
+        self.assertPOST200(url)
+
+        rt = self.refresh(rt)
+        self.assertFalse(rt.minimal_display)
+        self.assertTrue(rt.symmetric_type.minimal_display)
+
+        # Second time --
+        self.assertPOST200(url)
+
+        rt = self.refresh(rt)
+        self.assertFalse(rt.minimal_display)
+        self.assertTrue(rt.symmetric_type.minimal_display)
+
+        # Invalid ID ---
+        self.assertPOST404(
+            reverse('creme_config__deactivate_rtype_minimal_display', args=('test-subject_bar',))
+        )
+
+    def test_set_minimal_display__perm(self):
+        self._login_as_basic()
+
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subject_foo', 'subject_predicate'),
+            ('test-object_foo', 'object_predicate'),
+        )[0]
+        url = reverse('creme_config__activate_rtype_minimal_display', args=(rt.id,))
+        self.assertGET403(url)
+        self.assertPOST403(url)
+
+    def test_set_minimal_display__disabled(self):
+        self._login_as_admin()
+
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subject_foo', 'subject_predicate'),
+            ('test-object_foo', 'object_predicate'),
+        )[0]
+        rt.enabled = False
+        rt.save()
+
+        self.assertPOST404(
+            reverse('creme_config__activate_rtype_minimal_display', args=(rt.id,))
+        )
+
     def test_delete__standard(self):
         self._login_as_admin()
 

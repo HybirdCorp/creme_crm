@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-07 14:58+0200\n"
+"POT-Creation-Date: 2024-08-08 12:19+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2589,6 +2589,9 @@ msgstr "Modifier le type standard «{object}»"
 msgctxt "creme_config-relationship"
 msgid "Edit the type «{object}»"
 msgstr "Modifier le type «{object}»"
+
+msgid "No enabled relation type found"
+msgstr "Aucun type de relation activé n'a été trouvé"
 
 #, python-brace-format
 msgid "New search configuration for «{model}»"

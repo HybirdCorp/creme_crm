@@ -16,6 +16,12 @@
       {% if not config_item.all_ctypes_configured %}
         {% brick_menu_action id='edit' url='creme_config__add_cells_to_rtype_brick'|url:config_item.id label=_('Configure the fields of a new type') enabled=config_perm %}
       {% endif %}
+
+      {% if relation_type.minimal_display %}
+        {% brick_menu_action id='update' url='creme_config__deactivate_rtype_minimal_display'|url:relation_type.id icon='edit' label=_('Display the entities in the «Relationships» block too') enabled=config_perm %}
+      {% else %}
+        {% brick_menu_action id='update' url='creme_config__activate_rtype_minimal_display'|url:relation_type.id icon='edit' label=_('Do not display the entities in the «Relationships» block (only here)') enabled=config_perm %}
+      {% endif %}
      {% endwith %}
     {% endif %}
 {% endblock %}

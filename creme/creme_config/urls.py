@@ -219,6 +219,19 @@ relation_type_patterns = [
     ),
 
     re_path(
+        r'^set_minimal_display/(?P<rtype_id>[\w-]+)/on[/]?$',
+        relation_type.RelationTypeMinimalDisplaySetting.as_view(),
+        {'value': True},
+        name='creme_config__activate_rtype_minimal_display',
+    ),
+    re_path(
+        r'^set_minimal_display/(?P<rtype_id>[\w-]+)/off[/]?$',
+        relation_type.RelationTypeMinimalDisplaySetting.as_view(),
+        {'value': False},
+        name='creme_config__deactivate_rtype_minimal_display',
+    ),
+
+    re_path(
         r'^semi_fixed/add[/]?$',
         relation_type.SemiFixedRelationTypeCreation.as_view(),
         name='creme_config__create_semifixed_rtype',

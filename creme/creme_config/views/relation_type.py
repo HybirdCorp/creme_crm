@@ -20,6 +20,7 @@ from django.db.models import Q
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -110,6 +111,20 @@ class RelationTypeEnabling(generic.CheckedView):
         rtype.enabled = sym_type.enabled = kwargs.get(self.enabled_arg, self.enabled_default)
         rtype.save()
         sym_type.save()
+
+        return HttpResponse()
+
+
+class RelationTypeMinimalDisplaySetting(generic.CheckedView):
+    permissions = base._PERM
+    pk_url_kwarg = 'rtype_id'
+    value_arg = 'value'
+
+    def post(self, *args, **kwargs):
+        if not RelationType.objects.filter(
+            id=kwargs[self.pk_url_kwarg], enabled=True,
+        ).update(minimal_display=kwargs[self.value_arg]):
+            raise Http404(gettext('No enabled relation type found'))
 
         return HttpResponse()
 

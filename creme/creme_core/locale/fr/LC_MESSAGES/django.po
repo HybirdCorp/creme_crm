@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-07 13:35+0200\n"
+"POT-Creation-Date: 2024-08-08 10:54+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3138,6 +3138,12 @@ msgstr "Configurer les champs pour «%(ctype)s»"
 
 msgid "Configure the fields of a new type"
 msgstr "Configurer les champs d'un nouveau type"
+
+msgid "Display the entities in the «Relationships» block too"
+msgstr "Afficher les fiches dans le bloc «Relations» aussi"
+
+msgid "Do not display the entities in the «Relationships» block (only here)"
+msgstr "Ne plus afficher les fiches dans le bloc «Relations» (seulement ici)"
 
 #, python-brace-format
 msgid "{count} Entities"
