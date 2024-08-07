@@ -6,8 +6,7 @@ from ..base import CremeTestCase
 
 
 class DownloadViewTestCase(CremeTestCase):
-    def test_download_filefield01(self):
-        "Errors."
+    def test_download_filefield__errors(self):
         user = self.login_as_root_and_get()
 
         folder = FakeFolder.objects.create(user=user, title="Faye's pix")
@@ -23,12 +22,11 @@ class DownloadViewTestCase(CremeTestCase):
         # Empty file
         self.assertGET404(reverse('creme_core__download', args=(ct_id, doc.id, 'filedata')))
 
-    def test_download_filefield02(self):
-        "OK."
+    def test_download_filefield__superuser_OK(self):
         user = self.login_as_root_and_get()
         file_content = 'I am the content'
         path = self.create_uploaded_file(
-            file_name='DownloadViewTestCase_test_download_filefield02.txt',
+            file_name='DownloadViewTestCase_test_download_filefield_superOK.txt',
             dir_name='views',
             content=file_content,
         )
@@ -58,11 +56,10 @@ class DownloadViewTestCase(CremeTestCase):
 
         self.assertPOST405(url)
 
-    def test_download_filefield03(self):
-        "Basename."
+    def test_download_filefield__basename(self):
         user = self.login_as_root_and_get()
         path = self.create_uploaded_file(
-            file_name='DownloadViewTestCase_test_download_filefield03.txt',
+            file_name='DownloadViewTestCase_test_download_filefield_basename.txt',
             dir_name='views',
         )
         temp_file = FileRef.objects.create(user=user, filedata=path, basename='test.txt')
@@ -78,13 +75,12 @@ class DownloadViewTestCase(CremeTestCase):
         # Consume stream to avoid error message "ResourceWarning: unclosed file..."
         _ = [*response.streaming_content]
 
-    def test_download_filefield04(self):
-        "Not super-user."
+    def test_download_filefield__standard_user_OK(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, all=['VIEW'], model=FakeDocument)
 
         path = self.create_uploaded_file(
-            file_name='DownloadViewTestCase_test_download_filefield04.txt',
+            file_name='DownloadViewTestCase_test_download_filefield_standardOK.txt',
             dir_name='views',
         )
         folder = FakeFolder.objects.create(user=user, title="Faye's pix")
@@ -103,12 +99,11 @@ class DownloadViewTestCase(CremeTestCase):
         # Consume stream to avoid error message "ResourceWarning: unclosed file..."
         _ = [*response.streaming_content]
 
-    def test_download_filefield05(self):
-        "Not super-user."
+    def test_download_filefield__standard_user_error(self):
         user = self.login_as_standard()
 
         path = self.create_uploaded_file(
-            file_name='DownloadViewTestCase_test_download_filefield05.txt',
+            file_name='DownloadViewTestCase_test_download_filefield_standarderror.txt',
             dir_name='views',
         )
         folder = FakeFolder.objects.create(user=user, title="Faye's pix")
