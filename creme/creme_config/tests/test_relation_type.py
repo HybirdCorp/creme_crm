@@ -13,13 +13,49 @@ from creme.creme_core.models import (
 from creme.creme_core.tests.base import CremeTestCase
 
 
-class RelationTypeTestCase(CremeTestCase):
+class _RelationTypeBaseTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.basic_user = cls.create_user(
+            index=0,
+            password=cls.USER_PASSWORD,
+            role=cls.create_role(
+                name='Basic',
+                allowed_apps=('creme_core',),
+                # admin_4_apps=('creme_core',),  NOPE
+            ),
+        )
+
+        admin_role = cls.create_role(
+            name='Core admin',
+            allowed_apps=('creme_core',),
+            admin_4_apps=('creme_core',),
+        )
+        cls.add_credentials(role=admin_role, all='*')
+
+        cls.core_admin = cls.create_user(
+            index=1,
+            password=cls.USER_PASSWORD,
+            role=admin_role,
+        )
+
+    def _login_as_admin(self):
+        self.client.login(username=self.core_admin.username, password=self.USER_PASSWORD)
+
+    def _login_as_basic(self):
+        self.client.login(username=self.basic_user.username, password=self.USER_PASSWORD)
+
+
+# class RelationTypeTestCase(CremeTestCase):
+class RelationTypeTestCase(_RelationTypeBaseTestCase):
     ADD_URL = reverse('creme_config__create_rtype')
     DEL_URL = reverse('creme_config__delete_rtype')
 
-    def setUp(self):  # In CremeConfigTestCase ??
-        super().setUp()
-        self.login_as_root()
+    # def setUp(self):
+    #     super().setUp()
+    #     self.login_as_root()
 
     @staticmethod
     def _build_edit_not_custom_url(rtype):
@@ -30,6 +66,8 @@ class RelationTypeTestCase(CremeTestCase):
         return reverse('creme_config__edit_rtype', args=(rtype.id,))
 
     def test_portal(self):
+        self._login_as_admin()
+
         response = self.assertGET200(reverse('creme_config__rtypes'))
         self.assertTemplateUsed(response, 'creme_config/portals/relation-type.html')
         self.assertEqual(
@@ -37,7 +75,8 @@ class RelationTypeTestCase(CremeTestCase):
             response.context.get('bricks_reload_url'),
         )
 
-    def test_create01(self):
+    def test_create(self):
+        self._login_as_admin()
         url = self.ADD_URL
 
         context = self.assertGET200(url).context
@@ -76,8 +115,10 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertFalse(sym_type.subject_properties.all())
         self.assertFalse(sym_type.subject_forbidden_properties.all())
 
-    def test_create02(self):
+    def test_create__property_constaints(self):
         "Property types (mandatory & forbidden)."
+        self._login_as_admin()
+
         # create_pt = CremePropertyType.objects.smart_update_or_create
         # pt_sub = create_pt(text='has cash', subject_ctypes=[FakeOrganisation])
         # pt_obj = create_pt(text='need cash', subject_ctypes=[FakeContact])
@@ -159,7 +200,9 @@ class RelationTypeTestCase(CremeTestCase):
             [forbidden_pt_obj], sym_type.subject_forbidden_properties.all(),
         )
 
-    def test_create_minimal_display_subject(self):
+    def test_create__minimal_display_subject(self):
+        self._login_as_admin()
+
         subject_pred = 'loves'
         response = self.client.post(
             self.ADD_URL,
@@ -181,7 +224,9 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertFalse(sym_type.is_copiable)
         self.assertFalse(sym_type.minimal_display)
 
-    def test_create_minimal_display_object(self):
+    def test_create__minimal_display_object(self):
+        self._login_as_admin()
+
         subject_pred = 'loves'
         response = self.client.post(
             self.ADD_URL,
@@ -203,7 +248,21 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertFalse(sym_type.is_copiable)
         self.assertTrue(sym_type.minimal_display)
 
+    def test_create__perm(self):
+        self._login_as_basic()
+        url = self.ADD_URL
+        self.assertGET403(url)
+        self.assertPOST403(
+            url,
+            data={
+                'subject_predicate': 'loves',
+                'object_predicate': 'is loved by',
+            },
+        )
+
     def test_edit_not_custom01(self):
+        self._login_as_admin()
+
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate', [FakeContact]),
             ('test-objfoo', 'object_predicate'),
@@ -252,6 +311,8 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertFalse(rt.symmetric_type.minimal_display)
 
     def test_edit_not_custom02(self):
+        self._login_as_admin()
+
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate', [FakeContact]),
@@ -290,7 +351,9 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertFalse(sym_rt.is_internal)
         self.assertListEqual([FakeContact], [*sym_rt.subject_models])
 
-    def test_edit_not_custom__disable(self):
+    def test_edit_not_custom__disabled(self):
+        self._login_as_admin()
+
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate', [FakeContact]),
@@ -301,8 +364,21 @@ class RelationTypeTestCase(CremeTestCase):
 
         self.assertGET404(self._build_edit_not_custom_url(rt))
 
-    def test_edit(self):
+    def test_edit_not_custom__perm(self):
+        self._login_as_basic()
+
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate', [FakeContact]),
+            is_custom=False,
+        )[0]
+
+        self.assertGET403(self._build_edit_not_custom_url(rt))
+
+    def test_edit_custom(self):
         "Edit a custom type."
+        self._login_as_admin()
+
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
@@ -339,8 +415,10 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertEqual(subject_pred, rel_type.predicate)
         self.assertEqual(object_pred,  rel_type.symmetric_type.predicate)
 
-    def test_edit__disable(self):
+    def test_edit_custom__disabled(self):
         "Edit a disabled type."
+        self._login_as_admin()
+
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
@@ -351,7 +429,20 @@ class RelationTypeTestCase(CremeTestCase):
 
         self.assertGET404(self._build_edit_url(rt))
 
-    def test_disable01(self):
+    def test_edit_custom__perm(self):
+        self._login_as_basic()
+
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate'),
+            is_custom=True,
+        )[0]
+
+        self.assertGET403(self._build_edit_url(rt))
+
+    def test_disable(self):
+        self._login_as_admin()
+
         rt = RelationType.objects.smart_update_or_create(
             ('test-subject_foo', 'subject_predicate'),
             ('test-object_foo', 'object_predicate'),
@@ -368,8 +459,10 @@ class RelationTypeTestCase(CremeTestCase):
 
         self.assertPOST404(reverse('creme_config__disable_rtype', args=('test-subject_bar',)))
 
-    def test_disable02(self):
+    def test_disable__internal(self):
         "Disable internal type => error."
+        self._login_as_admin()
+
         rt = RelationType.objects.smart_update_or_create(
             ('test-subject_foo', 'subject_predicate'),
             ('test-object_foo', 'object_predicate'),
@@ -378,7 +471,19 @@ class RelationTypeTestCase(CremeTestCase):
 
         self.assertPOST409(reverse('creme_config__disable_rtype', args=(rt.id,)))
 
+    def test_disable__perm(self):
+        self._login_as_basic()
+
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subject_foo', 'subject_predicate'),
+            ('test-object_foo', 'object_predicate'),
+        )[0]
+
+        self.assertPOST403(reverse('creme_config__disable_rtype', args=(rt.id,)))
+
     def test_enable(self):
+        self._login_as_admin()
+
         rt, srt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
@@ -397,7 +502,9 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertTrue(rt.enabled)
         self.assertTrue(rt.symmetric_type.enabled)
 
-    def test_delete01(self):
+    def test_delete__standard(self):
+        self._login_as_admin()
+
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-subfoo', 'object_predicate'),
@@ -405,7 +512,9 @@ class RelationTypeTestCase(CremeTestCase):
         )[0]
         self.assertGET405(self.DEL_URL, data={'id': rt.id})
 
-    def test_delete02(self):
+    def test_delete__custom(self):
+        self._login_as_admin()
+
         rt, srt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-subfoo', 'object_predicate'),
@@ -415,24 +524,51 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertDoesNotExist(rt)
         self.assertDoesNotExist(srt)
 
+    def test_delete__perm(self):
+        self._login_as_basic()
 
-class SemiFixedRelationTypeTestCase(CremeTestCase):
+        rt, srt = RelationType.objects.smart_update_or_create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-subfoo', 'object_predicate'),
+            is_custom=True,
+        )
+        self.assertPOST403(self.DEL_URL, data={'id': rt.id})
+        self.assertStillExists(rt)
+        self.assertStillExists(srt)
+
+
+# class SemiFixedRelationTypeTestCase(CremeTestCase):
+class SemiFixedRelationTypeTestCase(_RelationTypeBaseTestCase):
     ADD_URL = reverse('creme_config__create_semifixed_rtype')
 
-    def setUp(self):
-        super().setUp()
-        self.user = self.login_as_root_and_get()
+    # def setUp(self):
+    #     super().setUp()
+    #     self.user = self.login_as_root_and_get()
+    #
+    #     self.loves = RelationType.objects.smart_update_or_create(
+    #         ('test-subject_foobar', 'is loving'),
+    #         ('test-object_foobar',  'is loved by'),
+    #     )[0]
+    #
+    #     self.iori = FakeContact.objects.create(
+    #         user=self.user, first_name='Iori', last_name='Yoshizuki',
+    #     )
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
 
-        self.loves = RelationType.objects.smart_update_or_create(
+        cls.loves = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
         )[0]
 
-        self.iori = FakeContact.objects.create(
-            user=self.user, first_name='Iori', last_name='Yoshizuki',
+        cls.iori = FakeContact.objects.create(
+            user=cls.get_root_user(), first_name='Iori', last_name='Yoshizuki',
         )
 
-    def test_create01(self):
+    def test_create(self):
+        self._login_as_admin()
+
         url = self.ADD_URL
         self.assertGET200(url)
 
@@ -454,8 +590,10 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         self.assertEqual(iori, smr.object_entity.get_real_entity())
         self.assertEqual(iori, smr.real_object)
 
-    def test_create02(self):
+    def test_create__predicate_uniqueness(self):
         "Predicate is unique."
+        self._login_as_admin()
+
         predicate = 'Is loving Iori'
         SemiFixedRelationType.objects.create(
             predicate=predicate,
@@ -463,7 +601,10 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
             real_object=self.iori,
         )
 
-        itsuki = FakeContact.objects.create(user=self.user, first_name='Itsuki', last_name='Akiba')
+        itsuki = FakeContact.objects.create(
+            # user=self.user, first_name='Itsuki', last_name='Akiba',
+            user=self.core_admin, first_name='Itsuki', last_name='Akiba',
+        )
         response = self.assertPOST200(
             self.ADD_URL,
             data={
@@ -480,8 +621,10 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
             },
         )
 
-    def test_create03(self):
+    def test_create__ref_uniqueness(self):
         "('relation_type', 'object_entity') => unique together."
+        self._login_as_admin()
+
         predicate = 'Is loving Iori'
         SemiFixedRelationType.objects.create(
             predicate=predicate,
@@ -514,7 +657,22 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
             ),
         )
 
-    def test_edit01(self):
+    def test_create__perm(self):
+        self._login_as_basic()
+
+        url = self.ADD_URL
+        self.assertGET403(url)
+        self.assertPOST403(
+            url,
+            data={
+                'predicate':     'Is loving Iori',
+                'semi_relation': self.formfield_value_relation_entity(self.loves, self.iori),
+            },
+        )
+
+    def test_edit(self):
+        self._login_as_admin()
+
         predicate = 'Is loving Iori'
         sfrt = SemiFixedRelationType.objects.create(
             predicate=predicate,
@@ -536,8 +694,10 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(url, data={'predicate': predicate}))
         self.assertEqual(predicate, self.refresh(sfrt).predicate)
 
-    def test_edit02(self):
+    def test_edit__disabled(self):
         "The relation type is disabled => error."
+        self._login_as_admin()
+
         rtype = self.loves
         rtype.enabled = False
         rtype.save()
@@ -551,7 +711,22 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
             reverse('creme_config__edit_semifixed_rtype', args=(sfrt.id,))
         )
 
+    def test_edit__perm(self):
+        self._login_as_basic()
+
+        sfrt = SemiFixedRelationType.objects.create(
+            predicate='Is loving Iori',
+            relation_type=self.loves,
+            real_object=self.iori,
+        )
+
+        url = reverse('creme_config__edit_semifixed_rtype', args=(sfrt.id,))
+        self.assertGET403(url)
+        self.assertPOST403(url, data={'predicate': f'{sfrt.predicate} very much'})
+
     def test_delete(self):
+        self._login_as_admin()
+
         sfrt = SemiFixedRelationType.objects.create(
             predicate='Is loving Iori',
             relation_type=self.loves,
@@ -562,3 +737,17 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
             data={'id': sfrt.id},
         )
         self.assertDoesNotExist(sfrt)
+
+    def test_delete__perm(self):
+        self._login_as_basic()
+
+        sfrt = SemiFixedRelationType.objects.create(
+            predicate='Is loving Iori',
+            relation_type=self.loves,
+            real_object=self.iori,
+        )
+        self.assertPOST403(
+            reverse('creme_config__delete_semifixed_rtype'),
+            data={'id': sfrt.id},
+        )
+        self.assertStillExists(sfrt)
