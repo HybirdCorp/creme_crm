@@ -34,12 +34,15 @@ class FileRefTestCase(BrickTestCaseMixin, CremeTestCase):
             plural_title='{count} Temporary files',
         )
         self.assertListEqual(
-            [_('Created'), _('Owner user'), _('Path'), _('To be deleted by the job?')],
+            [
+                _('Created'), _('Owner user'), _('Path'),
+                _('To be deleted by the job?'), _('Actions'),
+            ],
             self.get_brick_table_column_titles(brick_node1),
         )
         rows = self.get_brick_table_rows(brick_node1)
         table_cells = self.get_alone_element(rows).findall('.//td')
-        self.assertEqual(4, len(table_cells))
+        self.assertEqual(5, len(table_cells))
         self.assertEqual(path, table_cells[2].text)
 
         # Reload ---

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-06 19:34+0200\n"
+"POT-Creation-Date: 2024-08-07 10:59+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1358,11 +1358,17 @@ msgstr ""
 msgid "No fields configuration for the moment"
 msgstr "Aucune configuration de champs pour le moment"
 
+#, python-brace-format
 msgid "{count} Temporary file"
 msgstr "{count} Fichier temporaire"
 
+#, python-brace-format
 msgid "{count} Temporary files"
 msgstr "{count} Fichiers temporaires"
+
+# Already in creme_core
+msgid "Download"
+msgstr ""
 
 msgid "No file for the moment"
 msgstr "Aucun fichier pour le moment"

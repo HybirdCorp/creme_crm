@@ -13,6 +13,7 @@
     {% brick_table_column_for_field ctype=objects_ctype field='user' %}
     {% brick_table_column_for_field ctype=objects_ctype field='filedata' %}
     {% brick_table_column_for_field ctype=objects_ctype field='temporary' %}
+    {% brick_table_column title=_('Actions') status='action' %}
 {% endblock %}
 
 {% block brick_table_rows %}
@@ -22,6 +23,9 @@
         <td>{% print_field object=file_ref field='user' %}</td>
         <td>{{file_ref.filedata}}</td>
         <td>{% print_field object=file_ref field='temporary' %}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='redirect' url=file_ref.get_download_absolute_url icon='download' label=_('Download') %}
+        </td>
     </tr>
   {% endfor %}
 {% endblock %}
