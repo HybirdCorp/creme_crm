@@ -50,9 +50,13 @@ class CremeModel(models.Model):
         """
         pass
 
-    @staticmethod
-    def _delete_stored_file(field_value):
-        FileRef.objects.create(filedata=str(field_value))
+    # @staticmethod
+    # def _delete_stored_file(field_value):
+    def _delete_stored_file(self, field_value):
+        FileRef.objects.create(
+            filedata=str(field_value),
+            description=gettext('Deletion of «{}»').format(self),
+        )
 
     def _delete_stored_files(self):
         for field in chain(self._meta.fields, self._meta.many_to_many):

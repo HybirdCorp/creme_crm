@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-06 19:43+0200\n"
+"POT-Creation-Date: 2024-08-07 13:35+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -81,6 +81,9 @@ msgstr ""
 
 msgid "XLS File"
 msgstr "Fichier XLS"
+
+msgid "Mass export"
+msgstr "Export en masse"
 
 msgid ""
 "XLS is a file extension for a spreadsheet file format created by Microsoft "
@@ -1907,6 +1910,9 @@ msgstr "Vous n'avez pas la permission de voir cette fiche : {}"
 msgid "Save"
 msgstr "Enregistrer"
 
+msgid "Deletion of «{}»"
+msgstr "Suppression de «{}»"
+
 msgid "The field «{}» has been configured as required."
 msgstr "Le champ «{}» a été configuré comme obligatoire."
 
@@ -2445,9 +2451,6 @@ msgstr "Auxiliaire (modification)"
 
 msgid "Auxiliary (deletion)"
 msgstr "Auxiliaire (suppression)"
-
-msgid "Mass export"
-msgstr "Export en masse"
 
 msgid "Type"
 msgstr "Type"

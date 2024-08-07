@@ -59,6 +59,7 @@ class XLSExporter(base.BillingExporter):
             user=user,
             filedata='billing/' + path.basename(final_path),
             basename=basename,
+            description=gettext('Excel export for «{}»').format(entity),
         )
 
         writer.save(final_path)

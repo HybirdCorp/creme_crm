@@ -109,6 +109,7 @@ class LatexExporter(ContextMixin, base.BillingExporter):
             user=user,
             filedata='billing/' + path.basename(final_path),
             basename=pdf_basename,
+            description=_('Latex export for «{}»').format(entity),
         )
 
     @property

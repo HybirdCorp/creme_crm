@@ -577,6 +577,7 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertTrue(fileref.temporary)
         self.assertEqual('fakecontact.xls', fileref.basename)
         self.assertEqual(user, fileref.user)
+        self.assertEqual(_('Mass export'), fileref.description)
 
         fullpath = Path(fileref.filedata.path)
         self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists ?!')
@@ -657,6 +658,7 @@ class MassExportViewsTestCase(CremeTestCase):
         self.assertTrue(fileref.temporary)
         self.assertEqual('fakecontact.xlsx', fileref.basename)
         self.assertEqual(user, fileref.user)
+        self.assertEqual(_('Mass export'), fileref.description)
 
         fullpath = Path(fileref.filedata.path)
         self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists?!')
