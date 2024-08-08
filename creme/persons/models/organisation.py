@@ -22,6 +22,7 @@ from django.urls import reverse
 from django.utils.functional import lazy
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.core.exceptions import SpecificProtectedError
 from creme.creme_core.global_info import cached_per_request
@@ -79,6 +80,12 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     ).set_tags(optional=True)
     annual_revenue = models.CharField(
         _('Annual revenue'), max_length=100, blank=True,
+    ).set_tags(optional=True)
+
+    code = models.CharField(
+        pgettext_lazy('persons-organisation', 'Code'),
+        max_length=30, blank=True,
+        help_text=_('Useful to distinguish your managed organisations'),
     ).set_tags(optional=True)
 
     siren = models.CharField(_('SIREN'),    max_length=100, blank=True).set_tags(optional=True)

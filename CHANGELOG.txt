@@ -8,6 +8,13 @@
               (instead of starting with an empty configuration).
             - In the relation types configuration, you can now edit the "minimal display" value for standard types.
             - A view which displays all "FileRefs" (temporary files) has been added; it's only available for staff users.
+        * Persons :
+            - A new optional field has been added to 'Organisation': "code".
+              You can use it to distinguish you managed organisations when you get several ones.
+              Upgrade note:
+                if you upgrade from an instance of Creme 2.6, you have to configure your blocks to display
+                this field if you want to see it. As the field is optional, you can also hide it to remove
+                it everywhere (notably forms).
         * Opportunities :
             - You can now create unsuccessful phone calls from an Opportunity's detail-view :
                 - A button has been added (not enabled in default installations).

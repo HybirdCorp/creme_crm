@@ -73,6 +73,7 @@ class OrganisationFormDefault(CustomFormDefault):
         'phone', 'fax', 'email', 'url_site',
         'sector', 'legal_form', 'staff_size',
         'capital', 'annual_revenue',
+        'code',
         'siren', 'naf', 'siret', 'rcs',
         'tvaintra', 'subject_to_vat',
         'creation_date',
