@@ -100,7 +100,7 @@ creme.dialog.FrameContentData = creme.component.Component.sub({
         // Some browsers (like firefox) wrap empty/invalid html text with <pre> tag
         // The latest versions of google chrome (at least > 123, maybe sooner) are adding an extra
         // <div class="{guessed-contentype}-formatter-container"></div>
-        var matches = content.match(new RegExp('^[\s]*<pre[^>]*>([^<]*)</pre>.*$'));
+        var matches = content.match(new RegExp('^[\\s]*<pre[^>]*>([^<]*)</pre>.*$'));
 
         if (matches !== null && matches.length === 2) {
             return {content: matches[1], type: 'text/plain'};
@@ -122,7 +122,7 @@ creme.dialog.FrameContentData = creme.component.Component.sub({
     },
 
     _cleanWrappedJSON: function(content, dataType) {
-        var matches = content.match(new RegExp('^[\s]*<json>(.*)</json>[\s]*$', 'i'));
+        var matches = content.match(new RegExp('^[\\s]*<json>(.*)</json>[\\s]*$', 'i'));
 
         if (matches !== null && matches.length === 2) {
             try {
@@ -160,6 +160,10 @@ creme.dialog.FrameContentData = creme.component.Component.sub({
         return this._cleanedData || this.content;
     },
 
+    isEmpty: function() {
+        return Object.isEmpty(this.data());
+    },
+
     isPlainText: function() {
         return this.type === 'text/plain';
     },
@@ -181,12 +185,14 @@ creme.dialog.Frame = creme.component.Component.sub({
     _init_: function(options) {
         options = $.extend({
             autoActivate: true,
-            overlayDelay: 200
+            overlayDelay: 200,
+            fillOnError: false
         }, options || {});
 
         this._overlay = new creme.dialog.Overlay();
         this._overlayDelay = options.overlayDelay;
         this._contentReady = false;
+        this._fillOnError = options.fillOnError;
 
         this._backend = options.backend || creme.ajax.defaultBackend();
         this._events = new creme.component.EventHandler();
@@ -292,18 +298,26 @@ creme.dialog.Frame = creme.component.Component.sub({
         this._delegate.trigger('resize', args);
     },
 
-    _formatOverlayContent: function(url, response, error) {
-        var error_status = error ? error.status : 404;
-        var error_message = '<h2>%s&nbsp;(%s)<div class="subtitle">%s</div></h2>' +
-                            '<p class="message">%s</p>' +
-                            '<a class="redirect" onclick="creme.utils.reload();">' +
-                                gettext('Reload the page or click here. If the problem persists, please contact your administrator.') +
-                            '</a>';
+    _cleanErrorResponse: function(url, response, error) {
+        var status = error ? error.status : 404;
+        var cleaned = this._cleanResponse(response, "text/html");
 
-        return error_message.format(creme.ajax.localizedErrorMessage(error),
-                                    error_status,
-                                    url,
-                                    response);
+        if (cleaned.isHTMLOrElement() && !cleaned.isEmpty()) {
+            return cleaned;
+        } else {
+            return this._cleanResponse((
+                '<h2>${statusMessage}&nbsp;(${status})<div class="subtitle">${url}</div></h2>' +
+                '<p class="message">${message}</p>' +
+                '<a class="redirect" onclick="creme.utils.reload();">' +
+                    gettext('Reload the page or click here. If the problem persists, please contact your administrator.') +
+                '</a>'
+            ).template({
+                statusMessage: creme.ajax.localizedErrorMessage(error),
+                status: status,
+                url: url,
+                message: response || ''
+            }), "text/html");
+        }
     },
 
     fetch: function(url, options, data, listeners) {
@@ -326,9 +340,17 @@ creme.dialog.Frame = creme.component.Component.sub({
                   events.trigger('fetch-done', [response], this);
               })
              .on('cancel fail', function(event, response, error) {
+                 var errorStatus = error ? error.status : 404;
+                 var errorContent = self._cleanErrorResponse(url, response, error);
+
+                 if (self._fillOnError) {
+                     self.fill(errorContent, 'fetch');
+                 } else {
+                     overlay.update(true, errorStatus, 0)
+                            .content(errorContent.data());
+                 }
+
                  events.trigger('fetch-fail', [response, error], this);
-                 overlay.update(true, error ? error.status : 404, 0)
-                         .content(self._formatOverlayContent(url, response, error));
               });
 
         query.one(listeners)
@@ -373,8 +395,16 @@ creme.dialog.Frame = creme.component.Component.sub({
                                  events.trigger('submit-done', [cleaned, cleaned.type], this);
                              },
                              function(response, error) {
-                                 overlay.update(true, error ? error.status : 500, 0)
-                                        .content(self._formatOverlayContent(url, response, error));
+                                 var errorStatus = error ? error.status : 500;
+                                 var errorContent = self._cleanErrorResponse(url, response, error);
+
+                                 if (self._fillOnError) {
+                                     self.fill(errorContent, 'submit');
+                                 } else {
+                                     overlay.update(true, errorStatus, 0)
+                                            .content(errorContent.data());
+                                 }
+
                                  events.trigger('submit-fail', [response, error], this);
                              },
                              options);
