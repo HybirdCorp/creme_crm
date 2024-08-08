@@ -54,6 +54,11 @@
             * Persons :
                 - The model 'Address' gets new semantic fields (like ZipCodeField) which allow to
                   easily customise things (like the form field, the field printer etc...).
+        # Javascript:
+            * FormDialog:
+                - Form submit error responses with HTML can either replace the default overlay content or the frame content.
+                - New creme.dialog.Frame option 'fillOnError'; if enabled the html error response replaces the content.
+                - New creme.dialog.Dialog option 'fillFrameOnError'; if enabled the html error response replaces the content.
 
     Breaking changes :
     ------------------

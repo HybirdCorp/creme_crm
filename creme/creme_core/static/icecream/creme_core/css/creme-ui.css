@@ -282,9 +282,11 @@ ul.ui-creme-widget.is-readonly li {
     position: fixed;
 }
 
+/*
 .ui-dialog-content .ui-creme-overlay {
     background-color: #F6FCFF;
 }
+*/
 
 /*----------------------------------*/
 ul.ui-creme-actionbuttonlist {
