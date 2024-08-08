@@ -47,6 +47,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
             shrink:     true,
             useFrameTitleBar: true,
             useFrameActions: true,
+            fillFrameOnError: false,
             closeOnEscape: true,
             scrollbackOnClose: true
         }, options || {});
@@ -56,7 +57,11 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
     _initFrame: function(options) {
         var self = this;
-        var frame = this._frame = new creme.dialog.Frame({backend: options.backend, autoActivate: false});
+        var frame = this._frame = new creme.dialog.Frame({
+            backend: options.backend,
+            autoActivate: false,
+            fillOnError: options.fillFrameOnError
+        });
 
         frame.onCleanup($.proxy(this._onFrameCleanup, this))
              .onUpdate($.proxy(this._onFrameUpdate, this));
