@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2023  Hybird
+    Copyright (C) 2009-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -64,18 +64,18 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             submitData: {},
             noValidate: false,
             validator: 'default',
-            closeOnFormSuccess: true
+            closeOnFormSuccess: false
         }, options || {});
 
         this._super_(creme.dialog.Dialog, '_init_', options);
         this.validator(options.validator);
 
-        var disable_buttons = function() {
+        var disableButtons = function() {
             self._updateButtonState("send", false);
             self._updateButtonState("cancel", true, false);
         };
 
-        this.frame().on('before-submit before-fetch', disable_buttons);
+        this.frame().on('before-submit before-fetch', disableButtons);
 
         this._submitListeners = {
             'submit-done': this._onSubmitDone.bind(this),
@@ -145,9 +145,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     },
 
     _onFrameUpdate: function(event, data, dataType, action) {
-        if (action !== 'submit') {
-            this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, data, dataType, action);
-        }
+        this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, data, dataType, action);
 
         var content = this.frame().delegate();
 
@@ -180,14 +178,11 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
              * event after ALL valid submits and send a "cancel" event when the
              * cancel/close button is pressed.
              */
-            if (this.options.closeOnFormSuccess) {
-                this._frame.clear();
-                this._destroyDialog();
+            if (this.options.closeOnFormSuccess || response.isEmpty()) {
+                this.close();
             } else {
-                this._removeButton('send');
-                // TODO : Remove this hack once the 'cancel' behavior will be distinct
-                // from 'close' (see the previous TODO).
-                this._updateButtonLabel('cancel', gettext('Close'));
+                this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, response.content, dataType, 'submit');
+                this.replaceButtons(this._defaultSuccessButtons({}, this.options));
             }
         } else {
             this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, response.content, dataType, 'submit');
@@ -282,8 +277,16 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
     _defaultButtons: function(buttons, options) {
         this._appendButton(buttons, 'cancel', gettext('Cancel'), function(button, e, options) {
-                               this.close();
+                               this.cancel();
                            });
+
+        return buttons;
+    },
+
+    _defaultSuccessButtons: function(buttons, options) {
+        this._appendButton(buttons, 'close', gettext('Close'), function(button, e, options) {
+            this.close();
+        });
 
         return buttons;
     },
@@ -298,8 +301,18 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         return this;
     },
 
+    onFormCancel: function(listeners) {
+        this._events.bind('form-cancel', listeners);
+        return this;
+    },
+
     submitKey: function(value) {
         return Object.property(this, '_submitKey', value);
+    },
+
+    cancel: function() {
+        this._events.trigger('form-cancel', [this.options], this);
+        return this.close();
     }
 });
 
@@ -315,13 +328,22 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
 
     _buildPopup: function(options) {
         var self = this;
+        var successCb = false;
         options = $.extend({}, this.options(), options || {});
 
-        var form = new creme.dialog.FormDialog(options).onFormSuccess(this._onSubmit.bind(this))
-                                                       .onClose(function() {
-                                                           self.cancel();
-                                                       })
-                                                       .on(this._listeners);
+        var form = new creme.dialog.FormDialog(options);
+
+        form.onFormSuccess(function(response, dataType) {
+            successCb = function() {
+                self._onSubmit(response, dataType);
+            };
+        }).onClose(function() {
+            if (successCb) {
+                successCb();
+            } else {
+                self.cancel();
+            }
+        }).on(this._listeners);
 
         return form;
     },

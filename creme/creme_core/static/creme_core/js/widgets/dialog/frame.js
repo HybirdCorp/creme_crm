@@ -160,6 +160,10 @@ creme.dialog.FrameContentData = creme.component.Component.sub({
         return this._cleanedData || this.content;
     },
 
+    isEmpty: function() {
+        return Object.isEmpty(this.data());
+    },
+
     isPlainText: function() {
         return this.type === 'text/plain';
     },
