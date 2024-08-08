@@ -1,5 +1,6 @@
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 from creme.creme_config.bricks import FileRefsBrick
 from creme.creme_core.models import FileRef
@@ -35,7 +36,8 @@ class FileRefTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertListEqual(
             [
-                _('Created'), _('Owner user'), _('Path'),
+                pgettext('creme_core-temporary_file', 'Created'),
+                _('Owner user'), _('Path'),
                 _('To be deleted by the job?'), _('Description'), _('Actions'),
             ],
             self.get_brick_table_column_titles(brick_node1),
