@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Persons 2.6\n"
+"Project-Id-Version: Creme Persons 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-06-14 17:51+0200\n"
+"POT-Creation-Date: 2024-08-08 15:17+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -492,6 +492,13 @@ msgstr "Capital"
 
 msgid "Annual revenue"
 msgstr "Revenu annuel"
+
+msgctxt "persons-organisation"
+msgid "Code"
+msgstr "Code"
+
+msgid "Useful to distinguish your managed organisations"
+msgstr "Utile pour différencier les sociétés gérées"
 
 msgid "SIREN"
 msgstr "SIREN"
