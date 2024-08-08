@@ -11,6 +11,17 @@
         * Documents :
             - You could merge system folders & so, remove them.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Javascript:
+            * FormDialog:
+                - Form submit error responses with HTML can either replace the default overlay content or the frame content.
+                - New creme.dialog.Frame option 'fillOnError'; if enabled the html error response replaces the content.
+                - New creme.dialog.Dialog option 'fillFrameOnError'; if enabled the html error response replaces the content.
+
 
 == Version 2.5.12 ==
 

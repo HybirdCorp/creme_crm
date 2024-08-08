@@ -1,5 +1,5 @@
 (function($) {
-var RED_DOT_5x5_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==';
+var RED_DOT_5X5_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==';
 var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></div>';
 var MOCK_FRAME_CONTENT_WIDGET = '<div class="mock-content">' +
                                     '<input widget="ui-creme-dinput" class="ui-creme-dinput ui-creme-widget widget-auto" type="text"></input>' +
@@ -9,6 +9,10 @@ var MOCK_FRAME_CONTENT_FORM = '<form>' +
                                   '<input type="text" name="lastname"></input>' +
                                   '<input type="submit" class="ui-creme-dialog-action"></input>' +
                               '</form>';
+
+var MOCK_ERROR_403_HTML = '<div class="mock-error">HTTP - Error 403</div>';
+var MOCK_ERROR_500_HTML = '<div class="mock-error">HTTP - Error 500</div>';
+
 
 QUnit.module("creme.dialog.frame.js", new QUnitMixin(QUnitEventMixin,
                                                      QUnitAjaxMixin,
@@ -22,17 +26,21 @@ QUnit.module("creme.dialog.frame.js", new QUnitMixin(QUnitEventMixin,
 
         this.setMockBackendGET({
             'mock/html': backend.response(200, MOCK_FRAME_CONTENT),
-            'mock/red_dot': backend.response(200, RED_DOT_5x5_BASE64, {'content-type': 'image/png;base64'}),
+            'mock/red_dot': backend.response(200, RED_DOT_5X5_BASE64, {'content-type': 'image/png;base64'}),
             'mock/widget': backend.response(200, MOCK_FRAME_CONTENT_WIDGET),
             'mock/forbidden': backend.response(403, 'HTTP - Error 403'),
-            'mock/error': backend.response(500, 'HTTP - Error 500')
+            'mock/forbidden_html': backend.response(403, MOCK_ERROR_403_HTML, {'content-type': 'text/html'}),
+            'mock/error': backend.response(500, 'HTTP - Error 500'),
+            'mock/error_html': backend.response(500, MOCK_ERROR_500_HTML, {'content-type': 'text/html'})
         });
 
         this.setMockBackendPOST({
             'mock/submit/json': backend.response(200, '{"result": "ok"}', {'content-type': 'text/json'}),
             'mock/submit': backend.response(200, 'ok', {'content-type': 'text/plain'}),
             'mock/forbidden': backend.response(403, 'HTTP - Error 403'),
-            'mock/error': backend.response(500, 'HTTP - Error 500')
+            'mock/forbidden_html': backend.response(403, MOCK_ERROR_403_HTML, {'content-type': 'text/html'}),
+            'mock/error': backend.response(500, 'HTTP - Error 500'),
+            'mock/error_html': backend.response(500, MOCK_ERROR_500_HTML, {'content-type': 'text/html'})
         });
     },
 
@@ -584,7 +592,23 @@ QUnit.test('creme.dialog.Frame.fill (not html)', function(assert) {
     deepEqual({}, this.mockListenerCalls());
 });
 
-QUnit.test('creme.dialog.Frame.fetch (error)', function(assert) {
+QUnit.parameterize('creme.dialog.Frame.fetch (error)', [
+    [
+        'mock/forbidden', 'HTTP - Error 403', (
+            '<h2>${statusMessage}&nbsp;(${status})<div class="subtitle">${url}</div></h2>' +
+            '<p class="message">${message}</p>' +
+            '<a class="redirect" onclick="creme.utils.reload();">' +
+                gettext('Reload the page or click here. If the problem persists, please contact your administrator.') +
+            '</a>'
+        ).template({
+            statusMessage: gettext('Forbidden Access'),
+            status: 403,
+            url: 'mock/forbidden',
+            message: 'HTTP - Error 403'
+        })
+    ],
+    ['mock/forbidden_html', MOCK_ERROR_403_HTML, MOCK_ERROR_403_HTML]
+], function(url, expectedResponse, expectedMessage, assert) {
     var element = $('<div>');
     var frame = new creme.dialog.Frame().bind(element);
 
@@ -597,17 +621,70 @@ QUnit.test('creme.dialog.Frame.fetch (error)', function(assert) {
     equal(undefined, frame.lastFetchUrl());
     deepEqual({}, this.mockListenerCalls());
 
-    frame.fetch('mock/forbidden', {sync: true}, {a: 12});
+    frame.fetch(url, {sync: true}, {a: 12});
 
     equal(undefined, frame.lastFetchUrl());
     deepEqual([
-        ['before-fetch', 'mock/forbidden', {sync: true}]
+        ['before-fetch', url, {sync: true}]
     ], this.mockListenerCalls('fetch-before'));
     deepEqual([
-        ['fetch-fail', 'HTTP - Error 403']
+        ['fetch-fail', expectedResponse]
     ], this.mockListenerCalls('fetch-fail').map(function(e) { return e.slice(0, 2); }));
     deepEqual([], this.mockListenerCalls('frame-cleanup'));
     deepEqual([], this.mockListenerCalls('frame-update'));
+
+    this.equalHtml(expectedMessage, frame._overlay.content());
+    equal(true, frame._overlay.visible());
+});
+
+QUnit.parameterize('creme.dialog.Frame.fetch (error, fillOnError)', [
+    [
+        'mock/forbidden', 'HTTP - Error 403', (
+            '<h2>${statusMessage}&nbsp;(${status})<div class="subtitle">${url}</div></h2>' +
+            '<p class="message">${message}</p>' +
+            '<a class="redirect" onclick="creme.utils.reload();">' +
+                gettext('Reload the page or click here. If the problem persists, please contact your administrator.') +
+            '</a>'
+        ).template({
+            statusMessage: gettext('Forbidden Access'),
+            status: 403,
+            url: 'mock/forbidden',
+            message: 'HTTP - Error 403'
+        })
+    ],
+    ['mock/forbidden_html', MOCK_ERROR_403_HTML, MOCK_ERROR_403_HTML]
+], function(url, expectedResponse, expectedMessage, assert) {
+    var element = $('<div>');
+    var frame = new creme.dialog.Frame({
+        fillOnError: true
+    }).bind(element);
+
+    frame.on('before-fetch', this.mockListener('fetch-before'));
+    frame.onFetchDone(this.mockListener('fetch-done'));
+    frame.onFetchFail(this.mockListener('fetch-fail'));
+    frame.onCleanup(this.mockListener('frame-cleanup'));
+    frame.onUpdate(this.mockListener('frame-update'));
+
+    equal(undefined, frame.lastFetchUrl());
+    deepEqual({}, this.mockListenerCalls());
+
+    frame.fetch(url, {sync: true}, {a: 12});
+
+    equal(undefined, frame.lastFetchUrl());
+    deepEqual([
+        ['before-fetch', url, {sync: true}]
+    ], this.mockListenerCalls('fetch-before'));
+    deepEqual([
+        ['fetch-fail', expectedResponse]
+    ], this.mockListenerCalls('fetch-fail').map(function(e) { return e.slice(0, 2); }));
+    deepEqual([
+        ['cleanup', frame.delegate(), 'fetch']
+    ], this.mockListenerCalls('frame-cleanup'));
+    deepEqual([
+        ['update', expectedMessage, 'text/html', 'fetch']
+    ], this.mockListenerCalls('frame-update'));
+
+    equal(false, frame._overlay.visible());
 });
 
 QUnit.test('creme.dialog.Frame.fetch (ok)', function(assert) {
@@ -757,7 +834,23 @@ QUnit.test('creme.dialog.Frame.fetch (async, with overlay)', function(assert) {
     }, 400);
 });
 
-QUnit.test('creme.dialog.Frame.submit (fail)', function(assert) {
+QUnit.parameterize('creme.dialog.Frame.submit (fail)', [
+    [
+        'mock/forbidden', 'HTTP - Error 403', (
+            '<h2>${statusMessage}&nbsp;(${status})<div class="subtitle">${url}</div></h2>' +
+            '<p class="message">${message}</p>' +
+            '<a class="redirect" onclick="creme.utils.reload();">' +
+                gettext('Reload the page or click here. If the problem persists, please contact your administrator.') +
+            '</a>'
+        ).template({
+            statusMessage: gettext('Forbidden Access'),
+            status: 403,
+            url: 'mock/forbidden',
+            message: 'HTTP - Error 403'
+        })
+    ],
+    ['mock/forbidden_html', MOCK_ERROR_403_HTML, MOCK_ERROR_403_HTML]
+], function(url, expectedResponse, expectedMessage, assert) {
     var element = $('<div>');
     var frame = new creme.dialog.Frame().bind(element);
 
@@ -770,17 +863,70 @@ QUnit.test('creme.dialog.Frame.submit (fail)', function(assert) {
     equal(undefined, frame.lastFetchUrl());
     deepEqual({}, this.mockListenerCalls());
 
-    frame.submit('mock/forbidden', {sync: true}, $(MOCK_FRAME_CONTENT_FORM));
+    frame.submit(url, {sync: true}, $(MOCK_FRAME_CONTENT_FORM));
 
     equal(undefined, frame.lastFetchUrl());
     deepEqual([
-        ['before-submit', $(MOCK_FRAME_CONTENT_FORM), {action: 'mock/forbidden', sync: true}]
+        ['before-submit', $(MOCK_FRAME_CONTENT_FORM), {action: url, sync: true}]
     ], this.mockListenerCalls('submit-before'));
     deepEqual([
-        ['submit-fail', 'HTTP - Error 403']
+        ['submit-fail', expectedResponse]
     ], this.mockListenerCalls('submit-fail').map(function(e) { return e.slice(0, 2); }));
     deepEqual([], this.mockListenerCalls('submit-cleanup'));
     deepEqual([], this.mockListenerCalls('submit-update'));
+
+    this.equalHtml(expectedMessage, frame._overlay.content());
+    equal(true, frame._overlay.visible());
+});
+
+QUnit.parameterize('creme.dialog.Frame.submit (fail, fillOnError)', [
+    [
+        'mock/forbidden', 'HTTP - Error 403', (
+            '<h2>${statusMessage}&nbsp;(${status})<div class="subtitle">${url}</div></h2>' +
+            '<p class="message">${message}</p>' +
+            '<a class="redirect" onclick="creme.utils.reload();">' +
+                gettext('Reload the page or click here. If the problem persists, please contact your administrator.') +
+            '</a>'
+        ).template({
+            statusMessage: gettext('Forbidden Access'),
+            status: 403,
+            url: 'mock/forbidden',
+            message: 'HTTP - Error 403'
+        })
+    ],
+    ['mock/forbidden_html', MOCK_ERROR_403_HTML, MOCK_ERROR_403_HTML]
+], function(url, expectedResponse, expectedMessage, assert) {
+    var element = $('<div>');
+    var frame = new creme.dialog.Frame({
+        fillOnError: true
+    }).bind(element);
+
+    frame.on('before-submit', this.mockListener('submit-before'));
+    frame.onSubmitDone(this.mockListener('submit-done'));
+    frame.onSubmitFail(this.mockListener('submit-fail'));
+    frame.onCleanup(this.mockListener('frame-cleanup'));
+    frame.onUpdate(this.mockListener('frame-update'));
+
+    equal(undefined, frame.lastFetchUrl());
+    deepEqual({}, this.mockListenerCalls());
+
+    frame.submit(url, {sync: true}, $(MOCK_FRAME_CONTENT_FORM));
+
+    equal(undefined, frame.lastFetchUrl());
+    deepEqual([
+        ['before-submit', $(MOCK_FRAME_CONTENT_FORM), {action: url, sync: true}]
+    ], this.mockListenerCalls('submit-before'));
+    deepEqual([
+        ['submit-fail', expectedResponse]
+    ], this.mockListenerCalls('submit-fail').map(function(e) { return e.slice(0, 2); }));
+    deepEqual([
+        ['cleanup', frame.delegate(), 'submit']
+    ], this.mockListenerCalls('frame-cleanup'));
+    deepEqual([
+        ['update', expectedMessage, 'text/html', 'submit']
+    ], this.mockListenerCalls('frame-update'));
+
+    equal(false, frame._overlay.visible());
 });
 
 QUnit.test('creme.dialog.Frame.submit (empty url)', function(assert) {
@@ -790,8 +936,8 @@ QUnit.test('creme.dialog.Frame.submit (empty url)', function(assert) {
     frame.on('before-submit', this.mockListener('submit-before'));
     frame.onSubmitDone(this.mockListener('submit-done'));
     frame.onSubmitFail(this.mockListener('submit-fail'));
-    frame.onCleanup(this.mockListener('submit-cleanup'));
-    frame.onUpdate(this.mockListener('submit-update'));
+    frame.onCleanup(this.mockListener('frame-cleanup'));
+    frame.onUpdate(this.mockListener('frame-update'));
 
     equal(undefined, frame.lastFetchUrl());
     deepEqual({}, this.mockListenerCalls());
@@ -834,8 +980,8 @@ QUnit.test('creme.dialog.Frame.submit (ok, plain/text)', function(assert) {
     ], this.mockListenerCalls('submit-done').map(function(e) { return e.slice(0, 2); }));
 
     // content type is not html, so fill() step is ignored.
-    deepEqual([], this.mockListenerCalls('submit-cleanup'));
-    deepEqual([], this.mockListenerCalls('submit-update'));
+    deepEqual([], this.mockListenerCalls('frame-cleanup'));
+    deepEqual([], this.mockListenerCalls('frame-update'));
 });
 
 QUnit.test('creme.dialog.Frame.submit (ok, json)', function(assert) {
@@ -845,8 +991,8 @@ QUnit.test('creme.dialog.Frame.submit (ok, json)', function(assert) {
     frame.on('before-submit', this.mockListener('submit-before'));
     frame.onSubmitDone(this.mockListener('submit-done'));
     frame.onSubmitFail(this.mockListener('submit-fail'));
-    frame.onCleanup(this.mockListener('submit-cleanup'));
-    frame.onUpdate(this.mockListener('submit-update'));
+    frame.onCleanup(this.mockListener('frame-cleanup'));
+    frame.onUpdate(this.mockListener('frame-update'));
 
     equal(undefined, frame.lastFetchUrl());
     deepEqual({}, this.mockListenerCalls());
@@ -863,8 +1009,8 @@ QUnit.test('creme.dialog.Frame.submit (ok, json)', function(assert) {
     ], this.mockListenerCalls('submit-done').map(function(e) { return e.slice(0, 2); }));
 
     // content type is not html, so fill() step is ignored.
-    deepEqual([], this.mockListenerCalls('submit-cleanup'));
-    deepEqual([], this.mockListenerCalls('submit-update'));
+    deepEqual([], this.mockListenerCalls('frame-cleanup'));
+    deepEqual([], this.mockListenerCalls('frame-update'));
 });
 
 QUnit.test('creme.dialog.Frame (activate content, auto)', function(assert) {
@@ -912,5 +1058,4 @@ QUnit.test('creme.dialog.Frame (activate content, manually)', function(assert) {
     equal(true, frame.isContentReady());
     this.assertActive(frame.delegate().find('input'));
 });
-
 }(jQuery));
