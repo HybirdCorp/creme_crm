@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2023  Hybird
+    Copyright (C) 2009-2024  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -56,8 +56,6 @@ var _FORM_VALIDATORS = {
 
 creme.dialog.FormDialog = creme.dialog.Dialog.sub({
     _init_: function(options) {
-        var self = this;
-
         options = $.extend({
             autoFocus: true,
             submitOnKey: 13,
@@ -70,12 +68,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
         this._super_(creme.dialog.Dialog, '_init_', options);
         this.validator(options.validator);
 
-        var disable_buttons = function() {
-            self._updateButtonState("send", false);
-            self._updateButtonState("cancel", true, false);
-        };
-
-        this.frame().on('before-submit before-fetch', disable_buttons);
+        this.frame().on('before-submit before-fetch', this._onBeforeFrameUpdate.bind(this));
 
         this._submitListeners = {
             'submit-done': this._onSubmitDone.bind(this),
@@ -137,6 +130,11 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
         this.frame().submit('', $.extend({}, options, {data: submitData}), form, this._submitListeners);
         return this;
+    },
+
+    _onBeforeFrameUpdate: function() {
+        this._updateButtonState("send", false);
+        this._updateButtonState("cancel", true, false);
     },
 
     _onFrameCleanup: function() {
