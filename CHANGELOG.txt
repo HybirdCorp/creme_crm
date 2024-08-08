@@ -14,6 +14,17 @@
             - There were some issues when the default owner of synchronised emails is a team.
             - A crash when accepting a synchronized email with attachments has been fixed.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Javascript:
+            * FormDialog:
+                - Form submit error responses with HTML can either replace the default overlay content or the frame content.
+                - New creme.dialog.Frame option 'fillOnError'; if enabled the html error response replaces the content.
+                - New creme.dialog.Dialog option 'fillFrameOnError'; if enabled the html error response replaces the content.
+
 
 == Version 2.5.12 ==
 

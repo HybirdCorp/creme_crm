@@ -278,9 +278,11 @@ ul.ui-creme-widget.is-readonly li {
     position: fixed;
 }
 
+/*
 .ui-dialog-content .ui-creme-overlay {
     background-color: #F6FCFF;
 }
+*/
 
 /*----------------------------------*/
 .ui-creme-jqueryplot[widget="ui-creme-jqueryplot"] {
