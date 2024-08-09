@@ -1,0 +1,123 @@
+{% extends 'creme_core/bricks/base/hat-card.html' %}
+{% load i18n creme_bricks creme_cells creme_listview creme_perms creme_widgets %}
+{% load inner_edition_uri listify from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} activities-activity-card-brick{% endblock %}
+
+{% block card_intro_name %}{{block.super}} - {{object.type}} - {{object.sub_type}}{% endblock %}
+
+{% block card_intro_content %}{% endblock %}
+
+{% block card_title %}
+    {{object|capfirst}}
+    {% if not object.is_deleted and not object.sandbox %}
+      {% cell_4_regularfield instance=object field="type" as type_cell %}
+      {% cell_4_regularfield instance=object field="title" as title_cell %}
+      {% cell_4_regularfield instance=object field="status" as status_cell %}
+      {% listify type_cell title_cell status_cell as cells %}
+      {% inner_edition_uri instance=object cells=cells as edition_uri %}
+      {% brick_card_action id='edit' url=edition_uri enabled=user|has_perm_to_change:object %}
+    {% endif %}
+{% endblock %}
+
+{% block card_indicators %}
+    {% if object.end %}
+     {% if object.end >= today %}
+      <div class='business-card-indicator activities-business-card-future-indicator'>{% translate 'Future' context 'activities-activity' %}</div>
+     {% else %}
+      <div class='business-card-indicator activities-business-card-past-indicator'>{% translate 'Past' context 'activities-activity' %}</div>
+     {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block card_secondary %}
+    <div class="card-status">
+        <span class="card-status-value">{{object.status}}</span>
+    </div>
+{% endblock %}
+
+{% block card_fields_title %}{% translate 'Dates' %}{% endblock %}
+
+{% block card_fields %}
+  {% with ftype=object.floating_type NARROW=object.FloatingType.NARROW %}
+    <div class="card-info-field activity-info-start">
+        <span class='card-info-key'>{% translate 'Start' %}</span>
+        {% with start=object.start %}
+         {% if start %}
+          <span class='card-info-value' data-type='date'><span class="activities-card-date">{{start|date:'DATE_FORMAT'}}</span>{% if ftype == NARROW %} {% translate 'at' %} <span class="activities-card-time">{{start|time:'H:i'}}</span>{% endif %}
+         {% else %}
+          <span class='card-info-value'>—
+         {% endif %}
+         {% brick_card_action_for_field instance=object field='start' user=user %}
+         </span>
+        {% endwith %}
+    </div>
+    <div class="card-info-field activity-info-end">
+        <span class='card-info-key'>{% translate 'End' %}</span>
+        {% with end=object.end %}
+         {% if end %}
+          <span class='card-info-value' data-type='date'><span class="activities-card-date">{{end|date:'DATE_FORMAT'}}</span>{% if ftype == NARROW %} {% translate 'at' %} <span class="activities-card-time">{{end|time:'H:i'}}</span>{% endif %}
+         {% else %}
+          <span class='card-info-value'>—
+         {% endif %}
+         </span>
+        {% endwith %}
+    </div>
+
+    <div class="activities-card-indicators">
+      {% with ftype=object.floating_type %}
+        {% if ftype == object.FloatingType.FLOATING_TIME %}
+         <div class='business-card-indicator activities-business-card-floating_time-indicator' title="{% translate 'The date is fixed, but not the hour/minute yet' %}">
+             {% translate 'Floating time' %}
+         </div>
+        {% elif ftype == object.FloatingType.FLOATING %}
+         <div class='business-card-indicator activities-business-card-floating-indicator' title="{% translate 'This activity has no fixed start/end yet' %}">
+             {% translate 'Floating' context 'activities-activity' %}
+         </div>
+        {% endif %}
+        {% if object.busy %}<div class='business-card-indicator activities-business-card-busy-indicator'>{% translate 'Busy' %}</div>{% endif %}
+        {% if object.is_all_day %}<div class='business-card-indicator activities-business-card-all_day-indicator'>{% translate 'All day' %}</div>{% endif %}
+      {% endwith %}
+    </div>
+  {% endwith %}
+{% endblock %}
+
+{% block card_summary_title %}{% translate 'Summary' %}{% endblock %}
+
+{% block card_summary %}
+  {% if participants_count %}
+    <div class="card-info-field">
+        <span class="card-info-key">{% translate 'Participants' %}</span>
+        <span class="card-info-value activity-info-participants">
+          {% if participants_count >= max_entities %}
+            <a href="{% url 'persons__list_contacts' %}?{% listview_q_argument relations__type=REL_SUB_PART_2_ACTIVITY relations__object_entity=object.id %}">
+                {% blocktranslate count counter=participants_count %}{{counter}} Participant{% plural %}{{counter}} Participants{% endblocktranslate %}
+            </a>
+          {% else %}
+            {% for participant in participants %}
+              {% widget_entity_hyperlink participant user %}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          {% endif %}
+        </span>
+    </div>
+  {% endif %}
+  {% if subjects %}
+    <div class="card-info-field">
+        <span class="card-info-key">{% translate 'Subjects' %}</span>
+        <span class="card-info-value activity-info-subjects">
+          {% for subject in subjects %}
+            {% widget_entity_hyperlink subject user %}{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </span>
+    </div>
+  {% endif %}
+  {% with minutes=object.minutes %}
+    <div class="card-info-field">
+        <span class="card-info-key">{% translate 'Minutes' %}</span>
+        <span class="card-info-value activity-info-minutes">
+            {% if minutes %}{{minutes|widget_urlize|linebreaks}}{% else %}—{% endif %}
+            {% brick_card_action_for_field instance=object field='minutes' user=user %}
+        </span>
+    </div>
+  {% endwith %}
+{% endblock %}

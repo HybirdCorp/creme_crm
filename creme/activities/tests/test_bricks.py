@@ -3,6 +3,7 @@ from functools import partial
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.test import RequestFactory
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
@@ -16,6 +17,7 @@ from creme.creme_core.models import (
     SettingValue,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.utils.media import get_creme_media_url
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 from creme.persons.tests.base import (
     skipIfCustomContact,
@@ -23,6 +25,7 @@ from creme.persons.tests.base import (
 )
 
 from ..bricks import (
+    ActivityBarHatBrick,
     FutureActivitiesBrick,
     ParticipantsBrick,
     PastActivitiesBrick,
@@ -62,6 +65,54 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     @staticmethod
     def _build_add_subjects_url(activity):
         return reverse('activities__add_subjects', args=(activity.id,))
+
+    def test_bar_brick__meeting(self):
+        user = self.get_root_user()
+
+        sub_type = self._get_sub_type(UUID_SUBTYPE_MEETING_NETWORK)
+        activity = Activity.objects.create(
+            user=user, title='Meeting #1',
+            type_id=sub_type.type_id, sub_type=sub_type,
+        )
+
+        request = RequestFactory().get(activity.get_absolute_url())
+        request.user = user
+
+        brick = ActivityBarHatBrick()
+        render = brick.detailview_display(
+            context=self.build_context(user=user, instance=activity),
+        )
+        brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
+
+        icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
+        self.assertEqual(
+            get_creme_media_url(theme='icecream', url='images/meeting_48.png'),
+            icon_node.attrib.get('src'),
+        )
+
+    def test_bar_brick__phone_call(self):
+        user = self.get_root_user()
+
+        sub_type = self._get_sub_type(UUID_SUBTYPE_PHONECALL_OUTGOING)
+        activity = Activity.objects.create(
+            user=user, title='Call #1',
+            type_id=sub_type.type_id, sub_type=sub_type,
+        )
+
+        request = RequestFactory().get(activity.get_absolute_url())
+        request.user = user
+
+        brick = ActivityBarHatBrick()
+        render = brick.detailview_display(
+            context=self.build_context(user=user, instance=activity),
+        )
+        brick_node = self.get_brick_node(self.get_html_tree(render), brick=brick)
+
+        icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
+        self.assertEqual(
+            get_creme_media_url(theme='icecream', url='images/phone_48.png'),
+            icon_node.attrib.get('src'),
+        )
 
     @skipIfCustomContact
     def test_participants_brick(self):
@@ -173,7 +224,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         activity.calendars.add(cal)
 
         response = self.assertGET200(activity.get_absolute_url())
-        self.assertTemplateUsed(response, 'activities/bricks/activity-hat-bar.html')
+        # self.assertTemplateUsed(response, 'activities/bricks/activity-hat-bar.html')
+        self.assertTemplateUsed(response, 'activities/bricks/activity-hat-card.html')
 
         tree = self.get_html_tree(response.content)
 

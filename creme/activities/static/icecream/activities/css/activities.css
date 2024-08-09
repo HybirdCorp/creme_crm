@@ -251,6 +251,46 @@
 
 /* Bricks */
 
+/* Hat card */
+.brick-hat-card.activities-activity-card-brick .hat-card {
+    padding-bottom: 5px;
+}
+
+.activities-activity-card-brick .card-status-value {
+    color: #666;
+}
+
+.activities-activity-card-brick .card-info-fields .card-info-value {
+    font-weight: 500;
+    color: #666;
+}
+
+.activities-activity-card-brick .card-info-fields .card-info-value .activities-card-date,
+.activities-activity-card-brick .card-info-fields .card-info-value .activities-card-time {
+    font-weight: 600;
+    color: black;
+}
+
+.activities-activity-card-brick .activity-info-minutes {
+    font-weight: 400;
+    font-size: 13px;
+    color: #444;
+}
+
+.activities-activity-card-brick .activities-card-indicators {
+    margin-top: 5px;
+}
+
+.activities-activity-card-brick .activities-card-indicators .business-card-indicator {
+    background: #bbb;
+}
+
+.activities-activity-card-brick .activity-info-minutes p {
+    margin: 0;
+    padding-bottom: 3px;
+}
+
+/* Past/future activities */
 .activities-list-brick .brick-content .brick-list-item:last-child {
     padding-bottom: 5px;
 }

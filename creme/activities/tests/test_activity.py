@@ -18,7 +18,7 @@ from creme.creme_core.creme_jobs import trash_cleaner_type
 from creme.creme_core.forms import LAYOUT_REGULAR, ReadonlyMessageField
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.gui import actions
-from creme.creme_core.gui.bricks import Brick
+# from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.gui.custom_form import FieldGroup, FieldGroupList
 from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
@@ -41,6 +41,7 @@ from creme.persons.tests.base import (
 
 from .. import constants
 from ..actions import BulkExportICalAction
+from ..bricks import ActivityCardHatBrick
 from ..custom_forms import ACTIVITY_CREATION_CFORM
 from ..forms.activity import (
     ActivitySubTypeSubCell,
@@ -270,11 +271,14 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         response = self.assertGET200(activity.get_absolute_url())
         brick_node = self.get_brick_node(
-            tree=self.get_html_tree(response.content), brick=Brick.GENERIC_HAT_BRICK_ID,
+            # tree=self.get_html_tree(response.content), brick=Brick.GENERIC_HAT_BRICK_ID,
+            tree=self.get_html_tree(response.content), brick=ActivityCardHatBrick,
         )
-        icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
+        # icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
+        icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-icon"]/div/img')
         self.assertEqual(
-            get_creme_media_url(theme='icecream', url='images/meeting_48.png'),
+            # get_creme_media_url(theme='icecream', url='images/meeting_48.png'),
+            get_creme_media_url(theme='icecream', url='images/meeting_22.png'),
             icon_node.attrib.get('src'),
         )
 
@@ -290,11 +294,14 @@ class ActivityTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         response = self.assertGET200(activity.get_absolute_url())
         brick_node = self.get_brick_node(
-            tree=self.get_html_tree(response.content), brick=Brick.GENERIC_HAT_BRICK_ID,
+            # tree=self.get_html_tree(response.content), brick=Brick.GENERIC_HAT_BRICK_ID,
+            tree=self.get_html_tree(response.content), brick=ActivityCardHatBrick,
         )
-        icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
+        # icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="bar-icon"]/img')
+        icon_node = self.get_html_node_or_fail(brick_node, './/div[@class="card-icon"]/div/img')
         self.assertEqual(
-            get_creme_media_url(theme='icecream', url='images/phone_48.png'),
+            # get_creme_media_url(theme='icecream', url='images/phone_48.png'),
+            get_creme_media_url(theme='icecream', url='images/phone_22.png'),
             icon_node.attrib.get('src'),
         )
 

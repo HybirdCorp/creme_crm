@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-08 16:57+0200\n"
+"POT-Creation-Date: 2024-08-14 10:39+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -36,6 +36,9 @@ msgstr "Tâche"
 
 msgid "Unavailability"
 msgstr "Indisponibilité"
+
+msgid "Card header block"
+msgstr "Bloc «carte de visite»"
 
 msgid "Participants"
 msgstr "Participants"
@@ -782,6 +785,9 @@ msgstr "Vue d'Activité"
 msgid "Unsuccessful call"
 msgstr "Appel non abouti"
 
+msgid "Activity complementary information"
+msgstr ""
+
 msgid "Display minutes information in activities blocks"
 msgstr "Afficher le bilan d'une activité dans les blocs d'activités"
 
@@ -819,6 +825,42 @@ msgstr[1] "{count} appels téléphoniques par mois"
 msgid "Full detailview"
 msgstr "Fiche complète"
 
+msgctxt "activities-activity"
+msgid "Future"
+msgstr "Future"
+
+msgctxt "activities-activity"
+msgid "Past"
+msgstr "Passée"
+
+msgid "Dates"
+msgstr "Dates"
+
+# Already in creme_core
+msgid "at"
+msgstr ""
+
+msgid "The date is fixed, but not the hour/minute yet"
+msgstr "La date est fixée, mais pas encore l'heure"
+
+msgid "This activity has no fixed start/end yet"
+msgstr "Cette activité n'a pas encore de début/fin fixés"
+
+msgid "Busy"
+msgstr "Occupé"
+
+msgid "All day"
+msgstr "Toute la journée"
+
+msgid "Summary"
+msgstr "Résumé"
+
+#, python-format
+msgid "%(counter)s Participant"
+msgid_plural "%(counter)s Participants"
+msgstr[0] "%(counter)s Participant"
+msgstr[1] "%(counter)s Participants"
+
 msgid "Default duration"
 msgstr "Durée par défaut"
 
@@ -834,12 +876,6 @@ msgid "%(counter)s Subject"
 msgid_plural "%(counter)s Subjects"
 msgstr[0] "%(counter)s Sujet"
 msgstr[1] "%(counter)s Sujets"
-
-#, python-format
-msgid "%(counter)s Participant"
-msgid_plural "%(counter)s Participants"
-msgstr[0] "%(counter)s Participant"
-msgstr[1] "%(counter)s Participants"
 
 #, python-format
 msgid "%(counter)s Is related to"
