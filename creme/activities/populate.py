@@ -35,6 +35,7 @@ from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
     ButtonMenuItem,
+    CustomBrickConfigItem,
     CustomFormConfigItem,
     EntityFilter,
     HeaderFilter,
@@ -490,10 +491,31 @@ class Populator(BasePopulator):
             create_bmi(button=button_cls, order=order)
 
     def _populate_bricks_config_for_activity(self):
+        Activity = self.Activity
+
+        build_cell = EntityCellRegularField.build
+        cbci = CustomBrickConfigItem.objects.create(
+            uuid='3c995e5d-7457-44be-9de8-cba7f7422319',
+            name=_('Activity complementary information'),
+            content_type=Activity,
+            cells=[
+                build_cell(Activity, 'place'),
+                build_cell(Activity, 'duration'),
+                # --
+                build_cell(Activity, 'description'),
+            ],
+        )
+
         BrickDetailviewLocation.objects.multi_create(
-            defaults={'model': self.Activity, 'zone': BrickDetailviewLocation.LEFT},
+            defaults={'model': Activity, 'zone': BrickDetailviewLocation.LEFT},
             data=[
-                {'order': 5},
+                {
+                    'brick': bricks.ActivityCardHatBrick,
+                    'order': 1, 'zone': BrickDetailviewLocation.HAT,
+                },
+
+                # {'order': 5},
+                {'brick': cbci.brick_id,                 'order': 5},
                 {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
                 {'brick': bricks.RelatedCalendarBrick,   'order':  90},
                 {'brick': bricks.ParticipantsBrick,      'order': 100},

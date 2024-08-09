@@ -24,6 +24,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme import persons
 from creme.creme_config.bricks import GenericModelBrick
+from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import Brick, QuerysetBrick, SimpleBrick
 from creme.creme_core.models import CremeEntity, Relation, SettingValue
@@ -55,11 +56,60 @@ class ActivityBarHatBrick(SimpleBrick):
     template_name = 'activities/bricks/activity-hat-bar.html'
 
 
+class ActivityCardHatBrick(Brick):
+    id = Brick._generate_hat_id('activities', 'activity_card')
+    verbose_name = _('Card header block')
+    # NB: Organisation is a hack in order to reload the SubjectsBrick when
+    #     auto-subjects (see SETTING_AUTO_ORGA_SUBJECTS) is enabled.
+    dependencies = (Activity, Relation, Contact, Organisation)
+    relation_type_deps = (
+        constants.REL_OBJ_PART_2_ACTIVITY,
+        constants.REL_OBJ_ACTIVITY_SUBJECT,
+    )
+    template_name = 'activities/bricks/activity-hat-card.html'
+
+    max_related_entities = 15
+
+    def detailview_display(self, context):
+        activity = context['object']
+        user = context['user']
+
+        max_entities = self.max_related_entities
+
+        participants_qs = EntityCredentials.filter(
+            user=user,
+            queryset=Contact.objects.filter(
+                is_deleted=False,
+                relations__type=constants.REL_SUB_PART_2_ACTIVITY,
+                relations__object_entity=activity.id,
+            ),
+        )
+        participants = participants_qs[:max_entities]
+        participants_count = len(participants)
+        if participants_count == max_entities:
+            participants_count = participants_qs.count()
+
+        return self._render(self.get_template_context(
+            context,
+            max_entities=max_entities,
+
+            participants=participants,
+            participants_count=participants_count,
+            REL_SUB_PART_2_ACTIVITY=constants.REL_SUB_PART_2_ACTIVITY,
+
+            subjects=[
+                r.object_entity
+                for r in activity.get_subject_relations()
+                if not r.object_entity.is_deleted
+            ],
+        ))
+
+
 class ParticipantsBrick(QuerysetBrick):
     id = QuerysetBrick.generate_id('activities', 'participants')
     verbose_name = _('Participants')
 
-    # NB: Organisation is a hack in order to reload the SubjectsBlock when
+    # NB: Organisation is a hack in order to reload the SubjectsBrick when
     #     auto-subjects (see SETTING_AUTO_ORGA_SUBJECTS) is enabled.
     dependencies = (Relation, Contact, Calendar, Organisation)
     relation_type_deps = (constants.REL_OBJ_PART_2_ACTIVITY,)
@@ -74,7 +124,7 @@ class ParticipantsBrick(QuerysetBrick):
         activity = context['object']
         btc = self.get_template_context(
             context,
-            activity.relations.filter(type=constants.REL_OBJ_PART_2_ACTIVITY)
+            queryset=activity.relations.filter(type=constants.REL_OBJ_PART_2_ACTIVITY),
         )
         relations = btc['page'].object_list
         # TODO: remove civility with better entity repr system ??

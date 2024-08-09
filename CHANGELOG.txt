@@ -17,6 +17,8 @@
                 it everywhere (notably forms).
         * Activities :
             - A field of 'Activity', "Fixed or floating?" (internal name: 'floating_type') is now visible.
+            - A "card" brick is now available for the hat of the Activities' detail-view.
+              It's use by default by the new installations.
         * Opportunities :
             - You can now create unsuccessful phone calls from an Opportunity's detail-view :
                 - A button has been added (not enabled in default installations).
