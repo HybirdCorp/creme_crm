@@ -53,11 +53,11 @@ class ActivitiesConfig(CremeAppConfig):
             bricks.SubjectsBrick,
             bricks.FutureActivitiesBrick,
             bricks.PastActivitiesBrick,
-            # bricks.UserCalendarsBrick,
             bricks.RelatedCalendarBrick,
         ).register_hat(
             self.Activity,
             main_brick_cls=bricks.ActivityBarHatBrick,
+            secondary_brick_classes=(bricks.ActivityCardHatBrick,),
         )
 
     def register_bulk_update(self, bulk_update_registry):

@@ -11,15 +11,13 @@
 {% block card_title %}
     {{object|persons_pretty_contact}}
     {% if not object.is_deleted and not object.sandbox %}
-     {% with edition_perm=user|has_perm_to_change:object %}
       {% cell_4_regularfield instance=object field="last_name" as lname_cell %}
       {% cell_4_regularfield instance=object field="first_name" as fname_cell %}
       {% cell_4_regularfield instance=object field="position" as pos_cell %}
       {% cell_4_regularfield instance=object field="full_position" as fpos_cell %}
       {% listify lname_cell fname_cell pos_cell fpos_cell as cells %}
       {% inner_edition_uri instance=object cells=cells as edition_uri %}
-      {% brick_card_action id='edit' url=edition_uri enabled=edition_perm %}
-     {% endwith %}
+      {% brick_card_action id='edit' url=edition_uri enabled=user|has_perm_to_change:object %}
     {% endif %}
 {% endblock %}
 

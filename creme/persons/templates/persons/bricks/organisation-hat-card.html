@@ -12,7 +12,7 @@
     <div class='card-main{% if object.is_managed or is_customer or is_supplier %} has-indicators{% endif %}'>
         <span class="card-name">{{object.name}}{% if object.legal_form and 'legal_form' not in hidden_fields %}, {{object.legal_form}}{% endif %}
             {% if not object.is_deleted and not object.sandbox %}
-            {% brick_card_action_for_field instance=object field='name' user=user %}
+             {% brick_card_action_for_field instance=object field='name' user=user %}
             {% endif %}
             {% include 'creme_core/bricks/frags/hat-card-title-indicators.html' %}
         </span>
@@ -49,7 +49,7 @@
         {% for employee in employees %}
           <span class="card-function">{{employee.position|default:_('Employee')}}</span> <a href='{{employee.get_absolute_url}}'>{{employee|persons_pretty_contact}}</a>{% if not forloop.last %}, {% endif %}
         {% endfor %}
-    {% endif %}
+      {% endif %}
     </div>
   {% endwith %}
 {% endblock %}
