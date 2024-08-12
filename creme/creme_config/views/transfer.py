@@ -62,7 +62,9 @@ class ConfigExport(generic.CheckedView):
         #    - Use UUID instead of name with UserRole.
         #    - "extra_data" in EntityFilter/HeaderFilter.
         #    - UUID given for CustomFieldEnumValue.
-        info[ID_VERSION] = '1.5'
+        # 2.7: 1.6
+        #    - The cells for RelationBrickItem are now stored as a dictionary.
+        info[ID_VERSION] = '1.6'
         info.update((e_id, exporter()) for e_id, exporter in self.registry)
 
         return info

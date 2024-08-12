@@ -405,16 +405,17 @@ class ExportingTestCase(TransferBaseTestCase):
         self.assertEqual(str(rbi2.uuid), rbi_info02.get('uuid'))
 
         cells_info = rbi_info02.get('cells')
-        self.assertIsList(cells_info, length=2)
+        # self.assertIsList(cells_info, length=2)
+        self.assertIsDict(cells_info, length=2)
 
-        def find_cells_for_naturalkey(key):
-            for ctype_info in cells_info:
-                self.assertIsList(ctype_info, length=2)
-
-                if ctype_info[0] == key:
-                    return ctype_info[1]
-
-            self.fail(f'Cells for key="{key} not found.')
+        # def find_cells_for_naturalkey(key):
+        #     for ctype_info in cells_info:
+        #         self.assertIsList(ctype_info, length=2)
+        #
+        #         if ctype_info[0] == key:
+        #             return ctype_info[1]
+        #
+        #     self.fail(f'Cells for key="{key} not found.')
 
         self.assertListEqual(
             [
@@ -423,11 +424,13 @@ class ExportingTestCase(TransferBaseTestCase):
                 # {'type': 'custom_field', 'value': str(cfield.id)},
                 {'type': 'custom_field', 'value': str(cfield.uuid)},
             ],
-            find_cells_for_naturalkey('creme_core.fakecontact'),
+            # find_cells_for_naturalkey('creme_core.fakecontact'),
+            cells_info.get('creme_core.fakecontact'),
         )
         self.assertListEqual(
             [{'type': 'regular_field', 'value': 'name'}],
-            find_cells_for_naturalkey('creme_core.fakeorganisation'),
+            # find_cells_for_naturalkey('creme_core.fakeorganisation'),
+            cells_info.get('creme_core.fakeorganisation'),
         )
 
     def test_custom_bricks(self):

@@ -37,7 +37,7 @@ from ..constants import (
     SETTING_BRICK_DEFAULT_STATE_IS_OPEN,
     SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
 )
-from ..utils.content_type import entity_ctypes
+from ..utils.content_type import ctype_as_key, ctype_from_key, entity_ctypes
 from .auth import UserRole
 from .base import CremeModel
 from .entity import CremeEntity
@@ -522,8 +522,9 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
         #     ct_id: [cell.to_dict() for cell in cells]
         #     for ct_id, cells in self._cells_map.items()
         # }
+        get_ct = ContentType.objects.get_for_id
         self.json_cells_map = {
-            ct_id: [cell.to_dict(portable=True) for cell in cells]
+            ctype_as_key(get_ct(ct_id)): [cell.to_dict(portable=True) for cell in cells]
             for ct_id, cells in self._cells_map.items()
         }
 
@@ -534,12 +535,14 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
             from ..core.entity_cell import CELLS_MAP
 
             self._cells_map = cells_map = {}
-            get_ct = ContentType.objects.get_for_id
+            # get_ct = ContentType.objects.get_for_id
             build = CELLS_MAP.build_cells_from_dicts
             total_errors = False
 
-            for ct_id, cells_as_dicts in self.json_cells_map.items():
-                ct = get_ct(ct_id)
+            # for ct_id, cells_as_dicts in self.json_cells_map.items():
+            for ct_key, cells_as_dicts in self.json_cells_map.items():
+                # ct = get_ct(ct_id)
+                ct = ctype_from_key(ct_key)
                 # TODO: do it lazily ??
                 cells, errors = build(model=ct.model_class(), dicts=cells_as_dicts)
 

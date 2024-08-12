@@ -595,12 +595,12 @@ class BrickTestCase(CremeTestCase):
                 #     {'type': 'custom_field', 'value': str(cfield.id)},
                 # ],
                 # ct_orga.id: [{'type': 'regular_field', 'value': 'name'}],
-                ct_contact.id: [
+                'creme_core.fakecontact': [
                     {'type': 'regular_field', 'value': 'last_name'},
                     {'type': 'function_field', 'value': 'get_pretty_properties'},
                     {'type': 'custom_field', 'value': str(cfield.uuid)},
                 ],
-                ct_orga.id: [{'type': 'regular_field', 'value': 'name'}],
+                'creme_core.fakeorganisation': [{'type': 'regular_field', 'value': 'name'}],
             },
             rbi.json_cells_map,
         )
@@ -661,7 +661,8 @@ class BrickTestCase(CremeTestCase):
 
         # Inject error by bypassing checks
         invalid_info = rbi.json_cells_map
-        invalid_info[ct_contact.id][1]['value'] = 'invalid'
+        # invalid_info[ct_contact.id][1]['value'] = 'invalid'
+        invalid_info['creme_core.fakecontact'][1]['value'] = 'invalid'
         rbi.json_cells_map = invalid_info
         rbi.save()
 
@@ -673,7 +674,8 @@ class BrickTestCase(CremeTestCase):
             deserialized = rbi.json_cells_map
 
         self.assertDictEqual(
-            {ct_contact.id: [{'type': 'regular_field', 'value': 'last_name'}]},
+            # {ct_contact.id: [{'type': 'regular_field', 'value': 'last_name'}]},
+            {'creme_core.fakecontact': [{'type': 'regular_field', 'value': 'last_name'}]},
             deserialized,
         )
 
