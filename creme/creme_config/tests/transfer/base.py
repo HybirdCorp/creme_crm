@@ -21,7 +21,7 @@ class TransferInstanceBrick(InstanceBrick):
 
 
 class TransferBaseTestCase(CremeTestCase):
-    VERSION = '1.5'
+    VERSION = '1.6'
 
     @classmethod
     def setUpClass(cls):

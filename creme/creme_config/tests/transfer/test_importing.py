@@ -3037,19 +3037,27 @@ class ImportingTestCase(TransferBaseTestCase):
                 # 'id': rbi_id3,
                 'uuid': str(rbi_uuid3),
                 'relation_type': rtype03_id,
-                'cells': [
-                    [
-                        ct_str1,
-                        [
-                            {'type': EntityCellRegularField.type_id, 'value': 'first_name'},
-                            {'type': EntityCellRegularField.type_id, 'value': 'last_name'},
-                            {'type': EntityCellCustomField.type_id,  'value': str(cf_uuid)},
-                        ],
-                    ], [
-                        ct_str2,
-                        [{'type': 'regular_field', 'value': 'name'}],
+                # 'cells': [
+                #     [
+                #         ct_str1,
+                #         [
+                #             {'type': EntityCellRegularField.type_id, 'value': 'first_name'},
+                #             {'type': EntityCellRegularField.type_id, 'value': 'last_name'},
+                #             {'type': EntityCellCustomField.type_id,  'value': str(cf_uuid)},
+                #         ],
+                #     ], [
+                #         ct_str2,
+                #         [{'type': 'regular_field', 'value': 'name'}],
+                #     ],
+                # ]
+                'cells': {
+                    ct_str1: [
+                        {'type': EntityCellRegularField.type_id, 'value': 'first_name'},
+                        {'type': EntityCellRegularField.type_id, 'value': 'last_name'},
+                        {'type': EntityCellCustomField.type_id, 'value': str(cf_uuid)},
                     ],
-                ]
+                    ct_str2: [{'type': 'regular_field', 'value': 'name'}],
+                },
             },
         ]
 

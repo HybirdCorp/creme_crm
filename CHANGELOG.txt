@@ -80,6 +80,8 @@
         # The format used to store 'EntityCells' in JSON has slightly changed (si in custom Brick configuration, global search configuration...).
           When the cell is related to a 'CustomField', the key "value" contains now the UUID, not the ID anymore.
           You won't be impacted unless you read the JSON directly (why would you do this bro?).
+          In the model 'RelationBrickItem', the way ContentTypes are stored in the field "json_cells_map" has changed too;
+          a natural key with the pattern "app.modelname" is used instead of the ID.
         # In 'creme_core.core.entity_cell', in the methods 'EntityCell*.build()' :
             - The second argument is now always named "name" (e.g. it was named "customfield_id" in 'EntityCellCustomField.build()').
             - The extra arguments are now keyword only (.e.g. 'EntityCellRegularField' & "is_hidden").
@@ -94,7 +96,8 @@
         # The method 'creme_core.models.CremeModel._delete_stored_file()' is not static anymore.
         # Apps :
             * Creme_config :
-                - In 'core.exporters', the class 'CellsExporterMixin' has been removed.
+                - In 'core.exporters', the class 'CellsExporterMixin' & the function 'dump_ct()' have been removed.
+                - The function 'core.importers.load_ct()' has been removed.
 
 
 == Version 2.6 ==

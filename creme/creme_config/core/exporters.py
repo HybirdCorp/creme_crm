@@ -22,7 +22,7 @@ import logging
 from collections import OrderedDict
 from typing import Callable, Iterator
 
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, QuerySet
 
 from creme.creme_core import models
@@ -34,14 +34,15 @@ from creme.creme_core.core.entity_filter import condition_handler
 #     customform_descriptor_registry,
 # )
 from creme.creme_core.gui.bricks import brick_registry
+from creme.creme_core.utils.content_type import ctype_as_key
 
 from .. import constants
 
 logger = logging.getLogger(__name__)
 
 
-def dump_ct(ctype: ContentType) -> str:
-    return '.'.join(ctype.natural_key())
+# def dump_ct(ctype: ContentType) -> str:
+#     return '.'.join(ctype.natural_key())
 
 
 # class CellsExporterMixin:
@@ -185,7 +186,8 @@ class UserRoleExporter(Exporter):
 
         ctype = sc.ctype
         if ctype:
-            dumped['ctype'] = dump_ct(ctype)
+            # dumped['ctype'] = dump_ct(ctype)
+            dumped['ctype'] = ctype_as_key(ctype)
 
         forbidden = sc.forbidden
         if forbidden:
@@ -207,8 +209,10 @@ class UserRoleExporter(Exporter):
             'allowed_apps': [*instance.allowed_apps],
             'admin_4_apps': [*instance.admin_4_apps],
 
-            'creatable_ctypes':  [*map(dump_ct, instance.creatable_ctypes.all())],
-            'exportable_ctypes': [*map(dump_ct, instance.exportable_ctypes.all())],
+            # 'creatable_ctypes':  [*map(dump_ct, instance.creatable_ctypes.all())],
+            'creatable_ctypes':  [*map(ctype_as_key, instance.creatable_ctypes.all())],
+            # 'exportable_ctypes': [*map(dump_ct, instance.exportable_ctypes.all())],
+            'exportable_ctypes': [*map(ctype_as_key, instance.exportable_ctypes.all())],
 
             'credentials': [*map(self.dump_credentials, instance.credentials.all())],
         }
@@ -228,16 +232,19 @@ class RelationBrickItemExporter(Exporter):
             'relation_type': instance.relation_type_id,
         }
 
-        ctypes_cells = [*instance.iter_cells()]
-        if ctypes_cells:
-            # data['cells'] = [
-            #     [dump_ct(ctype), [*map(self.dump_cell, cells)]]
-            #     for ctype, cells in ctypes_cells
-            # ]
-            data['cells'] = [
-                [dump_ct(ctype), [cell.to_dict(portable=True) for cell in cells]]
-                for ctype, cells in ctypes_cells
-            ]
+        # ctypes_cells = [*instance.iter_cells()]
+        # if ctypes_cells:
+        #     # data['cells'] = [
+        #     #     [dump_ct(ctype), [*map(self.dump_cell, cells)]]
+        #     #     for ctype, cells in ctypes_cells
+        #     # ]
+        #     data['cells'] = [
+        #         [dump_ct(ctype), [cell.to_dict(portable=True) for cell in cells]]
+        #         for ctype, cells in ctypes_cells
+        #     ]
+        cells_map = instance.json_cells_map
+        if cells_map:
+            data['cells'] = cells_map
 
         return data
 
@@ -270,7 +277,8 @@ class CustomBrickConfigItemExporter(Exporter):
             'uuid': str(instance.uuid),
             'name': instance.name,
 
-            'content_type': dump_ct(instance.content_type),
+            # 'content_type': dump_ct(instance.content_type),
+            'content_type': ctype_as_key(instance.content_type),
             # 'cells': [*map(self.dump_cell, instance.cells)],
             'cells': instance.json_cells,
         }
@@ -306,7 +314,8 @@ class BrickDetailviewLocationExporter(BrickExporterMixin, Exporter):
 
         ctype = instance.content_type
         if ctype:
-            data['ctype'] = dump_ct(ctype)
+            # data['ctype'] = dump_ct(ctype)
+            data['ctype'] = ctype_as_key(ctype)
 
         role = instance.role
         if role:
@@ -410,7 +419,8 @@ class ButtonMenuItemExporter(Exporter):
 
         ctype = instance.content_type
         if ctype:
-            data['ctype'] = dump_ct(ctype)
+            # data['ctype'] = dump_ct(ctype)
+            data['ctype'] = ctype_as_key(ctype)
 
         return data
 
@@ -424,7 +434,8 @@ class SearchConfigItemExporter(Exporter):
         assert isinstance(instance, models.SearchConfigItem)
 
         data = {
-            'ctype': dump_ct(instance.content_type),
+            # 'ctype': dump_ct(instance.content_type),
+            'ctype': ctype_as_key(instance.content_type),
             # 'cells': [*map(self.dump_cell, instance.cells)],
             'cells': instance.json_cells,
         }
@@ -460,7 +471,8 @@ class CremePropertyTypeExporter(Exporter):
 
         ctypes = instance.subject_ctypes.all()
         if ctypes:
-            data['subject_ctypes'] = [*map(dump_ct, ctypes)]
+            # data['subject_ctypes'] = [*map(dump_ct, ctypes)]
+            data['subject_ctypes'] = [*map(ctype_as_key, ctypes)]
 
         return data
 
@@ -496,11 +508,13 @@ class RelationTypeExporter(Exporter):
 
         subject_ctypes = instance.subject_ctypes.all()
         if subject_ctypes:
-            data['subject_ctypes'] = [*map(dump_ct, subject_ctypes)]
+            # data['subject_ctypes'] = [*map(dump_ct, subject_ctypes)]
+            data['subject_ctypes'] = [*map(ctype_as_key, subject_ctypes)]
 
         object_ctypes = instance.object_ctypes.all()
         if object_ctypes:
-            data['object_ctypes'] = [*map(dump_ct, object_ctypes)]
+            # data['object_ctypes'] = [*map(dump_ct, object_ctypes)]
+            data['object_ctypes'] = [*map(ctype_as_key, object_ctypes)]
 
         subject_prop_uuids = instance.subject_properties.values_list('uuid', flat=True)
         if subject_prop_uuids:
@@ -531,7 +545,8 @@ class FieldsConfigExporter(Exporter):
         assert isinstance(instance, models.FieldsConfig)
 
         return {
-            'ctype': dump_ct(instance.content_type),
+            # 'ctype': dump_ct(instance.content_type),
+            'ctype': ctype_as_key(instance.content_type),
             'descriptions': instance.descriptions,
         }
 
@@ -551,7 +566,8 @@ class CustomFieldExporter(Exporter):
         cf_type = instance.field_type
         data = {
             'uuid': str(instance.uuid),
-            'ctype': dump_ct(instance.content_type),
+            # 'ctype': dump_ct(instance.content_type),
+            'ctype': ctype_as_key(instance.content_type),
             'name': instance.name,
             'type': cf_type,
         }
@@ -584,7 +600,8 @@ class HeaderFilterExporter(Exporter):
         data = {
             'id':    instance.id,
             'name':  instance.name,
-            'ctype': dump_ct(instance.entity_type),
+            # 'ctype': dump_ct(instance.entity_type),
+            'ctype': ctype_as_key(instance.entity_type),
             # 'cells': [*map(self.dump_cell, instance.cells)],
             'cells': instance.json_cells,
         }
@@ -658,7 +675,8 @@ class EntityFilterExporter(Exporter):
         data = {
             'id': instance.id,
             'name': instance.name,
-            'ctype': dump_ct(instance.entity_type),
+            # 'ctype': dump_ct(instance.entity_type),
+            'ctype': ctype_as_key(instance.entity_type),
             'filter_type': instance.filter_type,
             'use_or': instance.use_or,
             'conditions': [
